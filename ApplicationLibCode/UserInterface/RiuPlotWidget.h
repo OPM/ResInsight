@@ -19,9 +19,8 @@
 
 #pragma once
 
-#include "RiaPlotDefines.h"
-
 #include "RiuInterfaceToViewWindow.h"
+#include "RiuPlotAxis.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
@@ -80,9 +79,9 @@ public:
     int colSpan() const;
     int rowSpan() const;
 
-    virtual int  axisTitleFontSize( RiaDefines::PlotAxis axis ) const             = 0;
-    virtual int  axisValueFontSize( RiaDefines::PlotAxis axis ) const             = 0;
-    virtual void setAxisFontsAndAlignment( RiaDefines::PlotAxis,
+    virtual int  axisTitleFontSize( RiuPlotAxis axis ) const                      = 0;
+    virtual int  axisValueFontSize( RiuPlotAxis axis ) const                      = 0;
+    virtual void setAxisFontsAndAlignment( RiuPlotAxis,
                                            int  titleFontSize,
                                            int  valueFontSize,
                                            bool titleBold = false,
@@ -92,20 +91,20 @@ public:
                                            bool titleBold = false,
                                            int  alignment = (int)Qt::AlignCenter ) = 0;
 
-    virtual void enableAxis( RiaDefines::PlotAxis axis, bool isEnabled ) = 0;
-    virtual bool axisEnabled( RiaDefines::PlotAxis axis ) const          = 0;
+    virtual void enableAxis( RiuPlotAxis axis, bool isEnabled ) = 0;
+    virtual bool axisEnabled( RiuPlotAxis axis ) const          = 0;
 
-    virtual void setAxisScale( RiaDefines::PlotAxis axis, double min, double max ) = 0;
-    virtual void setAxisAutoScale( RiaDefines::PlotAxis axis, bool enable )        = 0;
+    virtual void setAxisScale( RiuPlotAxis axis, double min, double max ) = 0;
+    virtual void setAxisAutoScale( RiuPlotAxis axis, bool enable )        = 0;
 
-    virtual void setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor ) = 0;
-    virtual void setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxMajor ) = 0;
+    virtual void setAxisMaxMinor( RiuPlotAxis axis, int maxMinor ) = 0;
+    virtual void setAxisMaxMajor( RiuPlotAxis axis, int maxMajor ) = 0;
 
-    virtual RiuPlotWidget::AxisScaleType axisScaleType( RiaDefines::PlotAxis axis ) const                  = 0;
-    virtual void setAxisScaleType( RiaDefines::PlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) = 0;
+    virtual RiuPlotWidget::AxisScaleType axisScaleType( RiuPlotAxis axis ) const                  = 0;
+    virtual void setAxisScaleType( RiuPlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) = 0;
 
-    virtual void setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title ) = 0;
-    virtual void setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable )       = 0;
+    virtual void setAxisTitleText( RiuPlotAxis axis, const QString& title ) = 0;
+    virtual void setAxisTitleEnabled( RiuPlotAxis axis, bool enable )       = 0;
 
     virtual void   setPlotTitle( const QString& plotTitle ) = 0;
     const QString& plotTitle() const;
@@ -121,34 +120,33 @@ public:
 
     virtual void detachItems( RiuPlotWidget::PlotItemType plotItemType ) = 0;
 
-    virtual std::pair<double, double> axisRange( RiaDefines::PlotAxis axis ) const                      = 0;
-    virtual void                      setAxisRange( RiaDefines::PlotAxis axis, double min, double max ) = 0;
+    virtual std::pair<double, double> axisRange( RiuPlotAxis axis ) const                      = 0;
+    virtual void                      setAxisRange( RiuPlotAxis axis, double min, double max ) = 0;
 
-    virtual void setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted )                                  = 0;
-    virtual void setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks ) = 0;
+    virtual void setAxisInverted( RiuPlotAxis axis, bool isInverted )                                  = 0;
+    virtual void setAxisLabelsAndTicksEnabled( RiuPlotAxis axis, bool enableLabels, bool enableTicks ) = 0;
 
-    virtual void enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines ) = 0;
+    virtual void enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines ) = 0;
 
-    virtual void setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
-                                                double               majorTickInterval,
-                                                double               minorTickInterval,
-                                                double               minValue,
-                                                double               maxValue )         = 0;
-    virtual void setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis axis,
-                                                        double               majorTickInterval,
-                                                        double               minorTickInterval,
-                                                        double               minTickValue,
-                                                        double               maxTickValue,
-                                                        double               rangeMin,
-                                                        double               rangeMax ) = 0;
+    virtual void setMajorAndMinorTickIntervals( RiuPlotAxis axis,
+                                                double      majorTickInterval,
+                                                double      minorTickInterval,
+                                                double      minValue,
+                                                double      maxValue )         = 0;
+    virtual void setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
+                                                        double      majorTickInterval,
+                                                        double      minorTickInterval,
+                                                        double      minTickValue,
+                                                        double      maxTickValue,
+                                                        double      rangeMin,
+                                                        double      rangeMax ) = 0;
 
-    virtual void   setAutoTickIntervalCounts( RiaDefines::PlotAxis axis,
-                                              int                  maxMajorTickIntervalCount,
-                                              int                  maxMinorTickIntervalCount ) = 0;
-    virtual double majorTickInterval( RiaDefines::PlotAxis axis ) const       = 0;
-    virtual double minorTickInterval( RiaDefines::PlotAxis axis ) const       = 0;
+    virtual void
+                   setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) = 0;
+    virtual double majorTickInterval( RiuPlotAxis axis ) const = 0;
+    virtual double minorTickInterval( RiuPlotAxis axis ) const = 0;
 
-    virtual int axisExtent( RiaDefines::PlotAxis axis ) const = 0;
+    virtual int axisExtent( RiuPlotAxis axis ) const = 0;
 
     QPoint dragStartPosition() const;
 
@@ -184,13 +182,13 @@ protected:
 
     static int defaultMinimumWidth();
 
-    caf::PdmPointer<RimPlot>                m_plotDefinition;
-    QPoint                                  m_clickPosition;
-    std::map<RiaDefines::PlotAxis, QString> m_axisTitles;
-    std::map<RiaDefines::PlotAxis, bool>    m_axisTitlesEnabled;
-    const int                               m_overlayMargins;
-    QString                                 m_plotTitle;
-    bool                                    m_plotTitleEnabled;
+    caf::PdmPointer<RimPlot>       m_plotDefinition;
+    QPoint                         m_clickPosition;
+    std::map<RiuPlotAxis, QString> m_axisTitles;
+    std::map<RiuPlotAxis, bool>    m_axisTitlesEnabled;
+    const int                      m_overlayMargins;
+    QString                        m_plotTitle;
+    bool                           m_plotTitleEnabled;
 
     QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
 };

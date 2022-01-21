@@ -402,16 +402,16 @@ void RimCorrelationMatrixPlot::updateAxes()
 
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtPlot::yLeft, new TextScaleDraw( m_resultLabels ) );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "Result Vector" );
-    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
-    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Result Vector" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
                                             false,
                                             Qt::AlignCenter );
-    m_plotWidget->setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true, false );
-    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0.0, (double)m_resultLabels.size() + 1 );
-    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+    m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), true, false );
+    m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), 0.0, (double)m_resultLabels.size() + 1 );
+    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis::defaultLeft(),
                                                          1.0,
                                                          0.0,
                                                          0.5,
@@ -423,16 +423,16 @@ void RimCorrelationMatrixPlot::updateAxes()
     scaleDraw->setLabelRotation( 30.0 );
     m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtPlot::xBottom, scaleDraw );
     m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, "Ensemble Parameter" );
-    m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    m_plotWidget->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Ensemble Parameter" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
                                             false,
                                             Qt::AlignCenter | Qt::AlignTop );
-    m_plotWidget->setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true, false );
-    m_plotWidget->setAxisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0.0, (double)m_paramLabels.size() + 1 );
-    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+    m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultBottom(), true, false );
+    m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), 0.0, (double)m_paramLabels.size() + 1 );
+    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis::defaultBottom(),
                                                          1.0,
                                                          0.0,
                                                          0.5,

@@ -465,8 +465,8 @@ void RimVfpPlot::onLoadDataAndUpdate()
                                             m_primaryVariable(),
                                             m_familyVariable() ) );
 
-        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-        m_plotWidget->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
+        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
     }
 
     m_plotWidget->scheduleReplot();
@@ -551,12 +551,12 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget*                
 void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData )
 {
     plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
-    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0, 1 );
-    plotWidget->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0, 1 );
-    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    plotWidget->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
-    plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, plotData.xAxisTitle() );
-    plotWidget->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, plotData.yAxisTitle() );
+    plotWidget->setAxisScale( RiuPlotAxis::defaultBottom(), 0, 1 );
+    plotWidget->setAxisScale( RiuPlotAxis::defaultLeft(), 0, 1 );
+    plotWidget->setAxisAutoScale( RiuPlotAxis::defaultBottom(), true );
+    plotWidget->setAxisAutoScale( RiuPlotAxis::defaultLeft(), true );
+    plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), plotData.xAxisTitle() );
+    plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), plotData.yAxisTitle() );
 
     for ( auto idx = 0u; idx < plotData.size(); idx++ )
     {

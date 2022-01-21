@@ -476,17 +476,17 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setXAxis( RiaDefines::PlotAxis axis )
+void RiuQwtPlotCurve::setXAxis( RiuPlotAxis axis )
 {
-    QwtPlotCurve::setXAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
+    QwtPlotCurve::setXAxis( RiuQwtPlotTools::toQwtPlotAxis( axis.axis() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setYAxis( RiaDefines::PlotAxis axis )
+void RiuQwtPlotCurve::setYAxis( RiuPlotAxis axis )
 {
-    QwtPlotCurve::setYAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
+    QwtPlotCurve::setYAxis( RiuQwtPlotTools::toQwtPlotAxis( axis.axis() ) );
 }
 
 //--------------------------------------------------------------------------------------------------

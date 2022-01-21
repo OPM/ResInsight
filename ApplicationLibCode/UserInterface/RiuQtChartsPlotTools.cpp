@@ -60,13 +60,13 @@ void RiuQtChartsPlotTools::setCommonPlotBehaviour( RiuQtChartsPlotWidget* plot )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotTools::setDefaultAxes( RiuQtChartsPlotWidget* plot )
 {
-    plot->enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
-    plot->enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true );
-    plot->enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false );
-    plot->enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, false );
+    plot->enableAxis( RiuPlotAxis::defaultBottom(), true );
+    plot->enableAxis( RiuPlotAxis::defaultLeft(), true );
+    plot->enableAxis( RiuPlotAxis::defaultTop(), false );
+    plot->enableAxis( RiuPlotAxis::defaultRight(), false );
 
-    plot->setAxisMaxMinor( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 2 );
-    plot->setAxisMaxMinor( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 3 );
+    plot->setAxisMaxMinor( RiuPlotAxis::defaultBottom(), 2 );
+    plot->setAxisMaxMinor( RiuPlotAxis::defaultLeft(), 3 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +79,7 @@ void RiuQtChartsPlotTools::enableDateBasedBottomXAxis( RiuQtChartsPlotWidget*   
                                                        RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
     QString format = dateTimeFormatForInterval( dateFormat, timeFormat, dateComponents, timeComponents );
-    plot->setAxisFormat( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, format );
+    plot->setAxisFormat( RiuPlotAxis::defaultBottom(), format );
 }
 
 //--------------------------------------------------------------------------------------------------
