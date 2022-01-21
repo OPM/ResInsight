@@ -1962,8 +1962,6 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    auto sumCases = RimProject::current()->allSummaryCases();
-
     for ( auto obj : objects )
     {
         auto summaryAdr = dynamic_cast<RimSummaryAddress*>( obj );
@@ -1975,21 +1973,17 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
             }
             else
             {
-                for ( auto sumCase : sumCases )
+                auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
+                if ( summaryCase )
                 {
-                    if ( sumCase->caseId() == summaryAdr->caseId() )
-                    {
-                        auto* newCurve = new RimSummaryCurve();
+                    auto* newCurve = new RimSummaryCurve();
 
-                        newCurve->setSummaryCaseY( sumCase );
-                        newCurve->setSummaryAddressYAndApplyInterpolation( summaryAdr->address() );
+                    newCurve->setSummaryCaseY( summaryCase );
+                    newCurve->setSummaryAddressYAndApplyInterpolation( summaryAdr->address() );
 
-                        addCurveNoUpdate( newCurve );
+                    addCurveNoUpdate( newCurve );
 
-                        newCurve->loadDataAndUpdate( true );
-
-                        break;
-                    }
+                    newCurve->loadDataAndUpdate( true );
                 }
             }
         }

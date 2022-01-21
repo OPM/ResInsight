@@ -30,6 +30,7 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
+#include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
@@ -237,4 +238,22 @@ std::pair<std::vector<time_t>, std::vector<double>>
     }
 
     return { resampler.resampledTimeSteps(), resampler.resampledValues() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RiaSummaryTools::summaryCaseById( int caseId )
+{
+    auto summaryCases = RimProject::current()->allSummaryCases();
+
+    for ( auto summaryCase : summaryCases )
+    {
+        if ( summaryCase->caseId() == caseId )
+        {
+            return summaryCase;
+        }
+    }
+
+    return nullptr;
 }
