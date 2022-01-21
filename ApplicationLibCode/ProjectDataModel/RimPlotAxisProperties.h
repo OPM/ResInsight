@@ -22,6 +22,8 @@
 #include "RiaDefines.h"
 #include "RimPlotAxisPropertiesInterface.h"
 
+#include "RiuPlotAxis.h"
+
 #include "cafAppEnum.h"
 #include "cafFontTools.h"
 #include "cafPdmChildArrayField.h"
@@ -57,22 +59,22 @@ public:
 
     void                  setEnableTitleTextSettings( bool enable );
     void                  enableRangeSettings( bool enable );
-    void                  setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis );
+    void                  setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex = 0 );
     AxisTitlePositionType titlePosition() const override;
 
     int titleFontSize() const override;
     int valuesFontSize() const override;
 
-    QString              name() const;
-    RiaDefines::PlotAxis plotAxisType() const override;
-    bool                 useAutoTitle() const;
-    bool                 showDescription() const;
-    bool                 showAcronym() const;
-    bool                 showUnitText() const;
-    bool                 isAutoZoom() const;
-    void                 setAutoZoom( bool enableAutoZoom );
-    bool                 isAxisInverted() const;
-    void                 setAxisInverted( bool inverted );
+    QString     name() const;
+    RiuPlotAxis plotAxisType() const override;
+    bool        useAutoTitle() const;
+    bool        showDescription() const;
+    bool        showAcronym() const;
+    bool        showUnitText() const;
+    bool        isAutoZoom() const;
+    void        setAutoZoom( bool enableAutoZoom );
+    bool        isAxisInverted() const;
+    void        setAxisInverted( bool inverted );
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
@@ -118,7 +120,7 @@ private:
     caf::PdmField<bool> m_isAxisInverted;
 
     caf::PdmField<QString> m_name;
-    RiaDefines::PlotAxis   m_axis;
+    RiuPlotAxis            m_axis;
 
     bool m_enableTitleTextSettings;
     bool m_isRangeSettingsEnabled;
