@@ -129,8 +129,7 @@ public:
         static std::unique_ptr<Tag> create() { return std::unique_ptr<Tag>( new Tag ); }
 
     private:
-        Tag( const Tag& rhs ) = default;
-        Tag& operator         =( const Tag& rhs ) { return *this; }
+        Tag& operator=( const Tag& rhs ) { return *this; }
     };
 
     std::vector<std::unique_ptr<Tag>> tags;
