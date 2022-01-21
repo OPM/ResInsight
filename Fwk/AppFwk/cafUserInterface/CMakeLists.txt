@@ -13,12 +13,9 @@ if(MSVC)
   add_definitions(-DNOMINMAX)
 endif(MSVC)
 
-
-
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-pointer-arithmetic")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-null-pointer-arithmetic")
 endif()
-
 
 # These headers need to go through Qt's MOC compiler
 set(MOC_HEADER_FILES
