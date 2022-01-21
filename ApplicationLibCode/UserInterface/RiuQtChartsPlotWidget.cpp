@@ -71,10 +71,10 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
 
     layout->addWidget( m_viewer );
 
-    addAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true, true );
-    addAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, true, true );
-    addAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, false, false );
-    addAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP, false, false );
+    addAxis( RiuPlotAxis::defaultBottom(), true, true );
+    addAxis( RiuPlotAxis::defaultLeft(), true, true );
+    addAxis( RiuPlotAxis::defaultRight(), false, false );
+    addAxis( RiuPlotAxis::defaultTop(), false, false );
 
     m_viewer->setRubberBand( QChartView::RectangleRubberBand );
 
@@ -103,7 +103,7 @@ void RiuQtChartsPlotWidget::axisRangeChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuQtChartsPlotWidget::axisTitleFontSize( RiaDefines::PlotAxis axis ) const
+int RiuQtChartsPlotWidget::axisTitleFontSize( RiuPlotAxis axis ) const
 {
     if ( axisEnabled( axis ) )
     {
@@ -116,7 +116,7 @@ int RiuQtChartsPlotWidget::axisTitleFontSize( RiaDefines::PlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuQtChartsPlotWidget::axisValueFontSize( RiaDefines::PlotAxis axis ) const
+int RiuQtChartsPlotWidget::axisValueFontSize( RiuPlotAxis axis ) const
 {
     if ( axisEnabled( axis ) )
     {
@@ -129,11 +129,11 @@ int RiuQtChartsPlotWidget::axisValueFontSize( RiaDefines::PlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisFontsAndAlignment( RiaDefines::PlotAxis axis,
-                                                      int                  titleFontSize,
-                                                      int                  valueFontSize,
-                                                      bool                 titleBold,
-                                                      int                  alignment )
+void RiuQtChartsPlotWidget::setAxisFontsAndAlignment( RiuPlotAxis axis,
+                                                      int         titleFontSize,
+                                                      int         valueFontSize,
+                                                      bool        titleBold,
+                                                      int         alignment )
 {
     int titleFontPixelSize = caf::FontTools::pointSizeToPixelSize( titleFontSize );
     int valueFontPixelSize = caf::FontTools::pointSizeToPixelSize( valueFontSize );
@@ -167,7 +167,7 @@ void RiuQtChartsPlotWidget::setAxesFontsAndAlignment( int titleFontSize, int val
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisTitleText( RiaDefines::PlotAxis axis, const QString& title )
+void RiuQtChartsPlotWidget::setAxisTitleText( RiuPlotAxis axis, const QString& title )
 {
     m_axisTitles[axis] = title;
     applyAxisTitleToPlot( axis );
@@ -176,7 +176,7 @@ void RiuQtChartsPlotWidget::setAxisTitleText( RiaDefines::PlotAxis axis, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool enable )
+void RiuQtChartsPlotWidget::setAxisTitleEnabled( RiuPlotAxis axis, bool enable )
 {
     m_axisTitlesEnabled[axis] = enable;
     applyAxisTitleToPlot( axis );
@@ -185,7 +185,7 @@ void RiuQtChartsPlotWidget::setAxisTitleEnabled( RiaDefines::PlotAxis axis, bool
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisFormat( RiaDefines::PlotAxis axis, const QString& format )
+void RiuQtChartsPlotWidget::setAxisFormat( RiuPlotAxis axis, const QString& format )
 {
     auto ax = plotAxis( axis );
 
@@ -309,7 +309,7 @@ void RiuQtChartsPlotWidget::clearLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiaDefines::PlotAxis axis ) const
+std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiuPlotAxis axis ) const
 {
     auto ax = plotAxis( axis );
 
@@ -328,7 +328,7 @@ std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiaDefines::PlotAxis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisRange( RiaDefines::PlotAxis axis, double min, double max )
+void RiuQtChartsPlotWidget::setAxisRange( RiuPlotAxis axis, double min, double max )
 {
     // Note: Especially the Y-axis may be inverted
     if ( plotAxis( axis )->isReverse() )
@@ -344,7 +344,7 @@ void RiuQtChartsPlotWidget::setAxisRange( RiaDefines::PlotAxis axis, double min,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisInverted( RiaDefines::PlotAxis axis, bool isInverted )
+void RiuQtChartsPlotWidget::setAxisInverted( RiuPlotAxis axis, bool isInverted )
 {
     auto ax = plotAxis( axis );
     ax->setReverse( isInverted );
@@ -353,7 +353,7 @@ void RiuQtChartsPlotWidget::setAxisInverted( RiaDefines::PlotAxis axis, bool isI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis axis, bool enableLabels, bool enableTicks )
+void RiuQtChartsPlotWidget::setAxisLabelsAndTicksEnabled( RiuPlotAxis axis, bool enableLabels, bool enableTicks )
 {
     plotAxis( axis )->setLabelsVisible( enableLabels );
     plotAxis( axis )->setGridLineVisible( enableTicks );
@@ -362,7 +362,7 @@ void RiuQtChartsPlotWidget::setAxisLabelsAndTicksEnabled( RiaDefines::PlotAxis a
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::enableGridLines( RiaDefines::PlotAxis axis, bool majorGridLines, bool minorGridLines )
+void RiuQtChartsPlotWidget::enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines )
 {
     plotAxis( axis )->setGridLineVisible( majorGridLines );
     plotAxis( axis )->setMinorGridLineVisible( minorGridLines );
@@ -377,33 +377,33 @@ void RiuQtChartsPlotWidget::enableGridLines( RiaDefines::PlotAxis axis, bool maj
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setMajorAndMinorTickIntervals( RiaDefines::PlotAxis axis,
-                                                           double               majorTickInterval,
-                                                           double               minorTickInterval,
-                                                           double               minValue,
-                                                           double               maxValue )
+void RiuQtChartsPlotWidget::setMajorAndMinorTickIntervals( RiuPlotAxis axis,
+                                                           double      majorTickInterval,
+                                                           double      minorTickInterval,
+                                                           double      minValue,
+                                                           double      maxValue )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setMajorAndMinorTickIntervalsAndRange( RiaDefines::PlotAxis axis,
-                                                                   double               majorTickInterval,
-                                                                   double               minorTickInterval,
-                                                                   double               minTickValue,
-                                                                   double               maxTickValue,
-                                                                   double               rangeMin,
-                                                                   double               rangeMax )
+void RiuQtChartsPlotWidget::setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
+                                                                   double      majorTickInterval,
+                                                                   double      minorTickInterval,
+                                                                   double      minTickValue,
+                                                                   double      maxTickValue,
+                                                                   double      rangeMin,
+                                                                   double      rangeMax )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiaDefines::PlotAxis axis,
-                                                       int                  maxMajorTickIntervalCount,
-                                                       int                  maxMinorTickIntervalCount )
+void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiuPlotAxis axis,
+                                                       int         maxMajorTickIntervalCount,
+                                                       int         maxMinorTickIntervalCount )
 {
     setAxisMaxMajor( axis, maxMajorTickIntervalCount );
     setAxisMaxMinor( axis, maxMinorTickIntervalCount );
@@ -412,7 +412,7 @@ void RiuQtChartsPlotWidget::setAutoTickIntervalCounts( RiaDefines::PlotAxis axis
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiuQtChartsPlotWidget::majorTickInterval( RiaDefines::PlotAxis axis ) const
+double RiuQtChartsPlotWidget::majorTickInterval( RiuPlotAxis axis ) const
 {
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 12, 0 )
     // QValueAxis::tickInterval was introduced in 5.12
@@ -426,7 +426,7 @@ double RiuQtChartsPlotWidget::majorTickInterval( RiaDefines::PlotAxis axis ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiuQtChartsPlotWidget::minorTickInterval( RiaDefines::PlotAxis axis ) const
+double RiuQtChartsPlotWidget::minorTickInterval( RiuPlotAxis axis ) const
 {
     return 0.0;
 }
@@ -434,7 +434,7 @@ double RiuQtChartsPlotWidget::minorTickInterval( RiaDefines::PlotAxis axis ) con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuQtChartsPlotWidget::axisExtent( RiaDefines::PlotAxis axis ) const
+int RiuQtChartsPlotWidget::axisExtent( RiuPlotAxis axis ) const
 {
     CAF_ASSERT( false && "Not implemented" );
     return 100;
@@ -514,7 +514,7 @@ void RiuQtChartsPlotWidget::applyPlotTitleToPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::applyAxisTitleToPlot( RiaDefines::PlotAxis axis )
+void RiuQtChartsPlotWidget::applyAxisTitleToPlot( RiuPlotAxis axis )
 {
     QString titleToApply = m_axisTitlesEnabled[axis] ? m_axisTitles[axis] : QString( "" );
     plotAxis( axis )->setTitleText( titleToApply );
@@ -615,7 +615,7 @@ void RiuQtChartsPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::enableAxis( RiaDefines::PlotAxis axis, bool isEnabled )
+void RiuQtChartsPlotWidget::enableAxis( RiuPlotAxis axis, bool isEnabled )
 {
     m_axesEnabled[axis] = isEnabled;
     plotAxis( axis )->setVisible( isEnabled );
@@ -624,7 +624,7 @@ void RiuQtChartsPlotWidget::enableAxis( RiaDefines::PlotAxis axis, bool isEnable
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuQtChartsPlotWidget::axisEnabled( RiaDefines::PlotAxis axis ) const
+bool RiuQtChartsPlotWidget::axisEnabled( RiuPlotAxis axis ) const
 {
     auto it = m_axesEnabled.find( axis );
     if ( it != m_axesEnabled.end() )
@@ -636,7 +636,7 @@ bool RiuQtChartsPlotWidget::axisEnabled( RiaDefines::PlotAxis axis ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxMinor )
+void RiuQtChartsPlotWidget::setAxisMaxMinor( RiuPlotAxis axis, int maxMinor )
 {
     QAbstractAxis* ax        = plotAxis( axis );
     QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
@@ -654,7 +654,7 @@ void RiuQtChartsPlotWidget::setAxisMaxMinor( RiaDefines::PlotAxis axis, int maxM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxMajor )
+void RiuQtChartsPlotWidget::setAxisMaxMajor( RiuPlotAxis axis, int maxMajor )
 {
     QAbstractAxis* ax        = plotAxis( axis );
     QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
@@ -672,7 +672,7 @@ void RiuQtChartsPlotWidget::setAxisMaxMajor( RiaDefines::PlotAxis axis, int maxM
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisAutoScale( RiaDefines::PlotAxis axis, bool autoScale )
+void RiuQtChartsPlotWidget::setAxisAutoScale( RiuPlotAxis axis, bool autoScale )
 {
     m_axesAutoScale[axis] = autoScale;
 
@@ -685,7 +685,7 @@ void RiuQtChartsPlotWidget::setAxisAutoScale( RiaDefines::PlotAxis axis, bool au
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisScale( RiaDefines::PlotAxis axis, double min, double max )
+void RiuQtChartsPlotWidget::setAxisScale( RiuPlotAxis axis, double min, double max )
 {
     plotAxis( axis )->setRange( min, max );
 }
@@ -693,7 +693,7 @@ void RiuQtChartsPlotWidget::setAxisScale( RiaDefines::PlotAxis axis, double min,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQtChartsPlotWidget::AxisScaleType RiuQtChartsPlotWidget::axisScaleType( RiaDefines::PlotAxis axis ) const
+RiuQtChartsPlotWidget::AxisScaleType RiuQtChartsPlotWidget::axisScaleType( RiuPlotAxis axis ) const
 {
     if ( plotAxis( axis )->type() == QAbstractAxis::AxisTypeLogValue ) return AxisScaleType::LOGARITHMIC;
     if ( plotAxis( axis )->type() == QAbstractAxis::AxisTypeDateTime ) return AxisScaleType::DATE;
@@ -703,7 +703,7 @@ RiuQtChartsPlotWidget::AxisScaleType RiuQtChartsPlotWidget::axisScaleType( RiaDe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxisScaleType( RiaDefines::PlotAxis axis, RiuQtChartsPlotWidget::AxisScaleType axisScaleType )
+void RiuQtChartsPlotWidget::setAxisScaleType( RiuPlotAxis axis, RiuQtChartsPlotWidget::AxisScaleType axisScaleType )
 {
     QAbstractAxis* removeaxis = plotAxis( axis );
     QAbstractAxis* insertaxis = nullptr;
@@ -723,7 +723,7 @@ void RiuQtChartsPlotWidget::setAxisScaleType( RiaDefines::PlotAxis axis, RiuQtCh
 
     QChart* chart = qtChart();
     if ( chart->axes().contains( removeaxis ) ) chart->removeAxis( removeaxis );
-    chart->addAxis( insertaxis, mapPlotAxisToQtAlignment( axis ) );
+    chart->addAxis( insertaxis, mapPlotAxisToQtAlignment( axis.axis() ) );
 
     m_axes[axis] = insertaxis;
     for ( auto serie : chart->series() )
@@ -763,8 +763,8 @@ QtCharts::QChart* RiuQtChartsPlotWidget::qtChart()
 void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
                                     QtCharts::QAbstractSeries* lineSeries,
                                     QtCharts::QAbstractSeries* scatterSeries,
-                                    RiaDefines::PlotAxis       xAxis,
-                                    RiaDefines::PlotAxis       yAxis )
+                                    RiuPlotAxis                xAxis,
+                                    RiuPlotAxis                yAxis )
 {
     auto addToChart = [this]( std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*>& curveSeriesMap,
                               auto                                                       plotCurve,
@@ -832,7 +832,7 @@ void RiuQtChartsPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setXAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series )
+void RiuQtChartsPlotWidget::setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
 {
     setAxis( axis, series );
 }
@@ -840,7 +840,7 @@ void RiuQtChartsPlotWidget::setXAxis( RiaDefines::PlotAxis axis, QtCharts::QAbst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setYAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series )
+void RiuQtChartsPlotWidget::setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
 {
     setAxis( axis, series );
 }
@@ -848,7 +848,7 @@ void RiuQtChartsPlotWidget::setYAxis( RiaDefines::PlotAxis axis, QtCharts::QAbst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstractSeries* series )
+void RiuQtChartsPlotWidget::setAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
 {
     if ( qtChart()->series().contains( series ) && !series->attachedAxes().contains( plotAxis( axis ) ) )
     {
@@ -857,7 +857,7 @@ void RiuQtChartsPlotWidget::setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstr
         // Detach any other axis for the same orientation
         for ( auto ax : series->attachedAxes() )
         {
-            if ( ax->orientation() == orientation( axis ) )
+            if ( ax->orientation() == orientation( axis.axis() ) )
             {
                 series->detachAxis( ax );
             }
@@ -879,22 +879,22 @@ void RiuQtChartsPlotWidget::setAxis( RiaDefines::PlotAxis axis, QtCharts::QAbstr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::addAxis( RiaDefines::PlotAxis plotAxis, bool isEnabled, bool isAutoScale )
+void RiuQtChartsPlotWidget::addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool isAutoScale )
 {
     QValueAxis* axis = new QValueAxis();
-    qtChart()->addAxis( axis, mapPlotAxisToQtAlignment( plotAxis ) );
+    qtChart()->addAxis( axis, mapPlotAxisToQtAlignment( plotAxis.axis() ) );
     m_axes[plotAxis] = axis;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
+void RiuQtChartsPlotWidget::rescaleAxis( RiuPlotAxis axis )
 {
     if ( !m_axesAutoScale[axis] ) return;
 
     QAbstractAxis*  pAxis = plotAxis( axis );
-    Qt::Orientation orr   = orientation( axis );
+    Qt::Orientation orr   = orientation( axis.axis() );
 
     double min = std::numeric_limits<double>::max();
     double max = -std::numeric_limits<double>::max();
@@ -948,7 +948,7 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiaDefines::PlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QAbstractAxis* RiuQtChartsPlotWidget::plotAxis( RiaDefines::PlotAxis axis ) const
+QAbstractAxis* RiuQtChartsPlotWidget::plotAxis( RiuPlotAxis axis ) const
 {
     const auto ax = m_axes.find( axis );
     if ( ax != m_axes.end() )

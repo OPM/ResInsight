@@ -74,8 +74,8 @@ public:
         bool                         keepOnlyPositiveValues,
         RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
 
-    void setXAxis( RiaDefines::PlotAxis axis ) override;
-    void setYAxis( RiaDefines::PlotAxis axis ) override;
+    void setXAxis( RiuPlotAxis axis ) override;
+    void setYAxis( RiuPlotAxis axis ) override;
 
     void                setSymbol( RiuPlotCurveSymbol* symbol ) override;
     RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;

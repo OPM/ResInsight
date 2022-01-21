@@ -952,11 +952,11 @@ void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
         {
             if ( m_bottomAxisProperties->isAutoZoom() )
             {
-                plotWidget()->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+                plotWidget()->setAxisAutoScale( RiuPlotAxis::defaultBottom(), true );
             }
             else
             {
-                plotWidget()->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+                plotWidget()->setAxisScale( RiuPlotAxis::defaultBottom(),
                                             m_bottomAxisProperties->visibleRangeMin(),
                                             m_bottomAxisProperties->visibleRangeMax() );
             }
@@ -965,11 +965,11 @@ void RimSummaryPlot::updateZoomForAxis( RiaDefines::PlotAxis plotAxis )
         {
             if ( m_timeAxisProperties->isAutoZoom() )
             {
-                plotWidget()->setAxisAutoScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+                plotWidget()->setAxisAutoScale( RiuPlotAxis::defaultBottom(), true );
             }
             else
             {
-                plotWidget()->setAxisScale( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+                plotWidget()->setAxisScale( RiuPlotAxis::defaultBottom(),
                                             m_timeAxisProperties->visibleRangeMin(),
                                             m_timeAxisProperties->visibleRangeMax() );
             }
@@ -1175,7 +1175,7 @@ void RimSummaryPlot::updateTimeAxis()
 
     if ( !m_timeAxisProperties->isActive() )
     {
-        plotWidget()->enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, false );
+        plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), false );
 
         return;
     }
@@ -1195,7 +1195,7 @@ void RimSummaryPlot::updateTimeAxis()
         m_summaryPlot->useTimeBasedTimeAxis();
     }
 
-    plotWidget()->enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+    plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), true );
 
     {
         Qt::AlignmentFlag alignment = Qt::AlignCenter;
@@ -1204,13 +1204,13 @@ void RimSummaryPlot::updateTimeAxis()
             alignment = Qt::AlignRight;
         }
 
-        plotWidget()->setAxisFontsAndAlignment( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM,
+        plotWidget()->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
                                                 m_timeAxisProperties->titleFontSize(),
                                                 m_timeAxisProperties->valuesFontSize(),
                                                 true,
                                                 alignment );
-        plotWidget()->setAxisTitleText( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, m_timeAxisProperties->title() );
-        plotWidget()->setAxisTitleEnabled( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, m_timeAxisProperties->showTitle );
+        plotWidget()->setAxisTitleText( RiuPlotAxis::defaultBottom(), m_timeAxisProperties->title() );
+        plotWidget()->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), m_timeAxisProperties->showTitle );
 
         {
             RimSummaryTimeAxisProperties::LegendTickmarkCount tickmarkCountEnum =
@@ -1236,7 +1236,7 @@ void RimSummaryPlot::updateTimeAxis()
                     break;
             }
 
-            plotWidget()->setAxisMaxMajor( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, maxTickmarkCount );
+            plotWidget()->setAxisMaxMajor( RiuPlotAxis::defaultBottom(), maxTickmarkCount );
         }
     }
 }
@@ -1252,7 +1252,7 @@ void RimSummaryPlot::updateBottomXAxis()
 
     if ( bottomAxisProperties->isActive() )
     {
-        plotWidget()->enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, true );
+        plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), true );
 
         std::set<QString> timeHistoryQuantities;
 
@@ -1265,7 +1265,7 @@ void RimSummaryPlot::updateBottomXAxis()
     }
     else
     {
-        plotWidget()->enableAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, false );
+        plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), false );
     }
 }
 
@@ -1779,9 +1779,9 @@ void RimSummaryPlot::updateZoomFromParentPlot()
 {
     if ( !plotWidget() ) return;
 
-    auto [leftAxisMin, leftAxisMax]   = plotWidget()->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-    auto [rightAxisMin, rightAxisMax] = plotWidget()->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
-    auto [timeAxisMin, timeAxisMax]   = plotWidget()->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    auto [leftAxisMin, leftAxisMax]   = plotWidget()->axisRange( RiuPlotAxis::defaultLeft() );
+    auto [rightAxisMin, rightAxisMax] = plotWidget()->axisRange( RiuPlotAxis::defaultRight() );
+    auto [timeAxisMin, timeAxisMax]   = plotWidget()->axisRange( RiuPlotAxis::defaultBottom() );
 
     m_leftYAxisProperties->visibleRangeMax = leftAxisMax;
     m_leftYAxisProperties->visibleRangeMin = leftAxisMin;

@@ -59,7 +59,7 @@ void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&               
                                                    RiaQDateTimeTools::DateFormatComponents dateComponents,
                                                    RiaQDateTimeTools::TimeFormatComponents timeComponents )
 {
-    m_plotWidget->setAxisScaleType( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, RiuPlotWidget::AxisScaleType::DATE );
+    m_plotWidget->setAxisScaleType( RiuPlotAxis::defaultBottom(), RiuPlotWidget::AxisScaleType::DATE );
     RiuQtChartsPlotTools::enableDateBasedBottomXAxis( m_plotWidget, dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
@@ -68,7 +68,7 @@ void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&               
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQtChartsPlot::useTimeBasedTimeAxis()
 {
-    m_plotWidget->setAxisScaleType( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, RiuPlotWidget::AxisScaleType::DATE );
+    m_plotWidget->setAxisScaleType( RiuPlotAxis::defaultBottom(), RiuPlotWidget::AxisScaleType::DATE );
 }
 
 //--------------------------------------------------------------------------------------------------

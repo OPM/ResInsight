@@ -933,7 +933,7 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
 {
     if ( !m_plotWidget ) return;
 
-    auto [xAxisRangeMin, xAxisRangeMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    auto [xAxisRangeMin, xAxisRangeMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultBottom() );
 
     RimPlotAxisProperties* axisProperties = m_xAxisProperties();
     double                 axisRangeMin   = xAxisRangeMin;
@@ -942,7 +942,7 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
     if ( axisType == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         axisProperties                      = m_yAxisProperties();
-        auto [yAxisRangeMin, yAxisRangeMax] = m_plotWidget->axisRange( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+        auto [yAxisRangeMin, yAxisRangeMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultLeft() );
 
         axisRangeMin = yAxisRangeMin;
         axisRangeMax = yAxisRangeMax;
