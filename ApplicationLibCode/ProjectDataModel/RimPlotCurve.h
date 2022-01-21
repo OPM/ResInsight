@@ -24,6 +24,7 @@
 #include "RiaCurveDataTools.h"
 #include "RiaPlotDefines.h"
 
+#include "RiuPlotAxis.h"
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtSymbol.h"
 
@@ -170,7 +171,7 @@ protected:
     virtual void clearErrorBars();
     void         checkAndApplyDefaultFillColor();
 
-    virtual void updateAxisInPlot( RiaDefines::PlotAxis plotAxis );
+    virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
 
 protected:
     caf::PdmField<bool>    m_showCurve;

@@ -31,6 +31,10 @@ public:
         : m_axis( axis )
         , m_index( 0 ){};
 
+    RiuPlotAxis( RiaDefines::PlotAxis axis, int index )
+        : m_axis( axis )
+        , m_index( index ){};
+
     virtual ~RiuPlotAxis(){};
 
     static RiuPlotAxis defaultLeft() { return RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ); }

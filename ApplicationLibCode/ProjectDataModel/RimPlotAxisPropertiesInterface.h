@@ -20,6 +20,8 @@
 
 #include "RiaPlotDefines.h"
 
+#include "RiuPlotAxis.h"
+
 #include "cafAppEnum.h"
 
 class RimPlotAxisAnnotation;
@@ -45,7 +47,7 @@ public:
     virtual std::vector<RimPlotAxisAnnotation*> annotations() const                                   = 0;
     virtual void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) = 0;
     virtual void                                removeAllAnnotations()                                = 0;
-    virtual RiaDefines::PlotAxis                plotAxisType() const                                  = 0;
+    virtual RiuPlotAxis                         plotAxisType() const                                  = 0;
 
 public:
     virtual AxisTitlePositionType titlePosition() const  = 0;
