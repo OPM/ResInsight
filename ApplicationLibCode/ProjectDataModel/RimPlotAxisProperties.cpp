@@ -201,10 +201,10 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis )
+void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex )
 {
     m_name = name;
-    m_axis = axis;
+    m_axis = RiuPlotAxis( axis, axisIndex );
 
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
@@ -245,7 +245,7 @@ QString RimPlotAxisProperties::name() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimPlotAxisProperties::plotAxisType() const
+RiuPlotAxis RimPlotAxisProperties::plotAxisType() const
 {
     return m_axis;
 }

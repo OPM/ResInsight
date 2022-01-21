@@ -66,7 +66,7 @@ public:
     caf::PdmField<QString> title;
     caf::PdmField<bool>    showTitle;
 
-    RiaDefines::PlotAxis  plotAxisType() const override;
+    RiuPlotAxis           plotAxisType() const override;
     AxisTitlePositionType titlePosition() const override;
     int                   titleFontSize() const override;
     int                   valuesFontSize() const override;

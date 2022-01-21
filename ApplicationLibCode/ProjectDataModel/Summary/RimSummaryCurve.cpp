@@ -1067,6 +1067,12 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         plot->updateAxes();
         dataChanged.send();
     }
+    else if ( changedField == &m_plotAxisProperties )
+    {
+        updateAxisInPlot( m_plotAxisProperties.value()->plotAxisType() );
+        plot->updateAxes();
+        dataChanged.send();
+    }
     else if ( changedField == &m_yValuesSummaryCase )
     {
         PdmObjectHandle* oldVal = oldValue.value<caf::PdmPointer<PdmObjectHandle>>().rawPtr();
