@@ -277,9 +277,9 @@ void RimPlot::updateZoomFromParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimPlot::findPdmObjectFromPlotCurve(const RiuPlotCurve* curve) const
+caf::PdmObject* RimPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const
 {
-	return nullptr;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
