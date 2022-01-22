@@ -41,12 +41,10 @@
 namespace cvf {
 
 
-/*
 template<> Vector3<double> const Vector3<double>::UNDEFINED(UNDEFINED_DOUBLE, UNDEFINED_DOUBLE, UNDEFINED_DOUBLE);
 template<> Vector3<float>  const Vector3<float>::UNDEFINED(UNDEFINED_FLOAT, UNDEFINED_FLOAT, UNDEFINED_FLOAT);
 template<> Vector3<int>    const Vector3<int>::UNDEFINED(UNDEFINED_INT, UNDEFINED_INT, UNDEFINED_INT);
 template<> Vector3<size_t> const Vector3<size_t>::UNDEFINED(UNDEFINED_SIZE_T, UNDEFINED_SIZE_T, UNDEFINED_SIZE_T);
-*/
 
 
 } // namespace cvf
