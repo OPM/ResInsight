@@ -339,25 +339,18 @@ if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
   )
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set(ri_cxx_flags
-      "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch"
-  )
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(ApplicationLibCode PUBLIC -Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  set(ri_cxx_flags
-      "${CMAKE_CXX_FLAGS} -Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Wno-delete-abstract-non-virtual-dtor -Wno-undefined-var-template -Wno-invalid-source-encoding -Wno-enum-compare -Wno-call-to-pure-virtual-from-ctor-dtor -Wno-unused-variable -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-delete-non-abstract-non-virtual-dtor -Wno-braced-scalar-init -Wno-tautological-constant-out-of-range-compare -Wno-undefined-var-template"
-  )
+
+  target_compile_options(ApplicationLibCode PUBLIC -Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Wno-delete-abstract-non-virtual-dtor -Wno-undefined-var-template -Wno-invalid-source-encoding -Wno-enum-compare -Wno-call-to-pure-virtual-from-ctor-dtor -Wno-unused-variable -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-delete-non-abstract-non-virtual-dtor -Wno-braced-scalar-init -Wno-tautological-constant-out-of-range-compare -Wno-undefined-var-template)
 endif()
 
 if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
-  set(ri_cxx_flags "${ri_cxx_flags} -Werror")
+  target_compile_options(ApplicationLibCode PUBLIC -Werror)
 endif()
-
-set_target_properties(
-  ${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "${ri_cxx_flags}"
-)
 
 if(MSVC)
   # The following warnings are supposed to be used in ResInsight, but
