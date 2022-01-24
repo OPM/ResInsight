@@ -341,7 +341,7 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(
-    ApplicationLibCode PUBLIC -Wall -Wno-unused-parameter -Wno-reorder
+    ApplicationLibCode PRIVATE -Wall -Wno-unused-parameter -Wno-reorder
                               -Wno-parentheses -Wno-switch
   )
 endif()
@@ -350,7 +350,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
   target_compile_options(
     ApplicationLibCode
-    PUBLIC -Wall
+    PRIVATE -Wall
            -Wno-unused-parameter
            -Wno-reorder
            -Wno-parentheses
@@ -372,9 +372,9 @@ endif()
 
 if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
   if(MSVC)
-    target_compile_options(ApplicationLibCode PUBLIC /WX)
+    target_compile_options(ApplicationLibCode PRIVATE /WX)
   else()
-    target_compile_options(ApplicationLibCode PUBLIC -Werror)
+    target_compile_options(ApplicationLibCode PRIVATE -Werror)
   endif()
 endif()
 
