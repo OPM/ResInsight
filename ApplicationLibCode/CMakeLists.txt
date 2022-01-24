@@ -340,12 +340,34 @@ if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(ApplicationLibCode PUBLIC -Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch)
+  target_compile_options(
+    ApplicationLibCode PUBLIC -Wall -Wno-unused-parameter -Wno-reorder
+                              -Wno-parentheses -Wno-switch
+  )
 endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 
-  target_compile_options(ApplicationLibCode PUBLIC -Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Wno-delete-abstract-non-virtual-dtor -Wno-undefined-var-template -Wno-invalid-source-encoding -Wno-enum-compare -Wno-call-to-pure-virtual-from-ctor-dtor -Wno-unused-variable -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-delete-non-abstract-non-virtual-dtor -Wno-braced-scalar-init -Wno-tautological-constant-out-of-range-compare -Wno-undefined-var-template)
+  target_compile_options(
+    ApplicationLibCode
+    PUBLIC -Wall
+           -Wno-unused-parameter
+           -Wno-reorder
+           -Wno-parentheses
+           -Wno-switch
+           -Wno-delete-abstract-non-virtual-dtor
+           -Wno-undefined-var-template
+           -Wno-invalid-source-encoding
+           -Wno-enum-compare
+           -Wno-call-to-pure-virtual-from-ctor-dtor
+           -Wno-unused-variable
+           -Wno-unused-private-field
+           -Wno-unused-lambda-capture
+           -Wno-delete-non-abstract-non-virtual-dtor
+           -Wno-braced-scalar-init
+           -Wno-tautological-constant-out-of-range-compare
+           -Wno-undefined-var-template
+  )
 endif()
 
 if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)

@@ -236,12 +236,13 @@ else()
   else()
     set_target_properties(
       ecl
-      PROPERTIES COMPILE_FLAGS
-                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered -Wno-int-in-bool-context"
+      PROPERTIES
+        COMPILE_FLAGS
+        "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered -Wno-int-in-bool-context"
     )
-    
-    target_compile_options(ecl PRIVATE
-      $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
+
+    target_compile_options(
+      ecl PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
     )
 
   endif()
@@ -555,8 +556,12 @@ add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(CommonCode PUBLIC -Wno-deprecated-copy -Wno-undefined-var-template)
-  target_compile_options(cafVizExtensions PUBLIC -Wno-deprecated-copy -Wno-undefined-var-template)
+  target_compile_options(
+    CommonCode PUBLIC -Wno-deprecated-copy -Wno-undefined-var-template
+  )
+  target_compile_options(
+    cafVizExtensions PUBLIC -Wno-deprecated-copy -Wno-undefined-var-template
+  )
 endif()
 
 option(CAF_CVF_SCRIPTING "" ON)
