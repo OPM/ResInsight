@@ -237,8 +237,13 @@ else()
     set_target_properties(
       ecl
       PROPERTIES COMPILE_FLAGS
-                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered"
+                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered -Wno-int-in-bool-context"
     )
+    
+    target_compile_options(ecl PRIVATE
+      $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
+    )
+
   endif()
 
   list(APPEND THIRD_PARTY_LIBRARIES ecl)
