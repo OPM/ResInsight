@@ -19,6 +19,10 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-switch -Wno-sign-compare -Wno-deprecated-copy -Wno-missing-field-initializers")
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare -Wno-missing-field-initializers -Wno-deprecated-copy")
+endif()
+
 project (custom-opm-common)
 
 find_package(Boost)
