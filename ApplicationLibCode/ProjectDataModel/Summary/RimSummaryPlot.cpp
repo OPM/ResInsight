@@ -1337,6 +1337,7 @@ void RimSummaryPlot::addCurveAndUpdate( RimSummaryCurve* curve )
     if ( curve )
     {
         m_summaryCurveCollection->addCurve( curve );
+        assignPlotAxis( curve );
         connectCurveSignals( curve );
         if ( plotWidget() )
         {
@@ -1354,6 +1355,7 @@ void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve )
     if ( curve )
     {
         m_summaryCurveCollection->addCurve( curve );
+        assignPlotAxis( curve );
         connectCurveSignals( curve );
         if ( plotWidget() )
         {
@@ -1370,6 +1372,7 @@ void RimSummaryPlot::insertCurve( RimSummaryCurve* curve, size_t insertAtPositio
     if ( curve )
     {
         m_summaryCurveCollection->insertCurve( curve, insertAtPosition );
+        assignPlotAxis( curve );
         connectCurveSignals( curve );
         if ( plotWidget() )
         {
@@ -2806,4 +2809,12 @@ std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotAxis() const
     }
 
     return axisProps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* curve )
+{
+    curve->setLeftOrRightAxisY( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 }
