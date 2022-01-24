@@ -371,7 +371,7 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
 endif()
 
 if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
-  if (MSVC)
+  if(MSVC)
     target_compile_options(ApplicationLibCode PUBLIC /WX)
   else()
     target_compile_options(ApplicationLibCode PUBLIC -Werror)
