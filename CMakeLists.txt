@@ -457,6 +457,10 @@ list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
 add_subdirectory(ThirdParty/expressionparser)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(expressionparser PUBLIC -Wno-overloaded-virtual)
+endif()
+
 list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 
 # ##############################################################################
@@ -464,6 +468,10 @@ list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 # ##############################################################################
 
 add_subdirectory(ThirdParty/clipper)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(clipper PUBLIC -Wno-deprecated-copy)
+endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES clipper)
 
@@ -537,13 +545,23 @@ add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
 add_subdirectory(Fwk/AppFwk/cafCommand)
 add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
+
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(CommonCode PUBLIC -Wno-deprecated-copy -Wno-undefined-var-template)
+  target_compile_options(cafVizExtensions PUBLIC -Wno-deprecated-copy -Wno-undefined-var-template)
+endif()
+
 option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
 set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(cafCommandFeatures PUBLIC -Wno-deprecated-copy)
+endif()
 set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
