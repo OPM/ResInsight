@@ -257,6 +257,7 @@ private:
     void connectAxisSignals( RimPlotAxisProperties* axis );
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+    void assignPlotAxis( RimSummaryCurve* curve );
 
 private:
 #ifdef USE_QTCHARTS

@@ -436,11 +436,11 @@ void RimSummaryCurve::setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis )
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    if ( m_plotAxis_OBSOLETE() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+    if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() );
     }
-    else if ( m_plotAxis_OBSOLETE() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+    else if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
     {
         m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultRight() );
     }
