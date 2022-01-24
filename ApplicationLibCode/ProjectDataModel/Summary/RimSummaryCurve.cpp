@@ -22,6 +22,7 @@
 #include "RiaCurveMerger.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaResultNames.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -46,6 +47,7 @@
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimTools.h"
 
+#include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuSummaryVectorSelectionDialog.h"
@@ -112,7 +114,7 @@ RimSummaryCurve::RimSummaryCurve()
     CAF_PDM_InitFieldNoDefault( &m_isEnsembleCurve, "IsEnsembleCurve", "Ensemble Curve" );
     m_isEnsembleCurve.v() = caf::Tristate::State::PartiallyTrue;
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
     CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Multi Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
@@ -428,15 +430,31 @@ RimSummaryCase* RimSummaryCurve::summaryCaseX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis )
 {
-    m_plotAxis = plotAxis;
+    // TODO: improve this
+    m_plotAxis_OBSOLETE = plotAxis;
+
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted( plot );
+
+    if ( m_plotAxis_OBSOLETE() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+    {
+        m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() );
+    }
+    else if ( m_plotAxis_OBSOLETE() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+    {
+        m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultRight() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimSummaryCurve::axisY() const
+RiuPlotAxis RimSummaryCurve::axisY() const
 {
-    return m_plotAxis();
+    if ( m_plotAxisProperties )
+        return m_plotAxisProperties->plotAxisType();
+    else
+        return RiuPlotAxis::defaultLeft();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -759,6 +777,21 @@ void RimSummaryCurve::initAfterRead()
 {
     RimStackablePlotCurve::initAfterRead();
 
+    if ( m_plotAxisProperties.value() == nullptr )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfTypeAsserted( plot );
+
+        if ( m_plotAxis_OBSOLETE() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        {
+            m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() );
+        }
+        else if ( m_plotAxis_OBSOLETE() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+        {
+            m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultRight() );
+        }
+    }
+
     if ( m_isEnsembleCurve().isPartiallyTrue() )
     {
         m_isEnsembleCurve.v() = ( summaryCaseY() && summaryCaseY()->ensemble() ) ? caf::Tristate::State::True
@@ -798,8 +831,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         curveDataGroup->add( &m_yValuesSummaryAddressUiField, { true, 2, 1 } );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_resampling, { true, 3, 1 } );
-        curveDataGroup->add( &m_plotAxis, { true, 3, 1 } );
-        curveDataGroup->add( &m_plotAxisProperties, { true, 4, 1 } );
+        curveDataGroup->add( &m_plotAxisProperties, { true, 3, 1 } );
 
         if ( isCrossPlotCurve() )
             m_showErrorBars = false;
@@ -1061,15 +1093,9 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         // Update the summary curve collection to make sure the curve names are updated in curve creator UI
         visibilityChanged.send( m_showCurve() );
     }
-    else if ( changedField == &m_plotAxis )
-    {
-        updateAxisInPlot( axisY() );
-        plot->updateAxes();
-        dataChanged.send();
-    }
     else if ( changedField == &m_plotAxisProperties )
     {
-        updateAxisInPlot( m_plotAxisProperties.value()->plotAxisType() );
+        updateAxisInPlot( axisY() );
         plot->updateAxes();
         dataChanged.send();
     }

@@ -334,7 +334,7 @@ void RiuQwtPlotWidget::setAxisLabelsAndTicksEnabled( RiuPlotAxis axis, bool enab
         ->enableComponent( QwtAbstractScaleDraw::Ticks, enableTicks );
     m_plot->axisScaleDraw( RiuQwtPlotTools::toQwtPlotAxis( axis.axis() ) )
         ->enableComponent( QwtAbstractScaleDraw::Labels, enableLabels );
-    recalculateAxisExtents( axis.axis() );
+    recalculateAxisExtents( axis );
 }
 
 //--------------------------------------------------------------------------------------------------

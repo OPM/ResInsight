@@ -117,7 +117,7 @@ public:
 
     void updateAxes() override;
 
-    bool isLogarithmicScaleEnabled( RiaDefines::PlotAxis plotAxis ) const;
+    bool isLogarithmicScaleEnabled( RiuPlotAxis plotAxis ) const;
 
     RimSummaryTimeAxisProperties* timeAxisProperties();
     time_t                        firstTimeStepOfFirstCurve();
@@ -187,6 +187,8 @@ public:
 
     std::vector<RimPlotAxisProperties*> plotAxis() const;
 
+    RimPlotAxisProperties* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
@@ -213,7 +215,7 @@ protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void                 updateStackedCurveData();
-    void                 updateStackedCurveDataForAxis( RiaDefines::PlotAxis plotAxis );
+    void                 updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -228,21 +230,18 @@ private slots:
     void onPlotZoomed();
 
 private:
-    std::vector<RimSummaryCurve*>         visibleSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
-    std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
-    std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
-    bool                                  hasVisibleCurvesForAxis( RiaDefines::PlotAxis plotAxis ) const;
-    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiaDefines::PlotAxis plotAxis );
+    std::vector<RimSummaryCurve*>         visibleSummaryCurvesForAxis( RiuPlotAxis plotAxis ) const;
+    std::vector<RimGridTimeHistoryCurve*> visibleTimeHistoryCurvesForAxis( RiuPlotAxis plotAxis ) const;
+    std::vector<RimAsciiDataCurve*>       visibleAsciiDataCurvesForAxis( RiuPlotAxis plotAxis ) const;
+    bool                                  hasVisibleCurvesForAxis( RiuPlotAxis plotAxis ) const;
+    std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiuPlotAxis plotAxis );
 
-    RimPlotAxisProperties* yAxisPropertiesLeftOrRight( RiaDefines::PlotAxis leftOrRightPlotAxis ) const;
-    void                   updateYAxis( RiaDefines::PlotAxis plotAxis );
+    void updateYAxis( RiaDefines::PlotAxis plotAxis );
 
-    void updateZoomForAxis( RiaDefines::PlotAxis plotAxis );
+    void updateZoomForAxis( RiuPlotAxis plotAxis );
 
     void updateTimeAxis();
     void updateBottomXAxis();
-
-    std::set<RimPlotAxisPropertiesInterface*> allPlotAxes() const;
 
     void cleanupBeforeClose();
 

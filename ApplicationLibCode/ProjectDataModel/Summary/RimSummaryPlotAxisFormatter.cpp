@@ -259,7 +259,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();
         }
-        else if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType().axis() )
+        else if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
         {
             sumAddress = rimCurve->summaryAddressY();
             unitText   = rimCurve->unitNameY();
