@@ -370,9 +370,9 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   )
 endif()
 
-if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS AND NOT MSVC)
+if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
   if (MSVC)
-    target_compile_options(ApplicationLibCode PUBLIC /Wx)
+    target_compile_options(ApplicationLibCode PUBLIC /WX)
   else()
     target_compile_options(ApplicationLibCode PUBLIC -Werror)
   endif()
@@ -388,7 +388,7 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
+  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4251")
 
   if(Qt5Core_VERSION_STRING GREATER_EQUAL 5.10)
     # Disable warning for deprecated functions in newer versions of Qt

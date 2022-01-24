@@ -234,7 +234,7 @@ if(MSVC)
   # GRPC generates a lot of harmless warnings on MSVC
   set_target_properties(
     ${PROJECT_NAME}
-    PROPERTIES COMPILE_FLAGS "/wd4251 /wd4702 /wd4005 /wd4244 /wd4125 /wd4267")
+    PROPERTIES COMPILE_FLAGS "/wd4251 /wd4244 /wd4267")
 else()
   set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS
                                                    "-Wno-overloaded-virtual")
