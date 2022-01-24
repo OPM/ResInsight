@@ -428,6 +428,10 @@ endif()
 
 add_subdirectory(ThirdParty/qwt)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(qwt PUBLIC -Wno-deprecated-copy)
+endif()
+
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : qwt")
   set_property(TARGET qwt PROPERTY UNITY_BUILD true)
