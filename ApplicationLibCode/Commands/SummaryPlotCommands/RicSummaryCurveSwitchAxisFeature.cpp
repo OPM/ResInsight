@@ -56,7 +56,7 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
 
     for ( RimSummaryCurve* summaryCurve : summaryCurves )
     {
-        RiaDefines::PlotAxis plotAxis = summaryCurve->axisY();
+        RiaDefines::PlotAxis plotAxis = summaryCurve->axisY().axis();
 
         if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
@@ -77,9 +77,9 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
 
     for ( RimAsciiDataCurve* asciiCurve : asciiDataCurves )
     {
-        RiaDefines::PlotAxis plotAxis = asciiCurve->yAxis();
+        RiuPlotAxis plotAxis = asciiCurve->yAxis();
 
-        if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        if ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
             asciiCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
         }
@@ -98,9 +98,9 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
 
     for ( RimGridTimeHistoryCurve* timeHistoryCurve : gridTimeHistoryCurves )
     {
-        RiaDefines::PlotAxis plotAxis = timeHistoryCurve->yAxis();
+        RiuPlotAxis plotAxis = timeHistoryCurve->yAxis();
 
-        if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        if ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
             timeHistoryCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
         }

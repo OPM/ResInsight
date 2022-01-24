@@ -851,7 +851,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         axisParameterString = yAxisParameterString();
     }
 
-    RiaDefines::PlotAxis axis = axisProperties->plotAxisType().axis();
+    RiuPlotAxis axis = axisProperties->plotAxisType();
     if ( axisProperties->isActive() )
     {
         m_plotWidget->enableAxis( axis, true );
@@ -883,7 +883,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
             if ( axisProperties->isAutoZoom() )
             {
                 std::vector<const RimPlotCurve*> plotCurves = visibleCurves();
-                RimPlotAxisLogRangeCalculator    logRangeCalculator( axis, plotCurves );
+                RimPlotAxisLogRangeCalculator    logRangeCalculator( axis.axis(), plotCurves );
                 logRangeCalculator.computeAxisRange( &min, &max );
             }
 

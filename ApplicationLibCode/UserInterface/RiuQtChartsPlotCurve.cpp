@@ -125,7 +125,7 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
         if ( !m_lineSeries ) m_lineSeries = new QtCharts::QLineSeries();
         if ( !m_scatterSeries ) m_scatterSeries = new QtCharts::QScatterSeries();
 
-        m_plotWidget->attach( this, m_lineSeries, m_scatterSeries, m_axisX.axis(), m_axisY.axis() );
+        m_plotWidget->attach( this, m_lineSeries, m_scatterSeries, m_axisX, m_axisY );
         // Plot widget takes ownership.
         m_lineSeries    = nullptr;
         m_scatterSeries = nullptr;

@@ -23,15 +23,15 @@
 class RiuPlotAxis
 {
 public:
-    RiuPlotAxis()
+    explicit RiuPlotAxis()
         : m_axis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         , m_index( 0 ){};
 
-    RiuPlotAxis( RiaDefines::PlotAxis axis )
+    explicit RiuPlotAxis( RiaDefines::PlotAxis axis )
         : m_axis( axis )
         , m_index( 0 ){};
 
-    RiuPlotAxis( RiaDefines::PlotAxis axis, int index )
+    explicit RiuPlotAxis( RiaDefines::PlotAxis axis, int index )
         : m_axis( axis )
         , m_index( index ){};
 
@@ -48,8 +48,13 @@ public:
 
     bool operator<( const RiuPlotAxis& rhs ) const
     {
-        return ( ( m_axis < rhs.m_axis ) || ( ( m_axis == rhs.m_axis ) && m_index < rhs.m_index ) );
+        if ( m_axis != rhs.m_axis )
+            return m_axis < rhs.m_axis;
+        else
+            return m_index < rhs.m_index;
     }
+
+    bool operator==( const RiuPlotAxis& rhs ) { return m_axis == rhs.m_axis && m_index == rhs.m_index; };
 
 private:
     RiaDefines::PlotAxis m_axis;

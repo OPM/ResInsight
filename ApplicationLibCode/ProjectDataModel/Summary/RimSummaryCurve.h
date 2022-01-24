@@ -68,7 +68,7 @@ public:
     RifEclipseSummaryAddress   errorSummaryAddressY() const;
     std::vector<double>        errorValuesY() const;
     void                       setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis );
-    RiaDefines::PlotAxis       axisY() const;
+    RiuPlotAxis                axisY() const;
     const std::vector<time_t>& timeStepsY() const;
     double                     yValueAtTimeT( time_t time ) const;
     void setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
@@ -145,7 +145,7 @@ private:
     caf::PdmField<caf::Tristate> m_isEnsembleCurve;
 
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
-    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
     caf::PdmPtrField<RimPlotAxisProperties*>          m_plotAxisProperties;
     caf::PdmField<bool>                               m_isTopZWithinCategory;
 };
