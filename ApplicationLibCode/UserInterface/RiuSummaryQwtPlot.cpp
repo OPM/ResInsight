@@ -113,7 +113,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 
     // MidButton for the panning
     QwtPlotPanner* panner = new QwtPlotPanner( m_plotWidget->qwtPlot()->canvas() );
-    panner->setMouseButton( Qt::MidButton );
+    panner->setMouseButton( Qt::MiddleButton );
 
     m_wheelZoomer = new RiuQwtPlotWheelZoomer( m_plotWidget->qwtPlot() );
 
