@@ -206,8 +206,10 @@ void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::Plo
     m_name = name;
     m_axis = RiuPlotAxis( axis, axisIndex );
 
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) this->setUiIconFromResourceString( ":/LeftAxis16x16.png" );
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ) this->setUiIconFromResourceString( ":/BottomAxis16x16.png" );
+    if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_TOP ) this->setUiIconFromResourceString( ":/TopAxis16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------

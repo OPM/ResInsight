@@ -415,7 +415,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
 
         if ( plotOnWhichYAxis == RIGHT_YAXIS )
         {
-            qwtCurve->setYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+            qwtCurve->setYAxis( RiuPlotAxis::defaultRight() );
             shouldEnableRightYAxis = true;
         }
 

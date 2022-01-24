@@ -52,9 +52,9 @@ public:
     std::vector<double>        yValues() const;
     const std::vector<time_t>& timeSteps() const;
 
-    void                 setYAxis( RiaDefines::PlotAxis plotAxis );
-    RiaDefines::PlotAxis yAxis() const;
-    void                 updateQwtPlotAxis();
+    void        setYAxis( RiaDefines::PlotAxis plotAxis );
+    RiuPlotAxis yAxis() const;
+    void        updateQwtPlotAxis();
 
     void setTimeSteps( const std::vector<QDateTime>& timeSteps );
     void setValues( const std::vector<double>& values );
