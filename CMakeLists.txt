@@ -543,6 +543,13 @@ if(MSVC)
   target_compile_options(LibGuiQt PRIVATE /wd4996)
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(
+    LibRender PRIVATE -Wno-undefined-var-template -Wno-invalid-source-encoding -Wno-null-pointer-arithmetic
+  )
+endif()
+
+
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
 
 # ##############################################################################
@@ -564,6 +571,16 @@ add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
 
+option(CAF_CVF_SCRIPTING "" ON)
+add_subdirectory(Fwk/AppFwk/cafPdmScripting)
+set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
+
+add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
+set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
+
+add_subdirectory(Fwk/AppFwk/cafTensor)
+add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
+
 if(MSVC)
   target_compile_options(cafViewer PRIVATE /wd4996)
   target_compile_options(cafPdmCore PRIVATE /wd4996)
@@ -572,27 +589,22 @@ if(MSVC)
   target_compile_options(cafUserInterface PRIVATE /wd4996)
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(cafCommandFeatures PRIVATE -Wno-deprecated-copy)
+endif()
+
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
-    CommonCode PUBLIC -Wno-deprecated-copy -Wno-undefined-var-template
+    CommonCode PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
   )
   target_compile_options(
-    cafVizExtensions PUBLIC -Wno-deprecated-copy -Wno-undefined-var-template
+    cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
   )
+  target_compile_options(
+    cafVizExtensions PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template -Wno-invalid-source-encoding
+  )
+  target_compile_options(cafUserInterface PRIVATE -Wno-null-pointer-arithmetic)
 endif()
-
-option(CAF_CVF_SCRIPTING "" ON)
-add_subdirectory(Fwk/AppFwk/cafPdmScripting)
-set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
-
-add_subdirectory(Fwk/AppFwk/cafCommandFeatures)
-if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
-  target_compile_options(cafCommandFeatures PUBLIC -Wno-deprecated-copy)
-endif()
-set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
-
-add_subdirectory(Fwk/AppFwk/cafTensor)
-add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
 
 list(
   APPEND
