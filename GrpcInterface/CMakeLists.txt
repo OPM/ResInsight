@@ -231,13 +231,14 @@ target_include_directories(${PROJECT_NAME} PUBLIC
 target_link_libraries(${PROJECT_NAME} PRIVATE ${_LINK_LIBRARIES})
 
 if(MSVC)
-  # GRPC generates a lot of harmless warnings on MSVC
-  set_target_properties(
+  target_compile_options(
     GrpcInterface
-    PROPERTIES COMPILE_FLAGS "/wd4251 /wd4244 /wd4267")
+    PRIVATE /wd4251 /wd4244 /wd4267)
 else()
-  set_target_properties(GrpcInterface PROPERTIES COMPILE_FLAGS
-                                                   "-Wno-overloaded-virtual")
+  target_compile_options(
+    GrpcInterface
+    PRIVATE -Wno-switch -Wno-overloaded-virtual
+  )
 endif()
 
 # install gRPC Python files
