@@ -545,10 +545,10 @@ endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
-    LibRender PRIVATE -Wno-undefined-var-template -Wno-invalid-source-encoding -Wno-null-pointer-arithmetic
+    LibRender PRIVATE -Wno-undefined-var-template -Wno-invalid-source-encoding
+                      -Wno-null-pointer-arithmetic
   )
 endif()
-
 
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
 
@@ -601,7 +601,8 @@ if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
     cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
   )
   target_compile_options(
-    cafVizExtensions PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template -Wno-invalid-source-encoding
+    cafVizExtensions PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+                             -Wno-invalid-source-encoding
   )
   target_compile_options(cafUserInterface PRIVATE -Wno-null-pointer-arithmetic)
 endif()
