@@ -98,7 +98,7 @@ bool caf::CeetronPlusNavigation::handleInputEvent( QInputEvent* inputEvent )
                     isEventHandled                  = true;
                 }
             }
-            else if ( me->button() == Qt::MidButton )
+            else if ( me->button() == Qt::MiddleButton )
             {
                 if ( me->modifiers() == Qt::NoModifier )
                 {
@@ -130,7 +130,7 @@ bool caf::CeetronPlusNavigation::handleInputEvent( QInputEvent* inputEvent )
                     if ( m_hasMovedMouseDuringNavigation ) isEventHandled = true;
                     m_hasMovedMouseDuringNavigation = false;
                 }
-                else if ( me->button() == Qt::MidButton )
+                else if ( me->button() == Qt::MiddleButton )
                 {
                     m_isZooming = false;
 

@@ -229,7 +229,7 @@ ManipulatorTrackball::NavigationType caf::CeetronNavigation::getNavigationTypeFr
     {
         return ManipulatorTrackball::ROTATE;
     }
-    else if ( mouseButtons == Qt::MidButton || mouseButtons == ( Qt::LeftButton | Qt::RightButton ) )
+    else if ( mouseButtons == Qt::MiddleButton || mouseButtons == ( Qt::LeftButton | Qt::RightButton ) )
     {
         return ManipulatorTrackball::WALK;
     }

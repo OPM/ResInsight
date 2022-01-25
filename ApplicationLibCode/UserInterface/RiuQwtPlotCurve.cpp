@@ -381,7 +381,7 @@ void RiuQwtPlotCurve::clearErrorBars()
 //--------------------------------------------------------------------------------------------------
 int RiuQwtPlotCurve::numSamples() const
 {
-    return dataSize();
+    return static_cast<int>( dataSize() );
 }
 
 //--------------------------------------------------------------------------------------------------

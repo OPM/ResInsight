@@ -76,7 +76,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
 
     // MidButton for the panning
     QwtPlotPanner* panner = new QwtPlotPanner( qwtPlot()->canvas() );
-    panner->setMouseButton( Qt::MidButton );
+    panner->setMouseButton( Qt::MiddleButton );
 
     auto wheelZoomer = new RiuQwtPlotWheelZoomer( qwtPlot() );
 

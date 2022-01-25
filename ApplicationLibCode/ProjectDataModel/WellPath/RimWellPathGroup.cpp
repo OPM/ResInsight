@@ -252,7 +252,7 @@ void RimWellPathGroup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 std::vector<const RigWellPath*> RimWellPathGroup::wellPathGeometries() const
 {
     std::vector<const RigWellPath*> allGeometries;
-    for ( const auto child : m_childWellPaths() )
+    for ( const auto& child : m_childWellPaths() )
     {
         if ( child->wellPathGeometry() )
         {
