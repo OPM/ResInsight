@@ -543,6 +543,7 @@ if(MSVC)
   target_compile_options(
     LibGuiQt PRIVATE /wd4996
   )
+endif()
 
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
 
