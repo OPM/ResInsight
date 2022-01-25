@@ -108,7 +108,7 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
+  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4573")
 
   if(Qt5Core_VERSION_STRING GREATER_EQUAL 5.10)
     # Disable warning for deprecated functions in newer versions of Qt
