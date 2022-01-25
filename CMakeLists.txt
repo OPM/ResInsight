@@ -456,7 +456,9 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 
 add_subdirectory(ThirdParty/nightcharts)
-target_compile_options(nightcharts PRIVATE /wd4996)
+if (MSVC)
+  target_compile_options(nightcharts PRIVATE /wd4996)
+endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
