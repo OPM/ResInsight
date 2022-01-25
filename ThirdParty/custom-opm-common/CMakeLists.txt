@@ -11,7 +11,7 @@ else()
 endif()
 
  if(MSVC)
-  add_definitions( "/wd4996 /wd4244 /wd4267" )
+  add_definitions( "/wd4996 /wd4244 /wd4267 /wd4101 /wd4477" )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /permissive-")
 endif(MSVC)
 

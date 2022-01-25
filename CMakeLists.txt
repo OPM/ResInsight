@@ -435,7 +435,9 @@ endif()
 add_subdirectory(ThirdParty/qwt)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-  target_compile_options(qwt PUBLIC -Wno-deprecated-copy)
+  target_compile_options(qwt PRIVATE -Wno-deprecated-copy)
+elseif(MSVC)
+  target_compile_options(qwt PRIVATE /wd4996 /wd4005)
 endif()
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
@@ -454,6 +456,9 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 
 add_subdirectory(ThirdParty/nightcharts)
+  target_compile_options(
+    nightcharts PRIVATE /wd4996
+  )
 
 list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
@@ -534,6 +539,11 @@ list(
   LibCore
 )
 
+if(MSVC)
+  target_compile_options(
+    LibGuiQt PRIVATE /wd4996
+  )
+
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
 
 # ##############################################################################
@@ -554,6 +564,24 @@ add_subdirectory(Fwk/AppFwk/cafPdmCvf)
 
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
+
+if(MSVC)
+  target_compile_options(
+    cafViewer PRIVATE /wd4996
+  )
+  target_compile_options(
+    cafPdmCore PRIVATE /wd4996
+  )
+  target_compile_options(
+    cafPdmCore PRIVATE /wd4996
+  )
+  target_compile_options(
+    cafPdmXml PRIVATE /wd4996
+  )
+  target_compile_options(
+    cafUserInterface PRIVATE /wd4996
+  )
+endif()
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(
