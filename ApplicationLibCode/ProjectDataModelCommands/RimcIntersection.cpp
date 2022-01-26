@@ -152,7 +152,6 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
     if ( geoGenerator )
     {
         auto triToCellIndex = geoGenerator->triangleToCellIndex();
-        auto vertices       = geoGenerator->triangleVxes();
 
         RimEclipseView* eclView = nullptr;
         intersection->firstAncestorOfType( eclView );
