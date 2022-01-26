@@ -171,15 +171,15 @@ RimProject::RimProject( void )
 
     CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions" );
 
-    CAF_PDM_InitFieldNoDefault( &mainWindowTreeViewState, "TreeViewState", "" );
-    mainWindowTreeViewState.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &mainWindowCurrentModelIndexPath, "TreeViewCurrentModelIndexPath", "" );
-    mainWindowCurrentModelIndexPath.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &mainWindowTreeViewStates, "TreeViewStates", "" );
+    mainWindowTreeViewStates.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &mainWindowCurrentModelIndexPaths, "TreeViewCurrentModelIndexPaths", "" );
+    mainWindowCurrentModelIndexPaths.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &plotWindowTreeViewState, "PlotWindowTreeViewState", "" );
-    plotWindowTreeViewState.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &plotWindowCurrentModelIndexPath, "PlotWindowTreeViewCurrentModelIndexPath", "" );
-    plotWindowCurrentModelIndexPath.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &plotWindowTreeViewStates, "PlotWindowTreeViewStates", "" );
+    plotWindowTreeViewStates.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &plotWindowCurrentModelIndexPaths, "PlotWindowTreeViewCurrentModelIndexPaths", "" );
+    plotWindowCurrentModelIndexPaths.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_show3DWindow, "show3DWindow", true, "Show 3D Window" );
     m_show3DWindow.uiCapability()->setUiHidden( true );
@@ -271,10 +271,10 @@ void RimProject::close()
 
     fileName = "";
 
-    mainWindowCurrentModelIndexPath = "";
-    mainWindowTreeViewState         = "";
-    plotWindowCurrentModelIndexPath = "";
-    plotWindowTreeViewState         = "";
+    mainWindowCurrentModelIndexPaths.v().clear();
+    mainWindowTreeViewStates.v().clear();
+    plotWindowCurrentModelIndexPaths.v().clear();
+    plotWindowTreeViewStates.v().clear();
 
     m_nextValidCaseId        = 0;
     m_nextValidCaseGroupId   = 0;
@@ -1387,32 +1387,12 @@ void RimProject::reloadCompletionTypeResultsForEclipseCase( RimEclipseCase* ecli
 //--------------------------------------------------------------------------------------------------
 void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( uiConfigName == "PlotWindow" )
+    if ( uiConfigName == "PlotWindow.Plots" )
     {
-        {
-            auto itemCollection = uiTreeOrdering.add( "Data Sources", ":/Folder.png" );
-
-            RimOilField* oilField = activeOilField();
-            if ( oilField )
-            {
-                if ( oilField->summaryCaseMainCollection() )
-                {
-                    itemCollection->add( oilField->summaryCaseMainCollection() );
-                }
-                if ( oilField->observedDataCollection() )
-                {
-                    itemCollection->add( oilField->observedDataCollection() );
-                }
-                if ( oilField->ensembleWellLogsCollection() )
-                {
-                    itemCollection->add( oilField->ensembleWellLogsCollection() );
-                }
-            }
-        }
-
         if ( mainPlotCollection )
         {
-            auto itemCollection = uiTreeOrdering.add( "Plots", ":/Folder.png" );
+            auto itemCollection = &uiTreeOrdering;
+            //.add( "Plots", ":/Folder.png" );
             if ( mainPlotCollection->summaryPlotCollection() )
             {
                 itemCollection->add( mainPlotCollection->summaryPlotCollection() );
@@ -1490,7 +1470,31 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             }
 #endif
         }
+    }
+    else if ( uiConfigName == "PlotWindow.DataSources" )
+    {
+        auto itemCollection = &uiTreeOrdering;
+        //.add( "Data Sources", ":/Folder.png" );
 
+        RimOilField* oilField = activeOilField();
+        if ( oilField )
+        {
+            if ( oilField->summaryCaseMainCollection() )
+            {
+                itemCollection->add( oilField->summaryCaseMainCollection() );
+            }
+            if ( oilField->observedDataCollection() )
+            {
+                itemCollection->add( oilField->observedDataCollection() );
+            }
+            if ( oilField->ensembleWellLogsCollection() )
+            {
+                itemCollection->add( oilField->ensembleWellLogsCollection() );
+            }
+        }
+    }
+    else if ( uiConfigName == "PlotWindow.Scripts" )
+    {
         uiTreeOrdering.add( scriptCollection() );
     }
     else

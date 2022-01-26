@@ -479,6 +479,7 @@ bool PdmUiTreeViewEditor::eventFilter( QObject* obj, QEvent* event )
     if ( event->type() == QEvent::FocusIn )
     {
         this->updateSelectionManager();
+        emit selectionChanged();
     }
 
     // standard event processing
@@ -504,7 +505,7 @@ void PdmUiTreeViewEditor::updateSelectionManager()
 void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& modelIndex /*= QModelIndex()*/ )
 {
     auto allIndices = m_treeViewModel->allIndicesRecursive();
-    for ( QModelIndex index : allIndices )
+    for ( QModelIndex& index : allIndices )
     {
         m_delegate->clearTags( index );
 

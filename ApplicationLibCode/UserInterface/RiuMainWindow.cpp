@@ -48,7 +48,6 @@
 #include "RimViewWindow.h"
 
 #include "RiuDockWidgetTools.h"
-#include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuMessagePanel.h"
 #include "RiuMohrsCirclePlot.h"
@@ -131,8 +130,6 @@ RiuMainWindow::RiuMainWindow()
     createMenus();
     createToolBars();
     createDockPanels();
-
-    m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>( new RiuDragDrop() );
 
     if ( m_undoView )
     {
@@ -710,36 +707,40 @@ void RiuMainWindow::createToolBars()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createDockPanels()
 {
+    const int nTreeViews = 1;
+
+    createTreeViews( nTreeViews );
+
     {
         QDockWidget* dockWidget = new QDockWidget( "Project Tree", this );
         dockWidget->setObjectName( RiuDockWidgetTools::projectTreeName() );
         dockWidget->setAllowedAreas( Qt::AllDockWidgetAreas );
 
-        m_projectTreeView = new caf::PdmUiTreeView( this );
-        m_projectTreeView->enableSelectionManagerUpdating( true );
+        caf::PdmUiTreeView* projectTree = projectTreeView( 0 );
+        projectTree->enableSelectionManagerUpdating( true );
 
-        m_projectTreeView->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
 
-        dockWidget->setWidget( m_projectTreeView );
+        dockWidget->setWidget( projectTree );
 
-        m_projectTreeView->treeView()->setHeaderHidden( true );
-        m_projectTreeView->treeView()->setSelectionMode( QAbstractItemView::ExtendedSelection );
+        projectTree->treeView()->setHeaderHidden( true );
+        projectTree->treeView()->setSelectionMode( QAbstractItemView::ExtendedSelection );
 
         // Drag and drop configuration
-        m_projectTreeView->treeView()->setDragEnabled( true );
-        m_projectTreeView->treeView()->viewport()->setAcceptDrops( true );
-        m_projectTreeView->treeView()->setDropIndicatorShown( true );
-        m_projectTreeView->treeView()->setDragDropMode( QAbstractItemView::DragDrop );
+        projectTree->treeView()->setDragEnabled( true );
+        projectTree->treeView()->viewport()->setAcceptDrops( true );
+        projectTree->treeView()->setDropIndicatorShown( true );
+        projectTree->treeView()->setDragDropMode( QAbstractItemView::DragDrop );
 
         // Install event filter used to handle key press events
-        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this );
-        m_projectTreeView->treeView()->installEventFilter( treeViewEventFilter );
+        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this, projectTree );
+        projectTree->treeView()->installEventFilter( treeViewEventFilter );
 
         addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
 
-        connect( m_projectTreeView, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
-        m_projectTreeView->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
-        connect( m_projectTreeView->treeView(),
+        connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
+        projectTree->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
+        connect( projectTree->treeView(),
                  SIGNAL( customContextMenuRequested( const QPoint& ) ),
                  SLOT( customMenuRequested( const QPoint& ) ) );
     }
@@ -1173,9 +1174,10 @@ void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 {
     m_pdmRoot = pdmRoot;
 
-    m_projectTreeView->setPdmItem( pdmRoot );
-    // For debug only : m_projectTreeView->treeView()->expandAll();
-    m_projectTreeView->setDragDropInterface( m_dragDropInterface.get() );
+    for ( auto tv : projectTreeViews() )
+    {
+        tv->setPdmItem( pdmRoot );
+    }
 
     for ( auto& additionalProjectView : m_additionalProjectViews )
     {
@@ -1301,15 +1303,15 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
 
     if ( is3dViewCurrentlySelected && ( previousActiveReservoirView != activatedView ) )
     {
-        QModelIndex newViewModelIndex = m_projectTreeView->findModelIndex( activatedView );
+        QModelIndex newViewModelIndex = projectTreeView( 0 )->findModelIndex( activatedView );
         QModelIndex newSelectionIndex = newViewModelIndex;
 
         if ( previousActiveReservoirView && is3dViewCurrentlySelected )
         {
             // Try to select the same entry in the new View, as was selected in the previous
 
-            QModelIndex previousViewModelIndex = m_projectTreeView->findModelIndex( previousActiveReservoirView );
-            QModelIndex currentSelectionIndex  = m_projectTreeView->treeView()->selectionModel()->currentIndex();
+            QModelIndex previousViewModelIndex = projectTreeView( 0 )->findModelIndex( previousActiveReservoirView );
+            QModelIndex currentSelectionIndex  = projectTreeView( 0 )->treeView()->selectionModel()->currentIndex();
 
             if ( currentSelectionIndex != newViewModelIndex && currentSelectionIndex.isValid() )
             {
@@ -1333,7 +1335,7 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
                     if ( newSelectionIndex.isValid() )
                     {
                         newSelectionIndex =
-                            m_projectTreeView->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
+                            projectTreeView( 0 )->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
                     }
                 }
 
@@ -1345,10 +1347,10 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
             }
         }
 
-        m_projectTreeView->treeView()->setCurrentIndex( newSelectionIndex );
+        projectTreeView( 0 )->treeView()->setCurrentIndex( newSelectionIndex );
         if ( newSelectionIndex != newViewModelIndex )
         {
-            m_projectTreeView->treeView()->setExpanded( newViewModelIndex, true );
+            projectTreeView( 0 )->treeView()->setExpanded( newViewModelIndex, true );
         }
     }
 }
@@ -1441,7 +1443,7 @@ void RiuMainWindow::slotBuildWindowActions()
 void RiuMainWindow::selectedObjectsChanged()
 {
     std::vector<caf::PdmUiItem*> uiItems;
-    m_projectTreeView->selectedUiItems( uiItems );
+    projectTreeView( 0 )->selectedUiItems( uiItems );
 
     caf::PdmObjectHandle* firstSelectedObject = nullptr;
     if ( !uiItems.empty() )
@@ -1499,7 +1501,7 @@ void RiuMainWindow::selectedObjectsChanged()
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
-            m_projectTreeView->treeView()->setFocus();
+            projectTreeView( 0 )->treeView()->setFocus();
         }
     }
 }
@@ -1687,22 +1689,28 @@ void RiuMainWindow::slotToggleLightingAction( bool enable )
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::restoreTreeViewState()
 {
-    if ( m_projectTreeView )
+    const int treeCount = static_cast<int>( projectTreeViews().size() );
+
+    if ( RimProject::current()->mainWindowTreeViewStates.v().size() < treeCount ) return;
+    if ( RimProject::current()->mainWindowCurrentModelIndexPaths.v().size() < treeCount ) return;
+
+    for ( int treeId = 0; treeId < treeCount; treeId++ )
     {
-        QString stateString = RimProject::current()->mainWindowTreeViewState;
+        auto tv = projectTreeView( treeId );
+
+        QString stateString = RimProject::current()->mainWindowTreeViewStates.v()[treeId];
         if ( !stateString.isEmpty() )
         {
-            m_projectTreeView->treeView()->collapseAll();
-            caf::QTreeViewStateSerializer::applyTreeViewStateFromString( m_projectTreeView->treeView(), stateString );
+            tv->treeView()->collapseAll();
+            caf::QTreeViewStateSerializer::applyTreeViewStateFromString( tv->treeView(), stateString );
         }
 
-        QString currentIndexString = RimProject::current()->mainWindowCurrentModelIndexPath;
+        QString currentIndexString = RimProject::current()->mainWindowCurrentModelIndexPaths.v()[treeId];
         if ( !currentIndexString.isEmpty() )
         {
             QModelIndex mi =
-                caf::QTreeViewStateSerializer::getModelIndexFromString( m_projectTreeView->treeView()->model(),
-                                                                        currentIndexString );
-            m_projectTreeView->treeView()->setCurrentIndex( mi );
+                caf::QTreeViewStateSerializer::getModelIndexFromString( tv->treeView()->model(), currentIndexString );
+            tv->treeView()->setCurrentIndex( mi );
         }
     }
 }
@@ -1879,7 +1887,7 @@ void RiuMainWindow::slotCreateCommandObject()
     if ( !app->project() ) return;
 
     std::vector<caf::PdmUiItem*> selectedUiItems;
-    m_projectTreeView->selectedUiItems( selectedUiItems );
+    projectTreeView( 0 )->selectedUiItems( selectedUiItems );
 
     caf::PdmObjectGroup selectedObjects;
     for ( auto* selectedUiItem : selectedUiItems )

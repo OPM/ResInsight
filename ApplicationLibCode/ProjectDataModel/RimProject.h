@@ -103,11 +103,11 @@ public:
 
     caf::PdmChildArrayField<RimAdvancedSnapshotExportDefinition*> multiSnapshotDefinitions;
 
-    caf::PdmField<QString> mainWindowTreeViewState;
-    caf::PdmField<QString> mainWindowCurrentModelIndexPath;
+    caf::PdmField<std::vector<QString>> mainWindowTreeViewStates;
+    caf::PdmField<std::vector<QString>> mainWindowCurrentModelIndexPaths;
 
-    caf::PdmField<QString> plotWindowTreeViewState;
-    caf::PdmField<QString> plotWindowCurrentModelIndexPath;
+    caf::PdmField<std::vector<QString>> plotWindowTreeViewStates;
+    caf::PdmField<std::vector<QString>> plotWindowCurrentModelIndexPaths;
 
     bool writeProjectFile();
 

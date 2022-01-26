@@ -43,7 +43,7 @@ RiuProjectAndPropertyView::RiuProjectAndPropertyView( QWidget* parent, Qt::Windo
     m_projectTreeView->enableSelectionManagerUpdating( true );
 
     // Install event filter used to handle key press events
-    RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this );
+    RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this, m_projectTreeView );
     m_projectTreeView->treeView()->installEventFilter( treeViewEventFilter );
 
     // Drag and drop configuration

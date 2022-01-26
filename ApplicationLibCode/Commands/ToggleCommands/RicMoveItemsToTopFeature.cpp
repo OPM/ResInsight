@@ -31,6 +31,7 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
+#include <QModelIndex>
 
 CAF_CMD_SOURCE_INIT( RicMoveItemsToTopFeature, "RicMoveItemsToTopFeature" );
 
@@ -113,17 +114,17 @@ void RicMoveItemsToTopFeature::onActionTriggered( bool isChecked )
                     constSelectedItems.push_back( s );
                 }
 
-                caf::PdmUiTreeView* uiTreeView = RiaGuiApplication::activeMainWindow()->projectTreeView();
-
                 if ( !constSelectedItems.empty() )
                 {
+                    caf::PdmUiTreeView* uiTreeView =
+                        RiaGuiApplication::activeMainWindow()->getTreeViewWithItem( constSelectedItems[0] );
                     QModelIndex itemIndex   = uiTreeView->findModelIndex( constSelectedItems[0] );
                     QModelIndex parentIndex = itemIndex.parent();
                     uiTreeView->updateSubTree( parentIndex );
-                }
 
-                // Restore selection highlight after reordering
-                uiTreeView->selectItems( constSelectedItems );
+                    // Restore selection highlight after reordering
+                    uiTreeView->selectItems( constSelectedItems );
+                }
             }
         }
     }

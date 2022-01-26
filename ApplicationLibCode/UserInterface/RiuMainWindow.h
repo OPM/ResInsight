@@ -24,7 +24,6 @@
 #include "RiuMdiArea.h"
 
 #include "cafPdmObjectHandle.h"
-#include "cafPdmUiDragDropInterface.h"
 
 #include <QEvent>
 #include <QLabel>
@@ -247,8 +246,6 @@ public:
     void setPdmRoot( caf::PdmObject* pdmRoot );
 
 private:
-    std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
-
     caf::PdmObject*         m_pdmRoot;
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
 

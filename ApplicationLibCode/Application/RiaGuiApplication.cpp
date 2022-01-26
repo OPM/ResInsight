@@ -294,38 +294,41 @@ bool RiaGuiApplication::saveProjectAs( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::storeTreeViewState()
 {
+    if ( m_mainWindow )
     {
-        if ( mainPlotWindow() && mainPlotWindow()->projectTreeView() )
+        project()->mainWindowTreeViewStates.v().clear();
+        project()->mainWindowCurrentModelIndexPaths.v().clear();
+
+        for ( auto& tv : mainWindow()->projectTreeViews() )
         {
-            caf::PdmUiTreeView* projectTreeView = mainPlotWindow()->projectTreeView();
-
             QString treeViewState;
-            caf::QTreeViewStateSerializer::storeTreeViewStateToString( projectTreeView->treeView(), treeViewState );
+            caf::QTreeViewStateSerializer::storeTreeViewStateToString( tv->treeView(), treeViewState );
+            project()->mainWindowTreeViewStates.v().push_back( treeViewState );
 
-            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+            QModelIndex mi = tv->treeView()->currentIndex();
 
             QString encodedModelIndexString;
             caf::QTreeViewStateSerializer::encodeStringFromModelIndex( mi, encodedModelIndexString );
-
-            project()->plotWindowTreeViewState         = treeViewState;
-            project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
+            project()->mainWindowCurrentModelIndexPaths.v().push_back( encodedModelIndexString );
         }
     }
 
+    if ( m_mainPlotWindow )
     {
-        caf::PdmUiTreeView* projectTreeView = m_mainWindow->projectTreeView();
-        if ( projectTreeView )
+        project()->plotWindowTreeViewStates.v().clear();
+        project()->plotWindowCurrentModelIndexPaths.v().clear();
+
+        for ( auto& tv : mainPlotWindow()->projectTreeViews() )
         {
             QString treeViewState;
-            caf::QTreeViewStateSerializer::storeTreeViewStateToString( projectTreeView->treeView(), treeViewState );
+            caf::QTreeViewStateSerializer::storeTreeViewStateToString( tv->treeView(), treeViewState );
+            project()->plotWindowTreeViewStates.v().push_back( treeViewState );
 
-            QModelIndex mi = projectTreeView->treeView()->currentIndex();
+            QModelIndex mi = tv->treeView()->currentIndex();
 
             QString encodedModelIndexString;
             caf::QTreeViewStateSerializer::encodeStringFromModelIndex( mi, encodedModelIndexString );
-
-            project()->mainWindowTreeViewState         = treeViewState;
-            project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
+            project()->plotWindowCurrentModelIndexPaths.v().push_back( encodedModelIndexString );
         }
     }
 }
@@ -1380,13 +1383,19 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
         caf::EffectGenerator::setRenderingMode( caf::EffectGenerator::FIXED_FUNCTION );
     }
 
-    if ( m_mainWindow && m_mainWindow->projectTreeView() )
+    if ( m_mainWindow )
     {
-        m_mainWindow->projectTreeView()->enableAppendOfClassNameToUiItemText(
-            RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        for ( auto& tv : mainWindow()->projectTreeViews() )
+        {
+            tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        }
         if ( mainPlotWindow() )
-            mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(
-                RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        {
+            for ( auto& tv : mainPlotWindow()->projectTreeViews() )
+            {
+                tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+            }
+        }
     }
 
     for ( auto fontObject : defaultFontObjects )

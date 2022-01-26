@@ -29,18 +29,22 @@ class QKeyEvent;
 namespace caf
 {
 class CmdFeature;
-}
+class PdmUiTreeView;
+} // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 class RiuTreeViewEventFilter : public QObject
 {
     Q_OBJECT
 public:
-    explicit RiuTreeViewEventFilter( QObject* parent );
+    explicit RiuTreeViewEventFilter( QObject* parent, caf::PdmUiTreeView* treeView );
 
     static bool activateFeatureFromKeyEvent( QKeyEvent* keyEvent );
     static bool activateFirstEnabledFeature( const std::vector<caf::CmdFeature*>& features );
 
 protected:
     bool eventFilter( QObject* obj, QEvent* event ) override;
+
+private:
+    caf::PdmUiTreeView* m_projectTreeView;
 };

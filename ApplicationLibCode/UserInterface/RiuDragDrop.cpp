@@ -172,9 +172,10 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDragDrop::RiuDragDrop()
+RiuDragDrop::RiuDragDrop( caf::PdmUiTreeView* treeView )
+    : m_projectTreeView( treeView )
+    , m_proposedDropAction( Qt::MoveAction )
 {
-    m_proposedDropAction = Qt::MoveAction;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,8 +238,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 
     if ( index.isValid() && RiaGuiApplication::activeMainWindow() )
     {
-        caf::PdmUiTreeView* uiTreeView = RiaGuiApplication::activeMainWindow()->projectTreeView();
-        caf::PdmUiItem*     uiItem     = uiTreeView->uiItemFromModelIndex( index );
+        caf::PdmUiItem* uiItem = m_projectTreeView->uiItemFromModelIndex( index );
 
         caf::PdmObject* pdmObj = dynamic_cast<caf::PdmObject*>( uiItem );
         if ( pdmObj )
@@ -361,7 +361,8 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& dropTargetIndex )
 {
     CVF_ASSERT( RiaGuiApplication::activeMainWindow() );
-    caf::PdmUiTreeView*   uiTreeView       = RiaGuiApplication::activeMainWindow()->projectTreeView();
+
+    caf::PdmUiTreeView*   uiTreeView       = m_projectTreeView;
     caf::PdmUiItem*       dropTargetUiItem = uiTreeView->uiItemFromModelIndex( dropTargetIndex );
     caf::PdmObjectHandle* dropTarget       = dynamic_cast<caf::PdmObjectHandle*>( dropTargetUiItem );
 
