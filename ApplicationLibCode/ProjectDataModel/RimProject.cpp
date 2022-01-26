@@ -1461,8 +1461,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     }
     else if ( uiConfigName == "PlotWindow.DataSources" )
     {
-        auto itemCollection = &uiTreeOrdering;
-
         RimOilField* oilField = activeOilField();
         if ( oilField )
         {
