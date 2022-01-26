@@ -132,9 +132,6 @@ private:
 
     QMenu* m_windowMenu;
 
-    caf::PdmUiTreeView* m_datasourceTreeView;
-    caf::PdmUiTreeView* m_scriptTreeView;
-
     caf::PdmUiToolBarEditor* m_wellLogPlotToolBarEditor;
     caf::PdmUiToolBarEditor* m_multiPlotToolBarEditor;
     caf::PdmUiToolBarEditor* m_summaryPlotToolBarEditor;
