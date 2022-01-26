@@ -78,6 +78,36 @@ public:
     static void childObjects( const PdmDataValueField<cvf::Vec3d>&, std::vector<PdmObjectHandle*>* ) {}
 };
 
+template <>
+class PdmUiFieldSpecialization<cvf::Vec3f>
+{
+public:
+    /// Convert the field value into a QVariant
+    static QVariant convert( const cvf::Vec3f& value )
+    {
+        return PdmValueFieldSpecialization<cvf::Vec3f>::convert( value );
+    }
+
+    /// Set the field value from a QVariant
+    static void setFromVariant( const QVariant& variantValue, cvf::Vec3f& value )
+    {
+        PdmValueFieldSpecialization<cvf::Vec3f>::setFromVariant( variantValue, value );
+    }
+
+    static bool isDataElementEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        return PdmValueFieldSpecialization<cvf::Vec3f>::isEqual( variantValue, variantValue2 );
+    }
+
+    /// Methods to get a list of options for a field, specialized for AppEnum
+    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const cvf::Vec3f& )
+    {
+        return QList<PdmOptionItemInfo>();
+    }
+
+    /// Methods to retrieve the possible PdmObject pointed to by a field
+    static void childObjects( const PdmDataValueField<cvf::Vec3f>&, std::vector<PdmObjectHandle*>* ) {}
+};
 } // end namespace caf
 
 //--------------------------------------------------------------------------------------------------

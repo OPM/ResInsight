@@ -45,6 +45,8 @@ namespace caf
 {
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, cvf::Vec3d );
 CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<cvf::Vec3d> );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiLineEditor, cvf::Vec3f );
+CAF_PDM_UI_REGISTER_DEFAULT_FIELD_EDITOR( PdmUiListEditor, std::vector<cvf::Vec3f> );
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

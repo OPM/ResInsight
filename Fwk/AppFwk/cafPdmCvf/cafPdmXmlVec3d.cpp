@@ -57,3 +57,23 @@ QTextStream& operator<<( QTextStream& str, const cvf::Vec3d& value )
 
     return str;
 }
+
+QTextStream& operator>>( QTextStream& str, cvf::Vec3f& value )
+{
+    QString text;
+
+    float x, y, z;
+    str >> x;
+    str >> y;
+    str >> z;
+
+    value.set( x, y, z );
+    return str;
+}
+
+QTextStream& operator<<( QTextStream& str, const cvf::Vec3f& value )
+{
+    str << value.x() << " " << value.y() << " " << value.z();
+
+    return str;
+}

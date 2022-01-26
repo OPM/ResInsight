@@ -53,4 +53,16 @@ struct PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>
                                bool                        quoteStrings     = true,
                                bool                        quoteNonBuiltins = false );
 };
+template <>
+struct PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<float>>
+{
+    static void writeToField( cvf::Vector3<float>& fieldValue,
+                              QTextStream&         inputStream,
+                              PdmScriptIOMessages* errorMessageContainer,
+                              bool                 stringsAreQuoted = true );
+    static void readFromField( const cvf::Vector3<float>& fieldValue,
+                               QTextStream&               outputStream,
+                               bool                       quoteStrings     = true,
+                               bool                       quoteNonBuiltins = false );
+};
 } // namespace caf

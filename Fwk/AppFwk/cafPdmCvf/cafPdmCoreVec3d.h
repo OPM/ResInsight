@@ -44,6 +44,7 @@
 #include "cafPdmXmlVec3d.h"
 
 Q_DECLARE_METATYPE( cvf::Vec3d );
+Q_DECLARE_METATYPE( cvf::Vec3f );
 
 namespace caf
 {
@@ -78,4 +79,34 @@ public:
     }
 };
 
+template <>
+class PdmValueFieldSpecialization<cvf::Vec3f>
+{
+public:
+    /// Convert the field value into a QVariant
+    static QVariant convert( const cvf::Vec3f& value )
+    {
+        QString str;
+
+        QTextStream textStream( &str );
+        textStream << value;
+
+        return QVariant( str );
+    }
+
+    /// Set the field value from a QVariant
+    static void setFromVariant( const QVariant& variantValue, cvf::Vec3f& value )
+    {
+        QString str = variantValue.toString();
+
+        QTextStream textStream( &str );
+
+        textStream >> value;
+    }
+
+    static bool isEqual( const QVariant& variantValue, const QVariant& variantValue2 )
+    {
+        return variantValue == variantValue2;
+    }
+};
 } // end namespace caf

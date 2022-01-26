@@ -80,3 +80,47 @@ void PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<double>>::readFromField( 
 
     PdmFieldScriptingCapabilityIOHandler<std::vector<double>>::readFromField( fieldVectorValue, outputStream, quoteStrings );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<float>>::writeToField( cvf::Vector3<float>& fieldValue,
+                                                                              QTextStream&         inputStream,
+                                                                              caf::PdmScriptIOMessages* errorMessageContainer,
+                                                                              bool stringsAreQuoted )
+{
+    std::vector<float> fieldVectorValue;
+    PdmFieldScriptingCapabilityIOHandler<std::vector<float>>::writeToField( fieldVectorValue,
+                                                                            inputStream,
+                                                                            errorMessageContainer,
+                                                                            stringsAreQuoted );
+    if ( fieldVectorValue.size() == 3u )
+    {
+        for ( int i = 0; i < 3; ++i )
+        {
+            fieldValue[i] = fieldVectorValue[i];
+        }
+    }
+    else
+    {
+        QString errMsg = QString( "Expected three dimensions in the vector, got %1" ).arg( fieldVectorValue.size() );
+        errorMessageContainer->addError( errMsg );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmFieldScriptingCapabilityIOHandler<cvf::Vector3<float>>::readFromField( const cvf::Vector3<float>& fieldValue,
+                                                                               QTextStream&               outputStream,
+                                                                               bool                       quoteStrings,
+                                                                               bool quoteNonBuiltin )
+{
+    std::vector<float> fieldVectorValue( 3u );
+    for ( int i = 0; i < 3; ++i )
+    {
+        fieldVectorValue[i] = fieldValue[i];
+    }
+
+    PdmFieldScriptingCapabilityIOHandler<std::vector<float>>::readFromField( fieldVectorValue, outputStream, quoteStrings );
+}
