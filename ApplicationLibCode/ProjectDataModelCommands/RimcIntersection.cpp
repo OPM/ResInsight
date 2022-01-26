@@ -18,8 +18,20 @@
 
 #include "RimcIntersection.h"
 
+#include "RiaLogging.h"
+
+#include "RigResultAccessor.h"
+#include "RigResultAccessorFactory.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseResultDefinition.h"
+#include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
+#include "RimIntersectionResultDefinition.h"
+
 #include "RimcDataContainerDouble.h"
+
 #include "RivIntersectionGeometryGeneratorInterface.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
@@ -142,14 +154,37 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
         auto triToCellIndex = geoGenerator->triangleToCellIndex();
         auto vertices       = geoGenerator->triangleVxes();
 
+        RimEclipseView* eclView = nullptr;
+        intersection->firstAncestorOfType( eclView );
+        if ( !eclView )
+        {
+            RiaLogging::error(
+                "No Eclipse view found. Extraction of intersection result is only supported for Eclipse view." );
+            return nullptr;
+        }
+
+        RimEclipseResultDefinition* eclResultDef = nullptr;
+
+        auto intersectionResultDef = intersection->activeSeparateResultDefinition();
+        if ( intersectionResultDef ) eclResultDef = intersectionResultDef->eclipseResultDefinition();
+
+        if ( !eclResultDef ) eclResultDef = eclView->cellResult();
+
+        RigEclipseCaseData* eclipseCase = eclView->eclipseCase()->eclipseCaseData();
+
+        size_t                      gridIndex = 0;
+        cvf::ref<RigResultAccessor> resultAccessor =
+            RigResultAccessorFactory::createFromResultDefinition( eclipseCase,
+                                                                  gridIndex,
+                                                                  eclView->currentTimeStep(),
+                                                                  eclResultDef );
+
         std::vector<double> values;
         values.reserve( triToCellIndex.size() );
-
-        // TODO Find result accessor and extract values for each triangle
-
         for ( const auto& i : triToCellIndex )
         {
-            values.push_back( i );
+            auto value = resultAccessor->cellScalar( i );
+            values.push_back( value );
         }
 
         auto triangleValues            = new RimcDataContainerDouble;
