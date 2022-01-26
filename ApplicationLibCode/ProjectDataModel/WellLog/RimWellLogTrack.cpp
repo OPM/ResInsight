@@ -817,9 +817,7 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
         {
             int majorTickIntervals = 5;
             int minorTickIntervals = 10;
-            m_plotWidget->setAutoTickIntervalCounts( RiuPlotAxis::defaultTop(),
-                                                     majorTickIntervals,
-                                                     minorTickIntervals );
+            m_plotWidget->setAutoTickIntervalCounts( RiuPlotAxis::defaultTop(), majorTickIntervals, minorTickIntervals );
             m_plotWidget->setAxisRange( RiuPlotAxis::defaultTop(), m_visibleXRangeMin, m_visibleXRangeMax );
         }
 
