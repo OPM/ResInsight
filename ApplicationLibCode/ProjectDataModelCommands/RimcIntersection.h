@@ -43,7 +43,12 @@ public:
 
 private:
     caf::PdmField<std::vector<cvf::Vec3f>> m_vertices;
-    caf::PdmField<std::vector<int>>        m_connections;
+
+    caf::PdmField<std::vector<float>> m_x;
+    caf::PdmField<std::vector<float>> m_y;
+    caf::PdmField<std::vector<float>> m_z;
+
+    caf::PdmField<std::vector<int>> m_connections;
 };
 
 //==================================================================================================

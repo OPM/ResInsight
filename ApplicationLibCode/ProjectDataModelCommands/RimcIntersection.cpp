@@ -49,6 +49,10 @@ RimcTriangleGeometry::RimcTriangleGeometry()
     CAF_PDM_InitScriptableObject( "Triangle Geometry" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_vertices, "vertices", "Coordinates for triangle vertices" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "connections", "Indices to triangle vertices" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_x, "xcoords", "X coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_y, "ycoords", "Y coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_z, "zcoords", "Z coords" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -73,6 +77,25 @@ RimcTriangleGeometry* RimcTriangleGeometry::createFromVerticesAndConnections( co
                                                                               const std::vector<int>& connections )
 {
     auto obj = new RimcTriangleGeometry;
+
+    std::vector<float> xVals;
+    std::vector<float> yVals;
+    std::vector<float> zVals;
+
+    xVals.reserve( vertices.size() );
+    yVals.reserve( vertices.size() );
+    zVals.reserve( vertices.size() );
+
+    for ( const auto& v : vertices )
+    {
+        xVals.push_back( v.x() );
+        yVals.push_back( v.y() );
+        zVals.push_back( v.z() );
+    }
+
+    obj->m_x = xVals;
+    obj->m_y = yVals;
+    obj->m_z = zVals;
 
     obj->m_vertices    = vertices;
     obj->m_connections = connections;
