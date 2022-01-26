@@ -1791,9 +1791,9 @@ void RimSummaryPlot::updateZoomFromParentPlot()
         if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
              axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
         {
-            auto [axisMin, axisMax]         = plotWidget()->axisRange( axisProperties->plotAxisType() );
-            axisProperties->visibleRangeMax = axisMax;
-            axisProperties->visibleRangeMin = axisMin;
+            auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
+            axisProperties->setVisibleRangeMax( axisMax );
+            axisProperties->setVisibleRangeMin( axisMin );
             axisProperties->updateConnectedEditors();
         }
     }
@@ -1801,8 +1801,8 @@ void RimSummaryPlot::updateZoomFromParentPlot()
     auto [timeAxisMin, timeAxisMax] = plotWidget()->axisRange( RiuPlotAxis::defaultBottom() );
     if ( m_isCrossPlot )
     {
-        m_bottomAxisProperties->visibleRangeMax = timeAxisMax;
-        m_bottomAxisProperties->visibleRangeMin = timeAxisMin;
+        m_bottomAxisProperties->setVisibleRangeMax( timeAxisMax );
+        m_bottomAxisProperties->setVisibleRangeMin( timeAxisMin );
         m_bottomAxisProperties->updateConnectedEditors();
     }
     else

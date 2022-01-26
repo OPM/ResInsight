@@ -49,6 +49,15 @@ public:
     virtual void                                removeAllAnnotations()                                = 0;
     virtual RiuPlotAxis                         plotAxisType() const                                  = 0;
 
+    virtual double visibleRangeMin() const = 0;
+    virtual double visibleRangeMax() const = 0;
+
+    virtual void setVisibleRangeMin( double value ) = 0;
+    virtual void setVisibleRangeMax( double value ) = 0;
+
+    virtual bool isAutoZoom() const                 = 0;
+    virtual void setAutoZoom( bool enableAutoZoom ) = 0;
+
 public:
     virtual AxisTitlePositionType titlePosition() const  = 0;
     virtual int                   titleFontSize() const  = 0;

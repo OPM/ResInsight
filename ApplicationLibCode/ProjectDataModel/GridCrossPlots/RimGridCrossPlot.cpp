@@ -878,8 +878,8 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
                 m_plotWidget->setAxisMaxMinor( axis, 5 );
             }
 
-            double min = axisProperties->visibleRangeMin;
-            double max = axisProperties->visibleRangeMax;
+            double min = axisProperties->visibleRangeMin();
+            double max = axisProperties->visibleRangeMax();
             if ( axisProperties->isAutoZoom() )
             {
                 std::vector<const RimPlotCurve*> plotCurves = visibleCurves();
@@ -909,8 +909,8 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
             }
             else
             {
-                double min = axisProperties->visibleRangeMin;
-                double max = axisProperties->visibleRangeMax;
+                double min = axisProperties->visibleRangeMin();
+                double max = axisProperties->visibleRangeMax();
                 if ( axisProperties->isAxisInverted() )
                 {
                     std::swap( min, max );
@@ -948,8 +948,8 @@ void RimGridCrossPlot::updateAxisFromQwt( RiaDefines::PlotAxis axisType )
         axisRangeMax = yAxisRangeMax;
     }
 
-    axisProperties->visibleRangeMin = std::min( axisRangeMin, axisRangeMax );
-    axisProperties->visibleRangeMax = std::max( axisRangeMin, axisRangeMax );
+    axisProperties->setVisibleRangeMin( std::min( axisRangeMin, axisRangeMax ) );
+    axisProperties->setVisibleRangeMax( std::max( axisRangeMin, axisRangeMax ) );
 
     axisProperties->updateConnectedEditors();
 }

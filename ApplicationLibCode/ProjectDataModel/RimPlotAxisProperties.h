@@ -71,8 +71,8 @@ public:
     bool        showDescription() const;
     bool        showAcronym() const;
     bool        showUnitText() const;
-    bool        isAutoZoom() const;
-    void        setAutoZoom( bool enableAutoZoom );
+    bool        isAutoZoom() const override;
+    void        setAutoZoom( bool enableAutoZoom ) override;
     bool        isAxisInverted() const;
     void        setAxisInverted( bool inverted );
 
@@ -81,9 +81,6 @@ public:
     void                                removeAllAnnotations() override;
 
     caf::PdmField<QString> customTitle;
-
-    caf::PdmField<double> visibleRangeMin;
-    caf::PdmField<double> visibleRangeMax;
 
     caf::PdmField<caf::AppEnum<NumberFormatType>> numberFormat;
     caf::PdmField<int>                            numberOfDecimals;
@@ -94,6 +91,12 @@ public:
 
     void setInvertedAxis( bool enable );
     void showAnnotationObjectsInProjectTree();
+
+    double visibleRangeMin() const override;
+    double visibleRangeMax() const override;
+
+    void setVisibleRangeMin( double value ) override;
+    void setVisibleRangeMax( double value ) override;
 
 protected:
     void                 initAfterRead() override;
@@ -118,6 +121,9 @@ private:
     caf::PdmField<bool> m_displayUnitText;
     caf::PdmField<bool> m_isAutoZoom;
     caf::PdmField<bool> m_isAxisInverted;
+
+    caf::PdmField<double> m_visibleRangeMin;
+    caf::PdmField<double> m_visibleRangeMax;
 
     caf::PdmField<QString> m_name;
     RiuPlotAxis            m_axis;

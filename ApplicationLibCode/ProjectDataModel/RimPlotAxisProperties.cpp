@@ -70,8 +70,8 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 
     CAF_PDM_InitFieldNoDefault( &customTitle, "CustomTitle", "Title" );
 
-    CAF_PDM_InitField( &visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max" );
-    CAF_PDM_InitField( &visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min" );
+    CAF_PDM_InitField( &m_visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max" );
+    CAF_PDM_InitField( &m_visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min" );
 
     CAF_PDM_InitFieldNoDefault( &numberFormat, "NumberFormat", "Number Format" );
     CAF_PDM_InitField( &numberOfDecimals, "Decimals", 2, "Number of Decimals" );
@@ -190,8 +190,8 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     scaleGroup.add( &scaleFactor );
     if ( m_isRangeSettingsEnabled )
     {
-        scaleGroup.add( &visibleRangeMin );
-        scaleGroup.add( &visibleRangeMax );
+        scaleGroup.add( &m_visibleRangeMin );
+        scaleGroup.add( &m_visibleRangeMax );
     }
     scaleGroup.add( &m_valuesFontSize );
 
@@ -359,6 +359,38 @@ void RimPlotAxisProperties::setInvertedAxis( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimPlotAxisProperties::visibleRangeMin() const
+{
+    return m_visibleRangeMin;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimPlotAxisProperties::visibleRangeMax() const
+{
+    return m_visibleRangeMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setVisibleRangeMin( double value )
+{
+    m_visibleRangeMin = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setVisibleRangeMax( double value )
+{
+    m_visibleRangeMax = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::showAnnotationObjectsInProjectTree()
 {
     m_annotations.uiCapability()->setUiTreeChildrenHidden( false );
@@ -375,15 +407,15 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
     {
         updateOptionSensitivity();
     }
-    else if ( changedField == &visibleRangeMax )
+    else if ( changedField == &m_visibleRangeMax )
     {
-        if ( visibleRangeMin > visibleRangeMax ) visibleRangeMax = oldValue.toDouble();
+        if ( m_visibleRangeMin > m_visibleRangeMax ) m_visibleRangeMax = oldValue.toDouble();
 
         m_isAutoZoom = false;
     }
-    else if ( changedField == &visibleRangeMin )
+    else if ( changedField == &m_visibleRangeMin )
     {
-        if ( visibleRangeMin > visibleRangeMax ) visibleRangeMin = oldValue.toDouble();
+        if ( m_visibleRangeMin > m_visibleRangeMax ) m_visibleRangeMin = oldValue.toDouble();
 
         m_isAutoZoom = false;
     }
