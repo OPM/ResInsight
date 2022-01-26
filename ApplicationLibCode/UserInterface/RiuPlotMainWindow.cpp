@@ -855,7 +855,7 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 
     if ( !isBlockingViewSelectionOnSubWindowActivated() )
     {
-        caf::PdmUiTreeView* projectTree = dynamic_cast<caf::PdmUiTreeView*>( sender() );
+        caf::PdmUiTreeView* projectTree = getTreeViewWithItem( activatedView );
         if ( projectTree )
         {
             std::vector<caf::PdmUiItem*> currentSelection;
