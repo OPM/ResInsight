@@ -167,7 +167,6 @@ RimProject::RimProject( void )
     calculationCollection = new RimSummaryCalculationCollection;
 
     CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects" );
-    // wellPathImport.uiCapability()->setUiHidden(true);
 
     CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions" );
 
@@ -308,7 +307,6 @@ void RimProject::initAfterRead()
         if ( analysisModels )
         {
             analysisModels->caseGroups.push_back( sourceCaseGroup );
-            // printf("Moved m_project->caseGroupsObsolete[%i] to first oil fields analysis models\n", cgIdx);
             movedOneRimIdenticalGridCaseGroup = true; // moved at least one so assume the others will be moved too...
         }
     }
@@ -326,7 +324,6 @@ void RimProject::initAfterRead()
             RimEclipseCase* sourceCase = casesObsolete[cIdx];
             casesObsolete.set( cIdx, nullptr );
             analysisModels->cases.push_back( sourceCase );
-            // printf("Moved m_project->casesObsolete[%i] to first oil fields analysis models\n", cIdx);
             movedOneRimCase = true; // moved at least one so assume the others will be moved too...
         }
     }
@@ -334,13 +331,6 @@ void RimProject::initAfterRead()
     if ( movedOneRimCase )
     {
         casesObsolete.clear();
-    }
-
-    if ( casesObsolete().size() > 0 || caseGroupsObsolete.size() > 0 )
-    {
-        // printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from
-        // Project to analysisModels",
-        //  casesObsolete().size(), caseGroupsObsolete.size());
     }
 
     // Set project pointer to each well path
@@ -1391,77 +1381,75 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     {
         if ( mainPlotCollection )
         {
-            auto itemCollection = &uiTreeOrdering;
-            //.add( "Plots", ":/Folder.png" );
             if ( mainPlotCollection->summaryPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->summaryPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->summaryPlotCollection() );
             }
 
             if ( mainPlotCollection->analysisPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->analysisPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->analysisPlotCollection() );
             }
 
             if ( mainPlotCollection->correlationPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->correlationPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->correlationPlotCollection() );
             }
 
             if ( mainPlotCollection->summaryCrossPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->summaryCrossPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->summaryCrossPlotCollection() );
             }
 
             if ( mainPlotCollection->wellLogPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->wellLogPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->wellLogPlotCollection() );
             }
 
             if ( mainPlotCollection->rftPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->rftPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->rftPlotCollection() );
             }
 
             if ( mainPlotCollection->pltPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->pltPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->pltPlotCollection() );
             }
 
             if ( mainPlotCollection->flowPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->flowPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->flowPlotCollection() );
             }
 
             if ( mainPlotCollection->gridCrossPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->gridCrossPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->gridCrossPlotCollection() );
             }
 
             if ( mainPlotCollection->saturationPressurePlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->saturationPressurePlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->saturationPressurePlotCollection() );
             }
 
             if ( mainPlotCollection->multiPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->multiPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->multiPlotCollection() );
             }
 
             if ( mainPlotCollection->stimPlanModelPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->stimPlanModelPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->stimPlanModelPlotCollection() );
             }
 
             if ( mainPlotCollection->vfpPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->vfpPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->vfpPlotCollection() );
             }
 #ifdef USE_QTCHARTS
             if ( mainPlotCollection->gridStatisticsPlotCollection() ||
                  mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
             {
-                auto statisticsItemCollection = itemCollection->add( "Statistics Plots", ":/Folder.png" );
+                auto statisticsItemCollection = uiTreeOrdering.add( "Statistics Plots", ":/Folder.png" );
                 if ( mainPlotCollection->gridStatisticsPlotCollection() )
                     statisticsItemCollection->add( mainPlotCollection->gridStatisticsPlotCollection() );
 
@@ -1474,22 +1462,21 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     else if ( uiConfigName == "PlotWindow.DataSources" )
     {
         auto itemCollection = &uiTreeOrdering;
-        //.add( "Data Sources", ":/Folder.png" );
 
         RimOilField* oilField = activeOilField();
         if ( oilField )
         {
             if ( oilField->summaryCaseMainCollection() )
             {
-                itemCollection->add( oilField->summaryCaseMainCollection() );
+                uiTreeOrdering.add( oilField->summaryCaseMainCollection() );
             }
             if ( oilField->observedDataCollection() )
             {
-                itemCollection->add( oilField->observedDataCollection() );
+                uiTreeOrdering.add( oilField->observedDataCollection() );
             }
             if ( oilField->ensembleWellLogsCollection() )
             {
-                itemCollection->add( oilField->ensembleWellLogsCollection() );
+                uiTreeOrdering.add( oilField->ensembleWellLogsCollection() );
             }
         }
     }
