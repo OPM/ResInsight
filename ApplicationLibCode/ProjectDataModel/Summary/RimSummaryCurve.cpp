@@ -115,7 +115,9 @@ RimSummaryCurve::RimSummaryCurve()
     m_isEnsembleCurve.v() = caf::Tristate::State::PartiallyTrue;
 
     CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
-    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Multi Axis" );
+    m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );

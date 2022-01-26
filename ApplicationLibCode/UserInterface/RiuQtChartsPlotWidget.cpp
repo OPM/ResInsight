@@ -72,6 +72,7 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     layout->addWidget( m_viewer );
 
     addAxis( RiuPlotAxis::defaultBottom(), true, true );
+    addAxis( RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 1 ), true, true );
     addAxis( RiuPlotAxis::defaultLeft(), true, true );
     addAxis( RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 1 ), true, true );
     addAxis( RiuPlotAxis::defaultRight(), true, true );

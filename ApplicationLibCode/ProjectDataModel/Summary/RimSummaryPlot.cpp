@@ -228,26 +228,7 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault( &m_asciiDataCurves, "AsciiDataCurves", "" );
     m_asciiDataCurves.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_leftYAxisProperties, "LeftYAxisProperties", "Left Y Axis" );
-    m_leftYAxisProperties.uiCapability()->setUiTreeHidden( true );
-    m_leftYAxisProperties = new RimPlotAxisProperties;
-    m_leftYAxisProperties->setNameAndAxis( "Left Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-
-    CAF_PDM_InitFieldNoDefault( &m_rightYAxisProperties, "RightYAxisProperties", "Right Y Axis" );
-    m_rightYAxisProperties.uiCapability()->setUiTreeHidden( true );
-    m_rightYAxisProperties = new RimPlotAxisProperties;
-    m_rightYAxisProperties->setNameAndAxis( "Right Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
-
-    CAF_PDM_InitFieldNoDefault( &m_bottomAxisProperties, "BottomAxisProperties", "Bottom X Axis" );
-    m_bottomAxisProperties.uiCapability()->setUiTreeHidden( true );
-    m_bottomAxisProperties = new RimPlotAxisProperties;
-    m_bottomAxisProperties->setNameAndAxis( "Bottom X-Axis", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
-
-    CAF_PDM_InitFieldNoDefault( &m_timeAxisProperties, "TimeAxisProperties", "Time Axis" );
-    m_timeAxisProperties.uiCapability()->setUiTreeHidden( true );
-    m_timeAxisProperties = new RimSummaryTimeAxisProperties;
-
-    CAF_PDM_InitFieldNoDefault( &m_axisProperties, "AxisProperties", "Multi Axes", ":/Axes16x16.png" );
+    CAF_PDM_InitFieldNoDefault( &m_axisProperties, "AxisProperties", "Axes", ":/Axes16x16.png" );
 
     RimPlotAxisProperties* leftYAxisProperties = new RimPlotAxisProperties;
     leftYAxisProperties->setNameAndAxis( "Left", RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0 );
@@ -270,11 +251,10 @@ RimSummaryPlot::RimSummaryPlot()
     connectAxisSignals( rightYAxisProperties2 );
 
     RimPlotAxisProperties* bottomAxisProperties = new RimPlotAxisProperties;
-    bottomAxisProperties->setNameAndAxis( "Bottom", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0 );
+    bottomAxisProperties->setNameAndAxis( "Bottom", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 1 );
     m_axisProperties.push_back( bottomAxisProperties );
 
     RimSummaryTimeAxisProperties* timeAxisProperties = new RimSummaryTimeAxisProperties;
-    // timeAxisProperties->setNameAndAxis( "Time", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 1 );
     m_axisProperties.push_back( timeAxisProperties );
 
     CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator" );
@@ -294,6 +274,27 @@ RimSummaryPlot::RimSummaryPlot()
     m_sourceStepping.xmlCapability()->disableIO();
 
     setPlotInfoLabel( "Filters Active" );
+
+    // Obsolete axis fields
+    CAF_PDM_InitFieldNoDefault( &m_leftYAxisProperties_OBSOLETE, "LeftYAxisProperties", "Left Y Axis" );
+    m_leftYAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_leftYAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_leftYAxisProperties_OBSOLETE = new RimPlotAxisProperties;
+
+    CAF_PDM_InitFieldNoDefault( &m_rightYAxisProperties_OBSOLETE, "RightYAxisProperties", "Right Y Axis" );
+    m_rightYAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_rightYAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_rightYAxisProperties_OBSOLETE = new RimPlotAxisProperties;
+
+    CAF_PDM_InitFieldNoDefault( &m_bottomAxisProperties_OBSOLETE, "BottomAxisProperties", "Bottom X Axis" );
+    m_bottomAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_bottomAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_bottomAxisProperties_OBSOLETE = new RimPlotAxisProperties;
+
+    CAF_PDM_InitFieldNoDefault( &m_timeAxisProperties_OBSOLETE, "TimeAxisProperties", "Time Axis" );
+    m_timeAxisProperties_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_timeAxisProperties_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_timeAxisProperties_OBSOLETE = new RimSummaryTimeAxisProperties;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -314,26 +315,27 @@ RimSummaryPlot::~RimSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateAxes()
 {
-    updateYAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-    updateYAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+    updateAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    updateAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 
-    // if ( m_timeAxisProperties() && plotWidget() )
-    // {
-    //     m_summaryPlot->updateAnnotationObjects( m_timeAxisProperties() );
-    // }
+    if ( timeAxisProperties() && plotWidget() )
+    {
+        m_summaryPlot->updateAnnotationObjects( timeAxisProperties() );
+    }
 
-    // if ( m_leftYAxisProperties() && plotWidget() )
-    // {
-    //     m_summaryPlot->updateAnnotationObjects( m_leftYAxisProperties() );
-    // }
+    RimPlotAxisPropertiesInterface* leftYAxisProperties = axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() );
+    if ( leftYAxisProperties && plotWidget() )
+    {
+        m_summaryPlot->updateAnnotationObjects( leftYAxisProperties );
+    }
 
     if ( m_isCrossPlot )
     {
-        updateBottomXAxis();
+        updateAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
     }
     else
     {
-        updateTimeAxis();
+        updateTimeAxis( timeAxisProperties() );
     }
 
     plotWidget()->scheduleReplot();
@@ -354,7 +356,14 @@ bool RimSummaryPlot::isLogarithmicScaleEnabled( RiuPlotAxis plotAxis ) const
 //--------------------------------------------------------------------------------------------------
 RimSummaryTimeAxisProperties* RimSummaryPlot::timeAxisProperties()
 {
-    return m_timeAxisProperties();
+    // TODO: support multiple time axis?
+    for ( auto ap : m_axisProperties )
+    {
+        RimSummaryTimeAxisProperties* timeAxis = dynamic_cast<RimSummaryTimeAxisProperties*>( ap.p() );
+        if ( timeAxis ) return timeAxis;
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -511,21 +520,21 @@ void RimSummaryPlot::onAxisSelected( int axis, bool toggle )
     caf::PdmObject* itemToSelect = nullptr;
     if ( axis == QwtPlot::yLeft )
     {
-        itemToSelect = m_leftYAxisProperties;
+        itemToSelect = m_leftYAxisProperties_OBSOLETE;
     }
     else if ( axis == QwtPlot::yRight )
     {
-        itemToSelect = m_rightYAxisProperties;
+        itemToSelect = m_rightYAxisProperties_OBSOLETE;
     }
     else if ( axis == QwtPlot::xBottom )
     {
         if ( m_isCrossPlot )
         {
-            itemToSelect = m_bottomAxisProperties;
+            itemToSelect = m_bottomAxisProperties_OBSOLETE;
         }
         else
         {
-            itemToSelect = m_timeAxisProperties;
+            itemToSelect = m_timeAxisProperties_OBSOLETE;
         }
     }
 
@@ -918,7 +927,7 @@ bool RimSummaryPlot::isNormalizationEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
+void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
 {
     if ( !plotWidget() ) return;
 
@@ -959,86 +968,54 @@ void RimSummaryPlot::updateYAxis( RiaDefines::PlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomForAxis( RiuPlotAxis plotAxis )
 {
-    if ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+    RimPlotAxisPropertiesInterface* yAxisProps = axisPropertiesForPlotAxis( plotAxis );
+    if ( yAxisProps->isAutoZoom() )
     {
-        if ( m_isCrossPlot )
+        if ( yAxisProps->isLogarithmicScaleEnabled() )
         {
-            if ( m_bottomAxisProperties->isAutoZoom() )
+            plotWidget()->setAxisScaleType( yAxisProps->plotAxisType(), RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
+
+            std::vector<const RimPlotCurve*> plotCurves;
+
+            for ( RimSummaryCurve* c : visibleSummaryCurvesForAxis( plotAxis ) )
             {
-                plotWidget()->setAxisAutoScale( RiuPlotAxis::defaultBottom(), true );
+                plotCurves.push_back( c );
             }
-            else
+
+            for ( RimGridTimeHistoryCurve* c : visibleTimeHistoryCurvesForAxis( plotAxis ) )
             {
-                plotWidget()->setAxisScale( RiuPlotAxis::defaultBottom(),
-                                            m_bottomAxisProperties->visibleRangeMin(),
-                                            m_bottomAxisProperties->visibleRangeMax() );
+                plotCurves.push_back( c );
             }
+
+            for ( RimAsciiDataCurve* c : visibleAsciiDataCurvesForAxis( plotAxis ) )
+            {
+                plotCurves.push_back( c );
+            }
+
+            double                        min, max;
+            RimPlotAxisLogRangeCalculator calc( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, plotCurves );
+            calc.computeAxisRange( &min, &max );
+
+            if ( yAxisProps->isAxisInverted() )
+            {
+                std::swap( min, max );
+            }
+
+            plotWidget()->setAxisScale( yAxisProps->plotAxisType(), min, max );
         }
         else
         {
-            if ( m_timeAxisProperties->isAutoZoom() )
-            {
-                plotWidget()->setAxisAutoScale( RiuPlotAxis::defaultBottom(), true );
-            }
-            else
-            {
-                plotWidget()->setAxisScale( RiuPlotAxis::defaultBottom(),
-                                            m_timeAxisProperties->visibleRangeMin(),
-                                            m_timeAxisProperties->visibleRangeMax() );
-            }
+            plotWidget()->setAxisAutoScale( yAxisProps->plotAxisType(), true );
         }
     }
     else
     {
-        RimPlotAxisPropertiesInterface* yAxisProps = axisPropertiesForPlotAxis( plotAxis );
-        if ( yAxisProps->isAutoZoom() )
-        {
-            if ( yAxisProps->isLogarithmicScaleEnabled() )
-            {
-                plotWidget()->setAxisScaleType( yAxisProps->plotAxisType(), RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
-
-                std::vector<const RimPlotCurve*> plotCurves;
-
-                for ( RimSummaryCurve* c : visibleSummaryCurvesForAxis( plotAxis ) )
-                {
-                    plotCurves.push_back( c );
-                }
-
-                for ( RimGridTimeHistoryCurve* c : visibleTimeHistoryCurvesForAxis( plotAxis ) )
-                {
-                    plotCurves.push_back( c );
-                }
-
-                for ( RimAsciiDataCurve* c : visibleAsciiDataCurvesForAxis( plotAxis ) )
-                {
-                    plotCurves.push_back( c );
-                }
-
-                double                        min, max;
-                RimPlotAxisLogRangeCalculator calc( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, plotCurves );
-                calc.computeAxisRange( &min, &max );
-
-                if ( yAxisProps->isAxisInverted() )
-                {
-                    std::swap( min, max );
-                }
-
-                plotWidget()->setAxisScale( yAxisProps->plotAxisType(), min, max );
-            }
-            else
-            {
-                plotWidget()->setAxisAutoScale( yAxisProps->plotAxisType(), true );
-            }
-        }
-        else
-        {
-            plotWidget()->setAxisScale( yAxisProps->plotAxisType(),
-                                        yAxisProps->visibleRangeMin(),
-                                        yAxisProps->visibleRangeMax() );
-        }
-
-        plotWidget()->setAxisInverted( yAxisProps->plotAxisType(), yAxisProps->isAxisInverted() );
+        plotWidget()->setAxisScale( yAxisProps->plotAxisType(),
+                                    yAxisProps->visibleRangeMin(),
+                                    yAxisProps->visibleRangeMax() );
     }
+
+    plotWidget()->setAxisInverted( yAxisProps->plotAxisType(), yAxisProps->isAxisInverted() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1175,24 +1152,24 @@ std::vector<RimAsciiDataCurve*> RimSummaryPlot::visibleAsciiDataCurvesForAxis( R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateTimeAxis()
+void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties )
 {
     if ( !plotWidget() ) return;
 
-    if ( !m_timeAxisProperties->isActive() )
+    if ( !timeAxisProperties->isActive() )
     {
         plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), false );
 
         return;
     }
 
-    if ( m_timeAxisProperties->timeMode() == RimSummaryTimeAxisProperties::DATE )
+    if ( timeAxisProperties->timeMode() == RimSummaryTimeAxisProperties::DATE )
     {
-        RiaQDateTimeTools::DateFormatComponents dateComponents = m_timeAxisProperties->dateComponents();
-        RiaQDateTimeTools::TimeFormatComponents timeComponents = m_timeAxisProperties->timeComponents();
+        RiaQDateTimeTools::DateFormatComponents dateComponents = timeAxisProperties->dateComponents();
+        RiaQDateTimeTools::TimeFormatComponents timeComponents = timeAxisProperties->timeComponents();
 
-        QString dateFormat = m_timeAxisProperties->dateFormat();
-        QString timeFormat = m_timeAxisProperties->timeFormat();
+        QString dateFormat = timeAxisProperties->dateFormat();
+        QString timeFormat = timeAxisProperties->timeFormat();
 
         m_summaryPlot->useDateBasedTimeAxis( dateFormat, timeFormat, dateComponents, timeComponents );
     }
@@ -1205,22 +1182,21 @@ void RimSummaryPlot::updateTimeAxis()
 
     {
         Qt::AlignmentFlag alignment = Qt::AlignCenter;
-        if ( m_timeAxisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
+        if ( timeAxisProperties->titlePosition() == RimPlotAxisPropertiesInterface::AXIS_TITLE_END )
         {
             alignment = Qt::AlignRight;
         }
 
         plotWidget()->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
-                                                m_timeAxisProperties->titleFontSize(),
-                                                m_timeAxisProperties->valuesFontSize(),
+                                                timeAxisProperties->titleFontSize(),
+                                                timeAxisProperties->valuesFontSize(),
                                                 true,
                                                 alignment );
-        plotWidget()->setAxisTitleText( RiuPlotAxis::defaultBottom(), m_timeAxisProperties->title() );
-        plotWidget()->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), m_timeAxisProperties->showTitle );
+        plotWidget()->setAxisTitleText( RiuPlotAxis::defaultBottom(), timeAxisProperties->title() );
+        plotWidget()->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), timeAxisProperties->showTitle );
 
         {
-            RimSummaryTimeAxisProperties::LegendTickmarkCount tickmarkCountEnum =
-                m_timeAxisProperties->majorTickmarkCount();
+            RimSummaryTimeAxisProperties::LegendTickmarkCount tickmarkCountEnum = timeAxisProperties->majorTickmarkCount();
 
             int maxTickmarkCount = 8;
 
@@ -1244,34 +1220,6 @@ void RimSummaryPlot::updateTimeAxis()
 
             plotWidget()->setAxisMaxMajor( RiuPlotAxis::defaultBottom(), maxTickmarkCount );
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateBottomXAxis()
-{
-    if ( !plotWidget() ) return;
-
-    RimPlotAxisProperties* bottomAxisProperties = m_bottomAxisProperties();
-
-    if ( bottomAxisProperties->isActive() )
-    {
-        plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), true );
-
-        std::set<QString> timeHistoryQuantities;
-
-        RimSummaryPlotAxisFormatter calc( bottomAxisProperties,
-                                          visibleSummaryCurvesForAxis( RiuPlotAxis::defaultBottom() ),
-                                          {},
-                                          visibleAsciiDataCurvesForAxis( RiuPlotAxis::defaultBottom() ),
-                                          timeHistoryQuantities );
-        calc.applyAxisPropertiesToPlot( plotWidget() );
-    }
-    else
-    {
-        plotWidget()->enableAxis( RiuPlotAxis::defaultBottom(), false );
     }
 }
 
@@ -1702,17 +1650,6 @@ void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     }
     else
     {
-        caf::PdmUiTreeOrdering* axisFolder = uiTreeOrdering.add( "Axes", ":/Axes16x16.png" );
-
-        if ( m_isCrossPlot )
-        {
-            axisFolder->add( &m_bottomAxisProperties );
-        }
-        else
-        {
-            axisFolder->add( &m_timeAxisProperties );
-        }
-
         uiTreeOrdering.add( &m_axisProperties );
 
         uiTreeOrdering.add( &m_summaryCurveCollection );
@@ -1792,28 +1729,10 @@ void RimSummaryPlot::updateZoomFromParentPlot()
 
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
     {
-        if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-             axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-        {
-            auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
-            axisProperties->setVisibleRangeMax( axisMax );
-            axisProperties->setVisibleRangeMin( axisMin );
-            axisProperties->updateConnectedEditors();
-        }
-    }
-
-    auto [timeAxisMin, timeAxisMax] = plotWidget()->axisRange( RiuPlotAxis::defaultBottom() );
-    if ( m_isCrossPlot )
-    {
-        m_bottomAxisProperties->setVisibleRangeMax( timeAxisMax );
-        m_bottomAxisProperties->setVisibleRangeMin( timeAxisMin );
-        m_bottomAxisProperties->updateConnectedEditors();
-    }
-    else
-    {
-        m_timeAxisProperties->setVisibleRangeMin( timeAxisMin );
-        m_timeAxisProperties->setVisibleRangeMax( timeAxisMax );
-        m_timeAxisProperties->updateConnectedEditors();
+        auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
+        axisProperties->setVisibleRangeMax( axisMax );
+        axisProperties->setVisibleRangeMin( axisMin );
+        axisProperties->updateConnectedEditors();
     }
 }
 
@@ -2142,9 +2061,12 @@ void RimSummaryPlot::initAfterRead()
 
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.10.2" ) )
     {
-        m_axisProperties.push_back( m_leftYAxisProperties );
-        m_axisProperties.push_back( m_rightYAxisProperties );
-        m_axisProperties.push_back( m_bottomAxisProperties );
+        m_axisProperties.push_back( m_leftYAxisProperties_OBSOLETE );
+        m_axisProperties.push_back( m_rightYAxisProperties_OBSOLETE );
+        if ( m_isCrossPlot )
+            m_axisProperties.push_back( m_bottomAxisProperties_OBSOLETE );
+        else
+            m_axisProperties.push_back( m_timeAxisProperties_OBSOLETE );
     }
 
     for ( auto curve : summaryCurves() )
@@ -2408,13 +2330,13 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlot::fieldsToShowInToolbar()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setAutoScaleXEnabled( bool enabled )
 {
-    if ( m_isCrossPlot )
+    for ( auto ap : m_axisProperties )
     {
-        m_bottomAxisProperties->setAutoZoom( enabled );
-    }
-    else
-    {
-        m_timeAxisProperties->setAutoZoom( enabled );
+        if ( ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_TOP ||
+             ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        {
+            ap->setAutoZoom( enabled );
+        }
     }
 }
 

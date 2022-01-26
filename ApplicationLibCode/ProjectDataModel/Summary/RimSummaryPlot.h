@@ -236,12 +236,11 @@ private:
     bool                                  hasVisibleCurvesForAxis( RiuPlotAxis plotAxis ) const;
     std::vector<RimSummaryCurve*>         visibleStackedSummaryCurvesForAxis( RiuPlotAxis plotAxis );
 
-    void updateYAxis( RiaDefines::PlotAxis plotAxis );
+    void updateAxis( RiaDefines::PlotAxis plotAxis );
 
     void updateZoomForAxis( RiuPlotAxis plotAxis );
 
-    void updateTimeAxis();
-    void updateBottomXAxis();
+    void updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties );
 
     void cleanupBeforeClose();
 
@@ -274,11 +273,11 @@ private:
 
     caf::PdmChildArrayField<RimAsciiDataCurve*> m_asciiDataCurves;
 
-    caf::PdmChildField<RimPlotAxisProperties*> m_leftYAxisProperties;
-    caf::PdmChildField<RimPlotAxisProperties*> m_rightYAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*> m_leftYAxisProperties_OBSOLETE;
+    caf::PdmChildField<RimPlotAxisProperties*> m_rightYAxisProperties_OBSOLETE;
 
-    caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties;
-    caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties;
+    caf::PdmChildField<RimPlotAxisProperties*>        m_bottomAxisProperties_OBSOLETE;
+    caf::PdmChildField<RimSummaryTimeAxisProperties*> m_timeAxisProperties_OBSOLETE;
 
     caf::PdmChildArrayField<RimPlotAxisPropertiesInterface*> m_axisProperties;
 
