@@ -869,7 +869,7 @@ void RimGridCrossPlot::updateAxisInQwt( RiaDefines::PlotAxis axisType )
         m_plotWidget->setAxisTitleText( axis, axisParameterString );
         m_plotWidget->setAxisTitleEnabled( axis, true );
 
-        if ( axisProperties->isLogarithmicScaleEnabled )
+        if ( axisProperties->isLogarithmicScaleEnabled() )
         {
             bool isLogScale = m_plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
             if ( !isLogScale )

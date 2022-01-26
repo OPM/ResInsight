@@ -78,7 +78,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
 
     CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
-    CAF_PDM_InitField( &isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
+    CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
     CAF_PDM_InitField( &m_isAxisInverted, "AxisInverted", false, "Invert Axis" );
 
     CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position" );
@@ -178,7 +178,7 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     caf::PdmUiGroup& scaleGroup = *( uiOrdering.addNewGroup( "Axis Values" ) );
     if ( m_isRangeSettingsEnabled )
     {
-        scaleGroup.add( &isLogarithmicScaleEnabled );
+        scaleGroup.add( &m_isLogarithmicScaleEnabled );
         scaleGroup.add( &m_isAxisInverted );
     }
     scaleGroup.add( &numberFormat );
@@ -239,9 +239,9 @@ int RimPlotAxisProperties::valuesFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimPlotAxisProperties::name() const
+const QString& RimPlotAxisProperties::name() const
 {
-    return m_name;
+    return m_name();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,14 +351,6 @@ bool RimPlotAxisProperties::isActive() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setInvertedAxis( bool enable )
-{
-    m_isAxisInverted = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 double RimPlotAxisProperties::visibleRangeMin() const
 {
     return m_visibleRangeMin;
@@ -420,9 +412,9 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
         m_isAutoZoom = false;
     }
 
-    if ( changedField == &isLogarithmicScaleEnabled )
+    if ( changedField == &m_isLogarithmicScaleEnabled )
     {
-        logarithmicChanged.send( isLogarithmicScaleEnabled() );
+        logarithmicChanged.send( m_isLogarithmicScaleEnabled() );
     }
     else
     {
@@ -460,4 +452,12 @@ void RimPlotAxisProperties::initAfterRead()
 caf::PdmFieldHandle* RimPlotAxisProperties::objectToggleField()
 {
     return &m_isActive;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisProperties::isLogarithmicScaleEnabled() const
+{
+    return m_isLogarithmicScaleEnabled;
 }

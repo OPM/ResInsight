@@ -178,7 +178,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
 #endif
 
     {
-        if ( m_axisProperties->isLogarithmicScaleEnabled )
+        if ( m_axisProperties->isLogarithmicScaleEnabled() )
         {
             bool isLogScale = plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
             if ( !isLogScale )

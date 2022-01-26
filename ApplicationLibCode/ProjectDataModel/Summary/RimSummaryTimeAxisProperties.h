@@ -36,7 +36,7 @@
 ///
 ///
 //==================================================================================================
-class RimSummaryTimeAxisProperties : public caf::PdmObject, public RimPlotAxisPropertiesInterface
+class RimSummaryTimeAxisProperties : public RimPlotAxisPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -97,7 +97,7 @@ public:
     bool isAutoZoom() const override;
     void setAutoZoom( bool enableAutoZoom ) override;
 
-    bool isActive() const;
+    bool isActive() const override;
 
     QDateTime visibleDateTimeMin() const;
     QDateTime visibleDateTimeMax() const;
@@ -107,6 +107,8 @@ public:
 
     LegendTickmarkCount majorTickmarkCount() const;
     void                setMajorTickmarkCount( LegendTickmarkCount count );
+
+    const QString& name() const override;
 
 protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

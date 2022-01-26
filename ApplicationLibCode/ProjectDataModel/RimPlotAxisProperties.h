@@ -38,7 +38,7 @@ class RimPlotAxisAnnotation;
 ///
 ///
 //==================================================================================================
-class RimPlotAxisProperties : public caf::PdmObject, public RimPlotAxisPropertiesInterface
+class RimPlotAxisProperties : public RimPlotAxisPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -65,16 +65,16 @@ public:
     int titleFontSize() const override;
     int valuesFontSize() const override;
 
-    QString     name() const;
-    RiuPlotAxis plotAxisType() const override;
-    bool        useAutoTitle() const;
-    bool        showDescription() const;
-    bool        showAcronym() const;
-    bool        showUnitText() const;
-    bool        isAutoZoom() const override;
-    void        setAutoZoom( bool enableAutoZoom ) override;
-    bool        isAxisInverted() const;
-    void        setAxisInverted( bool inverted );
+    const QString& name() const override;
+    RiuPlotAxis    plotAxisType() const override;
+    bool           useAutoTitle() const;
+    bool           showDescription() const;
+    bool           showAcronym() const;
+    bool           showUnitText() const;
+    bool           isAutoZoom() const override;
+    void           setAutoZoom( bool enableAutoZoom ) override;
+    bool           isAxisInverted() const override;
+    void           setAxisInverted( bool inverted );
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
@@ -85,11 +85,10 @@ public:
     caf::PdmField<caf::AppEnum<NumberFormatType>> numberFormat;
     caf::PdmField<int>                            numberOfDecimals;
     caf::PdmField<double>                         scaleFactor;
-    caf::PdmField<bool>                           isLogarithmicScaleEnabled;
 
-    bool isActive() const;
+    bool isLogarithmicScaleEnabled() const override;
+    bool isActive() const override;
 
-    void setInvertedAxis( bool enable );
     void showAnnotationObjectsInProjectTree();
 
     double visibleRangeMin() const override;
@@ -127,6 +126,8 @@ private:
 
     caf::PdmField<QString> m_name;
     RiuPlotAxis            m_axis;
+
+    caf::PdmField<bool> m_isLogarithmicScaleEnabled;
 
     bool m_enableTitleTextSettings;
     bool m_isRangeSettingsEnabled;

@@ -23,11 +23,14 @@
 #include "RiuPlotAxis.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmObject.h"
 
 class RimPlotAxisAnnotation;
 
-class RimPlotAxisPropertiesInterface
+class RimPlotAxisPropertiesInterface : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
     enum AxisTitlePositionType
     {
@@ -57,6 +60,14 @@ public:
 
     virtual bool isAutoZoom() const                 = 0;
     virtual void setAutoZoom( bool enableAutoZoom ) = 0;
+
+    virtual bool isActive() const = 0;
+
+    virtual const QString& name() const = 0;
+
+    virtual bool isAxisInverted() const;
+
+    virtual bool isLogarithmicScaleEnabled() const;
 
 public:
     virtual AxisTitlePositionType titlePosition() const  = 0;

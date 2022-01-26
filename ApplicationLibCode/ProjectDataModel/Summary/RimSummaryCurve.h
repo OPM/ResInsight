@@ -38,7 +38,7 @@ class RimSummaryCase;
 class RimSummaryCurveAutoName;
 class RimSummaryAddress;
 class RiaSummaryCurveDefinition;
-class RimPlotAxisProperties;
+class RimPlotAxisPropertiesInterface;
 
 //==================================================================================================
 ///
@@ -146,6 +146,6 @@ private:
 
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
-    caf::PdmPtrField<RimPlotAxisProperties*>          m_plotAxisProperties;
+    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
     caf::PdmField<bool>                               m_isTopZWithinCategory;
 };
