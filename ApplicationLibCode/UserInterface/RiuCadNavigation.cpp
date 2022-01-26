@@ -57,7 +57,7 @@ bool RiuCadNavigation::handleInputEvent( QInputEvent* inputEvent )
             int translatedMousePosX, translatedMousePosY;
             cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
 
-            if ( me->button() == Qt::MidButton && me->modifiers() == Qt::NoModifier && isRotationEnabled() )
+            if ( me->button() == Qt::MiddleButton && me->modifiers() == Qt::NoModifier && isRotationEnabled() )
             {
                 this->pickAndSetPointOfInterest( me->x(), me->y() );
 
@@ -67,7 +67,7 @@ bool RiuCadNavigation::handleInputEvent( QInputEvent* inputEvent )
                 isEventHandled                  = true;
             }
             else if ( me->button() == Qt::LeftButton ||
-                      ( me->button() == Qt::MidButton && ( me->modifiers() & Qt::ShiftModifier ) ) )
+                      ( me->button() == Qt::MiddleButton && ( me->modifiers() & Qt::ShiftModifier ) ) )
             {
                 m_trackball->startNavigation( cvf::ManipulatorTrackball::PAN, translatedMousePosX, translatedMousePosY );
                 m_isNavigating                  = true;
@@ -82,7 +82,7 @@ bool RiuCadNavigation::handleInputEvent( QInputEvent* inputEvent )
             if ( m_isNavigating )
             {
                 QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
-                if ( me->button() == Qt::MidButton || me->button() == Qt::LeftButton )
+                if ( me->button() == Qt::MiddleButton || me->button() == Qt::LeftButton )
                 {
                     m_trackball->endNavigation();
 

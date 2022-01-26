@@ -246,7 +246,7 @@ int MouseState::numMouseButtonsInState(Qt::MouseButtons buttonState)
 
 	if (buttonState & Qt::LeftButton)	iNum++;
 	if (buttonState & Qt::RightButton)	iNum++;
-	if (buttonState & Qt::MidButton)	iNum++;
+	if (buttonState & Qt::MiddleButton)	iNum++;
 
 	return iNum;
 }

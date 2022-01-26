@@ -66,7 +66,7 @@ bool RiuGeoQuestNavigation::handleInputEvent( QInputEvent* inputEvent )
                 m_hasMovedMouseDuringNavigation = false;
                 isEventHandled                  = true;
             }
-            else if ( me->button() == Qt::MidButton )
+            else if ( me->button() == Qt::MiddleButton )
             {
                 if ( me->modifiers() == Qt::NoModifier )
                 {
@@ -84,7 +84,7 @@ bool RiuGeoQuestNavigation::handleInputEvent( QInputEvent* inputEvent )
             if ( m_isNavigating )
             {
                 QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
-                if ( me->button() == Qt::LeftButton || me->button() == Qt::MidButton )
+                if ( me->button() == Qt::LeftButton || me->button() == Qt::MiddleButton )
                 {
                     m_trackball->endNavigation();
 

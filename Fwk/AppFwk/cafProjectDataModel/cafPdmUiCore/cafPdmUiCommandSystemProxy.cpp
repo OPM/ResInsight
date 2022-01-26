@@ -164,7 +164,8 @@ std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( PdmFi
     if ( items.size() < 2 ) return {};
 
     const auto                   fieldKeyword     = editorField->keyword();
-    const auto&                  fieldOwnerTypeId = typeid( *editorField->ownerObject() );
+    auto                         ownerObject      = editorField->ownerObject();
+    const auto&                  fieldOwnerTypeId = typeid( *ownerObject );
     std::vector<PdmFieldHandle*> additionalFieldsToUpdate;
 
     for ( auto& item : items )

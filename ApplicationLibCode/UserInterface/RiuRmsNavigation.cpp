@@ -57,7 +57,7 @@ bool RiuRmsNavigation::handleInputEvent( QInputEvent* inputEvent )
             int translatedMousePosX, translatedMousePosY;
             cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
 
-            if ( me->button() == Qt::MidButton && isRotationEnabled() )
+            if ( me->button() == Qt::MiddleButton && isRotationEnabled() )
             {
                 this->pickAndSetPointOfInterest( me->x(), me->y() );
 
@@ -100,7 +100,7 @@ bool RiuRmsNavigation::handleInputEvent( QInputEvent* inputEvent )
             if ( m_isNavigating )
             {
                 QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
-                if ( me->button() == Qt::RightButton || me->button() == Qt::MidButton )
+                if ( me->button() == Qt::RightButton || me->button() == Qt::MiddleButton )
                 {
                     m_trackball->endNavigation();
 

@@ -226,12 +226,25 @@ else()
         COMPILE_FLAGS
         "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715 /wd4245 /wd4804 /wd4100 /wd4456 /wd4458 /wd4090 /wd4297 /wd4701 /wd4101 /wd4702 /wd4457"
     )
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set_target_properties(
+      ecl
+      PROPERTIES
+        COMPILE_FLAGS
+        "-Wno-deprecated -Wno-deprecated-declarations -Wno-sign-compare"
+    )
   else()
     set_target_properties(
       ecl
-      PROPERTIES COMPILE_FLAGS
-                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered"
+      PROPERTIES
+        COMPILE_FLAGS
+        "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered -Wno-int-in-bool-context"
     )
+
+    target_compile_options(
+      ecl PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
+    )
+
   endif()
 
   list(APPEND THIRD_PARTY_LIBRARIES ecl)
@@ -421,6 +434,12 @@ endif()
 
 add_subdirectory(ThirdParty/qwt)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(qwt PRIVATE -Wno-deprecated-copy)
+elseif(MSVC)
+  target_compile_options(qwt PRIVATE /wd4996 /wd4005)
+endif()
+
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : qwt")
   set_property(TARGET qwt PROPERTY UNITY_BUILD true)
@@ -437,6 +456,9 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 
 add_subdirectory(ThirdParty/nightcharts)
+if(MSVC)
+  target_compile_options(nightcharts PRIVATE /wd4996)
+endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
@@ -446,6 +468,10 @@ list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
 add_subdirectory(ThirdParty/expressionparser)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(expressionparser PUBLIC -Wno-overloaded-virtual)
+endif()
+
 list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 
 # ##############################################################################
@@ -453,6 +479,10 @@ list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 # ##############################################################################
 
 add_subdirectory(ThirdParty/clipper)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(clipper PUBLIC -Wno-deprecated-copy)
+endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES clipper)
 
@@ -509,6 +539,17 @@ list(
   LibCore
 )
 
+if(MSVC)
+  target_compile_options(LibGuiQt PRIVATE /wd4996)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(
+    LibRender PRIVATE -Wno-undefined-var-template -Wno-invalid-source-encoding
+                      -Wno-null-pointer-arithmetic
+  )
+endif()
+
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
 
 # ##############################################################################
@@ -526,8 +567,10 @@ add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
 add_subdirectory(Fwk/AppFwk/cafCommand)
 add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
+
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
+
 option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
 set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
@@ -537,6 +580,32 @@ set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
+
+if(MSVC)
+  target_compile_options(cafViewer PRIVATE /wd4996)
+  target_compile_options(cafPdmCore PRIVATE /wd4996)
+  target_compile_options(cafPdmCore PRIVATE /wd4996)
+  target_compile_options(cafPdmXml PRIVATE /wd4996)
+  target_compile_options(cafUserInterface PRIVATE /wd4996)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(cafCommandFeatures PRIVATE -Wno-deprecated-copy)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(
+    CommonCode PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+  )
+  target_compile_options(
+    cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+  )
+  target_compile_options(
+    cafVizExtensions PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+                             -Wno-invalid-source-encoding
+  )
+  target_compile_options(cafUserInterface PRIVATE -Wno-null-pointer-arithmetic)
+endif()
 
 list(
   APPEND
