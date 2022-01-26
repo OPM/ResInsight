@@ -88,14 +88,14 @@ public:
     const QString& dateFormat() const;
     const QString& timeFormat() const;
 
-    double visibleRangeMin() const;
-    double visibleRangeMax() const;
+    double visibleRangeMin() const override;
+    double visibleRangeMax() const override;
 
-    void setVisibleRangeMin( double value );
-    void setVisibleRangeMax( double value );
+    void setVisibleRangeMin( double value ) override;
+    void setVisibleRangeMax( double value ) override;
 
-    bool isAutoZoom() const;
-    void setAutoZoom( bool enableAutoZoom );
+    bool isAutoZoom() const override;
+    void setAutoZoom( bool enableAutoZoom ) override;
 
     bool isActive() const;
 
