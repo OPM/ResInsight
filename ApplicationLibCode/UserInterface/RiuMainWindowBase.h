@@ -20,6 +20,7 @@
 
 #include <QMainWindow>
 
+#include <memory>
 #include <vector>
 
 class QMdiArea;
