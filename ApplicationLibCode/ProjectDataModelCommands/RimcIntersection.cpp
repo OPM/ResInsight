@@ -1,0 +1,178 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2021- Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RimcIntersection.h"
+
+#include "RimExtrudedCurveIntersection.h"
+#include "RimcDataContainerDouble.h"
+#include "RivIntersectionGeometryGeneratorInterface.h"
+
+#include "cafPdmAbstractFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
+#include "cafPdmObjectScriptingCapability.h"
+
+CAF_PDM_SOURCE_INIT( RimcTriangleGeometry, "TriangleGeometry" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcTriangleGeometry::RimcTriangleGeometry()
+{
+    CAF_PDM_InitScriptableObject( "Triangle Geometry" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_vertices, "vertices", "Coordinates for triangle vertices" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "connections", "Indices to triangle vertices" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcTriangleGeometry* RimcTriangleGeometry::createFromVertices( const std::vector<cvf::Vec3f>& vertices )
+{
+    std::vector<int> conn;
+    if ( !vertices.empty() )
+    {
+        conn.resize( vertices.size() );
+        std::iota( conn.begin(), conn.end(), 0 );
+    }
+
+    return createFromVerticesAndConnections( vertices, conn );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcTriangleGeometry* RimcTriangleGeometry::createFromVerticesAndConnections( const std::vector<cvf::Vec3f>& vertices,
+                                                                              const std::vector<int>& connections )
+{
+    auto obj = new RimcTriangleGeometry;
+
+    obj->m_vertices    = vertices;
+    obj->m_connections = connections;
+
+    return obj;
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection, RimcExtrudedCurveIntersection_geometry, "geometry" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcExtrudedCurveIntersection_geometry::RimcExtrudedCurveIntersection_geometry( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Intersection Geometry" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
+{
+    auto intersection = self<RimExtrudedCurveIntersection>();
+
+    auto geoGenerator = intersection->intersectionGeometryGenerator();
+    if ( geoGenerator )
+    {
+        std::vector<cvf::Vec3f> coords;
+        geoGenerator->triangleVxes()->toStdVector( &coords );
+
+        auto triangleGeometry = RimcTriangleGeometry::createFromVertices( coords );
+
+        return triangleGeometry;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcExtrudedCurveIntersection_geometry::resultIsPersistent() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcExtrudedCurveIntersection_geometry::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimcTriangleGeometry );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection,
+                                   RimcExtrudedCurveIntersection_geometryResult,
+                                   "geometryResult" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcExtrudedCurveIntersection_geometryResult::RimcExtrudedCurveIntersection_geometryResult( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Geometry Result" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
+{
+    auto intersection = self<RimExtrudedCurveIntersection>();
+
+    auto geoGenerator = intersection->intersectionGeometryGenerator();
+    if ( geoGenerator )
+    {
+        auto triToCellIndex = geoGenerator->triangleToCellIndex();
+        auto vertices       = geoGenerator->triangleVxes();
+
+        std::vector<double> values;
+        values.reserve( triToCellIndex.size() );
+
+        // TODO Find result accessor and extract values for each triangle
+
+        for ( const auto& i : triToCellIndex )
+        {
+            values.push_back( i );
+        }
+
+        auto triangleValues            = new RimcDataContainerDouble;
+        triangleValues->m_doubleValues = values;
+
+        return triangleValues;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcExtrudedCurveIntersection_geometryResult::resultIsPersistent() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcExtrudedCurveIntersection_geometryResult::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimcDataContainerDouble );
+}
