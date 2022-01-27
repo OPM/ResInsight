@@ -20,6 +20,8 @@
 
 #include <QMainWindow>
 
+#include "cafPdmUiDragDropInterface.h"
+
 #include <memory>
 #include <vector>
 
@@ -31,7 +33,6 @@ namespace caf
 class PdmObject;
 class PdmUiTreeView;
 class PdmUiItem;
-class PdmUiDragDropInterface;
 } // namespace caf
 
 class QMdiArea;
