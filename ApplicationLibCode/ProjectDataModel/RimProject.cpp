@@ -270,10 +270,10 @@ void RimProject::close()
 
     fileName = "";
 
-    mainWindowCurrentModelIndexPaths.v().clear();
-    mainWindowTreeViewStates.v().clear();
-    plotWindowCurrentModelIndexPaths.v().clear();
-    plotWindowTreeViewStates.v().clear();
+    mainWindowCurrentModelIndexPaths = "";
+    mainWindowTreeViewStates         = "";
+    plotWindowCurrentModelIndexPaths = "";
+    plotWindowTreeViewStates         = "";
 
     m_nextValidCaseId        = 0;
     m_nextValidCaseGroupId   = 0;

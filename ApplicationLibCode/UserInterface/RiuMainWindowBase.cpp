@@ -539,10 +539,12 @@ void RiuMainWindowBase::restoreTreeViewStates( QString treeStateString, QString 
     QStringList treeStates  = treeStateString.split( "|" );
     QStringList treeIndexes = treeIndexeString.split( "|" );
 
-    if ( treeStates.size() < projectTreeViews().size() ) return;
-    if ( treeIndexes.size() < projectTreeViews().size() ) return;
+    const int nTreeViews = (int)projectTreeViews().size();
 
-    for ( int treeId = 0; treeId < static_cast<int>( projectTreeViews().size() ); treeId++ )
+    if ( treeStates.size() < nTreeViews ) return;
+    if ( treeIndexes.size() < nTreeViews ) return;
+
+    for ( int treeId = 0; treeId < nTreeViews; treeId++ )
     {
         auto tv = projectTreeView( treeId );
 
