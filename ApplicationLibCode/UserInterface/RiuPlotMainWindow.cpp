@@ -454,6 +454,9 @@ void RiuPlotMainWindow::createDockPanels()
     const int                  nTreeViews      = 3;
     const std::vector<QString> treeViewTitles  = { "Plots", "Data Sources", "Scripts" };
     const std::vector<QString> treeViewConfigs = { "PlotWindow.Plots", "PlotWindow.DataSources", "PlotWindow.Scripts" };
+    const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::plotMainWindowPlotsTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowDataSourceTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowScriptsTreeName() };
 
     createTreeViews( nTreeViews );
 
@@ -462,7 +465,7 @@ void RiuPlotMainWindow::createDockPanels()
     for ( int i = 0; i < nTreeViews; i++ )
     {
         QDockWidget* dockWidget = new QDockWidget( treeViewTitles[i], this );
-        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowProjectTreeName() );
+        dockWidget->setObjectName( treeViewDockNames[i] );
         dockWidget->setAllowedAreas( Qt::AllDockWidgetAreas );
 
         caf::PdmUiTreeView* projectTree = projectTreeView( i );

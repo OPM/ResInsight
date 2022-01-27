@@ -48,7 +48,10 @@ public:
     static QString undoStackName();
     static QString summaryPlotManagerName();
 
-    static QString plotMainWindowProjectTreeName();
+    static QString plotMainWindowDataSourceTreeName();
+    static QString plotMainWindowPlotsTreeName();
+    static QString plotMainWindowScriptsTreeName();
+
     static QString plotMainWindowPropertyEditorName();
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();

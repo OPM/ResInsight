@@ -111,9 +111,25 @@ QString RiuDockWidgetTools::summaryPlotManagerName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::plotMainWindowProjectTreeName()
+QString RiuDockWidgetTools::plotMainWindowDataSourceTreeName()
 {
-    return "plotMainWindow_dockProjectTree";
+    return "plotMainWindow_dockDataSourceTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowPlotsTreeName()
+{
+    return "plotMainWindow_dockPlotsTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowScriptsTreeName()
+{
+    return "plotMainWindow_dockScriptsTree";
 }
 
 //--------------------------------------------------------------------------------------------------
