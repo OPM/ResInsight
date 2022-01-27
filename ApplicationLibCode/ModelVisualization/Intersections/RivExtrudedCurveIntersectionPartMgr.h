@@ -81,6 +81,8 @@ public:
 
     const RivIntersectionGeometryGeneratorInterface* intersectionGeometryGenerator() const;
 
+    void ensureGeometryIsCreated();
+
 private:
     void generatePartGeometry();
     void createFaultLabelParts( const std::vector<std::pair<QString, cvf::Vec3d>>& labelAndAnchors );

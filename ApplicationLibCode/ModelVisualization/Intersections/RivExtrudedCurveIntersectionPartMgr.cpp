@@ -901,3 +901,11 @@ const RivIntersectionGeometryGeneratorInterface* RivExtrudedCurveIntersectionPar
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivExtrudedCurveIntersectionPartMgr::ensureGeometryIsCreated()
+{
+    if ( m_intersectionGenerator.notNull() ) m_intersectionGenerator->ensureGeometryIsCalculated();
+}

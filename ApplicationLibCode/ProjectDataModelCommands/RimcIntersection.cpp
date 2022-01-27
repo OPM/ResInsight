@@ -29,6 +29,7 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionResultDefinition.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
 
 #include "RimcDataContainerDouble.h"
 
@@ -121,6 +122,8 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
 {
     auto intersection = self<RimExtrudedCurveIntersection>();
 
+    intersection->intersectionPartMgr()->ensureGeometryIsCreated();
+
     auto geoGenerator = intersection->intersectionGeometryGenerator();
     if ( geoGenerator )
     {
@@ -171,6 +174,7 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
 {
     auto intersection = self<RimExtrudedCurveIntersection>();
 
+    intersection->intersectionPartMgr()->ensureGeometryIsCreated();
     auto geoGenerator = intersection->intersectionGeometryGenerator();
     if ( geoGenerator )
     {

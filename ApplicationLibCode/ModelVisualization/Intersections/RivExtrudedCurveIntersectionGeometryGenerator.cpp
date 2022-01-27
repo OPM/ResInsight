@@ -768,6 +768,14 @@ const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::triangleVx
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivExtrudedCurveIntersectionGeometryGenerator::ensureGeometryIsCalculated()
+{
+    calculateArrays();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimExtrudedCurveIntersection* RivExtrudedCurveIntersectionGeometryGenerator::intersection() const
 {
     return m_intersection;
