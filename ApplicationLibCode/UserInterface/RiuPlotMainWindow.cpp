@@ -58,7 +58,6 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeView.h"
-#include "cafQTreeViewStateSerializer.h"
 #include "cafSelectionManager.h"
 
 #include <QCloseEvent>
@@ -1011,30 +1010,8 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::restoreTreeViewState()
 {
-    const int treeCount = static_cast<int>( projectTreeViews().size() );
-
-    if ( RimProject::current()->plotWindowTreeViewStates.v().size() < (uint)treeCount ) return;
-    if ( RimProject::current()->plotWindowCurrentModelIndexPaths.v().size() < (uint)treeCount ) return;
-
-    for ( int treeId = 0; treeId < treeCount; treeId++ )
-    {
-        auto tv = projectTreeView( treeId );
-
-        QString stateString = RimProject::current()->plotWindowTreeViewStates.v()[treeId];
-        if ( !stateString.isEmpty() )
-        {
-            tv->treeView()->collapseAll();
-            caf::QTreeViewStateSerializer::applyTreeViewStateFromString( tv->treeView(), stateString );
-        }
-
-        QString currentIndexString = RimProject::current()->plotWindowCurrentModelIndexPaths.v()[treeId];
-        if ( !currentIndexString.isEmpty() )
-        {
-            QModelIndex mi =
-                caf::QTreeViewStateSerializer::getModelIndexFromString( tv->treeView()->model(), currentIndexString );
-            tv->treeView()->setCurrentIndex( mi );
-        }
-    }
+    restoreTreeViewStates( RimProject::current()->plotWindowTreeViewStates(),
+                           RimProject::current()->plotWindowCurrentModelIndexPaths() );
 }
 
 //--------------------------------------------------------------------------------------------------

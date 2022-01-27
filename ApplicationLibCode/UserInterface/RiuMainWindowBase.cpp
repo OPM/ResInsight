@@ -29,10 +29,10 @@
 #include "RimProject.h"
 #include "RimViewWindow.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeView.h"
-
-#include "cafCmdFeatureManager.h"
+#include "cafQTreeViewStateSerializer.h"
 
 #include <QAction>
 #include <QDockWidget>
@@ -529,4 +529,36 @@ caf::PdmUiTreeView* RiuMainWindowBase::getTreeViewWithItem( const caf::PdmUiItem
 std::vector<caf::PdmUiTreeView*> RiuMainWindowBase::projectTreeViews()
 {
     return m_projectTreeViews;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::restoreTreeViewStates( QString treeStateString, QString treeIndexeString )
+{
+    QStringList treeStates  = treeStateString.split( "|" );
+    QStringList treeIndexes = treeIndexeString.split( "|" );
+
+    if ( treeStates.size() < projectTreeViews().size() ) return;
+    if ( treeIndexes.size() < projectTreeViews().size() ) return;
+
+    for ( int treeId = 0; treeId < static_cast<int>( projectTreeViews().size() ); treeId++ )
+    {
+        auto tv = projectTreeView( treeId );
+
+        QString stateString = treeStates[treeId];
+        if ( !stateString.isEmpty() )
+        {
+            tv->treeView()->collapseAll();
+            caf::QTreeViewStateSerializer::applyTreeViewStateFromString( tv->treeView(), stateString );
+        }
+
+        QString currentIndexString = treeIndexes[treeId];
+        if ( !currentIndexString.isEmpty() )
+        {
+            QModelIndex mi =
+                caf::QTreeViewStateSerializer::getModelIndexFromString( tv->treeView()->model(), currentIndexString );
+            tv->treeView()->setCurrentIndex( mi );
+        }
+    }
 }

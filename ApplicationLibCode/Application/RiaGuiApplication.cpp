@@ -296,40 +296,44 @@ void RiaGuiApplication::storeTreeViewState()
 {
     if ( m_mainWindow )
     {
-        project()->mainWindowTreeViewStates.v().clear();
-        project()->mainWindowCurrentModelIndexPaths.v().clear();
+        QStringList treeStates;
+        QStringList treeIndexes;
 
         for ( auto& tv : mainWindow()->projectTreeViews() )
         {
             QString treeViewState;
             caf::QTreeViewStateSerializer::storeTreeViewStateToString( tv->treeView(), treeViewState );
-            project()->mainWindowTreeViewStates.v().push_back( treeViewState );
+            treeStates.append( treeViewState );
 
             QModelIndex mi = tv->treeView()->currentIndex();
-
-            QString encodedModelIndexString;
+            QString     encodedModelIndexString;
             caf::QTreeViewStateSerializer::encodeStringFromModelIndex( mi, encodedModelIndexString );
-            project()->mainWindowCurrentModelIndexPaths.v().push_back( encodedModelIndexString );
+            treeIndexes.append( encodedModelIndexString );
         }
+
+        project()->mainWindowTreeViewStates         = treeStates.join( "|" );
+        project()->mainWindowCurrentModelIndexPaths = treeIndexes.join( "|" );
     }
 
     if ( m_mainPlotWindow )
     {
-        project()->plotWindowTreeViewStates.v().clear();
-        project()->plotWindowCurrentModelIndexPaths.v().clear();
+        QStringList treeStates;
+        QStringList treeIndexes;
 
         for ( auto& tv : mainPlotWindow()->projectTreeViews() )
         {
             QString treeViewState;
             caf::QTreeViewStateSerializer::storeTreeViewStateToString( tv->treeView(), treeViewState );
-            project()->plotWindowTreeViewStates.v().push_back( treeViewState );
+            treeStates.append( treeViewState );
 
             QModelIndex mi = tv->treeView()->currentIndex();
-
-            QString encodedModelIndexString;
+            QString     encodedModelIndexString;
             caf::QTreeViewStateSerializer::encodeStringFromModelIndex( mi, encodedModelIndexString );
-            project()->plotWindowCurrentModelIndexPaths.v().push_back( encodedModelIndexString );
+            treeIndexes.append( encodedModelIndexString );
         }
+
+        project()->plotWindowTreeViewStates         = treeStates.join( "|" );
+        project()->plotWindowCurrentModelIndexPaths = treeStates.join( "|" );
     }
 }
 

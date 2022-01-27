@@ -99,6 +99,8 @@ protected:
                               const QPoint&  subWindowPos,
                               const QSize&   subWindowSize );
 
+    void restoreTreeViewStates( QString treeStateString, QString treeIndexString );
+
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotRefreshHelpActions();
