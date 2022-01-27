@@ -333,7 +333,7 @@ void RiaGuiApplication::storeTreeViewState()
         }
 
         project()->plotWindowTreeViewStates         = treeStates.join( "|" );
-        project()->plotWindowCurrentModelIndexPaths = treeStates.join( "|" );
+        project()->plotWindowCurrentModelIndexPaths = treeIndexes.join( "|" );
     }
 }
 
