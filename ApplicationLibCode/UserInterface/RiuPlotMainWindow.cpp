@@ -1013,8 +1013,8 @@ void RiuPlotMainWindow::restoreTreeViewState()
 {
     const int treeCount = static_cast<int>( projectTreeViews().size() );
 
-    if ( RimProject::current()->plotWindowTreeViewStates.v().size() < treeCount ) return;
-    if ( RimProject::current()->plotWindowCurrentModelIndexPaths.v().size() < treeCount ) return;
+    if ( RimProject::current()->plotWindowTreeViewStates.v().size() < (uint)treeCount ) return;
+    if ( RimProject::current()->plotWindowCurrentModelIndexPaths.v().size() < (uint)treeCount ) return;
 
     for ( int treeId = 0; treeId < treeCount; treeId++ )
     {

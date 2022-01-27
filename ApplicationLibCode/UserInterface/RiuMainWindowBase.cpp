@@ -502,7 +502,7 @@ void RiuMainWindowBase::createTreeViews( int numberOfTrees )
 caf::PdmUiTreeView* RiuMainWindowBase::projectTreeView( int treeId )
 {
     CVF_ASSERT( treeId >= 0 );
-    CVF_ASSERT( treeId < m_projectTreeViews.size() );
+    CVF_ASSERT( treeId < (int)m_projectTreeViews.size() );
 
     return m_projectTreeViews[treeId];
 }
