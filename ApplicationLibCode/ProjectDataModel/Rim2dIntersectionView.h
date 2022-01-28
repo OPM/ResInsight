@@ -65,6 +65,7 @@ public:
     void update3dInfo();
     void updateName();
 
+    void                                       ensureGeometryIsCreated();
     const RivExtrudedCurveIntersectionPartMgr* flatIntersectionPartMgr() const;
     cvf::Vec3d                                 transformToUtm( const cvf::Vec3d& unscaledPointInFlatDomain ) const;
 

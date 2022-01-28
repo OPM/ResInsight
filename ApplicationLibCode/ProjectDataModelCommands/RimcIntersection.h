@@ -35,6 +35,13 @@ class RimcTriangleGeometry : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class GeometryType
+    {
+        FULL_3D,
+        PROJECTED_TO_PLANE,
+    };
+
+public:
     RimcTriangleGeometry();
 
     static RimcTriangleGeometry* createFromVertices( const std::vector<cvf::Vec3f>& vertices );
@@ -42,8 +49,6 @@ public:
                                                                    const std::vector<int>&        connections );
 
 private:
-    caf::PdmField<std::vector<cvf::Vec3f>> m_vertices;
-
     caf::PdmField<std::vector<float>> m_x;
     caf::PdmField<std::vector<float>> m_y;
     caf::PdmField<std::vector<float>> m_z;
@@ -64,6 +69,9 @@ public:
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+private:
+    caf::PdmField<caf::AppEnum<RimcTriangleGeometry::GeometryType>> m_geometryType;
 };
 
 //==================================================================================================
@@ -79,4 +87,7 @@ public:
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+private:
+    caf::PdmField<caf::AppEnum<RimcTriangleGeometry::GeometryType>> m_geometryType;
 };

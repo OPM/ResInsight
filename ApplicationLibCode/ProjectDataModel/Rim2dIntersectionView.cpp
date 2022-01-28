@@ -354,6 +354,17 @@ void Rim2dIntersectionView::updateName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void Rim2dIntersectionView::ensureGeometryIsCreated()
+{
+    if ( m_flatIntersectionPartMgr.isNull() )
+        m_flatIntersectionPartMgr = new RivExtrudedCurveIntersectionPartMgr( m_intersection(), true );
+
+    m_flatIntersectionPartMgr->ensureGeometryIsCreated();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const RivExtrudedCurveIntersectionPartMgr* Rim2dIntersectionView::flatIntersectionPartMgr() const
 {
     return m_flatIntersectionPartMgr.p();

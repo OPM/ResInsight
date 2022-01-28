@@ -23,6 +23,7 @@
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
 
+#include "Rim2dIntersectionView.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
@@ -40,6 +41,17 @@
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimcTriangleGeometry::GeometryType>::setUp()
+{
+    addItem( RimcTriangleGeometry::GeometryType::FULL_3D, "FULL_3D", "Full 3DDynamic" );
+    addItem( RimcTriangleGeometry::GeometryType::PROJECTED_TO_PLANE, "PROJECTED_TO_PLANE", "Projected To Plane" );
+    setDefault( RimcTriangleGeometry::GeometryType::FULL_3D );
+}
+}; // namespace caf
+
 CAF_PDM_SOURCE_INIT( RimcTriangleGeometry, "TriangleGeometry" );
 
 //--------------------------------------------------------------------------------------------------
@@ -48,12 +60,12 @@ CAF_PDM_SOURCE_INIT( RimcTriangleGeometry, "TriangleGeometry" );
 RimcTriangleGeometry::RimcTriangleGeometry()
 {
     CAF_PDM_InitScriptableObject( "Triangle Geometry" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_vertices, "vertices", "Coordinates for triangle vertices" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "connections", "Indices to triangle vertices" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_x, "xcoords", "X coords" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_y, "ycoords", "Y coords" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_z, "zcoords", "Z coords" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "connections", "Indices to triangle vertices" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -98,7 +110,6 @@ RimcTriangleGeometry* RimcTriangleGeometry::createFromVerticesAndConnections( co
     obj->m_y = yVals;
     obj->m_z = zVals;
 
-    obj->m_vertices    = vertices;
     obj->m_connections = connections;
 
     return obj;
@@ -113,6 +124,7 @@ RimcExtrudedCurveIntersection_geometry::RimcExtrudedCurveIntersection_geometry( 
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Intersection Geometry" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "Geometrytype", "Geometry Type" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,9 +134,20 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
 {
     auto intersection = self<RimExtrudedCurveIntersection>();
 
-    intersection->intersectionPartMgr()->ensureGeometryIsCreated();
+    const RivIntersectionGeometryGeneratorInterface* geoGenerator = nullptr;
+    if ( m_geometryType == RimcTriangleGeometry::GeometryType::FULL_3D )
+    {
+        intersection->intersectionPartMgr()->ensureGeometryIsCreated();
+        geoGenerator = intersection->intersectionGeometryGenerator();
+    }
+    else if ( m_geometryType == RimcTriangleGeometry::GeometryType::PROJECTED_TO_PLANE )
+    {
+        intersection->correspondingIntersectionView()->ensureGeometryIsCreated();
 
-    auto geoGenerator = intersection->intersectionGeometryGenerator();
+        geoGenerator =
+            intersection->correspondingIntersectionView()->flatIntersectionPartMgr()->intersectionGeometryGenerator();
+    }
+
     if ( geoGenerator )
     {
         std::vector<cvf::Vec3f> coords;
@@ -165,6 +188,7 @@ RimcExtrudedCurveIntersection_geometryResult::RimcExtrudedCurveIntersection_geom
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Geometry Result" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "geometrytype", "Geometry Type" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -174,8 +198,20 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
 {
     auto intersection = self<RimExtrudedCurveIntersection>();
 
-    intersection->intersectionPartMgr()->ensureGeometryIsCreated();
-    auto geoGenerator = intersection->intersectionGeometryGenerator();
+    const RivIntersectionGeometryGeneratorInterface* geoGenerator = nullptr;
+    if ( m_geometryType == RimcTriangleGeometry::GeometryType::FULL_3D )
+    {
+        intersection->intersectionPartMgr()->ensureGeometryIsCreated();
+        geoGenerator = intersection->intersectionGeometryGenerator();
+    }
+    else if ( m_geometryType == RimcTriangleGeometry::GeometryType::PROJECTED_TO_PLANE )
+    {
+        intersection->correspondingIntersectionView()->ensureGeometryIsCreated();
+
+        geoGenerator =
+            intersection->correspondingIntersectionView()->flatIntersectionPartMgr()->intersectionGeometryGenerator();
+    }
+
     if ( geoGenerator )
     {
         auto triToCellIndex = geoGenerator->triangleToCellIndex();
