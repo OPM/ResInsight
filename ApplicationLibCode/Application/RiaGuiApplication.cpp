@@ -22,6 +22,7 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
+#include "RiaDefines.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
@@ -311,8 +312,8 @@ void RiaGuiApplication::storeTreeViewState()
             treeIndexes.append( encodedModelIndexString );
         }
 
-        project()->mainWindowTreeViewStates         = treeStates.join( "|" );
-        project()->mainWindowCurrentModelIndexPaths = treeIndexes.join( "|" );
+        project()->mainWindowTreeViewStates         = treeStates.join( RiaDefines::stringListSeparator() );
+        project()->mainWindowCurrentModelIndexPaths = treeIndexes.join( RiaDefines::stringListSeparator() );
     }
 
     if ( m_mainPlotWindow )
@@ -332,8 +333,8 @@ void RiaGuiApplication::storeTreeViewState()
             treeIndexes.append( encodedModelIndexString );
         }
 
-        project()->plotWindowTreeViewStates         = treeStates.join( "|" );
-        project()->plotWindowCurrentModelIndexPaths = treeIndexes.join( "|" );
+        project()->plotWindowTreeViewStates         = treeStates.join( RiaDefines::stringListSeparator() );
+        project()->plotWindowCurrentModelIndexPaths = treeIndexes.join( RiaDefines::stringListSeparator() );
     }
 }
 

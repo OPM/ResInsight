@@ -19,6 +19,7 @@
 #include "RiuMainWindowBase.h"
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaPreferences.h"
 #include "RiaVersionInfo.h"
 
@@ -536,8 +537,8 @@ std::vector<caf::PdmUiTreeView*> RiuMainWindowBase::projectTreeViews()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::restoreTreeViewStates( QString treeStateString, QString treeIndexeString )
 {
-    QStringList treeStates  = treeStateString.split( "|" );
-    QStringList treeIndexes = treeIndexeString.split( "|" );
+    QStringList treeStates  = treeStateString.split( RiaDefines::stringListSeparator() );
+    QStringList treeIndexes = treeIndexeString.split( RiaDefines::stringListSeparator() );
 
     const int nTreeViews = (int)projectTreeViews().size();
 

@@ -185,4 +185,6 @@ enum class WellProductionType : short
 
 bool isInjector( WellProductionType wellProductionType );
 
+QString stringListSeparator();
+
 }; // namespace RiaDefines
