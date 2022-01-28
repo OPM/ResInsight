@@ -188,7 +188,7 @@ RimcExtrudedCurveIntersection_geometryResult::RimcExtrudedCurveIntersection_geom
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Geometry Result" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "geometrytype", "Geometry Type" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "Geometrytype", "Geometry Type" );
 }
 
 //--------------------------------------------------------------------------------------------------
