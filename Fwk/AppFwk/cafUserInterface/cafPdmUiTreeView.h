@@ -38,6 +38,8 @@
 #include <QString>
 #include <QWidget>
 
+#include "cafPdmUiDragDropInterface.h"
+
 class QVBoxLayout;
 class QTreeView;
 class QItemSelection;
@@ -48,7 +50,6 @@ namespace caf
 {
 class PdmUiItem;
 class PdmUiTreeViewEditor;
-class PdmUiDragDropInterface;
 class PdmObjectHandle;
 
 //==================================================================================================
@@ -89,6 +90,9 @@ signals:
     void selectionChanged();
     // Convenience signal for use with PdmUiPropertyView
     void selectedObjectChanged( caf::PdmObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
+
+public slots:
+    void treeVisibilityChanged( bool visible );
 
 private slots:
     void slotOnSelectionChanged();

@@ -38,6 +38,7 @@
 
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
+#include "cafPdmUiDragDropInterface.h"
 
 #include "cafPdmUiTreeViewEditor.h"
 #include <QHBoxLayout>
@@ -226,6 +227,14 @@ void PdmUiTreeView::setDragDropInterface( PdmUiDragDropInterface* dragDropInterf
 void PdmUiTreeView::enableAppendOfClassNameToUiItemText( bool enable )
 {
     m_treeViewEditor->enableAppendOfClassNameToUiItemText( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::treeVisibilityChanged( bool visible )
+{
+    if ( visible ) slotOnSelectionChanged();
 }
 
 } // End of namespace caf

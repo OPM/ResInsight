@@ -22,6 +22,7 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
+#include "RiaDefines.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
@@ -294,39 +295,46 @@ bool RiaGuiApplication::saveProjectAs( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::storeTreeViewState()
 {
+    if ( m_mainWindow )
     {
-        if ( mainPlotWindow() && mainPlotWindow()->projectTreeView() )
+        QStringList treeStates;
+        QStringList treeIndexes;
+
+        for ( auto& tv : mainWindow()->projectTreeViews() )
         {
-            caf::PdmUiTreeView* projectTreeView = mainPlotWindow()->projectTreeView();
-
             QString treeViewState;
-            caf::QTreeViewStateSerializer::storeTreeViewStateToString( projectTreeView->treeView(), treeViewState );
+            caf::QTreeViewStateSerializer::storeTreeViewStateToString( tv->treeView(), treeViewState );
+            treeStates.append( treeViewState );
 
-            QModelIndex mi = projectTreeView->treeView()->currentIndex();
-
-            QString encodedModelIndexString;
+            QModelIndex mi = tv->treeView()->currentIndex();
+            QString     encodedModelIndexString;
             caf::QTreeViewStateSerializer::encodeStringFromModelIndex( mi, encodedModelIndexString );
-
-            project()->plotWindowTreeViewState         = treeViewState;
-            project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
+            treeIndexes.append( encodedModelIndexString );
         }
+
+        project()->mainWindowTreeViewStates         = treeStates.join( RiaDefines::stringListSeparator() );
+        project()->mainWindowCurrentModelIndexPaths = treeIndexes.join( RiaDefines::stringListSeparator() );
     }
 
+    if ( m_mainPlotWindow )
     {
-        caf::PdmUiTreeView* projectTreeView = m_mainWindow->projectTreeView();
-        if ( projectTreeView )
+        QStringList treeStates;
+        QStringList treeIndexes;
+
+        for ( auto& tv : mainPlotWindow()->projectTreeViews() )
         {
             QString treeViewState;
-            caf::QTreeViewStateSerializer::storeTreeViewStateToString( projectTreeView->treeView(), treeViewState );
+            caf::QTreeViewStateSerializer::storeTreeViewStateToString( tv->treeView(), treeViewState );
+            treeStates.append( treeViewState );
 
-            QModelIndex mi = projectTreeView->treeView()->currentIndex();
-
-            QString encodedModelIndexString;
+            QModelIndex mi = tv->treeView()->currentIndex();
+            QString     encodedModelIndexString;
             caf::QTreeViewStateSerializer::encodeStringFromModelIndex( mi, encodedModelIndexString );
-
-            project()->mainWindowTreeViewState         = treeViewState;
-            project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
+            treeIndexes.append( encodedModelIndexString );
         }
+
+        project()->plotWindowTreeViewStates         = treeStates.join( RiaDefines::stringListSeparator() );
+        project()->plotWindowCurrentModelIndexPaths = treeIndexes.join( RiaDefines::stringListSeparator() );
     }
 }
 
@@ -1380,13 +1388,19 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
         caf::EffectGenerator::setRenderingMode( caf::EffectGenerator::FIXED_FUNCTION );
     }
 
-    if ( m_mainWindow && m_mainWindow->projectTreeView() )
+    if ( m_mainWindow )
     {
-        m_mainWindow->projectTreeView()->enableAppendOfClassNameToUiItemText(
-            RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        for ( auto& tv : mainWindow()->projectTreeViews() )
+        {
+            tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        }
         if ( mainPlotWindow() )
-            mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(
-                RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        {
+            for ( auto& tv : mainPlotWindow()->projectTreeViews() )
+            {
+                tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+            }
+        }
     }
 
     for ( auto fontObject : defaultFontObjects )

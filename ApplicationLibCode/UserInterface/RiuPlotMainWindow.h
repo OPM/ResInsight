@@ -22,7 +22,6 @@
 #include "RiuMdiArea.h"
 
 #include "cafPdmPointer.h"
-#include "cafPdmUiDragDropInterface.h"
 
 #include <QPointer>
 
@@ -133,10 +132,9 @@ private:
 
     QMenu* m_windowMenu;
 
-    caf::PdmUiToolBarEditor*                     m_wellLogPlotToolBarEditor;
-    caf::PdmUiToolBarEditor*                     m_multiPlotToolBarEditor;
-    caf::PdmUiToolBarEditor*                     m_summaryPlotToolBarEditor;
-    std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
+    caf::PdmUiToolBarEditor* m_wellLogPlotToolBarEditor;
+    caf::PdmUiToolBarEditor* m_multiPlotToolBarEditor;
+    caf::PdmUiToolBarEditor* m_summaryPlotToolBarEditor;
 
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
     caf::PdmUiPropertyView* m_summaryPlotManagerView;

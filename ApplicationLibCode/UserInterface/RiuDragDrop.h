@@ -47,7 +47,7 @@ class RimWellLogCurve;
 class RiuDragDrop : public caf::PdmUiDragDropInterface
 {
 public:
-    RiuDragDrop();
+    RiuDragDrop( caf::PdmUiTreeView* treeView );
     ~RiuDragDrop() override;
 
     static std::vector<caf::PdmObjectHandle*> draggedObjectsFromTreeView( caf::PdmUiTreeView* dragSource,
@@ -107,5 +107,7 @@ private:
 
 private:
     mutable std::vector<caf::PdmPointer<caf::PdmObjectHandle>> m_dragItems;
-    Qt::DropAction                                             m_proposedDropAction;
+
+    Qt::DropAction      m_proposedDropAction;
+    caf::PdmUiTreeView* m_projectTreeView;
 };

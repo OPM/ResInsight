@@ -158,31 +158,24 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiTreeView* RicToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
 {
-    {
-        RiaFeatureCommandContext* context = RiaFeatureCommandContext::instance();
+    RiaFeatureCommandContext* context = RiaFeatureCommandContext::instance();
 
-        caf::PdmUiTreeView* customActiveTreeView = dynamic_cast<caf::PdmUiTreeView*>( context->object() );
-        if ( customActiveTreeView )
-        {
-            return customActiveTreeView;
-        }
+    caf::PdmUiTreeView* customActiveTreeView = dynamic_cast<caf::PdmUiTreeView*>( context->object() );
+    if ( customActiveTreeView )
+    {
+        return customActiveTreeView;
     }
 
-    {
-        QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex( uiItem );
-        if ( modIndex.isValid() )
-        {
-            return RiuMainWindow::instance()->projectTreeView();
-        }
-    }
+    caf::PdmUiTreeView* activeTree = RiuMainWindow::instance()->getTreeViewWithItem( uiItem );
+    if ( activeTree ) return activeTree;
 
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( mainPlotWindow )
     {
-        QModelIndex modIndex = mainPlotWindow->projectTreeView()->findModelIndex( uiItem );
-        if ( modIndex.isValid() )
+        activeTree = mainPlotWindow->getTreeViewWithItem( uiItem );
+        if ( activeTree )
         {
-            return mainPlotWindow->projectTreeView();
+            return activeTree;
         }
     }
 

@@ -314,3 +314,11 @@ bool RiaDefines::isInjector( WellProductionType wellProductionType )
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::stringListSeparator()
+{
+    return "|";
+}

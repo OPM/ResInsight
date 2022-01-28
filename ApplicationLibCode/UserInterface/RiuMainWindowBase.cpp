@@ -19,25 +19,28 @@
 #include "RiuMainWindowBase.h"
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaPreferences.h"
 #include "RiaVersionInfo.h"
 
 #include "RiuDockWidgetTools.h"
+#include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
 
 #include "RimProject.h"
 #include "RimViewWindow.h"
 
+#include "cafCmdFeatureManager.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiTreeView.h"
-
-#include "cafCmdFeatureManager.h"
+#include "cafQTreeViewStateSerializer.h"
 
 #include <QAction>
 #include <QDockWidget>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QSettings>
+#include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
 
@@ -45,8 +48,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RiuMainWindowBase::RiuMainWindowBase()
-    : m_projectTreeView( nullptr )
-    , m_allowActiveViewChangeFromSelection( true )
+    : m_allowActiveViewChangeFromSelection( true )
     , m_showFirstVisibleWindowMaximized( true )
     , m_blockSubWindowActivation( false )
     , m_blockSubWindowProjectTreeSelection( false )
@@ -238,7 +240,10 @@ QString RiuMainWindowBase::registryFolderName()
 void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange )
 {
     m_allowActiveViewChangeFromSelection = allowActiveViewChange;
-    m_projectTreeView->selectAsCurrentItem( object );
+
+    auto tv = getTreeViewWithItem( object );
+    if ( tv ) tv->selectAsCurrentItem( object );
+
     m_allowActiveViewChangeFromSelection = true;
 }
 
@@ -247,11 +252,15 @@ void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool 
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange )
 {
+    auto tv = getTreeViewWithItem( object );
+    if ( !tv ) return;
+
     m_allowActiveViewChangeFromSelection = allowActiveViewChange;
     std::vector<caf::PdmUiItem*> currentSelection;
-    m_projectTreeView->selectedUiItems( currentSelection );
+    tv->selectedUiItems( currentSelection );
     std::vector<const caf::PdmUiItem*> updatedSelection;
-    bool                               alreadySelected = false;
+
+    bool alreadySelected = false;
     for ( caf::PdmUiItem* uiItem : currentSelection )
     {
         if ( object == uiItem )
@@ -267,7 +276,7 @@ void RiuMainWindowBase::toggleItemInSelection( const caf::PdmObject* object, boo
     {
         updatedSelection.push_back( object );
     }
-    m_projectTreeView->selectItems( updatedSelection );
+    tv->selectItems( updatedSelection );
     m_allowActiveViewChangeFromSelection = true;
 }
 
@@ -364,7 +373,8 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setExpanded( const caf::PdmUiItem* uiItem, bool expanded )
 {
-    m_projectTreeView->setExpanded( uiItem, expanded );
+    caf::PdmUiTreeView* tv = getTreeViewWithItem( uiItem );
+    if ( tv ) tv->setExpanded( uiItem, expanded );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -469,4 +479,89 @@ void RiuMainWindowBase::slotRefreshUndoRedoActions()
 
     m_redoAction->setDisabled( !m_undoView->stack()->canRedo() );
     m_undoAction->setDisabled( !m_undoView->stack()->canUndo() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::createTreeViews( int numberOfTrees )
+{
+    CVF_ASSERT( m_projectTreeViews.empty() );
+
+    for ( int i = 0; i < numberOfTrees; i++ )
+    {
+        auto                         tv                = new caf::PdmUiTreeView();
+        caf::PdmUiDragDropInterface* dragDropInterface = new RiuDragDrop( tv );
+        tv->setDragDropInterface( dragDropInterface );
+        m_projectTreeViews.push_back( tv );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiTreeView* RiuMainWindowBase::projectTreeView( int treeId )
+{
+    CVF_ASSERT( treeId >= 0 );
+    CVF_ASSERT( treeId < (int)m_projectTreeViews.size() );
+
+    return m_projectTreeViews[treeId];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmUiTreeView* RiuMainWindowBase::getTreeViewWithItem( const caf::PdmUiItem* uiItem )
+{
+    for ( auto tv : m_projectTreeViews )
+    {
+        QModelIndex qmi = tv->findModelIndex( uiItem );
+        if ( qmi.isValid() )
+        {
+            return tv;
+        }
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmUiTreeView*> RiuMainWindowBase::projectTreeViews()
+{
+    return m_projectTreeViews;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::restoreTreeViewStates( QString treeStateString, QString treeIndexeString )
+{
+    QStringList treeStates  = treeStateString.split( RiaDefines::stringListSeparator() );
+    QStringList treeIndexes = treeIndexeString.split( RiaDefines::stringListSeparator() );
+
+    const int nTreeViews = (int)projectTreeViews().size();
+
+    if ( treeStates.size() < nTreeViews ) return;
+    if ( treeIndexes.size() < nTreeViews ) return;
+
+    for ( int treeId = 0; treeId < nTreeViews; treeId++ )
+    {
+        auto tv = projectTreeView( treeId );
+
+        QString stateString = treeStates[treeId];
+        if ( !stateString.isEmpty() )
+        {
+            tv->treeView()->collapseAll();
+            caf::QTreeViewStateSerializer::applyTreeViewStateFromString( tv->treeView(), stateString );
+        }
+
+        QString currentIndexString = treeIndexes[treeId];
+        if ( !currentIndexString.isEmpty() )
+        {
+            QModelIndex mi =
+                caf::QTreeViewStateSerializer::getModelIndexFromString( tv->treeView()->model(), currentIndexString );
+            tv->treeView()->setCurrentIndex( mi );
+        }
+    }
 }
