@@ -478,6 +478,15 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                     point1 = point1.getTransformedPoint( invSectionCS );
                     point2 = point2.getTransformedPoint( invSectionCS );
 
+                    if ( m_isFlattened )
+                    {
+                        // The points are transformed in to the XZ-plane with Y = zero.
+                        // Set all y values to zero to avoid numerical issues
+                        point0.y() = 0.0;
+                        point1.y() = 0.0;
+                        point2.y() = 0.0;
+                    }
+
                     triangleVertices.emplace_back( point0 );
                     triangleVertices.emplace_back( point1 );
                     triangleVertices.emplace_back( point2 );
