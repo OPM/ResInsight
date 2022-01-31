@@ -91,6 +91,9 @@ public:
     void setAxisTitleText( RiuPlotAxis axis, const QString& title ) override;
     void setAxisTitleEnabled( RiuPlotAxis axis, bool enable ) override;
 
+    RiuPlotAxis createNextPlotAxis( RiaDefines::PlotAxis axis ) override;
+    bool        isMultiAxisSupported() const override;
+
     void           setPlotTitle( const QString& plotTitle ) override;
     const QString& plotTitle() const;
     void           setPlotTitleEnabled( bool enabled );

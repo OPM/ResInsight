@@ -28,6 +28,7 @@
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGuiTheme.h"
+#include "RiuPlotAxis.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
 #include "RiuQwtCurvePointTracker.h"
@@ -1144,6 +1145,15 @@ void RiuQwtPlotWidget::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotAxis RiuQwtPlotWidget::createNextPlotAxis( RiaDefines::PlotAxis axis )
+{
+    // Qwt does not support multiaxis. Just use the default on the given side.
+    return RiuPlotAxis( axis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotCurve* RiuQwtPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color )
 {
     return new RiuQwtPlotCurve( ownerRimCurve, title );
@@ -1164,4 +1174,12 @@ void RiuQwtPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemType )
 const QColor& RiuQwtPlotWidget::backgroundColor() const
 {
     return m_plot->canvasBackground().color();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuQwtPlotWidget::isMultiAxisSupported() const
+{
+    return false;
 }

@@ -19,6 +19,7 @@
 
 #pragma once
 
+#include "RiaPlotDefines.h"
 #include "RiuInterfaceToViewWindow.h"
 #include "RiuPlotAxis.h"
 
@@ -106,6 +107,9 @@ public:
     virtual void setAxisTitleText( RiuPlotAxis axis, const QString& title ) = 0;
     virtual void setAxisTitleEnabled( RiuPlotAxis axis, bool enable )       = 0;
 
+    virtual bool        isMultiAxisSupported() const                    = 0;
+    virtual RiuPlotAxis createNextPlotAxis( RiaDefines::PlotAxis axis ) = 0;
+
     virtual void   setPlotTitle( const QString& plotTitle ) = 0;
     const QString& plotTitle() const;
     void           setPlotTitleEnabled( bool enabled );
@@ -142,7 +146,8 @@ public:
                                                         double      rangeMax ) = 0;
 
     virtual void
-                   setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) = 0;
+        setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) = 0;
+
     virtual double majorTickInterval( RiuPlotAxis axis ) const = 0;
     virtual double minorTickInterval( RiuPlotAxis axis ) const = 0;
 

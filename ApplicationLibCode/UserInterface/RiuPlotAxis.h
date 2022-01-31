@@ -44,7 +44,7 @@ public:
 
     RiaDefines::PlotAxis axis() const { return m_axis; }
 
-    int index() { return m_index; }
+    int index() const { return m_index; }
 
     bool operator<( const RiuPlotAxis& rhs ) const
     {

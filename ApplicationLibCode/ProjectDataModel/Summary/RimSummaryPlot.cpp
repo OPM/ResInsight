@@ -236,27 +236,22 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     m_axisProperties.push_back( leftYAxisProperties );
     connectAxisSignals( leftYAxisProperties );
 
-    RimPlotAxisProperties* leftYAxisProperties2 = new RimPlotAxisProperties;
-    leftYAxisProperties2->setNameAndAxis( "Left 2", RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 1 );
-    m_axisProperties.push_back( leftYAxisProperties2 );
-    connectAxisSignals( leftYAxisProperties2 );
-
     RimPlotAxisProperties* rightYAxisProperties = new RimPlotAxisProperties;
     rightYAxisProperties->setNameAndAxis( "Right", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, 0 );
     m_axisProperties.push_back( rightYAxisProperties );
     connectAxisSignals( rightYAxisProperties );
 
-    RimPlotAxisProperties* rightYAxisProperties2 = new RimPlotAxisProperties;
-    rightYAxisProperties2->setNameAndAxis( "Right 2", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, 1 );
-    m_axisProperties.push_back( rightYAxisProperties2 );
-    connectAxisSignals( rightYAxisProperties2 );
-
-    RimPlotAxisProperties* bottomAxisProperties = new RimPlotAxisProperties;
-    bottomAxisProperties->setNameAndAxis( "Bottom", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 1 );
-    m_axisProperties.push_back( bottomAxisProperties );
-
-    RimSummaryTimeAxisProperties* timeAxisProperties = new RimSummaryTimeAxisProperties;
-    m_axisProperties.push_back( timeAxisProperties );
+    if ( m_isCrossPlot )
+    {
+        RimPlotAxisProperties* bottomAxisProperties = new RimPlotAxisProperties;
+        bottomAxisProperties->setNameAndAxis( "Bottom", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0 );
+        m_axisProperties.push_back( bottomAxisProperties );
+    }
+    else
+    {
+        RimSummaryTimeAxisProperties* timeAxisProperties = new RimSummaryTimeAxisProperties;
+        m_axisProperties.push_back( timeAxisProperties );
+    }
 
     CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator" );
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
@@ -2733,5 +2728,18 @@ std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxis() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* curve )
 {
-    curve->setLeftOrRightAxisY( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    RiaDefines::PlotAxis plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+
+    RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultLeft();
+    if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
+    {
+        newPlotAxis = plotWidget()->createNextPlotAxis( plotAxis );
+
+        RimPlotAxisProperties* newAxisProperties = new RimPlotAxisProperties;
+        newAxisProperties->setNameAndAxis( "New Axis", newPlotAxis.axis(), newPlotAxis.index() );
+        m_axisProperties.push_back( newAxisProperties );
+        connectAxisSignals( newAxisProperties );
+    }
+
+    curve->setLeftOrRightAxisY( newPlotAxis.axis() );
 }

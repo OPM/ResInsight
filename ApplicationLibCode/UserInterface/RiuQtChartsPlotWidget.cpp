@@ -72,11 +72,8 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     layout->addWidget( m_viewer );
 
     addAxis( RiuPlotAxis::defaultBottom(), true, true );
-    addAxis( RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 1 ), true, true );
     addAxis( RiuPlotAxis::defaultLeft(), true, true );
-    addAxis( RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 1 ), true, true );
     addAxis( RiuPlotAxis::defaultRight(), true, true );
-    addAxis( RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, 1 ), true, true );
     addAxis( RiuPlotAxis::defaultTop(), false, false );
 
     m_viewer->setRubberBand( QChartView::RectangleRubberBand );
@@ -853,6 +850,12 @@ void RiuQtChartsPlotWidget::setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSerie
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
 {
+    // Make sure the axis we are about to set exists.
+    if ( m_axes.find( axis ) == m_axes.end() )
+    {
+        addAxis( axis, true, true );
+    }
+
     if ( qtChart()->series().contains( series ) && !series->attachedAxes().contains( plotAxis( axis ) ) )
     {
         auto newAxis = plotAxis( axis );
@@ -887,6 +890,34 @@ void RiuQtChartsPlotWidget::addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool 
     QValueAxis* axis = new QValueAxis();
     qtChart()->addAxis( axis, mapPlotAxisToQtAlignment( plotAxis.axis() ) );
     m_axes[plotAxis] = axis;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RiuQtChartsPlotWidget::createNextPlotAxis( RiaDefines::PlotAxis axis )
+{
+    int minIdx = -1;
+    for ( auto a : m_axes )
+    {
+        if ( a.first.axis() == axis )
+        {
+            minIdx = std::max( a.first.index(), minIdx );
+        }
+    }
+
+    RiuPlotAxis plotAxis( axis, minIdx + 1 );
+
+    addAxis( plotAxis, true, true );
+    return plotAxis;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuQtChartsPlotWidget::isMultiAxisSupported() const
+{
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
