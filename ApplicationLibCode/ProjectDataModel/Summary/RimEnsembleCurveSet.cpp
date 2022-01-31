@@ -744,7 +744,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         for ( RimSummaryCurve* curve : curves() )
         {
-            curve->setLeftOrRightAxisY( m_plotAxis() );
+            curve->setLeftOrRightAxisY( RiuPlotAxis( m_plotAxis() ) );
         }
 
         updatePlotAxis();
@@ -1682,7 +1682,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY( sumCase );
                 curve->setSummaryAddressYAndApplyInterpolation( addr->address() );
-                curve->setLeftOrRightAxisY( m_plotAxis() );
+                curve->setLeftOrRightAxisY( RiuPlotAxis( m_plotAxis() ) );
                 curve->setResampling( m_resampling() );
 
                 addCurve( curve );
@@ -1793,7 +1793,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
             curve->setSummaryCaseY( m_ensembleStatCase.get() );
             curve->setSummaryAddressYAndApplyInterpolation( address );
-            curve->setLeftOrRightAxisY( m_plotAxis() );
+            curve->setLeftOrRightAxisY( RiuPlotAxis( m_plotAxis() ) );
 
             curve->updateCurveVisibility();
             curve->loadDataAndUpdate( false );

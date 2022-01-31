@@ -67,7 +67,7 @@ public:
 
     RifEclipseSummaryAddress   errorSummaryAddressY() const;
     std::vector<double>        errorValuesY() const;
-    void                       setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis );
+    void                       setLeftOrRightAxisY( RiuPlotAxis plotAxis );
     RiuPlotAxis                axisY() const;
     const std::vector<time_t>& timeStepsY() const;
     double                     yValueAtTimeT( time_t time ) const;

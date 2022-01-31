@@ -2741,5 +2741,5 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* curve )
         connectAxisSignals( newAxisProperties );
     }
 
-    curve->setLeftOrRightAxisY( newPlotAxis.axis() );
+    curve->setLeftOrRightAxisY( newPlotAxis );
 }

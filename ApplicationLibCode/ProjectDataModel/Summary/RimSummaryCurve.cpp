@@ -430,22 +430,14 @@ RimSummaryCase* RimSummaryCurve::summaryCaseX() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis )
+void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
     // TODO: improve this
-    m_plotAxis_OBSOLETE = plotAxis;
+    m_plotAxis_OBSOLETE = plotAxis.axis();
 
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
-
-    if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-    {
-        m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultLeft() );
-    }
-    else if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-    {
-        m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis::defaultRight() );
-    }
+    m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------

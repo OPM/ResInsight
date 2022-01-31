@@ -60,11 +60,11 @@ void RicSummaryCurveSwitchAxisFeature::onActionTriggered( bool isChecked )
 
         if ( plotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
         {
-            summaryCurve->setLeftOrRightAxisY( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+            summaryCurve->setLeftOrRightAxisY( RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) );
         }
         else
         {
-            summaryCurve->setLeftOrRightAxisY( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+            summaryCurve->setLeftOrRightAxisY( RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) );
         }
 
         summaryCurve->updatePlotAxis();
