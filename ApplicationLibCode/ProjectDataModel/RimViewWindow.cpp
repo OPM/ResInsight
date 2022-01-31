@@ -29,6 +29,7 @@
 #include "RimMdiWindowController.h"
 #include "RimProject.h"
 
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
 #include <QDebug>
