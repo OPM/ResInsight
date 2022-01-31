@@ -202,8 +202,9 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot::RimSummaryPlot()
+RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     : RimPlot()
+    , m_isCrossPlot( isCrossPlot )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -260,8 +261,6 @@ RimSummaryPlot::RimSummaryPlot()
     CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator" );
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
     m_textCurveSetEditor = new RimSummaryPlotFilterTextCurveSetEditor;
-
-    m_isCrossPlot = false;
 
     m_nameHelperAllCurves.reset( new RimSummaryPlotNameHelper );
 
@@ -1887,14 +1886,6 @@ void RimSummaryPlot::enableAutoPlotTitle( bool enable )
 bool RimSummaryPlot::autoPlotTitle() const
 {
     return m_useAutoPlotTitle;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setAsCrossPlot()
-{
-    m_isCrossPlot = true;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -74,7 +74,7 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryPlot();
+    RimSummaryPlot( bool isCrossPlot = false );
     ~RimSummaryPlot() override;
 
     void    setDescription( const QString& description );
@@ -223,8 +223,6 @@ protected:
     void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
     QImage snapshotWindowContent() override;
-
-    void setAsCrossPlot();
 
 private slots:
     void onPlotZoomed();
