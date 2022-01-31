@@ -43,6 +43,7 @@
 #include "cafSignal.h"
 
 #include <QAbstractItemModel>
+#include <QAbstractProxyModel>
 #include <QColor>
 #include <QItemSelectionModel>
 #include <QPointer>
@@ -215,6 +216,8 @@ public:
 
     void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
 
+    void useProxyModel( QAbstractProxyModel* proxyModel );
+
 signals:
     void selectionChanged();
 
@@ -243,6 +246,7 @@ private:
     PdmUiTreeViewWidget*       m_treeView;
     PdmUiTreeViewQModel*       m_treeViewModel;
     PdmUiTreeViewItemDelegate* m_delegate;
+    QAbstractProxyModel*       m_proxyModel;
 
     bool m_useDefaultContextMenu;
     bool m_updateSelectionManager;

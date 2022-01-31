@@ -45,6 +45,10 @@ class QTreeView;
 class QItemSelection;
 class QMenu;
 class QModelIndex;
+class QLineEdit;
+class QPushButton;
+class QSortFilterProxyModel;
+class QRegExp;
 
 namespace caf
 {
@@ -96,11 +100,17 @@ public slots:
 
 private slots:
     void slotOnSelectionChanged();
+    void slotOnClearSearchBox();
+    void onSlotSearchTextChanged();
 
 private:
-    PdmUiTreeViewEditor* m_treeViewEditor;
-    QString              m_uiConfigName;
-    QVBoxLayout*         m_layout;
+    PdmUiTreeViewEditor*   m_treeViewEditor;
+    QString                m_uiConfigName;
+    QVBoxLayout*           m_layout;
+    QLineEdit*             m_searchBox;
+    QPushButton*           m_clearSearchButton;
+    QSortFilterProxyModel* m_proxyModel;
+    QRegExp*               m_patternExp;
 };
 
 } // End of namespace caf

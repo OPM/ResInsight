@@ -42,7 +42,12 @@
 
 #include "cafPdmUiTreeViewEditor.h"
 #include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QRegExp>
+#include <QSortFilterProxyModel>
 #include <QTreeView>
+#include <QVBoxLayout>
 
 namespace caf
 {
@@ -57,13 +62,30 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
 
     setLayout( m_layout );
 
-    m_treeViewEditor = new PdmUiTreeViewEditor();
+    QHBoxLayout* searchLayout = new QHBoxLayout();
 
-    QWidget* widget = m_treeViewEditor->getOrCreateWidget( this );
+    m_searchBox = new QLineEdit( this );
+    searchLayout->addWidget( m_searchBox );
 
-    this->m_layout->insertWidget( 0, widget );
+    m_clearSearchButton = new QPushButton( "X" );
+    m_clearSearchButton->setMaximumSize( 30, 30 );
+    searchLayout->addWidget( m_clearSearchButton );
+
+    m_layout->addLayout( searchLayout );
+
+    m_treeViewEditor    = new PdmUiTreeViewEditor();
+    QWidget* treewidget = m_treeViewEditor->getOrCreateWidget( this );
+
+    m_layout->addWidget( treewidget );
+
+    m_proxyModel = new QSortFilterProxyModel( this );
+    m_proxyModel->setFilterKeyColumn( 0 );
+    m_proxyModel->setRecursiveFilteringEnabled( true );
+    m_treeViewEditor->useProxyModel( m_proxyModel );
 
     connect( m_treeViewEditor, SIGNAL( selectionChanged() ), SLOT( slotOnSelectionChanged() ) );
+    connect( m_clearSearchButton, SIGNAL( clicked() ), SLOT( slotOnClearSearchBox() ) );
+    connect( m_searchBox, SIGNAL( textChanged( QString ) ), SLOT( onSlotSearchTextChanged() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -142,6 +164,23 @@ void PdmUiTreeView::slotOnSelectionChanged()
     }
 
     emit selectedObjectChanged( objHandle );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::slotOnClearSearchBox()
+{
+    m_searchBox->setText( "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::onSlotSearchTextChanged()
+{
+    QString searchText = m_searchBox->text();
+    m_proxyModel->setFilterWildcard( searchText );
 }
 
 //--------------------------------------------------------------------------------------------------

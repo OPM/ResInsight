@@ -256,10 +256,16 @@ void PdmUiTreeViewEditor::selectedUiItems( std::vector<PdmUiItem*>& objects )
     if ( !this->treeView() ) return;
 
     QModelIndexList idxList = this->treeView()->selectionModel()->selectedIndexes();
+    QModelIndexList proxyList;
 
     for ( int i = 0; i < idxList.size(); i++ )
     {
-        caf::PdmUiItem* item = this->m_treeViewModel->uiItemFromModelIndex( idxList[i] );
+        proxyList.append( m_proxyModel->mapToSource( idxList[i] ) );
+    }
+
+    for ( int i = 0; i < proxyList.size(); i++ )
+    {
+        caf::PdmUiItem* item = this->m_treeViewModel->uiItemFromModelIndex( proxyList[i] );
         if ( item )
         {
             objects.push_back( item );
@@ -469,6 +475,16 @@ QModelIndex PdmUiTreeViewEditor::findModelIndex( const PdmUiItem* object ) const
 void PdmUiTreeViewEditor::setDragDropInterface( PdmUiDragDropInterface* dragDropInterface )
 {
     m_treeViewModel->setDragDropInterface( dragDropInterface );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeViewEditor::useProxyModel( QAbstractProxyModel* proxyModel )
+{
+    m_proxyModel = proxyModel;
+    proxyModel->setSourceModel( m_treeViewModel );
+    m_treeView->setModel( m_proxyModel );
 }
 
 //--------------------------------------------------------------------------------------------------
