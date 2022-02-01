@@ -30,14 +30,14 @@
 #include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimIntersectionResultDefinition.h"
-#include "RivExtrudedCurveIntersectionPartMgr.h"
 
 #include "RimcDataContainerDouble.h"
 
-#include "RivIntersectionGeometryGeneratorInterface.h"
-
 #include "RivExtrudedCurveIntersectionGeometryGenerator.h"
+#include "RivExtrudedCurveIntersectionPartMgr.h"
+#include "RivIntersectionGeometryGeneratorInterface.h"
 #include "RivIntersectionHexGridInterface.h"
+
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
@@ -66,12 +66,13 @@ RimcTriangleGeometry::RimcTriangleGeometry()
     CAF_PDM_InitScriptableFieldNoDefault( &m_x, "xcoords", "X coords" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_y, "ycoords", "Y coords" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_z, "zcoords", "Z coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "connections", "Indices to triangle vertices" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_meshX, "meshxcoords", "Mesh X coords" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_meshY, "meshycoords", "Mesh Y coords" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_meshZ, "meshzcoords", "Mesh Z coords" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "connections", "Indices to triangle vertices" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayModelOffset, "displaymodeloffset", "Display Model Offset" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -146,6 +147,14 @@ void RimcTriangleGeometry::setMeshVertices( const std::vector<cvf::Vec3f>& verti
     m_meshZ = zVals;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimcTriangleGeometry::setDisplayModelOffset( const cvf::Vec3d& offset )
+{
+    m_displayModelOffset = offset;
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection, RimcExtrudedCurveIntersection_geometry, "geometry" );
 
 //--------------------------------------------------------------------------------------------------
@@ -201,6 +210,16 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
                     std::vector<cvf::Vec3f> meshCoords;
                     cellMeshVertices->toStdVector( &meshCoords );
                     triangleGeometry->setMeshVertices( meshCoords );
+                }
+
+                {
+                    RimEclipseView* eclView = nullptr;
+                    intersection->firstAncestorOfType( eclView );
+                    if ( eclView && eclView->eclipseCase() )
+                    {
+                        auto offset = eclView->eclipseCase()->displayModelOffset();
+                        triangleGeometry->setDisplayModelOffset( offset );
+                    }
                 }
 
                 return triangleGeometry;
