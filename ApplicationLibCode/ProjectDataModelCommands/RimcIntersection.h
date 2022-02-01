@@ -48,10 +48,16 @@ public:
     static RimcTriangleGeometry* createFromVerticesAndConnections( const std::vector<cvf::Vec3f>& vertices,
                                                                    const std::vector<int>&        connections );
 
+    void setMeshVertices( const std::vector<cvf::Vec3f>& meshVertices );
+
 private:
     caf::PdmField<std::vector<float>> m_x;
     caf::PdmField<std::vector<float>> m_y;
     caf::PdmField<std::vector<float>> m_z;
+
+    caf::PdmField<std::vector<float>> m_meshX;
+    caf::PdmField<std::vector<float>> m_meshY;
+    caf::PdmField<std::vector<float>> m_meshZ;
 
     caf::PdmField<std::vector<int>> m_connections;
 };

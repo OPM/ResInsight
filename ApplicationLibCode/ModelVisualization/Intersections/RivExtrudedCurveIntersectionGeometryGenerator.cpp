@@ -777,6 +777,15 @@ const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::triangleVx
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::cellMeshVxes() const
+{
+    CVF_ASSERT( m_cellBorderLineVxes->size() );
+    return m_cellBorderLineVxes.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionGeometryGenerator::ensureGeometryIsCalculated()
 {
     calculateArrays();
