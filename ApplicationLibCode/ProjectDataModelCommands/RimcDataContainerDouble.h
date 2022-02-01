@@ -31,5 +31,7 @@ class RimcDataContainerDouble : public caf::PdmObject
 public:
     RimcDataContainerDouble();
 
+    static RimcDataContainerDouble* create( const std::vector<double>& values );
+
     caf::PdmField<std::vector<double>> m_doubleValues;
 };
