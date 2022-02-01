@@ -49,17 +49,19 @@ public:
                                                                    const std::vector<int>&        connections );
 
     void setMeshVertices( const std::vector<cvf::Vec3f>& meshVertices );
+    void setDisplayModelOffset( const cvf::Vec3d& offset );
 
 private:
     caf::PdmField<std::vector<float>> m_x;
     caf::PdmField<std::vector<float>> m_y;
     caf::PdmField<std::vector<float>> m_z;
+    caf::PdmField<std::vector<int>>   m_connections;
 
     caf::PdmField<std::vector<float>> m_meshX;
     caf::PdmField<std::vector<float>> m_meshY;
     caf::PdmField<std::vector<float>> m_meshZ;
 
-    caf::PdmField<std::vector<int>> m_connections;
+    caf::PdmField<cvf::Vec3d> m_displayModelOffset;
 };
 
 //==================================================================================================
