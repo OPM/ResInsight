@@ -55,6 +55,7 @@ namespace caf
 class PdmUiItem;
 class PdmUiTreeViewEditor;
 class PdmObjectHandle;
+class PdmUiTreeOrdering;
 
 //==================================================================================================
 ///
@@ -88,7 +89,10 @@ public:
     PdmUiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
     QModelIndex findModelIndex( const PdmUiItem* object ) const;
     void        updateSubTree( const QModelIndex& index );
-    void        setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
+
+    PdmUiTreeOrdering* uiTreeOrderingFromModelIndex( const QModelIndex& index ) const;
+
+    void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
 
 signals:
     void selectionChanged();
@@ -104,13 +108,11 @@ private slots:
     void onSlotSearchTextChanged();
 
 private:
-    PdmUiTreeViewEditor*   m_treeViewEditor;
-    QString                m_uiConfigName;
-    QVBoxLayout*           m_layout;
-    QLineEdit*             m_searchBox;
-    QPushButton*           m_clearSearchButton;
-    QSortFilterProxyModel* m_proxyModel;
-    QRegExp*               m_patternExp;
+    PdmUiTreeViewEditor* m_treeViewEditor;
+    QString              m_uiConfigName;
+    QVBoxLayout*         m_layout;
+    QLineEdit*           m_searchBox;
+    QPushButton*         m_clearSearchButton;
 };
 
 } // End of namespace caf

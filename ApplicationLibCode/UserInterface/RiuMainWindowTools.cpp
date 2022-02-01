@@ -67,10 +67,10 @@ void RiuMainWindowTools::collapseSiblings( const caf::PdmUiItem* sourceUiItem )
 
     caf::PdmUiTreeOrdering* sourceTreeOrderingItem = nullptr;
     QModelIndex             modIndex               = sourceTreeView->findModelIndex( sourceUiItem );
-
     if ( !modIndex.isValid() ) return;
 
-    sourceTreeOrderingItem = static_cast<caf::PdmUiTreeOrdering*>( modIndex.internalPointer() );
+    sourceTreeOrderingItem = sourceTreeView->uiTreeOrderingFromModelIndex( modIndex );
+    if ( sourceTreeOrderingItem == nullptr ) return;
 
     if ( sourceTreeOrderingItem && sourceTreeOrderingItem->parent() )
     {

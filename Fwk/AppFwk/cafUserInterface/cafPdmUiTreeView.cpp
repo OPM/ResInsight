@@ -39,8 +39,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiDragDropInterface.h"
-
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
+
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
@@ -77,11 +78,6 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     QWidget* treewidget = m_treeViewEditor->getOrCreateWidget( this );
 
     m_layout->addWidget( treewidget );
-
-    m_proxyModel = new QSortFilterProxyModel( this );
-    m_proxyModel->setFilterKeyColumn( 0 );
-    m_proxyModel->setRecursiveFilteringEnabled( true );
-    m_treeViewEditor->useProxyModel( m_proxyModel );
 
     connect( m_treeViewEditor, SIGNAL( selectionChanged() ), SLOT( slotOnSelectionChanged() ) );
     connect( m_clearSearchButton, SIGNAL( clicked() ), SLOT( slotOnClearSearchBox() ) );
@@ -180,7 +176,7 @@ void PdmUiTreeView::slotOnClearSearchBox()
 void PdmUiTreeView::onSlotSearchTextChanged()
 {
     QString searchText = m_searchBox->text();
-    m_proxyModel->setFilterWildcard( searchText );
+    m_treeViewEditor->setFilterString( searchText );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,6 +226,14 @@ void PdmUiTreeView::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
 PdmUiItem* PdmUiTreeView::uiItemFromModelIndex( const QModelIndex& index ) const
 {
     return m_treeViewEditor->uiItemFromModelIndex( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeOrdering* PdmUiTreeView::uiTreeOrderingFromModelIndex( const QModelIndex& index ) const
+{
+    return m_treeViewEditor->uiTreeOrderingFromModelIndex( index );
 }
 
 //--------------------------------------------------------------------------------------------------

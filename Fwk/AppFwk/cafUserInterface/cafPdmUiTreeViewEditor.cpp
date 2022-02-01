@@ -149,6 +149,7 @@ PdmUiTreeViewEditor::PdmUiTreeViewEditor()
     m_treeView                    = nullptr;
     m_treeViewModel               = nullptr;
     m_delegate                    = nullptr;
+    m_filterModel                 = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -170,11 +171,16 @@ QWidget* PdmUiTreeViewEditor::createWidget( QWidget* parent )
     m_mainWidget->setLayout( m_layout );
 
     m_treeViewModel = new caf::PdmUiTreeViewQModel( this );
-    m_treeView      = new PdmUiTreeViewWidget( m_mainWidget );
-    m_treeView->setModel( m_treeViewModel );
+    m_filterModel   = new QSortFilterProxyModel( this );
+    m_filterModel->setFilterKeyColumn( 0 );
+    m_filterModel->setFilterCaseSensitivity( Qt::CaseInsensitive );
+    m_filterModel->setRecursiveFilteringEnabled( true );
+    m_filterModel->setSourceModel( m_treeViewModel );
+    m_treeView = new PdmUiTreeViewWidget( m_mainWidget );
+    m_treeView->setModel( m_filterModel );
     m_treeView->installEventFilter( this );
 
-    m_delegate = new PdmUiTreeViewItemDelegate( this, m_treeViewModel );
+    m_delegate = new PdmUiTreeViewItemDelegate( this, m_filterModel );
 
     m_treeView->setItemDelegate( m_delegate );
 
@@ -260,7 +266,7 @@ void PdmUiTreeViewEditor::selectedUiItems( std::vector<PdmUiItem*>& objects )
 
     for ( int i = 0; i < idxList.size(); i++ )
     {
-        proxyList.append( m_proxyModel->mapToSource( idxList[i] ) );
+        proxyList.append( m_filterModel->mapToSource( idxList[i] ) );
     }
 
     for ( int i = 0; i < proxyList.size(); i++ )
@@ -295,8 +301,7 @@ void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem )
         }
 
         m_treeViewModel->updateSubTree( itemToUpdate );
-        QModelIndex index = m_treeViewModel->findModelIndex( itemToUpdate );
-        updateItemDelegateForSubTree( index );
+        updateItemDelegateForSubTree();
     }
 }
 
@@ -399,11 +404,11 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 void PdmUiTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
 {
     QModelIndex index        = m_treeViewModel->findModelIndex( uiItem );
-    QModelIndex currentIndex = m_treeView->currentIndex();
+    QModelIndex currentIndex = m_filterModel->mapFromSource( index );
 
     m_treeView->clearSelection();
 
-    m_treeView->setCurrentIndex( index );
+    m_treeView->setCurrentIndex( currentIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,13 +449,34 @@ void PdmUiTreeViewEditor::slotOnSelectionChanged( const QItemSelection& selected
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewEditor::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
 {
-    QModelIndex index = m_treeViewModel->findModelIndex( uiItem );
-    m_treeView->setExpanded( index, doExpand );
+    QModelIndex index       = m_treeViewModel->findModelIndex( uiItem );
+    QModelIndex filterIndex = m_filterModel->mapFromSource( index );
 
-    if ( doExpand )
+    if ( filterIndex.isValid() )
     {
-        m_treeView->scrollTo( index );
+        m_treeView->setExpanded( filterIndex, doExpand );
+
+        if ( doExpand )
+        {
+            m_treeView->scrollTo( filterIndex );
+        }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QModelIndex PdmUiTreeViewEditor::mapIndexIfNecessary( QModelIndex index ) const
+{
+    const QAbstractProxyModel* proxyModel = dynamic_cast<const QAbstractProxyModel*>( index.model() );
+
+    QModelIndex returnIndex = index;
+    if ( proxyModel )
+    {
+        returnIndex = proxyModel->mapToSource( index );
+    }
+
+    return returnIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -458,7 +484,18 @@ void PdmUiTreeViewEditor::setExpanded( const PdmUiItem* uiItem, bool doExpand ) 
 //--------------------------------------------------------------------------------------------------
 PdmUiItem* PdmUiTreeViewEditor::uiItemFromModelIndex( const QModelIndex& index ) const
 {
-    return m_treeViewModel->uiItemFromModelIndex( index );
+    QModelIndex realIndex = mapIndexIfNecessary( index );
+    return m_treeViewModel->uiItemFromModelIndex( realIndex );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeOrdering* PdmUiTreeViewEditor::uiTreeOrderingFromModelIndex( const QModelIndex& index ) const
+{
+    QModelIndex realIndex = mapIndexIfNecessary( index );
+    if ( realIndex.isValid() ) return static_cast<caf::PdmUiTreeOrdering*>( realIndex.internalPointer() );
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,7 +503,8 @@ PdmUiItem* PdmUiTreeViewEditor::uiItemFromModelIndex( const QModelIndex& index )
 //--------------------------------------------------------------------------------------------------
 QModelIndex PdmUiTreeViewEditor::findModelIndex( const PdmUiItem* object ) const
 {
-    return m_treeViewModel->findModelIndex( object );
+    QModelIndex index = m_treeViewModel->findModelIndex( object );
+    return m_filterModel->mapFromSource( index );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -480,11 +518,10 @@ void PdmUiTreeViewEditor::setDragDropInterface( PdmUiDragDropInterface* dragDrop
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::useProxyModel( QAbstractProxyModel* proxyModel )
+void PdmUiTreeViewEditor::setFilterString( QString filterString )
 {
-    m_proxyModel = proxyModel;
-    proxyModel->setSourceModel( m_treeViewModel );
-    m_treeView->setModel( m_proxyModel );
+    m_filterModel->setFilterWildcard( filterString );
+    if ( !filterString.isEmpty() ) m_treeView->expandAll();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -518,7 +555,7 @@ void PdmUiTreeViewEditor::updateSelectionManager()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& modelIndex /*= QModelIndex()*/ )
+void PdmUiTreeViewEditor::updateItemDelegateForSubTree()
 {
     auto allIndices = m_treeViewModel->allIndicesRecursive();
     for ( QModelIndex& index : allIndices )
@@ -606,7 +643,7 @@ bool PdmUiTreeViewEditor::isAppendOfClassNameToUiItemTextEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-PdmUiTreeViewItemDelegate::PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, PdmUiTreeViewQModel* model )
+PdmUiTreeViewItemDelegate::PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, QAbstractItemModel* model )
     : QStyledItemDelegate( parent->treeView() )
     , m_treeView( parent )
     , m_model( model )

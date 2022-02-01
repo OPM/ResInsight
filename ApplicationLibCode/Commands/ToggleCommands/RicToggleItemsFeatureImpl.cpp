@@ -192,7 +192,7 @@ caf::PdmUiTreeOrdering* RicToggleItemsFeatureImpl::findTreeItemFromSelectedUiIte
     if ( pdmUiTreeView )
     {
         QModelIndex modIndex = pdmUiTreeView->findModelIndex( uiItem );
-        return static_cast<caf::PdmUiTreeOrdering*>( modIndex.internalPointer() );
+        return pdmUiTreeView->uiTreeOrderingFromModelIndex( modIndex );
     }
 
     return nullptr;

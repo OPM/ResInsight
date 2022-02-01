@@ -43,11 +43,11 @@
 #include "cafSignal.h"
 
 #include <QAbstractItemModel>
-#include <QAbstractProxyModel>
 #include <QColor>
 #include <QItemSelectionModel>
 #include <QPointer>
 #include <QProxyStyle>
+#include <QSortFilterProxyModel>
 #include <QStyledItemDelegate>
 #include <QTreeView>
 #include <QWidget>
@@ -139,7 +139,7 @@ public:
 class PdmUiTreeViewItemDelegate : public QStyledItemDelegate
 {
 public:
-    PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, PdmUiTreeViewQModel* model );
+    PdmUiTreeViewItemDelegate( PdmUiTreeViewEditor* parent, QAbstractItemModel* model );
     void clearTags( QModelIndex index );
     void clearAllTags();
     void addTag( QModelIndex index, std::unique_ptr<PdmUiTreeViewItemAttribute::Tag> tag );
@@ -158,8 +158,9 @@ protected:
     QRect tagRect( const QRect& itemRect, QModelIndex itemIndex, size_t tagIndex ) const;
 
 private:
-    PdmUiTreeViewEditor*                                                                 m_treeView;
-    PdmUiTreeViewQModel*                                                                 m_model;
+    PdmUiTreeViewEditor* m_treeView;
+    QAbstractItemModel*  m_model;
+
     std::map<QModelIndex, std::vector<std::unique_ptr<PdmUiTreeViewItemAttribute::Tag>>> m_tags;
 };
 
@@ -209,14 +210,15 @@ public:
     void selectedUiItems( std::vector<PdmUiItem*>& objects );
     void setExpanded( const PdmUiItem* uiItem, bool doExpand ) const;
 
-    PdmUiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
-    QModelIndex findModelIndex( const PdmUiItem* object ) const;
+    PdmUiItem*         uiItemFromModelIndex( const QModelIndex& index ) const;
+    PdmUiTreeOrdering* uiTreeOrderingFromModelIndex( const QModelIndex& index ) const;
+    QModelIndex        findModelIndex( const PdmUiItem* object ) const;
 
     QWidget* createWidget( QWidget* parent ) override;
 
     void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
 
-    void useProxyModel( QAbstractProxyModel* proxyModel );
+    void setFilterString( QString filterStr );
 
 signals:
     void selectionChanged();
@@ -234,8 +236,10 @@ private slots:
 private:
     PdmChildArrayFieldHandle* currentChildArrayFieldHandle();
 
+    QModelIndex mapIndexIfNecessary( QModelIndex index ) const;
+
     void updateSelectionManager();
-    void updateItemDelegateForSubTree( const QModelIndex& modelIndex = QModelIndex() );
+    void updateItemDelegateForSubTree();
 
     bool eventFilter( QObject* obj, QEvent* event ) override;
 
@@ -246,7 +250,7 @@ private:
     PdmUiTreeViewWidget*       m_treeView;
     PdmUiTreeViewQModel*       m_treeViewModel;
     PdmUiTreeViewItemDelegate* m_delegate;
-    QAbstractProxyModel*       m_proxyModel;
+    QSortFilterProxyModel*     m_filterModel;
 
     bool m_useDefaultContextMenu;
     bool m_updateSelectionManager;
