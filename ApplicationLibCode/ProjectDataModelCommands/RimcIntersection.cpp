@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2021- Equinor ASA
+//  Copyright (C) 2022- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -42,6 +42,8 @@
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
 #include "cafPdmObjectScriptingCapability.h"
+
+#include <memory>
 
 namespace caf
 {
@@ -96,23 +98,9 @@ RimcTriangleGeometry* RimcTriangleGeometry::createFromVertices( const std::vecto
 RimcTriangleGeometry* RimcTriangleGeometry::createFromVerticesAndConnections( const std::vector<cvf::Vec3f>& vertices,
                                                                               const std::vector<int>& connections )
 {
+    auto [xVals, yVals, zVals] = assignCoordinatesToSeparateVectors( vertices );
+
     auto obj = new RimcTriangleGeometry;
-
-    std::vector<float> xVals;
-    std::vector<float> yVals;
-    std::vector<float> zVals;
-
-    xVals.reserve( vertices.size() );
-    yVals.reserve( vertices.size() );
-    zVals.reserve( vertices.size() );
-
-    for ( const auto& v : vertices )
-    {
-        xVals.push_back( v.x() );
-        yVals.push_back( v.y() );
-        zVals.push_back( v.z() );
-    }
-
     obj->m_x = xVals;
     obj->m_y = yVals;
     obj->m_z = zVals;
@@ -127,20 +115,7 @@ RimcTriangleGeometry* RimcTriangleGeometry::createFromVerticesAndConnections( co
 //--------------------------------------------------------------------------------------------------
 void RimcTriangleGeometry::setMeshVertices( const std::vector<cvf::Vec3f>& vertices )
 {
-    std::vector<float> xVals;
-    std::vector<float> yVals;
-    std::vector<float> zVals;
-
-    xVals.reserve( vertices.size() );
-    yVals.reserve( vertices.size() );
-    zVals.reserve( vertices.size() );
-
-    for ( const auto& v : vertices )
-    {
-        xVals.push_back( v.x() );
-        yVals.push_back( v.y() );
-        zVals.push_back( v.z() );
-    }
+    auto [xVals, yVals, zVals] = assignCoordinatesToSeparateVectors( vertices );
 
     m_meshX = xVals;
     m_meshY = yVals;
@@ -153,6 +128,33 @@ void RimcTriangleGeometry::setMeshVertices( const std::vector<cvf::Vec3f>& verti
 void RimcTriangleGeometry::setDisplayModelOffset( const cvf::Vec3d& offset )
 {
     m_displayModelOffset = offset;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::tuple<std::vector<float>, std::vector<float>, std::vector<float>>
+    RimcTriangleGeometry::assignCoordinatesToSeparateVectors( const std::vector<cvf::Vec3f>& vertices )
+{
+    std::vector<float> xVals;
+    std::vector<float> yVals;
+    std::vector<float> zVals;
+
+    if ( !vertices.empty() )
+    {
+        xVals.reserve( vertices.size() );
+        yVals.reserve( vertices.size() );
+        zVals.reserve( vertices.size() );
+
+        for ( const auto& v : vertices )
+        {
+            xVals.push_back( v.x() );
+            yVals.push_back( v.y() );
+            zVals.push_back( v.z() );
+        }
+    }
+
+    return { xVals, yVals, zVals };
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection, RimcExtrudedCurveIntersection_geometry, "geometry" );
@@ -174,57 +176,33 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
 {
     auto intersection = self<RimExtrudedCurveIntersection>();
 
-    RivIntersectionGeometryGeneratorInterface* geoGenerator = nullptr;
+    auto geoGenerator = RimcExtrudedCurveIntersection_geometry::createGeometryGenerator( intersection, m_geometryType() );
+    if ( geoGenerator && geoGenerator->isAnyGeometryPresent() )
     {
-        bool isFlat = false;
-        if ( m_geometryType == RimcTriangleGeometry::GeometryType::PROJECTED_TO_PLANE ) isFlat = true;
+        std::vector<cvf::Vec3f> coords;
+        geoGenerator->triangleVxes()->toStdVector( &coords );
 
-        cvf::Vec3d flattenedPolylineStartPoint;
+        auto triangleGeometry = RimcTriangleGeometry::createFromVertices( coords );
 
-        std::vector<std::vector<cvf::Vec3d>> polyLines = intersection->polyLines( &flattenedPolylineStartPoint );
-        if ( !polyLines.empty() )
+        auto cellMeshVertices = geoGenerator->cellMeshVxes();
+        if ( cellMeshVertices )
         {
-            cvf::Vec3d                                direction = intersection->extrusionDirection();
-            cvf::ref<RivIntersectionHexGridInterface> hexGrid   = intersection->createHexGridInterface();
+            std::vector<cvf::Vec3f> meshCoords;
+            cellMeshVertices->toStdVector( &meshCoords );
+            triangleGeometry->setMeshVertices( meshCoords );
+        }
 
-            auto intersectionGeoGenerator = RivExtrudedCurveIntersectionGeometryGenerator( intersection,
-                                                                                           polyLines,
-                                                                                           direction,
-                                                                                           hexGrid.p(),
-                                                                                           isFlat,
-                                                                                           flattenedPolylineStartPoint );
-
-            intersectionGeoGenerator.ensureGeometryIsCalculated();
-            geoGenerator = &intersectionGeoGenerator;
-
-            if ( geoGenerator && geoGenerator->isAnyGeometryPresent() )
+        {
+            RimEclipseView* eclView = nullptr;
+            intersection->firstAncestorOfType( eclView );
+            if ( eclView && eclView->eclipseCase() )
             {
-                std::vector<cvf::Vec3f> coords;
-                geoGenerator->triangleVxes()->toStdVector( &coords );
-
-                auto triangleGeometry = RimcTriangleGeometry::createFromVertices( coords );
-
-                auto cellMeshVertices = geoGenerator->cellMeshVxes();
-                if ( cellMeshVertices )
-                {
-                    std::vector<cvf::Vec3f> meshCoords;
-                    cellMeshVertices->toStdVector( &meshCoords );
-                    triangleGeometry->setMeshVertices( meshCoords );
-                }
-
-                {
-                    RimEclipseView* eclView = nullptr;
-                    intersection->firstAncestorOfType( eclView );
-                    if ( eclView && eclView->eclipseCase() )
-                    {
-                        auto offset = eclView->eclipseCase()->displayModelOffset();
-                        triangleGeometry->setDisplayModelOffset( offset );
-                    }
-                }
-
-                return triangleGeometry;
+                auto offset = eclView->eclipseCase()->displayModelOffset();
+                triangleGeometry->setDisplayModelOffset( offset );
             }
         }
+
+        return triangleGeometry;
     }
 
     return new RimcTriangleGeometry;
@@ -244,6 +222,38 @@ bool RimcExtrudedCurveIntersection_geometry::resultIsPersistent() const
 std::unique_ptr<caf::PdmObjectHandle> RimcExtrudedCurveIntersection_geometry::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcTriangleGeometry );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<RivIntersectionGeometryGeneratorInterface>
+    RimcExtrudedCurveIntersection_geometry::createGeometryGenerator( RimExtrudedCurveIntersection*      intersection,
+                                                                     RimcTriangleGeometry::GeometryType geometryType )
+{
+    bool isFlat = false;
+    if ( geometryType == RimcTriangleGeometry::GeometryType::PROJECTED_TO_PLANE ) isFlat = true;
+
+    cvf::Vec3d flattenedPolylineStartPoint;
+    auto       polyLines = intersection->polyLines( &flattenedPolylineStartPoint );
+    if ( !polyLines.empty() )
+    {
+        auto direction = intersection->extrusionDirection();
+        auto hexGrid   = intersection->createHexGridInterface();
+        auto intersectionGeoGenerator =
+            std::make_unique<RivExtrudedCurveIntersectionGeometryGenerator>( intersection,
+                                                                             polyLines,
+                                                                             direction,
+                                                                             hexGrid.p(),
+                                                                             isFlat,
+                                                                             flattenedPolylineStartPoint );
+
+        intersectionGeoGenerator->ensureGeometryIsCalculated();
+
+        return std::move( intersectionGeoGenerator );
+    }
+
+    return nullptr;
 }
 
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection,
@@ -267,70 +277,47 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
 {
     auto intersection = self<RimExtrudedCurveIntersection>();
 
-    const RivIntersectionGeometryGeneratorInterface* geoGenerator = nullptr;
-    bool                                             isFlat       = false;
-    if ( m_geometryType == RimcTriangleGeometry::GeometryType::PROJECTED_TO_PLANE ) isFlat = true;
-
-    auto triangleValues = new RimcDataContainerDouble;
-
-    cvf::Vec3d                           flattenedPolylineStartPoint;
-    std::vector<std::vector<cvf::Vec3d>> polyLines = intersection->polyLines( &flattenedPolylineStartPoint );
-    if ( !polyLines.empty() )
+    auto geoGenerator = RimcExtrudedCurveIntersection_geometry::createGeometryGenerator( intersection, m_geometryType() );
+    if ( geoGenerator && geoGenerator->isAnyGeometryPresent() )
     {
-        cvf::Vec3d                                direction = intersection->extrusionDirection();
-        cvf::ref<RivIntersectionHexGridInterface> hexGrid   = intersection->createHexGridInterface();
-        auto intersectionGeoGenerator = RivExtrudedCurveIntersectionGeometryGenerator( intersection,
-                                                                                       polyLines,
-                                                                                       direction,
-                                                                                       hexGrid.p(),
-                                                                                       isFlat,
-                                                                                       flattenedPolylineStartPoint );
-
-        intersectionGeoGenerator.ensureGeometryIsCalculated();
-        geoGenerator = &intersectionGeoGenerator;
-
-        if ( geoGenerator && geoGenerator->isAnyGeometryPresent() )
+        RimEclipseView* eclView = nullptr;
+        intersection->firstAncestorOfType( eclView );
+        if ( !eclView )
         {
-            auto triToCellIndex = geoGenerator->triangleToCellIndex();
-
-            RimEclipseView* eclView = nullptr;
-            intersection->firstAncestorOfType( eclView );
-            if ( !eclView )
-            {
-                RiaLogging::error( "No Eclipse view found. Extraction of intersection result is only supported for "
-                                   "Eclipse view." );
-                return nullptr;
-            }
-
-            RimEclipseResultDefinition* eclResultDef = nullptr;
-
-            auto intersectionResultDef = intersection->activeSeparateResultDefinition();
-            if ( intersectionResultDef ) eclResultDef = intersectionResultDef->eclipseResultDefinition();
-
-            if ( !eclResultDef ) eclResultDef = eclView->cellResult();
-
-            RigEclipseCaseData* eclipseCase = eclView->eclipseCase()->eclipseCaseData();
-
-            size_t                      gridIndex = 0;
-            cvf::ref<RigResultAccessor> resultAccessor =
-                RigResultAccessorFactory::createFromResultDefinition( eclipseCase,
-                                                                      gridIndex,
-                                                                      eclView->currentTimeStep(),
-                                                                      eclResultDef );
-
-            std::vector<double> values;
-            values.reserve( triToCellIndex.size() );
-            for ( const auto& i : triToCellIndex )
-            {
-                auto value = resultAccessor->cellScalar( i );
-                values.push_back( value );
-            }
-
-            triangleValues->m_doubleValues = values;
+            RiaLogging::error( "No Eclipse view found. Extraction of intersection result is only supported for "
+                               "Eclipse view." );
+            return nullptr;
         }
+
+        RimEclipseResultDefinition* eclResultDef = nullptr;
+
+        auto intersectionResultDef = intersection->activeSeparateResultDefinition();
+        if ( intersectionResultDef ) eclResultDef = intersectionResultDef->eclipseResultDefinition();
+
+        if ( !eclResultDef ) eclResultDef = eclView->cellResult();
+
+        RigEclipseCaseData* eclipseCase = eclView->eclipseCase()->eclipseCaseData();
+
+        size_t                      gridIndex = 0;
+        cvf::ref<RigResultAccessor> resultAccessor =
+            RigResultAccessorFactory::createFromResultDefinition( eclipseCase,
+                                                                  gridIndex,
+                                                                  eclView->currentTimeStep(),
+                                                                  eclResultDef );
+
+        auto                triToCellIndex = geoGenerator->triangleToCellIndex();
+        std::vector<double> values;
+        values.reserve( triToCellIndex.size() );
+        for ( const auto& i : triToCellIndex )
+        {
+            auto value = resultAccessor->cellScalar( i );
+            values.push_back( value );
+        }
+
+        return RimcDataContainerDouble::create( values );
     }
 
-    return triangleValues;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

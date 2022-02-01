@@ -27,6 +27,9 @@
 
 #include "cvfVector3.h"
 
+class RivIntersectionGeometryGeneratorInterface;
+class RimExtrudedCurveIntersection;
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -50,6 +53,10 @@ public:
 
     void setMeshVertices( const std::vector<cvf::Vec3f>& meshVertices );
     void setDisplayModelOffset( const cvf::Vec3d& offset );
+
+private:
+    static std::tuple<std::vector<float>, std::vector<float>, std::vector<float>>
+        assignCoordinatesToSeparateVectors( const std::vector<cvf::Vec3f>& vertices );
 
 private:
     caf::PdmField<std::vector<float>> m_x;
@@ -77,6 +84,10 @@ public:
     caf::PdmObjectHandle*            execute() override;
     bool                             resultIsPersistent() const override;
     std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+    static std::unique_ptr<RivIntersectionGeometryGeneratorInterface>
+        createGeometryGenerator( RimExtrudedCurveIntersection*      intersection,
+                                 RimcTriangleGeometry::GeometryType geometryType );
 
 private:
     caf::PdmField<caf::AppEnum<RimcTriangleGeometry::GeometryType>> m_geometryType;
