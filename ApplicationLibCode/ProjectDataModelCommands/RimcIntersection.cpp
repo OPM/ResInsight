@@ -67,6 +67,10 @@ RimcTriangleGeometry::RimcTriangleGeometry()
     CAF_PDM_InitScriptableFieldNoDefault( &m_y, "ycoords", "Y coords" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_z, "zcoords", "Z coords" );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_meshX, "meshxcoords", "Mesh X coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_meshY, "meshycoords", "Mesh Y coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_meshZ, "meshzcoords", "Mesh Z coords" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "connections", "Indices to triangle vertices" );
 }
 
@@ -117,6 +121,31 @@ RimcTriangleGeometry* RimcTriangleGeometry::createFromVerticesAndConnections( co
     return obj;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimcTriangleGeometry::setMeshVertices( const std::vector<cvf::Vec3f>& vertices )
+{
+    std::vector<float> xVals;
+    std::vector<float> yVals;
+    std::vector<float> zVals;
+
+    xVals.reserve( vertices.size() );
+    yVals.reserve( vertices.size() );
+    zVals.reserve( vertices.size() );
+
+    for ( const auto& v : vertices )
+    {
+        xVals.push_back( v.x() );
+        yVals.push_back( v.y() );
+        zVals.push_back( v.z() );
+    }
+
+    m_meshX = xVals;
+    m_meshY = yVals;
+    m_meshZ = zVals;
+}
+
 CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimExtrudedCurveIntersection, RimcExtrudedCurveIntersection_geometry, "geometry" );
 
 //--------------------------------------------------------------------------------------------------
@@ -165,6 +194,14 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
                 geoGenerator->triangleVxes()->toStdVector( &coords );
 
                 auto triangleGeometry = RimcTriangleGeometry::createFromVertices( coords );
+
+                auto cellMeshVertices = geoGenerator->cellMeshVxes();
+                if ( cellMeshVertices )
+                {
+                    std::vector<cvf::Vec3f> meshCoords;
+                    cellMeshVertices->toStdVector( &meshCoords );
+                    triangleGeometry->setMeshVertices( meshCoords );
+                }
 
                 return triangleGeometry;
             }
