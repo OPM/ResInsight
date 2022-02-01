@@ -52,6 +52,7 @@ public:
                                                                    const std::vector<int>&        connections );
 
     void setMeshVertices( const std::vector<cvf::Vec3f>& meshVertices );
+    void setFaulMeshVertices( const std::vector<cvf::Vec3f>& faultMeshVertices );
     void setDisplayModelOffset( const cvf::Vec3d& offset );
 
 private:
@@ -67,6 +68,10 @@ private:
     caf::PdmField<std::vector<float>> m_meshX;
     caf::PdmField<std::vector<float>> m_meshY;
     caf::PdmField<std::vector<float>> m_meshZ;
+
+    caf::PdmField<std::vector<float>> m_faultMeshX;
+    caf::PdmField<std::vector<float>> m_faultMeshY;
+    caf::PdmField<std::vector<float>> m_faultMeshZ;
 
     caf::PdmField<cvf::Vec3d> m_displayModelOffset;
 };
