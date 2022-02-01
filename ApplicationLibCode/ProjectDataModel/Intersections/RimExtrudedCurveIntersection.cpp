@@ -52,12 +52,14 @@
 
 #include "cafCmdFeature.h"
 #include "cafCmdFeatureManager.h"
+#include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmFieldScriptingCapabilityCvfVec3d.h"
+#include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiSliderEditor.h"
-
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cvfBoundingBox.h"
@@ -73,7 +75,7 @@ void caf::AppEnum<RimExtrudedCurveIntersection::CrossSectionEnum>::setUp()
     addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_SIMULATION_WELL, "CS_SIMULATION_WELL", "Simulation Well" );
     addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE, "CS_POLYLINE", "Polyline" );
     addItem( RimExtrudedCurveIntersection::CrossSectionEnum::CS_AZIMUTHLINE, "CS_AZIMUTHLINE", "Azimuth and Dip" );
-    setDefault( RimExtrudedCurveIntersection::CrossSectionEnum::CS_WELL_PATH );
+    setDefault( RimExtrudedCurveIntersection::CrossSectionEnum::CS_POLYLINE );
 }
 
 template <>
@@ -87,7 +89,7 @@ void caf::AppEnum<RimExtrudedCurveIntersection::CrossSectionDirEnum>::setUp()
 
 } // namespace caf
 
-CAF_PDM_SOURCE_INIT( RimExtrudedCurveIntersection, "CrossSection" );
+CAF_PDM_SOURCE_INIT( RimExtrudedCurveIntersection, "CurveIntersection", "CrossSection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -196,14 +198,19 @@ void RimExtrudedCurveIntersection::configureForAzimuthLine()
 //--------------------------------------------------------------------------------------------------
 RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 {
-    CAF_PDM_InitObject( "Intersection", ":/CrossSection16x16.png" );
+    CAF_PDM_InitScriptableObject( "Intersection", ":/CrossSection16x16.png" );
     CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );
     CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction" );
     CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path        " );
     CAF_PDM_InitFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well" );
-    CAF_PDM_InitFieldNoDefault( &m_userPolylineXyz, "Points", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_userPolylineXyz,
+                                          "Points",
+                                          "Points",
+                                          "",
+                                          "Use Ctrl-C for copy and Ctrl-V for paste",
+                                          "" );
 
     CAF_PDM_InitFieldNoDefault( &m_userPolylineXydForUi, "PointsUi", "Points", "", "Use Ctrl-C for copy and Ctrl-V for paste", "" );
     m_userPolylineXydForUi.registerSetMethod( this, &RimExtrudedCurveIntersection::setPointsFromXYD );

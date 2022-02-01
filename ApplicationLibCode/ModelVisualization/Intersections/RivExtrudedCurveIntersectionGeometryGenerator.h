@@ -82,6 +82,8 @@ public:
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const override;
     const cvf::Vec3fArray*                           triangleVxes() const override;
 
+    void ensureGeometryIsCalculated();
+
 private:
     void calculateArrays();
     void calculateLineSegementTransforms();
