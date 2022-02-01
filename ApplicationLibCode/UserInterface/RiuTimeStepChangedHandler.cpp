@@ -18,14 +18,16 @@
 
 #include "RiuTimeStepChangedHandler.h"
 
+#include "RiaGuiApplication.h"
+
+#include "Rim3dView.h"
+
 #include "RiuMainWindow.h"
 #include "RiuMohrsCirclePlot.h"
 #include "RiuPvtPlotPanel.h"
 #include "RiuPvtPlotUpdater.h"
 #include "RiuRelativePermeabilityPlotPanel.h"
 #include "RiuRelativePermeabilityPlotUpdater.h"
-
-#include "Rim3dView.h"
 
 #include "cvfDebugTimer.h"
 #include "cvfTrace.h"
@@ -59,8 +61,7 @@ RiuTimeStepChangedHandler* RiuTimeStepChangedHandler::instance()
 //--------------------------------------------------------------------------------------------------
 void RiuTimeStepChangedHandler::handleTimeStepChanged( Rim3dView* changedView ) const
 {
-    // cvf::Trace::show("handleTimeStepChanged()  viewName: %s   timeStep:%d", changedView->name().toLatin1().data(),
-    // changedView->currentTimeStep()); cvf::DebugTimer tim("handleTimeStepChanged()");
+    if ( !RiaGuiApplication::isRunning() ) return;
 
     RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater =
         RiuMainWindow::instance()->relativePermeabilityPlotPanel()->plotUpdater();
@@ -71,6 +72,4 @@ void RiuTimeStepChangedHandler::handleTimeStepChanged( Rim3dView* changedView ) 
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();
     if ( mohrsCirclePlot ) mohrsCirclePlot->updateOnTimeStepChanged( changedView );
-
-    // tim.reportTimeMS("done");
 }
