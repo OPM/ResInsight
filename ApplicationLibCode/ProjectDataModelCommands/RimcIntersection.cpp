@@ -74,6 +74,10 @@ RimcTriangleGeometry::RimcTriangleGeometry()
     CAF_PDM_InitScriptableFieldNoDefault( &m_meshY, "meshycoords", "Mesh Y coords" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_meshZ, "meshzcoords", "Mesh Z coords" );
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshX, "faultmeshxcoords", "Fault Mesh X coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshY, "faultmeshycoords", "Fault Mesh Y coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshZ, "faultmeshzcoords", "Fault Mesh Z coords" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayModelOffset, "displaymodeloffset", "Display Model Offset" );
 }
 
@@ -120,6 +124,18 @@ void RimcTriangleGeometry::setMeshVertices( const std::vector<cvf::Vec3f>& verti
     m_meshX = xVals;
     m_meshY = yVals;
     m_meshZ = zVals;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimcTriangleGeometry::setFaulMeshVertices( const std::vector<cvf::Vec3f>& faultMeshVertices )
+{
+    auto [xVals, yVals, zVals] = assignCoordinatesToSeparateVectors( faultMeshVertices );
+
+    m_faultMeshX = xVals;
+    m_faultMeshY = yVals;
+    m_faultMeshZ = zVals;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -184,12 +200,24 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
 
         auto triangleGeometry = RimcTriangleGeometry::createFromVertices( coords );
 
-        auto cellMeshVertices = geoGenerator->cellMeshVxes();
-        if ( cellMeshVertices )
         {
-            std::vector<cvf::Vec3f> meshCoords;
-            cellMeshVertices->toStdVector( &meshCoords );
-            triangleGeometry->setMeshVertices( meshCoords );
+            auto cellMeshVertices = geoGenerator->cellMeshVxes();
+            if ( cellMeshVertices )
+            {
+                std::vector<cvf::Vec3f> meshCoords;
+                cellMeshVertices->toStdVector( &meshCoords );
+                triangleGeometry->setMeshVertices( meshCoords );
+            }
+        }
+
+        {
+            auto faultMeshVertices = geoGenerator->faultMeshVxes();
+            if ( faultMeshVertices )
+            {
+                std::vector<cvf::Vec3f> meshCoords;
+                faultMeshVertices->toStdVector( &meshCoords );
+                triangleGeometry->setFaulMeshVertices( meshCoords );
+            }
         }
 
         {
