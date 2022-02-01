@@ -250,7 +250,7 @@ std::unique_ptr<RivIntersectionGeometryGeneratorInterface>
 
         intersectionGeoGenerator->ensureGeometryIsCalculated();
 
-        return std::move( intersectionGeoGenerator );
+        return intersectionGeoGenerator;
     }
 
     return nullptr;
