@@ -345,7 +345,7 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometryResult::execute()
         return RimcDataContainerDouble::create( values );
     }
 
-    return nullptr;
+    return new RimcDataContainerDouble();
 }
 
 //--------------------------------------------------------------------------------------------------
