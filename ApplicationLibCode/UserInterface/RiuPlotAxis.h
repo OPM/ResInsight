@@ -23,38 +23,22 @@
 class RiuPlotAxis
 {
 public:
-    explicit RiuPlotAxis()
-        : m_axis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        , m_index( 0 ){};
+    explicit RiuPlotAxis();
+    explicit RiuPlotAxis( RiaDefines::PlotAxis axis );
+    explicit RiuPlotAxis( RiaDefines::PlotAxis axis, int index );
+    virtual ~RiuPlotAxis();
 
-    explicit RiuPlotAxis( RiaDefines::PlotAxis axis )
-        : m_axis( axis )
-        , m_index( 0 ){};
+    static RiuPlotAxis defaultLeft();
+    static RiuPlotAxis defaultRight();
+    static RiuPlotAxis defaultTop();
+    static RiuPlotAxis defaultBottom();
 
-    explicit RiuPlotAxis( RiaDefines::PlotAxis axis, int index )
-        : m_axis( axis )
-        , m_index( index ){};
+    RiaDefines::PlotAxis axis() const;
 
-    virtual ~RiuPlotAxis(){};
+    int index() const;
 
-    static RiuPlotAxis defaultLeft() { return RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ); }
-    static RiuPlotAxis defaultRight() { return RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ); }
-    static RiuPlotAxis defaultTop() { return RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_TOP ); }
-    static RiuPlotAxis defaultBottom() { return RiuPlotAxis( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM ); }
-
-    RiaDefines::PlotAxis axis() const { return m_axis; }
-
-    int index() const { return m_index; }
-
-    bool operator<( const RiuPlotAxis& rhs ) const
-    {
-        if ( m_axis != rhs.m_axis )
-            return m_axis < rhs.m_axis;
-        else
-            return m_index < rhs.m_index;
-    }
-
-    bool operator==( const RiuPlotAxis& rhs ) { return m_axis == rhs.m_axis && m_index == rhs.m_index; };
+    bool operator<( const RiuPlotAxis& rhs ) const;
+    bool operator==( const RiuPlotAxis& rhs );
 
 private:
     RiaDefines::PlotAxis m_axis;
