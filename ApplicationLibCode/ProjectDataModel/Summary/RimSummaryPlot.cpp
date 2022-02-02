@@ -351,7 +351,7 @@ bool RimSummaryPlot::isLogarithmicScaleEnabled( RiuPlotAxis plotAxis ) const
 //--------------------------------------------------------------------------------------------------
 RimSummaryTimeAxisProperties* RimSummaryPlot::timeAxisProperties()
 {
-    // TODO: support multiple time axis?
+    // Find the first time axis (which is correct since there is only one).
     for ( auto ap : m_axisProperties )
     {
         RimSummaryTimeAxisProperties* timeAxis = dynamic_cast<RimSummaryTimeAxisProperties*>( ap.p() );
@@ -758,7 +758,7 @@ QString RimSummaryPlot::generatedPlotTitleFromAllCurves() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot )
 {
-    for ( auto ap : sourceSummaryPlot.plotAxis() )
+    for ( auto ap : sourceSummaryPlot.plotAxes() )
     {
         QString data = ap->writeObjectToXmlString();
         axisPropertiesForPlotAxis( ap->plotAxisType() )
@@ -2719,7 +2719,7 @@ CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxis() const
+std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxes() const
 {
     std::vector<RimPlotAxisPropertiesInterface*> axisProps;
     for ( auto ap : m_axisProperties )

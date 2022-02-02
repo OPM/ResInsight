@@ -185,7 +185,7 @@ public:
     std::vector<RimEnsembleCurveSet*> curveSets() const override;
     std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
-    std::vector<RimPlotAxisPropertiesInterface*> plotAxis() const;
+    std::vector<RimPlotAxisPropertiesInterface*> plotAxes() const;
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
 

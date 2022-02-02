@@ -432,7 +432,6 @@ RimSummaryCase* RimSummaryCurve::summaryCaseX() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
-    // TODO: improve this
     m_plotAxis_OBSOLETE = plotAxis.axis();
 
     RimSummaryPlot* plot = nullptr;
@@ -508,7 +507,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfTypeAsserted( plot );
 
-        for ( auto axis : plot->plotAxis() )
+        for ( auto axis : plot->plotAxes() )
         {
             options.push_back( caf::PdmOptionItemInfo( axis->name(), axis ) );
         }

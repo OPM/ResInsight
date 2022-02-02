@@ -1217,7 +1217,7 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfTypeAsserted( plot );
 
-        for ( auto axis : plot->plotAxis() )
+        for ( auto axis : plot->plotAxes() )
         {
             options.push_back( caf::PdmOptionItemInfo( axis->name(), axis ) );
         }
