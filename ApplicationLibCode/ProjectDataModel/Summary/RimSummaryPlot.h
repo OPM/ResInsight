@@ -209,6 +209,8 @@ private:
 
     void onCurveCollectionChanged( const SignalEmitter* emitter );
 
+    void connectCurveToPlot( RimSummaryCurve* curve, bool update );
+
 protected:
     // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;

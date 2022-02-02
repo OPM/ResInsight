@@ -1284,13 +1284,7 @@ void RimSummaryPlot::addCurveAndUpdate( RimSummaryCurve* curve )
     if ( curve )
     {
         m_summaryCurveCollection->addCurve( curve );
-        assignPlotAxis( curve );
-        connectCurveSignals( curve );
-        if ( plotWidget() )
-        {
-            curve->setParentPlotAndReplot( plotWidget() );
-            this->updateAxes();
-        }
+        connectCurveToPlot( curve, true );
     }
 }
 
@@ -1302,12 +1296,7 @@ void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve )
     if ( curve )
     {
         m_summaryCurveCollection->addCurve( curve );
-        assignPlotAxis( curve );
-        connectCurveSignals( curve );
-        if ( plotWidget() )
-        {
-            curve->setParentPlotNoReplot( plotWidget() );
-        }
+        connectCurveToPlot( curve, false );
     }
 }
 
@@ -1319,9 +1308,25 @@ void RimSummaryPlot::insertCurve( RimSummaryCurve* curve, size_t insertAtPositio
     if ( curve )
     {
         m_summaryCurveCollection->insertCurve( curve, insertAtPosition );
-        assignPlotAxis( curve );
-        connectCurveSignals( curve );
-        if ( plotWidget() )
+        connectCurveToPlot( curve, false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::connectCurveToPlot( RimSummaryCurve* curve, bool update )
+{
+    assignPlotAxis( curve );
+    connectCurveSignals( curve );
+    if ( plotWidget() )
+    {
+        if ( update )
+        {
+            curve->setParentPlotAndReplot( plotWidget() );
+            this->updateAxes();
+        }
+        else
         {
             curve->setParentPlotNoReplot( plotWidget() );
         }
