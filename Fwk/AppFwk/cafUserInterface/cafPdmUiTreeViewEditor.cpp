@@ -521,7 +521,6 @@ void PdmUiTreeViewEditor::setDragDropInterface( PdmUiDragDropInterface* dragDrop
 void PdmUiTreeViewEditor::setFilterString( QString filterString )
 {
     m_filterModel->setFilterWildcard( filterString );
-    if ( !filterString.isEmpty() ) m_treeView->expandAll();
 }
 
 //--------------------------------------------------------------------------------------------------

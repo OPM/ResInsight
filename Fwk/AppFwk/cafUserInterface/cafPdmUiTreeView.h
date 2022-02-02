@@ -113,6 +113,7 @@ private:
     QVBoxLayout*         m_layout;
     QLineEdit*           m_searchBox;
     QPushButton*         m_clearSearchButton;
+    QString              m_treeStateString;
 };
 
 } // End of namespace caf

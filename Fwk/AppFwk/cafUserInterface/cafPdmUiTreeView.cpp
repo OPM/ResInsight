@@ -41,6 +41,7 @@
 #include "cafPdmUiDragDropInterface.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
+#include "cafQTreeViewStateSerializer.h"
 
 #include <QHBoxLayout>
 #include <QLineEdit>
@@ -175,8 +176,22 @@ void PdmUiTreeView::slotOnClearSearchBox()
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::onSlotSearchTextChanged()
 {
-    QString searchText = m_searchBox->text();
+    QString searchText = m_searchBox->text().trimmed();
     m_treeViewEditor->setFilterString( searchText );
+    if ( searchText.isEmpty() )
+    {
+        if ( !m_treeStateString.isEmpty() )
+        {
+            m_treeViewEditor->treeView()->collapseAll();
+            QTreeViewStateSerializer::applyTreeViewStateFromString( m_treeViewEditor->treeView(), m_treeStateString );
+        }
+        return;
+    }
+    else if ( m_treeStateString.isEmpty() )
+    {
+        QTreeViewStateSerializer::storeTreeViewStateToString( m_treeViewEditor->treeView(), m_treeStateString );
+    }
+    m_treeViewEditor->treeView()->expandAll();
 }
 
 //--------------------------------------------------------------------------------------------------
