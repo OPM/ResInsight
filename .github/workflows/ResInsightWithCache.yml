@@ -24,10 +24,8 @@ jobs:
             name: "Windows Latest MSVC",
             os: windows-2019,
             cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
             build-python-module: true,
             execute-unit-tests: true
           }
@@ -37,7 +35,6 @@ jobs:
             cc: "gcc", cxx: "g++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
             build-python-module: true,
             execute-unit-tests: true
           }
@@ -47,7 +44,6 @@ jobs:
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
             build-python-module: true,
             execute-unit-tests: true
           }
@@ -57,7 +53,6 @@ jobs:
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-osx.txt,
             vcpkg-triplet: x64-osx,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
             build-python-module: false,
             execute-unit-tests: false
           }
@@ -187,7 +182,7 @@ jobs:
               -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
-              -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
+              -D CMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
               -G Ninja
             RESULT_VARIABLE result
           )
