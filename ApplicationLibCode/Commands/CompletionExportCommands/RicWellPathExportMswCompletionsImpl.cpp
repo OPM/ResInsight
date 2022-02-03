@@ -1126,14 +1126,13 @@ std::vector<WellPathCellIntersectionInfo>
 
         WellPathCellIntersectionInfo extraIntersection;
 
-        extraIntersection.globCellIndex         = std::numeric_limits<size_t>::max();
-        extraIntersection.startPoint            = intersectionPoint;
-        extraIntersection.endPoint              = firstIntersection.startPoint;
-        extraIntersection.startMD               = initialMD;
-        extraIntersection.endMD                 = firstIntersection.startMD;
-        extraIntersection.intersectedCellFaceIn = cvf::StructGridInterface::NO_FACE;
-        extraIntersection.intersectedCellFaceOut =
-            cvf::StructGridInterface::oppositeFace( firstIntersection.intersectedCellFaceIn );
+        extraIntersection.globCellIndex               = std::numeric_limits<size_t>::max();
+        extraIntersection.startPoint                  = intersectionPoint;
+        extraIntersection.endPoint                    = firstIntersection.startPoint;
+        extraIntersection.startMD                     = initialMD;
+        extraIntersection.endMD                       = firstIntersection.startMD;
+        extraIntersection.intersectedCellFaceIn       = cvf::StructGridInterface::NO_FACE;
+        extraIntersection.intersectedCellFaceOut      = firstIntersection.intersectedCellFaceOut;
         extraIntersection.intersectionLengthsInCellCS = cvf::Vec3d::ZERO;
 
         filteredIntersections.push_back( extraIntersection );
