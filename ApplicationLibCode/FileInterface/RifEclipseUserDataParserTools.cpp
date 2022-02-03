@@ -184,11 +184,11 @@ std::vector<double> RifEclipseUserDataParserTools::splitLineToDoubles( const std
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::isANumber( const std::string& line )
 {
-    double dummy = 0.0;
-
     try
     {
-        dummy = std::stod( line );
+        auto value = std::stod( line );
+        if ( std::isinf( value ) || std::isnan( value ) ) return false;
+        return true;
     }
     catch ( ... )
     {
