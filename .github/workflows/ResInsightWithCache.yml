@@ -175,11 +175,6 @@ jobs:
         run: |
           set(ENV{CC} ${{ matrix.config.cc }})
           set(ENV{CXX} ${{ matrix.config.cxx }})
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
           
           execute_process(
             COMMAND cmake
@@ -204,10 +199,6 @@ jobs:
         shell: cmake -P {0}
         run: |
           set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
           execute_process(
             COMMAND cmake --build cmakebuild --target install
             RESULT_VARIABLE result
