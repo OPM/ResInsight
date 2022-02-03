@@ -184,14 +184,11 @@ std::vector<double> RifEclipseUserDataParserTools::splitLineToDoubles( const std
 //--------------------------------------------------------------------------------------------------
 bool RifEclipseUserDataParserTools::isANumber( const std::string& line )
 {
+    double dummy = 0.0;
+
     try
     {
-#ifdef _WIN32
-#pragma warning( push )
-#pragma warning( disable : 4834 )
-        std::stod( line );
-#pragma warning( pop )
-#endif
+        dummy = std::stod( line );
     }
     catch ( ... )
     {
