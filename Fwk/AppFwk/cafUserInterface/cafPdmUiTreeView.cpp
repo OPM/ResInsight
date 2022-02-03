@@ -179,9 +179,9 @@ void PdmUiTreeView::slotOnClearSearchBox()
 void PdmUiTreeView::onSlotSearchTextChanged()
 {
     QString searchText = m_searchBox->text().trimmed();
-    m_treeViewEditor->setFilterString( searchText );
     if ( searchText.isEmpty() )
     {
+        m_treeViewEditor->setFilterString( searchText );
         if ( !m_treeStateString.isEmpty() )
         {
             m_treeViewEditor->treeView()->collapseAll();
@@ -194,6 +194,7 @@ void PdmUiTreeView::onSlotSearchTextChanged()
     {
         QTreeViewStateSerializer::storeTreeViewStateToString( m_treeViewEditor->treeView(), m_treeStateString );
     }
+    m_treeViewEditor->setFilterString( searchText );
     m_treeViewEditor->treeView()->expandAll();
 }
 
