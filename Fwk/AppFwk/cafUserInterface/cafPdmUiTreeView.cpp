@@ -59,7 +59,7 @@ namespace caf
 PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     : QWidget( parent, f )
 {
-    m_layout = new QVBoxLayout( this );
+    m_layout = new QVBoxLayout();
     m_layout->setContentsMargins( 0, 0, 0, 0 );
 
     setLayout( m_layout );

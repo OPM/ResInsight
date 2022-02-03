@@ -34,6 +34,7 @@
 
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
 #include "qwt_plot.h"

@@ -25,6 +25,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
 #include <QFileInfo>
