@@ -34,8 +34,6 @@
 #include <algorithm>
 #include <numeric>
 
-#pragma warning( suppress : 4834 )
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -188,7 +186,12 @@ bool RifEclipseUserDataParserTools::isANumber( const std::string& line )
 {
     try
     {
+#ifdef _WIN32
+#pragma warning( push )
+#pragma warning( disable : 4834 )
         std::stod( line );
+#pragma warning( pop )
+#endif
     }
     catch ( ... )
     {
