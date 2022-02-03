@@ -176,7 +176,11 @@ QWidget* PdmUiTreeViewEditor::createWidget( QWidget* parent )
     m_filterModel   = new QSortFilterProxyModel( this );
     m_filterModel->setFilterKeyColumn( 0 );
     m_filterModel->setFilterCaseSensitivity( Qt::CaseInsensitive );
+
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
     m_filterModel->setRecursiveFilteringEnabled( true );
+#endif
+
     m_filterModel->setSourceModel( m_treeViewModel );
     m_treeView = new PdmUiTreeViewWidget( m_mainWidget );
     m_treeView->setModel( m_filterModel );
