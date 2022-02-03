@@ -303,7 +303,7 @@ void RiaGuiApplication::storeTreeViewState()
         for ( auto& tv : mainWindow()->projectTreeViews() )
         {
             QString treeViewState;
-            caf::QTreeViewStateSerializer::storeTreeViewStateToString( tv->treeView(), treeViewState );
+            tv->storeTreeViewStateToString( treeViewState );
             treeStates.append( treeViewState );
 
             QModelIndex mi = tv->treeView()->currentIndex();
@@ -324,7 +324,7 @@ void RiaGuiApplication::storeTreeViewState()
         for ( auto& tv : mainPlotWindow()->projectTreeViews() )
         {
             QString treeViewState;
-            caf::QTreeViewStateSerializer::storeTreeViewStateToString( tv->treeView(), treeViewState );
+            tv->storeTreeViewStateToString( treeViewState );
             treeStates.append( treeViewState );
 
             QModelIndex mi = tv->treeView()->currentIndex();

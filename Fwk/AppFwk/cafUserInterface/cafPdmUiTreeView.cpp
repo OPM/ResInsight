@@ -186,6 +186,7 @@ void PdmUiTreeView::onSlotSearchTextChanged()
         {
             m_treeViewEditor->treeView()->collapseAll();
             QTreeViewStateSerializer::applyTreeViewStateFromString( m_treeViewEditor->treeView(), m_treeStateString );
+            m_treeStateString = "";
         }
         return;
     }
@@ -194,6 +195,20 @@ void PdmUiTreeView::onSlotSearchTextChanged()
         QTreeViewStateSerializer::storeTreeViewStateToString( m_treeViewEditor->treeView(), m_treeStateString );
     }
     m_treeViewEditor->treeView()->expandAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::storeTreeViewStateToString( QString& treeViewState ) const
+{
+    QString searchText = m_searchBox->text().trimmed();
+    if ( !searchText.isEmpty() )
+    {
+        treeViewState = m_treeStateString;
+        return;
+    }
+    QTreeViewStateSerializer::storeTreeViewStateToString( m_treeViewEditor->treeView(), treeViewState );
 }
 
 //--------------------------------------------------------------------------------------------------

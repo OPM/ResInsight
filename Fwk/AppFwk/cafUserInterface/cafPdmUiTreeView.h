@@ -94,6 +94,8 @@ public:
 
     void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
 
+    void storeTreeViewStateToString( QString& treeViewState ) const;
+
 signals:
     void selectionChanged();
     // Convenience signal for use with PdmUiPropertyView
