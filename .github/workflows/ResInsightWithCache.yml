@@ -22,7 +22,7 @@ jobs:
         config:
         - {
             name: "Windows Latest MSVC",
-            os: windows-2019,
+            os: windows-latest,
             cc: "cl", cxx: "cl",
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
