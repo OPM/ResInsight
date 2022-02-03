@@ -67,6 +67,7 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     QHBoxLayout* searchLayout = new QHBoxLayout();
 
     m_searchBox = new QLineEdit( this );
+    m_searchBox->setPlaceholderText( "Type here to search in tree." );
     searchLayout->addWidget( m_searchBox );
 
     m_clearSearchButton = new QPushButton( "X" );
