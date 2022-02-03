@@ -168,7 +168,6 @@ set(PROJECT_FILES
     cafPdmUiTreeViewItemDelegate.h
     cafPdmUiTreeViewItemDelegate.cpp
     cafPdmUiTreeAttributes.h
-
 )
 
 add_library(
