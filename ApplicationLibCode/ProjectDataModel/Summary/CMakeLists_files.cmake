@@ -6,6 +6,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAutoName.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.h
@@ -52,6 +53,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAutoName.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.cpp
