@@ -713,7 +713,9 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
         curveCopy->setCurveVisibility( true );
     }
 
-    plot->addCurveNoUpdate( curveCopy );
+
+    plot->addCurveNoUpdate( curveCopy, false );
+    curveCopy->setLeftOrRightAxisY( curve->axisY() );
 
     // The curve creator is not a descendant of the project, and need to be set manually
     curveCopy->setSummaryCaseY( curve->summaryCaseY() );

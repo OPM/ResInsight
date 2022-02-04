@@ -83,8 +83,8 @@ public:
     void enableAutoPlotTitle( bool enable );
     bool autoPlotTitle() const;
 
-    void addCurveAndUpdate( RimSummaryCurve* curve );
-    void addCurveNoUpdate( RimSummaryCurve* curve );
+    void addCurveAndUpdate( RimSummaryCurve* curve, bool autoAssignPlotAxis = true );
+    void addCurveNoUpdate( RimSummaryCurve* curve, bool autoAssignPlotAxis = true );
 
     void insertCurve( RimSummaryCurve* curve, size_t insertAtPosition );
 
@@ -209,7 +209,7 @@ private:
 
     void onCurveCollectionChanged( const SignalEmitter* emitter );
 
-    void connectCurveToPlot( RimSummaryCurve* curve, bool update );
+    void connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis );
 
 protected:
     // Overridden PDM methods

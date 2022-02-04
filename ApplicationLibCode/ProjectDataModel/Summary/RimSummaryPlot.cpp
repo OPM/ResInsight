@@ -761,8 +761,10 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
     for ( auto ap : sourceSummaryPlot.plotAxes() )
     {
         QString data = ap->writeObjectToXmlString();
+
         axisPropertiesForPlotAxis( ap->plotAxisType() )
             ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+
     }
 }
 
@@ -1279,24 +1281,24 @@ void RimSummaryPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addCurveAndUpdate( RimSummaryCurve* curve )
+void RimSummaryPlot::addCurveAndUpdate( RimSummaryCurve* curve, bool autoAssignPlotAxis )
 {
     if ( curve )
     {
         m_summaryCurveCollection->addCurve( curve );
-        connectCurveToPlot( curve, true );
+        connectCurveToPlot( curve, true, autoAssignPlotAxis );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve )
+void RimSummaryPlot::addCurveNoUpdate( RimSummaryCurve* curve, bool autoAssignPlotAxis )
 {
     if ( curve )
     {
         m_summaryCurveCollection->addCurve( curve );
-        connectCurveToPlot( curve, false );
+        connectCurveToPlot( curve, false, autoAssignPlotAxis );
     }
 }
 
@@ -1308,16 +1310,18 @@ void RimSummaryPlot::insertCurve( RimSummaryCurve* curve, size_t insertAtPositio
     if ( curve )
     {
         m_summaryCurveCollection->insertCurve( curve, insertAtPosition );
-        connectCurveToPlot( curve, false );
+        connectCurveToPlot( curve, false, true );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::connectCurveToPlot( RimSummaryCurve* curve, bool update )
+void RimSummaryPlot::connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis )
 {
-    assignPlotAxis( curve );
+    if (autoAssignPlotAxis)
+        assignPlotAxis( curve );
+    
     connectCurveSignals( curve );
     if ( plotWidget() )
     {
