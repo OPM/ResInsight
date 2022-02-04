@@ -125,7 +125,8 @@ private:
     caf::PdmField<double> m_visibleRangeMax;
 
     caf::PdmField<QString> m_name;
-    RiuPlotAxis            m_axis;
+    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+    caf::PdmField<int>                  m_plotAxisIndex;
 
     caf::PdmField<bool> m_isLogarithmicScaleEnabled;
 

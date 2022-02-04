@@ -81,6 +81,10 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
     CAF_PDM_InitField( &m_isAxisInverted, "AxisInverted", false, "Invert Axis" );
 
+    auto defaultPlotAxis = caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    CAF_PDM_InitField( &m_plotAxis, "PlotAxis", defaultPlotAxis, "Plot Axis" );
+    CAF_PDM_InitField( &m_plotAxisIndex, "PlotAxisIndex", 0, "Plot Axis Index" );
+
     CAF_PDM_InitFieldNoDefault( &m_titlePositionEnum, "TitlePosition", "Title Position" );
 
     CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleDeltaFontSize", "Font Size" );
@@ -204,7 +208,8 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex )
 {
     m_name = name;
-    m_axis = RiuPlotAxis( axis, axisIndex );
+    m_plotAxis = axis;
+    m_plotAxisIndex = axisIndex;
 
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) this->setUiIconFromResourceString( ":/LeftAxis16x16.png" );
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) this->setUiIconFromResourceString( ":/RightAxis16x16.png" );
@@ -249,7 +254,7 @@ const QString& RimPlotAxisProperties::name() const
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimPlotAxisProperties::plotAxisType() const
 {
-    return m_axis;
+    return RiuPlotAxis( m_plotAxis.value(), m_plotAxisIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
