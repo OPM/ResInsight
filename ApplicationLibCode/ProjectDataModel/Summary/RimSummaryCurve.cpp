@@ -769,14 +769,13 @@ void RimSummaryCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderi
 void RimSummaryCurve::initAfterRead()
 {
     RimStackablePlotCurve::initAfterRead();
-    
+
     if ( m_plotAxisProperties.value() == nullptr )
     {
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType( plot );
-        if (plot) m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+        if ( plot ) m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
     }
-    
 
     if ( m_isEnsembleCurve().isPartiallyTrue() )
     {

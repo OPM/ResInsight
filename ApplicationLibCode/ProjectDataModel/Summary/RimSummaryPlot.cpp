@@ -764,7 +764,6 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
 
         axisPropertiesForPlotAxis( ap->plotAxisType() )
             ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
-
     }
 }
 
@@ -1319,9 +1318,8 @@ void RimSummaryPlot::insertCurve( RimSummaryCurve* curve, size_t insertAtPositio
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis )
 {
-    if (autoAssignPlotAxis)
-        assignPlotAxis( curve );
-    
+    if ( autoAssignPlotAxis ) assignPlotAxis( curve );
+
     connectCurveSignals( curve );
     if ( plotWidget() )
     {

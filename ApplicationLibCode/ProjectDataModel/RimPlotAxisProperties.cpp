@@ -207,8 +207,8 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex )
 {
-    m_name = name;
-    m_plotAxis = axis;
+    m_name          = name;
+    m_plotAxis      = axis;
     m_plotAxisIndex = axisIndex;
 
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) this->setUiIconFromResourceString( ":/LeftAxis16x16.png" );
