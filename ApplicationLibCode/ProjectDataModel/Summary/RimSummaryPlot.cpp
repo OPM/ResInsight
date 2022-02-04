@@ -2067,6 +2067,15 @@ void RimSummaryPlot::initAfterRead()
             copyAxis( RiuPlotAxis::defaultBottom(), m_timeAxisProperties_OBSOLETE.v() );
     }
 
+    for ( auto axisProperties : m_axisProperties )
+    {
+        auto plotAxisProperties = dynamic_cast<RimPlotAxisProperties*>( axisProperties.p() );
+        if ( plotAxisProperties )
+        {
+            connectAxisSignals( plotAxisProperties );
+        }
+    }
+
     for ( auto curve : summaryCurves() )
     {
         connectCurveSignals( curve );
