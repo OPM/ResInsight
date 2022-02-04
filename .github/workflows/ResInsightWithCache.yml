@@ -22,12 +22,10 @@ jobs:
         config:
         - {
             name: "Windows Latest MSVC",
-            os: windows-2019,
+            os: windows-latest,
             cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
             vcpkg-response-file: vcpkg_x64-windows.txt,
             vcpkg-triplet: x64-windows,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
             build-python-module: true,
             execute-unit-tests: true
           }
@@ -37,7 +35,6 @@ jobs:
             cc: "gcc", cxx: "g++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
             build-python-module: true,
             execute-unit-tests: true
           }
@@ -47,7 +44,6 @@ jobs:
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-linux.txt,
             vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
             build-python-module: true,
             execute-unit-tests: true
           }
@@ -57,7 +53,6 @@ jobs:
             cc: "clang", cxx: "clang++",
             vcpkg-response-file: vcpkg_x64-osx.txt,
             vcpkg-triplet: x64-osx,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
             build-python-module: false,
             execute-unit-tests: false
           }
@@ -73,9 +68,12 @@ jobs:
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
       
-        # workaround a poor interaction between github actions/cmake/vcpkg, see https://github.com/lukka/run-vcpkg/issues/88#issuecomment-885758902
-      - name: Use CMake 3.20.1
-        uses: lukka/get-cmake@v3.20.1
+      - name: Use CMake
+        uses: lukka/get-cmake@latest
+        
+      - name: Use MSVC (Windows)
+        if: matrix.config.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Download buildcache
         id: buildcache-download
@@ -171,23 +169,6 @@ jobs:
         run: |
           set(ENV{CC} ${{ matrix.config.cc }})
           set(ENV{CXX} ${{ matrix.config.cxx }})
-          if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-            execute_process(
-              COMMAND "${{ matrix.config.environment_script }}" && set
-              OUTPUT_FILE environment_script_output.txt
-            )
-            file(STRINGS environment_script_output.txt output_lines)
-            foreach(line IN LISTS output_lines)
-              if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-                set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-              endif()
-            endforeach()
-          endif()
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
           
           execute_process(
             COMMAND cmake
@@ -201,7 +182,7 @@ jobs:
               -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
-              -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
+              -D CMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
               -G Ninja
             RESULT_VARIABLE result
           )
@@ -212,18 +193,6 @@ jobs:
         shell: cmake -P {0}
         run: |
           set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-          if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-            file(STRINGS environment_script_output.txt output_lines)
-            foreach(line IN LISTS output_lines)
-              if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-                set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-              endif()
-            endforeach()
-          endif()
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
           execute_process(
             COMMAND cmake --build cmakebuild --target install
             RESULT_VARIABLE result

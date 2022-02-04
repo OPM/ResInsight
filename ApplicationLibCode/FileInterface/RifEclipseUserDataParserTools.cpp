@@ -32,6 +32,7 @@
 #include <QTextStream>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 
 //--------------------------------------------------------------------------------------------------
@@ -186,7 +187,9 @@ bool RifEclipseUserDataParserTools::isANumber( const std::string& line )
 {
     try
     {
-        std::stod( line );
+        auto value = std::stod( line );
+        if ( std::isinf( value ) || std::isnan( value ) ) return false;
+        return true;
     }
     catch ( ... )
     {
