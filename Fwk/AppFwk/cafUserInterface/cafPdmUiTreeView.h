@@ -48,7 +48,6 @@ class QModelIndex;
 class QLineEdit;
 class QPushButton;
 class QSortFilterProxyModel;
-class QRegExp;
 
 namespace caf
 {

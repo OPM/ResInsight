@@ -46,7 +46,6 @@
 #include <QHBoxLayout>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QRegExp>
 #include <QSortFilterProxyModel>
 #include <QTreeView>
 #include <QVBoxLayout>
