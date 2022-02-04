@@ -408,6 +408,15 @@ void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*  
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
+{
+    syncronize2dIntersectionViews();
+    rebuild3dView();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimIntersectionCollection::hasActiveIntersectionForSimulationWell( const RimSimWellInView* simWell ) const
 {
     if ( !isActive() ) return false;

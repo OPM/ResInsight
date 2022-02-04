@@ -199,12 +199,12 @@ void RimExtrudedCurveIntersection::configureForAzimuthLine()
 RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
 {
     CAF_PDM_InitScriptableObject( "Intersection", ":/CrossSection16x16.png" );
-    CAF_PDM_InitField( &m_name, "UserDescription", QString( "Intersection Name" ), "Name" );
+    CAF_PDM_InitScriptableFieldWithScriptKeyword( &m_name, "UserDescription", "Name", QString( "Intersection Name" ), "Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_type, "Type", "Type" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_type, "Type", "Type" );
     CAF_PDM_InitFieldNoDefault( &m_direction, "Direction", "Direction" );
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "WellPath", "Well Path        " );
-    CAF_PDM_InitFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPath, "WellPath", "Well Path        " );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_simulationWell, "SimulationWell", "Simulation Well" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_userPolylineXyz,
                                           "Points",
                                           "Points",
