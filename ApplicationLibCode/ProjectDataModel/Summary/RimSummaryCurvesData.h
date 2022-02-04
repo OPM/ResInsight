@@ -34,7 +34,7 @@ struct CurveData
     std::vector<double>      values;
 };
 
-enum SummaryCurveType
+enum class SummaryCurveType
 {
     CURVE_TYPE_GRID     = 0x1,
     CURVE_TYPE_OBSERVED = 0x2
@@ -63,6 +63,13 @@ public:
                                const std::vector<time_t>&    curvetimeSteps,
                                const std::vector<CurveData>& curveDataVector );
 
+    static QString createTextForExport( const std::vector<RimSummaryCurve*>&         curves,
+                                        const std::vector<RimAsciiDataCurve*>&       asciiCurves,
+                                        const std::vector<RimGridTimeHistoryCurve*>& gridCurves,
+                                        RiaQDateTimeTools::DateTimePeriod            resamplingPeriod,
+                                        bool                                         showTimeAsLongString );
+
+private:
     static void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves,
                                            SummaryCurveType              curveType,
                                            RimSummaryCurvesData*         curvesData );

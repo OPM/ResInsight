@@ -307,52 +307,16 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod resamplingPeriod,
                                                        bool                              showTimeAsLongString ) const
 {
-    QString out;
+    std::vector<RimSummaryCurve*> curves;
+    this->descendantsIncludingThisOfType( curves );
 
-    // Summary and time history (from grid) curves
-    {
-        std::vector<RimSummaryCurve*> curves;
-        this->descendantsIncludingThisOfType( curves );
+    auto gridCurves  = m_gridTimeHistoryCurves.childObjects();
+    auto asciiCurves = m_asciiDataCurves.childObjects();
 
-        RimSummaryCurvesData summaryCurvesGridData;
-        RimSummaryCurvesData summaryCurvesObsData;
-        RimSummaryCurvesData::populateSummaryCurvesData( curves, CURVE_TYPE_GRID, &summaryCurvesGridData );
-        RimSummaryCurvesData::populateSummaryCurvesData( curves, CURVE_TYPE_OBSERVED, &summaryCurvesObsData );
+    QString text =
+        RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
 
-        RimSummaryCurvesData timeHistoryCurvesData;
-        RimSummaryCurvesData::populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjects(),
-                                                             &timeHistoryCurvesData );
-
-        // Export observed data
-        RimSummaryCurvesData::appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
-
-        std::vector<RimSummaryCurvesData> exportData( 2 );
-
-        // Summary grid data for export
-        RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod,
-                                                          ResampleAlgorithm::DATA_DECIDES,
-                                                          summaryCurvesGridData,
-                                                          &exportData[0] );
-
-        // Time history data for export
-        RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod,
-                                                          ResampleAlgorithm::PERIOD_END,
-                                                          timeHistoryCurvesData,
-                                                          &exportData[1] );
-
-        // Export resampled summary and time history data
-        RimSummaryCurvesData::appendToExportData( out, exportData, showTimeAsLongString );
-    }
-
-    // Pasted observed data
-    {
-        RimSummaryCurvesData asciiCurvesData;
-        RimSummaryCurvesData::populateAsciiDataCurvesData( m_asciiDataCurves.childObjects(), &asciiCurvesData );
-
-        RimSummaryCurvesData::appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
-    }
-
-    return out;
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
