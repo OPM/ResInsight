@@ -74,7 +74,8 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
 
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
     m_layout->addLayout( searchLayout );
-    connect( m_searchBox, SIGNAL( textChanged( QString ) ), SLOT( onSlotSearchTextChanged() ) );
+    connect( m_searchBox, SIGNAL( textChanged( QString ) ), SLOT( slotOnSearchTextChanged() ) );
+    connect( m_clearSearchButton, SIGNAL( clicked() ), SLOT( slotOnClearSearchBox() ) );
 #endif
 
     m_treeViewEditor    = new PdmUiTreeViewEditor();
@@ -83,7 +84,6 @@ PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     m_layout->addWidget( treewidget );
 
     connect( m_treeViewEditor, SIGNAL( selectionChanged() ), SLOT( slotOnSelectionChanged() ) );
-    connect( m_clearSearchButton, SIGNAL( clicked() ), SLOT( slotOnClearSearchBox() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ void PdmUiTreeView::slotOnClearSearchBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeView::onSlotSearchTextChanged()
+void PdmUiTreeView::slotOnSearchTextChanged()
 {
     QString searchText = m_searchBox->text().trimmed();
     if ( searchText.isEmpty() )

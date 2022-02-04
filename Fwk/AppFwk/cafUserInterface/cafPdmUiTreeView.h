@@ -106,7 +106,7 @@ public slots:
 private slots:
     void slotOnSelectionChanged();
     void slotOnClearSearchBox();
-    void onSlotSearchTextChanged();
+    void slotOnSearchTextChanged();
 
 private:
     PdmUiTreeViewEditor* m_treeViewEditor;

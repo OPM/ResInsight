@@ -561,9 +561,9 @@ void PdmUiTreeViewEditor::updateSelectionManager()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& rootIndex /* = QModelIndex() */ )
+void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRootIndex /* = QModelIndex() */ )
 {
-    auto allIndices = m_treeViewModel->allIndicesRecursive( rootIndex );
+    auto allIndices = m_treeViewModel->allIndicesRecursive( subRootIndex );
     for ( QModelIndex& index : allIndices )
     {
         QModelIndex filterIndex = m_filterModel->mapFromSource( index );
