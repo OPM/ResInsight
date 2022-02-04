@@ -47,6 +47,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryCurvesData.h"
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
@@ -85,121 +86,6 @@
 #include <set>
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
-
-//--------------------------------------------------------------------------------------------------
-/// Internal types
-//--------------------------------------------------------------------------------------------------
-enum class ResampleAlgorithm
-{
-    NONE,
-    DATA_DECIDES,
-    PERIOD_END
-};
-
-struct CurveData
-{
-    QString                  name;
-    RifEclipseSummaryAddress address;
-    std::vector<double>      values;
-};
-
-class CurvesData
-{
-public:
-    CurvesData()
-        : resamplePeriod( RiaQDateTimeTools::DateTimePeriod::NONE )
-    {
-    }
-    void clear()
-    {
-        caseIds.clear();
-        timeSteps.clear();
-        allCurveData.clear();
-    }
-
-    void addCurveData( const QString&             caseName,
-                       const QString&             ensembleName,
-                       const std::vector<time_t>& curvetimeSteps,
-                       const CurveData&           curveData )
-    {
-        QString caseId            = createCaseId( caseName, ensembleName );
-        size_t  existingCaseIndex = findCaseIndexForCaseId( caseId, curvetimeSteps.size() );
-
-        if ( existingCaseIndex == cvf::UNDEFINED_SIZE_T )
-        {
-            caseIds.push_back( caseId );
-            timeSteps.push_back( curvetimeSteps );
-            allCurveData.push_back( { curveData } );
-        }
-        else
-        {
-            CVF_ASSERT( timeSteps[existingCaseIndex].size() == curveData.values.size() );
-
-            allCurveData[existingCaseIndex].push_back( curveData );
-        }
-    }
-
-    void addCurveDataNoSearch( const QString&                caseName,
-                               const QString&                ensembleName,
-                               const std::vector<time_t>&    curvetimeSteps,
-                               const std::vector<CurveData>& curveDataVector )
-    {
-        QString caseId = createCaseId( caseName, ensembleName );
-
-        caseIds.push_back( caseId );
-        timeSteps.push_back( curvetimeSteps );
-        allCurveData.push_back( curveDataVector );
-    }
-
-private:
-    size_t findCaseIndexForCaseId( const QString& caseId, size_t timeStepCount )
-    {
-        size_t casePosInList = cvf::UNDEFINED_SIZE_T;
-
-        for ( size_t i = 0; i < caseIds.size(); i++ )
-        {
-            if ( caseId == caseIds[i] && timeSteps[i].size() == timeStepCount ) casePosInList = i;
-        }
-
-        return casePosInList;
-    }
-
-    QString createCaseId( const QString& caseName, const QString& ensembleName )
-    {
-        QString caseId = caseName;
-        if ( !ensembleName.isEmpty() ) caseId += QString( " (%1)" ).arg( ensembleName );
-
-        return caseId;
-    }
-
-public:
-    RiaQDateTimeTools::DateTimePeriod   resamplePeriod;
-    std::vector<QString>                caseIds;
-    std::vector<std::vector<time_t>>    timeSteps;
-    std::vector<std::vector<CurveData>> allCurveData;
-};
-
-//--------------------------------------------------------------------------------------------------
-/// Internal functions
-//--------------------------------------------------------------------------------------------------
-enum SummaryCurveType
-{
-    CURVE_TYPE_GRID     = 0x1,
-    CURVE_TYPE_OBSERVED = 0x2
-};
-
-void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCurveType curveType, CurvesData* curvesData );
-void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, CurvesData* curvesData );
-void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, CurvesData* curvesData );
-
-void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
-                                 ResampleAlgorithm                 algorithm,
-                                 const CurvesData&                 inputCurvesData,
-                                 CurvesData*                       resultCurvesData );
-
-void       appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData );
-void       appendToExportData( QString& out, const std::vector<CurvesData>& curvesData, bool showTimeAsLongString );
-CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -428,35 +314,42 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTi
         std::vector<RimSummaryCurve*> curves;
         this->descendantsIncludingThisOfType( curves );
 
-        CurvesData summaryCurvesGridData;
-        CurvesData summaryCurvesObsData;
-        populateSummaryCurvesData( curves, CURVE_TYPE_GRID, &summaryCurvesGridData );
-        populateSummaryCurvesData( curves, CURVE_TYPE_OBSERVED, &summaryCurvesObsData );
+        RimSummaryCurvesData summaryCurvesGridData;
+        RimSummaryCurvesData summaryCurvesObsData;
+        RimSummaryCurvesData::populateSummaryCurvesData( curves, CURVE_TYPE_GRID, &summaryCurvesGridData );
+        RimSummaryCurvesData::populateSummaryCurvesData( curves, CURVE_TYPE_OBSERVED, &summaryCurvesObsData );
 
-        CurvesData timeHistoryCurvesData;
-        populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjects(), &timeHistoryCurvesData );
+        RimSummaryCurvesData timeHistoryCurvesData;
+        RimSummaryCurvesData::populateTimeHistoryCurvesData( m_gridTimeHistoryCurves.childObjects(),
+                                                             &timeHistoryCurvesData );
 
         // Export observed data
-        appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
+        RimSummaryCurvesData::appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
 
-        std::vector<CurvesData> exportData( 2 );
+        std::vector<RimSummaryCurvesData> exportData( 2 );
 
         // Summary grid data for export
-        prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::DATA_DECIDES, summaryCurvesGridData, &exportData[0] );
+        RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod,
+                                                          ResampleAlgorithm::DATA_DECIDES,
+                                                          summaryCurvesGridData,
+                                                          &exportData[0] );
 
         // Time history data for export
-        prepareCaseCurvesForExport( resamplingPeriod, ResampleAlgorithm::PERIOD_END, timeHistoryCurvesData, &exportData[1] );
+        RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod,
+                                                          ResampleAlgorithm::PERIOD_END,
+                                                          timeHistoryCurvesData,
+                                                          &exportData[1] );
 
         // Export resampled summary and time history data
-        appendToExportData( out, exportData, showTimeAsLongString );
+        RimSummaryCurvesData::appendToExportData( out, exportData, showTimeAsLongString );
     }
 
     // Pasted observed data
     {
-        CurvesData asciiCurvesData;
-        populateAsciiDataCurvesData( m_asciiDataCurves.childObjects(), &asciiCurvesData );
+        RimSummaryCurvesData asciiCurvesData;
+        RimSummaryCurvesData::populateAsciiDataCurvesData( m_asciiDataCurves.childObjects(), &asciiCurvesData );
 
-        appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
+        RimSummaryCurvesData::appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
     }
 
     return out;
@@ -2382,356 +2275,6 @@ bool RimSummaryPlot::isDeletable() const
     RimMultiPlot* plotWindow = nullptr;
     firstAncestorOrThisOfType( plotWindow );
     return plotWindow == nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void populateTimeHistoryCurvesData( std::vector<RimGridTimeHistoryCurve*> curves, CurvesData* curvesData )
-{
-    CVF_ASSERT( curvesData );
-
-    curvesData->clear();
-
-    for ( RimGridTimeHistoryCurve* curve : curves )
-    {
-        if ( !curve->isCurveVisible() ) continue;
-        QString curveCaseName = curve->caseName();
-
-        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
-
-        curvesData->addCurveData( curveCaseName, "", curve->timeStepValues(), curveData );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, CurvesData* curvesData )
-{
-    CVF_ASSERT( curvesData );
-
-    curvesData->clear();
-
-    for ( RimAsciiDataCurve* curve : curves )
-    {
-        if ( !curve->isCurveVisible() ) continue;
-
-        CurveData curveData = { curve->curveExportDescription(), RifEclipseSummaryAddress(), curve->yValues() };
-
-        curvesData->addCurveDataNoSearch( "", "", curve->timeSteps(), { curveData } );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves, SummaryCurveType curveType, CurvesData* curvesData )
-{
-    CVF_ASSERT( curvesData );
-
-    curvesData->clear();
-
-    for ( RimSummaryCurve* curve : curves )
-    {
-        bool isObservedCurve = curve->summaryCaseY() ? curve->summaryCaseY()->isObservedData() : false;
-
-        if ( !curve->isCurveVisible() ) continue;
-        if ( isObservedCurve && ( curveType & CURVE_TYPE_OBSERVED ) == 0 ) continue;
-        if ( !isObservedCurve && ( curveType & CURVE_TYPE_GRID ) == 0 ) continue;
-        if ( !curve->summaryCaseY() ) continue;
-
-        QString curveCaseName = curve->summaryCaseY()->displayCaseName();
-        QString ensembleName;
-        if ( curve->curveDefinitionY().ensemble() )
-        {
-            ensembleName = curve->curveDefinitionY().ensemble()->name();
-        }
-
-        CurveData curveData = { curve->curveExportDescription(), curve->summaryAddressY(), curve->valuesY() };
-        CurveData errorCurveData;
-
-        // Error data
-        auto errorValues  = curve->errorValuesY();
-        bool hasErrorData = !errorValues.empty();
-
-        if ( hasErrorData )
-        {
-            errorCurveData.name    = curve->curveExportDescription( curve->errorSummaryAddressY() );
-            errorCurveData.address = curve->errorSummaryAddressY();
-            errorCurveData.values  = errorValues;
-        }
-
-        auto curveDataList = std::vector<CurveData>( { curveData } );
-        if ( hasErrorData ) curveDataList.push_back( errorCurveData );
-        if ( curve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
-        {
-            // We have calculated data, and it we cannot assume identical time axis
-            curvesData->addCurveDataNoSearch( curveCaseName, ensembleName, curve->timeStepsY(), curveDataList );
-        }
-        else
-        {
-            for ( auto cd : curveDataList )
-            {
-                curvesData->addCurveData( curveCaseName, ensembleName, curve->timeStepsY(), cd );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
-                                 ResampleAlgorithm                 algorithm,
-                                 const CurvesData&                 inputCurvesData,
-                                 CurvesData*                       resultCurvesData )
-{
-    RiaTimeHistoryCurveResampler resampler;
-
-    resultCurvesData->clear();
-
-    if ( period != RiaQDateTimeTools::DateTimePeriod::NONE )
-    {
-        // Prepare result data
-        resultCurvesData->resamplePeriod = period;
-
-        for ( size_t i = 0; i < inputCurvesData.caseIds.size(); i++ )
-        {
-            // Shortcuts to input data
-            auto& caseId        = inputCurvesData.caseIds[i];
-            auto& caseTimeSteps = inputCurvesData.timeSteps[i];
-            auto& caseCurveData = inputCurvesData.allCurveData[i];
-
-            // Prepare result data
-
-            for ( auto& curveDataItem : caseCurveData )
-            {
-                resampler.setCurveData( curveDataItem.values, caseTimeSteps );
-
-                if ( RiaSummaryTools::hasAccumulatedData( curveDataItem.address ) ||
-                     algorithm == ResampleAlgorithm::PERIOD_END )
-                {
-                    resampler.resampleAndComputePeriodEndValues( period );
-                }
-                else
-                {
-                    resampler.resampleAndComputeWeightedMeanValues( period );
-                }
-
-                auto cd   = curveDataItem;
-                cd.values = resampler.resampledValues();
-
-                resultCurvesData->addCurveData( caseId, "", resampler.resampledTimeSteps(), cd );
-            }
-        }
-    }
-    else
-    {
-        *resultCurvesData = inputCurvesData;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void appendToExportDataForCase( QString& out, const std::vector<time_t>& timeSteps, const std::vector<CurveData>& curveData )
-{
-    for ( size_t j = 0; j < timeSteps.size(); j++ ) // time steps & data points
-    {
-        if ( j == 0 )
-        {
-            out += "Date and time";
-            for ( size_t k = 0; k < curveData.size(); k++ ) // curves
-            {
-                out += "\t" + ( curveData[k].name );
-            }
-        }
-        out += "\n";
-        out += QDateTime::fromSecsSinceEpoch( timeSteps[j] ).toUTC().toString( "yyyy-MM-dd hh:mm:ss " );
-
-        for ( size_t k = 0; k < curveData.size(); k++ ) // curves
-        {
-            QString valueText;
-            if ( j < curveData[k].values.size() )
-            {
-                valueText = QString::number( curveData[k].values[j], 'g', RimSummaryPlot::precision() );
-            }
-            out += "\t" + valueText.rightJustified( 13 );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void appendToExportData( QString& out, const std::vector<CurvesData>& curvesData, bool showTimeAsLongString )
-{
-    CurvesData data = concatCurvesData( curvesData );
-
-    if ( data.resamplePeriod != RiaQDateTimeTools::DateTimePeriod::NONE )
-    {
-        time_t minTimeStep = std::numeric_limits<time_t>::max();
-        time_t maxTimeStep = 0;
-
-        for ( auto& timeSteps : data.timeSteps )
-        {
-            if ( !timeSteps.empty() )
-            {
-                if ( timeSteps.front() < minTimeStep ) minTimeStep = timeSteps.front();
-                if ( timeSteps.back() > maxTimeStep ) maxTimeStep = timeSteps.back();
-            }
-        }
-
-        auto allTimeSteps =
-            RiaTimeHistoryCurveResampler::timeStepsFromTimeRange( data.resamplePeriod, minTimeStep, maxTimeStep );
-
-        out += "\n\n";
-        out += "Date and time";
-        for ( size_t i = 0; i < data.caseIds.size(); i++ )
-        {
-            for ( size_t j = 0; j < data.allCurveData[i].size(); j++ )
-            {
-                out += "\t" + data.allCurveData[i][j].name;
-            }
-        }
-        out += "\n";
-
-        std::vector<size_t> currIndexes( data.caseIds.size() );
-        for ( auto& i : currIndexes )
-            i = 0;
-
-        for ( auto timeStep : allTimeSteps )
-        {
-            QDateTime timseStepUtc = QDateTime::fromSecsSinceEpoch( timeStep ).toUTC();
-            QString   timeText;
-
-            if ( showTimeAsLongString )
-            {
-                timeText = timseStepUtc.toString( "yyyy-MM-dd hh:mm:ss " );
-            }
-            else
-            {
-                // Subtract one day to make sure the period is reported using the previous period as label
-                QDateTime oneDayEarlier = timseStepUtc.addDays( -1 );
-
-                QChar zeroChar( 48 );
-
-                switch ( data.resamplePeriod )
-                {
-                    default:
-                        // Fall through to NONE
-                    case RiaQDateTimeTools::DateTimePeriod::NONE:
-                        timeText = timseStepUtc.toString( "yyyy-MM-dd hh:mm:ss " );
-                        break;
-                    case RiaQDateTimeTools::DateTimePeriod::DAY:
-                        timeText = oneDayEarlier.toString( "yyyy-MM-dd " );
-                        break;
-                    case RiaQDateTimeTools::DateTimePeriod::WEEK:
-                    {
-                        timeText       = oneDayEarlier.toString( "yyyy" );
-                        int weekNumber = oneDayEarlier.date().weekNumber();
-                        timeText += QString( "-W%1" ).arg( weekNumber, 2, 10, zeroChar );
-                        break;
-                    }
-                    case RiaQDateTimeTools::DateTimePeriod::MONTH:
-                        timeText = oneDayEarlier.toString( "yyyy-MM" );
-                        break;
-                    case RiaQDateTimeTools::DateTimePeriod::QUARTER:
-                    {
-                        int quarterNumber = oneDayEarlier.date().month() / 3;
-                        timeText          = oneDayEarlier.toString( "yyyy" );
-                        timeText += QString( "-Q%1" ).arg( quarterNumber );
-                        break;
-                    }
-                    case RiaQDateTimeTools::DateTimePeriod::HALFYEAR:
-                    {
-                        int halfYearNumber = oneDayEarlier.date().month() / 6;
-                        timeText           = oneDayEarlier.toString( "yyyy" );
-                        timeText += QString( "-H%1" ).arg( halfYearNumber );
-                        break;
-                    }
-                    case RiaQDateTimeTools::DateTimePeriod::YEAR:
-                        timeText = oneDayEarlier.toString( "yyyy" );
-                        break;
-                    case RiaQDateTimeTools::DateTimePeriod::DECADE:
-                        timeText = oneDayEarlier.toString( "yyyy" );
-                        break;
-                }
-            }
-            out += timeText;
-
-            for ( size_t i = 0; i < data.caseIds.size(); i++ ) // cases
-            {
-                // Check is time step exists in curr case
-                size_t& currIndex   = currIndexes[i];
-                bool timeStepExists = currIndex < data.timeSteps[i].size() && timeStep == data.timeSteps[i][currIndex];
-
-                for ( size_t j = 0; j < data.allCurveData[i].size(); j++ ) // vectors
-                {
-                    QString valueText;
-                    if ( timeStepExists )
-                    {
-                        valueText =
-                            QString::number( data.allCurveData[i][j].values[currIndex], 'g', RimSummaryPlot::precision() );
-                    }
-                    else
-                    {
-                        valueText = "NULL";
-                    }
-                    out += "\t" + valueText.rightJustified( 13 );
-                }
-
-                if ( timeStepExists && currIndex < data.timeSteps[i].size() ) currIndex++;
-            }
-            out += "\n";
-        }
-    }
-    else
-    {
-        for ( size_t i = 0; i < data.caseIds.size(); i++ )
-        {
-            out += "\n\n";
-            if ( !data.caseIds[i].isEmpty() )
-            {
-                out += "Case: " + data.caseIds[i];
-                out += "\n";
-            }
-
-            appendToExportDataForCase( out, data.timeSteps[i], data.allCurveData[i] );
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-CurvesData concatCurvesData( const std::vector<CurvesData>& curvesData )
-{
-    CVF_ASSERT( !curvesData.empty() );
-
-    RiaQDateTimeTools::DateTimePeriod period = curvesData.front().resamplePeriod;
-    CurvesData                        resultCurvesData;
-
-    resultCurvesData.resamplePeriod = period;
-
-    for ( auto curvesDataItem : curvesData )
-    {
-        if ( curvesDataItem.caseIds.empty() ) continue;
-
-        CVF_ASSERT( curvesDataItem.resamplePeriod == period );
-
-        resultCurvesData.caseIds.insert( resultCurvesData.caseIds.end(),
-                                         curvesDataItem.caseIds.begin(),
-                                         curvesDataItem.caseIds.end() );
-        resultCurvesData.timeSteps.insert( resultCurvesData.timeSteps.end(),
-                                           curvesDataItem.timeSteps.begin(),
-                                           curvesDataItem.timeSteps.end() );
-        resultCurvesData.allCurveData.insert( resultCurvesData.allCurveData.end(),
-                                              curvesDataItem.allCurveData.begin(),
-                                              curvesDataItem.allCurveData.end() );
-    }
-    return resultCurvesData;
 }
 
 //--------------------------------------------------------------------------------------------------
