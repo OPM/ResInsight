@@ -39,10 +39,16 @@
 #include "cafPdmObject.h"
 #include "cafPdmUiDefaultObjectEditor.h"
 #include "cafPdmUiDragDropInterface.h"
-
+#include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
+#include "cafQTreeViewStateSerializer.h"
+
 #include <QHBoxLayout>
+#include <QLineEdit>
+#include <QPushButton>
+#include <QSortFilterProxyModel>
 #include <QTreeView>
+#include <QVBoxLayout>
 
 namespace caf
 {
@@ -52,16 +58,30 @@ namespace caf
 PdmUiTreeView::PdmUiTreeView( QWidget* parent, Qt::WindowFlags f )
     : QWidget( parent, f )
 {
-    m_layout = new QVBoxLayout( this );
+    m_layout = new QVBoxLayout();
     m_layout->setContentsMargins( 0, 0, 0, 0 );
 
     setLayout( m_layout );
 
-    m_treeViewEditor = new PdmUiTreeViewEditor();
+    QHBoxLayout* searchLayout = new QHBoxLayout();
 
-    QWidget* widget = m_treeViewEditor->getOrCreateWidget( this );
+    m_searchBox = new QLineEdit( this );
+    m_searchBox->setPlaceholderText( "Type here to search in tree." );
+    searchLayout->addWidget( m_searchBox );
+    m_clearSearchButton = new QPushButton( "X" );
+    m_clearSearchButton->setMaximumSize( 30, 30 );
+    searchLayout->addWidget( m_clearSearchButton );
 
-    this->m_layout->insertWidget( 0, widget );
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 10, 0 )
+    m_layout->addLayout( searchLayout );
+    connect( m_searchBox, SIGNAL( textChanged( QString ) ), SLOT( slotOnSearchTextChanged() ) );
+    connect( m_clearSearchButton, SIGNAL( clicked() ), SLOT( slotOnClearSearchBox() ) );
+#endif
+
+    m_treeViewEditor    = new PdmUiTreeViewEditor();
+    QWidget* treewidget = m_treeViewEditor->getOrCreateWidget( this );
+
+    m_layout->addWidget( treewidget );
 
     connect( m_treeViewEditor, SIGNAL( selectionChanged() ), SLOT( slotOnSelectionChanged() ) );
 }
@@ -147,6 +167,53 @@ void PdmUiTreeView::slotOnSelectionChanged()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::slotOnClearSearchBox()
+{
+    m_searchBox->setText( "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::slotOnSearchTextChanged()
+{
+    QString searchText = m_searchBox->text().trimmed();
+    if ( searchText.isEmpty() )
+    {
+        m_treeViewEditor->setFilterString( searchText );
+        if ( !m_treeStateString.isEmpty() )
+        {
+            m_treeViewEditor->treeView()->collapseAll();
+            QTreeViewStateSerializer::applyTreeViewStateFromString( m_treeViewEditor->treeView(), m_treeStateString );
+            m_treeStateString = "";
+        }
+        return;
+    }
+    else if ( m_treeStateString.isEmpty() )
+    {
+        QTreeViewStateSerializer::storeTreeViewStateToString( m_treeViewEditor->treeView(), m_treeStateString );
+    }
+    m_treeViewEditor->setFilterString( searchText );
+    m_treeViewEditor->treeView()->expandAll();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTreeView::storeTreeViewStateToString( QString& treeViewState ) const
+{
+    QString searchText = m_searchBox->text().trimmed();
+    if ( !searchText.isEmpty() )
+    {
+        treeViewState = m_treeStateString;
+        return;
+    }
+    QTreeViewStateSerializer::storeTreeViewStateToString( m_treeViewEditor->treeView(), treeViewState );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiTreeView::enableDefaultContextMenu( bool enable )
 {
     m_treeViewEditor->enableDefaultContextMenu( enable );
@@ -191,6 +258,14 @@ void PdmUiTreeView::setExpanded( const PdmUiItem* uiItem, bool doExpand ) const
 PdmUiItem* PdmUiTreeView::uiItemFromModelIndex( const QModelIndex& index ) const
 {
     return m_treeViewEditor->uiItemFromModelIndex( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeOrdering* PdmUiTreeView::uiTreeOrderingFromModelIndex( const QModelIndex& index ) const
+{
+    return m_treeViewEditor->uiTreeOrderingFromModelIndex( index );
 }
 
 //--------------------------------------------------------------------------------------------------

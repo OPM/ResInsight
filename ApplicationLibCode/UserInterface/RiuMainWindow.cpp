@@ -1303,6 +1303,8 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
     if ( is3dViewCurrentlySelected && ( previousActiveReservoirView != activatedView ) )
     {
         QModelIndex newViewModelIndex = projectTreeView( 0 )->findModelIndex( activatedView );
+        if ( !newViewModelIndex.isValid() ) return;
+
         QModelIndex newSelectionIndex = newViewModelIndex;
 
         if ( previousActiveReservoirView && is3dViewCurrentlySelected )
