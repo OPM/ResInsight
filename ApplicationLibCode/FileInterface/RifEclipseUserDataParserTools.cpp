@@ -32,6 +32,7 @@
 #include <QTextStream>
 
 #include <algorithm>
+#include <cmath>
 #include <numeric>
 
 //--------------------------------------------------------------------------------------------------
