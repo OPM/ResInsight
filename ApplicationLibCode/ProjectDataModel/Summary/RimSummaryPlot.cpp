@@ -2753,15 +2753,50 @@ std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxes() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* curve )
 {
+    enum class AxisAssignmentStrategy
+    {
+        ALL_TO_LEFT,
+        ALL_TO_RIGHT,
+        ALTERNATING
+    };
+
     RiaDefines::PlotAxis plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+
+    auto strategy = AxisAssignmentStrategy::ALTERNATING;
+    if ( strategy == AxisAssignmentStrategy::ALTERNATING )
+    {
+        size_t axisCountLeft  = 0;
+        size_t axisCountRight = 0;
+        for ( const auto& ap : m_axisProperties )
+        {
+            if ( ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+                axisCountLeft++;
+            else if ( ap->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+                axisCountRight++;
+        }
+
+        if ( axisCountLeft > axisCountRight ) plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
+    }
+    else if ( strategy == AxisAssignmentStrategy::ALL_TO_LEFT )
+    {
+        plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    }
+    else if ( strategy == AxisAssignmentStrategy::ALL_TO_RIGHT )
+    {
+        plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
+    }
 
     RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultLeft();
     if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
     {
         newPlotAxis = plotWidget()->createNextPlotAxis( plotAxis );
 
-        RimPlotAxisProperties* newAxisProperties = new RimPlotAxisProperties;
-        newAxisProperties->setNameAndAxis( "New Axis", newPlotAxis.axis(), newPlotAxis.index() );
+        QString axisObjectName = "New Axis";
+        if ( !curve->summaryAddressY().uiText().empty() )
+            axisObjectName = QString::fromStdString( curve->summaryAddressY().uiText() );
+
+        auto* newAxisProperties = new RimPlotAxisProperties;
+        newAxisProperties->setNameAndAxis( axisObjectName, newPlotAxis.axis(), newPlotAxis.index() );
         m_axisProperties.push_back( newAxisProperties );
         connectAxisSignals( newAxisProperties );
     }
