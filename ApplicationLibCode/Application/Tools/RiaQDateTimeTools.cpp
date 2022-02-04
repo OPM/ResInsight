@@ -22,7 +22,6 @@
 #include <QLocale>
 #include <QString>
 
-#include "cafAppEnum.h"
 #include "cafPdmUiItem.h"
 
 #include <cvfAssert.h>

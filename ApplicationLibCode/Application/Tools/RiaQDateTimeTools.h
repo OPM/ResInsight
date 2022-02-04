@@ -18,19 +18,12 @@
 
 #pragma once
 
-#include "cafAppEnum.h"
-
-#include <qglobal.h>
-#include <qnamespace.h>
-
 #include <QString>
-#include <QStringList>
-#include <QTextStream>
-#include <QVariant>
 
-#include <map>
 #include <string>
 #include <vector>
+
+#include "cafAppEnum.h"
 
 class QDateTime;
 class QDate;
