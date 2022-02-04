@@ -21,13 +21,14 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+
 #include "RimAsciiDataCurve.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-
 #include "RimSummaryPlot.h"
+
 #include "cvfAssert.h"
 #include "cvfMath.h"
 
@@ -133,6 +134,56 @@ void RimSummaryCurvesData::addCurveDataNoSearch( const QString&                c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryCurve*>&         curves,
+                                                   const std::vector<RimAsciiDataCurve*>&       asciiCurves,
+                                                   const std::vector<RimGridTimeHistoryCurve*>& gridCurves,
+                                                   RiaQDateTimeTools::DateTimePeriod            resamplingPeriod,
+                                                   bool                                         showTimeAsLongString )
+{
+    QString out;
+
+    RimSummaryCurvesData summaryCurvesGridData;
+    RimSummaryCurvesData summaryCurvesObsData;
+    RimSummaryCurvesData::populateSummaryCurvesData( curves, SummaryCurveType::CURVE_TYPE_GRID, &summaryCurvesGridData );
+    RimSummaryCurvesData::populateSummaryCurvesData( curves, SummaryCurveType::CURVE_TYPE_OBSERVED, &summaryCurvesObsData );
+
+    RimSummaryCurvesData timeHistoryCurvesData;
+    RimSummaryCurvesData::populateTimeHistoryCurvesData( gridCurves, &timeHistoryCurvesData );
+
+    // Export observed data
+    RimSummaryCurvesData::appendToExportData( out, { summaryCurvesObsData }, showTimeAsLongString );
+
+    std::vector<RimSummaryCurvesData> exportData( 2 );
+
+    // Summary grid data for export
+    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod,
+                                                      ResampleAlgorithm::DATA_DECIDES,
+                                                      summaryCurvesGridData,
+                                                      &exportData[0] );
+
+    // Time history data for export
+    RimSummaryCurvesData::prepareCaseCurvesForExport( resamplingPeriod,
+                                                      ResampleAlgorithm::PERIOD_END,
+                                                      timeHistoryCurvesData,
+                                                      &exportData[1] );
+
+    // Export resampled summary and time history data
+    RimSummaryCurvesData::appendToExportData( out, exportData, showTimeAsLongString );
+
+    // Pasted observed data
+    {
+        RimSummaryCurvesData asciiCurvesData;
+        RimSummaryCurvesData::populateAsciiDataCurvesData( asciiCurves, &asciiCurvesData );
+
+        RimSummaryCurvesData::appendToExportData( out, { asciiCurvesData }, showTimeAsLongString );
+    }
+
+    return out;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurve*> curves,
                                                       SummaryCurveType              curveType,
                                                       RimSummaryCurvesData*         curvesData )
@@ -146,8 +197,8 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
         bool isObservedCurve = curve->summaryCaseY() ? curve->summaryCaseY()->isObservedData() : false;
 
         if ( !curve->isCurveVisible() ) continue;
-        if ( isObservedCurve && ( curveType & CURVE_TYPE_OBSERVED ) == 0 ) continue;
-        if ( !isObservedCurve && ( curveType & CURVE_TYPE_GRID ) == 0 ) continue;
+        if ( isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_OBSERVED ) ) continue;
+        if ( !isObservedCurve && ( curveType != SummaryCurveType::CURVE_TYPE_GRID ) ) continue;
         if ( !curve->summaryCaseY() ) continue;
 
         QString curveCaseName = curve->summaryCaseY()->displayCaseName();
@@ -180,7 +231,7 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
         }
         else
         {
-            for ( auto cd : curveDataList )
+            for ( const auto& cd : curveDataList )
             {
                 curvesData->addCurveData( curveCaseName, ensembleName, curve->timeStepsY(), cd );
             }
@@ -253,20 +304,20 @@ void RimSummaryCurvesData::appendToExportDataForCase( QString&                  
         if ( j == 0 )
         {
             out += "Date and time";
-            for ( size_t k = 0; k < curveData.size(); k++ ) // curves
+            for ( const auto& k : curveData ) // curves
             {
-                out += "\t" + ( curveData[k].name );
+                out += "\t" + ( k.name );
             }
         }
         out += "\n";
         out += QDateTime::fromSecsSinceEpoch( timeSteps[j] ).toUTC().toString( "yyyy-MM-dd hh:mm:ss " );
 
-        for ( size_t k = 0; k < curveData.size(); k++ ) // curves
+        for ( const auto& k : curveData ) // curves
         {
             QString valueText;
-            if ( j < curveData[k].values.size() )
+            if ( j < k.values.size() )
             {
-                valueText = QString::number( curveData[k].values[j], 'g', RimSummaryPlot::precision() );
+                valueText = QString::number( k.values[j], 'g', RimSummaryPlot::precision() );
             }
             out += "\t" + valueText.rightJustified( 13 );
         }
@@ -303,9 +354,9 @@ void RimSummaryCurvesData::appendToExportData( QString&                         
         out += "Date and time";
         for ( size_t i = 0; i < data.caseIds.size(); i++ )
         {
-            for ( size_t j = 0; j < data.allCurveData[i].size(); j++ )
+            for ( auto& j : data.allCurveData[i] )
             {
-                out += "\t" + data.allCurveData[i][j].name;
+                out += "\t" + j.name;
             }
         }
         out += "\n";
@@ -380,13 +431,12 @@ void RimSummaryCurvesData::appendToExportData( QString&                         
                 size_t& currIndex   = currIndexes[i];
                 bool timeStepExists = currIndex < data.timeSteps[i].size() && timeStep == data.timeSteps[i][currIndex];
 
-                for ( size_t j = 0; j < data.allCurveData[i].size(); j++ ) // vectors
+                for ( auto& j : data.allCurveData[i] ) // vectors
                 {
                     QString valueText;
                     if ( timeStepExists )
                     {
-                        valueText =
-                            QString::number( data.allCurveData[i][j].values[currIndex], 'g', RimSummaryPlot::precision() );
+                        valueText = QString::number( j.values[currIndex], 'g', RimSummaryPlot::precision() );
                     }
                     else
                     {
