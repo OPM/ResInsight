@@ -84,6 +84,7 @@ public:
     QString     defaultPlotTemplateAbsolutePath() const;
     void        setDefaultPlotTemplatePath( const QString& templatePath );
     bool        openExportedPdfInViewer() const;
+    bool        useQtChartsAsDefaultPlotType() const;
 
     RiaDefines::ThemeEnum guiTheme() const;
 
@@ -187,6 +188,7 @@ private:
     caf::PdmField<QString>       m_plotTemplateFolders;
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
     caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
+    caf::PdmField<bool>          m_useQtChartsPlotByDefault;
 
     // Script paths
     caf::PdmField<QString> m_octaveExecutable;
