@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
 #include "RiaPlotDefines.h"
+#include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -213,7 +214,8 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     CAF_PDM_InitScriptableField( &m_description, "PlotDescription", QString( "Summary Plot" ), "Name" );
     CAF_PDM_InitScriptableField( &m_normalizeCurveYValues, "normalizeCurveYValues", false, "Normalize all curves" );
 #ifdef USE_QTCHARTS
-    CAF_PDM_InitScriptableField( &m_useQtChartsPlot, "useQtChartsPlot", false, "Use Qt Charts" );
+    bool useQtChart = RiaPreferences::current()->useQtChartsAsDefaultPlotType();
+    CAF_PDM_InitScriptableField( &m_useQtChartsPlot, "useQtChartsPlot", useQtChart, "Use Qt Charts" );
 #endif
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );

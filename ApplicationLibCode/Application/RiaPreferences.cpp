@@ -230,6 +230,9 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_openExportedPdfInViewer );
 
+    CAF_PDM_InitField( &m_useQtChartsPlotByDefault, "useQtChartsPlotByDefault", false, "Use QtChart as Default Plot Type" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useQtChartsPlotByDefault );
+
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
                        "SurfaceImportResamplingDistance",
                        100.0,
@@ -388,6 +391,8 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         pageSetup->add( &m_pageRightMargin, false );
         pageSetup->add( &m_pageTopMargin );
         pageSetup->add( &m_pageBottomMargin, false );
+
+        uiOrdering.add( &m_useQtChartsPlotByDefault );
 
         QString unitLabel = " [mm]";
         if ( QPageSize( m_pageSize() ).definitionUnits() == QPageSize::Inch )
@@ -727,6 +732,14 @@ void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
 bool RiaPreferences::openExportedPdfInViewer() const
 {
     return m_openExportedPdfInViewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useQtChartsAsDefaultPlotType() const
+{
+    return m_useQtChartsPlotByDefault;
 }
 
 //--------------------------------------------------------------------------------------------------
