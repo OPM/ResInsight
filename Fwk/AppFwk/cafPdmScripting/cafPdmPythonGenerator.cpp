@@ -282,10 +282,20 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
 
                     QString defaultValue = getDefaultValue( field );
 
+                    QString commentOrEnumDescription = field->uiCapability()->uiWhatsThis();
+
+                    QStringList enumTexts = scriptability->enumScriptTexts();
+                    if ( !enumTexts.empty() )
+                    {
+                        // Replace the comment text with enum values
+                        // The space is limited for the generation of documentation
+                        commentOrEnumDescription = "One of [" + enumTexts.join( ", " ) + "]";
+                    }
+
                     inputArgumentStrings.push_back( QString( "%1=%2" ).arg( argumentName ).arg( defaultValue ) );
                     outputArgumentStrings.push_back( QString( "%1=%1" ).arg( argumentName ) );
                     argumentComments.push_back(
-                        QString( "%1 (%2): %3" ).arg( argumentName ).arg( dataType ).arg( field->uiCapability()->uiWhatsThis() ) );
+                        QString( "%1 (%2): %3" ).arg( argumentName ).arg( dataType ).arg( commentOrEnumDescription ) );
                 }
                 QString fullComment = QString( "        \"\"\"\n        %1\n\n        Arguments:\n            "
                                                "%2\n        Returns:\n            %3\n        \"\"\"" )
@@ -467,6 +477,9 @@ QString PdmPythonGenerator::camelToSnakeCase( const QString& camelString )
 QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool useStrForUnknownDataTypes )
 {
     auto xmlObj = field->capability<PdmXmlFieldHandle>();
+
+    auto scriptability = field->capability<PdmAbstractFieldScriptingCapability>();
+    if ( scriptability && !scriptability->enumScriptTexts().empty() ) return "str";
 
     QString dataType = xmlObj->dataTypeName();
 
