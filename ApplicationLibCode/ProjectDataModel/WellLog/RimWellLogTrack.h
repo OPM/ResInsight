@@ -26,6 +26,8 @@
 
 #include "RimPlot.h"
 
+#include "RiuPlotAxis.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -247,6 +249,9 @@ private:
 
     void updateXZoom();
     void updateYZoom();
+
+    RiuPlotAxis getDepthAxis() const;
+    RiuPlotAxis getValueAxis() const;
 
     int axisFontSize() const;
 

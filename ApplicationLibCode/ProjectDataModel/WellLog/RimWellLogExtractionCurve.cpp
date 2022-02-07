@@ -360,7 +360,16 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         std::vector<double> xPlotValues     = curveData()->xPlotValues();
         std::vector<double> depthPlotValues = curveData()->depthPlotValues( depthType, displayUnit );
         CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
-        m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, static_cast<int>( xPlotValues.size() ) );
+
+        if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+            m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues,
+                                                          xPlotValues,
+                                                          static_cast<int>( xPlotValues.size() ) );
+
+        else
+            m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues,
+                                                          depthPlotValues,
+                                                          static_cast<int>( xPlotValues.size() ) );
 
         m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
