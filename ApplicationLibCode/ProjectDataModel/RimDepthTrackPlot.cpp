@@ -36,6 +36,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimPlot.h"
+#include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
@@ -284,6 +285,17 @@ std::vector<RimPlot*> RimDepthTrackPlot::visiblePlots() const
         }
     }
     return allVisiblePlots;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimDepthTrackPlot::columnCount() const
+{
+    if ( depthOrientation() == DepthOrientation::VERTICAL )
+        return RimPlotWindow::columnCount();
+    else
+        return 1;
 }
 
 //--------------------------------------------------------------------------------------------------
