@@ -65,20 +65,20 @@ RimcTriangleGeometry::RimcTriangleGeometry()
 {
     CAF_PDM_InitScriptableObject( "Triangle Geometry" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_x, "xcoords", "X coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_y, "ycoords", "Y coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_z, "zcoords", "Z coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "connections", "Indices to triangle vertices" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_x, "XCoords", "X coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_y, "YCoords", "Y coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_z, "ZCoords", "Z coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_connections, "Connections", "Indices to triangle vertices" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_meshX, "meshxcoords", "Mesh X coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_meshY, "meshycoords", "Mesh Y coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_meshZ, "meshzcoords", "Mesh Z coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_meshX, "MeshXCoords", "Mesh X coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_meshY, "MeshYCoords", "Mesh Y coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_meshZ, "MeshZCoords", "Mesh Z coords" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshX, "faultmeshxcoords", "Fault Mesh X coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshY, "faultmeshycoords", "Fault Mesh Y coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshZ, "faultmeshzcoords", "Fault Mesh Z coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshX, "FaultMeshXCoords", "Fault Mesh X coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshY, "FaultmeshYCoords", "Fault Mesh Y coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshZ, "FaultmeshZCoords", "Fault Mesh Z coords" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_displayModelOffset, "displaymodeloffset", "Display Model Offset" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayModelOffset, "DisplayModelOffset", "Display Model Offset" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ RimcExtrudedCurveIntersection_geometry::RimcExtrudedCurveIntersection_geometry( 
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Intersection Geometry" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "Geometrytype", "Geometry Type" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "GeometryType", "Geometry Type" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -295,7 +295,7 @@ RimcExtrudedCurveIntersection_geometryResult::RimcExtrudedCurveIntersection_geom
     : caf::PdmObjectMethod( self )
 {
     CAF_PDM_InitObject( "Geometry Result" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "Geometrytype", "Geometry Type" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_geometryType, "GeometryType", "Geometry Type" );
 }
 
 //--------------------------------------------------------------------------------------------------

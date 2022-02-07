@@ -50,7 +50,7 @@ def test_10k_intersection(rips_instance, initialize_test):
 
     # Three coords per triangle
     geometry = well_path_intersection.geometry()
-    coord_count = len(geometry.xcoords)
+    coord_count = len(geometry.x_coords)
     assert coord_count == 13254
 
     # One value per triangle
@@ -83,7 +83,7 @@ def test_empty_well_intersection(rips_instance, initialize_test):
     # Test with empty geometry. This will also test that an empty list in CAF is converted to an empty list in Python
     # See __makelist in pdmobject.py
     geometry = well_path_intersection.geometry()
-    coord_count = len(geometry.xcoords)
+    coord_count = len(geometry.x_coords)
     assert coord_count == 0
 
     # One value per triangle
