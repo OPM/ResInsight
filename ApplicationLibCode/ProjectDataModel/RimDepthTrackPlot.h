@@ -85,6 +85,8 @@ public:
     size_t   plotIndex( const RimPlot* plot ) const;
     RimPlot* plotByIndex( size_t index ) const;
 
+    int columnCount() const override;
+
     std::vector<RimPlot*> plots() const override;
     std::vector<RimPlot*> visiblePlots() const;
     void                  insertPlot( RimPlot* plot, size_t index ) final;
