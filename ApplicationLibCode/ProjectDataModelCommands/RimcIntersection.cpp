@@ -129,7 +129,7 @@ void RimcTriangleGeometry::setMeshVertices( const std::vector<cvf::Vec3f>& verti
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimcTriangleGeometry::setFaulMeshVertices( const std::vector<cvf::Vec3f>& faultMeshVertices )
+void RimcTriangleGeometry::setFaultMeshVertices( const std::vector<cvf::Vec3f>& faultMeshVertices )
 {
     auto [xVals, yVals, zVals] = assignCoordinatesToSeparateVectors( faultMeshVertices );
 
@@ -216,7 +216,7 @@ caf::PdmObjectHandle* RimcExtrudedCurveIntersection_geometry::execute()
             {
                 std::vector<cvf::Vec3f> meshCoords;
                 faultMeshVertices->toStdVector( &meshCoords );
-                triangleGeometry->setFaulMeshVertices( meshCoords );
+                triangleGeometry->setFaultMeshVertices( meshCoords );
             }
         }
 

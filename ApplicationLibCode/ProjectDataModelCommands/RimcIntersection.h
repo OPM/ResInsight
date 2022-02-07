@@ -52,7 +52,7 @@ public:
                                                                    const std::vector<int>&        connections );
 
     void setMeshVertices( const std::vector<cvf::Vec3f>& meshVertices );
-    void setFaulMeshVertices( const std::vector<cvf::Vec3f>& faultMeshVertices );
+    void setFaultMeshVertices( const std::vector<cvf::Vec3f>& faultMeshVertices );
     void setDisplayModelOffset( const cvf::Vec3d& offset );
 
 private:
