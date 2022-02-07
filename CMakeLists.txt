@@ -264,7 +264,7 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 # ##############################################################################
 # Go through required git submodules #
 # ##############################################################################
-list(APPEND THIRD_PARTY_SUBMODULES qwt)
+list(APPEND THIRD_PARTY_SUBMODULES fast_float qwt)
 
 # ##############################################################################
 # Init GIT submodules if they haven't already #
