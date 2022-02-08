@@ -197,11 +197,11 @@ RimWellLogTrack* RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( bool     
 
     if ( wellPathToApply )
     {
-        plotTrack->setFormationTrajectoryType( RimWellLogTrack::WELL_PATH );
+        plotTrack->setFormationTrajectoryType( RiaDefines::TrajectoryType::WELL_PATH );
     }
     else if ( !simWellToApply.isEmpty() )
     {
-        plotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
+        plotTrack->setFormationTrajectoryType( RiaDefines::TrajectoryType::SIMULATION_WELL );
     }
 
     if ( !branchDetectionToApply.isPartiallyTrue() )

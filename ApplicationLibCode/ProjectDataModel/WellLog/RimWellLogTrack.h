@@ -76,11 +76,6 @@ class RimWellLogTrack : public RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum TrajectoryType
-    {
-        WELL_PATH,
-        SIMULATION_WELL
-    };
     enum FormationSource
     {
         CASE,
@@ -114,18 +109,19 @@ public:
     void    setXAxisTitle( const QString& text );
     QString yAxisTitle() const;
 
-    void           setFormationWellPath( RimWellPath* wellPath );
-    RimWellPath*   formationWellPath() const;
-    void           setFormationSimWellName( const QString& simWellName );
-    QString        formationSimWellName() const;
-    void           setFormationBranchDetection( bool branchDetection );
-    bool           formationBranchDetection() const;
-    void           setFormationBranchIndex( int branchIndex );
-    int            formationBranchIndex() const;
-    void           setFormationCase( RimCase* rimCase );
-    RimCase*       formationNamesCase() const;
-    void           setFormationTrajectoryType( TrajectoryType trajectoryType );
-    TrajectoryType formationTrajectoryType() const;
+    void         setFormationWellPath( RimWellPath* wellPath );
+    RimWellPath* formationWellPath() const;
+    void         setFormationSimWellName( const QString& simWellName );
+    QString      formationSimWellName() const;
+    void         setFormationBranchDetection( bool branchDetection );
+    bool         formationBranchDetection() const;
+    void         setFormationBranchIndex( int branchIndex );
+    int          formationBranchIndex() const;
+    void         setFormationCase( RimCase* rimCase );
+    RimCase*     formationNamesCase() const;
+
+    void                       setFormationTrajectoryType( RiaDefines::TrajectoryType trajectoryType );
+    RiaDefines::TrajectoryType formationTrajectoryType() const;
     void setRegionPropertyResultType( RiaDefines::ResultCatType resultCatType, const QString& resultVariable );
 
     void detachAllCurves() override;
@@ -337,7 +333,7 @@ private:
     caf::PdmField<caf::FontTools::RelativeSizeEnum>                    m_regionLabelFontSize;
     caf::PdmField<caf::AppEnum<FormationSource>>                       m_formationSource;
     caf::PdmPtrField<RimCase*>                                         m_formationCase;
-    caf::PdmField<caf::AppEnum<TrajectoryType>>                        m_formationTrajectoryType;
+    caf::PdmField<caf::AppEnum<RiaDefines::TrajectoryType>>            m_formationTrajectoryType;
     caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceCase;
     caf::PdmPtrField<RimWellPath*>                                     m_formationWellPathForSourceWellPath;
     caf::PdmField<QString>                                             m_formationSimWellName;

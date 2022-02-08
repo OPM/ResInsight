@@ -369,7 +369,7 @@ RimWellLogRftCurve*
     curve->setColor( curveColor );
 
     plotTrack->addCurve( curve );
-    plotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
+    plotTrack->setFormationTrajectoryType( RiaDefines::TrajectoryType::SIMULATION_WELL );
     plotTrack->updateConnectedEditors();
 
     RimProject::current()->updateConnectedEditors();

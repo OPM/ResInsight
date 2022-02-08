@@ -98,12 +98,12 @@ void RicNewWellLogCurveExtractionFeature::onActionTriggered( bool isChecked )
             if ( wellPath )
             {
                 newWellLogPlotTrack->setFormationWellPath( wellPath );
-                newWellLogPlotTrack->setFormationTrajectoryType( RimWellLogTrack::WELL_PATH );
+                newWellLogPlotTrack->setFormationTrajectoryType( RiaDefines::TrajectoryType::WELL_PATH );
             }
             else
             {
                 newWellLogPlotTrack->setFormationSimWellName( simWell->name() );
-                newWellLogPlotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
+                newWellLogPlotTrack->setFormationTrajectoryType( RiaDefines::TrajectoryType::SIMULATION_WELL );
                 newWellLogPlotTrack->setFormationBranchIndex( branchIndex );
                 newWellLogPlotTrack->setFormationBranchDetection( useBranchDetection );
             }

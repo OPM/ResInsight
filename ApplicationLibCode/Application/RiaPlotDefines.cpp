@@ -32,6 +32,15 @@ void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
 
     setDefault( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 }
+
+template <>
+void AppEnum<RiaDefines::TrajectoryType>::setUp()
+{
+    addItem( RiaDefines::TrajectoryType::WELL_PATH, "WELL_PATH", "Well Path" );
+    addItem( RiaDefines::TrajectoryType::SIMULATION_WELL, "SIMULATION_WELL", "Simulation Well" );
+    setDefault( RiaDefines::TrajectoryType::WELL_PATH );
+}
+
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------

@@ -109,14 +109,6 @@ CAF_PDM_SOURCE_INIT( RimWellLogTrack, "WellLogPlotTrack" );
 namespace caf
 {
 template <>
-void AppEnum<RimWellLogTrack::TrajectoryType>::setUp()
-{
-    addItem( RimWellLogTrack::WELL_PATH, "WELL_PATH", "Well Path" );
-    addItem( RimWellLogTrack::SIMULATION_WELL, "SIMULATION_WELL", "Simulation Well" );
-    setDefault( RimWellLogTrack::WELL_PATH );
-}
-
-template <>
 void AppEnum<RimWellLogTrack::FormationSource>::setUp()
 {
     addItem( RimWellLogTrack::CASE, "CASE", "Case" );
@@ -645,7 +637,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_formationTrajectoryType )
     {
-        if ( m_formationTrajectoryType == WELL_PATH )
+        if ( m_formationTrajectoryType == RiaDefines::TrajectoryType::WELL_PATH )
         {
             RimProject* proj                 = RimProject::current();
             m_formationWellPathForSourceCase = proj->wellPathFromSimWellName( m_formationSimWellName );
@@ -1279,7 +1271,7 @@ void RimWellLogTrack::onLoadDataAndUpdate()
 void RimWellLogTrack::setAndUpdateWellPathFormationNamesData( RimCase* rimCase, RimWellPath* wellPath )
 {
     m_formationCase                  = rimCase;
-    m_formationTrajectoryType        = RimWellLogTrack::WELL_PATH;
+    m_formationTrajectoryType        = RiaDefines::TrajectoryType::WELL_PATH;
     m_formationWellPathForSourceCase = wellPath;
     m_formationSimWellName           = "";
     m_formationBranchIndex           = -1;
@@ -1312,7 +1304,7 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesAndBranchData( RimCase*  
 void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName )
 {
     m_formationCase                  = rimCase;
-    m_formationTrajectoryType        = RimWellLogTrack::SIMULATION_WELL;
+    m_formationTrajectoryType        = RiaDefines::TrajectoryType::SIMULATION_WELL;
     m_formationWellPathForSourceCase = nullptr;
     m_formationSimWellName           = simWellName;
 
@@ -1486,7 +1478,7 @@ RimCase* RimWellLogTrack::formationNamesCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setFormationTrajectoryType( TrajectoryType trajectoryType )
+void RimWellLogTrack::setFormationTrajectoryType( RiaDefines::TrajectoryType trajectoryType )
 {
     m_formationTrajectoryType = trajectoryType;
 }
@@ -1494,7 +1486,7 @@ void RimWellLogTrack::setFormationTrajectoryType( TrajectoryType trajectoryType 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogTrack::TrajectoryType RimWellLogTrack::formationTrajectoryType() const
+RiaDefines::TrajectoryType RimWellLogTrack::formationTrajectoryType() const
 {
     return m_formationTrajectoryType();
 }
@@ -1863,13 +1855,14 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
         {
             annotationGroup->add( &m_formationTrajectoryType );
 
-            if ( m_formationTrajectoryType() == WELL_PATH )
+            if ( m_formationTrajectoryType() == RiaDefines::TrajectoryType::WELL_PATH )
             {
                 annotationGroup->add( &m_formationWellPathForSourceCase );
             }
         }
 
-        if ( m_formationsForCaseWithSimWellOnly || m_formationTrajectoryType() == SIMULATION_WELL )
+        if ( m_formationsForCaseWithSimWellOnly ||
+             m_formationTrajectoryType() == RiaDefines::TrajectoryType::SIMULATION_WELL )
         {
             annotationGroup->add( &m_formationSimWellName );
 
@@ -2633,7 +2626,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         RigEclipseWellLogExtractor* eclWellLogExtractor     = nullptr;
         RigGeoMechWellLogExtractor* geoMechWellLogExtractor = nullptr;
 
-        if ( m_formationTrajectoryType == SIMULATION_WELL )
+        if ( m_formationTrajectoryType == RiaDefines::TrajectoryType::SIMULATION_WELL )
         {
             eclWellLogExtractor = RimWellLogTrack::createSimWellExtractor( wellLogCollection,
                                                                            m_formationCase,
