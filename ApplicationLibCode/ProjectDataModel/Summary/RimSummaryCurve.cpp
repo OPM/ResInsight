@@ -987,7 +987,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         if ( m_yValuesSummaryCase->isObservedData() )
         {
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-            setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
+            setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_XCROSS );
 
             return;
         }
@@ -1001,7 +1001,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         {
             setSymbolEdgeColor( m_curveAppearance->color() );
 
-            setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
+            setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
         else if ( prefs->defaultSummaryHistoryCurveStyle() ==
@@ -1009,12 +1009,12 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         {
             setSymbolEdgeColor( m_curveAppearance->color() );
 
-            setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
+            setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_XCROSS );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         }
         else if ( prefs->defaultSummaryHistoryCurveStyle() == RiaPreferencesSummary::SummaryHistoryCurveStyleMode::LINES )
         {
-            setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
+            setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
         }
 
@@ -1091,7 +1091,7 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             // If no previous case selected and observed data, use symbols to indicate observed data curve
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-            setSymbol( RiuPlotCurveSymbol::SYMBOL_XCROSS );
+            setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_XCROSS );
         }
         plot->updateCaseNameHasChanged();
 

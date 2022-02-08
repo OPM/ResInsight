@@ -33,7 +33,7 @@ class QPixmap;
 class RiuPlotCurveSymbol
 {
 public:
-    enum LabelPosition
+    enum class LabelPosition
     {
         LabelAboveSymbol,
         LabelBelowSymbol,
@@ -41,7 +41,7 @@ public:
         LabelRightOfSymbol
     };
 
-    enum PointSymbolEnum
+    enum class PointSymbolEnum
     {
         SYMBOL_NONE,
         SYMBOL_ELLIPSE,
@@ -65,7 +65,7 @@ public:
 
     RiuPlotCurveSymbol( PointSymbolEnum riuStyle,
                         const QString&  label,
-                        LabelPosition   labelPosition   = LabelAboveSymbol,
+                        LabelPosition   labelPosition   = LabelPosition::LabelAboveSymbol,
                         int             labelFontSizePt = 8 );
 
     QString globalLabel() const;

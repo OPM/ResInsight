@@ -526,7 +526,7 @@ RiuQwtPlotCurveDefines::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycle
 //--------------------------------------------------------------------------------------------------
 RiuPlotCurveSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol( int index )
 {
-    if ( index < 0 ) return RiuPlotCurveSymbol::SYMBOL_NONE;
+    if ( index < 0 ) return RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE;
 
     return caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::fromIndex(
         1 + ( index % ( caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::size() - 1 ) ) );

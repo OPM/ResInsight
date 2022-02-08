@@ -48,8 +48,8 @@ public:
     // RimPlot implementations
     RiuPlotWidget* plotWidget() override;
 
-    void    setAutoScaleXEnabled( bool enabled ) override;
-    void    setAutoScaleYEnabled( bool enabled ) override;
+    void    setAutoScalePropertyValuesEnabled( bool enabled ) override;
+    void    setAutoScaleDepthValuesEnabled( bool enabled ) override;
     void    updateAxes() override;
     void    updateLegend() override;
     QString asciiDataForPlotExport() const override;

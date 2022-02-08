@@ -89,8 +89,8 @@ public:
 
     void updatePlotOrderFromGridWidget();
 
-    void setAutoScaleXEnabled( bool enabled );
-    void setAutoScaleYEnabled( bool enabled );
+    void setAutoScalePropertyValuesEnabled( bool enabled );
+    void setAutoScaleDepthValuesEnabled( bool enabled );
 
     void setColumnCount( RiuMultiPlotPage::ColumnCount columnCount );
     void setRowCount( RimMultiPlot::RowCount rowCount );

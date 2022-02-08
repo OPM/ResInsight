@@ -31,30 +31,30 @@ namespace caf
 template <>
 void RimPlotCurveAppearance::PointSymbol::setUp()
 {
-    addItem( RiuPlotCurveSymbol::SYMBOL_NONE, "SYMBOL_NONE", "None" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_ELLIPSE, "SYMBOL_ELLIPSE", "Ellipse" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_RECT, "SYMBOL_RECT", "Rect" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_DIAMOND, "SYMBOL_DIAMOND", "Diamond" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_TRIANGLE, "SYMBOL_TRIANGLE", "Triangle" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE, "SYMBOL_DOWN_TRIANGLE", "Down Triangle" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_CROSS, "SYMBOL_CROSS", "Cross" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_XCROSS, "SYMBOL_XCROSS", "X Cross" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_STAR1, "SYMBOL_STAR1", "Star 1" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_STAR2, "SYMBOL_STAR2", "Star 2" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_HEXAGON, "SYMBOL_HEXAGON", "Hexagon" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_LEFT_TRIANGLE, "SYMBOL_LEFT_TRIANGLE", "Left Triangle" );
-    addItem( RiuPlotCurveSymbol::SYMBOL_RIGHT_TRIANGLE, "SYMBOL_RIGHT_TRIANGLE", "Right Triangle" );
-    setDefault( RiuPlotCurveSymbol::SYMBOL_NONE );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE, "SYMBOL_NONE", "None" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE, "SYMBOL_ELLIPSE", "Ellipse" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT, "SYMBOL_RECT", "Rect" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DIAMOND, "SYMBOL_DIAMOND", "Diamond" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_TRIANGLE, "SYMBOL_TRIANGLE", "Triangle" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DOWN_TRIANGLE, "SYMBOL_DOWN_TRIANGLE", "Down Triangle" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_CROSS, "SYMBOL_CROSS", "Cross" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_XCROSS, "SYMBOL_XCROSS", "X Cross" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_STAR1, "SYMBOL_STAR1", "Star 1" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_STAR2, "SYMBOL_STAR2", "Star 2" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_HEXAGON, "SYMBOL_HEXAGON", "Hexagon" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_LEFT_TRIANGLE, "SYMBOL_LEFT_TRIANGLE", "Left Triangle" );
+    addItem( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_TRIANGLE, "SYMBOL_RIGHT_TRIANGLE", "Right Triangle" );
+    setDefault( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE );
 }
 
 template <>
 void RimPlotCurveAppearance::LabelPosition::setUp()
 {
-    addItem( RiuPlotCurveSymbol::LabelAboveSymbol, "LABEL_ABOVE_SYMBOL", "Label above Symbol" );
-    addItem( RiuPlotCurveSymbol::LabelBelowSymbol, "LABEL_BELOW_SYMBOL", "Label below Symbol" );
-    addItem( RiuPlotCurveSymbol::LabelLeftOfSymbol, "LABEL_LEFT_OF_SYMBOL", "Label left of Symbol" );
-    addItem( RiuPlotCurveSymbol::LabelRightOfSymbol, "LABEL_RIGHT_OF_SYMBOL", "Label right of Symbol" );
-    setDefault( RiuPlotCurveSymbol::LabelAboveSymbol );
+    addItem( RiuPlotCurveSymbol::LabelPosition::LabelAboveSymbol, "LABEL_ABOVE_SYMBOL", "Label above Symbol" );
+    addItem( RiuPlotCurveSymbol::LabelPosition::LabelBelowSymbol, "LABEL_BELOW_SYMBOL", "Label below Symbol" );
+    addItem( RiuPlotCurveSymbol::LabelPosition::LabelLeftOfSymbol, "LABEL_LEFT_OF_SYMBOL", "Label left of Symbol" );
+    addItem( RiuPlotCurveSymbol::LabelPosition::LabelRightOfSymbol, "LABEL_RIGHT_OF_SYMBOL", "Label right of Symbol" );
+    setDefault( RiuPlotCurveSymbol::LabelPosition::LabelAboveSymbol );
 }
 
 template <>
@@ -132,8 +132,10 @@ void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         if ( &m_pointSymbol == changedField )
         {
-            m_symbolSize.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE );
-            m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE );
+            m_symbolSize.uiCapability()->setUiReadOnly( m_pointSymbol() ==
+                                                        RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE );
+            m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_pointSymbol() ==
+                                                                     RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE );
         }
         else if ( &m_lineStyle == changedField )
         {
@@ -156,8 +158,9 @@ void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurveAppearance::initAfterRead()
 {
-    m_symbolSize.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE );
-    m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE );
+    m_symbolSize.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE );
+    m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_pointSymbol() ==
+                                                             RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE );
     m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
     m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
 }
@@ -384,7 +387,7 @@ void RimPlotCurveAppearance::resetAppearance()
     setSymbolEdgeColor( RiaColorTools::textColor3f() );
     setLineThickness( 2 );
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-    setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
+    setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE );
     setSymbolSkipDistance( 10 );
 }
 

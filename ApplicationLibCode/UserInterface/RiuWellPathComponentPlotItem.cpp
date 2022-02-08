@@ -180,12 +180,12 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         double posMax = 0.75 + m_columnOffset;
         addColumnFeature( -posMax, -posMin, startDepth, endDepth, componentColor() );
         addColumnFeature( posMin, posMax, startDepth, endDepth, componentColor() );
-        addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
-        addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor() );
+        addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
+        addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor() );
         addMarker( casingTrackEnd,
                    endDepth,
                    12,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
+                   RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ANGLED_TRIANGLE,
                    componentColor( 0.0 ),
                    label() );
     }
@@ -196,7 +196,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addMarker( casingTrackEnd,
                    endDepth,
                    10,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
+                   RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ANGLED_TRIANGLE,
                    componentColor( 0.0 ),
                    label() );
     }
@@ -213,12 +213,12 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
             addMarker( -casingTrackEnd,
                        markerDepth,
                        markerSize,
-                       RiuPlotCurveSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE,
+                       RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_LEFT_ALIGNED_TRIANGLE,
                        componentColor() );
             addMarker( casingTrackEnd,
                        markerDepth,
                        markerSize,
-                       RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
+                       RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
                        componentColor() );
 
             markerDepth += markerSpacing;
@@ -226,15 +226,15 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addMarker( casingTrackEnd,
                    midDepth,
                    10,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
+                   RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
                    componentColor( 0.0 ),
                    label() );
 
         QwtPlotItem* legendItem1 =
-            createMarker( 16.0, 0.0, 6, RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
+            createMarker( 16.0, 0.0, 6, RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
         legendItem1->setLegendIconSize( QSize( 4, 8 ) );
         QwtPlotItem* legendItem2 =
-            createMarker( 16.0, 8.0, 6, RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
+            createMarker( 16.0, 8.0, 6, RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ALIGNED_TRIANGLE, componentColor() );
         legendItem2->setLegendIconSize( QSize( 4, 8 ) );
         m_combinedComponentGroup.addLegendItem( legendItem1 );
         m_combinedComponentGroup.addLegendItem( legendItem2 );
@@ -246,7 +246,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addMarker( casingTrackEnd,
                    midDepth,
                    10,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
+                   RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ANGLED_TRIANGLE,
                    componentColor( 0.0 ),
                    label() );
     }
@@ -257,7 +257,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addMarker( casingTrackEnd,
                    startDepth,
                    10,
-                   RiuPlotCurveSymbol::SYMBOL_NONE,
+                   RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE,
                    componentColor(),
                    "",
                    Qt::AlignTop | Qt::AlignRight,
@@ -266,7 +266,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addMarker( casingTrackEnd,
                    endDepth,
                    10,
-                   RiuPlotCurveSymbol::SYMBOL_NONE,
+                   RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE,
                    componentColor(),
                    "",
                    Qt::AlignTop | Qt::AlignRight,
@@ -275,7 +275,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addMarker( casingTrackEnd,
                    startDepth,
                    1,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
+                   RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ANGLED_TRIANGLE,
                    componentColor( 0.0f ),
                    label(),
                    Qt::AlignTop | Qt::AlignRight );
@@ -287,7 +287,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
             addMarker( 0.0,
                        md,
                        16,
-                       RiuPlotCurveSymbol::SYMBOL_ELLIPSE,
+                       RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE,
                        componentColor(),
                        "",
                        Qt::AlignCenter,
@@ -296,7 +296,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
                        true );
         }
         m_combinedComponentGroup.addLegendItem(
-            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
+            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE, componentColor() ) );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::ICV )
     {
@@ -305,7 +305,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
             addMarker( 0.0,
                        md,
                        16,
-                       RiuPlotCurveSymbol::SYMBOL_ELLIPSE,
+                       RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE,
                        componentColor(),
                        "",
                        Qt::AlignCenter,
@@ -314,7 +314,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
                        true );
         }
         m_combinedComponentGroup.addLegendItem(
-            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
+            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE, componentColor() ) );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::AICD )
     {
@@ -323,7 +323,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
             addMarker( 0.0,
                        md,
                        16,
-                       RiuPlotCurveSymbol::SYMBOL_ELLIPSE,
+                       RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE,
                        componentColor(),
                        "",
                        Qt::AlignCenter,
@@ -332,7 +332,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
                        true );
         }
         m_combinedComponentGroup.addLegendItem(
-            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::SYMBOL_ELLIPSE, componentColor() ) );
+            createMarker( 0.0, 0.0, 12.0, RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE, componentColor() ) );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::PACKER )
     {
@@ -341,7 +341,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addMarker( casingTrackEnd,
                    midDepth,
                    10,
-                   RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE,
+                   RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RIGHT_ANGLED_TRIANGLE,
                    componentColor( 0.0 ),
                    label() );
     }
@@ -432,7 +432,7 @@ QwtPlotItem* RiuWellPathComponentPlotItem::createMarker( double                 
         textColor = RiaColorTools::toQColor( RiaColorTools::contrastColor( baseColor.toColor3f() ) );
     }
     QwtPlotMarker* marker = new QwtPlotMarker( label );
-    RiuQwtSymbol*  symbol = new RiuQwtSymbol( symbolType, "", RiuPlotCurveSymbol::LabelRightOfSymbol );
+    RiuQwtSymbol*  symbol = new RiuQwtSymbol( symbolType, "", RiuPlotCurveSymbol::LabelPosition::LabelRightOfSymbol );
     symbol->setSize( size, size );
     symbol->setColor( bgColor );
     marker->setSymbol( symbol );

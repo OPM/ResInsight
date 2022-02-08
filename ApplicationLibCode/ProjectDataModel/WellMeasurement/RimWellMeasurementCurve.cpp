@@ -356,22 +356,22 @@ void RimWellMeasurementCurve::setMeasurementKind( const QString& measurementKind
 RiuPlotCurveSymbol::PointSymbolEnum RimWellMeasurementCurve::getSymbolForMeasurementKind( const QString& measurementKind )
 {
     std::map<QString, RiuPlotCurveSymbol::PointSymbolEnum> symbolTable;
-    symbolTable["XLOT"] = RiuPlotCurveSymbol::SYMBOL_RECT;
-    symbolTable["LOT"]  = RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
-    symbolTable["FIT"]  = RiuPlotCurveSymbol::SYMBOL_DIAMOND;
-    symbolTable["MCF"]  = RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
-    symbolTable["MNF"]  = RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
-    symbolTable["TH"]   = RiuPlotCurveSymbol::SYMBOL_STAR1;
-    symbolTable["LE"]   = RiuPlotCurveSymbol::SYMBOL_STAR2;
-    symbolTable["BA"]   = RiuPlotCurveSymbol::SYMBOL_STAR1;
-    symbolTable["CORE"] = RiuPlotCurveSymbol::SYMBOL_RECT;
-    symbolTable["PPG"]  = RiuPlotCurveSymbol::SYMBOL_RECT;
+    symbolTable["XLOT"] = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT;
+    symbolTable["LOT"]  = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_TRIANGLE;
+    symbolTable["FIT"]  = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DIAMOND;
+    symbolTable["MCF"]  = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE;
+    symbolTable["MNF"]  = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE;
+    symbolTable["TH"]   = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_STAR1;
+    symbolTable["LE"]   = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_STAR2;
+    symbolTable["BA"]   = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_STAR1;
+    symbolTable["CORE"] = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT;
+    symbolTable["PPG"]  = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT;
 
     auto it = symbolTable.find( measurementKind );
     if ( it != symbolTable.end() )
         return it->second;
     else
-        return RiuPlotCurveSymbol::SYMBOL_CROSS;
+        return RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_CROSS;
 }
 
 //--------------------------------------------------------------------------------------------------

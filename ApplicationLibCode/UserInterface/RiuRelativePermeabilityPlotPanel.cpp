@@ -402,7 +402,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         const QPen curvePen( QBrush(), 1, penStyle );
         qwtCurve->setPen( curvePen );
 
-        RiuQwtSymbol* curveSymbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
+        RiuQwtSymbol* curveSymbol = new RiuQwtSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
         curveSymbol->setSize( 6, 6 );
         curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );

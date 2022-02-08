@@ -104,7 +104,7 @@ public:
 
     RimDepthTrackPlot::DepthOrientation depthOrientation() const;
 
-    void setAutoScaleXEnabled( bool enabled );
+    void setAutoScalePropertyValuesEnabled( bool enabled );
     void setAutoScaleDepthEnabled( bool enabled );
 
     void zoomAll() override;

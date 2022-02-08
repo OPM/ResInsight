@@ -565,7 +565,7 @@ void RimPlotCurve::resetAppearance()
     setSymbolEdgeColor( RiaColorTools::textColor3f() );
     setLineThickness( 2 );
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-    setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
+    setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE );
     setSymbolSkipDistance( 10 );
 }
 
@@ -844,7 +844,7 @@ void RimPlotCurve::updateCurveAppearance()
     if ( !m_plotCurve ) return;
 
     RiuPlotCurveSymbol* symbol = nullptr;
-    if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE )
+    if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE )
     {
         int legendFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
                                                                 caf::FontTools::RelativeSize::Small );
@@ -929,7 +929,7 @@ void RimPlotCurve::clearErrorBars()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateUiIconFromPlotSymbol()
 {
-    if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE && m_plotCurve )
+    if ( m_curveAppearance->symbol() != RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_NONE && m_plotCurve )
     {
         CAF_ASSERT( RiaGuiApplication::isRunning() );
         QSizeF  iconSize( 24, 24 );

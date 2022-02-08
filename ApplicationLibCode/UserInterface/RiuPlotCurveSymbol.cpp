@@ -77,11 +77,11 @@ void RiuPlotCurveSymbol::setLabelFontSize( int labelFontSizePt )
 RiuPlotCurveSymbol::PointSymbolEnum RiuPlotCurveSymbol::cycledSymbolStyle( int indexLevel1, int indexLevel2 )
 {
     std::vector<std::vector<PointSymbolEnum>> categorisedStyles = {
-        { SYMBOL_ELLIPSE, SYMBOL_RECT, SYMBOL_DIAMOND },
-        { SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE },
-        { SYMBOL_LEFT_TRIANGLE, SYMBOL_RIGHT_TRIANGLE },
-        { SYMBOL_CROSS, SYMBOL_XCROSS },
-        { SYMBOL_STAR1, SYMBOL_STAR2 },
+        { PointSymbolEnum::SYMBOL_ELLIPSE, PointSymbolEnum::SYMBOL_RECT, PointSymbolEnum::SYMBOL_DIAMOND },
+        { PointSymbolEnum::SYMBOL_DOWN_TRIANGLE, PointSymbolEnum::SYMBOL_UP_TRIANGLE },
+        { PointSymbolEnum::SYMBOL_LEFT_TRIANGLE, PointSymbolEnum::SYMBOL_RIGHT_TRIANGLE },
+        { PointSymbolEnum::SYMBOL_CROSS, PointSymbolEnum::SYMBOL_XCROSS },
+        { PointSymbolEnum::SYMBOL_STAR1, PointSymbolEnum::SYMBOL_STAR2 },
     };
 
     int level1Category = indexLevel1 % int( categorisedStyles.size() );
@@ -95,16 +95,16 @@ RiuPlotCurveSymbol::PointSymbolEnum RiuPlotCurveSymbol::cycledSymbolStyle( int i
 //--------------------------------------------------------------------------------------------------
 RiuPlotCurveSymbol::PointSymbolEnum RiuPlotCurveSymbol::cycledSymbolStyle( int indexLevel )
 {
-    std::vector<PointSymbolEnum> contrastingSymbols = { SYMBOL_ELLIPSE,
-                                                        SYMBOL_CROSS,
-                                                        SYMBOL_RECT,
-                                                        SYMBOL_DOWN_TRIANGLE,
-                                                        SYMBOL_UP_TRIANGLE,
-                                                        SYMBOL_LEFT_TRIANGLE,
-                                                        SYMBOL_RIGHT_TRIANGLE,
-                                                        SYMBOL_STAR2,
-                                                        SYMBOL_DIAMOND,
-                                                        SYMBOL_STAR1 };
+    std::vector<PointSymbolEnum> contrastingSymbols = { PointSymbolEnum::SYMBOL_ELLIPSE,
+                                                        PointSymbolEnum::SYMBOL_CROSS,
+                                                        PointSymbolEnum::SYMBOL_RECT,
+                                                        PointSymbolEnum::SYMBOL_DOWN_TRIANGLE,
+                                                        PointSymbolEnum::SYMBOL_UP_TRIANGLE,
+                                                        PointSymbolEnum::SYMBOL_LEFT_TRIANGLE,
+                                                        PointSymbolEnum::SYMBOL_RIGHT_TRIANGLE,
+                                                        PointSymbolEnum::SYMBOL_STAR2,
+                                                        PointSymbolEnum::SYMBOL_DIAMOND,
+                                                        PointSymbolEnum::SYMBOL_STAR1 };
 
     return contrastingSymbols[indexLevel % (int)contrastingSymbols.size()];
 }
@@ -114,7 +114,8 @@ RiuPlotCurveSymbol::PointSymbolEnum RiuPlotCurveSymbol::cycledSymbolStyle( int i
 //--------------------------------------------------------------------------------------------------
 bool RiuPlotCurveSymbol::isFilledSymbol( PointSymbolEnum symbol )
 {
-    return symbol != SYMBOL_NONE && symbol != SYMBOL_CROSS && symbol != SYMBOL_XCROSS && symbol != SYMBOL_STAR1;
+    return symbol != PointSymbolEnum::SYMBOL_NONE && symbol != PointSymbolEnum::SYMBOL_CROSS &&
+           symbol != PointSymbolEnum::SYMBOL_XCROSS && symbol != PointSymbolEnum::SYMBOL_STAR1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,19 +134,19 @@ QRect RiuPlotCurveSymbol::labelBoundingRect( const QPainter* painter, const QRec
     int labelHeight = painter->fontMetrics().height();
 
     QPoint labelPosition;
-    if ( m_labelPosition == LabelAboveSymbol )
+    if ( m_labelPosition == LabelPosition::LabelAboveSymbol )
     {
         labelPosition = QPoint( symbolPosition.x() - labelWidth / 2, symbolPosition.y() - 5 );
     }
-    else if ( m_labelPosition == LabelBelowSymbol )
+    else if ( m_labelPosition == LabelPosition::LabelBelowSymbol )
     {
         labelPosition = QPoint( symbolPosition.x() - labelWidth / 2, symbolPosition.y() + symbolHeight + 5 );
     }
-    else if ( m_labelPosition == LabelLeftOfSymbol )
+    else if ( m_labelPosition == LabelPosition::LabelLeftOfSymbol )
     {
         labelPosition = QPoint( symbolPosition.x() - labelWidth - symbolWidth, symbolPosition.y() );
     }
-    else if ( m_labelPosition == LabelRightOfSymbol )
+    else if ( m_labelPosition == LabelPosition::LabelRightOfSymbol )
     {
         labelPosition = QPoint( symbolPosition.x() + symbolWidth + 3, symbolPosition.y() );
     }

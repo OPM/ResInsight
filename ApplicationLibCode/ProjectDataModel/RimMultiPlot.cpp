@@ -402,7 +402,7 @@ void RimMultiPlot::updatePlotOrderFromGridWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::setAutoScaleXEnabled( bool enabled )
+void RimMultiPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 {
     for ( RimPlot* plot : plots() )
     {
@@ -413,7 +413,7 @@ void RimMultiPlot::setAutoScaleXEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::setAutoScaleYEnabled( bool enabled )
+void RimMultiPlot::setAutoScaleDepthValuesEnabled( bool enabled )
 {
     for ( RimPlot* plot : plots() )
     {
@@ -545,8 +545,8 @@ bool RimMultiPlot::showPlotTitles() const
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::zoomAll()
 {
-    setAutoScaleXEnabled( true );
-    setAutoScaleYEnabled( true );
+    setAutoScalePropertyValuesEnabled( true );
+    setAutoScaleDepthValuesEnabled( true );
     updateZoom();
 }
 

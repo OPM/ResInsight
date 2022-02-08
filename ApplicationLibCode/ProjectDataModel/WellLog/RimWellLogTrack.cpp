@@ -373,7 +373,7 @@ void RimWellLogTrack::calculateXZoomRange()
         if ( curve->isCurveVisible() )
         {
             visibleCurves++;
-            if ( curve->xValueRangeInData( &minCurveValue, &maxCurveValue ) )
+            if ( curve->propertyValueRangeInData( &minCurveValue, &maxCurveValue ) )
             {
                 if ( minCurveValue < minValue )
                 {
@@ -406,7 +406,7 @@ void RimWellLogTrack::calculateXZoomRange()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::calculateYZoomRange()
+void RimWellLogTrack::calculateDepthZoomRange()
 {
     double minDepth = HUGE_VAL;
     double maxDepth = -HUGE_VAL;
@@ -1184,7 +1184,7 @@ void RimWellLogTrack::availablePropertyValueRange( double* minX, double* maxX )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::availableDepthRange( double* minimumDepth, double* maximumDepth )
 {
-    calculateYZoomRange();
+    calculateDepthZoomRange();
     *minimumDepth = m_availableDepthRangeMin;
     *maximumDepth = m_availableDepthRangeMax;
 }

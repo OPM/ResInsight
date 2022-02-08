@@ -245,7 +245,7 @@ private:
     void cleanupBeforeClose();
     void detachAllPlotItems();
     void calculateXZoomRange();
-    void calculateYZoomRange();
+    void calculateDepthZoomRange();
 
     void updateXZoom();
     void updateYZoom();

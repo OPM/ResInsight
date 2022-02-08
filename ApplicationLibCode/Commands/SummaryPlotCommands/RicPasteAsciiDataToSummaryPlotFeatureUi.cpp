@@ -199,7 +199,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
                        "Line Style" );
     CAF_PDM_InitField( &m_curveSymbol,
                        "Symbol",
-                       caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>( RiuQwtSymbol::SYMBOL_ELLIPSE ),
+                       caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>( RiuQwtSymbol::PointSymbolEnum::SYMBOL_ELLIPSE ),
                        "Symbol" );
     CAF_PDM_InitField( &m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f, "Symbol Skip Distance" );
 

@@ -40,28 +40,28 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
 
     switch ( riuStyle )
     {
-        case SYMBOL_ELLIPSE:
+        case PointSymbolEnum::SYMBOL_ELLIPSE:
             style = QwtSymbol::Ellipse;
             break;
-        case SYMBOL_RECT:
+        case PointSymbolEnum::SYMBOL_RECT:
             style = QwtSymbol::Rect;
             break;
-        case SYMBOL_DIAMOND:
+        case PointSymbolEnum::SYMBOL_DIAMOND:
             style = QwtSymbol::Diamond;
             break;
-        case SYMBOL_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_TRIANGLE:
             style = QwtSymbol::Triangle;
             break;
-        case SYMBOL_CROSS:
+        case PointSymbolEnum::SYMBOL_CROSS:
             style = QwtSymbol::Cross;
             break;
-        case SYMBOL_XCROSS:
+        case PointSymbolEnum::SYMBOL_XCROSS:
             style = QwtSymbol::XCross;
             break;
-        case SYMBOL_DOWN_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_DOWN_TRIANGLE:
             style = QwtSymbol::DTriangle;
             break;
-        case SYMBOL_LEFT_ALIGNED_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_LEFT_ALIGNED_TRIANGLE:
             style = QwtSymbol::Path;
             {
                 QPainterPath path;
@@ -73,7 +73,7 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
                 setPinPoint( QPointF( 0, 0 ) );
             }
             break;
-        case SYMBOL_RIGHT_ALIGNED_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_RIGHT_ALIGNED_TRIANGLE:
             style = QwtSymbol::Path;
             {
                 QPainterPath path;
@@ -85,7 +85,7 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
                 setPinPoint( QPointF( 0, 0 ) );
             }
             break;
-        case SYMBOL_LEFT_ANGLED_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_LEFT_ANGLED_TRIANGLE:
             style = QwtSymbol::Path;
             {
                 QPainterPath path;
@@ -97,7 +97,7 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
                 setPinPoint( QPointF( 0, 10 ) );
             }
             break;
-        case SYMBOL_RIGHT_ANGLED_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_RIGHT_ANGLED_TRIANGLE:
             style = QwtSymbol::Path;
             {
                 QPainterPath path;
@@ -109,22 +109,22 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
                 setPinPoint( QPointF( 0, 10 ) );
             }
             break;
-        case SYMBOL_UP_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_UP_TRIANGLE:
             style = QwtSymbol::UTriangle;
             break;
-        case SYMBOL_STAR1:
+        case PointSymbolEnum::SYMBOL_STAR1:
             style = QwtSymbol::Star1;
             break;
-        case SYMBOL_STAR2:
+        case PointSymbolEnum::SYMBOL_STAR2:
             style = QwtSymbol::Star2;
             break;
-        case SYMBOL_HEXAGON:
+        case PointSymbolEnum::SYMBOL_HEXAGON:
             style = QwtSymbol::Hexagon;
             break;
-        case SYMBOL_LEFT_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_LEFT_TRIANGLE:
             style = QwtSymbol::LTriangle;
             break;
-        case SYMBOL_RIGHT_TRIANGLE:
+        case PointSymbolEnum::SYMBOL_RIGHT_TRIANGLE:
             style = QwtSymbol::RTriangle;
         default:
             break;

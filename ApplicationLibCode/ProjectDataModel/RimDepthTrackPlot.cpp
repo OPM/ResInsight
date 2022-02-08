@@ -1179,7 +1179,7 @@ RimDepthTrackPlot::DepthOrientation RimDepthTrackPlot::depthOrientation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setAutoScaleXEnabled( bool enabled )
+void RimDepthTrackPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 {
     for ( RimPlot* plot : plots() )
     {
@@ -1201,7 +1201,7 @@ void RimDepthTrackPlot::setAutoScaleDepthEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::zoomAll()
 {
-    setAutoScaleXEnabled( true );
+    setAutoScalePropertyValuesEnabled( true );
     setAutoScaleDepthEnabled( true );
     updateZoom();
 }

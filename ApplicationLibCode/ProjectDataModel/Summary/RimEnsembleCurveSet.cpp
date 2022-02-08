@@ -1971,7 +1971,8 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
     m_plotCurveForLegendText->setTitle( name() );
 
     {
-        RiuPlotCurveSymbol* symbol = m_plotCurveForLegendText->createSymbol( RiuPlotCurveSymbol::SYMBOL_CROSS );
+        RiuPlotCurveSymbol* symbol =
+            m_plotCurveForLegendText->createSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_CROSS );
 
         if ( m_colorMode == ColorMode::SINGLE_COLOR )
         {
@@ -2063,10 +2064,12 @@ RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifE
 {
     auto qName = QString::fromStdString( address.quantityName() );
 
-    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P50_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
-    return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
+    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) )
+        return RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_TRIANGLE;
+    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) )
+        return RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DOWN_TRIANGLE;
+    if ( qName.contains( ENSEMBLE_STAT_P50_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DIAMOND;
+    return RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2074,9 +2077,9 @@ RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifE
 //--------------------------------------------------------------------------------------------------
 int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol )
 {
-    if ( symbol == RiuPlotCurveSymbol::SYMBOL_DIAMOND ) return 8;
-    if ( symbol == RiuPlotCurveSymbol::SYMBOL_TRIANGLE ) return 7;
-    if ( symbol == RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE ) return 7;
+    if ( symbol == RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DIAMOND ) return 8;
+    if ( symbol == RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_TRIANGLE ) return 7;
+    if ( symbol == RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DOWN_TRIANGLE ) return 7;
     return 6;
 }
 
