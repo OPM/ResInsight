@@ -158,7 +158,13 @@ void RimStimPlanModelCurve::performDataExtraction( bool* isUsingPseudoLength )
             filterInvalidValuesForLogarithmicScale( values );
         }
 
-        this->setValuesWithMdAndTVD( values, measuredDepthValues, tvDepthValues, rkbDiff, depthUnit, !performDataSmoothing, xUnits );
+        this->setPropertyValuesWithMdAndTVD( values,
+                                             measuredDepthValues,
+                                             tvDepthValues,
+                                             rkbDiff,
+                                             depthUnit,
+                                             !performDataSmoothing,
+                                             xUnits );
     }
 }
 

@@ -416,7 +416,7 @@ void RimWellLogTrack::calculateYZoomRange()
         double minCurveDepth = HUGE_VAL;
         double maxCurveDepth = -HUGE_VAL;
 
-        if ( curve->isCurveVisible() && curve->yValueRangeInData( &minCurveDepth, &maxCurveDepth ) )
+        if ( curve->isCurveVisible() && curve->depthValueRangeInData( &minCurveDepth, &maxCurveDepth ) )
         {
             if ( minCurveDepth < minDepth )
             {

@@ -451,12 +451,12 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             rkbDiff = wellPath->wellPathGeometry()->rkbDiff();
         }
 
-        this->setValuesWithMdAndTVD( values,
-                                     measuredDepthVector,
-                                     tvDepthVector,
-                                     rkbDiff,
-                                     RiaDefines::fromEclipseUnit( unitSystem ),
-                                     false );
+        this->setPropertyValuesWithMdAndTVD( values,
+                                             measuredDepthVector,
+                                             tvDepthVector,
+                                             rkbDiff,
+                                             RiaDefines::fromEclipseUnit( unitSystem ),
+                                             false );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )

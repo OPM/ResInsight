@@ -536,23 +536,23 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
     {
         if ( tvDepthValues.empty() )
         {
-            this->setValuesAndDepths( values,
-                                      measuredDepthValues,
-                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                      0.0,
-                                      depthUnit,
-                                      !performDataSmoothing,
-                                      xUnits );
+            this->setPropertyValuesAndDepths( values,
+                                              measuredDepthValues,
+                                              RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                              0.0,
+                                              depthUnit,
+                                              !performDataSmoothing,
+                                              xUnits );
         }
         else
         {
-            this->setValuesWithMdAndTVD( values,
-                                         measuredDepthValues,
-                                         tvDepthValues,
-                                         rkbDiff,
-                                         depthUnit,
-                                         !performDataSmoothing,
-                                         xUnits );
+            this->setPropertyValuesWithMdAndTVD( values,
+                                                 measuredDepthValues,
+                                                 tvDepthValues,
+                                                 rkbDiff,
+                                                 depthUnit,
+                                                 !performDataSmoothing,
+                                                 xUnits );
         }
     }
 }
