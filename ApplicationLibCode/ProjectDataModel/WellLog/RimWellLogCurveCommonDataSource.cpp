@@ -127,7 +127,7 @@ void RimWellLogCurveCommonDataSource::setCaseToApply( RimCase* val )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimWellLogCurveCommonDataSource::trajectoryTypeToApply() const
+RiaDefines::TrajectoryType RimWellLogCurveCommonDataSource::trajectoryTypeToApply() const
 {
     return m_trajectoryType();
 }
@@ -135,7 +135,7 @@ int RimWellLogCurveCommonDataSource::trajectoryTypeToApply() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::setTrajectoryTypeToApply( int val )
+void RimWellLogCurveCommonDataSource::setTrajectoryTypeToApply( RiaDefines::TrajectoryType val )
 {
     m_trajectoryType = val;
 }
@@ -258,7 +258,7 @@ void RimWellLogCurveCommonDataSource::setTimeStepToApply( int val )
 void RimWellLogCurveCommonDataSource::resetDefaultOptions()
 {
     setCaseToApply( nullptr );
-    setTrajectoryTypeToApply( -1 );
+    setTrajectoryTypeToApply( RiaDefines::TrajectoryType::UNDEFINED );
     setWellPathToApply( nullptr );
     setBranchIndexToApply( -1 );
     setBranchDetectionToApply( caf::Tristate::State::PartiallyTrue );
@@ -309,15 +309,15 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
             {
                 m_uniqueCases.insert( extractionCurve->rimCase() );
             }
-            m_uniqueTrajectoryTypes.insert( static_cast<int>( extractionCurve->trajectoryType() ) );
-            if ( extractionCurve->trajectoryType() == RimWellLogExtractionCurve::WELL_PATH )
+            m_uniqueTrajectoryTypes.insert( extractionCurve->trajectoryType() );
+            if ( extractionCurve->trajectoryType() == RiaDefines::TrajectoryType::WELL_PATH )
             {
                 if ( extractionCurve->wellPath() )
                 {
                     m_uniqueWellPaths.insert( extractionCurve->wellPath() );
                 }
             }
-            else if ( extractionCurve->trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL )
+            else if ( extractionCurve->trajectoryType() == RiaDefines::TrajectoryType::SIMULATION_WELL )
             {
                 if ( !extractionCurve->wellName().isEmpty() )
                 {
@@ -336,7 +336,7 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
         }
         else if ( flowRateCurve )
         {
-            m_uniqueTrajectoryTypes.insert( RimWellLogExtractionCurve::SIMULATION_WELL );
+            m_uniqueTrajectoryTypes.insert( RiaDefines::TrajectoryType::SIMULATION_WELL );
             m_uniqueWellNames.insert( flowRateCurve->wellName() );
             m_uniqueCases.insert( flowRateCurve->rimCase() );
             m_uniqueTimeSteps.insert( flowRateCurve->timeStep() );
@@ -346,7 +346,7 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
     {
         if ( track->showWellPathAttributes() )
         {
-            m_uniqueTrajectoryTypes.insert( static_cast<int>( RimWellLogExtractionCurve::WELL_PATH ) );
+            m_uniqueTrajectoryTypes.insert( RiaDefines::TrajectoryType::WELL_PATH );
             m_uniqueWellPaths.insert( track->wellPathAttributeSource() );
         }
         if ( track->showFormations() )
@@ -479,11 +479,10 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
                 updatedSomething = true;
             }
 
-            if ( m_trajectoryType() != -1 )
+            if ( m_trajectoryType() != RiaDefines::TrajectoryType::UNDEFINED )
             {
-                extractionCurve->setTrajectoryType(
-                    static_cast<RimWellLogExtractionCurve::TrajectoryType>( m_trajectoryType() ) );
-                if ( m_trajectoryType() == (int)RimWellLogExtractionCurve::SIMULATION_WELL )
+                extractionCurve->setTrajectoryType( m_trajectoryType() );
+                if ( m_trajectoryType() == RiaDefines::TrajectoryType::SIMULATION_WELL )
                 {
                     if ( m_branchDetection().isTrue() )
                     {
@@ -644,11 +643,11 @@ void RimWellLogCurveCommonDataSource::applyNextCase()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyPrevWell()
 {
-    if ( m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH )
+    if ( m_trajectoryType() == RiaDefines::TrajectoryType::WELL_PATH )
     {
         modifyCurrentIndex( &m_wellPath, -1 );
     }
-    else if ( m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL )
+    else if ( m_trajectoryType() == RiaDefines::TrajectoryType::SIMULATION_WELL )
     {
         modifyCurrentIndex( &m_simWellName, -1 );
     }
@@ -659,11 +658,11 @@ void RimWellLogCurveCommonDataSource::applyPrevWell()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::applyNextWell()
 {
-    if ( m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH )
+    if ( m_trajectoryType() == RiaDefines::TrajectoryType::WELL_PATH )
     {
         modifyCurrentIndex( &m_wellPath, 1 );
     }
-    else if ( m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL )
+    else if ( m_trajectoryType() == RiaDefines::TrajectoryType::SIMULATION_WELL )
     {
         modifyCurrentIndex( &m_simWellName, 1 );
     }
@@ -694,11 +693,11 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
 
     std::vector<caf::PdmFieldHandle*> fieldsToDisplay;
     fieldsToDisplay.push_back( &m_case );
-    if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH )
+    if ( trajectoryTypeToApply() == RiaDefines::TrajectoryType::WELL_PATH )
     {
         fieldsToDisplay.push_back( &m_wellPath );
     }
-    else if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL )
+    else if ( trajectoryTypeToApply() == RiaDefines::TrajectoryType::SIMULATION_WELL )
     {
         fieldsToDisplay.push_back( &m_simWellName );
     }
@@ -787,7 +786,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_trajectoryType )
     {
-        if ( m_trajectoryType() == -1 )
+        if ( m_trajectoryType() == RiaDefines::TrajectoryType::UNDEFINED )
         {
             if ( !m_uniqueTrajectoryTypes.empty() )
             {
@@ -798,12 +797,12 @@ QList<caf::PdmOptionItemInfo>
                 options.push_back( caf::PdmOptionItemInfo( "No Trajectory Types", -1 ) );
             }
         }
-        std::vector<RimWellLogExtractionCurve::TrajectoryType> trajectoryTypes = { RimWellLogExtractionCurve::WELL_PATH,
-                                                                                   RimWellLogExtractionCurve::SIMULATION_WELL };
-        for ( RimWellLogExtractionCurve::TrajectoryType trajectoryType : trajectoryTypes )
+        std::vector<RiaDefines::TrajectoryType> trajectoryTypes = { RiaDefines::TrajectoryType::WELL_PATH,
+                                                                    RiaDefines::TrajectoryType::SIMULATION_WELL };
+        for ( RiaDefines::TrajectoryType trajectoryType : trajectoryTypes )
         {
-            caf::PdmOptionItemInfo item( caf::AppEnum<RimWellLogExtractionCurve::TrajectoryType>::uiText( trajectoryType ),
-                                         static_cast<int>( trajectoryType ) );
+            caf::PdmOptionItemInfo item( caf::AppEnum<RiaDefines::TrajectoryType>::uiText( trajectoryType ),
+                                         trajectoryType );
             options.push_back( item );
         }
     }
@@ -905,11 +904,11 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
     if ( eclipseCase )
     {
         group->add( &m_trajectoryType );
-        if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH )
+        if ( trajectoryTypeToApply() == RiaDefines::TrajectoryType::WELL_PATH )
         {
             group->add( &m_wellPath );
         }
-        else if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL )
+        else if ( trajectoryTypeToApply() == RiaDefines::TrajectoryType::SIMULATION_WELL )
         {
             group->add( &m_simWellName );
             if ( RiaSimWellBranchTools::simulationWellBranches( m_simWellName(), true ).size() > 1 )

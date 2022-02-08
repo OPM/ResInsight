@@ -78,17 +78,6 @@
 
 CAF_PDM_SOURCE_INIT( RimWellLogExtractionCurve, "WellLogExtractionCurve", "RimWellLogExtractionCurve" );
 
-namespace caf
-{
-template <>
-void AppEnum<RimWellLogExtractionCurve::TrajectoryType>::setUp()
-{
-    addItem( RimWellLogExtractionCurve::WELL_PATH, "WELL_PATH", "Well Path" );
-    addItem( RimWellLogExtractionCurve::SIMULATION_WELL, "SIMULATION_WELL", "Simulation Well" );
-    setDefault( RimWellLogExtractionCurve::WELL_PATH );
-}
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -168,7 +157,7 @@ RimWellPath* RimWellLogExtractionCurve::wellPath() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::setFromSimulationWellName( const QString& simWellName, int branchIndex, bool branchDetection )
 {
-    m_trajectoryType  = SIMULATION_WELL;
+    m_trajectoryType  = RiaDefines::TrajectoryType::SIMULATION_WELL;
     m_simWellName     = simWellName;
     m_branchIndex     = branchIndex;
     m_branchDetection = branchDetection;
@@ -242,7 +231,7 @@ void RimWellLogExtractionCurve::setPropertiesFromView( Rim3dView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogExtractionCurve::TrajectoryType RimWellLogExtractionCurve::trajectoryType() const
+RiaDefines::TrajectoryType RimWellLogExtractionCurve::trajectoryType() const
 {
     return m_trajectoryType();
 }
@@ -437,7 +426,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 
     if ( eclipseCase )
     {
-        if ( m_trajectoryType == WELL_PATH )
+        if ( m_trajectoryType == RiaDefines::TrajectoryType::WELL_PATH )
         {
             eclExtractor = wellLogCollection->findOrCreateExtractor( m_wellPath, eclipseCase );
         }
@@ -751,7 +740,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     if ( eclipseCase )
     {
         curveDataGroup->add( &m_trajectoryType );
-        if ( m_trajectoryType() == WELL_PATH )
+        if ( m_trajectoryType() == RiaDefines::TrajectoryType::WELL_PATH )
         {
             curveDataGroup->add( &m_wellPath );
         }
@@ -862,7 +851,7 @@ QString RimWellLogExtractionCurve::createCurveAutoName()
         if ( !wellName().isEmpty() )
         {
             generatedCurveName += wellName();
-            if ( m_trajectoryType == SIMULATION_WELL &&
+            if ( m_trajectoryType == RiaDefines::TrajectoryType::SIMULATION_WELL &&
                  RiaSimWellBranchTools::simulationWellBranches( m_simWellName, m_branchDetection ).size() > 1 )
             {
                 generatedCurveName.push_back( " Br" + QString::number( m_branchIndex + 1 ) );
@@ -986,7 +975,7 @@ QString RimWellLogExtractionCurve::wellLogChannelUnits() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogExtractionCurve::wellName() const
 {
-    if ( m_trajectoryType() == WELL_PATH )
+    if ( m_trajectoryType() == RiaDefines::TrajectoryType::WELL_PATH )
     {
         if ( m_wellPath )
         {
@@ -1105,7 +1094,7 @@ void RimWellLogExtractionCurve::setGeoMechResultAddress( const RigFemResultAddre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogExtractionCurve::setTrajectoryType( TrajectoryType trajectoryType )
+void RimWellLogExtractionCurve::setTrajectoryType( RiaDefines::TrajectoryType trajectoryType )
 {
     m_trajectoryType = trajectoryType;
 }

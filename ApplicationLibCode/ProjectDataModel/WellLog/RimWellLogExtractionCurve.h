@@ -46,12 +46,6 @@ public:
     RimWellLogExtractionCurve();
     ~RimWellLogExtractionCurve() override;
 
-    enum TrajectoryType
-    {
-        WELL_PATH,
-        SIMULATION_WELL
-    };
-
     void         setWellPath( RimWellPath* wellPath );
     RimWellPath* wellPath() const;
 
@@ -62,14 +56,15 @@ public:
 
     void setPropertiesFromView( Rim3dView* view );
 
-    TrajectoryType trajectoryType() const;
-    QString        wellName() const override;
-    QString        wellLogChannelUiName() const override;
-    QString        wellLogChannelName() const override;
-    QString        wellLogChannelUnits() const override;
-    QString        wellDate() const override;
-    int            branchIndex() const;
-    bool           branchDetection() const;
+    RiaDefines::TrajectoryType trajectoryType() const;
+
+    QString wellName() const override;
+    QString wellLogChannelUiName() const override;
+    QString wellLogChannelName() const override;
+    QString wellLogChannelUnits() const override;
+    QString wellDate() const override;
+    int     branchIndex() const;
+    bool    branchDetection() const;
 
     bool    isEclipseCurve() const;
     QString caseName() const;
@@ -83,7 +78,7 @@ public:
 
     void setGeoMechResultAddress( const RigFemResultAddress& resAddr );
 
-    void setTrajectoryType( TrajectoryType trajectoryType );
+    void setTrajectoryType( RiaDefines::TrajectoryType trajectoryType );
     void setWellName( QString wellName );
     void setBranchDetection( bool branchDetection );
     void setBranchIndex( int index );
@@ -120,12 +115,12 @@ protected:
     std::set<QString> sortedSimWellNames();
     void              clearGeneratedSimWellPaths();
 
-    caf::PdmPtrField<RimCase*>                  m_case;
-    caf::PdmField<caf::AppEnum<TrajectoryType>> m_trajectoryType;
-    caf::PdmPtrField<RimWellPath*>              m_wellPath;
-    caf::PdmField<QString>                      m_simWellName;
-    caf::PdmField<int>                          m_branchIndex;
-    caf::PdmField<bool>                         m_branchDetection;
+    caf::PdmPtrField<RimCase*>                              m_case;
+    caf::PdmField<caf::AppEnum<RiaDefines::TrajectoryType>> m_trajectoryType;
+    caf::PdmPtrField<RimWellPath*>                          m_wellPath;
+    caf::PdmField<QString>                                  m_simWellName;
+    caf::PdmField<int>                                      m_branchIndex;
+    caf::PdmField<bool>                                     m_branchDetection;
 
     caf::PdmChildField<RimEclipseResultDefinition*> m_eclipseResultDefinition;
     caf::PdmChildField<RimGeoMechResultDefinition*> m_geomResultDefinition;

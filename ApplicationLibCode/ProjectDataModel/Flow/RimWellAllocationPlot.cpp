@@ -42,7 +42,6 @@
 #include "RimTotalWellAllocationPlot.h"
 #include "RimWellAllocationPlotLegend.h"
 #include "RimWellFlowRateCurve.h"
-#include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 

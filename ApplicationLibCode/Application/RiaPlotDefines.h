@@ -39,7 +39,8 @@ bool isVertical( PlotAxis axis );
 enum class TrajectoryType
 {
     WELL_PATH,
-    SIMULATION_WELL
+    SIMULATION_WELL,
+    UNDEFINED
 };
 
 }; // namespace RiaDefines

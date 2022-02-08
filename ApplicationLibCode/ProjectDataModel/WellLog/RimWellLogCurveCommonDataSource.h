@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -54,20 +55,20 @@ public:
 
     void setCaseType( RiaDefines::CaseType caseType );
 
-    RimCase*      caseToApply() const;
-    void          setCaseToApply( RimCase* val );
-    int           trajectoryTypeToApply() const;
-    void          setTrajectoryTypeToApply( int val );
-    RimWellPath*  wellPathToApply() const;
-    void          setWellPathToApply( RimWellPath* val );
-    int           branchIndexToApply() const;
-    void          setBranchIndexToApply( int val );
-    caf::Tristate branchDetectionToApply() const;
-    void          setBranchDetectionToApply( caf::Tristate::State val );
-    caf::Tristate wbsSmoothingToApply() const;
-    void          setWbsSmoothingToApply( caf::Tristate::State val );
-    double        wbsSmoothingThreshold() const;
-    void          setWbsSmoothingThreshold( double smoothingThreshold );
+    RimCase*                   caseToApply() const;
+    void                       setCaseToApply( RimCase* val );
+    RiaDefines::TrajectoryType trajectoryTypeToApply() const;
+    void                       setTrajectoryTypeToApply( RiaDefines::TrajectoryType val );
+    RimWellPath*               wellPathToApply() const;
+    void                       setWellPathToApply( RimWellPath* val );
+    int                        branchIndexToApply() const;
+    void                       setBranchIndexToApply( int val );
+    caf::Tristate              branchDetectionToApply() const;
+    void                       setBranchDetectionToApply( caf::Tristate::State val );
+    caf::Tristate              wbsSmoothingToApply() const;
+    void                       setWbsSmoothingToApply( caf::Tristate::State val );
+    double                     wbsSmoothingThreshold() const;
+    void                       setWbsSmoothingThreshold( double smoothingThreshold );
 
     QString simWellNameToApply() const;
     void    setSimWellNameToApply( const QString& val );
@@ -104,23 +105,23 @@ protected:
 private:
     RiaDefines::CaseType m_caseType;
 
-    caf::PdmPtrField<RimCase*>     m_case;
-    caf::PdmField<int>             m_trajectoryType;
-    caf::PdmPtrField<RimWellPath*> m_wellPath;
-    caf::PdmField<QString>         m_simWellName;
-    caf::PdmField<int>             m_branchIndex;
-    caf::PdmField<caf::Tristate>   m_branchDetection;
-    caf::PdmField<int>             m_timeStep;
-    caf::PdmField<caf::Tristate>   m_wbsSmoothing;
-    caf::PdmField<double>          m_wbsSmoothingThreshold;
+    caf::PdmPtrField<RimCase*>                              m_case;
+    caf::PdmField<caf::AppEnum<RiaDefines::TrajectoryType>> m_trajectoryType;
+    caf::PdmPtrField<RimWellPath*>                          m_wellPath;
+    caf::PdmField<QString>                                  m_simWellName;
+    caf::PdmField<int>                                      m_branchIndex;
+    caf::PdmField<caf::Tristate>                            m_branchDetection;
+    caf::PdmField<int>                                      m_timeStep;
+    caf::PdmField<caf::Tristate>                            m_wbsSmoothing;
+    caf::PdmField<double>                                   m_wbsSmoothingThreshold;
 
-    std::set<RimCase*>                 m_uniqueCases;
-    std::set<int>                      m_uniqueTrajectoryTypes;
-    std::set<RimWellPath*>             m_uniqueWellPaths;
-    std::set<QString>                  m_uniqueWellNames;
-    std::set<int>                      m_uniqueTimeSteps;
-    std::set<bool>                     m_uniqueBranchDetection;
-    std::set<int>                      m_uniqueBranchIndices;
-    std::set<bool>                     m_uniqueWbsSmoothing;
-    std::set<double, DoubleComparator> m_uniqueWbsSmoothingThreshold;
+    std::set<RimCase*>                   m_uniqueCases;
+    std::set<RiaDefines::TrajectoryType> m_uniqueTrajectoryTypes;
+    std::set<RimWellPath*>               m_uniqueWellPaths;
+    std::set<QString>                    m_uniqueWellNames;
+    std::set<int>                        m_uniqueTimeSteps;
+    std::set<bool>                       m_uniqueBranchDetection;
+    std::set<int>                        m_uniqueBranchIndices;
+    std::set<bool>                       m_uniqueWbsSmoothing;
+    std::set<double, DoubleComparator>   m_uniqueWbsSmoothingThreshold;
 };

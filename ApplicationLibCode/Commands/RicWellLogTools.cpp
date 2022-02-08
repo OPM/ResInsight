@@ -295,7 +295,7 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
     if ( wellPath )
     {
         curve->setWellPath( wellPath );
-        curve->setTrajectoryType( RimWellLogExtractionCurve::WELL_PATH );
+        curve->setTrajectoryType( RiaDefines::TrajectoryType::WELL_PATH );
     }
 
     if ( caseToApply )

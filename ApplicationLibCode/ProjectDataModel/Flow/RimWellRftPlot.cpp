@@ -1149,7 +1149,7 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
                 auto extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
                 if ( extractionCurve )
                 {
-                    extractionCurve->setTrajectoryType( RimWellLogExtractionCurve::WELL_PATH );
+                    extractionCurve->setTrajectoryType( RiaDefines::TrajectoryType::WELL_PATH );
                     extractionCurve->setWellPath( wellPath );
                 }
             }
