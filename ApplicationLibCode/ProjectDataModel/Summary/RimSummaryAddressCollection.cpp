@@ -24,6 +24,18 @@
 
 #include "cafPdmUiTreeOrdering.h"
 
+template <>
+void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
+{
+    addItem( RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED, "NOT_DEFINED", "Not Defined" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::WELL, "WELL", "Well" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_GROUP, "WELL_GROUP", "Well Group" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::REGION, "REGION", "Region" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::MISC, "MISC", "Miscellaneous" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::FIELD, "FIELD", "Field" );
+    setDefault( RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED );
+}
+
 CAF_PDM_SOURCE_INIT( RimSummaryAddressCollection, "RimSummaryAddressCollection" );
 
 //--------------------------------------------------------------------------------------------------
@@ -33,11 +45,22 @@ RimSummaryAddressCollection::RimSummaryAddressCollection()
 {
     CAF_PDM_InitObject( "Folder", ":/Folder.png", "", "" );
 
+    CAF_PDM_InitFieldNoDefault( &m_contentType, "ContentsType", "Contents" );
+    m_contentType = RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED;
+    m_contentType.uiCapability()->setUiReadOnly( true );
+    m_contentType.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_adresses, "SummaryAddresses", "Addresses" );
     m_adresses.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_subfolders, "AddressSubfolders", "Subfolders" );
     m_subfolders.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
+    m_caseId.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
+    m_ensembleId.uiCapability()->setUiHidden( true );
 
     nameField()->uiCapability()->setUiHidden( true );
 }
@@ -77,6 +100,8 @@ void RimSummaryAddressCollection::addAddress( const RifEclipseSummaryAddress& ad
     if ( !hasDataVector( address.quantityName() ) )
     {
         m_adresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, caseId, ensembleId ) );
+        if ( m_caseId == -1 ) m_caseId = caseId;
+        if ( m_ensembleId == -1 ) m_ensembleId = ensembleId;
     }
 }
 
@@ -84,11 +109,12 @@ void RimSummaryAddressCollection::addAddress( const RifEclipseSummaryAddress& ad
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryAddressCollection::addToSubfolder( QString                         foldername,
+                                                  CollectionContentType           folderType,
                                                   const RifEclipseSummaryAddress& address,
                                                   int                             caseId,
                                                   int                             ensembleId )
 {
-    RimSummaryAddressCollection* folder = getOrCreateSubfolder( foldername );
+    RimSummaryAddressCollection* folder = getOrCreateSubfolder( foldername, folderType );
     folder->addAddress( address, caseId, ensembleId );
 }
 
@@ -101,11 +127,11 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
 {
     if ( addresses.size() == 0 ) return;
 
-    RimSummaryAddressCollection* misc    = getOrCreateSubfolder( "Miscellaneous" );
-    RimSummaryAddressCollection* fields  = getOrCreateSubfolder( "Field" );
+    RimSummaryAddressCollection* misc    = getOrCreateSubfolder( "Miscellaneous", CollectionContentType::MISC );
+    RimSummaryAddressCollection* fields  = getOrCreateSubfolder( "Field", CollectionContentType::FIELD );
     RimSummaryAddressCollection* regions = getOrCreateSubfolder( "Regions" );
     RimSummaryAddressCollection* wells   = getOrCreateSubfolder( "Wells" );
-    RimSummaryAddressCollection* groups  = getOrCreateSubfolder( "Groups" );
+    RimSummaryAddressCollection* groups  = getOrCreateSubfolder( "Well Groups" );
 
     for ( const auto& address : addresses )
     {
@@ -120,15 +146,27 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
-                regions->addToSubfolder( QString::number( address.regionNumber() ), address, caseId, ensembleId );
+                regions->addToSubfolder( QString::number( address.regionNumber() ),
+                                         CollectionContentType::REGION,
+                                         address,
+                                         caseId,
+                                         ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
-                groups->addToSubfolder( QString::fromStdString( address.wellGroupName() ), address, caseId, ensembleId );
+                groups->addToSubfolder( QString::fromStdString( address.wellGroupName() ),
+                                        CollectionContentType::WELL_GROUP,
+                                        address,
+                                        caseId,
+                                        ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL:
-                wells->addToSubfolder( QString::fromStdString( address.wellName() ), address, caseId, ensembleId );
+                wells->addToSubfolder( QString::fromStdString( address.wellName() ),
+                                       CollectionContentType::WELL,
+                                       address,
+                                       caseId,
+                                       ensembleId );
                 break;
 
             default:
@@ -140,7 +178,8 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( const QString folderName )
+RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( const QString         folderName,
+                                                                                CollectionContentType createFolderType )
 {
     for ( auto& folder : m_subfolders )
     {
@@ -152,6 +191,7 @@ RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( 
 
     RimSummaryAddressCollection* newFolder = new RimSummaryAddressCollection();
     newFolder->setName( folderName );
+    newFolder->setContentType( createFolderType );
     m_subfolders.push_back( newFolder );
     return newFolder;
 }
@@ -176,6 +216,19 @@ bool RimSummaryAddressCollection::isEmpty() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryAddressCollection::canBeDragged() const
+{
+    bool ok = m_subfolders.size() == 0;
+
+    ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::WELL_GROUP ||
+                 m_contentType == CollectionContentType::REGION );
+
+    return ok;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryAddressCollection::updateUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering ) const
 {
     for ( auto& folder : m_subfolders() )
@@ -187,4 +240,60 @@ void RimSummaryAddressCollection::updateUiTreeOrdering( caf::PdmUiTreeOrdering& 
     {
         uiTreeOrdering.add( address );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::setContentType( CollectionContentType content )
+{
+    m_contentType = content;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryAddressCollection::CollectionContentType RimSummaryAddressCollection::contentType() const
+{
+    return m_contentType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::setEnsembleId( int ensembleId )
+{
+    m_ensembleId = ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::setCaseId( int caseId )
+{
+    m_caseId = caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAddressCollection::isEnsemble() const
+{
+    return m_ensembleId >= 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryAddressCollection::ensembleId() const
+{
+    return m_ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryAddressCollection::caseId() const
+{
+    return m_caseId;
 }

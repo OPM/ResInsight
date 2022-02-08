@@ -43,6 +43,7 @@
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -1985,6 +1986,38 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                     addCurveNoUpdate( newCurve );
 
                     newCurve->loadDataAndUpdate( true );
+                }
+            }
+            continue;
+        }
+
+        auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj );
+        if ( addressCollection )
+        {
+            if ( addressCollection->isEnsemble() )
+            {
+            }
+            else
+            {
+                auto summaryCase = RiaSummaryTools::summaryCaseById( addressCollection->caseId() );
+                if ( summaryCase )
+                {
+                    if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
+                    {
+                        // TODO - for all well data vectors in the plot, add the well named addressCollection->name() to
+                        // the plot
+                    }
+                    else if ( addressCollection->contentType() ==
+                              RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+                    {
+                        // TODO - for all well group data vectors in the plot, add the well group named
+                        // addressCollection->name() to the plot
+                    }
+                    else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
+                    {
+                        // TODO - for all region data vectors in the plot, add the region named
+                        // addressCollection->name() to the plot
+                    }
                 }
             }
         }

@@ -33,27 +33,58 @@ class RimSummaryAddressCollection : public RimNamedObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class CollectionContentType
+    {
+        NOT_DEFINED,
+        WELL,
+        WELL_GROUP,
+        REGION,
+        FIELD,
+        MISC
+    };
+
+public:
     RimSummaryAddressCollection();
     ~RimSummaryAddressCollection() override;
 
-    void updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseid, int ensembleId = -1 );
+    void updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseId, int ensembleId = -1 );
 
     void clear();
 
     bool isEmpty() const;
+    bool isEnsemble() const;
+
+    bool canBeDragged() const;
 
     void updateUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering ) const;
 
+    void                  setContentType( CollectionContentType content );
+    CollectionContentType contentType() const;
+
+    void setCaseId( int caseId );
+    int  caseId() const;
+    void setEnsembleId( int ensembleId );
+    int  ensembleId() const;
+
 private:
-    RimSummaryAddressCollection* getOrCreateSubfolder( const QString folderName );
+    RimSummaryAddressCollection*
+        getOrCreateSubfolder( const QString         folderName,
+                              CollectionContentType createFolderType = CollectionContentType::NOT_DEFINED );
 
     bool hasDataVector( const QString quantityName ) const;
     bool hasDataVector( const std::string quantityName ) const;
 
     void addAddress( const RifEclipseSummaryAddress& address, int caseId, int ensembleId = -1 );
-    void addToSubfolder( QString foldername, const RifEclipseSummaryAddress& address, int caseId, int ensembleId = -1 );
+    void addToSubfolder( QString                         foldername,
+                         CollectionContentType           folderType,
+                         const RifEclipseSummaryAddress& address,
+                         int                             caseId,
+                         int                             ensembleId = -1 );
 
 private:
     caf::PdmChildArrayField<RimSummaryAddress*>           m_adresses;
     caf::PdmChildArrayField<RimSummaryAddressCollection*> m_subfolders;
+    caf::PdmField<caf::AppEnum<CollectionContentType>>    m_contentType;
+    caf::PdmField<int>                                    m_caseId;
+    caf::PdmField<int>                                    m_ensembleId;
 };

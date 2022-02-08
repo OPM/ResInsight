@@ -34,6 +34,7 @@
 #include "RimMultiPlot.h"
 #include "RimPlot.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -253,8 +254,15 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
              dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryCurve*>( uiItem ) ||
              dynamic_cast<RimSurface*>( uiItem ) || dynamic_cast<RimSummaryAddress*>( uiItem ) )
         {
-            // TODO: Remember to handle reservoir holding the main grid
             itemflags |= Qt::ItemIsDragEnabled;
+        }
+        else
+        {
+            auto sumAdrColl = dynamic_cast<RimSummaryAddressCollection*>( uiItem );
+            if ( sumAdrColl && sumAdrColl->canBeDragged() )
+            {
+                itemflags |= Qt::ItemIsDragEnabled;
+            }
         }
 
         if ( m_dragItems.empty() ) return itemflags;
