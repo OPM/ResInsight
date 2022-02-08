@@ -74,7 +74,7 @@ RimWellLogTrack* RimcWellLogPlot_newWellLogTrack::createWellLogTrack( RimWellLog
     plotTrack->setLegendsVisible( true );
     plotTrack->setPlotTitleVisible( true );
     plotTrack->setShowWindow( true );
-    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
+    plotTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     plotTrack->setShowRegionLabels( true );
     plotTrack->setAutoScalePropertyValuesEnabled( true );
     plotTrack->updateConnectedEditors();

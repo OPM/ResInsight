@@ -188,7 +188,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
     if ( m_useStandardConditionCurves )
         axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet );
 
-    plotTrack->setXAxisTitle( axisTitle );
+    plotTrack->setPropertyValueAxisTitle( axisTitle );
 
 #if 0
     QString unitText;

@@ -480,7 +480,7 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotT
                                                                      : RimWellLogFile::WELL_FLOW_COND_STANDARD;
 
     QString axisTitle = RimWellPlotTools::flowPlotAxisTitle( condition, unitSet );
-    plotTrack->setXAxisTitle( axisTitle );
+    plotTrack->setPropertyValueAxisTitle( axisTitle );
 
 #if 0
     if (m_flowDiagSolution) 
