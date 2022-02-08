@@ -887,10 +887,10 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
         if ( curveNames.size() == 1 )
         {
-            curveDepths = curveData->depthPlotValues( depthType, depthUnit );
+            curveDepths = curveData->depthValuesByIntervals( depthType, depthUnit );
         }
 
-        std::vector<double> xPlotValues = curveData->xPlotValues();
+        std::vector<double> xPlotValues = curveData->propertyValuesByIntervals();
         if ( xPlotValues.empty() )
         {
             curveNames.pop_back();
@@ -907,7 +907,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
             foundNonMatchingDepths = true;
         }
 
-        std::vector<double> depths = curveData->depthPlotValues( depthType, depthUnit );
+        std::vector<double> depths = curveData->depthValuesByIntervals( depthType, depthUnit );
         curveMerger.addCurveData( depths, xPlotValues );
 
         curvesPlotXValues.push_back( xPlotValues );
@@ -1172,7 +1172,7 @@ void RimWellLogTrack::deleteAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::availableXAxisRange( double* minX, double* maxX )
+void RimWellLogTrack::availablePropertyValueRange( double* minX, double* maxX )
 {
     calculateXZoomRange();
     *minX = m_availableXRangeMin;
@@ -1192,7 +1192,7 @@ void RimWellLogTrack::availableDepthRange( double* minimumDepth, double* maximum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::visibleXAxisRange( double* minX, double* maxX )
+void RimWellLogTrack::visiblePropertyValueRange( double* minX, double* maxX )
 {
     CAF_ASSERT( minX && maxX );
     *minX = m_visibleXRangeMin;
@@ -1327,7 +1327,7 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setAutoScaleXEnabled( bool enabled )
+void RimWellLogTrack::setAutoScalePropertyValuesEnabled( bool enabled )
 {
     m_isAutoScaleXEnabled = enabled;
 }
@@ -1335,7 +1335,7 @@ void RimWellLogTrack::setAutoScaleXEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setAutoScaleYEnabled( bool enabled )
+void RimWellLogTrack::setAutoScaleDepthValuesEnabled( bool enabled )
 {
     if ( enabled )
     {
@@ -1347,7 +1347,7 @@ void RimWellLogTrack::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setAutoScaleXIfNecessary()
+void RimWellLogTrack::setAutoScalePropertyValuesIfNecessary()
 {
     // Avoid resetting if visible range has set to empty by user
     bool emptyRange = isEmptyVisibleXRange();
@@ -1364,7 +1364,7 @@ void RimWellLogTrack::setAutoScaleXIfNecessary()
 
     if ( maxRange < eps || overlap < eps * maxRange )
     {
-        setAutoScaleXEnabled( true );
+        setAutoScalePropertyValuesEnabled( true );
     }
 
     updateXZoom();
@@ -1581,9 +1581,9 @@ void RimWellLogTrack::updateEditors()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setVisibleXRange( double minValue, double maxValue )
+void RimWellLogTrack::setVisiblePropertyValueRange( double minValue, double maxValue )
 {
-    this->setAutoScaleXEnabled( false );
+    this->setAutoScalePropertyValuesEnabled( false );
     m_visibleXRangeMin = minValue;
     m_visibleXRangeMax = maxValue;
 }
@@ -1591,7 +1591,7 @@ void RimWellLogTrack::setVisibleXRange( double minValue, double maxValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setVisibleYRange( double minValue, double maxValue )
+void RimWellLogTrack::setVisibleDepthRange( double minValue, double maxValue )
 {
     m_visibleDepthRangeMin = minValue;
     m_visibleDepthRangeMax = maxValue;
@@ -1799,8 +1799,8 @@ QImage RimWellLogTrack::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::zoomAll()
 {
-    setAutoScaleXEnabled( true );
-    setAutoScaleYEnabled( true );
+    setAutoScalePropertyValuesEnabled( true );
+    setAutoScaleDepthValuesEnabled( true );
     updateZoomInParentPlot();
 }
 
@@ -2126,7 +2126,9 @@ void RimWellLogTrack::computeAndSetXRangeMinForLogarithmicScale()
         {
             if ( m_curves[cIdx]->isCurveVisible() && m_curves[cIdx]->curveData() )
             {
-                RigStatisticsCalculator::posNegClosestToZero( m_curves[cIdx]->curveData()->xPlotValues(), pos, neg );
+                RigStatisticsCalculator::posNegClosestToZero( m_curves[cIdx]->curveData()->propertyValuesByIntervals(),
+                                                              pos,
+                                                              neg );
             }
         }
 
@@ -2490,7 +2492,7 @@ void RimWellLogTrack::updateStackedCurveData()
         for ( auto curve : stackedCurvesInGroup )
         {
             auto interpolatedCurveValues = curve->curveData()->calculateResampledCurveData( depthType, allDepthValues );
-            auto xValues                 = interpolatedCurveValues->xValues();
+            auto xValues                 = interpolatedCurveValues->propertyValues();
             for ( size_t i = 0; i < xValues.size(); ++i )
             {
                 if ( xValues[i] != HUGE_VAL )
@@ -2501,7 +2503,7 @@ void RimWellLogTrack::updateStackedCurveData()
 
             RigWellLogCurveData tempCurveData;
             tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, 0.0, displayUnit, false );
-            auto plotDepthValues          = tempCurveData.depthPlotValues( depthType, displayUnit );
+            auto plotDepthValues          = tempCurveData.depthValuesByIntervals( depthType, displayUnit );
             auto polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
 
             curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
@@ -3127,7 +3129,7 @@ void RimWellLogTrack::doUpdateLayout()
 void RimWellLogTrack::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                       std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    setAutoScaleXEnabled( true );
+    setAutoScalePropertyValuesEnabled( true );
     updateZoomInParentPlot();
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateWellLogPlotToolBar();

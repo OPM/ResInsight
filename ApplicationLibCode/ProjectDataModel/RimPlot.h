@@ -71,9 +71,9 @@ public:
     void         updateAfterInsertingIntoMultiPlot();
 
     // Pure virtual interface methods
-    virtual void setAutoScaleXEnabled( bool enabled ) = 0;
-    virtual void setAutoScaleYEnabled( bool enabled ) = 0;
-    virtual void updateAxes()                         = 0;
+    virtual void setAutoScalePropertyValuesEnabled( bool enabled ) = 0;
+    virtual void setAutoScaleDepthValuesEnabled( bool enabled )    = 0;
+    virtual void updateAxes()                                      = 0;
 
     virtual void updateLegend() = 0;
 

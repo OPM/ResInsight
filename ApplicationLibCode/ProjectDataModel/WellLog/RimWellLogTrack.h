@@ -139,18 +139,18 @@ public:
                                                          bool           useBranchDetection );
     void setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName );
 
-    void setAutoScaleXEnabled( bool enabled ) override;
-    void setAutoScaleYEnabled( bool enabled ) override;
-    void setAutoScaleXIfNecessary();
+    void setAutoScalePropertyValuesEnabled( bool enabled ) override;
+    void setAutoScaleDepthValuesEnabled( bool enabled ) override;
+    void setAutoScalePropertyValuesIfNecessary();
 
-    void availableXAxisRange( double* minX, double* maxX );
+    void availablePropertyValueRange( double* minX, double* maxX );
     void availableDepthRange( double* minimumDepth, double* maximumDepth );
 
-    void visibleXAxisRange( double* minX, double* maxX );
+    void visiblePropertyValueRange( double* minX, double* maxX );
     void visibleDepthRange( double* minimumDepth, double* maximumDepth );
 
-    void setVisibleXRange( double minValue, double maxValue );
-    void setVisibleYRange( double minValue, double maxValue );
+    void setVisiblePropertyValueRange( double minValue, double maxValue );
+    void setVisibleDepthRange( double minValue, double maxValue );
 
     void updateZoomInParentPlot() override;
     void updateZoomFromParentPlot() override;

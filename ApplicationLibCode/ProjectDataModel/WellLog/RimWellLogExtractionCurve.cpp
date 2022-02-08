@@ -357,8 +357,8 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             isUsingPseudoLength = false;
         }
 
-        std::vector<double> xPlotValues     = curveData()->xPlotValues();
-        std::vector<double> depthPlotValues = curveData()->depthPlotValues( depthType, displayUnit );
+        std::vector<double> xPlotValues     = curveData()->propertyValuesByIntervals();
+        std::vector<double> depthPlotValues = curveData()->depthValuesByIntervals( depthType, displayUnit );
         CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
 
         if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )

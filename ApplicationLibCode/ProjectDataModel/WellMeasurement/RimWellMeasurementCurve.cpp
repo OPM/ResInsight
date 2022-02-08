@@ -156,9 +156,10 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
-                                                      this->curveData()->depthPlotValues( depthType, displayUnit ),
-                                                      static_cast<int>( this->curveData()->xPlotValues().size() ) );
+        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->propertyValuesByIntervals(),
+                                                      this->curveData()->depthValuesByIntervals( depthType, displayUnit ),
+                                                      static_cast<int>(
+                                                          this->curveData()->propertyValuesByIntervals().size() ) );
         m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
     }
 

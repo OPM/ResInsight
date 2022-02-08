@@ -315,7 +315,7 @@ void RimDepthTrackPlot::updateZoom()
 
     for ( RimPlot* plot : plots() )
     {
-        static_cast<RimWellLogTrack*>( plot )->setVisibleYRange( m_minVisibleDepth(), m_maxVisibleDepth() );
+        static_cast<RimWellLogTrack*>( plot )->setVisibleDepthRange( m_minVisibleDepth(), m_maxVisibleDepth() );
         plot->updateZoomInParentPlot();
     }
 
@@ -1183,7 +1183,7 @@ void RimDepthTrackPlot::setAutoScaleXEnabled( bool enabled )
 {
     for ( RimPlot* plot : plots() )
     {
-        plot->setAutoScaleXEnabled( enabled );
+        plot->setAutoScalePropertyValuesEnabled( enabled );
     }
 }
 

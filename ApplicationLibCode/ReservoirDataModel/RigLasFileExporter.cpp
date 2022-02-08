@@ -60,9 +60,9 @@ public:
     {
         CVF_ASSERT( lasFile );
 
-        if ( !m_curveData->xValues().empty() )
+        if ( !m_curveData->propertyValues().empty() )
         {
-            std::vector<double> wellLogValues = m_curveData->xValues( QString::fromStdString( m_unit ) );
+            std::vector<double> wellLogValues = m_curveData->propertyValues( QString::fromStdString( m_unit ) );
             for ( size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++ )
             {
                 double value = wellLogValues[vIdx];
@@ -119,7 +119,7 @@ public:
     {
         m_logCurveData.push_back( SingleChannelData( channelName, unit, comment, curveData ) );
 
-        for ( double xValue : curveData->xValues() )
+        for ( double xValue : curveData->propertyValues() )
         {
             if ( xValue < m_minimumCurveValue )
             {
@@ -536,7 +536,7 @@ void RigLasFileExporter::appendLasFileDescriptions( const std::vector<RimWellLog
                 {
                     curveData = curve->curveData();
                 }
-                QString units = curve->curveData()->xUnits();
+                QString units = curve->curveData()->propertyValueUnit();
 
                 if ( convertCurveUnits || units == RiaWellLogUnitTools<double>::barX100UnitString() )
                 {
