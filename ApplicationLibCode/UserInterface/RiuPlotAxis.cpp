@@ -114,7 +114,15 @@ bool RiuPlotAxis::operator<( const RiuPlotAxis& rhs ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuPlotAxis::operator==( const RiuPlotAxis& rhs )
+bool RiuPlotAxis::operator==( const RiuPlotAxis& rhs ) const
 {
     return m_axis == rhs.m_axis && m_index == rhs.m_index;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPlotAxis::operator!=( const RiuPlotAxis& rhs ) const
+{
+    return !( *this == rhs );
 }

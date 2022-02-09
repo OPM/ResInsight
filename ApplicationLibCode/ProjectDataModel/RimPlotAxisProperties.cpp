@@ -51,6 +51,7 @@ CAF_PDM_SOURCE_INIT( RimPlotAxisProperties, "SummaryYAxisProperties" );
 RimPlotAxisProperties::RimPlotAxisProperties()
     : settingsChanged( this )
     , logarithmicChanged( this )
+    , axisPositionChanged( this )
     , m_enableTitleTextSettings( true )
     , m_isRangeSettingsEnabled( true )
 {
@@ -198,6 +199,8 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         scaleGroup.add( &m_visibleRangeMax );
     }
     scaleGroup.add( &m_valuesFontSize );
+
+    scaleGroup.add( &m_plotAxis );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -420,6 +423,11 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
     if ( changedField == &m_isLogarithmicScaleEnabled )
     {
         logarithmicChanged.send( m_isLogarithmicScaleEnabled() );
+    }
+    else if ( changedField == &m_plotAxis )
+    {
+        RiuPlotAxis oldPlotAxis = RiuPlotAxis( (RiaDefines::PlotAxis)oldValue.toInt(), m_plotAxisIndex );
+        axisPositionChanged.send( this, oldPlotAxis, plotAxisType() );
     }
     else
     {
