@@ -51,8 +51,9 @@ public:
     };
 
 public:
-    caf::Signal<>     settingsChanged;
-    caf::Signal<bool> logarithmicChanged;
+    caf::Signal<>                                                 settingsChanged;
+    caf::Signal<bool>                                             logarithmicChanged;
+    caf::Signal<RimPlotAxisProperties*, RiuPlotAxis, RiuPlotAxis> axisPositionChanged;
 
 public:
     RimPlotAxisProperties();
@@ -124,9 +125,9 @@ private:
     caf::PdmField<double> m_visibleRangeMin;
     caf::PdmField<double> m_visibleRangeMax;
 
-    caf::PdmField<QString> m_name;
+    caf::PdmField<QString>                            m_name;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
-    caf::PdmField<int>                  m_plotAxisIndex;
+    caf::PdmField<int>                                m_plotAxisIndex;
 
     caf::PdmField<bool> m_isLogarithmicScaleEnabled;
 

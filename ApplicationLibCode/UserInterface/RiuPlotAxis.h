@@ -38,7 +38,8 @@ public:
     int index() const;
 
     bool operator<( const RiuPlotAxis& rhs ) const;
-    bool operator==( const RiuPlotAxis& rhs );
+    bool operator==( const RiuPlotAxis& rhs ) const;
+    bool operator!=( const RiuPlotAxis& rhs ) const;
 
 private:
     RiaDefines::PlotAxis m_axis;

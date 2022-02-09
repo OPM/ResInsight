@@ -256,6 +256,11 @@ private:
     void connectAxisSignals( RimPlotAxisProperties* axis );
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
+    void axisPositionChanged( const caf::SignalEmitter* emitter,
+                              RimPlotAxisProperties*    axisProperties,
+                              RiuPlotAxis               oldPlotAxis,
+                              RiuPlotAxis               newPlotAxis );
+
     void assignPlotAxis( RimSummaryCurve* curve );
 
 private:

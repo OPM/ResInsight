@@ -231,7 +231,10 @@ void RimSummaryPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::isLogarithmicScaleEnabled( RiuPlotAxis plotAxis ) const
 {
-    return axisPropertiesForPlotAxis( plotAxis )->isLogarithmicScaleEnabled();
+    auto axisProperties = axisPropertiesForPlotAxis( plotAxis );
+    if ( !axisProperties ) return false;
+
+    return axisProperties->isLogarithmicScaleEnabled();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -824,6 +827,8 @@ void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
 void RimSummaryPlot::updateZoomForAxis( RiuPlotAxis plotAxis )
 {
     RimPlotAxisPropertiesInterface* yAxisProps = axisPropertiesForPlotAxis( plotAxis );
+    if ( !yAxisProps ) return;
+
     if ( yAxisProps->isAutoZoom() )
     {
         if ( yAxisProps->isLogarithmicScaleEnabled() )
@@ -956,8 +961,6 @@ RimPlotAxisPropertiesInterface* RimSummaryPlot::axisPropertiesForPlotAxis( RiuPl
     {
         if ( axisProperties->plotAxisType() == plotAxis ) return axisProperties;
     }
-
-    CVF_ASSERT( false && "No axis properties found for axis" );
 
     return nullptr;
 }
@@ -1692,6 +1695,7 @@ void RimSummaryPlot::connectAxisSignals( RimPlotAxisProperties* axis )
 {
     axis->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
     axis->logarithmicChanged.connect( this, &RimSummaryPlot::axisLogarithmicChanged );
+    axis->axisPositionChanged.connect( this, &RimSummaryPlot::axisPositionChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1708,6 +1712,40 @@ void RimSummaryPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
 {
     loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
+                                          RimPlotAxisProperties*    axisProperties,
+                                          RiuPlotAxis               oldPlotAxis,
+                                          RiuPlotAxis               newPlotAxis )
+{
+    if ( !axisProperties ) return;
+
+    if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
+    {
+        // Make sure the new axis on the correct side exists.
+        RiuPlotAxis fixedUpPlotAxis = plotWidget()->createNextPlotAxis( newPlotAxis.axis() );
+        // The index can change so need to update.
+        axisProperties->setNameAndAxis( axisProperties->name(), fixedUpPlotAxis.axis(), fixedUpPlotAxis.index() );
+
+        // Move all attached curves
+        for ( auto curve : summaryCurves() )
+        {
+            if ( curve->axisY() == oldPlotAxis ) curve->setLeftOrRightAxisY( fixedUpPlotAxis );
+        }
+
+        // Remove the now unused axis (but keep the default axis)
+        if ( oldPlotAxis != RiuPlotAxis::defaultLeft() && oldPlotAxis != RiuPlotAxis::defaultRight() )
+        {
+            auto oldAxisProperties = axisPropertiesForPlotAxis( oldPlotAxis );
+            if ( oldAxisProperties ) m_axisProperties.removeChildObject( oldAxisProperties );
+        }
+    }
+
+    updateAxes();
 }
 
 //--------------------------------------------------------------------------------------------------
