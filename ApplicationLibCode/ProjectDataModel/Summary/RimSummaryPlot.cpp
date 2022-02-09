@@ -1914,9 +1914,21 @@ void RimSummaryPlot::initAfterRead()
 
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.10.2" ) )
     {
-        auto copyAxis = [this]( RiuPlotAxis axis, auto axisProperties ) {
-            QString data = axisProperties->writeObjectToXmlString();
-            axisPropertiesForPlotAxis( axis )->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+        auto copyAxis = [this]( RiuPlotAxis axis, auto sourceObject ) {
+            auto axisProperties = dynamic_cast<RimPlotAxisProperties*>( axisPropertiesForPlotAxis( axis ) );
+            if ( axisProperties )
+            {
+                QString data = sourceObject->writeObjectToXmlString();
+
+                // This operation will overwrite the plot axis side, default is left
+                axisProperties->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+
+                if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+                {
+                    // Reset the plot axis for the right axis
+                    axisProperties->setNameAndAxis( "Right", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, 0 );
+                }
+            }
         };
 
         copyAxis( RiuPlotAxis::defaultLeft(), m_leftYAxisProperties_OBSOLETE.v() );
