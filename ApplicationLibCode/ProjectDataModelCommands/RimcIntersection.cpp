@@ -75,8 +75,8 @@ RimcTriangleGeometry::RimcTriangleGeometry()
     CAF_PDM_InitScriptableFieldNoDefault( &m_meshZ, "MeshZCoords", "Mesh Z coords" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshX, "FaultMeshXCoords", "Fault Mesh X coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshY, "FaultmeshYCoords", "Fault Mesh Y coords" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshZ, "FaultmeshZCoords", "Fault Mesh Z coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshY, "FaultMeshYCoords", "Fault Mesh Y coords" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faultMeshZ, "FaultMeshZCoords", "Fault Mesh Z coords" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayModelOffset, "DisplayModelOffset", "Display Model Offset" );
 }
