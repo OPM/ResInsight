@@ -308,8 +308,11 @@ void RimParameterResultCrossPlot::createPoints()
                     m_yRange.first  = std::min( m_yRange.first, closestValue );
                     m_yRange.second = std::max( m_yRange.second, closestValue );
 
-                    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve;
-                    plotCurve->setSamplesValues( parameterValues, caseValuesAtTimestep );
+                    RiuQwtPlotCurve* plotCurve              = new RiuQwtPlotCurve;
+                    bool             keepOnlyPositiveValues = false;
+                    plotCurve->setSamplesFromXValuesAndYValues( parameterValues,
+                                                                caseValuesAtTimestep,
+                                                                keepOnlyPositiveValues );
                     plotCurve->setStyle( QwtPlotCurve::NoCurve );
                     RiuQwtSymbol* symbol =
                         new RiuQwtSymbol( RiuPlotCurveSymbol::cycledSymbolStyle( ensembleIdx, addressIdx ), "" );

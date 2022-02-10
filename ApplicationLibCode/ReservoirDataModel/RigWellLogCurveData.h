@@ -57,10 +57,12 @@ public:
     void setXUnits( const QString& xUnitString );
 
     std::vector<double> xValues() const;
-    std::vector<double> xValues( const QString& units ) const;
+    std::vector<double> xValuesForUnit( const QString& unit ) const;
     QString             xUnits() const;
 
     std::vector<double> depths( RiaDefines::DepthTypeEnum depthType ) const;
+    std::vector<double> depthsForUnit( RiaDefines::DepthTypeEnum depthType,
+                                       RiaDefines::DepthUnitType destinationDepthUnit ) const;
 
     std::set<RiaDefines::DepthTypeEnum> availableDepthTypes() const;
 

@@ -222,8 +222,8 @@ void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&          
     this->setOverrideCurveDataXRange( *( minmax_it.first ), *( minmax_it.second ) );
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesValues( xValues, depthValues );
-        m_plotCurve->setLineSegmentStartStopIndices( curveIntervals );
+        bool keepOnlyPositiveValues = false;
+        m_plotCurve->setSamplesFromXValuesAndYValues( xValues, depthValues, keepOnlyPositiveValues );
     }
 }
 

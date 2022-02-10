@@ -47,14 +47,6 @@ RiuPlotCurve::~RiuPlotCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotCurve::setSamplesValues( const std::vector<double>& xValues, const std::vector<double>& yValues )
-{
-    setSamplesInPlot( xValues, yValues, static_cast<int>( xValues.size() ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                                     const std::vector<double>& yValues,
                                                     bool                       keepOnlyPositiveValues )
@@ -125,16 +117,9 @@ void RiuPlotCurve::computeValidIntervalsAndSetCurveData( const std::vector<doubl
                                                          const std::vector<double>& yValues,
                                                          bool                       keepOnlyPositiveValues )
 {
+    setSamplesInPlot( xValues, yValues, static_cast<int>( xValues.size() ) );
+
     auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, keepOnlyPositiveValues );
-
-    std::vector<double> validYValues;
-    std::vector<double> validXValues;
-
-    RiaCurveDataTools::getValuesByIntervals( yValues, intervalsOfValidValues, &validYValues );
-    RiaCurveDataTools::getValuesByIntervals( xValues, intervalsOfValidValues, &validXValues );
-
-    setSamplesInPlot( validXValues, validYValues, static_cast<int>( validXValues.size() ) );
-
     setLineSegmentStartStopIndices( RiaCurveDataTools::computePolyLineStartStopIndices( intervalsOfValidValues ) );
 }
 
