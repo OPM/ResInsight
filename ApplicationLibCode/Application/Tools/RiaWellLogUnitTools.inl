@@ -178,6 +178,8 @@ std::vector<std::pair<FloatType, FloatType>>
                                                    RiaDefines::DepthUnitType                           unitsIn,
                                                    RiaDefines::DepthUnitType                           unitsOut )
 {
+    if ( depthsIn.empty() ) return {};
+
     std::vector<std::pair<FloatType, FloatType>> convertedDepths( depthsIn.size() );
     double                                       factor = 1.0;
     if ( unitsOut == RiaDefines::DepthUnitType::UNIT_METER && unitsIn == RiaDefines::DepthUnitType::UNIT_FEET )
@@ -335,6 +337,8 @@ template <typename FloatType>
 std::vector<FloatType>
     RiaWellLogUnitTools<FloatType>::tvdRKBs( const std::vector<FloatType>& measuredDepths, const RigWellPath* wellPath )
 {
+    if ( measuredDepths.empty() ) return {};
+
     std::vector<double> tvdRKBs( measuredDepths.size(), 0.0 );
     for ( size_t i = 0; i < measuredDepths.size(); ++i )
     {
@@ -351,6 +355,8 @@ template <typename FloatType>
 std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertGpcm3ToBar( const std::vector<FloatType>& tvdRKBs,
                                                                           const std::vector<FloatType>& valuesInGpcm3 )
 {
+    if ( tvdRKBs.empty() ) return {};
+
     CAF_ASSERT( tvdRKBs.size() == valuesInGpcm3.size() );
 
     std::vector<FloatType> valuesInBar( valuesInGpcm3.size(), 0.0 );
@@ -378,6 +384,8 @@ template <typename FloatType>
 std::vector<FloatType> RiaWellLogUnitTools<FloatType>::convertBarToGpcm3( const std::vector<FloatType>& tvdRKBs,
                                                                           const std::vector<FloatType>& valuesInBar )
 {
+    if ( tvdRKBs.empty() ) return {};
+
     CAF_ASSERT( tvdRKBs.size() == valuesInBar.size() );
 
     std::vector<FloatType> valuesInGpcm3( valuesInBar.size(), 0.0 );
@@ -406,6 +414,8 @@ std::vector<FloatType>
     RiaWellLogUnitTools<FloatType>::convertNormalizedByPPToBar( const std::vector<FloatType>& tvdRKBs,
                                                                 const std::vector<FloatType>& normalizedValues )
 {
+    if ( tvdRKBs.empty() ) return {};
+
     CAF_ASSERT( tvdRKBs.size() == normalizedValues.size() );
 
     std::vector<FloatType> valuesInBar( tvdRKBs.size(), 0.0 );
@@ -424,6 +434,8 @@ std::vector<FloatType>
     RiaWellLogUnitTools<FloatType>::convertBarToNormalizedByPP( const std::vector<FloatType>& tvdRKBs,
                                                                 const std::vector<FloatType>& valuesInBar )
 {
+    if ( tvdRKBs.empty() ) return {};
+
     CAF_ASSERT( tvdRKBs.size() == valuesInBar.size() );
 
     std::vector<FloatType> normalizedValues( tvdRKBs.size(), 0.0 );
@@ -440,6 +452,8 @@ std::vector<FloatType>
 template <typename FloatType>
 std::vector<FloatType> RiaWellLogUnitTools<FloatType>::multiply( const std::vector<FloatType>& valuesIn, FloatType factor )
 {
+    if ( valuesIn.empty() ) return {};
+
     std::vector<FloatType> valuesOut( valuesIn.size(), std::numeric_limits<FloatType>::infinity() );
     for ( size_t i = 0; i < valuesIn.size(); ++i )
     {
