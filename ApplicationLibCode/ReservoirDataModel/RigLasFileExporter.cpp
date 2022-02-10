@@ -62,7 +62,7 @@ public:
 
         if ( !m_curveData->xValues().empty() )
         {
-            std::vector<double> wellLogValues = m_curveData->xValues( QString::fromStdString( m_unit ) );
+            std::vector<double> wellLogValues = m_curveData->xValuesForUnit( QString::fromStdString( m_unit ) );
             for ( size_t vIdx = 0; vIdx < wellLogValues.size(); vIdx++ )
             {
                 double value = wellLogValues[vIdx];

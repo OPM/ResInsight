@@ -56,12 +56,9 @@ class RiuPlotCurve
 {
 public:
     explicit RiuPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title = QString() );
-    explicit RiuPlotCurve();
     virtual ~RiuPlotCurve();
 
     virtual void setTitle( const QString& title ) = 0;
-
-    virtual void setSamplesValues( const std::vector<double>& xValues, const std::vector<double>& yValues );
 
     void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                           const std::vector<double>& yValues,
@@ -81,8 +78,6 @@ public:
         const std::vector<double>&   errorValues,
         bool                         keepOnlyPositiveValues,
         RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
-
-    void setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices );
 
     void setSymbolSkipPixelDistance( float distance );
     void setPerPointLabels( const std::vector<QString>& labels );
@@ -134,6 +129,7 @@ protected:
         setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numSamples ) = 0;
 
 private:
+    void setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices );
     void computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,
                                                const std::vector<double>& yValues,
                                                bool                       keepOnlyPositiveValues );

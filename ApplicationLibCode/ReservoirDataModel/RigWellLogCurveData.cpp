@@ -122,15 +122,15 @@ std::vector<double> RigWellLogCurveData::xValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<double> RigWellLogCurveData::xValues( const QString& units ) const
+std::vector<double> RigWellLogCurveData::xValuesForUnit( const QString& unit ) const
 {
     std::vector<double> convertedValues;
-    if ( units != m_xUnitString &&
+    if ( unit != m_xUnitString &&
          RiaWellLogUnitTools<double>::convertValues( depths( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB ),
                                                      m_xValues,
                                                      &convertedValues,
                                                      m_xUnitString,
-                                                     units ) )
+                                                     unit ) )
     {
         return convertedValues;
     }
@@ -178,6 +178,28 @@ std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depth
     }
 
     return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::depthsForUnit( RiaDefines::DepthTypeEnum depthType,
+                                                        RiaDefines::DepthUnitType destinationDepthUnit ) const
+{
+    const std::vector<double> depthValues = depths( depthType );
+    if ( !depthValues.empty() )
+    {
+        if ( destinationDepthUnit == m_depthUnit )
+        {
+            return depthValues;
+        }
+
+        std::vector<double> convertedValues =
+            RiaWellLogUnitTools<double>::convertDepths( depthValues, m_depthUnit, destinationDepthUnit );
+        return convertedValues;
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

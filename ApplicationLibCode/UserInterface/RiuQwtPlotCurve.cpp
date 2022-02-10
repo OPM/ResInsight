@@ -455,9 +455,9 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
         }
     }
 
+    // Clear the polyline start/stop indices, as all values should be valid at this point
+    m_polyLineStartStopIndices.clear();
     setSamplesInPlot( filteredXValues, filteredYValues, static_cast<int>( filteredXValues.size() ) );
-
-    setLineSegmentStartStopIndices( intervalsOfValidValues );
 
     if ( m_qwtCurveErrorBars )
     {
