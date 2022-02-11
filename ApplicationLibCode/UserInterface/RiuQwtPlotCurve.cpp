@@ -93,9 +93,17 @@ void RiuQwtPlotCurve::drawCurve( QPainter*          p,
     size_t intervalCount = m_polyLineStartStopIndices.size();
     if ( intervalCount > 0 )
     {
-        for ( size_t intIdx = 0; intIdx < intervalCount; intIdx++ )
+        for ( const auto& [segmentFromCandiate, segmentToCandidate] : m_polyLineStartStopIndices )
         {
-            if ( m_polyLineStartStopIndices[intIdx].first == m_polyLineStartStopIndices[intIdx].second )
+            // Skip segments outside the requested index range
+            if ( static_cast<int>( segmentToCandidate ) < from ) continue;
+            if ( static_cast<int>( segmentFromCandiate ) > to ) continue;
+
+            // Draw the curve points limited to incoming from/to indices
+            auto actualFromIndex = std::max( from, static_cast<int>( segmentFromCandiate ) );
+            auto actualToIndex   = std::min( to, static_cast<int>( segmentToCandidate ) );
+
+            if ( actualFromIndex == actualToIndex )
             {
                 // Use a symbol to draw a single value, as a single value will not be visible
                 // when using QwtPlotCurve::drawCurve without symbols activated
@@ -103,23 +111,14 @@ void RiuQwtPlotCurve::drawCurve( QPainter*          p,
                 QwtSymbol symbol( QwtSymbol::XCross );
                 symbol.setSize( 10, 10 );
 
-                QwtPlotCurve::drawSymbols( p,
-                                           symbol,
-                                           xMap,
-                                           yMap,
-                                           canvasRect,
-                                           (int)m_polyLineStartStopIndices[intIdx].first,
-                                           (int)m_polyLineStartStopIndices[intIdx].second );
+                QwtPlotCurve::drawSymbols( p, symbol, xMap, yMap, canvasRect, actualFromIndex, actualToIndex );
             }
             else
             {
-                QwtPlotCurve::drawCurve( p,
-                                         style,
-                                         xMap,
-                                         yMap,
-                                         canvasRect,
-                                         (int)m_polyLineStartStopIndices[intIdx].first,
-                                         (int)m_polyLineStartStopIndices[intIdx].second );
+                if ( actualFromIndex < actualToIndex )
+                {
+                    QwtPlotCurve::drawCurve( p, style, xMap, yMap, canvasRect, actualFromIndex, actualToIndex );
+                }
             }
         }
     }
