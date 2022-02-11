@@ -873,11 +873,15 @@ void RiuQtChartsPlotWidget::setAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries
 
         if ( qobject_cast<QValueAxis*>( newAxis ) || qobject_cast<QLogValueAxis*>( newAxis ) )
         {
-            connect( newAxis, SIGNAL( rangeChanged( double, double ) ), this, SLOT( axisRangeChanged() ) );
+            connect( newAxis, SIGNAL( rangeChanged( double, double ) ), this, SLOT( axisRangeChanged() ), Qt::UniqueConnection );
         }
         else if ( qobject_cast<QDateTimeAxis*>( newAxis ) )
         {
-            connect( newAxis, SIGNAL( rangeChanged( QDateTime, QDateTime ) ), this, SLOT( axisRangeChanged() ) );
+            connect( newAxis,
+                     SIGNAL( rangeChanged( QDateTime, QDateTime ) ),
+                     this,
+                     SLOT( axisRangeChanged() ),
+                     Qt::UniqueConnection );
         }
     }
 }
