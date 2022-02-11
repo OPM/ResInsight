@@ -50,7 +50,7 @@ RimViewWindow* RiuQtChartView::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartView::mousePressEvent( QMouseEvent* event )
 {
-    if ( event->buttons() & Qt::MiddleButton )
+    if ( event->button() == Qt::MiddleButton )
     {
         m_isPanning        = true;
         m_panStartPosition = event->pos();
@@ -59,7 +59,7 @@ void RiuQtChartView::mousePressEvent( QMouseEvent* event )
     }
     else
     {
-        event->ignore();
+        QtCharts::QChartView::mousePressEvent( event );
     }
 }
 
@@ -68,7 +68,7 @@ void RiuQtChartView::mousePressEvent( QMouseEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartView::mouseReleaseEvent( QMouseEvent* event )
 {
-    if ( event->buttons() & Qt::MiddleButton )
+    if ( event->button() == Qt::MiddleButton )
     {
         m_isPanning = false;
         setCursor( Qt::ArrowCursor );
@@ -76,7 +76,7 @@ void RiuQtChartView::mouseReleaseEvent( QMouseEvent* event )
     }
     else
     {
-        event->ignore();
+        QtCharts::QChartView::mouseReleaseEvent( event );
     }
 }
 
@@ -95,6 +95,6 @@ void RiuQtChartView::mouseMoveEvent( QMouseEvent* event )
     }
     else
     {
-        event->ignore();
+        QtCharts::QChartView::mouseMoveEvent( event );
     }
 }
