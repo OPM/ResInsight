@@ -357,10 +357,19 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             isUsingPseudoLength = false;
         }
 
+        bool isLogCurve = false;
+
+        RimWellLogTrack* track = nullptr;
+        firstAncestorOfType( track );
+        if ( track )
+        {
+            isLogCurve = track->isLogarithmicScale();
+        }
+
         std::vector<double> xPlotValues     = curveData()->xPlotValues();
         std::vector<double> depthPlotValues = curveData()->depthPlotValues( depthType, displayUnit );
         CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
-        m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, static_cast<int>( xPlotValues.size() ) );
+        m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, isLogCurve );
 
         m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 

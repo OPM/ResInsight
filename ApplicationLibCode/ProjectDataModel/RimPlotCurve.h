@@ -141,20 +141,18 @@ protected:
     void setSamplesFromXYErrorValues( const std::vector<double>& xValues,
                                       const std::vector<double>& yValues,
                                       const std::vector<double>& errorValues,
-                                      bool                       keepOnlyPositiveValues,
+                                      bool                       isLogCurve,
                                       RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
 
-    void setSamplesFromXYValues( const std::vector<double>& xValues,
-                                 const std::vector<double>& yValues,
-                                 bool                       keepOnlyPositiveValues );
+    void setSamplesFromXYValues( const std::vector<double>& xValues, const std::vector<double>& yValues, bool isLogCurve );
 
     void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                         const std::vector<double>&    yValues,
-                                        bool                          keepOnlyPositiveValues );
+                                        bool                          isLogCurve );
 
     void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                         const std::vector<double>& yValues,
-                                        bool                       keepOnlyPositiveValues );
+                                        bool                       isLogCurve );
 
 protected:
     // Overridden PDM methods

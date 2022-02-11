@@ -684,11 +684,11 @@ bool RimPlotCurve::hasParentPlot() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues,
                                            const std::vector<double>& yValues,
-                                           bool                       keepOnlyPositiveValues )
+                                           bool                       isLogCurve )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, keepOnlyPositiveValues );
+        m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
     }
 }
 
@@ -697,11 +697,11 @@ void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues,
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                                   const std::vector<double>&    yValues,
-                                                  bool                          keepOnlyPositiveValues )
+                                                  bool                          isLogCurve )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesFromDatesAndYValues( dateTimes, yValues, keepOnlyPositiveValues );
+        m_plotCurve->setSamplesFromDatesAndYValues( dateTimes, yValues, isLogCurve );
     }
 }
 
@@ -710,11 +710,11 @@ void RimPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                                   const std::vector<double>& yValues,
-                                                  bool                       keepOnlyPositiveValues )
+                                                  bool                       isLogCurve )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, keepOnlyPositiveValues );
+        m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, isLogCurve );
     }
 }
 
@@ -724,12 +724,12 @@ void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dat
 void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
                                                 const std::vector<double>&   yValues,
                                                 const std::vector<double>&   errorValues,
-                                                bool                         keepOnlyPositiveValues,
+                                                bool                         isLogCurve,
                                                 RiaCurveDataTools::ErrorAxis errorAxis )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesFromXYErrorValues( xValues, yValues, errorValues, keepOnlyPositiveValues, errorAxis );
+        m_plotCurve->setSamplesFromXYErrorValues( xValues, yValues, errorValues, isLogCurve, errorAxis );
     }
 }
 

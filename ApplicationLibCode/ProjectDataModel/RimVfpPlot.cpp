@@ -573,9 +573,8 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, cons
         symbol->setSize( 6, 6 );
         curve->setSymbol( symbol );
 
-        curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ),
-                                                plotData.yData( idx ),
-                                                static_cast<int>( plotData.curveSize( idx ) ) );
+        bool isLogCurve = false;
+        curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ), plotData.yData( idx ), isLogCurve );
         curve->attachToPlot( plotWidget );
         curve->showInPlot();
     }

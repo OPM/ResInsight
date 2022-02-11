@@ -415,13 +415,13 @@ std::pair<double, double> RiuQwtPlotCurve::yDataRange() const
 void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
                                                    const std::vector<double>&   yValues,
                                                    const std::vector<double>&   errorValues,
-                                                   bool                         keepOnlyPositiveValues,
+                                                   bool                         isLogCurve,
                                                    RiaCurveDataTools::ErrorAxis errorAxis )
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
     CVF_ASSERT( xValues.size() == errorValues.size() );
 
-    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, keepOnlyPositiveValues );
+    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, isLogCurve );
     std::vector<double> filteredYValues;
     std::vector<double> filteredXValues;
 

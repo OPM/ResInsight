@@ -470,19 +470,19 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             auto xValues = this->curveData()->xPlotValues();
             auto yValues = this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
-            bool keepOnlyPositiveValues = false;
+            bool isLogCurve = false;
 
             if ( !errors.empty() )
             {
                 this->setSamplesFromXYErrorValues( xValues,
                                                    yValues,
                                                    errors,
-                                                   keepOnlyPositiveValues,
+                                                   isLogCurve,
                                                    RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
-                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, keepOnlyPositiveValues );
+                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
             }
 
             RimWellLogTrack* wellLogTrack;

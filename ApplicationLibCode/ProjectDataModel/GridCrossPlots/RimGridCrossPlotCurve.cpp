@@ -57,7 +57,8 @@ void RimGridCrossPlotCurve::setSamples( const std::vector<double>& xValues, cons
 
     if ( xValues.empty() || yValues.empty() || !m_plotCurve ) return;
 
-    m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, false );
+    bool isLogCurve = false;
+    m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
