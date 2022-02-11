@@ -388,7 +388,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    if ( isCurveVisible() )
+    if ( isCurveVisible() && m_plotCurve )
     {
         std::vector<double> values;
 
