@@ -371,14 +371,10 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
 
         if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
-            m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues,
-                                                          xPlotValues,
-                                                          isLogCurve );
+            m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, isLogCurve );
 
         else
-            m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues,
-                                                          depthPlotValues,
-                                                          isLogCurve );
+            m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, isLogCurve );
 
         m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
