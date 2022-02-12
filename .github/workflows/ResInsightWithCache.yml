@@ -127,7 +127,7 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-v03
+          key: ${{ matrix.config.os }}-QtCache-5-12-12
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
