@@ -65,6 +65,12 @@ public:
     typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
     using DepthTypeEnum = RiaDefines::DepthTypeEnum;
 
+    enum class DepthOrientation
+    {
+        HORIZONTAL,
+        VERTICAL
+    };
+
 public:
     RimDepthTrackPlot();
     ~RimDepthTrackPlot() override;
@@ -78,6 +84,8 @@ public:
     size_t   plotCount() const override;
     size_t   plotIndex( const RimPlot* plot ) const;
     RimPlot* plotByIndex( size_t index ) const;
+
+    int columnCount() const override;
 
     std::vector<RimPlot*> plots() const override;
     std::vector<RimPlot*> visiblePlots() const;
@@ -93,6 +101,8 @@ public:
     QString            depthAxisTitle() const;
     void               enableDepthAxisGridLines( AxisGridVisibility gridVisibility );
     AxisGridVisibility depthAxisGridLinesEnabled() const;
+
+    RimDepthTrackPlot::DepthOrientation depthOrientation() const;
 
     void setAutoScaleXEnabled( bool enabled );
     void setAutoScaleDepthEnabled( bool enabled );
@@ -182,6 +192,8 @@ protected:
 
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
+
+    caf::PdmField<caf::AppEnum<DepthOrientation>> m_depthOrientation;
 
     QPointer<RiuWellLogPlot>            m_viewer;
     std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;

@@ -23,6 +23,7 @@
 #include "RiaExtractionTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaWellLogCurveMerger.h"
@@ -77,6 +78,7 @@
 
 #include "RiuMainWindow.h"
 #include "RiuPlotAnnotationTool.h"
+#include "RiuPlotAxis.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtLinearScaleEngine.h"
@@ -503,7 +505,7 @@ void RimWellLogTrack::updateYZoom()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+    m_plotWidget->setAxisRange( getDepthAxis(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -540,8 +542,8 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         if ( m_plotWidget )
         {
-            m_majorTickInterval = m_plotWidget->majorTickInterval( RiuPlotAxis::defaultTop() );
-            m_minorTickInterval = m_plotWidget->minorTickInterval( RiuPlotAxis::defaultTop() );
+            m_majorTickInterval = m_plotWidget->majorTickInterval( getValueAxis() );
+            m_minorTickInterval = m_plotWidget->minorTickInterval( getValueAxis() );
         }
         m_majorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
         m_minorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
@@ -762,13 +764,13 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
     bool emptyRange = isEmptyVisibleXRange();
     if ( emptyRange )
     {
-        m_plotWidget->enableGridLines( RiuPlotAxis::defaultTop(), false, false );
-        m_plotWidget->setAxisRange( RiuPlotAxis::defaultTop(), 0.0, 1.0 );
-        m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultTop(), false, false );
+        m_plotWidget->enableGridLines( getValueAxis(), false, false );
+        m_plotWidget->setAxisRange( getValueAxis(), 0.0, 1.0 );
+        m_plotWidget->setAxisLabelsAndTicksEnabled( getValueAxis(), false, false );
     }
     else
     {
-        m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultTop(), true, true );
+        m_plotWidget->setAxisLabelsAndTicksEnabled( getValueAxis(), true, true );
         if ( m_minAndMaxTicksOnly )
         {
             auto roundToDigits = []( double value, int numberOfDigits, bool useFloor ) {
@@ -807,7 +809,7 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
         }
         else if ( m_explicitTickIntervals )
         {
-            m_plotWidget->setMajorAndMinorTickIntervals( RiuPlotAxis::defaultTop(),
+            m_plotWidget->setMajorAndMinorTickIntervals( getValueAxis(),
                                                          m_majorTickInterval(),
                                                          m_minorTickInterval(),
                                                          m_visibleXRangeMin(),
@@ -817,11 +819,11 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
         {
             int majorTickIntervals = 5;
             int minorTickIntervals = 10;
-            m_plotWidget->setAutoTickIntervalCounts( RiuPlotAxis::defaultTop(), majorTickIntervals, minorTickIntervals );
-            m_plotWidget->setAxisRange( RiuPlotAxis::defaultTop(), m_visibleXRangeMin, m_visibleXRangeMax );
+            m_plotWidget->setAutoTickIntervalCounts( getValueAxis(), majorTickIntervals, minorTickIntervals );
+            m_plotWidget->setAxisRange( getValueAxis(), m_visibleXRangeMin, m_visibleXRangeMax );
         }
 
-        m_plotWidget->enableGridLines( RiuPlotAxis::defaultTop(),
+        m_plotWidget->enableGridLines( getValueAxis(),
                                        m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
                                        m_xAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
     }
@@ -830,7 +832,7 @@ void RimWellLogTrack::updateXAxisAndGridTickIntervals()
     this->firstAncestorOrThisOfType( wellLogPlot );
     if ( wellLogPlot )
     {
-        m_plotWidget->enableGridLines( RiuPlotAxis::defaultLeft(),
+        m_plotWidget->enableGridLines( getDepthAxis(),
                                        wellLogPlot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MAJOR,
                                        wellLogPlot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MINOR );
     }
@@ -1006,8 +1008,8 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateZoomFromParentPlot()
 {
-    auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( RiuPlotAxis::defaultTop() );
-    auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( RiuPlotAxis::defaultLeft() );
+    auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( getValueAxis() );
+    auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( getDepthAxis() );
 
     m_visibleXRangeMin     = xIntervalMin;
     m_visibleXRangeMax     = xIntervalMax;
@@ -1226,8 +1228,8 @@ void RimWellLogTrack::onLoadDataAndUpdate()
 
     if ( wellLogPlot && m_plotWidget )
     {
-        m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultTop(), m_xAxisTitle );
-        m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), wellLogPlot->depthAxisTitle() );
+        m_plotWidget->setAxisTitleText( getValueAxis(), m_xAxisTitle );
+        m_plotWidget->setAxisTitleText( getDepthAxis(), wellLogPlot->depthAxisTitle() );
     }
 
     for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
@@ -1505,7 +1507,7 @@ RiuPlotWidget* RimWellLogTrack::doCreatePlotViewWidget( QWidget* mainWindowParen
     if ( m_plotWidget == nullptr )
     {
         m_plotWidget = new RiuWellLogTrack( this, mainWindowParent );
-        m_plotWidget->setAxisInverted( RiuPlotAxis::defaultLeft(), true );
+        m_plotWidget->setAxisInverted( getDepthAxis(), true );
         updateAxisScaleEngine();
 
         for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
@@ -3211,4 +3213,32 @@ void RimWellLogTrack::setCurvesTreeVisibility( bool isVisible )
 void RimWellLogTrack::setEnsembleWellLogCurveSet( RimEnsembleWellLogCurveSet* curveSet )
 {
     m_ensembleWellLogCurveSet = curveSet;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimWellLogTrack::getDepthAxis() const
+{
+    RimDepthTrackPlot* wellLogPlot;
+    this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+
+    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        return RiuPlotAxis::defaultLeft();
+    else
+        return RiuPlotAxis::defaultTop();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimWellLogTrack::getValueAxis() const
+{
+    RimDepthTrackPlot* wellLogPlot;
+    this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+
+    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        return RiuPlotAxis::defaultTop();
+    else
+        return RiuPlotAxis::defaultLeft();
 }
