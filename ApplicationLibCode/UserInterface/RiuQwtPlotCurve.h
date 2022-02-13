@@ -97,7 +97,7 @@ protected:
                       int                from,
                       int                to ) const override;
 
-    void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
+    void setSamplesInPlot( const std::vector<double>&, const std::vector<double>& ) override;
 
     QwtPlotIntervalCurve* m_qwtCurveErrorBars;
     bool                  m_showErrorBars;

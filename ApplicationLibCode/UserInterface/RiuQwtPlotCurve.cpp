@@ -337,9 +337,11 @@ void RiuQwtPlotCurve::showInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numValues )
+void RiuQwtPlotCurve::setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    setSamples( xValues.data(), yValues.data(), numValues );
+    CAF_ASSERT( xValues.size() == yValues.size() );
+
+    setSamples( xValues.data(), yValues.data(), static_cast<int>( xValues.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -454,7 +456,7 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
         }
     }
 
-    setSamplesInPlot( filteredXValues, filteredYValues, static_cast<int>( filteredXValues.size() ) );
+    setSamplesInPlot( filteredXValues, filteredYValues );
 
     setLineSegmentStartStopIndices( intervalsOfValidValues );
 

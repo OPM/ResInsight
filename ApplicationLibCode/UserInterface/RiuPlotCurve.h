@@ -130,8 +130,7 @@ public:
     virtual RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const = 0;
 
 protected:
-    virtual void
-        setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numSamples ) = 0;
+    virtual void setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues ) = 0;
 
 private:
     void computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,

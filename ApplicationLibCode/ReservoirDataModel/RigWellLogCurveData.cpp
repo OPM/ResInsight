@@ -467,8 +467,10 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 {
+    bool includePositiveValuesOnly = false;
+
     std::vector<std::pair<size_t, size_t>> intervalsOfValidValues =
-        RiaCurveDataTools::calculateIntervalsOfValidValues( m_xValues, false );
+        RiaCurveDataTools::calculateIntervalsOfValidValues( m_xValues, includePositiveValuesOnly );
 
     m_intervalsOfContinousValidValues.clear();
 

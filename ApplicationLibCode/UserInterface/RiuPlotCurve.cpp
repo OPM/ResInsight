@@ -49,7 +49,7 @@ RiuPlotCurve::~RiuPlotCurve()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotCurve::setSamplesValues( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    setSamplesInPlot( xValues, yValues, static_cast<int>( xValues.size() ) );
+    setSamplesInPlot( xValues, yValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ void RiuPlotCurve::computeValidIntervalsAndSetCurveData( const std::vector<doubl
     RiaCurveDataTools::getValuesByIntervals( yValues, intervalsOfValidValues, &validYValues );
     RiaCurveDataTools::getValuesByIntervals( xValues, intervalsOfValidValues, &validXValues );
 
-    setSamplesInPlot( validXValues, validYValues, static_cast<int>( validXValues.size() ) );
+    setSamplesInPlot( validXValues, validYValues );
 
     setLineSegmentStartStopIndices( RiaCurveDataTools::computePolyLineStartStopIndices( intervalsOfValidValues ) );
 }
