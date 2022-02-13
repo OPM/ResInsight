@@ -357,13 +357,13 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             isUsingPseudoLength = false;
         }
 
-        bool isLogCurve = false;
+        bool useLogarithmicScale = false;
 
         RimWellLogTrack* track = nullptr;
         firstAncestorOfType( track );
         if ( track )
         {
-            isLogCurve = track->isLogarithmicScale();
+            useLogarithmicScale = track->isLogarithmicScale();
         }
 
         std::vector<double> xPlotValues     = curveData()->xPlotValues();
@@ -371,10 +371,10 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
 
         if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
-            m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, isLogCurve );
+            m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, useLogarithmicScale );
 
         else
-            m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, isLogCurve );
+            m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, useLogarithmicScale );
 
         m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
@@ -539,6 +539,15 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 
     if ( !values.empty() && !measuredDepthValues.empty() )
     {
+        bool useLogarithmicScale = false;
+
+        RimWellLogTrack* track = nullptr;
+        firstAncestorOfType( track );
+        if ( track )
+        {
+            useLogarithmicScale = track->isLogarithmicScale();
+        }
+
         if ( tvDepthValues.empty() )
         {
             this->setValuesAndDepths( values,
@@ -547,6 +556,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
                                       0.0,
                                       depthUnit,
                                       !performDataSmoothing,
+                                      useLogarithmicScale,
                                       xUnits );
         }
         else
@@ -557,6 +567,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
                                          rkbDiff,
                                          depthUnit,
                                          !performDataSmoothing,
+                                         useLogarithmicScale,
                                          xUnits );
         }
     }

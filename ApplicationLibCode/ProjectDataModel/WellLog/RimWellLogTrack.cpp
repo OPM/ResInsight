@@ -2500,7 +2500,14 @@ void RimWellLogTrack::updateStackedCurveData()
             }
 
             RigWellLogCurveData tempCurveData;
-            tempCurveData.setValuesAndDepths( allStackedValues, allDepthValues, depthType, 0.0, displayUnit, false );
+            tempCurveData.setValuesAndDepths( allStackedValues,
+                                              allDepthValues,
+                                              depthType,
+                                              0.0,
+                                              displayUnit,
+                                              false,
+                                              m_isLogarithmicScaleEnabled );
+
             auto plotDepthValues          = tempCurveData.depthPlotValues( depthType, displayUnit );
             auto polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
 

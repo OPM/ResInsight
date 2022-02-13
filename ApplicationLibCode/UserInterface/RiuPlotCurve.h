@@ -65,21 +65,21 @@ public:
 
     void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                           const std::vector<double>& yValues,
-                                          bool                       isLogCurve );
+                                          bool                       useLogarithmicScale );
 
     void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                         const std::vector<double>&    yValues,
-                                        bool                          isLogCurve );
+                                        bool                          useLogarithmicScale );
 
     void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                         const std::vector<double>& yValues,
-                                        bool                       isLogCurve );
+                                        bool                       useLogarithmicScale );
 
     virtual void setSamplesFromXYErrorValues(
         const std::vector<double>&   xValues,
         const std::vector<double>&   yValues,
         const std::vector<double>&   errorValues,
-        bool                         isLogCurve,
+        bool                         useLogarithmicScale,
         RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
 
     void setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices );
@@ -135,7 +135,7 @@ protected:
 private:
     void computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,
                                                const std::vector<double>& yValues,
-                                               bool                       isLogCurve );
+                                               bool                       useLogarithmicScale );
 
 protected:
     float m_symbolSkipPixelDistance;

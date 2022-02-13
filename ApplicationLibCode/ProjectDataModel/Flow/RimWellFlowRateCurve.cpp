@@ -300,7 +300,8 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&            
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {
-    this->setValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::DepthUnitType::UNIT_NONE, false );
+    bool useLogarithmicScale = false;
+    this->setValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::DepthUnitType::UNIT_NONE, false, useLogarithmicScale );
 
     m_curveAutoName = curveName;
 }

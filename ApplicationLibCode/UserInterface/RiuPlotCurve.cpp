@@ -57,9 +57,9 @@ void RiuPlotCurve::setSamplesValues( const std::vector<double>& xValues, const s
 //--------------------------------------------------------------------------------------------------
 void RiuPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                                     const std::vector<double>& yValues,
-                                                    bool                       isLogCurve )
+                                                    bool                       useLogarithmicScale )
 {
-    computeValidIntervalsAndSetCurveData( xValues, yValues, isLogCurve );
+    computeValidIntervalsAndSetCurveData( xValues, yValues, useLogarithmicScale );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,11 +67,11 @@ void RiuPlotCurve::setSamplesFromXValuesAndYValues( const std::vector<double>& x
 //--------------------------------------------------------------------------------------------------
 void RiuPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                                   const std::vector<double>&    yValues,
-                                                  bool                          isLogCurve )
+                                                  bool                          useLogarithmicScale )
 {
     auto xValues = RiuPlotCurve::fromQDateTime( dateTimes );
 
-    computeValidIntervalsAndSetCurveData( xValues, yValues, isLogCurve );
+    computeValidIntervalsAndSetCurveData( xValues, yValues, useLogarithmicScale );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,11 +79,11 @@ void RiuPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& 
 //--------------------------------------------------------------------------------------------------
 void RiuPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                                   const std::vector<double>& yValues,
-                                                  bool                       isLogCurve )
+                                                  bool                       useLogarithmicScale )
 {
     auto xValues = RiuPlotCurve::fromTime_t( dateTimes );
 
-    computeValidIntervalsAndSetCurveData( xValues, yValues, isLogCurve );
+    computeValidIntervalsAndSetCurveData( xValues, yValues, useLogarithmicScale );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,9 +123,9 @@ void RiuPlotCurve::setBlackAndWhiteLegendIcon( bool blackAndWhite )
 //--------------------------------------------------------------------------------------------------
 void RiuPlotCurve::computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,
                                                          const std::vector<double>& yValues,
-                                                         bool                       isLogCurve )
+                                                         bool                       useLogarithmicScale )
 {
-    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, isLogCurve );
+    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, useLogarithmicScale );
 
     std::vector<double> validYValues;
     std::vector<double> validXValues;
@@ -184,7 +184,7 @@ std::vector<double> RiuPlotCurve::fromTime_t( const std::vector<time_t>& timeSte
 void RiuPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
                                                 const std::vector<double>&   yValues,
                                                 const std::vector<double>&   errorValues,
-                                                bool                         isLogCurve,
+                                                bool                         useLogarithmicScale,
                                                 RiaCurveDataTools::ErrorAxis errorAxis )
 {
 }

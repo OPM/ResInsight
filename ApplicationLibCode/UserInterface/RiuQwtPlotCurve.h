@@ -71,7 +71,7 @@ public:
         const std::vector<double>&   xValues,
         const std::vector<double>&   yValues,
         const std::vector<double>&   errorValues,
-        bool                         isLogCurve,
+        bool                         useLogarithmicScale,
         RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
 
     void setXAxis( RiuPlotAxis axis ) override;

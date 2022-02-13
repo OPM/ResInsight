@@ -116,21 +116,25 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
                 }
 
+                bool useLogarithmicScale = false;
                 this->setValuesWithMdAndTVD( values,
                                              measuredDepthValues,
                                              trueVerticalDepthValues,
                                              m_wellPath->wellPathGeometry()->rkbDiff(),
                                              RiaDefines::DepthUnitType::UNIT_METER,
-                                             false );
+                                             false,
+                                             useLogarithmicScale );
             }
             else
             {
+                bool useLogarithmicScale = false;
                 this->setValuesAndDepths( values,
                                           measuredDepthValues,
                                           RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
                                           0.0,
                                           RiaDefines::DepthUnitType::UNIT_METER,
-                                          false );
+                                          false,
+                                          useLogarithmicScale );
             }
         }
 
@@ -156,10 +160,10 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        bool isLogCurve = false;
+        bool useLogarithmicScale = false;
         m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
                                                       this->curveData()->depthPlotValues( depthType, displayUnit ),
-                                                      isLogCurve );
+                                                      useLogarithmicScale );
         m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
     }
 

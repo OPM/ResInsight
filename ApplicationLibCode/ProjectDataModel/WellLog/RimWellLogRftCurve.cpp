@@ -451,12 +451,14 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             rkbDiff = wellPath->wellPathGeometry()->rkbDiff();
         }
 
+        bool useLogarithmicScale = false;
         this->setValuesWithMdAndTVD( values,
                                      measuredDepthVector,
                                      tvDepthVector,
                                      rkbDiff,
                                      RiaDefines::fromEclipseUnit( unitSystem ),
-                                     false );
+                                     false,
+                                     useLogarithmicScale );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )
@@ -470,19 +472,19 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             auto xValues = this->curveData()->xPlotValues();
             auto yValues = this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
-            bool isLogCurve = false;
+            bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
             {
                 this->setSamplesFromXYErrorValues( xValues,
                                                    yValues,
                                                    errors,
-                                                   isLogCurve,
+                                                   useLogarithmicScale,
                                                    RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
-                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, useLogarithmicScale );
             }
 
             RimWellLogTrack* wellLogTrack;
@@ -516,19 +518,19 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             auto xValues = this->curveData()->xPlotValues();
             auto yValues =
                 this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
-            bool isLogCurve = false;
+            bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
             {
                 this->setSamplesFromXYErrorValues( xValues,
                                                    yValues,
                                                    errors,
-                                                   isLogCurve,
+                                                   useLogarithmicScale,
                                                    RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
-                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, useLogarithmicScale );
             }
         }
 

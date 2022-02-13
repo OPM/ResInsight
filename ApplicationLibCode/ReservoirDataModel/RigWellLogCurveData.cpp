@@ -31,11 +31,13 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigWellLogCurveData::RigWellLogCurveData()
+    : m_isExtractionCurve( false )
+    , m_rkbDiff( 0.0 )
+    , m_useLogarithmicScale( false )
+    , m_depthUnit( RiaDefines::DepthUnitType::UNIT_METER )
+    , m_xUnitString( RiaWellLogUnitTools<double>::noUnitString() )
+
 {
-    m_isExtractionCurve = false;
-    m_rkbDiff           = 0.0;
-    m_depthUnit         = RiaDefines::DepthUnitType::UNIT_METER;
-    m_xUnitString       = RiaWellLogUnitTools<double>::noUnitString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,14 +63,16 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>& xValues
                                               RiaDefines::DepthTypeEnum  depthType,
                                               double                     rkbDiff,
                                               RiaDefines::DepthUnitType  depthUnit,
-                                              bool                       isExtractionCurve )
+                                              bool                       isExtractionCurve,
+                                              bool                       useLogarithmicScale )
 {
     CVF_ASSERT( xValues.size() == depths.size() );
 
-    m_xValues           = xValues;
-    m_depths[depthType] = depths;
-    m_depthUnit         = depthUnit;
-    m_rkbDiff           = rkbDiff;
+    m_xValues             = xValues;
+    m_depths[depthType]   = depths;
+    m_depthUnit           = depthUnit;
+    m_rkbDiff             = rkbDiff;
+    m_useLogarithmicScale = useLogarithmicScale;
 
     // Disable depth value filtering is intended to be used for
     // extraction curve data
@@ -84,17 +88,19 @@ void RigWellLogCurveData::setValuesAndDepths( const std::vector<double>&        
                                               const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
                                               double                                                          rkbDiff,
                                               RiaDefines::DepthUnitType                                       depthUnit,
-                                              bool isExtractionCurve )
+                                              bool isExtractionCurve,
+                                              bool useLogarithmicScale )
 {
     for ( auto it = depths.begin(); it != depths.end(); ++it )
     {
         CVF_ASSERT( xValues.size() == it->second.size() );
     }
 
-    m_xValues   = xValues;
-    m_depths    = depths;
-    m_depthUnit = depthUnit;
-    m_rkbDiff   = rkbDiff;
+    m_xValues             = xValues;
+    m_depths              = depths;
+    m_depthUnit           = depthUnit;
+    m_rkbDiff             = rkbDiff;
+    m_useLogarithmicScale = useLogarithmicScale;
 
     // Disable depth value filtering is intended to be used for
     // extraction curve data
@@ -318,7 +324,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
         std::map<RiaDefines::DepthTypeEnum, std::vector<double>> resampledDepths =
             { { RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, tvDepths },
               { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, measuredDepths } };
-        reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true );
+        reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true, m_useLogarithmicScale );
     }
     else
     {
@@ -327,7 +333,8 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
                                            RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
                                            0.0,
                                            m_depthUnit,
-                                           m_isExtractionCurve );
+                                           m_isExtractionCurve,
+                                           m_useLogarithmicScale );
     }
 
     return reSampledData;
@@ -458,7 +465,7 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
         CAF_ASSERT( foundPoint );
     }
 
-    reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true );
+    reSampledData->setValuesAndDepths( xValues, resampledDepths, m_rkbDiff, m_depthUnit, true, m_useLogarithmicScale );
     return reSampledData;
 }
 
@@ -467,10 +474,8 @@ cvf::ref<RigWellLogCurveData> RigWellLogCurveData::calculateResampledCurveData( 
 //--------------------------------------------------------------------------------------------------
 void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
 {
-    bool includePositiveValuesOnly = false;
-
     std::vector<std::pair<size_t, size_t>> intervalsOfValidValues =
-        RiaCurveDataTools::calculateIntervalsOfValidValues( m_xValues, includePositiveValuesOnly );
+        RiaCurveDataTools::calculateIntervalsOfValidValues( m_xValues, m_useLogarithmicScale );
 
     m_intervalsOfContinousValidValues.clear();
 

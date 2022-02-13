@@ -134,13 +134,13 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType( plot );
-        bool isLogCurve = plot->isLogarithmicScaleEnabled( this->yAxis() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->yAxis() );
 
         if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
         {
             if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
             {
-                m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, useLogarithmicScale );
             }
             else
             {
@@ -156,12 +156,12 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     }
                 }
 
-                m_plotCurve->setSamplesFromXValuesAndYValues( times, values, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( times, values, useLogarithmicScale );
             }
         }
         else
         {
-            m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+            m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), useLogarithmicScale );
         }
 
         updateZoomInParentPlot();

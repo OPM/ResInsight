@@ -122,9 +122,10 @@ void RimWellLogCurve::setValuesAndDepths( const std::vector<double>& xValues,
                                           double                     rkbDiff,
                                           RiaDefines::DepthUnitType  depthUnit,
                                           bool                       isExtractionCurve,
+                                          bool                       useLogarithmicScale,
                                           const QString&             xUnits )
 {
-    m_curveData->setValuesAndDepths( xValues, depths, depthType, rkbDiff, depthUnit, isExtractionCurve );
+    m_curveData->setValuesAndDepths( xValues, depths, depthType, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale );
     m_curveData->setXUnits( xUnits );
     calculateCurveDataXRange();
 }
@@ -136,10 +137,12 @@ void RimWellLogCurve::setValuesAndDepths( const std::vector<double>&            
                                           const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
                                           double                                                          rkbDiff,
                                           RiaDefines::DepthUnitType                                       depthUnit,
-                                          bool           isExtractionCurve,
+                                          bool isExtractionCurve,
+                                          bool useLogarithmicScale,
+
                                           const QString& xUnits )
 {
-    m_curveData->setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve );
+    m_curveData->setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale );
     m_curveData->setXUnits( xUnits );
     calculateCurveDataXRange();
 }
@@ -153,13 +156,14 @@ void RimWellLogCurve::setValuesWithMdAndTVD( const std::vector<double>& xValues,
                                              double                     rkbDiff,
                                              RiaDefines::DepthUnitType  depthUnit,
                                              bool                       isExtractionCurve,
+                                             bool                       useLogarithmicScale,
                                              const QString&             xUnits )
 {
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> depths = { { RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
                                                                           measuredDepths },
                                                                         { RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
                                                                           tvdMSL } };
-    setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve, xUnits );
+    setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale, xUnits );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -150,7 +150,15 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
                 }
 
-                this->setValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false );
+                bool             useLogarithmicScale = false;
+                RimWellLogTrack* track               = nullptr;
+                firstAncestorOfType( track );
+                if ( track )
+                {
+                    useLogarithmicScale = track->isLogarithmicScale();
+                }
+
+                this->setValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false, useLogarithmicScale );
 
                 QString errMsg;
                 if ( wellLogPlot && !this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )

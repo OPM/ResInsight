@@ -48,12 +48,16 @@ public:
                              RiaDefines::DepthTypeEnum  depthType,
                              double                     rkbDiff,
                              RiaDefines::DepthUnitType  depthUnit,
-                             bool                       isExtractionCurve );
+                             bool                       isExtractionCurve,
+                             bool                       useLogarithmicScale );
+
     void setValuesAndDepths( const std::vector<double>&                                      xValues,
                              const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
                              double                                                          rkbDiff,
                              RiaDefines::DepthUnitType                                       depthUnit,
-                             bool                                                            isExtractionCurve );
+                             bool                                                            isExtractionCurve,
+                             bool                                                            useLogarithmicScale );
+
     void setXUnits( const QString& xUnitString );
 
     std::vector<double> xValues() const;
@@ -99,6 +103,7 @@ private:
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> m_depths;
     bool                                                     m_isExtractionCurve;
     double                                                   m_rkbDiff;
+    bool                                                     m_useLogarithmicScale;
 
     std::vector<std::pair<size_t, size_t>> m_intervalsOfContinousValidValues;
 
