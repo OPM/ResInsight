@@ -373,7 +373,7 @@ void RimWellLogTrack::calculateXZoomRange()
         if ( curve->isCurveVisible() )
         {
             visibleCurves++;
-            if ( curve->xValueRangeInData( &minCurveValue, &maxCurveValue ) )
+            if ( curve->propertyValueRangeInData( &minCurveValue, &maxCurveValue ) )
             {
                 if ( minCurveValue < minValue )
                 {
@@ -416,7 +416,7 @@ void RimWellLogTrack::calculateYZoomRange()
         double minCurveDepth = HUGE_VAL;
         double maxCurveDepth = -HUGE_VAL;
 
-        if ( curve->isCurveVisible() && curve->yValueRangeInData( &minCurveDepth, &maxCurveDepth ) )
+        if ( curve->isCurveVisible() && curve->depthValueRangeInData( &minCurveDepth, &maxCurveDepth ) )
         {
             if ( minCurveDepth < minDepth )
             {
@@ -1373,7 +1373,7 @@ void RimWellLogTrack::setAutoScalePropertyValuesIfNecessary()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setXAxisTitle( const QString& text )
+void RimWellLogTrack::setPropertyValueAxisTitle( const QString& text )
 {
     m_xAxisTitle = text;
 }
@@ -1381,7 +1381,7 @@ void RimWellLogTrack::setXAxisTitle( const QString& text )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellLogTrack::yAxisTitle() const
+QString RimWellLogTrack::depthAxisTitle() const
 {
     RimDepthTrackPlot* parent;
     this->firstAncestorOrThisOfType( parent );
@@ -1628,7 +1628,7 @@ void RimWellLogTrack::setMinAndMaxTicksOnly( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines )
+void RimWellLogTrack::setPropertyValueAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines )
 {
     m_xAxisGridVisibility = gridLines;
 }

@@ -224,7 +224,7 @@ void RicNewStimPlanModelPlotFeature::createFormationTrack( RimStimPlanModelPlot*
     formationTrack->setFormationWellPath( stimPlanModel->thicknessDirectionWellPath() );
     formationTrack->setFormationCase( eclipseCase );
     formationTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
-    formationTrack->setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility::AXIS_GRID_NONE );
+    formationTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AxisGridVisibility::AXIS_GRID_NONE );
     formationTrack->setShowWellPathAttributes( true );
     formationTrack->setShowBothSidesOfWell( false );
     formationTrack->setWellPathAttributesSource( stimPlanModel->thicknessDirectionWellPath() );
@@ -232,7 +232,7 @@ void RicNewStimPlanModelPlotFeature::createFormationTrack( RimStimPlanModelPlot*
     formationTrack->setOverburdenHeight( stimPlanModel->overburdenHeight() );
     formationTrack->setUnderburdenHeight( stimPlanModel->underburdenHeight() );
     formationTrack->setColSpan( RimPlot::ONE );
-    formationTrack->setXAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::FORMATIONS ) );
+    formationTrack->setPropertyValueAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::FORMATIONS ) );
     formationTrack->setLegendsVisible( true );
 }
 
@@ -260,7 +260,7 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     faciesTrack->setAnnotationDisplay( RiuPlotAnnotationTool::COLOR_SHADING );
     faciesTrack->setOverburdenHeight( stimPlanModel->overburdenHeight() );
     faciesTrack->setUnderburdenHeight( stimPlanModel->underburdenHeight() );
-    faciesTrack->setXAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::FACIES ) );
+    faciesTrack->setPropertyValueAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::FACIES ) );
     faciesTrack->setLegendsVisible( false );
     faciesTrack->setPlotTitleVisible( true );
 
@@ -271,7 +271,7 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     faciesTrack->setColSpan( RimPlot::ONE );
     faciesTrack->setAutoScalePropertyValuesEnabled( false );
     faciesTrack->setVisiblePropertyValueRange( 0.0, 0.0 );
-    faciesTrack->setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility::AXIS_GRID_NONE );
+    faciesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AxisGridVisibility::AXIS_GRID_NONE );
 
     caf::ColorTable colors = RiaColorTables::wellLogPlotPaletteColors();
 
@@ -335,7 +335,7 @@ void RicNewStimPlanModelPlotFeature::createLayersTrack( RimStimPlanModelPlot* pl
 
     faciesTrack->addCurve( curve );
     faciesTrack->setAutoScalePropertyValuesEnabled( true );
-    faciesTrack->setXAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::LAYERS ) );
+    faciesTrack->setPropertyValueAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::LAYERS ) );
 
     curve->loadDataAndUpdate( true );
 
@@ -420,12 +420,12 @@ void RicNewStimPlanModelPlotFeature::createParametersTrack( RimStimPlanModelPlot
         colorIndex++;
     }
 
-    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
+    plotTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     plotTrack->setShowRegionLabels( true );
     plotTrack->setLogarithmicScale( isPlotLogarithmic );
     plotTrack->setAutoScalePropertyValuesEnabled( true );
     plotTrack->setMinAndMaxTicksOnly( useMinMaxTicksOnly( propertyTypes[0] ) );
-    plotTrack->setXAxisTitle( stimPlanModel->unitForProperty( propertyTypes[0] ) );
+    plotTrack->setPropertyValueAxisTitle( stimPlanModel->unitForProperty( propertyTypes[0] ) );
 
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();

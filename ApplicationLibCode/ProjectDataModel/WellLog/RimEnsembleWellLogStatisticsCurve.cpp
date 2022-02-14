@@ -151,7 +151,7 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
             }
 
             bool useLogarithmicScale = false;
-            this->setValuesAndDepths( values, validDepths, rkbDiff, depthUnit, false, useLogarithmicScale );
+            this->setPropertyValuesAndDepths( values, validDepths, rkbDiff, depthUnit, false, useLogarithmicScale );
         }
     }
 }

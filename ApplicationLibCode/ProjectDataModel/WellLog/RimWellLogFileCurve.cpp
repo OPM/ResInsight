@@ -158,7 +158,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     useLogarithmicScale = track->isLogarithmicScale();
                 }
 
-                this->setValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false, useLogarithmicScale );
+                this->setPropertyValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false, useLogarithmicScale );
 
                 QString errMsg;
                 if ( wellLogPlot && !this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )

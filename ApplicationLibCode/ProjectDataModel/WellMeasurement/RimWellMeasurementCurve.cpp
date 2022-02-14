@@ -117,24 +117,24 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
 
                 bool useLogarithmicScale = false;
-                this->setValuesWithMdAndTVD( values,
-                                             measuredDepthValues,
-                                             trueVerticalDepthValues,
-                                             m_wellPath->wellPathGeometry()->rkbDiff(),
-                                             RiaDefines::DepthUnitType::UNIT_METER,
-                                             false,
-                                             useLogarithmicScale );
+                this->setPropertyValuesWithMdAndTVD( values,
+                                                     measuredDepthValues,
+                                                     trueVerticalDepthValues,
+                                                     m_wellPath->wellPathGeometry()->rkbDiff(),
+                                                     RiaDefines::DepthUnitType::UNIT_METER,
+                                                     false,
+                                                     useLogarithmicScale );
             }
             else
             {
                 bool useLogarithmicScale = false;
-                this->setValuesAndDepths( values,
-                                          measuredDepthValues,
-                                          RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                          0.0,
-                                          RiaDefines::DepthUnitType::UNIT_METER,
-                                          false,
-                                          useLogarithmicScale );
+                this->setPropertyValuesAndDepths( values,
+                                                  measuredDepthValues,
+                                                  RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                                  0.0,
+                                                  RiaDefines::DepthUnitType::UNIT_METER,
+                                                  false,
+                                                  useLogarithmicScale );
             }
         }
 

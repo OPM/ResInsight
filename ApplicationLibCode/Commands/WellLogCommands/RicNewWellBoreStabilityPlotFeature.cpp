@@ -261,7 +261,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     paramCurvesTrack->setVisiblePropertyValueRange( 0.0, 2.0 );
     paramCurvesTrack->setAutoScalePropertyValuesEnabled( true );
     paramCurvesTrack->setTickIntervals( 1.0, 0.2 );
-    paramCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    paramCurvesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     paramCurvesTrack->setFormationWellPath( wellPath );
     paramCurvesTrack->setFormationCase( geoMechCase );
     paramCurvesTrack->setShowRegionLabels( true );
@@ -309,7 +309,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setColSpan( RimPlot::THREE );
     stabilityCurvesTrack->setAutoScalePropertyValuesEnabled( true );
     stabilityCurvesTrack->setTickIntervals( 1.0, 0.2 );
-    stabilityCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    stabilityCurvesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     stabilityCurvesTrack->setFormationWellPath( wellPath );
     stabilityCurvesTrack->setFormationCase( geoMechCase );
     stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
@@ -428,7 +428,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     wellPathAnglesTrack->setColSpan( RimPlot::TWO );
     wellPathAnglesTrack->setVisiblePropertyValueRange( minValue, maxValue );
     wellPathAnglesTrack->setTickIntervals( 180.0, 45.0 );
-    wellPathAnglesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    wellPathAnglesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     wellPathAnglesTrack->setFormationWellPath( wellPath );
     wellPathAnglesTrack->setFormationCase( geoMechCase );
     wellPathAnglesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );

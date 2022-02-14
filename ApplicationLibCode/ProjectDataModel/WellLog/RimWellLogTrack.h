@@ -111,8 +111,8 @@ public:
     size_t curveIndex( RimWellLogCurve* curve );
     size_t curveCount() { return m_curves.size(); }
 
-    void    setXAxisTitle( const QString& text );
-    QString yAxisTitle() const;
+    void    setPropertyValueAxisTitle( const QString& text );
+    QString depthAxisTitle() const;
 
     void           setFormationWellPath( RimWellPath* wellPath );
     RimWellPath*   formationWellPath() const;
@@ -161,7 +161,7 @@ public:
 
     void setTickIntervals( double majorTickInterval, double minorTickInterval );
     void setMinAndMaxTicksOnly( bool enable );
-    void setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
+    void setPropertyValueAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
 
     void setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType );
     void setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay annotationDisplay );

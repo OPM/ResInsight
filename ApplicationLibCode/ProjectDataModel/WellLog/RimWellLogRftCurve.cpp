@@ -452,13 +452,13 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
 
         bool useLogarithmicScale = false;
-        this->setValuesWithMdAndTVD( values,
-                                     measuredDepthVector,
-                                     tvDepthVector,
-                                     rkbDiff,
-                                     RiaDefines::fromEclipseUnit( unitSystem ),
-                                     false,
-                                     useLogarithmicScale );
+        this->setPropertyValuesWithMdAndTVD( values,
+                                             measuredDepthVector,
+                                             tvDepthVector,
+                                             rkbDiff,
+                                             RiaDefines::fromEclipseUnit( unitSystem ),
+                                             false,
+                                             useLogarithmicScale );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )
