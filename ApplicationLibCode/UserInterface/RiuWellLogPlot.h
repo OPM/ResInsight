@@ -48,6 +48,9 @@ private slots:
     void performUpdate() override;
 
 private:
-    QPointer<QVBoxLayout> m_trackScrollBarLayout;
-    QScrollBar*           m_trackScrollBar;
+    QPointer<QVBoxLayout> m_verticalTrackScrollBarLayout;
+    QScrollBar*           m_verticalTrackScrollBar;
+
+    QPointer<QHBoxLayout> m_horizontalTrackScrollBarLayout;
+    QScrollBar*           m_horizontalTrackScrollBar;
 };
