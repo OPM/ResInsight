@@ -182,6 +182,12 @@ void RimWellLogCurve::updateCurveAppearance()
 {
     RimPlotCurve::updateCurveAppearance();
 
+    RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
+
+    RimDepthTrackPlot* wellLogPlot = nullptr;
+    firstAncestorOrThisOfType( wellLogPlot );
+    if ( wellLogPlot ) orientation = wellLogPlot->depthOrientation();
+
     if ( m_plotCurve )
     {
         m_plotCurve->setXAxis( RiuPlotAxis::defaultTop() );
@@ -193,9 +199,16 @@ void RimWellLogCurve::updateCurveAppearance()
         RiuQwtPlotCurve* qwtPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( m_plotCurve );
         if ( qwtPlotCurve )
         {
-            qwtPlotCurve->setOrientation( Qt::Horizontal );
-            qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
+            if ( orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            {
+                qwtPlotCurve->setOrientation( Qt::Horizontal );
+            }
+            else
+            {
+                qwtPlotCurve->setOrientation( Qt::Vertical );
+            }
             qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+            qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
         }
     }
 }
@@ -221,13 +234,21 @@ QString RimWellLogCurve::wellLogCurveIconName()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&               propertyValues,
                                             const std::vector<double>&               depthValues,
-                                            const RiaCurveDataTools::CurveIntervals& curveIntervals )
+                                            const RiaCurveDataTools::CurveIntervals& curveIntervals,
+                                            bool                                     isVerticalPlot )
 {
     auto minmax_it = std::minmax_element( propertyValues.begin(), propertyValues.end() );
     this->setOverrideCurveDataPropertyValueRange( *( minmax_it.first ), *( minmax_it.second ) );
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesValues( propertyValues, depthValues );
+        if ( isVerticalPlot )
+        {
+            m_plotCurve->setSamplesValues( propertyValues, depthValues );
+        }
+        else
+        {
+            m_plotCurve->setSamplesValues( depthValues, propertyValues );
+        }
         m_plotCurve->setLineSegmentStartStopIndices( curveIntervals );
     }
 }
