@@ -1508,7 +1508,6 @@ RiuPlotWidget* RimWellLogTrack::doCreatePlotViewWidget( QWidget* mainWindowParen
     if ( m_plotWidget == nullptr )
     {
         m_plotWidget = new RiuWellLogTrack( this, mainWindowParent );
-        m_plotWidget->setAxisInverted( getDepthAxis(), true );
         updateAxisScaleEngine();
 
         for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
@@ -1974,6 +1973,20 @@ size_t RimWellLogTrack::curveIndex( RimWellLogCurve* curve )
 void RimWellLogTrack::updateAxisScaleEngine()
 {
     if ( !m_plotWidget ) return;
+
+    RimDepthTrackPlot* wellLogPlot = nullptr;
+    this->firstAncestorOrThisOfType( wellLogPlot );
+    if ( wellLogPlot )
+    {
+        if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        {
+            m_plotWidget->setAxisInverted( RiuPlotAxis::defaultLeft(), true );
+        }
+        else
+        {
+            m_plotWidget->setAxisInverted( RiuPlotAxis::defaultLeft(), false );
+        }
+    }
 
     if ( m_isLogarithmicScaleEnabled )
     {
