@@ -684,11 +684,11 @@ bool RimPlotCurve::hasParentPlot() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues,
                                            const std::vector<double>& yValues,
-                                           bool                       isLogCurve )
+                                           bool                       useLogarithmicScale )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
+        m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, useLogarithmicScale );
     }
 }
 
@@ -697,11 +697,11 @@ void RimPlotCurve::setSamplesFromXYValues( const std::vector<double>& xValues,
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                                   const std::vector<double>&    yValues,
-                                                  bool                          isLogCurve )
+                                                  bool                          useLogarithmicScale )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesFromDatesAndYValues( dateTimes, yValues, isLogCurve );
+        m_plotCurve->setSamplesFromDatesAndYValues( dateTimes, yValues, useLogarithmicScale );
     }
 }
 
@@ -710,11 +710,11 @@ void RimPlotCurve::setSamplesFromDatesAndYValues( const std::vector<QDateTime>& 
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                                   const std::vector<double>& yValues,
-                                                  bool                       isLogCurve )
+                                                  bool                       useLogarithmicScale )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, isLogCurve );
+        m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, yValues, useLogarithmicScale );
     }
 }
 
@@ -724,12 +724,12 @@ void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dat
 void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
                                                 const std::vector<double>&   yValues,
                                                 const std::vector<double>&   errorValues,
-                                                bool                         isLogCurve,
+                                                bool                         useLogarithmicScale,
                                                 RiaCurveDataTools::ErrorAxis errorAxis )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->setSamplesFromXYErrorValues( xValues, yValues, errorValues, isLogCurve, errorAxis );
+        m_plotCurve->setSamplesFromXYErrorValues( xValues, yValues, errorValues, useLogarithmicScale, errorAxis );
     }
 }
 

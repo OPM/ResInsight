@@ -71,7 +71,7 @@ public:
         const std::vector<double>&   xValues,
         const std::vector<double>&   yValues,
         const std::vector<double>&   errorValues,
-        bool                         isLogCurve,
+        bool                         useLogarithmicScale,
         RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
 
     void setXAxis( RiuPlotAxis axis ) override;
@@ -97,7 +97,7 @@ protected:
                       int                from,
                       int                to ) const override;
 
-    void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
+    void setSamplesInPlot( const std::vector<double>&, const std::vector<double>& ) override;
 
     QwtPlotIntervalCurve* m_qwtCurveErrorBars;
     bool                  m_showErrorBars;

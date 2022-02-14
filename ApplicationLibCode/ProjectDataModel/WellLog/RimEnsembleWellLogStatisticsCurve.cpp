@@ -150,7 +150,8 @@ void RimEnsembleWellLogStatisticsCurve::performDataExtraction( bool* isUsingPseu
                 validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvDepthValues ) );
             }
 
-            this->setValuesAndDepths( values, validDepths, rkbDiff, depthUnit, false );
+            bool useLogarithmicScale = false;
+            this->setPropertyValuesAndDepths( values, validDepths, rkbDiff, depthUnit, false, useLogarithmicScale );
         }
     }
 }

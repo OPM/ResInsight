@@ -601,7 +601,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfTypeAsserted( plot );
-        bool isLogCurve = plot->isLogarithmicScaleEnabled( this->axisY() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->axisY() );
 
         bool shouldPopulateViewWithEmptyData = false;
 
@@ -627,7 +627,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 {
                     this->setSamplesFromXYValues( curveMerger.interpolatedYValuesForAllXValues( 0 ),
                                                   curveMerger.interpolatedYValuesForAllXValues( 1 ),
-                                                  isLogCurve );
+                                                  useLogarithmicScale );
                 }
                 else
                 {
@@ -655,11 +655,11 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                             if ( !errValues.empty() )
                             {
-                                this->setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, isLogCurve );
+                                this->setSamplesFromXYErrorValues( timeSteps, curveValuesY, errValues, useLogarithmicScale );
                             }
                             else
                             {
-                                this->setSamplesFromXYValues( timeSteps, curveValuesY, isLogCurve );
+                                this->setSamplesFromXYValues( timeSteps, curveValuesY, useLogarithmicScale );
                             }
                         }
                         else
@@ -681,12 +681,14 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                     resampledTimeSteps.insert( resampledTimeSteps.begin(), curveTimeStepsY.front() );
                                     resampledValues.insert( resampledValues.begin(), resampledValues.front() );
 
-                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps, resampledValues, isLogCurve );
+                                    this->setSamplesFromTimeTAndYValues( resampledTimeSteps,
+                                                                         resampledValues,
+                                                                         useLogarithmicScale );
                                 }
                             }
                             else
                             {
-                                this->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, isLogCurve );
+                                this->setSamplesFromTimeTAndYValues( curveTimeStepsY, curveValuesY, useLogarithmicScale );
                             }
                         }
                     }
@@ -705,7 +707,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         }
                     }
 
-                    this->setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, isLogCurve );
+                    this->setSamplesFromXYValues( timeFromSimulationStart, curveValuesY, useLogarithmicScale );
                 }
             }
             else
@@ -716,7 +718,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( shouldPopulateViewWithEmptyData )
         {
-            this->setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), isLogCurve );
+            this->setSamplesFromXYValues( std::vector<double>(), std::vector<double>(), useLogarithmicScale );
         }
 
         if ( updateParentPlot && hasParentPlot() )

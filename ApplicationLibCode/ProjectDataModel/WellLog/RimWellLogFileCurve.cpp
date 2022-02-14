@@ -150,7 +150,15 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
                 }
 
-                this->setValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false );
+                bool             useLogarithmicScale = false;
+                RimWellLogTrack* track               = nullptr;
+                firstAncestorOfType( track );
+                if ( track )
+                {
+                    useLogarithmicScale = track->isLogarithmicScale();
+                }
+
+                this->setPropertyValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false, useLogarithmicScale );
 
                 QString errMsg;
                 if ( wellLogPlot && !this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
@@ -188,8 +196,8 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        m_plotCurve->setSamplesValues( this->curveData()->xPlotValues(),
-                                       this->curveData()->depthPlotValues( depthType, displayUnit ) );
+        m_plotCurve->setSamplesValues( this->curveData()->propertyValuesByIntervals(),
+                                       this->curveData()->depthValuesByIntervals( depthType, displayUnit ) );
         m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
         if ( updateParentPlot )

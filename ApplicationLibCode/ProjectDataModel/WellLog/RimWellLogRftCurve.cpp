@@ -451,12 +451,14 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             rkbDiff = wellPath->wellPathGeometry()->rkbDiff();
         }
 
-        this->setValuesWithMdAndTVD( values,
-                                     measuredDepthVector,
-                                     tvDepthVector,
-                                     rkbDiff,
-                                     RiaDefines::fromEclipseUnit( unitSystem ),
-                                     false );
+        bool useLogarithmicScale = false;
+        this->setPropertyValuesWithMdAndTVD( values,
+                                             measuredDepthVector,
+                                             tvDepthVector,
+                                             rkbDiff,
+                                             RiaDefines::fromEclipseUnit( unitSystem ),
+                                             false,
+                                             useLogarithmicScale );
 
         RiaDefines::DepthUnitType displayUnit = RiaDefines::DepthUnitType::UNIT_METER;
         if ( wellLogPlot )
@@ -468,21 +470,22 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_plotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues = this->curveData()->xPlotValues();
-            auto yValues = this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
-            bool isLogCurve = false;
+            auto xValues = this->curveData()->propertyValuesByIntervals();
+            auto yValues =
+                this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
+            bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
             {
                 this->setSamplesFromXYErrorValues( xValues,
                                                    yValues,
                                                    errors,
-                                                   isLogCurve,
+                                                   useLogarithmicScale,
                                                    RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
-                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, useLogarithmicScale );
             }
 
             RimWellLogTrack* wellLogTrack;
@@ -513,22 +516,22 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_plotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues = this->curveData()->xPlotValues();
+            auto xValues = this->curveData()->propertyValuesByIntervals();
             auto yValues =
-                this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
-            bool isLogCurve = false;
+                this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
+            bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
             {
                 this->setSamplesFromXYErrorValues( xValues,
                                                    yValues,
                                                    errors,
-                                                   isLogCurve,
+                                                   useLogarithmicScale,
                                                    RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
-                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, useLogarithmicScale );
             }
         }
 

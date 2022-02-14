@@ -43,22 +43,26 @@ public:
 
     void setDepthUnit( RiaDefines::DepthUnitType depthUnit );
 
-    void setValuesAndDepths( const std::vector<double>& xValues,
+    void setValuesAndDepths( const std::vector<double>& propertyValues,
                              const std::vector<double>& depths,
                              RiaDefines::DepthTypeEnum  depthType,
                              double                     rkbDiff,
                              RiaDefines::DepthUnitType  depthUnit,
-                             bool                       isExtractionCurve );
-    void setValuesAndDepths( const std::vector<double>&                                      xValues,
+                             bool                       isExtractionCurve,
+                             bool                       useLogarithmicScale );
+
+    void setValuesAndDepths( const std::vector<double>&                                      propertyValues,
                              const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
                              double                                                          rkbDiff,
                              RiaDefines::DepthUnitType                                       depthUnit,
-                             bool                                                            isExtractionCurve );
-    void setXUnits( const QString& xUnitString );
+                             bool                                                            isExtractionCurve,
+                             bool                                                            useLogarithmicScale );
 
-    std::vector<double> xValues() const;
-    std::vector<double> xValues( const QString& units ) const;
-    QString             xUnits() const;
+    void setPropertyValueUnit( const QString& propertyValueUnitString );
+
+    std::vector<double> propertyValues() const;
+    std::vector<double> propertyValues( const QString& units ) const;
+    QString             propertyValueUnit() const;
 
     std::vector<double> depths( RiaDefines::DepthTypeEnum depthType ) const;
 
@@ -71,9 +75,9 @@ public:
 
     RiaDefines::DepthUnitType depthUnit() const;
 
-    std::vector<double>                    xPlotValues() const;
-    std::vector<double>                    depthPlotValues( RiaDefines::DepthTypeEnum depthType,
-                                                            RiaDefines::DepthUnitType destinationDepthUnit ) const;
+    std::vector<double>                    propertyValuesByIntervals() const;
+    std::vector<double>                    depthValuesByIntervals( RiaDefines::DepthTypeEnum depthType,
+                                                                   RiaDefines::DepthUnitType destinationDepthUnit ) const;
     std::vector<std::pair<size_t, size_t>> polylineStartStopIndices() const;
 
     cvf::ref<RigWellLogCurveData> calculateResampledCurveData( double newMeasuredDepthStepSize ) const;
@@ -95,13 +99,14 @@ private:
                                            std::vector<std::pair<size_t, size_t>>* intervals );
 
 private:
-    std::vector<double>                                      m_xValues;
+    std::vector<double>                                      m_propertyValues;
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> m_depths;
     bool                                                     m_isExtractionCurve;
     double                                                   m_rkbDiff;
+    bool                                                     m_useLogarithmicScale;
 
     std::vector<std::pair<size_t, size_t>> m_intervalsOfContinousValidValues;
 
     RiaDefines::DepthUnitType m_depthUnit;
-    QString                   m_xUnitString;
+    QString                   m_propertyValueUnitString;
 };

@@ -1134,8 +1134,8 @@ void RimSummaryPlot::removeAllTimeAnnotations()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::zoomAll()
 {
-    setAutoScaleXEnabled( true );
-    setAutoScaleYEnabled( true );
+    setAutoScalePropertyValuesEnabled( true );
+    setAutoScaleDepthValuesEnabled( true );
     updateZoomInParentPlot();
 }
 
@@ -1828,8 +1828,8 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onPlotZoomed()
 {
-    setAutoScaleXEnabled( false );
-    setAutoScaleYEnabled( false );
+    setAutoScalePropertyValuesEnabled( false );
+    setAutoScaleDepthValuesEnabled( false );
     updateZoomFromParentPlot();
 }
 
@@ -2243,7 +2243,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlot::fieldsToShowInToolbar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setAutoScaleXEnabled( bool enabled )
+void RimSummaryPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 {
     for ( auto ap : m_axisProperties )
     {
@@ -2258,7 +2258,7 @@ void RimSummaryPlot::setAutoScaleXEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setAutoScaleYEnabled( bool enabled )
+void RimSummaryPlot::setAutoScaleDepthValuesEnabled( bool enabled )
 {
     for ( auto ap : m_axisProperties )
     {

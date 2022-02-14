@@ -408,18 +408,20 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType( plot );
-        bool isLogCurve = plot->isLogarithmicScaleEnabled( yAxis() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( yAxis() );
 
         if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
         {
             std::vector<time_t> dateTimes = timeStepValues();
             if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
             {
-                m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, useLogarithmicScale );
             }
             else
             {
-                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(),
+                                                            std::vector<double>(),
+                                                            useLogarithmicScale );
             }
         }
         else
@@ -435,11 +437,13 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     times.push_back( timeScale * day );
                 }
 
-                m_plotCurve->setSamplesFromXValuesAndYValues( times, values, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( times, values, useLogarithmicScale );
             }
             else
             {
-                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(),
+                                                            std::vector<double>(),
+                                                            useLogarithmicScale );
             }
         }
 

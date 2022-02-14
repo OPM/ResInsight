@@ -179,22 +179,18 @@ void RiuQtChartsPlotCurve::showInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
-                                             const std::vector<double>& yValues,
-                                             int                        numValues )
+void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
     if ( !isQtChartObjectsPresent() ) return;
 
     CAF_ASSERT( xValues.size() == yValues.size() );
-    CAF_ASSERT( numValues <= static_cast<int>( xValues.size() ) );
-    CAF_ASSERT( numValues >= 0 );
 
     QtCharts::QLineSeries*    line    = lineSeries();
     QtCharts::QScatterSeries* scatter = scatterSeries();
 
     line->clear();
     scatter->clear();
-    for ( int i = 0; i < numValues; i++ )
+    for ( int i = 0; i < static_cast<int>( xValues.size() ); i++ )
     {
         line->append( xValues[i], yValues[i] );
         scatter->append( xValues[i], yValues[i] );

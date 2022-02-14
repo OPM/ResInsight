@@ -239,8 +239,8 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve( const QDateTime&    
 
     RiuQwtPlotCurve* plotCurve =
         createEmptyCurve( m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
-    bool isLogCurve = false;
-    plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, isLogCurve );
+    bool useLogarithmicScale = false;
+    plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, useLogarithmicScale );
     m_flowCapVsStorageCapPlot->replot();
 }
 
@@ -253,9 +253,9 @@ void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve( const QDateTime&      
 {
     CVF_ASSERT( !m_dateToColorMap.empty() );
 
-    RiuQwtPlotCurve* plotCurve  = createEmptyCurve( m_sweepEffPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
-    bool             isLogCurve = false;
-    plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, isLogCurve );
+    RiuQwtPlotCurve* plotCurve = createEmptyCurve( m_sweepEffPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
+    bool             useLogarithmicScale = false;
+    plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, useLogarithmicScale );
 
     m_sweepEffPlot->replot();
 }

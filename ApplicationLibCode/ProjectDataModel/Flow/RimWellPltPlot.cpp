@@ -188,7 +188,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
     if ( m_useStandardConditionCurves )
         axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet );
 
-    plotTrack->setXAxisTitle( axisTitle );
+    plotTrack->setPropertyValueAxisTitle( axisTitle );
 
 #if 0
     QString unitText;
@@ -685,7 +685,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         curveGroupId++;
     }
 
-    plotTrack->setAutoScaleXEnabled( true );
+    plotTrack->setAutoScalePropertyValuesEnabled( true );
     RimWellLogPlot::onLoadDataAndUpdate();
 }
 
@@ -918,7 +918,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
         if ( plotTrack )
         {
-            plotTrack->setAutoScaleXEnabled( true );
+            plotTrack->setAutoScalePropertyValuesEnabled( true );
         }
         updateZoom();
     }
@@ -931,7 +931,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
         if ( plotTrack )
         {
-            plotTrack->setAutoScaleXEnabled( true );
+            plotTrack->setAutoScalePropertyValuesEnabled( true );
         }
         updateZoom();
     }

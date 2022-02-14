@@ -78,7 +78,7 @@ public:
     RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
 
 private:
-    void setSamplesInPlot( const std::vector<double>&, const std::vector<double>&, int ) override;
+    void setSamplesInPlot( const std::vector<double>&, const std::vector<double>& ) override;
 
     bool                      isQtChartObjectsPresent() const;
     QtCharts::QLineSeries*    lineSeries() const;

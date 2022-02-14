@@ -175,14 +175,14 @@ RiuPlotWidget* RimVfpPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setAutoScaleXEnabled( bool /*enabled*/ )
+void RimVfpPlot::setAutoScalePropertyValuesEnabled( bool /*enabled*/ )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setAutoScaleYEnabled( bool /*enabled*/ )
+void RimVfpPlot::setAutoScaleDepthValuesEnabled( bool /*enabled*/ )
 {
 }
 
@@ -573,8 +573,8 @@ void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, cons
         symbol->setSize( 6, 6 );
         curve->setSymbol( symbol );
 
-        bool isLogCurve = false;
-        curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ), plotData.yData( idx ), isLogCurve );
+        bool useLogarithmicScale = false;
+        curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ), plotData.yData( idx ), useLogarithmicScale );
         curve->attachToPlot( plotWidget );
         curve->showInPlot();
     }

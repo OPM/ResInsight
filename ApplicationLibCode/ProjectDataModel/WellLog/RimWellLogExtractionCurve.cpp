@@ -357,24 +357,24 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             isUsingPseudoLength = false;
         }
 
-        bool isLogCurve = false;
+        bool useLogarithmicScale = false;
 
         RimWellLogTrack* track = nullptr;
         firstAncestorOfType( track );
         if ( track )
         {
-            isLogCurve = track->isLogarithmicScale();
+            useLogarithmicScale = track->isLogarithmicScale();
         }
 
-        std::vector<double> xPlotValues     = curveData()->xPlotValues();
-        std::vector<double> depthPlotValues = curveData()->depthPlotValues( depthType, displayUnit );
+        std::vector<double> xPlotValues     = curveData()->propertyValuesByIntervals();
+        std::vector<double> depthPlotValues = curveData()->depthValuesByIntervals( depthType, displayUnit );
         CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
 
         if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
-            m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, isLogCurve );
+            m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, useLogarithmicScale );
 
         else
-            m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, isLogCurve );
+            m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, useLogarithmicScale );
 
         m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
 
@@ -539,25 +539,36 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 
     if ( !values.empty() && !measuredDepthValues.empty() )
     {
+        bool useLogarithmicScale = false;
+
+        RimWellLogTrack* track = nullptr;
+        firstAncestorOfType( track );
+        if ( track )
+        {
+            useLogarithmicScale = track->isLogarithmicScale();
+        }
+
         if ( tvDepthValues.empty() )
         {
-            this->setValuesAndDepths( values,
-                                      measuredDepthValues,
-                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                      0.0,
-                                      depthUnit,
-                                      !performDataSmoothing,
-                                      xUnits );
+            this->setPropertyValuesAndDepths( values,
+                                              measuredDepthValues,
+                                              RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                              0.0,
+                                              depthUnit,
+                                              !performDataSmoothing,
+                                              useLogarithmicScale,
+                                              xUnits );
         }
         else
         {
-            this->setValuesWithMdAndTVD( values,
-                                         measuredDepthValues,
-                                         tvDepthValues,
-                                         rkbDiff,
-                                         depthUnit,
-                                         !performDataSmoothing,
-                                         xUnits );
+            this->setPropertyValuesWithMdAndTVD( values,
+                                                 measuredDepthValues,
+                                                 tvDepthValues,
+                                                 rkbDiff,
+                                                 depthUnit,
+                                                 !performDataSmoothing,
+                                                 useLogarithmicScale,
+                                                 xUnits );
         }
     }
 }

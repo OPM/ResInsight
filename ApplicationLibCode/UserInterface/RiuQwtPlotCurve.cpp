@@ -337,9 +337,11 @@ void RiuQwtPlotCurve::showInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numValues )
+void RiuQwtPlotCurve::setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues )
 {
-    setSamples( xValues.data(), yValues.data(), numValues );
+    CAF_ASSERT( xValues.size() == yValues.size() );
+
+    setSamples( xValues.data(), yValues.data(), static_cast<int>( xValues.size() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -415,13 +417,13 @@ std::pair<double, double> RiuQwtPlotCurve::yDataRange() const
 void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
                                                    const std::vector<double>&   yValues,
                                                    const std::vector<double>&   errorValues,
-                                                   bool                         isLogCurve,
+                                                   bool                         useLogarithmicScale,
                                                    RiaCurveDataTools::ErrorAxis errorAxis )
 {
     CVF_ASSERT( xValues.size() == yValues.size() );
     CVF_ASSERT( xValues.size() == errorValues.size() );
 
-    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, isLogCurve );
+    auto intervalsOfValidValues = RiaCurveDataTools::calculateIntervalsOfValidValues( yValues, useLogarithmicScale );
     std::vector<double> filteredYValues;
     std::vector<double> filteredXValues;
 
@@ -454,7 +456,7 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
         }
     }
 
-    setSamplesInPlot( filteredXValues, filteredYValues, static_cast<int>( filteredXValues.size() ) );
+    setSamplesInPlot( filteredXValues, filteredYValues );
 
     setLineSegmentStartStopIndices( intervalsOfValidValues );
 

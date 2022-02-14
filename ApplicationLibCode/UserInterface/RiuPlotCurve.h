@@ -65,21 +65,21 @@ public:
 
     void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
                                           const std::vector<double>& yValues,
-                                          bool                       isLogCurve );
+                                          bool                       useLogarithmicScale );
 
     void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                         const std::vector<double>&    yValues,
-                                        bool                          isLogCurve );
+                                        bool                          useLogarithmicScale );
 
     void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                         const std::vector<double>& yValues,
-                                        bool                       isLogCurve );
+                                        bool                       useLogarithmicScale );
 
     virtual void setSamplesFromXYErrorValues(
         const std::vector<double>&   xValues,
         const std::vector<double>&   yValues,
         const std::vector<double>&   errorValues,
-        bool                         isLogCurve,
+        bool                         useLogarithmicScale,
         RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
 
     void setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices );
@@ -130,13 +130,12 @@ public:
     virtual RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const = 0;
 
 protected:
-    virtual void
-        setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues, int numSamples ) = 0;
+    virtual void setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues ) = 0;
 
 private:
     void computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,
                                                const std::vector<double>& yValues,
-                                               bool                       isLogCurve );
+                                               bool                       useLogarithmicScale );
 
 protected:
     float m_symbolSkipPixelDistance;

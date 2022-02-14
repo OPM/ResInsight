@@ -89,7 +89,7 @@ void RimWellMeasurementCollection::deleteAllEmptyCurves()
 
     for ( auto curve : measurementCurves )
     {
-        if ( curve->curveData()->xValues().empty() )
+        if ( curve->curveData()->propertyValues().empty() )
         {
             RimWellLogTrack* track = nullptr;
             curve->firstAncestorOrThisOfTypeAsserted( track );

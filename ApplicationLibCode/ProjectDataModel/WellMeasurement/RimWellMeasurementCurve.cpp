@@ -116,21 +116,25 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
                 }
 
-                this->setValuesWithMdAndTVD( values,
-                                             measuredDepthValues,
-                                             trueVerticalDepthValues,
-                                             m_wellPath->wellPathGeometry()->rkbDiff(),
-                                             RiaDefines::DepthUnitType::UNIT_METER,
-                                             false );
+                bool useLogarithmicScale = false;
+                this->setPropertyValuesWithMdAndTVD( values,
+                                                     measuredDepthValues,
+                                                     trueVerticalDepthValues,
+                                                     m_wellPath->wellPathGeometry()->rkbDiff(),
+                                                     RiaDefines::DepthUnitType::UNIT_METER,
+                                                     false,
+                                                     useLogarithmicScale );
             }
             else
             {
-                this->setValuesAndDepths( values,
-                                          measuredDepthValues,
-                                          RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                          0.0,
-                                          RiaDefines::DepthUnitType::UNIT_METER,
-                                          false );
+                bool useLogarithmicScale = false;
+                this->setPropertyValuesAndDepths( values,
+                                                  measuredDepthValues,
+                                                  RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                                  0.0,
+                                                  RiaDefines::DepthUnitType::UNIT_METER,
+                                                  false,
+                                                  useLogarithmicScale );
             }
         }
 
@@ -156,10 +160,10 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        bool isLogCurve = false;
-        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
-                                                      this->curveData()->depthPlotValues( depthType, displayUnit ),
-                                                      isLogCurve );
+        bool useLogarithmicScale = false;
+        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->propertyValuesByIntervals(),
+                                                      this->curveData()->depthValuesByIntervals( depthType, displayUnit ),
+                                                      useLogarithmicScale );
         m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
     }
 
