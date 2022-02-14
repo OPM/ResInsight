@@ -1961,11 +1961,8 @@ void RimSummaryPlot::initAfterRead()
                 // This operation will overwrite the plot axis side, default is left
                 axisProperties->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
 
-                if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-                {
-                    // Reset the plot axis for the right axis
-                    axisProperties->setNameAndAxis( "Right", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, 0 );
-                }
+                // Reset the plot axis for the axis property
+                axisProperties->setNameAndAxis( axisProperties->name(), axis.axis(), 0 );
             }
         };
 
