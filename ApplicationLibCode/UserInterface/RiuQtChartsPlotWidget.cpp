@@ -679,6 +679,12 @@ void RiuQtChartsPlotWidget::setAxisAutoScale( RiuPlotAxis axis, bool autoScale )
     if ( autoScale )
     {
         rescaleAxis( axis );
+        QAbstractAxis* ax        = plotAxis( axis );
+        QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
+        if ( valueAxis )
+        {
+            valueAxis->applyNiceNumbers();
+        }
     }
 }
 
