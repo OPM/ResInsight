@@ -201,7 +201,7 @@ public:
     void uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering );
 
     void setFormationsForCaseWithSimWellOnly( bool caseWithSimWellOnly );
-    void updateXAxisAndGridTickIntervals();
+    void updatePropertyValueAxisAndGridTickIntervals();
 
     void updateLegend() override;
 
@@ -244,11 +244,11 @@ private:
 
     void cleanupBeforeClose();
     void detachAllPlotItems();
-    void calculateXZoomRange();
-    void calculateYZoomRange();
+    void calculatePropertyValueZoomRange();
+    void calculateDepthZoomRange();
 
-    void updateXZoom();
-    void updateYZoom();
+    void updatePropertyValueZoom();
+    void updateDepthZoom();
 
     RiuPlotAxis getDepthAxis() const;
     RiuPlotAxis getValueAxis() const;
@@ -272,7 +272,7 @@ private:
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    void computeAndSetXRangeMinForLogarithmicScale();
+    void computeAndSetPropertyValueRangeMinForLogarithmicScale();
 
     static void simWellOptionItems( QList<caf::PdmOptionItemInfo>* options, RimCase* eclCase );
 
@@ -308,19 +308,19 @@ private:
     bool isEmptyVisibleXRange() const;
 
 private:
-    QString m_xAxisTitle;
+    QString m_propertyValueAxisTitle;
 
     caf::PdmField<QString> m_description;
 
     caf::PdmChildArrayField<RimWellLogCurve*> m_curves;
-    caf::PdmField<double>                     m_visibleXRangeMin;
-    caf::PdmField<double>                     m_visibleXRangeMax;
+    caf::PdmField<double>                     m_visiblePropertyValueRangeMin;
+    caf::PdmField<double>                     m_visiblePropertyValueRangeMax;
     caf::PdmField<double>                     m_visibleDepthRangeMin;
     caf::PdmField<double>                     m_visibleDepthRangeMax;
 
-    caf::PdmField<bool>                         m_isAutoScaleXEnabled;
+    caf::PdmField<bool>                         m_isAutoScalePropertyValuesEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
-    caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;
+    caf::PdmField<RimWellLogPlot::AxisGridEnum> m_propertyValueAxisGridVisibility;
 
     caf::PdmField<bool>   m_explicitTickIntervals;
     caf::PdmField<bool>   m_minAndMaxTicksOnly;
@@ -365,8 +365,8 @@ private:
     QPointer<RiuWellLogTrack>              m_plotWidget;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 
-    double m_availableXRangeMin;
-    double m_availableXRangeMax;
+    double m_availablePropertyValueRangeMin;
+    double m_availablePropertyValueRangeMax;
     double m_availableDepthRangeMin;
     double m_availableDepthRangeMax;
 };
