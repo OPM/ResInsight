@@ -66,7 +66,7 @@ void RiuQtChartsPlotTools::setDefaultAxes( RiuQtChartsPlotWidget* plot )
     plot->enableAxis( RiuPlotAxis::defaultRight(), false );
 
     plot->setAxisMaxMinor( RiuPlotAxis::defaultBottom(), 2 );
-    plot->setAxisMaxMinor( RiuPlotAxis::defaultLeft(), 3 );
+    plot->setAxisMaxMinor( RiuPlotAxis::defaultLeft(), 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

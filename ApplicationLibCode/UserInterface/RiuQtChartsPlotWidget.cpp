@@ -642,12 +642,7 @@ void RiuQtChartsPlotWidget::setAxisMaxMinor( RiuPlotAxis axis, int maxMinor )
     QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
     if ( valueAxis )
     {
-        valueAxis->setTickCount( maxMinor );
-    }
-    else
-    {
-        QDateTimeAxis* dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
-        if ( dateAxis ) dateAxis->setTickCount( maxMinor );
+        valueAxis->setMinorTickCount( maxMinor );
     }
 }
 
