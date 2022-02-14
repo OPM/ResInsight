@@ -161,8 +161,8 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         }
 
         bool useLogarithmicScale = false;
-        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->xPlotValues(),
-                                                      this->curveData()->depthPlotValues( depthType, displayUnit ),
+        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->propertyValuesByIntervals(),
+                                                      this->curveData()->depthValuesByIntervals( depthType, displayUnit ),
                                                       useLogarithmicScale );
         m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
     }

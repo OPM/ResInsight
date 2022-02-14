@@ -107,8 +107,8 @@ protected:
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void reattachAllCurves() override {}
-    void setAutoScaleXEnabled( bool enabled ) override {}
-    void setAutoScaleYEnabled( bool enabled ) override {}
+    void setAutoScalePropertyValuesEnabled( bool enabled ) override {}
+    void setAutoScaleDepthValuesEnabled( bool enabled ) override {}
     void updateLegend() override;
 
     QString asciiDataForPlotExport() const override { return ""; }

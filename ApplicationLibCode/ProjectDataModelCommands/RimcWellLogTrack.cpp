@@ -102,7 +102,7 @@ RimWellLogExtractionCurve*
 
     wellLogTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     wellLogTrack->setShowRegionLabels( true );
-    wellLogTrack->setAutoScaleXEnabled( true );
+    wellLogTrack->setAutoScalePropertyValuesEnabled( true );
     wellLogTrack->updateConnectedEditors();
     wellLogTrack->setShowWindow( true );
 

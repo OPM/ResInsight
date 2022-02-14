@@ -73,7 +73,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
 
     for ( auto track : srcTracks )
     {
-        track->setAutoScaleXEnabled( true );
+        track->setAutoScalePropertyValuesEnabled( true );
         track->updateParentPlotZoom();
         track->updateStackedCurveData();
         track->updateConnectedEditors();
@@ -86,7 +86,7 @@ void RicWellLogPlotTrackFeatureImpl::moveCurvesToWellLogPlotTrack( RimWellLogTra
 
     destTrack->loadDataAndUpdate();
     destTrack->updateStackedCurveData();
-    destTrack->setAutoScaleXEnabled( true );
+    destTrack->setAutoScalePropertyValuesEnabled( true );
     destTrack->updateParentPlotZoom();
     destTrack->updateConnectedEditors();
 }

@@ -196,8 +196,8 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        m_plotCurve->setSamplesValues( this->curveData()->xPlotValues(),
-                                       this->curveData()->depthPlotValues( depthType, displayUnit ) );
+        m_plotCurve->setSamplesValues( this->curveData()->propertyValuesByIntervals(),
+                                       this->curveData()->depthValuesByIntervals( depthType, displayUnit ) );
         m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
         if ( updateParentPlot )

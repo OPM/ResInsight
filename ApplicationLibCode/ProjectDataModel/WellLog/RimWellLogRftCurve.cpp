@@ -470,8 +470,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_plotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues = this->curveData()->xPlotValues();
-            auto yValues = this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
+            auto xValues = this->curveData()->propertyValuesByIntervals();
+            auto yValues =
+                this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
             bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
@@ -515,9 +516,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_plotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues = this->curveData()->xPlotValues();
+            auto xValues = this->curveData()->propertyValuesByIntervals();
             auto yValues =
-                this->curveData()->depthPlotValues( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
+                this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
             bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
