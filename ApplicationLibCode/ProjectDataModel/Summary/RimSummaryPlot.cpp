@@ -2082,6 +2082,18 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase )
+{
+    RimSummaryCurve* newCurve = new RimSummaryCurve();
+    newCurve->setSummaryCaseY( summaryCase );
+    newCurve->setSummaryAddressYAndApplyInterpolation( address );
+    addCurveNoUpdate( newCurve );
+    newCurve->loadDataAndUpdate( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onPlotZoomed()
 {
     setAutoScaleXEnabled( false );
@@ -2502,18 +2514,6 @@ bool RimSummaryPlot::isDeletable() const
     RimMultiPlot* plotWindow = nullptr;
     firstAncestorOrThisOfType( plotWindow );
     return plotWindow == nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase )
-{
-    RimSummaryCurve* newCurve = new RimSummaryCurve();
-    newCurve->setSummaryCaseY( summaryCase );
-    newCurve->setSummaryAddressYAndApplyInterpolation( address );
-    addCurveNoUpdate( newCurve );
-    newCurve->loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
