@@ -340,69 +340,75 @@ void RimWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
-    if ( isCurveVisible() && m_plotCurve )
+    if ( isCurveVisible() )
     {
         bool isUsingPseudoLength = false;
         performDataExtraction( &isUsingPseudoLength );
 
-        RimDepthTrackPlot* wellLogPlot;
-        firstAncestorOrThisOfType( wellLogPlot );
-        if ( !wellLogPlot ) return;
-
-        RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
-        RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
-        if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
-             depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
+        if ( m_plotCurve )
         {
-            isUsingPseudoLength = false;
-        }
+            bool isUsingPseudoLength = false;
+            performDataExtraction( &isUsingPseudoLength );
 
-        bool useLogarithmicScale = false;
+            RimDepthTrackPlot* wellLogPlot;
+            firstAncestorOrThisOfType( wellLogPlot );
+            if ( !wellLogPlot ) return;
 
-        RimWellLogTrack* track = nullptr;
-        firstAncestorOfType( track );
-        if ( track )
-        {
-            useLogarithmicScale = track->isLogarithmicScale();
-        }
-
-        std::vector<double> xPlotValues     = curveData()->propertyValuesByIntervals();
-        std::vector<double> depthPlotValues = curveData()->depthValuesByIntervals( depthType, displayUnit );
-        CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
-
-        if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
-            m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, useLogarithmicScale );
-
-        else
-            m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, useLogarithmicScale );
-
-        m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
-
-        this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
-
-        if ( isUsingPseudoLength )
-        {
-            RimWellLogTrack* wellLogTrack;
-            firstAncestorOrThisOfType( wellLogTrack );
-            CVF_ASSERT( wellLogTrack );
-
-            RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
-            if ( viewer )
+            RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
+            RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
+            if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
+                 depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
             {
-                viewer->setAxisTitleText( RiuPlotAxis::defaultLeft(), "PL/" + wellLogPlot->depthAxisTitle() );
+                isUsingPseudoLength = false;
             }
-        }
 
-        if ( updateParentPlot )
-        {
-            updateZoomInParentPlot();
-        }
+            bool useLogarithmicScale = false;
 
-        setLogScaleFromSelectedResult();
+            RimWellLogTrack* track = nullptr;
+            firstAncestorOfType( track );
+            if ( track )
+            {
+                useLogarithmicScale = track->isLogarithmicScale();
+            }
 
-        if ( m_parentPlot )
-        {
-            m_parentPlot->replot();
+            std::vector<double> xPlotValues     = curveData()->propertyValuesByIntervals();
+            std::vector<double> depthPlotValues = curveData()->depthValuesByIntervals( depthType, displayUnit );
+            CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
+
+            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+                m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, useLogarithmicScale );
+
+            else
+                m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, useLogarithmicScale );
+
+            m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
+
+            this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+
+            if ( isUsingPseudoLength )
+            {
+                RimWellLogTrack* wellLogTrack;
+                firstAncestorOrThisOfType( wellLogTrack );
+                CVF_ASSERT( wellLogTrack );
+
+                RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
+                if ( viewer )
+                {
+                    viewer->setAxisTitleText( RiuPlotAxis::defaultLeft(), "PL/" + wellLogPlot->depthAxisTitle() );
+                }
+            }
+
+            if ( updateParentPlot )
+            {
+                updateZoomInParentPlot();
+            }
+
+            setLogScaleFromSelectedResult();
+
+            if ( m_parentPlot )
+            {
+                m_parentPlot->replot();
+            }
         }
     }
 }
@@ -692,7 +698,8 @@ void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 {
     RimWellLogPlotCollection* wellLogCollection = nullptr;
 
-    // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when deleted.
+    // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when
+    // deleted.
 
     RimProject* proj = RimProject::current();
     if ( proj && proj->mainPlotCollection() ) wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
