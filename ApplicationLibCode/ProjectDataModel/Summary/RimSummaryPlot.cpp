@@ -1978,14 +1978,7 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                 auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
                 if ( summaryCase )
                 {
-                    auto* newCurve = new RimSummaryCurve();
-
-                    newCurve->setSummaryCaseY( summaryCase );
-                    newCurve->setSummaryAddressYAndApplyInterpolation( summaryAdr->address() );
-
-                    addCurveNoUpdate( newCurve );
-
-                    newCurve->loadDataAndUpdate( true );
+                    addNewCurveY( summaryAdr->address(), summaryCase );
                 }
             }
             continue;
@@ -1994,6 +1987,8 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj );
         if ( addressCollection )
         {
+            auto& droppedName = addressCollection->name().toStdString();
+
             if ( addressCollection->isEnsemble() )
             {
             }
@@ -2004,22 +1999,86 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                 {
                     if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
                     {
-                        // TODO - for all well data vectors in the plot, add the well named addressCollection->name() to
-                        // the plot
+                        std::map<std::string, std::set<std::string>> dataVectorMap;
+
+                        // gather all unique well quantities shown in the plot so far
+                        for ( auto& curve : summaryCurves() )
+                        {
+                            const auto curveAddress = curve->summaryAddressY();
+                            if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL )
+                            {
+                                dataVectorMap[curveAddress.quantityName()].insert( curveAddress.wellName() );
+                            }
+                        }
+
+                        // create new curves for the dropped well
+                        for ( auto& [vectorName, wellNames] : dataVectorMap )
+                        {
+                            if ( wellNames.count( droppedName ) > 0 ) continue;
+
+                            RifEclipseSummaryAddress newAddress =
+                                RifEclipseSummaryAddress::wellAddress( vectorName, droppedName );
+
+                            addNewCurveY( newAddress, summaryCase );
+                        }
                     }
                     else if ( addressCollection->contentType() ==
                               RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
                     {
-                        // TODO - for all well group data vectors in the plot, add the well group named
-                        // addressCollection->name() to the plot
+                        std::map<std::string, std::set<std::string>> dataVectorMap;
+
+                        // gather all unique well quantities shown in the plot so far
+                        for ( auto& curve : summaryCurves() )
+                        {
+                            const auto curveAddress = curve->summaryAddressY();
+                            if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP )
+                            {
+                                dataVectorMap[curveAddress.quantityName()].insert( curveAddress.wellGroupName() );
+                            }
+                        }
+
+                        // create new curves for the dropped well groups
+                        for ( auto& [vectorName, wellGroupNames] : dataVectorMap )
+                        {
+                            if ( wellGroupNames.count( droppedName ) > 0 ) continue;
+
+                            RifEclipseSummaryAddress newAddress =
+                                RifEclipseSummaryAddress::wellGroupAddress( vectorName, droppedName );
+
+                            addNewCurveY( newAddress, summaryCase );
+                        }
                     }
                     else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
                     {
-                        // TODO - for all region data vectors in the plot, add the region named
-                        // addressCollection->name() to the plot
+                        std::map<std::string, std::set<int>> dataVectorMap;
+
+                        // gather all unique well quantities shown in the plot so far
+                        for ( auto& curve : summaryCurves() )
+                        {
+                            const auto curveAddress = curve->summaryAddressY();
+                            if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
+                            {
+                                dataVectorMap[curveAddress.quantityName()].insert( curveAddress.regionNumber() );
+                            }
+                        }
+
+                        int droppedRegion = std::stoi( droppedName );
+
+                        // create new curves for the dropped well groups
+                        for ( auto& [vectorName, regionNumbers] : dataVectorMap )
+                        {
+                            auto& droppedName = addressCollection->name().toStdString();
+                            if ( regionNumbers.count( droppedRegion ) > 0 ) continue;
+
+                            RifEclipseSummaryAddress newAddress =
+                                RifEclipseSummaryAddress::regionAddress( vectorName, droppedRegion );
+
+                            addNewCurveY( newAddress, summaryCase );
+                        }
                     }
                 }
             }
+            continue;
         }
     }
 
@@ -2449,6 +2508,18 @@ bool RimSummaryPlot::isDeletable() const
     RimMultiPlot* plotWindow = nullptr;
     firstAncestorOrThisOfType( plotWindow );
     return plotWindow == nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase )
+{
+    RimSummaryCurve* newCurve = new RimSummaryCurve();
+    newCurve->setSummaryCaseY( summaryCase );
+    newCurve->setSummaryAddressYAndApplyInterpolation( address );
+    addCurveNoUpdate( newCurve );
+    newCurve->loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------

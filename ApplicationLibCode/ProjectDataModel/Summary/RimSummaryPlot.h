@@ -257,6 +257,8 @@ private:
     void axisSettingsChanged( const caf::SignalEmitter* emitter );
     void axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic );
 
+    void addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
+
 private:
 #ifdef USE_QTCHARTS
     caf::PdmField<bool> m_useQtChartsPlot;
