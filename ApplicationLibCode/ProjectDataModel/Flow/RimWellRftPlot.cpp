@@ -1166,13 +1166,13 @@ RiuPlotCurveSymbol::PointSymbolEnum RimWellRftPlot::statisticsCurveSymbolFromAdd
 {
     switch ( address.wellLogChannel() )
     {
-        case RifEclipseRftAddress::PRESSURE_P10:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10:
             return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
-        case RifEclipseRftAddress::PRESSURE_P50:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50:
             return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
-        case RifEclipseRftAddress::PRESSURE_P90:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90:
             return RiuPlotCurveSymbol::SYMBOL_LEFT_TRIANGLE;
-        case RifEclipseRftAddress::PRESSURE_MEAN:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN:
             return RiuPlotCurveSymbol::SYMBOL_RIGHT_TRIANGLE;
     }
     return RiuPlotCurveSymbol::SYMBOL_RIGHT_TRIANGLE;
@@ -1185,13 +1185,13 @@ RiuPlotCurveSymbol::LabelPosition RimWellRftPlot::statisticsLabelPosFromAddress(
 {
     switch ( address.wellLogChannel() )
     {
-        case RifEclipseRftAddress::PRESSURE_P10:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10:
             return RiuPlotCurveSymbol::LabelLeftOfSymbol;
-        case RifEclipseRftAddress::PRESSURE_P50:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50:
             return RiuPlotCurveSymbol::LabelAboveSymbol;
-        case RifEclipseRftAddress::PRESSURE_P90:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90:
             return RiuPlotCurveSymbol::LabelRightOfSymbol;
-        case RifEclipseRftAddress::PRESSURE_MEAN:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN:
             return RiuPlotCurveSymbol::LabelBelowSymbol;
     }
     return RiuPlotCurveSymbol::LabelAboveSymbol;
