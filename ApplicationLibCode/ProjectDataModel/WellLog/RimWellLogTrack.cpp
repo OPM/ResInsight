@@ -2501,14 +2501,6 @@ void RimWellLogTrack::updateStackedCurveData()
 
         if ( allDepthValues.empty() ) continue;
 
-        bool               isVerticalTrack = true;
-        RimDepthTrackPlot* wellLogPlot;
-        this->firstAncestorOrThisOfType( wellLogPlot );
-        if ( wellLogPlot )
-        {
-            isVerticalTrack = ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL );
-        }
-
         size_t              stackIndex = 0u;
         std::vector<double> allStackedValues( allDepthValues.size(), 0.0 );
         for ( auto curve : stackedCurvesInGroup )
@@ -2535,7 +2527,7 @@ void RimWellLogTrack::updateStackedCurveData()
             auto plotDepthValues          = tempCurveData.depths( depthType );
             auto polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
 
-            curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices, isVerticalTrack );
+            curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
             curve->setZOrder( zPos );
 
             if ( !dynamic_cast<RimWellFlowRateCurve*>( curve ) )

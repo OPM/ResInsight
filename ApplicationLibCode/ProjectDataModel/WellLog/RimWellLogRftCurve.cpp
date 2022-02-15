@@ -498,22 +498,21 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_plotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues = this->curveData()->propertyValuesByIntervals();
-            auto yValues =
-                this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
+            auto propertyValues = this->curveData()->propertyValues();
+            auto depthValues    = this->curveData()->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
             bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
             {
-                this->setSamplesFromXYErrorValues( xValues,
-                                                   yValues,
+                this->setSamplesFromXYErrorValues( propertyValues,
+                                                   depthValues,
                                                    errors,
                                                    useLogarithmicScale,
                                                    RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
             }
             else
             {
-                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, useLogarithmicScale );
+                setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
             }
 
             RimWellLogTrack* wellLogTrack;
