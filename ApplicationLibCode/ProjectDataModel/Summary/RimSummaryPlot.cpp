@@ -2001,7 +2001,6 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                     {
                         std::map<std::string, std::set<std::string>> dataVectorMap;
 
-                        // gather all unique well quantities shown in the plot so far
                         for ( auto& curve : summaryCurves() )
                         {
                             const auto curveAddress = curve->summaryAddressY();
@@ -2011,7 +2010,6 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                             }
                         }
 
-                        // create new curves for the dropped well
                         for ( auto& [vectorName, wellNames] : dataVectorMap )
                         {
                             if ( wellNames.count( droppedName ) > 0 ) continue;
@@ -2027,7 +2025,6 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                     {
                         std::map<std::string, std::set<std::string>> dataVectorMap;
 
-                        // gather all unique well quantities shown in the plot so far
                         for ( auto& curve : summaryCurves() )
                         {
                             const auto curveAddress = curve->summaryAddressY();
@@ -2037,7 +2034,6 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                             }
                         }
 
-                        // create new curves for the dropped well groups
                         for ( auto& [vectorName, wellGroupNames] : dataVectorMap )
                         {
                             if ( wellGroupNames.count( droppedName ) > 0 ) continue;
@@ -2052,7 +2048,6 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
                     {
                         std::map<std::string, std::set<int>> dataVectorMap;
 
-                        // gather all unique well quantities shown in the plot so far
                         for ( auto& curve : summaryCurves() )
                         {
                             const auto curveAddress = curve->summaryAddressY();
@@ -2064,7 +2059,6 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
 
                         int droppedRegion = std::stoi( droppedName );
 
-                        // create new curves for the dropped well groups
                         for ( auto& [vectorName, regionNumbers] : dataVectorMap )
                         {
                             auto& droppedName = addressCollection->name().toStdString();
