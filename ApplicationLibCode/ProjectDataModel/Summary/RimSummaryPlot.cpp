@@ -1987,7 +1987,7 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj );
         if ( addressCollection )
         {
-            auto& droppedName = addressCollection->name().toStdString();
+            auto droppedName = addressCollection->name().toStdString();
 
             if ( addressCollection->isEnsemble() )
             {
@@ -2061,7 +2061,6 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
 
                         for ( auto& [vectorName, regionNumbers] : dataVectorMap )
                         {
-                            auto& droppedName = addressCollection->name().toStdString();
                             if ( regionNumbers.count( droppedRegion ) > 0 ) continue;
 
                             RifEclipseSummaryAddress newAddress =
