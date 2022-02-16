@@ -263,6 +263,8 @@ private:
 
     void assignPlotAxis( RimSummaryCurve* curve );
 
+    void addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
+
 private:
 #ifdef USE_QTCHARTS
     caf::PdmField<bool> m_useQtChartsPlot;

@@ -44,6 +44,7 @@
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
@@ -1793,34 +1794,119 @@ bool RimSummaryPlot::autoPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
+    int newCurves = 0;
+
     for ( auto obj : objects )
     {
         auto summaryAdr = dynamic_cast<RimSummaryAddress*>( obj );
         if ( summaryAdr )
         {
-            if ( summaryAdr->isEnsemble() )
+            if ( summaryAdr->isEnsemble() ) continue;
+
+            auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
+            if ( summaryCase )
             {
-                // TODO: Add drop support for ensemble curves
+                addNewCurveY( summaryAdr->address(), summaryCase );
+                newCurves++;
             }
-            else
+            continue;
+        }
+
+        auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj );
+        if ( addressCollection )
+        {
+            auto droppedName = addressCollection->name().toStdString();
+
+            if ( addressCollection->isEnsemble() ) continue;
+
+            auto summaryCase = RiaSummaryTools::summaryCaseById( addressCollection->caseId() );
+            if ( summaryCase )
             {
-                auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
-                if ( summaryCase )
+                if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
                 {
-                    auto* newCurve = new RimSummaryCurve();
+                    std::map<std::string, std::set<std::string>> dataVectorMap;
 
-                    newCurve->setSummaryCaseY( summaryCase );
-                    newCurve->setSummaryAddressYAndApplyInterpolation( summaryAdr->address() );
+                    for ( auto& curve : summaryCurves() )
+                    {
+                        const auto curveAddress = curve->summaryAddressY();
+                        if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL )
+                        {
+                            dataVectorMap[curveAddress.quantityName()].insert( curveAddress.wellName() );
+                        }
+                    }
 
-                    addCurveNoUpdate( newCurve );
+                    for ( auto& [vectorName, wellNames] : dataVectorMap )
+                    {
+                        if ( wellNames.count( droppedName ) > 0 ) continue;
 
-                    newCurve->loadDataAndUpdate( true );
+                        addNewCurveY( RifEclipseSummaryAddress::wellAddress( vectorName, droppedName ), summaryCase );
+                        newCurves++;
+                    }
+                }
+                else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+                {
+                    std::map<std::string, std::set<std::string>> dataVectorMap;
+
+                    for ( auto& curve : summaryCurves() )
+                    {
+                        const auto curveAddress = curve->summaryAddressY();
+                        if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP )
+                        {
+                            dataVectorMap[curveAddress.quantityName()].insert( curveAddress.wellGroupName() );
+                        }
+                    }
+
+                    for ( auto& [vectorName, wellGroupNames] : dataVectorMap )
+                    {
+                        if ( wellGroupNames.count( droppedName ) > 0 ) continue;
+
+                        addNewCurveY( RifEclipseSummaryAddress::wellGroupAddress( vectorName, droppedName ), summaryCase );
+                        newCurves++;
+                    }
+                }
+                else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
+                {
+                    std::map<std::string, std::set<int>> dataVectorMap;
+
+                    for ( auto& curve : summaryCurves() )
+                    {
+                        const auto curveAddress = curve->summaryAddressY();
+                        if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
+                        {
+                            dataVectorMap[curveAddress.quantityName()].insert( curveAddress.regionNumber() );
+                        }
+                    }
+
+                    int droppedRegion = std::stoi( droppedName );
+
+                    for ( auto& [vectorName, regionNumbers] : dataVectorMap )
+                    {
+                        if ( regionNumbers.count( droppedRegion ) > 0 ) continue;
+
+                        addNewCurveY( RifEclipseSummaryAddress::regionAddress( vectorName, droppedRegion ), summaryCase );
+                        newCurves++;
+                    }
                 }
             }
+            continue;
         }
     }
 
+    if ( newCurves > 0 ) applyDefaultCurveAppearances();
+
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase )
+{
+    RimSummaryCurve* newCurve = new RimSummaryCurve();
+    newCurve->setSummaryCaseY( summaryCase );
+    newCurve->setSummaryAddressYAndApplyInterpolation( address );
+    addCurveNoUpdate( newCurve );
+    newCurve->loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
