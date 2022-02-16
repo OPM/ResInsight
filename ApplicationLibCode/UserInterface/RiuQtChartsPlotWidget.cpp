@@ -688,7 +688,14 @@ void RiuQtChartsPlotWidget::setAxisAutoScale( RiuPlotAxis axis, bool autoScale )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisScale( RiuPlotAxis axis, double min, double max )
 {
-    plotAxis( axis )->setRange( min, max );
+    if ( axisScaleType( axis ) == RiuPlotWidget::AxisScaleType::DATE )
+    {
+        plotAxis(axis)->setRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
+    }
+    else
+    {
+        plotAxis(axis)->setRange( min, max );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
