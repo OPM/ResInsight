@@ -674,11 +674,15 @@ void RiuQtChartsPlotWidget::setAxisAutoScale( RiuPlotAxis axis, bool autoScale )
     if ( autoScale )
     {
         rescaleAxis( axis );
+
         QAbstractAxis* ax        = plotAxis( axis );
         QValueAxis*    valueAxis = dynamic_cast<QValueAxis*>( ax );
         if ( valueAxis )
         {
+            // Block signals to avoid triggering RimSummaryPlot::onPlotZoomed
+            valueAxis->blockSignals( true );
             valueAxis->applyNiceNumbers();
+            valueAxis->blockSignals( false );
         }
     }
 }
@@ -981,6 +985,9 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiuPlotAxis axis )
         }
     }
 
+    // Block signals to avoid triggering RimSummaryPlot::onPlotZoomed
+    pAxis->blockSignals( true );
+
     if ( axisScaleType( axis ) == RiuPlotWidget::AxisScaleType::DATE )
     {
         pAxis->setRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
@@ -989,6 +996,8 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiuPlotAxis axis )
     {
         pAxis->setRange( min, max );
     }
+
+    pAxis->blockSignals( false );
 }
 
 //--------------------------------------------------------------------------------------------------
