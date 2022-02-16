@@ -1964,22 +1964,20 @@ void RimSummaryPlot::setAsCrossPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
+    int newCurves = 0;
+
     for ( auto obj : objects )
     {
         auto summaryAdr = dynamic_cast<RimSummaryAddress*>( obj );
         if ( summaryAdr )
         {
-            if ( summaryAdr->isEnsemble() )
+            if ( summaryAdr->isEnsemble() ) continue;
+
+            auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
+            if ( summaryCase )
             {
-                // TODO: Add drop support for ensemble curves
-            }
-            else
-            {
-                auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
-                if ( summaryCase )
-                {
-                    addNewCurveY( summaryAdr->address(), summaryCase );
-                }
+                addNewCurveY( summaryAdr->address(), summaryCase );
+                newCurves++;
             }
             continue;
         }
@@ -1989,91 +1987,82 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         {
             auto droppedName = addressCollection->name().toStdString();
 
-            if ( addressCollection->isEnsemble() )
+            if ( addressCollection->isEnsemble() ) continue;
+
+            auto summaryCase = RiaSummaryTools::summaryCaseById( addressCollection->caseId() );
+            if ( summaryCase )
             {
-            }
-            else
-            {
-                auto summaryCase = RiaSummaryTools::summaryCaseById( addressCollection->caseId() );
-                if ( summaryCase )
+                if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
                 {
-                    if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
+                    std::map<std::string, std::set<std::string>> dataVectorMap;
+
+                    for ( auto& curve : summaryCurves() )
                     {
-                        std::map<std::string, std::set<std::string>> dataVectorMap;
-
-                        for ( auto& curve : summaryCurves() )
+                        const auto curveAddress = curve->summaryAddressY();
+                        if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL )
                         {
-                            const auto curveAddress = curve->summaryAddressY();
-                            if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL )
-                            {
-                                dataVectorMap[curveAddress.quantityName()].insert( curveAddress.wellName() );
-                            }
-                        }
-
-                        for ( auto& [vectorName, wellNames] : dataVectorMap )
-                        {
-                            if ( wellNames.count( droppedName ) > 0 ) continue;
-
-                            RifEclipseSummaryAddress newAddress =
-                                RifEclipseSummaryAddress::wellAddress( vectorName, droppedName );
-
-                            addNewCurveY( newAddress, summaryCase );
+                            dataVectorMap[curveAddress.quantityName()].insert( curveAddress.wellName() );
                         }
                     }
-                    else if ( addressCollection->contentType() ==
-                              RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+
+                    for ( auto& [vectorName, wellNames] : dataVectorMap )
                     {
-                        std::map<std::string, std::set<std::string>> dataVectorMap;
+                        if ( wellNames.count( droppedName ) > 0 ) continue;
 
-                        for ( auto& curve : summaryCurves() )
+                        addNewCurveY( RifEclipseSummaryAddress::wellAddress( vectorName, droppedName ), summaryCase );
+                        newCurves++;
+                    }
+                }
+                else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+                {
+                    std::map<std::string, std::set<std::string>> dataVectorMap;
+
+                    for ( auto& curve : summaryCurves() )
+                    {
+                        const auto curveAddress = curve->summaryAddressY();
+                        if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP )
                         {
-                            const auto curveAddress = curve->summaryAddressY();
-                            if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP )
-                            {
-                                dataVectorMap[curveAddress.quantityName()].insert( curveAddress.wellGroupName() );
-                            }
-                        }
-
-                        for ( auto& [vectorName, wellGroupNames] : dataVectorMap )
-                        {
-                            if ( wellGroupNames.count( droppedName ) > 0 ) continue;
-
-                            RifEclipseSummaryAddress newAddress =
-                                RifEclipseSummaryAddress::wellGroupAddress( vectorName, droppedName );
-
-                            addNewCurveY( newAddress, summaryCase );
+                            dataVectorMap[curveAddress.quantityName()].insert( curveAddress.wellGroupName() );
                         }
                     }
-                    else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
+
+                    for ( auto& [vectorName, wellGroupNames] : dataVectorMap )
                     {
-                        std::map<std::string, std::set<int>> dataVectorMap;
+                        if ( wellGroupNames.count( droppedName ) > 0 ) continue;
 
-                        for ( auto& curve : summaryCurves() )
+                        addNewCurveY( RifEclipseSummaryAddress::wellGroupAddress( vectorName, droppedName ), summaryCase );
+                        newCurves++;
+                    }
+                }
+                else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
+                {
+                    std::map<std::string, std::set<int>> dataVectorMap;
+
+                    for ( auto& curve : summaryCurves() )
+                    {
+                        const auto curveAddress = curve->summaryAddressY();
+                        if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
                         {
-                            const auto curveAddress = curve->summaryAddressY();
-                            if ( curveAddress.category() == RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION )
-                            {
-                                dataVectorMap[curveAddress.quantityName()].insert( curveAddress.regionNumber() );
-                            }
+                            dataVectorMap[curveAddress.quantityName()].insert( curveAddress.regionNumber() );
                         }
+                    }
 
-                        int droppedRegion = std::stoi( droppedName );
+                    int droppedRegion = std::stoi( droppedName );
 
-                        for ( auto& [vectorName, regionNumbers] : dataVectorMap )
-                        {
-                            if ( regionNumbers.count( droppedRegion ) > 0 ) continue;
+                    for ( auto& [vectorName, regionNumbers] : dataVectorMap )
+                    {
+                        if ( regionNumbers.count( droppedRegion ) > 0 ) continue;
 
-                            RifEclipseSummaryAddress newAddress =
-                                RifEclipseSummaryAddress::regionAddress( vectorName, droppedRegion );
-
-                            addNewCurveY( newAddress, summaryCase );
-                        }
+                        addNewCurveY( RifEclipseSummaryAddress::regionAddress( vectorName, droppedRegion ), summaryCase );
+                        newCurves++;
                     }
                 }
             }
             continue;
         }
     }
+
+    if ( newCurves > 0 ) applyDefaultCurveAppearances();
 
     updateConnectedEditors();
 }

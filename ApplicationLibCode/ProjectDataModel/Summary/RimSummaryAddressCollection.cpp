@@ -219,6 +219,7 @@ bool RimSummaryAddressCollection::isEmpty() const
 bool RimSummaryAddressCollection::canBeDragged() const
 {
     bool ok = m_subfolders.size() == 0;
+    ok      = ok && !isEnsemble();
 
     ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::WELL_GROUP ||
                  m_contentType == CollectionContentType::REGION );
