@@ -201,18 +201,17 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
                     // number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
 
                     target1Status.hasOverriddenRadius2 = true;
-                    target1Status.resultRadius2        = sCurveCalc.firstRadius();
-
                     target2Status.hasOverriddenRadius1 = true;
-                    target2Status.resultRadius1        = sCurveCalc.secondRadius();
                 }
+
+                target2Status.resultRadius1     = sCurveCalc.secondRadius();
+                target1Status.resultRadius2     = sCurveCalc.firstRadius();
+                target2Status.isRadius1Editable = true;
+                target1Status.isRadius2Editable = true;
 
                 m_lineArcEndpoints.push_back( sCurveCalc.firstArcEndpoint() + referencePointXyz );
                 m_lineArcEndpoints.push_back( sCurveCalc.secondArcStartpoint() + referencePointXyz );
                 m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
-
-                target1Status.isRadius2Editable = true;
-                target2Status.isRadius1Editable = true;
             }
         }
     }
@@ -242,12 +241,12 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         else if ( jCurve.curveStatus() == RiaJCurveCalculator::FAILED_RADIUS_TOO_LARGE )
         {
             target1Status.hasOverriddenRadius2 = true;
-            target1Status.resultRadius2        = jCurve.radius();
         }
 
-        m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
-
+        target1Status.resultRadius2     = jCurve.radius();
         target1Status.isRadius2Editable = true;
+
+        m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
 
         target2Status.resultAzimuth     = jCurve.endAzimuth();
         target2Status.resultInclination = jCurve.endInclination();
