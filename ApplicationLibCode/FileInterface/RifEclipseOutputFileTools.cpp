@@ -202,6 +202,7 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         // See https://github.com/OPM/ResInsight/issues/4850
         // https://github.com/OPM/ResInsight/issues/8558
         if ( uniqueDays.size() == uniqueDayValues.size() ) useStartOfSimulationDate = false;
+        if ( uniqueDays.size() == dayValues.size() ) useStartOfSimulationDate = false;
     }
 
     std::set<QDateTime> existingTimesteps;
