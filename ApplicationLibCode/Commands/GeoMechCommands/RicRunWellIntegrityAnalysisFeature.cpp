@@ -120,11 +120,11 @@ void RicRunWellIntegrityAnalysisFeature::onActionTriggered( bool isChecked )
     runProgress.setProgressDescription( "Loading modeling results." );
 
     RiaApplication* app = RiaApplication::instance();
-    if ( !app->openOdbCaseFromFile( modelSettings->outputHeatOdbFilename() ) )
+    if ( !app->openOdbCaseFromFile( modelSettings->outputDrillingOdbFilename() ) )
     {
         QMessageBox::critical( nullptr,
                                wiaTitle,
-                               "Failed to load modeling results from file \"" + modelSettings->outputHeatOdbFilename() +
+                               "Failed to load modeling results from file \"" + modelSettings->outputDrillingOdbFilename() +
                                    "\". Check log window for additional information." );
     }
 
