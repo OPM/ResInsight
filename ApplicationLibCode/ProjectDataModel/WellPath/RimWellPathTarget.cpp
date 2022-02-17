@@ -214,7 +214,6 @@ RiaLineArcWellPathCalculator::WellTarget RimWellPathTarget::wellTargetData()
     RiaLineArcWellPathCalculator::WellTarget targetData;
 
     targetData.targetPointXYZ           = targetPointXYZ();
-    targetData.isTangentConstrained     = m_useFixedAzimuth();
     targetData.isAzimuthConstrained     = m_useFixedAzimuth();
     targetData.isInclinationConstrained = m_useFixedInclination();
     targetData.azimuth                  = azimuth();

@@ -85,7 +85,6 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             if ( !adjustedWellPathTargets[tIdx + 1].isInclinationConstrained )
                 adjustedWellPathTargets[tIdx + 1].inclination = tangentSphCS.inc();
 
-            adjustedWellPathTargets[tIdx + 1].isTangentConstrained     = true;
             adjustedWellPathTargets[tIdx + 1].isAzimuthConstrained     = true;
             adjustedWellPathTargets[tIdx + 1].isInclinationConstrained = true;
 
@@ -101,7 +100,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
     size_t startSSegmentIdx = 0;
     size_t endSSegementIdx  = activeWellPathTargets.size() - 1;
 
-    if ( !adjustedWellPathTargets[0].isTangentConstrained )
+    if ( !adjustedWellPathTargets[0].isAnyDirectionFixed() )
     {
         startSSegmentIdx = 1;
 
@@ -110,7 +109,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         WellTargetStatus& target1Status = m_targetStatuses[0];
         WellTargetStatus& target2Status = m_targetStatuses[1];
 
-        if ( adjustedWellPathTargets[1].isTangentConstrained )
+        if ( adjustedWellPathTargets[1].isAnyDirectionFixed() )
         {
             // Create an upside down J curve from target 2 back to 1
 
@@ -159,7 +158,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
                                                                            activeWellPathTargets[0].inclination );
     }
 
-    if ( !adjustedWellPathTargets.back().isTangentConstrained )
+    if ( !adjustedWellPathTargets.back().isAnyDirectionFixed() )
     {
         endSSegementIdx -= 1;
     }
@@ -178,7 +177,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             // Ignore targets in the same place
             if ( ( target1.targetPointXYZ - target2.targetPointXYZ ).length() < 1e-6 ) continue;
 
-            if ( target1.isTangentConstrained && target2.isTangentConstrained )
+            if ( target1.isAnyDirectionFixed() && target2.isAnyDirectionFixed() )
             {
                 RiaSCurveCalculator sCurveCalc( target1.targetPointXYZ,
                                                 target1.azimuth,
