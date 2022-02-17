@@ -60,28 +60,25 @@ public:
         POINT
     };
 
-    TargetTypeEnum targetType() const;
-    cvf::Vec3d     targetPointXYZ() const;
-    double         azimuth() const;
-    double         inclination() const;
-    cvf::Vec3d     tangent() const;
-    double         radius1() const;
-    double         radius2() const;
-    void           setRadius1Data( bool isEditable, bool isIncorrect, double actualRadius );
-    void           setRadius2Data( bool isEditable, bool isIncorrect, double actualRadius );
+    cvf::Vec3d targetPointXYZ() const;
+    double     azimuth() const;
+    double     inclination() const;
+    cvf::Vec3d tangent() const;
+    double     radius1() const;
+    double     radius2() const;
+    void       setRadius1Data( bool isEditable, bool isIncorrect, double actualRadius );
+    void       setRadius2Data( bool isEditable, bool isIncorrect, double actualRadius );
 
     std::vector<caf::PdmFieldHandle*> fieldsFor3dManipulator();
 
     void onMoved();
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
     cvf::Vec3d targetPointForDisplayXYD() const;
     void       setTargetPointFromDisplayCoord( const cvf::Vec3d& coordInXYZ );
@@ -91,12 +88,11 @@ private:
     void                    enableFullUpdate( bool enable );
 
 private:
-    bool                                        m_isFullUpdateEnabled;
-    caf::PdmField<bool>                         m_isEnabled;
-    caf::PdmField<caf::AppEnum<TargetTypeEnum>> m_targetType;
-    caf::PdmField<cvf::Vec3d>                   m_targetPointXYD;
-    caf::PdmProxyValueField<cvf::Vec3d>         m_targetPointForDisplay;
-    caf::PdmProxyValueField<double>             m_targetMeasuredDepth;
+    bool                                m_isFullUpdateEnabled;
+    caf::PdmField<bool>                 m_isEnabled;
+    caf::PdmField<cvf::Vec3d>           m_targetPointXYD;
+    caf::PdmProxyValueField<cvf::Vec3d> m_targetPointForDisplay;
+    caf::PdmProxyValueField<double>     m_targetMeasuredDepth;
 
     caf::PdmField<double> m_azimuth;
     caf::PdmField<double> m_inclination;
@@ -104,10 +100,12 @@ private:
     caf::PdmField<double> m_dogleg2;
     caf::PdmField<bool>   m_useFixedInclination;
     caf::PdmField<bool>   m_useFixedAzimuth;
-    caf::PdmField<bool>   m_hasTangentConstraintUiField_OBSOLETE;
 
     caf::PdmField<double> m_estimatedAzimuth;
     caf::PdmField<double> m_estimatedInclination;
     caf::PdmField<double> m_estimatedDogleg1;
     caf::PdmField<double> m_estimatedDogleg2;
+
+    caf::PdmField<bool>                         m_hasTangentConstraintUiField_OBSOLETE;
+    caf::PdmField<caf::AppEnum<TargetTypeEnum>> m_targetType_OBSOLETE;
 };
