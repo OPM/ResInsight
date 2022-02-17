@@ -88,12 +88,11 @@ private:
     double     measuredDepth() const;
 
     RimWellPathGeometryDef* geometryDefinition() const;
+    void                    enableFullUpdate( bool enable );
 
 private:
-    void                                        enableFullUpdate( bool enable );
     bool                                        m_isFullUpdateEnabled;
     caf::PdmField<bool>                         m_isEnabled;
-    caf::PdmField<bool>                         m_isLocked;
     caf::PdmField<caf::AppEnum<TargetTypeEnum>> m_targetType;
     caf::PdmField<cvf::Vec3d>                   m_targetPointXYD;
     caf::PdmProxyValueField<cvf::Vec3d>         m_targetPointForDisplay;
@@ -103,5 +102,12 @@ private:
     caf::PdmField<double> m_inclination;
     caf::PdmField<double> m_dogleg1;
     caf::PdmField<double> m_dogleg2;
-    caf::PdmField<bool>   m_hasTangentConstraintUiField;
+    caf::PdmField<bool>   m_useFixedInclination;
+    caf::PdmField<bool>   m_useFixedAzimuth;
+    caf::PdmField<bool>   m_hasTangentConstraintUiField_OBSOLETE;
+
+    caf::PdmField<double> m_estimatedAzimuth;
+    caf::PdmField<double> m_estimatedInclination;
+    caf::PdmField<double> m_estimatedDogleg1;
+    caf::PdmField<double> m_estimatedDogleg2;
 };
