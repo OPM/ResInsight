@@ -29,6 +29,8 @@ public:
     {
         cvf::Vec3d targetPointXYZ;
         bool       isTangentConstrained;
+        bool       isAzimuthConstrained;
+        bool       isInclinationConstrained;
         double     azimuth;
         double     inclination;
 

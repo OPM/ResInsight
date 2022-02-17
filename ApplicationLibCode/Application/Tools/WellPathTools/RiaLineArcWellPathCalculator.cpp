@@ -74,19 +74,23 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
     {
         for ( size_t tIdx = 0; tIdx < activeWellPathTargets.size() - 2; ++tIdx )
         {
-            if ( !activeWellPathTargets[tIdx + 1].isTangentConstrained )
-            {
-                cvf::Vec3d tangent = smootheningTargetTangent( activeWellPathTargets[tIdx].targetPointXYZ,
-                                                               activeWellPathTargets[tIdx + 1].targetPointXYZ,
-                                                               activeWellPathTargets[tIdx + 2].targetPointXYZ );
-                RiaOffshoreSphericalCoords tangentSphCS( tangent );
-                adjustedWellPathTargets[tIdx + 1].azimuth              = tangentSphCS.azi();
-                adjustedWellPathTargets[tIdx + 1].inclination          = tangentSphCS.inc();
-                adjustedWellPathTargets[tIdx + 1].isTangentConstrained = true;
+            cvf::Vec3d tangent = smootheningTargetTangent( activeWellPathTargets[tIdx].targetPointXYZ,
+                                                           activeWellPathTargets[tIdx + 1].targetPointXYZ,
+                                                           activeWellPathTargets[tIdx + 2].targetPointXYZ );
 
-                m_targetStatuses[tIdx + 1].resultAzimuth     = tangentSphCS.azi();
-                m_targetStatuses[tIdx + 1].resultInclination = tangentSphCS.inc();
-            }
+            RiaOffshoreSphericalCoords tangentSphCS( tangent );
+            if ( !adjustedWellPathTargets[tIdx + 1].isAzimuthConstrained )
+                adjustedWellPathTargets[tIdx + 1].azimuth = tangentSphCS.azi();
+
+            if ( !adjustedWellPathTargets[tIdx + 1].isInclinationConstrained )
+                adjustedWellPathTargets[tIdx + 1].inclination = tangentSphCS.inc();
+
+            adjustedWellPathTargets[tIdx + 1].isTangentConstrained     = true;
+            adjustedWellPathTargets[tIdx + 1].isAzimuthConstrained     = true;
+            adjustedWellPathTargets[tIdx + 1].isInclinationConstrained = true;
+
+            m_targetStatuses[tIdx + 1].resultAzimuth     = adjustedWellPathTargets[tIdx + 1].azimuth;
+            m_targetStatuses[tIdx + 1].resultInclination = adjustedWellPathTargets[tIdx + 1].inclination;
         }
     }
 

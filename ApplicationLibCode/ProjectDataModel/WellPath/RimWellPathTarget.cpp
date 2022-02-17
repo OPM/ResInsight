@@ -213,12 +213,14 @@ RiaLineArcWellPathCalculator::WellTarget RimWellPathTarget::wellTargetData()
 {
     RiaLineArcWellPathCalculator::WellTarget targetData;
 
-    targetData.targetPointXYZ       = targetPointXYZ();
-    targetData.isTangentConstrained = m_useFixedAzimuth();
-    targetData.azimuth              = azimuth();
-    targetData.inclination          = inclination();
-    targetData.radius1              = radius1();
-    targetData.radius2              = radius2();
+    targetData.targetPointXYZ           = targetPointXYZ();
+    targetData.isTangentConstrained     = m_useFixedAzimuth();
+    targetData.isAzimuthConstrained     = m_useFixedAzimuth();
+    targetData.isInclinationConstrained = m_useFixedInclination();
+    targetData.azimuth                  = azimuth();
+    targetData.inclination              = inclination();
+    targetData.radius1                  = radius1();
+    targetData.radius2                  = radius2();
 
     return targetData;
 }
