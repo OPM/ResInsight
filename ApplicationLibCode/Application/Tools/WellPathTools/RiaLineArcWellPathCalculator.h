@@ -41,7 +41,6 @@ public:
 
     struct WellTargetStatus
     {
-        bool   hasDerivedTangent;
         double resultAzimuth;
         double resultInclination;
 

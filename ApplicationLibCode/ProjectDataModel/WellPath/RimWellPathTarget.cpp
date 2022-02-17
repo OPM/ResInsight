@@ -77,10 +77,10 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitScriptableField( &m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "" );
     CAF_PDM_InitScriptableField( &m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "" );
 
-    CAF_PDM_InitScriptableField( &m_estimatedDogleg1, "EstimatedDogleg1", 0.0, "Act DL in", "", "[deg/30m]", "" );
-    CAF_PDM_InitScriptableField( &m_estimatedDogleg2, "EstimatedDogleg2", 0.0, "Act DL out", "", "[deg/30m]", "" );
-    CAF_PDM_InitScriptableField( &m_estimatedAzimuth, "EstimatedAzimuth", 0.0, "Azi(deg)" );
-    CAF_PDM_InitScriptableField( &m_estimatedInclination, "EstimatedInclination", 0.0, "Inc(deg)" );
+    CAF_PDM_InitScriptableField( &m_estimatedDogleg1, "EstimatedDogleg1", 0.0, "Est DL in", "", "[deg/30m]", "" );
+    CAF_PDM_InitScriptableField( &m_estimatedDogleg2, "EstimatedDogleg2", 0.0, "Est DL out", "", "[deg/30m]", "" );
+    CAF_PDM_InitScriptableField( &m_estimatedAzimuth, "EstimatedAzimuth", 0.0, "Est Azi(deg)" );
+    CAF_PDM_InitScriptableField( &m_estimatedInclination, "EstimatedInclination", 0.0, "Est Inc(deg)" );
 
     CAF_PDM_InitFieldNoDefault( &m_targetType, "TargetType", "Type" );
     m_targetType.uiCapability()->setUiHidden( true );
@@ -303,7 +303,7 @@ double doglegFromRadius( double radius )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::flagRadius1AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius )
+void RimWellPathTarget::setRadius1Data( bool isEditable, bool isIncorrect, double actualRadius )
 {
     double estimatedDogLeg = doglegFromRadius( actualRadius );
     m_estimatedDogleg1     = estimatedDogLeg;
@@ -334,7 +334,7 @@ void RimWellPathTarget::flagRadius1AsIncorrect( bool isEditable, bool isIncorrec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::flagRadius2AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius )
+void RimWellPathTarget::setRadius2Data( bool isEditable, bool isIncorrect, double actualRadius )
 {
     double estimatedDogLeg = doglegFromRadius( actualRadius );
     m_estimatedDogleg2     = estimatedDogLeg;

@@ -67,8 +67,8 @@ public:
     cvf::Vec3d     tangent() const;
     double         radius1() const;
     double         radius2() const;
-    void           flagRadius1AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius );
-    void           flagRadius2AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius );
+    void           setRadius1Data( bool isEditable, bool isIncorrect, double actualRadius );
+    void           setRadius2Data( bool isEditable, bool isIncorrect, double actualRadius );
 
     std::vector<caf::PdmFieldHandle*> fieldsFor3dManipulator();
 

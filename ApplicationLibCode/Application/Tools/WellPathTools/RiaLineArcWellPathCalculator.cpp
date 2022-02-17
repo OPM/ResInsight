@@ -43,8 +43,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         {
             m_lineArcEndpoints.push_back( activeWellPathTargets[0].targetPointXYZ + referencePointXyz );
             m_targetStatuses.resize( activeWellPathTargets.size(),
-                                     { !activeWellPathTargets[0].isTangentConstrained,
-                                       0.0,
+                                     { 0.0,
                                        0.0,
                                        false,
                                        true,
@@ -58,8 +57,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
     }
 
     m_targetStatuses.resize( activeWellPathTargets.size(),
-                             { false,
-                               0.0,
+                             { 0.0,
                                0.0,
                                false,
                                false,
@@ -86,7 +84,6 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
                 adjustedWellPathTargets[tIdx + 1].inclination          = tangentSphCS.inc();
                 adjustedWellPathTargets[tIdx + 1].isTangentConstrained = true;
 
-                m_targetStatuses[tIdx + 1].hasDerivedTangent = true;
                 m_targetStatuses[tIdx + 1].resultAzimuth     = tangentSphCS.azi();
                 m_targetStatuses[tIdx + 1].resultInclination = tangentSphCS.inc();
             }
@@ -126,12 +123,11 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             else if ( jCurve.curveStatus() == RiaJCurveCalculator::FAILED_RADIUS_TOO_LARGE )
             {
                 target2Status.hasOverriddenRadius1 = true;
-                target2Status.resultRadius1        = jCurve.radius();
             }
+            target2Status.resultRadius1 = jCurve.radius();
 
             m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
 
-            target1Status.hasDerivedTangent = true;
             target1Status.resultAzimuth     = jCurve.endAzimuth() + M_PI;
             target1Status.resultInclination = M_PI - jCurve.endInclination();
 
@@ -143,11 +139,9 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             cvf::Vec3d                 t12 = target2.targetPointXYZ - target1.targetPointXYZ;
             RiaOffshoreSphericalCoords t12Sph( t12 );
 
-            target1Status.hasDerivedTangent = true;
             target1Status.resultAzimuth     = t12Sph.azi();
             target1Status.resultInclination = t12Sph.inc();
 
-            target2Status.hasDerivedTangent = true;
             target2Status.resultAzimuth     = t12Sph.azi();
             target2Status.resultInclination = t12Sph.inc();
         }
@@ -255,7 +249,6 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
 
         target1Status.isRadius2Editable = true;
 
-        target2Status.hasDerivedTangent = true;
         target2Status.resultAzimuth     = jCurve.endAzimuth();
         target2Status.resultInclination = jCurve.endInclination();
     }
