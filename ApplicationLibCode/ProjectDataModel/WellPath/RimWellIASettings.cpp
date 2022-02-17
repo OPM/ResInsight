@@ -328,9 +328,9 @@ QString RimWellIASettings::outputOdbFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellIASettings::outputHeatOdbFilename() const
+QString RimWellIASettings::outputDrillingOdbFilename() const
 {
-    return m_baseDir() + "/" + name() + "_heat.odb";
+    return m_baseDir() + "/" + name() + "_drilling.odb";
 }
 
 //--------------------------------------------------------------------------------------------------
