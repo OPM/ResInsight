@@ -75,19 +75,19 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitScriptableField( &m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "" );
 
     CAF_PDM_InitScriptableField( &m_useFixedAzimuth, "UseFixedAzimuth", false, "Azi" );
-    CAF_PDM_InitScriptableField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)" );
+    CAF_PDM_InitScriptableField( &m_azimuthDeg, "Azimuth", 0.0, "Azi(deg)" );
 
     CAF_PDM_InitScriptableField( &m_useFixedInclination, "UseFixedInclination", false, "Inc" );
-    CAF_PDM_InitScriptableField( &m_inclination, "Inclination", 0.0, "Inc(deg)" );
+    CAF_PDM_InitScriptableField( &m_inclinationDeg, "Inclination", 0.0, "Inc(deg)" );
 
     CAF_PDM_InitScriptableField( &m_estimatedDogleg1, "EstimatedDogleg1", 0.0, "Est DL in", "", "[deg/30m]", "" );
     m_estimatedDogleg1.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitScriptableField( &m_estimatedDogleg2, "EstimatedDogleg2", 0.0, "Est DL out", "", "[deg/30m]", "" );
     m_estimatedDogleg2.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitScriptableField( &m_estimatedAzimuth, "EstimatedAzimuth", 0.0, "Est Azi(deg)" );
-    m_estimatedAzimuth.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitScriptableField( &m_estimatedInclination, "EstimatedInclination", 0.0, "Est Inc(deg)" );
-    m_estimatedInclination.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitScriptableField( &m_estimatedAzimuthDeg, "EstimatedAzimuth", 0.0, "Est Azi(deg)" );
+    m_estimatedAzimuthDeg.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitScriptableField( &m_estimatedInclinationDeg, "EstimatedInclination", 0.0, "Est Inc(deg)" );
+    m_estimatedInclinationDeg.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitFieldNoDefault( &m_targetType_OBSOLETE, "TargetType", "Type" );
     m_targetType_OBSOLETE.uiCapability()->setUiHidden( true );
@@ -138,8 +138,8 @@ void RimWellPathTarget::setAsPointTargetXYD( const cvf::Vec3d& point )
 
     m_useFixedAzimuth     = false;
     m_useFixedInclination = false;
-    m_azimuth             = 0.0;
-    m_inclination         = 0.0;
+    m_azimuthDeg          = 0.0;
+    m_inclinationDeg      = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -151,8 +151,8 @@ void RimWellPathTarget::setAsPointTargetXYZ( const cvf::Vec3d& point )
 
     m_useFixedAzimuth     = false;
     m_useFixedInclination = false;
-    m_azimuth             = 0.0;
-    m_inclination         = 0.0;
+    m_azimuthDeg          = 0.0;
+    m_inclinationDeg      = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,38 +175,38 @@ void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, 
 
     m_useFixedAzimuth     = true;
     m_useFixedInclination = true;
-    m_azimuth             = cvf::Math::toDegrees( azimuth );
-    m_inclination         = cvf::Math::toDegrees( inclination );
+    m_azimuthDeg          = cvf::Math::toDegrees( azimuth );
+    m_inclinationDeg      = cvf::Math::toDegrees( inclination );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setFixedAzimuth( double fixedAzimuth )
+void RimWellPathTarget::setFixedAzimuth( double fixedAzimuthDeg )
 {
     m_useFixedAzimuth = true;
-    m_azimuth         = cvf::Math::toDegrees( fixedAzimuth );
+    m_azimuthDeg      = fixedAzimuthDeg;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setFixedInclination( double fixedInclination )
+void RimWellPathTarget::setFixedInclination( double fixedInclinationDeg )
 {
     m_useFixedInclination = true;
-    m_inclination         = cvf::Math::toDegrees( fixedInclination );
+    m_inclinationDeg      = fixedInclinationDeg;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setDerivedTangent( double azimuth, double inclination )
+void RimWellPathTarget::setDerivedTangent( double azimuthRadians, double inclinationRadians )
 {
-    m_estimatedAzimuth     = cvf::Math::toDegrees( azimuth );
-    m_estimatedInclination = cvf::Math::toDegrees( inclination );
+    m_estimatedAzimuthDeg     = cvf::Math::toDegrees( azimuthRadians );
+    m_estimatedInclinationDeg = cvf::Math::toDegrees( inclinationRadians );
 
-    if ( !m_useFixedAzimuth ) m_azimuth = cvf::Math::toDegrees( azimuth );
-    if ( !m_useFixedInclination ) m_inclination = cvf::Math::toDegrees( inclination );
+    if ( !m_useFixedAzimuth ) m_azimuthDeg = cvf::Math::toDegrees( azimuthRadians );
+    if ( !m_useFixedInclination ) m_inclinationDeg = cvf::Math::toDegrees( inclinationRadians );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +230,7 @@ RiaLineArcWellPathCalculator::WellTarget RimWellPathTarget::wellTargetData()
     targetData.isAzimuthConstrained     = m_useFixedAzimuth();
     targetData.isInclinationConstrained = m_useFixedInclination();
     targetData.azimuth                  = azimuth();
-    targetData.inclination              = inclination();
+    targetData.inclination              = inclinationRadians();
     targetData.radius1                  = radius1();
     targetData.radius2                  = radius2();
 
@@ -254,7 +254,7 @@ double RimWellPathTarget::azimuth() const
 {
     if ( m_useFixedAzimuth() )
     {
-        return cvf::Math::toRadians( m_azimuth );
+        return cvf::Math::toRadians( m_azimuthDeg );
     }
 
     return std::numeric_limits<double>::infinity();
@@ -263,11 +263,11 @@ double RimWellPathTarget::azimuth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathTarget::inclination() const
+double RimWellPathTarget::inclinationRadians() const
 {
     if ( m_useFixedInclination() )
     {
-        return cvf::Math::toRadians( m_inclination );
+        return cvf::Math::toRadians( m_inclinationDeg );
     }
 
     return std::numeric_limits<double>::infinity();
@@ -278,8 +278,8 @@ double RimWellPathTarget::inclination() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathTarget::tangent() const
 {
-    double aziRad = cvf::Math::toRadians( m_azimuth );
-    double incRad = cvf::Math::toRadians( m_inclination );
+    double aziRad = cvf::Math::toRadians( m_azimuthDeg );
+    double incRad = cvf::Math::toRadians( m_inclinationDeg );
 
     return RiaOffshoreSphericalCoords::unitVectorFromAziInc( aziRad, incRad );
 }
@@ -387,7 +387,7 @@ void RimWellPathTarget::setRadius2Data( bool isEditable, bool isIncorrect, doubl
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimWellPathTarget::fieldsFor3dManipulator()
 {
-    return { &m_targetPointXYD, &m_azimuth, &m_inclination };
+    return { &m_targetPointXYD, &m_azimuthDeg, &m_inclinationDeg };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -540,15 +540,15 @@ void RimWellPathTarget::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     {
         m_targetPointXYD.uiCapability()->setUiReadOnly( false );
 
-        m_azimuth.uiCapability()->setUiReadOnly( !m_useFixedAzimuth() );
-        m_inclination.uiCapability()->setUiReadOnly( !m_useFixedInclination() );
+        m_azimuthDeg.uiCapability()->setUiReadOnly( !m_useFixedAzimuth() );
+        m_inclinationDeg.uiCapability()->setUiReadOnly( !m_useFixedInclination() );
     }
     else
     {
         m_dogleg1.uiCapability()->setUiReadOnly( true );
         m_targetPointXYD.uiCapability()->setUiReadOnly( true );
-        m_azimuth.uiCapability()->setUiReadOnly( true );
-        m_inclination.uiCapability()->setUiReadOnly( true );
+        m_azimuthDeg.uiCapability()->setUiReadOnly( true );
+        m_inclinationDeg.uiCapability()->setUiReadOnly( true );
         m_dogleg2.uiCapability()->setUiReadOnly( true );
     }
 

@@ -49,9 +49,9 @@ public:
     void setAsPointTargetXYZ( const cvf::Vec3d& point );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination );
-    void setFixedAzimuth( double fixedAzimuth );
-    void setFixedInclination( double fixedInclination );
-    void setDerivedTangent( double azimuth, double inclination );
+    void setFixedAzimuth( double fixedAzimuthDeg );
+    void setFixedInclination( double fixedInclinationDeg );
+    void setDerivedTangent( double azimuthRadians, double inclinationRadians );
     void updateFrom3DManipulator( const cvf::Vec3d& pointXYD );
 
     RiaLineArcWellPathCalculator::WellTarget wellTargetData();
@@ -64,7 +64,7 @@ public:
 
     cvf::Vec3d targetPointXYZ() const;
     double     azimuth() const;
-    double     inclination() const;
+    double     inclinationRadians() const;
     cvf::Vec3d tangent() const;
     double     radius1() const;
     double     radius2() const;
@@ -96,8 +96,8 @@ private:
     caf::PdmProxyValueField<cvf::Vec3d> m_targetPointForDisplay;
     caf::PdmProxyValueField<double>     m_targetMeasuredDepth;
 
-    caf::PdmField<double> m_azimuth;
-    caf::PdmField<double> m_inclination;
+    caf::PdmField<double> m_azimuthDeg;
+    caf::PdmField<double> m_inclinationDeg;
     caf::PdmField<double> m_dogleg1;
     caf::PdmField<double> m_dogleg2;
     caf::PdmField<bool>   m_useFixedAzimuth;
@@ -105,8 +105,8 @@ private:
 
     caf::PdmField<double> m_estimatedDogleg1;
     caf::PdmField<double> m_estimatedDogleg2;
-    caf::PdmField<double> m_estimatedAzimuth;
-    caf::PdmField<double> m_estimatedInclination;
+    caf::PdmField<double> m_estimatedAzimuthDeg;
+    caf::PdmField<double> m_estimatedInclinationDeg;
 
     bool                                        m_isFullUpdateEnabled;
     caf::PdmField<bool>                         m_hasTangentConstraintUiField_OBSOLETE;
