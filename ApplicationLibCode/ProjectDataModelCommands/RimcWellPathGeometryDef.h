@@ -43,4 +43,9 @@ public:
 private:
     caf::PdmField<cvf::Vec3d> m_coordinate;
     caf::PdmField<bool>       m_isAbsolute;
+
+    caf::PdmField<bool>   m_useFixedAzimuth;
+    caf::PdmField<double> m_fixedAzimuthValue;
+    caf::PdmField<bool>   m_useFixedInclination;
+    caf::PdmField<double> m_fixedInclinationValue;
 };

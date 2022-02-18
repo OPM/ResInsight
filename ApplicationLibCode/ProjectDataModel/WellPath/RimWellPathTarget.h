@@ -49,6 +49,8 @@ public:
     void setAsPointTargetXYZ( const cvf::Vec3d& point );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination );
+    void setFixedAzimuth( double fixedAzimuth );
+    void setFixedInclination( double fixedInclination );
     void setDerivedTangent( double azimuth, double inclination );
     void updateFrom3DManipulator( const cvf::Vec3d& pointXYD );
 

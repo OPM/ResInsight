@@ -40,6 +40,11 @@ RimcRimWellPathGeometryDef_appendNewWellTarget::RimcRimWellPathGeometryDef_appen
     CAF_PDM_InitObject( "Create and Add New Well Target", "", "", "Create and Add New Well Target" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_coordinate, "Coordinate", "", "", "", "Coordinate" );
     CAF_PDM_InitScriptableField( &m_isAbsolute, "Absolute", false, "", "", "", "Relative or Absolute Coordinate" );
+
+    CAF_PDM_InitScriptableField( &m_useFixedAzimuth, "UseFixedAzimuth", false, "" );
+    CAF_PDM_InitScriptableField( &m_useFixedInclination, "UseFixedInclination", false, "" );
+    CAF_PDM_InitScriptableField( &m_fixedAzimuthValue, "FixedAzimuthValue", 0.0, "" );
+    CAF_PDM_InitScriptableField( &m_fixedInclinationValue, "FixedInclinationValue", 0.0, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,6 +65,17 @@ caf::PdmObjectHandle* RimcRimWellPathGeometryDef_appendNewWellTarget::execute()
     auto newTarget = new RimWellPathTarget;
     newTarget->setAsPointTargetXYD(
         cvf::Vec3d( relativeTargetPoint.x(), relativeTargetPoint.y(), -relativeTargetPoint.z() ) );
+
+    if ( m_useFixedAzimuth )
+    {
+        newTarget->setFixedAzimuth( m_fixedAzimuthValue );
+    }
+
+    if ( m_useFixedInclination )
+    {
+        newTarget->setFixedInclination( m_fixedInclinationValue );
+    }
+
     geoDef->insertTarget( nullptr, newTarget );
 
     geoDef->updateConnectedEditors();

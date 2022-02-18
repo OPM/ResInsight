@@ -182,6 +182,24 @@ void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::setFixedAzimuth( double fixedAzimuth )
+{
+    m_useFixedAzimuth = true;
+    m_azimuth         = cvf::Math::toDegrees( fixedAzimuth );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::setFixedInclination( double fixedInclination )
+{
+    m_useFixedInclination = true;
+    m_inclination         = cvf::Math::toDegrees( fixedInclination );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::setDerivedTangent( double azimuth, double inclination )
 {
     m_estimatedAzimuth     = cvf::Math::toDegrees( azimuth );
