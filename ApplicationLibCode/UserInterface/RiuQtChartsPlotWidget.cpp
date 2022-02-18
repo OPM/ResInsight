@@ -860,13 +860,21 @@ void RiuQtChartsPlotWidget::setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSerie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
+void RiuQtChartsPlotWidget::ensureAxis( RiuPlotAxis axis )
 {
-    // Make sure the axis we are about to set exists.
     if ( m_axes.find( axis ) == m_axes.end() )
     {
         addAxis( axis, true, true );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::setAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
+{
+    // Make sure the axis we are about to set exists.
+    ensureAxis( axis );
 
     if ( qtChart()->series().contains( series ) && !series->attachedAxes().contains( plotAxis( axis ) ) )
     {

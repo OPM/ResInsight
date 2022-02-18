@@ -153,6 +153,8 @@ public:
 
     virtual int axisExtent( RiuPlotAxis axis ) const = 0;
 
+    virtual void ensureAxis( RiuPlotAxis axis ) = 0;
+
     QPoint dragStartPosition() const;
 
     void         scheduleReplot();
