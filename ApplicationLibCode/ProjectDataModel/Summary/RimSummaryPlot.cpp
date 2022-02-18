@@ -2457,3 +2457,33 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* curve )
 
     curve->setLeftOrRightAxisY( newPlotAxis );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    if ( childArray == &m_axisProperties )
+    {
+        for ( caf::PdmObjectHandle* reffingObj : referringObjects )
+        {
+            RimSummaryCurve*     curve    = dynamic_cast<RimSummaryCurve*>( reffingObj );
+            RimEnsembleCurveSet* curveSet = dynamic_cast<RimEnsembleCurveSet*>( reffingObj );
+            if ( curve )
+            {
+                curve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+            }
+            else if ( curveSet )
+            {
+                curveSet->setAxisY( RiuPlotAxis::defaultLeft() );
+            }
+        }
+
+        if ( plotWidget() )
+        {
+            updateAxes();
+            plotWidget()->scheduleReplot();
+        }
+    }
+}

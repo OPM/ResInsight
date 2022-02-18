@@ -167,6 +167,9 @@ public:
 
     std::vector<cvf::Color3f> generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const;
 
+    RiuPlotAxis axisY() const;
+    void        setAxisY( RiuPlotAxis plotAxis );
+
 protected:
     void initAfterRead() override;
 
@@ -192,8 +195,7 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void        updatePlotAxis();
-    RiuPlotAxis axisY() const;
+    void updatePlotAxis();
 
     QString createAutoName() const;
 
