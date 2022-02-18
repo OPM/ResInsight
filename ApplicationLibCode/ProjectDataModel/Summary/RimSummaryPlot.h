@@ -189,6 +189,8 @@ public:
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
 
+    RimPlotAxisProperties* addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;
@@ -210,6 +212,8 @@ private:
     void onCurveCollectionChanged( const SignalEmitter* emitter );
 
     void connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis );
+
+    RimPlotAxisProperties* addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
 
 protected:
     // Overridden PDM methods
