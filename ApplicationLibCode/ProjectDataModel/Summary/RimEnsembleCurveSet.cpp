@@ -2094,6 +2094,16 @@ RiuPlotAxis RimEnsembleCurveSet::axisY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setAxisY( RiuPlotAxis plotAxis )
+{
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted( plot );
+    m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::initAfterRead()
 {
     if ( m_plotAxisProperties.value() == nullptr )

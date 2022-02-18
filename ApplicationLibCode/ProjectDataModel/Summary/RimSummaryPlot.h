@@ -220,8 +220,11 @@ protected:
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
-    void                 updateStackedCurveData();
-    void                 updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
+    void                 onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+    void updateStackedCurveData();
+    void updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
