@@ -905,7 +905,9 @@ void RiuQtChartsPlotWidget::addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool 
 {
     QValueAxis* axis = new QValueAxis();
     qtChart()->addAxis( axis, mapPlotAxisToQtAlignment( plotAxis.axis() ) );
-    m_axes[plotAxis] = axis;
+    m_axes[plotAxis]          = axis;
+    m_axesEnabled[plotAxis]   = isEnabled;
+    m_axesAutoScale[plotAxis] = isAutoScale;
 }
 
 //--------------------------------------------------------------------------------------------------

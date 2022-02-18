@@ -677,6 +677,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryEnsembleCurveSetFeature";
             menuBuilder << "RicDuplicateSummaryCrossPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
+            menuBuilder << "RicNewPlotAxisPropertiesFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicSavePlotTemplateFeature";
 
