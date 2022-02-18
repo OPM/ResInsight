@@ -23,6 +23,7 @@
 #include "RigWellPath.h"
 
 #include "RimModeledWellPath.h"
+#include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
 
@@ -51,10 +52,6 @@ void caf::AppEnum<RimWellPathTarget::TargetTypeEnum>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellPathTarget::RimWellPathTarget()
     : moved( this )
-    , m_targetType_OBSOLETE( TargetTypeEnum::POINT )
-    , m_targetPointXYD( cvf::Vec3d::ZERO )
-    , m_azimuth( 0.0 )
-    , m_inclination( 0.0 )
     , m_isFullUpdateEnabled( true )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Target",
@@ -77,6 +74,12 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitScriptableField( &m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "" );
     CAF_PDM_InitScriptableField( &m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "" );
 
+    CAF_PDM_InitScriptableField( &m_useFixedAzimuth, "UseFixedAzimuth", false, "Azi" );
+    CAF_PDM_InitScriptableField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)" );
+
+    CAF_PDM_InitScriptableField( &m_useFixedInclination, "UseFixedInclination", false, "Inc" );
+    CAF_PDM_InitScriptableField( &m_inclination, "Inclination", 0.0, "Inc(deg)" );
+
     CAF_PDM_InitScriptableField( &m_estimatedDogleg1, "EstimatedDogleg1", 0.0, "Est DL in", "", "[deg/30m]", "" );
     m_estimatedDogleg1.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitScriptableField( &m_estimatedDogleg2, "EstimatedDogleg2", 0.0, "Est DL out", "", "[deg/30m]", "" );
@@ -86,16 +89,12 @@ RimWellPathTarget::RimWellPathTarget()
     CAF_PDM_InitScriptableField( &m_estimatedInclination, "EstimatedInclination", 0.0, "Est Inc(deg)" );
     m_estimatedInclination.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_useFixedAzimuth, "UseFixedAzimuth", false, "Azi" );
-    CAF_PDM_InitScriptableField( &m_useFixedInclination, "UseFixedInclination", false, "Inc" );
-
-    CAF_PDM_InitScriptableField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)" );
-    CAF_PDM_InitScriptableField( &m_inclination, "Inclination", 0.0, "Inc(deg)" );
-
     CAF_PDM_InitFieldNoDefault( &m_targetType_OBSOLETE, "TargetType", "Type" );
     m_targetType_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_targetType_OBSOLETE.xmlCapability()->setIOWritable( false );
+
     CAF_PDM_InitField( &m_hasTangentConstraintUiField_OBSOLETE, "HasTangentConstraint", false, "Dir" );
-    m_hasTangentConstraintUiField_OBSOLETE.xmlCapability()->disableIO();
+    m_hasTangentConstraintUiField_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_hasTangentConstraintUiField_OBSOLETE.uiCapability()->setUiHidden( true );
 }
 
@@ -135,8 +134,6 @@ void RimWellPathTarget::setPointXYZ( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::setAsPointTargetXYD( const cvf::Vec3d& point )
 {
-    m_targetType_OBSOLETE = TargetTypeEnum::POINT;
-
     m_targetPointXYD = point;
 
     m_useFixedAzimuth     = false;
@@ -150,8 +147,6 @@ void RimWellPathTarget::setAsPointTargetXYD( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::setAsPointTargetXYZ( const cvf::Vec3d& point )
 {
-    m_targetType_OBSOLETE = TargetTypeEnum::POINT;
-
     m_targetPointXYD = cvf::Vec3d( point.x(), point.y(), -point.z() );
 
     m_useFixedAzimuth     = false;
@@ -396,6 +391,21 @@ void RimWellPathTarget::enableFullUpdate( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.10.2" ) )
+    {
+        if ( m_targetType_OBSOLETE() == RimWellPathTarget::TargetTypeEnum::POINT_AND_TANGENT )
+        {
+            m_useFixedAzimuth     = true;
+            m_useFixedInclination = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                QString                    uiConfigName,
                                                caf::PdmUiEditorAttribute* attribute )
@@ -500,14 +510,6 @@ void RimWellPathTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
                                           const QVariant&            oldValue,
                                           const QVariant&            newValue )
 {
-    if ( changedField == &m_hasTangentConstraintUiField_OBSOLETE )
-    {
-        if ( m_hasTangentConstraintUiField_OBSOLETE )
-            m_targetType_OBSOLETE = TargetTypeEnum::POINT_AND_TANGENT;
-        else
-            m_targetType_OBSOLETE = TargetTypeEnum::POINT;
-    }
-
     moved.send( m_isFullUpdateEnabled );
 }
 
