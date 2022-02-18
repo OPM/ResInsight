@@ -1718,6 +1718,28 @@ void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiaDefines::PlotAxis plotAxis, const QString& name )
+{
+    RiuPlotAxis newPlotAxis = plotWidget()->createNextPlotAxis( plotAxis );
+    return addNewAxisProperties( newPlotAxis, name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name )
+{
+    RimPlotAxisProperties* axisProperties = new RimPlotAxisProperties;
+    axisProperties->setNameAndAxis( name, plotAxis.axis(), plotAxis.index() );
+    m_axisProperties.push_back( axisProperties );
+    connectAxisSignals( axisProperties );
+
+    return axisProperties;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
                                           RimPlotAxisProperties*    axisProperties,
                                           RiuPlotAxis               oldPlotAxis,
