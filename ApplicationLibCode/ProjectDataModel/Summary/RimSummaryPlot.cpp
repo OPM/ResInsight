@@ -2006,6 +2006,11 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
         m_summaryPlot = std::make_unique<RiuSummaryQwtPlot>( this, mainWindowParent );
 #endif
 
+        for ( auto axisProperties : m_axisProperties )
+        {
+            plotWidget()->ensureAxis( axisProperties->plotAxisType() );
+        }
+
         for ( RimGridTimeHistoryCurve* curve : m_gridTimeHistoryCurves )
         {
             curve->setParentPlotNoReplot( plotWidget() );

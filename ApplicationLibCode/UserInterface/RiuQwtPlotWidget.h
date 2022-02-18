@@ -131,6 +131,8 @@ public:
 
     int axisExtent( RiuPlotAxis axis ) const override;
 
+    void ensureAxis( RiuPlotAxis axis ) override;
+
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
