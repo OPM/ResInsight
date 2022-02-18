@@ -121,21 +121,12 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_axisProperties, "AxisProperties", "Axes", ":/Axes16x16.png" );
 
-    RimPlotAxisProperties* leftYAxisProperties = new RimPlotAxisProperties;
-    leftYAxisProperties->setNameAndAxis( "Left", RiaDefines::PlotAxis::PLOT_AXIS_LEFT, 0 );
-    m_axisProperties.push_back( leftYAxisProperties );
-    connectAxisSignals( leftYAxisProperties );
-
-    RimPlotAxisProperties* rightYAxisProperties = new RimPlotAxisProperties;
-    rightYAxisProperties->setNameAndAxis( "Right", RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, 0 );
-    m_axisProperties.push_back( rightYAxisProperties );
-    connectAxisSignals( rightYAxisProperties );
+    addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
+    addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
 
     if ( m_isCrossPlot )
     {
-        RimPlotAxisProperties* bottomAxisProperties = new RimPlotAxisProperties;
-        bottomAxisProperties->setNameAndAxis( "Bottom", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, 0 );
-        m_axisProperties.push_back( bottomAxisProperties );
+        addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
     }
     else
     {
@@ -2451,16 +2442,12 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* curve )
     RiuPlotAxis newPlotAxis = RiuPlotAxis::defaultLeft();
     if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
     {
-        newPlotAxis = plotWidget()->createNextPlotAxis( plotAxis );
-
         QString axisObjectName = "New Axis";
         if ( !curve->summaryAddressY().uiText().empty() )
             axisObjectName = QString::fromStdString( curve->summaryAddressY().uiText() );
 
-        auto* newAxisProperties = new RimPlotAxisProperties;
-        newAxisProperties->setNameAndAxis( axisObjectName, newPlotAxis.axis(), newPlotAxis.index() );
-        m_axisProperties.push_back( newAxisProperties );
-        connectAxisSignals( newAxisProperties );
+        newPlotAxis = plotWidget()->createNextPlotAxis( plotAxis );
+        addNewAxisProperties( newPlotAxis, axisObjectName );
     }
 
     curve->setLeftOrRightAxisY( newPlotAxis );
