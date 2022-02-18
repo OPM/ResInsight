@@ -43,8 +43,8 @@ RimcRimWellPathGeometryDef_appendNewWellTarget::RimcRimWellPathGeometryDef_appen
 
     CAF_PDM_InitScriptableField( &m_useFixedAzimuth, "UseFixedAzimuth", false, "" );
     CAF_PDM_InitScriptableField( &m_useFixedInclination, "UseFixedInclination", false, "" );
-    CAF_PDM_InitScriptableField( &m_fixedAzimuthValue, "FixedAzimuthValue", 0.0, "" );
-    CAF_PDM_InitScriptableField( &m_fixedInclinationValue, "FixedInclinationValue", 0.0, "" );
+    CAF_PDM_InitScriptableField( &m_fixedAzimuthValue, "FixedAzimuthValue", 0.0, "", "", "", "[Degrees]" );
+    CAF_PDM_InitScriptableField( &m_fixedInclinationValue, "FixedInclinationValue", 0.0, "", "", "", "[Degrees]" );
 }
 
 //--------------------------------------------------------------------------------------------------

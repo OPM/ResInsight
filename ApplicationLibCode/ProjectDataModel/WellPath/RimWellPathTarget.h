@@ -48,7 +48,7 @@ public:
     void setAsPointTargetXYD( const cvf::Vec3d& point );
     void setAsPointTargetXYZ( const cvf::Vec3d& point );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent );
-    void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination );
+    void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuthRadians, double inclinationRadians );
     void setFixedAzimuth( double fixedAzimuthDeg );
     void setFixedInclination( double fixedInclinationDeg );
     void setDerivedTangent( double azimuthRadians, double inclinationRadians );
@@ -63,7 +63,7 @@ public:
     };
 
     cvf::Vec3d targetPointXYZ() const;
-    double     azimuth() const;
+    double     azimuthRadians() const;
     double     inclinationRadians() const;
     cvf::Vec3d tangent() const;
     double     radius1() const;

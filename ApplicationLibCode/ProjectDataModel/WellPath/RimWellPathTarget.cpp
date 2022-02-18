@@ -167,7 +167,7 @@ void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination )
+void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuthRadians, double inclinationRadians )
 {
     m_targetType_OBSOLETE = TargetTypeEnum::POINT_AND_TANGENT;
 
@@ -175,8 +175,8 @@ void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, 
 
     m_useFixedAzimuth     = true;
     m_useFixedInclination = true;
-    m_azimuthDeg          = cvf::Math::toDegrees( azimuth );
-    m_inclinationDeg      = cvf::Math::toDegrees( inclination );
+    m_azimuthDeg          = cvf::Math::toDegrees( azimuthRadians );
+    m_inclinationDeg      = cvf::Math::toDegrees( inclinationRadians );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -229,8 +229,8 @@ RiaLineArcWellPathCalculator::WellTarget RimWellPathTarget::wellTargetData()
     targetData.targetPointXYZ           = targetPointXYZ();
     targetData.isAzimuthConstrained     = m_useFixedAzimuth();
     targetData.isInclinationConstrained = m_useFixedInclination();
-    targetData.azimuth                  = azimuth();
-    targetData.inclination              = inclinationRadians();
+    targetData.azimuthRadians           = azimuthRadians();
+    targetData.inclinationRadians       = inclinationRadians();
     targetData.radius1                  = radius1();
     targetData.radius2                  = radius2();
 
@@ -250,7 +250,7 @@ cvf::Vec3d RimWellPathTarget::targetPointXYZ() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathTarget::azimuth() const
+double RimWellPathTarget::azimuthRadians() const
 {
     if ( m_useFixedAzimuth() )
     {

@@ -624,7 +624,8 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
 
     for ( size_t tIdx = 0; tIdx < activeTargets.size(); ++tIdx )
     {
-        activeTargets[tIdx]->setDerivedTangent( targetStatuses[tIdx].resultAzimuth, targetStatuses[tIdx].resultInclination );
+        activeTargets[tIdx]->setDerivedTangent( targetStatuses[tIdx].resultAzimuthRadians,
+                                                targetStatuses[tIdx].resultInclinationRadians );
 
         activeTargets[tIdx]->setRadius1Data( targetStatuses[tIdx].isRadius1Editable,
                                              targetStatuses[tIdx].hasOverriddenRadius1,

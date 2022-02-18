@@ -32,8 +32,8 @@ public:
         cvf::Vec3d targetPointXYZ;
         bool       isAzimuthConstrained;
         bool       isInclinationConstrained;
-        double     azimuth;
-        double     inclination;
+        double     azimuthRadians;
+        double     inclinationRadians;
 
         double radius1;
         double radius2;
@@ -44,8 +44,8 @@ public:
 
     struct WellTargetStatus
     {
-        double resultAzimuth;
-        double resultInclination;
+        double resultAzimuthRadians;
+        double resultInclinationRadians;
 
         bool   isRadius1Editable;
         bool   hasOverriddenRadius1;

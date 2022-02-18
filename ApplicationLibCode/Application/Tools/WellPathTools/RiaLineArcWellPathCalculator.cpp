@@ -80,16 +80,16 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
 
             RiaOffshoreSphericalCoords tangentSphCS( tangent );
             if ( !adjustedWellPathTargets[tIdx + 1].isAzimuthConstrained )
-                adjustedWellPathTargets[tIdx + 1].azimuth = tangentSphCS.azi();
+                adjustedWellPathTargets[tIdx + 1].azimuthRadians = tangentSphCS.azi();
 
             if ( !adjustedWellPathTargets[tIdx + 1].isInclinationConstrained )
-                adjustedWellPathTargets[tIdx + 1].inclination = tangentSphCS.inc();
+                adjustedWellPathTargets[tIdx + 1].inclinationRadians = tangentSphCS.inc();
 
             adjustedWellPathTargets[tIdx + 1].isAzimuthConstrained     = true;
             adjustedWellPathTargets[tIdx + 1].isInclinationConstrained = true;
 
-            m_targetStatuses[tIdx + 1].resultAzimuth     = adjustedWellPathTargets[tIdx + 1].azimuth;
-            m_targetStatuses[tIdx + 1].resultInclination = adjustedWellPathTargets[tIdx + 1].inclination;
+            m_targetStatuses[tIdx + 1].resultAzimuthRadians     = adjustedWellPathTargets[tIdx + 1].azimuthRadians;
+            m_targetStatuses[tIdx + 1].resultInclinationRadians = adjustedWellPathTargets[tIdx + 1].inclinationRadians;
         }
     }
 
@@ -114,8 +114,8 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             // Create an upside down J curve from target 2 back to 1
 
             RiaJCurveCalculator jCurve( target2.targetPointXYZ,
-                                        target2.azimuth + M_PI,
-                                        M_PI - target2.inclination,
+                                        target2.azimuthRadians + M_PI,
+                                        M_PI - target2.inclinationRadians,
                                         target2.radius1,
                                         target1.targetPointXYZ );
 
@@ -131,8 +131,8 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
 
             m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
 
-            target1Status.resultAzimuth     = jCurve.endAzimuth() + M_PI;
-            target1Status.resultInclination = M_PI - jCurve.endInclination();
+            target1Status.resultAzimuthRadians     = jCurve.endAzimuth() + M_PI;
+            target1Status.resultInclinationRadians = M_PI - jCurve.endInclination();
 
             target2Status.isRadius1Editable = true;
         }
@@ -142,20 +142,20 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             cvf::Vec3d                 t12 = target2.targetPointXYZ - target1.targetPointXYZ;
             RiaOffshoreSphericalCoords t12Sph( t12 );
 
-            target1Status.resultAzimuth     = t12Sph.azi();
-            target1Status.resultInclination = t12Sph.inc();
+            target1Status.resultAzimuthRadians     = t12Sph.azi();
+            target1Status.resultInclinationRadians = t12Sph.inc();
 
-            target2Status.resultAzimuth     = t12Sph.azi();
-            target2Status.resultInclination = t12Sph.inc();
+            target2Status.resultAzimuthRadians     = t12Sph.azi();
+            target2Status.resultInclinationRadians = t12Sph.inc();
         }
 
-        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( target1Status.resultAzimuth,
-                                                                           target1Status.resultInclination );
+        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( target1Status.resultAzimuthRadians,
+                                                                           target1Status.resultInclinationRadians );
     }
     else
     {
-        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( activeWellPathTargets[0].azimuth,
-                                                                           activeWellPathTargets[0].inclination );
+        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( activeWellPathTargets[0].azimuthRadians,
+                                                                           activeWellPathTargets[0].inclinationRadians );
     }
 
     if ( !adjustedWellPathTargets.back().isAnyDirectionFixed() )
@@ -180,24 +180,24 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             if ( target1.isAnyDirectionFixed() && target2.isAnyDirectionFixed() )
             {
                 RiaSCurveCalculator sCurveCalc( target1.targetPointXYZ,
-                                                target1.azimuth,
-                                                target1.inclination,
+                                                target1.azimuthRadians,
+                                                target1.inclinationRadians,
                                                 target1.radius2,
                                                 target2.targetPointXYZ,
-                                                target2.azimuth,
-                                                target2.inclination,
+                                                target2.azimuthRadians,
+                                                target2.inclinationRadians,
                                                 target2.radius1 );
 
                 if ( sCurveCalc.solveStatus() != RiaSCurveCalculator::CONVERGED )
                 {
                     double p1p2Length = ( target2.targetPointXYZ - target1.targetPointXYZ ).length();
                     sCurveCalc        = RiaSCurveCalculator::fromTangentsAndLength( target1.targetPointXYZ,
-                                                                             target1.azimuth,
-                                                                             target1.inclination,
+                                                                             target1.azimuthRadians,
+                                                                             target1.inclinationRadians,
                                                                              0.2 * p1p2Length,
                                                                              target2.targetPointXYZ,
-                                                                             target2.azimuth,
-                                                                             target2.inclination,
+                                                                             target2.azimuthRadians,
+                                                                             target2.inclinationRadians,
                                                                              0.2 * p1p2Length );
 
                     // RiaLogging::warning("Using fall-back calculation of well path geometry between active target
@@ -232,8 +232,8 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         // Create an ordinary J curve
 
         RiaJCurveCalculator jCurve( target1.targetPointXYZ,
-                                    target1.azimuth,
-                                    target1.inclination,
+                                    target1.azimuthRadians,
+                                    target1.inclinationRadians,
                                     target1.radius2,
                                     target2.targetPointXYZ );
 
@@ -251,8 +251,8 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
 
         m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
 
-        target2Status.resultAzimuth     = jCurve.endAzimuth();
-        target2Status.resultInclination = jCurve.endInclination();
+        target2Status.resultAzimuthRadians     = jCurve.endAzimuth();
+        target2Status.resultInclinationRadians = jCurve.endInclination();
     }
 }
 
