@@ -95,6 +95,8 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     m_annotations.uiCapability()->setUiTreeHidden( true );
 
     updateOptionSensitivity();
+
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
