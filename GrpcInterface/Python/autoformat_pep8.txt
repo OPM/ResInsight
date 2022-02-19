@@ -1,6 +1,0 @@
-
-Set working folder to /rips
----------------------------
-python -m autopep8 --in-place --recursive .
-
-Adjustments to behaviour is configured in setup.cfg at repository top level, in section [pep8]
