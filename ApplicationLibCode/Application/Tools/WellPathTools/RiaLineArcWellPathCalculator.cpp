@@ -43,8 +43,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         {
             m_lineArcEndpoints.push_back( activeWellPathTargets[0].targetPointXYZ + referencePointXyz );
             m_targetStatuses.resize( activeWellPathTargets.size(),
-                                     { !activeWellPathTargets[0].isTangentConstrained,
-                                       0.0,
+                                     { 0.0,
                                        0.0,
                                        false,
                                        true,
@@ -58,8 +57,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
     }
 
     m_targetStatuses.resize( activeWellPathTargets.size(),
-                             { false,
-                               0.0,
+                             { 0.0,
                                0.0,
                                false,
                                false,
@@ -76,20 +74,22 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
     {
         for ( size_t tIdx = 0; tIdx < activeWellPathTargets.size() - 2; ++tIdx )
         {
-            if ( !activeWellPathTargets[tIdx + 1].isTangentConstrained )
-            {
-                cvf::Vec3d tangent = smootheningTargetTangent( activeWellPathTargets[tIdx].targetPointXYZ,
-                                                               activeWellPathTargets[tIdx + 1].targetPointXYZ,
-                                                               activeWellPathTargets[tIdx + 2].targetPointXYZ );
-                RiaOffshoreSphericalCoords tangentSphCS( tangent );
-                adjustedWellPathTargets[tIdx + 1].azimuth              = tangentSphCS.azi();
-                adjustedWellPathTargets[tIdx + 1].inclination          = tangentSphCS.inc();
-                adjustedWellPathTargets[tIdx + 1].isTangentConstrained = true;
+            cvf::Vec3d tangent = smootheningTargetTangent( activeWellPathTargets[tIdx].targetPointXYZ,
+                                                           activeWellPathTargets[tIdx + 1].targetPointXYZ,
+                                                           activeWellPathTargets[tIdx + 2].targetPointXYZ );
 
-                m_targetStatuses[tIdx + 1].hasDerivedTangent = true;
-                m_targetStatuses[tIdx + 1].resultAzimuth     = tangentSphCS.azi();
-                m_targetStatuses[tIdx + 1].resultInclination = tangentSphCS.inc();
-            }
+            RiaOffshoreSphericalCoords tangentSphCS( tangent );
+            if ( !adjustedWellPathTargets[tIdx + 1].isAzimuthConstrained )
+                adjustedWellPathTargets[tIdx + 1].azimuthRadians = tangentSphCS.azi();
+
+            if ( !adjustedWellPathTargets[tIdx + 1].isInclinationConstrained )
+                adjustedWellPathTargets[tIdx + 1].inclinationRadians = tangentSphCS.inc();
+
+            adjustedWellPathTargets[tIdx + 1].isAzimuthConstrained     = true;
+            adjustedWellPathTargets[tIdx + 1].isInclinationConstrained = true;
+
+            m_targetStatuses[tIdx + 1].resultAzimuthRadians     = adjustedWellPathTargets[tIdx + 1].azimuthRadians;
+            m_targetStatuses[tIdx + 1].resultInclinationRadians = adjustedWellPathTargets[tIdx + 1].inclinationRadians;
         }
     }
 
@@ -100,7 +100,7 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
     size_t startSSegmentIdx = 0;
     size_t endSSegementIdx  = activeWellPathTargets.size() - 1;
 
-    if ( !adjustedWellPathTargets[0].isTangentConstrained )
+    if ( !adjustedWellPathTargets[0].isAnyDirectionFixed() )
     {
         startSSegmentIdx = 1;
 
@@ -109,13 +109,13 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         WellTargetStatus& target1Status = m_targetStatuses[0];
         WellTargetStatus& target2Status = m_targetStatuses[1];
 
-        if ( adjustedWellPathTargets[1].isTangentConstrained )
+        if ( adjustedWellPathTargets[1].isAnyDirectionFixed() )
         {
             // Create an upside down J curve from target 2 back to 1
 
             RiaJCurveCalculator jCurve( target2.targetPointXYZ,
-                                        target2.azimuth + M_PI,
-                                        M_PI - target2.inclination,
+                                        target2.azimuthRadians + M_PI,
+                                        M_PI - target2.inclinationRadians,
                                         target2.radius1,
                                         target1.targetPointXYZ );
 
@@ -126,14 +126,13 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             else if ( jCurve.curveStatus() == RiaJCurveCalculator::FAILED_RADIUS_TOO_LARGE )
             {
                 target2Status.hasOverriddenRadius1 = true;
-                target2Status.resultRadius1        = jCurve.radius();
             }
+            target2Status.resultRadius1 = jCurve.radius();
 
             m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
 
-            target1Status.hasDerivedTangent = true;
-            target1Status.resultAzimuth     = jCurve.endAzimuth() + M_PI;
-            target1Status.resultInclination = M_PI - jCurve.endInclination();
+            target1Status.resultAzimuthRadians     = jCurve.endAzimuth() + M_PI;
+            target1Status.resultInclinationRadians = M_PI - jCurve.endInclination();
 
             target2Status.isRadius1Editable = true;
         }
@@ -143,25 +142,23 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             cvf::Vec3d                 t12 = target2.targetPointXYZ - target1.targetPointXYZ;
             RiaOffshoreSphericalCoords t12Sph( t12 );
 
-            target1Status.hasDerivedTangent = true;
-            target1Status.resultAzimuth     = t12Sph.azi();
-            target1Status.resultInclination = t12Sph.inc();
+            target1Status.resultAzimuthRadians     = t12Sph.azi();
+            target1Status.resultInclinationRadians = t12Sph.inc();
 
-            target2Status.hasDerivedTangent = true;
-            target2Status.resultAzimuth     = t12Sph.azi();
-            target2Status.resultInclination = t12Sph.inc();
+            target2Status.resultAzimuthRadians     = t12Sph.azi();
+            target2Status.resultInclinationRadians = t12Sph.inc();
         }
 
-        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( target1Status.resultAzimuth,
-                                                                           target1Status.resultInclination );
+        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( target1Status.resultAzimuthRadians,
+                                                                           target1Status.resultInclinationRadians );
     }
     else
     {
-        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( activeWellPathTargets[0].azimuth,
-                                                                           activeWellPathTargets[0].inclination );
+        m_startTangent = RiaOffshoreSphericalCoords::unitVectorFromAziInc( activeWellPathTargets[0].azimuthRadians,
+                                                                           activeWellPathTargets[0].inclinationRadians );
     }
 
-    if ( !adjustedWellPathTargets.back().isTangentConstrained )
+    if ( !adjustedWellPathTargets.back().isAnyDirectionFixed() )
     {
         endSSegementIdx -= 1;
     }
@@ -180,45 +177,44 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
             // Ignore targets in the same place
             if ( ( target1.targetPointXYZ - target2.targetPointXYZ ).length() < 1e-6 ) continue;
 
-            if ( target1.isTangentConstrained && target2.isTangentConstrained )
+            if ( target1.isAnyDirectionFixed() && target2.isAnyDirectionFixed() )
             {
                 RiaSCurveCalculator sCurveCalc( target1.targetPointXYZ,
-                                                target1.azimuth,
-                                                target1.inclination,
+                                                target1.azimuthRadians,
+                                                target1.inclinationRadians,
                                                 target1.radius2,
                                                 target2.targetPointXYZ,
-                                                target2.azimuth,
-                                                target2.inclination,
+                                                target2.azimuthRadians,
+                                                target2.inclinationRadians,
                                                 target2.radius1 );
 
                 if ( sCurveCalc.solveStatus() != RiaSCurveCalculator::CONVERGED )
                 {
                     double p1p2Length = ( target2.targetPointXYZ - target1.targetPointXYZ ).length();
                     sCurveCalc        = RiaSCurveCalculator::fromTangentsAndLength( target1.targetPointXYZ,
-                                                                             target1.azimuth,
-                                                                             target1.inclination,
+                                                                             target1.azimuthRadians,
+                                                                             target1.inclinationRadians,
                                                                              0.2 * p1p2Length,
                                                                              target2.targetPointXYZ,
-                                                                             target2.azimuth,
-                                                                             target2.inclination,
+                                                                             target2.azimuthRadians,
+                                                                             target2.inclinationRadians,
                                                                              0.2 * p1p2Length );
 
                     // RiaLogging::warning("Using fall-back calculation of well path geometry between active target
                     // number: " + QString::number(tIdx+1) + " and " + QString::number(tIdx+2));
 
                     target1Status.hasOverriddenRadius2 = true;
-                    target1Status.resultRadius2        = sCurveCalc.firstRadius();
-
                     target2Status.hasOverriddenRadius1 = true;
-                    target2Status.resultRadius1        = sCurveCalc.secondRadius();
                 }
+
+                target2Status.resultRadius1     = sCurveCalc.secondRadius();
+                target1Status.resultRadius2     = sCurveCalc.firstRadius();
+                target2Status.isRadius1Editable = true;
+                target1Status.isRadius2Editable = true;
 
                 m_lineArcEndpoints.push_back( sCurveCalc.firstArcEndpoint() + referencePointXyz );
                 m_lineArcEndpoints.push_back( sCurveCalc.secondArcStartpoint() + referencePointXyz );
                 m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
-
-                target1Status.isRadius2Editable = true;
-                target2Status.isRadius1Editable = true;
             }
         }
     }
@@ -236,8 +232,8 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         // Create an ordinary J curve
 
         RiaJCurveCalculator jCurve( target1.targetPointXYZ,
-                                    target1.azimuth,
-                                    target1.inclination,
+                                    target1.azimuthRadians,
+                                    target1.inclinationRadians,
                                     target1.radius2,
                                     target2.targetPointXYZ );
 
@@ -248,16 +244,15 @@ RiaLineArcWellPathCalculator::RiaLineArcWellPathCalculator( const cvf::Vec3d&   
         else if ( jCurve.curveStatus() == RiaJCurveCalculator::FAILED_RADIUS_TOO_LARGE )
         {
             target1Status.hasOverriddenRadius2 = true;
-            target1Status.resultRadius2        = jCurve.radius();
         }
+
+        target1Status.resultRadius2     = jCurve.radius();
+        target1Status.isRadius2Editable = true;
 
         m_lineArcEndpoints.push_back( target2.targetPointXYZ + referencePointXyz );
 
-        target1Status.isRadius2Editable = true;
-
-        target2Status.hasDerivedTangent = true;
-        target2Status.resultAzimuth     = jCurve.endAzimuth();
-        target2Status.resultInclination = jCurve.endInclination();
+        target2Status.resultAzimuthRadians     = jCurve.endAzimuth();
+        target2Status.resultInclinationRadians = jCurve.endInclination();
     }
 }
 

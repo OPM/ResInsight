@@ -27,10 +27,13 @@ class RiaLineArcWellPathCalculator
 public:
     struct WellTarget
     {
+        bool isAnyDirectionFixed() const { return isAzimuthConstrained || isInclinationConstrained; }
+
         cvf::Vec3d targetPointXYZ;
-        bool       isTangentConstrained;
-        double     azimuth;
-        double     inclination;
+        bool       isAzimuthConstrained;
+        bool       isInclinationConstrained;
+        double     azimuthRadians;
+        double     inclinationRadians;
 
         double radius1;
         double radius2;
@@ -41,9 +44,8 @@ public:
 
     struct WellTargetStatus
     {
-        bool   hasDerivedTangent;
-        double resultAzimuth;
-        double resultInclination;
+        double resultAzimuthRadians;
+        double resultInclinationRadians;
 
         bool   isRadius1Editable;
         bool   hasOverriddenRadius1;

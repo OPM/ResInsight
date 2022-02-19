@@ -48,8 +48,10 @@ public:
     void setAsPointTargetXYD( const cvf::Vec3d& point );
     void setAsPointTargetXYZ( const cvf::Vec3d& point );
     void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, const cvf::Vec3d& tangent );
-    void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination );
-    void setDerivedTangent( double azimuth, double inclination );
+    void setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuthRadians, double inclinationRadians );
+    void setFixedAzimuth( double fixedAzimuthDeg );
+    void setFixedInclination( double fixedInclinationDeg );
+    void setDerivedTangent( double azimuthRadians, double inclinationRadians );
     void updateFrom3DManipulator( const cvf::Vec3d& pointXYD );
 
     RiaLineArcWellPathCalculator::WellTarget wellTargetData();
@@ -60,48 +62,53 @@ public:
         POINT
     };
 
-    TargetTypeEnum targetType() const;
-    cvf::Vec3d     targetPointXYZ() const;
-    double         azimuth() const;
-    double         inclination() const;
-    cvf::Vec3d     tangent() const;
-    double         radius1() const;
-    double         radius2() const;
-    void           flagRadius1AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius );
-    void           flagRadius2AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius );
+    cvf::Vec3d targetPointXYZ() const;
+    double     azimuthRadians() const;
+    double     inclinationRadians() const;
+    cvf::Vec3d tangent() const;
+    double     radius1() const;
+    double     radius2() const;
+    void       setRadius1Data( bool isEditable, bool isIncorrect, double actualRadius );
+    void       setRadius2Data( bool isEditable, bool isIncorrect, double actualRadius );
 
     std::vector<caf::PdmFieldHandle*> fieldsFor3dManipulator();
 
     void onMoved();
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+    void initAfterRead() override;
 
     cvf::Vec3d targetPointForDisplayXYD() const;
     void       setTargetPointFromDisplayCoord( const cvf::Vec3d& coordInXYZ );
     double     measuredDepth() const;
 
     RimWellPathGeometryDef* geometryDefinition() const;
+    void                    enableFullUpdate( bool enable );
 
 private:
-    void                                        enableFullUpdate( bool enable );
-    bool                                        m_isFullUpdateEnabled;
-    caf::PdmField<bool>                         m_isEnabled;
-    caf::PdmField<bool>                         m_isLocked;
-    caf::PdmField<caf::AppEnum<TargetTypeEnum>> m_targetType;
-    caf::PdmField<cvf::Vec3d>                   m_targetPointXYD;
-    caf::PdmProxyValueField<cvf::Vec3d>         m_targetPointForDisplay;
-    caf::PdmProxyValueField<double>             m_targetMeasuredDepth;
+    caf::PdmField<bool>                 m_isEnabled;
+    caf::PdmField<cvf::Vec3d>           m_targetPointXYD;
+    caf::PdmProxyValueField<cvf::Vec3d> m_targetPointForDisplay;
+    caf::PdmProxyValueField<double>     m_targetMeasuredDepth;
 
-    caf::PdmField<double> m_azimuth;
-    caf::PdmField<double> m_inclination;
+    caf::PdmField<double> m_azimuthDeg;
+    caf::PdmField<double> m_inclinationDeg;
     caf::PdmField<double> m_dogleg1;
     caf::PdmField<double> m_dogleg2;
-    caf::PdmField<bool>   m_hasTangentConstraintUiField;
+    caf::PdmField<bool>   m_useFixedAzimuth;
+    caf::PdmField<bool>   m_useFixedInclination;
+
+    caf::PdmField<double> m_estimatedDogleg1;
+    caf::PdmField<double> m_estimatedDogleg2;
+    caf::PdmField<double> m_estimatedAzimuthDeg;
+    caf::PdmField<double> m_estimatedInclinationDeg;
+
+    bool                                        m_isFullUpdateEnabled;
+    caf::PdmField<bool>                         m_hasTangentConstraintUiField_OBSOLETE;
+    caf::PdmField<caf::AppEnum<TargetTypeEnum>> m_targetType_OBSOLETE;
 };

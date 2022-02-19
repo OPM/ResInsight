@@ -624,28 +624,16 @@ RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator()
 
     for ( size_t tIdx = 0; tIdx < activeTargets.size(); ++tIdx )
     {
-        activeTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable, false, 0 );
-        activeTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable, false, 0 );
+        activeTargets[tIdx]->setDerivedTangent( targetStatuses[tIdx].resultAzimuthRadians,
+                                                targetStatuses[tIdx].resultInclinationRadians );
 
-        if ( targetStatuses[tIdx].hasDerivedTangent )
-        {
-            activeTargets[tIdx]->setDerivedTangent( targetStatuses[tIdx].resultAzimuth,
-                                                    targetStatuses[tIdx].resultInclination );
-        }
+        activeTargets[tIdx]->setRadius1Data( targetStatuses[tIdx].isRadius1Editable,
+                                             targetStatuses[tIdx].hasOverriddenRadius1,
+                                             targetStatuses[tIdx].resultRadius1 );
 
-        if ( targetStatuses[tIdx].hasOverriddenRadius1 )
-        {
-            activeTargets[tIdx]->flagRadius1AsIncorrect( targetStatuses[tIdx].isRadius1Editable,
-                                                         true,
-                                                         targetStatuses[tIdx].resultRadius1 );
-        }
-
-        if ( targetStatuses[tIdx].hasOverriddenRadius2 )
-        {
-            activeTargets[tIdx]->flagRadius2AsIncorrect( targetStatuses[tIdx].isRadius2Editable,
-                                                         true,
-                                                         targetStatuses[tIdx].resultRadius2 );
-        }
+        activeTargets[tIdx]->setRadius2Data( targetStatuses[tIdx].isRadius2Editable,
+                                             targetStatuses[tIdx].hasOverriddenRadius2,
+                                             targetStatuses[tIdx].resultRadius2 );
     }
 
     return wellPathCalculator;
