@@ -9,6 +9,10 @@ import os
 import socket
 import logging
 import time
+from turtle import st
+from xmlrpc.client import Boolean
+
+from typing import Any, Optional, Tuple
 
 import grpc
 
@@ -38,13 +42,13 @@ class Instance:
     """
 
     @staticmethod
-    def __is_port_in_use(port):
+    def __is_port_in_use(port: int) -> Boolean:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as my_socket:
             my_socket.settimeout(0.2)
             return my_socket.connect_ex(("localhost", port)) == 0
 
     @staticmethod
-    def __is_valid_port(port):
+    def __is_valid_port(port: int) -> Boolean:
         location = "localhost:" + str(port)
         channel = grpc.insecure_channel(
             location, options=[("grpc.enable_http_proxy", False)]
@@ -58,11 +62,11 @@ class Instance:
 
     @staticmethod
     def launch(
-        resinsight_executable="",
-        console=False,
-        launch_port=-1,
-        command_line_parameters=None,
-    ):
+        resinsight_executable: Optional[str] = "",
+        console: Boolean = False,
+        launch_port: int = -1,
+        command_line_parameters: list[str] = None,
+    ) -> Any:
         """Launch a new Instance of ResInsight. This requires the environment variable
         RESINSIGHT_EXECUTABLE to be set or the parameter resinsight_executable to be provided.
         The RESINSIGHT_GRPC_PORT environment variable can be set to an alternative port number.
@@ -124,7 +128,7 @@ class Instance:
         return None
 
     @staticmethod
-    def find(start_port=50051, end_port=50071):
+    def find(start_port: int = 50051, end_port: int = 50071) -> Any:
         """Search for an existing Instance of ResInsight by testing ports.
 
         By default we search from port 50051 to 50071 or if the environment
@@ -156,10 +160,10 @@ class Instance:
         )
         return None
 
-    def __execute_command(self, **command_params):
+    def __execute_command(self, **command_params: dict[str, Any]) -> Any:
         return self.commands.Execute(Commands_pb2.CommandParams(**command_params))
 
-    def __check_version(self):
+    def __check_version(self) -> Tuple[Boolean, Boolean]:
         try:
             major_version_ok = self.major_version() == int(
                 RiaVersionInfo.RESINSIGHT_MAJOR_VERSION
@@ -171,7 +175,7 @@ class Instance:
         except grpc.RpcError:
             return False, False
 
-    def __init__(self, port=50051, launched=False):
+    def __init__(self, port: int = 50051, launched: Boolean = False):
         """Attempts to connect to ResInsight at aa specific port on localhost
 
         Args:
@@ -189,7 +193,7 @@ class Instance:
         # Main version check package
         self.app = App_pb2_grpc.AppStub(self.channel)
 
-        self._check_connection_and_version(self.channel, launched, location)
+        self._check_connection_and_version(location)
 
         # Intercept UNAVAILABLE errors and retry on failures
         interceptors = (
@@ -217,7 +221,7 @@ class Instance:
         path = os.getcwd()
         self.set_start_dir(path=path)
 
-    def _check_connection_and_version(self, channel, launched, location):
+    def _check_connection_and_version(self, location: str) -> None:
         connection_ok = False
         version_ok = False
 
@@ -249,10 +253,10 @@ class Instance:
                 self.client_version_string(),
             )
 
-    def __version_message(self):
+    def __version_message(self) -> App_pb2.Version:
         return self.app.GetVersion(Empty())
 
-    def set_start_dir(self, path):
+    def set_start_dir(self, path: str) -> Any:
         """Set current start directory
 
         Arguments:
@@ -263,7 +267,9 @@ class Instance:
             setStartDir=Commands_pb2.FilePathRequest(path=path)
         )
 
-    def set_export_folder(self, export_type, path, create_folder=False):
+    def set_export_folder(
+        self, export_type: str, path: str, create_folder: Boolean = False
+    ) -> Any:
         """
         Set the export folder used for all export functions
 
@@ -291,7 +297,7 @@ class Instance:
             )
         )
 
-    def set_main_window_size(self, width, height):
+    def set_main_window_size(self, width: int, height: int) -> Any:
         """
         Set the main window size in pixels
 
@@ -309,7 +315,7 @@ class Instance:
             )
         )
 
-    def set_plot_window_size(self, width, height):
+    def set_plot_window_size(self, width: int, height: int) -> Any:
         """
         Set the plot window size in pixels
 
@@ -326,19 +332,19 @@ class Instance:
             )
         )
 
-    def major_version(self):
+    def major_version(self) -> int:
         """Get an integer with the major version number"""
         return self.__version_message().major_version
 
-    def minor_version(self):
+    def minor_version(self) -> int:
         """Get an integer with the minor version number"""
         return self.__version_message().minor_version
 
-    def patch_version(self):
+    def patch_version(self) -> int:
         """Get an integer with the patch version number"""
         return self.__version_message().patch_version
 
-    def version_string(self):
+    def version_string(self) -> str:
         """Get a full version string, i.e. 2019.04.01"""
         return (
             str(self.major_version())
@@ -348,25 +354,25 @@ class Instance:
             + str(self.patch_version())
         )
 
-    def client_version_string(self):
+    def client_version_string(self) -> str:
         """Get a full version string, i.e. 2019.04.01"""
         version_string = RiaVersionInfo.RESINSIGHT_MAJOR_VERSION + "."
         version_string += RiaVersionInfo.RESINSIGHT_MINOR_VERSION + "."
         version_string += RiaVersionInfo.RESINSIGHT_PATCH_VERSION
         return version_string
 
-    def exit(self):
+    def exit(self) -> Any:
         """Tell ResInsight instance to quit"""
         print("Telling ResInsight to Exit")
         return self.app.Exit(Empty())
 
-    def is_console(self):
+    def is_console(self) -> Boolean:
         """Returns true if the connected ResInsight instance is a console app"""
         return self.app.GetRuntimeInfo(
             Empty()
         ).app_type == App_pb2.ApplicationTypeEnum.Value("CONSOLE_APPLICATION")
 
-    def is_gui(self):
+    def is_gui(self) -> Boolean:
         """Returns true if the connected ResInsight instance is a GUI app"""
         return self.app.GetRuntimeInfo(
             Empty()
