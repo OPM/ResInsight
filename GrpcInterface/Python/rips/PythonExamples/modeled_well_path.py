@@ -21,14 +21,14 @@ reference_point[2] = 2742
 geometry.update()  # Commit updates back to ResInsight
 
 # Create the first well target at the reference point
-coord = [0, 0, 0]
+coord = [0.0, 0.0, 0.0]
 geometry.append_well_target(coord)
 
 # Append new well targets relative the the reference point
-coord = [454.28, 250, -10]
+coord = [454.28, 250.0, -10.0]
 target = geometry.append_well_target(coord)
 
-coord = [1054.28, 250, -50]
+coord = [1054.28, 250.0, -50.0]
 target = geometry.append_well_target(coord)
 
 well_path.append_perforation_interval(3300, 3350, 0.2, 0.76)

@@ -1,6 +1,5 @@
 # Load ResInsight Processing Server Client Library
 import rips
-import tempfile
 from os.path import expanduser
 from pathlib import Path
 
