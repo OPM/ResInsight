@@ -320,6 +320,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     classesWritten.insert( "PdmObjectBase" );
 
     out << "from rips.pdmobject import PdmObjectBase\n";
+    out << "from typing import Union, Dict\n";
 
     for ( std::shared_ptr<PdmObject> object : dummyObjects )
     {
@@ -397,15 +398,16 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
             scriptSuperClassNames.push_back( scriptClassName );
         }
     }
-    out << "def class_dict():\n";
-    out << "    classes = {}\n";
+    out << "def class_dict() -> Dict:\n";
+    out << "  _class_dict = {\n";
     for ( QString classKeyword : classesWritten )
     {
-        out << QString( "    classes['%1'] = %1\n" ).arg( classKeyword );
+        out << QString( "    \"%1\": %1,\n" ).arg( classKeyword );
     }
-    out << "    return classes\n\n";
+    out << "  }\n";
+    out << "  return _class_dict\n\n";
 
-    out << "def class_from_keyword(class_keyword):\n";
+    out << "def class_from_keyword(class_keyword: str) -> Union[PdmObjectBase, None]:\n";
     out << "    all_classes = class_dict()\n";
     out << "    if class_keyword in all_classes.keys():\n";
     out << "        return all_classes[class_keyword]\n";
