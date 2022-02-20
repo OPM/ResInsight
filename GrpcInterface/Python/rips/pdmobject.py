@@ -4,6 +4,7 @@ ResInsight caf::PdmObject connection module
 """
 
 from functools import wraps
+from xmlrpc.client import Boolean
 import grpc
 import re
 import inspect
@@ -14,12 +15,12 @@ import Commands_pb2
 import Commands_pb2_grpc
 
 
-def camel_to_snake(name):
+def camel_to_snake(name: str) -> str:
     s1 = re.sub("(.)([A-Z][a-z]+)", r"\1_\2", name)
     return re.sub("([a-z0-9])([A-Z])", r"\1_\2", s1).lower()
 
 
-def snake_to_camel(name):
+def snake_to_camel(name: str) -> str:
     return "".join(word.title() for word in name.split("_"))
 
 
@@ -133,7 +134,7 @@ class PdmObjectBase:
 
         return self._pb2_object.address
 
-    def set_visible(self, visible):
+    def set_visible(self, visible: Boolean):
         """Set the visibility of the object in the ResInsight project tree"""
         self._pb2_object.visible = visible
 
@@ -194,12 +195,12 @@ class PdmObjectBase:
             return "[" + ", ".join(list_of_values) + "]"
         return str(value)
 
-    def __get_grpc_value(self, camel_keyword):
+    def __get_grpc_value(self, camel_keyword: str):
         return self.__convert_from_grpc_value(
             self._pb2_object.parameters[camel_keyword]
         )
 
-    def __set_grpc_value(self, camel_keyword, value):
+    def __set_grpc_value(self, camel_keyword: str, value):
         self._pb2_object.parameters[camel_keyword] = self.__convert_to_grpc_value(value)
 
     def set_value(self, snake_keyword, value):
@@ -214,10 +215,10 @@ class PdmObjectBase:
         setattr(self, snake_keyword, value)
         self.update()
 
-    def __islist(self, value):
+    def __islist(self, value) -> Boolean:
         return value.startswith("[") and value.endswith("]")
 
-    def __makelist(self, list_string):
+    def __makelist(self, list_string: str):
         list_string = list_string.lstrip("[")
         list_string = list_string.rstrip("]")
         if not list_string:
@@ -266,7 +267,7 @@ class PdmObjectBase:
                 return []  # Valid empty result
             raise e
 
-    def children(self, child_field, class_definition):
+    def children(self, child_field: str, class_definition):
         """Get a list of all direct project tree children inside the provided child_field
         Arguments:
             child_field[str]: A field name
@@ -284,7 +285,7 @@ class PdmObjectBase:
                 return []
             raise e
 
-    def add_new_object(self, class_definition, child_field=""):
+    def add_new_object(self, class_definition, child_field: str = ""):
         """Create and add an object to the specified child field
         Arguments:
             class_definition[class]: Class definition of the object to create
@@ -348,14 +349,14 @@ class PdmObjectBase:
                 return None
             raise e
 
-    def _call_get_method_async(self, method_name):
+    def _call_get_method_async(self, method_name: str):
         request = PdmObject_pb2.PdmObjectGetterRequest(
             object=self._pb2_object, method=method_name
         )
         for chunk in self._pdm_object_stub.CallPdmObjectGetter(request):
             yield chunk
 
-    def _call_get_method(self, method_name):
+    def _call_get_method(self, method_name: str):
         all_values = []
         generator = self._call_get_method_async(method_name)
         for chunk in generator:
@@ -410,7 +411,7 @@ class PdmObjectBase:
         chunk = PdmObject_pb2.PdmObjectSetterChunk()
         yield chunk
 
-    def _call_set_method(self, method_name, values):
+    def _call_set_method(self, method_name: str, values):
         method_request = PdmObject_pb2.PdmObjectGetterRequest(
             object=self._pb2_object, method=method_name
         )
@@ -419,7 +420,7 @@ class PdmObjectBase:
         if reply.accepted_value_count < len(values):
             raise IndexError
 
-    def _call_pdm_method(self, method_name, **kwargs):
+    def _call_pdm_method(self, method_name: str, **kwargs):
         pb2_params = PdmObject_pb2.PdmObject(class_keyword=method_name)
         for key, value in kwargs.items():
             pb2_params.parameters[snake_to_camel(key)] = self.__convert_to_grpc_value(
