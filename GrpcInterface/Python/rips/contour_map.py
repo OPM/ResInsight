@@ -35,7 +35,7 @@ def export_to_text(
     )
 
 
-@add_method(GeoMechContourMap)
+@add_method(GeoMechContourMap)  # type: ignore[no-redef]
 def export_to_text(
     self,
     export_file_name="",

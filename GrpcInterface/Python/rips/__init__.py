@@ -18,7 +18,7 @@ from .well_log_plot import WellLogPlot
 from .simulation_well import SimulationWell
 
 __all__ = []
-for key in class_dict():
+for key in class_dict():  # type: ignore[name-defined]
     __all__.append(key)
 
 # Add classes not in resinsight_classes
