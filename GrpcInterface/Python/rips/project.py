@@ -3,8 +3,6 @@
 """
 The ResInsight project module
 """
-import builtins
-import grpc
 
 from .case import Case
 from .gridcasegroup import GridCaseGroup

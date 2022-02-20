@@ -23,7 +23,7 @@ reference_point[2] = 2742
 geometry.update()  # Commit updates back to ResInsight
 
 # Create the first well target at the reference point
-coord = [0, 0, 0]
+coord = [0.0, 0.0, 0.0]
 geometry.append_well_target(coord)
 
 # Append new well targets relative the the reference point
