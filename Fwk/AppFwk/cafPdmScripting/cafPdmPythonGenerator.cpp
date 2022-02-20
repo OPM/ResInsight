@@ -67,10 +67,10 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     std::vector<QString> classKeywords = factory->classKeywords();
 
     std::vector<std::shared_ptr<PdmObject>> dummyObjects;
-    for ( QString classKeyword : classKeywords )
+    for ( const QString& classKeyword : classKeywords )
     {
-        auto       objectHandle = factory->create( classKeyword );
-        PdmObject* object       = dynamic_cast<PdmObject*>( objectHandle );
+        auto  objectHandle = factory->create( classKeyword );
+        auto* object       = dynamic_cast<PdmObject*>( objectHandle );
         CAF_ASSERT( object );
 
         std::shared_ptr<PdmObject> sharedObject( object );
@@ -95,14 +95,13 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     std::set<QString>                                                 dataTypesInChildFields;
 
     // First generate all attributes and comments to go into each object
-    for ( std::shared_ptr<PdmObject> object : dummyObjects )
+    for ( const std::shared_ptr<PdmObject>& object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
 
-        for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
+        for ( const QString& classKeyword : classInheritanceStack )
         {
-            const QString& classKeyword = *it;
-            QString scriptClassComment  = PdmObjectScriptingCapabilityRegister::scriptClassComment( classKeyword );
+            QString scriptClassComment = PdmObjectScriptingCapabilityRegister::scriptClassComment( classKeyword );
 
             std::map<QString, QString> attributesGenerated;
 
@@ -250,7 +249,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 }
             }
 
-            for ( QString methodName : PdmObjectMethodFactory::instance()->registeredMethodNames( classKeyword ) )
+            for ( const QString& methodName : PdmObjectMethodFactory::instance()->registeredMethodNames( classKeyword ) )
             {
                 std::shared_ptr<PdmObjectMethod> method =
                     PdmObjectMethodFactory::instance()->createMethod( object.get(), methodName );
@@ -322,14 +321,13 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     out << "from rips.pdmobject import PdmObjectBase\n";
     out << "from typing import Union, Dict\n";
 
-    for ( std::shared_ptr<PdmObject> object : dummyObjects )
+    for ( const std::shared_ptr<PdmObject>& object : dummyObjects )
     {
         const std::list<QString>& classInheritanceStack = object->classInheritanceStack();
         std::list<QString>        scriptSuperClassNames;
 
-        for ( auto it = classInheritanceStack.begin(); it != classInheritanceStack.end(); ++it )
+        for ( const QString& classKeyword : classInheritanceStack )
         {
-            const QString& classKeyword = *it;
             QString scriptClassName = PdmObjectScriptingCapabilityRegister::scriptClassNameFromClassKeyword( classKeyword );
             if ( scriptClassName.isEmpty() ) scriptClassName = classKeyword;
 
@@ -357,7 +355,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                     if ( !classAttributesGenerated[classKeyword].empty() )
                     {
                         classCode += "    Attributes:\n";
-                        for ( auto keyWordValuePair : classAttributesGenerated[classKeyword] )
+                        for ( const auto& keyWordValuePair : classAttributesGenerated[classKeyword] )
                         {
                             classCode += "        " + keyWordValuePair.second.second;
                         }
@@ -372,7 +370,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 {
                     // Own attributes. This initializes a lot of attributes to None.
                     // This means it has to be done before we set any values.
-                    for ( auto keyWordValuePair : classAttributesGenerated[classKeyword] )
+                    for ( const auto& keyWordValuePair : classAttributesGenerated[classKeyword] )
                     {
                         classCode += keyWordValuePair.second.first;
                     }
@@ -385,7 +383,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
                 classCode += QString( "            %1.__custom_init__(self, pb2_object=pb2_object, channel=channel)\n" )
                                  .arg( scriptClassName );
 
-                for ( auto keyWordValuePair : classMethodsGenerated[classKeyword] )
+                for ( const auto& keyWordValuePair : classMethodsGenerated[classKeyword] )
                 {
                     classCode += "\n";
                     classCode += keyWordValuePair.second;
@@ -400,7 +398,7 @@ QString caf::PdmPythonGenerator::generate( PdmObjectFactory* factory, std::vecto
     }
     out << "def class_dict() -> Dict:\n";
     out << "  _class_dict = {\n";
-    for ( QString classKeyword : classesWritten )
+    for ( const QString& classKeyword : classesWritten )
     {
         out << QString( "    \"%1\": %1,\n" ).arg( classKeyword );
     }
@@ -492,7 +490,7 @@ QString PdmPythonGenerator::dataTypeString( const PdmFieldHandle* field, bool us
                                             { QString::fromStdString( typeid( QString ).name() ), "str" } };
 
     bool foundBuiltin = false;
-    for ( auto builtin : builtins )
+    for ( const auto& builtin : builtins )
     {
         if ( dataType == builtin.first )
         {
