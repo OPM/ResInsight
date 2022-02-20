@@ -3,13 +3,10 @@
 ResInsight caf::PdmObject connection module
 """
 
-from functools import partial, wraps
+from functools import wraps
 import grpc
 import re
-import builtins
-import importlib
 import inspect
-import sys
 
 import PdmObject_pb2
 import PdmObject_pb2_grpc
