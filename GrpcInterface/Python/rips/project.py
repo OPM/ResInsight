@@ -9,7 +9,6 @@ import grpc
 from .case import Case
 from .gridcasegroup import GridCaseGroup
 from .pdmobject import PdmObjectBase, add_method, add_static_method
-from .plot import Plot
 from .view import View
 
 import Commands_pb2

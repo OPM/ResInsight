@@ -12,7 +12,7 @@ from .grid import Grid
 from .instance import Instance
 from .view import View
 from .project import Project
-from .plot import Plot, PlotWindow
+from .plot import PlotWindow
 from .contour_map import EclipseContourMap, GeoMechContourMap
 from .well_log_plot import WellLogPlot
 from .simulation_well import SimulationWell

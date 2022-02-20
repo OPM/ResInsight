@@ -35,7 +35,6 @@ result
 
 """
 
-import builtins
 import grpc
 
 import Case_pb2

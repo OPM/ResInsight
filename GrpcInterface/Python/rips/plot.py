@@ -4,7 +4,7 @@ ResInsight 2d plot module
 import Commands_pb2
 
 from .pdmobject import add_method
-from .resinsight_classes import PlotWindow, Plot
+from .generated.generated_classes import PlotWindow
 
 
 @add_method(PlotWindow)
