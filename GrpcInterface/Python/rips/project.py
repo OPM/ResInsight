@@ -16,7 +16,7 @@ from Definitions_pb2 import Empty
 import Project_pb2_grpc
 import Project_pb2
 import PdmObject_pb2
-from .resinsight_classes import Project, PlotWindow, WellPath, SummaryCase
+from .generated.generated_classes import Project, PlotWindow, WellPath, SummaryCase
 
 
 @add_method(Project)

@@ -46,7 +46,7 @@ import Properties_pb2
 import Properties_pb2_grpc
 import NNCProperties_pb2
 import NNCProperties_pb2_grpc
-from .resinsight_classes import (
+from .generated.generated_classes import (
     Case,
     EclipseCase,
     GeoMechCase,

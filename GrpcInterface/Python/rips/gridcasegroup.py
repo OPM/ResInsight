@@ -7,7 +7,7 @@ from .view import View
 from .case import Case
 
 import Commands_pb2
-from .resinsight_classes import GridCaseGroup
+from .generated.generated_classes import GridCaseGroup
 
 
 @add_method(GridCaseGroup)
