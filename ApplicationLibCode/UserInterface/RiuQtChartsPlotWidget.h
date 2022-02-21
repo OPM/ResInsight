@@ -92,6 +92,7 @@ public:
 
     void setAxisFormat( RiuPlotAxis axis, const QString& format );
 
+    void        pruneAxes( const std::set<RiuPlotAxis>& usedAxis ) override;
     RiuPlotAxis createNextPlotAxis( RiaDefines::PlotAxis axis ) override;
     bool        isMultiAxisSupported() const override;
 

@@ -1190,3 +1190,10 @@ bool RiuQwtPlotWidget::isMultiAxisSupported() const
 {
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
+{
+}

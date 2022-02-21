@@ -845,7 +845,7 @@ void RimSummaryPlot::updateZoomForAxis( RiuPlotAxis plotAxis )
             }
 
             double                        min, max;
-            RimPlotAxisLogRangeCalculator calc( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, plotCurves );
+            RimPlotAxisLogRangeCalculator calc( plotAxis.axis(), plotCurves );
             calc.computeAxisRange( &min, &max );
 
             if ( yAxisProps->isAxisInverted() )
@@ -2480,8 +2480,17 @@ void RimSummaryPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childAr
             }
         }
 
+
+
         if ( plotWidget() )
         {
+            std::set<RiuPlotAxis> usedPlotAxis;
+            for ( auto axisProperties : m_axisProperties)
+            {
+                usedPlotAxis.insert( axisProperties->plotAxisType() );
+            }
+
+            plotWidget()->pruneAxes( usedPlotAxis );
             updateAxes();
             plotWidget()->scheduleReplot();
         }

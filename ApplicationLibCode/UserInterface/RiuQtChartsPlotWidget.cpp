@@ -1111,3 +1111,22 @@ Qt::Alignment RiuQtChartsPlotWidget::mapPlotAxisToQtAlignment( RiaDefines::PlotA
     if ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ) return Qt::AlignLeft;
     return Qt::AlignRight;
 }
+
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
+{
+    for ( auto [plotAxis, qtAxis] : m_axes )
+    {
+        if ( usedAxes.count( plotAxis ) == 0)
+        {
+            // This axis is now unused, and can be disabled
+            qtAxis->setVisible(false);
+            m_axesEnabled[plotAxis] = false;
+            m_axesAutoScale[plotAxis] = false;
+        }
+    }
+}
