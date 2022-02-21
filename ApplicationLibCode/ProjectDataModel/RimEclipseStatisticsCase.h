@@ -71,7 +71,6 @@ public:
     };
 
     caf::PdmField<bool> m_calculateEditCommand;
-    void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override {}
 
     void populateResultSelectionAfterLoadingGrid();
 

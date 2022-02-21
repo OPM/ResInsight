@@ -325,27 +325,6 @@ QString RimEclipseInputCase::locationOnDisc() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseInputCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // bool                 foundFile = false;
-    // std::vector<QString> searchedPaths;
-
-    // m_gridFileName = RimTools::relocateFile( m_gridFileName().path(), newProjectPath, oldProjectPath, &foundFile,
-    // &searchedPaths );
-
-    // for ( RimEclipseInputProperty* inputProperty : m_inputPropertyCollection()->inputProperties() )
-    //{
-    //    inputProperty->fileName = RimTools::relocateFile( inputProperty->fileName,
-    //                                                      newProjectPath,
-    //                                                      oldProjectPath,
-    //                                                      &foundFile,
-    //                                                      &searchedPaths );
-    //}
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEclipseInputCase::updateAdditionalFileFolder( const QString& newFolder )
 {
     QDir newDir( newFolder );

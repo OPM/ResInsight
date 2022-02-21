@@ -84,8 +84,6 @@ public:
     RimGeoMechView* createAndAddReservoirView();
     RimGeoMechView* createCopyAndAddView( const RimGeoMechView* sourceView );
 
-    void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override;
-
     std::vector<QDateTime> timeStepDates() const override;
     QStringList            timeStepStrings() const override;
     QString                timeStepName( int frameIdx ) const override;

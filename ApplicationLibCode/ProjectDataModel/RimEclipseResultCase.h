@@ -25,7 +25,7 @@
 #include "RimEclipseCase.h"
 
 #include "cafFilePath.h"
-#include <cafPdmProxyValueField.h>
+#include "cafPdmProxyValueField.h"
 
 class RifReaderRftInterface;
 class RifReaderEclipseRft;
@@ -65,9 +65,7 @@ public:
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem();
 
-    // Overrides from RimCase
     QString locationOnDisc() const override;
-    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     RimFlowDiagSolution*              defaultFlowDiagSolution();
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
@@ -101,4 +99,5 @@ private:
 
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;
+    bool m_useOpmRftReader;
 };
