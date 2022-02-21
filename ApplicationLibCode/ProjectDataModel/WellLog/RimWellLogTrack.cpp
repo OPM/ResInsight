@@ -805,7 +805,16 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
 
             div.setTicks( QwtScaleDiv::TickType::MajorTick, majorTicks );
 
-            m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::xTop, div );
+            RimDepthTrackPlot* wellLogPlot;
+            this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::xTop, div );
+            }
+            else
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::yLeft, div );
+            }
         }
         else if ( m_explicitTickIntervals )
         {
@@ -1981,26 +1990,41 @@ void RimWellLogTrack::updateAxisScaleEngine()
         if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
         {
             m_plotWidget->setAxisInverted( RiuPlotAxis::defaultLeft(), true );
+
+            if ( m_isLogarithmicScaleEnabled )
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new QwtLogScaleEngine );
+
+                // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine );
+            }
+            else
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new RiuQwtLinearScaleEngine );
+
+                // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
+            }
         }
         else
         {
             m_plotWidget->setAxisInverted( RiuPlotAxis::defaultLeft(), false );
+
+            if ( m_isLogarithmicScaleEnabled )
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new QwtLogScaleEngine );
+
+                // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yRight, new QwtLogScaleEngine );
+            }
+            else
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
+
+                // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yRight, new RiuQwtLinearScaleEngine );
+            }
         }
-    }
-
-    if ( m_isLogarithmicScaleEnabled )
-    {
-        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new QwtLogScaleEngine );
-
-        // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine );
-    }
-    else
-    {
-        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new RiuQwtLinearScaleEngine );
-
-        // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
     }
 }
 
@@ -2055,8 +2079,18 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
     {
         if ( event->modifiers() & Qt::ControlModifier )
         {
-            QwtScaleMap scaleMap   = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::yLeft );
-            double      zoomCenter = scaleMap.invTransform( event->pos().y() );
+            double zoomCenter = 0.0;
+
+            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            {
+                QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::yLeft );
+                zoomCenter           = scaleMap.invTransform( event->pos().y() );
+            }
+            else
+            {
+                QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::xTop );
+                zoomCenter           = scaleMap.invTransform( event->pos().x() );
+            }
 
             if ( event->delta() > 0 )
             {
