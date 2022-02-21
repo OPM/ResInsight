@@ -2480,12 +2480,10 @@ void RimSummaryPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childAr
             }
         }
 
-
-
         if ( plotWidget() )
         {
             std::set<RiuPlotAxis> usedPlotAxis;
-            for ( auto axisProperties : m_axisProperties)
+            for ( auto axisProperties : m_axisProperties )
             {
                 usedPlotAxis.insert( axisProperties->plotAxisType() );
             }
