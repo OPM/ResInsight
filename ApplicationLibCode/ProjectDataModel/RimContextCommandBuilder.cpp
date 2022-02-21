@@ -118,6 +118,7 @@
 #include "RimStimPlanModelTemplate.h"
 #include "RimStimPlanModelTemplateCollection.h"
 #include "RimStreamlineInViewCollection.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -1183,6 +1184,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicNewSimWellFractureFeature";
             menuBuilder << "RicNewSimWellIntersectionFeature";
+        }
+        else if ( dynamic_cast<RimSummaryAddress*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewSummaryPlotFromDataVectorFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )
