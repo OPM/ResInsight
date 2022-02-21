@@ -77,6 +77,9 @@ public:
     bool           isAxisInverted() const override;
     void           setAxisInverted( bool inverted );
 
+    bool isDeletable() const override;
+
+
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
     void                                removeAllAnnotations() override;

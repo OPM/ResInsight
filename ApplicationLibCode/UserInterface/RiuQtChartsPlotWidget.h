@@ -92,6 +92,7 @@ public:
 
     void setAxisFormat( RiuPlotAxis axis, const QString& format );
 
+    void        pruneAxes( const std::set<RiuPlotAxis>& usedAxis ) override;
     RiuPlotAxis createNextPlotAxis( RiaDefines::PlotAxis axis ) override;
     bool        isMultiAxisSupported() const override;
 
@@ -134,7 +135,7 @@ public:
 
     int axisExtent( RiuPlotAxis axis ) const override;
 
-    void ensureAxis( RiuPlotAxis axis ) override;
+    void ensureAxisIsCreated( RiuPlotAxis axis ) override;
 
     QPoint dragStartPosition() const;
 

@@ -107,8 +107,9 @@ public:
     virtual void setAxisTitleText( RiuPlotAxis axis, const QString& title ) = 0;
     virtual void setAxisTitleEnabled( RiuPlotAxis axis, bool enable )       = 0;
 
-    virtual bool        isMultiAxisSupported() const                    = 0;
-    virtual RiuPlotAxis createNextPlotAxis( RiaDefines::PlotAxis axis ) = 0;
+    virtual bool        isMultiAxisSupported() const                       = 0;
+    virtual RiuPlotAxis createNextPlotAxis( RiaDefines::PlotAxis axis )    = 0;
+    virtual void        pruneAxes( const std::set<RiuPlotAxis>& usedAxes ) = 0;
 
     virtual void   setPlotTitle( const QString& plotTitle ) = 0;
     const QString& plotTitle() const;
@@ -153,7 +154,7 @@ public:
 
     virtual int axisExtent( RiuPlotAxis axis ) const = 0;
 
-    virtual void ensureAxis( RiuPlotAxis axis ) = 0;
+    virtual void ensureAxisIsCreated( RiuPlotAxis axis ) = 0;
 
     QPoint dragStartPosition() const;
 
