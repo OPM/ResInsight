@@ -95,8 +95,15 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     m_annotations.uiCapability()->setUiTreeHidden( true );
 
     updateOptionSensitivity();
+}
 
-    setDeletable( true );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisProperties::isDeletable() const
+{
+    // The default axes (which have index 0) are not deletable
+    return m_plotAxisIndex != 0;
 }
 
 //--------------------------------------------------------------------------------------------------

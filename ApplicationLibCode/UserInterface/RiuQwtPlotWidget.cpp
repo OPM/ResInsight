@@ -1051,7 +1051,7 @@ QwtPlot* RiuQwtPlotWidget::qwtPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::ensureAxis( RiuPlotAxis axis )
+void RiuQwtPlotWidget::ensureAxisIsCreated( RiuPlotAxis axis )
 {
 }
 
@@ -1189,4 +1189,12 @@ const QColor& RiuQwtPlotWidget::backgroundColor() const
 bool RiuQwtPlotWidget::isMultiAxisSupported() const
 {
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
+{
+    // Currently not supported.
 }

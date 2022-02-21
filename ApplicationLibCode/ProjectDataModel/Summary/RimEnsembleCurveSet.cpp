@@ -753,6 +753,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updatePlotAxis();
         plot->updateAxes();
+        plot->updateAll();
 
         updateTextInPlot = true;
     }
@@ -2099,6 +2100,11 @@ void RimEnsembleCurveSet::setAxisY( RiuPlotAxis plotAxis )
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
     m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
+
+    for ( RimSummaryCurve* curve : curves() )
+    {
+        curve->setLeftOrRightAxisY( axisY() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
