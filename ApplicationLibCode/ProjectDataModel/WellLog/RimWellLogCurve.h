@@ -85,7 +85,8 @@ public:
 
     void setOverrideCurveData( const std::vector<double>&               propertyValues,
                                const std::vector<double>&               depthValues,
-                               const RiaCurveDataTools::CurveIntervals& curveIntervals );
+                               const RiaCurveDataTools::CurveIntervals& curveIntervals,
+                               bool                                     isVerticalPlot );
 
     virtual RiaDefines::PhaseType resultPhase() const;
 
