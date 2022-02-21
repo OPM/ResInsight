@@ -2057,7 +2057,7 @@ void RimSummaryPlot::initAfterRead()
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.10.2" ) )
     {
         auto copyAxis = [this]( RiuPlotAxis axis, auto sourceObject ) {
-            auto axisProperties = dynamic_cast<RimPlotAxisProperties*>( axisPropertiesForPlotAxis( axis ) );
+            auto axisProperties = axisPropertiesForPlotAxis( axis );
             if ( axisProperties )
             {
                 QString data = sourceObject->writeObjectToXmlString();
@@ -2065,8 +2065,12 @@ void RimSummaryPlot::initAfterRead()
                 // This operation will overwrite the plot axis side, default is left
                 axisProperties->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
 
-                // Reset the plot axis for the axis property
-                axisProperties->setNameAndAxis( axisProperties->name(), axis.axis(), 0 );
+                auto plotAxisProperties = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
+                if ( plotAxisProperties )
+                {
+                    // Reset the plot axis for the axis property
+                    plotAxisProperties->setNameAndAxis( axisProperties->name(), axis.axis(), 0 );
+                }
             }
         };
 
