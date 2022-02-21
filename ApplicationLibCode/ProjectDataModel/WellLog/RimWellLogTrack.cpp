@@ -505,7 +505,18 @@ void RimWellLogTrack::updateDepthZoom()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisRange( getDepthAxis(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+    RimDepthTrackPlot* wellLogPlot;
+    this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+
+    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    {
+        m_plotWidget->setAxisRange( getDepthAxis(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+    }
+    else
+    {
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultTop(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1239,6 +1250,17 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     {
         m_plotWidget->setAxisTitleText( getValueAxis(), m_propertyValueAxisTitle );
         m_plotWidget->setAxisTitleText( getDepthAxis(), wellLogPlot->depthAxisTitle() );
+
+        if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        {
+            m_plotWidget->setAxisEnabled( QwtPlot::xTop, true );
+            m_plotWidget->setAxisEnabled( QwtPlot::xBottom, false );
+        }
+        else
+        {
+            m_plotWidget->setAxisEnabled( QwtPlot::xTop, false );
+            m_plotWidget->setAxisEnabled( QwtPlot::xBottom, true );
+        }
     }
 
     for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )

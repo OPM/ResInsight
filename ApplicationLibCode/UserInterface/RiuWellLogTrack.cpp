@@ -122,7 +122,7 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     setAxisEnabled( QwtPlot::yLeft, true );
     setAxisEnabled( QwtPlot::yRight, false );
     setAxisEnabled( QwtPlot::xTop, true );
-    setAxisEnabled( QwtPlot::xBottom, false );
+    setAxisEnabled( QwtPlot::xBottom, true );
 
     new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider );
 }
