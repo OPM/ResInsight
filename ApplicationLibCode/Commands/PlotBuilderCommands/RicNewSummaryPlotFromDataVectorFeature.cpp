@@ -44,7 +44,7 @@ bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled()
 
     std::vector<RimSummaryAddress*> selectedAddressItems = caf::selectedObjectsByType<RimSummaryAddress*>();
 
-    int nEnsembles = 0;
+    unsigned int nEnsembles = 0;
 
     for ( auto adr : selectedAddressItems )
     {
