@@ -99,7 +99,9 @@ protected:
     void calculateCurveDataPropertyValueRange();
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    bool isVerticalCurve() const;
+    bool        isVerticalCurve() const;
+    RiuPlotAxis depthAxis() const;
+    RiuPlotAxis valueAxis() const;
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;

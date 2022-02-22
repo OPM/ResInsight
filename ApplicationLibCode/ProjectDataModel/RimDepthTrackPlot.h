@@ -42,6 +42,7 @@ class RimWellLogCurveCommonDataSource;
 class RiuWellLogPlot;
 class RimPlot;
 class RimEnsembleCurveSet;
+class RiuPlotAxis;
 
 class QKeyEvent;
 
@@ -103,6 +104,8 @@ public:
     AxisGridVisibility depthAxisGridLinesEnabled() const;
 
     RimDepthTrackPlot::DepthOrientation depthOrientation() const;
+    RiuPlotAxis                         depthAxis() const;
+    RiuPlotAxis                         valueAxis() const;
 
     void setAutoScaleXEnabled( bool enabled );
     void setAutoScaleDepthEnabled( bool enabled );

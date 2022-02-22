@@ -1179,6 +1179,28 @@ RimDepthTrackPlot::DepthOrientation RimDepthTrackPlot::depthOrientation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimDepthTrackPlot::depthAxis() const
+{
+    if ( m_depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        return RiuPlotAxis::defaultLeft();
+    else
+        return RiuPlotAxis::defaultBottom();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimDepthTrackPlot::valueAxis() const
+{
+    if ( m_depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        return RiuPlotAxis::defaultTop();
+    else
+        return RiuPlotAxis::defaultLeft();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::setAutoScaleXEnabled( bool enabled )
 {
     for ( RimPlot* plot : plots() )

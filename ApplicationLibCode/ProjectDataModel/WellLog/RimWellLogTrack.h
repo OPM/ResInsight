@@ -250,8 +250,8 @@ private:
     void updatePropertyValueZoom();
     void updateDepthZoom();
 
-    RiuPlotAxis getDepthAxis() const;
-    RiuPlotAxis getValueAxis() const;
+    RiuPlotAxis depthAxis() const;
+    RiuPlotAxis valueAxis() const;
 
     int axisFontSize() const;
 

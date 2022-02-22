@@ -387,9 +387,31 @@ bool RimWellLogCurve::isVerticalCurve() const
 {
     RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
 
-    RimDepthTrackPlot* wellLogPlot = nullptr;
-    firstAncestorOrThisOfType( wellLogPlot );
-    if ( wellLogPlot ) orientation = wellLogPlot->depthOrientation();
+    RimDepthTrackPlot* depthTrackPlot = nullptr;
+    firstAncestorOrThisOfType( depthTrackPlot );
+    if ( depthTrackPlot ) orientation = depthTrackPlot->depthOrientation();
 
     return orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimWellLogCurve::depthAxis() const
+{
+    RimDepthTrackPlot* depthTrackPlot;
+    this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+
+    return depthTrackPlot->depthAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimWellLogCurve::valueAxis() const
+{
+    RimDepthTrackPlot* depthTrackPlot;
+    this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+
+    return depthTrackPlot->valueAxis();
 }

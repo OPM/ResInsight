@@ -522,21 +522,25 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
             if ( viewer )
             {
+                QString text;
+
                 if ( derivedMDSource != DerivedMDSource::NO_SOURCE )
                 {
                     if ( derivedMDSource == DerivedMDSource::WELL_PATH )
                     {
-                        viewer->setAxisTitleText( RiuPlotAxis::defaultLeft(), "WELL/" + wellLogPlot->depthAxisTitle() );
+                        text = "WELL/" + wellLogPlot->depthAxisTitle();
                     }
                     else
                     {
-                        viewer->setAxisTitleText( RiuPlotAxis::defaultLeft(), "OBS/" + wellLogPlot->depthAxisTitle() );
+                        text = "OBS/" + wellLogPlot->depthAxisTitle();
                     }
                 }
                 else // Standard depth title set from plot
                 {
-                    viewer->setAxisTitleText( RiuPlotAxis::defaultLeft(), wellLogPlot->depthAxisTitle() );
+                    text = wellLogPlot->depthAxisTitle();
                 }
+
+                viewer->setAxisTitleText( wellLogPlot->depthAxis(), text );
             }
         }
         else
