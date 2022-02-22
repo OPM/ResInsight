@@ -40,7 +40,6 @@ public:
 protected:
     static void importSingleEnsembleFractureStatistics( const QStringList& fileNames );
 
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

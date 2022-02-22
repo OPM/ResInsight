@@ -35,7 +35,6 @@ class RicExecuteScriptFeature : public caf::CmdFeature
     static void executeScript( RimCalcScript* calcScript );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

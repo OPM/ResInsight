@@ -33,7 +33,6 @@ public:
     static void refreshScriptFolders();
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

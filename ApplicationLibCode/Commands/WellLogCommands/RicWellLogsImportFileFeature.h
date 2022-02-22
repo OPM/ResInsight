@@ -36,7 +36,6 @@ class RicWellLogsImportFileFeature : public caf::CmdFeature
     static QStringList                  wellLogFileNameFilters();
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

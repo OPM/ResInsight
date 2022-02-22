@@ -59,7 +59,6 @@ public:
     static QStringList     getEclipseFileNamesWithDialog( RiaDefines::ImportFileType fileTypes );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
