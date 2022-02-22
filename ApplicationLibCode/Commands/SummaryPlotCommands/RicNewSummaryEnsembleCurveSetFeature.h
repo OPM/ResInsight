@@ -37,7 +37,6 @@ public:
     static RimSummaryPlot* createPlotForCurveSetsAndUpdate( std::vector<RimSummaryCaseCollection*> ensembles );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

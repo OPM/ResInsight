@@ -36,7 +36,6 @@ public:
     static void linkViews( std::vector<RimGridView*>& views );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
 

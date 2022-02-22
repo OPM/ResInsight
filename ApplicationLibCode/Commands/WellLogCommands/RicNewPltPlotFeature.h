@@ -37,7 +37,6 @@ class RicNewPltPlotFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
