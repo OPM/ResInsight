@@ -31,6 +31,7 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
@@ -252,6 +253,24 @@ RimSummaryCase* RiaSummaryTools::summaryCaseById( int caseId )
         if ( summaryCase->caseId() == caseId )
         {
             return summaryCase;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RiaSummaryTools::ensembleById( int ensembleId )
+{
+    auto ensembles = RimProject::current()->summaryGroups();
+
+    for ( auto ensemble : ensembles )
+    {
+        if ( ensemble->ensembleId() == ensembleId )
+        {
+            return ensemble;
         }
     }
 

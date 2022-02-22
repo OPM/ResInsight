@@ -30,6 +30,7 @@ class RimSummaryCrossPlot;
 class RimSummaryCrossPlotCollection;
 class RimSummaryCaseMainCollection;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 class RifEclipseSummaryAddress;
 
@@ -70,5 +71,6 @@ public:
                                   std::vector<double>&              values,
                                   RiaQDateTimeTools::DateTimePeriod period );
 
-    static RimSummaryCase* summaryCaseById( int caseId );
+    static RimSummaryCase*           summaryCaseById( int caseId );
+    static RimSummaryCaseCollection* ensembleById( int ensembleId );
 };

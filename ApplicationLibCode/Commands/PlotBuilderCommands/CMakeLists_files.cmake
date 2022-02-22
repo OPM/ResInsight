@@ -2,12 +2,14 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotBuilder.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryMultiPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryPlotFromDataVectorFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSummaryPlotBuilder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryMultiPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryPlotFromDataVectorFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
