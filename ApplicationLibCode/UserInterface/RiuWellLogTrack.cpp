@@ -41,8 +41,9 @@
 class RiuWellLogCurvePointTracker : public RiuQwtCurvePointTracker
 {
 public:
-    RiuWellLogCurvePointTracker( QwtPlot* plot, IPlotCurveInfoTextProvider* curveInfoTextProvider )
+    RiuWellLogCurvePointTracker( QwtPlot* plot, IPlotCurveInfoTextProvider* curveInfoTextProvider, RimWellLogTrack* track )
         : RiuQwtCurvePointTracker( plot, false, curveInfoTextProvider )
+        , m_wellLogTrack( track )
     {
     }
 
@@ -66,7 +67,19 @@ protected:
                 closestCurvePoint( pos, &curveInfoText, &xAxisValueString, &depthAxisValueString, &relatedXAxis, &relatedYAxis );
             if ( !closestPoint.isNull() )
             {
-                QString str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
+                QString str;
+
+                RimWellLogPlot* wlp = nullptr;
+                m_wellLogTrack->firstAncestorOfType( wlp );
+
+                if ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+                {
+                    str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
+                }
+                else
+                {
+                    str = QString( "%1\nDepth: %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
+                }
 
                 if ( !curveInfoText.isEmpty() )
                 {
@@ -84,6 +97,9 @@ protected:
 
         return txt;
     }
+
+private:
+    caf::PdmPointer<RimWellLogTrack> m_wellLogTrack;
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -124,7 +140,7 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     setAxisEnabled( QwtPlot::xTop, true );
     setAxisEnabled( QwtPlot::xBottom, true );
 
-    new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider );
+    new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
 }
 
 //--------------------------------------------------------------------------------------------------
