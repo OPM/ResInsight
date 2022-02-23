@@ -92,8 +92,9 @@ public:
 
 protected:
     // Overrides from RimWellLogPlotCurve
-    QString createCurveAutoName() override;
-    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
+    QString               createCurveAutoName() override;
+    void                  onLoadDataAndUpdate( bool updateParentPlot ) override;
+    RiaDefines::PhaseType phaseType() const override;
 
     // Pdm overrrides
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

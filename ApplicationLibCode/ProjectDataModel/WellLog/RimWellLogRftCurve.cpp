@@ -105,6 +105,41 @@ CAF_PDM_SOURCE_INIT( RimWellLogRftCurve, "WellLogRftCurve" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::PhaseType RimWellLogRftCurve::phaseType() const
+{
+    if ( m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_DATA )
+    {
+        if ( m_wellLogChannelName() == RifEclipseRftAddress::RftWellLogChannelType::SWAT ||
+             m_wellLogChannelName() == RifEclipseRftAddress::RftWellLogChannelType::WRAT )
+        {
+            return RiaDefines::PhaseType::WATER_PHASE;
+        }
+
+        if ( m_wellLogChannelName() == RifEclipseRftAddress::RftWellLogChannelType::SGAS ||
+             m_wellLogChannelName() == RifEclipseRftAddress::RftWellLogChannelType::GRAT )
+        {
+            return RiaDefines::PhaseType::GAS_PHASE;
+        }
+
+        if ( m_wellLogChannelName() == RifEclipseRftAddress::RftWellLogChannelType::SOIL ||
+             m_wellLogChannelName() == RifEclipseRftAddress::RftWellLogChannelType::ORAT )
+        {
+            return RiaDefines::PhaseType::OIL_PHASE;
+        }
+    }
+    else if ( m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )
+    {
+        if ( m_segmentResultName().startsWith( "SEGO" ) ) return RiaDefines::PhaseType::OIL_PHASE;
+        if ( m_segmentResultName().startsWith( "SEGW" ) ) return RiaDefines::PhaseType::WATER_PHASE;
+        if ( m_segmentResultName().startsWith( "SEGG" ) ) return RiaDefines::PhaseType::GAS_PHASE;
+    }
+
+    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellLogRftCurve::RimWellLogRftCurve()
 {
     CAF_PDM_InitObject( "Well Log RFT Curve", RimWellLogCurve::wellLogCurveIconName() );
