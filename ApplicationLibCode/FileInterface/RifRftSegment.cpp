@@ -22,6 +22,11 @@
 #include <unordered_set>
 
 //--------------------------------------------------------------------------------------------------
+/// segnxt : Int ID for the next segment
+/// brno   : Branch ID number
+/// brnst  : Branch ID number for start of segment
+/// brnen  : Branch ID number for end of segment
+/// segNo  : Segment ID number
 ///
 //--------------------------------------------------------------------------------------------------
 RifRftSegmentData::RifRftSegmentData( int segnxt, int brno, int brnst, int brnen, int segNo )

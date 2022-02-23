@@ -53,10 +53,18 @@ public:
     void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
 private:
+    // Segment data
+    // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate
+    using RftDate       = std::tuple<int, int, int>;
+    using RftSegmentKey = std::pair<std::string, RftDate>;
+
     void buildMetaData();
     void buildSegmentData();
     void segmentDataDebugLog() const;
     bool isOpen() const;
+    void importWellNames();
+
+    std::vector<int> importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const;
 
     static RifEclipseRftAddress::RftWellLogChannelType identifyChannelType( const std::string& resultName );
     static std::string resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );
@@ -68,9 +76,5 @@ private:
     std::set<RifEclipseRftAddress> m_addresses;
     std::set<QString>              m_wellNames;
 
-    // Segment data
-    // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate
-    using RftDate       = std::tuple<int, int, int>;
-    using RftSegmentKey = std::pair<std::string, RftDate>;
     std::map<RftSegmentKey, RifRftSegment> m_rftWellDateSegments;
 };
