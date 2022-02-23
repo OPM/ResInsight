@@ -118,7 +118,7 @@ RimPlotCurve::RimPlotCurve()
     m_curveAppearance.uiCapability()->setUiTreeHidden( true );
     m_curveAppearance.uiCapability()->setUiTreeChildrenHidden( true );
     m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onCurveAppearanceChanged );
-    m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onFillColorChanged );
+    m_curveAppearance->fillColorChanged.connect( this, &RimPlotCurve::onFillColorChanged );
 
     m_plotCurve  = nullptr;
     m_parentPlot = nullptr;
