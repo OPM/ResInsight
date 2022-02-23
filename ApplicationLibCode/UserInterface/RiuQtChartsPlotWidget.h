@@ -175,7 +175,7 @@ public:
     std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const override;
 
 protected:
-    void setAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series );
+    void attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series );
 
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;

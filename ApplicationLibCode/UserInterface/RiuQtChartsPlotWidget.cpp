@@ -846,7 +846,7 @@ void RiuQtChartsPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemTyp
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
 {
-    setAxis( axis, series );
+    attachSeriesToAxis( axis, series );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -854,7 +854,7 @@ void RiuQtChartsPlotWidget::setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSerie
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
 {
-    setAxis( axis, series );
+    attachSeriesToAxis( axis, series );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -871,7 +871,7 @@ void RiuQtChartsPlotWidget::ensureAxisIsCreated( RiuPlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
+void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
 {
     // Make sure the axis we are about to set exists.
     ensureAxisIsCreated( axis );
