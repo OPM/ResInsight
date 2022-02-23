@@ -108,7 +108,11 @@ bool RicWellLogTools::hasRftDataForWell( const QString& wellName )
         {
             if ( resultCase->rftReader() )
             {
-                return resultCase->rftReader()->wellHasRftData( wellName );
+                auto wellNames = resultCase->rftReader()->wellNames();
+                for ( const auto& w : wellNames )
+                {
+                    if ( w == wellName ) return true;
+                }
             }
         }
     }

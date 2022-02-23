@@ -45,7 +45,7 @@ public:
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
-    void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices );
+    void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
     std::set<QDateTime> availableTimeSteps( const QString& wellName ) override;
     std::set<QDateTime>

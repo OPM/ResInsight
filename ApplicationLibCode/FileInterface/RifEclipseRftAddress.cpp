@@ -23,9 +23,103 @@
 //--------------------------------------------------------------------------------------------------
 RifEclipseRftAddress::RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannelName )
     : m_wellName( wellName )
+    , m_timeStep( timeStep )
     , m_wellLogChannel( wellLogChannelName )
+    , m_segmentBranchNumber( -1 )
 {
-    m_timeStep = timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseRftAddress RifEclipseRftAddress::createSegmentResult( const QString&   wellName,
+                                                                const QDateTime& dateTime,
+                                                                const QString&   resultName )
+{
+    auto adr = RifEclipseRftAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES );
+
+    adr.setSegmentResultName( resultName );
+
+    return adr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseRftAddress::setSegmentResultName( const QString& resultName )
+{
+    m_segmentResultName = resultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifEclipseRftAddress::segmentResultName() const
+{
+    return m_segmentResultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifEclipseRftAddress::setSegmentBranchNumber( int branchNumber )
+{
+    m_segmentBranchNumber = branchNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifEclipseRftAddress::segmentBranchNumber() const
+{
+    return m_segmentBranchNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString& RifEclipseRftAddress::wellName() const
+{
+    return m_wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RifEclipseRftAddress::timeStep() const
+{
+    return m_timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RifEclipseRftAddress::RifEclipseRftAddress::RftWellLogChannelType& RifEclipseRftAddress::wellLogChannel() const
+{
+    return m_wellLogChannel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseRftAddress::RftWellLogChannelType> RifEclipseRftAddress::rftPlotChannelTypes()
+{
+    return { RifEclipseRftAddress::RftWellLogChannelType::PRESSURE,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50,
+             RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseRftAddress::RifEclipseRftAddress::RftWellLogChannelType> RifEclipseRftAddress::pltPlotChannelTypes()
+{
+    return { RifEclipseRftAddress::RftWellLogChannelType::ORAT,
+             RifEclipseRftAddress::RftWellLogChannelType::WRAT,
+             RifEclipseRftAddress::RftWellLogChannelType::GRAT };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,6 +130,8 @@ bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& 
     if ( first.wellName() != second.wellName() ) return false;
     if ( first.timeStep() != second.timeStep() ) return false;
     if ( first.wellLogChannel() != second.wellLogChannel() ) return false;
+    if ( first.segmentResultName() != second.segmentResultName() ) return false;
+    if ( first.segmentBranchNumber() != second.segmentBranchNumber() ) return false;
 
     return true;
 }
@@ -49,6 +145,10 @@ bool operator<( const RifEclipseRftAddress& first, const RifEclipseRftAddress& s
     if ( first.timeStep() != second.timeStep() ) return ( first.timeStep() < second.timeStep() );
     if ( first.wellLogChannel() != second.wellLogChannel() )
         return ( first.wellLogChannel() < second.wellLogChannel() );
+    if ( first.segmentResultName() != second.segmentResultName() )
+        return first.segmentResultName() < second.segmentResultName();
+    if ( first.segmentBranchNumber() != second.segmentBranchNumber() )
+        return first.segmentBranchNumber() < second.segmentBranchNumber();
 
     return false;
 }

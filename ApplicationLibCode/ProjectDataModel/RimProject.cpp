@@ -456,15 +456,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         filePath->setPath( newFilePath );
     }
 
-    // Loop over all cases and update file path
-
-    std::vector<RimCase*> cases;
-    allCases( cases );
-    for ( size_t i = 0; i < cases.size(); i++ )
-    {
-        cases[i]->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-
     // Update path to well path file cache
     for ( RimOilField* oilField : oilFields )
     {

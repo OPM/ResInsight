@@ -71,6 +71,9 @@ public:
                                      bool           useLogarithmicScale,
                                      const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
 
+    void setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues,
+                                               const std::vector<double>& depthValues );
+
     const RigWellLogCurveData* curveData() const;
 
     void updateCurveAppearance() override;
@@ -85,8 +88,7 @@ public:
 
     void setOverrideCurveData( const std::vector<double>&               propertyValues,
                                const std::vector<double>&               depthValues,
-                               const RiaCurveDataTools::CurveIntervals& curveIntervals,
-                               bool                                     isVerticalPlot );
+                               const RiaCurveDataTools::CurveIntervals& curveIntervals );
 
     virtual RiaDefines::PhaseType resultPhase() const;
 
@@ -96,6 +98,10 @@ protected:
     void setOverrideCurveDataPropertyValueRange( double minimumValue, double maximumValue );
     void calculateCurveDataPropertyValueRange();
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    bool        isVerticalCurve() const;
+    RiuPlotAxis depthAxis() const;
+    RiuPlotAxis valueAxis() const;
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;

@@ -505,7 +505,18 @@ void RimWellLogTrack::updateDepthZoom()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisRange( getDepthAxis(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+    RimDepthTrackPlot* wellLogPlot;
+    this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+
+    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    {
+        m_plotWidget->setAxisRange( depthAxis(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+    }
+    else
+    {
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultTop(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -542,8 +553,8 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     {
         if ( m_plotWidget )
         {
-            m_majorTickInterval = m_plotWidget->majorTickInterval( getValueAxis() );
-            m_minorTickInterval = m_plotWidget->minorTickInterval( getValueAxis() );
+            m_majorTickInterval = m_plotWidget->majorTickInterval( valueAxis() );
+            m_minorTickInterval = m_plotWidget->minorTickInterval( valueAxis() );
         }
         m_majorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
         m_minorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
@@ -764,13 +775,13 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
     bool emptyRange = isEmptyVisibleXRange();
     if ( emptyRange )
     {
-        m_plotWidget->enableGridLines( getValueAxis(), false, false );
-        m_plotWidget->setAxisRange( getValueAxis(), 0.0, 1.0 );
-        m_plotWidget->setAxisLabelsAndTicksEnabled( getValueAxis(), false, false );
+        m_plotWidget->enableGridLines( valueAxis(), false, false );
+        m_plotWidget->setAxisRange( valueAxis(), 0.0, 1.0 );
+        m_plotWidget->setAxisLabelsAndTicksEnabled( valueAxis(), false, false );
     }
     else
     {
-        m_plotWidget->setAxisLabelsAndTicksEnabled( getValueAxis(), true, true );
+        m_plotWidget->setAxisLabelsAndTicksEnabled( valueAxis(), true, true );
         if ( m_minAndMaxTicksOnly )
         {
             auto roundToDigits = []( double value, int numberOfDigits, bool useFloor ) {
@@ -805,11 +816,20 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
 
             div.setTicks( QwtScaleDiv::TickType::MajorTick, majorTicks );
 
-            m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::xTop, div );
+            RimDepthTrackPlot* wellLogPlot;
+            this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::xTop, div );
+            }
+            else
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::yLeft, div );
+            }
         }
         else if ( m_explicitTickIntervals )
         {
-            m_plotWidget->setMajorAndMinorTickIntervals( getValueAxis(),
+            m_plotWidget->setMajorAndMinorTickIntervals( valueAxis(),
                                                          m_majorTickInterval(),
                                                          m_minorTickInterval(),
                                                          m_visiblePropertyValueRangeMin(),
@@ -819,11 +839,11 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
         {
             int majorTickIntervals = 5;
             int minorTickIntervals = 10;
-            m_plotWidget->setAutoTickIntervalCounts( getValueAxis(), majorTickIntervals, minorTickIntervals );
-            m_plotWidget->setAxisRange( getValueAxis(), m_visiblePropertyValueRangeMin, m_visiblePropertyValueRangeMax );
+            m_plotWidget->setAutoTickIntervalCounts( valueAxis(), majorTickIntervals, minorTickIntervals );
+            m_plotWidget->setAxisRange( valueAxis(), m_visiblePropertyValueRangeMin, m_visiblePropertyValueRangeMax );
         }
 
-        m_plotWidget->enableGridLines( getValueAxis(),
+        m_plotWidget->enableGridLines( valueAxis(),
                                        m_propertyValueAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MAJOR,
                                        m_propertyValueAxisGridVisibility() & RimWellLogPlot::AXIS_GRID_MINOR );
     }
@@ -832,7 +852,7 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
     this->firstAncestorOrThisOfType( wellLogPlot );
     if ( wellLogPlot )
     {
-        m_plotWidget->enableGridLines( getDepthAxis(),
+        m_plotWidget->enableGridLines( depthAxis(),
                                        wellLogPlot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MAJOR,
                                        wellLogPlot->depthAxisGridLinesEnabled() & RimWellLogPlot::AXIS_GRID_MINOR );
     }
@@ -1008,8 +1028,8 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateZoomFromParentPlot()
 {
-    auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( getValueAxis() );
-    auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( getDepthAxis() );
+    auto [xIntervalMin, xIntervalMax]         = m_plotWidget->axisRange( valueAxis() );
+    auto [depthIntervalMin, depthIntervalMax] = m_plotWidget->axisRange( depthAxis() );
 
     m_visiblePropertyValueRangeMin = xIntervalMin;
     m_visiblePropertyValueRangeMax = xIntervalMax;
@@ -1228,8 +1248,19 @@ void RimWellLogTrack::onLoadDataAndUpdate()
 
     if ( wellLogPlot && m_plotWidget )
     {
-        m_plotWidget->setAxisTitleText( getValueAxis(), m_propertyValueAxisTitle );
-        m_plotWidget->setAxisTitleText( getDepthAxis(), wellLogPlot->depthAxisTitle() );
+        m_plotWidget->setAxisTitleText( valueAxis(), m_propertyValueAxisTitle );
+        m_plotWidget->setAxisTitleText( depthAxis(), wellLogPlot->depthAxisTitle() );
+
+        if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        {
+            m_plotWidget->setAxisEnabled( QwtPlot::xTop, true );
+            m_plotWidget->setAxisEnabled( QwtPlot::xBottom, false );
+        }
+        else
+        {
+            m_plotWidget->setAxisEnabled( QwtPlot::xTop, false );
+            m_plotWidget->setAxisEnabled( QwtPlot::xBottom, true );
+        }
     }
 
     for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
@@ -1981,26 +2012,41 @@ void RimWellLogTrack::updateAxisScaleEngine()
         if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
         {
             m_plotWidget->setAxisInverted( RiuPlotAxis::defaultLeft(), true );
+
+            if ( m_isLogarithmicScaleEnabled )
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new QwtLogScaleEngine );
+
+                // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine );
+            }
+            else
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new RiuQwtLinearScaleEngine );
+
+                // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
+            }
         }
         else
         {
             m_plotWidget->setAxisInverted( RiuPlotAxis::defaultLeft(), false );
+
+            if ( m_isLogarithmicScaleEnabled )
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new QwtLogScaleEngine );
+
+                // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yRight, new QwtLogScaleEngine );
+            }
+            else
+            {
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
+
+                // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yRight, new RiuQwtLinearScaleEngine );
+            }
         }
-    }
-
-    if ( m_isLogarithmicScaleEnabled )
-    {
-        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new QwtLogScaleEngine );
-
-        // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine );
-    }
-    else
-    {
-        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new RiuQwtLinearScaleEngine );
-
-        // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-        m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
     }
 }
 
@@ -2055,8 +2101,18 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
     {
         if ( event->modifiers() & Qt::ControlModifier )
         {
-            QwtScaleMap scaleMap   = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::yLeft );
-            double      zoomCenter = scaleMap.invTransform( event->pos().y() );
+            double zoomCenter = 0.0;
+
+            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            {
+                QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::yLeft );
+                zoomCenter           = scaleMap.invTransform( event->pos().y() );
+            }
+            else
+            {
+                QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::xTop );
+                zoomCenter           = scaleMap.invTransform( event->pos().x() );
+            }
 
             if ( event->delta() > 0 )
             {
@@ -2501,14 +2557,6 @@ void RimWellLogTrack::updateStackedCurveData()
 
         if ( allDepthValues.empty() ) continue;
 
-        bool               isVerticalTrack = true;
-        RimDepthTrackPlot* wellLogPlot;
-        this->firstAncestorOrThisOfType( wellLogPlot );
-        if ( wellLogPlot )
-        {
-            isVerticalTrack = ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL );
-        }
-
         size_t              stackIndex = 0u;
         std::vector<double> allStackedValues( allDepthValues.size(), 0.0 );
         for ( auto curve : stackedCurvesInGroup )
@@ -2535,7 +2583,7 @@ void RimWellLogTrack::updateStackedCurveData()
             auto plotDepthValues          = tempCurveData.depths( depthType );
             auto polyLineStartStopIndices = tempCurveData.polylineStartStopIndices();
 
-            curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices, isVerticalTrack );
+            curve->setOverrideCurveData( allStackedValues, plotDepthValues, polyLineStartStopIndices );
             curve->setZOrder( zPos );
 
             if ( !dynamic_cast<RimWellFlowRateCurve*>( curve ) )
@@ -3253,27 +3301,21 @@ void RimWellLogTrack::setEnsembleWellLogCurveSet( RimEnsembleWellLogCurveSet* cu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotAxis RimWellLogTrack::getDepthAxis() const
+RiuPlotAxis RimWellLogTrack::depthAxis() const
 {
     RimDepthTrackPlot* wellLogPlot;
     this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
-    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-        return RiuPlotAxis::defaultLeft();
-    else
-        return RiuPlotAxis::defaultTop();
+    return wellLogPlot->depthAxis();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotAxis RimWellLogTrack::getValueAxis() const
+RiuPlotAxis RimWellLogTrack::valueAxis() const
 {
     RimDepthTrackPlot* wellLogPlot;
     this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
-    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-        return RiuPlotAxis::defaultTop();
-    else
-        return RiuPlotAxis::defaultLeft();
+    return wellLogPlot->valueAxis();
 }

@@ -151,6 +151,24 @@ void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>& pro
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues,
+                                                            const std::vector<double>& depthValues )
+{
+    if ( !m_plotCurve ) return;
+
+    if ( isVerticalCurve() )
+    {
+        m_plotCurve->setSamplesValues( propertyValues, depthValues );
+    }
+    else
+    {
+        m_plotCurve->setSamplesValues( depthValues, propertyValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::setPropertyValuesWithMdAndTVD( const std::vector<double>& propertyValues,
                                                      const std::vector<double>& measuredDepths,
                                                      const std::vector<double>& tvdMSL,
@@ -234,21 +252,15 @@ QString RimWellLogCurve::wellLogCurveIconName()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&               propertyValues,
                                             const std::vector<double>&               depthValues,
-                                            const RiaCurveDataTools::CurveIntervals& curveIntervals,
-                                            bool                                     isVerticalPlot )
+                                            const RiaCurveDataTools::CurveIntervals& curveIntervals )
 {
     auto minmax_it = std::minmax_element( propertyValues.begin(), propertyValues.end() );
     this->setOverrideCurveDataPropertyValueRange( *( minmax_it.first ), *( minmax_it.second ) );
+
     if ( m_plotCurve )
     {
-        if ( isVerticalPlot )
-        {
-            m_plotCurve->setSamplesValues( propertyValues, depthValues );
-        }
-        else
-        {
-            m_plotCurve->setSamplesValues( depthValues, propertyValues );
-        }
+        setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
+
         m_plotCurve->setLineSegmentStartStopIndices( curveIntervals );
     }
 }
@@ -357,13 +369,52 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_showCurve && m_showCurve() )
+    if ( changedField == &m_showCurve )
     {
-        updateZoomInParentPlot();
+        if ( m_isStacked() || m_showCurve() )
+        {
+            updateZoomInParentPlot();
+        }
     }
 
     if ( changedField == &m_isStacked )
     {
         loadDataAndUpdate( true );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogCurve::isVerticalCurve() const
+{
+    RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
+
+    RimDepthTrackPlot* depthTrackPlot = nullptr;
+    firstAncestorOrThisOfType( depthTrackPlot );
+    if ( depthTrackPlot ) orientation = depthTrackPlot->depthOrientation();
+
+    return orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimWellLogCurve::depthAxis() const
+{
+    RimDepthTrackPlot* depthTrackPlot;
+    this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+
+    return depthTrackPlot->depthAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimWellLogCurve::valueAxis() const
+{
+    RimDepthTrackPlot* depthTrackPlot;
+    this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+
+    return depthTrackPlot->valueAxis();
 }

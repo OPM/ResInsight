@@ -27,6 +27,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimTools.h"
 #include "RimWellLogCurve.h"
+#include "RimWellLogRftCurve.h"
 #include "RimWellLogRftCurveNameConfig.h"
 #include "RimWellPath.h"
 
@@ -117,8 +118,8 @@ QString Rim3dWellLogRftCurve::createAutoName() const
     {
         name.push_back( m_eclipseResultCase->caseUserDescription() );
     }
-    if ( m_wellLogChannelName().text() !=
-         caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text( RifEclipseRftAddress::NONE ) )
+    if ( m_wellLogChannelName().text() != caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::text(
+                                              RifEclipseRftAddress::RftWellLogChannelType::NONE ) )
     {
         RifEclipseRftAddress::RftWellLogChannelType channelNameEnum = m_wellLogChannelName();
         name.push_back( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum ) );
@@ -172,7 +173,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_eclipseResultCase )
         {
-            RifReaderEclipseRft* reader = m_eclipseResultCase()->rftReader();
+            RifReaderRftInterface* reader = m_eclipseResultCase()->rftReader();
             if ( reader )
             {
                 for ( const RifEclipseRftAddress::RftWellLogChannelType& channelName :
@@ -187,8 +188,8 @@ QList<caf::PdmOptionItemInfo>
             if ( options.empty() )
             {
                 options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
-                                                               RifEclipseRftAddress::NONE ),
-                                                           RifEclipseRftAddress::NONE ) );
+                                                               RifEclipseRftAddress::RftWellLogChannelType::NONE ),
+                                                           RifEclipseRftAddress::RftWellLogChannelType::NONE ) );
             }
         }
     }
@@ -196,7 +197,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( m_eclipseResultCase )
         {
-            RifReaderEclipseRft* reader = m_eclipseResultCase()->rftReader();
+            RifReaderRftInterface* reader = m_eclipseResultCase()->rftReader();
             if ( reader )
             {
                 QString             dateFormat = "dd MMM yyyy";

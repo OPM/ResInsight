@@ -951,7 +951,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
     const std::vector<RifDataSourceForRftPlt>&                   selSources,
     const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults )
 {
-    bool addFirstTimestep = ( interestingRFTResults.count( RifEclipseRftAddress::PRESSURE ) == 1 );
+    bool addFirstTimestep = ( interestingRFTResults.count( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE ) == 1 );
 
     const QString simWellName = RimWellPlotTools::simWellName( wellPathNameOrSimWellName );
 

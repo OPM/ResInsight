@@ -26,6 +26,11 @@
 #include <set>
 #include <vector>
 
+namespace caf
+{
+class VecIjk;
+};
+
 class RifReaderRftInterface
 {
 public:
@@ -42,4 +47,6 @@ public:
                                                                                       const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName ) = 0;
     virtual std::set<RifEclipseRftAddress::RftWellLogChannelType> availableWellLogChannels( const QString& wellName ) = 0;
     virtual std::set<QString>                                     wellNames() = 0;
+
+    virtual void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices );
 };

@@ -17,15 +17,19 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RifDataSourceForRftPlt.h"
+
+#include "RifReaderEclipseRft.h"
+
 #include "RimEclipseCase.h"
+#include "RimEclipseResultCase.h"
 #include "RimObservedFmuRftData.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimWellLogFile.h"
 
-#include "RimEclipseResultCase.h"
 #include "cafAppEnum.h"
 #include "cvfAssert.h"
+
 #include <QString>
 #include <QTextStream>
 

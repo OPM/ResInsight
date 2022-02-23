@@ -302,13 +302,13 @@ public:
     {
         RifEclipseRftAddress gasRateAddress( RimWellPlotTools::simWellName( wellPathName ),
                                              m_timeStep,
-                                             RifEclipseRftAddress::GRAT );
+                                             RifEclipseRftAddress::RftWellLogChannelType::GRAT );
         RifEclipseRftAddress oilRateAddress( RimWellPlotTools::simWellName( wellPathName ),
                                              m_timeStep,
-                                             RifEclipseRftAddress::ORAT );
+                                             RifEclipseRftAddress::RftWellLogChannelType::ORAT );
         RifEclipseRftAddress watRateAddress( RimWellPlotTools::simWellName( wellPathName ),
                                              m_timeStep,
-                                             RifEclipseRftAddress::WRAT );
+                                             RifEclipseRftAddress::RftWellLogChannelType::WRAT );
 
         std::vector<caf::VecIjk> rftIndices;
         eclCase->rftReader()->cellIndices( gasRateAddress, &rftIndices );

@@ -55,8 +55,6 @@ public:
     // Overrides from RimCase
     QString locationOnDisc() const override;
 
-    void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override;
-
     void updateAdditionalFileFolder( const QString& newFolder );
 
 protected:

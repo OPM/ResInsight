@@ -396,14 +396,6 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase( std::string* err
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // No longer in use. Filepaths are now of type caf::FilePath, and updated in RimProject on load.
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 {
     std::vector<Rim3dView*> views;

@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2015-     Statoil ASA
-//  Copyright (C) 2015-     Ceetron Solutions AS
+//  Copyright (C) 2022- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,27 +15,19 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #pragma once
 
-#include "RiuQwtPlotWidget.h"
+#include <QString>
 
-#include "qwt_plot.h"
-
-class RimWellLogTrack;
-class QWheelEvent;
-
-//==================================================================================================
-//
-//
-//
-//==================================================================================================
-class RiuWellLogTrack : public RiuQwtPlotWidget
+namespace RiaDefines
 {
-    Q_OBJECT
+QString segmentStartDepthResultName();
+QString segmentEndDepthResultName();
+QString segmentTvdDepthResultName();
+QString segmentNumberResultName();
 
-public:
-    RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent = nullptr );
-    ~RiuWellLogTrack() override;
+QString allBranches();
+QString segmentBranchNumberResultName();
 
-    void setAxisEnabled( QwtPlot::Axis axis, bool enabled );
-};
+}; // namespace RiaDefines

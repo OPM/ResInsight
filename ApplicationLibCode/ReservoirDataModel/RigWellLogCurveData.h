@@ -65,6 +65,7 @@ public:
     QString             propertyValueUnit() const;
 
     std::vector<double> depths( RiaDefines::DepthTypeEnum depthType ) const;
+    std::vector<double> depths( RiaDefines::DepthTypeEnum depthType, RiaDefines::DepthUnitType destinationDepthUnit ) const;
 
     std::set<RiaDefines::DepthTypeEnum> availableDepthTypes() const;
 
@@ -92,6 +93,10 @@ public:
 
 private:
     void calculateIntervalsOfContinousValidValues();
+
+    static std::vector<double> depthsForDepthUnit( const std::vector<double>& depths,
+                                                   RiaDefines::DepthUnitType  sourceDepthUnit,
+                                                   RiaDefines::DepthUnitType  destinationDepthUnit );
 
     static void splitIntervalAtEmptySpace( const std::vector<double>&              depthValues,
                                            size_t                                  startIdx,

@@ -189,6 +189,15 @@ std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depth
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::depths( RiaDefines::DepthTypeEnum depthType,
+                                                 RiaDefines::DepthUnitType destinationDepthUnit ) const
+{
+    return depthsForDepthUnit( depths( depthType ), m_depthUnit, destinationDepthUnit );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::set<RiaDefines::DepthTypeEnum> RigWellLogCurveData::availableDepthTypes() const
 {
     std::set<RiaDefines::DepthTypeEnum> depthTypes;
@@ -232,22 +241,11 @@ std::vector<double> RigWellLogCurveData::propertyValuesByIntervals() const
 std::vector<double> RigWellLogCurveData::depthValuesByIntervals( RiaDefines::DepthTypeEnum depthType,
                                                                  RiaDefines::DepthUnitType destinationDepthUnit ) const
 {
-    std::vector<double> filteredValues;
+    const std::vector<double> depthValues =
+        RigWellLogCurveData::depthsForDepthUnit( depths( depthType ), m_depthUnit, destinationDepthUnit );
 
-    const std::vector<double> depthValues = depths( depthType );
-    if ( !depthValues.empty() )
-    {
-        if ( destinationDepthUnit == m_depthUnit )
-        {
-            RiaCurveDataTools::getValuesByIntervals( depthValues, m_intervalsOfContinousValidValues, &filteredValues );
-        }
-        else
-        {
-            std::vector<double> convertedValues =
-                RiaWellLogUnitTools<double>::convertDepths( depthValues, m_depthUnit, destinationDepthUnit );
-            RiaCurveDataTools::getValuesByIntervals( convertedValues, m_intervalsOfContinousValidValues, &filteredValues );
-        }
-    }
+    std::vector<double> filteredValues;
+    RiaCurveDataTools::getValuesByIntervals( depthValues, m_intervalsOfContinousValidValues, &filteredValues );
 
     return filteredValues;
 }
@@ -500,6 +498,20 @@ void RigWellLogCurveData::calculateIntervalsOfContinousValidValues()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigWellLogCurveData::depthsForDepthUnit( const std::vector<double>& depths,
+                                                             RiaDefines::DepthUnitType  sourceDepthUnit,
+                                                             RiaDefines::DepthUnitType  destinationDepthUnit )
+{
+    if ( destinationDepthUnit == sourceDepthUnit ) return depths;
+
+    std::vector<double> convertedValues =
+        RiaWellLogUnitTools<double>::convertDepths( depths, sourceDepthUnit, destinationDepthUnit );
+    return convertedValues;
 }
 
 //--------------------------------------------------------------------------------------------------

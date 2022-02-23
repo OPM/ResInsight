@@ -25,10 +25,10 @@
 #include "cafPdmPtrField.h"
 
 #include "RifEclipseRftAddress.h"
-#include "RimWellLogRftCurve.h"
 
 class RimEclipseResultCase;
 class RimWellLogRftCurveNameConfig;
+class RimWellLogRftCurve;
 class QString;
 
 //==================================================================================================
