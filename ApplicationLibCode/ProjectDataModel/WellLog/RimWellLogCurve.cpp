@@ -369,9 +369,12 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_showCurve && m_showCurve() )
+    if ( changedField == &m_showCurve )
     {
-        updateZoomInParentPlot();
+        if ( m_isStacked() || m_showCurve() )
+        {
+            updateZoomInParentPlot();
+        }
     }
 
     if ( changedField == &m_isStacked )
