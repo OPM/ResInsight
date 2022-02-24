@@ -188,13 +188,15 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
     QtCharts::QLineSeries*    line    = lineSeries();
     QtCharts::QScatterSeries* scatter = scatterSeries();
 
-    line->clear();
-    scatter->clear();
+    QVector<QPointF> values( static_cast<int>( xValues.size() ) );
+
     for ( int i = 0; i < static_cast<int>( xValues.size() ); i++ )
     {
-        line->append( xValues[i], yValues[i] );
-        scatter->append( xValues[i], yValues[i] );
+        values[i] = QPointF( xValues[i], yValues[i] );
     }
+
+    line->replace( values );
+    scatter->replace( values );
 }
 
 //--------------------------------------------------------------------------------------------------
