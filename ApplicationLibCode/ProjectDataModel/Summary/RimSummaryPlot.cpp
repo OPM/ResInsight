@@ -1905,7 +1905,11 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         }
     }
 
-    if ( newCurves > 0 ) applyDefaultCurveAppearances();
+    if ( newCurves > 0 )
+    {
+        applyDefaultCurveAppearances();
+        loadDataAndUpdate();
+    }
 
     updateConnectedEditors();
 }
@@ -1919,7 +1923,6 @@ void RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimS
     newCurve->setSummaryCaseY( summaryCase );
     newCurve->setSummaryAddressYAndApplyInterpolation( address );
     addCurveNoUpdate( newCurve );
-    newCurve->loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
