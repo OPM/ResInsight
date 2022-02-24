@@ -72,6 +72,7 @@ RimEclipseResultCase::RimEclipseResultCase()
     : m_gridAndWellDataIsReadFromFile( false )
     , m_activeCellInfoIsReadFromFile( false )
     , m_useOpmRftReader( true )
+    , m_rftDataIsReadFromFile( false )
 {
     CAF_PDM_InitScriptableObject( "Eclipse Case", ":/Case48x48.png", "", "The Regular Eclipse Results Case" );
 
@@ -205,23 +206,7 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile  = true;
 
-    QFileInfo eclipseCaseFileInfo( gridFileName() );
-    QString   rftFileName = eclipseCaseFileInfo.path() + "/" + eclipseCaseFileInfo.completeBaseName() + ".RFT";
-    QFileInfo rftFileInfo( rftFileName );
-
-    if ( rftFileInfo.exists() )
-    {
-        RiaLogging::info( QString( "RFT file found" ) );
-
-        if ( m_useOpmRftReader )
-        {
-            m_readerOpmRft = new RifReaderOpmRft( rftFileInfo.filePath() );
-        }
-        else
-        {
-            m_readerEclipseRft = new RifReaderEclipseRft( rftFileInfo.filePath() );
-        }
-    }
+    ensureRftDataIsImported();
 
     if ( m_flowDiagSolutions.empty() )
     {
@@ -356,6 +341,34 @@ void RimEclipseResultCase::loadAndUpdateSourSimData()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::ensureRftDataIsImported()
+{
+    if ( m_rftDataIsReadFromFile ) return;
+
+    QFileInfo eclipseCaseFileInfo( gridFileName() );
+    QString   rftFileName = eclipseCaseFileInfo.path() + "/" + eclipseCaseFileInfo.completeBaseName() + ".RFT";
+    QFileInfo rftFileInfo( rftFileName );
+
+    if ( rftFileInfo.exists() )
+    {
+        RiaLogging::info( QString( "RFT file found" ) );
+
+        if ( m_useOpmRftReader )
+        {
+            m_readerOpmRft = new RifReaderOpmRft( rftFileInfo.filePath() );
+        }
+        else
+        {
+            m_readerEclipseRft = new RifReaderEclipseRft( rftFileInfo.filePath() );
+        }
+    }
+
+    m_rftDataIsReadFromFile = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -535,6 +548,8 @@ RigFlowDiagSolverInterface* RimEclipseResultCase::flowDiagSolverInterface()
 //--------------------------------------------------------------------------------------------------
 RifReaderRftInterface* RimEclipseResultCase::rftReader()
 {
+    ensureRftDataIsImported();
+
     if ( m_useOpmRftReader ) return m_readerOpmRft.p();
 
     return m_readerEclipseRft.p();

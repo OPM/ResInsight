@@ -81,6 +81,7 @@ protected:
 
 private:
     void loadAndUpdateSourSimData();
+    void ensureRftDataIsImported();
 
 private:
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );
@@ -100,4 +101,5 @@ private:
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;
     bool m_useOpmRftReader;
+    bool m_rftDataIsReadFromFile;
 };
