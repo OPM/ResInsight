@@ -368,6 +368,17 @@ RimWellLogRftCurve*
         plotTrack->setFormationCase( resultCase );
         plotTrack->setFormationSimWellName( simWell->name() );
     }
+    else if ( resultCase )
+    {
+        curve->setEclipseResultCase( resultCase );
+
+        auto wellNames = resultCase->rftReader()->wellNames();
+        if ( !wellNames.empty() )
+        {
+            auto wellName = *( wellNames.begin() );
+            curve->setDefaultAddress( wellName );
+        }
+    }
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );

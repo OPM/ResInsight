@@ -670,7 +670,7 @@ RimWellLogCurveCommonDataSource* RimDepthTrackPlot::commonDataSource() const
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::updateCommonDataSource()
 {
-    m_commonDataSource->updateDefaultOptions();
+    m_commonDataSource->analyseCurvesAndTracks();
 }
 
 //--------------------------------------------------------------------------------------------------

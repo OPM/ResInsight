@@ -67,9 +67,16 @@ public:
     RimWellLogRftCurve();
     ~RimWellLogRftCurve() override;
 
+    void    setWellName( const QString& wellName );
     QString wellName() const override;
+
     QString wellLogChannelUiName() const override;
     QString wellLogChannelUnits() const override;
+
+    void      setTimeStep( const QDateTime& dateTime );
+    QDateTime timeStep() const;
+
+    void setSegmentBranchId( const QString& branchId );
 
     void                  setEclipseResultCase( RimEclipseResultCase* eclipseResultCase );
     RimEclipseResultCase* eclipseResultCase() const;
