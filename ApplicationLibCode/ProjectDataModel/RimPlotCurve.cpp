@@ -1033,7 +1033,7 @@ void RimPlotCurve::detach( bool deletePlotCurve )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::reattach()
 {
-    if ( m_parentPlot ) attach( m_parentPlot );
+    if ( m_parentPlot && canCurveBeAttached() ) attach( m_parentPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
