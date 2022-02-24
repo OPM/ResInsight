@@ -26,6 +26,8 @@
 #include "cafPdmUiOrdering.h"
 #include "cafTristate.h"
 
+#include <QDateTime>
+
 class RimCase;
 class RimWellLogCurve;
 class RimWellLogPlot;
@@ -75,10 +77,10 @@ public:
     void    setTimeStepToApply( int val );
 
     void resetDefaultOptions();
-    void updateDefaultOptions( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
-    void updateDefaultOptions();
-    void updateCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
-    void updateCurvesAndTracks();
+    void analyseCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
+    void analyseCurvesAndTracks();
+    void applyDataSourceChanges( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
+    void applyDataSourceChanges();
     void applyPrevCase();
     void applyNextCase();
 
@@ -114,6 +116,10 @@ private:
     caf::PdmField<caf::Tristate>   m_wbsSmoothing;
     caf::PdmField<double>          m_wbsSmoothingThreshold;
 
+    caf::PdmField<QDateTime> m_rftTimeStep;
+    caf::PdmField<QString>   m_rftWellName;
+    caf::PdmField<QString>   m_rftSegmentBranchId;
+
     std::set<RimCase*>                 m_uniqueCases;
     std::set<int>                      m_uniqueTrajectoryTypes;
     std::set<RimWellPath*>             m_uniqueWellPaths;
@@ -123,4 +129,8 @@ private:
     std::set<int>                      m_uniqueBranchIndices;
     std::set<bool>                     m_uniqueWbsSmoothing;
     std::set<double, DoubleComparator> m_uniqueWbsSmoothingThreshold;
+
+    std::set<QDateTime> m_uniqueRftTimeSteps;
+    std::set<QString>   m_uniqueRftWellNames;
+    std::set<QString>   m_uniqueRftBranchIds;
 };

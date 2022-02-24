@@ -66,14 +66,14 @@ void RicChangeDataSourceFeature::onActionTriggered( bool isChecked )
     if ( selectedTracksAndCurves( &curves, &tracks ) )
     {
         RimWellLogCurveCommonDataSource featureUi;
-        featureUi.updateDefaultOptions( curves, tracks );
+        featureUi.analyseCurvesAndTracks( curves, tracks );
 
         caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &featureUi, "Change Data Source for Multiple Curves", "" );
         propertyDialog.resize( QSize( 500, 200 ) );
 
         if ( propertyDialog.exec() == QDialog::Accepted )
         {
-            featureUi.updateCurvesAndTracks( curves, tracks );
+            featureUi.applyDataSourceChanges( curves, tracks );
         }
     }
 }

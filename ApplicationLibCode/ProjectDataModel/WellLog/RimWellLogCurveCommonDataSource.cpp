@@ -25,12 +25,14 @@
 #include "RimGeoMechCase.h"
 #include "RimOilField.h"
 #include "RimProject.h"
+#include "RimRftTools.h"
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellLogWbsCurve.h"
 #include "RimWellMeasurementCurve.h"
@@ -95,6 +97,10 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
     m_wbsSmoothing.v() = caf::Tristate::State::PartiallyTrue;
 
     CAF_PDM_InitField( &m_wbsSmoothingThreshold, "WBSSmoothingThreshold", -1.0, "Smoothing Threshold" );
+
+    CAF_PDM_InitFieldNoDefault( &m_rftTimeStep, "RftTimeStep", "RFT Time Step" );
+    CAF_PDM_InitFieldNoDefault( &m_rftWellName, "RftWellName", "RFT Well Name" );
+    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchId, "SegmentBranchId", "RFT Segment Branch" );
 
     m_case     = nullptr;
     m_wellPath = nullptr;
@@ -276,13 +282,17 @@ void RimWellLogCurveCommonDataSource::resetDefaultOptions()
     m_uniqueBranchDetection.clear();
     m_uniqueWbsSmoothing.clear();
     m_uniqueWbsSmoothingThreshold.clear();
+
+    m_uniqueRftTimeSteps.clear();
+    m_uniqueRftWellNames.clear();
+    m_uniqueRftBranchIds.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<RimWellLogCurve*>& curves,
-                                                            const std::vector<RimWellLogTrack*>& tracks )
+void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves,
+                                                              const std::vector<RimWellLogTrack*>& tracks )
 {
     // Reset all options in the UI
     resetDefaultOptions();
@@ -294,12 +304,14 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
         {
             continue;
         }
-        RimWellLogExtractionCurve* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
-        RimWellLogFileCurve*       fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
-        RimWellFlowRateCurve*      flowRateCurve   = dynamic_cast<RimWellFlowRateCurve*>( curve );
+        auto* extractionCurve = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+        auto* fileCurve       = dynamic_cast<RimWellLogFileCurve*>( curve );
+        auto* flowRateCurve   = dynamic_cast<RimWellFlowRateCurve*>( curve );
+        auto* rftCurve        = dynamic_cast<RimWellLogRftCurve*>( curve );
+
         if ( extractionCurve )
         {
-            RimWellLogWbsCurve* wbsCurve = dynamic_cast<RimWellLogWbsCurve*>( extractionCurve );
+            auto* wbsCurve = dynamic_cast<RimWellLogWbsCurve*>( extractionCurve );
             if ( wbsCurve )
             {
                 m_uniqueWbsSmoothing.insert( wbsCurve->smoothCurve() );
@@ -340,6 +352,16 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
             m_uniqueWellNames.insert( flowRateCurve->wellName() );
             m_uniqueCases.insert( flowRateCurve->rimCase() );
             m_uniqueTimeSteps.insert( flowRateCurve->timeStep() );
+        }
+        else if ( rftCurve )
+        {
+            m_uniqueWellNames.insert( rftCurve->wellName() );
+            m_uniqueCases.insert( rftCurve->eclipseResultCase() );
+
+            auto adr = rftCurve->rftAddress();
+            m_uniqueRftWellNames.insert( adr.wellName() );
+            m_uniqueRftTimeSteps.insert( adr.timeStep() );
+            m_uniqueRftBranchIds.insert( QString::number( adr.segmentBranchNumber() ) );
         }
     }
     for ( RimWellLogTrack* track : tracks )
@@ -411,12 +433,22 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions( const std::vector<Ri
     {
         setWbsSmoothingThreshold( *m_uniqueWbsSmoothingThreshold.begin() );
     }
+
+    if ( m_uniqueRftWellNames.size() == 1u )
+    {
+        m_rftWellName = *( m_uniqueRftWellNames.begin() );
+    }
+
+    if ( m_uniqueRftTimeSteps.size() == 1u )
+    {
+        m_rftTimeStep = *( m_uniqueRftTimeSteps.begin() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateDefaultOptions()
+void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks()
 {
     RimWellLogPlot* parentPlot = nullptr;
     this->firstAncestorOrThisOfType( parentPlot );
@@ -428,15 +460,15 @@ void RimWellLogCurveCommonDataSource::updateDefaultOptions()
         std::vector<RimWellLogTrack*> tracks;
         parentPlot->descendantsIncludingThisOfType( tracks );
 
-        this->updateDefaultOptions( curves, tracks );
+        this->analyseCurvesAndTracks( curves, tracks );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves,
-                                                             const std::vector<RimWellLogTrack*>& tracks )
+void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<RimWellLogCurve*>& curves,
+                                                              const std::vector<RimWellLogTrack*>& tracks )
 {
     std::set<RimWellLogPlot*> plots;
     for ( RimWellLogCurve* curve : curves )
@@ -445,9 +477,10 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
         {
             continue;
         }
-        RimWellLogFileCurve*       fileCurve        = dynamic_cast<RimWellLogFileCurve*>( curve );
-        RimWellLogExtractionCurve* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( curve );
-        RimWellMeasurementCurve*   measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( curve );
+        auto* fileCurve        = dynamic_cast<RimWellLogFileCurve*>( curve );
+        auto* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( curve );
+        auto* measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( curve );
+        auto* rftCurve         = dynamic_cast<RimWellLogRftCurve*>( curve );
         if ( fileCurve )
         {
             if ( wellPathToApply() != nullptr )
@@ -512,7 +545,7 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
                 updatedSomething = true;
             }
 
-            RimWellLogWbsCurve* wbsCurve = dynamic_cast<RimWellLogWbsCurve*>( extractionCurve );
+            auto* wbsCurve = dynamic_cast<RimWellLogWbsCurve*>( extractionCurve );
             if ( wbsCurve )
             {
                 if ( !wbsSmoothingToApply().isPartiallyTrue() )
@@ -541,6 +574,16 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
             {
                 measurementCurve->setWellPath( wellPathToApply() );
             }
+        }
+        else if ( rftCurve )
+        {
+            rftCurve->setTimeStep( m_rftTimeStep() );
+            rftCurve->setWellName( m_rftWellName() );
+            rftCurve->setSegmentBranchId( m_rftSegmentBranchId() );
+
+            RimWellLogPlot* parentPlot = nullptr;
+            rftCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
+            plots.insert( parentPlot );
         }
     }
 
@@ -607,7 +650,7 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks( const std::vector<R
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::updateCurvesAndTracks()
+void RimWellLogCurveCommonDataSource::applyDataSourceChanges()
 {
     RimWellLogPlot* parentPlot = nullptr;
     this->firstAncestorOrThisOfType( parentPlot );
@@ -619,7 +662,7 @@ void RimWellLogCurveCommonDataSource::updateCurvesAndTracks()
         std::vector<RimWellLogTrack*> tracks;
         parentPlot->descendantsIncludingThisOfType( tracks );
 
-        this->updateCurvesAndTracks( curves, tracks );
+        this->applyDataSourceChanges( curves, tracks );
     }
 }
 
@@ -690,7 +733,7 @@ void RimWellLogCurveCommonDataSource::applyNextTimeStep()
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowInToolbar()
 {
-    updateDefaultOptions();
+    analyseCurvesAndTracks();
 
     std::vector<caf::PdmFieldHandle*> fieldsToDisplay;
     fieldsToDisplay.push_back( &m_case );
@@ -741,7 +784,7 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandl
         }
     }
 
-    this->updateCurvesAndTracks();
+    this->applyDataSourceChanges();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -753,7 +796,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    this->updateDefaultOptions();
+    this->analyseCurvesAndTracks();
 
     if ( fieldNeedingOptions == &m_case )
     {
@@ -840,7 +883,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_simWellName )
     {
-        RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+        auto* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
         if ( eclipseCase )
         {
             std::set<QString> sortedWellNames = eclipseCase->sortedSimWellNames();
@@ -887,6 +930,30 @@ QList<caf::PdmOptionItemInfo>
             }
         }
     }
+    else if ( fieldNeedingOptions == &m_rftTimeStep )
+    {
+        auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( m_case() );
+        if ( eclipseCase && eclipseCase->rftReader() )
+        {
+            options = RimRftTools::segmentTimeStepOptions( eclipseCase->rftReader(), *( m_uniqueRftWellNames.begin() ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_rftWellName )
+    {
+        auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( m_case() );
+        if ( eclipseCase && eclipseCase->rftReader() )
+        {
+            options = RimRftTools::wellNameOptions( eclipseCase->rftReader() );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_rftSegmentBranchId )
+    {
+        auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( m_case() );
+        if ( eclipseCase && eclipseCase->rftReader() )
+        {
+            options = RimRftTools::segmentBranchIdOptions( eclipseCase->rftReader(), m_rftWellName(), m_rftTimeStep() );
+        }
+    }
 
     return options;
 }
@@ -896,12 +963,12 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    updateDefaultOptions();
+    analyseCurvesAndTracks();
 
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Data Source" );
     group->add( &m_case );
 
-    RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
     {
         group->add( &m_trajectoryType );
@@ -939,6 +1006,10 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
         group->add( &m_wbsSmoothingThreshold );
     }
 
+    group->add( &m_rftWellName );
+    group->add( &m_rftTimeStep );
+    group->add( &m_rftSegmentBranchId );
+
     uiOrdering.skipRemainingFields( true );
 }
 
@@ -949,10 +1020,11 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
                                                              QString                    uiConfigName,
                                                              caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+    auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
     if ( myAttr )
     {
-        if ( field == &m_case || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep )
+        if ( field == &m_case || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep ||
+             field == &m_rftTimeStep || field == &m_rftSegmentBranchId )
         {
             myAttr->showPreviousAndNextButtons = true;
             myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
@@ -982,8 +1054,7 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
             myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
         }
     }
-    caf::PdmUiLineEditorAttributeUiDisplayString* uiDisplayStringAttr =
-        dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
+    auto* uiDisplayStringAttr = dynamic_cast<caf::PdmUiLineEditorAttributeUiDisplayString*>( attribute );
     if ( uiDisplayStringAttr && wbsSmoothingThreshold() == -1.0 )
     {
         QString displayString = "Mixed";

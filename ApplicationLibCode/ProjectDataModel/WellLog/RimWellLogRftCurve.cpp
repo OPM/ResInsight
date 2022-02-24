@@ -41,6 +41,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimProject.h"
+#include "RimRftTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTools.h"
@@ -185,6 +186,14 @@ RimWellLogRftCurve::~RimWellLogRftCurve()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setWellName( const QString& wellName )
+{
+    m_wellName = wellName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::wellName() const
 {
     return m_wellName;
@@ -204,6 +213,30 @@ QString RimWellLogRftCurve::wellLogChannelUiName() const
 QString RimWellLogRftCurve::wellLogChannelUnits() const
 {
     return RiaWellLogUnitTools<double>::noUnitString();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setTimeStep( const QDateTime& dateTime )
+{
+    m_timeStep = dateTime;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RimWellLogRftCurve::timeStep() const
+{
+    return m_timeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setSegmentBranchId( const QString& branchId )
+{
+    m_segmentBranchId = branchId;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,7 +499,12 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         RiaDefines::EclipseUnitSystem unitSystem = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
         if ( m_eclipseResultCase )
         {
-            unitSystem = m_eclipseResultCase->eclipseCaseData()->unitsType();
+            // TODO: If no grid data, but only RFT data is loaded, we do not have any way to
+            // detect unit
+            if ( m_eclipseResultCase->eclipseCaseData() )
+            {
+                unitSystem = m_eclipseResultCase->eclipseCaseData()->unitsType();
+            }
         }
         else if ( m_summaryCase )
         {
@@ -668,6 +706,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
 
     if ( !options.empty() ) return options;
 
+    RifReaderRftInterface* reader = rftReader();
     if ( fieldNeedingOptions == &m_eclipseResultCase )
     {
         RimTools::caseOptionItems( &options );
@@ -676,53 +715,15 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_wellName )
     {
-        options.push_back( caf::PdmOptionItemInfo( "None", "" ) );
-        RifReaderRftInterface* reader = rftReader();
-        if ( reader )
-        {
-            std::set<QString> wellNames = reader->wellNames();
-            for ( const QString& name : wellNames )
-            {
-                options.push_back( caf::PdmOptionItemInfo( name, name, false, caf::IconProvider( ":/Well.svg" ) ) );
-            }
-        }
+        options = RimRftTools::wellNameOptions( reader );
     }
     else if ( fieldNeedingOptions == &m_wellLogChannelName )
     {
-        RifReaderRftInterface* reader = rftReader();
-        if ( reader )
-        {
-            for ( const RifEclipseRftAddress::RftWellLogChannelType& channelName :
-                  reader->availableWellLogChannels( m_wellName ) )
-            {
-                options.push_back(
-                    caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelName ),
-                                            channelName ) );
-            }
-        }
-        if ( options.empty() )
-        {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
-                                                           RifEclipseRftAddress::RftWellLogChannelType::NONE ),
-                                                       RifEclipseRftAddress::RftWellLogChannelType::NONE ) );
-        }
+        options = RimRftTools::wellLogChannelsOptions( reader, m_wellName() );
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        RifReaderRftInterface* reader = rftReader();
-        if ( reader )
-        {
-            QString             dateFormat = "dd MMM yyyy";
-            std::set<QDateTime> timeStamps = reader->availableTimeSteps( m_wellName, m_wellLogChannelName() );
-            for ( const QDateTime& dt : timeStamps )
-            {
-                QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( dt, dateFormat );
-
-                options.push_back( caf::PdmOptionItemInfo( dateString, dt ) );
-            }
-        }
-
-        options.push_back( caf::PdmOptionItemInfo( "None", QDateTime() ) );
+        options = RimRftTools::timeStepOptions( reader, m_wellName, m_wellLogChannelName() );
     }
     else if ( fieldNeedingOptions == &m_branchIndex )
     {
@@ -733,46 +734,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_segmentResultName )
     {
-        options.push_front(
-            caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), RiaResultNames::undefinedResultName() ) );
-
-        RifReaderRftInterface* reader = rftReader();
-        if ( reader )
-        {
-            options.push_back( caf::PdmOptionItemInfo( RiaDefines::segmentNumberResultName(),
-                                                       RiaDefines::segmentNumberResultName() ) );
-
-            for ( const auto& resultAdr : reader->eclipseRftAddresses( m_wellName(), m_timeStep() ) )
-            {
-                if ( resultAdr.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
-                {
-                    options.push_back(
-                        caf::PdmOptionItemInfo( resultAdr.segmentResultName(), resultAdr.segmentResultName() ) );
-                }
-            }
-        }
+        options = RimRftTools::segmentResultNameOptions( reader, m_wellName(), m_timeStep() );
     }
     else if ( fieldNeedingOptions == &m_segmentBranchId )
     {
-        options.push_front( caf::PdmOptionItemInfo( RiaDefines::allBranches(), RiaDefines::allBranches() ) );
-
-        RifReaderRftInterface* reader = rftReader();
-        if ( reader )
-        {
-            std::vector<double> values;
-
-            auto adr = RifEclipseRftAddress::createSegmentResult( m_wellName(),
-                                                                  m_timeStep,
-                                                                  RiaDefines::segmentBranchNumberResultName() );
-
-            reader->values( adr, &values );
-            for ( const auto& v : values )
-            {
-                int  intValue = v;
-                auto txt      = QString::number( intValue );
-                options.push_back( caf::PdmOptionItemInfo( txt, txt ) );
-            }
-        }
+        options = RimRftTools::segmentBranchIdOptions( reader, m_wellName(), m_timeStep() );
     }
 
     return options;

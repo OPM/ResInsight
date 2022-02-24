@@ -25,6 +25,7 @@
 #include "RigWellLogCurveData.h"
 
 #include "RimEclipseResultCase.h"
+#include "RimRftTools.h"
 #include "RimTools.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogRftCurve.h"
@@ -174,23 +175,7 @@ QList<caf::PdmOptionItemInfo>
         if ( m_eclipseResultCase )
         {
             RifReaderRftInterface* reader = m_eclipseResultCase()->rftReader();
-            if ( reader )
-            {
-                for ( const RifEclipseRftAddress::RftWellLogChannelType& channelName :
-                      reader->availableWellLogChannels( wellName() ) )
-                {
-                    options.push_back(
-                        caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
-                                                    channelName ),
-                                                channelName ) );
-                }
-            }
-            if ( options.empty() )
-            {
-                options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText(
-                                                               RifEclipseRftAddress::RftWellLogChannelType::NONE ),
-                                                           RifEclipseRftAddress::RftWellLogChannelType::NONE ) );
-            }
+            options                       = RimRftTools::wellLogChannelsOptions( reader, wellName() );
         }
     }
     else if ( fieldNeedingOptions == &m_timeStep )
@@ -200,17 +185,8 @@ QList<caf::PdmOptionItemInfo>
             RifReaderRftInterface* reader = m_eclipseResultCase()->rftReader();
             if ( reader )
             {
-                QString             dateFormat = "dd MMM yyyy";
-                std::set<QDateTime> timeStamps = reader->availableTimeSteps( wellName(), m_wellLogChannelName() );
-                for ( const QDateTime& dt : timeStamps )
-                {
-                    QString dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( dt, dateFormat );
-
-                    options.push_back( caf::PdmOptionItemInfo( dateString, dt ) );
-                }
+                options = RimRftTools::timeStepOptions( reader, wellName(), m_wellLogChannelName() );
             }
-
-            options.push_back( caf::PdmOptionItemInfo( "None", QDateTime() ) );
         }
     }
     return options;
