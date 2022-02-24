@@ -2422,18 +2422,65 @@ std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* curve )
+void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
 {
     enum class AxisAssignmentStrategy
     {
         ALL_TO_LEFT,
         ALL_TO_RIGHT,
-        ALTERNATING
+        ALTERNATING,
+        USE_MATCHING_UNIT
     };
 
     RiaDefines::PlotAxis plotAxis = RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
 
-    auto strategy = AxisAssignmentStrategy::ALTERNATING;
+    auto strategy = AxisAssignmentStrategy::USE_MATCHING_UNIT;
+    if ( strategy == AxisAssignmentStrategy::USE_MATCHING_UNIT )
+    {
+        auto destinationUnit = destinationCurve->unitNameY();
+
+        bool isLeftUsed  = false;
+        bool isRightUsed = false;
+
+        for ( auto c : summaryCurves() )
+        {
+            if ( c == destinationCurve ) continue;
+
+            if ( c->axisY() == RiuPlotAxis::defaultLeft() ) isLeftUsed = true;
+            if ( c->axisY() == RiuPlotAxis::defaultRight() ) isRightUsed = true;
+
+            auto currentUnit = c->unitNameY();
+
+            if ( currentUnit == destinationUnit )
+            {
+                for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
+                {
+                    if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
+                         axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+                    {
+                        destinationCurve->setLeftOrRightAxisY( c->axisY() );
+
+                        return;
+                    }
+                }
+            }
+        }
+
+        if ( !isLeftUsed )
+        {
+            destinationCurve->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
+            return;
+        }
+
+        if ( !isRightUsed )
+        {
+            destinationCurve->setLeftOrRightAxisY( RiuPlotAxis::defaultRight() );
+            return;
+        }
+
+        strategy = AxisAssignmentStrategy::ALTERNATING;
+    }
+
     if ( strategy == AxisAssignmentStrategy::ALTERNATING )
     {
         size_t axisCountLeft  = 0;
@@ -2461,14 +2508,14 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* curve )
     if ( plotWidget() && plotWidget()->isMultiAxisSupported() )
     {
         QString axisObjectName = "New Axis";
-        if ( !curve->summaryAddressY().uiText().empty() )
-            axisObjectName = QString::fromStdString( curve->summaryAddressY().uiText() );
+        if ( !destinationCurve->summaryAddressY().uiText().empty() )
+            axisObjectName = QString::fromStdString( destinationCurve->summaryAddressY().uiText() );
 
         newPlotAxis = plotWidget()->createNextPlotAxis( plotAxis );
         addNewAxisProperties( newPlotAxis, axisObjectName );
     }
 
-    curve->setLeftOrRightAxisY( newPlotAxis );
+    destinationCurve->setLeftOrRightAxisY( newPlotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
