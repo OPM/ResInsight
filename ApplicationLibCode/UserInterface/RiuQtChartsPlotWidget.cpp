@@ -789,8 +789,6 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
             qtChart()->addSeries( series );
             setXAxis( xAxis, series );
             setXAxis( yAxis, series );
-            rescaleAxis( xAxis );
-            rescaleAxis( yAxis );
         }
     };
 
