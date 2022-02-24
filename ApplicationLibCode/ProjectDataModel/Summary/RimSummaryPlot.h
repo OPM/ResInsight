@@ -224,7 +224,7 @@ protected:
                                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void updateStackedCurveData();
-    void updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
+    bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

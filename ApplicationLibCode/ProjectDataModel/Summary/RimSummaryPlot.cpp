@@ -1401,14 +1401,17 @@ void RimSummaryPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateStackedCurveData()
 {
+    bool anyStackedCurvesPresent = false;
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
     {
         if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
              axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-            updateStackedCurveDataForAxis( axisProperties->plotAxisType() );
+        {
+            anyStackedCurvesPresent |= updateStackedCurveDataForAxis( axisProperties->plotAxisType() );
+        }
     }
 
-    if ( plotWidget() )
+    if ( plotWidget() && anyStackedCurvesPresent )
     {
         reattachAllCurves();
         plotWidget()->scheduleReplot();
@@ -1418,11 +1421,12 @@ void RimSummaryPlot::updateStackedCurveData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
+bool RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
 {
     std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
 
     auto stackedCurves = visibleStackedSummaryCurvesForAxis( plotAxis );
+    if ( stackedCurves.empty() ) return false;
 
     // Reset all curves
     for ( RimSummaryCurve* curve : stackedCurves )
@@ -1473,6 +1477,8 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
             zPos -= 1.0;
         }
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
