@@ -131,7 +131,6 @@ RimPlotCurve::~RimPlotCurve()
 {
     if ( m_plotCurve )
     {
-        detach();
         delete m_plotCurve;
         m_plotCurve = nullptr;
     }
@@ -1017,11 +1016,14 @@ void RimPlotCurve::detach( bool deletePlotCurve )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->detach();
         if ( deletePlotCurve )
         {
             delete m_plotCurve;
             m_plotCurve = nullptr;
+        }
+        else
+        {
+            m_plotCurve->detach();
         }
     }
 

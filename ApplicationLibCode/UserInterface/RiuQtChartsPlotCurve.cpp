@@ -54,7 +54,26 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( RimPlotCurve* ownerRimCurve, const Q
 //--------------------------------------------------------------------------------------------------
 RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
 {
-    detach();
+    if ( m_plotWidget && m_plotWidget->qtChart() )
+    {
+        auto* line = lineSeries();
+        if ( line )
+        {
+            m_plotWidget->qtChart()->removeSeries( line );
+
+            // removeSeries() releases chart ownership of the data, delete data to avoid memory leak
+            delete line;
+        }
+
+        auto* scatter = scatterSeries();
+        if ( scatter )
+        {
+            m_plotWidget->qtChart()->removeSeries( scatter );
+
+            // removeSeries() releases chart ownership of the data, delete data to avoid memory leak
+            delete scatter;
+        }
+    }
 
     // Delete if it is still owned by by plot curve
     delete m_lineSeries;
@@ -165,7 +184,7 @@ void RiuQtChartsPlotCurve::detach()
 
     if ( m_plotWidget ) setVisibleInLegend( false );
 
-    m_plotWidget = nullptr;
+    // m_plotWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -63,12 +63,10 @@ RiuQwtPlotCurve::RiuQwtPlotCurve( RimPlotCurve* ownerRimCurve, const QString& ti
 //--------------------------------------------------------------------------------------------------
 RiuQwtPlotCurve::~RiuQwtPlotCurve()
 {
-    if ( m_qwtCurveErrorBars )
-    {
-        m_qwtCurveErrorBars->detach();
-        delete m_qwtCurveErrorBars;
-        m_qwtCurveErrorBars = nullptr;
-    }
+    detach();
+
+    delete m_qwtCurveErrorBars;
+    m_qwtCurveErrorBars = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
