@@ -128,6 +128,8 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         {
             titleAlignment = Qt::AlignRight;
         }
+
+        m_axisProperties->setNameAndAxis( axisTitle, axis.axis(), axis.index() );
         plotWidget->setAxisTitleText( axis, axisTitle );
         plotWidget->setAxisFontsAndAlignment( axis,
                                               m_axisProperties->titleFontSize(),
