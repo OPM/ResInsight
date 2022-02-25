@@ -179,7 +179,7 @@ RimSummaryPlot::~RimSummaryPlot()
 {
     removeMdiWindowFromMdiArea();
 
-    cleanupBeforeClose();
+    deletePlotCurvesAndPlotWidget();
 
     delete m_summaryCurveCollection;
     delete m_ensembleCurveSetCollection;
@@ -1378,7 +1378,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         // Destroy viewer
         removeMdiWindowFromMdiArea();
-        cleanupBeforeClose();
+        deletePlotCurvesAndPlotWidget();
     }
 #endif
 
@@ -1601,7 +1601,7 @@ void RimSummaryPlot::updateZoomFromParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::cleanupBeforeClose()
+void RimSummaryPlot::deletePlotCurvesAndPlotWidget()
 {
     if ( isDeletable() )
     {
@@ -1611,6 +1611,8 @@ void RimSummaryPlot::cleanupBeforeClose()
         {
             plotWidget()->setParent( nullptr );
         }
+
+        deleteAllPlotCurves();
 
         if ( m_summaryPlot )
         {
@@ -2053,7 +2055,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteViewWidget()
 {
-    cleanupBeforeClose();
+    deletePlotCurvesAndPlotWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2197,6 +2199,17 @@ void RimSummaryPlot::detachAllPlotItems()
     }
 
     m_plotInfoLabel->detach();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::deleteAllPlotCurves()
+{
+    for ( auto* c : summaryCurves() )
+    {
+        c->deletePlotCurve();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

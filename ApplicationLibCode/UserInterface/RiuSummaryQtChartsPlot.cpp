@@ -49,6 +49,8 @@ RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* p
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQtChartsPlot::~RiuSummaryQtChartsPlot()
 {
+    delete m_plotWidget;
+    m_plotWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

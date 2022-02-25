@@ -126,6 +126,7 @@ public:
     void detach( bool deletePlotCurve = false );
     void reattach();
     bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
+    void deletePlotCurve();
 
 protected:
     virtual QString createCurveAutoName()                        = 0;

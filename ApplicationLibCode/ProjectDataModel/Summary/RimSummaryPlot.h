@@ -206,6 +206,7 @@ private:
     void doUpdateLayout() override;
 
     void detachAllPlotItems();
+    void deleteAllPlotCurves();
 
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
@@ -249,7 +250,7 @@ private:
 
     void updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties );
 
-    void cleanupBeforeClose();
+    void deletePlotCurvesAndPlotWidget();
 
     void connectCurveSignals( RimSummaryCurve* curve );
     void disconnectCurveSignals( RimSummaryCurve* curve );

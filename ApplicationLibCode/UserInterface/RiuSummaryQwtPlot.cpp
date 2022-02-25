@@ -138,6 +138,8 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
 {
+    delete m_plotWidget;
+    m_plotWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
