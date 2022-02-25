@@ -90,7 +90,7 @@ private:
     QtCharts::QLineSeries*              m_lineSeries;
     QtCharts::QScatterSeries*           m_scatterSeries;
     std::shared_ptr<RiuPlotCurveSymbol> m_symbol;
-    RiuQtChartsPlotWidget*              m_plotWidget;
+    QPointer<RiuQtChartsPlotWidget>     m_plotWidget;
     RiuPlotAxis                         m_axisX;
     RiuPlotAxis                         m_axisY;
 };

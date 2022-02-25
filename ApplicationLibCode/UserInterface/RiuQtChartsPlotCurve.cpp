@@ -183,8 +183,6 @@ void RiuQtChartsPlotCurve::detach()
     }
 
     if ( m_plotWidget ) setVisibleInLegend( false );
-
-    // m_plotWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
