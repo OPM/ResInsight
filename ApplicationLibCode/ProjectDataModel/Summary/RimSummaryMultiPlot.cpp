@@ -183,9 +183,27 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimMultiPlot::defineUiOrdering( uiConfigName, uiOrdering );
+    caf::PdmUiGroup* titlesGroup = uiOrdering.addNewGroup( "Titles" );
+    titlesGroup->add( &m_autoPlotTitles );
+    titlesGroup->add( &m_autoPlotTitlesOnSubPlots );
 
-    uiOrdering.skipRemainingFields();
+    titlesGroup->add( &m_showPlotWindowTitle );
+    titlesGroup->add( &m_plotWindowTitle );
+    titlesGroup->add( &m_showIndividualPlotTitles );
+    titlesGroup->add( &m_titleFontSize );
+    titlesGroup->add( &m_subTitleFontSize );
+
+    caf::PdmUiGroup* legendsGroup = uiOrdering.addNewGroup( "Legends" );
+    legendsGroup->add( &m_showPlotLegends );
+    legendsGroup->add( &m_plotLegendsHorizontal );
+    legendsGroup->add( &m_legendFontSize );
+
+    caf::PdmUiGroup* layoutGroup = uiOrdering.addNewGroup( "Layout" );
+    layoutGroup->add( &m_columnCount );
+    layoutGroup->add( &m_rowsPerPage );
+    layoutGroup->add( &m_majorTickmarkCount );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,20 +213,31 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
 {
-    RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+    if ( changedField == &m_autoPlotTitles || changedField == &m_autoPlotTitlesOnSubPlots )
+    {
+        onLoadDataAndUpdate();
+        updateLayout();
+    }
+    else
+    {
+        RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::updatePlotTitles()
+void RimSummaryMultiPlot::updatePlotWindowTitle()
 {
-    populateNameHelper( m_nameHelper.get() );
+    if ( m_autoPlotTitles )
+    {
+        populateNameHelper( m_nameHelper.get() );
 
-    auto title = m_nameHelper->plotTitle();
-    setMultiPlotTitle( title );
+        auto title = m_nameHelper->plotTitle();
+        setMultiPlotTitle( title );
+    }
 
-    if ( true )
+    if ( m_autoPlotTitlesOnSubPlots )
     {
         for ( auto plot : summaryPlots() )
         {

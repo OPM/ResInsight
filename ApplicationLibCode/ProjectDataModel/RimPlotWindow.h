@@ -82,6 +82,7 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
     void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
     void updateWindowVisibility();
 
 private:

@@ -46,7 +46,6 @@ public:
     void addPlot( RimSummaryPlot* plot );
     void removePlot( RimSummaryPlot* plot );
 
-    void                        updatePlotTitles();
     const RimSummaryNameHelper* nameHelper() const;
 
     void setAutoTitlePlot( bool enable );
@@ -65,6 +64,8 @@ private:
     std::vector<RimSummaryPlot*> summaryPlots() const;
 
     static void insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs );
+
+    void updatePlotWindowTitle() override;
 
 private:
     caf::PdmField<bool> m_autoPlotTitles;
