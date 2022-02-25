@@ -75,17 +75,21 @@ RimSummaryMultiPlot::~RimSummaryMultiPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::addPlot( RimSummaryPlot* plot )
+void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 {
-    RimMultiPlot::addPlot( plot );
+    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    CVF_ASSERT( sumPlot != nullptr );
+    if ( sumPlot ) RimMultiPlot::addPlot( plot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::removePlot( RimSummaryPlot* plot )
+void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
-    RimMultiPlot::removePlot( plot );
+    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    CVF_ASSERT( sumPlot != nullptr );
+    if ( sumPlot ) RimMultiPlot::insertPlot( plot, index );
 }
 
 //--------------------------------------------------------------------------------------------------

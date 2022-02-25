@@ -25,7 +25,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
-class RimMultiPlot;
 class RimSummaryPlot;
 class RimSummaryPlotSourceStepping;
 class RimSummaryPlotNameHelper;
@@ -43,9 +42,6 @@ public:
     RimSummaryMultiPlot();
     ~RimSummaryMultiPlot() override;
 
-    void addPlot( RimSummaryPlot* plot );
-    void removePlot( RimSummaryPlot* plot );
-
     const RimSummaryNameHelper* nameHelper() const;
 
     void setAutoTitlePlot( bool enable );
@@ -55,6 +51,9 @@ public:
     std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
     std::vector<RimEnsembleCurveSet*> curveSets() const override;
     std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
+
+    void addPlot( RimPlot* plot ) override;
+    void insertPlot( RimPlot* plot, size_t index ) override;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
