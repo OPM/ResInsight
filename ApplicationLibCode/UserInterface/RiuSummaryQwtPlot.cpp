@@ -94,7 +94,7 @@ static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= nullptr*/ )
-    : RiuSummaryPlot( plot, parent )
+    : RiuSummaryPlot( plot )
 {
     m_plotWidget = new RiuQwtPlotWidget( plot, parent );
     m_plotWidget->setContextMenuPolicy( Qt::CustomContextMenu );

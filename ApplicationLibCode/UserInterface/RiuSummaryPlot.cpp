@@ -37,8 +37,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryPlot::RiuSummaryPlot( RimSummaryPlot* plot, QWidget* parent )
-    : QWidget( parent )
+RiuSummaryPlot::RiuSummaryPlot( RimSummaryPlot* plot )
 {
 }
 
@@ -54,6 +53,8 @@ RiuSummaryPlot::~RiuSummaryPlot()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryPlot::showContextMenu( QPoint pos )
 {
+    if ( !plotWidget() ) return;
+
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
@@ -66,7 +67,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
 
     if ( plotCurve && closestCurvePoint >= 0 )
     {
-        RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( plotCurve->ownerRimCurve() );
+        auto* summaryCurve = dynamic_cast<RimSummaryCurve*>( plotCurve->ownerRimCurve() );
         if ( summaryCurve && closestCurvePoint < (int)summaryCurve->timeStepsY().size() )
         {
             std::time_t timeStep = summaryCurve->timeStepsY()[closestCurvePoint];
@@ -105,7 +106,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
 
             if ( !curveClicked )
             {
-                RimSummaryPlot* summaryPlot = static_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
+                auto* summaryPlot = static_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
                 std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot;
                 summaryPlot->descendantsOfType( allCurveSetsInPlot );
                 for ( auto curveSet : allCurveSetsInPlot )
@@ -185,9 +186,9 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
 
     menuBuilder.appendToMenu( &menu );
 
-    if ( menu.actions().size() > 0 )
+    if ( !menu.actions().empty() )
     {
-        menu.exec( mapToGlobal( pos ) );
+        menu.exec( plotWidget()->mapToGlobal( pos ) );
 
         // Parts of progress dialog GUI can be present after menu has closed related to
         // RicImportGridModelFromSummaryCurveFeature. Make sure the plot is updated, and call processEvents() to make

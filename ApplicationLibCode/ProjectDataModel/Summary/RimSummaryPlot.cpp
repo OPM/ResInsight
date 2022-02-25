@@ -2007,7 +2007,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         if ( useQtCharts )
         {
-            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this, mainWindowParent );
+            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this );
         }
         else
         {

@@ -19,9 +19,8 @@
 #pragma once
 
 #include "RiaQDateTimeTools.h"
-#include "RiuInterfaceToViewWindow.h"
 
-#include <QWidget>
+#include <QObject>
 
 class RimSummaryPlot;
 class RimPlotAxisPropertiesInterface;
@@ -32,12 +31,12 @@ class RiuPlotWidget;
 //
 //
 //==================================================================================================
-class RiuSummaryPlot : public QWidget
+class RiuSummaryPlot : public QObject
 {
     Q_OBJECT
 public:
-    RiuSummaryPlot( RimSummaryPlot* plot, QWidget* parent );
-    ~RiuSummaryPlot() override;
+    RiuSummaryPlot( RimSummaryPlot* plot );
+    ~RiuSummaryPlot();
 
     virtual void useDateBasedTimeAxis(
         const QString&                          dateFormat,
