@@ -21,6 +21,7 @@
 #include "RiaQDateTimeTools.h"
 
 #include <QObject>
+#include <QPoint>
 
 class RimSummaryPlot;
 class RimPlotAxisPropertiesInterface;
