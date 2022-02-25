@@ -153,16 +153,13 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
                                                         this->m_useDiscreteLogLevels,
                                                         this->hasCategoryResult() );
 
+                newLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
+
                 m_legendConfigData.push_back( newLegend );
 
                 this->m_legendConfigPtrField = newLegend;
             }
         }
-    }
-
-    for ( auto legendConfig : m_legendConfigData )
-    {
-        legendConfig->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
     }
 }
 
@@ -209,7 +206,9 @@ void RimEclipseCellColors::initAfterRead()
         // set to nullptr before pushing into container
         obsoleteField_legendConfig = nullptr;
 
+        obsoleteLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
         m_legendConfigData.push_back( obsoleteLegend );
+
         m_legendConfigPtrField = obsoleteLegend;
     }
 
