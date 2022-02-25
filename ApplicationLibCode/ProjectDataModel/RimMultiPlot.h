@@ -140,11 +140,12 @@ protected:
     void updateZoom();
     void recreatePlotWidgets();
 
+    virtual void updatePlotWindowTitle();
+
 private:
     void cleanupBeforeClose();
     void doUpdateLayout() override;
     void updateSubPlotNames();
-    void updatePlotWindowTitle();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
     void onPlotAdditionOrRemoval();
     void onPlotsReordered( const caf::SignalEmitter* emitter );

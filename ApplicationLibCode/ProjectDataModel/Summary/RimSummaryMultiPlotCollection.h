@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2022 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,37 +15,35 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include "RicfCommandObject.h"
+#include "RimAbstractPlotCollection.h"
 
-#include "cafCmdFeature.h"
-#include "cafPdmField.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmObject.h"
 
-#include <vector>
-
-class RimSummaryPlot;
+class RimSummaryMultiPlot;
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RicNewSummaryMultiPlotFeature : public caf::CmdFeature, public RicfCommandObject
+class RimSummaryMultiPlotCollection : public caf::PdmObject, public RimPlotCollection
 {
-    RICF_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    RicNewSummaryMultiPlotFeature();
+    RimSummaryMultiPlotCollection();
+    ~RimSummaryMultiPlotCollection() override;
 
-    caf::PdmScriptResponse execute() override;
+    void   deleteAllPlots() override;
+    void   loadDataAndUpdateAllPlots() override;
+    size_t plotCount() const override;
 
-protected:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+    std::vector<RimSummaryMultiPlot*> multiPlots() const;
+
+    void addMultiSummaryPlot( RimSummaryMultiPlot* plot );
 
 private:
-    static std::vector<RimSummaryPlot*> selectedPlots();
-
-    caf::PdmField<std::vector<uint64_t>> m_plots;
+    caf::PdmChildArrayField<RimSummaryMultiPlot*> m_summaryMultiPlots;
 };

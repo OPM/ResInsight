@@ -76,6 +76,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
@@ -1375,6 +1376,11 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             if ( mainPlotCollection->summaryPlotCollection() )
             {
                 uiTreeOrdering.add( mainPlotCollection->summaryPlotCollection() );
+            }
+
+            if ( mainPlotCollection->summaryMultiPlotCollection() )
+            {
+                uiTreeOrdering.add( mainPlotCollection->summaryMultiPlotCollection() );
             }
 
             if ( mainPlotCollection->analysisPlotCollection() )
