@@ -717,8 +717,8 @@ RiuQtChartsPlotWidget::AxisScaleType RiuQtChartsPlotWidget::axisScaleType( RiuPl
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisScaleType( RiuPlotAxis axis, RiuQtChartsPlotWidget::AxisScaleType axisScaleType )
 {
-    QAbstractAxis* removeaxis = plotAxis( axis );
-    QAbstractAxis* insertaxis = nullptr;
+    QAbstractAxis* axisToBeDeleted = plotAxis( axis );
+    QAbstractAxis* insertaxis      = nullptr;
 
     if ( axisScaleType == AxisScaleType::LOGARITHMIC )
     {
@@ -734,15 +734,19 @@ void RiuQtChartsPlotWidget::setAxisScaleType( RiuPlotAxis axis, RiuQtChartsPlotW
     }
 
     QChart* chart = qtChart();
-    if ( chart->axes().contains( removeaxis ) ) chart->removeAxis( removeaxis );
+    if ( chart->axes().contains( axisToBeDeleted ) ) chart->removeAxis( axisToBeDeleted );
     chart->addAxis( insertaxis, mapPlotAxisToQtAlignment( axis.axis() ) );
 
     m_axes[axis] = insertaxis;
     for ( auto serie : chart->series() )
     {
-        if ( serie->attachedAxes().contains( removeaxis ) ) serie->detachAxis( removeaxis );
+        if ( serie->attachedAxes().contains( axisToBeDeleted ) ) serie->detachAxis( axisToBeDeleted );
         serie->attachAxis( insertaxis );
     }
+
+    // We have the ownership of the axis object, delete to avoid memory leak
+    delete axisToBeDeleted;
+    axisToBeDeleted = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -789,8 +793,6 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
             qtChart()->addSeries( series );
             setXAxis( xAxis, series );
             setXAxis( yAxis, series );
-            rescaleAxis( xAxis );
-            rescaleAxis( yAxis );
         }
     };
 

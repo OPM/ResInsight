@@ -54,7 +54,26 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( RimPlotCurve* ownerRimCurve, const Q
 //--------------------------------------------------------------------------------------------------
 RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
 {
-    detach();
+    if ( m_plotWidget && m_plotWidget->qtChart() )
+    {
+        auto* line = lineSeries();
+        if ( line )
+        {
+            m_plotWidget->qtChart()->removeSeries( line );
+
+            // removeSeries() releases chart ownership of the data, delete data to avoid memory leak
+            delete line;
+        }
+
+        auto* scatter = scatterSeries();
+        if ( scatter )
+        {
+            m_plotWidget->qtChart()->removeSeries( scatter );
+
+            // removeSeries() releases chart ownership of the data, delete data to avoid memory leak
+            delete scatter;
+        }
+    }
 
     // Delete if it is still owned by by plot curve
     delete m_lineSeries;
@@ -164,8 +183,6 @@ void RiuQtChartsPlotCurve::detach()
     }
 
     if ( m_plotWidget ) setVisibleInLegend( false );
-
-    m_plotWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,13 +205,15 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
     QtCharts::QLineSeries*    line    = lineSeries();
     QtCharts::QScatterSeries* scatter = scatterSeries();
 
-    line->clear();
-    scatter->clear();
+    QVector<QPointF> values( static_cast<int>( xValues.size() ) );
+
     for ( int i = 0; i < static_cast<int>( xValues.size() ); i++ )
     {
-        line->append( xValues[i], yValues[i] );
-        scatter->append( xValues[i], yValues[i] );
+        values[i] = QPointF( xValues[i], yValues[i] );
     }
+
+    line->replace( values );
+    scatter->replace( values );
 }
 
 //--------------------------------------------------------------------------------------------------
