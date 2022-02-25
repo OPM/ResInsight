@@ -179,7 +179,7 @@ RimSummaryPlot::~RimSummaryPlot()
 {
     removeMdiWindowFromMdiArea();
 
-    cleanupBeforeClose();
+    deletePlotCurvesAndPlotWidget();
 
     delete m_summaryCurveCollection;
     delete m_ensembleCurveSetCollection;
@@ -1378,7 +1378,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         // Destroy viewer
         removeMdiWindowFromMdiArea();
-        cleanupBeforeClose();
+        deletePlotCurvesAndPlotWidget();
     }
 #endif
 
@@ -1401,14 +1401,9 @@ void RimSummaryPlot::childFieldChangedByUi( const caf::PdmFieldHandle* changedCh
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateStackedCurveData()
 {
-    for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
-    {
-        if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-             axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
-            updateStackedCurveDataForAxis( axisProperties->plotAxisType() );
-    }
+    auto anyStackedCurvesPresent = updateStackedCurveDataForRelevantAxes();
 
-    if ( plotWidget() )
+    if ( plotWidget() && anyStackedCurvesPresent )
     {
         reattachAllCurves();
         plotWidget()->scheduleReplot();
@@ -1418,13 +1413,30 @@ void RimSummaryPlot::updateStackedCurveData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
+bool RimSummaryPlot::updateStackedCurveDataForRelevantAxes()
 {
-    std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
+    bool anyStackedCurvesPresent = false;
+    for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
+    {
+        if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
+             axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+        {
+            anyStackedCurvesPresent |= updateStackedCurveDataForAxis( axisProperties->plotAxisType() );
+        }
+    }
 
+    return anyStackedCurvesPresent;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
+{
     auto stackedCurves = visibleStackedSummaryCurvesForAxis( plotAxis );
+    if ( stackedCurves.empty() ) return false;
 
-    // Reset all curves
+    std::map<RiaDefines::PhaseType, size_t> curvePhaseCount;
     for ( RimSummaryCurve* curve : stackedCurves )
     {
         // Apply a area filled style if it isn't already set
@@ -1473,6 +1485,8 @@ void RimSummaryPlot::updateStackedCurveDataForAxis( RiuPlotAxis plotAxis )
             zPos -= 1.0;
         }
     }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1595,7 +1609,7 @@ void RimSummaryPlot::updateZoomFromParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::cleanupBeforeClose()
+void RimSummaryPlot::deletePlotCurvesAndPlotWidget()
 {
     if ( isDeletable() )
     {
@@ -1605,6 +1619,8 @@ void RimSummaryPlot::cleanupBeforeClose()
         {
             plotWidget()->setParent( nullptr );
         }
+
+        deleteAllPlotCurves();
 
         if ( m_summaryPlot )
         {
@@ -1905,7 +1921,11 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         }
     }
 
-    if ( newCurves > 0 ) applyDefaultCurveAppearances();
+    if ( newCurves > 0 )
+    {
+        applyDefaultCurveAppearances();
+        loadDataAndUpdate();
+    }
 
     updateConnectedEditors();
 }
@@ -1919,7 +1939,6 @@ void RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimS
     newCurve->setSummaryCaseY( summaryCase );
     newCurve->setSummaryAddressYAndApplyInterpolation( address );
     addCurveNoUpdate( newCurve );
-    newCurve->loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1996,7 +2015,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         if ( useQtCharts )
         {
-            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this, mainWindowParent );
+            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this );
         }
         else
         {
@@ -2044,7 +2063,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteViewWidget()
 {
-    cleanupBeforeClose();
+    deletePlotCurvesAndPlotWidget();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2188,6 +2207,17 @@ void RimSummaryPlot::detachAllPlotItems()
     }
 
     m_plotInfoLabel->detach();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::deleteAllPlotCurves()
+{
+    for ( auto* c : summaryCurves() )
+    {
+        c->deletePlotCurve();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

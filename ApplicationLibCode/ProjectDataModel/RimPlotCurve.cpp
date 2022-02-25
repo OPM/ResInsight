@@ -131,7 +131,6 @@ RimPlotCurve::~RimPlotCurve()
 {
     if ( m_plotCurve )
     {
-        detach();
         delete m_plotCurve;
         m_plotCurve = nullptr;
     }
@@ -1017,11 +1016,14 @@ void RimPlotCurve::detach( bool deletePlotCurve )
 {
     if ( m_plotCurve )
     {
-        m_plotCurve->detach();
         if ( deletePlotCurve )
         {
             delete m_plotCurve;
             m_plotCurve = nullptr;
+        }
+        else
+        {
+            m_plotCurve->detach();
         }
     }
 
@@ -1033,7 +1035,7 @@ void RimPlotCurve::detach( bool deletePlotCurve )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::reattach()
 {
-    if ( m_parentPlot ) attach( m_parentPlot );
+    if ( m_parentPlot && canCurveBeAttached() ) attach( m_parentPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1042,6 +1044,15 @@ void RimPlotCurve::reattach()
 bool RimPlotCurve::isSameCurve( const RiuPlotCurve* plotCurve ) const
 {
     return m_plotCurve == plotCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::deletePlotCurve()
+{
+    delete m_plotCurve;
+    m_plotCurve = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

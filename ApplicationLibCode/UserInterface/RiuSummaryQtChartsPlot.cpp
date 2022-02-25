@@ -29,8 +29,8 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* parent /*= nullptr*/ )
-    : RiuSummaryPlot( plot, parent )
+RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot )
+    : RiuSummaryPlot( plot )
 {
     m_plotWidget = new RiuQtChartsPlotWidget( plot );
     m_plotWidget->setContextMenuPolicy( Qt::CustomContextMenu );
@@ -49,6 +49,8 @@ RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* p
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQtChartsPlot::~RiuSummaryQtChartsPlot()
 {
+    delete m_plotWidget;
+    m_plotWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

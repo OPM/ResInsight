@@ -206,6 +206,7 @@ private:
     void doUpdateLayout() override;
 
     void detachAllPlotItems();
+    void deleteAllPlotCurves();
 
     void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
@@ -222,9 +223,6 @@ protected:
     void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void                 onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
-
-    void updateStackedCurveData();
-    void updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -249,7 +247,7 @@ private:
 
     void updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisProperties );
 
-    void cleanupBeforeClose();
+    void deletePlotCurvesAndPlotWidget();
 
     void connectCurveSignals( RimSummaryCurve* curve );
     void disconnectCurveSignals( RimSummaryCurve* curve );
@@ -271,6 +269,10 @@ private:
     void assignPlotAxis( RimSummaryCurve* curve );
 
     void addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
+
+    void updateStackedCurveData();
+    bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
+    bool updateStackedCurveDataForRelevantAxes();
 
 private:
 #ifdef USE_QTCHARTS
