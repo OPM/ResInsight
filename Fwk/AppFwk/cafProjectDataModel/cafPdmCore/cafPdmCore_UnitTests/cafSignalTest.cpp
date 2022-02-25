@@ -72,6 +72,12 @@ public:
         emitter->structSignal.connect( this, &TestObserver::setSimpleStruct );
     }
 
+    void connectSignalsTwice( TestEmitter* emitter )
+    {
+        emitter->basicSignal.connect( this, &TestObserver::setBasicSignalReceived );
+        emitter->basicSignal.connect( this, &TestObserver::setBasicSignalReceived );
+    }
+
     void setBasicSignalReceived( const caf::SignalEmitter* emitter ) { m_receivedBasicSignal = true; }
     void setBoolValue( const caf::SignalEmitter*, bool test ) { m_boolValue = test; }
     void setStringValue( const caf::SignalEmitter*, std::string test ) { m_stringValue = test; }
@@ -148,4 +154,16 @@ TEST( SignalTest, ObserverDeletion )
     }
     ASSERT_EQ( (size_t)0, emitter.basicSignal.observerCount() );
     emitter.triggerBasicSignal();
+}
+
+TEST( SignalTest, ConnectSignalTwiceAssert )
+{
+    ASSERT_DEATH(
+        {
+            TestEmitter  emitter;
+            TestObserver observer;
+
+            observer.connectSignalsTwice( &emitter );
+        },
+        "" );
 }

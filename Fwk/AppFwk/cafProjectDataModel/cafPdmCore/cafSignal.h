@@ -135,6 +135,10 @@ public:
     {
         static_assert( std::is_convertible<ClassType*, SignalObserver*>::value,
                        "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
+
+        // Connecting a signal twice is not supported
+        CAF_ASSERT( m_observerCallbacks.find( observer ) == m_observerCallbacks.end() );
+
         m_observerCallbacks[observer] = std::make_pair( callback, true );
         observer->addObservedSignal( this );
     }
