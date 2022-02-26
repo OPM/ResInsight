@@ -29,6 +29,9 @@ class RiuMdiArea : public QMdiArea
     Q_OBJECT
 
 public:
+    RiuMdiArea( QWidget* parent = nullptr );
+    ~RiuMdiArea();
+
     std::list<QMdiSubWindow*> subWindowListSortedByPosition();
 
 protected:

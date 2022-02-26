@@ -925,7 +925,7 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
         m_mainWindow->loadWinGeoAndDockToolBarLayout();
     }
 
-    return m_mainWindow;
+    return m_mainWindow.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -933,7 +933,7 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow* RiaGuiApplication::mainWindow()
 {
-    return m_mainWindow;
+    return m_mainWindow.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -947,7 +947,7 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateMainPlotWindow()
         m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
     }
-    return m_mainPlotWindow;
+    return m_mainPlotWindow.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -962,7 +962,7 @@ void RiaGuiApplication::createMainWindow()
         caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
     }
 
-    m_mainWindow     = new RiuMainWindow;
+    m_mainWindow     = std::make_unique<RiuMainWindow>();
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     m_mainWindow->setWindowTitle( "ResInsight " + platform );
     m_mainWindow->setDefaultWindowSize();
@@ -977,11 +977,11 @@ void RiaGuiApplication::createMainWindow()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::deleteMainWindow()
 {
-    if ( m_mainWindow )
-    {
-        delete m_mainWindow;
-        m_mainWindow = nullptr;
-    }
+    //     if ( m_mainWindow )
+    //     {
+    //         delete m_mainWindow;
+    //         m_mainWindow = nullptr;
+    //     }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -996,7 +996,7 @@ void RiaGuiApplication::createMainPlotWindow()
         caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
     }
 
-    m_mainPlotWindow = new RiuPlotMainWindow;
+    m_mainPlotWindow = std::make_unique<RiuPlotMainWindow>();
     m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
@@ -1008,12 +1008,12 @@ void RiaGuiApplication::createMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::deleteMainPlotWindow()
 {
-    if ( m_mainPlotWindow )
-    {
-        m_mainPlotWindow->setParent( nullptr );
-        delete m_mainPlotWindow;
-        m_mainPlotWindow = nullptr;
-    }
+    //     if ( m_mainPlotWindow )
+    //     {
+    //         m_mainPlotWindow->setParent( nullptr );
+    //         delete m_mainPlotWindow;
+    //         m_mainPlotWindow = nullptr;
+    //     }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1052,7 +1052,7 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
         m_mainPlotWindow->restoreDockWidgetVisibilities();
     }
 
-    return m_mainPlotWindow;
+    return m_mainPlotWindow.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1060,7 +1060,7 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow* RiaGuiApplication::mainPlotWindow()
 {
-    return m_mainPlotWindow;
+    return m_mainPlotWindow.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1069,9 +1069,9 @@ RiuPlotMainWindow* RiaGuiApplication::mainPlotWindow()
 RiuMainWindowBase* RiaGuiApplication::mainWindowByID( int mainWindowID )
 {
     if ( mainWindowID == 0 )
-        return m_mainWindow;
+        return m_mainWindow.get();
     else if ( mainWindowID == 1 )
-        return m_mainPlotWindow;
+        return m_mainPlotWindow.get();
     else
         return nullptr;
 }
@@ -1478,7 +1478,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
             }
 
             QMessageBox::StandardButton reply;
-            reply                   = QMessageBox::question( m_mainWindow,
+            reply                   = QMessageBox::question( m_mainWindow.get(),
                                            QString( "Apply %1 to Existing Views or Plots?" ).arg( listString ),
                                            QString( "You have changed default %1 and have existing views or plots with "
                                                     "different settings.\n" )

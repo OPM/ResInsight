@@ -168,8 +168,8 @@ private slots:
     void onLastWindowClosed();
 
 private:
-    QPointer<RiuMainWindow>     m_mainWindow;
-    QPointer<RiuPlotMainWindow> m_mainPlotWindow;
+    std::unique_ptr<RiuMainWindow>     m_mainWindow;
+    std::unique_ptr<RiuPlotMainWindow> m_mainPlotWindow;
 
     std::unique_ptr<RiuRecentFileActionProvider> m_recentFileActionProvider;
 
