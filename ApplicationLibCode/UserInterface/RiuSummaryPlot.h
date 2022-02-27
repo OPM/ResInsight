@@ -37,7 +37,7 @@ class RiuSummaryPlot : public QObject
     Q_OBJECT
 public:
     RiuSummaryPlot( RimSummaryPlot* plot );
-    ~RiuSummaryPlot();
+    ~RiuSummaryPlot() override;
 
     virtual void useDateBasedTimeAxis(
         const QString&                          dateFormat,
