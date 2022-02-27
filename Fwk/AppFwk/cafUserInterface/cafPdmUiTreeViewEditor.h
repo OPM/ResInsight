@@ -160,10 +160,10 @@ private:
     QPointer<QWidget> m_mainWidget;
     QVBoxLayout*      m_layout;
 
-    PdmUiTreeViewWidget*       m_treeView;
-    PdmUiTreeViewQModel*       m_treeViewModel;
-    PdmUiTreeViewItemDelegate* m_delegate;
-    QSortFilterProxyModel*     m_filterModel;
+    QPointer<PdmUiTreeViewWidget>       m_treeView;
+    QPointer<PdmUiTreeViewQModel>       m_treeViewModel;
+    QPointer<PdmUiTreeViewItemDelegate> m_delegate;
+    QPointer<QSortFilterProxyModel>     m_filterModel;
 
     bool m_useDefaultContextMenu;
     bool m_updateSelectionManager;

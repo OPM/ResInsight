@@ -76,6 +76,19 @@ RiuMainWindowBase::RiuMainWindowBase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuMainWindowBase::~RiuMainWindowBase()
+{
+    for ( auto v : m_projectTreeViews )
+    {
+        delete v;
+    }
+
+    m_projectTreeViews.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QMdiSubWindow* RiuMainWindowBase::createViewWindow()
 {
     RiuMdiSubWindow* subWin =
@@ -490,7 +503,7 @@ void RiuMainWindowBase::createTreeViews( int numberOfTrees )
 
     for ( int i = 0; i < numberOfTrees; i++ )
     {
-        auto                         tv                = new caf::PdmUiTreeView();
+        auto                         tv                = new caf::PdmUiTreeView( this );
         caf::PdmUiDragDropInterface* dragDropInterface = new RiuDragDrop( tv );
         tv->setDragDropInterface( dragDropInterface );
         m_projectTreeViews.push_back( tv );

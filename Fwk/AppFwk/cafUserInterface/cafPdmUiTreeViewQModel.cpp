@@ -62,6 +62,18 @@ PdmUiTreeViewQModel::PdmUiTreeViewQModel( PdmUiTreeViewEditor* treeViewEditor )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeViewQModel::~PdmUiTreeViewQModel()
+{
+    if ( m_dragDropInterface )
+    {
+        delete m_dragDropInterface;
+        m_dragDropInterface = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Will populate the tree with the contents of the Pdm data structure rooted at rootItem.
 /// Will not show the rootItem itself, only the children and downwards
 //--------------------------------------------------------------------------------------------------
