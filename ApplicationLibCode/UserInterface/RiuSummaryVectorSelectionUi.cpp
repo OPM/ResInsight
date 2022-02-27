@@ -71,7 +71,7 @@ public:
     {
     }
 
-    virtual ~SummaryIdentifierAndField() { delete m_pdmField; }
+    virtual ~SummaryIdentifierAndField();
 
     RifEclipseSummaryAddress::SummaryIdentifierType summaryIdentifier() const { return m_summaryIdentifier; }
     caf::PdmField<std::vector<QString>>*            pdmField() { return m_pdmField; }
@@ -80,6 +80,14 @@ private:
     RifEclipseSummaryAddress::SummaryIdentifierType m_summaryIdentifier;
     caf::PdmField<std::vector<QString>>*            m_pdmField;
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+SummaryIdentifierAndField::~SummaryIdentifierAndField()
+{
+    delete m_pdmField;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -303,7 +311,7 @@ RiuSummaryVectorSelectionUi::~RiuSummaryVectorSelectionUi()
     {
         for ( const auto& identifierAndField : identifierAndFieldList.second )
         {
-            delete identifierAndField->pdmField();
+            delete identifierAndField;
         }
     }
 }
