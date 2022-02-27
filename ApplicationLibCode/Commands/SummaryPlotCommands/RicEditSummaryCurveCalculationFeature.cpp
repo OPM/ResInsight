@@ -70,7 +70,7 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
+    RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog( true );
     dialog->setCalculationAndUpdateUi( calculation );
     dialog->show();
     dialog->raise();

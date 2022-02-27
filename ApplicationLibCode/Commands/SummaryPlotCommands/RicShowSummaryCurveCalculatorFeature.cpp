@@ -34,13 +34,13 @@ CAF_CMD_SOURCE_INIT( RicShowSummaryCurveCalculatorFeature, "RicShowSummaryCurveC
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog* RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog()
+RicSummaryCurveCalculatorDialog* RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog( bool createIfNotPresent )
 {
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
 
     if ( mainPlotWindow )
     {
-        return mainPlotWindow->summaryCurveCalculatorDialog();
+        return mainPlotWindow->summaryCurveCalculatorDialog( createIfNotPresent );
     }
 
     return nullptr;
@@ -51,9 +51,8 @@ RicSummaryCurveCalculatorDialog* RicShowSummaryCurveCalculatorFeature::curveCalc
 //--------------------------------------------------------------------------------------------------
 void RicShowSummaryCurveCalculatorFeature::hideCurveCalculatorDialog()
 {
-    auto dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
-
-    dialog->hide();
+    auto dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog( false );
+    if ( dialog ) dialog->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,7 +73,7 @@ bool RicShowSummaryCurveCalculatorFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicShowSummaryCurveCalculatorFeature::onActionTriggered( bool isChecked )
 {
-    RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
+    RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog( true );
 
     RimProject*                      proj     = RimProject::current();
     RimSummaryCalculationCollection* calcColl = proj->calculationCollection();

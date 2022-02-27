@@ -88,8 +88,8 @@ public:
     void updateSummaryPlotToolBar( bool forceUpdateUi = false );
     void setFocusToLineEditInSummaryToolBar();
 
-    RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog();
-    RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog();
+    RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog( bool createIfNotPresent );
+    RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog( bool createIfNotPresent );
 
     RiuMessagePanel* messagePanel();
 

@@ -750,9 +750,9 @@ void RiuPlotMainWindow::setFocusToLineEditInSummaryToolBar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
+RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog( bool createIfNotPresent )
 {
-    if ( !m_summaryCurveCreatorDialog )
+    if ( !m_summaryCurveCreatorDialog && createIfNotPresent )
     {
         m_summaryCurveCreatorDialog = std::make_unique<RicSummaryPlotEditorDialog>( this );
     }
@@ -763,9 +763,9 @@ RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog()
+RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog( bool createIfNotPresent )
 {
-    if ( !m_summaryCurveCalculatorDialog )
+    if ( !m_summaryCurveCalculatorDialog && createIfNotPresent )
     {
         m_summaryCurveCalculatorDialog = std::make_unique<RicSummaryCurveCalculatorDialog>( this );
     }
