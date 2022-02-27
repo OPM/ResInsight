@@ -45,7 +45,7 @@ class RiuSummaryQwtPlot : public RiuSummaryPlot
 
 public:
     RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent = nullptr );
-    ~RiuSummaryQwtPlot();
+    ~RiuSummaryQwtPlot() override;
 
     void useDateBasedTimeAxis( const QString&                          dateFormat,
                                const QString&                          timeFormat,
