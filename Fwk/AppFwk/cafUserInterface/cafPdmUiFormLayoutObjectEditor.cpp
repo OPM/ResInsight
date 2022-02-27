@@ -205,7 +205,7 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                             }
                             else if ( labelPos == PdmUiItemInfo::TOP )
                             {
-                                QVBoxLayout* labelAndFieldVerticalLayout = new QVBoxLayout();
+                                QVBoxLayout* labelAndFieldVerticalLayout = new QVBoxLayout( containerWidgetWithGridLayout );
                                 parentLayout->addLayout( labelAndFieldVerticalLayout,
                                                          currentRowIndex,
                                                          currentColumn,
