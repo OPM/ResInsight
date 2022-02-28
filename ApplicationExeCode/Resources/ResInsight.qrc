@@ -240,7 +240,23 @@
         <file>ComboBoxDown.svg</file>
         <file>ComboBoxUp.svg</file>
         <file>WellIntAnalysis.png</file>
-		<file>DataVector.png</file>
+        <file>DataVector.png</file>
+        <file>data-sources.svg</file>
+        <file>edit.svg</file>
+        <file>graph.svg</file>
+        <file>messages.svg</file>
+        <file>multiplot.svg</file>
+        <file>plot-manager.svg</file>
+        <file>plots.svg</file>
+        <file>property-editor.svg</file>
+        <file>scripts.svg</file>
+        <file>standard.svg</file>
+        <file>summary-plot.svg</file>
+        <file>undo-stack.svg</file>
+        <file>view.svg</file>
+        <file>view-snapshots.svg</file>
+        <file>well-log-plot.svg</file>
+        <file>window-management.svg</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
