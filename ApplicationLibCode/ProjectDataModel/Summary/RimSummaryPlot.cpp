@@ -122,13 +122,12 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_axisProperties, "AxisProperties", "Axes", ":/Axes16x16.png" );
 
-    bool connectSignals = false;
-    addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left", connectSignals );
-    addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right", connectSignals );
+    addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
+    addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
 
     if ( m_isCrossPlot )
     {
-        addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom", connectSignals );
+        addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
     }
     else
     {
@@ -1727,26 +1726,21 @@ void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotAxisProperties*
-    RimSummaryPlot::addNewAxisProperties( RiaDefines::PlotAxis plotAxis, const QString& name, bool connectSignals )
+RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiaDefines::PlotAxis plotAxis, const QString& name )
 {
     RiuPlotAxis newPlotAxis = plotWidget()->createNextPlotAxis( plotAxis );
-    return addNewAxisProperties( newPlotAxis, name, connectSignals );
+    return addNewAxisProperties( newPlotAxis, name );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name, bool connectSignals )
+RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name )
 {
     RimPlotAxisProperties* axisProperties = new RimPlotAxisProperties;
     axisProperties->setNameAndAxis( name, plotAxis.axis(), plotAxis.index() );
     m_axisProperties.push_back( axisProperties );
-
-    if ( connectSignals )
-    {
-        connectAxisSignals( axisProperties );
-    }
+    connectAxisSignals( axisProperties );
 
     return axisProperties;
 }
@@ -2488,9 +2482,8 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
         if ( !destinationCurve->summaryAddressY().uiText().empty() )
             axisObjectName = QString::fromStdString( destinationCurve->summaryAddressY().uiText() );
 
-        newPlotAxis         = plotWidget()->createNextPlotAxis( plotAxis );
-        bool connectSignals = true;
-        addNewAxisProperties( newPlotAxis, axisObjectName, connectSignals );
+        newPlotAxis = plotWidget()->createNextPlotAxis( plotAxis );
+        addNewAxisProperties( newPlotAxis, axisObjectName );
     }
 
     destinationCurve->setLeftOrRightAxisY( newPlotAxis );
