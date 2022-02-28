@@ -50,8 +50,9 @@ void RicNewPlotAxisPropertiesFeature::onActionTriggered( bool isChecked )
 
     RimSummaryPlot* summaryPlot = summaryPlots[0];
 
+    bool                   connectSignals = true;
     RimPlotAxisProperties* newPlotAxisProperties =
-        summaryPlot->addNewAxisProperties( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "New Axis" );
+        summaryPlot->addNewAxisProperties( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "New Axis", connectSignals );
 
     summaryPlot->updateConnectedEditors();
     RiuPlotMainWindowTools::selectAsCurrentItem( newPlotAxisProperties );

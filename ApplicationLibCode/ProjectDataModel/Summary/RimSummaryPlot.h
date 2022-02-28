@@ -189,7 +189,7 @@ public:
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
 
-    RimPlotAxisProperties* addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
+    RimPlotAxisProperties* addNewAxisProperties( RiaDefines::PlotAxis, const QString& name, bool connectSignals );
 
 public:
     // RimViewWindow overrides
@@ -214,7 +214,7 @@ private:
 
     void connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis );
 
-    RimPlotAxisProperties* addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
+    RimPlotAxisProperties* addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name, bool connectSignals );
 
 protected:
     // Overridden PDM methods
