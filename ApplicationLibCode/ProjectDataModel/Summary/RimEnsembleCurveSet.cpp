@@ -2115,7 +2115,10 @@ void RimEnsembleCurveSet::initAfterRead()
     if ( m_plotAxisProperties.value() == nullptr )
     {
         RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfTypeAsserted( plot );
-        m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+        firstAncestorOrThisOfType( plot );
+        if ( plot )
+        {
+            m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+        }
     }
 }

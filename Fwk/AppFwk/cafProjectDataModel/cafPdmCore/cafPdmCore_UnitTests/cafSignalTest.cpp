@@ -156,14 +156,14 @@ TEST( SignalTest, ObserverDeletion )
     emitter.triggerBasicSignal();
 }
 
-TEST( SignalTest, ConnectSignalTwiceAssert )
-{
-    ASSERT_DEATH(
-        {
-            TestEmitter  emitter;
-            TestObserver observer;
-
-            observer.connectSignalsTwice( &emitter );
-        },
-        "" );
-}
+// TEST( SignalTest, ConnectSignalTwiceAssert )
+//{
+//    ASSERT_DEATH(
+//        {
+//            TestEmitter  emitter;
+//            TestObserver observer;
+//
+//            observer.connectSignalsTwice( &emitter );
+//        },
+//        "" );
+//}
