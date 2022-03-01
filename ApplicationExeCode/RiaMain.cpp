@@ -26,6 +26,9 @@
 #include "RiaConsoleApplication.h"
 #include "RiaGuiApplication.h"
 #endif
+
+#include "cafCmdFeatureManager.h"
+
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
@@ -66,7 +69,11 @@ int main( int argc, char* argv[] )
         return 1;
     }
 #endif
+    // Global initialization
     RiaLogging::loggerInstance()->setLevel( int( RILogLevel::RI_LL_DEBUG ) );
+
+    // Create feature manager before the application object is created
+    caf::CmdFeatureManager::createSingleton();
 
     std::unique_ptr<RiaApplication> app( createApplication( argc, argv ) );
 
@@ -112,6 +119,9 @@ int main( int argc, char* argv[] )
         // Make sure project is closed to avoid assert and crash in destruction of widgets
         app->closeProject();
 
+        app.reset();
+        caf::CmdFeatureManager::deleteSingleton();
+
         return 0;
     }
     else if ( status == RiaApplication::ApplicationStatus::EXIT_WITH_ERROR )
@@ -146,6 +156,9 @@ int main( int argc, char* argv[] )
             std::cout << "An unknown exception that terminated ResInsight caught in RiaMain.cpp.  " << std::endl;
             throw;
         }
+
+        app.reset();
+        caf::CmdFeatureManager::deleteSingleton();
 
         return exitCode;
     }
