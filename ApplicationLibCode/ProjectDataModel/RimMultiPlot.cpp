@@ -768,20 +768,6 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::uiOrderingForSummaryMultiPlot( caf::PdmUiOrdering& uiOrdering ) const
-{
-    uiOrdering.add( &m_showPlotWindowTitle );
-    uiOrdering.add( &m_plotWindowTitle );
-    uiOrdering.add( &m_showIndividualPlotTitles );
-    uiOrdering.add( &m_subTitleFontSize );
-    uiOrdering.add( &m_columnCount );
-    uiOrdering.add( &m_rowsPerPage );
-    uiOrdering.add( &m_majorTickmarkCount );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                                    bool*                      useOptionsOnly )
 {

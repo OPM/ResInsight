@@ -352,3 +352,20 @@ void RimSummaryMultiPlot::insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const
 
     plot->loadDataAndUpdate();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
+{
+    std::vector<caf::PdmFieldHandle*> toolBarFields;
+
+    auto& sourceObject = m_sourceStepping();
+    if ( sourceObject )
+    {
+        auto fields = sourceObject->fieldsToShowInToolbar();
+        toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
+    }
+
+    return toolBarFields;
+}

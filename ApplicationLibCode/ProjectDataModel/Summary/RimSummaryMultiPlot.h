@@ -25,6 +25,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
+#include <vector>
+
 class RimSummaryPlot;
 class RimSummaryPlotSourceStepping;
 class RimSummaryPlotNameHelper;
@@ -54,6 +56,8 @@ public:
 
     void addPlot( RimPlot* plot ) override;
     void insertPlot( RimPlot* plot, size_t index ) override;
+
+    std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar();
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

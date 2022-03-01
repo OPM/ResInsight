@@ -31,6 +31,7 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
@@ -702,17 +703,29 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
 {
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
-    RimMultiPlot*   multiPlot   = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
-    if ( multiPlot )
+    RimSummaryPlot*      summaryPlot      = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
+    RimMultiPlot*        multiPlot        = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
+    RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_activePlotViewWindow.p() );
+
+    std::vector<caf::PdmFieldHandle*> toolBarFields;
+
+    if ( summaryMultiPlot )
     {
-        summaryPlot = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryPlot>();
+        toolBarFields = summaryMultiPlot->fieldsToShowInToolbar();
     }
+
+    // if ( multiPlot )
+    //{
+    //    summaryPlot = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryPlot>();
+    //}
 
     if ( summaryPlot )
     {
-        std::vector<caf::PdmFieldHandle*> toolBarFields = summaryPlot->fieldsToShowInToolbar();
+        toolBarFields = summaryPlot->fieldsToShowInToolbar();
+    }
 
+    if ( toolBarFields.size() > 0 )
+    {
         QString keyword;
 
         if ( !m_summaryPlotToolBarEditor->isEditorDataValid( toolBarFields ) )
