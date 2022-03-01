@@ -377,6 +377,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     plotWindow->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+    plotWindow->updateAllRequiredEditors();
 
     return plotWindow;
 }
