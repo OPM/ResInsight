@@ -137,7 +137,8 @@ public:
                        "Only classes that inherit SignalObserver can connect as an observer of a Signal." );
 
         // Connecting a signal twice is not supported
-        CAF_ASSERT( m_observerCallbacks.find( observer ) == m_observerCallbacks.end() );
+        // CAF_ASSERT( m_observerCallbacks.find( observer ) == m_observerCallbacks.end() );
+        if ( m_observerCallbacks.find( observer ) == m_observerCallbacks.end() ) return;
 
         m_observerCallbacks[observer] = std::make_pair( callback, true );
         observer->addObservedSignal( this );
