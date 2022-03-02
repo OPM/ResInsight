@@ -1590,6 +1590,7 @@ void RimSummaryPlot::updateZoomInParentPlot()
 
         plotWidget()->updateAxes();
         updateZoomFromParentPlot();
+        plotWidget()->updateZoomDependentCurveProperties();
         plotWidget()->scheduleReplot();
     }
 }

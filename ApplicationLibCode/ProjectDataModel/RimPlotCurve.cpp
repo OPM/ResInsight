@@ -892,8 +892,8 @@ void RimPlotCurve::updateCurveAppearance()
                                 curveColor,
                                 fillBrush );
 
-    m_plotCurve->setSymbol( symbol );
     m_plotCurve->setSymbolSkipPixelDistance( m_curveAppearance->symbolSkipDistance() );
+    m_plotCurve->setSymbol( symbol );
 
     // Make sure the legend lines are long enough to distinguish between line types.
     // Standard width in Qwt is 8 which is too short.

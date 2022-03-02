@@ -34,6 +34,7 @@
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
 class RiuPlotCurve;
+class RiuQtChartsPlotCurve;
 
 class QEvent;
 class QLabel;
@@ -165,8 +166,8 @@ public:
     QtCharts::QAbstractSeries* getLineSeries( const RiuPlotCurve* plotCurve ) const;
     QtCharts::QAbstractSeries* getScatterSeries( const RiuPlotCurve* plotCurve ) const;
 
-    void setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series );
-    void setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series );
+    void setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
+    void setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
 
     const QColor& backgroundColor() const override;
 
@@ -174,8 +175,10 @@ public:
 
     std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const override;
 
+    void updateZoomDependentCurveProperties() override;
+
 protected:
-    void attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series );
+    void attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
 
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;
@@ -217,6 +220,6 @@ private:
     std::map<RiuPlotAxis, bool>                     m_axesEnabled;
     std::map<RiuPlotAxis, bool>                     m_axesAutoScale;
 
-    std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_lineSeriesMap;
-    std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;
+    std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_lineSeriesMap;
+    std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;
 };

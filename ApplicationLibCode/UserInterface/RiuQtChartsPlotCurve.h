@@ -32,8 +32,9 @@ class RiuPlotCurveSymbol;
 //==================================================================================================
 //
 //==================================================================================================
-class RiuQtChartsPlotCurve : public RiuPlotCurve
+class RiuQtChartsPlotCurve : public QObject, public RiuPlotCurve
 {
+    Q_OBJECT
 public:
     explicit RiuQtChartsPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title = QString() );
     ~RiuQtChartsPlotCurve() override;
@@ -76,6 +77,11 @@ public:
     void setSymbol( RiuPlotCurveSymbol* symbol ) override;
 
     RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
+
+    void updateScatterSeries();
+
+public slots:
+    void axisRangeChanged();
 
 private:
     void setSamplesInPlot( const std::vector<double>&, const std::vector<double>& ) override;
