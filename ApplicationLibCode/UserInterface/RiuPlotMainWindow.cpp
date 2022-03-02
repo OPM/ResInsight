@@ -703,8 +703,7 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
 {
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
-    // RimMultiPlot*        multiPlot        = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
+    RimSummaryPlot*      summaryPlot      = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
     RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_activePlotViewWindow.p() );
 
     std::vector<caf::PdmFieldHandle*> toolBarFields;
@@ -713,13 +712,7 @@ void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
     {
         toolBarFields = summaryMultiPlot->fieldsToShowInToolbar();
     }
-
-    // if ( multiPlot )
-    //{
-    //    summaryPlot = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryPlot>();
-    //}
-
-    if ( summaryPlot )
+    else if ( summaryPlot )
     {
         toolBarFields = summaryPlot->fieldsToShowInToolbar();
     }
@@ -1010,12 +1003,15 @@ void RiuPlotMainWindow::selectedObjectsChanged()
                 {
                     updateSummaryPlotToolBar();
                 }
-                RimSummaryMultiPlot* multiSummaryPlot = nullptr;
-                firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
-                if ( multiSummaryPlot )
+                else
                 {
-                    updateSummaryPlotToolBar();
-                    updateMultiPlotToolBar();
+                    RimSummaryMultiPlot* multiSummaryPlot = nullptr;
+                    firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
+                    if ( multiSummaryPlot )
+                    {
+                        updateSummaryPlotToolBar();
+                        updateMultiPlotToolBar();
+                    }
                 }
             }
 
