@@ -27,6 +27,8 @@
 
 #include "RifEclipseSummaryAddress.h"
 
+#include "RiuPlotMainWindowTools.h"
+
 #include "cafSelectionManagerTools.h"
 #include "cvfAssert.h"
 
@@ -108,6 +110,8 @@ void RicNewSummaryPlotFromDataVectorFeature::onActionTriggered( bool isChecked )
     newPlot->loadDataAndUpdate();
 
     plotCollection->updateConnectedEditors();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot, true );
 }
 
 //--------------------------------------------------------------------------------------------------
