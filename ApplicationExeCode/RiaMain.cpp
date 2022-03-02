@@ -18,6 +18,7 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaLogging.h"
+#include "RiaRegressionTestRunner.h"
 
 #ifdef ENABLE_GRPC
 #include "RiaGrpcConsoleApplication.h"
@@ -74,6 +75,8 @@ int main( int argc, char* argv[] )
 
     // Create feature manager before the application object is created
     caf::CmdFeatureManager::createSingleton();
+    RiaRegressionTestRunner::createSingleton();
+    caf::PdmDefaultObjectFactory::createSingleton();
 
     std::unique_ptr<RiaApplication> app( createApplication( argc, argv ) );
 
@@ -121,6 +124,8 @@ int main( int argc, char* argv[] )
 
         app.reset();
         caf::CmdFeatureManager::deleteSingleton();
+        RiaRegressionTestRunner::deleteSingleton();
+        caf::PdmDefaultObjectFactory::deleteSingleton();
 
         return 0;
     }
@@ -159,6 +164,8 @@ int main( int argc, char* argv[] )
 
         app.reset();
         caf::CmdFeatureManager::deleteSingleton();
+        RiaRegressionTestRunner::deleteSingleton();
+        caf::PdmDefaultObjectFactory::deleteSingleton();
 
         return exitCode;
     }

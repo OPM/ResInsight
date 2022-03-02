@@ -69,6 +69,8 @@ const QString reportFileName           = "ResInsightRegressionTestReport.html";
 const QString commandFileFilter        = "commandfile-*";
 }; // namespace RegTestNames
 
+RiaRegressionTestRunner* RiaRegressionTestRunner::sm_singleton = nullptr;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -95,8 +97,25 @@ RiaRegressionTestRunner::RiaRegressionTestRunner()
 //--------------------------------------------------------------------------------------------------
 RiaRegressionTestRunner* RiaRegressionTestRunner::instance()
 {
-    static RiaRegressionTestRunner* singleton = new RiaRegressionTestRunner;
-    return singleton;
+    CAF_ASSERT( sm_singleton );
+    return sm_singleton;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaRegressionTestRunner::createSingleton()
+{
+    if ( !sm_singleton ) sm_singleton = new RiaRegressionTestRunner;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaRegressionTestRunner::deleteSingleton()
+{
+    if ( sm_singleton ) delete sm_singleton;
+    sm_singleton = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

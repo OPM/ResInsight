@@ -58,6 +58,9 @@ class PdmDefaultObjectFactory : public PdmObjectFactory
 public:
     static PdmDefaultObjectFactory* instance();
 
+    static void createSingleton();
+    static void deleteSingleton();
+
     PdmObjectHandle* create( const QString& classNameKeyword ) override;
 
     template <typename PdmObjectBaseDerivative>
@@ -90,6 +93,8 @@ private:
     ~PdmDefaultObjectFactory() override
     { /* Could clean up, but ... */
     }
+
+    static PdmDefaultObjectFactory* sm_singleton;
 
     // Internal helper classes
 

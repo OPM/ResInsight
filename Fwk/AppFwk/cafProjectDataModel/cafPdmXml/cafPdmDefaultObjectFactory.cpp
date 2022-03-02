@@ -6,6 +6,8 @@ namespace caf
 ///  PdmObjectFactory implementations
 //--------------------------------------------------------------------------------------------------
 
+PdmDefaultObjectFactory* PdmDefaultObjectFactory::sm_singleton = nullptr;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -43,8 +45,24 @@ std::vector<QString> PdmDefaultObjectFactory::classKeywords() const
 //--------------------------------------------------------------------------------------------------
 PdmDefaultObjectFactory* PdmDefaultObjectFactory::instance()
 {
-    static PdmDefaultObjectFactory* fact = new PdmDefaultObjectFactory;
-    return fact;
+    createSingleton();
+    return sm_singleton;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmDefaultObjectFactory::createSingleton()
+{
+    if ( !sm_singleton ) sm_singleton = new PdmDefaultObjectFactory;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmDefaultObjectFactory::deleteSingleton()
+{
+    if ( sm_singleton ) delete sm_singleton;
 }
 
 } // End of namespace caf
