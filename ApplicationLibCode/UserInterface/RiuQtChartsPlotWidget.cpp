@@ -615,6 +615,18 @@ void RiuQtChartsPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::updateZoomDependentCurveProperties()
+{
+    for ( auto it : m_scatterSeriesMap )
+    {
+        auto plotCurve = dynamic_cast<RiuQtChartsPlotCurve*>( it.first );
+        if ( plotCurve ) plotCurve->updateScatterSeries();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::enableAxis( RiuPlotAxis axis, bool isEnabled )
 {
     m_axesEnabled[axis] = isEnabled;
@@ -782,22 +794,24 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
                                     RiuPlotAxis                xAxis,
                                     RiuPlotAxis                yAxis )
 {
-    auto addToChart = [this]( std::map<const RiuPlotCurve*, QtCharts::QAbstractSeries*>& curveSeriesMap,
-                              auto                                                       plotCurve,
-                              auto                                                       series,
-                              auto                                                       xAxis,
-                              auto                                                       yAxis ) {
+    auto addToChart = [this]( std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*>& curveSeriesMap,
+                              auto                                                 plotCurve,
+                              auto                                                 series,
+                              auto                                                 xAxis,
+                              auto                                                 yAxis,
+                              RiuQtChartsPlotCurve*                                qtChartsPlotCurve ) {
         if ( !series->chart() )
         {
             curveSeriesMap[plotCurve] = series;
             qtChart()->addSeries( series );
-            setXAxis( xAxis, series );
-            setXAxis( yAxis, series );
+            setXAxis( xAxis, series, qtChartsPlotCurve );
+            setYAxis( yAxis, series, qtChartsPlotCurve );
         }
     };
 
-    addToChart( m_lineSeriesMap, plotCurve, lineSeries, xAxis, yAxis );
-    addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis );
+    auto qtChartsPlotCurve = dynamic_cast<RiuQtChartsPlotCurve*>( plotCurve );
+    addToChart( m_lineSeriesMap, plotCurve, lineSeries, xAxis, yAxis, qtChartsPlotCurve );
+    addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis, qtChartsPlotCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -805,7 +819,7 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
 //--------------------------------------------------------------------------------------------------
 QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getLineSeries( const RiuPlotCurve* plotCurve ) const
 {
-    auto series = m_lineSeriesMap.find( plotCurve );
+    auto series = m_lineSeriesMap.find( const_cast<RiuPlotCurve*>( plotCurve ) );
     if ( series != m_lineSeriesMap.end() )
         return series->second;
     else
@@ -817,7 +831,7 @@ QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getLineSeries( const RiuPlotCu
 //--------------------------------------------------------------------------------------------------
 QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getScatterSeries( const RiuPlotCurve* plotCurve ) const
 {
-    auto series = m_scatterSeriesMap.find( plotCurve );
+    auto series = m_scatterSeriesMap.find( const_cast<RiuPlotCurve*>( plotCurve ) );
     if ( series != m_scatterSeriesMap.end() )
         return series->second;
     else
@@ -846,17 +860,17 @@ void RiuQtChartsPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
+void RiuQtChartsPlotWidget::setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve )
 {
-    attachSeriesToAxis( axis, series );
+    attachSeriesToAxis( axis, series, plotCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
+void RiuQtChartsPlotWidget::setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve )
 {
-    attachSeriesToAxis( axis, series );
+    attachSeriesToAxis( axis, series, plotCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -873,7 +887,9 @@ void RiuQtChartsPlotWidget::ensureAxisIsCreated( RiuPlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series )
+void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis                axis,
+                                                QtCharts::QAbstractSeries* series,
+                                                RiuQtChartsPlotCurve*      plotCurve )
 {
     // Make sure the axis we are about to set exists.
     ensureAxisIsCreated( axis );
@@ -896,6 +912,14 @@ void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbs
         if ( qobject_cast<QValueAxis*>( newAxis ) || qobject_cast<QLogValueAxis*>( newAxis ) )
         {
             connect( newAxis, SIGNAL( rangeChanged( double, double ) ), this, SLOT( axisRangeChanged() ), Qt::UniqueConnection );
+            if ( plotCurve )
+            {
+                connect( newAxis,
+                         SIGNAL( rangeChanged( double, double ) ),
+                         plotCurve,
+                         SLOT( axisRangeChanged() ),
+                         Qt::UniqueConnection );
+            }
         }
         else if ( qobject_cast<QDateTimeAxis*>( newAxis ) )
         {
@@ -904,6 +928,14 @@ void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbs
                      this,
                      SLOT( axisRangeChanged() ),
                      Qt::UniqueConnection );
+            if ( plotCurve )
+            {
+                connect( newAxis,
+                         SIGNAL( rangeChanged( QDateTime, QDateTime ) ),
+                         plotCurve,
+                         SLOT( axisRangeChanged() ),
+                         Qt::UniqueConnection );
+            }
         }
     }
 }

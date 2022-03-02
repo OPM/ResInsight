@@ -28,6 +28,8 @@
 #include <QLegend>
 #include <QLegendMarker>
 #include <QtCharts/QChartView>
+#include <QtCharts/QDateTimeAxis>
+#include <QtCharts/QValueAxis>
 
 #include <limits>
 
@@ -202,8 +204,7 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
 
     CAF_ASSERT( xValues.size() == yValues.size() );
 
-    QtCharts::QLineSeries*    line    = lineSeries();
-    QtCharts::QScatterSeries* scatter = scatterSeries();
+    QtCharts::QLineSeries* line = lineSeries();
 
     QVector<QPointF> values( static_cast<int>( xValues.size() ) );
 
@@ -213,7 +214,88 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
     }
 
     line->replace( values );
-    scatter->replace( values );
+
+    updateScatterSeries();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::updateScatterSeries()
+{
+    double minX = std::numeric_limits<double>::max();
+    double maxX = -std::numeric_limits<double>::max();
+
+    QVector<QPointF> points = lineSeries()->pointsVector();
+
+    auto axes      = lineSeries()->attachedAxes();
+    bool foundAxis = false;
+    for ( auto axis : axes )
+    {
+        if ( axis->orientation() == Qt::Orientation::Horizontal )
+        {
+            QtCharts::QValueAxis*    valueAxis    = dynamic_cast<QtCharts::QValueAxis*>( axis );
+            QtCharts::QDateTimeAxis* dateTimeAxis = dynamic_cast<QtCharts::QDateTimeAxis*>( axis );
+            if ( valueAxis )
+            {
+                minX      = valueAxis->min();
+                maxX      = valueAxis->max();
+                foundAxis = true;
+            }
+            else if ( dateTimeAxis )
+            {
+                minX      = dateTimeAxis->min().toMSecsSinceEpoch();
+                maxX      = dateTimeAxis->max().toMSecsSinceEpoch();
+                foundAxis = true;
+            }
+        }
+    }
+
+    if ( !foundAxis )
+    {
+        for ( auto p : points )
+        {
+            minX = std::min( minX, p.x() );
+            maxX = std::max( maxX, p.x() );
+        }
+    }
+
+    QVector<QPointF> scatterValues;
+    if ( !points.empty() )
+    {
+        double range = maxX - minX;
+
+        double displaySize = 1400;
+        if ( m_plotWidget && m_plotWidget->qtChart() )
+        {
+            // Use the max size since plot area can be small before the widget is shown
+            displaySize = std::max( displaySize, m_plotWidget->qtChart()->plotArea().width() );
+        }
+
+        double rangePerPixel = range / displaySize;
+
+        double skipDistance = rangePerPixel * m_symbolSkipPixelDistance;
+
+        // Always have symbol on first point
+        scatterValues << points[0];
+
+        int lastDrawnIndex = 0;
+        for ( int i = 1; i < static_cast<int>( points.size() ); i++ )
+        {
+            // Skip points until skip distance is reached
+            double diff = points[i].x() - points[lastDrawnIndex].x();
+
+            // Always add last point.
+            bool isLastPoint = i == points.size() - 1;
+            if ( diff > skipDistance || isLastPoint )
+            {
+                scatterValues << points[i];
+                lastDrawnIndex = i;
+            }
+        }
+    }
+
+    scatterSeries()->replace( scatterValues );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -255,8 +337,8 @@ void RiuQtChartsPlotCurve::setXAxis( RiuPlotAxis axis )
     m_axisX = axis;
     if ( m_plotWidget )
     {
-        m_plotWidget->setXAxis( axis, lineSeries() );
-        m_plotWidget->setXAxis( axis, scatterSeries() );
+        m_plotWidget->setXAxis( axis, lineSeries(), this );
+        m_plotWidget->setXAxis( axis, scatterSeries(), this );
     }
 }
 
@@ -268,8 +350,8 @@ void RiuQtChartsPlotCurve::setYAxis( RiuPlotAxis axis )
     m_axisY = axis;
     if ( m_plotWidget )
     {
-        m_plotWidget->setYAxis( axis, lineSeries() );
-        m_plotWidget->setYAxis( axis, scatterSeries() );
+        m_plotWidget->setYAxis( axis, lineSeries(), this );
+        m_plotWidget->setYAxis( axis, scatterSeries(), this );
     }
 }
 
@@ -335,8 +417,8 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
     CAF_ASSERT( m_plotWidget->qtChart() );
     CAF_ASSERT( m_plotWidget->qtChart()->legend() );
 
-    // The markers can be set visible independent to the visibility state of the containing legend. Use the visibility
-    // state of the legend to override the visibility flag
+    // The markers can be set visible independent to the visibility state of the containing legend. Use the
+    // visibility state of the legend to override the visibility flag
     if ( !m_plotWidget->qtChart()->legend()->isAttachedToChart() ) isVisibleInLegend = false;
     if ( !m_plotWidget->qtChart()->legend()->isVisible() ) isVisibleInLegend = false;
 
@@ -395,6 +477,7 @@ void RiuQtChartsPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
         if ( scatterSeries() )
         {
             qtChartsSymbol->applyToScatterSeries( scatterSeries() );
+            updateScatterSeries();
         }
     }
     else
@@ -434,4 +517,12 @@ QSize RiuQtChartsPlotCurve::legendIconSize() const
 QPixmap RiuQtChartsPlotCurve::legendIcon( const QSizeF& iconSize ) const
 {
     return QPixmap();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::axisRangeChanged()
+{
+    updateScatterSeries();
 }

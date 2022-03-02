@@ -183,6 +183,8 @@ public:
 
     virtual std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const = 0;
 
+    virtual void updateZoomDependentCurveProperties();
+
 protected:
     void updateOverlayFrameLayout();
 

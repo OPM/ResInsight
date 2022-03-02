@@ -226,6 +226,7 @@ if(RESINSIGHT_USE_QT_CHARTS)
 
   list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
        ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
+       ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurve.h
   )
 endif()
 
