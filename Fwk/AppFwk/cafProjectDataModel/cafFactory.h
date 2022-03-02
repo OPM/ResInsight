@@ -152,6 +152,15 @@ public:
         return keys;
     }
 
+    void deleteCreatorObjects()
+    {
+        for ( auto f : m_factoryMap )
+        {
+            if ( f.second ) delete f.second;
+        }
+        m_factoryMap.clear();
+    }
+
 private:
     Factory() {}
     ~Factory()

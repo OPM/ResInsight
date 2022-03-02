@@ -1299,6 +1299,8 @@ MainWindow::~MainWindow()
     m_pdmUiPropertyView->showProperties(nullptr);
     m_pdmUiTableView->setChildArrayField(nullptr);
 
+    releaseTestData();
+
     delete m_pdmUiTreeView;
     delete m_pdmUiTreeView2;
     delete m_pdmUiPropertyView;

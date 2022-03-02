@@ -29,6 +29,8 @@
 #endif
 
 #include "cafCmdFeatureManager.h"
+#include "cafFactory.h"
+#include "cafPdmUiFieldEditorHandle.h"
 
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
@@ -56,6 +58,23 @@ RiaApplication* createApplication( int& argc, char* argv[] )
 #else
     return new RiaGuiApplication( argc, argv );
 #endif
+}
+
+void releaseMemoryForSingletons()
+{
+    caf::CmdFeatureManager::deleteSingleton();
+    RiaRegressionTestRunner::deleteSingleton();
+    caf::PdmDefaultObjectFactory::deleteSingleton();
+
+    {
+        auto factory = caf::Factory<caf::PdmUiFieldEditorHandle, QString>::instance();
+        factory->deleteCreatorObjects();
+    }
+
+    {
+        auto factory = caf::Factory<caf::CmdFeature, std::string>::instance();
+        factory->deleteCreatorObjects();
+    }
 }
 
 int main( int argc, char* argv[] )
@@ -123,9 +142,8 @@ int main( int argc, char* argv[] )
         app->closeProject();
 
         app.reset();
-        caf::CmdFeatureManager::deleteSingleton();
-        RiaRegressionTestRunner::deleteSingleton();
-        caf::PdmDefaultObjectFactory::deleteSingleton();
+
+        releaseMemoryForSingletons();
 
         return 0;
     }
@@ -163,9 +181,7 @@ int main( int argc, char* argv[] )
         }
 
         app.reset();
-        caf::CmdFeatureManager::deleteSingleton();
-        RiaRegressionTestRunner::deleteSingleton();
-        caf::PdmDefaultObjectFactory::deleteSingleton();
+        releaseMemoryForSingletons();
 
         return exitCode;
     }
