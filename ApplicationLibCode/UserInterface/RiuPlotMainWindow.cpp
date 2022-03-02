@@ -703,8 +703,8 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
 {
-    RimSummaryPlot*      summaryPlot      = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
-    RimMultiPlot*        multiPlot        = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
+    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
+    // RimMultiPlot*        multiPlot        = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
     RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_activePlotViewWindow.p() );
 
     std::vector<caf::PdmFieldHandle*> toolBarFields;
@@ -1009,6 +1009,13 @@ void RiuPlotMainWindow::selectedObjectsChanged()
                 if ( summaryPlot )
                 {
                     updateSummaryPlotToolBar();
+                }
+                RimSummaryMultiPlot* multiSummaryPlot = nullptr;
+                firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
+                if ( multiSummaryPlot )
+                {
+                    updateSummaryPlotToolBar();
+                    updateMultiPlotToolBar();
                 }
             }
 

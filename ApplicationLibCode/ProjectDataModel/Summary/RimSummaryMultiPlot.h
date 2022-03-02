@@ -57,7 +57,7 @@ public:
     void addPlot( RimPlot* plot ) override;
     void insertPlot( RimPlot* plot, size_t index ) override;
 
-    std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar();
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
