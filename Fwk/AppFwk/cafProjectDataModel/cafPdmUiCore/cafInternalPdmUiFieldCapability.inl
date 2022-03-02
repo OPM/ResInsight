@@ -14,7 +14,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue )
+void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue )
 {
     QVariant oldUiBasedQVariant = toUiBasedQVariant();
 
@@ -123,7 +123,7 @@ void caf::PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValu
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
+QVariant PdmFieldUiCap<FieldType>::uiValue() const
 {
     if ( m_optionEntryCache.size() )
     {
@@ -137,11 +137,13 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
             if ( isAutoAddingOptionFromValue() &&
                  indexesToFoundOptions.size() != static_cast<size_t>( uiBasedQVariant.toList().size() ) )
             {
-                CAF_ASSERT( false ); // Did not find all the field values among the options available, even though we
-                                     // should. Reasons might be:
-                                     //    The "core" data type in the field is probably not supported by
-                                     //    QVariant::toString() You forgot to call valueOptions() before the call to
-                                     //    uiValue().
+                return QVariant();
+
+                // CAF_ASSERT( false ); // Did not find all the field values among the options available, even though we
+                // should. Reasons might be:
+                //    The "core" data type in the field is probably not supported by
+                //    QVariant::toString() You forgot to call valueOptions() before the call to
+                //    uiValue().
             }
             else
             {
@@ -181,7 +183,7 @@ QVariant caf::PdmFieldUiCap<FieldType>::uiValue() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions( bool* useOptionsOnly ) const
+QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions( bool* useOptionsOnly ) const
 {
     m_optionEntryCache.clear();
 
@@ -261,7 +263,7 @@ QList<PdmOptionItemInfo> caf::PdmFieldUiCap<FieldType>::valueOptions( bool* useO
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-QVariant caf::PdmFieldUiCap<FieldType>::toUiBasedQVariant() const
+QVariant PdmFieldUiCap<FieldType>::toUiBasedQVariant() const
 {
     return PdmUiFieldSpecialization<typename FieldType::FieldDataType>::convert( m_field->value() );
 }
@@ -270,8 +272,8 @@ QVariant caf::PdmFieldUiCap<FieldType>::toUiBasedQVariant() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename FieldType>
-bool caf::PdmFieldUiCap<FieldType>::isQVariantDataEqual( const QVariant& oldUiBasedQVariant,
-                                                         const QVariant& newUiBasedQVariant ) const
+bool PdmFieldUiCap<FieldType>::isQVariantDataEqual( const QVariant& oldUiBasedQVariant,
+                                                    const QVariant& newUiBasedQVariant ) const
 {
     return PdmValueFieldSpecialization<typename FieldType::FieldDataType>::isEqual( oldUiBasedQVariant, newUiBasedQVariant );
 }
