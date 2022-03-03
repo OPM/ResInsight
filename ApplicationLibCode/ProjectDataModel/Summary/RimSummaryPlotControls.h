@@ -21,10 +21,19 @@
 class RimSummaryPlotSourceStepping;
 class QKeyEvent;
 
+#include <QString>
+
 class RimSummaryPlotControls
 {
 public:
     static bool handleKeyEvents( RimSummaryPlotSourceStepping* srcStepping, QKeyEvent* keyEvent );
+
+    static QString quantityNextKeyText();
+    static QString quantityPrevKeyText();
+    static QString caseNextKeyText();
+    static QString casePrevKeyText();
+    static QString otherNextKeyText();
+    static QString otherPrevKeyText();
 
 private:
     RimSummaryPlotControls() = default;
