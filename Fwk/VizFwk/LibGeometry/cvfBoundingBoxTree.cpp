@@ -187,6 +187,9 @@ namespace cvf {
         AABBTreeNodeInternal*  createNode();
         AABBTreeNodeLeaf*      createOrAssignLeaf(size_t leafIndex, size_t bbId);
 
+    private:
+        static void deleteInternalNodesLeafFirst(AABBTreeNode* node);
+
     protected:
         struct InternalNodeAndRange
         {
@@ -598,6 +601,7 @@ bool AABBTree::buildTree(AABBTreeNodeInternal* pNode, size_t iFromIdx, size_t iT
     return true;
 
 }
+
 //--------------------------------------------------------------------------------------------------
 /// 
 //--------------------------------------------------------------------------------------------------
@@ -606,6 +610,8 @@ void AABBTree::freeThis()
     // Delete all the internal nodes
     if (m_pRoot)
     {
+		AABBTree::deleteInternalNodesLeafFirst(m_pRoot);
+
         m_pRoot = NULL;
     }
 
@@ -779,6 +785,24 @@ cvf::AABBTreeNodeLeaf* AABBTree::createOrAssignLeaf(size_t leafIndex, size_t bbI
     cvf::AABBTreeNodeLeaf* leaf = &m_leafPool[leafIndex];
     leaf->setIndex(bbId);
     return leaf;
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void AABBTree::deleteInternalNodesLeafFirst(AABBTreeNode* node)
+{
+    // All leaf nodes (AABBTreeNodeLeaf) are allocated in m_leafPool and does not require a delete
+	if (node->type() == AB_LEAF) return;
+
+	auto internalNode = dynamic_cast<AABBTreeNodeInternal*>(node);
+	CVF_ASSERT(internalNode);
+
+    AABBTree::deleteInternalNodesLeafFirst(internalNode->left());
+    AABBTree::deleteInternalNodesLeafFirst(internalNode->right());
+
+	delete internalNode;
 }
 
 //--------------------------------------------------------------------------------------------------
