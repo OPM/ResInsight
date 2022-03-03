@@ -80,6 +80,7 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlotSourceStepping.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
@@ -125,6 +126,7 @@
 #include <QDir>
 #include <QErrorMessage>
 #include <QGridLayout>
+#include <QKeyEvent>
 #include <QMdiSubWindow>
 #include <QMessageBox>
 #include <QProcessEnvironment>
@@ -1711,7 +1713,74 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
     bool done = true;
     try
     {
-        done = QApplication::notify( receiver, event );
+        if ( event->type() == QEvent::KeyPress )
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
+
+            RimViewWindow* plot = activePlotWindow();
+            if ( plot && !keyEvent->isAutoRepeat() )
+            {
+                RimSummaryDataSourceStepping* stepping = dynamic_cast<RimSummaryDataSourceStepping*>( plot );
+                if ( stepping )
+                {
+                    qDebug() << keyEvent->text();
+
+                    RimSummaryPlotSourceStepping* sourceStepping = new RimSummaryPlotSourceStepping();
+                    sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+                    sourceStepping->setSourceSteppingObject( plot );
+
+                    if ( keyEvent->key() == Qt::Key_Left )
+                    {
+                        if ( keyEvent->modifiers() & Qt::ControlModifier )
+                        {
+                            sourceStepping->applyPrevOtherIdentifier();
+                            keyEvent->accept();
+                        }
+                        else if ( keyEvent->modifiers() & Qt::AltModifier )
+                        {
+                            sourceStepping->applyPrevCase();
+                            keyEvent->accept();
+                        }
+                    }
+                    else if ( keyEvent->key() == Qt::Key_Right )
+                    {
+                        if ( keyEvent->modifiers() & Qt::ControlModifier )
+                        {
+                            sourceStepping->applyNextOtherIdentifier();
+                            keyEvent->accept();
+                        }
+                        else if ( keyEvent->modifiers() & Qt::AltModifier )
+                        {
+                            sourceStepping->applyNextCase();
+                            keyEvent->accept();
+                        }
+                    }
+                    else if ( keyEvent->key() == Qt::Key_Up )
+                    {
+                        if ( keyEvent->modifiers() & Qt::ControlModifier )
+                        {
+                            sourceStepping->applyPrevQuantity();
+                            keyEvent->accept();
+                        }
+                    }
+                    else if ( keyEvent->key() == Qt::Key_Down )
+                    {
+                        if ( keyEvent->modifiers() & Qt::ControlModifier )
+                        {
+                            sourceStepping->applyNextQuantity();
+
+                            keyEvent->accept();
+                        }
+                    }
+
+                    delete sourceStepping;
+                }
+            }
+        }
+        else
+        {
+            done = QApplication::notify( receiver, event );
+        }
     }
     catch ( const std::bad_alloc& )
     {

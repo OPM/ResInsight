@@ -134,6 +134,8 @@ public:
     void              showFormattedTextInMessageBoxOrConsole( const QString& errMsg ) override;
 
 protected:
+    bool notify( QObject* receiver, QEvent* event ) override;
+
     // Protected RiaApplication overrides
     void invokeProcessEvents( QEventLoop::ProcessEventsFlags flags = QEventLoop::AllEvents ) override;
     void onFileSuccessfullyLoaded( const QString& fileName, RiaDefines::ImportFileType fileType ) override;
@@ -160,8 +162,6 @@ private:
     void deleteMainPlotWindow();
 
     void storeTreeViewState();
-
-    bool notify( QObject*, QEvent* ) override;
 
 private slots:
     void slotWorkerProcessFinished( int exitCode, QProcess::ExitStatus exitStatus );

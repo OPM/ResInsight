@@ -2221,61 +2221,62 @@ void RimSummaryPlot::reattachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
-{
-    if ( !keyEvent ) return;
+// void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
+//{
+// if ( !keyEvent ) return;
 
-    if ( RiuTreeViewEventFilter::activateFeatureFromKeyEvent( keyEvent ) )
-    {
-        return;
-    }
+// if ( RiuTreeViewEventFilter::activateFeatureFromKeyEvent( keyEvent ) )
+//{
+//    return;
+//}
 
-    RimSummaryPlotSourceStepping* sourceStepping = sourceSteppingObjectForKeyEventHandling();
-    if ( !sourceStepping ) return;
+// RimSummaryPlotSourceStepping* sourceStepping = sourceSteppingObjectForKeyEventHandling();
+// if ( !sourceStepping ) return;
 
-    if ( keyEvent->key() == Qt::Key_PageUp )
-    {
-        if ( keyEvent->modifiers() & Qt::ShiftModifier )
-        {
-            sourceStepping->applyPrevCase();
+// if ( keyEvent->key() == Qt::Key_Left )
+//{
+//    if ( keyEvent->modifiers() & Qt::ControlModifier )
+//    {
+//        sourceStepping->applyPrevOtherIdentifier();
+//        keyEvent->accept();
+//    }
+//    else if ( keyEvent->modifiers() & Qt::AltModifier )
+//    {
+//        sourceStepping->applyPrevCase();
+//        keyEvent->accept();
+//    }
+//}
+// else if ( keyEvent->key() == Qt::Key_Right )
+//{
+//    if ( keyEvent->modifiers() & Qt::ControlModifier )
+//    {
+//        sourceStepping->applyNextOtherIdentifier();
+//        keyEvent->accept();
+//    }
+//    else if ( keyEvent->modifiers() & Qt::AltModifier )
+//    {
+//        sourceStepping->applyNextCase();
+//        keyEvent->accept();
+//    }
+//}
+// else if ( keyEvent->key() == Qt::Key_Up )
+//{
+//    if ( keyEvent->modifiers() & Qt::ControlModifier )
+//    {
+//        sourceStepping->applyPrevQuantity();
+//        keyEvent->accept();
+//    }
+//}
+// else if ( keyEvent->key() == Qt::Key_Down )
+//{
+//    if ( keyEvent->modifiers() & Qt::ControlModifier )
+//    {
+//        sourceStepping->applyNextQuantity();
 
-            keyEvent->accept();
-        }
-        else if ( keyEvent->modifiers() & Qt::ControlModifier )
-        {
-            sourceStepping->applyPrevOtherIdentifier();
-
-            keyEvent->accept();
-        }
-        else
-        {
-            sourceStepping->applyPrevQuantity();
-
-            keyEvent->accept();
-        }
-    }
-    else if ( keyEvent->key() == Qt::Key_PageDown )
-    {
-        if ( keyEvent->modifiers() & Qt::ShiftModifier )
-        {
-            sourceStepping->applyNextCase();
-
-            keyEvent->accept();
-        }
-        else if ( keyEvent->modifiers() & Qt::ControlModifier )
-        {
-            sourceStepping->applyNextOtherIdentifier();
-
-            keyEvent->accept();
-        }
-        else
-        {
-            sourceStepping->applyNextQuantity();
-
-            keyEvent->accept();
-        }
-    }
-}
+//        keyEvent->accept();
+//    }
+//}
+//}
 
 //--------------------------------------------------------------------------------------------------
 ///

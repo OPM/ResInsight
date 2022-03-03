@@ -205,7 +205,7 @@ private:
 
     void detachAllPlotItems();
 
-    void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
+    // void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
 
     void onCurveCollectionChanged( const SignalEmitter* emitter );
 
