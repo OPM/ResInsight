@@ -80,7 +80,6 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
-#include "RimSummaryPlotSourceStepping.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
