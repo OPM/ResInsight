@@ -77,7 +77,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     : m_activePlotViewWindow( nullptr )
     , m_windowMenu( nullptr )
 {
-    m_mdiArea = new RiuMdiArea;
+    m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
     setCentralWidget( m_mdiArea );
 
@@ -417,13 +417,13 @@ void RiuPlotMainWindow::createToolBars()
         }
     }
 
-    m_wellLogPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Well Log Plot", this );
+    m_wellLogPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Well Log Plot", this );
     m_wellLogPlotToolBarEditor->hide();
 
-    m_summaryPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Summary Plot", this );
+    m_summaryPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Summary Plot", this );
     m_summaryPlotToolBarEditor->hide();
 
-    m_multiPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Multi Plot", this );
+    m_multiPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Multi Plot", this );
     m_multiPlotToolBarEditor->hide();
 
     if ( RiaPreferences::current()->useUndoRedo() )
@@ -516,8 +516,8 @@ void RiuPlotMainWindow::createDockPanels()
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowPropertyEditorName() );
         dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
 
-        m_pdmUiPropertyView = new caf::PdmUiPropertyView( dockWidget );
-        dockWidget->setWidget( m_pdmUiPropertyView );
+        m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
+        dockWidget->setWidget( m_pdmUiPropertyView.get() );
 
         addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
     }
@@ -535,14 +535,14 @@ void RiuPlotMainWindow::createDockPanels()
         QDockWidget* dockWidget = new QDockWidget( "Plot Manager", this );
         dockWidget->setObjectName( RiuDockWidgetTools::summaryPlotManagerName() );
 
-        m_summaryPlotManagerView = new caf::PdmUiPropertyView( dockWidget );
+        m_summaryPlotManagerView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
 
         auto plotManager = std::make_unique<RimSummaryPlotManager>();
         m_summaryPlotManagerView->showProperties( plotManager.get() );
         m_summaryPlotManagerView->installEventFilter( plotManager.get() );
         m_summaryPlotManager = std::move( plotManager );
 
-        dockWidget->setWidget( m_summaryPlotManagerView );
+        dockWidget->setWidget( m_summaryPlotManagerView.get() );
         addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
         dockWidget->hide();
     }
@@ -750,27 +750,27 @@ void RiuPlotMainWindow::setFocusToLineEditInSummaryToolBar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
+RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog( bool createIfNotPresent )
 {
-    if ( m_summaryCurveCreatorDialog.isNull() )
+    if ( !m_summaryCurveCreatorDialog && createIfNotPresent )
     {
-        m_summaryCurveCreatorDialog = new RicSummaryPlotEditorDialog( this );
+        m_summaryCurveCreatorDialog = std::make_unique<RicSummaryPlotEditorDialog>( this );
     }
 
-    return m_summaryCurveCreatorDialog;
+    return m_summaryCurveCreatorDialog.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog()
+RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog( bool createIfNotPresent )
 {
-    if ( m_summaryCurveCalculatorDialog.isNull() )
+    if ( !m_summaryCurveCalculatorDialog && createIfNotPresent )
     {
-        m_summaryCurveCalculatorDialog = new RicSummaryCurveCalculatorDialog( this );
+        m_summaryCurveCalculatorDialog = std::make_unique<RicSummaryCurveCalculatorDialog>( this );
     }
 
-    return m_summaryCurveCalculatorDialog;
+    return m_summaryCurveCalculatorDialog.get();
 }
 
 //--------------------------------------------------------------------------------------------------

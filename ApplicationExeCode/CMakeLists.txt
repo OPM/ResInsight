@@ -68,9 +68,9 @@ endif()
 # Defining all the source (and header) files
 # ##############################################################################
 
-set(CODE_HEADER_FILES)
+set(CODE_HEADER_FILES RiaMainTools.h)
 
-set(CODE_SOURCE_FILES RiaMain.cpp)
+set(CODE_SOURCE_FILES RiaMain.cpp RiaMainTools.cpp)
 
 if(RESINSIGHT_ENABLE_GRPC)
   list(APPEND CODE_HEAD_FILES RiaGrpcConsoleApplication.h

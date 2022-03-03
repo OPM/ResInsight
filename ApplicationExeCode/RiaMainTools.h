@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019- Equinor ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,28 +15,11 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-
 #pragma once
 
-#include <QMdiArea>
-
-#include <list>
-
-class QMdiSubWindow;
-
-class RiuMdiArea : public QMdiArea
+class RiaMainTools
 {
-    Q_OBJECT
-
 public:
-    RiuMdiArea( QWidget* parent = nullptr );
-    ~RiuMdiArea();
-
-    std::list<QMdiSubWindow*> subWindowListSortedByPosition();
-
-protected:
-    void resizeEvent( QResizeEvent* resizeEvent ) override;
-    void moveEvent( QMoveEvent* event ) override;
-
-    bool subWindowsAreTiled() const;
+    static void initializeSingletons();
+    static void releaseSingletonAndFactoryObjects();
 };

@@ -88,8 +88,8 @@ public:
     void updateSummaryPlotToolBar( bool forceUpdateUi = false );
     void setFocusToLineEditInSummaryToolBar();
 
-    RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog();
-    RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog();
+    RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog( bool createIfNotPresent );
+    RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog( bool createIfNotPresent );
 
     RiuMessagePanel* messagePanel();
 
@@ -132,16 +132,16 @@ private:
 
     QMenu* m_windowMenu;
 
-    caf::PdmUiToolBarEditor* m_wellLogPlotToolBarEditor;
-    caf::PdmUiToolBarEditor* m_multiPlotToolBarEditor;
-    caf::PdmUiToolBarEditor* m_summaryPlotToolBarEditor;
+    std::unique_ptr<caf::PdmUiToolBarEditor> m_wellLogPlotToolBarEditor;
+    std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotToolBarEditor;
+    std::unique_ptr<caf::PdmUiToolBarEditor> m_summaryPlotToolBarEditor;
 
-    caf::PdmUiPropertyView* m_pdmUiPropertyView;
-    caf::PdmUiPropertyView* m_summaryPlotManagerView;
+    std::unique_ptr<caf::PdmUiPropertyView> m_pdmUiPropertyView;
+    std::unique_ptr<caf::PdmUiPropertyView> m_summaryPlotManagerView;
 
-    QPointer<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
-    QPointer<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
-    std::unique_ptr<caf::PdmObject>           m_summaryPlotManager;
+    std::unique_ptr<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
+    std::unique_ptr<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
+    std::unique_ptr<caf::PdmObject>                  m_summaryPlotManager;
 
     std::vector<QWidget*> m_temporaryWidgets;
 };

@@ -47,7 +47,8 @@ class RiuMainWindowBase : public QMainWindow
     Q_OBJECT
 
 public:
-    RiuMainWindowBase();
+	RiuMainWindowBase();
+	~RiuMainWindowBase();
 
     virtual QString mainWindowName() = 0;
 

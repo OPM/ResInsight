@@ -123,7 +123,7 @@ void RicNewSummaryPlotFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
+    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog( true );
 
     if ( !dialog->isVisible() )
     {

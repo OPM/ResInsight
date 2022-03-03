@@ -34,6 +34,9 @@ class RiaRegressionTestRunner
 public:
     static RiaRegressionTestRunner* instance();
 
+    static void createSingleton();
+    static void deleteSingleton();
+
     void executeRegressionTests( const QString& regressionTestPath, const QStringList& testFilter );
     void executeRegressionTests();
 
@@ -73,4 +76,6 @@ private:
     bool              m_appendAllTestsAfterLastItemInFilter;
     bool              m_runningRegressionTests;
     RiaRegressionTest m_regressionTestSettings;
+
+    static RiaRegressionTestRunner* sm_singleton;
 };

@@ -34,7 +34,7 @@ class RicEditSummaryPlotFeature : public caf::CmdFeature
 public:
     void closeDialogAndResetTargetPlot();
 
-    static RicSummaryPlotEditorDialog* curveCreatorDialog();
+    static RicSummaryPlotEditorDialog* curveCreatorDialog( bool createIfNotPresent );
     static void                        editSummaryPlot( RimSummaryPlot* plot );
 
 protected:

@@ -30,7 +30,7 @@ class RicShowSummaryCurveCalculatorFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RicSummaryCurveCalculatorDialog* curveCalculatorDialog();
+    static RicSummaryCurveCalculatorDialog* curveCalculatorDialog( bool createIfNotPresent );
     static void                             hideCurveCalculatorDialog();
 
 protected:

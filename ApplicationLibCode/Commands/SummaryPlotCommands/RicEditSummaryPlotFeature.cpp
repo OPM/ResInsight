@@ -50,7 +50,7 @@ RicEditSummaryPlotFeature::RicEditSummaryPlotFeature()
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 {
-    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
+    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog( false );
 
     if ( dialog )
     {
@@ -65,13 +65,13 @@ void RicEditSummaryPlotFeature::closeDialogAndResetTargetPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryPlotEditorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
+RicSummaryPlotEditorDialog* RicEditSummaryPlotFeature::curveCreatorDialog( bool createIfNotPresent )
 {
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
 
     if ( mainPlotWindow )
     {
-        return mainPlotWindow->summaryCurveCreatorDialog();
+        return mainPlotWindow->summaryCurveCreatorDialog( createIfNotPresent );
     }
 
     return nullptr;
@@ -82,7 +82,7 @@ RicSummaryPlotEditorDialog* RicEditSummaryPlotFeature::curveCreatorDialog()
 //--------------------------------------------------------------------------------------------------
 void RicEditSummaryPlotFeature::editSummaryPlot( RimSummaryPlot* plot )
 {
-    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog();
+    auto dialog = RicEditSummaryPlotFeature::curveCreatorDialog( true );
 
     if ( !dialog->isVisible() )
     {

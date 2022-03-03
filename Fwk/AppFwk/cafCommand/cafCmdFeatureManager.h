@@ -63,6 +63,9 @@ public:
     static CmdFeatureManager* instance();
     ~CmdFeatureManager() override;
 
+    static void createSingleton();
+    static void deleteSingleton();
+
     QAction* action( const QString& commandId );
     QAction* action( const QString& commandId, const QString& customActionText );
     QAction* actionWithUserData( const QString& commandId, const QString& customActionText, const QVariant& userData );
@@ -86,7 +89,11 @@ private:
 
     CmdFeature* commandFeature( const std::string& commandId ) const;
 
+    void releaseAllCommandFeatures();
+
 private:
+    static CmdFeatureManager* sm_singleton;
+
     std::vector<CmdFeature*>      m_commandFeatures;
     std::map<std::string, size_t> m_commandIdToFeatureIdxMap;
     std::map<QAction*, size_t>    m_actionToFeatureIdxMap;
