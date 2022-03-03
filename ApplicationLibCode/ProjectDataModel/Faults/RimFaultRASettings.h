@@ -18,6 +18,7 @@
 #pragma once
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -113,6 +114,6 @@ private:
 
     caf::PdmChildArrayField<RimParameterGroup*> m_basicParameters;
     caf::PdmChildArrayField<RimParameterGroup*> m_advancedParameters;
-    caf::PdmPtrField<RimParameterGroup*>        m_basicParametersRI;
-    caf::PdmPtrField<RimParameterGroup*>        m_advancedParametersRI;
+    caf::PdmChildField<RimParameterGroup*>      m_basicParametersRI;
+    caf::PdmChildField<RimParameterGroup*>      m_advancedParametersRI;
 };
