@@ -59,6 +59,9 @@ public:
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
+protected:
+    bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
+
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

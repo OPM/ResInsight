@@ -51,6 +51,7 @@
 #include "RimSummaryCurvesData.h"
 #include "RimSummaryPlotAxisFormatter.h"
 #include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryTimeAxisProperties.h"
@@ -2221,62 +2222,10 @@ void RimSummaryPlot::reattachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-// void RimSummaryPlot::handleKeyPressEvent( QKeyEvent* keyEvent )
-//{
-// if ( !keyEvent ) return;
-
-// if ( RiuTreeViewEventFilter::activateFeatureFromKeyEvent( keyEvent ) )
-//{
-//    return;
-//}
-
-// RimSummaryPlotSourceStepping* sourceStepping = sourceSteppingObjectForKeyEventHandling();
-// if ( !sourceStepping ) return;
-
-// if ( keyEvent->key() == Qt::Key_Left )
-//{
-//    if ( keyEvent->modifiers() & Qt::ControlModifier )
-//    {
-//        sourceStepping->applyPrevOtherIdentifier();
-//        keyEvent->accept();
-//    }
-//    else if ( keyEvent->modifiers() & Qt::AltModifier )
-//    {
-//        sourceStepping->applyPrevCase();
-//        keyEvent->accept();
-//    }
-//}
-// else if ( keyEvent->key() == Qt::Key_Right )
-//{
-//    if ( keyEvent->modifiers() & Qt::ControlModifier )
-//    {
-//        sourceStepping->applyNextOtherIdentifier();
-//        keyEvent->accept();
-//    }
-//    else if ( keyEvent->modifiers() & Qt::AltModifier )
-//    {
-//        sourceStepping->applyNextCase();
-//        keyEvent->accept();
-//    }
-//}
-// else if ( keyEvent->key() == Qt::Key_Up )
-//{
-//    if ( keyEvent->modifiers() & Qt::ControlModifier )
-//    {
-//        sourceStepping->applyPrevQuantity();
-//        keyEvent->accept();
-//    }
-//}
-// else if ( keyEvent->key() == Qt::Key_Down )
-//{
-//    if ( keyEvent->modifiers() & Qt::ControlModifier )
-//    {
-//        sourceStepping->applyNextQuantity();
-
-//        keyEvent->accept();
-//    }
-//}
-//}
+bool RimSummaryPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
+{
+    return RimSummaryPlotControls::handleKeyEvents( sourceSteppingObjectForKeyEventHandling(), keyEvent );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///

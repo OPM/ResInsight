@@ -1710,80 +1710,24 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
                              "unstable and will probably crash soon." );
     }
 
-    bool done = true;
+    bool done = false;
     try
     {
         if ( event->type() == QEvent::KeyPress )
         {
             QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
 
-            RimViewWindow* plot = activePlotWindow();
-            if ( plot && !keyEvent->isAutoRepeat() )
-            {
-                RimSummaryDataSourceStepping* stepping = dynamic_cast<RimSummaryDataSourceStepping*>( plot );
-                if ( stepping )
-                {
-                    qDebug() << keyEvent->text();
-
-                    RimSummaryPlotSourceStepping* sourceStepping = new RimSummaryPlotSourceStepping();
-                    sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
-                    sourceStepping->setSourceSteppingObject( plot );
-
-                    if ( keyEvent->key() == Qt::Key_Left )
-                    {
-                        if ( keyEvent->modifiers() & Qt::ControlModifier )
-                        {
-                            sourceStepping->applyPrevOtherIdentifier();
-                            keyEvent->accept();
-                        }
-                        else if ( keyEvent->modifiers() & Qt::AltModifier )
-                        {
-                            sourceStepping->applyPrevCase();
-                            keyEvent->accept();
-                        }
-                    }
-                    else if ( keyEvent->key() == Qt::Key_Right )
-                    {
-                        if ( keyEvent->modifiers() & Qt::ControlModifier )
-                        {
-                            sourceStepping->applyNextOtherIdentifier();
-                            keyEvent->accept();
-                        }
-                        else if ( keyEvent->modifiers() & Qt::AltModifier )
-                        {
-                            sourceStepping->applyNextCase();
-                            keyEvent->accept();
-                        }
-                    }
-                    else if ( keyEvent->key() == Qt::Key_Up )
-                    {
-                        if ( keyEvent->modifiers() & Qt::ControlModifier )
-                        {
-                            sourceStepping->applyPrevQuantity();
-                            keyEvent->accept();
-                        }
-                    }
-                    else if ( keyEvent->key() == Qt::Key_Down )
-                    {
-                        if ( keyEvent->modifiers() & Qt::ControlModifier )
-                        {
-                            sourceStepping->applyNextQuantity();
-
-                            keyEvent->accept();
-                        }
-                    }
-
-                    delete sourceStepping;
-                }
-            }
+            RimPlotWindow* plot = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
+            if ( plot ) done = plot->handleGlobalKeyEvent( keyEvent );
         }
-        else
+        if ( !done )
         {
             done = QApplication::notify( receiver, event );
         }
     }
     catch ( const std::bad_alloc& )
     {
+        done = true;
         if ( memoryExhaustedBox ) memoryExhaustedBox->exec();
         std::cout << "ResInsight: Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now "
                      "unstable "

@@ -336,3 +336,11 @@ void RimPlotWindow::assignIdIfNecessary()
         RimProject::current()->assignPlotIdToPlotWindow( this );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::handleGlobalKeyEvent( QKeyEvent* keyEvent )
+{
+    return false;
+}

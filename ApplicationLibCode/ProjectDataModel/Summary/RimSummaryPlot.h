@@ -205,8 +205,6 @@ private:
 
     void detachAllPlotItems();
 
-    // void handleKeyPressEvent( QKeyEvent* keyEvent ) override;
-
     void onCurveCollectionChanged( const SignalEmitter* emitter );
 
     void connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis );
@@ -225,6 +223,8 @@ protected:
     void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
     QImage snapshotWindowContent() override;
+
+    bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
 
 private slots:
     void onPlotZoomed();

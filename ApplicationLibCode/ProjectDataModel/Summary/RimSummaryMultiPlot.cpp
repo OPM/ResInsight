@@ -29,6 +29,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryPlotControls.h"
 
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
@@ -368,4 +369,12 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
     }
 
     return toolBarFields;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
+{
+    return RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent );
 }
