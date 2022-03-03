@@ -60,6 +60,7 @@ class PdmUiTreeViewQModel : public QAbstractItemModel
 
 public:
     explicit PdmUiTreeViewQModel( PdmUiTreeViewEditor* treeViewEditor );
+    virtual ~PdmUiTreeViewQModel();
 
     void setPdmItemRoot( PdmUiItem* rootItem );
     void updateSubTree( PdmUiItem* subTreeRoot );

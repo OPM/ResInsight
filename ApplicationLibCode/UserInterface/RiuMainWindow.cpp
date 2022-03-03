@@ -119,7 +119,7 @@ RiuMainWindow::RiuMainWindow()
     , m_windowMenu( nullptr )
     , m_holoLensToolBar( nullptr )
 {
-    m_mdiArea = new RiuMdiArea;
+    m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
     setCentralWidget( m_mdiArea );
 

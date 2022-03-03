@@ -58,46 +58,28 @@ class PdmDefaultObjectFactory : public PdmObjectFactory
 public:
     static PdmDefaultObjectFactory* instance();
 
+    static void createSingleton();
+    static void deleteSingleton();
+
     PdmObjectHandle* create( const QString& classNameKeyword ) override;
 
     template <typename PdmObjectBaseDerivative>
-    bool registerCreator()
-    {
-        std::vector<QString> classNameKeywords = PdmObjectBaseDerivative::classKeywordAliases();
-
-        for ( QString classNameKeyword : classNameKeywords )
-        {
-            auto entryIt = m_factoryMap.find( classNameKeyword );
-            if ( entryIt != m_factoryMap.end() )
-            {
-                CAF_ASSERT( classNameKeyword != entryIt->first ); // classNameKeyword has already been used
-                CAF_ASSERT( false ); // To be sure ..
-                return false; // never hit;
-            }
-        }
-        auto object = new PdmObjectCreator<PdmObjectBaseDerivative>();
-        for ( QString classNameKeyword : classNameKeywords )
-        {
-            m_factoryMap[classNameKeyword] = object;
-        }
-        return true;
-    }
+    bool registerCreator();
 
     std::vector<QString> classKeywords() const override;
 
 private:
-    PdmDefaultObjectFactory() {}
-    ~PdmDefaultObjectFactory() override
-    { /* Could clean up, but ... */
-    }
+    ~PdmDefaultObjectFactory() override;
+
+    static PdmDefaultObjectFactory* sm_singleton;
 
     // Internal helper classes
 
     class PdmObjectCreatorBase
     {
     public:
-        PdmObjectCreatorBase() {}
-        virtual ~PdmObjectCreatorBase() {}
+        PdmObjectCreatorBase()            = default;
+        virtual ~PdmObjectCreatorBase()   = default;
         virtual PdmObjectHandle* create() = 0;
     };
 
@@ -111,5 +93,31 @@ private:
     // Map to store factory
     std::map<QString, PdmObjectCreatorBase*> m_factoryMap;
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename PdmObjectBaseDerivative>
+bool caf::PdmDefaultObjectFactory::registerCreator()
+{
+    std::vector<QString> classNameKeywords = PdmObjectBaseDerivative::classKeywordAliases();
+
+    for ( const QString& classNameKeyword : classNameKeywords )
+    {
+        auto entryIt = m_factoryMap.find( classNameKeyword );
+        if ( entryIt != m_factoryMap.end() )
+        {
+            CAF_ASSERT( classNameKeyword != entryIt->first ); // classNameKeyword has already been used
+            CAF_ASSERT( false ); // To be sure ..
+            return false; // never hit;
+        }
+    }
+    auto object = new PdmObjectCreator<PdmObjectBaseDerivative>();
+    for ( const QString& classNameKeyword : classNameKeywords )
+    {
+        m_factoryMap[classNameKeyword] = object;
+    }
+    return true;
+}
 
 } // End of namespace caf

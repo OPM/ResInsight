@@ -74,6 +74,7 @@ private:
     std::unique_ptr<grpc::Server>                       m_server;
     std::list<std::shared_ptr<RiaGrpcServiceInterface>> m_services;
     std::list<RiaGrpcCallbackInterface*>                m_unprocessedRequests;
+    std::list<RiaGrpcCallbackInterface*>                m_allocatedCallbakcs;
     std::mutex                                          m_requestMutex;
     std::thread                                         m_thread;
 };
@@ -217,6 +218,12 @@ void RiaGrpcServerImpl::quit()
         m_server.reset();
         m_completionQueue.reset();
 
+        for ( auto c : m_allocatedCallbakcs )
+        {
+            delete c;
+        }
+        m_allocatedCallbakcs.clear();
+
         // Finally clear services
         m_services.clear();
     }
@@ -253,6 +260,8 @@ void RiaGrpcServerImpl::process( RiaGrpcCallbackInterface* method )
     if ( method->callState() == RiaGrpcCallbackInterface::CREATE_HANDLER )
     {
         method->createRequestHandler( m_completionQueue.get() );
+
+        m_allocatedCallbakcs.push_back( method );
     }
     else if ( method->callState() == RiaGrpcCallbackInterface::INIT_REQUEST_STARTED )
     {
@@ -269,7 +278,11 @@ void RiaGrpcServerImpl::process( RiaGrpcCallbackInterface* method )
     else
     {
         method->onFinishRequest();
+
         process( method->createNewFromThis() );
+
+        m_allocatedCallbakcs.remove( method );
+
         delete method;
     }
 }

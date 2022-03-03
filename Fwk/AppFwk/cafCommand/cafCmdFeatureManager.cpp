@@ -46,6 +46,9 @@
 namespace caf
 {
 typedef Factory<CmdFeature, std::string> CommandFeatureFactory;
+
+CmdFeatureManager* CmdFeatureManager::sm_singleton = nullptr;
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -67,6 +70,18 @@ CmdFeatureManager::CmdFeatureManager()
 //--------------------------------------------------------------------------------------------------
 CmdFeatureManager::~CmdFeatureManager()
 {
+    releaseAllCommandFeatures();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CmdFeatureManager::createSingleton()
+{
+    if ( !sm_singleton )
+    {
+        sm_singleton = new CmdFeatureManager;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -74,8 +89,8 @@ CmdFeatureManager::~CmdFeatureManager()
 //--------------------------------------------------------------------------------------------------
 CmdFeatureManager* CmdFeatureManager::instance()
 {
-    static CmdFeatureManager* singleton = new CmdFeatureManager;
-    return singleton;
+    CAF_ASSERT( sm_singleton );
+    return sm_singleton;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -343,6 +358,27 @@ void CmdFeatureManager::setCurrentContextMenuTargetWidget( QWidget* targetWidget
 QWidget* CmdFeatureManager::currentContextMenuTargetWidget()
 {
     return m_currentContextMenuTargetWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CmdFeatureManager::releaseAllCommandFeatures()
+{
+    for ( auto c : m_commandFeatures )
+    {
+        if ( c ) delete c;
+        c = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CmdFeatureManager::deleteSingleton()
+{
+    if ( sm_singleton ) delete sm_singleton;
+    sm_singleton = nullptr;
 }
 
 } // end namespace caf

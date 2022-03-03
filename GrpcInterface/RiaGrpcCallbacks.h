@@ -85,6 +85,7 @@ class RiaGrpcServiceCallback : public RiaGrpcCallbackInterface
 {
 public:
     RiaGrpcServiceCallback( ServiceT* service );
+    ~RiaGrpcServiceCallback();
 
     QString         name() const override;
     const RequestT& request() const;
@@ -98,6 +99,14 @@ protected:
     RequestT  m_request;
     ReplyT    m_reply;
 };
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename ServiceT, typename RequestT, typename ReplyT>
+RiaGrpcServiceCallback<ServiceT, RequestT, ReplyT>::~RiaGrpcServiceCallback()
+{
+}
 
 //==================================================================================================
 //

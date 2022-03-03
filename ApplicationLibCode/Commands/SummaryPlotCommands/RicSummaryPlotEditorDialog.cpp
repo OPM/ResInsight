@@ -55,6 +55,7 @@ RicSummaryPlotEditorDialog::RicSummaryPlotEditorDialog( QWidget* parent )
 RicSummaryPlotEditorDialog::~RicSummaryPlotEditorDialog()
 {
     m_curveCreatorSplitterUi->setPdmObject( nullptr );
+    delete m_curveCreatorSplitterUi;
 }
 
 //--------------------------------------------------------------------------------------------------
