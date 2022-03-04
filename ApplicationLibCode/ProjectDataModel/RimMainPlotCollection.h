@@ -33,6 +33,7 @@ class RimRftPlotCollection;
 class RimPltPlotCollection;
 class RimGridCrossPlotCollection;
 class RimMultiPlotCollection;
+class RimSummaryMultiPlotCollection;
 class RimSummaryPlotCollection;
 class RimSummaryCrossPlotCollection;
 class RimSummaryPlot;
@@ -65,6 +66,7 @@ public:
     RimRftPlotCollection*                rftPlotCollection() const;
     RimPltPlotCollection*                pltPlotCollection() const;
     RimSummaryPlotCollection*            summaryPlotCollection() const;
+    RimSummaryMultiPlotCollection*       summaryMultiPlotCollection() const;
     RimSummaryCrossPlotCollection*       summaryCrossPlotCollection() const;
     RimAnalysisPlotCollection*           analysisPlotCollection() const;
     RimCorrelationPlotCollection*        correlationPlotCollection() const;
@@ -105,6 +107,7 @@ private:
     caf::PdmChildField<RimRftPlotCollection*>                m_rftPlotCollection;
     caf::PdmChildField<RimPltPlotCollection*>                m_pltPlotCollection;
     caf::PdmChildField<RimSummaryPlotCollection*>            m_summaryPlotCollection;
+    caf::PdmChildField<RimSummaryMultiPlotCollection*>       m_summaryMultiPlotCollection;
     caf::PdmChildField<RimSummaryCrossPlotCollection*>       m_summaryCrossPlotCollection;
     caf::PdmChildField<RimAnalysisPlotCollection*>           m_analysisPlotCollection;
     caf::PdmChildField<RimCorrelationPlotCollection*>        m_correlationPlotCollection;

@@ -255,7 +255,16 @@ void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool 
     m_allowActiveViewChangeFromSelection = allowActiveViewChange;
 
     auto tv = getTreeViewWithItem( object );
-    if ( tv ) tv->selectAsCurrentItem( object );
+    if ( tv )
+    {
+        tv->selectAsCurrentItem( object );
+        QDockWidget* dw = dynamic_cast<QDockWidget*>( tv->parentWidget() );
+        if ( dw )
+        {
+            dw->show();
+            dw->raise();
+        }
+    }
 
     m_allowActiveViewChangeFromSelection = true;
 }

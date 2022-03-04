@@ -1,6 +1,6 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019- Equinor ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -15,71 +15,109 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
-#include "RimMultiPlotCollection.h"
 
-#include "RimMultiPlot.h"
-#include "RimProject.h"
+#include "RimSummaryPlotControls.h"
 
-#include "cafPdmFieldReorderCapability.h"
+#include "RimSummaryPlotSourceStepping.h"
 
-CAF_PDM_SOURCE_INIT( RimMultiPlotCollection, "RimMultiPlotCollection" );
+#include <QKeyEvent>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotCollection::RimMultiPlotCollection()
+bool RimSummaryPlotControls::handleKeyEvents( RimSummaryPlotSourceStepping* srcStepping, QKeyEvent* keyEvent )
 {
-    CAF_PDM_InitObject( "Multi Plots", ":/MultiPlot16x16.png" );
+    if ( !keyEvent ) return false;
+    if ( !srcStepping ) return false;
 
-    CAF_PDM_InitFieldNoDefault( &m_multiPlots, "MultiPlots", "Plots Reports" );
-    m_multiPlots.uiCapability()->setUiTreeHidden( true );
-    caf::PdmFieldReorderCapability::addToField( &m_multiPlots );
+    if ( !( keyEvent->modifiers() & Qt::ControlModifier ) ) return false;
+
+    bool bHandled = false;
+
+    if ( keyEvent->key() == Qt::Key_Left )
+    {
+        srcStepping->applyPrevOtherIdentifier();
+        keyEvent->accept();
+        bHandled = true;
+    }
+    else if ( keyEvent->key() == Qt::Key_Right )
+    {
+        srcStepping->applyNextOtherIdentifier();
+        keyEvent->accept();
+        bHandled = true;
+    }
+    else if ( keyEvent->key() == Qt::Key_PageDown )
+    {
+        srcStepping->applyNextCase();
+        keyEvent->accept();
+        bHandled = true;
+    }
+    else if ( keyEvent->key() == Qt::Key_PageUp )
+    {
+        srcStepping->applyPrevCase();
+        keyEvent->accept();
+        bHandled = true;
+    }
+    else if ( keyEvent->key() == Qt::Key_Up )
+    {
+        srcStepping->applyPrevQuantity();
+        keyEvent->accept();
+        bHandled = true;
+    }
+    else if ( keyEvent->key() == Qt::Key_Down )
+    {
+        srcStepping->applyNextQuantity();
+        keyEvent->accept();
+        bHandled = true;
+    }
+
+    return bHandled;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimMultiPlotCollection::~RimMultiPlotCollection()
+QString RimSummaryPlotControls::quantityNextKeyText()
 {
+    return QString( "Ctrl-Down" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotCollection::deleteAllPlots()
+QString RimSummaryPlotControls::quantityPrevKeyText()
 {
-    m_multiPlots.deleteAllChildObjects();
+    return QString( "Ctrl-Up" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimMultiPlot*> RimMultiPlotCollection::multiPlots() const
+QString RimSummaryPlotControls::caseNextKeyText()
 {
-    return m_multiPlots.childObjects();
+    return QString( "Ctrl-PgDown" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotCollection::addMultiPlot( RimMultiPlot* plot )
+QString RimSummaryPlotControls::casePrevKeyText()
 {
-    m_multiPlots().push_back( plot );
+    return QString( "Ctrl-PgUp" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlotCollection::loadDataAndUpdateAllPlots()
+QString RimSummaryPlotControls::otherNextKeyText()
 {
-    for ( const auto& p : m_multiPlots.childObjects() )
-        p->loadDataAndUpdate();
+    return QString( "Ctrl-Right" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimMultiPlotCollection::plotCount() const
+QString RimSummaryPlotControls::otherPrevKeyText()
 {
-    return m_multiPlots.size();
+    return QString( "Ctrl-Left" );
 }

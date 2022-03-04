@@ -35,6 +35,7 @@
 #include "RimSummaryDataSourceStepping.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotControls.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -976,25 +977,29 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
         myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
         myAttr->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
 
-        QString modifierText;
+        QString nextText;
+        QString prevText;
 
         if ( field == &m_summaryCase )
         {
-            modifierText = ( "(Shift+" );
+            nextText = RimSummaryPlotControls::caseNextKeyText();
+            prevText = RimSummaryPlotControls::casePrevKeyText();
         }
         else if ( field == &m_wellName || field == &m_wellGroupName || field == &m_region )
         {
-            modifierText = ( "(Ctrl+" );
+            nextText = RimSummaryPlotControls::otherNextKeyText();
+            prevText = RimSummaryPlotControls::otherPrevKeyText();
         }
         else if ( field == &m_quantity )
         {
-            modifierText = ( "(" );
+            nextText = RimSummaryPlotControls::quantityNextKeyText();
+            prevText = RimSummaryPlotControls::quantityPrevKeyText();
         }
 
-        if ( !modifierText.isEmpty() )
+        if ( !nextText.isEmpty() )
         {
-            myAttr->nextButtonText = "Next " + modifierText + "PgDown)";
-            myAttr->prevButtonText = "Previous " + modifierText + "PgUp)";
+            myAttr->nextButtonText = "Next (" + nextText + ")";
+            myAttr->prevButtonText = "Previous (" + prevText + ")";
         }
     }
 

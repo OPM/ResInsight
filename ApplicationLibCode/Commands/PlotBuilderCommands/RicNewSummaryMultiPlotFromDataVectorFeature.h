@@ -21,31 +21,17 @@
 #include "RicfCommandObject.h"
 
 #include "cafCmdFeature.h"
-#include "cafPdmField.h"
-
-#include <vector>
-
-class RimSummaryPlot;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewSummaryMultiPlotFeature : public caf::CmdFeature, public RicfCommandObject
+class RicNewSummaryMultiPlotFromDataVectorFeature : public caf::CmdFeature
 {
-    RICF_HEADER_INIT;
-
-public:
-    RicNewSummaryMultiPlotFeature();
-
-    caf::PdmScriptResponse execute() override;
+    CAF_CMD_HEADER_INIT;
 
 protected:
+    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    static std::vector<RimSummaryPlot*> selectedPlots();
-
-    caf::PdmField<std::vector<uint64_t>> m_plots;
 };

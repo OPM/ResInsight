@@ -18,14 +18,15 @@
 
 #pragma once
 
-#include "RimPlotWindow.h"
+#include "RimMultiPlot.h"
 #include "RimSummaryDataSourceStepping.h"
 
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
-class RimMultiPlot;
+#include <vector>
+
 class RimSummaryPlot;
 class RimSummaryPlotSourceStepping;
 class RimSummaryPlotNameHelper;
@@ -35,7 +36,7 @@ class RimSummaryNameHelper;
 ///
 ///
 //==================================================================================================
-class RimSummaryMultiPlot : public RimPlotWindow, public RimSummaryDataSourceStepping
+class RimSummaryMultiPlot : public RimMultiPlot, public RimSummaryDataSourceStepping
 {
     CAF_PDM_HEADER_INIT;
 
@@ -43,60 +44,38 @@ public:
     RimSummaryMultiPlot();
     ~RimSummaryMultiPlot() override;
 
-    QWidget* viewWidget() override;
-    QImage   snapshotWindowContent() override;
-    void     zoomAll() override;
-    QString  description() const override;
-
-    void addPlot( RimSummaryPlot* plot );
-
-    void                        updatePlotTitles();
     const RimSummaryNameHelper* nameHelper() const;
 
     void setAutoTitlePlot( bool enable );
     void setAutoTitleGraphs( bool enable );
-
-    static RimSummaryMultiPlot* createAndAppendMultiPlot( const std::vector<RimSummaryPlot*>& plots );
 
     std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
     std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
     std::vector<RimEnsembleCurveSet*> curveSets() const override;
     std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
+    void addPlot( RimPlot* plot ) override;
+    void insertPlot( RimPlot* plot, size_t index ) override;
+
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+
+protected:
+    bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
+
 private:
-    QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) override;
-    void     deleteViewWidget() override;
-    void     onLoadDataAndUpdate() override;
-
-    void doRenderWindowContent( QPaintDevice* paintDevice ) override;
-
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
-
-    void updatePlots();
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
 
     static void insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs );
 
-private:
-    caf::PdmField<QString> m_filterText;
-    caf::PdmField<bool>    m_individualPlotPerVector;
-    caf::PdmField<bool>    m_individualPlotPerDataSource;
-    caf::PdmField<bool>    m_individualPlotPerObject;
-    caf::PdmField<bool>    m_autoPlotTitles;
-    caf::PdmField<bool>    m_autoPlotTitlesOnSubPlots;
+    void updatePlotWindowTitle() override;
 
-    caf::PdmField<bool>               m_showMultiPlotInProjectTree;
-    caf::PdmChildField<RimMultiPlot*> m_multiPlot;
+private:
+    caf::PdmField<bool> m_autoPlotTitles;
+    caf::PdmField<bool> m_autoPlotTitlesOnSubPlots;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 

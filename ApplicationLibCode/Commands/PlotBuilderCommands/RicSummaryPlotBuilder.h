@@ -26,6 +26,7 @@ class RimSummaryCaseCollection;
 class RimSummaryPlot;
 class RimEnsembleCurveSet;
 class RimSummaryCurve;
+class RimSummaryMultiPlot;
 
 namespace caf
 {
@@ -67,9 +68,14 @@ public:
     static RimEnsembleCurveSet* createCurveSet( RimSummaryCaseCollection* ensemble, const RifEclipseSummaryAddress& addr );
     static RimSummaryCurve*     createCurve( RimSummaryCase* summaryCase, const RifEclipseSummaryAddress& addr );
 
-    static std::vector<RimPlot*> duplicatePlots( const std::vector<RimPlot*>& plots );
-    static RimMultiPlot*         createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
-    static void                  appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots );
+    static std::vector<RimPlot*>        duplicatePlots( const std::vector<RimPlot*>& plots );
+    static std::vector<RimSummaryPlot*> duplicateSummaryPlots( const std::vector<RimSummaryPlot*>& plots );
+
+    static RimMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
+    static void          appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots );
+
+    static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots );
+    static void appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots );
 
     static RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>&     addresses,
                                        const std::vector<RimSummaryCase*>&           summaryCases,

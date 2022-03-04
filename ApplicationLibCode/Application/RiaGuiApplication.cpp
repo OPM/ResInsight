@@ -125,6 +125,7 @@
 #include <QDir>
 #include <QErrorMessage>
 #include <QGridLayout>
+#include <QKeyEvent>
 #include <QMdiSubWindow>
 #include <QMessageBox>
 #include <QProcessEnvironment>
@@ -1681,13 +1682,24 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
                              "unstable and will probably crash soon." );
     }
 
-    bool done = true;
+    bool done = false;
     try
     {
-        done = QApplication::notify( receiver, event );
+        if ( event->type() == QEvent::KeyPress )
+        {
+            QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
+
+            RimPlotWindow* plot = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
+            if ( plot ) done = plot->handleGlobalKeyEvent( keyEvent );
+        }
+        if ( !done )
+        {
+            done = QApplication::notify( receiver, event );
+        }
     }
     catch ( const std::bad_alloc& )
     {
+        done = true;
         if ( memoryExhaustedBox ) memoryExhaustedBox->exec();
         std::cout << "ResInsight: Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now "
                      "unstable "

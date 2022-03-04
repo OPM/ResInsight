@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSummaryPlotFromDataVectorFeature.h"
+#include "RicNewSummaryMultiPlotFromDataVectorFeature.h"
 
 #include "RiaSummaryTools.h"
 #include "RimSummaryAddress.h"
@@ -27,19 +27,17 @@
 
 #include "RifEclipseSummaryAddress.h"
 
-#include "RiuPlotMainWindowTools.h"
-
 #include "cafSelectionManagerTools.h"
 #include "cvfAssert.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewSummaryPlotFromDataVectorFeature, "RicNewSummaryPlotFromDataVectorFeature" );
+CAF_CMD_SOURCE_INIT( RicNewSummaryMultiPlotFromDataVectorFeature, "RicNewSummaryMultiPlotFromDataVectorFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled()
+bool RicNewSummaryMultiPlotFromDataVectorFeature::isCommandEnabled()
 {
     std::vector<caf::PdmUiItem*> selectedItems;
     caf::SelectionManager::instance()->selectedItems( selectedItems );
@@ -66,7 +64,7 @@ bool RicNewSummaryPlotFromDataVectorFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFromDataVectorFeature::onActionTriggered( bool isChecked )
+void RicNewSummaryMultiPlotFromDataVectorFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSummaryAddress*>        selectedAddressItems = caf::selectedObjectsByType<RimSummaryAddress*>();
     std::set<int>                          caseIds;
@@ -102,23 +100,16 @@ void RicNewSummaryPlotFromDataVectorFeature::onActionTriggered( bool isChecked )
 
     auto newPlot = RicSummaryPlotBuilder::createPlot( eclipseAddresses, selectedCases, selectedEnsembles );
 
-    auto plotCollection = RiaSummaryTools::summaryPlotCollection();
-    newPlot->setAsPlotMdiWindow();
+    std::vector<RimSummaryPlot*> plots{ newPlot };
 
-    plotCollection->addPlot( newPlot );
-
-    newPlot->loadDataAndUpdate();
-
-    plotCollection->updateConnectedEditors();
-
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot, true );
+    RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( plots );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFromDataVectorFeature::setupActionLook( QAction* actionToSetup )
+void RicNewSummaryMultiPlotFromDataVectorFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Summary Plot" );
+    actionToSetup->setText( "New Multi Summary Plot" );
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
 }

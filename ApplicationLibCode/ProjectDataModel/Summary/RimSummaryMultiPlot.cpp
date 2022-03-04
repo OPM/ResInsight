@@ -29,6 +29,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryPlotControls.h"
 
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
@@ -51,20 +52,8 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitObject( "Multi Summary Plot" );
     this->setDeletable( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterText, "FilterText", "Filter Text" );
-    m_filterText.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-
-    CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
-    CAF_PDM_InitField( &m_individualPlotPerObject, "IndividualPlotPerObject", false, "One plot per Object" );
-    CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
-    CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", false, "Auto Plot Titles" );
-    CAF_PDM_InitField( &m_autoPlotTitlesOnSubPlots, "AutoPlotTitlesSubPlots", false, "Auto Plot Titles Sub Plots" );
-
-    CAF_PDM_InitField( &m_showMultiPlotInProjectTree, "ShowMultiPlotInProjectTree", true, "Show Multi Plot In Project Tree" );
-
-    CAF_PDM_InitFieldNoDefault( &m_multiPlot, "MultiPlot", "Multi Plot" );
-    m_multiPlot.uiCapability()->setUiTreeHidden( true );
-    m_multiPlot = new RimMultiPlot;
+    CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", true, "Auto Plot Titles" );
+    CAF_PDM_InitField( &m_autoPlotTitlesOnSubPlots, "AutoPlotTitlesSubPlots", true, "Auto Plot Titles Sub Plots" );
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
     m_sourceStepping = new RimSummaryPlotSourceStepping;
@@ -82,67 +71,26 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::~RimSummaryMultiPlot()
 {
-    removeMdiWindowFromMdiArea();
-    m_multiPlot->cleanupBeforeClose();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimSummaryMultiPlot::viewWidget()
+void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 {
-    return m_multiPlot->viewWidget();
+    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    CVF_ASSERT( sumPlot != nullptr );
+    if ( sumPlot ) RimMultiPlot::addPlot( plot );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QImage RimSummaryMultiPlot::snapshotWindowContent()
+void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
-    return m_multiPlot->snapshotWindowContent();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::zoomAll()
-{
-    m_multiPlot->zoomAll();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryMultiPlot::description() const
-{
-    return "RimSummaryMultiPlot Placeholder Text";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::addPlot( RimSummaryPlot* plot )
-{
-    m_multiPlot->addPlot( plot );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryMultiPlot* RimSummaryMultiPlot::createAndAppendMultiPlot( const std::vector<RimSummaryPlot*>& plots )
-{
-    RimProject* project        = RimProject::current();
-    auto*       plotCollection = project->mainPlotCollection()->multiPlotCollection();
-
-    auto* plotWindow = new RimSummaryMultiPlot;
-    plotWindow->setAsPlotMdiWindow();
-    plotCollection->addMultiSummaryPlot( plotWindow );
-
-    insertGraphsIntoPlot( plotWindow, plots );
-
-    plotCollection->updateAllRequiredEditors();
-
-    return plotWindow;
+    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    CVF_ASSERT( sumPlot != nullptr );
+    if ( sumPlot ) RimMultiPlot::insertPlot( plot, index );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,80 +186,29 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr*/ )
-{
-    return m_multiPlot->createViewWidget( mainWindowParent );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::deleteViewWidget()
-{
-    m_multiPlot->deleteViewWidget();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::onLoadDataAndUpdate()
-{
-    updateMdiWindowVisibility();
-
-    if ( m_autoPlotTitles )
-    {
-        updatePlotTitles();
-    }
-
-    m_multiPlot->onLoadDataAndUpdate();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::doRenderWindowContent( QPaintDevice* paintDevice )
-{
-    m_multiPlot->doRenderWindowContent( paintDevice );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSummaryMultiPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                          bool*                      useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &m_autoPlotTitles );
-    uiOrdering.add( &m_autoPlotTitlesOnSubPlots );
+    caf::PdmUiGroup* titlesGroup = uiOrdering.addNewGroup( "Titles" );
+    titlesGroup->add( &m_autoPlotTitles );
+    titlesGroup->add( &m_autoPlotTitlesOnSubPlots );
 
-    {
-        auto group = uiOrdering.addNewGroup( "Data Source" );
-        m_sourceStepping()->uiOrdering( uiConfigName, *group );
-    }
+    titlesGroup->add( &m_showPlotWindowTitle );
+    titlesGroup->add( &m_plotWindowTitle );
+    titlesGroup->add( &m_showIndividualPlotTitles );
+    titlesGroup->add( &m_titleFontSize );
+    titlesGroup->add( &m_subTitleFontSize );
 
-    auto group = uiOrdering.addNewGroup( "Multi Plot Options" );
-    m_multiPlot->uiOrderingForSummaryMultiPlot( *group );
+    caf::PdmUiGroup* legendsGroup = uiOrdering.addNewGroup( "Legends" );
+    legendsGroup->add( &m_showPlotLegends );
+    legendsGroup->add( &m_plotLegendsHorizontal );
+    legendsGroup->add( &m_legendFontSize );
 
-    {
-        auto group = uiOrdering.addNewGroup( "Graph Building" );
-        group->setCollapsedByDefault( true );
+    caf::PdmUiGroup* layoutGroup = uiOrdering.addNewGroup( "Layout" );
+    layoutGroup->add( &m_columnCount );
+    layoutGroup->add( &m_rowsPerPage );
+    layoutGroup->add( &m_majorTickmarkCount );
 
-        group->add( &m_filterText );
-        group->add( &m_individualPlotPerVector );
-        group->add( &m_individualPlotPerDataSource );
-        group->add( &m_individualPlotPerObject );
-    }
-    uiOrdering.add( &m_showMultiPlotInProjectTree );
-
-    uiOrdering.skipRemainingFields();
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,110 +218,29 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
 {
-    RimPlotWindow::fieldChangedByUi( changedField, oldValue, newValue );
-
-    if ( changedField == &m_showWindow && m_showWindow() )
-    {
-        // Plots contained in a RimMultiPlot will automatically be set invisible
-        // Restore plot visibility
-
-        for ( auto p : m_multiPlot->plots() )
-        {
-            p->setShowWindow( true );
-        }
-    }
-    else if ( changedField == &m_filterText || changedField == &m_individualPlotPerDataSource ||
-              changedField == &m_individualPlotPerVector || changedField == &m_individualPlotPerObject )
-    {
-        updatePlots();
-    }
-    else if ( changedField == &m_autoPlotTitles || changedField == &m_autoPlotTitlesOnSubPlots )
+    if ( changedField == &m_autoPlotTitles || changedField == &m_autoPlotTitlesOnSubPlots )
     {
         onLoadDataAndUpdate();
         updateLayout();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
-{
-    if ( field == &m_filterText )
+    else
     {
-        auto attr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
-        if ( attr )
-        {
-            attr->enableEditableContent  = true;
-            attr->enableAutoComplete     = false;
-            attr->adjustWidthToContents  = true;
-            attr->notifyWhenTextIsEdited = true;
-        }
+        RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
+void RimSummaryMultiPlot::updatePlotWindowTitle()
 {
-    uiTreeOrdering.skipRemainingChildren( !m_showMultiPlotInProjectTree );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::updatePlots()
-{
-    auto [addressFilters, dataSourceFilters] =
-        RiaSummaryStringTools::splitIntoAddressAndDataSourceFilters( m_filterText() );
-
-    auto [matchingSummaryCases, matchingEnsembles] = RiaSummaryStringTools::dataSourcesMatchingFilters( dataSourceFilters );
-
-    std::set<RifEclipseSummaryAddress> allAddresses;
-    if ( !matchingSummaryCases.empty() )
+    if ( m_autoPlotTitles )
     {
-        allAddresses = RicSummaryPlotBuilder::addressesForSource( matchingSummaryCases.front() );
+        populateNameHelper( m_nameHelper.get() );
+
+        auto title = m_nameHelper->plotTitle();
+        setMultiPlotTitle( title );
     }
-    else if ( !matchingEnsembles.empty() )
-    {
-        allAddresses = RicSummaryPlotBuilder::addressesForSource( matchingEnsembles.front() );
-    }
-
-    bool includeDiffCurves = false;
-    auto filteredAddresses =
-        RiaSummaryStringTools::computeFilteredAddresses( addressFilters, allAddresses, includeDiffCurves );
-
-    {
-        m_multiPlot->deleteAllPlots();
-
-        RicSummaryPlotBuilder plotBuilder;
-        plotBuilder.setAddresses( filteredAddresses );
-        plotBuilder.setDataSources( matchingSummaryCases, matchingEnsembles );
-        plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );
-
-        RicSummaryPlotBuilder::RicGraphCurveGrouping groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::NONE;
-        if ( m_individualPlotPerVector ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::SINGLE_CURVES;
-        if ( m_individualPlotPerObject ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::CURVES_FOR_OBJECT;
-        plotBuilder.setGrouping( groping );
-
-        auto plots = plotBuilder.createPlots();
-
-        insertGraphsIntoPlot( this, plots );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::updatePlotTitles()
-{
-    populateNameHelper( m_nameHelper.get() );
-
-    auto title = m_nameHelper->plotTitle();
-    m_multiPlot->setMultiPlotTitle( title );
 
     if ( m_autoPlotTitlesOnSubPlots )
     {
@@ -473,7 +289,7 @@ std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
 {
     std::vector<RimSummaryPlot*> typedPlots;
 
-    for ( auto plot : m_multiPlot->plots() )
+    for ( auto plot : plots() )
     {
         auto summaryPlot = dynamic_cast<RimSummaryPlot*>( plot );
         if ( summaryPlot ) typedPlots.push_back( summaryPlot );
@@ -519,10 +335,10 @@ void RimSummaryMultiPlot::insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const
     plot->setAutoTitlePlot( true );
     plot->setAutoTitleGraphs( showTitleSubGraph );
 
-    plot->m_multiPlot->setColumnCount( columnCount );
-    plot->m_multiPlot->setRowCount( rowCount );
-    plot->m_multiPlot->setShowPlotTitles( showTitleSubGraph );
-    plot->m_multiPlot->setTickmarkCount( tickmarkCount );
+    plot->setColumnCount( columnCount );
+    plot->setRowCount( rowCount );
+    plot->setShowPlotTitles( showTitleSubGraph );
+    plot->setTickmarkCount( tickmarkCount );
 
     for ( auto graph : graphs )
     {
@@ -536,4 +352,29 @@ void RimSummaryMultiPlot::insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const
     }
 
     plot->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
+{
+    std::vector<caf::PdmFieldHandle*> toolBarFields;
+
+    auto& sourceObject = m_sourceStepping();
+    if ( sourceObject )
+    {
+        auto fields = sourceObject->fieldsToShowInToolbar();
+        toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
+    }
+
+    return toolBarFields;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
+{
+    return RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent );
 }

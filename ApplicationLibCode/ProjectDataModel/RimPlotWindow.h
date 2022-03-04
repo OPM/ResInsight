@@ -75,6 +75,8 @@ public:
     void        renderWindowContent( QPaintDevice* painter );
     QPageLayout pageLayout() const;
 
+    virtual bool handleGlobalKeyEvent( QKeyEvent* keyEvent );
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -82,6 +84,7 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
     void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
     void updateWindowVisibility();
 
 private:

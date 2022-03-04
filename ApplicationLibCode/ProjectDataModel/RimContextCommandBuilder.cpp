@@ -1065,6 +1065,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewDerivedEnsembleFeature";
         menuBuilder << "RicNewSummaryPlotFeature";
         menuBuilder << "RicNewDefaultSummaryPlotFeature";
+        menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";
@@ -1104,7 +1105,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicCloseObservedDataFeature";
 
         menuBuilder << "RicNewMultiPlotFeature";
-        menuBuilder << "RicNewSummaryMultiPlotFeature";
 
         // Work in progress -- End
 
@@ -1189,6 +1189,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryAddress*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSummaryPlotFromDataVectorFeature";
+            menuBuilder << "RicNewSummaryMultiPlotFromDataVectorFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )

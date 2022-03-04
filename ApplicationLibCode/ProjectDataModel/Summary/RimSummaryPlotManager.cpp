@@ -399,9 +399,7 @@ void RimSummaryPlotManager::createNewPlot()
     {
         {
             auto summaryPlots = plotBuilder.createPlots();
-            auto plot         = RimSummaryMultiPlot::createAndAppendMultiPlot( summaryPlots );
-
-            RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+            RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
         }
 
         bool createStandardMultiPlot = false;
