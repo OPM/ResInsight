@@ -29,7 +29,6 @@
 #include "RimViewWindow.h"
 
 #include "RiuFileDialogTools.h"
-#include "RiuGuiTheme.h"
 #include "RiuPlotMainWindow.h"
 
 #include "RicSnapshotFilenameGenerator.h"
@@ -91,17 +90,6 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
 
     auto viewWidget = plot->viewWidget();
 
-    // For some reason, the application crashes (seen on Windows 11) if the theme is changed when a plot window is
-    // maximized. Make sure the MDI windows are displayed as normal, and restore the maximized state
-    bool maximizedState = viewWidget->isMaximized();
-    if ( maximizedState ) viewWidget->showNormal();
-
-    auto currentTheme = RiuGuiTheme::currentGuiTheme();
-    if ( currentTheme != RiaDefines::ThemeEnum::LIGHT )
-    {
-        RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum::LIGHT );
-    }
-
     RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
     QCoreApplication::processEvents();
     QFile pdfFile( fileName );
@@ -148,13 +136,6 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
     {
         RiaLogging::error( QString( "Could not write PDF to %1" ).arg( fileName ) );
     }
-
-    if ( currentTheme != RiaDefines::ThemeEnum::LIGHT )
-    {
-        RiuGuiTheme::updateGuiTheme( currentTheme );
-    }
-
-    if ( maximizedState ) viewWidget->showMaximized();
 }
 
 //--------------------------------------------------------------------------------------------------
