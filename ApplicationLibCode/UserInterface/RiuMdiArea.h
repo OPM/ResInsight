@@ -30,7 +30,7 @@ class RiuMdiArea : public QMdiArea
 
 public:
     RiuMdiArea( QWidget* parent = nullptr );
-    ~RiuMdiArea();
+    ~RiuMdiArea() override;
 
     std::list<QMdiSubWindow*> subWindowListSortedByPosition();
 
