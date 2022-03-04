@@ -162,6 +162,7 @@ public:
                  QtCharts::QAbstractSeries* scatterSeries,
                  RiuPlotAxis                xAxis,
                  RiuPlotAxis                yAxis );
+    void detach( RiuPlotCurve* plotCurve );
 
     QtCharts::QAbstractSeries* getLineSeries( const RiuPlotCurve* plotCurve ) const;
     QtCharts::QAbstractSeries* getScatterSeries( const RiuPlotCurve* plotCurve ) const;
