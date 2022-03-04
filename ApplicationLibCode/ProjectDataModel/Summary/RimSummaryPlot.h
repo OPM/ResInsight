@@ -42,6 +42,7 @@ class PdmUiTreeOrdering;
 class RimAsciiDataCurve;
 class RimGridTimeHistoryCurve;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 class RimSummaryCurve;
 class RimSummaryCurveCollection;
 class RimEnsembleCurveSet;
@@ -269,6 +270,7 @@ private:
     void assignPlotAxis( RimSummaryCurve* curve );
 
     void addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
+    void addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
 
     void updateStackedCurveData();
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );

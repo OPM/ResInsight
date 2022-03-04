@@ -264,7 +264,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
                 itemflags |= Qt::ItemIsDragEnabled;
             }
             auto sumAdr = dynamic_cast<RimSummaryAddress*>( uiItem );
-            if ( sumAdr && sumAdr->canBeDragged() )
+            if ( sumAdr )
             {
                 itemflags |= Qt::ItemIsDragEnabled;
             }
