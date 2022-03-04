@@ -29,7 +29,6 @@
 #include "RimViewWindow.h"
 
 #include "RiuFileDialogTools.h"
-#include "RiuGuiTheme.h"
 #include "RiuPlotMainWindow.h"
 
 #include "RicSnapshotFilenameGenerator.h"
@@ -87,9 +86,8 @@ void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, cons
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName, RimPlotWindow* plot )
 {
-    auto currentTheme = RiuGuiTheme::currentGuiTheme();
+    if ( !plot || !plot->viewWidget() ) return;
 
-    RiuGuiTheme::updateGuiTheme( RiaDefines::ThemeEnum::LIGHT );
     RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
     QCoreApplication::processEvents();
     QFile pdfFile( fileName );
@@ -136,7 +134,6 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
     {
         RiaLogging::error( QString( "Could not write PDF to %1" ).arg( fileName ) );
     }
-    RiuGuiTheme::updateGuiTheme( currentTheme );
 }
 
 //--------------------------------------------------------------------------------------------------
