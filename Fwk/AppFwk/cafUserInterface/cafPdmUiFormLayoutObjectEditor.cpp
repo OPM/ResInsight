@@ -215,6 +215,8 @@ int caf::PdmUiFormLayoutObjectEditor::recursivelyConfigureAndUpdateUiOrderingInG
                                 labelAndFieldVerticalLayout->addWidget( fieldLabelWidget, 0, Qt::AlignTop );
                                 labelAndFieldVerticalLayout->addWidget( fieldEditorWidget, 1, Qt::AlignTop );
 
+                                m_layouts.push_back( labelAndFieldVerticalLayout );
+
                                 // Apply margins determined by the editor type
                                 // fieldLabelWidget->setContentsMargins(fieldEditor->labelContentMargins());
                                 currentColumn += itemColumnSpan;
@@ -489,6 +491,13 @@ void caf::PdmUiFormLayoutObjectEditor::cleanupBeforeSettingPdmObject()
     }
 
     m_groupBoxes.clear();
+
+    for ( auto l : m_layouts )
+    {
+        delete l;
+        l = nullptr;
+    }
+    m_layouts.clear();
 }
 
 //--------------------------------------------------------------------------------------------------

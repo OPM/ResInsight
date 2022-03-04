@@ -157,8 +157,8 @@ private:
     bool eventFilter( QObject* obj, QEvent* event ) override;
 
 private:
-    QPointer<QWidget> m_mainWidget;
-    QVBoxLayout*      m_layout;
+    QPointer<QWidget>     m_mainWidget;
+    QPointer<QVBoxLayout> m_layout;
 
     QPointer<PdmUiTreeViewWidget>       m_treeView;
     QPointer<PdmUiTreeViewQModel>       m_treeViewModel;

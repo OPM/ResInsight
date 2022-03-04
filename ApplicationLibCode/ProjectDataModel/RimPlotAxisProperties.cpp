@@ -54,6 +54,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     , axisPositionChanged( this )
     , m_enableTitleTextSettings( true )
     , m_isRangeSettingsEnabled( true )
+    , m_isAlwaysRequired( false )
 {
     CAF_PDM_InitObject( "Axis Properties", ":/LeftAxis16x16.png" );
 
@@ -100,10 +101,17 @@ RimPlotAxisProperties::RimPlotAxisProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setAlwaysRequired( bool enable )
+{
+    m_isAlwaysRequired = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPlotAxisProperties::isDeletable() const
 {
-    // The default axes (which have index 0) are not deletable
-    return m_plotAxisIndex != 0;
+    return !m_isAlwaysRequired;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,6 +218,7 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     scaleGroup.add( &m_valuesFontSize );
 
     scaleGroup.add( &m_plotAxis );
+    m_plotAxis.uiCapability()->setUiReadOnly( m_isAlwaysRequired );
 
     uiOrdering.skipRemainingFields( true );
 }
