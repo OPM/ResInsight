@@ -1834,7 +1834,17 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         auto summaryAdr = dynamic_cast<RimSummaryAddress*>( obj );
         if ( summaryAdr )
         {
-            if ( summaryAdr->isEnsemble() ) continue;
+            if ( summaryAdr->isEnsemble() )
+            {
+                auto ensemble = RiaSummaryTools::ensembleById( summaryAdr->ensembleId() );
+                if ( ensemble )
+                {
+                    addNewEnsembleCurveY( summaryAdr->address(), ensemble );
+                    newCurves++;
+                }
+
+                continue;
+            }
 
             auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
             if ( summaryCase )
@@ -1943,6 +1953,18 @@ void RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimS
     newCurve->setSummaryCaseY( summaryCase );
     newCurve->setSummaryAddressYAndApplyInterpolation( address );
     addCurveNoUpdate( newCurve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble )
+{
+    RimEnsembleCurveSet* curveSet = new RimEnsembleCurveSet();
+
+    curveSet->setSummaryCaseCollection( ensemble );
+    curveSet->setSummaryAddress( address );
+    ensembleCurveSetCollection()->addCurveSet( curveSet );
 }
 
 //--------------------------------------------------------------------------------------------------

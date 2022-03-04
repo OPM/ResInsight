@@ -57,8 +57,6 @@ public:
     int  ensembleId() const;
     bool isEnsemble() const;
 
-    bool canBeDragged() const;
-
     QString quantityName() const;
 
     void ensureCalculationIdIsAssigned();
