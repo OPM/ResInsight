@@ -122,8 +122,11 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_axisProperties, "AxisProperties", "Axes", ":/Axes16x16.png" );
 
-    addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
-    addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
+    auto leftAxis = addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
+    leftAxis->setAlwaysRequired( true );
+
+    auto rightAxis = addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
+    rightAxis->setAlwaysRequired( true );
 
     if ( m_isCrossPlot )
     {

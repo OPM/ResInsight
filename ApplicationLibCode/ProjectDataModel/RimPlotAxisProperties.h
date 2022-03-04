@@ -58,6 +58,8 @@ public:
 public:
     RimPlotAxisProperties();
 
+    void setAlwaysRequired( bool enable );
+
     void                  setEnableTitleTextSettings( bool enable );
     void                  enableRangeSettings( bool enable );
     void                  setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex = 0 );
@@ -78,7 +80,6 @@ public:
     void           setAxisInverted( bool inverted );
 
     bool isDeletable() const override;
-
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
@@ -136,6 +137,7 @@ private:
 
     bool m_enableTitleTextSettings;
     bool m_isRangeSettingsEnabled;
+    bool m_isAlwaysRequired;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
