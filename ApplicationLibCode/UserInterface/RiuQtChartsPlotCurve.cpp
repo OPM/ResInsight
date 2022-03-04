@@ -58,6 +58,8 @@ RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
 {
     if ( m_plotWidget && m_plotWidget->qtChart() )
     {
+        m_plotWidget->detach( this );
+
         auto* line = lineSeries();
         if ( line )
         {
@@ -184,7 +186,11 @@ void RiuQtChartsPlotCurve::detach()
         scatterSeries()->hide();
     }
 
-    if ( m_plotWidget ) setVisibleInLegend( false );
+    if ( m_plotWidget )
+    {
+        m_plotWidget->detach( this );
+        setVisibleInLegend( false );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

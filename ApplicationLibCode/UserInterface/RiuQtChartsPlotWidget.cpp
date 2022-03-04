@@ -817,6 +817,16 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::detach( RiuPlotCurve* plotCurve )
+{
+    m_lineSeriesMap.erase( plotCurve );
+    m_scatterSeriesMap.erase( plotCurve );
+}
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getLineSeries( const RiuPlotCurve* plotCurve ) const
 {
     auto series = m_lineSeriesMap.find( const_cast<RiuPlotCurve*>( plotCurve ) );
