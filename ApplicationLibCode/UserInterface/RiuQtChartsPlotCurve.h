@@ -23,6 +23,7 @@
 
 #include "cvfBoundingBox.h"
 
+#include <QAreaSeries>
 #include <QLineSeries>
 #include <QScatterSeries>
 
@@ -89,14 +90,17 @@ private:
     bool                      isQtChartObjectsPresent() const;
     QtCharts::QLineSeries*    lineSeries() const;
     QtCharts::QScatterSeries* scatterSeries() const;
+    QtCharts::QAreaSeries*    areaSeries() const;
 
     cvf::BoundingBox computeBoundingBox() const;
 
 private:
     QtCharts::QLineSeries*              m_lineSeries;
     QtCharts::QScatterSeries*           m_scatterSeries;
+    QtCharts::QAreaSeries*              m_areaSeries;
     std::shared_ptr<RiuPlotCurveSymbol> m_symbol;
     QPointer<RiuQtChartsPlotWidget>     m_plotWidget;
     RiuPlotAxis                         m_axisX;
     RiuPlotAxis                         m_axisY;
+    bool                                m_isVisibleInLegend;
 };

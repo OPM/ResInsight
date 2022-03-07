@@ -44,11 +44,16 @@ RiuQtChartsPlotCurve::RiuQtChartsPlotCurve( RimPlotCurve* ownerRimCurve, const Q
     m_lineSeries = new QtCharts::QLineSeries();
     m_lineSeries->setName( title );
 
+    m_areaSeries = new QtCharts::QAreaSeries();
+    m_areaSeries->setName( title );
+
     m_scatterSeries = new QtCharts::QScatterSeries();
     m_scatterSeries->setName( title );
 
     m_axisX = RiuPlotAxis::defaultBottom();
     m_axisY = RiuPlotAxis::defaultLeft();
+
+    m_isVisibleInLegend = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,6 +74,15 @@ RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
             delete line;
         }
 
+        auto* area = areaSeries();
+        if ( area )
+        {
+            m_plotWidget->qtChart()->removeSeries( area );
+
+            // removeSeries() releases chart ownership of the data, delete data to avoid memory leak
+            delete area;
+        }
+
         auto* scatter = scatterSeries();
         if ( scatter )
         {
@@ -83,6 +97,9 @@ RiuQtChartsPlotCurve::~RiuQtChartsPlotCurve()
     delete m_lineSeries;
     m_lineSeries = nullptr;
 
+    delete m_areaSeries;
+    m_areaSeries = nullptr;
+
     delete m_scatterSeries;
     m_scatterSeries = nullptr;
 }
@@ -95,6 +112,7 @@ void RiuQtChartsPlotCurve::setTitle( const QString& title )
     if ( !isQtChartObjectsPresent() ) return;
 
     lineSeries()->setName( title );
+    areaSeries()->setName( title );
     scatterSeries()->setName( title );
 }
 
@@ -117,6 +135,22 @@ void RiuQtChartsPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum 
 
     lineSeries()->setPen( curvePen );
     lineSeries()->setBrush( fillBrush );
+
+    areaSeries()->setPen( curvePen );
+    areaSeries()->setBrush( fillBrush );
+
+    if ( fillBrush.style() == Qt::NoBrush )
+    {
+        lineSeries()->show();
+        areaSeries()->hide();
+        setVisibleInLegend( m_isVisibleInLegend );
+    }
+    else
+    {
+        lineSeries()->hide();
+        areaSeries()->show();
+        setVisibleInLegend( m_isVisibleInLegend );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,6 +161,7 @@ void RiuQtChartsPlotCurve::setBrush( const QBrush& brush )
     if ( !isQtChartObjectsPresent() ) return;
 
     lineSeries()->setBrush( brush );
+    areaSeries()->setBrush( brush );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,16 +176,19 @@ void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
     {
         m_plotWidget->qtChart()->legend()->setMarkerShape( QtCharts::QLegend::MarkerShape::MarkerShapeFromSeries );
         setVisibleInLegend( true );
+
         lineSeries()->show();
     }
     else
     {
         if ( !m_lineSeries ) m_lineSeries = new QtCharts::QLineSeries();
+        if ( !m_areaSeries ) m_areaSeries = new QtCharts::QAreaSeries();
         if ( !m_scatterSeries ) m_scatterSeries = new QtCharts::QScatterSeries();
 
-        m_plotWidget->attach( this, m_lineSeries, m_scatterSeries, m_axisX, m_axisY );
+        m_plotWidget->attach( this, m_lineSeries, m_areaSeries, m_scatterSeries, m_axisX, m_axisY );
         // Plot widget takes ownership.
         m_lineSeries    = nullptr;
+        m_areaSeries    = nullptr;
         m_scatterSeries = nullptr;
     }
 
@@ -179,6 +217,12 @@ void RiuQtChartsPlotCurve::detach()
     if ( line )
     {
         line->hide();
+    }
+
+    QtCharts::QAreaSeries* area = areaSeries();
+    if ( area )
+    {
+        area->hide();
     }
 
     if ( scatterSeries() )
@@ -210,8 +254,6 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
 
     CAF_ASSERT( xValues.size() == yValues.size() );
 
-    QtCharts::QLineSeries* line = lineSeries();
-
     QVector<QPointF> values( static_cast<int>( xValues.size() ) );
 
     for ( int i = 0; i < static_cast<int>( xValues.size() ); i++ )
@@ -219,7 +261,12 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
         values[i] = QPointF( xValues[i], yValues[i] );
     }
 
+    QtCharts::QLineSeries* line = lineSeries();
     line->replace( values );
+
+    QtCharts::QLineSeries* upper = new QtCharts::QLineSeries;
+    upper->replace( values );
+    areaSeries()->setUpperSeries( upper );
 
     updateScatterSeries();
 }
@@ -344,6 +391,7 @@ void RiuQtChartsPlotCurve::setXAxis( RiuPlotAxis axis )
     if ( m_plotWidget )
     {
         m_plotWidget->setXAxis( axis, lineSeries(), this );
+        m_plotWidget->setXAxis( axis, areaSeries(), this );
         m_plotWidget->setXAxis( axis, scatterSeries(), this );
     }
 }
@@ -357,6 +405,7 @@ void RiuQtChartsPlotCurve::setYAxis( RiuPlotAxis axis )
     if ( m_plotWidget )
     {
         m_plotWidget->setYAxis( axis, lineSeries(), this );
+        m_plotWidget->setYAxis( axis, areaSeries(), this );
         m_plotWidget->setYAxis( axis, scatterSeries(), this );
     }
 }
@@ -428,23 +477,21 @@ void RiuQtChartsPlotCurve::setVisibleInLegend( bool isVisibleInLegend )
     if ( !m_plotWidget->qtChart()->legend()->isAttachedToChart() ) isVisibleInLegend = false;
     if ( !m_plotWidget->qtChart()->legend()->isVisible() ) isVisibleInLegend = false;
 
-    bool showScatterMarker = isVisibleInLegend;
-    if ( !m_symbol ) showScatterMarker = false;
+    bool showScatterMarker = isVisibleInLegend && m_symbol;
+    bool showLineMarker = isVisibleInLegend && !m_symbol;
 
-    if ( scatterSeries() )
-    {
-        auto markers = m_plotWidget->qtChart()->legend()->markers( scatterSeries() );
-        if ( !markers.isEmpty() ) markers[0]->setVisible( showScatterMarker );
-    }
+    auto setLegendVisibility = [this]( auto series, bool isVisible ) {
+        if ( series )
+        {
+            auto markers = m_plotWidget->qtChart()->legend()->markers( series );
+            if ( !markers.isEmpty() ) markers[0]->setVisible( isVisible );
+        }
+    };
 
-    bool showLineMarker = isVisibleInLegend;
-    if ( showScatterMarker ) showLineMarker = false;
-
-    if ( lineSeries() )
-    {
-        auto lineSeriesMarkers = m_plotWidget->qtChart()->legend()->markers( lineSeries() );
-        if ( !lineSeriesMarkers.isEmpty() ) lineSeriesMarkers[0]->setVisible( showLineMarker );
-    }
+    m_isVisibleInLegend = showLineMarker || showScatterMarker;
+    setLegendVisibility( lineSeries(), showLineMarker );
+    setLegendVisibility( areaSeries(), false );
+    setLegendVisibility( scatterSeries(), showScatterMarker );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -472,6 +519,17 @@ QtCharts::QScatterSeries* RiuQtChartsPlotCurve::scatterSeries() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QtCharts::QAreaSeries* RiuQtChartsPlotCurve::areaSeries() const
+{
+    if ( m_areaSeries ) return m_areaSeries;
+    if ( m_plotWidget ) return dynamic_cast<QtCharts::QAreaSeries*>( m_plotWidget->getAreaSeries( this ) );
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
 {
     if ( symbol )
@@ -484,12 +542,24 @@ void RiuQtChartsPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
         {
             qtChartsSymbol->applyToScatterSeries( scatterSeries() );
             updateScatterSeries();
+
+            bool isFilled = areaSeries() && areaSeries()->brush().style() != Qt::NoBrush;
+            bool isLine   = lineSeries() && lineSeries()->pen().style() != Qt::PenStyle::NoPen;
+            if ( areaSeries() ) areaSeries()->setVisible( isFilled );
+            if ( lineSeries() ) lineSeries()->setVisible( isLine );
+            setVisibleInLegend( m_isVisibleInLegend );
         }
     }
     else
     {
         m_symbol.reset();
         if ( scatterSeries() ) scatterSeries()->hide();
+
+        bool isFilled = areaSeries() && areaSeries()->brush().style() != Qt::NoBrush;
+        bool isLine   = lineSeries() && lineSeries()->pen().style() != Qt::PenStyle::NoPen;
+        if ( areaSeries() ) areaSeries()->setVisible( isFilled );
+        if ( lineSeries() ) lineSeries()->setVisible( isLine );
+        setVisibleInLegend( m_isVisibleInLegend );
     }
 }
 

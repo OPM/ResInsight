@@ -159,12 +159,14 @@ public:
 
     void attach( RiuPlotCurve*              plotCurve,
                  QtCharts::QAbstractSeries* lineseries,
+                 QtCharts::QAbstractSeries* areaseries,
                  QtCharts::QAbstractSeries* scatterSeries,
                  RiuPlotAxis                xAxis,
                  RiuPlotAxis                yAxis );
     void detach( RiuPlotCurve* plotCurve );
 
     QtCharts::QAbstractSeries* getLineSeries( const RiuPlotCurve* plotCurve ) const;
+    QtCharts::QAbstractSeries* getAreaSeries( const RiuPlotCurve* plotCurve ) const;
     QtCharts::QAbstractSeries* getScatterSeries( const RiuPlotCurve* plotCurve ) const;
 
     void setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
@@ -222,5 +224,6 @@ private:
     std::map<RiuPlotAxis, bool>                     m_axesAutoScale;
 
     std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_lineSeriesMap;
+    std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_areaSeriesMap;
     std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;
 };

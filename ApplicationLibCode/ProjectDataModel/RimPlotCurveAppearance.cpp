@@ -69,6 +69,7 @@ void RimPlotCurveAppearance::FillStyle::setUp()
     addItem( Qt::BDiagPattern, "DIAG_FILL", "Diagonal Lines" );
     addItem( Qt::CrossPattern, "CROSS_FILL", "Mesh" );
     addItem( Qt::DiagCrossPattern, "DIAG_CROSS_FILL", "Diagonal Mesh" );
+    setDefault( Qt::NoBrush );
 }
 
 } // namespace caf
@@ -386,6 +387,7 @@ void RimPlotCurveAppearance::resetAppearance()
     setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
     setSymbolSkipDistance( 10 );
+    setFillStyle( Qt::NoBrush );
 }
 
 //--------------------------------------------------------------------------------------------------
