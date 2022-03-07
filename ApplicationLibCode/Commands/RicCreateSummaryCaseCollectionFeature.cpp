@@ -18,6 +18,8 @@
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 
+#include "RiaSummaryTools.h"
+
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -38,11 +40,9 @@ RimSummaryCaseCollection* RicCreateSummaryCaseCollectionFeature::groupSummaryCas
                                                                                     const QString& groupName,
                                                                                     bool           isEnsemble )
 {
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = nullptr;
+    RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
     if ( !cases.empty() )
     {
-        cases[0]->firstAncestorOrThisOfTypeAsserted( summaryCaseMainCollection );
-
         auto newGroup = summaryCaseMainCollection->addCaseCollection( cases, groupName, isEnsemble );
         summaryCaseMainCollection->updateConnectedEditors();
 
@@ -84,7 +84,17 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
     caf::SelectionManager::instance()->objectsByType( &selection );
     if ( selection.size() == 0 ) return;
 
-    groupSummaryCases( selection, "" );
+    std::vector<RimSummaryCase*> duplicates;
+
+    for ( const auto sumCase : selection )
+    {
+        auto copy =
+            dynamic_cast<RimSummaryCase*>( sumCase->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+        duplicates.push_back( copy );
+    }
+
+    groupSummaryCases( duplicates, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -92,6 +102,6 @@ void RicCreateSummaryCaseCollectionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateSummaryCaseCollectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Group Summary Cases" );
+    actionToSetup->setText( "Create Summary Case Group" );
     actionToSetup->setIcon( QIcon( ":/SummaryGroup16x16.png" ) );
 }

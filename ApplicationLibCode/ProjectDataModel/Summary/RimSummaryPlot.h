@@ -41,6 +41,7 @@
 class PdmUiTreeOrdering;
 class RimAsciiDataCurve;
 class RimGridTimeHistoryCurve;
+class RimSummaryAddressCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimSummaryCurve;
@@ -275,6 +276,9 @@ private:
     void updateStackedCurveData();
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
     bool updateStackedCurveDataForRelevantAxes();
+
+    int handleSummaryCaseDrop( RimSummaryCase* summaryCase );
+    int handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
 
 private:
 #ifdef USE_QTCHARTS

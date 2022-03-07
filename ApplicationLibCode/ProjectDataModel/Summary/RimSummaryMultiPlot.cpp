@@ -36,7 +36,6 @@
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
 #include "cafPdmUiComboBoxEditor.h"
