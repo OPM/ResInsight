@@ -19,9 +19,33 @@
 
 #include "RiaPlotDefines.h"
 #include "RiaQDateTimeTools.h"
+
 #include <qwt_date.h>
+#include <qwt_date_scale_draw.h>
+#include <qwt_date_scale_engine.h>
 #include <qwt_plot.h>
 #include <qwt_plot_shapeitem.h>
+
+class QtChartHelper
+{
+public:
+    QtChartHelper();
+
+    void setFormatStrings( const QString&                          dateFormat,
+                           const QString&                          timeFormat,
+                           RiaQDateTimeTools::DateFormatComponents dateComponents,
+                           RiaQDateTimeTools::TimeFormatComponents timeComponents );
+
+    void setMaxMajorTicks( int tickCount );
+
+    std::tuple<QDateTime, QDateTime, int> adjustedRange( const QDateTime& min, const QDateTime& max ) const;
+    QString                               formatStringForRange( const QDateTime& min, const QDateTime& max );
+
+private:
+    QwtDateScaleDraw   m_scaleDraw;
+    QwtDateScaleEngine m_scaleEngine;
+    int                m_maxMajorTicks;
+};
 
 class RiuQwtPlotTools
 {

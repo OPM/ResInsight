@@ -260,3 +260,82 @@ RiaDefines::PlotAxis RiuQwtPlotTools::fromQwtPlotAxis( QwtPlot::Axis axis )
 
     return RiaDefines::PlotAxis::PLOT_AXIS_TOP;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QtChartHelper::QtChartHelper()
+    : m_scaleEngine( Qt::UTC )
+    , m_maxMajorTicks( 7 )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QtChartHelper::setFormatStrings( const QString&                          dateFormat,
+                                      const QString&                          timeFormat,
+                                      RiaQDateTimeTools::DateFormatComponents dateComponents,
+                                      RiaQDateTimeTools::TimeFormatComponents timeComponents )
+{
+    std::set<QwtDate::IntervalType> intervals = { QwtDate::Year,
+                                                  QwtDate::Month,
+                                                  QwtDate::Week,
+                                                  QwtDate::Day,
+                                                  QwtDate::Hour,
+                                                  QwtDate::Minute,
+                                                  QwtDate::Second,
+                                                  QwtDate::Millisecond };
+
+    for ( QwtDate::IntervalType interval : intervals )
+    {
+        m_scaleDraw.setDateFormat( interval,
+                                   RiuQwtPlotTools::dateTimeFormatForInterval( interval,
+                                                                               dateFormat,
+                                                                               timeFormat,
+                                                                               dateComponents,
+                                                                               timeComponents ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void QtChartHelper::setMaxMajorTicks( int tickCount )
+{
+    m_maxMajorTicks = tickCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::tuple<QDateTime, QDateTime, int> QtChartHelper::adjustedRange( const QDateTime& min, const QDateTime& max ) const
+{
+    double minQwtValue = QwtDate::toDouble( min );
+    double maxQwtValue = QwtDate::toDouble( max );
+
+    double stepSize     = 0.0;
+    int    maxStepCount = m_maxMajorTicks;
+    m_scaleEngine.autoScale( maxStepCount, minQwtValue, maxQwtValue, stepSize );
+
+    auto adjustedMin = QwtDate::toDateTime( minQwtValue );
+    auto adjustedMax = QwtDate::toDateTime( maxQwtValue );
+
+    auto scaleDiv = m_scaleEngine.divideScale( minQwtValue, maxQwtValue, maxStepCount, 0 );
+    auto ticks    = scaleDiv.ticks( QwtScaleDiv::MajorTick );
+
+    return { adjustedMin, adjustedMax, ticks.size() - 1 };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString QtChartHelper::formatStringForRange( const QDateTime& min, const QDateTime& max )
+{
+    int  maxStepCount = m_maxMajorTicks;
+    auto intervalType = m_scaleEngine.intervalType( min, max, maxStepCount );
+
+    auto dateFormat = m_scaleDraw.dateFormat( intervalType );
+
+    return dateFormat;
+}

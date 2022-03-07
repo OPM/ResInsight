@@ -31,6 +31,7 @@
 #include "RiuPlotWidget.h"
 #include "RiuQtChartView.h"
 #include "RiuQtChartsPlotCurve.h"
+#include "RiuQwtPlotTools.h"
 
 #include "cafAssert.h"
 
@@ -52,6 +53,7 @@ using namespace QtCharts;
 //--------------------------------------------------------------------------------------------------
 RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : RiuPlotWidget( plotDefinition, parent )
+    , m_helper( new QtChartHelper() )
 {
     CAF_ASSERT( m_plotDefinition );
 
@@ -90,6 +92,9 @@ RiuQtChartsPlotWidget::~RiuQtChartsPlotWidget()
     {
         m_plotDefinition->detachAllCurves();
     }
+
+    delete m_helper;
+    m_helper = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -320,7 +325,19 @@ std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiuPlotAxis axis ) c
     if ( logAxis ) return std::make_pair( logAxis->min(), logAxis->max() );
 
     auto dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
-    if ( dateAxis ) return std::make_pair( dateAxis->min().toMSecsSinceEpoch(), dateAxis->max().toMSecsSinceEpoch() );
+    if ( dateAxis )
+    {
+        auto [adjustedMin, adjustedMax, tickCount] = m_helper->adjustedRange( dateAxis->min(), dateAxis->max() );
+
+        auto minMSecs = adjustedMin.toMSecsSinceEpoch();
+        auto maxMSecs = adjustedMax.toMSecsSinceEpoch();
+
+        auto formatString = m_helper->formatStringForRange( adjustedMin, adjustedMax );
+        dateAxis->setFormat( formatString );
+        dateAxis->setTickCount( tickCount );
+
+        return std::make_pair( minMSecs, maxMSecs );
+    }
 
     return std::make_pair( 0.0, 1.0 );
 }
@@ -622,6 +639,17 @@ void RiuQtChartsPlotWidget::updateZoomDependentCurveProperties()
         auto plotCurve = dynamic_cast<RiuQtChartsPlotCurve*>( it.first );
         if ( plotCurve ) plotCurve->updateScatterSeries();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::setFormatStrings( const QString&                          dateFormat,
+                                              const QString&                          timeFormat,
+                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
+                                              RiaQDateTimeTools::TimeFormatComponents timeComponents )
+{
+    m_helper->setFormatStrings( dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
 //--------------------------------------------------------------------------------------------------
