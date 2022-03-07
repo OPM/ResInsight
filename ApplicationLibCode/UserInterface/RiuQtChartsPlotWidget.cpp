@@ -828,6 +828,7 @@ QChart* RiuQtChartsPlotWidget::qtChart()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::attach( RiuPlotCurve*    plotCurve,
                                     QAbstractSeries* lineSeries,
+                                    QAbstractSeries* areaSeries,
                                     QAbstractSeries* scatterSeries,
                                     RiuPlotAxis      xAxis,
                                     RiuPlotAxis      yAxis )
@@ -849,6 +850,7 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*    plotCurve,
 
     auto qtChartsPlotCurve = dynamic_cast<RiuQtChartsPlotCurve*>( plotCurve );
     addToChart( m_lineSeriesMap, plotCurve, lineSeries, xAxis, yAxis, qtChartsPlotCurve );
+    addToChart( m_areaSeriesMap, plotCurve, areaSeries, xAxis, yAxis, qtChartsPlotCurve );
     addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis, qtChartsPlotCurve );
 }
 
@@ -858,6 +860,7 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*    plotCurve,
 void RiuQtChartsPlotWidget::detach( RiuPlotCurve* plotCurve )
 {
     m_lineSeriesMap.erase( plotCurve );
+    m_areaSeriesMap.erase( plotCurve );
     m_scatterSeriesMap.erase( plotCurve );
 }
 
@@ -868,6 +871,18 @@ QAbstractSeries* RiuQtChartsPlotWidget::getLineSeries( const RiuPlotCurve* plotC
 {
     auto series = m_lineSeriesMap.find( const_cast<RiuPlotCurve*>( plotCurve ) );
     if ( series != m_lineSeriesMap.end() )
+        return series->second;
+    else
+        return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QAbstractSeries* RiuQtChartsPlotWidget::getAreaSeries( const RiuPlotCurve* plotCurve ) const
+{
+    auto series = m_areaSeriesMap.find( const_cast<RiuPlotCurve*>( plotCurve ) );
+    if ( series != m_areaSeriesMap.end() )
         return series->second;
     else
         return nullptr;
@@ -895,6 +910,7 @@ void RiuQtChartsPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemTyp
     if ( plotItemType == RiuPlotWidget::PlotItemType::CURVE )
     {
         m_lineSeriesMap.clear();
+        m_areaSeriesMap.clear();
         m_scatterSeriesMap.clear();
         qtChart()->removeAllSeries();
     }
