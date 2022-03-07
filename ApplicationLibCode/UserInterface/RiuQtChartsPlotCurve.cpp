@@ -542,25 +542,27 @@ void RiuQtChartsPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
         {
             qtChartsSymbol->applyToScatterSeries( scatterSeries() );
             updateScatterSeries();
-
-            bool isFilled = areaSeries() && areaSeries()->brush().style() != Qt::NoBrush;
-            bool isLine   = lineSeries() && lineSeries()->pen().style() != Qt::PenStyle::NoPen;
-            if ( areaSeries() ) areaSeries()->setVisible( isFilled );
-            if ( lineSeries() ) lineSeries()->setVisible( isLine );
-            setVisibleInLegend( m_isVisibleInLegend );
+            updateLineAndAreaSeries();
         }
     }
     else
     {
         m_symbol.reset();
         if ( scatterSeries() ) scatterSeries()->hide();
-
-        bool isFilled = areaSeries() && areaSeries()->brush().style() != Qt::NoBrush;
-        bool isLine   = lineSeries() && lineSeries()->pen().style() != Qt::PenStyle::NoPen;
-        if ( areaSeries() ) areaSeries()->setVisible( isFilled );
-        if ( lineSeries() ) lineSeries()->setVisible( isLine );
-        setVisibleInLegend( m_isVisibleInLegend );
+        updateLineAndAreaSeries();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::updateLineAndAreaSeries()
+{
+    bool isFilled = areaSeries() && areaSeries()->brush().style() != Qt::NoBrush;
+    bool isLine   = lineSeries() && lineSeries()->pen().style() != Qt::PenStyle::NoPen;
+    if ( areaSeries() ) areaSeries()->setVisible( isFilled );
+    if ( lineSeries() ) lineSeries()->setVisible( isLine );
+    setVisibleInLegend( m_isVisibleInLegend );
 }
 
 //--------------------------------------------------------------------------------------------------

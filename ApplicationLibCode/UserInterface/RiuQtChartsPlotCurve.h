@@ -77,6 +77,8 @@ public:
 
     void setSymbol( RiuPlotCurveSymbol* symbol ) override;
 
+    void updateLineAndAreaSeries();
+
     RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
 
     void updateScatterSeries();
