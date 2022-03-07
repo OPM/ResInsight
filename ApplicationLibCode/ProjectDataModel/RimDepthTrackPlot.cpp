@@ -178,9 +178,9 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
+    auto plots = rhs.m_plots.childObjects();
     rhs.m_plots.clear();
-    for ( RimPlot* plot : plots )
+    for ( auto plot : plots )
     {
         m_plots.push_back( plot );
     }
@@ -245,7 +245,7 @@ size_t RimDepthTrackPlot::plotCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimDepthTrackPlot::plotIndex( const RimPlot* plot ) const
+size_t RimDepthTrackPlot::plotIndex( const RimWellLogTrack* plot ) const
 {
     return m_plots.index( plot );
 }
@@ -268,16 +268,23 @@ RimPlot* RimDepthTrackPlot::plotByIndex( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RimDepthTrackPlot::plots() const
 {
-    return m_plots.childObjects();
+    std::vector<RimPlot*> baseClassPlots;
+
+    for ( auto p : m_plots.childObjects() )
+    {
+        baseClassPlots.push_back( p );
+    }
+
+    return baseClassPlots;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RimDepthTrackPlot::visiblePlots() const
+std::vector<RimWellLogTrack*> RimDepthTrackPlot::visiblePlots() const
 {
-    std::vector<RimPlot*> allVisiblePlots;
-    for ( RimPlot* plot : m_plots() )
+    std::vector<RimWellLogTrack*> allVisiblePlots;
+    for ( auto plot : m_plots() )
     {
         if ( plot->showWindow() )
         {
@@ -1049,16 +1056,19 @@ caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
 {
-    if ( plot )
+    auto wellLogTrack = dynamic_cast<RimWellLogTrack*>( plot );
+    CVF_ASSERT( plot && !wellLogTrack && "Only type RimWellLogTrack is supported in RimDepthTrackPlot" );
+
+    if ( wellLogTrack )
     {
-        m_plots.insert( index, plot );
+        m_plots.insert( index, wellLogTrack );
 
         if ( m_viewer )
         {
-            plot->createPlotWidget();
-            m_viewer->insertPlot( plot->plotWidget(), index );
+            wellLogTrack->createPlotWidget();
+            m_viewer->insertPlot( wellLogTrack->plotWidget(), index );
         }
-        plot->setShowWindow( true );
+        wellLogTrack->setShowWindow( true );
         onPlotAdditionOrRemoval();
     }
 }

@@ -43,6 +43,7 @@ class RiuWellLogPlot;
 class RimPlot;
 class RimEnsembleCurveSet;
 class RiuPlotAxis;
+class RimWellLogTrack;
 
 class QKeyEvent;
 
@@ -83,15 +84,15 @@ public:
     QString  description() const override;
 
     size_t   plotCount() const override;
-    size_t   plotIndex( const RimPlot* plot ) const;
+    size_t   plotIndex( const RimWellLogTrack* plot ) const;
     RimPlot* plotByIndex( size_t index ) const;
 
     int columnCount() const override;
 
-    std::vector<RimPlot*> plots() const override;
-    std::vector<RimPlot*> visiblePlots() const;
-    void                  insertPlot( RimPlot* plot, size_t index ) final;
-    void                  removePlot( RimPlot* plot ) final;
+    std::vector<RimPlot*>         plots() const override;
+    std::vector<RimWellLogTrack*> visiblePlots() const;
+    void                          insertPlot( RimPlot* plot, size_t index ) final;
+    void                          removePlot( RimPlot* plot ) final;
 
     DepthTypeEnum depthType() const;
     void          setDepthType( DepthTypeEnum depthType );
@@ -191,7 +192,7 @@ protected:
     caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisValueFontSize;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
-    caf::PdmChildArrayField<RimPlot*>             m_plots;
+    caf::PdmChildArrayField<RimWellLogTrack*>     m_plots;
 
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
