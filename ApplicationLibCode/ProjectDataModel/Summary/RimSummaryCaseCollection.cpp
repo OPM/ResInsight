@@ -1005,10 +1005,13 @@ void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
         }
         m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
 
-        auto subnode = uiTreeOrdering.add( "Realizations", ":/Folder.png" );
-        for ( auto& smcase : m_cases )
+        if ( !m_cases.empty() )
         {
-            subnode->add( smcase );
+            auto subnode = uiTreeOrdering.add( "Realizations", ":/Folder.png" );
+            for ( auto& smcase : m_cases )
+            {
+                subnode->add( smcase );
+            }
         }
 
         uiTreeOrdering.skipRemainingChildren( true );
