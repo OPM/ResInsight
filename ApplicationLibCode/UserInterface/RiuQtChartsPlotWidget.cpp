@@ -329,6 +329,9 @@ std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiuPlotAxis axis ) c
     {
         auto [adjustedMin, adjustedMax, tickCount] = m_helper->adjustedRange( dateAxis->min(), dateAxis->max() );
 
+        dateAxis->setMin( adjustedMin );
+        dateAxis->setMax( adjustedMax );
+
         auto minMSecs = adjustedMin.toMSecsSinceEpoch();
         auto maxMSecs = adjustedMax.toMSecsSinceEpoch();
 
