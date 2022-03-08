@@ -39,8 +39,11 @@
 #include "RiuSummaryVectorSelectionUi.h"
 
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QDebug>
 
 CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
@@ -53,6 +56,11 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", true, "Auto Plot Titles" );
     CAF_PDM_InitField( &m_autoPlotTitlesOnSubPlots, "AutoPlotTitlesSubPlots", true, "Auto Plot Titles Sub Plots" );
+
+    CAF_PDM_InitField( &m_syncAxisRanges, "SyncAxisRanges", false, "", "", "Sync Axis Ranges in All Plots" );
+    m_syncAxisRanges.xmlCapability()->disableIO();
+    m_syncAxisRanges.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_syncAxisRanges.uiCapability()->setUiIconFromResourceString( ":/AxesSync16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
     m_sourceStepping = new RimSummaryPlotSourceStepping;
@@ -222,9 +230,31 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         onLoadDataAndUpdate();
         updateLayout();
     }
+    else if ( changedField == &m_syncAxisRanges )
+    {
+        syncAxisRanges();
+        m_syncAxisRanges = false;
+    }
     else
     {
         RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                 QString                    uiConfigName,
+                                                 caf::PdmUiEditorAttribute* attribute )
+{
+    if ( &m_syncAxisRanges == field )
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_buttonText = "Sync Axes";
+        }
     }
 }
 
@@ -360,6 +390,8 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 {
     std::vector<caf::PdmFieldHandle*> toolBarFields;
 
+    toolBarFields.push_back( &m_syncAxisRanges );
+
     auto& sourceObject = m_sourceStepping();
     if ( sourceObject )
     {
@@ -376,4 +408,46 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 {
     return RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::syncAxisRanges()
+{
+    std::map<QString, std::pair<double, double>> axisRanges;
+
+    // gather current min/max values for each category (axis label)
+    for ( auto plot : summaryPlots() )
+    {
+        for ( auto axis : plot->plotAxes() )
+        {
+            double minVal = axis->visibleRangeMin();
+            double maxVal = axis->visibleRangeMax();
+
+            if ( axisRanges.count( axis->name() ) == 0 )
+            {
+                axisRanges[axis->name()] = std::make_pair( axis->visibleRangeMin(), axis->visibleRangeMax() );
+            }
+            else
+            {
+                auto& [currentMin, currentMax] = axisRanges[axis->name()];
+                axisRanges[axis->name()] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+            }
+        }
+    }
+
+    // set all plots to use the global min/max values for each category
+    for ( auto plot : summaryPlots() )
+    {
+        for ( auto axis : plot->plotAxes() )
+        {
+            const auto& [minVal, maxVal] = axisRanges[axis->name()];
+            axis->setAutoZoom( false );
+            axis->setVisibleRangeMin( minVal );
+            axis->setVisibleRangeMax( maxVal );
+        }
+
+        plot->updateAxes();
+    }
 }

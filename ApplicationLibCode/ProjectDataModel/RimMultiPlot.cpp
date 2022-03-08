@@ -87,7 +87,7 @@ RimMultiPlot::RimMultiPlot()
     CAF_PDM_InitFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Sub Plot Title Font Size" );
     m_subTitleFontSize = caf::FontTools::RelativeSize::Large;
 
-    CAF_PDM_InitField( &m_pagePreviewMode, "PagePreviewMode", false, "Page Preview Mode" );
+    CAF_PDM_InitField( &m_pagePreviewMode, "PagePreviewMode", false, "Page Preview Mode", "", "Page Preview" );
     m_pagePreviewMode.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_pagePreviewMode.uiCapability()->setUiIconFromResourceString( ":/PagePreview16x16.png" );
     m_viewer = nullptr;
@@ -191,6 +191,8 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
     if ( plot )
     {
         setTickmarkCount( plot, m_majorTickmarkCount() );
+
+        if ( index > m_plots.size() ) index = m_plots.size();
 
         m_plots.insert( index, plot );
 
