@@ -43,8 +43,6 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-#include <QDebug>
-
 CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 ///
