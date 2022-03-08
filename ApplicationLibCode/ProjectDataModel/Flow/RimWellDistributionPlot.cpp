@@ -127,7 +127,7 @@ RiuPlotWidget* RimWellDistributionPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::setAutoScalePropertyValuesEnabled( bool /*enabled*/ )
+void RimWellDistributionPlot::setAutoScaleXEnabled( bool /*enabled*/ )
 {
     // cvf::Trace::show("RimWellDistributionPlot::setAutoScaleXEnabled()");
 }
@@ -135,7 +135,7 @@ void RimWellDistributionPlot::setAutoScalePropertyValuesEnabled( bool /*enabled*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::setAutoScaleDepthValuesEnabled( bool /*enabled*/ )
+void RimWellDistributionPlot::setAutoScaleYEnabled( bool /*enabled*/ )
 {
     // cvf::Trace::show("RimWellDistributionPlot::setAutoScaleYEnabled()");
 }

@@ -145,7 +145,7 @@ void RiuWellLogPlot::slotSetMinDepth( int value )
 
     double delta = value - minimumDepth;
     depthTrackPlot()->setDepthAxisRange( minimumDepth + delta, maximumDepth + delta );
-    depthTrackPlot()->setAutoScaleDepthEnabled( false );
+    depthTrackPlot()->setAutoScaleDepthValuesEnabled( false );
 }
 
 //--------------------------------------------------------------------------------------------------

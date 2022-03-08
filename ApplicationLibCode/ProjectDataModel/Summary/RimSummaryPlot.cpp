@@ -1130,8 +1130,8 @@ void RimSummaryPlot::removeAllTimeAnnotations()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::zoomAll()
 {
-    setAutoScalePropertyValuesEnabled( true );
-    setAutoScaleDepthValuesEnabled( true );
+    setAutoScaleXEnabled( true );
+    setAutoScaleYEnabled( true );
     updateZoomInParentPlot();
 }
 
@@ -1973,8 +1973,8 @@ void RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSummaryAddress& addre
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onPlotZoomed()
 {
-    setAutoScalePropertyValuesEnabled( false );
-    setAutoScaleDepthValuesEnabled( false );
+    setAutoScaleXEnabled( false );
+    setAutoScaleYEnabled( false );
     updateZoomFromParentPlot();
 }
 
@@ -2357,7 +2357,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlot::fieldsToShowInToolbar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setAutoScalePropertyValuesEnabled( bool enabled )
+void RimSummaryPlot::setAutoScaleXEnabled( bool enabled )
 {
     for ( auto ap : m_axisProperties )
     {
@@ -2372,7 +2372,7 @@ void RimSummaryPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::setAutoScaleDepthValuesEnabled( bool enabled )
+void RimSummaryPlot::setAutoScaleYEnabled( bool enabled )
 {
     for ( auto ap : m_axisProperties )
     {

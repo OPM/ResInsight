@@ -175,14 +175,14 @@ RiuPlotWidget* RimVfpPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setAutoScalePropertyValuesEnabled( bool /*enabled*/ )
+void RimVfpPlot::setAutoScaleXEnabled( bool /*enabled*/ )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::setAutoScaleDepthValuesEnabled( bool /*enabled*/ )
+void RimVfpPlot::setAutoScaleYEnabled( bool /*enabled*/ )
 {
 }
 
