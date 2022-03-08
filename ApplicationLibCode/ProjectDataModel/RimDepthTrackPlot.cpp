@@ -363,7 +363,7 @@ void RimDepthTrackPlot::setDepthAxisRange( double minimumDepth, double maximumDe
     m_minVisibleDepth.uiCapability()->updateConnectedEditors();
     m_maxVisibleDepth.uiCapability()->updateConnectedEditors();
 
-    setAutoScaleDepthEnabled( false );
+    setAutoScaleDepthValuesEnabled( false );
     updateZoom();
 }
 
@@ -1211,9 +1211,9 @@ RiuPlotAxis RimDepthTrackPlot::valueAxis() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setAutoScaleXEnabled( bool enabled )
+void RimDepthTrackPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 {
-    for ( RimPlot* plot : plots() )
+    for ( auto plot : m_plots.childObjects() )
     {
         plot->setAutoScalePropertyValuesEnabled( enabled );
     }
@@ -1222,7 +1222,7 @@ void RimDepthTrackPlot::setAutoScaleXEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setAutoScaleDepthEnabled( bool enabled )
+void RimDepthTrackPlot::setAutoScaleDepthValuesEnabled( bool enabled )
 {
     m_isAutoScaleDepthEnabled = enabled;
     m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
@@ -1233,8 +1233,8 @@ void RimDepthTrackPlot::setAutoScaleDepthEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::zoomAll()
 {
-    setAutoScaleXEnabled( true );
-    setAutoScaleDepthEnabled( true );
+    setAutoScalePropertyValuesEnabled( true );
+    setAutoScaleDepthValuesEnabled( true );
     updateZoom();
 }
 

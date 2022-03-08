@@ -108,8 +108,8 @@ public:
     RiuPlotAxis                         depthAxis() const;
     RiuPlotAxis                         valueAxis() const;
 
-    void setAutoScaleXEnabled( bool enabled );
-    void setAutoScaleDepthEnabled( bool enabled );
+    void setAutoScalePropertyValuesEnabled( bool enabled );
+    void setAutoScaleDepthValuesEnabled( bool enabled );
 
     void zoomAll() override;
     void updateZoom();

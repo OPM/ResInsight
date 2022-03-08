@@ -113,7 +113,7 @@ if(MSVC)
   if(Qt5Core_VERSION_STRING GREATER_EQUAL 5.10)
     # Disable warning for deprecated functions in newer versions of Qt
     # https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-3-c4996?view=msvc-160
-    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
+    # set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
   endif()
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)

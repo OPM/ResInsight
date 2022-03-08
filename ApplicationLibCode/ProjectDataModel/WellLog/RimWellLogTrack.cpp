@@ -1358,6 +1358,22 @@ void RimWellLogTrack::setAndUpdateSimWellFormationNamesData( RimCase* rimCase, c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAutoScaleXEnabled( bool enabled )
+{
+    CAF_ASSERT( "A well log track be be both vertical and horizontal, use setAutoScalePropertyValuesEnabled " );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::setAutoScaleYEnabled( bool enabled )
+{
+    CAF_ASSERT( "A well log track be be both vertical and horizontal, use setAutoScaleDepthValuesEnabled " );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::setAutoScalePropertyValuesEnabled( bool enabled )
 {
     m_isAutoScalePropertyValuesEnabled = enabled;
