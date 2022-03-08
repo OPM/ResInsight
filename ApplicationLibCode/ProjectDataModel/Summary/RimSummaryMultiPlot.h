@@ -59,6 +59,8 @@ public:
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
+    void syncAxisRanges();
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
 
@@ -66,6 +68,9 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
 
@@ -76,6 +81,7 @@ private:
 private:
     caf::PdmField<bool> m_autoPlotTitles;
     caf::PdmField<bool> m_autoPlotTitlesOnSubPlots;
+    caf::PdmField<bool> m_syncAxisRanges;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
