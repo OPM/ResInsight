@@ -139,8 +139,11 @@ public:
                                                          bool           useBranchDetection );
     void setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName );
 
-    void setAutoScalePropertyValuesEnabled( bool enabled ) override;
-    void setAutoScaleDepthValuesEnabled( bool enabled ) override;
+    [[deprecated( "Use setAutoScalePropertyValuesEnabled() instead." )]] void setAutoScaleXEnabled( bool enabled ) override;
+    [[deprecated( "Use setAutoScaleDepthValuesEnabled() instead." )]] void setAutoScaleYEnabled( bool enabled ) override;
+
+    void setAutoScalePropertyValuesEnabled( bool enabled );
+    void setAutoScaleDepthValuesEnabled( bool enabled );
     void setAutoScalePropertyValuesIfNecessary();
 
     void availablePropertyValueRange( double* minX, double* maxX );

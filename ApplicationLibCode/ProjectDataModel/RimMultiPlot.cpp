@@ -406,7 +406,7 @@ void RimMultiPlot::setAutoScaleXEnabled( bool enabled )
 {
     for ( RimPlot* plot : plots() )
     {
-        plot->setAutoScalePropertyValuesEnabled( enabled );
+        plot->setAutoScaleXEnabled( enabled );
     }
 }
 
@@ -417,7 +417,7 @@ void RimMultiPlot::setAutoScaleYEnabled( bool enabled )
 {
     for ( RimPlot* plot : plots() )
     {
-        plot->setAutoScaleDepthValuesEnabled( enabled );
+        plot->setAutoScaleYEnabled( enabled );
     }
 }
 

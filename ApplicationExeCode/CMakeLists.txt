@@ -210,12 +210,6 @@ if(MSVC)
 
   set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
 
-  if(Qt5Core_VERSION_STRING GREATER_EQUAL 5.10)
-    # Disable warning for deprecated functions in newer versions of Qt
-    # https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-3-c4996?view=msvc-160
-    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
-  endif()
-
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only
     # using VS2015 Disabling temporarily warning C4505 'function' : unreferenced

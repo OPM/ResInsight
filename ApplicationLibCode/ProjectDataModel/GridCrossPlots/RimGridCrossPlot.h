@@ -102,8 +102,8 @@ public:
     void updateZoomInParentPlot() override;
     void updateZoomFromParentPlot() override;
 
-    void            setAutoScalePropertyValuesEnabled( bool enabled ) override;
-    void            setAutoScaleDepthValuesEnabled( bool enabled ) override;
+    void            setAutoScaleXEnabled( bool enabled ) override;
+    void            setAutoScaleYEnabled( bool enabled ) override;
     caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
     void            onAxisSelected( int axis, bool toggle ) override;
 

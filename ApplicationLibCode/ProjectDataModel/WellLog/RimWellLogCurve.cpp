@@ -314,7 +314,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
             }
             if ( updateDepthZoom )
             {
-                wellLogPlot->setAutoScaleDepthEnabled( true );
+                wellLogPlot->setAutoScaleDepthValuesEnabled( true );
             }
             wellLogPlot->updateZoom();
         }

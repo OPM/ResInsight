@@ -183,8 +183,8 @@ QImage RimGridCrossPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::zoomAll()
 {
-    setAutoScalePropertyValuesEnabled( true );
-    setAutoScaleDepthValuesEnabled( true );
+    setAutoScaleXEnabled( true );
+    setAutoScaleYEnabled( true );
 
     updateZoomInParentPlot();
 }
@@ -338,7 +338,7 @@ void RimGridCrossPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::setAutoScalePropertyValuesEnabled( bool enabled )
+void RimGridCrossPlot::setAutoScaleXEnabled( bool enabled )
 {
     m_xAxisProperties->setAutoZoom( enabled );
 }
@@ -346,7 +346,7 @@ void RimGridCrossPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::setAutoScaleDepthValuesEnabled( bool enabled )
+void RimGridCrossPlot::setAutoScaleYEnabled( bool enabled )
 {
     m_yAxisProperties->setAutoZoom( enabled );
 }
@@ -457,8 +457,8 @@ void RimGridCrossPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::onPlotZoomed()
 {
-    setAutoScalePropertyValuesEnabled( false );
-    setAutoScaleDepthValuesEnabled( false );
+    setAutoScaleXEnabled( false );
+    setAutoScaleYEnabled( false );
     updateZoomFromParentPlot();
 }
 

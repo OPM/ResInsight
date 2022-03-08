@@ -172,7 +172,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( false );
         plot->setDepthType( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH );
-        plot->setAutoScaleDepthEnabled( true );
+        plot->setAutoScaleDepthValuesEnabled( true );
     }
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );

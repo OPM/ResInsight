@@ -163,8 +163,8 @@ public:
     virtual RimSummaryPlotSourceStepping*     sourceSteppingObjectForKeyEventHandling() const;
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
-    void           setAutoScalePropertyValuesEnabled( bool enabled ) override;
-    void           setAutoScaleDepthValuesEnabled( bool enabled ) override;
+    void           setAutoScaleXEnabled( bool enabled ) override;
+    void           setAutoScaleYEnabled( bool enabled ) override;
     RiuPlotWidget* plotWidget() override;
     void           zoomAll() override;
     void           updateZoomInParentPlot() override;
