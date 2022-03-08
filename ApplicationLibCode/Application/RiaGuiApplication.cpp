@@ -1687,10 +1687,15 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
     {
         if ( event->type() == QEvent::KeyPress )
         {
-            QKeyEvent* keyEvent = static_cast<QKeyEvent*>( event );
-
-            RimPlotWindow* plot = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
+            QKeyEvent*     keyEvent = static_cast<QKeyEvent*>( event );
+            RimPlotWindow* plot     = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
             if ( plot ) done = plot->handleGlobalKeyEvent( keyEvent );
+        }
+        else if ( event->type() == QEvent::Wheel )
+        {
+            QWheelEvent*   wheelEvent = static_cast<QWheelEvent*>( event );
+            RimPlotWindow* plot       = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
+            if ( plot ) done = plot->handleGlobalWheelEvent( wheelEvent );
         }
         if ( !done )
         {

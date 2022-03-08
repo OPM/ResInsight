@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimMultiPlot.h"
+#include "RimSummaryMultiPlot.h"
 
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryStringTools.h"
@@ -31,7 +31,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotControls.h"
 
-#include "RimSummaryMultiPlot.h"
+#include "RimMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
@@ -411,41 +411,7 @@ bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::syncAxisRanges()
+bool RimSummaryMultiPlot::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
 {
-    std::map<QString, std::pair<double, double>> axisRanges;
-
-    // gather current min/max values for each category (axis label)
-    for ( auto plot : summaryPlots() )
-    {
-        for ( auto axis : plot->plotAxes() )
-        {
-            double minVal = axis->visibleRangeMin();
-            double maxVal = axis->visibleRangeMax();
-
-            if ( axisRanges.count( axis->name() ) == 0 )
-            {
-                axisRanges[axis->name()] = std::make_pair( axis->visibleRangeMin(), axis->visibleRangeMax() );
-            }
-            else
-            {
-                auto& [currentMin, currentMax] = axisRanges[axis->name()];
-                axisRanges[axis->name()] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
-            }
-        }
-    }
-
-    // set all plots to use the global min/max values for each category
-    for ( auto plot : summaryPlots() )
-    {
-        for ( auto axis : plot->plotAxes() )
-        {
-            const auto& [minVal, maxVal] = axisRanges[axis->name()];
-            axis->setAutoZoom( false );
-            axis->setVisibleRangeMin( minVal );
-            axis->setVisibleRangeMax( maxVal );
-        }
-
-        plot->updateAxes();
-    }
+    return true;
 }
