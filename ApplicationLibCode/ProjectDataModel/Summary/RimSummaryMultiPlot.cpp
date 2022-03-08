@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimMultiPlot.h"
+#include "RimSummaryMultiPlot.h"
 
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryStringTools.h"
@@ -31,7 +31,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotControls.h"
 
-#include "RimSummaryMultiPlot.h"
+#include "RimMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
@@ -376,4 +376,12 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 {
     return RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
+{
+    return true;
 }

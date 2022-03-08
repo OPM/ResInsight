@@ -61,6 +61,7 @@ public:
 
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
+    bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

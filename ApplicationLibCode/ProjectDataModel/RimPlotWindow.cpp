@@ -344,3 +344,11 @@ bool RimPlotWindow::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 {
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
+{
+    return false;
+}

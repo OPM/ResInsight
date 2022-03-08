@@ -32,6 +32,7 @@ class RiuQwtPlotWidget;
 
 class QwtPlotCurve;
 class QKeyEvent;
+class QWheelEvent;
 class QPaintDevice;
 
 //==================================================================================================
@@ -76,6 +77,7 @@ public:
     QPageLayout pageLayout() const;
 
     virtual bool handleGlobalKeyEvent( QKeyEvent* keyEvent );
+    virtual bool handleGlobalWheelEvent( QWheelEvent* wheelEvent );
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
