@@ -335,6 +335,8 @@ QString QtChartHelper::formatStringForRange( const QDateTime& min, const QDateTi
     int  maxStepCount = m_maxMajorTicks;
     auto intervalType = m_scaleEngine.intervalType( min, max, maxStepCount );
 
+    intervalType = QwtDate::Hour;
+
     auto dateFormat = m_scaleDraw.dateFormat( intervalType );
 
     return dateFormat;

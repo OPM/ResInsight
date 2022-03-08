@@ -329,16 +329,18 @@ std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiuPlotAxis axis ) c
     {
         auto [adjustedMin, adjustedMax, tickCount] = m_helper->adjustedRange( dateAxis->min(), dateAxis->max() );
 
-        dateAxis->setMin( adjustedMin );
-        dateAxis->setMax( adjustedMax );
+        //        dateAxis->setMin( adjustedMin );
+        //        dateAxis->setMax( adjustedMax );
 
-        auto minMSecs = adjustedMin.toMSecsSinceEpoch();
-        auto maxMSecs = adjustedMax.toMSecsSinceEpoch();
+        //        auto minMSecs = adjustedMin.toMSecsSinceEpoch();
+        //        auto maxMSecs = adjustedMax.toMSecsSinceEpoch();
 
         auto formatString = m_helper->formatStringForRange( adjustedMin, adjustedMax );
         dateAxis->setFormat( formatString );
-        dateAxis->setTickCount( tickCount );
+        //        dateAxis->setTickCount( tickCount + 1 );
 
+        auto minMSecs = dateAxis->min().toMSecsSinceEpoch();
+        auto maxMSecs = dateAxis->max().toMSecsSinceEpoch();
         return std::make_pair( minMSecs, maxMSecs );
     }
 
@@ -1030,6 +1032,8 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiuPlotAxis axis )
     QAbstractAxis*  pAxis = plotAxis( axis );
     Qt::Orientation orr   = orientation( axis.axis() );
 
+    QDateTimeAxis* dateTimeAxis = nullptr;
+
     double min = std::numeric_limits<double>::max();
     double max = -std::numeric_limits<double>::max();
     for ( auto series : qtChart()->series() )
@@ -1046,7 +1050,7 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiuPlotAxis axis )
                     points = dynamic_cast<QLineSeries*>( series )->pointsVector();
                 }
 
-                QDateTimeAxis* dateTimeAxis = dynamic_cast<QDateTimeAxis*>( attachedAxis );
+                dateTimeAxis = dynamic_cast<QDateTimeAxis*>( attachedAxis );
                 if ( dateTimeAxis && dateTimeAxis->orientation() == orr && dynamic_cast<QLineSeries*>( series ) )
                 {
                     points = dynamic_cast<QLineSeries*>( series )->pointsVector();
@@ -1074,7 +1078,23 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiuPlotAxis axis )
 
     if ( axisScaleType( axis ) == RiuPlotWidget::AxisScaleType::DATE )
     {
-        pAxis->setRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
+        QDateTime dtMin = QDateTime::fromMSecsSinceEpoch( min );
+        QDateTime dtMax = QDateTime::fromMSecsSinceEpoch( max );
+
+        auto [adjustedMin, adjustedMax, tickCount] = m_helper->adjustedRange( dtMin, dtMax );
+
+        //        dateAxis->setMin( adjustedMin );
+        //        dateAxis->setMax( adjustedMax );
+
+        //        auto minMSecs = adjustedMin.toMSecsSinceEpoch();
+        //        auto maxMSecs = adjustedMax.toMSecsSinceEpoch();
+
+        // dateTimeAxis->setRange( adjustedMin, adjustedMax );
+        pAxis->setRange( dtMin, dtMax );
+
+        auto formatString = m_helper->formatStringForRange( adjustedMin, adjustedMax );
+        dateTimeAxis->setFormat( formatString );
+        dateTimeAxis->setTickCount( tickCount + 1 );
     }
     else
     {
