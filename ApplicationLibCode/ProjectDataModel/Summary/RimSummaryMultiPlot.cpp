@@ -415,3 +415,45 @@ bool RimSummaryMultiPlot::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
 {
     return true;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::syncAxisRanges()
+{
+    std::map<QString, std::pair<double, double>> axisRanges;
+
+    // gather current min/max values for each category (axis label)
+    for ( auto plot : summaryPlots() )
+    {
+        for ( auto axis : plot->plotAxes() )
+        {
+            double minVal = axis->visibleRangeMin();
+            double maxVal = axis->visibleRangeMax();
+
+            if ( axisRanges.count( axis->name() ) == 0 )
+            {
+                axisRanges[axis->name()] = std::make_pair( axis->visibleRangeMin(), axis->visibleRangeMax() );
+            }
+            else
+            {
+                auto& [currentMin, currentMax] = axisRanges[axis->name()];
+                axisRanges[axis->name()] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+            }
+        }
+    }
+
+    // set all plots to use the global min/max values for each category
+    for ( auto plot : summaryPlots() )
+    {
+        for ( auto axis : plot->plotAxes() )
+        {
+            const auto& [minVal, maxVal] = axisRanges[axis->name()];
+            axis->setAutoZoom( false );
+            axis->setVisibleRangeMin( minVal );
+            axis->setVisibleRangeMax( maxVal );
+        }
+
+        plot->updateAxes();
+    }
+}
