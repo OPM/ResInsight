@@ -19,6 +19,9 @@
 #include "RiaImageFileCompare.h"
 #include <QtCore/QProcess>
 
+// Disable deprecation warning for QProcess::start()
+#pragma warning( disable : 4996 )
+
 //==================================================================================================
 //
 //
