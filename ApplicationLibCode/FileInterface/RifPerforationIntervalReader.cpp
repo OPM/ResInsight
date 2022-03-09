@@ -18,6 +18,8 @@
 
 #include "RifPerforationIntervalReader.h"
 
+#include "RiaTextStringTools.h"
+
 #include <QDate>
 #include <QFile>
 
@@ -79,7 +81,7 @@ void RifPerforationIntervalReader::readFileIntoMap( const QString&              
 
         // Replace any tabs with spaces to enable splitting on spaces
         line.replace( "\t", " " );
-        QStringList parts = line.split( " ", Qt::SkipEmptyParts );
+        QStringList parts = RiaTextStringTools::splitSkipEmptyParts( line );
 
         if ( line.startsWith( "WELLNAME" ) )
         {

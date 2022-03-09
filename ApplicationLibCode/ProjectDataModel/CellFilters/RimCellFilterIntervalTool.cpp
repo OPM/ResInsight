@@ -18,6 +18,8 @@
 
 #include "RimCellFilterIntervalTool.h"
 
+#include "RiaTextStringTools.h"
+
 #include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
@@ -104,11 +106,11 @@ void RimCellFilterIntervalTool::setInterval( bool enabled, QString intervalText 
 
     if ( !enabled ) return;
 
-    QStringList parts = intervalText.split( ',', Qt::SkipEmptyParts );
+    QStringList parts = RiaTextStringTools::splitSkipEmptyParts( intervalText, "," );
 
     for ( auto& part : parts )
     {
-        QStringList minmax = part.split( '-', Qt::SkipEmptyParts );
+        QStringList minmax = RiaTextStringTools::splitSkipEmptyParts( part, "-" );
         switch ( minmax.size() )
         {
             case 1:

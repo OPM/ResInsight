@@ -23,6 +23,8 @@
 #include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
+#include "RiaTextStringTools.h"
+
 #include "RimSummaryCase.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -56,7 +58,7 @@ RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPl
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
 {
-    QStringList addressStrings = m_addressString().split( ";", Qt::SkipEmptyParts );
+    QStringList addressStrings = RiaTextStringTools::splitSkipEmptyParts( m_addressString(), ";" );
 
     RimSummaryPlot* newPlot = nullptr;
     if ( m_ensemble )

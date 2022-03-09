@@ -25,6 +25,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaProjectFileVersionTools.h"
+#include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
 
 #include "RicfCommandObject.h"
@@ -1517,7 +1518,7 @@ public:
     GlobalPathListMapper( const QString& globalPathListTable )
     {
         m_maxUsedIdNumber     = 0;
-        QStringList pathPairs = globalPathListTable.split( ";", Qt::SkipEmptyParts );
+        QStringList pathPairs = RiaTextStringTools::splitSkipEmptyParts( globalPathListTable, ";" );
 
         for ( const QString& pathIdPathPair : pathPairs )
         {

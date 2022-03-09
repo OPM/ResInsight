@@ -22,6 +22,8 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaTextStringTools.h"
+
 #include "RigStimPlanFractureDefinition.h"
 
 #include <QFile>
@@ -474,7 +476,7 @@ void RifStimPlanXmlReader::getGriddingValues( QXmlStreamReader&    xmlStream,
     QString gridValuesString = xmlStream.readElementText().replace( '\n', ' ' );
     gridValuesString         = gridValuesString.replace( '[', ' ' ).replace( ']', ' ' );
 
-    for ( const QString& value : gridValuesString.split( ' ', Qt::SkipEmptyParts ) )
+    for ( const QString& value : RiaTextStringTools::splitSkipEmptyParts( gridValuesString ) )
     {
         if ( value.size() > 0 )
         {

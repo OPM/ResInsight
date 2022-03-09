@@ -21,6 +21,7 @@
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 #include "RifReaderEclipseSummary.h"
@@ -217,9 +218,7 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
 //--------------------------------------------------------------------------------------------------
 QStringList RiaSummaryStringTools::splitIntoWords( const QString& text )
 {
-    QStringList words = text.split( QRegExp( "\\s+" ), Qt::SkipEmptyParts );
-
-    return words;
+    return RiaTextStringTools::splitSkipEmptyParts( text, QRegExp( "\\s+" ) );
 }
 
 //--------------------------------------------------------------------------------------------------

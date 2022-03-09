@@ -17,6 +17,8 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuScalarMapperLegendFrame.h"
 
+#include "RiaTextStringTools.h"
+
 #include "cvfScalarMapperDiscreteLinear.h"
 #include "cvfScalarMapperDiscreteLog.h"
 #include "cvfString.h"
@@ -72,7 +74,7 @@ void RiuScalarMapperLegendFrame::setTickFormat( NumberFormat format )
 void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
 {
     QFontMetrics fontMetrics( this->font() );
-    QStringList  titleLines = m_title.split( "\n", Qt::SkipEmptyParts );
+    QStringList  titleLines = RiaTextStringTools::splitSkipEmptyParts( m_title, "\n" );
 
     layout->charHeight        = fontMetrics.height();
     layout->charAscent        = fontMetrics.ascent();
