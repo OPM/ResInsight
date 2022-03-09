@@ -21,6 +21,7 @@
 
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RiuPlotWidget.h"
 
@@ -41,6 +42,7 @@ class QLabel;
 class QPainter;
 class QPaintDevice;
 class QWheelEvent;
+class RiuQwtDateScaleWrapper;
 
 namespace QtCharts
 {
@@ -49,6 +51,7 @@ class QChart;
 class QAbstractSeries;
 class QAbstractAxis;
 class QChartView;
+class QCategoryAxis;
 }; // namespace QtCharts
 
 //==================================================================================================
@@ -178,6 +181,11 @@ public:
 
     void updateZoomDependentCurveProperties() override;
 
+    void setFormatStrings( const QString&                          dateFormat,
+                           const QString&                          timeFormat,
+                           RiaQDateTimeTools::DateFormatComponents dateComponents,
+                           RiaQDateTimeTools::TimeFormatComponents timeComponents );
+
 protected:
     void attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );
 
@@ -215,6 +223,9 @@ private:
     static int defaultMinimumWidth();
     void       replot() override;
 
+    QtCharts::QCategoryAxis* categoryAxis();
+
+private:
     QPointer<QtCharts::QChartView> m_viewer;
 
     std::map<RiuPlotAxis, QtCharts::QAbstractAxis*> m_axes;
@@ -223,4 +234,6 @@ private:
 
     std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_lineSeriesMap;
     std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;
+
+    RiuQwtDateScaleWrapper* m_dateScaleWrapper;
 };
