@@ -1109,7 +1109,7 @@ void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
     plotAreaRect.setHeight( plotAreaRect.height() * factor );
 
     // Find new center which keeps the mouse location in the same place in the plot
-    QPointF newCenterPoint( ( 2 * centerPoint - event->pos() ) - ( centerPoint - event->pos() ) / factor );
+    QPointF newCenterPoint( ( 2 * centerPoint - event->position() ) - ( centerPoint - event->position() ) / factor );
     plotAreaRect.moveCenter( newCenterPoint );
 
     // Zoom in on the adjusted plot area
