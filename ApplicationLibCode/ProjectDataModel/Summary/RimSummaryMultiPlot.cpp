@@ -415,7 +415,7 @@ bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 {
     if ( !RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent ) )
     {
-        if ( isMouseCursorAboveUs() )
+        if ( isMouseCursorInsidePlot() )
         {
             if ( keyEvent->key() == Qt::Key_PageUp )
             {
@@ -440,7 +440,7 @@ bool RimSummaryMultiPlot::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
 {
     if ( m_disableWheelZoom )
     {
-        if ( isMouseCursorAboveUs() )
+        if ( isMouseCursorInsidePlot() )
         {
             if ( wheelEvent->angleDelta().y() > 0 )
             {

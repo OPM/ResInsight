@@ -910,7 +910,7 @@ void RimMultiPlot::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimMultiPlot::isMouseCursorAboveUs()
+bool RimMultiPlot::isMouseCursorInsidePlot()
 {
     if ( !m_viewer ) return false;
 
