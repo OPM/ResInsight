@@ -415,7 +415,7 @@ bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 {
     if ( !RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent ) )
     {
-        if ( m_viewer && isMouseCursorAboveUs() )
+        if ( isMouseCursorAboveUs() )
         {
             if ( keyEvent->key() == Qt::Key_PageUp )
             {
@@ -438,15 +438,15 @@ bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
 {
-    if ( m_viewer && m_disableWheelZoom )
+    if ( m_disableWheelZoom )
     {
         if ( isMouseCursorAboveUs() )
         {
-            if ( wheelEvent->delta() > 0 )
+            if ( wheelEvent->angleDelta().y() > 0 )
             {
                 m_viewer->goToPrevPage();
             }
-            else if ( wheelEvent->delta() < 0 )
+            else if ( wheelEvent->angleDelta().y() < 0 )
             {
                 m_viewer->goToNextPage();
             }

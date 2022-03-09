@@ -912,6 +912,8 @@ void RimMultiPlot::cleanupBeforeClose()
 //--------------------------------------------------------------------------------------------------
 bool RimMultiPlot::isMouseCursorAboveUs()
 {
+    if ( !m_viewer ) return false;
+
     QPoint curpos = m_viewer->mapFromGlobal( QCursor::pos() );
     return ( m_viewer->rect().contains( curpos ) );
 }
