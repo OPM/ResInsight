@@ -84,7 +84,8 @@ void RicCreateEnsembleSurfaceFeature::openDialogAndExecuteCommand()
 
     if ( propertyDialog.exec() == QDialog::Accepted )
     {
-        executeCommand( *ui, result.files.toVector().toStdVector() );
+        auto stdVector = std::vector<QString>( result.files.begin(), result.files.end() );
+        executeCommand( *ui, stdVector );
     }
 }
 

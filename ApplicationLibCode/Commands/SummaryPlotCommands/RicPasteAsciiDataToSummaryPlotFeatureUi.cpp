@@ -329,7 +329,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     std::vector<int> values;
 
     {
-        QStringList split = dateString.split( ".", QString::SkipEmptyParts );
+        QStringList split = dateString.split( ".", Qt::SkipEmptyParts );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );
@@ -342,7 +342,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     }
 
     {
-        QStringList split = dateString.split( "-", QString::SkipEmptyParts );
+        QStringList split = dateString.split( "-", Qt::SkipEmptyParts );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );
@@ -355,7 +355,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     }
 
     {
-        QStringList split = dateString.split( "/", QString::SkipEmptyParts );
+        QStringList split = dateString.split( "/", Qt::SkipEmptyParts );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );

@@ -62,7 +62,7 @@ std::vector<RimEnsembleCurveSet*>
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
     QString     curvesTextFilter = prefs->defaultSummaryCurvesTextFilter();
-    QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
+    QStringList curveFilters     = curvesTextFilter.split( ";", Qt::SkipEmptyParts );
 
     std::set<RifEclipseSummaryAddress> addrs = ensemble->ensembleSummaryAddresses();
 

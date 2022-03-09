@@ -62,7 +62,7 @@ void RicAppendPointsToPolygonFilterFeature::onActionTriggered( bool isChecked )
     if ( clipboard )
     {
         QString content    = clipboard->text();
-        listOfThreeDoubles = content.split( "\n", QString::SkipEmptyParts );
+        listOfThreeDoubles = content.split( "\n", Qt::SkipEmptyParts );
     }
 
     std::vector<cvf::Vec3d> points;

@@ -106,7 +106,8 @@ void RicCreateEnsembleWellLogFeature::openDialogAndExecuteCommand()
 
     if ( propertyDialog.exec() == QDialog::Accepted && !ui->properties().empty() )
     {
-        executeCommand( *ui, result.files.toStdList() );
+        auto stdList = std::list<QString>( result.files.begin(), result.files.end() );
+        executeCommand( *ui, stdList );
     }
 }
 
