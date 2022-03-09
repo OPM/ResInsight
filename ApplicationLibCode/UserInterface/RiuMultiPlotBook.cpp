@@ -593,7 +593,7 @@ void RiuMultiPlotBook::applyLook()
 void RiuMultiPlotBook::changeCurrentPage( int pageDiff )
 {
     m_currentPageIndex += pageDiff;
-    if ( m_currentPageIndex >= m_pages.size() ) m_currentPageIndex = m_pages.size() - 1;
+    if ( m_currentPageIndex >= (int)m_pages.size() ) m_currentPageIndex = (int)m_pages.size() - 1;
     if ( m_currentPageIndex < 0 ) m_currentPageIndex = 0;
     if ( !m_pages.isEmpty() ) m_scrollArea->ensureWidgetVisible( m_pages[m_currentPageIndex] );
 }
