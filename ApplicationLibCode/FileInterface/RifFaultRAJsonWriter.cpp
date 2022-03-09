@@ -40,12 +40,12 @@ bool RifFaultRAJSonWriter::writeToPreprocFile( RimFaultRAPreprocSettings& settin
     {
         QTextStream stream( &file );
 
-        stream << "{" << endl;
-        stream << "\"odb_path\": \"" + settings.geomechCaseFilename() + "\"," << endl;
-        stream << "\"time_start\": \"" + settings.startTimeStepGeoMech() + "\"," << endl;
-        stream << "\"time_end\": \"" + settings.endTimeStepGeoMech() + "\"," << endl;
-        stream << "\"out_path\": \"" + settings.outputAbaqusDirectory() + "\"" << endl;
-        stream << "}" << endl;
+        stream << "{" << Qt::endl;
+        stream << "\"odb_path\": \"" + settings.geomechCaseFilename() + "\"," << Qt::endl;
+        stream << "\"time_start\": \"" + settings.startTimeStepGeoMech() + "\"," << Qt::endl;
+        stream << "\"time_end\": \"" + settings.endTimeStepGeoMech() + "\"," << Qt::endl;
+        stream << "\"out_path\": \"" + settings.outputAbaqusDirectory() + "\"" << Qt::endl;
+        stream << "}" << Qt::endl;
 
         file.close();
     }
@@ -73,26 +73,26 @@ bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRAPostprocS
     {
         QTextStream stream( &file );
 
-        stream << "{" << endl;
+        stream << "{" << Qt::endl;
 
         if ( settings->geomechEnabled() )
         {
             if ( QFile::exists( settings->advancedMacrisDatabase() ) )
-                stream << "\"MacrisCalcCalibration_path\": \"" + settings->advancedMacrisDatabase() + "\"," << endl;
+                stream << "\"MacrisCalcCalibration_path\": \"" + settings->advancedMacrisDatabase() + "\"," << Qt::endl;
         }
 
         if ( QFile::exists( settings->basicMacrisDatabase() ) )
-            stream << "\"MacrisCalc_path\": \"" + settings->basicMacrisDatabase() + "\"," << endl;
+            stream << "\"MacrisCalc_path\": \"" + settings->basicMacrisDatabase() + "\"," << Qt::endl;
 
-        stream << "\"base_directory_path\": \"" + settings->outputBaseDirectory() + "\"," << endl;
+        stream << "\"base_directory_path\": \"" + settings->outputBaseDirectory() + "\"," << Qt::endl;
 
         for ( auto p : settings->parameters()->parameters() )
         {
-            stream << "\"" + p->name() + "\" : " + p->stringValue() + "," << endl;
+            stream << "\"" + p->name() + "\" : " + p->stringValue() + "," << Qt::endl;
         }
 
-        stream << "\"tsurf_loadsteps\": [ " + settings->stepsToLoad().join( ',' ) + " ]" << endl;
-        stream << "}" << endl;
+        stream << "\"tsurf_loadsteps\": [ " + settings->stepsToLoad().join( ',' ) + " ]" << Qt::endl;
+        stream << "}" << Qt::endl;
 
         file.close();
     }

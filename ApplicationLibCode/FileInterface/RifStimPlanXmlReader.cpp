@@ -474,7 +474,7 @@ void RifStimPlanXmlReader::getGriddingValues( QXmlStreamReader&    xmlStream,
     QString gridValuesString = xmlStream.readElementText().replace( '\n', ' ' );
     gridValuesString         = gridValuesString.replace( '[', ' ' ).replace( ']', ' ' );
 
-    for ( const QString& value : gridValuesString.split( ' ', QString::SkipEmptyParts ) )
+    for ( const QString& value : gridValuesString.split( ' ', Qt::SkipEmptyParts ) )
     {
         if ( value.size() > 0 )
         {

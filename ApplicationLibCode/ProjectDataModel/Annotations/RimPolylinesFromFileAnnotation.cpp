@@ -86,10 +86,10 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
     while ( !stream.atEnd() )
     {
         QString     line            = stream.readLine();
-        QStringList commentLineSegs = line.split( "#", QString::KeepEmptyParts );
+        QStringList commentLineSegs = line.split( "#", Qt::KeepEmptyParts );
         if ( commentLineSegs.empty() ) continue; // Empty line
 
-        QStringList lineSegs = commentLineSegs[0].split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+        QStringList lineSegs = commentLineSegs[0].split( QRegExp( "\\s+" ), Qt::SkipEmptyParts );
 
         if ( lineSegs.empty() ) continue; // No data
 

@@ -99,7 +99,7 @@ void RimPerforationInterval::setCustomStartDate( const QDate& date )
 {
     if ( date.isValid() )
     {
-        m_startDate = QDateTime( date );
+        m_startDate = date.startOfDay();
     }
 }
 
@@ -110,7 +110,7 @@ void RimPerforationInterval::setCustomEndDate( const QDate& date )
 {
     if ( date.isValid() )
     {
-        m_endDate = QDateTime( date );
+        m_endDate = date.startOfDay();
     }
 }
 

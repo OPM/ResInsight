@@ -813,7 +813,7 @@ void RifEclipseInputFileTools::parseAndReadPathAliasKeyword( const QString&     
                         // definition; 'I+'
                         line.remove( "'" );
 
-                        QStringList entries = line.split( " ", QString::SkipEmptyParts );
+                        QStringList entries = line.split( " ", Qt::SkipEmptyParts );
                         if ( entries.size() < 2 )
                         {
                             continue;

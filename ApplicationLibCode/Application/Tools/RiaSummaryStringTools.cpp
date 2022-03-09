@@ -217,7 +217,7 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
 //--------------------------------------------------------------------------------------------------
 QStringList RiaSummaryStringTools::splitIntoWords( const QString& text )
 {
-    QStringList words = text.split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+    QStringList words = text.split( QRegExp( "\\s+" ), Qt::SkipEmptyParts );
 
     return words;
 }

@@ -239,7 +239,7 @@ QDateTime RiaQDateTimeTools::createUtcDateTime()
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::createUtcDateTime( const QDate& date )
 {
-    auto qdt = QDateTime( date );
+    auto qdt = date.startOfDay();
     qdt.setTimeSpec( currentTimeSpec() );
     return qdt;
 }

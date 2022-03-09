@@ -116,7 +116,7 @@ void RifColumnBasedUserDataParser::parseTableData( const QString& data )
         do
         {
             QString     qLine   = QString::fromStdString( line );
-            QStringList entries = qLine.split( " ", QString::SkipEmptyParts );
+            QStringList entries = qLine.split( " ", Qt::SkipEmptyParts );
 
             if ( stepTypeIndex > -1 && (unsigned int)entries.size() < columnInfos.size() )
             {

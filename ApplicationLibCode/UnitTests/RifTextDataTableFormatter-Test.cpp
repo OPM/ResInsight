@@ -106,7 +106,7 @@ TEST( RifTextDataTableFormatter, LongLine )
     formatter.rowCompleted();
     formatter.tableCompleted();
 
-    QStringList tableLines = tableText.split( QRegExp( "[\r\n]" ), QString::SkipEmptyParts );
+    QStringList tableLines = tableText.split( QRegExp( "[\r\n]" ), Qt::SkipEmptyParts );
     for ( QString line : tableLines )
     {
         std::cout << QString( "Line: \"%1\"" ).arg( line ).toStdString() << std::endl;
@@ -153,7 +153,7 @@ TEST( RifTextDataTableFormatter, LongLine132 )
     formatter.rowCompleted();
     formatter.tableCompleted();
 
-    QStringList tableLines = tableText.split( QRegExp( "[\r\n]" ), QString::SkipEmptyParts );
+    QStringList tableLines = tableText.split( QRegExp( "[\r\n]" ), Qt::SkipEmptyParts );
     for ( QString line : tableLines )
     {
         std::cout << QString( "Line: \"%1\"" ).arg( line ).toStdString() << std::endl;
@@ -200,7 +200,7 @@ TEST( RifTextDataTableFormatter, LongLine133 )
     formatter.rowCompleted();
     formatter.tableCompleted();
 
-    QStringList tableLines = tableText.split( QRegExp( "[\r\n]" ), QString::SkipEmptyParts );
+    QStringList tableLines = tableText.split( QRegExp( "[\r\n]" ), Qt::SkipEmptyParts );
     for ( QString line : tableLines )
     {
         std::cout << QString( "Line: \"%1\"" ).arg( line ).toStdString() << std::endl;

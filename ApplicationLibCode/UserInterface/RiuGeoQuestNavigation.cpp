@@ -134,7 +134,7 @@ bool RiuGeoQuestNavigation::handleInputEvent( QInputEvent* inputEvent )
             {
                 QWheelEvent* we = static_cast<QWheelEvent*>( inputEvent );
 
-                updatePointOfInterestDuringZoomIfNecessary( we->x(), we->y() );
+                updatePointOfInterestDuringZoomIfNecessary( we->position().x(), we->position().y() );
 
                 if ( m_isRotCenterInitialized )
                 {
@@ -143,7 +143,7 @@ bool RiuGeoQuestNavigation::handleInputEvent( QInputEvent* inputEvent )
 
                     cvf::ref<cvf::Ray> ray = createZoomRay( translatedMousePosX, translatedMousePosY );
 
-                    zoomAlongRay( ray.p(), -we->delta() );
+                    zoomAlongRay( ray.p(), -we->angleDelta().y() );
                 }
                 isEventHandled = true;
             }

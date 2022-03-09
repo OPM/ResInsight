@@ -739,8 +739,8 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_minDateRange || changedField == &m_maxDateRange )
     {
-        m_minTimeStep = RiaTimeTTools::fromQDateTime( QDateTime( m_minDateRange() ) );
-        m_maxTimeStep = RiaTimeTTools::fromQDateTime( QDateTime( m_maxDateRange() ) );
+        m_minTimeStep = RiaTimeTTools::fromQDateTime( m_minDateRange().startOfDay() );
+        m_maxTimeStep = RiaTimeTTools::fromQDateTime( m_maxDateRange().startOfDay() );
         updateCurveColors();
         updateTimeAnnotations();
     }

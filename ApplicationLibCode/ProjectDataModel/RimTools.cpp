@@ -125,13 +125,13 @@ QString RimTools::relocateFile( const QString&        originalFileName,
     QFileInfo   fileNameFileInfo( QDir::fromNativeSeparators( fileName ) );
     QString     fileNamePath         = fileNameFileInfo.path();
     QString     fileNameWithoutPath  = fileNameFileInfo.fileName();
-    QStringList fileNamePathElements = fileNamePath.split( "/", QString::KeepEmptyParts );
+    QStringList fileNamePathElements = fileNamePath.split( "/", Qt::KeepEmptyParts );
 
     QString     oldProjPath         = QDir::fromNativeSeparators( oldProjectPath );
-    QStringList oldProjPathElements = oldProjPath.split( "/", QString::KeepEmptyParts );
+    QStringList oldProjPathElements = oldProjPath.split( "/", Qt::KeepEmptyParts );
 
     QString     newProjPath         = QDir::fromNativeSeparators( newProjectPath );
-    QStringList newProjPathElements = newProjPath.split( "/", QString::KeepEmptyParts );
+    QStringList newProjPathElements = newProjPath.split( "/", Qt::KeepEmptyParts );
 
     // Find the possible equal start of the old project path, and the referenced file
 

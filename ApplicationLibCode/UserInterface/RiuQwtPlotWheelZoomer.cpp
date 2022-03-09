@@ -86,15 +86,15 @@ bool RiuQwtPlotWheelZoomer::eventFilter( QObject* watched, QEvent* event )
     if ( wheelEvent )
     {
         double zoomFactor = 1.0 / RIU_SCROLLWHEEL_ZOOMFACTOR;
-        if ( wheelEvent->delta() > 0 )
+        if ( wheelEvent->angleDelta().y() > 0 )
         {
             zoomFactor = RIU_SCROLLWHEEL_ZOOMFACTOR;
         }
 
-        zoomOnAxis( m_plot, QwtPlot::xBottom, zoomFactor, wheelEvent->pos().x() );
-        zoomOnAxis( m_plot, QwtPlot::xTop, zoomFactor, wheelEvent->pos().x() );
-        zoomOnAxis( m_plot, QwtPlot::yLeft, zoomFactor, wheelEvent->pos().y() );
-        zoomOnAxis( m_plot, QwtPlot::yRight, zoomFactor, wheelEvent->pos().y() );
+        zoomOnAxis( m_plot, QwtPlot::xBottom, zoomFactor, wheelEvent->position().x() );
+        zoomOnAxis( m_plot, QwtPlot::xTop, zoomFactor, wheelEvent->position().x() );
+        zoomOnAxis( m_plot, QwtPlot::yLeft, zoomFactor, wheelEvent->position().y() );
+        zoomOnAxis( m_plot, QwtPlot::yRight, zoomFactor, wheelEvent->position().y() );
 
         m_plot->replot();
         emit zoomUpdated();

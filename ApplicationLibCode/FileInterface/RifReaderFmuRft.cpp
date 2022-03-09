@@ -438,7 +438,7 @@ RifReaderFmuRft::WellObservationMap RifReaderFmuRft::loadWellDates( QDir& dir, Q
                     return WellObservationMap();
                 }
 
-                QDateTime dateTime( QDate( year, month, day ) );
+                QDateTime dateTime = QDate( year, month, day ).startOfDay();
                 dateTime.setTimeSpec( Qt::UTC );
                 WellObservationSet observationSet( dateTime, measurementIndex );
                 validObservations.insert( std::make_pair( wellName, observationSet ) );

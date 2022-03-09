@@ -14,7 +14,7 @@
 //--------------------------------------------------------------------------------------------------
 TEST( RiaDateStringParserTest, ParseYearFirstWithSeparators )
 {
-    QDateTime may2ndDT = QDateTime( QDate( 2011, 05, 02 ) );
+    QDateTime may2ndDT = QDate( 2011, 05, 02 ).startOfDay();
     may2ndDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
     std::vector<std::string> may2ndStrings = { "2011 05 02",
@@ -33,7 +33,7 @@ TEST( RiaDateStringParserTest, ParseYearFirstWithSeparators )
         EXPECT_TRUE( may2ndDT == parsedDate );
     }
 
-    QDateTime nov24thDT = QDateTime( QDate( 1992, 11, 24 ) );
+    QDateTime nov24thDT = QDate( 1992, 11, 24 ).startOfDay();
     nov24thDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
     std::vector<std::string> nov24thStrings = { "1992-11-24", "1992-Nov-24", "1992-nov-24", "1992.11.24" };
@@ -48,7 +48,7 @@ TEST( RiaDateStringParserTest, ParseYearFirstWithSeparators )
 //--------------------------------------------------------------------------------------------------
 TEST( RiaDateStringParserTest, ParseDayFirstWithSeparators )
 {
-    QDateTime may2ndDT = QDateTime( QDate( 2011, 05, 02 ) );
+    QDateTime may2ndDT = QDate( 2011, 05, 02 ).startOfDay();
     may2ndDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
     std::vector<std::string> may2ndStrings = { "02 05 2011",
@@ -66,7 +66,7 @@ TEST( RiaDateStringParserTest, ParseDayFirstWithSeparators )
         EXPECT_TRUE( may2ndDT == parsedDate );
     }
 
-    QDateTime nov24thDT = QDateTime( QDate( 1992, 11, 24 ) );
+    QDateTime nov24thDT = QDate( 1992, 11, 24 ).startOfDay();
     nov24thDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
     std::vector<std::string> nov24thStrings = { "24-11-1992", "24-Nov-1992", "24.Nov 1992", "24.11.1992" };
@@ -81,7 +81,7 @@ TEST( RiaDateStringParserTest, ParseDayFirstWithSeparators )
 //--------------------------------------------------------------------------------------------------
 TEST( RiaDateStringParserTest, ParseMonthFirstWithSeparators )
 {
-    QDateTime may2ndDT = QDateTime( QDate( 2011, 05, 02 ) );
+    QDateTime may2ndDT = QDate( 2011, 05, 02 ).startOfDay();
     may2ndDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
     std::vector<std::string> may2ndStrings = { "May 02 2011", "may 02 2011", "May_02_2011", "May.02.2011", "May 02. 2011" };
@@ -91,7 +91,7 @@ TEST( RiaDateStringParserTest, ParseMonthFirstWithSeparators )
         EXPECT_TRUE( may2ndDT == parsedDate );
     }
 
-    QDateTime nov24thDT = QDateTime( QDate( 1992, 11, 24 ) );
+    QDateTime nov24thDT = QDate( 1992, 11, 24 ).startOfDay();
     nov24thDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
     std::vector<std::string> nov24thStrings = { "11-24-1992", "Nov-24-1992", "Nov 24. 1992", "11.24.1992", "11 24 1992" };
@@ -106,8 +106,8 @@ TEST( RiaDateStringParserTest, ParseMonthFirstWithSeparators )
 //--------------------------------------------------------------------------------------------------
 TEST( RiaDateStringParserTest, ParseWithoutSeparators )
 {
-    QDateTime may2ndDT = QDateTime( QDate( 2011, 05, 02 ) );
-    QDateTime feb5thDT = QDateTime( QDate( 2011, 02, 05 ) );
+    QDateTime may2ndDT = QDate( 2011, 05, 02 ).startOfDay();
+    QDateTime feb5thDT = QDate( 2011, 02, 05 ).startOfDay();
     may2ndDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
     feb5thDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
@@ -122,7 +122,7 @@ TEST( RiaDateStringParserTest, ParseWithoutSeparators )
     EXPECT_FALSE( may2ndDT == RiaDateStringParser::parseDateString( may2ndMonthFirstString ) );
     EXPECT_TRUE( feb5thDT == RiaDateStringParser::parseDateString( may2ndMonthFirstString ) );
 
-    QDateTime nov24thDT = QDateTime( QDate( 1992, 11, 24 ) );
+    QDateTime nov24thDT = QDate( 1992, 11, 24 ).startOfDay();
     nov24thDT.setTimeSpec( RiaQDateTimeTools::currentTimeSpec() );
 
     std::vector<std::string> nov24thStrings = { "19921124", "24111992", "921124", "241192", "11241992", "112492" };

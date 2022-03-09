@@ -104,11 +104,11 @@ void RimCellFilterIntervalTool::setInterval( bool enabled, QString intervalText 
 
     if ( !enabled ) return;
 
-    QStringList parts = intervalText.split( ',', QString::SkipEmptyParts );
+    QStringList parts = intervalText.split( ',', Qt::SkipEmptyParts );
 
     for ( auto& part : parts )
     {
-        QStringList minmax = part.split( '-', QString::SkipEmptyParts );
+        QStringList minmax = part.split( '-', Qt::SkipEmptyParts );
         switch ( minmax.size() )
         {
             case 1:

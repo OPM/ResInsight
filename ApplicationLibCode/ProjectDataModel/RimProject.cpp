@@ -1517,7 +1517,7 @@ public:
     GlobalPathListMapper( const QString& globalPathListTable )
     {
         m_maxUsedIdNumber     = 0;
-        QStringList pathPairs = globalPathListTable.split( ";", QString::SkipEmptyParts );
+        QStringList pathPairs = globalPathListTable.split( ";", Qt::SkipEmptyParts );
 
         for ( const QString& pathIdPathPair : pathPairs )
         {

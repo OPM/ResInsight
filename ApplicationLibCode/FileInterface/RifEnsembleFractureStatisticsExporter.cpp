@@ -61,7 +61,7 @@ bool RifEnsembleFractureStatisticsExporter::writeAsStimPlanXml( const std::vecto
 //--------------------------------------------------------------------------------------------------
 void RifEnsembleFractureStatisticsExporter::appendHeaderToStream( QTextStream& stream )
 {
-    stream << "<?xml version=\"1.0\" ?>" << endl << "<contours>" << endl;
+    stream << "<?xml version=\"1.0\" ?>" << Qt::endl << "<contours>" << Qt::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,15 +76,15 @@ void RifEnsembleFractureStatisticsExporter::appendPropertiesToStream(
 {
     CAF_ASSERT( statistics.size() == properties.size() );
 
-    stream << "<properties>" << endl;
+    stream << "<properties>" << Qt::endl;
 
     for ( size_t s = 0; s < statistics.size(); s++ )
     {
         QString propertyName = properties[s].first;
         QString propertyUnit = properties[s].second;
 
-        stream << QString( "<property name=\"%1\" uom=\"%2\">" ).arg( propertyName ).arg( propertyUnit ) << endl;
-        stream << QString( "<time value=\"%1\">" ).arg( time ) << endl;
+        stream << QString( "<property name=\"%1\" uom=\"%2\">" ).arg( propertyName ).arg( propertyUnit ) << Qt::endl;
+        stream << QString( "<time value=\"%1\">" ).arg( time ) << Qt::endl;
 
         CAF_ASSERT( statistics[s]->ny() == gridYs.size() );
 
@@ -92,19 +92,19 @@ void RifEnsembleFractureStatisticsExporter::appendPropertiesToStream(
         // in the reader (depths from <grid><ys> are used).
         for ( int i = static_cast<int>( gridYs.size() ) - 1; i >= 0; i-- )
         {
-            stream << "<depth>" << gridYs[i] << "</depth>" << endl;
+            stream << "<depth>" << gridYs[i] << "</depth>" << Qt::endl;
             stream << "<data>[";
             for ( size_t x = 0; x < statistics[s]->nx(); x++ )
             {
                 stream << statistics[s]->getValue( x, i ) << " ";
             }
-            stream << "]</data>" << endl;
+            stream << "]</data>" << Qt::endl;
         }
 
-        stream << "</time>" << endl;
-        stream << "</property>" << endl;
+        stream << "</time>" << Qt::endl;
+        stream << "</property>" << Qt::endl;
     }
-    stream << "</properties>" << endl;
+    stream << "</properties>" << Qt::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,7 +116,7 @@ void RifEnsembleFractureStatisticsExporter::appendOrientationToStream( QTextStre
     if ( orientation != RigStimPlanFractureDefinition::Orientation::UNDEFINED )
     {
         QString orientationString = getStringForOrientation( orientation );
-        stream << QString( "<orientation>%1</orientation>" ).arg( orientationString ) << endl;
+        stream << QString( "<orientation>%1</orientation>" ).arg( orientationString ) << Qt::endl;
     }
 }
 
@@ -130,19 +130,19 @@ void RifEnsembleFractureStatisticsExporter::appendGridDimensionsToStream( QTextS
 {
     QString unitString = getStringForUnitSystem( unitSystem );
     stream << QString( "<grid xCount=\"%1\" yCount=\"%2\" uom=\"%3\">" ).arg( gridXs.size() ).arg( gridYs.size() ).arg( unitString )
-           << endl;
+           << Qt::endl;
 
     stream << "<xs>[";
     for ( auto x : gridXs )
         stream << x << " ";
-    stream << "]</xs>" << endl;
+    stream << "]</xs>" << Qt::endl;
 
     stream << "<ys>[";
     for ( auto y : gridYs )
         stream << y << " ";
-    stream << "]</ys>" << endl;
+    stream << "]</ys>" << Qt::endl;
 
-    stream << "</grid>" << endl;
+    stream << "</grid>" << Qt::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,7 +150,7 @@ void RifEnsembleFractureStatisticsExporter::appendGridDimensionsToStream( QTextS
 //--------------------------------------------------------------------------------------------------
 void RifEnsembleFractureStatisticsExporter::appendFooterToStream( QTextStream& stream )
 {
-    stream << "</contours>" << endl;
+    stream << "</contours>" << Qt::endl;
 }
 
 //--------------------------------------------------------------------------------------------------

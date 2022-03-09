@@ -72,7 +72,7 @@ void RiuScalarMapperLegendFrame::setTickFormat( NumberFormat format )
 void RiuScalarMapperLegendFrame::layoutInfo( LayoutInfo* layout ) const
 {
     QFontMetrics fontMetrics( this->font() );
-    QStringList  titleLines = m_title.split( "\n", QString::SkipEmptyParts );
+    QStringList  titleLines = m_title.split( "\n", Qt::SkipEmptyParts );
 
     layout->charHeight        = fontMetrics.height();
     layout->charAscent        = fontMetrics.ascent();

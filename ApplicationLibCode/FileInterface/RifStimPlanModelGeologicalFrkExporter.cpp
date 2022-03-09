@@ -273,7 +273,7 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&      
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelGeologicalFrkExporter::appendHeaderToStream( QTextStream& stream )
 {
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<geologic>" << endl;
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<geologic>" << Qt::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -283,23 +283,23 @@ void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream&        
                                                             const QString&             label,
                                                             const std::vector<double>& values )
 {
-    stream << "<cNamedSet>" << endl
-           << "<name>" << endl
-           << label << endl
-           << "</name>" << endl
-           << "<dimCount>" << endl
-           << 1 << endl
-           << "</dimCount>" << endl
-           << "<sizes>" << endl
-           << values.size() << endl
-           << "</sizes>" << endl
-           << "<data>" << endl;
+    stream << "<cNamedSet>" << Qt::endl
+           << "<name>" << Qt::endl
+           << label << Qt::endl
+           << "</name>" << Qt::endl
+           << "<dimCount>" << Qt::endl
+           << 1 << Qt::endl
+           << "</dimCount>" << Qt::endl
+           << "<sizes>" << Qt::endl
+           << values.size() << Qt::endl
+           << "</sizes>" << Qt::endl
+           << "<data>" << Qt::endl;
     for ( auto val : values )
     {
-        stream << val << endl;
+        stream << val << Qt::endl;
     }
 
-    stream << "</data>" << '\n' << "</cNamedSet>" << endl;
+    stream << "</data>" << '\n' << "</cNamedSet>" << Qt::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +307,7 @@ void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream&        
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelGeologicalFrkExporter::appendFooterToStream( QTextStream& stream )
 {
-    stream << "</geologic>" << endl;
+    stream << "</geologic>" << Qt::endl;
 }
 
 //--------------------------------------------------------------------------------------------------

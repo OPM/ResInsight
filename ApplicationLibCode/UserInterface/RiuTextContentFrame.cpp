@@ -168,7 +168,7 @@ void RiuTextContentFrame::paintEvent( QPaintEvent* e )
 void RiuTextContentFrame::layoutInfo( LayoutInfo* layout ) const
 {
     QFontMetrics fontMetrics( this->font() );
-    QStringList  titleLines = m_text.split( "\n", QString::SkipEmptyParts );
+    QStringList  titleLines = m_text.split( "\n", Qt::SkipEmptyParts );
 
     layout->charHeight        = fontMetrics.height();
     layout->charAscent        = fontMetrics.ascent();

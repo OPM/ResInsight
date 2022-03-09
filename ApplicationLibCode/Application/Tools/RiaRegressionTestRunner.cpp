@@ -538,7 +538,7 @@ QString RiaRegressionTestRunner::diff2htmlHeaderText( const QString& testRootPat
     QString html;
 
     QString     oldProjPath = QDir::fromNativeSeparators( testRootPath );
-    QStringList pathFolders = oldProjPath.split( "/", QString::KeepEmptyParts );
+    QStringList pathFolders = oldProjPath.split( "/", Qt::KeepEmptyParts );
 
     QString path;
     for ( const auto& f : pathFolders )
@@ -611,7 +611,7 @@ void RiaRegressionTestRunner::executeRegressionTests()
     testConfig.readSettingsFromApplicationStore();
 
     QString     testPath   = testConfig.regressionTestFolder();
-    QStringList testFilter = testConfig.testFilter().split( ";", QString::SkipEmptyParts );
+    QStringList testFilter = testConfig.testFilter().split( ";", Qt::SkipEmptyParts );
 
     if ( testConfig.appendTestsAfterTestFilter )
     {

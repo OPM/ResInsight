@@ -79,7 +79,7 @@ void RifPerforationIntervalReader::readFileIntoMap( const QString&              
 
         // Replace any tabs with spaces to enable splitting on spaces
         line.replace( "\t", " " );
-        QStringList parts = line.split( " ", QString::SkipEmptyParts );
+        QStringList parts = line.split( " ", Qt::SkipEmptyParts );
 
         if ( line.startsWith( "WELLNAME" ) )
         {

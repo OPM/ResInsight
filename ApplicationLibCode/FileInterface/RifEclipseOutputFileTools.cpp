@@ -671,12 +671,8 @@ void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_
 
                     RifRestartReportStep reportStep;
 
-                    // Set Date
-                    {
-                        QDateTime reportDateTime(
-                            QDate( restart_header->year, restart_header->month, restart_header->day ) );
-                        reportStep.dateTime = reportDateTime;
-                    }
+                    reportStep.dateTime =
+                        QDate( restart_header->year, restart_header->month, restart_header->day ).startOfDay();
 
                     // Find number of keywords within this report step
                     int numKeywords = ecl_file_get_num_distinct_kw( ecl_file );

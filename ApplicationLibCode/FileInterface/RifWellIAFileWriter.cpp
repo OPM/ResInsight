@@ -41,11 +41,11 @@ bool RifWellIAFileWriter::writeToJsonFile( RimWellIASettings& settings, QString&
     {
         QTextStream stream( &file );
 
-        stream << "{" << endl;
+        stream << "{" << Qt::endl;
         stream << "\"comments\": \"All units are SI unless mentioned otherwise; temperature is in Celcius; use forward "
                   "slash (/) in 'directory' definition\","
-               << endl;
-        stream << "\"directory\": \"" + settings.outputBaseDirectory() + "\"," << endl;
+               << Qt::endl;
+        stream << "\"directory\": \"" + settings.outputBaseDirectory() + "\"," << Qt::endl;
         stream << "\"output_name\": \"" + settings.name() + "\"";
 
         RimParameterGroups mergedGroups;
@@ -63,9 +63,9 @@ bool RifWellIAFileWriter::writeToJsonFile( RimWellIASettings& settings, QString&
 
         for ( auto& group : mergedGroups.groups() )
         {
-            stream << "," << endl;
+            stream << "," << Qt::endl;
 
-            stream << "\"" + group->name() + "\": {" << endl;
+            stream << "\"" + group->name() + "\": {" << Qt::endl;
 
             const auto& parameters = group->parameters();
 
@@ -78,13 +78,13 @@ bool RifWellIAFileWriter::writeToJsonFile( RimWellIASettings& settings, QString&
                 {
                     stream << ",";
                 }
-                stream << endl;
+                stream << Qt::endl;
             }
 
             stream << "   }";
         }
 
-        stream << endl << "}" << endl;
+        stream << Qt::endl << "}" << Qt::endl;
         file.close();
     }
     else
@@ -114,7 +114,7 @@ bool RifWellIAFileWriter::writeToCSVFile( RimWellIASettings& settings, QString& 
         stream << "Time_days, Pcasing_Pa, P_form_Pa, Temp_C,"
                   "U1-1,U2,U3,U1-2,U2,U3,U1-3,U2,U3,U1-4,U2,U3,U1-5,U2,U3,U1-6,U2,U3,U1-7,U2,U3,U1-8,U2,U3,"
                   "X,Y,Z,X2,Y,Z,X3,Y,Z,X4,Y,Z,X5,Y,Z,X6,Y,Z,X7,Y,Z,X8,Y,Z";
-        stream << endl;
+        stream << Qt::endl;
 
         for ( auto& modeldata : settings.modelData() )
         {
@@ -145,7 +145,7 @@ bool RifWellIAFileWriter::writeToCSVFile( RimWellIASettings& settings, QString& 
                 stream << ",";
                 stream << pos.z();
             }
-            stream << endl;
+            stream << Qt::endl;
         }
     }
     else

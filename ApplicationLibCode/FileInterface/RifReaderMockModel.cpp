@@ -43,7 +43,7 @@ bool RifReaderMockModel::open( const QString& fileName, RigEclipseCaseData* ecli
 
         for ( int i = 0; i < static_cast<int>( m_reservoirBuilder.timeStepCount() ); i++ )
         {
-            dates.push_back( QDateTime( QDate( 2012 + i, 6, 1 ) ) );
+            dates.push_back( QDate( 2012 + i, 6, 1 ).startOfDay() );
             days.push_back( i );
             repNumbers.push_back( i );
         }

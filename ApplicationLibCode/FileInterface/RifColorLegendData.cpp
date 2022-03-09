@@ -66,7 +66,7 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
     while ( !stream.atEnd() )
     {
         QString     line     = stream.readLine();
-        QStringList lineSegs = line.split( "'", QString::KeepEmptyParts );
+        QStringList lineSegs = line.split( "'", Qt::KeepEmptyParts );
 
         if ( lineSegs.size() == 0 ) continue; // Empty line
         if ( lineSegs.size() == 1 ) continue; // No name present. Comment line ?
@@ -84,16 +84,16 @@ cvf::ref<RigFormationNames> RifColorLegendData::readLyrFormationNameFile( const 
             QString numberString   = lineSegs[2];
             if ( commentMarkPos >= 0 ) numberString.truncate( commentMarkPos );
 
-            QString colorWord = numberString.split( " ", QString::SkipEmptyParts ).last(); // extract last word which may
-                                                                                           // contain formation color
+            QString colorWord = numberString.split( " ", Qt::SkipEmptyParts ).last(); // extract last word which may
+                                                                                      // contain formation color
 
             if ( QColor::isValidColor( colorWord ) )
                 numberString.remove( colorWord ); // remove color if present as last word on line
 
-            QStringList numberWords = numberString.split( QRegExp( "-" ), QString::SkipEmptyParts ); // extract words
-                                                                                                     // containing
-                                                                                                     // formation
-                                                                                                     // number(s)
+            QStringList numberWords = numberString.split( QRegExp( "-" ), Qt::SkipEmptyParts ); // extract words
+                                                                                                // containing
+                                                                                                // formation
+                                                                                                // number(s)
 
             if ( numberWords.size() == 2 ) // formation range with or without color at end of line
             {

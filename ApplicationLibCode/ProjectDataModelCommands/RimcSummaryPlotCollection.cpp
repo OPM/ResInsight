@@ -56,7 +56,7 @@ RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPl
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
 {
-    QStringList addressStrings = m_addressString().split( ";", QString::SkipEmptyParts );
+    QStringList addressStrings = m_addressString().split( ";", Qt::SkipEmptyParts );
 
     RimSummaryPlot* newPlot = nullptr;
     if ( m_ensemble )

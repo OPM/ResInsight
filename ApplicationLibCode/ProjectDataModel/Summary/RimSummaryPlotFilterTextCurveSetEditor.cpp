@@ -183,7 +183,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateTextFilter()
     // Todo: possibly check grid time history curves also
 
     QStringList allCurveAddressFilters =
-        curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+        curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ), Qt::SkipEmptyParts );
 
     std::vector<bool>                  usedFilters;
     std::set<RifEclipseSummaryAddress> filteredAddressesFromSource;
@@ -440,7 +440,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateParentPlot()
         std::set<RiaSummaryCurveDefinition> curveDefinitions;
 
         QStringList allCurveAddressFilters =
-            curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+            curveFilterTextWithoutOutdatedLabel().split( QRegExp( "\\s+" ), Qt::SkipEmptyParts );
         std::vector<bool> accumulatedUsedFilters( allCurveAddressFilters.size(), false );
 
         for ( SummarySource* currSource : selectedSummarySources() )
