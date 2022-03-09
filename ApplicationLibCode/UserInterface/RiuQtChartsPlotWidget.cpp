@@ -31,12 +31,13 @@
 #include "RiuPlotWidget.h"
 #include "RiuQtChartView.h"
 #include "RiuQtChartsPlotCurve.h"
+#include "RiuQwtDateScaleWrapper.h"
 
 #include "cafAssert.h"
 
 #include "cvfTrace.h"
 
-#include <QDateTimeAxis>
+#include <QCategoryAxis>
 #include <QGraphicsLayout>
 #include <QLogValueAxis>
 #include <QVBoxLayout>
@@ -52,6 +53,7 @@ using namespace QtCharts;
 //--------------------------------------------------------------------------------------------------
 RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     : RiuPlotWidget( plotDefinition, parent )
+    , m_dateScaleWrapper( new RiuQwtDateScaleWrapper() )
 {
     CAF_ASSERT( m_plotDefinition );
 
@@ -59,7 +61,7 @@ RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* 
     layout->setContentsMargins( 0, 0, 0, 0 );
     setLayout( layout );
 
-    QtCharts::QChart* chart = new QtCharts::QChart();
+    QChart* chart = new QChart();
     chart->layout()->setContentsMargins( 0, 0, 0, 0 );
     chart->setBackgroundRoundness( 0 );
     chart->setAcceptDrops( true );
@@ -90,6 +92,9 @@ RiuQtChartsPlotWidget::~RiuQtChartsPlotWidget()
     {
         m_plotDefinition->detachAllCurves();
     }
+
+    delete m_dateScaleWrapper;
+    m_dateScaleWrapper = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,6 +102,25 @@ RiuQtChartsPlotWidget::~RiuQtChartsPlotWidget()
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::axisRangeChanged()
 {
+    auto catAxis = categoryAxis();
+    if ( catAxis )
+    {
+        auto min = catAxis->min();
+        auto max = catAxis->max();
+
+        auto existingLabels = catAxis->categoriesLabels();
+        for ( const auto& l : existingLabels )
+        {
+            catAxis->remove( l );
+        }
+
+        auto positionLabel = m_dateScaleWrapper->positionsAndLabels( min, max );
+        for ( auto [pos, label] : positionLabel )
+        {
+            catAxis->append( label, pos );
+        }
+    }
+
     if ( qtChart()->isZoomed() ) emit plotZoomed();
 }
 
@@ -158,7 +182,7 @@ void RiuQtChartsPlotWidget::setAxisFontsAndAlignment( RiuPlotAxis axis,
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxesFontsAndAlignment( int titleFontSize, int valueFontSize, bool titleBold, int alignment )
 {
-    for ( auto axisTitlePair : m_axisTitles )
+    for ( const auto& axisTitlePair : m_axisTitles )
     {
         setAxisFontsAndAlignment( axisTitlePair.first, titleFontSize, valueFontSize, titleBold, alignment );
     }
@@ -194,9 +218,6 @@ void RiuQtChartsPlotWidget::setAxisFormat( RiuPlotAxis axis, const QString& form
 
     auto logAxis = dynamic_cast<QLogValueAxis*>( ax );
     if ( logAxis ) logAxis->setLabelFormat( format );
-
-    auto dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
-    if ( dateAxis ) dateAxis->setFormat( format );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -318,9 +339,6 @@ std::pair<double, double> RiuQtChartsPlotWidget::axisRange( RiuPlotAxis axis ) c
 
     auto logAxis = dynamic_cast<QLogValueAxis*>( ax );
     if ( logAxis ) return std::make_pair( logAxis->min(), logAxis->max() );
-
-    auto dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
-    if ( dateAxis ) return std::make_pair( dateAxis->min().toMSecsSinceEpoch(), dateAxis->max().toMSecsSinceEpoch() );
 
     return std::make_pair( 0.0, 1.0 );
 }
@@ -615,6 +633,20 @@ void RiuQtChartsPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QCategoryAxis* RiuQtChartsPlotWidget::categoryAxis()
+{
+    for ( const auto& a : m_axes )
+    {
+        auto catAxis = dynamic_cast<QCategoryAxis*>( a.second );
+        if ( catAxis ) return catAxis;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::updateZoomDependentCurveProperties()
 {
     for ( auto it : m_scatterSeriesMap )
@@ -622,6 +654,17 @@ void RiuQtChartsPlotWidget::updateZoomDependentCurveProperties()
         auto plotCurve = dynamic_cast<RiuQtChartsPlotCurve*>( it.first );
         if ( plotCurve ) plotCurve->updateScatterSeries();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::setFormatStrings( const QString&                          dateFormat,
+                                              const QString&                          timeFormat,
+                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
+                                              RiaQDateTimeTools::TimeFormatComponents timeComponents )
+{
+    m_dateScaleWrapper->setFormatStrings( dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -671,8 +714,7 @@ void RiuQtChartsPlotWidget::setAxisMaxMajor( RiuPlotAxis axis, int maxMajor )
     }
     else
     {
-        QDateTimeAxis* dateAxis = dynamic_cast<QDateTimeAxis*>( ax );
-        if ( dateAxis ) dateAxis->setTickCount( maxMajor );
+        m_dateScaleWrapper->setMaxMajorTicks( maxMajor );
     }
 }
 
@@ -704,14 +746,7 @@ void RiuQtChartsPlotWidget::setAxisAutoScale( RiuPlotAxis axis, bool autoScale )
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisScale( RiuPlotAxis axis, double min, double max )
 {
-    if ( axisScaleType( axis ) == RiuPlotWidget::AxisScaleType::DATE )
-    {
-        plotAxis( axis )->setRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
-    }
-    else
-    {
-        plotAxis( axis )->setRange( min, max );
-    }
+    plotAxis( axis )->setRange( min, max );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -738,7 +773,9 @@ void RiuQtChartsPlotWidget::setAxisScaleType( RiuPlotAxis axis, RiuQtChartsPlotW
     }
     else if ( axisScaleType == AxisScaleType::DATE )
     {
-        insertaxis = new QDateTimeAxis;
+        auto categoryAxis = new QCategoryAxis;
+        categoryAxis->setLabelsPosition( QCategoryAxis::AxisLabelsPosition::AxisLabelsPositionOnValue );
+        insertaxis = categoryAxis;
     }
     else if ( axisScaleType == AxisScaleType::LINEAR )
     {
@@ -780,7 +817,7 @@ RiuPlotCurve* RiuQtChartsPlotWidget::createPlotCurve( RimPlotCurve* ownerRimCurv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QtCharts::QChart* RiuQtChartsPlotWidget::qtChart()
+QChart* RiuQtChartsPlotWidget::qtChart()
 {
     return m_viewer->chart();
 }
@@ -788,18 +825,18 @@ QtCharts::QChart* RiuQtChartsPlotWidget::qtChart()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::attach( RiuPlotCurve*              plotCurve,
-                                    QtCharts::QAbstractSeries* lineSeries,
-                                    QtCharts::QAbstractSeries* scatterSeries,
-                                    RiuPlotAxis                xAxis,
-                                    RiuPlotAxis                yAxis )
+void RiuQtChartsPlotWidget::attach( RiuPlotCurve*    plotCurve,
+                                    QAbstractSeries* lineSeries,
+                                    QAbstractSeries* scatterSeries,
+                                    RiuPlotAxis      xAxis,
+                                    RiuPlotAxis      yAxis )
 {
-    auto addToChart = [this]( std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*>& curveSeriesMap,
-                              auto                                                 plotCurve,
-                              auto                                                 series,
-                              auto                                                 xAxis,
-                              auto                                                 yAxis,
-                              RiuQtChartsPlotCurve*                                qtChartsPlotCurve ) {
+    auto addToChart = [this]( std::map<RiuPlotCurve*, QAbstractSeries*>& curveSeriesMap,
+                              auto                                       plotCurve,
+                              auto                                       series,
+                              auto                                       xAxis,
+                              auto                                       yAxis,
+                              RiuQtChartsPlotCurve*                      qtChartsPlotCurve ) {
         if ( !series->chart() )
         {
             curveSeriesMap[plotCurve] = series;
@@ -826,7 +863,7 @@ void RiuQtChartsPlotWidget::detach( RiuPlotCurve* plotCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getLineSeries( const RiuPlotCurve* plotCurve ) const
+QAbstractSeries* RiuQtChartsPlotWidget::getLineSeries( const RiuPlotCurve* plotCurve ) const
 {
     auto series = m_lineSeriesMap.find( const_cast<RiuPlotCurve*>( plotCurve ) );
     if ( series != m_lineSeriesMap.end() )
@@ -838,7 +875,7 @@ QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getLineSeries( const RiuPlotCu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QtCharts::QAbstractSeries* RiuQtChartsPlotWidget::getScatterSeries( const RiuPlotCurve* plotCurve ) const
+QAbstractSeries* RiuQtChartsPlotWidget::getScatterSeries( const RiuPlotCurve* plotCurve ) const
 {
     auto series = m_scatterSeriesMap.find( const_cast<RiuPlotCurve*>( plotCurve ) );
     if ( series != m_scatterSeriesMap.end() )
@@ -869,7 +906,7 @@ void RiuQtChartsPlotWidget::detachItems( RiuPlotWidget::PlotItemType plotItemTyp
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve )
+void RiuQtChartsPlotWidget::setXAxis( RiuPlotAxis axis, QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve )
 {
     attachSeriesToAxis( axis, series, plotCurve );
 }
@@ -877,7 +914,7 @@ void RiuQtChartsPlotWidget::setXAxis( RiuPlotAxis axis, QtCharts::QAbstractSerie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setYAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve )
+void RiuQtChartsPlotWidget::setYAxis( RiuPlotAxis axis, QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve )
 {
     attachSeriesToAxis( axis, series, plotCurve );
 }
@@ -896,9 +933,7 @@ void RiuQtChartsPlotWidget::ensureAxisIsCreated( RiuPlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis                axis,
-                                                QtCharts::QAbstractSeries* series,
-                                                RiuQtChartsPlotCurve*      plotCurve )
+void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis axis, QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve )
 {
     // Make sure the axis we are about to set exists.
     ensureAxisIsCreated( axis );
@@ -930,22 +965,6 @@ void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis                axis,
                          Qt::UniqueConnection );
             }
         }
-        else if ( qobject_cast<QDateTimeAxis*>( newAxis ) )
-        {
-            connect( newAxis,
-                     SIGNAL( rangeChanged( QDateTime, QDateTime ) ),
-                     this,
-                     SLOT( axisRangeChanged() ),
-                     Qt::UniqueConnection );
-            if ( plotCurve )
-            {
-                connect( newAxis,
-                         SIGNAL( rangeChanged( QDateTime, QDateTime ) ),
-                         plotCurve,
-                         SLOT( axisRangeChanged() ),
-                         Qt::UniqueConnection );
-            }
-        }
     }
 }
 
@@ -954,7 +973,7 @@ void RiuQtChartsPlotWidget::attachSeriesToAxis( RiuPlotAxis                axis,
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool isAutoScale )
 {
-    QValueAxis* axis = new QValueAxis();
+    auto* axis = new QValueAxis();
     qtChart()->addAxis( axis, mapPlotAxisToQtAlignment( plotAxis.axis() ) );
     m_axes[plotAxis]          = axis;
     m_axesEnabled[plotAxis]   = isEnabled;
@@ -967,7 +986,7 @@ void RiuQtChartsPlotWidget::addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool 
 RiuPlotAxis RiuQtChartsPlotWidget::createNextPlotAxis( RiaDefines::PlotAxis axis )
 {
     int minIdx = -1;
-    for ( auto a : m_axes )
+    for ( const auto& a : m_axes )
     {
         if ( a.first.axis() == axis )
         {
@@ -1009,14 +1028,8 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiuPlotAxis axis )
             QVector<QPointF> points;
             for ( auto attachedAxis : attachedAxes )
             {
-                QValueAxis* valueAxis = dynamic_cast<QValueAxis*>( attachedAxis );
+                auto* valueAxis = dynamic_cast<QValueAxis*>( attachedAxis );
                 if ( valueAxis && valueAxis->orientation() == orr && dynamic_cast<QLineSeries*>( series ) )
-                {
-                    points = dynamic_cast<QLineSeries*>( series )->pointsVector();
-                }
-
-                QDateTimeAxis* dateTimeAxis = dynamic_cast<QDateTimeAxis*>( attachedAxis );
-                if ( dateTimeAxis && dateTimeAxis->orientation() == orr && dynamic_cast<QLineSeries*>( series ) )
                 {
                     points = dynamic_cast<QLineSeries*>( series )->pointsVector();
                 }
@@ -1041,9 +1054,26 @@ void RiuQtChartsPlotWidget::rescaleAxis( RiuPlotAxis axis )
     // Block signals to avoid triggering RimSummaryPlot::onPlotZoomed
     pAxis->blockSignals( true );
 
-    if ( axisScaleType( axis ) == RiuPlotWidget::AxisScaleType::DATE )
+    if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
-        pAxis->setRange( QDateTime::fromMSecsSinceEpoch( min ), QDateTime::fromMSecsSinceEpoch( max ) );
+        auto catAxis = categoryAxis();
+        if ( catAxis )
+        {
+            auto existingLabels = catAxis->categoriesLabels();
+            for ( const auto& l : existingLabels )
+            {
+                catAxis->remove( l );
+            }
+
+            auto [adjustedMin, adjustedMax, tickCount] = m_dateScaleWrapper->adjustedRange( min, max );
+            catAxis->setRange( adjustedMin, adjustedMax );
+
+            auto positionLabel = m_dateScaleWrapper->positionsAndLabels( adjustedMin, adjustedMax );
+            for ( auto [pos, label] : positionLabel )
+            {
+                catAxis->append( label, pos );
+            }
+        }
     }
     else
     {

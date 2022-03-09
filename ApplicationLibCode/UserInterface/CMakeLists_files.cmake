@@ -99,6 +99,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuFileDialogTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuGuiTheme.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtDateScaleWrapper.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -199,6 +200,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuQssSyntaxHighlighter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextEditWithCompletion.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuTextContentFrame.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQwtDateScaleWrapper.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
