@@ -906,3 +906,12 @@ void RimMultiPlot::cleanupBeforeClose()
         m_viewer = nullptr;
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMultiPlot::isMouseCursorAboveUs()
+{
+    QPoint curpos = m_viewer->mapFromGlobal( QCursor::pos() );
+    return ( m_viewer->rect().contains( curpos ) );
+}
