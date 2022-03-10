@@ -27,6 +27,8 @@
 #include "RigWellPath.h"
 #include "RigWellPathGeometryTools.h"
 
+#include "caf.h"
+
 #include <QFile>
 #include <QTextStream>
 
@@ -75,7 +77,7 @@ bool RifStimPlanModelPerfsFrkExporter::writeToFile( RimStimPlanModel* stimPlanMo
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelPerfsFrkExporter::appendHeaderToStream( QTextStream& stream )
 {
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<perfs>" << endl;
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<perfs>" << caf::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -83,7 +85,7 @@ void RifStimPlanModelPerfsFrkExporter::appendHeaderToStream( QTextStream& stream
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelPerfsFrkExporter::appendFractureOrientationToStream( QTextStream& stream, bool isTransverse )
 {
-    stream << "<transverse>" << '\n' << static_cast<int>( isTransverse ) << '\n' << "</transverse>" << endl;
+    stream << "<transverse>" << '\n' << static_cast<int>( isTransverse ) << '\n' << "</transverse>" << caf::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,14 +93,14 @@ void RifStimPlanModelPerfsFrkExporter::appendFractureOrientationToStream( QTextS
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelPerfsFrkExporter::appendPerforationToStream( QTextStream& stream, int index, double topMD, double bottomMD )
 {
-    stream << "<perf frac=\"" << index << "\">" << endl
-           << "<topMD>" << endl
-           << topMD << endl
-           << "</topMD>" << endl
-           << "<bottomMD>" << endl
-           << bottomMD << endl
-           << "</bottomMD>" << endl
-           << "</perf>" << endl;
+    stream << "<perf frac=\"" << index << "\">" << caf::endl
+           << "<topMD>" << caf::endl
+           << topMD << caf::endl
+           << "</topMD>" << caf::endl
+           << "<bottomMD>" << caf::endl
+           << bottomMD << caf::endl
+           << "</bottomMD>" << caf::endl
+           << "</perf>" << caf::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -106,7 +108,7 @@ void RifStimPlanModelPerfsFrkExporter::appendPerforationToStream( QTextStream& s
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelPerfsFrkExporter::appendFooterToStream( QTextStream& stream )
 {
-    stream << "</perfs>" << endl;
+    stream << "</perfs>" << caf::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
