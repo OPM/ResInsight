@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaTextStringTools.h"
 
 #include "RiaSummaryTools.h"
 #include "RimEnsembleCurveFilter.h"
@@ -62,7 +63,7 @@ std::vector<RimEnsembleCurveSet*>
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
     QString     curvesTextFilter = prefs->defaultSummaryCurvesTextFilter();
-    QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
+    QStringList curveFilters     = RiaTextStringTools::splitSkipEmptyParts( curvesTextFilter, ";" );
 
     std::set<RifEclipseSummaryAddress> addrs = ensemble->ensembleSummaryAddresses();
 

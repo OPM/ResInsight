@@ -18,7 +18,7 @@
 
 #include "RicAppendPointsToPolygonFilterFeature.h"
 
-CAF_CMD_SOURCE_INIT( RicAppendPointsToPolygonFilterFeature, "RicAppendPointsToPolygonFilterFeature" );
+#include "RiaTextStringTools.h"
 
 #include "RimPolygonFilter.h"
 #include "RimPolylineTarget.h"
@@ -29,6 +29,8 @@ CAF_CMD_SOURCE_INIT( RicAppendPointsToPolygonFilterFeature, "RicAppendPointsToPo
 
 #include <QAction>
 #include <QClipboard>
+
+CAF_CMD_SOURCE_INIT( RicAppendPointsToPolygonFilterFeature, "RicAppendPointsToPolygonFilterFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -62,7 +64,7 @@ void RicAppendPointsToPolygonFilterFeature::onActionTriggered( bool isChecked )
     if ( clipboard )
     {
         QString content    = clipboard->text();
-        listOfThreeDoubles = content.split( "\n", QString::SkipEmptyParts );
+        listOfThreeDoubles = RiaTextStringTools::splitSkipEmptyParts( content, "\n" );
     }
 
     std::vector<cvf::Vec3d> points;

@@ -27,6 +27,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaSummaryStringTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportGeneralDataFeature.h"
@@ -70,7 +71,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
     QString     curvesTextFilter = prefs->defaultSummaryCurvesTextFilter();
-    QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
+    QStringList curveFilters     = RiaTextStringTools::splitSkipEmptyParts( curvesTextFilter, ";" );
 
     bool addHistoryCurve = false;
 

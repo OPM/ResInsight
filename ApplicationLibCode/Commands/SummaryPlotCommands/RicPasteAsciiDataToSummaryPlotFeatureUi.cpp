@@ -18,6 +18,7 @@
 
 #include "RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
+#include "RiaTextStringTools.h"
 #include "RifCsvUserDataParser.h"
 
 #include "cafPdmUiItem.h"
@@ -329,7 +330,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     std::vector<int> values;
 
     {
-        QStringList split = dateString.split( ".", QString::SkipEmptyParts );
+        QStringList split = RiaTextStringTools::splitSkipEmptyParts( dateString, "." );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );
@@ -342,7 +343,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     }
 
     {
-        QStringList split = dateString.split( "-", QString::SkipEmptyParts );
+        QStringList split = RiaTextStringTools::splitSkipEmptyParts( dateString, "-" );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );
@@ -355,7 +356,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     }
 
     {
-        QStringList split = dateString.split( "/", QString::SkipEmptyParts );
+        QStringList split = RiaTextStringTools::splitSkipEmptyParts( dateString, "/" );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );
