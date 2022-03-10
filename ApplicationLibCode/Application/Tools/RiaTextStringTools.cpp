@@ -127,3 +127,27 @@ QString RiaTextStringTools::trimNonAlphaNumericCharacters( const QString& s )
     trimmedString.replace( trimRe, "" );
     return trimmedString;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QString& sep /*= " " */ )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+    return text.split( sep, Qt::SkipEmptyParts, Qt::CaseInsensitive );
+#else
+    return text.split( sep, QString::SkipEmptyParts, Qt::CaseInsensitive );
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegExp& regExp )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+    return text.split( regExp, Qt::SkipEmptyParts );
+#else
+    return text.split( regExp, QString::SkipEmptyParts );
+#endif
+}

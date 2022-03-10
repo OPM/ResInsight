@@ -18,6 +18,8 @@
 
 #include "RiuTextContentFrame.h"
 
+#include "RiaTextStringTools.h"
+
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
@@ -168,7 +170,7 @@ void RiuTextContentFrame::paintEvent( QPaintEvent* e )
 void RiuTextContentFrame::layoutInfo( LayoutInfo* layout ) const
 {
     QFontMetrics fontMetrics( this->font() );
-    QStringList  titleLines = m_text.split( "\n", QString::SkipEmptyParts );
+    QStringList  titleLines = RiaTextStringTools::splitSkipEmptyParts( m_text, "\n" );
 
     layout->charHeight        = fontMetrics.height();
     layout->charAscent        = fontMetrics.ascent();

@@ -18,7 +18,8 @@
 
 #pragma once
 
-class QString;
+#include <QString>
+
 class QStringList;
 
 //--------------------------------------------------------------------------------------------------
@@ -31,4 +32,8 @@ QString trimAndRemoveDoubleSpaces( const QString& s );
 QString commonRoot( const QStringList& stringList );
 QString commonSuffix( const QStringList& stringList );
 QString trimNonAlphaNumericCharacters( const QString& s );
+
+QStringList splitSkipEmptyParts( const QString& text, const QString& sep = " " );
+QStringList splitSkipEmptyParts( const QString& text, const QRegExp& regExp );
+
 } // namespace RiaTextStringTools

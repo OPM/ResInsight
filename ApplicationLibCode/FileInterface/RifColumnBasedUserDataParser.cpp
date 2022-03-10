@@ -23,6 +23,7 @@
 
 #include "RiaDateStringParser.h"
 #include "RiaLogging.h"
+#include "RiaTextStringTools.h"
 
 #include "cvfAssert.h"
 
@@ -116,7 +117,7 @@ void RifColumnBasedUserDataParser::parseTableData( const QString& data )
         do
         {
             QString     qLine   = QString::fromStdString( line );
-            QStringList entries = qLine.split( " ", QString::SkipEmptyParts );
+            QStringList entries = RiaTextStringTools::splitSkipEmptyParts( qLine );
 
             if ( stepTypeIndex > -1 && (unsigned int)entries.size() < columnInfos.size() )
             {

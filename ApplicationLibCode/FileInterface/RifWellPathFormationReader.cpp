@@ -155,7 +155,7 @@ void RifWellPathFormationReader::readFile( const QString&        filePath,
         QString line = data.readLine().toLower();
         removeWhiteSpaces( &line );
 
-        header = line.split( ';', QString::KeepEmptyParts );
+        header = line.split( ';' );
     }
 
     static const QString wellNameText      = "wellname";
@@ -172,7 +172,7 @@ void RifWellPathFormationReader::readFile( const QString&        filePath,
         {
             QString line = data.readLine();
 
-            QStringList dataLine = line.split( ';', QString::KeepEmptyParts );
+            QStringList dataLine = line.split( ';' );
             if ( dataLine.size() != header.size() ) continue;
 
             bool   conversionOk;
@@ -224,7 +224,7 @@ void RifWellPathFormationReader::readFile( const QString&        filePath,
         {
             QString line = data.readLine();
 
-            QStringList dataLine = line.split( ';', QString::KeepEmptyParts );
+            QStringList dataLine = line.split( ';' );
             if ( dataLine.size() != header.size() ) continue;
 
             QString wellName = dataLine[wellNameIndex];
