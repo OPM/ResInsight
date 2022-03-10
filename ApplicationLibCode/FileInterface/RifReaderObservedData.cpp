@@ -18,6 +18,8 @@
 
 #include "RifReaderObservedData.h"
 
+#include "caf.h"
+
 #include "RifCsvUserDataParser.h"
 #include "RifEclipseSummaryAddress.h"
 
@@ -50,7 +52,7 @@ bool RifReaderObservedData::open( const QString&                               h
     AsciiDataParseOptions parseOptions;
     parseOptions.dateFormat    = "yyyy-MM-dd";
     parseOptions.cellSeparator = "\t";
-    parseOptions.locale        = QLocale::Norwegian;
+    parseOptions.locale        = caf::norwegianLocale();
 
     QString     data;
     QTextStream out( &data );

@@ -30,6 +30,7 @@
 
 #include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
+#include "caf.h"
 #include "cvfAssert.h"
 
 #include <QFile>
@@ -733,7 +734,7 @@ QLocale RifCsvUserDataParser::localeFromDecimalSeparator( const QString& decimal
 {
     if ( decimalSeparator == "," )
     {
-        return QLocale::Norwegian;
+        return caf::norwegianLocale();
     }
     return QLocale::c();
 }
