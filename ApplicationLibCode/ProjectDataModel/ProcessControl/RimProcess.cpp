@@ -26,7 +26,9 @@
 #include <QProcess>
 
 // Disable deprecation warning for QProcess::start()
+#ifdef _MSC_VER
 #pragma warning( disable : 4996 )
+#endif
 
 CAF_PDM_SOURCE_INIT( RimProcess, "RimProcess" );
 
