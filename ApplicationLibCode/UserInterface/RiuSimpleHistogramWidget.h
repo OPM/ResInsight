@@ -29,7 +29,7 @@ class QStringList;
 class RiuSimpleHistogramWidget : public QWidget
 {
 public:
-    RiuSimpleHistogramWidget( const QString& objectName, QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    RiuSimpleHistogramWidget( const QString& objectName, QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
 
     void setHistogramData( double min, double max, const std::vector<size_t>& histogram );
     void setPercentiles( double pmin, double pmax );

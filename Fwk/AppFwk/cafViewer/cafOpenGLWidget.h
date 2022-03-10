@@ -59,7 +59,7 @@ public:
                   QWidget*                 parent,
                   OpenGLWidget*            shareWidget = nullptr,
                   Qt::WindowFlags          f           = nullptr );
-    OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::WindowFlags f = nullptr );
+    OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags() );
 
     cvf::OpenGLContext* cvfOpenGLContext() const;
     void                cvfShutdownOpenGLContext();
