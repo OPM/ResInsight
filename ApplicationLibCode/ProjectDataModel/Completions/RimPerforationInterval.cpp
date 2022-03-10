@@ -21,6 +21,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaEclipseUnitTools.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigWellPath.h"
@@ -99,7 +100,7 @@ void RimPerforationInterval::setCustomStartDate( const QDate& date )
 {
     if ( date.isValid() )
     {
-        m_startDate = QDateTime( date );
+        m_startDate = RiaQDateTimeTools::createDateTime( date );
     }
 }
 
@@ -110,7 +111,7 @@ void RimPerforationInterval::setCustomEndDate( const QDate& date )
 {
     if ( date.isValid() )
     {
-        m_endDate = QDateTime( date );
+        m_endDate = RiaQDateTimeTools::createDateTime( date );
     }
 }
 

@@ -97,6 +97,8 @@ public:
     static QDateTime addPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
     static QDateTime subtractPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
 
+    static QDateTime createDateTime( const QDate& date );
+
     static QDateTime epoch();
 
     static QDateTime createUtcDateTime();

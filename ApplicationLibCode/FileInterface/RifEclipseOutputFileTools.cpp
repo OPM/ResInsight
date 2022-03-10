@@ -673,7 +673,7 @@ void RifEclipseOutputFileTools::createReportStepsMetaData( std::vector<ecl_file_
 
                     // Set Date
                     {
-                        QDateTime reportDateTime(
+                        QDateTime reportDateTime = RiaQDateTimeTools::createDateTime(
                             QDate( restart_header->year, restart_header->month, restart_header->day ) );
                         reportStep.dateTime = reportDateTime;
                     }
