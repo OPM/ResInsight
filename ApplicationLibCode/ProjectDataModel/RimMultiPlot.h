@@ -141,6 +141,8 @@ protected:
 
     virtual void updatePlotWindowTitle();
 
+    bool isMouseCursorInsidePlot();
+
 private:
     void cleanupBeforeClose();
     void doUpdateLayout() override;

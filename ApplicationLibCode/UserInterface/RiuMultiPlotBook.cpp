@@ -99,6 +99,7 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
     , m_titleVisible( true )
     , m_subTitlesVisible( true )
     , m_previewMode( true )
+    , m_currentPageIndex( 0 )
 {
     const int spacing = 8;
 
@@ -584,4 +585,31 @@ void RiuMultiPlotBook::applyLook()
         m_book->setBackgroundRole( QPalette::Window );
         m_book->setPalette( newPalette );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::changeCurrentPage( int pageDiff )
+{
+    m_currentPageIndex += pageDiff;
+    if ( m_currentPageIndex >= (int)m_pages.size() ) m_currentPageIndex = (int)m_pages.size() - 1;
+    if ( m_currentPageIndex < 0 ) m_currentPageIndex = 0;
+    if ( !m_pages.isEmpty() ) m_scrollArea->ensureWidgetVisible( m_pages[m_currentPageIndex] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::goToNextPage()
+{
+    changeCurrentPage( 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::goToPrevPage()
+{
+    changeCurrentPage( -1 );
 }

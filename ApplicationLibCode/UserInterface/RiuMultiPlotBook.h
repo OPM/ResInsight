@@ -86,6 +86,9 @@ public:
 
     void renderTo( QPaintDevice* painter );
 
+    void goToNextPage();
+    void goToPrevPage();
+
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 
@@ -107,6 +110,9 @@ private:
     const QList<QPointer<RiuMultiPlotPage>>& pages() const;
     RiuMultiPlotPage*                        createPage();
     void                                     applyLook();
+
+    void changeCurrentPage( int pageDiff );
+
 private slots:
     virtual void performUpdate();
 
@@ -125,4 +131,5 @@ protected:
     bool                              m_titleVisible;
     bool                              m_subTitlesVisible;
     bool                              m_previewMode;
+    int                               m_currentPageIndex;
 };

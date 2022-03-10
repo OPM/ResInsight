@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimMultiPlot.h"
+#include "RimSummaryMultiPlot.h"
 
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryStringTools.h"
@@ -31,7 +31,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotControls.h"
 
-#include "RimSummaryMultiPlot.h"
+#include "RimMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
@@ -42,6 +42,8 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include <QKeyEvent>
 
 CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +61,11 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_syncAxisRanges.xmlCapability()->disableIO();
     m_syncAxisRanges.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_syncAxisRanges.uiCapability()->setUiIconFromResourceString( ":/AxesSync16x16.png" );
+
+    CAF_PDM_InitField( &m_disableWheelZoom, "DisableWheelZoom", true, "", "", "Disable Mouse Wheel Zooming in Multi Summary Plot" );
+    m_disableWheelZoom.xmlCapability()->disableIO();
+    m_disableWheelZoom.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
     m_sourceStepping = new RimSummaryPlotSourceStepping;
@@ -388,6 +395,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 {
     std::vector<caf::PdmFieldHandle*> toolBarFields;
 
+    toolBarFields.push_back( &m_disableWheelZoom );
     toolBarFields.push_back( &m_syncAxisRanges );
 
     auto& sourceObject = m_sourceStepping();
@@ -405,7 +413,48 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 {
-    return RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent );
+    if ( !RimSummaryPlotControls::handleKeyEvents( m_sourceStepping(), keyEvent ) )
+    {
+        if ( isMouseCursorInsidePlot() )
+        {
+            if ( keyEvent->key() == Qt::Key_PageUp )
+            {
+                m_viewer->goToPrevPage();
+                return true;
+            }
+            else if ( keyEvent->key() == Qt::Key_PageDown )
+            {
+                m_viewer->goToNextPage();
+                return true;
+            }
+        }
+        return false;
+    }
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
+{
+    if ( m_disableWheelZoom )
+    {
+        if ( isMouseCursorInsidePlot() )
+        {
+            if ( wheelEvent->angleDelta().y() > 0 )
+            {
+                m_viewer->goToPrevPage();
+            }
+            else if ( wheelEvent->angleDelta().y() < 0 )
+            {
+                m_viewer->goToNextPage();
+            }
+
+            return true;
+        }
+    }
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

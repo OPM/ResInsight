@@ -258,6 +258,7 @@
         <file>view-snapshots.svg</file>
         <file>well-log-plot.svg</file>
         <file>window-management.svg</file>
+        <file>DisableZoom.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

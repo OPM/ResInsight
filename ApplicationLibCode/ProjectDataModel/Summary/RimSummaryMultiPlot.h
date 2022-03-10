@@ -63,6 +63,7 @@ public:
 
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
+    bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -82,6 +83,7 @@ private:
     caf::PdmField<bool> m_autoPlotTitles;
     caf::PdmField<bool> m_autoPlotTitlesOnSubPlots;
     caf::PdmField<bool> m_syncAxisRanges;
+    caf::PdmField<bool> m_disableWheelZoom;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
