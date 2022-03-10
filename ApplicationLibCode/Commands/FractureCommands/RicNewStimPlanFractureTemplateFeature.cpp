@@ -85,7 +85,7 @@ std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature:
                                                                   defaultDir,
                                                                   "StimPlan XML File (*.xml);;All files(*.*)" );
 
-    auto templates = createNewTemplatesFromFiles( fileNames.toVector().toStdVector() );
+    auto templates = createNewTemplatesFromFiles( std::vector<QString>( fileNames.begin(), fileNames.end() ) );
 
     if ( !fileNames.isEmpty() )
     {
