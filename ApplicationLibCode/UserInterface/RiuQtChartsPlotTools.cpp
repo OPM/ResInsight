@@ -72,11 +72,11 @@ void RiuQtChartsPlotTools::setDefaultAxes( RiuQtChartsPlotWidget* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotTools::enableDateBasedBottomXAxis( RiuQtChartsPlotWidget*                  plot,
-                                                       const QString&                          dateFormat,
-                                                       const QString&                          timeFormat,
-                                                       RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                                       RiaQDateTimeTools::TimeFormatComponents timeComponents )
+void RiuQtChartsPlotTools::enableDateBasedBottomXAxis( RiuQtChartsPlotWidget*           plot,
+                                                       const QString&                   dateFormat,
+                                                       const QString&                   timeFormat,
+                                                       RiaDefines::DateFormatComponents dateComponents,
+                                                       RiaDefines::TimeFormatComponents timeComponents )
 {
     QString format = dateTimeFormatForInterval( dateFormat, timeFormat, dateComponents, timeComponents );
     plot->setAxisFormat( RiuPlotAxis::defaultBottom(), format );
@@ -85,21 +85,19 @@ void RiuQtChartsPlotTools::enableDateBasedBottomXAxis( RiuQtChartsPlotWidget*   
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuQtChartsPlotTools::dateTimeFormatForInterval( const QString&                          dateFormat,
-                                                         const QString&                          timeFormat,
-                                                         RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                                         RiaQDateTimeTools::TimeFormatComponents timeComponents )
+QString RiuQtChartsPlotTools::dateTimeFormatForInterval( const QString&                   dateFormat,
+                                                         const QString&                   timeFormat,
+                                                         RiaDefines::DateFormatComponents dateComponents,
+                                                         RiaDefines::TimeFormatComponents timeComponents )
 {
-    if ( dateComponents != RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED &&
-         timeComponents != RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
+    if ( dateComponents != RiaDefines::DATE_FORMAT_UNSPECIFIED &&
+         timeComponents != RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
     {
         return RiaQDateTimeTools::timeFormatString( timeFormat, timeComponents ) + "\n" +
                RiaQDateTimeTools::dateFormatString( dateFormat, dateComponents );
     }
 
     // Default:
-    return RiaQDateTimeTools::timeFormatString( timeFormat, RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE ) +
-           "\n" +
-           RiaQDateTimeTools::dateFormatString( dateFormat,
-                                                RiaQDateTimeTools::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+    return RiaQDateTimeTools::timeFormatString( timeFormat, RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE ) + "\n" +
+           RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
 }

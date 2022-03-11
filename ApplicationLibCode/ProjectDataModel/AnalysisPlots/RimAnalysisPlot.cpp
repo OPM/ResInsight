@@ -21,6 +21,7 @@
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTextStringTools.h"
 
@@ -612,10 +613,10 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
                                        filteredTimeStepIndices.end() );
 
         QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                                                                        RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
         QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
         bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL ||
@@ -1645,8 +1646,8 @@ void RimAnalysisPlot::updatePlotTitle()
             if ( !autoTitle.isEmpty() ) autoTitle += " @ ";
 
             QString formatString =
-                RiaPreferences::current()->dateTimeFormat( RiaQDateTimeTools::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
-                                                           RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE );
+                RiaPreferences::current()->dateTimeFormat( RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
+                                                           RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE );
             autoTitle += m_selectedTimeSteps()[0].toString( formatString );
         }
 

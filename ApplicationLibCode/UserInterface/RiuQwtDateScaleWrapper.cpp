@@ -33,10 +33,10 @@ RiuQwtDateScaleWrapper::RiuQwtDateScaleWrapper()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtDateScaleWrapper::setFormatStrings( const QString&                          dateFormat,
-                                               const QString&                          timeFormat,
-                                               RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                               RiaQDateTimeTools::TimeFormatComponents timeComponents )
+void RiuQwtDateScaleWrapper::setFormatStrings( const QString&                   dateFormat,
+                                               const QString&                   timeFormat,
+                                               RiaDefines::DateFormatComponents dateComponents,
+                                               RiaDefines::TimeFormatComponents timeComponents )
 {
     std::set<QwtDate::IntervalType> intervals = { QwtDate::Year,
                                                   QwtDate::Month,

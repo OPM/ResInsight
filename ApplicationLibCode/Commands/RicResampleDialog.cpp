@@ -18,6 +18,8 @@
 
 #include "RicResampleDialog.h"
 
+#include "RiaQDateTimeTools.h"
+
 #include "RiuTools.h"
 
 #include <QAbstractItemView>
@@ -97,13 +99,13 @@ RicResampleDialogResult RicResampleDialog::openDialog( QWidget* parent /*= 0*/, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicResampleDialog::setPeriodOptions( const std::vector<RiaQDateTimeTools::DateTimePeriod>& dateTimePeriods )
+void RicResampleDialog::setPeriodOptions( const std::vector<RiaDefines::DateTimePeriod>& dateTimePeriods )
 {
     QStringList s;
     for ( auto& period : dateTimePeriods )
     {
-        QString text = period != RiaQDateTimeTools::DateTimePeriod::NONE ? RiaQDateTimeTools::dateTimePeriodName( period )
-                                                                         : "No Resampling";
+        QString text = period != RiaDefines::DateTimePeriod::NONE ? RiaQDateTimeTools::dateTimePeriodName( period )
+                                                                  : "No Resampling";
         m_timePeriodCombo->addItem( text, QVariant( (int)period ) );
     }
 }
@@ -111,10 +113,10 @@ void RicResampleDialog::setPeriodOptions( const std::vector<RiaQDateTimeTools::D
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaQDateTimeTools::DateTimePeriod RicResampleDialog::selectedDateTimePeriod() const
+RiaDefines::DateTimePeriod RicResampleDialog::selectedDateTimePeriod() const
 {
     int currIndex = m_timePeriodCombo->currentIndex();
-    return (RiaQDateTimeTools::DateTimePeriod)m_timePeriodCombo->itemData( currIndex ).toInt();
+    return (RiaDefines::DateTimePeriod)m_timePeriodCombo->itemData( currIndex ).toInt();
 }
 
 //--------------------------------------------------------------------------------------------------

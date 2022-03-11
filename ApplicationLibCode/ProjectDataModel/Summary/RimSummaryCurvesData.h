@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 #include "RifEclipseSummaryAddress.h"
 
 #include <QString>
@@ -66,7 +66,7 @@ public:
     static QString createTextForExport( const std::vector<RimSummaryCurve*>&         curves,
                                         const std::vector<RimAsciiDataCurve*>&       asciiCurves,
                                         const std::vector<RimGridTimeHistoryCurve*>& gridCurves,
-                                        RiaQDateTimeTools::DateTimePeriod            resamplingPeriod,
+                                        RiaDefines::DateTimePeriod                   resamplingPeriod,
                                         bool                                         showTimeAsLongString );
 
 private:
@@ -77,10 +77,10 @@ private:
                                                RimSummaryCurvesData*                 curvesData );
     static void populateAsciiDataCurvesData( std::vector<RimAsciiDataCurve*> curves, RimSummaryCurvesData* curvesData );
 
-    static void prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
-                                            ResampleAlgorithm                 algorithm,
-                                            const RimSummaryCurvesData&       inputCurvesData,
-                                            RimSummaryCurvesData*             resultCurvesData );
+    static void prepareCaseCurvesForExport( RiaDefines::DateTimePeriod  period,
+                                            ResampleAlgorithm           algorithm,
+                                            const RimSummaryCurvesData& inputCurvesData,
+                                            RimSummaryCurvesData*       resultCurvesData );
 
     static void appendToExportDataForCase( QString&                      out,
                                            const std::vector<time_t>&    timeSteps,
@@ -95,7 +95,7 @@ private:
     QString createCaseId( const QString& caseName, const QString& ensembleName );
 
 public:
-    RiaQDateTimeTools::DateTimePeriod   resamplePeriod;
+    RiaDefines::DateTimePeriod          resamplePeriod;
     std::vector<QString>                caseIds;
     std::vector<std::vector<time_t>>    timeSteps;
     std::vector<std::vector<CurveData>> allCurveData;

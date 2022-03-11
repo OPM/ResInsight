@@ -27,10 +27,10 @@ class RiuQwtDateScaleWrapper
 public:
     RiuQwtDateScaleWrapper();
 
-    void setFormatStrings( const QString&                          dateFormat,
-                           const QString&                          timeFormat,
-                           RiaQDateTimeTools::DateFormatComponents dateComponents,
-                           RiaQDateTimeTools::TimeFormatComponents timeComponents );
+    void setFormatStrings( const QString&                   dateFormat,
+                           const QString&                   timeFormat,
+                           RiaDefines::DateFormatComponents dateComponents,
+                           RiaDefines::TimeFormatComponents timeComponents );
 
     void    setMaxMajorTicks( int tickCount );
     QString formatStringForRange( const QDateTime& min, const QDateTime& max );

@@ -77,7 +77,7 @@ void RimSummaryCurvesData::populateAsciiDataCurvesData( std::vector<RimAsciiData
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurvesData::RimSummaryCurvesData()
-    : resamplePeriod( RiaQDateTimeTools::DateTimePeriod::NONE )
+    : resamplePeriod( RiaDefines::DateTimePeriod::NONE )
 {
 }
 
@@ -137,7 +137,7 @@ void RimSummaryCurvesData::addCurveDataNoSearch( const QString&                c
 QString RimSummaryCurvesData::createTextForExport( const std::vector<RimSummaryCurve*>&         curves,
                                                    const std::vector<RimAsciiDataCurve*>&       asciiCurves,
                                                    const std::vector<RimGridTimeHistoryCurve*>& gridCurves,
-                                                   RiaQDateTimeTools::DateTimePeriod            resamplingPeriod,
+                                                   RiaDefines::DateTimePeriod                   resamplingPeriod,
                                                    bool                                         showTimeAsLongString )
 {
     QString out;
@@ -242,16 +242,16 @@ void RimSummaryCurvesData::populateSummaryCurvesData( std::vector<RimSummaryCurv
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaQDateTimeTools::DateTimePeriod period,
-                                                       ResampleAlgorithm                 algorithm,
-                                                       const RimSummaryCurvesData&       inputCurvesData,
-                                                       RimSummaryCurvesData*             resultCurvesData )
+void RimSummaryCurvesData::prepareCaseCurvesForExport( RiaDefines::DateTimePeriod  period,
+                                                       ResampleAlgorithm           algorithm,
+                                                       const RimSummaryCurvesData& inputCurvesData,
+                                                       RimSummaryCurvesData*       resultCurvesData )
 {
     RiaTimeHistoryCurveResampler resampler;
 
     resultCurvesData->clear();
 
-    if ( period != RiaQDateTimeTools::DateTimePeriod::NONE )
+    if ( period != RiaDefines::DateTimePeriod::NONE )
     {
         // Prepare result data
         resultCurvesData->resamplePeriod = period;
@@ -333,7 +333,7 @@ void RimSummaryCurvesData::appendToExportData( QString&                         
 {
     RimSummaryCurvesData data = RimSummaryCurvesData::concatCurvesData( curvesData );
 
-    if ( data.resamplePeriod != RiaQDateTimeTools::DateTimePeriod::NONE )
+    if ( data.resamplePeriod != RiaDefines::DateTimePeriod::NONE )
     {
         time_t minTimeStep = std::numeric_limits<time_t>::max();
         time_t maxTimeStep = 0;
@@ -385,40 +385,40 @@ void RimSummaryCurvesData::appendToExportData( QString&                         
                 {
                     default:
                         // Fall through to NONE
-                    case RiaQDateTimeTools::DateTimePeriod::NONE:
+                    case RiaDefines::DateTimePeriod::NONE:
                         timeText = timseStepUtc.toString( "yyyy-MM-dd hh:mm:ss " );
                         break;
-                    case RiaQDateTimeTools::DateTimePeriod::DAY:
+                    case RiaDefines::DateTimePeriod::DAY:
                         timeText = oneDayEarlier.toString( "yyyy-MM-dd " );
                         break;
-                    case RiaQDateTimeTools::DateTimePeriod::WEEK:
+                    case RiaDefines::DateTimePeriod::WEEK:
                     {
                         timeText       = oneDayEarlier.toString( "yyyy" );
                         int weekNumber = oneDayEarlier.date().weekNumber();
                         timeText += QString( "-W%1" ).arg( weekNumber, 2, 10, zeroChar );
                         break;
                     }
-                    case RiaQDateTimeTools::DateTimePeriod::MONTH:
+                    case RiaDefines::DateTimePeriod::MONTH:
                         timeText = oneDayEarlier.toString( "yyyy-MM" );
                         break;
-                    case RiaQDateTimeTools::DateTimePeriod::QUARTER:
+                    case RiaDefines::DateTimePeriod::QUARTER:
                     {
                         int quarterNumber = oneDayEarlier.date().month() / 3;
                         timeText          = oneDayEarlier.toString( "yyyy" );
                         timeText += QString( "-Q%1" ).arg( quarterNumber );
                         break;
                     }
-                    case RiaQDateTimeTools::DateTimePeriod::HALFYEAR:
+                    case RiaDefines::DateTimePeriod::HALFYEAR:
                     {
                         int halfYearNumber = oneDayEarlier.date().month() / 6;
                         timeText           = oneDayEarlier.toString( "yyyy" );
                         timeText += QString( "-H%1" ).arg( halfYearNumber );
                         break;
                     }
-                    case RiaQDateTimeTools::DateTimePeriod::YEAR:
+                    case RiaDefines::DateTimePeriod::YEAR:
                         timeText = oneDayEarlier.toString( "yyyy" );
                         break;
-                    case RiaQDateTimeTools::DateTimePeriod::DECADE:
+                    case RiaDefines::DateTimePeriod::DECADE:
                         timeText = oneDayEarlier.toString( "yyyy" );
                         break;
                 }
@@ -473,8 +473,8 @@ RimSummaryCurvesData RimSummaryCurvesData::concatCurvesData( const std::vector<R
 {
     CVF_ASSERT( !curvesData.empty() );
 
-    RiaQDateTimeTools::DateTimePeriod period = curvesData.front().resamplePeriod;
-    RimSummaryCurvesData              resultCurvesData;
+    RiaDefines::DateTimePeriod period = curvesData.front().resamplePeriod;
+    RimSummaryCurvesData       resultCurvesData;
 
     resultCurvesData.resamplePeriod = period;
 

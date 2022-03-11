@@ -221,10 +221,10 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<time_t>, std::vector<double>>
-    RiaSummaryTools::resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
-                                               const std::vector<time_t>&        timeSteps,
-                                               std::vector<double>&              values,
-                                               RiaQDateTimeTools::DateTimePeriod period )
+    RiaSummaryTools::resampledValuesForPeriod( const RifEclipseSummaryAddress& address,
+                                               const std::vector<time_t>&      timeSteps,
+                                               std::vector<double>&            values,
+                                               RiaDefines::DateTimePeriod      period )
 {
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeSteps );

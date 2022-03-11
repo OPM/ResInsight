@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 #include <QObject>
 #include <QPoint>
@@ -40,11 +40,10 @@ public:
     ~RiuSummaryPlot() override;
 
     virtual void useDateBasedTimeAxis(
-        const QString&                          dateFormat,
-        const QString&                          timeFormat,
-        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-        RiaQDateTimeTools::TimeFormatComponents timeComponents =
-            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) = 0;
+        const QString&                   dateFormat,
+        const QString&                   timeFormat,
+        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DATE_FORMAT_UNSPECIFIED,
+        RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) = 0;
 
     virtual void useTimeBasedTimeAxis() = 0;
 

@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
@@ -126,11 +127,11 @@ void RiuQwtPlotTools::setDefaultAxes( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                                plot,
-                                                  const QString&                          dateFormat,
-                                                  const QString&                          timeFormat,
-                                                  RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                                  RiaQDateTimeTools::TimeFormatComponents timeComponents )
+void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                         plot,
+                                                  const QString&                   dateFormat,
+                                                  const QString&                   timeFormat,
+                                                  RiaDefines::DateFormatComponents dateComponents,
+                                                  RiaDefines::TimeFormatComponents timeComponents )
 {
     QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw( Qt::UTC );
 
@@ -157,14 +158,14 @@ void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                      
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType                   interval,
-                                                    const QString&                          dateFormat,
-                                                    const QString&                          timeFormat,
-                                                    RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                                    RiaQDateTimeTools::TimeFormatComponents timeComponents )
+QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType            interval,
+                                                    const QString&                   dateFormat,
+                                                    const QString&                   timeFormat,
+                                                    RiaDefines::DateFormatComponents dateComponents,
+                                                    RiaDefines::TimeFormatComponents timeComponents )
 {
-    if ( dateComponents != RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED &&
-         timeComponents != RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
+    if ( dateComponents != RiaDefines::DATE_FORMAT_UNSPECIFIED &&
+         timeComponents != RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
     {
         return RiaQDateTimeTools::timeFormatString( timeFormat, timeComponents ) + "\n" +
                RiaQDateTimeTools::dateFormatString( dateFormat, dateComponents );
@@ -175,44 +176,41 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
         {
             case QwtDate::Millisecond:
                 return RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
+                                                            RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
             case QwtDate::Second:
                 return RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                                                            RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             case QwtDate::Minute:
             {
                 QString fullFormat =
                     RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                                         RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
                 fullFormat += "\n";
-                fullFormat +=
-                    RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                fullFormat += RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
                 return fullFormat;
             }
             case QwtDate::Hour:
             {
                 QString fullFormat =
-                    RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR );
+                    RiaQDateTimeTools::timeFormatString( timeFormat, RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR );
                 if ( !fullFormat.endsWith( "AP" ) )
                 {
                     fullFormat += ":00";
                 }
                 fullFormat += "\n";
-                fullFormat +=
-                    RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                fullFormat += RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
                 return fullFormat;
             }
             case QwtDate::Day:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
             case QwtDate::Week:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DATE_FORMAT_YEAR_MONTH );
             case QwtDate::Month:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DATE_FORMAT_YEAR_MONTH );
             case QwtDate::Year:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DATE_FORMAT_YEAR );
             default:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
         }
     }
 }

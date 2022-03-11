@@ -660,10 +660,10 @@ void RiuQtChartsPlotWidget::updateZoomDependentCurveProperties()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::setFormatStrings( const QString&                          dateFormat,
-                                              const QString&                          timeFormat,
-                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                              RiaQDateTimeTools::TimeFormatComponents timeComponents )
+void RiuQtChartsPlotWidget::setFormatStrings( const QString&                   dateFormat,
+                                              const QString&                   timeFormat,
+                                              RiaDefines::DateFormatComponents dateComponents,
+                                              RiaDefines::TimeFormatComponents timeComponents )
 {
     m_dateScaleWrapper->setFormatStrings( dateFormat, timeFormat, dateComponents, timeComponents );
 }

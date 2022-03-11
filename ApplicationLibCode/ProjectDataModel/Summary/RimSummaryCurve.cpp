@@ -24,6 +24,7 @@
 #include "RiaLogging.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
@@ -664,7 +665,7 @@ void RimSummaryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         }
                         else
                         {
-                            if ( m_resampling() != RiaQDateTimeTools::DateTimePeriod::NONE )
+                            if ( m_resampling() != RiaDefines::DateTimePeriod::NONE )
                             {
                                 auto [resampledTimeSteps, resampledValues] =
                                     RiaSummaryTools::resampledValuesForPeriod( m_yValuesSummaryAddress->address(),
@@ -884,7 +885,7 @@ void RimSummaryCurve::appendOptionItemsForSummaryAddresses( QList<caf::PdmOption
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurve::setResampling( RiaQDateTimeTools::DateTimePeriodEnum resampling )
+void RimSummaryCurve::setResampling( RiaDefines::DateTimePeriodEnum resampling )
 {
     m_resampling = resampling;
 }

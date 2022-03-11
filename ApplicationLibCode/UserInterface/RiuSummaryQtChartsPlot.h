@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 #include "RiuQtChartsPlotWidget.h"
 #include "RiuSummaryPlot.h"
@@ -41,11 +41,11 @@ public:
     RiuSummaryQtChartsPlot( RimSummaryPlot* plot );
     ~RiuSummaryQtChartsPlot() override;
 
-    void useDateBasedTimeAxis( const QString&                          dateFormat,
-                               const QString&                          timeFormat,
-                               RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-                               RiaQDateTimeTools::TimeFormatComponents timeComponents =
-                                   RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) override;
+    void useDateBasedTimeAxis( const QString&                   dateFormat,
+                               const QString&                   timeFormat,
+                               RiaDefines::DateFormatComponents dateComponents = RiaDefines::DATE_FORMAT_UNSPECIFIED,
+                               RiaDefines::TimeFormatComponents timeComponents =
+                                   RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) override;
 
     void useTimeBasedTimeAxis() override;
 

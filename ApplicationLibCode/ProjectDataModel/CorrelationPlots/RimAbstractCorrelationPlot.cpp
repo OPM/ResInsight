@@ -276,10 +276,10 @@ QList<caf::PdmOptionItemInfo>
             RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
 
         QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                                                                        RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
         QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
         bool showTime = m_timeStepFilter == RimTimeStepFilter::TS_ALL || RimTimeStepFilter::TS_INTERVAL_DAYS;
@@ -608,10 +608,10 @@ QDateTime RimAbstractCorrelationPlot::timeStep() const
 QString RimAbstractCorrelationPlot::timeStepString() const
 {
     QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                                                                    RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
     QString timeFormatString =
         RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                             RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                             RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
 
     return timeStep().toString( dateFormatString ) + " " + timeStep().toString( timeFormatString );
 }

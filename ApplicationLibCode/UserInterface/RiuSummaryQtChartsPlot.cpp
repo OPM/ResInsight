@@ -56,10 +56,10 @@ RiuSummaryQtChartsPlot::~RiuSummaryQtChartsPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&                          dateFormat,
-                                                   const QString&                          timeFormat,
-                                                   RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                                   RiaQDateTimeTools::TimeFormatComponents timeComponents )
+void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&                   dateFormat,
+                                                   const QString&                   timeFormat,
+                                                   RiaDefines::DateFormatComponents dateComponents,
+                                                   RiaDefines::TimeFormatComponents timeComponents )
 {
     m_plotWidget->setAxisScaleType( RiuPlotAxis::defaultBottom(), RiuPlotWidget::AxisScaleType::DATE );
     m_plotWidget->setFormatStrings( dateFormat, timeFormat, dateComponents, timeComponents );

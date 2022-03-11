@@ -296,14 +296,14 @@ RiuPlotWidget* RimSummaryPlot::plotWidget()
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForPlotExport() const
 {
-    return asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod::YEAR, false );
+    return asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::YEAR, false );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod resamplingPeriod,
-                                                       bool                              showTimeAsLongString ) const
+QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod,
+                                                       bool                       showTimeAsLongString ) const
 {
     std::vector<RimSummaryCurve*> curves;
     this->descendantsIncludingThisOfType( curves );
@@ -1018,8 +1018,8 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
 
     if ( timeAxisProperties->timeMode() == RimSummaryTimeAxisProperties::DATE )
     {
-        RiaQDateTimeTools::DateFormatComponents dateComponents = timeAxisProperties->dateComponents();
-        RiaQDateTimeTools::TimeFormatComponents timeComponents = timeAxisProperties->timeComponents();
+        RiaDefines::DateFormatComponents dateComponents = timeAxisProperties->dateComponents();
+        RiaDefines::TimeFormatComponents timeComponents = timeAxisProperties->timeComponents();
 
         const QString& dateFormat = timeAxisProperties->dateFormat();
         const QString& timeFormat = timeAxisProperties->timeFormat();

@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
-
+#include "RiaDateTimeDefines.h"
 #include "cafCmdFeature.h"
 
 class RimSummaryPlot;
@@ -42,8 +41,8 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static bool exportAsciiForSummaryPlot( const QString&                    fileName,
-                                           const RimSummaryPlot*             selectedSummaryPlots,
-                                           RiaQDateTimeTools::DateTimePeriod resamplingPeriod,
-                                           bool                              showTimeAsLongString );
+    static bool exportAsciiForSummaryPlot( const QString&             fileName,
+                                           const RimSummaryPlot*      selectedSummaryPlots,
+                                           RiaDefines::DateTimePeriod resamplingPeriod,
+                                           bool                       showTimeAsLongString );
 };

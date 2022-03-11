@@ -145,10 +145,10 @@ RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                          dateFormat,
-                                              const QString&                          timeFormat,
-                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                              RiaQDateTimeTools::TimeFormatComponents timeComponents )
+void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                   dateFormat,
+                                              const QString&                   timeFormat,
+                                              RiaDefines::DateFormatComponents dateComponents,
+                                              RiaDefines::TimeFormatComponents timeComponents )
 {
     RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(), dateFormat, timeFormat, dateComponents, timeComponents );
 }
