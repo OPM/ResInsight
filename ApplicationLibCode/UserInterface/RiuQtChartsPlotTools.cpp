@@ -15,13 +15,15 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RiuQtChartsPlotTools.h"
 
-#include "RiaPlotDefines.h"
-#include "RiuGuiTheme.h"
-
 #include "RiaApplication.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
+
+#include "RiuGuiTheme.h"
 #include "RiuQtChartsPlotWidget.h"
 
 //--------------------------------------------------------------------------------------------------
