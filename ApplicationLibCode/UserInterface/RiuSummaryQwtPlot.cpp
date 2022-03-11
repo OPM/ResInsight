@@ -23,6 +23,7 @@
 
 #include "Commands/CorrelationPlotCommands/RicNewCorrelationPlotFeature.h"
 
+#include "RimEnsembleCurveInfoTextProvider.h"
 #include "RimPlotAxisAnnotation.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
@@ -67,28 +68,7 @@
 
 #include <limits>
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class EnsembleCurveInfoTextProvider : public IPlotCurveInfoTextProvider
-{
-public:
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    QString curveInfoText( QwtPlotCurve* curve ) override
-    {
-        RiuPlotCurve*    riuCurve = dynamic_cast<RiuPlotCurve*>( curve );
-        RimSummaryCurve* sumCurve = nullptr;
-        if ( riuCurve )
-        {
-            sumCurve = dynamic_cast<RimSummaryCurve*>( riuCurve->ownerRimCurve() );
-        }
-
-        return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->displayCaseName() : "";
-    }
-};
-static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
+static RimEnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 
 //--------------------------------------------------------------------------------------------------
 ///

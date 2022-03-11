@@ -36,6 +36,9 @@ class RiaPlotWindowRedrawScheduler;
 class RimPlot;
 class RiuPlotCurve;
 class RiuQtChartsPlotCurve;
+class RiuQtChartsToolTip;
+class RiuPlotCurveSymbol;
+class RiuPlotCurveInfoTextProvider;
 
 class QEvent;
 class QLabel;
@@ -64,7 +67,9 @@ class RiuQtChartsPlotWidget : public RiuPlotWidget
     Q_OBJECT
 
 public:
-    RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
+    RiuQtChartsPlotWidget( RimPlot*                      plotDefinition,
+                           QWidget*                      parent                = nullptr,
+                           RiuPlotCurveInfoTextProvider* plotCurveNameProvider = nullptr );
     ~RiuQtChartsPlotWidget() override;
 
     int  axisTitleFontSize( RiuPlotAxis axis ) const override;
@@ -217,6 +222,7 @@ signals:
 
 private slots:
     void axisRangeChanged();
+    void tooltip( const QPointF& point, bool state );
 
 private:
     void addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool isAutoScale );
@@ -229,6 +235,8 @@ private:
 
     QtCharts::QCategoryAxis* categoryAxis();
 
+    QString createNameFromSeries( QtCharts::QAbstractSeries* series ) const;
+
 private:
     QPointer<QtCharts::QChartView> m_viewer;
 
@@ -240,5 +248,7 @@ private:
     std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_areaSeriesMap;
     std::map<RiuPlotCurve*, QtCharts::QAbstractSeries*> m_scatterSeriesMap;
 
-    RiuQwtDateScaleWrapper* m_dateScaleWrapper;
+    RiuQwtDateScaleWrapper*       m_dateScaleWrapper;
+    RiuQtChartsToolTip*           m_toolTip;
+    RiuPlotCurveInfoTextProvider* m_plotCurveNameProvider;
 };

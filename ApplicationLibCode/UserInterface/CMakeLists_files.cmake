@@ -214,6 +214,7 @@ if(RESINSIGHT_USE_QT_CHARTS)
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurveSymbol.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsToolTip.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.h
   )
 
@@ -225,6 +226,7 @@ if(RESINSIGHT_USE_QT_CHARTS)
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotWidget.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsPlotCurveSymbol.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuQtChartsToolTip.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryQtChartsPlot.cpp
   )
 
