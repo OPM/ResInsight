@@ -26,14 +26,13 @@ option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
 )
 
 find_package(
-  Qt5
+  Qt5 ${RI_QT_MINIMUM_VERSION}
   COMPONENTS Core
-  QUIET
 )
 
 if(Qt5Core_FOUND)
   find_package(
-    Qt5
+    Qt5 ${RI_QT_MINIMUM_VERSION}
     COMPONENTS Core
                Gui
                OpenGL
