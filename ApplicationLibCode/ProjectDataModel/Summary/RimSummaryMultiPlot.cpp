@@ -464,6 +464,9 @@ void RimSummaryMultiPlot::syncAxisRanges()
 {
     std::map<QString, std::pair<double, double>> axisRanges;
 
+    // Reset zoom to make sure the complete range for min/max is available
+    zoomAll();
+
     // gather current min/max values for each category (axis label)
     for ( auto plot : summaryPlots() )
     {
