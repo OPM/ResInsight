@@ -983,6 +983,22 @@ void RiuQtChartsPlotWidget::addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::deleteAxis( RiuPlotAxis axis )
+{
+    auto toBeDeleted = plotAxis( axis );
+
+    qtChart()->removeAxis( toBeDeleted );
+    m_axes.erase( axis );
+    m_axesEnabled.erase( axis );
+    m_axesAutoScale.erase( axis );
+
+    delete toBeDeleted;
+    toBeDeleted = nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotAxis RiuQtChartsPlotWidget::createNextPlotAxis( RiaDefines::PlotAxis axis )
 {
     int minIdx = -1;
@@ -1194,10 +1210,7 @@ void RiuQtChartsPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
     {
         if ( usedAxes.count( plotAxis ) == 0 )
         {
-            // This axis is now unused, and can be disabled
-            qtAxis->setVisible( false );
-            m_axesEnabled[plotAxis]   = false;
-            m_axesAutoScale[plotAxis] = false;
+            deleteAxis( plotAxis );
         }
     }
 }

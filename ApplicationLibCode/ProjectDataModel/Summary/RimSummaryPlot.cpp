@@ -134,7 +134,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     }
     else
     {
-        RimSummaryTimeAxisProperties* timeAxisProperties = new RimSummaryTimeAxisProperties;
+        auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
         m_axisProperties.push_back( timeAxisProperties );
     }
 
@@ -1783,9 +1783,18 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
             auto oldAxisProperties = axisPropertiesForPlotAxis( oldPlotAxis );
             if ( oldAxisProperties ) m_axisProperties.removeChildObject( oldAxisProperties );
         }
+
+        std::set<RiuPlotAxis> usedPlotAxis;
+        for ( const auto& axisProperties : m_axisProperties )
+        {
+            usedPlotAxis.insert( axisProperties->plotAxisType() );
+        }
+
+        plotWidget()->pruneAxes( usedPlotAxis );
     }
 
-    updateAxes();
+    // This is probably to much, but difficult to find the required updates
+    loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
