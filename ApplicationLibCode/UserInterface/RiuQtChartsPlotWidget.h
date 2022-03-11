@@ -217,7 +217,9 @@ private slots:
     void axisRangeChanged();
 
 private:
-    void                 addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool isAutoScale );
+    void addAxis( RiuPlotAxis plotAxis, bool isEnabled, bool isAutoScale );
+    void deleteAxis( RiuPlotAxis plotAxis );
+
     static Qt::Alignment mapPlotAxisToQtAlignment( RiaDefines::PlotAxis axis );
 
     static int defaultMinimumWidth();

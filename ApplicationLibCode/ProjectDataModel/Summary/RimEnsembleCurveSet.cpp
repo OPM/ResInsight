@@ -1685,6 +1685,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
     if ( m_statistics->hideEnsembleCurves() ) return;
 
+    setLeftOrRightAxisY( axisY() );
+
     RimSummaryAddress* addr = m_yValuesSummaryAddress();
     if ( plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
     {
@@ -2095,7 +2097,7 @@ RiuPlotAxis RimEnsembleCurveSet::axisY() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::setAxisY( RiuPlotAxis plotAxis )
+void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
 {
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
