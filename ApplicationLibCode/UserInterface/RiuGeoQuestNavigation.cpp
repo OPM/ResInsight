@@ -18,7 +18,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuGeoQuestNavigation.h"
+
+#include "caf.h"
 #include "cafViewer.h"
+
 #include "cvfCamera.h"
 #include "cvfHitItemCollection.h"
 #include "cvfManipulatorTrackball.h"
@@ -132,14 +135,15 @@ bool RiuGeoQuestNavigation::handleInputEvent( QInputEvent* inputEvent )
         {
             if ( inputEvent->modifiers() == Qt::NoModifier )
             {
-                QWheelEvent* we = static_cast<QWheelEvent*>( inputEvent );
+                QWheelEvent* we       = static_cast<QWheelEvent*>( inputEvent );
+                auto         position = caf::position( we );
 
-                updatePointOfInterestDuringZoomIfNecessary( we->position().x(), we->position().y() );
+                updatePointOfInterestDuringZoomIfNecessary( position.x(), position.y() );
 
                 if ( m_isRotCenterInitialized )
                 {
                     int translatedMousePosX, translatedMousePosY;
-                    cvfEventPos( we->position().x(), we->position().y(), &translatedMousePosX, &translatedMousePosY );
+                    cvfEventPos( position.x(), position.y(), &translatedMousePosX, &translatedMousePosY );
 
                     cvf::ref<cvf::Ray> ray = createZoomRay( translatedMousePosX, translatedMousePosY );
 

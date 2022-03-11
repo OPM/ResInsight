@@ -37,9 +37,12 @@
 
 class QLocale;
 class QTextStream;
+class QPointF;
+class QWheelEvent;
 
 namespace caf
 {
 QLocale      norwegianLocale();
 QTextStream& endl( QTextStream& s );
+QPointF      position( QWheelEvent* wheelEvent );
 }; // namespace caf

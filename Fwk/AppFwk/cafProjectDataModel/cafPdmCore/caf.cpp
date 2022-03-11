@@ -35,6 +35,7 @@
 //##################################################################################################
 #include "caf.h"
 
+#include "QtGui/qevent.h"
 #include <QLocale>
 #include <QTextStream>
 
@@ -64,4 +65,17 @@ QTextStream& endl( QTextStream& s )
     return s << QLatin1Char( '\n' ) << flush;
 #endif
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPointF position( QWheelEvent* wheelEvent )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
+    return wheelEvent->position();
+#else
+    return wheelEvent->pos();
+#endif
+}
+
 } // namespace caf
