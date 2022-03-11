@@ -129,7 +129,7 @@ QRect RiuPlotCurveSymbol::labelBoundingRect( const QPainter* painter, const QRec
     int symbolWidth  = symbolRect.width();
     int symbolHeight = symbolRect.height();
 
-    int labelWidth  = painter->fontMetrics().width( label );
+    int labelWidth  = painter->fontMetrics().horizontalAdvance( label );
     int labelHeight = painter->fontMetrics().height();
 
     QPoint labelPosition;

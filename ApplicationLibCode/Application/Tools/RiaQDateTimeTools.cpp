@@ -213,6 +213,18 @@ QDateTime RiaQDateTimeTools::subtractPeriod( const QDateTime& dt, RiaQDateTimeTo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QDateTime RiaQDateTimeTools::createDateTime( const QDate& date )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )
+    return date.startOfDay();
+#else
+    return QDateTime( date, QTime( 0, 0 ) );
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::epoch()
 {
     // NB: Not able to use QDateTime::fromMSecsSinceEpoch as this was introduced in Qt 4.7
@@ -239,7 +251,7 @@ QDateTime RiaQDateTimeTools::createUtcDateTime()
 //--------------------------------------------------------------------------------------------------
 QDateTime RiaQDateTimeTools::createUtcDateTime( const QDate& date )
 {
-    auto qdt = QDateTime( date );
+    auto qdt = createDateTime( date );
     qdt.setTimeSpec( currentTimeSpec() );
     return qdt;
 }

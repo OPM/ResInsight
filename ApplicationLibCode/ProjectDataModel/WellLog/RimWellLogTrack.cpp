@@ -92,6 +92,7 @@
 #include "cafPdmUiSliderEditor.h"
 #include "cafSelectionManager.h"
 
+#include "caf.h"
 #include "cvfAssert.h"
 
 #include <QWheelEvent>
@@ -2108,29 +2109,30 @@ RimDepthTrackPlot* RimWellLogTrack::parentWellLogPlot() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
+void RimWellLogTrack::handleWheelEvent( QWheelEvent* wheelEvent )
 {
     RimDepthTrackPlot* wellLogPlot = nullptr;
     this->firstAncestorOrThisOfType( wellLogPlot );
 
     if ( wellLogPlot )
     {
-        if ( event->modifiers() & Qt::ControlModifier )
+        if ( wheelEvent->modifiers() & Qt::ControlModifier )
         {
             double zoomCenter = 0.0;
+            auto   position   = caf::position( wheelEvent );
 
             if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
             {
                 QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::yLeft );
-                zoomCenter           = scaleMap.invTransform( event->pos().y() );
+                zoomCenter           = scaleMap.invTransform( position.y() );
             }
             else
             {
                 QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::xTop );
-                zoomCenter           = scaleMap.invTransform( event->pos().x() );
+                zoomCenter           = scaleMap.invTransform( position.x() );
             }
 
-            if ( event->delta() > 0 )
+            if ( wheelEvent->angleDelta().y() > 0 )
             {
                 wellLogPlot->setDepthAxisRangeByFactorAndCenter( RI_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
             }
@@ -2141,8 +2143,8 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
         }
         else
         {
-            wellLogPlot->setDepthAxisRangeByPanDepth( event->delta() < 0 ? RI_SCROLLWHEEL_PANFACTOR
-                                                                         : -RI_SCROLLWHEEL_PANFACTOR );
+            wellLogPlot->setDepthAxisRangeByPanDepth( wheelEvent->angleDelta().y() < 0 ? RI_SCROLLWHEEL_PANFACTOR
+                                                                                       : -RI_SCROLLWHEEL_PANFACTOR );
         }
     }
 }

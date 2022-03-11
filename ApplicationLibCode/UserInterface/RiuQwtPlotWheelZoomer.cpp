@@ -18,6 +18,8 @@
 
 #include "RiuQwtPlotWheelZoomer.h"
 
+#include "caf.h"
+
 #include "qwt_plot.h"
 #include "qwt_scale_div.h"
 
@@ -86,15 +88,16 @@ bool RiuQwtPlotWheelZoomer::eventFilter( QObject* watched, QEvent* event )
     if ( wheelEvent )
     {
         double zoomFactor = 1.0 / RIU_SCROLLWHEEL_ZOOMFACTOR;
-        if ( wheelEvent->delta() > 0 )
+        if ( wheelEvent->angleDelta().y() > 0 )
         {
             zoomFactor = RIU_SCROLLWHEEL_ZOOMFACTOR;
         }
 
-        zoomOnAxis( m_plot, QwtPlot::xBottom, zoomFactor, wheelEvent->pos().x() );
-        zoomOnAxis( m_plot, QwtPlot::xTop, zoomFactor, wheelEvent->pos().x() );
-        zoomOnAxis( m_plot, QwtPlot::yLeft, zoomFactor, wheelEvent->pos().y() );
-        zoomOnAxis( m_plot, QwtPlot::yRight, zoomFactor, wheelEvent->pos().y() );
+        auto position = caf::position( wheelEvent );
+        zoomOnAxis( m_plot, QwtPlot::xBottom, zoomFactor, position.x() );
+        zoomOnAxis( m_plot, QwtPlot::xTop, zoomFactor, position.x() );
+        zoomOnAxis( m_plot, QwtPlot::yLeft, zoomFactor, position.y() );
+        zoomOnAxis( m_plot, QwtPlot::yRight, zoomFactor, position.y() );
 
         m_plot->replot();
         emit zoomUpdated();

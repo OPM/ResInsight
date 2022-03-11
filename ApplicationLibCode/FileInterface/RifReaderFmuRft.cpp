@@ -18,6 +18,7 @@
 #include "RifReaderFmuRft.h"
 
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 
 #include "cafAssert.h"
 
@@ -438,7 +439,7 @@ RifReaderFmuRft::WellObservationMap RifReaderFmuRft::loadWellDates( QDir& dir, Q
                     return WellObservationMap();
                 }
 
-                QDateTime dateTime( QDate( year, month, day ) );
+                QDateTime dateTime = RiaQDateTimeTools::createDateTime( QDate( year, month, day ) );
                 dateTime.setTimeSpec( Qt::UTC );
                 WellObservationSet observationSet( dateTime, measurementIndex );
                 validObservations.insert( std::make_pair( wellName, observationSet ) );

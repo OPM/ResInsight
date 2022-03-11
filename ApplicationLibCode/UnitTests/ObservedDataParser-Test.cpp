@@ -1,16 +1,19 @@
 #include "gtest/gtest.h"
 
+#include "RiaQDateTimeTools.h"
 #include "RifColumnBasedUserData.h"
 #include "RifColumnBasedUserDataParser.h"
 #include "RifCsvUserDataParser.h"
+#include "RifEclipseUserDataKeywordTools.h"
 #include "RifEclipseUserDataParserTools.h"
 #include "RifKeywordVectorParser.h"
 #include "SummaryPlotCommands/RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
-#include "RiaQDateTimeTools.h"
-#include "RifEclipseUserDataKeywordTools.h"
 #include <QDebug>
 #include <QTextStream>
+
+#include "caf.h"
+
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -21,7 +24,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatYyyymmddWithDash )
     AsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "yyyy-MM-dd";
     parseOptions.cellSeparator        = "\t";
-    parseOptions.locale               = QLocale::Norwegian;
+    parseOptions.locale               = caf::norwegianLocale();
     parseOptions.timeSeriesColumnName = "Date";
 
     QString     data;
@@ -78,7 +81,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatYymmddWithDot )
     AsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "yy.MM.dd";
     parseOptions.cellSeparator        = "\t";
-    parseOptions.locale               = QLocale::Norwegian;
+    parseOptions.locale               = caf::norwegianLocale();
     parseOptions.timeSeriesColumnName = "Date";
 
     QString     data;
@@ -133,7 +136,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDateFormatDdmmyyWithDot )
     AsciiDataParseOptions parseOptions;
     parseOptions.dateFormat           = "dd.MM.yy";
     parseOptions.cellSeparator        = "\t";
-    parseOptions.locale               = QLocale::Norwegian;
+    parseOptions.locale               = caf::norwegianLocale();
     parseOptions.timeSeriesColumnName = "Date";
 
     QString     data;
@@ -188,7 +191,7 @@ TEST( RifColumnBasedAsciiParserTest, TestDecimalLocaleNorwegian )
     parseOptions.dateFormat           = "yy.MM.dd";
     parseOptions.cellSeparator        = "\t";
     parseOptions.decimalSeparator     = ",";
-    parseOptions.locale               = QLocale::Norwegian;
+    parseOptions.locale               = caf::norwegianLocale();
     parseOptions.timeSeriesColumnName = "Date";
 
     QString     data;

@@ -64,7 +64,7 @@ class PdmUiTreeView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    PdmUiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~PdmUiTreeView() override;
 
     void enableDefaultContextMenu( bool enable );

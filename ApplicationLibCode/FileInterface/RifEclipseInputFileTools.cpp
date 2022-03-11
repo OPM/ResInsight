@@ -48,6 +48,7 @@
 #include <QFileInfo>
 #include <QTextStream>
 
+#include "RiaTextStringTools.h"
 #include "ert/ecl/ecl_box.hpp"
 #include "ert/ecl/ecl_grid.hpp"
 #include "ert/ecl/ecl_kw.h"
@@ -813,7 +814,7 @@ void RifEclipseInputFileTools::parseAndReadPathAliasKeyword( const QString&     
                         // definition; 'I+'
                         line.remove( "'" );
 
-                        QStringList entries = line.split( " ", QString::SkipEmptyParts );
+                        QStringList entries = RiaTextStringTools::splitSkipEmptyParts( line );
                         if ( entries.size() < 2 )
                         {
                             continue;

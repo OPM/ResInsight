@@ -33,6 +33,7 @@
 #include "RiuQtChartsPlotCurve.h"
 #include "RiuQwtDateScaleWrapper.h"
 
+#include "caf.h"
 #include "cafAssert.h"
 
 #include "cvfTrace.h"
@@ -1160,9 +1161,9 @@ void RiuQtChartsPlotWidget::dropEvent( QDropEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
+void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* wheelEvent )
 {
-    float factor = event->angleDelta().y() > 0 ? 0.9 : 1.1;
+    float factor = wheelEvent->angleDelta().y() > 0 ? 0.9 : 1.1;
 
     QRectF  plotAreaRect = m_viewer->chart()->plotArea();
     QPointF centerPoint  = plotAreaRect.center();
@@ -1171,14 +1172,16 @@ void RiuQtChartsPlotWidget::wheelEvent( QWheelEvent* event )
     plotAreaRect.setWidth( plotAreaRect.width() * factor );
     plotAreaRect.setHeight( plotAreaRect.height() * factor );
 
+    auto position = caf::position( wheelEvent );
+
     // Find new center which keeps the mouse location in the same place in the plot
-    QPointF newCenterPoint( ( 2 * centerPoint - event->pos() ) - ( centerPoint - event->pos() ) / factor );
+    QPointF newCenterPoint( ( 2 * centerPoint - position ) - ( centerPoint - position ) / factor );
     plotAreaRect.moveCenter( newCenterPoint );
 
     // Zoom in on the adjusted plot area
     m_viewer->chart()->zoomIn( plotAreaRect );
 
-    event->accept();
+    wheelEvent->accept();
 }
 
 //--------------------------------------------------------------------------------------------------

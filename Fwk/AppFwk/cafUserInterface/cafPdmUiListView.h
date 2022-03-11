@@ -52,7 +52,7 @@ class PdmUiListView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiListView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    PdmUiListView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~PdmUiListView() override;
 
     void setPdmObject( caf::PdmObjectCollection* object );

@@ -29,14 +29,10 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-// #include "RigEclipseMultiPropertyStatCalc.h"
-// #include "RigEclipseNativeVisibleCellsStatCalc.h"
-// #include "RigFemNativeVisibleCellsStatCalc.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFlowDiagResults.h"
-// #include "RigFlowDiagVisibleCellsStatCalc.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
@@ -63,6 +59,8 @@
 #include "RimSimWellInViewCollection.h"
 
 #include "RiuViewer.h"
+
+#include "caf.h"
 
 #include <QLocale>
 
@@ -289,7 +287,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
     {
         QString caseName = eclipseView->eclipseCase()->caseUserDescription();
 
-        QLocale localeWithSpaceAsGroupSeparator( QLocale::Norwegian );
+        QLocale localeWithSpaceAsGroupSeparator( caf::norwegianLocale() );
 
         RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
         if ( contourMap && contourMap->contourMapProjection() )

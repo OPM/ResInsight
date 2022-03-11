@@ -23,6 +23,8 @@
 #include "RimGenericParameter.h"
 #include "RimParameterGroup.h"
 
+#include "caf.h"
+
 #include <QFile>
 #include <QTextStream>
 
@@ -40,12 +42,12 @@ bool RifFaultRAJSonWriter::writeToPreprocFile( RimFaultRAPreprocSettings& settin
     {
         QTextStream stream( &file );
 
-        stream << "{" << endl;
-        stream << "\"odb_path\": \"" + settings.geomechCaseFilename() + "\"," << endl;
-        stream << "\"time_start\": \"" + settings.startTimeStepGeoMech() + "\"," << endl;
-        stream << "\"time_end\": \"" + settings.endTimeStepGeoMech() + "\"," << endl;
-        stream << "\"out_path\": \"" + settings.outputAbaqusDirectory() + "\"" << endl;
-        stream << "}" << endl;
+        stream << "{" << caf::endl;
+        stream << "\"odb_path\": \"" + settings.geomechCaseFilename() + "\"," << caf::endl;
+        stream << "\"time_start\": \"" + settings.startTimeStepGeoMech() + "\"," << caf::endl;
+        stream << "\"time_end\": \"" + settings.endTimeStepGeoMech() + "\"," << caf::endl;
+        stream << "\"out_path\": \"" + settings.outputAbaqusDirectory() + "\"" << caf::endl;
+        stream << "}" << caf::endl;
 
         file.close();
     }
@@ -73,26 +75,26 @@ bool RifFaultRAJSonWriter::writeToPostprocFile( int faultID, RimFaultRAPostprocS
     {
         QTextStream stream( &file );
 
-        stream << "{" << endl;
+        stream << "{" << caf::endl;
 
         if ( settings->geomechEnabled() )
         {
             if ( QFile::exists( settings->advancedMacrisDatabase() ) )
-                stream << "\"MacrisCalcCalibration_path\": \"" + settings->advancedMacrisDatabase() + "\"," << endl;
+                stream << "\"MacrisCalcCalibration_path\": \"" + settings->advancedMacrisDatabase() + "\"," << caf::endl;
         }
 
         if ( QFile::exists( settings->basicMacrisDatabase() ) )
-            stream << "\"MacrisCalc_path\": \"" + settings->basicMacrisDatabase() + "\"," << endl;
+            stream << "\"MacrisCalc_path\": \"" + settings->basicMacrisDatabase() + "\"," << caf::endl;
 
-        stream << "\"base_directory_path\": \"" + settings->outputBaseDirectory() + "\"," << endl;
+        stream << "\"base_directory_path\": \"" + settings->outputBaseDirectory() + "\"," << caf::endl;
 
         for ( auto p : settings->parameters()->parameters() )
         {
-            stream << "\"" + p->name() + "\" : " + p->stringValue() + "," << endl;
+            stream << "\"" + p->name() + "\" : " + p->stringValue() + "," << caf::endl;
         }
 
-        stream << "\"tsurf_loadsteps\": [ " + settings->stepsToLoad().join( ',' ) + " ]" << endl;
-        stream << "}" << endl;
+        stream << "\"tsurf_loadsteps\": [ " + settings->stepsToLoad().join( ',' ) + " ]" << caf::endl;
+        stream << "}" << caf::endl;
 
         file.close();
     }

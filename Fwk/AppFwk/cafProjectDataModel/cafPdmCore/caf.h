@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2020- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,36 +33,16 @@
 //   for more details.
 //
 //##################################################################################################
-
 #pragma once
 
-#include <QtOpenGL/QGLWidget>
-
-namespace cvf
-{
-class OpenGLContext;
-class OpenGLContextGroup;
-} // namespace cvf
+class QLocale;
+class QTextStream;
+class QPointF;
+class QWheelEvent;
 
 namespace caf
 {
-//==================================================================================================
-//
-// Derived QGLWidget
-//
-//==================================================================================================
-class OpenGLWidget : public QGLWidget
-{
-public:
-    OpenGLWidget( cvf::OpenGLContextGroup* contextGroup,
-                  const QGLFormat&         format,
-                  QWidget*                 parent,
-                  OpenGLWidget*            shareWidget = nullptr,
-                  Qt::WindowFlags          f           = nullptr );
-    OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags() );
-
-    cvf::OpenGLContext* cvfOpenGLContext() const;
-    void                cvfShutdownOpenGLContext();
-};
-
-} // namespace caf
+QLocale      norwegianLocale();
+QTextStream& endl( QTextStream& s );
+QPointF      position( QWheelEvent* wheelEvent );
+}; // namespace caf

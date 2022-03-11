@@ -1,7 +1,7 @@
 //##################################################################################################
 //
 //   Custom Visualization Core library
-//   Copyright (C) 2011-2013 Ceetron AS
+//   Copyright (C) 2020- Ceetron Solutions AS
 //
 //   This library may be used under the terms of either the GNU General Public License or
 //   the GNU Lesser General Public License as follows:
@@ -33,36 +33,49 @@
 //   for more details.
 //
 //##################################################################################################
+#include "caf.h"
 
-#pragma once
-
-#include <QtOpenGL/QGLWidget>
-
-namespace cvf
-{
-class OpenGLContext;
-class OpenGLContextGroup;
-} // namespace cvf
+#include "QtGui/qevent.h"
+#include <QLocale>
+#include <QTextStream>
 
 namespace caf
 {
-//==================================================================================================
-//
-// Derived QGLWidget
-//
-//==================================================================================================
-class OpenGLWidget : public QGLWidget
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QLocale norwegianLocale()
 {
-public:
-    OpenGLWidget( cvf::OpenGLContextGroup* contextGroup,
-                  const QGLFormat&         format,
-                  QWidget*                 parent,
-                  OpenGLWidget*            shareWidget = nullptr,
-                  Qt::WindowFlags          f           = nullptr );
-    OpenGLWidget( OpenGLWidget* shareWidget, QWidget* parent, Qt::WindowFlags f = Qt::WindowFlags() );
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
+    return QLocale::NorwegianBokmal;
+#else
+    return QLocale::Norwegian;
+#endif
+} // namespace caf::norwegianLocale()
 
-    cvf::OpenGLContext* cvfOpenGLContext() const;
-    void                cvfShutdownOpenGLContext();
-};
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QTextStream& endl( QTextStream& s )
+{
+    // https: // github.com/qt/qtbase/blob/dev/src/corelib/serialization/qtextstream.cpp#L2845
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
+    return s << QLatin1Char( '\n' ) << Qt::flush;
+#else
+    return s << QLatin1Char( '\n' ) << flush;
+#endif
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QPointF position( QWheelEvent* wheelEvent )
+{
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
+    return wheelEvent->position();
+#else
+    return wheelEvent->pos();
+#endif
+}
 
 } // namespace caf

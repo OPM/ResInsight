@@ -22,6 +22,7 @@
 #include "RiaStringListSerializer.h"
 #include "RiaSummaryStringTools.h"
 #include "RiaSummaryTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderInterface.h"
@@ -507,7 +508,7 @@ std::set<RifEclipseSummaryAddress> RimSummaryPlotManager::filteredAddresses()
 
     if ( nativeAddresses.empty() ) return {};
 
-    QStringList allCurveAddressFilters = m_filterText().split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+    QStringList allCurveAddressFilters = RiaTextStringTools::splitSkipEmptyParts( m_filterText(), QRegExp( "\\s+" ) );
 
     return RiaSummaryStringTools::computeFilteredAddresses( allCurveAddressFilters, nativeAddresses, m_includeDiffCurves );
 }

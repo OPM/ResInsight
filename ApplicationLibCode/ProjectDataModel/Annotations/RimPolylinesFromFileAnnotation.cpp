@@ -19,7 +19,9 @@
 #include "RimPolylinesFromFileAnnotation.h"
 
 #include "RiaLogging.h"
+#include "RiaTextStringTools.h"
 #include "RigPolyLinesData.h"
+
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationLineAppearance.h"
 
@@ -86,10 +88,10 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
     while ( !stream.atEnd() )
     {
         QString     line            = stream.readLine();
-        QStringList commentLineSegs = line.split( "#", QString::KeepEmptyParts );
+        QStringList commentLineSegs = line.split( "#" );
         if ( commentLineSegs.empty() ) continue; // Empty line
 
-        QStringList lineSegs = commentLineSegs[0].split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+        QStringList lineSegs = RiaTextStringTools::splitSkipEmptyParts( commentLineSegs[0], QRegExp( "\\s+" ) );
 
         if ( lineSegs.empty() ) continue; // No data
 
