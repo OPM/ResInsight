@@ -18,12 +18,14 @@
 
 #pragma once
 
+#include "RiaDateTimeDefines.h"
+
+#include "cafAppEnum.h"
+
 #include <QString>
 
 #include <string>
 #include <vector>
-
-#include "cafAppEnum.h"
 
 class QDateTime;
 class QDate;
@@ -40,49 +42,7 @@ class PdmOptionItemInfo;
 //==================================================================================================
 class RiaQDateTimeTools
 {
-    static const DateTimeSpan TIMESPAN_DAY;
-    static const DateTimeSpan TIMESPAN_WEEK;
-    static const DateTimeSpan TIMESPAN_MONTH;
-    static const DateTimeSpan TIMESPAN_QUARTER;
-    static const DateTimeSpan TIMESPAN_HALFYEAR;
-    static const DateTimeSpan TIMESPAN_YEAR;
-    static const DateTimeSpan TIMESPAN_DECADE;
-
 public:
-    enum DateFormatComponents
-    {
-        DATE_FORMAT_UNSPECIFIED = -2,
-        DATE_FORMAT_NONE        = -1,
-        DATE_FORMAT_YEAR        = 0,
-        DATE_FORMAT_YEAR_MONTH,
-        DATE_FORMAT_YEAR_MONTH_DAY,
-        DATE_FORMAT_SIZE
-    };
-
-    enum class TimeFormatComponents
-    {
-        TIME_FORMAT_UNSPECIFIED = -2,
-        TIME_FORMAT_NONE        = -1,
-        TIME_FORMAT_HOUR,
-        TIME_FORMAT_HOUR_MINUTE,
-        TIME_FORMAT_HOUR_MINUTE_SECOND,
-        TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND,
-        TIME_FORMAT_SIZE
-    };
-
-    enum class DateTimePeriod
-    {
-        NONE = -1,
-        DAY,
-        WEEK,
-        MONTH,
-        QUARTER,
-        HALFYEAR,
-        YEAR,
-        DECADE
-    };
-    using DateTimePeriodEnum = caf::AppEnum<DateTimePeriod>;
-
     static Qt::TimeSpec currentTimeSpec();
 
     static QDateTime fromString( const QString& dateString, const QString& format );
@@ -94,8 +54,8 @@ public:
     static QDateTime addYears( const QDateTime& dt, double years );
     static QDateTime addSpan( const QDateTime& dt, DateTimeSpan span );
     static QDateTime subtractSpan( const QDateTime& dt, DateTimeSpan span );
-    static QDateTime addPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
-    static QDateTime subtractPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
+    static QDateTime addPeriod( const QDateTime& dt, RiaDefines::DateTimePeriod period );
+    static QDateTime subtractPeriod( const QDateTime& dt, RiaDefines::DateTimePeriod period );
 
     static QDateTime createDateTime( const QDate& date );
 
@@ -108,11 +68,11 @@ public:
 
     static bool lessThan( const QDateTime& dt1, const QDateTime& dt2 );
 
-    static const DateTimeSpan timeSpan( RiaQDateTimeTools::DateTimePeriod period );
-    static QDateTime          truncateTime( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period );
+    static const DateTimeSpan timeSpan( RiaDefines::DateTimePeriod period );
+    static QDateTime          truncateTime( const QDateTime& dt, RiaDefines::DateTimePeriod period );
 
-    static std::vector<RiaQDateTimeTools::DateTimePeriod> dateTimePeriods();
-    static QString dateTimePeriodName( RiaQDateTimeTools::DateTimePeriod period );
+    static std::vector<RiaDefines::DateTimePeriod> dateTimePeriods();
+    static QString                                 dateTimePeriodName( RiaDefines::DateTimePeriod period );
 
     // This function uses C locale to make sure the text representation of a date is stable, independent of the locale
     // settings on local machine. Required for stable regression testing.
@@ -124,16 +84,24 @@ public:
     static std::vector<QString> supportedDateFormats();
     static std::vector<QString> supportedTimeFormats();
 
-    static QString
-        dateFormatString( const QString&       fullDateFormat,
-                          DateFormatComponents dateComponents = DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
-    static QString
-        timeFormatString( const QString&       fullTimeFormat,
-                          TimeFormatComponents timeComponents = TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
+    static QString dateFormatString(
+        const QString&                   fullDateFormat,
+        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
+    static QString timeFormatString( const QString&                   fullTimeFormat,
+                                     RiaDefines::TimeFormatComponents timeComponents =
+                                         RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
 
     static QList<caf::PdmOptionItemInfo> createOptionItems( const std::vector<time_t>& timeSteps );
 
 private:
+    static const DateTimeSpan TIMESPAN_DAY;
+    static const DateTimeSpan TIMESPAN_WEEK;
+    static const DateTimeSpan TIMESPAN_MONTH;
+    static const DateTimeSpan TIMESPAN_QUARTER;
+    static const DateTimeSpan TIMESPAN_HALFYEAR;
+    static const DateTimeSpan TIMESPAN_YEAR;
+    static const DateTimeSpan TIMESPAN_DECADE;
+
     static quint64 secondsInDay();
     static quint64 secondsInYear();
 };
