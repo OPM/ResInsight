@@ -19,8 +19,9 @@
 #include "RifFileParseTools.h"
 
 // Disable deprecation warning for QString::SkipEmptyParts
+#ifdef _MSC_VER
 #pragma warning( disable : 4996 )
-
+#endif
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
