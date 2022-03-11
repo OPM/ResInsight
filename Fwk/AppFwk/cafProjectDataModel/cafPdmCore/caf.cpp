@@ -57,7 +57,11 @@ QLocale norwegianLocale()
 //--------------------------------------------------------------------------------------------------
 QTextStream& endl( QTextStream& s )
 {
-    // https://github.com/qt/qtbase/blob/dev/src/corelib/serialization/qtextstream.cpp#L2845
+    // https: // github.com/qt/qtbase/blob/dev/src/corelib/serialization/qtextstream.cpp#L2845
+#if QT_VERSION >= QT_VERSION_CHECK( 5, 15, 0 )
     return s << QLatin1Char( '\n' ) << Qt::flush;
+#else
+    return s << QLatin1Char( '\n' ) << flush;
+#endif
 }
-}; // namespace caf
+} // namespace caf
