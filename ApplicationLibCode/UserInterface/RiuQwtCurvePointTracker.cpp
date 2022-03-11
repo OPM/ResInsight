@@ -20,12 +20,13 @@
 
 #include "RiaQDateTimeTools.h"
 #include "RiuGuiTheme.h"
-
-#include "qwt_plot_marker.h"
-#include "qwt_symbol.h"
+#include "RiuPlotCurve.h"
+#include "RiuPlotCurveInfoTextProvider.h"
 
 #include "qwt_date_scale_draw.h"
 #include "qwt_plot_curve.h"
+#include "qwt_plot_marker.h"
+#include "qwt_symbol.h"
 #include "qwt_text.h"
 
 #include <cfloat> // For DBL_MAX
@@ -35,9 +36,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot*                    plot,
-                                                  bool                        isMainAxisHorizontal,
-                                                  IPlotCurveInfoTextProvider* curveInfoTextProvider )
+RiuQwtCurvePointTracker::RiuQwtCurvePointTracker( QwtPlot*                      plot,
+                                                  bool                          isMainAxisHorizontal,
+                                                  RiuPlotCurveInfoTextProvider* curveInfoTextProvider )
     : QwtPlotPicker( plot->canvas() )
     , m_plot( plot )
     , m_isMainAxisHorizontal( isMainAxisHorizontal )
@@ -187,7 +188,7 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint&  cursorPositio
 
         if ( curveInfoText && closestCurve && m_curveInfoTextProvider )
         {
-            *curveInfoText = m_curveInfoTextProvider->curveInfoText( closestCurve );
+            *curveInfoText = m_curveInfoTextProvider->curveInfoText( dynamic_cast<RiuPlotCurve*>( closestCurve ) );
         }
 
         if ( dateScaleDraw )

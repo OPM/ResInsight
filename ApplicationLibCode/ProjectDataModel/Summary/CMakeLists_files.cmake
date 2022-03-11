@@ -45,6 +45,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotControls.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveInfoTextProvider.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -94,6 +95,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlotCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotControls.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveInfoTextProvider.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

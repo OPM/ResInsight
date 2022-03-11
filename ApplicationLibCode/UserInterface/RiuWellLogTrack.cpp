@@ -27,6 +27,7 @@
 
 #include "RiuGuiTheme.h"
 #include "RiuPlotCurve.h"
+#include "RiuPlotCurveInfoTextProvider.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotTools.h"
 
@@ -41,7 +42,7 @@
 class RiuWellLogCurvePointTracker : public RiuQwtCurvePointTracker
 {
 public:
-    RiuWellLogCurvePointTracker( QwtPlot* plot, IPlotCurveInfoTextProvider* curveInfoTextProvider, RimWellLogTrack* track )
+    RiuWellLogCurvePointTracker( QwtPlot* plot, RiuPlotCurveInfoTextProvider* curveInfoTextProvider, RimWellLogTrack* track )
         : RiuQwtCurvePointTracker( plot, false, curveInfoTextProvider )
         , m_wellLogTrack( track )
     {
@@ -105,16 +106,15 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class WellLogCurveInfoTextProvider : public IPlotCurveInfoTextProvider
+class WellLogCurveInfoTextProvider : public RiuPlotCurveInfoTextProvider
 {
 public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QString curveInfoText( QwtPlotCurve* curve ) override
+    QString curveInfoText( RiuPlotCurve* riuCurve ) const override
     {
-        RiuPlotCurve*    riuCurve = dynamic_cast<RiuPlotCurve*>( curve );
-        RimWellLogCurve* wlCurve  = nullptr;
+        RimWellLogCurve* wlCurve = nullptr;
         if ( riuCurve )
         {
             wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );

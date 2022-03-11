@@ -27,10 +27,12 @@
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGuiTheme.h"
+#include "RiuPlotCurveInfoTextProvider.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuPlotWidget.h"
 #include "RiuQtChartView.h"
 #include "RiuQtChartsPlotCurve.h"
+#include "RiuQtChartsToolTip.h"
 #include "RiuQwtDateScaleWrapper.h"
 
 #include "caf.h"
@@ -52,9 +54,13 @@ using namespace QtCharts;
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot* plotDefinition, QWidget* parent )
+RiuQtChartsPlotWidget::RiuQtChartsPlotWidget( RimPlot*                      plotDefinition,
+                                              QWidget*                      parent,
+                                              RiuPlotCurveInfoTextProvider* plotCurveNameProvider )
     : RiuPlotWidget( plotDefinition, parent )
+    , m_plotCurveNameProvider( plotCurveNameProvider )
     , m_dateScaleWrapper( new RiuQwtDateScaleWrapper() )
+    , m_toolTip( nullptr )
 {
     CAF_ASSERT( m_plotDefinition );
 
@@ -853,6 +859,8 @@ void RiuQtChartsPlotWidget::attach( RiuPlotCurve*    plotCurve,
     addToChart( m_lineSeriesMap, plotCurve, lineSeries, xAxis, yAxis, qtChartsPlotCurve );
     addToChart( m_areaSeriesMap, plotCurve, areaSeries, xAxis, yAxis, qtChartsPlotCurve );
     addToChart( m_scatterSeriesMap, plotCurve, scatterSeries, xAxis, yAxis, qtChartsPlotCurve );
+
+    connect( dynamic_cast<QLineSeries*>( lineSeries ), &QLineSeries::hovered, this, &RiuQtChartsPlotWidget::tooltip );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1233,4 +1241,55 @@ void RiuQtChartsPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
             deleteAxis( plotAxis );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::tooltip( const QPointF& point, bool state )
+{
+    QAbstractSeries* series = qobject_cast<QAbstractSeries*>( sender() );
+    if ( !m_toolTip ) m_toolTip = new RiuQtChartsToolTip( qtChart(), series );
+
+    if ( state )
+    {
+        QString nameFromSeries = createNameFromSeries( series );
+
+        QDateTime date       = QDateTime::fromMSecsSinceEpoch( point.x() );
+        QString   dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( date, "hh:mm dd.MMMM.yyyy" );
+
+        QString text = QString( "%1 (%2)" ).arg( point.y() ).arg( dateString );
+
+        if ( !nameFromSeries.isEmpty() ) text.prepend( nameFromSeries + ": " );
+
+        m_toolTip->setText( text );
+
+        m_toolTip->setAnchor( point );
+        m_toolTip->setSeries( series );
+        m_toolTip->setZValue( 200 );
+        m_toolTip->updateGeometry();
+        m_toolTip->show();
+    }
+    else
+    {
+        m_toolTip->hide();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuQtChartsPlotWidget::createNameFromSeries( QAbstractSeries* series ) const
+{
+    if ( !m_plotCurveNameProvider ) return "";
+
+    for ( auto [plotCurve, plotSeries] : m_lineSeriesMap )
+    {
+        if ( plotSeries == series )
+        {
+            return m_plotCurveNameProvider->curveInfoText( plotCurve );
+        }
+    }
+
+    return "";
 }

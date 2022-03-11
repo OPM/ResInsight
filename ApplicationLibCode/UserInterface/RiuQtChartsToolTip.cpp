@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,85 +16,97 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiuSummaryQtChartsPlot.h"
+#include "RiuQtChartsToolTip.h"
 
-#include "RiaPreferences.h"
+#include <QtCharts/QChart>
+#include <QtGui/QFontMetrics>
+#include <QtGui/QMouseEvent>
+#include <QtGui/QPainter>
+#include <QtWidgets/QGraphicsSceneMouseEvent>
 
-#include "RimEnsembleCurveInfoTextProvider.h"
-#include "RimSummaryPlot.h"
-
-#include "RiuPlotCurve.h"
-#include "RiuPlotWidget.h"
-#include "RiuQtChartsPlotTools.h"
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot )
-    : RiuSummaryPlot( plot )
-{
-    m_plotWidget = new RiuQtChartsPlotWidget( plot, nullptr, new RimEnsembleCurveInfoTextProvider );
-    m_plotWidget->setContextMenuPolicy( Qt::CustomContextMenu );
-    connect( m_plotWidget, SIGNAL( customContextMenuRequested( QPoint ) ), this, SLOT( showContextMenu( QPoint ) ) );
-
-    setDefaults();
-
-    RiuQtChartsPlotTools::setCommonPlotBehaviour( m_plotWidget );
-    RiuQtChartsPlotTools::setDefaultAxes( m_plotWidget );
-
-    m_plotWidget->setInternalLegendVisible( true );
-}
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuSummaryQtChartsPlot::~RiuSummaryQtChartsPlot()
-{
-    delete m_plotWidget;
-    m_plotWidget = nullptr;
-}
+using namespace QtCharts;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQtChartsPlot::useDateBasedTimeAxis( const QString&                   dateFormat,
-                                                   const QString&                   timeFormat,
-                                                   RiaDefines::DateFormatComponents dateComponents,
-                                                   RiaDefines::TimeFormatComponents timeComponents )
-{
-    m_plotWidget->setAxisScaleType( RiuPlotAxis::defaultBottom(), RiuPlotWidget::AxisScaleType::DATE );
-    m_plotWidget->setFormatStrings( dateFormat, timeFormat, dateComponents, timeComponents );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQtChartsPlot::useTimeBasedTimeAxis()
-{
-    m_plotWidget->setAxisScaleType( RiuPlotAxis::defaultBottom(), RiuPlotWidget::AxisScaleType::DATE );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQtChartsPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
+RiuQtChartsToolTip::RiuQtChartsToolTip( QChart* chart, QtCharts::QAbstractSeries* series )
+    : QGraphicsItem( chart )
+    , m_chart( chart )
+    , m_series( series )
+    , m_radius( 10 )
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQtChartsPlot::setDefaults()
+QRectF RiuQtChartsToolTip::boundingRect() const
 {
-    QString dateFormat = RiaPreferences::current()->dateFormat();
-    QString timeFormat = RiaPreferences::current()->timeFormat();
-
-    useDateBasedTimeAxis( dateFormat, timeFormat );
+    QPointF anchor = mapFromParent( m_chart->mapToPosition( m_anchor, m_series ) );
+    QRectF  rect   = m_rect.united( m_textRect );
+    rect.setLeft( std::min( rect.left(), anchor.x() ) );
+    rect.setRight( std::max( rect.right(), anchor.x() ) );
+    rect.setTop( std::min( rect.top(), anchor.y() ) );
+    rect.setBottom( std::max( rect.bottom(), anchor.y() ) );
+    return rect;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotWidget* RiuSummaryQtChartsPlot::plotWidget() const
+void RiuQtChartsToolTip::paint( QPainter* painter, const QStyleOptionGraphicsItem* option, QWidget* widget )
 {
-    return m_plotWidget;
+    Q_UNUSED( option )
+    Q_UNUSED( widget )
+    QPainterPath path;
+
+    QPointF anchor = mapFromParent( m_chart->mapToPosition( m_anchor, m_series ) );
+
+    path.addEllipse( anchor, m_radius, m_radius );
+    path = path.simplified();
+
+    painter->setPen( QPen( Qt::black ) );
+
+    painter->drawPath( path );
+    painter->drawText( m_textRect, m_text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsToolTip::setSeries( QAbstractSeries* series )
+{
+    m_series = series;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsToolTip::setText( const QString& text )
+{
+    m_text = text;
+    QFontMetrics metrics( m_font );
+    m_textRect = metrics.boundingRect( QRect( 0, 0, 150, 150 ), Qt::AlignLeft, m_text );
+    m_textRect.translate( m_radius, 0 );
+    prepareGeometryChange();
+
+    m_rect.setRect( -m_radius, -m_radius, m_radius, m_radius );
+    m_rect.moveCenter( QPoint( m_radius, m_radius ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsToolTip::setAnchor( QPointF point )
+{
+    m_anchor = point;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartsToolTip::updateGeometry()
+{
+    prepareGeometryChange();
+    setPos( m_chart->mapToPosition( m_anchor, m_series ) );
 }
