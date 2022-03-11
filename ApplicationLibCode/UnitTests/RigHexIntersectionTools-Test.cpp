@@ -18,8 +18,10 @@
 
 #include "gtest/gtest.h"
 
-#include "QDateTime"
-#include "QDebug"
+#include <QDateTime>
+#include <QDebug>
+#include <QElapsedTimer>
+
 #include "RigHexIntersectionTools.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -74,12 +76,12 @@ TEST( RigHexIntersectionTools, DISABLED_planeHexCellIntersectionPerformanceTest 
     fracturePlaneNotIntersecting.setFromPointAndNormal( cvf::Vec3d( 1.5, 1.5, 1.5 ), cvf::Vec3d( 1, 0, 0 ) );
     fracturePlaneIntersecting.setFromPointAndNormal( cvf::Vec3d( 0.5, 0.5, 0.5 ), cvf::Vec3d( 1, 0, 0 ) );
 
-    QTime timeTotal;
+    QElapsedTimer timeTotal;
     timeTotal.start();
 
     for ( int run = 0; run < 5; run++ )
     {
-        QTime timeLocal;
+        QElapsedTimer timeLocal;
         timeLocal.start();
 
         for ( int i = 0; i < 2000000; i++ )

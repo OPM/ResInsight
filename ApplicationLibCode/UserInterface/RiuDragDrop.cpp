@@ -235,7 +235,7 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
 //--------------------------------------------------------------------------------------------------
 Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 {
-    Qt::ItemFlags itemflags = nullptr;
+    Qt::ItemFlags itemflags;
 
     if ( index.isValid() && RiaGuiApplication::activeMainWindow() )
     {

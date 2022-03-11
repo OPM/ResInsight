@@ -2122,15 +2122,15 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
             if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
             {
                 QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::yLeft );
-                zoomCenter           = scaleMap.invTransform( event->pos().y() );
+                zoomCenter           = scaleMap.invTransform( event->position().y() );
             }
             else
             {
                 QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::xTop );
-                zoomCenter           = scaleMap.invTransform( event->pos().x() );
+                zoomCenter           = scaleMap.invTransform( event->position().x() );
             }
 
-            if ( event->delta() > 0 )
+            if ( event->angleDelta().y() > 0 )
             {
                 wellLogPlot->setDepthAxisRangeByFactorAndCenter( RI_SCROLLWHEEL_ZOOMFACTOR, zoomCenter );
             }
@@ -2141,8 +2141,8 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* event )
         }
         else
         {
-            wellLogPlot->setDepthAxisRangeByPanDepth( event->delta() < 0 ? RI_SCROLLWHEEL_PANFACTOR
-                                                                         : -RI_SCROLLWHEEL_PANFACTOR );
+            wellLogPlot->setDepthAxisRangeByPanDepth( event->angleDelta().y() < 0 ? RI_SCROLLWHEEL_PANFACTOR
+                                                                                  : -RI_SCROLLWHEEL_PANFACTOR );
         }
     }
 }
