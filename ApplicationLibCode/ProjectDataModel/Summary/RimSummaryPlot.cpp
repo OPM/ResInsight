@@ -1772,6 +1772,11 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
             if ( curve->axisY() == oldPlotAxis ) curve->setLeftOrRightAxisY( fixedUpPlotAxis );
         }
 
+        for ( auto curveSet : ensembleCurveSetCollection()->curveSets() )
+        {
+            if ( curveSet->axisY() == oldPlotAxis ) curveSet->setLeftOrRightAxisY( fixedUpPlotAxis );
+        }
+
         // Remove the now unused axis (but keep the default axis)
         if ( oldPlotAxis != RiuPlotAxis::defaultLeft() && oldPlotAxis != RiuPlotAxis::defaultRight() )
         {
@@ -2576,7 +2581,7 @@ void RimSummaryPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childAr
             }
             else if ( curveSet )
             {
-                curveSet->setAxisY( RiuPlotAxis::defaultLeft() );
+                curveSet->setLeftOrRightAxisY( RiuPlotAxis::defaultLeft() );
             }
         }
 

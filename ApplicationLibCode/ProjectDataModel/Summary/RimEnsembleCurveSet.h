@@ -168,7 +168,7 @@ public:
     std::vector<cvf::Color3f> generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const;
 
     RiuPlotAxis axisY() const;
-    void        setAxisY( RiuPlotAxis plotAxis );
+    void        setLeftOrRightAxisY( RiuPlotAxis plotAxis );
 
 protected:
     void initAfterRead() override;
