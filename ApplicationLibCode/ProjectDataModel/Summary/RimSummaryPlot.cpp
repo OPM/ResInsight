@@ -217,6 +217,7 @@ void RimSummaryPlot::updateAxes()
         updateTimeAxis( timeAxisProperties() );
     }
 
+    plotWidget()->updateAxes();
     plotWidget()->scheduleReplot();
 
     updateZoomInParentPlot();

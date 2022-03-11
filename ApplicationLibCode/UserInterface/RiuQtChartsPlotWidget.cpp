@@ -803,6 +803,7 @@ void RiuQtChartsPlotWidget::setAxisScaleType( RiuPlotAxis axis, RiuQtChartsPlotW
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::updateAxes()
 {
+    axisRangeChanged();
     m_viewer->chart()->update();
 }
 
