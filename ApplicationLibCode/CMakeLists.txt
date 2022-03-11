@@ -25,10 +25,7 @@ option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
        "Treat warnings as errors (stops build)" OFF
 )
 
-find_package(
-  Qt5 ${RI_QT_MINIMUM_VERSION}
-  COMPONENTS Core
-)
+find_package(Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core)
 
 if(Qt5Core_FOUND)
   find_package(
