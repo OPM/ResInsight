@@ -280,6 +280,8 @@ private:
     int handleSummaryCaseDrop( RimSummaryCase* summaryCase );
     int handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
 
+    bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
+
 private:
 #ifdef USE_QTCHARTS
     caf::PdmField<bool> m_useQtChartsPlot;
