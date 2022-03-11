@@ -443,12 +443,15 @@ std::vector<QString> RiaQDateTimeTools::supportedTimeFormats()
 //--------------------------------------------------------------------------------------------------
 QString RiaQDateTimeTools::dateFormatString( const QString& fullDateFormat, RiaDefines::DateFormatComponents dateComponents )
 {
-    if ( dateComponents == RiaDefines::DATE_FORMAT_NONE ) return "";
+    if ( dateComponents == RiaDefines::DateFormatComponents::DATE_FORMAT_NONE ) return "";
+
+    auto enumValue = static_cast<std::underlying_type<RiaDefines::DateFormatComponents>::type>( dateComponents );
+    if ( enumValue < 0 ) return "";
 
     QStringList allVariants = fullDateFormat.split( ";" );
-    if ( static_cast<int>( dateComponents ) < allVariants.size() )
+    if ( enumValue < allVariants.size() )
     {
-        return allVariants[dateComponents];
+        return allVariants[enumValue];
     }
     CVF_ASSERT( false && "Date format string is malformed" );
     return "";

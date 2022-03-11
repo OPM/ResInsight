@@ -612,8 +612,9 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
         filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
                                        filteredTimeStepIndices.end() );
 
-        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString dateFormatString =
+            RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
                                                  RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );

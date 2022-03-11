@@ -22,14 +22,13 @@
 
 namespace RiaDefines
 {
-enum DateFormatComponents
+enum class DateFormatComponents
 {
     DATE_FORMAT_UNSPECIFIED = -2,
     DATE_FORMAT_NONE        = -1,
     DATE_FORMAT_YEAR        = 0,
     DATE_FORMAT_YEAR_MONTH,
     DATE_FORMAT_YEAR_MONTH_DAY,
-    DATE_FORMAT_SIZE
 };
 
 enum class TimeFormatComponents

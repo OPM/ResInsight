@@ -57,8 +57,9 @@ void RimTimeAxisAnnotation::setTime( time_t time )
 {
     m_value = RiaTimeTTools::toDouble( time );
 
-    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString dateFormatString =
+        RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                             RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
 
     QString timeFormatString =
         RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
@@ -80,8 +81,9 @@ void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime )
     m_rangeStart = RiaTimeTTools::toDouble( startTime );
     m_rangeEnd   = RiaTimeTTools::toDouble( endTime );
 
-    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString dateFormatString =
+        RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                             RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
 
     QString timeFormatString =
         RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),

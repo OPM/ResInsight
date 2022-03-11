@@ -25,11 +25,11 @@ namespace caf
 template <>
 void caf::AppEnum<RiaDefines::DateFormatComponents>::setUp()
 {
-    addItem( RiaDefines::DATE_FORMAT_NONE, "NO_DATE", "No Date" );
-    addItem( RiaDefines::DATE_FORMAT_YEAR, "YEAR", "Year Only" );
-    addItem( RiaDefines::DATE_FORMAT_YEAR_MONTH, "YEAR_MONTH", "Year and Month" );
-    addItem( RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY", "Year, Month and Day" );
-    setDefault( RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
+    addItem( RiaDefines::DateFormatComponents::DATE_FORMAT_NONE, "NO_DATE", "No Date" );
+    addItem( RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR, "YEAR", "Year Only" );
+    addItem( RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH, "YEAR_MONTH", "Year and Month" );
+    addItem( RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY", "Year, Month and Day" );
+    setDefault( RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
 }
 
 template <>

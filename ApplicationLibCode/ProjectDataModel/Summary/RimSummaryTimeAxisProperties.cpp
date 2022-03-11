@@ -364,7 +364,9 @@ QList<caf::PdmOptionItemInfo>
         {
             QDate   exampleDate = QDate( 2019, 8, 16 );
             QString fullDateFormat =
-                RiaQDateTimeTools::dateFormatString( dateFormat, dateComponents( RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY ) );
+                RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                     dateComponents(
+                                                         RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY ) );
             QString uiText = QString( "%1 (%2)" ).arg( fullDateFormat ).arg( exampleDate.toString( fullDateFormat ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( dateFormat ) ) );
@@ -576,7 +578,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
     {
         caf::PdmUiGroup* advancedGroup = timeGroup->addNewGroup( "Date/Time Label Format" );
         advancedGroup->setCollapsedByDefault( true );
-        if ( m_automaticDateComponents() || m_dateComponents() != RiaDefines::DATE_FORMAT_NONE )
+        if ( m_automaticDateComponents() || m_dateComponents() != RiaDefines::DateFormatComponents::DATE_FORMAT_NONE )
         {
             advancedGroup->add( &m_dateFormat );
         }
@@ -682,7 +684,8 @@ void RimSummaryTimeAxisProperties::defineEditorAttribute( const caf::PdmFieldHan
         if ( dateAttrib )
         {
             dateAttrib->dateFormat =
-                RiaQDateTimeTools::dateFormatString( m_dateFormat(), RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
+                RiaQDateTimeTools::dateFormatString( m_dateFormat(),
+                                                     RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         }
     }
     else if ( field == &m_visibleTimeRangeMin || field == &m_visibleTimeRangeMax )

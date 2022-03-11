@@ -462,7 +462,8 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
         {
             QDate   exampleDate = QDate( 2019, 8, 16 );
             QString fullDateFormat =
-                RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
+                RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                     RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
             QString uiText = QString( "%1 (%2)" ).arg( fullDateFormat ).arg( exampleDate.toString( fullDateFormat ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( dateFormat ) ) );

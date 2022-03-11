@@ -75,8 +75,8 @@ public:
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
 
-    RiaDefines::DateFormatComponents
-                                     dateComponents( RiaDefines::DateFormatComponents fallback = RiaDefines::DATE_FORMAT_UNSPECIFIED ) const;
+    RiaDefines::DateFormatComponents dateComponents(
+        RiaDefines::DateFormatComponents fallback = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED ) const;
     RiaDefines::TimeFormatComponents timeComponents(
         RiaDefines::TimeFormatComponents fallback = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
 

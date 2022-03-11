@@ -90,7 +90,7 @@ QString RiuQtChartsPlotTools::dateTimeFormatForInterval( const QString&         
                                                          RiaDefines::DateFormatComponents dateComponents,
                                                          RiaDefines::TimeFormatComponents timeComponents )
 {
-    if ( dateComponents != RiaDefines::DATE_FORMAT_UNSPECIFIED &&
+    if ( dateComponents != RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED &&
          timeComponents != RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
     {
         return RiaQDateTimeTools::timeFormatString( timeFormat, timeComponents ) + "\n" +

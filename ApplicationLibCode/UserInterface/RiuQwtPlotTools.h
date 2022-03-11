@@ -33,7 +33,7 @@ public:
         QwtPlot*                         plot,
         const QString&                   dateFormat,
         const QString&                   timeFormat,
-        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DATE_FORMAT_UNSPECIFIED,
+        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED,
         RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
 
     static QString dateTimeFormatForInterval( QwtDate::IntervalType            interval,

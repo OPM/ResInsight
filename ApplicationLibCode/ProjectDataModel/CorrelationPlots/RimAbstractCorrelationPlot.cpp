@@ -275,8 +275,9 @@ QList<caf::PdmOptionItemInfo>
         std::vector<int> filteredTimeStepIndices =
             RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
 
-        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString dateFormatString =
+            RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
                                                  RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
@@ -607,8 +608,9 @@ QDateTime RimAbstractCorrelationPlot::timeStep() const
 //--------------------------------------------------------------------------------------------------
 QString RimAbstractCorrelationPlot::timeStepString() const
 {
-    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaDefines::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString dateFormatString =
+        RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                             RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
     QString timeFormatString =
         RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
                                              RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
