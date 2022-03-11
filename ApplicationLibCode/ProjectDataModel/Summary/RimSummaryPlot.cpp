@@ -24,6 +24,7 @@
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 #include "RiaRegressionTestRunner.h"
+#include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
@@ -216,8 +217,11 @@ void RimSummaryPlot::updateAxes()
         updateTimeAxis( timeAxisProperties() );
     }
 
-    plotWidget()->updateAxes();
-    plotWidget()->scheduleReplot();
+    if ( plotWidget() )
+    {
+        plotWidget()->updateAxes();
+        plotWidget()->scheduleReplot();
+    }
 
     updateZoomInParentPlot();
 }
@@ -858,6 +862,11 @@ void RimSummaryPlot::updateZoomForAxis( RiuPlotAxis plotAxis )
 
             plotWidget()->setAxisScale( yAxisProps->plotAxisType(), min, max );
         }
+        else if ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
+                  plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT && isOnlyWaterCutCurvesVisible( plotAxis ) )
+        {
+            plotWidget()->setAxisScale( yAxisProps->plotAxisType(), 0.0, 1.0 );
+        }
         else
         {
             plotWidget()->setAxisAutoScale( yAxisProps->plotAxisType(), true );
@@ -871,6 +880,23 @@ void RimSummaryPlot::updateZoomForAxis( RiuPlotAxis plotAxis )
     }
 
     plotWidget()->setAxisInverted( yAxisProps->plotAxisType(), yAxisProps->isAxisInverted() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
+{
+    size_t waterCutCurveCount = 0;
+    auto   curves             = visibleSummaryCurvesForAxis( plotAxis );
+    for ( auto c : curves )
+    {
+        auto quantityName = c->summaryAddressY().quantityName();
+
+        if ( RiaStdStringTools::endsWith( quantityName, "WCT" ) ) waterCutCurveCount++;
+    }
+
+    return ( waterCutCurveCount == curves.size() );
 }
 
 //--------------------------------------------------------------------------------------------------
