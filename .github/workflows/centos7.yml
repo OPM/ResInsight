@@ -38,7 +38,7 @@ jobs:
           source /opt/rh/devtoolset-10/enable
           git clone git://code.qt.io/qt/qtcharts.git
           cd qtcharts/
-          git checkout v5.9.7
+          git checkout v5.12.12
           qmake-qt5 --version
           qmake-qt5 -makefile
           make -j 4
