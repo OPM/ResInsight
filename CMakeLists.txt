@@ -398,8 +398,10 @@ list(APPEND THIRD_PARTY_LIBRARIES NRLib)
 # ##############################################################################
 # Qt
 # ##############################################################################
+set(RI_QT_MINIMUM_VERSION 5.12)
+
 find_package(
-  Qt5
+  Qt5 ${RI_QT_MINIMUM_VERSION}
   COMPONENTS Core
              Gui
              OpenGL
