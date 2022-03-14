@@ -645,9 +645,8 @@ void RiuMultiPlotBook::dropEvent( QDropEvent* event )
         for ( int i = 0; i < indexes.size(); i++ )
         {
             QModelIndex modIdx = indexes[i];
-            if (modIdx.isValid())
+            if ( modIdx.isValid() )
             {
-                
             }
 
             qDebug() << indexes[i];
