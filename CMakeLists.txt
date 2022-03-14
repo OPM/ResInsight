@@ -466,7 +466,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(nightcharts PRIVATE -Wno-deprecated)
 endif()
 
-
 list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
 # ##############################################################################
