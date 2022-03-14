@@ -31,11 +31,11 @@ jobs:
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-v03
+          key: ${{ matrix.config.os }}-QtCache-5-12-12
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
-          version: 5.9.9
+          version: 5.12.12
           modules: qtscript qtcharts
           dir: '${{ github.workspace }}/Qt/'
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
@@ -95,3 +95,4 @@ jobs:
           commit-message: 'Fixes by clang-tidy'
           title: 'Fixes by clang-tidy'
           branch: clang-tidy-patches
+          branch-suffix: random

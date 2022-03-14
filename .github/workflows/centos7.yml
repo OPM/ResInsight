@@ -4,93 +4,93 @@ on:
   workflow_dispatch:
   schedule:
     # Once every night
-    - cron: '0 1 * * * '
+    - cron: "0 1 * * * "
 jobs:
   build_on_centos7:
     runs-on: ubuntu-latest
     container:
       image: centos:7
     steps:
-    - name: Install Dependencies
-      run: | 
-        yum install -y centos-release-scl
-        yum-config-manager --enable rhel-server-rhscl-7-rpms
-      
-        yum install -y https://repo.ius.io/ius-release-el7.rpm
-        yum install -y git222
+      - name: Install Dependencies
+        run: |
+          yum install -y centos-release-scl
+          yum-config-manager --enable rhel-server-rhscl-7-rpms
 
-        yum install -y qt5-qtbase
-        yum install -y qt5-qtbase-devel
-        yum install -y qt5-qtscript-devel
-        yum install -y qt5-qtsvg-devel
+          yum install -y https://repo.ius.io/ius-release-el7.rpm
+          yum install -y git222
 
-        yum install -y cmake3
-        yum install -y make
+          yum install -y qt5-qtbase
+          yum install -y qt5-qtbase-devel
+          yum install -y qt5-qtscript-devel
+          yum install -y qt5-qtsvg-devel
 
-        yum install -y mesa-libGL-devel
-        yum install -y freeglut-devel
+          yum install -y cmake3
+          yum install -y make
 
-        yum install -y devtoolset-10
-        
-        yum install -y rh-python36
-    - name: Build QtCharts
-      run: |
-        source /opt/rh/devtoolset-10/enable
-        git clone git://code.qt.io/qt/qtcharts.git
-        cd qtcharts/
-        git checkout v5.9.7
-        qmake-qt5 --version
-        qmake-qt5 -makefile
-        make -j 4
-        make install
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        submodules: true
-    - name: Set up Python
-      id: python-path
-      run: |
-        source /opt/rh/rh-python36/enable
-        python -c "import sys; print(sys.version)"
-        echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
-    - name: Build ResInsight
-      run: |
-        source /opt/rh/devtoolset-10/enable
-        source /opt/rh/rh-python36/enable
+          yum install -y mesa-libGL-devel
+          yum install -y freeglut-devel
 
-        cmake3 --version
-        git --version
-        g++ --version
-        ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} --version
+          yum install -y devtoolset-10
 
-        ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install --upgrade pip
-        ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install grpcio-tools
+          yum install -y rh-python36
+      - name: Build QtCharts
+        run: |
+          source /opt/rh/devtoolset-10/enable
+          git clone git://code.qt.io/qt/qtcharts.git
+          cd qtcharts/
+          git checkout v5.9.7
+          qmake-qt5 --version
+          qmake-qt5 -makefile
+          make -j 4
+          make install
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          submodules: true
+      - name: Set up Python
+        id: python-path
+        run: |
+          source /opt/rh/rh-python36/enable
+          python -c "import sys; print(sys.version)"
+          echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
+      - name: Build ResInsight
+        run: |
+          source /opt/rh/devtoolset-10/enable
+          source /opt/rh/rh-python36/enable
 
-        ThirdParty/vcpkg/bootstrap-vcpkg.sh 
-        ThirdParty/vcpkg/vcpkg install grpc boost-filesystem boost-spirit eigen3
-        
-        mkdir cmakebuild
-        cd cmakebuild
-        cmake3 \
-        -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=ON \
-        -DRESINSIGHT_ENABLE_GRPC=true \
-        -DRESINSIGHT_ENABLE_UNITY_BUILD=true \
-        -DVCPKG_TARGET_TRIPLET=x64-linux \
-        -DCMAKE_TOOLCHAIN_FILE=../ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
-        -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} \
-        -DRESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true \
-        ..
-        
-        make -j8
-        make package
-        rm -rf packages/_CPack_Packages
-        
-        # Show file structure
-        pwd
-        ls
+          cmake3 --version
+          git --version
+          g++ --version
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} --version
 
-    - name: Upload artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: ResInsight
-        path: ./cmakebuild/packages
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install --upgrade pip
+          ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} -m pip install grpcio-tools
+
+          ThirdParty/vcpkg/bootstrap-vcpkg.sh 
+          ThirdParty/vcpkg/vcpkg install grpc boost-filesystem boost-spirit eigen3
+
+          mkdir cmakebuild
+          cd cmakebuild
+          cmake3 \
+          -DRESINSIGHT_QT5_BUNDLE_LIBRARIES=ON \
+          -DRESINSIGHT_ENABLE_GRPC=true \
+          -DRESINSIGHT_ENABLE_UNITY_BUILD=true \
+          -DVCPKG_TARGET_TRIPLET=x64-linux \
+          -DCMAKE_TOOLCHAIN_FILE=../ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake \
+          -DRESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }} \
+          -DRESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true \
+          ..
+
+          make -j8
+          make package
+          rm -rf packages/_CPack_Packages
+
+          # Show file structure
+          pwd
+          ls
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: ResInsight
+          path: ./cmakebuild/packages
