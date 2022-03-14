@@ -99,7 +99,8 @@ public:
     virtual void updateZoomFromParentPlot();
 
     virtual caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const;
-    virtual void            handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
+    virtual void            handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects,
+                                                  Qt::KeyboardModifiers                     keyModifiers );
 
 protected:
     virtual RiuPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;

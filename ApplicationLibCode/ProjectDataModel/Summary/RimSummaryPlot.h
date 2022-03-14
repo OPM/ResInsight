@@ -30,17 +30,21 @@
 #include "RiuSummaryPlot.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmObjectHandle.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 #include <QPointer>
 
 #include <memory>
 #include <set>
+#include <vector>
 
 class PdmUiTreeOrdering;
 class RimAsciiDataCurve;
 class RimGridTimeHistoryCurve;
+class RimSummaryAddress;
 class RimSummaryAddressCollection;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
@@ -76,6 +80,8 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<const std::vector<caf::PdmObjectHandle*>&> createNewPlot;
+
     RimSummaryPlot( bool isCrossPlot = false );
     ~RimSummaryPlot() override;
 
@@ -200,6 +206,9 @@ public:
 
     bool isDeletable() const override;
 
+    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects,
+                               Qt::KeyboardModifiers                     keyModifiers ) override;
+
 private:
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
@@ -227,7 +236,6 @@ protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void onLoadDataAndUpdate() override;
-    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
     QImage snapshotWindowContent() override;
 
@@ -279,6 +287,7 @@ private:
 
     int handleSummaryCaseDrop( RimSummaryCase* summaryCase );
     int handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
+    int handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 
 private:
 #ifdef USE_QTCHARTS

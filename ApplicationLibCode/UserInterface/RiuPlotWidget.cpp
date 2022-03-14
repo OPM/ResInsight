@@ -245,6 +245,7 @@ bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
     }
 
     const MimeDataWithIndexes* mimeData = nullptr;
+    Qt::KeyboardModifiers      keyModifiers;
 
     if ( event->type() == QEvent::Drop )
     {
@@ -252,7 +253,8 @@ bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
         auto dropEvent = dynamic_cast<QDropEvent*>( event );
         if ( dropEvent )
         {
-            mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+            mimeData     = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+            keyModifiers = dropEvent->keyboardModifiers();
 
             dropEvent->acceptProposedAction();
         }
@@ -291,7 +293,7 @@ bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
 
         if ( m_plotDefinition )
         {
-            m_plotDefinition->handleDroppedObjects( objects );
+            m_plotDefinition->handleDroppedObjects( objects, keyModifiers );
         }
 
         return true;

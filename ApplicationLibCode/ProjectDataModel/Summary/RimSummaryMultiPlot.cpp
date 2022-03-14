@@ -88,11 +88,28 @@ RimSummaryMultiPlot::~RimSummaryMultiPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onCreateNewPlot( const SignalEmitter* emitter, const std::vector<caf::PdmObjectHandle*>& objects )
+{
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->enableAutoPlotTitle( true );
+
+    addPlot( plot );
+
+    plot->handleDroppedObjects( objects, Qt::KeyboardModifier::ControlModifier );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 {
     RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
-    if ( sumPlot ) RimMultiPlot::addPlot( plot );
+    if ( sumPlot )
+    {
+        RimMultiPlot::addPlot( plot );
+        sumPlot->createNewPlot.connect( this, &RimSummaryMultiPlot::onCreateNewPlot );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,7 +119,25 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
     RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
-    if ( sumPlot ) RimMultiPlot::insertPlot( plot, index );
+    if ( sumPlot )
+    {
+        RimMultiPlot::insertPlot( plot, index );
+        sumPlot->createNewPlot.connect( this, &RimSummaryMultiPlot::onCreateNewPlot );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::removePlot( RimPlot* plot )
+{
+    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    CVF_ASSERT( sumPlot != nullptr );
+    if ( sumPlot )
+    {
+        RimMultiPlot::removePlot( plot );
+        sumPlot->createNewPlot.disconnect( this );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

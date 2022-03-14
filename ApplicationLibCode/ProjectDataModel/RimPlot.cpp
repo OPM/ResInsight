@@ -285,7 +285,7 @@ caf::PdmObject* RimPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* curve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
+void RimPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects, Qt::KeyboardModifiers keyModifiers )
 {
 }
 
