@@ -88,6 +88,17 @@ RimSummaryMultiPlot::~RimSummaryMultiPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::initAfterRead()
+{
+    for ( auto& sumPlot : summaryPlots() )
+    {
+        sumPlot->createNewPlot.connect( this, &RimSummaryMultiPlot::onCreateNewPlot );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onCreateNewPlot( const SignalEmitter* emitter, const std::vector<caf::PdmObjectHandle*>& objects )
 {
     RimSummaryPlot* plot = new RimSummaryPlot();

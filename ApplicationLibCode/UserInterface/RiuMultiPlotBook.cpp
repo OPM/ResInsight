@@ -22,9 +22,11 @@
 #include "RiaPreferences.h"
 
 #include "RimContextCommandBuilder.h"
+#include "RimMimeData.h"
 #include "RimMultiPlot.h"
 #include "RimWellLogTrack.h"
 
+#include "RiuDragDrop.h"
 #include "RiuMainWindow.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
@@ -32,16 +34,19 @@
 #include "RiuPlotWidget.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
+#include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 
+#include <QAbstractItemModel>
 #include <QDebug>
 #include <QFocusEvent>
 #include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
 #include <QMenu>
+#include <QModelIndex>
 #include <QPagedPaintDevice>
 #include <QScrollArea>
 #include <QScrollBar>
@@ -125,6 +130,7 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
     this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
 
     setFocusPolicy( Qt::StrongFocus );
+    setAcceptDrops( true );
 
     QSize pageSize = m_plotDefinition->pageLayout().fullRectPixels( RiaGuiApplication::applicationResolution() ).size();
     applyPagePreviewBookSize( pageSize.width() );
@@ -612,4 +618,47 @@ void RiuMultiPlotBook::goToNextPage()
 void RiuMultiPlotBook::goToPrevPage()
 {
     changeCurrentPage( -1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::dragEnterEvent( QDragEnterEvent* event )
+{
+    event->acceptProposedAction();
+    qDebug() << "Drag enter!";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::dropEvent( QDropEvent* event )
+{
+    event->acceptProposedAction();
+
+    const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>( event->mimeData() );
+    if ( myMimeData )
+    {
+        caf::PdmObjectGroup draggedObjects;
+        QModelIndexList     indexes = myMimeData->indexes();
+
+        for ( int i = 0; i < indexes.size(); i++ )
+        {
+            QModelIndex modIdx = indexes[i];
+            if (modIdx.isValid())
+            {
+                
+            }
+
+            qDebug() << indexes[i];
+            // caf::PdmUiItem*       uiItem    = uiTreeView->uiItemFromModelIndex( indexes[i] );
+            // caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( uiItem );
+            // if ( objHandle )
+            //{
+            //    objectGroup->objects.push_back( objHandle );
+            //}
+        }
+    }
+
+    qDebug() << event->mimeData();
 }

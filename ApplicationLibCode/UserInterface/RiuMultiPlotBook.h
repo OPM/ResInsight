@@ -104,6 +104,9 @@ protected:
 
     QList<QPointer<RiuPlotWidget>> visiblePlotWidgets() const;
 
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
+
 private:
     void                                     deleteAllPages();
     void                                     createPages();
