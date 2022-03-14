@@ -47,6 +47,7 @@
 #include <QValueAxis>
 #include <QtGlobal>
 
+#include <cmath>
 #include <limits>
 
 using namespace QtCharts;
@@ -1251,20 +1252,52 @@ void RiuQtChartsPlotWidget::tooltip( const QPointF& point, bool state )
     QAbstractSeries* series = qobject_cast<QAbstractSeries*>( sender() );
     if ( !m_toolTip ) m_toolTip = new RiuQtChartsToolTip( qtChart(), series );
 
+    auto xySeries = dynamic_cast<QLineSeries*>( series );
+
+    auto snapToPoint = point;
+
+    if ( xySeries )
+    {
+        auto points       = xySeries->pointsVector();
+        int  closestIndex = -1;
+        for ( int i = 0; i < points.size() - 1; i++ )
+        {
+            if ( point.x() > points[i + 1].x() ) continue;
+
+            if ( points[i].x() < point.x() && point.x() < points[i + 1].x() )
+            {
+                if ( std::fabs( points[i].x() - point.x() ) < std::fabs( point.x() - points[i + 1].x() ) )
+                {
+                    closestIndex = i;
+                }
+                else
+                {
+                    closestIndex = i + 1;
+                }
+                break;
+            }
+        }
+
+        if ( closestIndex > 0 )
+        {
+            snapToPoint = points[closestIndex];
+        }
+    }
+
     if ( state )
     {
         QString nameFromSeries = createNameFromSeries( series );
 
-        QDateTime date       = QDateTime::fromMSecsSinceEpoch( point.x() );
+        QDateTime date       = QDateTime::fromMSecsSinceEpoch( snapToPoint.x() );
         QString   dateString = RiaQDateTimeTools::toStringUsingApplicationLocale( date, "hh:mm dd.MMMM.yyyy" );
 
-        QString text = QString( "%1 (%2)" ).arg( point.y() ).arg( dateString );
+        QString text = QString( "%1 (%2)" ).arg( snapToPoint.y() ).arg( dateString );
 
         if ( !nameFromSeries.isEmpty() ) text.prepend( nameFromSeries + ": " );
 
         m_toolTip->setText( text );
 
-        m_toolTip->setAnchor( point );
+        m_toolTip->setAnchor( snapToPoint );
         m_toolTip->setSeries( series );
         m_toolTip->setZValue( 200 );
         m_toolTip->updateGeometry();
