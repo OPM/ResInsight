@@ -68,7 +68,7 @@ class ExponentialBackoffRetryPolicy(RetryPolicy):
         # Add a random component to avoid synchronized retries
         wiggle = random.randint(0, 100)
         sleep_ms = min(
-            self.min_backoff + self.multiplier ** retry_num + wiggle, self.max_backoff
+            self.min_backoff + self.multiplier**retry_num + wiggle, self.max_backoff
         )
         time.sleep(sleep_ms / 1000)
 
