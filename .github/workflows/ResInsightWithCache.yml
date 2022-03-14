@@ -5,11 +5,11 @@ on:
   pull_request:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
-    # build cache is 
-    - cron: '0 1 * * * '
+    # build cache is
+    - cron: "0 1 * * * "
 env:
   BUILD_TYPE: Release
-  BUILDCACHE_VERSION: 0.24.4
+  BUILDCACHE_VERSION: 0.27.6
   BUILDCACHE_DIR: ${{ github.workspace }}/buildcache_dir
   BUILDCACHE_ACCURACY: SLOPPY
 
@@ -20,69 +20,72 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
-            name: "Windows Latest MSVC",
-            os: windows-latest,
-            cc: "cl", cxx: "cl",
-            environment_script: "C:/Program Files (x86)/Microsoft Visual Studio/2019/Enterprise/VC/Auxiliary/Build/vcvars64.bat",
-            vcpkg-response-file: vcpkg_x64-windows.txt,
-            vcpkg-triplet: x64-windows,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
-            build-python-module: true,
-            execute-unit-tests: true
-          }
-        - {
-            name: "Ubuntu Latest gcc",
-            os: ubuntu-latest,
-            cc: "gcc", cxx: "g++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
-            vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
-            build-python-module: true,
-            execute-unit-tests: true
-          }
-        - {
-            name: "Ubuntu Latest clang",
-            os: ubuntu-latest,
-            cc: "clang", cxx: "clang++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
-            vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
-            build-python-module: true,
-            execute-unit-tests: true
-          }
-        - {
-            name: "Mac OS",
-            os: macos-latest,
-            cc: "clang", cxx: "clang++",
-            vcpkg-response-file: vcpkg_x64-osx.txt,
-            vcpkg-triplet: x64-osx,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake',
-            build-python-module: false,
-            execute-unit-tests: false
-          }
+          - {
+              name: "Windows Latest MSVC",
+              os: windows-latest,
+              cc: "cl",
+              cxx: "cl",
+              vcpkg-response-file: vcpkg_x64-windows.txt,
+              vcpkg-triplet: x64-windows,
+              build-python-module: true,
+              execute-unit-tests: true,
+            }
+          - {
+              name: "Ubuntu Latest gcc",
+              os: ubuntu-latest,
+              cc: "gcc",
+              cxx: "g++",
+              vcpkg-response-file: vcpkg_x64-linux.txt,
+              vcpkg-triplet: x64-linux,
+              build-python-module: true,
+              execute-unit-tests: true,
+            }
+          - {
+              name: "Ubuntu Latest clang",
+              os: ubuntu-latest,
+              cc: "clang",
+              cxx: "clang++",
+              vcpkg-response-file: vcpkg_x64-linux.txt,
+              vcpkg-triplet: x64-linux,
+              build-python-module: true,
+              execute-unit-tests: true,
+            }
+          - {
+              name: "Mac OS",
+              os: macos-latest,
+              cc: "clang",
+              cxx: "clang++",
+              vcpkg-response-file: vcpkg_x64-osx.txt,
+              vcpkg-triplet: x64-osx,
+              build-python-module: false,
+              execute-unit-tests: false,
+            }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
         with:
           submodules: true
+
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: "3.8"
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
-      
-        # workaround a poor interaction between github actions/cmake/vcpkg, see https://github.com/lukka/run-vcpkg/issues/88#issuecomment-885758902
-      - name: Use CMake 3.20.1
-        uses: lukka/get-cmake@v3.20.1
+
+      - name: Use CMake
+        uses: lukka/get-cmake@latest
+
+      - name: Use MSVC (Windows)
+        if: matrix.config.os == 'windows-latest'
+        uses: ilammy/msvc-dev-cmd@v1
 
       - name: Download buildcache
         id: buildcache-download
         shell: cmake -P {0}
         run: |
           if ("${{ runner.os }}" STREQUAL "Windows")
-            set(buildcache_suffix "win-msvc.zip")
+            set(buildcache_suffix "windows.zip")
           elseif ("${{ runner.os }}" STREQUAL "macOS")
             set(buildcache_suffix "macos.zip")
           elseif ("${{ runner.os }}" STREQUAL "Linux")
@@ -99,7 +102,7 @@ jobs:
               COMMAND chmod +x buildcache/bin/buildcache
             )
           endif()
-          
+
       - name: Prepare cache timestamp
         id: cache_timestamp_string
         shell: cmake -P {0}
@@ -113,28 +116,30 @@ jobs:
           path: ${{ env.BUILDCACHE_DIR }}
           key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
       - name: Create Folder for buildcache
-        run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
+        run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force
         shell: pwsh
       - name: Add buildcache to system path
         run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
-        
-      - name: Cache Qt        
+
+      - name: Cache Qt
         id: cache-qt
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-v03
+          key: ${{ matrix.config.os }}-QtCache-5-12-12
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
-          version: 5.9.9
+          version: 5.12.12
           modules: qtscript qtcharts
-          dir: '${{ github.workspace }}/Qt/'
+          dir: "${{ github.workspace }}/Qt/"
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
+
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
+
       - name: Get Python executable path
         id: python-path
         run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
@@ -149,9 +154,10 @@ jobs:
         uses: lukka/run-vcpkg@v7
         id: runvcpkg
         with:
-          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
-          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
-           # Ensure the cache key changes any time the content of the response file changes.
+          vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
+          vcpkgDirectory:
+            "${{ github.workspace }}/ThirdParty/vcpkg"
+            # Ensure the cache key changes any time the content of the response file changes.
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}-cache-key-v2
 
       - name: Cache dynamic version of OpenSSL (Linux)
@@ -171,38 +177,20 @@ jobs:
         run: |
           set(ENV{CC} ${{ matrix.config.cc }})
           set(ENV{CXX} ${{ matrix.config.cxx }})
-          if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-            execute_process(
-              COMMAND "${{ matrix.config.environment_script }}" && set
-              OUTPUT_FILE environment_script_output.txt
-            )
-            file(STRINGS environment_script_output.txt output_lines)
-            foreach(line IN LISTS output_lines)
-              if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-                set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-              endif()
-            endforeach()
-          endif()
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
-          set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
-          
+
           execute_process(
             COMMAND cmake
               -S .
               -B cmakebuild
               -D CMAKE_BUILD_TYPE=$ENV{BUILD_TYPE}
               -D CMAKE_INSTALL_PREFIX=cmakebuild/install
-              -D RESINSIGHT_ENABLE_UNITY_BUILD=true
               -D RESINSIGHT_BUNDLE_OPENSSL=true
               -D RESINSIGHT_INCLUDE_APPLICATION_UNIT_TESTS=true
               -D RESINSIGHT_TREAT_WARNINGS_AS_ERRORS=true
               -D RESINSIGHT_ENABLE_GRPC=${{ matrix.config.build-python-module }}
               -D RESINSIGHT_GRPC_PYTHON_EXECUTABLE=${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
               -D RESINSIGHT_GRPC_DOWNLOAD_PYTHON_MODULE=true
-              -D CMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }}
+              -D CMAKE_TOOLCHAIN_FILE=ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake
               -G Ninja
             RESULT_VARIABLE result
           )
@@ -213,18 +201,6 @@ jobs:
         shell: cmake -P {0}
         run: |
           set(ENV{NINJA_STATUS} "[%f/%t %o/sec] ")
-          if ("${{ runner.os }}" STREQUAL "Windows" AND NOT "x${{ matrix.config.environment_script }}" STREQUAL "x")
-            file(STRINGS environment_script_output.txt output_lines)
-            foreach(line IN LISTS output_lines)
-              if (line MATCHES "^([a-zA-Z0-9_-]+)=(.*)$")
-                set(ENV{${CMAKE_MATCH_1}} "${CMAKE_MATCH_2}")
-              endif()
-            endforeach()
-          endif()
-          set(path_separator ":")
-          if ("${{ runner.os }}" STREQUAL "Windows")
-            set(path_separator ";")
-          endif()
           execute_process(
             COMMAND cmake --build cmakebuild --target install
             RESULT_VARIABLE result
