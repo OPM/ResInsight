@@ -26,6 +26,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultNames.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumberFormat.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -56,6 +57,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultNames.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumberFormat.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

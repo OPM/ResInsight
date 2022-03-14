@@ -57,12 +57,13 @@ void RimTimeAxisAnnotation::setTime( time_t time )
 {
     m_value = RiaTimeTTools::toDouble( time );
 
-    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString dateFormatString =
+        RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                             RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
 
     QString timeFormatString =
         RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                             RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                             RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
 
     QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
@@ -80,12 +81,13 @@ void RimTimeAxisAnnotation::setTimeRange( time_t startTime, time_t endTime )
     m_rangeStart = RiaTimeTTools::toDouble( startTime );
     m_rangeEnd   = RiaTimeTTools::toDouble( endTime );
 
-    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString dateFormatString =
+        RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                             RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
 
     QString timeFormatString =
         RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                             RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                             RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
 
     QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 

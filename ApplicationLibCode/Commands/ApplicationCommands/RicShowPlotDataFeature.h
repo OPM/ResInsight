@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
-
 #include "cafCmdFeature.h"
 
 #include <functional>

@@ -18,8 +18,6 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
-
 #include <QDialog>
 #include <QPlainTextEdit>
 #include <QPointer>

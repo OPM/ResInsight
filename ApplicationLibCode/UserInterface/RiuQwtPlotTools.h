@@ -17,8 +17,9 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
-#include "RiaQDateTimeTools.h"
+
 #include <qwt_date.h>
 #include <qwt_plot.h>
 #include <qwt_plot_shapeitem.h>
@@ -29,17 +30,17 @@ public:
     static void setCommonPlotBehaviour( QwtPlot* plot );
     static void setDefaultAxes( QwtPlot* plot );
     static void enableDateBasedBottomXAxis(
-        QwtPlot*                                plot,
-        const QString&                          dateFormat,
-        const QString&                          timeFormat,
-        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
+        QwtPlot*                         plot,
+        const QString&                   dateFormat,
+        const QString&                   timeFormat,
+        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED,
+        RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
 
-    static QString dateTimeFormatForInterval( QwtDate::IntervalType                   interval,
-                                              const QString&                          dateFormat,
-                                              const QString&                          timeFormat,
-                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                              RiaQDateTimeTools::TimeFormatComponents timeComponents );
+    static QString dateTimeFormatForInterval( QwtDate::IntervalType            interval,
+                                              const QString&                   dateFormat,
+                                              const QString&                   timeFormat,
+                                              RiaDefines::DateFormatComponents dateComponents,
+                                              RiaDefines::TimeFormatComponents timeComponents );
 
     static QwtPlotShapeItem* createBoxShape( const QString& label,
                                              double         startX,

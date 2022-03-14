@@ -18,8 +18,8 @@
 
 #pragma once
 
+#include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
-#include "RiaQDateTimeTools.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -127,8 +127,7 @@ public:
     QWidget* viewWidget() override;
 
     QString asciiDataForPlotExport() const override;
-    QString asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod resamplingPeriod,
-                                           bool                              showTimeAsLongString ) const;
+    QString asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod, bool showTimeAsLongString ) const;
 
     std::vector<RimSummaryCurve*>       summaryAndEnsembleCurves() const;
     std::set<RiaSummaryCurveDefinition> summaryAndEnsembleCurveDefinitions() const;

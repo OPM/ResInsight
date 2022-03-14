@@ -161,10 +161,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
             if ( !includeIncompleteCurves && timeSteps.size() != values.size() ) continue;
 
             auto [resampledTimeSteps, resampledValues] =
-                RiaSummaryTools::resampledValuesForPeriod( inputAddress,
-                                                           timeSteps,
-                                                           values,
-                                                           RiaQDateTimeTools::DateTimePeriod::DAY );
+                RiaSummaryTools::resampledValuesForPeriod( inputAddress, timeSteps, values, RiaDefines::DateTimePeriod::DAY );
 
             if ( allTimeSteps.empty() ) allTimeSteps = resampledTimeSteps;
             caseAndTimeStepValues.push_back( resampledValues );

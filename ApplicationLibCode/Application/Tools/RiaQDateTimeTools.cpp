@@ -40,47 +40,6 @@ const DateTimeSpan RiaQDateTimeTools::TIMESPAN_HALFYEAR = DateTimeSpan( 0, 6, 0 
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_YEAR     = DateTimeSpan( 1, 0, 0 );
 const DateTimeSpan RiaQDateTimeTools::TIMESPAN_DECADE   = DateTimeSpan( 10, 0, 0 );
 
-namespace caf
-{
-// clang-format off
-
-template <>
-void caf::AppEnum<RiaQDateTimeTools::DateFormatComponents>::setUp()
-{
-    addItem( RiaQDateTimeTools::DATE_FORMAT_NONE,           "NO_DATE",          "No Date" );
-    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR,           "YEAR",             "Year Only" );
-    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH,     "YEAR_MONTH",       "Year and Month" );
-    addItem( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY, "YEAR_MONTH_DAY",   "Year, Month and Day" );
-    setDefault( RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
-}
-
-template <>
-void caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents>::setUp()
-{
-    addItem( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE,               "NO_TIME",              "No Time of Day" );
-    addItem( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR,               "HOUR",                 "Hour Only" );
-    addItem( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE,        "HOUR_MINUTE",          "Hour and Minute" );
-    addItem( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND, "HOUR_MINUTE_SECONDS",  "Hour, Minutes and Seconds" );
-    setDefault( RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE );
-}
-
-template <>
-void caf::AppEnum<RiaQDateTimeTools::DateTimePeriod>::setUp()
-{
-    addItem( RiaQDateTimeTools::DateTimePeriod::NONE,       "NONE",     "None" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::DAY,        "DAY",      "Day" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::WEEK,       "WEEK",     "Week" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::MONTH,      "MONTH",    "Month" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::QUARTER,    "QUARTER",  "Quarter" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::HALFYEAR,   "HALFYEAR", "Half Year" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::YEAR,       "YEAR",     "Year" );
-    addItem( RiaQDateTimeTools::DateTimePeriod::DECADE,     "DECADE",   "Decade" );
-    setDefault( RiaQDateTimeTools::DateTimePeriod::NONE );
-}
-
-// clang-format on
-} // namespace caf
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -197,7 +156,7 @@ QDateTime RiaQDateTimeTools::subtractSpan( const QDateTime& dt, DateTimeSpan spa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::addPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period )
+QDateTime RiaQDateTimeTools::addPeriod( const QDateTime& dt, RiaDefines::DateTimePeriod period )
 {
     return addSpan( dt, timeSpan( period ) );
 }
@@ -205,7 +164,7 @@ QDateTime RiaQDateTimeTools::addPeriod( const QDateTime& dt, RiaQDateTimeTools::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::subtractPeriod( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period )
+QDateTime RiaQDateTimeTools::subtractPeriod( const QDateTime& dt, RiaDefines::DateTimePeriod period )
 {
     return subtractSpan( dt, timeSpan( period ) );
 }
@@ -287,23 +246,23 @@ bool RiaQDateTimeTools::lessThan( const QDateTime& dt1, const QDateTime& dt2 )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaQDateTimeTools::DateTimePeriod period )
+const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaDefines::DateTimePeriod period )
 {
     switch ( period )
     {
-        case RiaQDateTimeTools::DateTimePeriod::DAY:
+        case RiaDefines::DateTimePeriod::DAY:
             return TIMESPAN_DAY;
-        case RiaQDateTimeTools::DateTimePeriod::WEEK:
+        case RiaDefines::DateTimePeriod::WEEK:
             return TIMESPAN_WEEK;
-        case RiaQDateTimeTools::DateTimePeriod::MONTH:
+        case RiaDefines::DateTimePeriod::MONTH:
             return TIMESPAN_MONTH;
-        case RiaQDateTimeTools::DateTimePeriod::QUARTER:
+        case RiaDefines::DateTimePeriod::QUARTER:
             return TIMESPAN_QUARTER;
-        case RiaQDateTimeTools::DateTimePeriod::HALFYEAR:
+        case RiaDefines::DateTimePeriod::HALFYEAR:
             return TIMESPAN_HALFYEAR;
-        case RiaQDateTimeTools::DateTimePeriod::YEAR:
+        case RiaDefines::DateTimePeriod::YEAR:
             return TIMESPAN_YEAR;
-        case RiaQDateTimeTools::DateTimePeriod::DECADE:
+        case RiaDefines::DateTimePeriod::DECADE:
             return TIMESPAN_DECADE;
     }
     CVF_ASSERT( false );
@@ -313,7 +272,7 @@ const DateTimeSpan RiaQDateTimeTools::timeSpan( RiaQDateTimeTools::DateTimePerio
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, RiaQDateTimeTools::DateTimePeriod period )
+QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, RiaDefines::DateTimePeriod period )
 {
     int y   = dt.date().year();
     int m   = dt.date().month();
@@ -322,19 +281,19 @@ QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, RiaQDateTimeTool
 
     switch ( period )
     {
-        case RiaQDateTimeTools::DateTimePeriod::DAY:
+        case RiaDefines::DateTimePeriod::DAY:
             return createUtcDateTime( QDate( y, m, d ) );
-        case RiaQDateTimeTools::DateTimePeriod::WEEK:
+        case RiaDefines::DateTimePeriod::WEEK:
             return createUtcDateTime( QDate( y, m, d ).addDays( -dow + 1 ) );
-        case RiaQDateTimeTools::DateTimePeriod::MONTH:
+        case RiaDefines::DateTimePeriod::MONTH:
             return createUtcDateTime( QDate( y, m, 1 ) );
-        case RiaQDateTimeTools::DateTimePeriod::QUARTER:
+        case RiaDefines::DateTimePeriod::QUARTER:
             return createUtcDateTime( QDate( y, ( ( m - 1 ) / 3 ) * 3 + 1, 1 ) );
-        case RiaQDateTimeTools::DateTimePeriod::HALFYEAR:
+        case RiaDefines::DateTimePeriod::HALFYEAR:
             return createUtcDateTime( QDate( y, ( ( m - 1 ) / 6 ) * 6 + 1, 1 ) );
-        case RiaQDateTimeTools::DateTimePeriod::YEAR:
+        case RiaDefines::DateTimePeriod::YEAR:
             return createUtcDateTime( QDate( y, 1, 1 ) );
-        case RiaQDateTimeTools::DateTimePeriod::DECADE:
+        case RiaDefines::DateTimePeriod::DECADE:
             return createUtcDateTime( QDate( ( y / 10 ) * 10, 1, 1 ) );
     }
     CVF_ASSERT( false );
@@ -344,13 +303,13 @@ QDateTime RiaQDateTimeTools::truncateTime( const QDateTime& dt, RiaQDateTimeTool
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RiaQDateTimeTools::DateTimePeriod> RiaQDateTimeTools::dateTimePeriods()
+std::vector<RiaDefines::DateTimePeriod> RiaQDateTimeTools::dateTimePeriods()
 {
-    std::vector<DateTimePeriod> allPeriods;
+    std::vector<RiaDefines::DateTimePeriod> allPeriods;
 
-    for ( size_t i = 0; i < DateTimePeriodEnum::size(); i++ )
+    for ( size_t i = 0; i < RiaDefines::DateTimePeriodEnum::size(); i++ )
     {
-        allPeriods.push_back( DateTimePeriodEnum::fromIndex( i ) );
+        allPeriods.push_back( RiaDefines::DateTimePeriodEnum::fromIndex( i ) );
     }
 
     return allPeriods;
@@ -359,9 +318,9 @@ std::vector<RiaQDateTimeTools::DateTimePeriod> RiaQDateTimeTools::dateTimePeriod
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaQDateTimeTools::dateTimePeriodName( RiaQDateTimeTools::DateTimePeriod period )
+QString RiaQDateTimeTools::dateTimePeriodName( RiaDefines::DateTimePeriod period )
 {
-    return DateTimePeriodEnum::uiText( period );
+    return RiaDefines::DateTimePeriodEnum::uiText( period );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -482,14 +441,17 @@ std::vector<QString> RiaQDateTimeTools::supportedTimeFormats()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaQDateTimeTools::dateFormatString( const QString& fullDateFormat, DateFormatComponents dateComponents )
+QString RiaQDateTimeTools::dateFormatString( const QString& fullDateFormat, RiaDefines::DateFormatComponents dateComponents )
 {
-    if ( dateComponents == DATE_FORMAT_NONE ) return "";
+    if ( dateComponents == RiaDefines::DateFormatComponents::DATE_FORMAT_NONE ) return "";
+
+    auto enumValue = static_cast<std::underlying_type<RiaDefines::DateFormatComponents>::type>( dateComponents );
+    if ( enumValue < 0 ) return "";
 
     QStringList allVariants = fullDateFormat.split( ";" );
-    if ( static_cast<int>( dateComponents ) < allVariants.size() )
+    if ( enumValue < allVariants.size() )
     {
-        return allVariants[dateComponents];
+        return allVariants[enumValue];
     }
     CVF_ASSERT( false && "Date format string is malformed" );
     return "";
@@ -498,9 +460,9 @@ QString RiaQDateTimeTools::dateFormatString( const QString& fullDateFormat, Date
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaQDateTimeTools::timeFormatString( const QString& fullTimeFormat, TimeFormatComponents timeComponents )
+QString RiaQDateTimeTools::timeFormatString( const QString& fullTimeFormat, RiaDefines::TimeFormatComponents timeComponents )
 {
-    if ( timeComponents == TimeFormatComponents::TIME_FORMAT_NONE ) return "";
+    if ( timeComponents == RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE ) return "";
 
     QStringList allVariants = fullTimeFormat.split( ";" );
     if ( static_cast<int>( timeComponents ) < allVariants.size() )

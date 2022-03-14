@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 #include <QString>
 
@@ -66,10 +66,10 @@ public:
                                                            std::vector<RifEclipseSummaryAddress>& addresses );
 
     static std::pair<std::vector<time_t>, std::vector<double>>
-        resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
-                                  const std::vector<time_t>&        timeSteps,
-                                  std::vector<double>&              values,
-                                  RiaQDateTimeTools::DateTimePeriod period );
+        resampledValuesForPeriod( const RifEclipseSummaryAddress& address,
+                                  const std::vector<time_t>&      timeSteps,
+                                  std::vector<double>&            values,
+                                  RiaDefines::DateTimePeriod      period );
 
     static RimSummaryCase*           summaryCaseById( int caseId );
     static RimSummaryCaseCollection* ensembleById( int ensembleId );

@@ -24,8 +24,8 @@
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
+#include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
-#include "RiaQDateTimeTools.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
 #include "RimStackablePlotCurve.h"
@@ -63,7 +63,7 @@ public:
     void setSummaryCaseY( RimSummaryCase* sumCase );
     void setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address );
     void setSummaryAddressY( const RifEclipseSummaryAddress& address );
-    void setResampling( RiaQDateTimeTools::DateTimePeriodEnum resampling );
+    void setResampling( RiaDefines::DateTimePeriodEnum resampling );
 
     RifEclipseSummaryAddress   errorSummaryAddressY() const;
     std::vector<double>        errorValuesY() const;
@@ -134,7 +134,7 @@ private:
     caf::PdmField<RifEclipseSummaryAddress> m_yValuesSummaryAddressUiField;
     caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
 
-    caf::PdmField<RiaQDateTimeTools::DateTimePeriodEnum> m_resampling;
+    caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     // X values
     caf::PdmPtrField<RimSummaryCase*>       m_xValuesSummaryCase;

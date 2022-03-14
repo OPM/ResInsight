@@ -21,9 +21,9 @@
 
 #pragma once
 
+#include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
-#include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -52,9 +52,6 @@ class RiaPreferences : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    using DateFormatComponents = RiaQDateTimeTools::DateFormatComponents;
-    using TimeFormatComponents = RiaQDateTimeTools::TimeFormatComponents;
-
     using FontSizeEnum        = RiaFontCache::FontSizeEnum;
     using PageSizeEnum        = caf::AppEnum<QPageSize::PageSizeId>;
     using PageOrientationEnum = caf::AppEnum<QPageLayout::Orientation>;
@@ -75,8 +72,9 @@ public:
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
-    QString dateTimeFormat( DateFormatComponents dateComponents = DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
-                            TimeFormatComponents timeComponents = TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) const;
+    QString        dateTimeFormat(
+               RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
+               RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) const;
 
     bool        searchPlotTemplateFoldersRecursively() const;
     QStringList plotTemplateFolders() const;

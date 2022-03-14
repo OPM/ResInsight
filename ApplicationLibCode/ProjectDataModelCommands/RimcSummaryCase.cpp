@@ -220,10 +220,10 @@ caf::PdmObjectHandle* RimSummaryCase_resampleValues::execute()
 
         const auto& timeValues = sumReader->timeSteps( adr );
 
-        QString                           periodString = m_resamplingPeriod().trimmed();
-        RiaQDateTimeTools::DateTimePeriod period = RiaQDateTimeTools::DateTimePeriodEnum::fromText( periodString );
+        QString                    periodString = m_resamplingPeriod().trimmed();
+        RiaDefines::DateTimePeriod period       = RiaDefines::DateTimePeriodEnum::fromText( periodString );
 
-        if ( period != RiaQDateTimeTools::DateTimePeriod::NONE )
+        if ( period != RiaDefines::DateTimePeriod::NONE )
         {
             auto [resampledTimeSteps, resampledValues] =
                 RiaSummaryTools::resampledValuesForPeriod( adr, timeValues, values, period );

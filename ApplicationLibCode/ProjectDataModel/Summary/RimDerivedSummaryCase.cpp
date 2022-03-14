@@ -20,6 +20,7 @@
 
 #include "RiaCurveMerger.h"
 #include "RiaLogging.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RifDerivedEnsembleReader.h"
 

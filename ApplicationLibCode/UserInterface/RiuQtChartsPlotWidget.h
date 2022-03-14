@@ -19,9 +19,9 @@
 
 #pragma once
 
+#include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
-#include "RiaQDateTimeTools.h"
 
 #include "RiuPlotWidget.h"
 
@@ -183,10 +183,10 @@ public:
 
     void updateZoomDependentCurveProperties() override;
 
-    void setFormatStrings( const QString&                          dateFormat,
-                           const QString&                          timeFormat,
-                           RiaQDateTimeTools::DateFormatComponents dateComponents,
-                           RiaQDateTimeTools::TimeFormatComponents timeComponents );
+    void setFormatStrings( const QString&                   dateFormat,
+                           const QString&                   timeFormat,
+                           RiaDefines::DateFormatComponents dateComponents,
+                           RiaDefines::TimeFormatComponents timeComponents );
 
 protected:
     void attachSeriesToAxis( RiuPlotAxis axis, QtCharts::QAbstractSeries* series, RiuQtChartsPlotCurve* plotCurve );

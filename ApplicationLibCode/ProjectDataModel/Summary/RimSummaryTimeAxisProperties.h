@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimTimeAxisAnnotation.h"
@@ -57,8 +57,8 @@ public:
         YEARS
     };
 
-    typedef caf::AppEnum<RiaQDateTimeTools::DateFormatComponents> DateFormatEnum;
-    typedef caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents> TimeFormatEnum;
+    typedef caf::AppEnum<RiaDefines::DateFormatComponents> DateFormatEnum;
+    typedef caf::AppEnum<RiaDefines::TimeFormatComponents> TimeFormatEnum;
 
 public:
     RimSummaryTimeAxisProperties();
@@ -75,11 +75,10 @@ public:
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
 
-    RiaQDateTimeTools::DateFormatComponents
-        dateComponents( RiaQDateTimeTools::DateFormatComponents fallback = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED ) const;
-    RiaQDateTimeTools::TimeFormatComponents
-        timeComponents( RiaQDateTimeTools::TimeFormatComponents fallback =
-                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
+    RiaDefines::DateFormatComponents dateComponents(
+        RiaDefines::DateFormatComponents fallback = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED ) const;
+    RiaDefines::TimeFormatComponents timeComponents(
+        RiaDefines::TimeFormatComponents fallback = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;

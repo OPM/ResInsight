@@ -17,7 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 class RiuQtChartsPlotWidget;
 
@@ -27,14 +27,14 @@ public:
     static void setCommonPlotBehaviour( RiuQtChartsPlotWidget* plot );
     static void setDefaultAxes( RiuQtChartsPlotWidget* plot );
     static void enableDateBasedBottomXAxis(
-        RiuQtChartsPlotWidget*                  plot,
-        const QString&                          dateFormat,
-        const QString&                          timeFormat,
-        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
+        RiuQtChartsPlotWidget*           plot,
+        const QString&                   dateFormat,
+        const QString&                   timeFormat,
+        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED,
+        RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
 
-    static QString dateTimeFormatForInterval( const QString&                          dateFormat,
-                                              const QString&                          timeFormat,
-                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                              RiaQDateTimeTools::TimeFormatComponents timeComponents );
+    static QString dateTimeFormatForInterval( const QString&                   dateFormat,
+                                              const QString&                   timeFormat,
+                                              RiaDefines::DateFormatComponents dateComponents,
+                                              RiaDefines::TimeFormatComponents timeComponents );
 };

@@ -26,6 +26,7 @@
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSystem.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaValidRegExpValidator.h"
 
 #include "RifReaderSettings.h"
@@ -461,7 +462,8 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
         {
             QDate   exampleDate = QDate( 2019, 8, 16 );
             QString fullDateFormat =
-                RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                     RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
             QString uiText = QString( "%1 (%2)" ).arg( fullDateFormat ).arg( exampleDate.toString( fullDateFormat ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( dateFormat ) ) );
@@ -474,7 +476,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
             QTime   exampleTime = QTime( 15, 48, 22 );
             QString timeFormatString =
                 RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                     RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                                                     RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             QString uiText = QString( "%1 (%2)" ).arg( timeFormatString ).arg( exampleTime.toString( timeFormatString ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );
@@ -660,7 +662,8 @@ const QString& RiaPreferences::timeFormat() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::dateTimeFormat( DateFormatComponents dateComponents, TimeFormatComponents timeComponents ) const
+QString RiaPreferences::dateTimeFormat( RiaDefines::DateFormatComponents dateComponents,
+                                        RiaDefines::TimeFormatComponents timeComponents ) const
 {
     return QString( "%1 %2" )
         .arg( RiaQDateTimeTools::dateFormatString( m_dateFormat(), dateComponents ) )

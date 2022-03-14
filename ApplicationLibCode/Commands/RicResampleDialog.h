@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 #include "cafPdmPointer.h"
 
@@ -49,8 +49,8 @@ public:
     static RicResampleDialogResult openDialog( QWidget* parent = nullptr, const QString& caption = QString() );
 
 private:
-    void setPeriodOptions( const std::vector<RiaQDateTimeTools::DateTimePeriod>& dateTimePeriods );
-    RiaQDateTimeTools::DateTimePeriod selectedDateTimePeriod() const;
+    void                       setPeriodOptions( const std::vector<RiaDefines::DateTimePeriod>& dateTimePeriods );
+    RiaDefines::DateTimePeriod selectedDateTimePeriod() const;
 
 private slots:
     void slotDialogOkClicked();
@@ -69,12 +69,12 @@ private:
 class RicResampleDialogResult
 {
 public:
-    RicResampleDialogResult( bool ok, RiaQDateTimeTools::DateTimePeriod period )
+    RicResampleDialogResult( bool ok, RiaDefines::DateTimePeriod period )
         : ok( ok )
         , period( period )
     {
     }
 
-    bool                              ok;
-    RiaQDateTimeTools::DateTimePeriod period;
+    bool                       ok;
+    RiaDefines::DateTimePeriod period;
 };

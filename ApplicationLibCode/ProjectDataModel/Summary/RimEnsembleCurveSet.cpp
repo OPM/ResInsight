@@ -21,6 +21,7 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
@@ -1175,11 +1176,12 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
                                        filteredTimeStepIndices.end() );
 
-        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString dateFormatString =
+            RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
         QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
         bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL ||
