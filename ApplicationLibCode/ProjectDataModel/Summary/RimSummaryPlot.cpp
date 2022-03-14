@@ -862,8 +862,9 @@ void RimSummaryPlot::updateZoomForAxis( RiuPlotAxis plotAxis )
 
             plotWidget()->setAxisScale( yAxisProps->plotAxisType(), min, max );
         }
-        else if ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
-                  plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT && isOnlyWaterCutCurvesVisible( plotAxis ) )
+        else if ( ( plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT ||
+                    plotAxis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT ) &&
+                  isOnlyWaterCutCurvesVisible( plotAxis ) )
         {
             plotWidget()->setAxisScale( yAxisProps->plotAxisType(), 0.0, 1.0 );
         }
