@@ -95,6 +95,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     : m_isCrossPlot( isCrossPlot )
+    , createNewPlot( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -220,7 +221,7 @@ void RimSummaryPlot::updateAxes()
     if ( plotWidget() )
     {
         plotWidget()->updateAxes();
-        plotWidget()->scheduleReplot();
+    plotWidget()->scheduleReplot();
     }
 
     updateZoomInParentPlot();
@@ -274,7 +275,7 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
     {
         return firstCurve->timeStepsY()[0];
     }
-    return time_t( 0 );
+        return time_t( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +308,7 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod,
-                                                       bool                       showTimeAsLongString ) const
+                                                       bool                              showTimeAsLongString ) const
 {
     std::vector<RimSummaryCurve*> curves;
     this->descendantsIncludingThisOfType( curves );
@@ -1814,7 +1815,7 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
         for ( const auto& axisProperties : m_axisProperties )
         {
             usedPlotAxis.insert( axisProperties->plotAxisType() );
-        }
+    }
 
         plotWidget()->pruneAxes( usedPlotAxis );
     }
@@ -1975,6 +1976,34 @@ int RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* ad
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
+{
+    int newCurves = 0;
+
+    if ( summaryAddr->isEnsemble() )
+    {
+        auto ensemble = RiaSummaryTools::ensembleById( summaryAddr->ensembleId() );
+        if ( ensemble )
+        {
+            addNewEnsembleCurveY( summaryAddr->address(), ensemble );
+            newCurves++;
+        }
+    }
+    else
+    {
+        auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
+        if ( summaryCase )
+        {
+            addNewCurveY( summaryAddr->address(), summaryCase );
+            newCurves++;
+        }
+    }
+    return newCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
     int newCurves = 0;
@@ -1988,26 +2017,10 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
             continue;
         }
 
-        auto summaryAdr = dynamic_cast<RimSummaryAddress*>( obj );
-        if ( summaryAdr )
+        auto summaryAddr = dynamic_cast<RimSummaryAddress*>( obj );
+        if ( summaryAddr )
         {
-            if ( summaryAdr->isEnsemble() )
-            {
-                auto ensemble = RiaSummaryTools::ensembleById( summaryAdr->ensembleId() );
-                if ( ensemble )
-                {
-                    addNewEnsembleCurveY( summaryAdr->address(), ensemble );
-                    newCurves++;
-                }
-                continue;
-            }
-
-            auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
-            if ( summaryCase )
-            {
-                addNewCurveY( summaryAdr->address(), summaryCase );
-                newCurves++;
-            }
+            newCurves += handleSummaryAddressDrop( summaryAddr );
             continue;
         }
 

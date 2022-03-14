@@ -88,6 +88,7 @@ public:
 
     void goToNextPage();
     void goToPrevPage();
+    void goToLastPage();
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
@@ -104,6 +105,9 @@ protected:
 
     QList<QPointer<RiuPlotWidget>> visiblePlotWidgets() const;
 
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
+
 private:
     void                                     deleteAllPages();
     void                                     createPages();
@@ -111,7 +115,7 @@ private:
     RiuMultiPlotPage*                        createPage();
     void                                     applyLook();
 
-    void changeCurrentPage( int pageDiff );
+    void changeCurrentPage( int pageNumber );
 
 private slots:
     virtual void performUpdate();
