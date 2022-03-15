@@ -33,6 +33,7 @@
 #include "RimMimeData.h"
 #include "RimMultiPlot.h"
 #include "RimPlot.h"
+#include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
@@ -57,6 +58,8 @@
 #include "cafSelectionManager.h"
 
 #include <QAbstractItemModel>
+#include <QDropEvent>
+#include <QGraphicsSceneEvent>
 #include <QModelIndex>
 
 //--------------------------------------------------------------------------------------------------
@@ -763,4 +766,61 @@ bool RiuDragDrop::handleSurfaceCollectionDrop( Qt::DropAction        action,
     targetCollection->updateConnectedEditors();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuDragDrop::handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObjectHandle*>& droppedObjects )
+{
+    if ( !event ) return false;
+
+    const MimeDataWithIndexes* mimeData = nullptr;
+    Qt::KeyboardModifiers      keyModifiers;
+
+    if ( event->type() == QEvent::Drop )
+    {
+        // These drop events come from Qwt
+        auto dropEvent = static_cast<QDropEvent*>( event );
+        if ( dropEvent )
+        {
+            mimeData     = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+            keyModifiers = dropEvent->keyboardModifiers();
+
+            dropEvent->acceptProposedAction();
+        }
+    }
+    else if ( event->type() == QEvent::GraphicsSceneDrop )
+    {
+        // These drop events come from QtChart
+        auto dropEvent = static_cast<QGraphicsSceneDragDropEvent*>( event );
+        if ( dropEvent )
+        {
+            mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+
+            dropEvent->acceptProposedAction();
+        }
+    }
+
+    if ( mimeData )
+    {
+        QString mimeType = caf::PdmUiDragDropInterface::mimeTypeForObjectReferenceList();
+
+        auto data = mimeData->data( mimeType );
+
+        QStringList objectReferences;
+        QDataStream in( &data, QIODevice::ReadOnly );
+        in >> objectReferences;
+
+        auto proj = RimProject::current();
+        for ( const auto& objRef : objectReferences )
+        {
+            auto obj = caf::PdmReferenceHelper::objectFromReference( proj, objRef );
+            if ( obj ) droppedObjects.push_back( obj );
+        }
+
+        return true;
+    }
+
+    return false;
 }

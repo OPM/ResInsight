@@ -1964,19 +1964,8 @@ int RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects,
-                                           Qt::KeyboardModifiers                     keyModifiers )
+void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    // default drop action is to create a new plot
-    if ( keyModifiers.testFlag( Qt::KeyboardModifier::NoModifier ) )
-    {
-        createNewPlot.send( objects );
-        return;
-    }
-
-    // if ctrl key is pressed, we add new curves to the existing plot
-    if ( !keyModifiers.testFlag( Qt::KeyboardModifier::ControlModifier ) ) return;
-
     int newCurves = 0;
 
     for ( auto obj : objects )

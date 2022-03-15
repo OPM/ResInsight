@@ -206,8 +206,7 @@ public:
 
     bool isDeletable() const override;
 
-    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects,
-                               Qt::KeyboardModifiers                     keyModifiers ) override;
+    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
 private:
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;

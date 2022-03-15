@@ -24,6 +24,7 @@
 #include "RimContextCommandBuilder.h"
 #include "RimMimeData.h"
 #include "RimMultiPlot.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuDragDrop.h"
@@ -35,6 +36,8 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmObjectGroup.h"
+#include "cafPdmUiTreeOrdering.h"
+#include "cafPdmUiTreeViewQModel.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
@@ -596,9 +599,9 @@ void RiuMultiPlotBook::applyLook()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::changeCurrentPage( int pageDiff )
+void RiuMultiPlotBook::changeCurrentPage( int pageNumber )
 {
-    m_currentPageIndex += pageDiff;
+    m_currentPageIndex = pageNumber;
     if ( m_currentPageIndex >= (int)m_pages.size() ) m_currentPageIndex = (int)m_pages.size() - 1;
     if ( m_currentPageIndex < 0 ) m_currentPageIndex = 0;
     if ( !m_pages.isEmpty() ) m_scrollArea->ensureWidgetVisible( m_pages[m_currentPageIndex] );
@@ -609,7 +612,7 @@ void RiuMultiPlotBook::changeCurrentPage( int pageDiff )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::goToNextPage()
 {
-    changeCurrentPage( 1 );
+    changeCurrentPage( m_currentPageIndex + 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -617,7 +620,15 @@ void RiuMultiPlotBook::goToNextPage()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::goToPrevPage()
 {
-    changeCurrentPage( -1 );
+    changeCurrentPage( m_currentPageIndex - 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::goToLastPage()
+{
+    changeCurrentPage( m_pages.size() - 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -626,7 +637,6 @@ void RiuMultiPlotBook::goToPrevPage()
 void RiuMultiPlotBook::dragEnterEvent( QDragEnterEvent* event )
 {
     event->acceptProposedAction();
-    qDebug() << "Drag enter!";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -634,31 +644,14 @@ void RiuMultiPlotBook::dragEnterEvent( QDragEnterEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::dropEvent( QDropEvent* event )
 {
-    event->acceptProposedAction();
+    std::vector<caf::PdmObjectHandle*> objects;
 
-    const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>( event->mimeData() );
-    if ( myMimeData )
+    if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
     {
-        caf::PdmObjectGroup draggedObjects;
-        QModelIndexList     indexes = myMimeData->indexes();
-
-        for ( int i = 0; i < indexes.size(); i++ )
+        RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
+        if ( multiPlot )
         {
-            QModelIndex modIdx = indexes[i];
-            if (modIdx.isValid())
-            {
-                
-            }
-
-            qDebug() << indexes[i];
-            // caf::PdmUiItem*       uiItem    = uiTreeView->uiItemFromModelIndex( indexes[i] );
-            // caf::PdmObjectHandle* objHandle = dynamic_cast<caf::PdmObjectHandle*>( uiItem );
-            // if ( objHandle )
-            //{
-            //    objectGroup->objects.push_back( objHandle );
-            //}
+            multiPlot->addPlot( objects );
         }
     }
-
-    qDebug() << event->mimeData();
 }

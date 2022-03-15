@@ -88,6 +88,7 @@ public:
 
     void goToNextPage();
     void goToPrevPage();
+    void goToLastPage();
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
@@ -114,7 +115,7 @@ private:
     RiuMultiPlotPage*                        createPage();
     void                                     applyLook();
 
-    void changeCurrentPage( int pageDiff );
+    void changeCurrentPage( int pageNumber );
 
 private slots:
     virtual void performUpdate();

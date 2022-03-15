@@ -244,58 +244,11 @@ bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
         }
     }
 
-    const MimeDataWithIndexes* mimeData = nullptr;
-    Qt::KeyboardModifiers      keyModifiers;
+    std::vector<caf::PdmObjectHandle*> objects;
 
-    if ( event->type() == QEvent::Drop )
+    if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
     {
-        // These drop events come from Qwt
-        auto dropEvent = dynamic_cast<QDropEvent*>( event );
-        if ( dropEvent )
-        {
-            mimeData     = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
-            keyModifiers = dropEvent->keyboardModifiers();
-
-            dropEvent->acceptProposedAction();
-        }
-    }
-
-    if ( event->type() == QEvent::GraphicsSceneDrop )
-    {
-        // These drop events come from QtChart
-        auto dropEvent = dynamic_cast<QGraphicsSceneDragDropEvent*>( event );
-        if ( dropEvent )
-        {
-            mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
-
-            dropEvent->acceptProposedAction();
-        }
-    }
-
-    if ( mimeData )
-    {
-        std::vector<caf::PdmObjectHandle*> objects;
-
-        QString mimeType = caf::PdmUiDragDropInterface::mimeTypeForObjectReferenceList();
-
-        auto data = mimeData->data( mimeType );
-
-        QStringList objectReferences;
-        QDataStream in( &data, QIODevice::ReadOnly );
-        in >> objectReferences;
-
-        auto proj = RimProject::current();
-        for ( const auto& objRef : objectReferences )
-        {
-            auto obj = caf::PdmReferenceHelper::objectFromReference( proj, objRef );
-            if ( obj ) objects.push_back( obj );
-        }
-
-        if ( m_plotDefinition )
-        {
-            m_plotDefinition->handleDroppedObjects( objects, keyModifiers );
-        }
-
+        if ( m_plotDefinition ) m_plotDefinition->handleDroppedObjects( objects );
         return true;
     }
 

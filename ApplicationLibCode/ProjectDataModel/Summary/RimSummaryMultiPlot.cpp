@@ -106,7 +106,7 @@ void RimSummaryMultiPlot::onCreateNewPlot( const SignalEmitter* emitter, const s
 
     addPlot( plot );
 
-    plot->handleDroppedObjects( objects, Qt::KeyboardModifier::ControlModifier );
+    plot->handleDroppedObjects( objects );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,6 +135,19 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
         RimMultiPlot::insertPlot( plot, index );
         sumPlot->createNewPlot.connect( this, &RimSummaryMultiPlot::onCreateNewPlot );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& objects )
+{
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->enableAutoPlotTitle( true );
+
+    addPlot( plot );
+
+    plot->handleDroppedObjects( objects );
 }
 
 //--------------------------------------------------------------------------------------------------

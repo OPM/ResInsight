@@ -63,6 +63,8 @@ public:
 
     void syncAxisRanges();
 
+    void addPlot( const std::vector<caf::PdmObjectHandle*>& objects );
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
