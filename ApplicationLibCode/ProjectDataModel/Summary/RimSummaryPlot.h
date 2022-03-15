@@ -33,7 +33,6 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
-#include "cafSignal.h"
 
 #include <QPointer>
 
@@ -80,8 +79,6 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<const std::vector<caf::PdmObjectHandle*>&> createNewPlot;
-
     RimSummaryPlot( bool isCrossPlot = false );
     ~RimSummaryPlot() override;
 

@@ -96,7 +96,6 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     : RimPlot()
     , m_isCrossPlot( isCrossPlot )
-    , createNewPlot( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 

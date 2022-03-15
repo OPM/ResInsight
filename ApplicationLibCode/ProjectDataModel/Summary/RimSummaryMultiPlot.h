@@ -69,8 +69,6 @@ protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
 
-    void initAfterRead() override;
-
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -84,8 +82,6 @@ private:
     static void insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs );
 
     void updatePlotWindowTitle() override;
-
-    void onCreateNewPlot( const SignalEmitter* emitter, const std::vector<caf::PdmObjectHandle*>& objects );
 
 private:
     caf::PdmField<bool> m_autoPlotTitles;
