@@ -23,8 +23,10 @@
 
 #include "RimContextCommandBuilder.h"
 #include "RimMultiPlot.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimWellLogTrack.h"
 
+#include "RiuDragDrop.h"
 #include "RiuMainWindow.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
@@ -125,6 +127,7 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
     this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
 
     setFocusPolicy( Qt::StrongFocus );
+    setAcceptDrops( true );
 
     QSize pageSize = m_plotDefinition->pageLayout().fullRectPixels( RiaGuiApplication::applicationResolution() ).size();
     applyPagePreviewBookSize( pageSize.width() );
@@ -590,9 +593,9 @@ void RiuMultiPlotBook::applyLook()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::changeCurrentPage( int pageDiff )
+void RiuMultiPlotBook::changeCurrentPage( int pageNumber )
 {
-    m_currentPageIndex += pageDiff;
+    m_currentPageIndex = pageNumber;
     if ( m_currentPageIndex >= (int)m_pages.size() ) m_currentPageIndex = (int)m_pages.size() - 1;
     if ( m_currentPageIndex < 0 ) m_currentPageIndex = 0;
     if ( !m_pages.isEmpty() ) m_scrollArea->ensureWidgetVisible( m_pages[m_currentPageIndex] );
@@ -603,7 +606,7 @@ void RiuMultiPlotBook::changeCurrentPage( int pageDiff )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::goToNextPage()
 {
-    changeCurrentPage( 1 );
+    changeCurrentPage( m_currentPageIndex + 1 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -611,5 +614,38 @@ void RiuMultiPlotBook::goToNextPage()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::goToPrevPage()
 {
-    changeCurrentPage( -1 );
+    changeCurrentPage( m_currentPageIndex - 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::goToLastPage()
+{
+    changeCurrentPage( m_pages.size() - 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::dragEnterEvent( QDragEnterEvent* event )
+{
+    event->acceptProposedAction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::dropEvent( QDropEvent* event )
+{
+    std::vector<caf::PdmObjectHandle*> objects;
+
+    if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
+    {
+        RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
+        if ( multiPlot )
+        {
+            multiPlot->addPlot( objects );
+        }
+    }
 }

@@ -24,6 +24,7 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
+#include "cafSignal.h"
 
 #include <vector>
 
@@ -56,10 +57,13 @@ public:
 
     void addPlot( RimPlot* plot ) override;
     void insertPlot( RimPlot* plot, size_t index ) override;
+    void removePlot( RimPlot* plot ) override;
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
     void syncAxisRanges();
+
+    void addPlot( const std::vector<caf::PdmObjectHandle*>& objects );
 
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;

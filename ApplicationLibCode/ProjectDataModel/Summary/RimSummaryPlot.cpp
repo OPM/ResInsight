@@ -94,7 +94,8 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
-    : m_isCrossPlot( isCrossPlot )
+    : RimPlot()
+    , m_isCrossPlot( isCrossPlot )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -1975,6 +1976,34 @@ int RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* ad
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
+{
+    int newCurves = 0;
+
+    if ( summaryAddr->isEnsemble() )
+    {
+        auto ensemble = RiaSummaryTools::ensembleById( summaryAddr->ensembleId() );
+        if ( ensemble )
+        {
+            addNewEnsembleCurveY( summaryAddr->address(), ensemble );
+            newCurves++;
+        }
+    }
+    else
+    {
+        auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
+        if ( summaryCase )
+        {
+            addNewCurveY( summaryAddr->address(), summaryCase );
+            newCurves++;
+        }
+    }
+    return newCurves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
     int newCurves = 0;
@@ -1988,26 +2017,10 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
             continue;
         }
 
-        auto summaryAdr = dynamic_cast<RimSummaryAddress*>( obj );
-        if ( summaryAdr )
+        auto summaryAddr = dynamic_cast<RimSummaryAddress*>( obj );
+        if ( summaryAddr )
         {
-            if ( summaryAdr->isEnsemble() )
-            {
-                auto ensemble = RiaSummaryTools::ensembleById( summaryAdr->ensembleId() );
-                if ( ensemble )
-                {
-                    addNewEnsembleCurveY( summaryAdr->address(), ensemble );
-                    newCurves++;
-                }
-                continue;
-            }
-
-            auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdr->caseId() );
-            if ( summaryCase )
-            {
-                addNewCurveY( summaryAdr->address(), summaryCase );
-                newCurves++;
-            }
+            newCurves += handleSummaryAddressDrop( summaryAddr );
             continue;
         }
 

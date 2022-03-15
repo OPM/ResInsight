@@ -100,6 +100,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
     setFocusPolicy( Qt::StrongFocus );
+    setAcceptDrops( true );
 
     this->setObjectName( QString( "%1" ).arg( reinterpret_cast<uint64_t>( this ) ) );
 

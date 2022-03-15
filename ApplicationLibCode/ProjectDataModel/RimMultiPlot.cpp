@@ -263,30 +263,6 @@ void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, in
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::insertPlots( const std::vector<RimPlot*>& plots )
-{
-    for ( auto plot : plots )
-    {
-        if ( plot )
-        {
-            setTickmarkCount( plot, m_majorTickmarkCount() );
-            m_plots.insert( -1, plot );
-
-            if ( m_viewer )
-            {
-                plot->createPlotWidget();
-                m_viewer->insertPlot( plot->plotWidget(), -1 );
-            }
-            plot->setShowWindow( true );
-            plot->updateAfterInsertingIntoMultiPlot();
-        }
-    }
-    onPlotAdditionOrRemoval();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimMultiPlot::deleteAllPlots()
 {
     for ( auto plot : m_plots() )

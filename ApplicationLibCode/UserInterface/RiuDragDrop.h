@@ -40,6 +40,7 @@ class RimSurfaceCollection;
 class RimWellLogPlot;
 class RimWellLogTrack;
 class RimWellLogCurve;
+class QEvent;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -52,6 +53,8 @@ public:
 
     static std::vector<caf::PdmObjectHandle*> draggedObjectsFromTreeView( caf::PdmUiTreeView* dragSource,
                                                                           const QMimeData*    data );
+
+    static bool handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObjectHandle*>& droppedObjects );
 
 protected:
     Qt::DropActions supportedDropActions() const override;
