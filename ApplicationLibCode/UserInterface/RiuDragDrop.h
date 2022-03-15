@@ -40,7 +40,7 @@ class RimSurfaceCollection;
 class RimWellLogPlot;
 class RimWellLogTrack;
 class RimWellLogCurve;
-class QDropEvent;
+class QEvent;
 
 //--------------------------------------------------------------------------------------------------
 ///

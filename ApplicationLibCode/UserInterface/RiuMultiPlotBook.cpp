@@ -22,7 +22,6 @@
 #include "RiaPreferences.h"
 
 #include "RimContextCommandBuilder.h"
-#include "RimMimeData.h"
 #include "RimMultiPlot.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimWellLogTrack.h"
@@ -35,19 +34,16 @@
 #include "RiuPlotWidget.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
-#include "cafPdmObjectGroup.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
 
-#include <QAbstractItemModel>
 #include <QDebug>
 #include <QFocusEvent>
 #include <QFontMetrics>
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
 #include <QMenu>
-#include <QModelIndex>
 #include <QPagedPaintDevice>
 #include <QScrollArea>
 #include <QScrollBar>
