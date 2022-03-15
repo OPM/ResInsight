@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Once every night
-    - cron: '0 1 * * * '
+    - cron: "0 1 * * * "
 env:
   NINJA_VERSION: 1.9.0
   BUILD_TYPE: Release
@@ -18,14 +18,15 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
-            name: "Ubuntu 20.04",
-            os: ubuntu-20.04,
-            cc: "gcc", cxx: "g++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
-            vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
-          }
+          - {
+              name: "Ubuntu 20.04",
+              os: ubuntu-20.04,
+              cc: "gcc",
+              cxx: "g++",
+              vcpkg-response-file: vcpkg_x64-linux.txt,
+              vcpkg-triplet: x64-linux,
+              cmake-toolchain: "ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake",
+            }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -34,7 +35,7 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v2
         with:
-          python-version: '3.8'
+          python-version: "3.8"
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
       - name: Download Ninja
@@ -61,7 +62,7 @@ jobs:
               COMMAND chmod +x buildcache/bin/buildcache
             )
           endif()
-          
+
       - name: Prepare cache timestamp
         id: cache_timestamp_string
         shell: cmake -P {0}
@@ -75,24 +76,24 @@ jobs:
           path: ${{ env.BUILDCACHE_DIR }}
           key: ${{ matrix.config.name }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
       - name: Create Folder for buildcache
-        run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force 
+        run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force
         shell: pwsh
       - name: Add buildcache to system path
         run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
-        
-      - name: Cache Qt        
+
+      - name: Cache Qt
         id: cache-qt
         uses: actions/cache@v2
         with:
           path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-v03
+          key: ${{ matrix.config.os }}-QtCache-5-12-12
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
-          version: 5.9.9
+          version: 5.12.12
           modules: qtscript qtcharts
-          dir: '${{ github.workspace }}/Qt/'
+          dir: "${{ github.workspace }}/Qt/"
           cached: ${{ steps.cache-qt.outputs.cache-hit }}
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
@@ -111,9 +112,10 @@ jobs:
         uses: lukka/run-vcpkg@v5
         id: runvcpkg
         with:
-          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
-          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
-           # Ensure the cache key changes any time the content of the response file changes.
+          vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
+          vcpkgDirectory:
+            "${{ github.workspace }}/ThirdParty/vcpkg"
+            # Ensure the cache key changes any time the content of the response file changes.
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}
 
       - name: Configure
@@ -138,7 +140,7 @@ jobs:
             set(path_separator ";")
           endif()
           set(ENV{PATH} "$ENV{GITHUB_WORKSPACE}${path_separator}$ENV{PATH}")
-          
+
           execute_process(
             COMMAND cmake
               -S .
