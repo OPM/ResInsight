@@ -222,7 +222,7 @@ void RimSummaryPlot::updateAxes()
     if ( plotWidget() )
     {
         plotWidget()->updateAxes();
-    plotWidget()->scheduleReplot();
+        plotWidget()->scheduleReplot();
     }
 
     updateZoomInParentPlot();
@@ -276,7 +276,7 @@ time_t RimSummaryPlot::firstTimeStepOfFirstCurve()
     {
         return firstCurve->timeStepsY()[0];
     }
-        return time_t( 0 );
+    return time_t( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,7 +309,7 @@ QString RimSummaryPlot::asciiDataForPlotExport() const
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod resamplingPeriod,
-                                                       bool                              showTimeAsLongString ) const
+                                                       bool                       showTimeAsLongString ) const
 {
     std::vector<RimSummaryCurve*> curves;
     this->descendantsIncludingThisOfType( curves );
@@ -1816,7 +1816,7 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
         for ( const auto& axisProperties : m_axisProperties )
         {
             usedPlotAxis.insert( axisProperties->plotAxisType() );
-    }
+        }
 
         plotWidget()->pruneAxes( usedPlotAxis );
     }
