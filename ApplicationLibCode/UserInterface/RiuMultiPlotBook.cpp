@@ -36,8 +36,6 @@
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmObjectGroup.h"
-#include "cafPdmUiTreeOrdering.h"
-#include "cafPdmUiTreeViewQModel.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
