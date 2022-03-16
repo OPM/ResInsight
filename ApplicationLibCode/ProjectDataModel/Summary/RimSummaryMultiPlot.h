@@ -42,6 +42,9 @@ class RimSummaryMultiPlot : public RimMultiPlot, public RimSummaryDataSourceStep
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<RimSummaryMultiPlot*> duplicatePlot;
+
+public:
     RimSummaryMultiPlot();
     ~RimSummaryMultiPlot() override;
 
@@ -83,11 +86,14 @@ private:
 
     void updatePlotWindowTitle() override;
 
+    void duplicate();
+
 private:
     caf::PdmField<bool> m_autoPlotTitles;
     caf::PdmField<bool> m_autoPlotTitlesOnSubPlots;
     caf::PdmField<bool> m_syncAxisRanges;
     caf::PdmField<bool> m_disableWheelZoom;
+    caf::PdmField<bool> m_createPlotDuplicate;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 

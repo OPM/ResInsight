@@ -44,6 +44,11 @@ public:
 
     void addMultiSummaryPlot( RimSummaryMultiPlot* plot );
 
+protected:
+    void onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate );
+
+    void initAfterRead() override;
+
 private:
     caf::PdmChildArrayField<RimSummaryMultiPlot*> m_summaryMultiPlots;
 };

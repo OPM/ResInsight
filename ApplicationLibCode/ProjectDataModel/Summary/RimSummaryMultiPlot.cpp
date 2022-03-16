@@ -32,6 +32,7 @@
 #include "RimSummaryPlotControls.h"
 
 #include "RimMultiPlot.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
@@ -50,6 +51,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::RimSummaryMultiPlot()
+    : duplicatePlot( this )
 {
     CAF_PDM_InitObject( "Multi Summary Plot" );
     this->setDeletable( true );
@@ -61,6 +63,11 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_syncAxisRanges.xmlCapability()->disableIO();
     m_syncAxisRanges.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_syncAxisRanges.uiCapability()->setUiIconFromResourceString( ":/AxesSync16x16.png" );
+
+    CAF_PDM_InitField( &m_createPlotDuplicate, "DuplicatePlot", false, "", "", "Duplicate Plot" );
+    m_createPlotDuplicate.xmlCapability()->disableIO();
+    m_createPlotDuplicate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_createPlotDuplicate.uiCapability()->setUiIconFromResourceString( ":/Copy.svg" );
 
     CAF_PDM_InitField( &m_disableWheelZoom, "DisableWheelZoom", true, "", "", "Disable Mouse Wheel Zooming in Multi Summary Plot" );
     m_disableWheelZoom.xmlCapability()->disableIO();
@@ -116,12 +123,18 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    RimSummaryPlot* plot = new RimSummaryPlot();
-    plot->enableAutoPlotTitle( true );
+    if ( objects.empty() ) return;
 
-    addPlot( plot );
+    RimSummaryAddress* addr = dynamic_cast<RimSummaryAddress*>( objects[0] );
+    if ( addr )
+    {
+        RimSummaryPlot* plot = new RimSummaryPlot();
+        plot->enableAutoPlotTitle( true );
 
-    plot->handleDroppedObjects( objects );
+        addPlot( plot );
+
+        plot->handleDroppedObjects( objects );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -271,6 +284,11 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         syncAxisRanges();
         m_syncAxisRanges = false;
+    }
+    else if ( changedField == &m_createPlotDuplicate )
+    {
+        duplicate();
+        m_createPlotDuplicate = false;
     }
     else
     {
@@ -429,6 +447,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 
     toolBarFields.push_back( &m_disableWheelZoom );
     toolBarFields.push_back( &m_syncAxisRanges );
+    toolBarFields.push_back( &m_createPlotDuplicate );
 
     auto& sourceObject = m_sourceStepping();
     if ( sourceObject )
@@ -532,4 +551,12 @@ void RimSummaryMultiPlot::syncAxisRanges()
 
         plot->updateAxes();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::duplicate()
+{
+    duplicatePlot.send( this );
 }
