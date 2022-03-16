@@ -352,8 +352,13 @@ void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
 {
-    painter->fillRect( painter->viewport(), Qt::white );
-    m_plotTitle->render( painter );
+    // Use null region to paint the full widget region
+    QRegion nullRegion;
+    // Avoid drawing window background
+    QWidget::RenderFlags renderFlags = RenderFlags( DrawChildren );
+
+    QPoint offset;
+    m_plotTitle->render( painter, offset, nullRegion, renderFlags );
 
     // Subtract margins because we are rendering into part inside the margins
     QPoint marginOffset( m_layout->contentsMargins().left(), m_layout->contentsMargins().top() );
@@ -363,7 +368,7 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
         if ( subTitle->isVisible() )
         {
             QPoint renderOffset = m_plotWidgetFrame->mapToParent( subTitle->frameGeometry().topLeft() ) - marginOffset;
-            subTitle->render( painter, renderOffset );
+            subTitle->render( painter, renderOffset, nullRegion, renderFlags );
         }
     }
 
@@ -372,7 +377,7 @@ void RiuMultiPlotPage::renderTo( QPainter* painter, double scalingFactor )
         if ( legend )
         {
             QPoint renderOffset = m_plotWidgetFrame->mapToParent( legend->frameGeometry().topLeft() ) - marginOffset;
-            legend->render( painter, renderOffset );
+            legend->render( painter, renderOffset, nullRegion, renderFlags );
         }
     }
 
