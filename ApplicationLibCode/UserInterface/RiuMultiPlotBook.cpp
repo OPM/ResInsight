@@ -32,6 +32,7 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotObjectPicker.h"
 #include "RiuPlotWidget.h"
+#include "RiuSummaryMultiPlotPage.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafSelectionManager.h"
@@ -550,7 +551,18 @@ const QList<QPointer<RiuMultiPlotPage>>& RiuMultiPlotBook::pages() const
 //--------------------------------------------------------------------------------------------------
 RiuMultiPlotPage* RiuMultiPlotBook::createPage()
 {
-    RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
+    RiuMultiPlotPage* page;
+
+    RimSummaryMultiPlot* sumMultPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
+
+    if ( sumMultPlot )
+    {
+        page = new RiuSummaryMultiPlotPage( sumMultPlot, this );
+    }
+    else
+    {
+        page = new RiuMultiPlotPage( m_plotDefinition, this );
+    }
 
     // Reapply plot settings
     page->setPlotTitle( m_plotTitle );

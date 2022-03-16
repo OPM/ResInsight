@@ -597,17 +597,17 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 
     if ( !plotWidgets.empty() )
     {
-        auto rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
+        auto [rowCount, columnCount] = this->rowAndColumnCount( plotWidgets.size() );
 
         int row    = 0;
         int column = 0;
         for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
         {
             int expectedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
-            int colSpan         = std::min( expectedColSpan, rowAndColumnCount.second );
+            int colSpan         = std::min( expectedColSpan, columnCount );
             int rowSpan         = plotWidgets[visibleIndex]->rowSpan();
 
-            std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
+            std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, columnCount );
 
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
             if ( legends[visibleIndex] )

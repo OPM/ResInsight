@@ -112,8 +112,9 @@ protected:
 
     virtual bool showYAxis( int row, int column ) const;
 
-    void reinsertPlotWidgets();
-    int  alignCanvasTops();
+    virtual void reinsertPlotWidgets();
+
+    int alignCanvasTops();
 
     void clearGridLayout();
 
@@ -124,6 +125,7 @@ protected:
     std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
 
     void applyLook();
+
 private slots:
     virtual void performUpdate();
     void         onLegendUpdated();
