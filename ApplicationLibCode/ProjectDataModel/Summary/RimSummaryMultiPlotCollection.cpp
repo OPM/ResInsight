@@ -20,6 +20,8 @@
 #include "RimProject.h"
 #include "RimSummaryMultiPlot.h"
 
+#include "RiuPlotMainWindowTools.h"
+
 #include "cafPdmFieldReorderCapability.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryMultiPlotCollection, "RimSummaryMultiPlotCollection" );
@@ -46,6 +48,17 @@ RimSummaryMultiPlotCollection::~RimSummaryMultiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::initAfterRead()
+{
+    for ( auto& plot : m_summaryMultiPlots )
+    {
+        plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlotCollection::deleteAllPlots()
 {
     m_summaryMultiPlots.deleteAllChildObjects();
@@ -65,6 +78,7 @@ std::vector<RimSummaryMultiPlot*> RimSummaryMultiPlotCollection::multiPlots() co
 void RimSummaryMultiPlotCollection::addMultiSummaryPlot( RimSummaryMultiPlot* plot )
 {
     m_summaryMultiPlots().push_back( plot );
+    plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,4 +96,26 @@ void RimSummaryMultiPlotCollection::loadDataAndUpdateAllPlots()
 size_t RimSummaryMultiPlotCollection::plotCount() const
 {
     return m_summaryMultiPlots.size();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate )
+{
+    if ( !plotToDuplicate ) return;
+
+    auto plotCopy = dynamic_cast<RimSummaryMultiPlot*>(
+        plotToDuplicate->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+    addMultiSummaryPlot( plotCopy );
+
+    plotCopy->resolveReferencesRecursively();
+    plotCopy->initAfterReadRecursively();
+    plotCopy->updateAllRequiredEditors();
+    plotCopy->loadDataAndUpdate();
+
+    updateConnectedEditors();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( plotCopy, true );
 }
