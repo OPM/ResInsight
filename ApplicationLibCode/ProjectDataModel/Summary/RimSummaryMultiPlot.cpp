@@ -282,13 +282,13 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_syncAxisRanges )
     {
-        syncAxisRanges();
         m_syncAxisRanges = false;
+        syncAxisRanges();
     }
     else if ( changedField == &m_createPlotDuplicate )
     {
-        duplicate();
         m_createPlotDuplicate = false;
+        duplicate();
     }
     else
     {
