@@ -223,7 +223,6 @@ std::vector<double> RimEclipseContourMapProjection::generateResults( int timeSte
             {
                 if ( cellColors->hasStaticResult() && timeStep > 0 ) timeStep = 0;
 
-
                 m_currentResultName = cellColors->resultVariable();
                 RigEclipseResultAddress resAddr( cellColors->resultType(),
                                                  cellColors->resultVariable(),
