@@ -56,6 +56,7 @@
 #include <QHBoxLayout>
 #include <QMdiSubWindow>
 #include <QMenu>
+#include <QPainter>
 #include <QScrollBar>
 #include <QTimer>
 

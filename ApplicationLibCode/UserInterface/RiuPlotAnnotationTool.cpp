@@ -25,6 +25,7 @@
 
 #include "qwt_plot.h"
 #include "qwt_plot_zoneitem.h"
+#include "qwt_text.h"
 
 #include <QString>
 

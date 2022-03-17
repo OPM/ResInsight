@@ -25,6 +25,7 @@
 #include <memory>
 #include <vector>
 
+#include <QColor>
 #include <QPointer>
 
 class QString;

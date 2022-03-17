@@ -107,7 +107,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 
     // Attach a zoomer for the right axis
     m_zoomerRight = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
-    m_zoomerRight->setAxis( QwtPlot::xTop, QwtPlot::yRight );
+    m_zoomerRight->setAxes( QwtPlot::xTop, QwtPlot::yRight );
     m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerRight->initMousePattern( 1 );
 

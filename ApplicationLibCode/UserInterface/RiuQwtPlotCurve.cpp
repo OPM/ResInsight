@@ -27,6 +27,7 @@
 #include "RiuQwtSymbol.h"
 
 #include "qwt_date.h"
+#include "qwt_graphic.h"
 #include "qwt_interval_symbol.h"
 #include "qwt_painter.h"
 #include "qwt_plot_curve.h"

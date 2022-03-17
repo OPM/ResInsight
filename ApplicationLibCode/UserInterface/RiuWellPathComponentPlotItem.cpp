@@ -38,6 +38,7 @@
 #include "qwt_plot.h"
 #include "qwt_plot_marker.h"
 #include "qwt_plot_shapeitem.h"
+#include "qwt_text.h"
 
 #include <QBrush>
 #include <Qt>

@@ -41,6 +41,7 @@
 #include "qwt_legend.h"
 #include "qwt_plot.h"
 #include "qwt_plot_zoomer.h"
+#include "qwt_text.h"
 
 #include <QBoxLayout>
 #include <QContextMenuEvent>

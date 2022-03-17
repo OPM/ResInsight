@@ -26,6 +26,7 @@
 #include "RiaOffshoreSphericalCoords.h"
 
 #include "qwt_curve_fitter.h"
+#include "qwt_spline_curve_fitter.h"
 
 #include <algorithm>
 #include <cmath>

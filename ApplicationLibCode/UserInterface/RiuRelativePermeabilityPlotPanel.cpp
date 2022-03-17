@@ -41,6 +41,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_marker.h"
 #include "qwt_scale_engine.h"
+#include "qwt_text.h"
 
 #include <QButtonGroup>
 #include <QCheckBox>
