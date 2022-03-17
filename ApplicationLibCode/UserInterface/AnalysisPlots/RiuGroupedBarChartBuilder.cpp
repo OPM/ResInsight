@@ -38,6 +38,7 @@
 #include <QColor>
 #include <QPainter>
 
+#include <cmath>
 #include <limits>
 #include <map>
 
