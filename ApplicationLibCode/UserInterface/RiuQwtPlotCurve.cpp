@@ -36,6 +36,7 @@
 #include "qwt_scale_map.h"
 #include "qwt_symbol.h"
 
+#include <cmath>
 #include <limits>
 
 //--------------------------------------------------------------------------------------------------
