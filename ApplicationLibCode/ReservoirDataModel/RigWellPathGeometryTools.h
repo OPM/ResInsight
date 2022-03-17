@@ -20,12 +20,10 @@
 
 #include "cvfVector3.h"
 
-#include <qwt_curve_fitter.h>
-#include <qwt_spline.h>
-
-#include <vector>
+#include <QPolygon>
 
 #include <gsl/gsl>
+#include <vector>
 
 class RigWellPath;
 
@@ -56,10 +54,14 @@ private:
                                                                 const std::vector<cvf::Vec3d>& vertices );
     static cvf::Vec3d              estimateDominantDirectionInXYPlane( const std::vector<cvf::Vec3d>& vertices );
 
-    static double solveForX( const QwtSpline& spline, double minX, double maxX, double y );
+    static double solveForX( const QPolygonF& spline, double minX, double maxX, double y );
 
-    static QwtSpline        createSpline( const std::vector<double>& originalMdValues,
-                                          const std::vector<double>& originalTvdValues );
-    static std::vector<int> findSplineSegmentsContainingRoots( const QwtSpline&           spline,
+    static QPolygonF createSplinePoints( const std::vector<double>& originalMdValues,
+                                         const std::vector<double>& originalTvdValues );
+
+    static std::vector<int> findSplineSegmentsContainingRoots( const QPolygonF&           points,
                                                                const std::vector<double>& tvdValuesToInterpolateFrom );
+
+    // Temporary helper function to method removed from Qwt >= 6.2
+    static int lookup( double x, const QPolygonF& values );
 };

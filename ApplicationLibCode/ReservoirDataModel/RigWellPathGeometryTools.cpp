@@ -24,8 +24,42 @@
 #include "cvfMatrix3.h"
 
 #include "RiaOffshoreSphericalCoords.h"
+
+#include "qwt_curve_fitter.h"
+
 #include <algorithm>
 #include <cmath>
+
+int RigWellPathGeometryTools::lookup( double x, const QPolygonF& values )
+{
+#if 0
+	//qLowerBound/qHigherBound ???
+#endif
+    int       i1;
+    const int size = values.size();
+
+    if ( x <= values[0].x() )
+        i1 = 0;
+    else if ( x >= values[size - 2].x() )
+        i1 = size - 2;
+    else
+    {
+        i1     = 0;
+        int i2 = size - 2;
+        int i3 = 0;
+
+        while ( i2 - i1 > 1 )
+        {
+            i3 = i1 + ( ( i2 - i1 ) >> 1 );
+
+            if ( values[i3].x() > x )
+                i2 = i3;
+            else
+                i1 = i3;
+        }
+    }
+    return i1;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -97,24 +131,24 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd( const std::v
     std::vector<double> interpolatedMdValues;
     interpolatedMdValues.reserve( tvdValuesToInterpolateFrom.size() );
 
-    QwtSpline        spline              = createSpline( originalMdValues, originalTvdValues );
-    std::vector<int> segmentStartIndices = findSplineSegmentsContainingRoots( spline, tvdValuesToInterpolateFrom );
+    auto             splinePoints        = createSplinePoints( originalMdValues, originalTvdValues );
+    std::vector<int> segmentStartIndices = findSplineSegmentsContainingRoots( splinePoints, tvdValuesToInterpolateFrom );
 
     for ( size_t i = 0; i < segmentStartIndices.size(); ++i )
     {
         double currentTVDValue = tvdValuesToInterpolateFrom[i];
-        double startMD         = spline.points().front().x();
-        double endMD           = spline.points().back().y();
+        double startMD         = splinePoints.front().x();
+        double endMD           = splinePoints.back().y();
         if ( segmentStartIndices[i] != -1 )
         {
             int startIndex = segmentStartIndices[i];
             int endIndex   = startIndex + 1;
 
             // Search interval for best MD value
-            startMD = spline.points()[startIndex].x();
-            endMD   = spline.points().back().y();
+            startMD = splinePoints[startIndex].x();
+            endMD   = splinePoints.back().y();
 
-            if ( endIndex < spline.points().size() )
+            if ( endIndex < splinePoints.size() )
             {
                 if ( !interpolatedMdValues.empty() )
                 {
@@ -125,10 +159,10 @@ std::vector<double> RigWellPathGeometryTools::interpolateMdFromTvd( const std::v
                     }
                     startMD = std::max( startMD, interpolatedMdValues.back() + 0.1 * mdDiff );
                 }
-                endMD = spline.points()[endIndex].x();
+                endMD = splinePoints[endIndex].x();
             }
         }
-        double mdValue = solveForX( spline, startMD, endMD, currentTVDValue );
+        double mdValue = solveForX( splinePoints, startMD, endMD, currentTVDValue );
         interpolatedMdValues.push_back( mdValue );
     }
     return interpolatedMdValues;
@@ -193,7 +227,7 @@ std::pair<double, double>
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<int>
-    RigWellPathGeometryTools::findSplineSegmentsContainingRoots( const QwtSpline&           spline,
+    RigWellPathGeometryTools::findSplineSegmentsContainingRoots( const QPolygonF&           points,
                                                                  const std::vector<double>& tvdValuesToInterpolateFrom )
 {
     std::vector<int> segmentStartIndices;
@@ -206,9 +240,9 @@ std::vector<int>
 
         bool foundMatch = false;
         // Increment current_it until we find an interval containing our TVD
-        while ( currentSplineStartIndex < spline.points().size() - 2 )
+        while ( currentSplineStartIndex < points.size() - 2 )
         {
-            double diffCurrent = spline.points()[currentSplineStartIndex].y() - tvdValue;
+            double diffCurrent = points[currentSplineStartIndex].y() - tvdValue;
             if ( std::abs( diffCurrent ) < 1.0e-8 ) // Current is matching the point
             {
                 foundMatch = true;
@@ -217,7 +251,7 @@ std::vector<int>
 
             int nextStartIndex = currentSplineStartIndex + 1;
 
-            double diffNext = spline.points()[nextStartIndex].y() - tvdValue;
+            double diffNext = points[nextStartIndex].y() - tvdValue;
             if ( diffCurrent * diffNext < 0.0 ) // One is above, the other is below
             {
                 foundMatch = true;
@@ -325,7 +359,7 @@ cvf::Vec3d RigWellPathGeometryTools::estimateDominantDirectionInXYPlane( const s
 //--------------------------------------------------------------------------------------------------
 /// Golden-section minimization: https://en.wikipedia.org/wiki/Golden-section_search
 //--------------------------------------------------------------------------------------------------
-double RigWellPathGeometryTools::solveForX( const QwtSpline& spline, double minX, double maxX, double y )
+double RigWellPathGeometryTools::solveForX( const QPolygonF& spline, double minX, double maxX, double y )
 {
     const double phi = ( 1.0 + std::sqrt( 5.0 ) ) / 2.0;
     const double tol = 1.0e-8;
@@ -334,8 +368,11 @@ double RigWellPathGeometryTools::solveForX( const QwtSpline& spline, double minX
     double c = b - ( b - a ) / phi;
     double d = a + ( b - a ) / phi;
 
-    double fc = spline.value( c ) - y;
-    double fd = spline.value( d ) - y;
+    double fc = lookup( c, spline ) - y;
+    double fd = lookup( d, spline ) - y;
+
+    double tmp_c = 0.0;
+    double tmp_d = 0.0;
 
     for ( int n = 0; n < 100; ++n )
     {
@@ -350,7 +387,8 @@ double RigWellPathGeometryTools::solveForX( const QwtSpline& spline, double minX
             d  = c;
             fd = fc;
             c  = b - ( b - a ) / phi;
-            fc = spline.value( c ) - y;
+
+            fc = lookup( c, spline ) - y;
         }
         else
         {
@@ -358,7 +396,7 @@ double RigWellPathGeometryTools::solveForX( const QwtSpline& spline, double minX
             c  = d;
             fc = fd;
             d  = a + ( b - a ) / phi;
-            fd = spline.value( d ) - y;
+            fd = lookup( d, spline ) - y;
         }
     }
     return ( a + b ) / 2.0;
@@ -367,8 +405,8 @@ double RigWellPathGeometryTools::solveForX( const QwtSpline& spline, double minX
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtSpline RigWellPathGeometryTools::createSpline( const std::vector<double>& originalMdValues,
-                                                  const std::vector<double>& originalTvdValues )
+QPolygonF RigWellPathGeometryTools::createSplinePoints( const std::vector<double>& originalMdValues,
+                                                        const std::vector<double>& originalTvdValues )
 {
     QPolygonF polygon;
     for ( size_t i = 0; i < originalMdValues.size(); ++i )
@@ -405,8 +443,5 @@ QwtSpline RigWellPathGeometryTools::createSpline( const std::vector<double>& ori
         splinePoints.push_back( endPoint );
     }
 
-    QwtSpline spline;
-    spline.setPoints( splinePoints );
-
-    return spline;
+    return splinePoints;
 }
