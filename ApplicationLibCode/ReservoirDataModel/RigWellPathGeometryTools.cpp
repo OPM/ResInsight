@@ -372,9 +372,6 @@ double RigWellPathGeometryTools::solveForX( const QPolygonF& spline, double minX
     double fc = lookup( c, spline ) - y;
     double fd = lookup( d, spline ) - y;
 
-    double tmp_c = 0.0;
-    double tmp_d = 0.0;
-
     for ( int n = 0; n < 100; ++n )
     {
         if ( std::fabs( c - d ) < tol )
