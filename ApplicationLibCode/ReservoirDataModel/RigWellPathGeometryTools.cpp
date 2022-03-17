@@ -26,6 +26,7 @@
 #include "RiaOffshoreSphericalCoords.h"
 
 #include "qwt_curve_fitter.h"
+#include "qwt_spline.h"
 #include "qwt_spline_curve_fitter.h"
 
 #include <algorithm>
@@ -60,6 +61,25 @@ int RigWellPathGeometryTools::lookup( double x, const QPolygonF& values )
         }
     }
     return i1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigWellPathGeometryTools::value( double x, const QPolygonF& values )
+{
+    if ( values.size() == 0 ) return 0.0;
+
+    const int i = lookup( x, values );
+
+    if ( i >= values.size() - 1 ) return values.back().y();
+
+    auto low  = values[i];
+    auto high = values[i + 1];
+
+    auto delta = ( x - low.x() ) / ( high.x() - low.x() );
+
+    return ( 1 - delta ) * low.y() + delta * high.y();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -369,8 +389,8 @@ double RigWellPathGeometryTools::solveForX( const QPolygonF& spline, double minX
     double c = b - ( b - a ) / phi;
     double d = a + ( b - a ) / phi;
 
-    double fc = lookup( c, spline ) - y;
-    double fd = lookup( d, spline ) - y;
+    double fc = value( c, spline ) - y;
+    double fd = value( d, spline ) - y;
 
     for ( int n = 0; n < 100; ++n )
     {
@@ -386,7 +406,7 @@ double RigWellPathGeometryTools::solveForX( const QPolygonF& spline, double minX
             fd = fc;
             c  = b - ( b - a ) / phi;
 
-            fc = lookup( c, spline ) - y;
+            fc = value( c, spline ) - y;
         }
         else
         {
@@ -394,7 +414,7 @@ double RigWellPathGeometryTools::solveForX( const QPolygonF& spline, double minX
             c  = d;
             fc = fd;
             d  = a + ( b - a ) / phi;
-            fd = lookup( d, spline ) - y;
+            fd = value( d, spline ) - y;
         }
     }
     return ( a + b ) / 2.0;
@@ -412,7 +432,9 @@ QPolygonF RigWellPathGeometryTools::createSplinePoints( const std::vector<double
         polygon << QPointF( originalMdValues[i], originalTvdValues[i] );
     }
     QwtSplineCurveFitter curveFitter;
-    QPolygonF            splinePoints = curveFitter.fitCurve( polygon );
+    double               tolerance    = 0.5;
+    auto                 splinePoints = curveFitter.spline()->polygon( polygon, tolerance );
+    if ( splinePoints.empty() ) splinePoints = polygon;
 
     // Extend spline from 0.0 (if it does not already exist) to a large value for MD
     // This is to force a specific and known extrapolation.

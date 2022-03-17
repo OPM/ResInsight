@@ -63,5 +63,6 @@ private:
                                                                const std::vector<double>& tvdValuesToInterpolateFrom );
 
     // Temporary helper function to method removed from Qwt >= 6.2
-    static int lookup( double x, const QPolygonF& values );
+    static int    lookup( double x, const QPolygonF& values );
+    static double value( double x, const QPolygonF& values );
 };
