@@ -19,6 +19,8 @@
 #include "RiuQwtDateScaleWrapper.h"
 #include "RiuQwtPlotTools.h"
 
+#include "qwt_text.h"
+
 #include <set>
 
 //--------------------------------------------------------------------------------------------------

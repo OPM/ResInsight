@@ -6,6 +6,7 @@
 #include <QMouseEvent>
 
 #include <qwt_plot.h>
+#include <qwt_scale_map.h>
 #include <qwt_scale_widget.h>
 
 //--------------------------------------------------------------------------------------------------
