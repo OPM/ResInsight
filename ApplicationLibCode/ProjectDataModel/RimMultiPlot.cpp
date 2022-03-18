@@ -46,7 +46,6 @@ void RimMultiPlot::ColumnCountEnum::setUp()
     addItem( RimMultiPlot::ColumnCount::COLUMNS_2, "2", "2 Columns" );
     addItem( RimMultiPlot::ColumnCount::COLUMNS_3, "3", "3 Columns" );
     addItem( RimMultiPlot::ColumnCount::COLUMNS_4, "4", "4 Columns" );
-    addItem( RimMultiPlot::ColumnCount::COLUMNS_UNLIMITED, "UNLIMITED", "Unlimited" );
     setDefault( RimMultiPlot::ColumnCount::COLUMNS_2 );
 }
 template <>
