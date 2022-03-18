@@ -153,6 +153,11 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_sourceStepping.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_alternatePlotName, "AlternateName", "AlternateName" );
+    m_alternatePlotName.uiCapability()->setUiReadOnly( true );
+    m_alternatePlotName.uiCapability()->setUiHidden( true );
+    m_alternatePlotName.xmlCapability()->disableIO();
+
     setPlotInfoLabel( "Filters Active" );
 
     // Obsolete axis fields
@@ -1360,6 +1365,10 @@ void RimSummaryPlot::addAsciiDataCruve( RimAsciiDataCurve* curve )
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimSummaryPlot::userDescriptionField()
 {
+    if ( m_description().isEmpty() )
+    {
+        return &m_alternatePlotName;
+    }
     return &m_description;
 }
 
@@ -2102,7 +2111,6 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     {
         mainOptions->add( &m_useAutoPlotTitle );
         mainOptions->add( &m_description );
-        mainOptions->add( &m_rowSpan );
         mainOptions->add( &m_colSpan );
     }
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
@@ -2348,11 +2356,19 @@ void RimSummaryPlot::deleteAllPlotCurves()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateCurveNames()
 {
+    m_alternatePlotName = "";
+
+    QStringList shortCurveNames;
+
     if ( m_summaryCurveCollection->isCurvesVisible() )
     {
         for ( auto c : summaryCurves() )
         {
-            if ( c->isCurveVisible() ) c->updateCurveNameNoLegendUpdate();
+            if ( c->isCurveVisible() )
+            {
+                c->updateCurveNameNoLegendUpdate();
+                shortCurveNames.append( QString::fromStdString( c->summaryAddressY().quantityName() ) );
+            }
         }
     }
 
@@ -2360,6 +2376,8 @@ void RimSummaryPlot::updateCurveNames()
     {
         curveSet->updateEnsembleLegendItem();
     }
+
+    m_alternatePlotName = shortCurveNames.join( "," );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ public:
 
     std::vector<RimSummaryMultiPlot*> multiPlots() const;
 
-    void addMultiSummaryPlot( RimSummaryMultiPlot* plot );
+    void addSummaryMultiPlot( RimSummaryMultiPlot* plot );
 
 protected:
     void onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate );

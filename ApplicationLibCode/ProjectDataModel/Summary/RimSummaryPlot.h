@@ -31,6 +31,7 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObjectHandle.h"
+#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
@@ -294,6 +295,7 @@ private:
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
+    caf::PdmField<QString> m_alternatePlotName;
 
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>  m_gridTimeHistoryCurves;
     caf::PdmChildField<RimSummaryCurveCollection*>     m_summaryCurveCollection;

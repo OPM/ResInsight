@@ -341,6 +341,30 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot*
+    RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects )
+{
+    RimProject*                    project        = RimProject::current();
+    RimSummaryMultiPlotCollection* plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+
+    auto* plotWindow = new RimSummaryMultiPlot;
+    plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
+    plotWindow->setAsPlotMdiWindow();
+    plotCollection->addSummaryMultiPlot( plotWindow );
+
+    plotWindow->addPlot( objects );
+
+    plotCollection->updateAllRequiredEditors();
+    plotWindow->loadDataAndUpdate();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+
+    return plotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots )
 {
     for ( auto plot : plots )
@@ -369,7 +393,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     auto* plotWindow = new RimSummaryMultiPlot();
     plotWindow->setMultiPlotTitle( QString( "Multi Summary Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
-    plotCollection->addMultiSummaryPlot( plotWindow );
+    plotCollection->addSummaryMultiPlot( plotWindow );
 
     appendPlotsToSummaryMultiPlot( plotWindow, plots );
 

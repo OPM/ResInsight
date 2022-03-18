@@ -21,6 +21,10 @@
 
 class RimSummaryMultiPlot;
 
+#include <QList>
+#include <QPointer>
+#include <QWidget>
+
 class RiuSummaryMultiPlotPage : public RiuMultiPlotPage
 {
     Q_OBJECT
@@ -32,5 +36,9 @@ public:
 protected:
     void reinsertPlotWidgets() override;
 
+    void reservePlaceholders( int count );
+
 private:
+    RimSummaryMultiPlot*     m_summaryMultiPlot;
+    QList<QPointer<QWidget>> m_placeholderWidgets;
 };

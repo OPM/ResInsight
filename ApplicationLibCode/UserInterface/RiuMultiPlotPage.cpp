@@ -571,26 +571,6 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 {
     clearGridLayout();
 
-    auto titleFont = m_plotTitle->font();
-    titleFont.setPixelSize( m_titleFontPixelSize );
-    m_plotTitle->setFont( titleFont );
-
-    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
-    {
-        if ( m_plotWidgets[tIdx] )
-        {
-            m_plotWidgets[tIdx]->hide();
-        }
-        if ( m_legends[tIdx] )
-        {
-            m_legends[tIdx]->hide();
-        }
-        if ( m_subTitles[tIdx] )
-        {
-            m_subTitles[tIdx]->hide();
-        }
-    }
-
     QList<QPointer<QLabel>>           subTitles   = this->subTitlesForVisiblePlots();
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     QList<QPointer<RiuPlotWidget>>    plotWidgets = this->visiblePlotWidgets();
@@ -744,6 +724,22 @@ void RiuMultiPlotPage::clearGridLayout()
         delete m_gridLayout;
         m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     }
+
+    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
+    {
+        if ( m_plotWidgets[tIdx] )
+        {
+            m_plotWidgets[tIdx]->hide();
+        }
+        if ( m_legends[tIdx] )
+        {
+            m_legends[tIdx]->hide();
+        }
+        if ( m_subTitles[tIdx] )
+        {
+            m_subTitles[tIdx]->hide();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -858,4 +854,14 @@ void RiuMultiPlotPage::applyLook()
         setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
         setGraphicsEffect( nullptr );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::updateTitleFont()
+{
+    auto titleFont = m_plotTitle->font();
+    titleFont.setPixelSize( m_titleFontPixelSize );
+    m_plotTitle->setFont( titleFont );
 }

@@ -26,11 +26,14 @@
 #include <QLabel>
 #include <QWidget>
 
+#include <cmath>
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryMultiPlotPage::RiuSummaryMultiPlotPage( RimSummaryMultiPlot* plotDefinition, QWidget* parent )
     : RiuMultiPlotPage( plotDefinition, parent )
+    , m_summaryMultiPlot( plotDefinition )
 {
 }
 
@@ -46,52 +49,55 @@ RiuSummaryMultiPlotPage::~RiuSummaryMultiPlotPage()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
 {
-    clearGridLayout();
-
-    auto titleFont = m_plotTitle->font();
-    titleFont.setPixelSize( m_titleFontPixelSize );
-    m_plotTitle->setFont( titleFont );
-
-    for ( int tIdx = 0; tIdx < m_plotWidgets.size(); ++tIdx )
+    if ( m_gridLayout )
     {
-        if ( m_plotWidgets[tIdx] )
+        for ( int phIdx = 0; phIdx < m_placeholderWidgets.size(); phIdx++ )
         {
-            m_plotWidgets[tIdx]->hide();
-        }
-        if ( m_legends[tIdx] )
-        {
-            m_legends[tIdx]->hide();
-        }
-        if ( m_subTitles[tIdx] )
-        {
-            m_subTitles[tIdx]->hide();
+            m_gridLayout->removeWidget( m_placeholderWidgets[phIdx] );
+            m_placeholderWidgets[phIdx]->hide();
         }
     }
+
+    clearGridLayout();
+    updateTitleFont();
+
+    int cols   = m_summaryMultiPlot->columnCount();
+    int rows   = m_summaryMultiPlot->rowsPerPage();
+    int nPlots = visiblePlotWidgets().size();
+
+    int nCells = cols * rows;
+    reservePlaceholders( nCells - nPlots );
 
     QList<QPointer<QLabel>>           subTitles   = this->subTitlesForVisiblePlots();
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     QList<QPointer<RiuPlotWidget>>    plotWidgets = this->visiblePlotWidgets();
 
-    if ( !plotWidgets.empty() )
+    int visibleIndex = 0;
+    int phIndex      = 0;
+
+    for ( int row = 0; row < rows; row++ )
     {
-        auto [rowCount, columnCount] = this->rowAndColumnCount( plotWidgets.size() );
-
-        int row    = 0;
-        int column = 0;
-        for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
+        for ( int col = 0; col < cols; col++ )
         {
-            int expectedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
-            int colSpan         = std::min( expectedColSpan, columnCount );
-            int rowSpan         = plotWidgets[visibleIndex]->rowSpan();
+            if ( visibleIndex >= nPlots )
+            {
+                m_gridLayout->addWidget( m_placeholderWidgets[phIndex], row * 3 + 2, col );
+                m_gridLayout->setRowStretch( row * 3 + 2, 1 );
+                m_gridLayout->setColumnStretch( col, 6 );
+                m_placeholderWidgets[phIndex]->show();
+                phIndex++;
+                continue;
+            }
 
-            std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, columnCount );
+            int expectedColSpan = plotWidgets[visibleIndex]->colSpan();
+            int colSpan         = std::min( expectedColSpan, cols - col );
 
-            m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
+            m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, col, 1, colSpan );
             if ( legends[visibleIndex] )
             {
-                m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+                m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, col, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
             }
-            m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
+            m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, col, 1, colSpan );
 
             subTitles[visibleIndex]->setVisible( m_showSubTitles );
             QFont subTitleFont = subTitles[visibleIndex]->font();
@@ -99,20 +105,16 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
             subTitles[visibleIndex]->setFont( subTitleFont );
 
             plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(),
-                                                                     showYAxis( row, column ),
-                                                                     showYAxis( row, column ) );
-            plotWidgets[visibleIndex]->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, column ) );
+                                                                     showYAxis( row, col ),
+                                                                     showYAxis( row, col ) );
+            plotWidgets[visibleIndex]->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, col ) );
             plotWidgets[visibleIndex]->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 
-            {
-                auto margins = plotWidgets[visibleIndex]->contentsMargins();
-                margins.setBottom( 40 );
-
-                // Adjust the space below a graph to make sure the heading of the row below is closest to the
-                // corresponding graph
-                plotWidgets[visibleIndex]->setContentsMargins( margins );
-            }
-
+            // Adjust the space below a graph to make sure the heading of the row below is closest to the
+            // corresponding graph
+            auto margins = plotWidgets[visibleIndex]->contentsMargins();
+            margins.setBottom( 40 );
+            plotWidgets[visibleIndex]->setContentsMargins( margins );
             plotWidgets[visibleIndex]->show();
 
             if ( legends[visibleIndex] )
@@ -136,16 +138,26 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
                 }
             }
             // Set basic row and column stretches
-            for ( int r = row; r < row + rowSpan; ++r )
-            {
-                m_gridLayout->setRowStretch( 3 * r + 2, 1 );
-            }
-            for ( int c = column; c < column + colSpan; ++c )
+            m_gridLayout->setRowStretch( 3 * row + 2, 1 );
+            for ( int c = col; c < col + colSpan; c++ )
             {
                 int colStretch = 6; // Empirically chosen to try to counter the width of the axis on the first track
-                if ( showYAxis( row, column ) ) colStretch += 1;
+                if ( showYAxis( row, col ) ) colStretch += 1;
                 m_gridLayout->setColumnStretch( c, std::max( colStretch, m_gridLayout->columnStretch( c ) ) );
             }
+
+            visibleIndex++;
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryMultiPlotPage::reservePlaceholders( int count )
+{
+    while ( m_placeholderWidgets.size() < count )
+    {
+        m_placeholderWidgets.push_back( new QWidget( this ) );
     }
 }

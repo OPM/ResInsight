@@ -114,6 +114,8 @@ protected:
 
     virtual void reinsertPlotWidgets();
 
+    void updateTitleFont();
+
     int alignCanvasTops();
 
     void clearGridLayout();

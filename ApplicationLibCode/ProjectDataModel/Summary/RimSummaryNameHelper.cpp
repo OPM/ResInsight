@@ -88,7 +88,7 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
 
     if ( title.isEmpty() )
     {
-        title = "Plot Title";
+        title = "";
     }
 
     return title;

@@ -31,7 +31,8 @@ class RimSummaryMultiPlot;
 namespace caf
 {
 class PdmObject;
-}
+class PdmObjectHandle;
+} // namespace caf
 
 #include <set>
 #include <vector>
@@ -75,6 +76,7 @@ public:
     static void          appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots );
 
     static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots );
+    static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects );
     static void appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots );
 
     static RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>&     addresses,

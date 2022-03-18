@@ -75,7 +75,7 @@ std::vector<RimSummaryMultiPlot*> RimSummaryMultiPlotCollection::multiPlots() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlotCollection::addMultiSummaryPlot( RimSummaryMultiPlot* plot )
+void RimSummaryMultiPlotCollection::addSummaryMultiPlot( RimSummaryMultiPlot* plot )
 {
     m_summaryMultiPlots().push_back( plot );
     plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
@@ -108,7 +108,7 @@ void RimSummaryMultiPlotCollection::onDuplicatePlot( const caf::SignalEmitter* e
     auto plotCopy = dynamic_cast<RimSummaryMultiPlot*>(
         plotToDuplicate->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-    addMultiSummaryPlot( plotCopy );
+    addSummaryMultiPlot( plotCopy );
 
     plotCopy->resolveReferencesRecursively();
     plotCopy->initAfterReadRecursively();
