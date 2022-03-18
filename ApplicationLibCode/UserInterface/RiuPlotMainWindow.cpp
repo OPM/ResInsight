@@ -1167,7 +1167,9 @@ bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::dragEnterEvent( QDragEnterEvent* event )
 {
-    event->acceptProposedAction();
+    QPoint curpos = m_mdiArea->mapFromGlobal( QCursor::pos() );
+
+    if ( m_mdiArea->rect().contains( curpos ) ) event->acceptProposedAction();
 }
 
 //--------------------------------------------------------------------------------------------------
