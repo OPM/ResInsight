@@ -20,8 +20,10 @@
 
 #include "caf.h"
 
+#include "qwt_interval.h"
 #include "qwt_plot.h"
 #include "qwt_scale_div.h"
+#include "qwt_scale_map.h"
 
 #include <QEvent>
 #include <QWheelEvent>

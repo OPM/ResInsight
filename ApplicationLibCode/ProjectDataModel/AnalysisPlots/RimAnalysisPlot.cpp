@@ -57,6 +57,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include <cmath>
 #include <limits>
 #include <map>
 

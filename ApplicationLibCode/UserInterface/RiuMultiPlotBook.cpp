@@ -45,6 +45,7 @@
 #include <QMdiSubWindow>
 #include <QMenu>
 #include <QPagedPaintDevice>
+#include <QPainter>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>

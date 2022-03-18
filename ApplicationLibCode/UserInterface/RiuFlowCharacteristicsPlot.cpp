@@ -41,12 +41,15 @@
 #include "qwt_legend.h"
 #include "qwt_plot.h"
 #include "qwt_plot_zoomer.h"
+#include "qwt_text.h"
 
 #include <QBoxLayout>
 #include <QContextMenuEvent>
 #include <QDateTime>
 #include <QLabel>
 #include <QMenu>
+
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 ///

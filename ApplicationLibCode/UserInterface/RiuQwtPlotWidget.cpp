@@ -61,6 +61,8 @@
 #include <QFont>
 #include <QFontMetrics>
 #include <QMouseEvent>
+#include <QPainter>
+#include <QPainterPath>
 #include <QVBoxLayout>
 #include <QWheelEvent>
 

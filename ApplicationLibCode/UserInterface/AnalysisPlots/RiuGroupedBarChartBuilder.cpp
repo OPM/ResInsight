@@ -36,7 +36,9 @@
 #include "qwt_scale_widget.h"
 
 #include <QColor>
+#include <QPainter>
 
+#include <cmath>
 #include <limits>
 #include <map>
 

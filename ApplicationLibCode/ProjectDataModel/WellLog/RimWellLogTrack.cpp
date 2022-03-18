@@ -95,6 +95,8 @@
 #include "caf.h"
 #include "cvfAssert.h"
 
+#include "qwt_scale_map.h"
+
 #include <QWheelEvent>
 
 #include <algorithm>

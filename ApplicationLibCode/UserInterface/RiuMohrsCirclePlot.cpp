@@ -40,6 +40,7 @@
 #include "cvfAssert.h"
 
 #include <QPainterPath>
+#include <QPen>
 #include <QTimer>
 #include <QWidget>
 

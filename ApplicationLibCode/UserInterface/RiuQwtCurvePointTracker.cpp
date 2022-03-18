@@ -26,6 +26,7 @@
 
 #include "qwt_date_scale_draw.h"
 #include "qwt_plot_curve.h"
+#include "qwt_text.h"
 
 #include <cfloat> // For DBL_MAX
 
