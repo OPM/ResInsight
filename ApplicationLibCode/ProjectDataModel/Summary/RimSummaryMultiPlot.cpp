@@ -323,6 +323,7 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
         populateNameHelper( m_nameHelper.get() );
 
         auto title = m_nameHelper->plotTitle();
+        if ( title.isEmpty() ) title = "Empty Plot";
         setMultiPlotTitle( title );
     }
 
@@ -380,62 +381,6 @@ std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
     }
 
     return typedPlots;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs )
-{
-    auto columnCount   = RiuMultiPlotPage::ColumnCount::COLUMNS_2;
-    auto rowCount      = RimMultiPlot::RowCount::ROWS_2;
-    auto tickmarkCount = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT;
-
-    bool showTitleSubGraph = true;
-    if ( graphs.size() == 1 )
-    {
-        showTitleSubGraph = false;
-        tickmarkCount     = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_MANY;
-    }
-    else if ( 4 < graphs.size() && graphs.size() <= 6 )
-    {
-        columnCount   = RiuMultiPlotPage::ColumnCount::COLUMNS_3;
-        rowCount      = RimMultiPlot::RowCount::ROWS_2;
-        tickmarkCount = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW;
-    }
-    else if ( 6 < graphs.size() && graphs.size() <= 12 )
-    {
-        columnCount   = RiuMultiPlotPage::ColumnCount::COLUMNS_4;
-        rowCount      = RimMultiPlot::RowCount::ROWS_3;
-        tickmarkCount = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_VERY_FEW;
-    }
-    else
-    {
-        columnCount   = RiuMultiPlotPage::ColumnCount::COLUMNS_4;
-        rowCount      = RimMultiPlot::RowCount::ROWS_4;
-        tickmarkCount = RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_VERY_FEW;
-    }
-
-    plot->setAutoTitlePlot( true );
-    plot->setAutoTitleGraphs( showTitleSubGraph );
-
-    plot->setColumnCount( columnCount );
-    plot->setRowCount( rowCount );
-    plot->setShowPlotTitles( showTitleSubGraph );
-    plot->setTickmarkCount( tickmarkCount );
-
-    for ( auto graph : graphs )
-    {
-        plot->addPlot( graph );
-
-        graph->resolveReferencesRecursively();
-        graph->revokeMdiWindowStatus();
-        graph->setShowWindow( true );
-
-        graph->loadDataAndUpdate();
-    }
-
-    plot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

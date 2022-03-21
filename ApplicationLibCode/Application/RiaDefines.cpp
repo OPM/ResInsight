@@ -135,6 +135,26 @@ void AppEnum<RiaDefines::RINavigationPolicy>::setUp()
     setDefault( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS );
 }
 
+template <>
+void caf::AppEnum<RiaDefines::ColumnCount>::setUp()
+{
+    addItem( RiaDefines::ColumnCount::COLUMNS_1, "1", "1 Column" );
+    addItem( RiaDefines::ColumnCount::COLUMNS_2, "2", "2 Columns" );
+    addItem( RiaDefines::ColumnCount::COLUMNS_3, "3", "3 Columns" );
+    addItem( RiaDefines::ColumnCount::COLUMNS_4, "4", "4 Columns" );
+    setDefault( RiaDefines::ColumnCount::COLUMNS_2 );
+}
+
+template <>
+void caf::AppEnum<RiaDefines::RowCount>::setUp()
+{
+    addItem( RiaDefines::RowCount::ROWS_1, "1", "1 Row" );
+    addItem( RiaDefines::RowCount::ROWS_2, "2", "2 Rows" );
+    addItem( RiaDefines::RowCount::ROWS_3, "3", "3 Rows" );
+    addItem( RiaDefines::RowCount::ROWS_4, "4", "4 Rows" );
+    setDefault( RiaDefines::RowCount::ROWS_2 );
+}
+
 } // namespace caf
 
 //--------------------------------------------------------------------------------------------------

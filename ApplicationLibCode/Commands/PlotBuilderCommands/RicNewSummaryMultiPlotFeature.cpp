@@ -18,8 +18,12 @@
 
 #include "RicNewSummaryMultiPlotFeature.h"
 
-#include "RimMultiPlotCollection.h"
+#include "RicSummaryPlotBuilder.h"
+
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "RicSummaryPlotBuilder.h"
@@ -29,27 +33,23 @@
 
 #include <QAction>
 
-RICF_SOURCE_INIT( RicNewSummaryMultiPlotFeature, "RicNewSummaryMultiPlotFeature", "createSummaryMultiPlot" );
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicNewSummaryMultiPlotFeature::RicNewSummaryMultiPlotFeature()
-{
-    CAF_PDM_InitFieldNoDefault( &m_plots, "plots", "Plots" );
-}
+CAF_CMD_SOURCE_INIT( RicNewSummaryMultiPlotFeature, "RicNewSummaryMultiPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 bool RicNewSummaryMultiPlotFeature::isCommandEnabled()
 {
-    auto plots = selectedPlots();
-
     std::vector<caf::PdmUiItem*> selectedUiItems;
     caf::SelectionManager::instance()->selectedItems( selectedUiItems );
 
-    return !plots.empty() && plots.size() == selectedUiItems.size();
+    if ( selectedCollection( selectedUiItems ) ) return true;
+
+    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
+    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+    if ( selectedCases( &selectedIndividualSummaryCases, &selectedEnsembles ) ) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -57,13 +57,25 @@ bool RicNewSummaryMultiPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
 {
-    m_plots.v().clear();
-    auto plots = selectedPlots();
-    for ( RimPlot* plot : plots )
+    std::vector<caf::PdmUiItem*> selectedUiItems;
+    caf::SelectionManager::instance()->selectedItems( selectedUiItems );
+
+    RimSummaryMultiPlotCollection* coll = selectedCollection( selectedUiItems );
+    if ( coll )
     {
-        m_plots.v().push_back( reinterpret_cast<uintptr_t>( plot ) );
+        std::vector<caf::PdmObjectHandle*> objects = {};
+        RimSummaryMultiPlot* multiPlot             = RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
+
+        return;
     }
-    execute();
+
+    std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
+    std::vector<RimSummaryCaseCollection*> selectedEnsembles;
+
+    if ( selectedCases( &selectedIndividualSummaryCases, &selectedEnsembles ) )
+    {
+        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( selectedIndividualSummaryCases, selectedEnsembles );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,47 +83,42 @@ void RicNewSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Summary Multi Plot from Selected Plots" );
+    actionToSetup->setText( "New Summary Multi Plot" );
     actionToSetup->setIcon( QIcon( ":/MultiPlot16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimSummaryPlot*> RicNewSummaryMultiPlotFeature::selectedPlots()
+RimSummaryMultiPlotCollection* RicNewSummaryMultiPlotFeature::selectedCollection( std::vector<caf::PdmUiItem*>& items )
 {
-    std::vector<caf::PdmUiItem*> uiItems;
-    caf::SelectionManager::instance()->selectedItems( uiItems );
-
-    std::vector<RimSummaryPlot*> plots;
-    for ( caf::PdmUiItem* uiItem : uiItems )
+    for ( caf::PdmUiItem* uiItem : items )
     {
-        RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( uiItem );
-        if ( summaryPlot )
-        {
-            plots.push_back( summaryPlot );
-        }
+        RimSummaryMultiPlotCollection* coll = dynamic_cast<RimSummaryMultiPlotCollection*>( uiItem );
+        if ( coll ) return coll;
     }
-    return plots;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmScriptResponse RicNewSummaryMultiPlotFeature::execute()
+bool RicNewSummaryMultiPlotFeature::selectedCases( std::vector<RimSummaryCase*>* selectedIndividualSummaryCases,
+                                                   std::vector<RimSummaryCaseCollection*>* selectedEnsembles )
 {
-    if ( !m_plots().empty() )
+    CAF_ASSERT( selectedIndividualSummaryCases && selectedEnsembles );
+
+    caf::SelectionManager::instance()->objectsByTypeStrict( selectedEnsembles );
+    if ( !selectedEnsembles->empty() )
     {
-        std::vector<RimSummaryPlot*> plots;
-        for ( auto ptr : m_plots() )
-        {
-            plots.push_back( reinterpret_cast<RimSummaryPlot*>( ptr ) );
-        }
-
-        auto copyOfPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plots );
-
-        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( copyOfPlots );
+        return true;
+    }
+    // Second try selected summary cases
+    caf::SelectionManager::instance()->objectsByTypeStrict( selectedIndividualSummaryCases );
+    if ( !selectedIndividualSummaryCases->empty() )
+    {
+        return true;
     }
 
-    return caf::PdmScriptResponse();
+    return false;
 }

@@ -82,8 +82,6 @@ private:
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
 
-    static void insertGraphsIntoPlot( RimSummaryMultiPlot* plot, const std::vector<RimSummaryPlot*>& graphs );
-
     void updatePlotWindowTitle() override;
 
     void duplicate();

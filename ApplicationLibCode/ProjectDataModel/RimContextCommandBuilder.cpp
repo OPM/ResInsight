@@ -126,6 +126,7 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSurface.h"
@@ -564,6 +565,17 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
         }
+        else if ( dynamic_cast<RimSummaryMultiPlotCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewSummaryMultiPlotFeature";
+            // menuBuilder << "RicPasteSummaryPlotFeature";
+            // menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
+            // menuBuilder << "Separator";
+            // menuBuilder << "RicOpenSummaryPlotEditorFeature";
+            // menuBuilder << "RicNewDefaultSummaryPlotFeature";
+            // menuBuilder << "Separator";
+            // menuBuilder << "RicShowSummaryCurveCalculatorFeature";
+        }
         else if ( dynamic_cast<RimAnalysisPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewAnalysisPlotFeature";
@@ -768,6 +780,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportEnsembleFeature";
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
+            menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicNewDerivedEnsembleFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
@@ -785,6 +798,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportEnsembleFeature";
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
+            menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
@@ -1062,10 +1076,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicShowPlotDataFeature";
         menuBuilder << "RicShowTotalAllocationDataFeature";
 
+        menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicNewDerivedEnsembleFeature";
         menuBuilder << "RicOpenSummaryPlotEditorFeature";
         menuBuilder << "RicNewDefaultSummaryPlotFeature";
-        menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";
@@ -1188,7 +1202,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSummaryAddress*>( firstUiItem ) )
         {
-            menuBuilder << "RicNewSummaryPlotFromDataVectorFeature";
             menuBuilder << "RicNewSummaryMultiPlotFromDataVectorFeature";
         }
 #ifdef USE_ODB_API

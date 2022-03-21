@@ -54,9 +54,6 @@ class RiuMultiPlotBook : public QWidget, public RiuInterfaceToViewWindow
     Q_OBJECT
 
 public:
-    using ColumnCount = RiuMultiPlotPage::ColumnCount;
-
-public:
     RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuMultiPlotBook() override;
 
