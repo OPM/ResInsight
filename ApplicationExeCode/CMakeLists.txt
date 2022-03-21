@@ -476,6 +476,10 @@ if(RESINSIGHT_PRIVATE_INSTALL)
       install(FILES ${QT_PLUGIN_PATH}/iconengines/libqsvgicon.so
               DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/iconengines/
       )
+      # Required when using --platform offscreen
+      install(FILES ${QT_PLUGIN_PATH}/platforms/libqoffscreen.so
+              DESTINATION ${RESINSIGHT_INSTALL_FOLDER}/platforms/
+      )
 
       # Required by xcb module used to create OpenGL widgets
       install(
