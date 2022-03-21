@@ -19,6 +19,7 @@
 #include "RimMultiPlot.h"
 
 #include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RimPlot.h"
 #include "RimProject.h"
@@ -37,29 +38,6 @@
 
 #include <cvfAssert.h>
 
-namespace caf
-{
-template <>
-void RimMultiPlot::ColumnCountEnum::setUp()
-{
-    addItem( RimMultiPlot::ColumnCount::COLUMNS_1, "1", "1 Column" );
-    addItem( RimMultiPlot::ColumnCount::COLUMNS_2, "2", "2 Columns" );
-    addItem( RimMultiPlot::ColumnCount::COLUMNS_3, "3", "3 Columns" );
-    addItem( RimMultiPlot::ColumnCount::COLUMNS_4, "4", "4 Columns" );
-    setDefault( RimMultiPlot::ColumnCount::COLUMNS_2 );
-}
-template <>
-void RimMultiPlot::RowCountEnum::setUp()
-{
-    addItem( RimMultiPlot::RowCount::ROWS_1, "1", "1 Row" );
-    addItem( RimMultiPlot::RowCount::ROWS_2, "2", "2 Rows" );
-    addItem( RimMultiPlot::RowCount::ROWS_3, "3", "3 Rows" );
-    addItem( RimMultiPlot::RowCount::ROWS_4, "4", "4 Rows" );
-    setDefault( RimMultiPlot::RowCount::ROWS_2 );
-}
-
-} // namespace caf
-
 CAF_PDM_SOURCE_INIT( RimMultiPlot, "MultiPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -77,8 +55,11 @@ RimMultiPlot::RimMultiPlot()
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimMultiPlot::onPlotsReordered );
 
+    RiaPreferencesSummary* sumPrefs = RiaPreferencesSummary::current();
     CAF_PDM_InitFieldNoDefault( &m_columnCount, "NumberOfColumns", "Number of Columns" );
+    m_columnCount = sumPrefs->defaultMultiPlotColumnCount();
     CAF_PDM_InitFieldNoDefault( &m_rowsPerPage, "RowsPerPage", "Rows per Page" );
+    m_rowsPerPage = sumPrefs->defaultMultiPlotRowCount();
 
     CAF_PDM_InitField( &m_showIndividualPlotTitles, "ShowPlotTitles", true, "Show Sub Plot Titles" );
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
@@ -401,7 +382,7 @@ void RimMultiPlot::setAutoScaleYEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::setColumnCount( RiuMultiPlotPage::ColumnCount columnCount )
+void RimMultiPlot::setColumnCount( RiaDefines::ColumnCount columnCount )
 {
     m_columnCount = columnCount;
 }
@@ -409,7 +390,7 @@ void RimMultiPlot::setColumnCount( RiuMultiPlotPage::ColumnCount columnCount )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMultiPlot::setRowCount( RowCount rowCount )
+void RimMultiPlot::setRowCount( RiaDefines::RowCount rowCount )
 {
     m_rowsPerPage = rowCount;
 }
@@ -440,7 +421,7 @@ void RimMultiPlot::setTickmarkCount( RimPlot* plot, RimPlotAxisPropertiesInterfa
 //--------------------------------------------------------------------------------------------------
 int RimMultiPlot::columnCount() const
 {
-    if ( m_columnCount() == ColumnCount::COLUMNS_UNLIMITED )
+    if ( m_columnCount() == RiaDefines::ColumnCount::COLUMNS_UNLIMITED )
     {
         return std::numeric_limits<int>::max();
     }
@@ -452,22 +433,22 @@ int RimMultiPlot::columnCount() const
 //--------------------------------------------------------------------------------------------------
 int RimMultiPlot::rowsPerPage() const
 {
-    RimMultiPlot::RowCount rowEnum = m_rowsPerPage().value();
+    RiaDefines::RowCount rowEnum = m_rowsPerPage().value();
 
     int rowCount = 2;
 
     switch ( rowEnum )
     {
-        case RimMultiPlot::RowCount::ROWS_1:
+        case RiaDefines::RowCount::ROWS_1:
             rowCount = 1;
             break;
-        case RimMultiPlot::RowCount::ROWS_2:
+        case RiaDefines::RowCount::ROWS_2:
             rowCount = 2;
             break;
-        case RimMultiPlot::RowCount::ROWS_3:
+        case RiaDefines::RowCount::ROWS_3:
             rowCount = 3;
             break;
-        case RimMultiPlot::RowCount::ROWS_4:
+        case RiaDefines::RowCount::ROWS_4:
             rowCount = 4;
             break;
         default:
@@ -754,8 +735,8 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
     {
         for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
         {
-            ColumnCount enumVal           = ColumnCountEnum::fromIndex( i );
-            QString     columnCountString = ( enumVal == ColumnCount::COLUMNS_UNLIMITED )
+            RiaDefines::ColumnCount enumVal           = ColumnCountEnum::fromIndex( i );
+            QString                 columnCountString = ( enumVal == RiaDefines::ColumnCount::COLUMNS_UNLIMITED )
                                             ? "Unlimited"
                                             : QString( "%1" ).arg( static_cast<int>( enumVal ) );
             QString iconPath = QString( ":/Columns%1.png" ).arg( columnCountString );
@@ -769,8 +750,8 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
     {
         for ( size_t i = 0; i < RowCountEnum::size(); ++i )
         {
-            RowCount enumVal  = RowCountEnum::fromIndex( i );
-            QString  iconPath = QString( ":/Rows%1.png" ).arg( static_cast<int>( enumVal ) );
+            RiaDefines::RowCount enumVal  = RowCountEnum::fromIndex( i );
+            QString              iconPath = QString( ":/Rows%1.png" ).arg( static_cast<int>( enumVal ) );
             options.push_back( caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ),
                                                        enumVal,
                                                        false,

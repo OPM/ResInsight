@@ -211,7 +211,7 @@ void RimPlotWindow::updateParentLayout()
 //--------------------------------------------------------------------------------------------------
 int RimPlotWindow::columnCount() const
 {
-    return static_cast<int>( RiuMultiPlotPage::ColumnCount::COLUMNS_UNLIMITED );
+    return static_cast<int>( RiaDefines::ColumnCount::COLUMNS_UNLIMITED );
 }
 
 //--------------------------------------------------------------------------------------------------

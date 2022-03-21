@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "RimAbstractPlotCollection.h"
 #include "RimPlot.h"
 #include "RimPlotAxisPropertiesInterface.h"
@@ -44,19 +46,8 @@ class RimMultiPlot : public RimPlotWindow, public RimTypedPlotCollection<RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    using ColumnCount     = RiuMultiPlotBook::ColumnCount;
-    using ColumnCountEnum = caf::AppEnum<ColumnCount>;
-
-    enum class RowCount
-    {
-        ROWS_1 = 1,
-        ROWS_2 = 2,
-        ROWS_3 = 3,
-        ROWS_4 = 4,
-    };
-    using RowCountEnum = caf::AppEnum<RowCount>;
-
-    friend class RimSummaryMultiPlot;
+    using ColumnCountEnum = caf::AppEnum<RiaDefines::ColumnCount>;
+    using RowCountEnum    = caf::AppEnum<RiaDefines::RowCount>;
 
 public:
     RimMultiPlot();
@@ -90,8 +81,8 @@ public:
     void setAutoScaleXEnabled( bool enabled );
     void setAutoScaleYEnabled( bool enabled );
 
-    void setColumnCount( RiuMultiPlotPage::ColumnCount columnCount );
-    void setRowCount( RimMultiPlot::RowCount rowCount );
+    void setColumnCount( RiaDefines::ColumnCount columnCount );
+    void setRowCount( RiaDefines::RowCount rowCount );
     void setTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
 
     int                  columnCount() const override;
