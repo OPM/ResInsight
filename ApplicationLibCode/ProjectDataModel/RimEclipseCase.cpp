@@ -1070,7 +1070,8 @@ double RimEclipseCase::characteristicCellSize() const
     const RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase && rigEclipseCase->mainGrid() )
     {
-        return rigEclipseCase->mainGrid()->characteristicIJCellSize();
+        double maxSize = 200.0;
+        return std::min( rigEclipseCase->mainGrid()->characteristicIJCellSize(), maxSize );
     }
 
     return 10.0;
