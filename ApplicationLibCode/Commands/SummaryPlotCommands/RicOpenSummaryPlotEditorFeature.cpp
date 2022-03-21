@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewSummaryPlotFeature.h"
+#include "RicOpenSummaryPlotEditorFeature.h"
 
 #include "RiaSummaryTools.h"
 
@@ -44,12 +44,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewSummaryPlotFeature, "RicNewSummaryPlotFeature" );
+CAF_CMD_SOURCE_INIT( RicOpenSummaryPlotEditorFeature, "RicOpenSummaryPlotEditorFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewSummaryPlotFeature::isCommandEnabled()
+bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
 {
     RimSummaryPlotCollection*             sumPlotColl             = nullptr;
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
@@ -81,7 +81,7 @@ bool RicNewSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFeature::onActionTriggered( bool isChecked )
+void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
@@ -140,7 +140,7 @@ void RicNewSummaryPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
+void RicOpenSummaryPlotEditorFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Open Summary Plot Editor" );
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );

@@ -37,9 +37,9 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotCollection, "SummaryPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection::RimSummaryPlotCollection()
 {
-    CAF_PDM_InitScriptableObject( "Summary Plots", ":/SummaryPlotsLight16x16.png" );
+    CAF_PDM_InitScriptableObject( "Single Summary Plots", ":/SummaryPlotsLight16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryPlots, "SummaryPlots", "Summary Plots" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryPlots, "SummaryPlots", "Single Summary Plots" );
     m_summaryPlots.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_summaryPlots );
 }

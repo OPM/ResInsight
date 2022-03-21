@@ -21,7 +21,6 @@
 #include "ApplicationCommands/RicShowMainWindowFeature.h"
 
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "RiaApplication.h"
