@@ -20,6 +20,7 @@
 
 #include "RiaSummaryTools.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicEditSummaryPlotFeature.h"
 #include "RicNewSummaryCurveFeature.h"
 #include "RicNewSummaryEnsembleCurveSetFeature.h"
@@ -36,6 +37,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -129,6 +131,13 @@ RimSummaryPlot* RicNewDefaultSummaryPlotFeature::createFromSummaryCases( RimSumm
 //--------------------------------------------------------------------------------------------------
 bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 {
+    RimSummaryMultiPlot* multiPlot =
+        dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( multiPlot )
+    {
+        return true;
+    }
+
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
     std::vector<RimSummaryCaseCollection*> selectedEnsembles;
 
@@ -152,6 +161,16 @@ bool RicNewDefaultSummaryPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewDefaultSummaryPlotFeature::onActionTriggered( bool isChecked )
 {
+    RimSummaryMultiPlot* multiPlot =
+        dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
+    if ( multiPlot )
+    {
+        RimSummaryPlot* plot = new RimSummaryPlot();
+        plot->enableAutoPlotTitle( true );
+        RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( multiPlot, { plot } );
+        return;
+    }
+
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
     std::vector<RimSummaryCaseCollection*> selectedEnsembles;
     extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
@@ -178,13 +197,13 @@ void RicNewDefaultSummaryPlotFeature::setupActionLook( QAction* actionToSetup )
 
     extractPlotObjectsFromSelection( &selectedIndividualSummaryCases, &selectedEnsembles );
 
-    if ( !selectedIndividualSummaryCases.empty() )
+    if ( !selectedEnsembles.empty() )
     {
-        actionToSetup->setText( "New Summary Plot" );
+        actionToSetup->setText( "Add Ensemble Summary Plot" );
     }
     else
     {
-        actionToSetup->setText( "New Ensemble Summary Plot" );
+        actionToSetup->setText( "Add Summary Plot" );
     }
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
 }
