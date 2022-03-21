@@ -18,6 +18,9 @@
 
 #include "RicSummaryPlotBuilder.h"
 
+#include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
+#include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
+
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryTools.h"
 
@@ -358,6 +361,7 @@ RimSummaryMultiPlot*
     plotWindow->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+    RiuPlotMainWindowTools::setExpanded( plotWindow, true );
 
     return plotWindow;
 }
@@ -369,7 +373,7 @@ void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, con
 {
     for ( auto plot : plots )
     {
-        // Remove the currently window controller, as this will be managed by the multi plot
+        // Remove the current window controller, as this will be managed by the multi plot
         // This must be done before adding the plot to the multi plot to ensure that the viewer widget is recreated
         plot->revokeMdiWindowStatus();
 
@@ -385,13 +389,57 @@ void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot*
+    RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&     cases,
+                                                                   std::vector<RimSummaryCaseCollection*>& ensembles )
+{
+    RimProject* project        = RimProject::current();
+    auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+
+    auto* plotWindow = new RimSummaryMultiPlot();
+    plotWindow->setAsPlotMdiWindow();
+    plotCollection->addSummaryMultiPlot( plotWindow );
+
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->setAsPlotMdiWindow();
+    plot->enableAutoPlotTitle( true );
+
+    for ( auto sumCase : cases )
+    {
+        RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( plot, sumCase );
+    }
+
+    for ( auto ensemble : ensembles )
+    {
+        RicNewSummaryEnsembleCurveSetFeature::addDefaultCurveSets( plot, ensemble );
+    }
+
+    plot->applyDefaultCurveAppearances();
+    plot->loadDataAndUpdate();
+
+    plotCollection->updateConnectedEditors();
+
+    appendPlotsToSummaryMultiPlot( plotWindow, { plot } );
+
+    plotCollection->updateAllRequiredEditors();
+    plotWindow->loadDataAndUpdate();
+
+    RiuPlotMainWindowTools::setExpanded( plotWindow, true );
+    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+    plotWindow->updateAllRequiredEditors();
+
+    return plotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots )
 {
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
 
     auto* plotWindow = new RimSummaryMultiPlot();
-    plotWindow->setMultiPlotTitle( QString( "Multi Summary Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addSummaryMultiPlot( plotWindow );
 
@@ -400,6 +448,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
 
+    RiuPlotMainWindowTools::setExpanded( plotWindow, true );
     RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
     plotWindow->updateAllRequiredEditors();
 

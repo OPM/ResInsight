@@ -212,7 +212,8 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         if ( m_targetPlot == nullptr )
         {
-            createNewPlot();
+            QMessageBox::information( nullptr, "No target plot selected.", "Please select a plot to use." );
+            return;
         }
 
         updateTargetPlot();
@@ -267,11 +268,6 @@ QList<caf::PdmOptionItemInfo>
         RimProject* proj = RimProject::current();
 
         RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-
-        // Create New Plot item
-        QString displayName = "( New Plot )";
-        options.push_back( caf::PdmOptionItemInfo( displayName, nullptr ) );
-
         if ( summaryPlotColl )
         {
             summaryPlotColl->summaryPlotItemInfos( &options );
@@ -832,62 +828,6 @@ void RicSummaryPlotEditorUi::updateAppearanceEditor()
 
     RimSummaryCurveAppearanceCalculator curveLookCalc( allCurveDefs );
     initCurveAppearanceCalculator( curveLookCalc );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotEditorUi::createNewPlot()
-{
-    RimProject* proj = RimProject::current();
-
-    RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-    if ( summaryPlotColl )
-    {
-        RimSummaryPlot* newSummaryPlot = nullptr;
-        if ( m_useAutoPlotTitleProxy() )
-        {
-            newSummaryPlot = summaryPlotColl->createSummaryPlotWithAutoTitle();
-        }
-        else
-        {
-            QString candidatePlotName;
-            if ( m_previewPlot )
-            {
-                candidatePlotName = m_previewPlot->generatedPlotTitleFromAllCurves();
-            }
-
-            {
-                bool ok           = false;
-                candidatePlotName = QInputDialog::getText( nullptr,
-                                                           "New Summary Plot Name",
-                                                           "New Summary Plot Name",
-                                                           QLineEdit::Normal,
-                                                           candidatePlotName,
-                                                           &ok,
-                                                           RiuTools::defaultDialogFlags() );
-                if ( !ok )
-                {
-                    return;
-                }
-
-                newSummaryPlot = summaryPlotColl->createNamedSummaryPlot( candidatePlotName );
-            }
-        }
-
-        if ( newSummaryPlot )
-        {
-            newSummaryPlot->loadDataAndUpdate();
-
-            summaryPlotColl->updateConnectedEditors();
-
-            m_targetPlot = newSummaryPlot;
-            updateTargetPlot();
-
-            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-            mainPlotWindow->updateSummaryPlotToolBar();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

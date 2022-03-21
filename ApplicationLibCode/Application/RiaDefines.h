@@ -187,4 +187,21 @@ bool isInjector( WellProductionType wellProductionType );
 
 QString stringListSeparator();
 
+enum class ColumnCount
+{
+    COLUMNS_1         = 1,
+    COLUMNS_2         = 2,
+    COLUMNS_3         = 3,
+    COLUMNS_4         = 4,
+    COLUMNS_UNLIMITED = 1000,
+};
+
+enum class RowCount
+{
+    ROWS_1 = 1,
+    ROWS_2 = 2,
+    ROWS_3 = 3,
+    ROWS_4 = 4,
+};
+
 }; // namespace RiaDefines
