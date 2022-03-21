@@ -45,7 +45,6 @@
 #include "RiuPlotMainWindow.h"
 
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include <QAction>
 #include <QDebug>

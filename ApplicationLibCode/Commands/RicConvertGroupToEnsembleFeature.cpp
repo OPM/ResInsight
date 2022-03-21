@@ -37,8 +37,6 @@
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
-
 #include "cafSelectionManagerTools.h"
 
 #include <QAction>

@@ -1374,11 +1374,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     {
         if ( mainPlotCollection )
         {
-            if ( mainPlotCollection->summaryPlotCollection() )
-            {
-                uiTreeOrdering.add( mainPlotCollection->summaryPlotCollection() );
-            }
-
             if ( mainPlotCollection->summaryMultiPlotCollection() )
             {
                 uiTreeOrdering.add( mainPlotCollection->summaryMultiPlotCollection() );
@@ -1455,6 +1450,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                     statisticsItemCollection->add( mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
             }
 #endif
+            if ( mainPlotCollection->summaryPlotCollection() )
+            {
+                uiTreeOrdering.add( mainPlotCollection->summaryPlotCollection() );
+            }
         }
     }
     else if ( uiConfigName == "PlotWindow.DataSources" )

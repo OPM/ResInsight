@@ -1,5 +1,5 @@
 set(SOURCE_GROUP_HEADER_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryPlotFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultSummaryPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCurveFeature.h
@@ -48,7 +48,7 @@ set(SOURCE_GROUP_HEADER_FILES
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryPlotFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicOpenSummaryPlotEditorFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDefaultSummaryPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCrossPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSummaryCurveFeature.cpp

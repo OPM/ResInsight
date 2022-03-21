@@ -25,7 +25,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewSummaryPlotFeature : public caf::CmdFeature
+class RicOpenSummaryPlotEditorFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

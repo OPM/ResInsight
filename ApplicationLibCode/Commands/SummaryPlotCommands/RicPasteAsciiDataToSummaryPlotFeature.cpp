@@ -19,7 +19,6 @@
 #include "RicPasteAsciiDataToSummaryPlotFeature.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
-#include "RicNewSummaryPlotFeature.h"
 #include "RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include "RiaLogging.h"

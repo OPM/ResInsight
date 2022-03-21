@@ -20,7 +20,6 @@
 
 #include "SummaryPlotCommands/RicNewDefaultSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "RiaTextStringTools.h"

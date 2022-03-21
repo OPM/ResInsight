@@ -559,7 +559,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicPasteSummaryPlotFeature";
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
@@ -769,7 +769,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
             menuBuilder << "RicNewDerivedEnsembleFeature";
-            menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
@@ -785,7 +785,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicImportEnsembleFeature";
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
-            menuBuilder << "RicNewSummaryPlotFeature";
+            menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
@@ -794,7 +794,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             if ( !dynamic_cast<RimObservedSummaryData*>( firstUiItem ) )
             {
                 menuBuilder << "RicShowSummaryCurveCalculatorFeature";
-                // menuBuilder << "RicNewSummaryPlotFeature";
+                // menuBuilder << "RicOpenSummaryPlotEditorFeature";
             }
         }
         else if ( dynamic_cast<RimWellLogFileChannel*>( firstUiItem ) )
@@ -1063,7 +1063,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicShowTotalAllocationDataFeature";
 
         menuBuilder << "RicNewDerivedEnsembleFeature";
-        menuBuilder << "RicNewSummaryPlotFeature";
+        menuBuilder << "RicOpenSummaryPlotEditorFeature";
         menuBuilder << "RicNewDefaultSummaryPlotFeature";
         menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
