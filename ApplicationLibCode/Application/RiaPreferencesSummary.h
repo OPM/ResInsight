@@ -88,7 +88,9 @@ public:
     RiaDefines::ColumnCount defaultMultiPlotColumnCount() const;
     RiaDefines::RowCount    defaultMultiPlotRowCount() const;
 
-    void defineEditorAttribute( const caf::PdmFieldHandle* field, QString uiConfigName, caf::PdmUiEditorAttribute* attribute );
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
