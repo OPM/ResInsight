@@ -86,10 +86,5 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
             RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantity, true ) );
     }
 
-    if ( title.isEmpty() )
-    {
-        title = "";
-    }
-
     return title;
 }
