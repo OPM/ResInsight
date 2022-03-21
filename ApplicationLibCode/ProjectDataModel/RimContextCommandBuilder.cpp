@@ -126,6 +126,7 @@
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
@@ -1036,6 +1037,12 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                   dynamic_cast<RimPlotTemplateFileItem*>( firstUiItem ) )
         {
             menuBuilder << "RicReloadPlotTemplatesFeature";
+        }
+        else if ( dynamic_cast<RimSummaryMultiPlot*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewDefaultSummaryPlotFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicSnapshotViewToPdfFeature";
         }
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {
