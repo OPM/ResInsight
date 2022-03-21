@@ -26,12 +26,16 @@
 #include "RiaRegressionTestRunner.h"
 #include "RiaSummaryTools.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
@@ -46,6 +50,7 @@
 #include "SummaryPlotCommands/RicSummaryPlotEditorDialog.h"
 
 #include "RiuDockWidgetTools.h"
+#include "RiuDragDrop.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuMessagePanel.h"
 #include "RiuMultiPlotPage.h"
@@ -85,6 +90,8 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     createMenus();
     createToolBars();
     createDockPanels();
+
+    setAcceptDrops( true );
 
     // Store the layout so we can offer reset option
     m_initialDockAndToolbarLayout = saveState( 0 );
@@ -1153,4 +1160,27 @@ bool RiuPlotMainWindow::subWindowsAreTiled() const
 bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 {
     return m_mdiArea->subWindowList().size() > 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::dragEnterEvent( QDragEnterEvent* event )
+{
+    QPoint curpos = m_mdiArea->mapFromGlobal( QCursor::pos() );
+
+    if ( m_mdiArea->rect().contains( curpos ) ) event->acceptProposedAction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::dropEvent( QDropEvent* event )
+{
+    std::vector<caf::PdmObjectHandle*> objects;
+
+    if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
+    {
+        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
+    }
 }

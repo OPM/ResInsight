@@ -98,6 +98,8 @@ public:
 protected:
     void closeEvent( QCloseEvent* event ) override;
     void keyPressEvent( QKeyEvent* ) override;
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
 
 private:
     void setPdmRoot( caf::PdmObject* pdmRoot );
