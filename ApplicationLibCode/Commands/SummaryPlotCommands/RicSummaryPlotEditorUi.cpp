@@ -216,7 +216,8 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         if ( m_targetPlot == nullptr )
         {
-            createNewPlot();
+            QMessageBox::information( nullptr, "No target plot selected.", "Please select a plot to use." );
+            return;
         }
 
         updateTargetPlot();
@@ -281,11 +282,11 @@ QList<caf::PdmOptionItemInfo>
             RimProject* proj = RimProject::current();
 
             RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-            if ( summaryPlotColl )
-            {
-                summaryPlotColl->summaryPlotItemInfos( &options );
-            }
+        if ( summaryPlotColl )
+        {
+            summaryPlotColl->summaryPlotItemInfos( &options );
         }
+    }
     }
 
     return options;

@@ -361,6 +361,7 @@ RimSummaryMultiPlot*
     plotWindow->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
+    RiuPlotMainWindowTools::setExpanded( plotWindow, true );
 
     return plotWindow;
 }
