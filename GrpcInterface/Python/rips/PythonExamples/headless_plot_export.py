@@ -7,7 +7,7 @@ use_platform_offscreen = True
 if use_platform_offscreen:
     # To use offscreen, the path to fonts must be specified in the environment variable QT_QPA_FONTDIR="C:/windows/fonts"
     resinsight = rips.Instance.launch(
-        command_line_parameters=["-platform offscreen", "--size", 1200, 1000]
+        command_line_parameters=["-platform", "offscreen", "--size", 1200, 1000]
     )
 
     qpa_fontdir = os.environ["QT_QPA_FONTDIR"]
