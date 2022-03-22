@@ -104,6 +104,8 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
     , m_subTitlesVisible( true )
     , m_previewMode( true )
     , m_currentPageIndex( 0 )
+    , m_goToLastPageAfterUpdate( false )
+    , m_pageTimerId( -1 )
 {
     const int spacing = 8;
 
@@ -168,6 +170,7 @@ void RiuMultiPlotBook::addPlot( RiuPlotWidget* plotWidget )
 void RiuMultiPlotBook::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 {
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
+    m_goToLastPageAfterUpdate = true;
     scheduleUpdate();
 }
 
@@ -461,6 +464,24 @@ void RiuMultiPlotBook::performUpdate()
     deleteAllPages();
     createPages();
     updateGeometry();
+    // use a timer to trigger a viewer page change, if needed
+    if ( m_goToLastPageAfterUpdate )
+    {
+        m_pageTimerId             = startTimer( 100 );
+        m_goToLastPageAfterUpdate = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::timerEvent( QTimerEvent* event )
+{
+    if ( event->timerId() == m_pageTimerId )
+    {
+        killTimer( m_pageTimerId );
+        goToLastPage();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -501,8 +522,8 @@ void RiuMultiPlotBook::createPages()
 {
     CAF_ASSERT( m_plotDefinition );
 
-    QList<QPointer<RiuPlotWidget>> plotWidgets       = this->visiblePlotWidgets();
-    auto                           rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
+    QList<QPointer<RiuPlotWidget>> plotWidgets = this->visiblePlotWidgets();
+    auto [rowCount, columnCount]               = this->rowAndColumnCount( plotWidgets.size() );
 
     int rowsPerPage = m_plotDefinition->rowsPerPage();
     int row         = 0;
@@ -514,9 +535,9 @@ void RiuMultiPlotBook::createPages()
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
         int expectedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
-        int colSpan         = std::min( expectedColSpan, rowAndColumnCount.second );
+        int colSpan         = std::min( expectedColSpan, columnCount );
 
-        std::tie( row, column ) = page->findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
+        std::tie( row, column ) = page->findAvailableRowAndColumn( row, column, colSpan, columnCount );
         if ( row >= rowsPerPage )
         {
             page   = createPage();
@@ -609,7 +630,7 @@ void RiuMultiPlotBook::applyLook()
 void RiuMultiPlotBook::changeCurrentPage( int pageNumber )
 {
     m_currentPageIndex = pageNumber;
-    if ( m_currentPageIndex >= (int)m_pages.size() ) m_currentPageIndex = (int)m_pages.size() - 1;
+    if ( m_currentPageIndex >= m_pages.size() ) m_currentPageIndex = m_pages.size() - 1;
     if ( m_currentPageIndex < 0 ) m_currentPageIndex = 0;
     if ( !m_pages.isEmpty() ) m_scrollArea->ensureWidgetVisible( m_pages[m_currentPageIndex] );
 }
