@@ -1025,7 +1025,6 @@ void RiuPlotMainWindow::selectedObjectsChanged()
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
-            projectTree->raise();
             projectTree->treeView()->setFocus();
         }
     }
