@@ -36,6 +36,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -43,6 +44,7 @@
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
@@ -83,11 +85,9 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     addSummaryCases( cases );
     if ( !cases.empty() )
     {
-        auto objectToSelect = RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases.front() );
-        if ( objectToSelect )
+        for ( auto sumcase : cases )
         {
-            RiuPlotMainWindowTools::setExpanded( objectToSelect );
-            RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+            RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { sumcase }, {} );
         }
     }
 
@@ -136,7 +136,8 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
         addSummaryCases( *cases );
         if ( !cases->empty() && doCreateDefaultPlot )
         {
-            auto objectToSelect = RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases->back() );
+            auto objectToSelect = RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { cases->back() }, {} );
+
             if ( objectToSelect )
             {
                 RiuPlotMainWindowTools::setExpanded( objectToSelect );

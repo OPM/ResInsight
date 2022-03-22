@@ -51,6 +51,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -76,61 +77,6 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot(
     bool addHistoryCurve = false;
 
     return addCurvesFromAddressFiltersToPlot( curveFilters, plot, summaryCase, addHistoryCurve );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( RimSummaryPlotCollection* summaryPlotCollection,
-                                                      RimSummaryCase*           summaryCase )
-{
-    if ( summaryPlotCollection && summaryCase )
-    {
-        if ( summaryPlotCollection->plots().empty() )
-        {
-            auto objectToSelect = createDefaultSummaryPlot( summaryCase );
-            if ( objectToSelect )
-            {
-                RiuPlotMainWindowTools::setExpanded( objectToSelect );
-                RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
-            }
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmObject* RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( RimSummaryCase* summaryCase )
-{
-    RimSummaryPlotCollection* summaryPlotCollection = RimProject::current()->mainPlotCollection->summaryPlotCollection();
-
-    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
-
-    caf::PdmObject* itemToSelect = nullptr;
-
-    if ( summaryPlotCollection && summaryCase && !prefs->defaultSummaryCurvesTextFilter().isEmpty() )
-    {
-        auto plot = summaryPlotCollection->createSummaryPlotWithAutoTitle();
-
-        std::vector<RimSummaryCurve*> curves = RicSummaryPlotFeatureImpl::addDefaultCurvesToPlot( plot, summaryCase );
-
-        plot->applyDefaultCurveAppearances();
-        plot->loadDataAndUpdate();
-
-        summaryPlotCollection->updateConnectedEditors();
-
-        if ( curves.size() )
-        {
-            itemToSelect = curves[0];
-        }
-        else
-        {
-            itemToSelect = plot;
-        }
-    }
-
-    return itemToSelect;
 }
 
 //--------------------------------------------------------------------------------------------------
