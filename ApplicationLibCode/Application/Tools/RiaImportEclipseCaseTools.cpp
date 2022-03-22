@@ -20,6 +20,7 @@
 
 #include "ApplicationCommands/RicShowMainWindowFeature.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
@@ -195,10 +196,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
             if ( !newSumCases.empty() )
             {
-                RimSummaryPlotCollection* summaryPlotColl = project->mainPlotCollection()->summaryPlotCollection();
-
-                RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( summaryPlotColl, newSumCases.front() );
-
+                RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { newSumCases.front() }, {} );
                 RiuPlotMainWindowTools::setExpanded( newSumCases.front() );
             }
         }

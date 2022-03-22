@@ -44,6 +44,7 @@
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 
 #include <QAction>
@@ -123,7 +124,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
             summaryCase->updateAutoShortName();
         }
 
-        RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( { ensemble } );
+        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
     std::vector<RimCase*> allCases;

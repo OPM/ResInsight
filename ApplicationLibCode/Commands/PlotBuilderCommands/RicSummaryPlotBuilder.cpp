@@ -390,8 +390,8 @@ void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, con
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot*
-    RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&     cases,
-                                                                   std::vector<RimSummaryCaseCollection*>& ensembles )
+    RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
+                                                                   const std::vector<RimSummaryCaseCollection*>& ensembles )
 {
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
