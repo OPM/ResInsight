@@ -262,7 +262,6 @@ void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool 
         if ( dw )
         {
             dw->show();
-            dw->raise();
         }
     }
 
