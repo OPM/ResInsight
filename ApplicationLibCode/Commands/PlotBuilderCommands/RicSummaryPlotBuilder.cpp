@@ -360,9 +360,6 @@ RimSummaryMultiPlot*
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
-    RiuPlotMainWindowTools::setExpanded( plotWindow, true );
-
     return plotWindow;
 }
 
@@ -423,9 +420,6 @@ RimSummaryMultiPlot*
 
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
-
-    RiuPlotMainWindowTools::setExpanded( plotWindow, true );
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
     plotWindow->updateAllRequiredEditors();
 
     return plotWindow;
@@ -447,9 +441,6 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
 
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
-
-    RiuPlotMainWindowTools::setExpanded( plotWindow, true );
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
     plotWindow->updateAllRequiredEditors();
 
     return plotWindow;

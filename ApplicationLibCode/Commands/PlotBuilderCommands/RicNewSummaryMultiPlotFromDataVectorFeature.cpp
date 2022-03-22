@@ -110,6 +110,6 @@ void RicNewSummaryMultiPlotFromDataVectorFeature::onActionTriggered( bool isChec
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryMultiPlotFromDataVectorFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "New Multi Summary Plot" );
+    actionToSetup->setText( "New Summary Plot" );
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
 }
