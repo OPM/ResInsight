@@ -80,6 +80,12 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
     for ( RimPlot* plot : selection )
     {
         if ( !plot ) continue;
+        caf::SelectionManager::instance()->removeObjectFromAllSelections( plot );
+    }
+
+    for ( RimPlot* plot : selection )
+    {
+        if ( !plot ) continue;
 
         RimMultiPlot*   multiPlot   = nullptr;
         RimWellLogPlot* wellLogPlot = nullptr;
@@ -89,8 +95,6 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
         {
             alteredPlotWindows.insert( multiPlot );
             multiPlot->removePlot( plot );
-            caf::SelectionManager::instance()->removeObjectFromAllSelections( plot );
-
             multiPlot->updateConnectedEditors();
             delete plot;
         }
@@ -98,8 +102,6 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
         {
             alteredPlotWindows.insert( wellLogPlot );
             wellLogPlot->removePlot( plot );
-            caf::SelectionManager::instance()->removeObjectFromAllSelections( plot );
-
             wellLogPlot->updateConnectedEditors();
             delete plot;
         }

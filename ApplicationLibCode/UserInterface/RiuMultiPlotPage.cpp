@@ -537,7 +537,7 @@ void RiuMultiPlotPage::onSelectionManagerSelectionChanged( const std::set<int>& 
 
     for ( RiuPlotWidget* plotWidget : m_plotWidgets )
     {
-        CAF_ASSERT( plotWidget );
+        if ( !plotWidget ) continue;
         RimPlot* plot = plotWidget->plotDefinition();
         if ( !plot ) continue;
 
