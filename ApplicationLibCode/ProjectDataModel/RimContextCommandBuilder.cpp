@@ -569,13 +569,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryMultiPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSummaryMultiPlotFeature";
-            // menuBuilder << "RicPasteSummaryPlotFeature";
-            // menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
-            // menuBuilder << "Separator";
-            // menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            // menuBuilder << "RicNewDefaultSummaryPlotFeature";
-            // menuBuilder << "Separator";
-            // menuBuilder << "RicShowSummaryCurveCalculatorFeature";
         }
         else if ( dynamic_cast<RimAnalysisPlotCollection*>( firstUiItem ) )
         {
