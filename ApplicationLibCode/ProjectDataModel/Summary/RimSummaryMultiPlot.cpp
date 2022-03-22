@@ -131,9 +131,9 @@ void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& obj
         RimSummaryPlot* plot = new RimSummaryPlot();
         plot->enableAutoPlotTitle( true );
 
-        addPlot( plot );
-
         plot->handleDroppedObjects( objects );
+
+        addPlot( plot );
     }
 }
 
