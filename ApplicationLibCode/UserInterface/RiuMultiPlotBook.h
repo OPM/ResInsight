@@ -105,6 +105,8 @@ protected:
     void dragEnterEvent( QDragEnterEvent* event ) override;
     void dropEvent( QDropEvent* event ) override;
 
+    void timerEvent( QTimerEvent* event ) override;
+
 private:
     void                                     deleteAllPages();
     void                                     createPages();
@@ -133,4 +135,7 @@ protected:
     bool                              m_subTitlesVisible;
     bool                              m_previewMode;
     int                               m_currentPageIndex;
+
+    bool m_goToLastPageAfterUpdate;
+    int  m_pageTimerId;
 };
