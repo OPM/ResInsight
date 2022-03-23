@@ -518,6 +518,18 @@ void RimSummaryMultiPlot::syncAxisRanges()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const
+{
+    for ( RimSummaryPlot* plot : summaryPlots() )
+    {
+        QString displayName = plot->description();
+        optionInfos->push_back( caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::duplicate()
 {
     duplicatePlot.send( this );
