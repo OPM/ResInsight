@@ -41,6 +41,7 @@ class PdmObject;
 };
 
 class RimSummaryCase;
+class RimSummaryMultiPlot;
 class RimSummaryCurveAutoName;
 class RimSummaryPlot;
 class RiaSummaryCurveDefinition;
@@ -101,6 +102,7 @@ private:
     void initCurveAppearanceCalculator( RimSummaryCurveAppearanceCalculator& curveAppearanceCalc );
     void applyAppearanceToAllPreviewCurves();
     void updateAppearanceEditor();
+    void createNewPlot();
     bool isObservedData( RimSummaryCase* sumCase ) const;
 
     static RimSummaryCase* calculatedSummaryCase();
@@ -132,4 +134,6 @@ private:
     caf::PdmField<bool> m_closeButtonField;
 
     std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator> m_summaryCurveSelectionEditor;
+
+    RimSummaryMultiPlot* m_plotContainer;
 };
