@@ -24,7 +24,10 @@
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
+#include "cafPdmUiItem.h"
 #include "cafSignal.h"
+
+#include <QList>
 
 #include <vector>
 
@@ -67,6 +70,8 @@ public:
     void syncAxisRanges();
 
     void addPlot( const std::vector<caf::PdmObjectHandle*>& objects );
+
+    void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
 
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;

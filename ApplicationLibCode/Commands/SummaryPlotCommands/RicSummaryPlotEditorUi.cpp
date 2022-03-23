@@ -42,6 +42,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -83,6 +84,7 @@ std::vector<T> toVector( const std::set<T>& set );
 ///
 //--------------------------------------------------------------------------------------------------
 RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
+    : m_plotContainer( nullptr )
 {
     CAF_PDM_InitFieldNoDefault( &m_targetPlot, "TargetPlot", "Target Plot" );
 
@@ -162,6 +164,7 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*             
 
     if ( m_targetPlot )
     {
+        targetPlot->firstAncestorOfType( m_plotContainer );
         populateCurveCreator( *m_targetPlot );
         syncPreviewCurvesFromUiSelection();
         setInitialCurveVisibility( targetPlot );
@@ -172,6 +175,7 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*             
         setDefaultCurveSelection( defaultSources );
         m_previewPlot->enableAutoPlotTitle( true );
         syncPreviewCurvesFromUiSelection();
+        m_plotContainer = nullptr;
     }
 
     caf::PdmUiItem::updateConnectedEditors();
@@ -212,8 +216,7 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
     {
         if ( m_targetPlot == nullptr )
         {
-            QMessageBox::information( nullptr, "No target plot selected.", "Please select a plot to use." );
-            return;
+            createNewPlot();
         }
 
         updateTargetPlot();
@@ -263,14 +266,25 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_targetPlot )
+    if ( m_targetPlot && ( fieldNeedingOptions == &m_targetPlot ) )
     {
-        RimProject* proj = RimProject::current();
+        // Create New Plot item
+        QString displayName = "( New Plot )";
+        options.push_back( caf::PdmOptionItemInfo( displayName, nullptr ) );
 
-        RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-        if ( summaryPlotColl )
+        if ( m_plotContainer )
         {
-            summaryPlotColl->summaryPlotItemInfos( &options );
+            m_plotContainer->summaryPlotItemInfos( &options );
+        }
+        else
+        {
+            RimProject* proj = RimProject::current();
+
+            RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
+            if ( summaryPlotColl )
+            {
+                summaryPlotColl->summaryPlotItemInfos( &options );
+            }
         }
     }
 
@@ -828,6 +842,49 @@ void RicSummaryPlotEditorUi::updateAppearanceEditor()
 
     RimSummaryCurveAppearanceCalculator curveLookCalc( allCurveDefs );
     initCurveAppearanceCalculator( curveLookCalc );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotEditorUi::createNewPlot()
+{
+    RimProject* proj = RimProject::current();
+
+    RimSummaryPlot* newSummaryPlot = nullptr;
+
+    RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
+
+    if ( m_plotContainer )
+    {
+        newSummaryPlot = new RimSummaryPlot();
+        newSummaryPlot->setAsPlotMdiWindow();
+        newSummaryPlot->enableAutoPlotTitle( true );
+        m_plotContainer->addPlot( newSummaryPlot );
+    }
+    else if ( summaryPlotColl )
+    {
+        newSummaryPlot = summaryPlotColl->createSummaryPlotWithAutoTitle();
+    }
+
+    if ( newSummaryPlot )
+    {
+        newSummaryPlot->loadDataAndUpdate();
+
+        if ( m_plotContainer )
+        {
+            m_plotContainer->updateConnectedEditors();
+        }
+        else if ( summaryPlotColl )
+        {
+            summaryPlotColl->updateConnectedEditors();
+        }
+
+        m_targetPlot = newSummaryPlot;
+
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+        mainPlotWindow->updateSummaryPlotToolBar();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
