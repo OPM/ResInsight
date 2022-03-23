@@ -597,9 +597,10 @@ void RimEclipseView::onCreateDisplayModel()
     // Surfaces
 
     m_surfaceVizModel->removeAllParts();
-    if ( m_surfaceCollection )
+    if ( surfaceInViewCollection() )
     {
-        m_surfaceCollection->appendPartsToModel( m_surfaceVizModel.p(), m_reservoirGridPartManager->scaleTransform() );
+        surfaceInViewCollection()->appendPartsToModel( m_surfaceVizModel.p(),
+                                                       m_reservoirGridPartManager->scaleTransform() );
         nativeOrOverrideViewer()->addStaticModelOnce( m_surfaceVizModel.p(), isUsingOverrideViewer() );
     }
 
@@ -912,7 +913,8 @@ void RimEclipseView::updateVisibleCellColors()
     bool hasGeneralCellResult = this->cellResult()->hasResult() || this->cellResult()->isTernarySaturationSelected();
 
     m_intersectionCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
-    if ( m_surfaceCollection ) m_surfaceCollection->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
+    if ( surfaceInViewCollection() )
+        surfaceInViewCollection()->updateCellResultColor( hasGeneralCellResult, m_currentTimeStep );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2291,9 +2293,9 @@ std::vector<RimLegendConfig*> RimEclipseView::legendConfigs() const
         absLegends.push_back( wellMeasurement->legendConfig() );
     }
 
-    if ( m_surfaceCollection )
+    if ( surfaceInViewCollection() )
     {
-        for ( auto legendConfig : m_surfaceCollection->legendConfigs() )
+        for ( auto legendConfig : surfaceInViewCollection()->legendConfigs() )
         {
             absLegends.push_back( legendConfig );
         }

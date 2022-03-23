@@ -40,6 +40,8 @@ public:
     void    setDefaultCustomName();
     void    updatePickPointAndRedraw();
 
+    RimSurfaceInViewCollection* surfaceInViewCollection() const override;
+
 protected:
     void initAfterRead() override;
     void onCreateDisplayModel() override;

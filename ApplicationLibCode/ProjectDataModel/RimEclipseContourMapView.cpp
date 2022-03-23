@@ -560,3 +560,12 @@ void RimEclipseContourMapView::onLegendConfigChanged( const caf::SignalEmitter* 
         m_contourMapProjection->clearGeometry();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInViewCollection* RimEclipseContourMapView::surfaceInViewCollection() const
+{
+    // Surfaces should not be shown in contour map.
+    return nullptr;
+}
