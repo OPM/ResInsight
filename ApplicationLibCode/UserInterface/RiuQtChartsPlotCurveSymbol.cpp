@@ -141,6 +141,62 @@ void RiuQtChartsPlotCurveSymbol::applyToScatterSeries( QtCharts::QScatterSeries*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QImage RiuQtChartsPlotCurveSymbol::image() const
+{
+    if ( m_style == PointSymbolEnum::SYMBOL_NONE )
+    {
+        return QImage();
+    }
+
+    if ( m_style == PointSymbolEnum::SYMBOL_RECT )
+    {
+        return createRectImage();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_ELLIPSE )
+    {
+        return createEllipseImage();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_CROSS )
+    {
+        return createCrossImage();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_XCROSS )
+    {
+        return createXCrossImage();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_DIAMOND )
+    {
+        return createDiamondImage();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_HEXAGON )
+    {
+        return createHexagonImage();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_STAR1 )
+    {
+        return createStar1Image();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_STAR1 )
+    {
+        return createStar1Image();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_STAR2 )
+    {
+        return createStar2Image();
+    }
+    else if ( m_style == PointSymbolEnum::SYMBOL_TRIANGLE || m_style == PointSymbolEnum::SYMBOL_UP_TRIANGLE ||
+              m_style == PointSymbolEnum::SYMBOL_DOWN_TRIANGLE || m_style == PointSymbolEnum::SYMBOL_LEFT_TRIANGLE ||
+              m_style == PointSymbolEnum::SYMBOL_RIGHT_TRIANGLE )
+    {
+        return createTriangleImage( m_style );
+    }
+
+    return QImage();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurveSymbol::setImageBrush( QtCharts::QScatterSeries* series, const QImage& image ) const
 {
     series->setMarkerShape( QtCharts::QScatterSeries::MarkerShapeRectangle );

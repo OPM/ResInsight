@@ -24,6 +24,9 @@
 #include <qwt_plot.h>
 #include <qwt_plot_shapeitem.h>
 
+class RiuQwtPlotLegend;
+class RimPlotCurve;
+
 class RiuQwtPlotTools
 {
 public:
@@ -61,6 +64,9 @@ public:
 
     static QwtPlot::Axis        toQwtPlotAxis( RiaDefines::PlotAxis );
     static RiaDefines::PlotAxis fromQwtPlotAxis( QwtPlot::Axis );
+
+    static void                 updateLegendData( RiuQwtPlotLegend* legend, const std::vector<RimPlotCurve*>& curves );
+    static QList<QwtLegendData> createLegendData( const std::vector<RimPlotCurve*>& curves );
 };
 
 //--------------------------------------------------------------------------------------------------

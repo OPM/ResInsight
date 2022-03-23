@@ -30,6 +30,8 @@
 
 #include "cafPdmObject.h"
 
+#include "qwt_legend_data.h"
+
 namespace caf
 {
 template <>
@@ -287,6 +289,14 @@ caf::PdmObject* RimPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCurve*> RimPlot::visibleCurvesForLegend()
+{
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

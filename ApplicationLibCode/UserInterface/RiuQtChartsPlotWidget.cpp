@@ -34,6 +34,7 @@
 #include "RiuQtChartsPlotCurve.h"
 #include "RiuQtChartsToolTip.h"
 #include "RiuQwtDateScaleWrapper.h"
+#include "RiuQwtPlotTools.h"
 
 #include "caf.h"
 #include "cafAssert.h"
@@ -333,6 +334,7 @@ void RiuQtChartsPlotWidget::clearLegend()
 {
     QLegend* legend = qtChart()->legend();
     legend->detachFromChart();
+    legend->hide();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -496,6 +498,11 @@ void RiuQtChartsPlotWidget::updateLayout()
 void RiuQtChartsPlotWidget::updateLegend()
 {
     qtChart()->legend()->update();
+
+    auto curves = plotDefinition()->visibleCurvesForLegend();
+
+    auto legendData = RiuQwtPlotTools::createLegendData( curves );
+    emit legendDataChanged( legendData );
 }
 
 //--------------------------------------------------------------------------------------------------

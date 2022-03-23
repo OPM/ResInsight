@@ -35,6 +35,7 @@ class QWheelEvent;
 class RiuPlotWidget;
 class RiuPlotCurve;
 class RiuPlotItem;
+class RimPlotCurve;
 
 //==================================================================================================
 ///
@@ -100,6 +101,8 @@ public:
 
     virtual caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const;
     virtual void            handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
+
+    virtual std::vector<RimPlotCurve*> visibleCurvesForLegend();
 
 protected:
     virtual RiuPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;

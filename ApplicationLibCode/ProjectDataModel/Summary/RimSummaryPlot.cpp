@@ -1792,6 +1792,34 @@ RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiuPlotAxis plotAxi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCurve*> RimSummaryPlot::visibleCurvesForLegend()
+{
+    std::vector<RimPlotCurve*> curves;
+
+    for ( auto c : summaryCurves() )
+    {
+        if ( !c->isCurveVisible() ) continue;
+        if ( !c->showInLegend() ) continue;
+        curves.push_back( c );
+    }
+
+    for ( auto curveSet : curveSets() )
+    {
+        if ( !curveSet->isCurvesVisible() ) continue;
+        if ( curveSet->colorMode() == RimEnsembleCurveSetColorManager::ColorMode::SINGLE_COLOR )
+        {
+            auto curveSetCurves = curveSet->curves();
+
+            if ( !curveSetCurves.empty() ) curves.push_back( curveSetCurves.front() );
+        }
+    }
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
                                           RimPlotAxisProperties*    axisProperties,
                                           RiuPlotAxis               oldPlotAxis,

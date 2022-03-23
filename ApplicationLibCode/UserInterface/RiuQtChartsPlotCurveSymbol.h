@@ -60,6 +60,8 @@ public:
 
     void applyToScatterSeries( QtCharts::QScatterSeries* series ) const;
 
+    QImage image() const;
+
 private:
     QImage createTriangleImage( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle ) const;
     QImage createRectImage() const;

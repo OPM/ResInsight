@@ -29,13 +29,16 @@
 
 #include "RimContextCommandBuilder.h"
 #include "RimMultiPlot.h"
+#include "RimPlotCurve.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotObjectPicker.h"
 #include "RiuPlotWidget.h"
+#include "RiuQtChartsPlotWidget.h"
 #include "RiuQwtPlotLegend.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -176,6 +179,14 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
                              SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
                              SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
         }
+        else
+        {
+            auto qtchartPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
+            legend->connect( qtchartPlotWidget,
+                             SIGNAL( legendDataChanged( const QList<QwtLegendData>& ) ),
+                             SLOT( updateLegend( const QList<QwtLegendData>& ) ) );
+        }
+
         QObject::connect( legend, SIGNAL( legendUpdated() ), this, SLOT( onLegendUpdated() ) );
 
         legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
