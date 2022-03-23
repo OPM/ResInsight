@@ -80,6 +80,9 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
     CAF_PDM_HEADER_INIT;
 
 public:
+    caf::Signal<> curvesChanged;
+
+public:
     RimSummaryPlot( bool isCrossPlot = false );
     ~RimSummaryPlot() override;
 

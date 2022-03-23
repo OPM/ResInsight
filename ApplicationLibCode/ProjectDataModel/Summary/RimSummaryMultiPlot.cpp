@@ -101,6 +101,9 @@ void RimSummaryMultiPlot::addPlot( RimPlot* plot )
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
+        // Not required to connect signal here, as RimSummaryMultiPlot::insertPlot() will always be called from
+        // RimMultiPlot::addPlot()
+
         RimMultiPlot::addPlot( plot );
     }
 }
@@ -114,6 +117,7 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
+        sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         RimMultiPlot::insertPlot( plot, index );
     }
 }
@@ -511,6 +515,19 @@ bool RimSummaryMultiPlot::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::initAfterRead()
+{
+    RimMultiPlot::initAfterRead();
+
+    for ( auto plot : summaryPlots() )
+    {
+        plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
     std::map<QString, std::pair<double, double>> axisRanges;
@@ -559,4 +576,13 @@ void RimSummaryMultiPlot::syncAxisRanges()
 void RimSummaryMultiPlot::duplicate()
 {
     duplicatePlot.send( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
+{
+    updatePlotWindowTitle();
+    applyPlotWindowTitleToWidgets();
 }

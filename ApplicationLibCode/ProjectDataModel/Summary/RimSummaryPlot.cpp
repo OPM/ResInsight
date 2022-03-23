@@ -97,6 +97,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlot, "SummaryPlot" );
 RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     : RimPlot()
     , m_isCrossPlot( isCrossPlot )
+    , curvesChanged( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -1289,6 +1290,8 @@ void RimSummaryPlot::deleteCurves( const std::vector<RimSummaryCurve*>& curves )
     RiuPlotMainWindowTools::refreshToolbars();
 
     updateCaseNameHasChanged();
+
+    curvesChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2046,6 +2049,8 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
     {
         applyDefaultCurveAppearances();
         loadDataAndUpdate();
+
+        curvesChanged.send();
     }
 
     updateConnectedEditors();
@@ -2426,6 +2431,7 @@ bool RimSummaryPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     updateStackedCurveData();
+    if ( plotWidget() ) plotWidget()->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
