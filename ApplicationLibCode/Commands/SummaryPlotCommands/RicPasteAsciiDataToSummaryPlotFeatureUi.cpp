@@ -556,3 +556,12 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::updatePreviewTextAndDateFormat()
 
     m_dateFormat = df;
 }
+
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicPasteAsciiDataToSummaryPlotFeatureUi::contextString() const
+{
+    return QString( "AsciiDataToSummarySettings" );
+}
