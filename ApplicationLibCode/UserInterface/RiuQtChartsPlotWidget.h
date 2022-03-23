@@ -28,6 +28,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
+#include "qwt_legend_data.h"
+
 #include <QPointer>
 
 #include <set>
@@ -219,6 +221,7 @@ protected:
 
 signals:
     void plotZoomed();
+    void legendDataChanged( const QList<QwtLegendData>& data );
 
 private slots:
     void axisRangeChanged();

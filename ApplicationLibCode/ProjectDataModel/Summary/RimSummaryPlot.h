@@ -196,6 +196,8 @@ public:
 
     RimPlotAxisProperties* addNewAxisProperties( RiaDefines::PlotAxis, const QString& name );
 
+    std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;

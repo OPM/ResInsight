@@ -276,40 +276,48 @@ void RiuQtChartsPlotCurve::setSamplesInPlot( const std::vector<double>& xValues,
 //--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::updateScatterSeries()
 {
+    if ( !scatterSeries() ) return;
+
     double minX = std::numeric_limits<double>::max();
     double maxX = -std::numeric_limits<double>::max();
 
-    QVector<QPointF> points = lineSeries()->pointsVector();
+    QVector<QPointF> points;
 
-    auto axes      = lineSeries()->attachedAxes();
-    bool foundAxis = false;
-    for ( auto axis : axes )
+    if ( lineSeries() )
     {
-        if ( axis->orientation() == Qt::Orientation::Horizontal )
+        points = lineSeries()->pointsVector();
+
+        bool foundAxis = false;
+
+        auto axes = lineSeries()->attachedAxes();
+        for ( auto axis : axes )
         {
-            QtCharts::QValueAxis*    valueAxis    = dynamic_cast<QtCharts::QValueAxis*>( axis );
-            QtCharts::QDateTimeAxis* dateTimeAxis = dynamic_cast<QtCharts::QDateTimeAxis*>( axis );
-            if ( valueAxis )
+            if ( axis->orientation() == Qt::Orientation::Horizontal )
             {
-                minX      = valueAxis->min();
-                maxX      = valueAxis->max();
-                foundAxis = true;
-            }
-            else if ( dateTimeAxis )
-            {
-                minX      = dateTimeAxis->min().toMSecsSinceEpoch();
-                maxX      = dateTimeAxis->max().toMSecsSinceEpoch();
-                foundAxis = true;
+                QtCharts::QValueAxis*    valueAxis    = dynamic_cast<QtCharts::QValueAxis*>( axis );
+                QtCharts::QDateTimeAxis* dateTimeAxis = dynamic_cast<QtCharts::QDateTimeAxis*>( axis );
+                if ( valueAxis )
+                {
+                    minX      = valueAxis->min();
+                    maxX      = valueAxis->max();
+                    foundAxis = true;
+                }
+                else if ( dateTimeAxis )
+                {
+                    minX      = dateTimeAxis->min().toMSecsSinceEpoch();
+                    maxX      = dateTimeAxis->max().toMSecsSinceEpoch();
+                    foundAxis = true;
+                }
             }
         }
-    }
 
-    if ( !foundAxis )
-    {
-        for ( auto p : points )
+        if ( !foundAxis )
         {
-            minX = std::min( minX, p.x() );
-            maxX = std::max( maxX, p.x() );
+            for ( auto p : points )
+            {
+                minX = std::min( minX, p.x() );
+                maxX = std::max( maxX, p.x() );
+            }
         }
     }
 

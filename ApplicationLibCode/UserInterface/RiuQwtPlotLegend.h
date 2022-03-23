@@ -28,9 +28,13 @@ public:
     QSize sizeHint() const override;
 public slots:
     void updateLegend( const QVariant&, const QList<QwtLegendData>& ) override;
+    void updateLegend( const QList<QwtLegendData>& );
 
 signals:
     void legendUpdated();
+
+private:
+    void deleteAll();
 
 private:
     int m_columnCount;

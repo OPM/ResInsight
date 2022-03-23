@@ -17,14 +17,21 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuQwtPlotTools.h"
 
-#include "RiuGuiTheme.h"
-
 #include "RiaApplication.h"
+#include "RiaColorTools.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RimPlotCurve.h"
+
+#include "RiuGuiTheme.h"
+#include "RiuQtChartsPlotCurveSymbol.h"
+#include "RiuQwtPlotLegend.h"
+
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
+#include "qwt_graphic.h"
+#include "qwt_painter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
@@ -32,6 +39,7 @@
 #include "qwt_scale_widget.h"
 
 #include <QRegExp>
+
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -265,4 +273,72 @@ RiaDefines::PlotAxis RiuQwtPlotTools::fromQwtPlotAxis( QwtPlot::Axis axis )
         return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
 
     return RiaDefines::PlotAxis::PLOT_AXIS_TOP;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotTools::updateLegendData( RiuQwtPlotLegend* legend, const std::vector<RimPlotCurve*>& curves )
+{
+    QList<QwtLegendData> legendDataList = createLegendData( curves );
+
+    legend->updateLegend( QVariant(), legendDataList );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlotCurve*>& curves )
+{
+    QList<QwtLegendData> legendDataList;
+
+    for ( auto c : curves )
+    {
+        QwtLegendData test;
+        test.setValue( QwtLegendData::Role::TitleRole, c->curveName() );
+
+        c->updateUiIconFromPlotSymbol();
+        auto icon = c->uiIcon();
+        auto size = icon->availableSizes().first();
+        // see QwtPlotCurve::legendIcon
+
+        QwtGraphic graphic;
+        {
+            graphic.setDefaultSize( size );
+            graphic.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+
+            QPainter painter( &graphic );
+            painter.setRenderHint( QPainter::Antialiasing );
+
+            {
+                QPen pn;
+                pn.setCapStyle( Qt::FlatCap );
+                pn.setColor( RiaColorTools::toQColor( c->color() ) );
+
+                painter.setPen( pn );
+
+                const double y = 0.5 * size.height();
+                QwtPainter::drawLine( &painter, 0.0, y, size.width(), y );
+            }
+
+            if ( c->symbol() != RiuQtChartsPlotCurveSymbol::SYMBOL_NONE )
+            {
+                RiuQtChartsPlotCurveSymbol symbol( c->symbol() );
+                symbol.setSize( size.height() / 2, size.height() / 2 );
+                symbol.setColor( RiaColorTools::toQColor( c->color() ) );
+
+                auto image = symbol.image();
+
+                QPoint p( size.width() / 4, size.height() / 4 );
+                painter.drawImage( p, image );
+            }
+        }
+
+        QVariant v = QVariant::fromValue( graphic );
+        test.setValue( QwtLegendData::Role::IconRole, v );
+
+        legendDataList.push_back( test );
+    }
+
+    return legendDataList;
 }
