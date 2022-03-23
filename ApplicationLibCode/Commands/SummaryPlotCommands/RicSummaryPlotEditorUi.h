@@ -102,6 +102,7 @@ private:
     void initCurveAppearanceCalculator( RimSummaryCurveAppearanceCalculator& curveAppearanceCalc );
     void applyAppearanceToAllPreviewCurves();
     void updateAppearanceEditor();
+    void createNewPlot();
     bool isObservedData( RimSummaryCase* sumCase ) const;
 
     static RimSummaryCase* calculatedSummaryCase();
