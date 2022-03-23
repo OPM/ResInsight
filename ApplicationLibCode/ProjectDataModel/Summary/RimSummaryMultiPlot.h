@@ -72,6 +72,9 @@ protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
 
+
+    void initAfterRead() override;
+
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -87,6 +90,7 @@ private:
     void updatePlotWindowTitle() override;
 
     void duplicate();
+    void onSubPlotChanged( const caf::SignalEmitter* emitter );
 
 private:
     caf::PdmField<bool> m_autoPlotTitles;
