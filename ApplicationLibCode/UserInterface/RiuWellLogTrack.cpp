@@ -58,8 +58,8 @@ protected:
 
         if ( m_plot )
         {
-            QwtPlot::Axis relatedYAxis = QwtPlot::yLeft;
-            QwtPlot::Axis relatedXAxis = QwtPlot::xTop;
+            QwtAxis::Position relatedYAxis = QwtAxis::YLeft;
+            QwtAxis::Position relatedXAxis = QwtAxis::XTop;
 
             QString curveInfoText;
             QString depthAxisValueString;
@@ -135,10 +135,10 @@ static WellLogCurveInfoTextProvider wellLogCurveInfoTextProvider;
 RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nullptr */ )
     : RiuQwtPlotWidget( track, parent )
 {
-    setAxisEnabled( QwtPlot::yLeft, true );
-    setAxisEnabled( QwtPlot::yRight, false );
-    setAxisEnabled( QwtPlot::xTop, true );
-    setAxisEnabled( QwtPlot::xBottom, true );
+    setAxisEnabled( QwtAxis::YLeft, true );
+    setAxisEnabled( QwtAxis::YRight, false );
+    setAxisEnabled( QwtAxis::XTop, true );
+    setAxisEnabled( QwtAxis::XBottom, true );
 
     new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
 }
@@ -153,7 +153,7 @@ RiuWellLogTrack::~RiuWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::setAxisEnabled( QwtPlot::Axis axis, bool enabled )
+void RiuWellLogTrack::setAxisEnabled( QwtAxis::Position axis, bool enabled )
 {
     RiuPlotAxis plotAxis = RiuPlotAxis( RiuQwtPlotTools::fromQwtPlotAxis( axis ) );
     RiuQwtPlotWidget::enableAxis( plotAxis, enabled );

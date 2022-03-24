@@ -47,7 +47,7 @@ RiuQwtPlotWheelZoomer::RiuQwtPlotWheelZoomer( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWheelZoomer::zoomOnAxis( QwtPlot* plot, QwtPlot::Axis axis, double zoomFactor, int eventPos )
+void RiuQwtPlotWheelZoomer::zoomOnAxis( QwtPlot* plot, QwtAxis::Position axis, double zoomFactor, int eventPos )
 {
     QwtScaleMap scaleMap   = plot->canvasMap( axis );
     double      zoomCenter = scaleMap.invTransform( eventPos );
@@ -75,7 +75,7 @@ void RiuQwtPlotWheelZoomer::zoomOnAxis( QwtPlot* plot, QwtPlot::Axis axis, doubl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuQwtPlotWheelZoomer::axisIsLogarithmic( QwtPlot::Axis axis ) const
+bool RiuQwtPlotWheelZoomer::axisIsLogarithmic( QwtAxis::Position axis ) const
 {
     auto it = m_axesAreLogarithmic.find( axis );
     return it != m_axesAreLogarithmic.end() ? it->second : false;
@@ -96,10 +96,10 @@ bool RiuQwtPlotWheelZoomer::eventFilter( QObject* watched, QEvent* event )
         }
 
         auto position = caf::position( wheelEvent );
-        zoomOnAxis( m_plot, QwtPlot::xBottom, zoomFactor, position.x() );
-        zoomOnAxis( m_plot, QwtPlot::xTop, zoomFactor, position.x() );
-        zoomOnAxis( m_plot, QwtPlot::yLeft, zoomFactor, position.y() );
-        zoomOnAxis( m_plot, QwtPlot::yRight, zoomFactor, position.y() );
+        zoomOnAxis( m_plot, QwtAxis::XBottom, zoomFactor, position.x() );
+        zoomOnAxis( m_plot, QwtAxis::XTop, zoomFactor, position.x() );
+        zoomOnAxis( m_plot, QwtAxis::YLeft, zoomFactor, position.y() );
+        zoomOnAxis( m_plot, QwtAxis::YRight, zoomFactor, position.y() );
 
         m_plot->replot();
         emit zoomUpdated();
@@ -111,7 +111,7 @@ bool RiuQwtPlotWheelZoomer::eventFilter( QObject* watched, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWheelZoomer::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic )
+void RiuQwtPlotWheelZoomer::setAxisIsLogarithmic( QwtAxis::Position axis, bool logarithmic )
 {
     m_axesAreLogarithmic[axis] = logarithmic;
 }

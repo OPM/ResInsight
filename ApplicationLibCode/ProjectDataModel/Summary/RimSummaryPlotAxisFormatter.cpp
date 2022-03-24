@@ -143,7 +143,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
     auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
     if ( qwtPlotWidget )
     {
-        QwtPlot::Axis qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis.axis() );
+        auto qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis );
 
         if ( m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
              m_axisProperties->scaleFactor() == 1.0 )

@@ -178,13 +178,11 @@ void RiuRelativePermeabilityPlotPanel::setPlotDefaults( QwtPlot* plot )
         plot->setTitle( plotTitle );
     }
 
-    plot->enableAxis( QwtPlot::xBottom, true );
-    plot->enableAxis( QwtPlot::yLeft, true );
-    plot->enableAxis( QwtPlot::xTop, false );
-    plot->enableAxis( QwtPlot::yRight, false );
+    plot->setAxesCount( QwtAxis::XBottom, 1 );
+    plot->setAxesCount( QwtAxis::YLeft, 1 );
 
-    plot->setAxisMaxMinor( QwtPlot::xBottom, 2 );
-    plot->setAxisMaxMinor( QwtPlot::yLeft, 3 );
+    plot->setAxisMaxMinor( QwtAxis::XBottom, 2 );
+    plot->setAxisMaxMinor( QwtAxis::YLeft, 3 );
 
     QwtLegend* legend = new QwtLegend( plot );
     plot->insertLegend( legend, QwtPlot::BottomLegend );
@@ -306,8 +304,8 @@ void RiuRelativePermeabilityPlotPanel::addTransparentCurve( QwtPlot*            
     curveLeftAxis->setSamples( pointsOnLeftAxis );
     curveRightAxis->setSamples( pointsOnRightAxis );
 
-    curveLeftAxis->setYAxis( QwtPlot::yLeft );
-    curveRightAxis->setYAxis( QwtPlot::yRight );
+    curveLeftAxis->setYAxis( QwtAxis::YLeft );
+    curveRightAxis->setYAxis( QwtAxis::YRight );
 
     curveLeftAxis->setStyle( QwtPlotCurve::NoCurve );
     curveRightAxis->setStyle( QwtPlotCurve::NoCurve );
@@ -460,7 +458,10 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         }
     }
 
-    plot->enableAxis( QwtPlot::yRight, shouldEnableRightYAxis );
+    if ( shouldEnableRightYAxis )
+        plot->setAxesCount( QwtAxis::YRight, 1 );
+    else
+        plot->setAxesCount( QwtAxis::YRight, 0 );
 
     addTransparentCurve( plot, points, axes, logScaleLeftAxis );
 
@@ -476,44 +477,44 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
 
     if ( logScaleLeftAxis )
     {
-        if ( !dynamic_cast<QwtLogScaleEngine*>( plot->axisScaleEngine( QwtPlot::yLeft ) ) )
+        if ( !dynamic_cast<QwtLogScaleEngine*>( plot->axisScaleEngine( QwtAxis::YLeft ) ) )
         {
-            plot->setAxisScaleEngine( QwtPlot::yLeft, new QwtLogScaleEngine );
+            plot->setAxisScaleEngine( QwtAxis::YLeft, new QwtLogScaleEngine );
         }
     }
     else
     {
-        if ( !dynamic_cast<QwtLinearScaleEngine*>( plot->axisScaleEngine( QwtPlot::yLeft ) ) )
+        if ( !dynamic_cast<QwtLinearScaleEngine*>( plot->axisScaleEngine( QwtAxis::YLeft ) ) )
         {
-            plot->setAxisScaleEngine( QwtPlot::yLeft, new QwtLinearScaleEngine );
+            plot->setAxisScaleEngine( QwtAxis::YLeft, new QwtLinearScaleEngine );
         }
     }
 
     if ( fixedXAxis )
     {
-        plot->setAxisScale( QwtPlot::xBottom, 0.0, 1.0 );
-        plot->setAxisAutoScale( QwtPlot::xBottom, false );
+        plot->setAxisScale( QwtAxis::XBottom, 0.0, 1.0 );
+        plot->setAxisAutoScale( QwtAxis::XBottom, false );
     }
     else
     {
-        plot->setAxisAutoScale( QwtPlot::xBottom, true );
+        plot->setAxisAutoScale( QwtAxis::XBottom, true );
     }
 
     if ( fixedLeftYAxis )
     {
         if ( logScaleLeftAxis )
         {
-            plot->setAxisScale( QwtPlot::yLeft, 1.0e-6, 1.0 );
+            plot->setAxisScale( QwtAxis::YLeft, 1.0e-6, 1.0 );
         }
         else
         {
-            plot->setAxisScale( QwtPlot::yLeft, 0.0, 1.0 );
+            plot->setAxisScale( QwtAxis::YLeft, 0.0, 1.0 );
         }
-        plot->setAxisAutoScale( QwtPlot::yLeft, false );
+        plot->setAxisAutoScale( QwtAxis::YLeft, false );
     }
     else
     {
-        plot->setAxisAutoScale( QwtPlot::yLeft, true );
+        plot->setAxisAutoScale( QwtAxis::YLeft, true );
     }
 
     QString titleStr = "Relative Permeability";
@@ -523,9 +524,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     }
     plot->setTitle( titleStr );
 
-    plot->setAxisTitle( QwtPlot::xBottom, determineXAxisTitleFromCurveCollection( curveArr ) );
-    plot->setAxisTitle( QwtPlot::yLeft, "Kr" );
-    plot->setAxisTitle( QwtPlot::yRight, QString( "Pc [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
+    plot->setAxisTitle( QwtAxis::XBottom, determineXAxisTitleFromCurveCollection( curveArr ) );
+    plot->setAxisTitle( QwtAxis::YLeft, "Kr" );
+    plot->setAxisTitle( QwtAxis::YRight, QString( "Pc [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
     plot->replot();
 }
 
@@ -626,7 +627,7 @@ void RiuRelativePermeabilityPlotPanel::addCurveConstSaturationIntersectionMarker
 
         if ( whichYAxis == RIGHT_YAXIS )
         {
-            pointMarker->setYAxis( QwtPlot::yRight );
+            pointMarker->setYAxis( QwtAxis::YRight );
         }
 
         myPlotMarkers->push_back( pointMarker );

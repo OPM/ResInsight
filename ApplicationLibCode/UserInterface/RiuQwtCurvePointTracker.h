@@ -42,15 +42,15 @@ protected:
     void removeMarkerOnFocusLeave();
 
     QwtText trackerText( const QPoint& pos ) const override;
-    QPointF closestCurvePoint( const QPoint&  cursorPosition,
-                               QString*       curveInfoText,
-                               QString*       valueAxisValueString,
-                               QString*       mainAxisValueString,
-                               QwtPlot::Axis* relatedXAxis,
-                               QwtPlot::Axis* relatedYAxis ) const;
-    void    updateClosestCurvePointMarker( const QPointF& closestPoint,
-                                           QwtPlot::Axis  relatedXAxis,
-                                           QwtPlot::Axis  relatedYAxis ) const;
+    QPointF closestCurvePoint( const QPoint&      cursorPosition,
+                               QString*           curveInfoText,
+                               QString*           valueAxisValueString,
+                               QString*           mainAxisValueString,
+                               QwtAxis::Position* relatedXAxis,
+                               QwtAxis::Position* relatedYAxis ) const;
+    void    updateClosestCurvePointMarker( const QPointF&    closestPoint,
+                                           QwtAxis::Position relatedXAxis,
+                                           QwtAxis::Position relatedYAxis ) const;
 
     QPointer<QwtPlot>             m_plot;
     QwtPlotMarker*                m_plotMarker;

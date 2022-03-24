@@ -15,7 +15,7 @@
 RiuQwtScalePicker::RiuQwtScalePicker( QwtPlot* plot )
     : QObject( plot )
 {
-    for ( uint i = 0; i < QwtPlot::axisCnt; i++ )
+    for ( uint i = 0; i < QwtAxis::AxisPositions; i++ )
     {
         QwtScaleWidget* scaleWidget = plot->axisWidget( i );
         if ( scaleWidget ) scaleWidget->installEventFilter( this );

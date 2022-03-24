@@ -195,16 +195,16 @@ void RicGridStatisticsDialog::setHistogramData( RimGridView* view )
             // Axis
             double xAxisSize      = histogramData.max - histogramData.min;
             double xAxisExtension = xAxisSize * 0.02;
-            m_historgramPlot->setAxisScale( QwtPlot::xBottom,
+            m_historgramPlot->setAxisScale( QwtAxis::XBottom,
                                             histogramData.min - xAxisExtension,
                                             histogramData.max + xAxisExtension );
-            m_aggregatedPlot->setAxisScale( QwtPlot::xBottom,
+            m_aggregatedPlot->setAxisScale( QwtAxis::XBottom,
                                             histogramData.min - xAxisExtension,
                                             histogramData.max + xAxisExtension );
 
             // Set y axis label area width
-            m_historgramPlot->axisScaleDraw( QwtPlot::yLeft )->setMinimumExtent( 60 );
-            m_aggregatedPlot->axisScaleDraw( QwtPlot::yLeft )->setMinimumExtent( 60 );
+            m_historgramPlot->axisScaleDraw( QwtAxis::YLeft )->setMinimumExtent( 60 );
+            m_aggregatedPlot->axisScaleDraw( QwtAxis::YLeft )->setMinimumExtent( 60 );
 
             // Samples
             hist->setSamples( histSamples );

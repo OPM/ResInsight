@@ -670,13 +670,13 @@ void RiuGroupedBarChartBuilder::addBarChartToPlot( QwtPlot* plot, Qt::Orientatio
 
     // Set up the axis to contain group texts and tick marks
     {
-        QwtPlot::Axis axis      = QwtPlot::xBottom;
-        QwtPlot::Axis valueAxis = QwtPlot::yLeft;
+        QwtAxis::Position axis      = QwtAxis::XBottom;
+        QwtAxis::Position valueAxis = QwtAxis::YLeft;
 
         if ( barOrientation == Qt::Horizontal )
         {
-            axis      = QwtPlot::yLeft;
-            valueAxis = QwtPlot::xBottom;
+            axis      = QwtAxis::YLeft;
+            valueAxis = QwtAxis::XBottom;
         }
 
         QwtScaleDiv groupAxisScaleDiv( 0, currentBarPosition );

@@ -70,7 +70,7 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
 
     // Attach a zoomer for the right axis
     m_zoomerRight = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
-    m_zoomerRight->setAxes( QwtPlot::xTop, QwtPlot::yRight );
+    m_zoomerRight->setAxes( QwtAxis::XTop, QwtAxis::YRight );
     m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerRight->initMousePattern( 1 );
 
@@ -200,7 +200,7 @@ void RiuGridCrossQwtPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotI
         {
             QPointF sample = curve->sample( pointNumber );
             m_selectedPointMarker->setValue( sample );
-            m_selectedPointMarker->setAxes( QwtPlot::xBottom, QwtPlot::yLeft );
+            m_selectedPointMarker->setAxes( QwtAxis::XBottom, QwtAxis::YLeft );
             m_selectedPointMarker->attach( qwtPlot() );
             QString curveName, xAxisName, yAxisName;
             if ( curveText( curve, &curveName, &xAxisName, &yAxisName ) )
