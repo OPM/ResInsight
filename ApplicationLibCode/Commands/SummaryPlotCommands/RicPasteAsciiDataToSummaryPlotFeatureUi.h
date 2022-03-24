@@ -131,6 +131,8 @@ public:
     const AsciiDataParseOptions parseOptions() const;
     void                        createNewPlot();
 
+    QString contextString() const;
+
     static DateFormat dateFormatFromString( const QString& dateString );
 
 protected:
