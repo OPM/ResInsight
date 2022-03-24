@@ -356,6 +356,8 @@ void RiuPlotMainWindow::createMenus()
     helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
     helpMenu->addAction( cmdFeatureMgr->action( "RicSearchHelpFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchIssuesHelpFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicCreateNewIssueHelpFeature" ) );
 
     connect( helpMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshHelpActions() ) );
 }
