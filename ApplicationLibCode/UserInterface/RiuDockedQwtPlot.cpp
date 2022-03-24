@@ -39,7 +39,7 @@ RiuDockedQwtPlot::RiuDockedQwtPlot( QWidget* parent /*= nullptr*/ )
 //--------------------------------------------------------------------------------------------------
 void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
 {
-    std::set<QwtPlot::Axis> allAxes = { QwtPlot::xBottom, QwtPlot::yLeft, QwtPlot::xTop, QwtPlot::yRight };
+    std::set<QwtAxis::Position> allAxes = { QwtAxis::XBottom, QwtAxis::YLeft, QwtAxis::XTop, QwtAxis::YRight };
 
     caf::FontTools::FontSize fontSize = RiaPreferences::current()->defaultPlotFontSize();
 
@@ -54,7 +54,7 @@ void RiuDockedQwtPlot::applyFontSizes( bool replot /*= false*/ )
     titleText.setFont( font );
     this->setTitle( titleText );
 
-    for ( QwtPlot::Axis axis : allAxes )
+    for ( QwtAxis::Position axis : allAxes )
     {
         QwtText text          = this->axisTitle( axis );
         QFont   axisTitleFont = text.font();

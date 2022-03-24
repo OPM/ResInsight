@@ -400,8 +400,8 @@ void RimCorrelationMatrixPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtPlot::yLeft, new TextScaleDraw( m_resultLabels ) );
-    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::YLeft, new TextScaleDraw( m_resultLabels ) );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Result Vector" );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
@@ -421,8 +421,8 @@ void RimCorrelationMatrixPlot::updateAxes()
 
     auto scaleDraw = new TextScaleDraw( m_paramLabels );
     scaleDraw->setLabelRotation( 30.0 );
-    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtPlot::xBottom, scaleDraw );
-    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, scaleDraw );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new RiuQwtLinearScaleEngine );
     m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Ensemble Parameter" );
     m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
     m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
@@ -440,7 +440,7 @@ void RimCorrelationMatrixPlot::updateAxes()
                                                          0.0,
                                                          (double)m_paramLabels.size() );
 
-    m_plotWidget->qwtPlot()->setAxisLabelAlignment( QwtPlot::xBottom, Qt::AlignRight );
+    m_plotWidget->qwtPlot()->setAxisLabelAlignment( QwtAxis::XBottom, Qt::AlignRight );
 }
 
 template <typename KeyType, typename ValueType>

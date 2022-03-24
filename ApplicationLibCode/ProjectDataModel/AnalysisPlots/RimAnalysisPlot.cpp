@@ -164,7 +164,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties" );
     m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_valueAxisProperties = new RimPlotAxisProperties;
-    m_valueAxisProperties->setNameAndAxis( "Value-Axis", RiuQwtPlotTools::fromQwtPlotAxis( QwtPlot::yLeft ) );
+    m_valueAxisProperties->setNameAndAxis( "Value-Axis", RiuQwtPlotTools::fromQwtPlotAxis( QwtAxis::YLeft ) );
     m_valueAxisProperties->enableRangeSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection" );
@@ -910,7 +910,7 @@ void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
     RiuPlotMainWindowTools::showPlotMainWindow();
 
     caf::PdmObject* itemToSelect = nullptr;
-    if ( axis == QwtPlot::yLeft )
+    if ( axis == QwtAxis::YLeft )
     {
         if ( m_barOrientation == BARS_VERTICAL )
         {
@@ -921,7 +921,7 @@ void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
             itemToSelect = this;
         }
     }
-    else if ( axis == QwtPlot::xBottom )
+    else if ( axis == QwtAxis::XBottom )
     {
         if ( m_barOrientation == BARS_HORIZONTAL )
         {

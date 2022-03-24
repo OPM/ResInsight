@@ -823,11 +823,11 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
             this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
             if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
             {
-                m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::xTop, div );
+                m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtAxis::XTop, div );
             }
             else
             {
-                m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtPlot::yLeft, div );
+                m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtAxis::YLeft, div );
             }
         }
         else if ( m_explicitTickIntervals )
@@ -1256,13 +1256,13 @@ void RimWellLogTrack::onLoadDataAndUpdate()
 
         if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
         {
-            m_plotWidget->setAxisEnabled( QwtPlot::xTop, true );
-            m_plotWidget->setAxisEnabled( QwtPlot::xBottom, false );
+            m_plotWidget->setAxisEnabled( QwtAxis::XTop, true );
+            m_plotWidget->setAxisEnabled( QwtAxis::XBottom, false );
         }
         else
         {
-            m_plotWidget->setAxisEnabled( QwtPlot::xTop, false );
-            m_plotWidget->setAxisEnabled( QwtPlot::xBottom, true );
+            m_plotWidget->setAxisEnabled( QwtAxis::XTop, false );
+            m_plotWidget->setAxisEnabled( QwtAxis::XBottom, true );
         }
     }
 
@@ -2034,17 +2034,17 @@ void RimWellLogTrack::updateAxisScaleEngine()
 
             if ( m_isLogarithmicScaleEnabled )
             {
-                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new QwtLogScaleEngine );
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XTop, new QwtLogScaleEngine );
 
                 // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLogScaleEngine );
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new QwtLogScaleEngine );
             }
             else
             {
-                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xTop, new RiuQwtLinearScaleEngine );
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XTop, new RiuQwtLinearScaleEngine );
 
                 // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new RiuQwtLinearScaleEngine );
             }
         }
         else
@@ -2053,17 +2053,17 @@ void RimWellLogTrack::updateAxisScaleEngine()
 
             if ( m_isLogarithmicScaleEnabled )
             {
-                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new QwtLogScaleEngine );
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new QwtLogScaleEngine );
 
                 // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yRight, new QwtLogScaleEngine );
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YRight, new QwtLogScaleEngine );
             }
             else
             {
-                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
 
                 // NB! Must assign scale engine to bottom in order to make QwtPlotGrid work
-                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::yRight, new RiuQwtLinearScaleEngine );
+                m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YRight, new RiuQwtLinearScaleEngine );
             }
         }
     }
@@ -2125,12 +2125,12 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* wheelEvent )
 
             if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
             {
-                QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::yLeft );
+                QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtAxis::YLeft );
                 zoomCenter           = scaleMap.invTransform( position.y() );
             }
             else
             {
-                QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtPlot::xTop );
+                QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtAxis::XTop );
                 zoomCenter           = scaleMap.invTransform( position.x() );
             }
 

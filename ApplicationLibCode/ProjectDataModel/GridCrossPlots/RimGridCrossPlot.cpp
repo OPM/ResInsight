@@ -376,11 +376,11 @@ void RimGridCrossPlot::onAxisSelected( int axis, bool toggle )
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
     RimPlotAxisProperties* properties = nullptr;
-    if ( axis == QwtPlot::yLeft )
+    if ( axis == QwtAxis::YLeft )
     {
         properties = m_yAxisProperties;
     }
-    else if ( axis == QwtPlot::xBottom )
+    else if ( axis == QwtAxis::XBottom )
     {
         properties = m_xAxisProperties;
     }

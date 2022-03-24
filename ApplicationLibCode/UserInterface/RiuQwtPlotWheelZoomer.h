@@ -33,17 +33,17 @@ public:
 
     bool eventFilter( QObject* watched, QEvent* event ) override;
 
-    void setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic );
+    void setAxisIsLogarithmic( QwtAxis::Position axis, bool logarithmic );
 
 signals:
     void zoomUpdated();
 
 private:
-    void zoomOnAxis( QwtPlot* plot, QwtPlot::Axis axis, double zoomFactor, int eventPos );
-    bool axisIsLogarithmic( QwtPlot::Axis axis ) const;
+    void zoomOnAxis( QwtPlot* plot, QwtAxis::Position axis, double zoomFactor, int eventPos );
+    bool axisIsLogarithmic( QwtAxis::Position axis ) const;
 
 private:
     QwtPlot* m_plot;
 
-    std::map<QwtPlot::Axis, bool> m_axesAreLogarithmic;
+    std::map<QwtAxis::Position, bool> m_axesAreLogarithmic;
 };

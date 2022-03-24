@@ -709,9 +709,9 @@ int RiuMultiPlotPage::alignCanvasTops()
             int row = visibleIndex / rowAndColumnCount.second;
             if ( plotWidgets[visibleIndex]->axisEnabled( RiuPlotAxis::defaultTop() ) )
             {
-                QFont font      = qwtPlotWidget->qwtPlot()->axisFont( QwtPlot::xTop );
+                QFont font      = qwtPlotWidget->qwtPlot()->axisFont( QwtAxis::XTop );
                 maxExtents[row] = std::max( maxExtents[row],
-                                            qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtPlot::xTop )->extent( font ) );
+                                            qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtAxis::XTop )->extent( font ) );
             }
         }
     }
@@ -722,7 +722,7 @@ int RiuMultiPlotPage::alignCanvasTops()
         if ( qwtPlotWidget )
         {
             int row = visibleIndex / rowAndColumnCount.second;
-            qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtPlot::xTop )->setMinimumExtent( maxExtents[row] );
+            qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtAxis::XTop )->setMinimumExtent( maxExtents[row] );
             if ( legends[visibleIndex] )
             {
                 legends[visibleIndex]->adjustSize();

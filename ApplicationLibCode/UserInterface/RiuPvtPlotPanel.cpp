@@ -143,22 +143,22 @@ void RiuPvtPlotWidget::setPlotDefaults( QwtPlot* plot )
 
     // Axis number font
     {
-        QFont axisFont = plot->axisFont( QwtPlot::xBottom );
+        QFont axisFont = plot->axisFont( QwtAxis::XBottom );
         axisFont.setPointSize( 8 );
-        plot->setAxisFont( QwtPlot::xBottom, axisFont );
-        plot->setAxisFont( QwtPlot::yLeft, axisFont );
+        plot->setAxisFont( QwtAxis::XBottom, axisFont );
+        plot->setAxisFont( QwtAxis::YLeft, axisFont );
     }
 
     // Axis title font
     {
-        QwtText axisTitle     = plot->axisTitle( QwtPlot::xBottom );
+        QwtText axisTitle     = plot->axisTitle( QwtAxis::XBottom );
         QFont   axisTitleFont = axisTitle.font();
         axisTitleFont.setPointSize( 8 );
         axisTitleFont.setBold( false );
         axisTitle.setFont( axisTitleFont );
         axisTitle.setRenderFlags( Qt::AlignRight );
-        plot->setAxisTitle( QwtPlot::xBottom, axisTitle );
-        plot->setAxisTitle( QwtPlot::yLeft, axisTitle );
+        plot->setAxisTitle( QwtAxis::XBottom, axisTitle );
+        plot->setAxisTitle( QwtAxis::YLeft, axisTitle );
     }
 
     // Title font
@@ -170,8 +170,8 @@ void RiuPvtPlotWidget::setPlotDefaults( QwtPlot* plot )
         plot->setTitle( plotTitle );
     }
 
-    plot->setAxisMaxMinor( QwtPlot::xBottom, 2 );
-    plot->setAxisMaxMinor( QwtPlot::yLeft, 3 );
+    plot->setAxisMaxMinor( QwtAxis::XBottom, 2 );
+    plot->setAxisMaxMinor( QwtAxis::YLeft, 3 );
 
     plot->plotLayout()->setAlignCanvasToScales( true );
 }
@@ -310,9 +310,9 @@ void RiuPvtPlotWidget::plotCurves( RiaDefines::EclipseUnitSystem                
 
     m_qwtPlot->setTitle( plotTitle );
 
-    m_qwtPlot->setAxisTitle( QwtPlot::xBottom,
+    m_qwtPlot->setAxisTitle( QwtAxis::XBottom,
                              QString( "Pressure [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
-    m_qwtPlot->setAxisTitle( QwtPlot::yLeft, yAxisTitle );
+    m_qwtPlot->setAxisTitle( QwtAxis::YLeft, yAxisTitle );
 
     updateTrackerPlotMarkerAndLabelFromPicker();
 

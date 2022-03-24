@@ -382,15 +382,15 @@ void RimSummaryPlot::onAxisSelected( int axis, bool toggle )
     RiuPlotMainWindowTools::showPlotMainWindow();
 
     caf::PdmObject* itemToSelect = nullptr;
-    if ( axis == QwtPlot::yLeft )
+    if ( axis == QwtAxis::YLeft )
     {
         itemToSelect = m_leftYAxisProperties_OBSOLETE;
     }
-    else if ( axis == QwtPlot::yRight )
+    else if ( axis == QwtAxis::YRight )
     {
         itemToSelect = m_rightYAxisProperties_OBSOLETE;
     }
-    else if ( axis == QwtPlot::xBottom )
+    else if ( axis == QwtAxis::XBottom )
     {
         if ( m_isCrossPlot )
         {
