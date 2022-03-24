@@ -41,6 +41,8 @@ CAF_CMD_SOURCE_INIT( RicHelpCommandLineFeature, "RicHelpCommandLineFeature" );
 CAF_CMD_SOURCE_INIT( RicHelpSummaryCommandLineFeature, "RicHelpSummaryCommandLineFeature" );
 CAF_CMD_SOURCE_INIT( RicHelpOpenUsersGuideFeature, "RicHelpOpenUsersGuideFeature" );
 CAF_CMD_SOURCE_INIT( RicSearchHelpFeature, "RicSearchHelpFeature" );
+CAF_CMD_SOURCE_INIT( RicSearchIssuesHelpFeature, "RicSearchIssuesHelpFeature" );
+CAF_CMD_SOURCE_INIT( RicCreateNewIssueHelpFeature, "RicCreateNewIssueHelpFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -307,4 +309,66 @@ void RicSearchHelpFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
 
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::HelpContents );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicSearchIssuesHelpFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSearchIssuesHelpFeature::onActionTriggered( bool isChecked )
+{
+    QString usersGuideUrl = "https://github.com/OPM/ResInsight/issues";
+
+    if ( !QDesktopServices::openUrl( usersGuideUrl ) )
+    {
+        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
+        errorHandler->showMessage( "Failed open browser with the following url\n\n" + usersGuideUrl );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSearchIssuesHelpFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "Search Issues" );
+    actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicCreateNewIssueHelpFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateNewIssueHelpFeature::onActionTriggered( bool isChecked )
+{
+    QString usersGuideUrl = "https://github.com/OPM/ResInsight/issues/new";
+
+    if ( !QDesktopServices::openUrl( usersGuideUrl ) )
+    {
+        QErrorMessage* errorHandler = QErrorMessage::qtHandler();
+        errorHandler->showMessage( "Failed open browser with the following url\n\n" + usersGuideUrl );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicCreateNewIssueHelpFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "Create New Issue" );
+    actionToSetup->setIcon( QIcon( ":/HelpCircle.svg" ) );
 }
