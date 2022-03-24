@@ -20,12 +20,15 @@
 #include "RiaDateTimeDefines.h"
 #include "RiaPlotDefines.h"
 
+#include <qwt_axis_id.h>
 #include <qwt_date.h>
 #include <qwt_plot.h>
 #include <qwt_plot_shapeitem.h>
 
 class RiuQwtPlotLegend;
 class RimPlotCurve;
+
+class RiuPlotAxis;
 
 class RiuQwtPlotTools
 {
@@ -62,11 +65,13 @@ public:
                                                QColor         color,
                                                Qt::BrushStyle brushStyle = Qt::SolidPattern );
 
-    static QwtPlot::Axis        toQwtPlotAxis( RiaDefines::PlotAxis );
-    static RiaDefines::PlotAxis fromQwtPlotAxis( QwtPlot::Axis );
 
     static void                 updateLegendData( RiuQwtPlotLegend* legend, const std::vector<RimPlotCurve*>& curves );
     static QList<QwtLegendData> createLegendData( const std::vector<RimPlotCurve*>& curves );
+    static QwtAxisId         toQwtPlotAxis( RiuPlotAxis riuPlotAxis );
+    static QwtAxis::Position toQwtPlotAxisEnum( RiaDefines::PlotAxis riaPlotAxis );
+
+    static RiaDefines::PlotAxis fromQwtPlotAxis( QwtAxis::Position );
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -90,7 +95,7 @@ PlotShapeItemType* RiuQwtPlotTools::createBoxShapeT( const QString& label,
     polygon.push_back( QPointF( startX, endY ) );
     polygon.push_back( QPointF( startX, startY ) );
     columnShape->setPolygon( polygon );
-    columnShape->setXAxis( QwtPlot::xBottom );
+    columnShape->setXAxis( QwtAxis::XBottom );
     columnShape->setBrush( QBrush( color, brushStyle ) );
     columnShape->setLegendMode( QwtPlotShapeItem::LegendShape );
     columnShape->setLegendIconSize( QSize( 16, 16 ) );

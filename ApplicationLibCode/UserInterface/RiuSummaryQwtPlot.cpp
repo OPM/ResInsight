@@ -87,7 +87,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 
     // Attach a zoomer for the right axis
     m_zoomerRight = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
-    m_zoomerRight->setAxes( QwtPlot::xTop, QwtPlot::yRight );
+    m_zoomerRight->setAxes( QwtAxis::XTop, QwtAxis::YRight );
     m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerRight->initMousePattern( 1 );
 
@@ -138,8 +138,8 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                   d
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 {
-    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
-    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new QwtLinearScaleEngine() );
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, new QwtScaleDraw() );
 }
 
 //--------------------------------------------------------------------------------------------------

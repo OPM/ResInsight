@@ -88,7 +88,7 @@ void RiuResultQwtPlot::addCurve( const RimCase*                rimCase,
     plotCurve->attach( this );
     m_plotCurves.push_back( plotCurve );
 
-    this->setAxisScale( QwtPlot::xTop, QwtDate::toDouble( dateTimes.front() ), QwtDate::toDouble( dateTimes.back() ) );
+    this->setAxisScale( QwtAxis::XTop, QwtDate::toDouble( dateTimes.front() ), QwtDate::toDouble( dateTimes.back() ) );
     this->applyFontSizes( false );
 
     this->replot();
@@ -185,18 +185,16 @@ void RiuResultQwtPlot::setDefaults()
 {
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 
-    enableAxis( QwtPlot::xBottom, true );
-    enableAxis( QwtPlot::yLeft, true );
-    enableAxis( QwtPlot::xTop, false );
-    enableAxis( QwtPlot::yRight, false );
+    setAxesCount( QwtAxis::XBottom, 1 );
+    setAxesCount( QwtAxis::YLeft, 1 );
 
     QString dateFormat = RiaPreferences::current()->dateFormat();
     QString timeFormat = RiaPreferences::current()->timeFormat();
 
     RiuQwtPlotTools::enableDateBasedBottomXAxis( this, dateFormat, timeFormat );
 
-    setAxisMaxMinor( QwtPlot::xBottom, 2 );
-    setAxisMaxMinor( QwtPlot::yLeft, 3 );
+    setAxisMaxMinor( QwtAxis::XBottom, 2 );
+    setAxisMaxMinor( QwtAxis::YLeft, 3 );
 
     applyFontSizes( false );
 

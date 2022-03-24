@@ -99,20 +99,20 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
                                                             caf::FontTools::RelativeSize::Small );
 
     {
-        QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtPlot::xBottom );
+        QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtAxis::XBottom );
         auto    font      = axisTitle.font();
         font.setPointSize( legendFontSize );
         axisTitle.setFont( font );
         axisTitle.setText( "Dimensionless Time" );
-        m_sweepEffPlot->setAxisTitle( QwtPlot::xBottom, axisTitle );
+        m_sweepEffPlot->setAxisTitle( QwtAxis::XBottom, axisTitle );
     }
     {
-        QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtPlot::yLeft );
+        QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtAxis::YLeft );
         auto    font      = axisTitle.font();
         font.setPointSize( legendFontSize );
         axisTitle.setFont( font );
         axisTitle.setText( "Sweep Efficiency" );
-        m_sweepEffPlot->setAxisTitle( QwtPlot::yLeft, axisTitle );
+        m_sweepEffPlot->setAxisTitle( QwtAxis::YLeft, axisTitle );
     }
 
     RiuQwtPlotTools::setCommonPlotBehaviour( m_flowCapVsStorageCapPlot );
@@ -121,20 +121,20 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     m_flowCapVsStorageCapPlot->setTitle( "Flow Capacity vs Storage Capacity" );
 
     {
-        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle( QwtPlot::xBottom );
+        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle( QwtAxis::XBottom );
         auto    font      = axisTitle.font();
         font.setPointSize( legendFontSize );
         axisTitle.setFont( font );
         axisTitle.setText( "Storage Capacity [C]" );
-        m_flowCapVsStorageCapPlot->setAxisTitle( QwtPlot::xBottom, axisTitle );
+        m_flowCapVsStorageCapPlot->setAxisTitle( QwtAxis::XBottom, axisTitle );
     }
     {
-        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle( QwtPlot::yLeft );
+        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle( QwtAxis::YLeft );
         auto    font      = axisTitle.font();
         font.setPointSize( legendFontSize );
         axisTitle.setFont( font );
         axisTitle.setText( "Flow Capacity [F]" );
-        m_flowCapVsStorageCapPlot->setAxisTitle( QwtPlot::yLeft, axisTitle );
+        m_flowCapVsStorageCapPlot->setAxisTitle( QwtAxis::YLeft, axisTitle );
     }
 }
 
@@ -282,8 +282,8 @@ void RiuFlowCharacteristicsPlot::removeAllCurves()
 //--------------------------------------------------------------------------------------------------
 void zoomAllInPlot( QwtPlot* plot )
 {
-    plot->setAxisAutoScale( QwtPlot::xBottom, true );
-    plot->setAxisAutoScale( QwtPlot::yLeft, true );
+    plot->setAxisAutoScale( QwtAxis::XBottom, true );
+    plot->setAxisAutoScale( QwtAxis::YLeft, true );
     plot->replot();
 }
 

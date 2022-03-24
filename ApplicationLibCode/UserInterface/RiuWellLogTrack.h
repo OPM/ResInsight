@@ -38,5 +38,5 @@ public:
     RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent = nullptr );
     ~RiuWellLogTrack() override;
 
-    void setAxisEnabled( QwtPlot::Axis axis, bool enabled );
+    void setAxisEnabled( QwtAxis::Position axis, bool enabled );
 };

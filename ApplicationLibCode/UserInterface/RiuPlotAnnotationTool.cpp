@@ -96,7 +96,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
             shading->setBrush( brush );
             shading->attach( m_plot );
             shading->setZ( -100.0 );
-            shading->setXAxis( QwtPlot::xTop );
+            shading->setXAxis( QwtAxis::XTop );
             m_horizontalMarkers.push_back( std::move( shading ) );
         }
 
@@ -335,7 +335,7 @@ void RiuPlotAnnotationTool::horizontalRange( const QString&                  nam
     shading->setBrush( brush );
     shading->attach( m_plot );
     shading->setZ( -100.0 );
-    shading->setXAxis( QwtPlot::xBottom );
+    shading->setXAxis( QwtAxis::XBottom );
     m_horizontalMarkers.push_back( std::move( shading ) );
 
     QwtPlotMarker* line( new QwtPlotMarker() );
@@ -370,7 +370,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
     shading->setBrush( brush );
     shading->attach( m_plot );
     shading->setZ( -100.0 );
-    shading->setXAxis( QwtPlot::xBottom );
+    shading->setXAxis( QwtAxis::XBottom );
     m_verticalMarkers.push_back( std::move( shading ) );
 
     QStringList labels = name.split( " - " );
@@ -414,7 +414,7 @@ void RiuPlotAnnotationTool::verticalLine( QwtPlotMarker* line,
     curvePen.setColor( color );
     curvePen.setWidth( 1 );
 
-    line->setAxes( QwtPlot::xBottom, QwtPlot::yLeft );
+    line->setAxes( QwtAxis::XBottom, QwtAxis::YLeft );
     line->setLineStyle( QwtPlotMarker::VLine );
     line->setLinePen( curvePen );
     line->setXValue( xValue );

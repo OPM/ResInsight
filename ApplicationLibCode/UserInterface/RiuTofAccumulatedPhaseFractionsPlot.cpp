@@ -192,7 +192,7 @@ void RiuTofAccumulatedPhaseFractionsPlot::setSamples( std::vector<double> xSampl
         {
             maxVal = std::max( val, maxVal );
         }
-        setAxisScale( QwtPlot::xBottom, 0, maxVal );
+        setAxisScale( QwtAxis::XBottom, 0, maxVal );
         updateAxes();
     }
     replot();
@@ -204,16 +204,14 @@ void RiuTofAccumulatedPhaseFractionsPlot::setSamples( std::vector<double> xSampl
 void RiuTofAccumulatedPhaseFractionsPlot::setDefaults()
 {
     setCommonPlotBehaviour( this );
-    setAxisTitle( QwtPlot::xBottom, "Years" );
+    setAxisTitle( QwtAxis::XBottom, "Years" );
 
-    enableAxis( QwtPlot::xBottom, true );
-    enableAxis( QwtPlot::yLeft, true );
-    setAxisScale( QwtPlot::yLeft, 0, 1, 0.2 );
-    enableAxis( QwtPlot::xTop, false );
-    enableAxis( QwtPlot::yRight, false );
+    setAxesCount( QwtAxis::XBottom, 1 );
+    setAxesCount( QwtAxis::YLeft, 1 );
+    setAxisScale( QwtAxis::YLeft, 0, 1, 0.2 );
 
-    setAxisMaxMinor( QwtPlot::xBottom, 2 );
-    setAxisMaxMinor( QwtPlot::yLeft, 3 );
+    setAxisMaxMinor( QwtAxis::XBottom, 2 );
+    setAxisMaxMinor( QwtAxis::YLeft, 3 );
 
     QSizePolicy sizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
     sizePolicy.setHeightForWidth( true );
@@ -255,26 +253,26 @@ void RiuTofAccumulatedPhaseFractionsPlot::setCommonPlotBehaviour( QwtPlot* plot 
     grid->setPen( gridPen );
 
     // Axis number font
-    QFont axisFont = plot->axisFont( QwtPlot::xBottom );
+    QFont axisFont = plot->axisFont( QwtAxis::XBottom );
     axisFont.setPointSize( 10 );
 
-    plot->setAxisFont( QwtPlot::xBottom, axisFont );
-    plot->setAxisFont( QwtPlot::xTop, axisFont );
-    plot->setAxisFont( QwtPlot::yLeft, axisFont );
-    plot->setAxisFont( QwtPlot::yRight, axisFont );
+    plot->setAxisFont( QwtAxis::XBottom, axisFont );
+    plot->setAxisFont( QwtAxis::XTop, axisFont );
+    plot->setAxisFont( QwtAxis::YLeft, axisFont );
+    plot->setAxisFont( QwtAxis::YRight, axisFont );
 
     // Axis title font
-    QwtText axisTitle     = plot->axisTitle( QwtPlot::xBottom );
+    QwtText axisTitle     = plot->axisTitle( QwtAxis::XBottom );
     QFont   axisTitleFont = axisTitle.font();
     axisTitleFont.setPointSize( 10 );
     axisTitleFont.setBold( false );
     axisTitle.setFont( axisTitleFont );
     axisTitle.setRenderFlags( Qt::AlignRight );
 
-    plot->setAxisTitle( QwtPlot::xBottom, axisTitle );
-    plot->setAxisTitle( QwtPlot::xTop, axisTitle );
-    plot->setAxisTitle( QwtPlot::yLeft, axisTitle );
-    plot->setAxisTitle( QwtPlot::yRight, axisTitle );
+    plot->setAxisTitle( QwtAxis::XBottom, axisTitle );
+    plot->setAxisTitle( QwtAxis::XTop, axisTitle );
+    plot->setAxisTitle( QwtAxis::YLeft, axisTitle );
+    plot->setAxisTitle( QwtAxis::YRight, axisTitle );
 
     // Enable mouse tracking and event filter
 
