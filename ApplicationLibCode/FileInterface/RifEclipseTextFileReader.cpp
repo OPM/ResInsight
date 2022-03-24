@@ -88,7 +88,8 @@ std::pair<std::string, std::vector<float>>
 {
     std::vector<float> values;
 
-    const auto commentChar = '-';
+    const auto commentChar   = '-';
+    const auto commentString = "--";
 
     std::string      keywordName;
     std::string_view line;
@@ -121,6 +122,12 @@ std::pair<std::string, std::vector<float>>
 
         if ( keywordName.empty() )
         {
+            auto found = line.find_first_of( commentString );
+            if ( found != std::string::npos )
+            {
+                line = line.substr( 0, found );
+            }
+
             trim( line );
             if ( !line.empty() )
             {
