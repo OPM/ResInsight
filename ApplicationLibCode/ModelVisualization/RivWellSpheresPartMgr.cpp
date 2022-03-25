@@ -109,9 +109,11 @@ void RivWellSpheresPartMgr::appendDynamicGeometryPartsToModel( cvf::ModelBasicLi
         }
     }
 
-    cvf::ref<cvf::Part> part = createPart( centerColorPairs, wellResultFrame->m_isOpen );
-
-    model->addPart( part.p() );
+    if ( !centerColorPairs.empty() )
+    {
+        cvf::ref<cvf::Part> part = createPart( centerColorPairs, wellResultFrame->m_isOpen );
+        model->addPart( part.p() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
