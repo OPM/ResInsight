@@ -65,6 +65,8 @@ cvf::ref<RigResultModifier> RigResultModifierFactory::createResultModifier( RigE
         resultValues = &( scalarSetResults->at( timeStepIndex ) );
     }
 
+    if ( resultValues->empty() ) return nullptr;
+
     bool useGlobalActiveIndex = eclipseCase->results( porosityModel )->isUsingGlobalActiveIndex( resVarAddr );
     if ( useGlobalActiveIndex )
     {

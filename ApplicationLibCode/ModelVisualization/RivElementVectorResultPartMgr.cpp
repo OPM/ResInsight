@@ -121,7 +121,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_I );
 
                 auto candidate = addresses[0 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -130,7 +131,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             {
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_J );
                 auto candidate = addresses[1 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -139,7 +141,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             {
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_K );
                 auto candidate = addresses[2 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -161,7 +164,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
         };
 
-    for ( size_t gcIdx = 0; gcIdx < cells.size(); ++gcIdx )
+#pragma omp parallel for
+    for ( int gcIdx = 0; gcIdx < static_cast<int>( cells.size() ); ++gcIdx )
     {
         if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
         {
@@ -181,9 +185,10 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                     {
                         cvf::Vec3d faceCenter;
                         cvf::Vec3d faceNormal;
-                        getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
+                        getFaceCenterAndNormal( static_cast<size_t>( gcIdx ), directions[dir], faceCenter, faceNormal );
                         faceNormal *= std::abs( resultValue );
 
+#pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_1 )
                         tensorVisualizations.push_back(
                             ElementVectorResultVisualization( faceCenter,
                                                               faceNormal,
@@ -215,6 +220,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 }
                 if ( aggregatedResult.length() >= result->threshold() )
                 {
+#pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_2 )
                     tensorVisualizations.push_back(
                         ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
                                                           aggregatedVector,
@@ -245,7 +251,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             }
         }
 
-        for ( size_t nIdx = 0; nIdx < nncData->eclipseConnectionCount(); ++nIdx )
+#pragma omp parallel for
+        for ( int nIdx = 0; nIdx < static_cast<int>( nncData->eclipseConnectionCount() ); ++nIdx )
         {
             const RigConnection& conn = nncData->availableConnections()[nIdx];
             if ( conn.polygon().size() )
@@ -253,7 +260,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 double resultValue = 0.0;
                 for ( size_t flIdx = 0; flIdx < nncResultVals.size(); flIdx++ )
                 {
-                    if ( nIdx < nncResultVals.at( flIdx )->at( timeStepIndex ).size() )
+                    if ( nIdx < static_cast<int>( nncResultVals.at( flIdx )->at( timeStepIndex ).size() ) )
                     {
                         resultValue += nncResultVals.at( flIdx )->at( timeStepIndex )[nIdx];
                     }
@@ -269,6 +276,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
                 if ( std::abs( resultValue ) >= result->threshold() )
                 {
+#pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_nnc )
                     tensorVisualizations.push_back(
                         ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
                                                           connNormal,
