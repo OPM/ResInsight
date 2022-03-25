@@ -1554,23 +1554,25 @@ QImage RimSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( uiConfigName == RicSummaryPlotEditorUi::CONFIGURATION_NAME )
+    bool isPlotEditor = ( uiConfigName == RicSummaryPlotEditorUi::CONFIGURATION_NAME );
+
+    if ( !isPlotEditor ) uiTreeOrdering.add( &m_axisProperties );
+
+    for ( auto& curve : m_summaryCurveCollection->curves() )
     {
-        uiTreeOrdering.add( &m_summaryCurveCollection );
-        if ( !m_isCrossPlot )
+        uiTreeOrdering.add( curve );
+    }
+
+    if ( !m_isCrossPlot )
+    {
+        for ( auto& curveSet : m_ensembleCurveSetCollection->curveSets() )
         {
-            uiTreeOrdering.add( &m_ensembleCurveSetCollection );
+            uiTreeOrdering.add( curveSet );
         }
     }
-    else
-    {
-        uiTreeOrdering.add( &m_axisProperties );
 
-        uiTreeOrdering.add( &m_summaryCurveCollection );
-        if ( !m_isCrossPlot )
-        {
-            uiTreeOrdering.add( &m_ensembleCurveSetCollection );
-        }
+    if ( !isPlotEditor )
+    {
         uiTreeOrdering.add( &m_gridTimeHistoryCurves );
         uiTreeOrdering.add( &m_asciiDataCurves );
     }
