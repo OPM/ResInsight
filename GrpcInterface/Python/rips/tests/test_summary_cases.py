@@ -109,6 +109,7 @@ def test_summary_no_unsmry(rips_instance, initialize_test):
         summary_case = rips_instance.project.import_summary_case(temp_path)
         assert summary_case is None
 
+
 def test_summary_set_values(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
     summary_case = rips_instance.project.import_summary_case(casePath)
