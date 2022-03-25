@@ -37,6 +37,7 @@ class RimEclipseCellColors;
 class RimCellEdgeColors;
 class RimFaultInViewCollection;
 class RigGridBase;
+
 class RimFaultInViewCollection;
 class RimFaultInView;
 class RivFaultGeometryGenerator;

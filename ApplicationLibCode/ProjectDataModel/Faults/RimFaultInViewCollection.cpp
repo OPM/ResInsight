@@ -39,6 +39,7 @@
 #include "cafAppEnum.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmFieldCvfMat4d.h"
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 namespace caf
@@ -65,31 +66,38 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitField( &showFaultCollection, "Active", true, "Active", "", "", "" );
     showFaultCollection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &showFaultFaces, "ShowFaultFaces", true, "Show Defined faces", "", "", "" );
-    CAF_PDM_InitField( &showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces", "", "", "" );
-    CAF_PDM_InitField( &m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters", "", "", "" );
+    CAF_PDM_InitField( &showFaultFaces, "ShowFaultFaces", true, "Show Defined faces" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showFaultFaces );
+
+    CAF_PDM_InitField( &showOppositeFaultFaces, "ShowOppositeFaultFaces", true, "Show Opposite Faces" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showOppositeFaultFaces );
+
+    CAF_PDM_InitField( &m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showFaultsOutsideFilters );
+
+    CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Only Show Faces With Defined Cell Neighbor" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyShowWithNeighbor );
 
     CAF_PDM_InitField( &faultResult,
                        "FaultFaceCulling",
                        caf::AppEnum<RimFaultInViewCollection::FaultFaceCullingMode>(
                            RimFaultInViewCollection::FAULT_BACK_FACE_CULLING ),
-                       "Dynamic Face Selection",
-                       "",
-                       "",
-                       "" );
+                       "Dynamic Face Selection" );
 
-    CAF_PDM_InitField( &showFaultLabel, "ShowFaultLabel", false, "Show Labels", "", "", "" );
+    CAF_PDM_InitField( &showFaultLabel, "ShowFaultLabel", false, "Show Labels" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showFaultLabel );
+
     cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
     CAF_PDM_InitField( &faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color", "", "", "" );
 
-    CAF_PDM_InitField( &showNNCs, "ShowNNCs", true, "Show NNCs", "", "", "" );
+    CAF_PDM_InitField( &showNNCs, "ShowNNCs", true, "Show NNCs" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showNNCs );
+
     CAF_PDM_InitField( &hideNncsWhenNoResultIsAvailable,
                        "HideNncsWhenNoResultIsAvailable",
                        true,
-                       "Hide NNC Geometry if No NNC Result is Available",
-                       "",
-                       "",
-                       "" );
+                       "Hide NNC Geometry if No NNC Result is Available" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &hideNncsWhenNoResultIsAvailable );
 
     CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults", "", "", "" );
     faults.uiCapability()->setUiTreeHidden( true );
@@ -127,10 +135,16 @@ void RimFaultInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* chan
         parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 
+    if ( changedField == &m_onlyShowWithNeighbor )
+    {
+        parentView()->scheduleReservoirGridGeometryRegen();
+    }
+
     if ( &showFaultFaces == changedField || &showOppositeFaultFaces == changedField ||
          &showFaultCollection == changedField || &showFaultLabel == changedField ||
          &m_showFaultsOutsideFilters == changedField || &faultLabelColor == changedField ||
-         &faultResult == changedField || &showNNCs == changedField || &hideNncsWhenNoResultIsAvailable == changedField )
+         &m_onlyShowWithNeighbor == changedField || &faultResult == changedField || &showNNCs == changedField ||
+         &hideNncsWhenNoResultIsAvailable == changedField )
     {
         parentView()->scheduleCreateDisplayModelAndRedraw();
         parentView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
@@ -286,6 +300,7 @@ void RimFaultInViewCollection::uiOrderingFaults( QString uiConfigName, caf::PdmU
     ffviz->add( &showFaultFaces );
     ffviz->add( &showOppositeFaultFaces );
     ffviz->add( &faultResult );
+    ffviz->add( &m_onlyShowWithNeighbor );
 
     caf::PdmUiGroup* nncViz = uiOrdering.addNewGroup( "NNC Visibility" );
     nncViz->setCollapsedByDefault( true );
@@ -366,6 +381,14 @@ void RimFaultInViewCollection::setShowFaultsOutsideFilter( bool show )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFaultInViewCollection::onlyShowFacesWithDefinedNeighbor() const
+{
+    return m_onlyShowWithNeighbor;
+}
+
+//-------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimFaultRASettings* RimFaultInViewCollection::faultRASettings() const
