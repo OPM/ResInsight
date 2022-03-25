@@ -223,6 +223,9 @@ class PdmObjectBase:
     def __makelist(self, list_string):
         list_string = list_string.lstrip("[")
         list_string = list_string.rstrip("]")
+        if not list_string:
+            # Return empty list if empty string. Otherwise, the split function will return ['']
+            return []
         strings = list_string.split(", ")
         values = []
         for string in strings:
