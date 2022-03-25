@@ -214,7 +214,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
                 }
             }
 
-            if (!transformedSurfacePolyline.empty())
+            if ( !transformedSurfacePolyline.empty() )
                 m_transformedSurfaceIntersectionPolylines[rimSurface] = transformedSurfacePolyline;
         }
     }
