@@ -29,16 +29,20 @@
 #include "cvfScalarMapper.h"
 
 #include "RigFault.h"
+#include "RigNNCData.h"
+#include "RigNncConnection.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RivFaultGeometryGenerator::RivFaultGeometryGenerator( const cvf::StructGridInterface* grid,
                                                       const RigFault*                 fault,
+                                                      RigNNCData*                     nncData,
                                                       bool                            computeNativeFaultFaces )
     : m_grid( grid )
     , m_fault( fault )
     , m_computeNativeFaultFaces( computeNativeFaultFaces )
+    , m_nncData( nncData )
 {
     m_quadMapper     = new cvf::StructGridQuadToCellFaceMapper;
     m_triangleMapper = new cvf::StuctGridTriangleToCellFaceMapper( m_quadMapper.p() );
@@ -54,9 +58,9 @@ RivFaultGeometryGenerator::~RivFaultGeometryGenerator()
 //--------------------------------------------------------------------------------------------------
 /// Generate surface drawable geo from the specified region
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::generateSurface()
+cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::generateSurface( bool onlyShowFacesWithDefinedNeighbors )
 {
-    computeArrays();
+    computeArrays( onlyShowFacesWithDefinedNeighbors );
 
     CVF_ASSERT( m_vertices.notNull() );
 
@@ -119,13 +123,36 @@ cvf::ref<cvf::DrawableGeo> RivFaultGeometryGenerator::createOutlineMeshDrawable(
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivFaultGeometryGenerator::computeArrays()
+bool RivFaultGeometryGenerator::hasConnection( size_t                             cellIdx,
+                                               cvf::StructGridInterface::FaceType face,
+                                               RigConnectionContainer&            conns )
+{
+    cvf::StructGridInterface::FaceType oppositeFace = cvf::StructGridInterface::oppositeFace( face );
+
+    for ( size_t i = 0; i < conns.size(); i++ )
+    {
+        auto& r = conns[i];
+
+        if ( ( r.c1GlobIdx() == cellIdx ) && ( r.face() == face ) && r.hasCommonArea() ) return true;
+
+        if ( ( r.c2GlobIdx() == cellIdx ) && ( r.face() == oppositeFace ) && r.hasCommonArea() ) return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivFaultGeometryGenerator::computeArrays( bool onlyShowFacesWithDefinedNeighbors )
 {
     std::vector<cvf::Vec3f> vertices;
     m_quadMapper->quadToCellIndexMap().clear();
     m_quadMapper->quadToCellFaceMap().clear();
 
     cvf::Vec3d offset = m_grid->displayModelOffset();
+
+    auto& connections = m_nncData->connections();
 
     const std::vector<RigFault::FaultFace>& faultFaces = m_fault->faultFaces();
 
@@ -135,15 +162,17 @@ void RivFaultGeometryGenerator::computeArrays()
         size_t                             cellIndex = faultFaces[fIdx].m_nativeReservoirCellIndex;
         cvf::StructGridInterface::FaceType face      = faultFaces[fIdx].m_nativeFace;
 
-        if ( cellIndex >= m_cellVisibility->size() ) continue;
-
         if ( !m_computeNativeFaultFaces )
         {
             cellIndex = faultFaces[fIdx].m_oppositeReservoirCellIndex;
-            face      = cvf::StructGridInterface::oppositeFace( faultFaces[fIdx].m_nativeFace );
+            face      = cvf::StructGridInterface::oppositeFace( face );
         }
 
+        if ( cellIndex >= m_cellVisibility->size() ) continue;
+
         if ( !( *m_cellVisibility )[cellIndex] ) continue;
+
+        if ( onlyShowFacesWithDefinedNeighbors && !hasConnection( cellIndex, face, connections ) ) continue;
 
         cvf::Vec3d cornerVerts[8];
         m_grid->cellCornerVertices( cellIndex, cornerVerts );
@@ -151,7 +180,7 @@ void RivFaultGeometryGenerator::computeArrays()
         cvf::ubyte faceConn[4];
         m_grid->cellFaceVertexIndices( face, faceConn );
 
-        // Critical section to avoid two threads accessing the arrays at the same time.
+// Critical section to avoid two threads accessing the arrays at the same time.
 #pragma omp critical( critical_section_RivFaultGeometryGenerator_computeArrays )
         {
             int n;
