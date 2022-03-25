@@ -89,7 +89,7 @@ void RifSurfaceImporter::readGocadFile( const QString& filename, RigGocadData* g
             auto tokens = RiaStdStringTools::splitString( line, ' ' );
 
             std::string firstToken;
-            if ( !tokens.empty() ) firstToken = tokens.front();
+            if ( !tokens.empty() ) firstToken = RiaStdStringTools::trimString( tokens.front() );
 
             if ( isInTfaceSection )
             {

@@ -62,6 +62,72 @@ TEST( RiaStdStringToolsTest, TrimStrings )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, TrimString )
+{
+    std::vector<std::pair<std::string, std::string>> testData = {
+        std::make_pair( "   bla  ", "bla" ),
+        std::make_pair( "bla ", "bla" ),
+        std::make_pair( " bla", "bla" ),
+        std::make_pair( "\tbla", "bla" ),
+        std::make_pair( "\tbla \n\t", "bla" ),
+        std::make_pair( "\tbla\v", "bla" ),
+        std::make_pair( "bla", "bla" ),
+        std::make_pair( "", "" ),
+    };
+
+    for ( auto [input, expectedText] : testData )
+    {
+        EXPECT_EQ( RiaStdStringTools::trimString( input ), expectedText );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, LeftTrimString )
+{
+    std::vector<std::pair<std::string, std::string>> testData = {
+        std::make_pair( "   bla  ", "bla  " ),
+        std::make_pair( "bla ", "bla " ),
+        std::make_pair( " bla", "bla" ),
+        std::make_pair( "\tbla", "bla" ),
+        std::make_pair( "\tbla \n\t", "bla \n\t" ),
+        std::make_pair( "\tbla\v", "bla\v" ),
+        std::make_pair( "bla", "bla" ),
+        std::make_pair( "", "" ),
+    };
+
+    for ( auto [input, expectedText] : testData )
+    {
+        EXPECT_EQ( RiaStdStringTools::leftTrimString( input ), expectedText );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaStdStringToolsTest, RightTrimString )
+{
+    std::vector<std::pair<std::string, std::string>> testData = {
+        std::make_pair( "   bla  ", "   bla" ),
+        std::make_pair( "bla ", "bla" ),
+        std::make_pair( " bla", " bla" ),
+        std::make_pair( "\tbla", "\tbla" ),
+        std::make_pair( "\tbla \n\t", "\tbla" ),
+        std::make_pair( "\tbla\v", "\tbla" ),
+        std::make_pair( "bla", "bla" ),
+        std::make_pair( "", "" ),
+    };
+
+    for ( auto [input, expectedText] : testData )
+    {
+        EXPECT_EQ( RiaStdStringTools::rightTrimString( input ), expectedText );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RiaStdStringToolsTest, DISABLED_PerformanceConversion )
 {
     size_t      itemCount     = 1000000;
