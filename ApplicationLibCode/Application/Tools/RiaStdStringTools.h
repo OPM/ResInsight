@@ -31,7 +31,10 @@ class RiaStdStringTools
 {
 public:
     static std::string trimString( const std::string& s );
-    static bool        isNumber( const std::string& s, char decimalPoint );
+    static std::string rightTrimString( const std::string& s );
+    static std::string leftTrimString( const std::string& s );
+
+    static bool isNumber( const std::string& s, char decimalPoint );
 
     static int16_t toInt16( const std::string& s );
     static int     toInt( const std::string& s );
