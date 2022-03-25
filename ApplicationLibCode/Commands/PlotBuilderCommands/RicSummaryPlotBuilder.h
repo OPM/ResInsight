@@ -75,6 +75,10 @@ public:
     static RimMultiPlot* createAndAppendMultiPlot( const std::vector<RimPlot*>& plots );
     static void          appendPlotsToMultiPlot( RimMultiPlot* multiPlot, const std::vector<RimPlot*>& plots );
 
+    static RimSummaryMultiPlot*
+        createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
+                                                const std::vector<RimSummaryCaseCollection*>& ensembles );
+
     static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots );
     static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects );
     static void appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots );

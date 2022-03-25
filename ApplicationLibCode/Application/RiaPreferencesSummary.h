@@ -22,6 +22,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include "RiaDefines.h"
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -54,6 +56,9 @@ public:
     };
     using SummaryHistoryCurveStyleModeType = caf::AppEnum<SummaryHistoryCurveStyleMode>;
 
+    using ColumnCountEnum = caf::AppEnum<RiaDefines::ColumnCount>;
+    using RowCountEnum    = caf::AppEnum<RiaDefines::RowCount>;
+
 public:
     RiaPreferencesSummary();
 
@@ -80,6 +85,13 @@ public:
 
     SummaryHistoryCurveStyleMode defaultSummaryHistoryCurveStyle() const;
 
+    RiaDefines::ColumnCount defaultMultiPlotColumnCount() const;
+    RiaDefines::RowCount    defaultMultiPlotRowCount() const;
+
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
@@ -104,4 +116,7 @@ private:
     caf::PdmField<int>  m_createH5SummaryFileThreadCount;
 
     caf::PdmField<SummaryReaderModeType> m_summaryReader;
+
+    caf::PdmField<ColumnCountEnum> m_defaultColumnCount;
+    caf::PdmField<RowCountEnum>    m_defaultRowsPerPage;
 };

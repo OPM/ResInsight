@@ -778,6 +778,8 @@ bool RiuDragDrop::handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObj
     const MimeDataWithIndexes* mimeData = nullptr;
     Qt::KeyboardModifiers      keyModifiers;
 
+    bool bResult = false;
+
     if ( event->type() == QEvent::Drop )
     {
         // These drop events come from Qwt
@@ -788,6 +790,8 @@ bool RiuDragDrop::handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObj
             keyModifiers = dropEvent->keyboardModifiers();
 
             dropEvent->acceptProposedAction();
+            dropEvent->accept();
+            bResult = true;
         }
     }
     else if ( event->type() == QEvent::GraphicsSceneDrop )
@@ -799,6 +803,8 @@ bool RiuDragDrop::handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObj
             mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
 
             dropEvent->acceptProposedAction();
+            dropEvent->accept();
+            bResult = true;
         }
     }
 
@@ -819,8 +825,8 @@ bool RiuDragDrop::handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObj
             if ( obj ) droppedObjects.push_back( obj );
         }
 
-        return true;
+        bResult = true;
     }
 
-    return false;
+    return bResult;
 }

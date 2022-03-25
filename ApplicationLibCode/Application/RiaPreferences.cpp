@@ -288,6 +288,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                             caf::PdmUiEditorAttribute* attribute )
 {
     m_readerSettings->defineEditorAttribute( field, uiConfigName, attribute );
+    m_summaryPreferences->defineEditorAttribute( field, uiConfigName, attribute );
 
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );

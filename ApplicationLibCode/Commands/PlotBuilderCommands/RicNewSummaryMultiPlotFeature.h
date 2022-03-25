@@ -18,26 +18,22 @@
 
 #pragma once
 
-#include "RicfCommandObject.h"
-
 #include "cafCmdFeature.h"
 #include "cafPdmField.h"
+#include "cafPdmUiItem.h"
 
 #include <vector>
 
-class RimSummaryPlot;
+class RimSummaryMultiPlotCollection;
+class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewSummaryMultiPlotFeature : public caf::CmdFeature, public RicfCommandObject
+class RicNewSummaryMultiPlotFeature : public caf::CmdFeature
 {
-    RICF_HEADER_INIT;
-
-public:
-    RicNewSummaryMultiPlotFeature();
-
-    caf::PdmScriptResponse execute() override;
+    CAF_CMD_HEADER_INIT;
 
 protected:
     bool isCommandEnabled() override;
@@ -45,7 +41,8 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static std::vector<RimSummaryPlot*> selectedPlots();
+    RimSummaryMultiPlotCollection* selectedCollection( std::vector<caf::PdmUiItem*>& items );
 
-    caf::PdmField<std::vector<uint64_t>> m_plots;
+    bool selectedCases( std::vector<RimSummaryCase*>*           selectedIndividualSummaryCases,
+                        std::vector<RimSummaryCaseCollection*>* selectedEnsembles );
 };

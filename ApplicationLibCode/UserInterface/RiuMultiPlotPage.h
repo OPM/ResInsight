@@ -54,16 +54,6 @@ class RiuMultiPlotPage : public QWidget, public caf::SelectionChangedReceiver, p
     Q_OBJECT
 
 public:
-    enum class ColumnCount
-    {
-        COLUMNS_1         = 1,
-        COLUMNS_2         = 2,
-        COLUMNS_3         = 3,
-        COLUMNS_4         = 4,
-        COLUMNS_UNLIMITED = 1000,
-    };
-
-public:
     RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* parent = nullptr );
     ~RiuMultiPlotPage() override;
 

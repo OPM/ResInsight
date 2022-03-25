@@ -22,6 +22,7 @@
 #include "RiaPreferences.h"
 
 #include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 #include <algorithm>
 
@@ -55,6 +56,7 @@ void RiaPreferencesSummary::SummaryReaderModeType::setUp()
     addItem( RiaPreferencesSummary::SummaryReaderMode::OPM_COMMON, "OPM_COMMON", "ESMRY (opm-common)" );
     setDefault( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 }
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RiaPreferencesSummary, "RiaPreferencesSummary" );
@@ -137,6 +139,11 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        true,
                        "Use Multiple Threads for Import of Summary Files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useMultipleThreadsWhenLoadingSummaryCases );
+
+    CAF_PDM_InitFieldNoDefault( &m_defaultColumnCount, "DefaultNumberOfColumns", "Columns" );
+    m_defaultColumnCount = RiaDefines::ColumnCount::COLUMNS_2;
+    CAF_PDM_InitFieldNoDefault( &m_defaultRowsPerPage, "DefaultRowsPerPage", "Rows per Page" );
+    m_defaultRowsPerPage = RiaDefines::RowCount::ROWS_2;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,6 +228,11 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
     uiOrdering.add( &m_defaultSummaryCurvesTextFilter );
     uiOrdering.add( &m_defaultSummaryHistoryCurveStyle );
     uiOrdering.add( &m_showSummaryTimeAsLongString );
+
+    auto multiGroup = uiOrdering.addNewGroup( "Multi Plot Defaults" );
+
+    multiGroup->add( &m_defaultColumnCount );
+    multiGroup->add( &m_defaultRowsPerPage );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -319,6 +331,23 @@ void RiaPreferencesSummary::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                   QString                    uiConfigName,
+                                                   caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_defaultRowsPerPage || field == &m_defaultColumnCount )
+    {
+        auto myattr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+        if ( myattr )
+        {
+            myattr->iconSize = QSize( 24, 16 );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
     RiaPreferencesSummary::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
 {
@@ -362,6 +391,49 @@ QList<caf::PdmOptionItemInfo>
         options.push_back( caf::PdmOptionItemInfo( allowImport.uiText(),
                                                    RiaPreferencesSummary::SummaryRestartFilesImportMode::IMPORT ) );
     }
+    else if ( fieldNeedingOptions == &m_defaultColumnCount )
+    {
+        for ( size_t i = 0; i < ColumnCountEnum::size(); ++i )
+        {
+            RiaDefines::ColumnCount enumVal           = ColumnCountEnum::fromIndex( i );
+            QString                 columnCountString = ( enumVal == RiaDefines::ColumnCount::COLUMNS_UNLIMITED )
+                                            ? "Unlimited"
+                                            : QString( "%1" ).arg( static_cast<int>( enumVal ) );
+            QString iconPath = QString( ":/Columns%1.png" ).arg( columnCountString );
+            options.push_back( caf::PdmOptionItemInfo( ColumnCountEnum::uiText( enumVal ),
+                                                       enumVal,
+                                                       false,
+                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_defaultRowsPerPage )
+    {
+        for ( size_t i = 0; i < RowCountEnum::size(); ++i )
+        {
+            RiaDefines::RowCount enumVal  = RowCountEnum::fromIndex( i );
+            QString              iconPath = QString( ":/Rows%1.png" ).arg( static_cast<int>( enumVal ) );
+            options.push_back( caf::PdmOptionItemInfo( RowCountEnum::uiText( enumVal ),
+                                                       enumVal,
+                                                       false,
+                                                       caf::IconProvider( iconPath, QSize( 24, 16 ) ) ) );
+        }
+    }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ColumnCount RiaPreferencesSummary::defaultMultiPlotColumnCount() const
+{
+    return m_defaultColumnCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::RowCount RiaPreferencesSummary::defaultMultiPlotRowCount() const
+{
+    return m_defaultRowsPerPage();
 }
