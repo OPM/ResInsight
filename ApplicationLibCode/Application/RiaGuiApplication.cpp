@@ -32,6 +32,7 @@
 #include "RiaProjectModifier.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaSocketServer.h"
+#include "RiaSummaryTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
 
@@ -1338,6 +1339,8 @@ void RiaGuiApplication::onProjectBeingSaved()
 {
     setLastUsedDialogDirectory( "BINARY_GRID", QFileInfo( m_project->fileName() ).absolutePath() );
     storeTreeViewState();
+
+    RiaSummaryTools::summaryCaseMainCollection()->onProjectBeingSaved();
 }
 
 //--------------------------------------------------------------------------------------------------

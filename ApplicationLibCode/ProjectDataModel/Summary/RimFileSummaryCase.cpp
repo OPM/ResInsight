@@ -18,21 +18,29 @@
 
 #include "RimFileSummaryCase.h"
 
+#include "RiaApplication.h"
 #include "RiaLogging.h"
 
 #include "RicfCommandObject.h"
+
 #include "RifEclipseSummaryTools.h"
+#include "RifMultipleSummaryReaders.h"
+#include "RifOpmCommonSummary.h"
+#include "RifProjectSummaryDataWriter.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderMultipleFiles.h"
 
+#include "RimProject.h"
 #include "RimTools.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiFilePathEditor.h"
 
 #include <QDir>
 #include <QFileInfo>
+#include <QUuid>
 
 //==================================================================================================
 //
@@ -47,9 +55,13 @@ CAF_PDM_SOURCE_INIT( RimFileSummaryCase, "FileSummaryCase" );
 RimFileSummaryCase::RimFileSummaryCase()
 {
     CAF_PDM_InitScriptableObject( "File Summary Case ", ":/SummaryCases16x16.png", "", "A Summary Case based on SMSPEC files" );
-    CAF_PDM_InitScriptableField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files", "", "", "" );
-
+    CAF_PDM_InitScriptableField( &m_includeRestartFiles, "IncludeRestartFiles", false, "Include Restart Files" );
     m_includeRestartFiles.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_additionalSummaryFilePath,
+                                "AdditionalSummaryFilePath",
+                                "Additional File Path (set invisible when ready)" );
+    m_additionalSummaryFilePath.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -91,9 +103,14 @@ void RimFileSummaryCase::updateFilePathsFromProjectPath( const QString& newProje
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLogger* threadSafeLogger )
 {
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+    m_fileSummaryReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
                                                                                m_includeRestartFiles,
                                                                                threadSafeLogger );
+
+    m_multiSummaryReader = new RifMultipleSummaryReaders;
+    m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
+
+    openAndAttachAdditionalReader();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -102,9 +119,13 @@ void RimFileSummaryCase::createSummaryReaderInterfaceThreadSafe( RiaThreadSafeLo
 void RimFileSummaryCase::createSummaryReaderInterface()
 {
     RiaThreadSafeLogger threadSafeLogger;
-    m_summaryFileReader = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
+    m_fileSummaryReader  = RimFileSummaryCase::findRelatedFilesAndCreateReader( this->summaryHeaderFilename(),
                                                                                m_includeRestartFiles,
                                                                                &threadSafeLogger );
+    m_multiSummaryReader = new RifMultipleSummaryReaders;
+    m_multiSummaryReader->addReader( m_fileSummaryReader.p() );
+
+    openAndAttachAdditionalReader();
 
     auto messages = threadSafeLogger.messages();
     for ( const auto& m : messages )
@@ -193,13 +214,49 @@ RifReaderEclipseRft* RimFileSummaryCase::findRftDataAndCreateReader( const QStri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                QString                    uiConfigName,
+                                                caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_additionalSummaryFilePath )
+    {
+        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_selectSaveFileName = true;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::openAndAttachAdditionalReader()
+{
+    QString additionalSummaryFilePath = m_additionalSummaryFilePath().path();
+
+    cvf::ref<RifOpmCommonEclipseSummary> opmCommonReader = new RifOpmCommonEclipseSummary;
+    opmCommonReader->useEnhancedSummaryFiles( true );
+
+    bool includeRestartFiles = false;
+    auto isValid             = opmCommonReader->open( additionalSummaryFilePath, includeRestartFiles, nullptr );
+    if ( isValid )
+    {
+        m_multiSummaryReader->addReader( opmCommonReader.p() );
+        m_additionalSummaryFileReader = opmCommonReader;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RifSummaryReaderInterface* RimFileSummaryCase::summaryReader()
 {
-    if ( m_summaryFileReader.isNull() )
+    if ( m_multiSummaryReader.isNull() )
     {
         createSummaryReaderInterface();
     }
-    return m_summaryFileReader.p();
+    return m_multiSummaryReader.p();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,4 +277,137 @@ RifReaderRftInterface* RimFileSummaryCase::rftReader()
 void RimFileSummaryCase::setIncludeRestartFiles( bool includeRestartFiles )
 {
     m_includeRestartFiles = includeRestartFiles;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::setSummaryData( const std::string& keyword, const std::string& unit, const std::vector<float>& values )
+{
+    size_t mainSummaryFileValueCount = m_fileSummaryReader->timeSteps( RifEclipseSummaryAddress() ).size();
+    if ( values.size() != mainSummaryFileValueCount )
+    {
+        QString txt = QString( "Wrong size of summary data for keyword %1. Expected %2 values, received %3 values" )
+                          .arg( QString::fromStdString( keyword ) )
+                          .arg( mainSummaryFileValueCount )
+                          .arg( values.size() );
+        RiaLogging::error( txt );
+
+        return;
+    }
+
+    // Remove existing reader to be able to write to the summary file
+    m_multiSummaryReader->removeReader( m_additionalSummaryFileReader.p() );
+    m_additionalSummaryFileReader = nullptr;
+
+    RifProjectSummaryDataWriter projectSummaryDataWriter;
+
+    QString   tmpAdditionalSummaryFilePath = m_additionalSummaryFilePath().path();
+    QFileInfo fi( tmpAdditionalSummaryFilePath );
+    if ( fi.exists() )
+    {
+        projectSummaryDataWriter.importFromProjectSummaryFile( tmpAdditionalSummaryFilePath.toStdString() );
+    }
+    else
+    {
+        projectSummaryDataWriter.importFromSourceSummaryReader( m_fileSummaryReader.p() );
+
+        auto tempFilePath = additionalSummaryDataFilePath();
+
+        m_additionalSummaryFilePath  = tempFilePath;
+        tmpAdditionalSummaryFilePath = tempFilePath;
+    }
+
+    projectSummaryDataWriter.setData( { keyword }, { unit }, { values } );
+
+    std::string outputFilePath = tmpAdditionalSummaryFilePath.toStdString();
+    projectSummaryDataWriter.writeDataToFile( outputFilePath );
+
+    for ( const auto& txt : projectSummaryDataWriter.errorMessages() )
+    {
+        RiaLogging::error( QString::fromStdString( txt ) );
+    }
+    projectSummaryDataWriter.clearErrorMessages();
+
+    openAndAttachAdditionalReader();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::onProjectBeingSaved()
+{
+    // If additional data is stored in temp folder, copy to project folder and remove file in temp folder
+
+    auto existingFilePath = m_additionalSummaryFilePath().path();
+    if ( QFile::exists( existingFilePath ) )
+    {
+        auto currentFilePath = additionalSummaryDataFilePath();
+        if ( existingFilePath != currentFilePath )
+        {
+            if ( QFile::copy( existingFilePath, currentFilePath ) )
+            {
+                QFile::remove( existingFilePath );
+                m_additionalSummaryFilePath = currentFilePath;
+
+                openAndAttachAdditionalReader();
+            }
+            else
+            {
+                QString txt = "Error when copying temporary file to " + currentFilePath;
+                RiaLogging::error( txt );
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFileSummaryCase::createAdditionalSummaryFileName()
+{
+    QUuid   uuid       = QUuid::createUuid();
+    QString uuidString = uuid.toString();
+    uuidString.remove( '{' ).remove( '}' );
+
+    auto filePath = "RI_SUMMARY_DATA_" + uuidString + ".ESMRY";
+
+    return filePath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimFileSummaryCase::additionalSummaryDataFilePath() const
+{
+    QDir            storageDir;
+    RiaApplication* app = RiaApplication::instance();
+    if ( app->isProjectSavedToDisc() )
+    {
+        QString projectFileName = RimProject::current()->fileName();
+
+        QFileInfo fileInfo( projectFileName );
+        storageDir = fileInfo.dir();
+    }
+    else
+    {
+        // If project is not saved, use the temp folder
+        storageDir = QDir::temp();
+    }
+
+    QString fileName;
+    auto    cacheSummaryFilePath = m_additionalSummaryFilePath().path();
+    if ( cacheSummaryFilePath.isEmpty() )
+    {
+        fileName = createAdditionalSummaryFileName();
+    }
+    else
+    {
+        QFileInfo fi( cacheSummaryFilePath );
+        fileName = fi.fileName();
+    }
+
+    auto filePath = storageDir.absoluteFilePath( fileName );
+
+    return filePath;
 }
