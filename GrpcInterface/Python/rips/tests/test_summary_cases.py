@@ -123,3 +123,35 @@ def test_summary_set_values(rips_instance, initialize_test):
     addresses = summary_case.available_addresses()
     current_keyword_count = len(addresses.values)
     assert current_keyword_count == original_keyword_count + 1
+
+
+def test_summary_set_values(rips_instance, initialize_test):
+    casePath = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
+    summary_case = rips_instance.project.import_summary_case(casePath)
+    assert summary_case.id == 1
+
+    addresses = summary_case.available_addresses()
+    original_keyword_count = len(addresses.values)
+
+    summary_data = summary_case.summary_vector_values("FOPT")
+    assert len(summary_data.values) == 60
+
+    summary_case.set_summary_values("FOPT_1", "", summary_data.values)
+    generated_summary_data = summary_case.summary_vector_values("FOPT_1")
+    assert len(generated_summary_data.values) == 60
+
+    addresses = summary_case.available_addresses()
+    current_keyword_count = len(addresses.values)
+    assert current_keyword_count == original_keyword_count + 1
+
+    # Using existing keyword will overwrite existing data
+    summary_case.set_summary_values("FOPT_1", "", summary_data.values)
+    addresses = summary_case.available_addresses()
+    current_keyword_count = len(addresses.values)
+    assert current_keyword_count == original_keyword_count + 1
+
+    # invalid value count, check that available addresses are unchanged
+    summary_case.set_summary_values("FOPT_2", "", [])
+    addresses = summary_case.available_addresses()
+    current_keyword_count = len(addresses.values)
+    assert current_keyword_count == original_keyword_count + 1

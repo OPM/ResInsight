@@ -738,3 +738,19 @@ void RimSummaryCaseMainCollection::updateAutoShortName()
         s->updateAutoShortName();
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::onProjectBeingSaved()
+{
+    auto sumCases = allSummaryCases();
+    for ( auto s : sumCases )
+    {
+        auto fileSumCase = dynamic_cast<RimFileSummaryCase*>( s );
+        if ( fileSumCase )
+        {
+            fileSumCase->onProjectBeingSaved();
+        }
+    }
+}
