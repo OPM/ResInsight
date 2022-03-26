@@ -93,23 +93,6 @@ def tempdir():
         yield dirpath
 
 
-# This test ensures that missing unsmry file is handeled gracefully
-def test_summary_no_unsmry(rips_instance, initialize_test):
-    casePathRelative = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
-
-    # create an absolute path, as the helper functions used to create a temporary folder does not work
-    # with the relative (..\..\) part of the file path
-    casePath = os.path.abspath(casePathRelative)
-
-    with tempdir() as dirpath:
-        base_path = os.path.basename(casePath)
-        temp_path = os.path.join(dirpath, base_path)
-        shutil.copy2(casePath, temp_path)
-
-        summary_case = rips_instance.project.import_summary_case(temp_path)
-        assert summary_case is None
-
-
 def test_summary_set_values(rips_instance, initialize_test):
     casePath = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.SMSPEC"
     summary_case = rips_instance.project.import_summary_case(casePath)
