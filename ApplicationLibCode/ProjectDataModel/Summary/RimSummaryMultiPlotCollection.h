@@ -45,7 +45,10 @@ public:
     void addSummaryMultiPlot( RimSummaryMultiPlot* plot );
 
 protected:
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+
     void onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate );
+    void onRefreshTree( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotRequesting );
 
     void initAfterRead() override;
 
