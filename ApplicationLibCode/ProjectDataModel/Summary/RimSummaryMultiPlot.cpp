@@ -52,6 +52,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::RimSummaryMultiPlot()
     : duplicatePlot( this )
+    , refreshTree( this )
 {
     CAF_PDM_InitObject( "Multi Summary Plot" );
     this->setDeletable( true );
@@ -101,9 +102,6 @@ void RimSummaryMultiPlot::addPlot( RimPlot* plot )
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
-        // Not required to connect signal here, as RimSummaryMultiPlot::insertPlot() will always be called from
-        // RimMultiPlot::addPlot()
-
         RimMultiPlot::addPlot( plot );
     }
 }
@@ -119,6 +117,7 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     {
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         RimMultiPlot::insertPlot( plot, index );
+        signalRefresh();
     }
 }
 
@@ -151,6 +150,7 @@ void RimSummaryMultiPlot::removePlot( RimPlot* plot )
     if ( sumPlot )
     {
         RimMultiPlot::removePlot( plot );
+        signalRefresh();
     }
 }
 
@@ -533,6 +533,14 @@ void RimSummaryMultiPlot::summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* o
 void RimSummaryMultiPlot::duplicate()
 {
     duplicatePlot.send( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::signalRefresh()
+{
+    refreshTree.send( this );
 }
 
 //--------------------------------------------------------------------------------------------------

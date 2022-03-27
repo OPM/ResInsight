@@ -19,10 +19,12 @@
 
 #include "RimProject.h"
 #include "RimSummaryMultiPlot.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmFieldReorderCapability.h"
+#include "cafPdmUiTreeOrdering.h"
 
 CAF_PDM_SOURCE_INIT( RimSummaryMultiPlotCollection, "RimSummaryMultiPlotCollection" );
 
@@ -53,6 +55,7 @@ void RimSummaryMultiPlotCollection::initAfterRead()
     for ( auto& plot : m_summaryMultiPlots )
     {
         plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
+        plot->refreshTree.connect( this, &RimSummaryMultiPlotCollection::onRefreshTree );
     }
 }
 
@@ -79,6 +82,7 @@ void RimSummaryMultiPlotCollection::addSummaryMultiPlot( RimSummaryMultiPlot* pl
 {
     m_summaryMultiPlots().push_back( plot );
     plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
+    plot->refreshTree.connect( this, &RimSummaryMultiPlotCollection::onRefreshTree );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,4 +122,33 @@ void RimSummaryMultiPlotCollection::onDuplicatePlot( const caf::SignalEmitter* e
     updateConnectedEditors();
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plotCopy, true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::onRefreshTree( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotRequesting )
+{
+    if ( !plotRequesting ) return;
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                          QString                 uiConfigName /*= ""*/ )
+{
+    for ( auto& plot : m_summaryMultiPlots() )
+    {
+        if ( plot->summaryPlots().size() == 1 )
+        {
+            uiTreeOrdering.add( plot->summaryPlots()[0] );
+        }
+        else
+        {
+            uiTreeOrdering.add( plot );
+        }
+    }
+    uiTreeOrdering.skipRemainingChildren( true );
 }
