@@ -1036,6 +1036,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicSnapshotViewToPdfFeature";
+            menuBuilder << "RicSaveMultiPlotTemplateFeature";
         }
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {

@@ -6,6 +6,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadPlotTemplatesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreatePlotFromTemplateFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreatePlotFromTemplateByShortcutFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicSaveMultiPlotTemplateFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +17,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicReloadPlotTemplatesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreatePlotFromTemplateFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreatePlotFromTemplateByShortcutFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicSaveMultiPlotTemplateFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

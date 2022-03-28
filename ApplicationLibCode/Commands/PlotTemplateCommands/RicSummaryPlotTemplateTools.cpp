@@ -35,6 +35,7 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotCollection.h"
 
@@ -45,6 +46,30 @@
 
 #include <QFile>
 #include <QRegularExpression>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot* RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFile( const QString& fileName )
+{
+    QFile importFile( fileName );
+    if ( !importFile.open( QIODevice::ReadOnly | QIODevice::Text ) )
+    {
+        RiaLogging::error( QString( "Create Plot from Template : Could not open the file: %1" ).arg( fileName ) );
+        return nullptr;
+    }
+
+    QTextStream stream( &importFile );
+
+    QString objectAsText = stream.readAll();
+
+    caf::PdmObjectHandle* obj =
+        caf::PdmXmlObjectHandle::readUnknownObjectFromXmlString( objectAsText,
+                                                                 caf::PdmDefaultObjectFactory::instance(),
+                                                                 true );
+
+    return dynamic_cast<RimSummaryMultiPlot*>( obj );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -406,6 +431,14 @@ QString RicSummaryPlotTemplateTools::placeholderTextForSummaryCase()
 QString RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup()
 {
     return "ENSEMBLE_NAME";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::placeholderTextForWell()
+{
+    return "WELL_NAME";
 }
 
 //--------------------------------------------------------------------------------------------------
