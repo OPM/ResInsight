@@ -204,14 +204,16 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
 
                 cvf::Vec3d intersectionPoint;
                 bool foundMatch = RigSurfaceResampler::resamplePoint( surface, pointAbove, pointBelow, intersectionPoint );
-                if ( !foundMatch )
-                    intersectionPoint = cvf::Vec3d( point.x(), point.y(), std::numeric_limits<double>::infinity() );
-
-                const size_t lineIndex = 0;
-                transformedSurfacePolyline.push_back(
-                    transformPointByPolylineSegmentIndex( intersectionPoint, lineIndex, segmentIndex ) );
+                if ( foundMatch )
+                {
+                    const size_t lineIndex = 0;
+                    transformedSurfacePolyline.push_back(
+                        transformPointByPolylineSegmentIndex( intersectionPoint, lineIndex, segmentIndex ) );
+                }
             }
-            m_transformedSurfaceIntersectionPolylines[rimSurface] = transformedSurfacePolyline;
+
+            if ( !transformedSurfacePolyline.empty() )
+                m_transformedSurfaceIntersectionPolylines[rimSurface] = transformedSurfacePolyline;
         }
     }
 }

@@ -48,7 +48,7 @@ public:
     cvf::ref<cvf::UByteArray> currentTotalCellVisibility();
 
     RimIntersectionCollection*                  intersectionCollection() const;
-    RimSurfaceInViewCollection*                 surfaceInViewCollection() const;
+    virtual RimSurfaceInViewCollection*         surfaceInViewCollection() const;
     RimIntersectionResultsDefinitionCollection* separateIntersectionResultsCollection() const;
     RimIntersectionResultsDefinitionCollection* separateSurfaceResultsCollection() const;
     RimAnnotationInViewCollection*              annotationCollection() const;

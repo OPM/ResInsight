@@ -20,6 +20,8 @@
 
 #include "RiaDefines.h"
 
+#include "RiaResultNames.h"
+
 #include "cafAppEnum.h"
 
 namespace caf
@@ -162,7 +164,8 @@ void caf::AppEnum<RiaDefines::RowCount>::setUp()
 //--------------------------------------------------------------------------------------------------
 bool RiaDefines::isNativeCategoryResult( const QString& resultName )
 {
-    return resultName.endsWith( "NUM" );
+    return resultName.endsWith( "NUM" ) || resultName == RiaResultNames::indexIResultName() ||
+           resultName == RiaResultNames::indexJResultName() || resultName == RiaResultNames::indexKResultName();
 }
 
 //--------------------------------------------------------------------------------------------------

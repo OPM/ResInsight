@@ -23,17 +23,32 @@
 #include <cctype>
 #include <charconv>
 
+const std::string WHITESPACE = " \n\r\t\f\v";
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::leftTrimString( const std::string& s )
+{
+    size_t start = s.find_first_not_of( WHITESPACE );
+    return ( start == std::string::npos ) ? "" : s.substr( start );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::string RiaStdStringTools::rightTrimString( const std::string& s )
+{
+    size_t end = s.find_last_not_of( WHITESPACE );
+    return ( end == std::string::npos ) ? "" : s.substr( 0, end + 1 );
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::string RiaStdStringTools::trimString( const std::string& s )
 {
-    if ( s.empty() ) return s;
-
-    auto sCopy = s.substr( 0, s.find_last_not_of( ' ' ) + 1 );
-    sCopy      = sCopy.substr( sCopy.find_first_not_of( ' ' ) );
-
-    return sCopy;
+    return rightTrimString( leftTrimString( s ) );
 }
 
 //--------------------------------------------------------------------------------------------------

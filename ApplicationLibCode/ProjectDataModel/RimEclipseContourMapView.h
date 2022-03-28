@@ -40,6 +40,8 @@ public:
     void    setDefaultCustomName();
     void    updatePickPointAndRedraw();
 
+    RimSurfaceInViewCollection* surfaceInViewCollection() const override;
+
 protected:
     void initAfterRead() override;
     void onCreateDisplayModel() override;
@@ -57,6 +59,8 @@ protected:
     void updateViewFollowingCellFilterUpdates() override;
     void onLoadDataAndUpdate() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    bool isTimeStepDependentDataVisible() const override;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 

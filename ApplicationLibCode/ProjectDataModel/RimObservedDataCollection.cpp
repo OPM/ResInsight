@@ -179,10 +179,11 @@ RimObservedSummaryData*
 
     if ( useSavedFieldsValuesInDialog )
     {
-        caf::PdmSettings::readFieldsFromApplicationStore( parseOptions );
+        caf::PdmSettings::readFieldsFromApplicationStore( parseOptions, parseOptions->contextString() );
     }
     parseOptions->setUiModeImport( fileName );
 
+    bool parseOptionsChanged = false;
     if ( parseOptions->uiModeImport() != RicPasteAsciiDataToSummaryPlotFeatureUi::UI_MODE_SILENT )
     {
         caf::PdmUiPropertyViewDialog propertyDialog( nullptr, parseOptions, "CSV Import Options", "" );
@@ -190,9 +191,14 @@ RimObservedSummaryData*
         {
             return nullptr;
         }
+
+        parseOptionsChanged = true;
     }
 
-    caf::PdmSettings::writeFieldsToApplicationStore( parseOptions );
+    if ( useSavedFieldsValuesInDialog && parseOptionsChanged )
+    {
+        caf::PdmSettings::writeFieldsToApplicationStore( parseOptions, parseOptions->contextString() );
+    }
 
     // userData->setParseOptions(parseOptionsUi.parseOptions());
     userData->setSummaryHeaderFileName( fileName );
