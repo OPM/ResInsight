@@ -74,6 +74,88 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryMultiPlot*                summaryPlot,
+                                                         const std::vector<RimSummaryCase*>& selectedSummaryCases,
+                                                         const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
+                                                         const std::vector<QString>&                   wellNames )
+{
+    // Assumes this plot is inserted into the project. This is required when assigning the ptrFields
+    RimProject* proj = nullptr;
+    summaryPlot->firstAncestorOfType( proj );
+    CAF_ASSERT( proj );
+
+    {
+        // Replace single summary curves data sources
+
+        auto summaryCurves = summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+
+        const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
+
+        int maximumIndexValue = -1;
+        for ( const auto& curve : summaryCurves )
+        {
+            auto fieldHandle = curve->findField( summaryFieldKeyword );
+            if ( fieldHandle )
+            {
+                bool          conversionOk      = false;
+                const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryCase();
+
+                auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                int  indexValue =
+                    RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
+
+                maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedSummaryCases.size() ) )
+                {
+                    auto summaryCaseY = selectedSummaryCases[static_cast<int>( indexValue )];
+                    curve->setSummaryCaseY( summaryCaseY );
+
+                    if ( !wellNames.empty() )
+                    {
+                        auto adr = curve->summaryAddressY();
+
+                        auto          sourceWellName    = QString::fromStdString( adr.wellName() );
+                        bool          conversionOk      = false;
+                        const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForWell();
+
+                        int indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
+                                                                                           sourceWellName,
+                                                                                           &conversionOk );
+
+                        maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                        if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellNames.size() ) )
+                        {
+                            adr.setWellName( wellNames[indexValue].toStdString() );
+                            curve->setSummaryAddressY( adr );
+                        }
+                    }
+
+                    auto currentAddressY = curve->summaryAddressY();
+                    if ( summaryCaseY->summaryReader() && !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
+                    {
+                        // Fallback to first available address by quantity name
+                        // Consider remove this magic behavior
+
+                        auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
+
+                        auto candidate =
+                            RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY, allAddresses );
+                        if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
+                        {
+                            curve->setSummaryAddressY( candidate );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicSummaryPlotTemplateTools::createPlotFromTemplateFile( const QString& fileName )
 {
     QFile importFile( fileName );
@@ -396,6 +478,17 @@ std::vector<RimSummaryCase*> RicSummaryPlotTemplateTools::selectedSummaryCases()
 std::vector<RimSummaryCaseCollection*> RicSummaryPlotTemplateTools::selectedSummaryCaseCollections()
 {
     std::vector<RimSummaryCaseCollection*> objects;
+    caf::SelectionManager::instance()->objectsByType( &objects );
+
+    return objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryAddressCollection*> RicSummaryPlotTemplateTools::selectedSummaryAddressCollections()
+{
+    std::vector<RimSummaryAddressCollection*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return objects;

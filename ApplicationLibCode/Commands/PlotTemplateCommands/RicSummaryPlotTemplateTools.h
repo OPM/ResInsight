@@ -33,6 +33,7 @@ class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RifEclipseSummaryAddress;
 class RimSummaryMultiPlot;
+class RimSummaryAddressCollection;
 
 //==================================================================================================
 ///
@@ -41,6 +42,11 @@ class RicSummaryPlotTemplateTools
 {
 public:
     static RimSummaryMultiPlot* createMultiPlotFromTemplateFile( const QString& fileName );
+
+    static void fillPlaceholderValues( RimSummaryMultiPlot*                          summaryPlot,
+                                       const std::vector<RimSummaryCase*>&           selectedSummaryCases,
+                                       const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
+                                       const std::vector<QString>&                   wellNames );
 
     static RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName );
     static void            appendSummaryPlotToPlotCollection( RimSummaryPlot*                               summaryPlot,
@@ -57,6 +63,8 @@ public:
 
     static std::vector<RimSummaryCase*>           selectedSummaryCases();
     static std::vector<RimSummaryCaseCollection*> selectedSummaryCaseCollections();
+
+    static std::vector<RimSummaryAddressCollection*> selectedSummaryAddressCollections();
 
     static QString summaryCaseFieldKeyword();
     static QString summaryGroupFieldKeyword();
