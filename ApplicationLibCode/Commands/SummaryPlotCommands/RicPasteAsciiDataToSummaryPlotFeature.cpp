@@ -78,7 +78,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
     QString text = getPastedData();
 
     RicPasteAsciiDataToSummaryPlotFeatureUi pasteOptions;
-    caf::PdmSettings::readFieldsFromApplicationStore( &pasteOptions );
+    caf::PdmSettings::readFieldsFromApplicationStore( &pasteOptions, pasteOptions.contextString() );
     if ( !summaryPlot ) pasteOptions.createNewPlot();
     pasteOptions.setUiModePasteText( text );
 
@@ -101,7 +101,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
             summaryPlotCollection->updateConnectedEditors();
         }
 
-        caf::PdmSettings::writeFieldsToApplicationStore( &pasteOptions );
+        caf::PdmSettings::writeFieldsToApplicationStore( &pasteOptions, pasteOptions.contextString() );
 
         for ( RimAsciiDataCurve* curve : curves )
         {
