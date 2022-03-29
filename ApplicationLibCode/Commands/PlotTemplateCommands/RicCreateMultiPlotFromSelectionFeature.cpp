@@ -19,24 +19,24 @@
 #include "RicCreateMultiPlotFromSelectionFeature.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaSummaryTools.h"
 
 #include "RicSummaryPlotTemplateTools.h"
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
+#include "RimMainPlotCollection.h"
+#include "RimProject.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 
-#include "RimMainPlotCollection.h"
-#include "RimProject.h"
-#include "RimSummaryAddressCollection.h"
-#include "RimSummaryMultiPlot.h"
-#include "RimSummaryMultiPlotCollection.h"
-
-#include "RiaSummaryTools.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicCreateMultiPlotFromSelectionFeature, "RicCreateMultiPlotFromSelectionFeature" );
@@ -98,12 +98,17 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
     auto collections = proj->mainPlotCollection()->summaryMultiPlotCollection();
 
     auto newSummaryPlot = RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFile( fileName );
+    if ( !newSummaryPlot ) return;
+
     collections->addSummaryMultiPlot( newSummaryPlot );
+    newSummaryPlot->resolveReferencesRecursively();
 
     RicSummaryPlotTemplateTools::fillPlaceholderValues( newSummaryPlot, sumCases, sumCaseCollections, wellNames );
-    collections->updateConnectedEditors();
     newSummaryPlot->initAfterReadRecursively();
     newSummaryPlot->loadDataAndUpdate();
+    collections->updateConnectedEditors();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( newSummaryPlot );
 }
 
 //--------------------------------------------------------------------------------------------------
