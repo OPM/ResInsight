@@ -75,7 +75,28 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFil
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryMultiPlot*                summaryPlot,
+void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryMultiPlot*                summaryMultiPlot,
+                                                         const std::vector<RimSummaryCase*>& selectedSummaryCases,
+                                                         const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
+                                                         const std::vector<QString>&                   wellNames )
+{
+    // Assumes this plot is inserted into the project. This is required when assigning the ptrFields
+    RimProject* proj = nullptr;
+    summaryMultiPlot->firstAncestorOfType( proj );
+    CAF_ASSERT( proj );
+
+    auto plots = summaryMultiPlot->plots();
+    for ( auto p : plots )
+    {
+        auto summaryPlot = dynamic_cast<RimSummaryPlot*>( p );
+        if ( summaryPlot ) fillPlaceholderValues( summaryPlot, selectedSummaryCases, selectedEnsembles, wellNames );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryPlot*                     summaryPlot,
                                                          const std::vector<RimSummaryCase*>& selectedSummaryCases,
                                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
                                                          const std::vector<QString>&                   wellNames )
