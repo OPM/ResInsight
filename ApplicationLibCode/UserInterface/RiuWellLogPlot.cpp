@@ -151,7 +151,7 @@ void RiuWellLogPlot::slotSetMinDepth( int value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogPlot::performUpdate()
+void RiuWellLogPlot::performUpdate( RiaDefines::MultiPlotPageUpdateType /* whatToUpdate */ )
 {
     m_horizontalTrackScrollBar->setVisible( false );
     m_verticalTrackScrollBar->setVisible( false );

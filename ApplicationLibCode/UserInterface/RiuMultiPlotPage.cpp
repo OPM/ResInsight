@@ -322,10 +322,10 @@ int RiuMultiPlotPage::indexOfPlotWidget( RiuPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::scheduleUpdate()
+void RiuMultiPlotPage::scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate )
 {
     CAF_ASSERT( m_plotDefinition );
-    RiaPlotWindowRedrawScheduler::instance()->scheduleMultiPlotPageUpdate( this );
+    RiaPlotWindowRedrawScheduler::instance()->scheduleMultiPlotPageUpdate( this, whatToUpdate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,7 +444,7 @@ QLabel* RiuMultiPlotPage::createTitleLabel() const
 void RiuMultiPlotPage::showEvent( QShowEvent* event )
 {
     QWidget::showEvent( event );
-    performUpdate();
+    performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -560,12 +560,24 @@ bool RiuMultiPlotPage::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotPage::performUpdate()
+void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate )
 {
-    applyLook();
-    updateMarginsFromPageLayout();
-    reinsertPlotWidgets();
-    alignCanvasTops();
+    if ( whatToUpdate == RiaDefines::MultiPlotPageUpdateType::ALL )
+    {
+        applyLook();
+        updateMarginsFromPageLayout();
+
+        reinsertPlotWidgets();
+        alignCanvasTops();
+    }
+    else
+    {
+        if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::LEGEND ) == RiaDefines::MultiPlotPageUpdateType::LEGEND )
+        {
+            refreshLegends();
+            alignCanvasTops();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -573,7 +585,15 @@ void RiuMultiPlotPage::performUpdate()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::onLegendUpdated()
 {
-    scheduleUpdate();
+    scheduleUpdate( RiaDefines::MultiPlotPageUpdateType::LEGEND );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::refreshLegends()
+{
+    // TODO - might need to do something here, but at the moment it looks like alignCanvasTops() is sufficient
 }
 
 //--------------------------------------------------------------------------------------------------

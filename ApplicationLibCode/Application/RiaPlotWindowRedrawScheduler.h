@@ -19,11 +19,14 @@
 
 #include "cafPdmPointer.h"
 
+#include "RiaDefines.h"
+
 #include <QObject>
 #include <QPointer>
 #include <QScopedPointer>
 #include <QTimer>
 
+#include <map>
 #include <vector>
 
 class RiuMultiPlotPage;
@@ -36,11 +39,14 @@ class RiaPlotWindowRedrawScheduler : public QObject
 
 public:
     static RiaPlotWindowRedrawScheduler* instance();
-    void                                 scheduleMultiPlotWindowUpdate( RiuMultiPlotBook* plotWindow );
-    void                                 scheduleMultiPlotPageUpdate( RiuMultiPlotPage* plotWindow );
-    void                                 schedulePlotWidgetReplot( RiuPlotWidget* plotWidget );
-    void                                 clearAllScheduledUpdates();
-    void                                 performScheduledUpdatesAndReplots();
+
+    void scheduleMultiPlotWindowUpdate( RiuMultiPlotBook* plotWindow );
+    void scheduleMultiPlotPageUpdate(
+        RiuMultiPlotPage*                   plotWindow,
+        RiaDefines::MultiPlotPageUpdateType updateType = RiaDefines::MultiPlotPageUpdateType::ALL );
+    void schedulePlotWidgetReplot( RiuPlotWidget* plotWidget );
+    void clearAllScheduledUpdates();
+    void performScheduledUpdatesAndReplots();
 
 private slots:
     void slotUpdateAndReplotScheduledItemsWhenReady();
@@ -52,8 +58,10 @@ private:
     void startTimer( int msecs );
 
 private:
+    std::map<QPointer<RiuMultiPlotPage>, RiaDefines::MultiPlotPageUpdateType> m_plotPagesToUpdate;
+
     std::vector<QPointer<RiuPlotWidget>>    m_plotWidgetsToReplot;
     std::vector<QPointer<RiuMultiPlotBook>> m_plotWindowsToUpdate;
-    std::vector<QPointer<RiuMultiPlotPage>> m_plotPagesToUpdate;
-    QScopedPointer<QTimer>                  m_plotWindowUpdateTimer;
+
+    QScopedPointer<QTimer> m_plotWindowUpdateTimer;
 };
