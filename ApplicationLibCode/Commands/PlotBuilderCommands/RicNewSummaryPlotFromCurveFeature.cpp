@@ -18,18 +18,10 @@
 
 #include "RicNewSummaryPlotFromCurveFeature.h"
 
-#include "RiaSummaryTools.h"
-#include "RimSummaryAddress.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RicSummaryPlotBuilder.h"
-
-#include "RifEclipseSummaryAddress.h"
-
-#include "cafSelectionManagerTools.h"
-#include "cvfAssert.h"
 
 #include <QAction>
 #include <QVariant>
