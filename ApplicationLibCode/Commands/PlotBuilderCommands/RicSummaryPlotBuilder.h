@@ -83,6 +83,8 @@ public:
     static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects );
     static void appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* multiPlot, const std::vector<RimSummaryPlot*>& plots );
 
+    static RimSummaryPlot* createPlot( const std::vector<RimSummaryCurve*>& summaryCurves );
+
     static RimSummaryPlot* createPlot( const std::set<RifEclipseSummaryAddress>&     addresses,
                                        const std::vector<RimSummaryCase*>&           summaryCases,
                                        const std::vector<RimSummaryCaseCollection*>& ensembles );
