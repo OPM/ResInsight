@@ -104,8 +104,9 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
     , m_subTitlesVisible( true )
     , m_previewMode( true )
     , m_currentPageIndex( 0 )
-    , m_goToLastPageAfterUpdate( false )
+    , m_goToPageAfterUpdate( false )
     , m_pageTimerId( -1 )
+    , m_pageToGoTo( 0 )
 {
     const int spacing = 8;
 
@@ -125,6 +126,9 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
     m_bookLayout->setSpacing( spacing );
     m_scrollArea->setVisible( true );
     m_book->setVisible( true );
+
+    m_scrollArea->viewport()->installEventFilter( this );
+    m_scrollArea->verticalScrollBar()->installEventFilter( this );
 
     setAutoFillBackground( true );
 
@@ -170,7 +174,8 @@ void RiuMultiPlotBook::addPlot( RiuPlotWidget* plotWidget )
 void RiuMultiPlotBook::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 {
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
-    m_goToLastPageAfterUpdate = true;
+    m_goToPageAfterUpdate = true;
+    m_pageToGoTo          = -2;
     scheduleUpdate();
 }
 
@@ -376,6 +381,7 @@ void RiuMultiPlotBook::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::showEvent( QShowEvent* event )
 {
+    m_goToPageAfterUpdate = true;
     QWidget::showEvent( event );
     performUpdate();
     if ( m_previewMode )
@@ -386,6 +392,15 @@ void RiuMultiPlotBook::showEvent( QShowEvent* event )
     {
         applyBookSize( width(), height() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::hideEvent( QHideEvent* event )
+{
+    m_pageToGoTo = m_currentPageIndex;
+    QWidget::hideEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -465,10 +480,10 @@ void RiuMultiPlotBook::performUpdate()
     createPages();
     updateGeometry();
     // use a timer to trigger a viewer page change, if needed
-    if ( m_goToLastPageAfterUpdate )
+    if ( m_goToPageAfterUpdate )
     {
-        m_pageTimerId             = startTimer( 100 );
-        m_goToLastPageAfterUpdate = false;
+        m_pageTimerId         = startTimer( 100 );
+        m_goToPageAfterUpdate = false;
     }
 }
 
@@ -480,7 +495,8 @@ void RiuMultiPlotBook::timerEvent( QTimerEvent* event )
     if ( event->timerId() == m_pageTimerId )
     {
         killTimer( m_pageTimerId );
-        goToLastPage();
+        changeCurrentPage( m_pageToGoTo );
+        RiaGuiApplication::instance()->mainPlotWindow()->raise();
     }
 }
 
@@ -629,6 +645,7 @@ void RiuMultiPlotBook::applyLook()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::changeCurrentPage( int pageNumber )
 {
+    if ( pageNumber < -1 ) pageNumber = m_pages.size() - 1;
     m_currentPageIndex = pageNumber;
     if ( m_currentPageIndex >= m_pages.size() ) m_currentPageIndex = m_pages.size() - 1;
     if ( m_currentPageIndex < 0 ) m_currentPageIndex = 0;
@@ -682,4 +699,14 @@ void RiuMultiPlotBook::dropEvent( QDropEvent* event )
             multiPlot->addPlot( objects );
         }
     }
+}
+
+bool RiuMultiPlotBook::eventFilter( QObject* obj, QEvent* event )
+{
+    if ( event->type() == QEvent::Wheel )
+    {
+        event->accept();
+        return true;
+    }
+    return QWidget::eventFilter( obj, event );
 }

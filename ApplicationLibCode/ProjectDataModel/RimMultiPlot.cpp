@@ -869,7 +869,5 @@ void RimMultiPlot::cleanupBeforeClose()
 bool RimMultiPlot::isMouseCursorInsidePlot()
 {
     if ( !m_viewer ) return false;
-
-    QPoint curpos = m_viewer->mapFromGlobal( QCursor::pos() );
-    return ( m_viewer->rect().contains( curpos ) );
+    return m_viewer->underMouse();
 }

@@ -91,6 +91,7 @@ protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 
     void showEvent( QShowEvent* event ) override;
+    void hideEvent( QHideEvent* event ) override;
     void resizeEvent( QResizeEvent* event ) override;
 
     void applyPagePreviewBookSize( int frameWidth );
@@ -106,6 +107,8 @@ protected:
     void dropEvent( QDropEvent* event ) override;
 
     void timerEvent( QTimerEvent* event ) override;
+
+    bool eventFilter( QObject* obj, QEvent* ev ) override;
 
 private:
     void                                     deleteAllPages();
@@ -136,6 +139,7 @@ protected:
     bool                              m_previewMode;
     int                               m_currentPageIndex;
 
-    bool m_goToLastPageAfterUpdate;
+    bool m_goToPageAfterUpdate;
+    int  m_pageToGoTo;
     int  m_pageTimerId;
 };
