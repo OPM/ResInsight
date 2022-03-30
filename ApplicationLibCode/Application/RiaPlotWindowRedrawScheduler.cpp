@@ -60,9 +60,7 @@ void RiaPlotWindowRedrawScheduler::scheduleMultiPlotPageUpdate( RiuMultiPlotPage
     }
     else
     {
-        uint32_t flag = (uint32_t)m_plotPagesToUpdate[plotPage];
-        flag |= (uint32_t)updateType;
-        m_plotPagesToUpdate[plotPage] = (RiaDefines::MultiPlotPageUpdateType)flag;
+        m_plotPagesToUpdate[plotPage] = m_plotPagesToUpdate[plotPage] | updateType;
     }
 
     startTimer( 0 );
