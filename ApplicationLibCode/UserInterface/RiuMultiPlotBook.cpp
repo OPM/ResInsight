@@ -390,7 +390,8 @@ void RiuMultiPlotBook::showEvent( QShowEvent* event )
 {
     m_goToPageAfterUpdate = true;
     QWidget::showEvent( event );
-    performUpdate( false );
+    const bool regeneratePages = false;
+    performUpdate( regeneratePages );
     if ( m_previewMode )
     {
         applyPagePreviewBookSize( width() );
