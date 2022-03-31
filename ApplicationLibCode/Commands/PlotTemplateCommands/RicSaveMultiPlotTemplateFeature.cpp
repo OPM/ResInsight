@@ -1,6 +1,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -143,12 +143,12 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
 
     QString objectAsText = summaryPlot->writeObjectToXmlString();
 
-    {
-        RiaSummaryAddressAnalyzer analyzer;
+    RiaSummaryAddressAnalyzer analyzer;
 
+    {
+        std::vector<RifEclipseSummaryAddress> addresses;
         {
-            std::vector<RifEclipseSummaryAddress> addresses;
-            std::set<QString>                     sourceStrings;
+            std::set<QString> sourceStrings;
 
             const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
             for ( const auto& curve : summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
@@ -167,76 +167,74 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                             "SummaryCase",
                             RicSummaryPlotTemplateTools::placeholderTextForSummaryCase(),
                             objectAsText );
+        }
 
+        {
+            std::set<QString> ensembleReferenceStrings;
+
+            const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldKeyword();
+
+            for ( const auto& curveSet : summaryPlot->curveSets() )
             {
-                std::set<QString> ensembleReferenceStrings;
-
-                const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldKeyword();
-
-                for ( const auto& curveSet : summaryPlot->curveSets() )
+                auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
+                if ( fieldHandle )
                 {
-                    auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
-                    if ( fieldHandle )
-                    {
-                        auto reference = fieldHandle->xmlCapability()->referenceString();
-                        ensembleReferenceStrings.insert( reference );
-                    }
-
-                    addresses.push_back( curveSet->summaryAddress() );
+                    auto reference = fieldHandle->xmlCapability()->referenceString();
+                    ensembleReferenceStrings.insert( reference );
                 }
 
-                replaceStrings( ensembleReferenceStrings,
-                                "SummaryGroupCase",
-                                RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup(),
-                                objectAsText );
+                addresses.push_back( curveSet->summaryAddress() );
             }
 
-            analyzer.appendAddresses( addresses );
-        }
-
-        {
-            std::set<QString> sourceStrings;
-
-            for ( const auto& wellName : analyzer.wellNames() )
-            {
-                sourceStrings.insert( QString::fromStdString( wellName ) );
-            }
-
-            replaceStrings( sourceStrings, "SummaryWell", RicSummaryPlotTemplateTools::placeholderTextForWell(), objectAsText );
-        }
-
-        {
-            std::set<QString> sourceStrings;
-
-            for ( const auto& wellGroupName : analyzer.wellGroupNames() )
-            {
-                sourceStrings.insert( QString::fromStdString( wellGroupName ) );
-            }
-
-            replaceStrings( sourceStrings,
-                            "SummaryWellGroup",
-                            RicSummaryPlotTemplateTools::placeholderTextForWellGroup(),
+            replaceStrings( ensembleReferenceStrings,
+                            "SummaryGroupCase",
+                            RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup(),
                             objectAsText );
         }
 
+        analyzer.appendAddresses( addresses );
+    }
+
+    {
+        std::set<QString> sourceStrings;
+        for ( const auto& wellName : analyzer.wellNames() )
         {
-            std::vector<int> regionNumbers;
-            for ( auto regNumber : analyzer.regionNumbers() )
-            {
-                regionNumbers.push_back( regNumber );
-            }
+            sourceStrings.insert( QString::fromStdString( wellName ) );
+        }
 
-            for ( auto i = 0; i < regionNumbers.size(); i++ )
-            {
-                // Encode placeholder index. Use negative values below -1 to represent a placeholder index
-                int index = -( i + 2 );
+        replaceStrings( sourceStrings, "SummaryWell", RicSummaryPlotTemplateTools::placeholderTextForWell(), objectAsText );
+    }
 
-                QString fieldKeyword             = "SummaryRegion";
-                QString replacementTextWithIndex = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( index );
-                QString sourceReplacementString  = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( regionNumbers[i] );
+    {
+        std::set<QString> sourceStrings;
+        for ( const auto& wellGroupName : analyzer.wellGroupNames() )
+        {
+            sourceStrings.insert( QString::fromStdString( wellGroupName ) );
+        }
 
-                objectAsText.replace( sourceReplacementString, replacementTextWithIndex );
-            }
+        replaceStrings( sourceStrings,
+                        "SummaryWellGroup",
+                        RicSummaryPlotTemplateTools::placeholderTextForWellGroup(),
+                        objectAsText );
+    }
+
+    {
+        std::vector<int> regionNumbers;
+        for ( auto regNumber : analyzer.regionNumbers() )
+        {
+            regionNumbers.push_back( regNumber );
+        }
+
+        for ( auto i = 0; i < regionNumbers.size(); i++ )
+        {
+            // Encode placeholder index. Use negative values below -1 to represent a placeholder index
+            int index = -( i + 2 );
+
+            QString fieldKeyword             = "SummaryRegion";
+            QString replacementTextWithIndex = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( index );
+            QString sourceString             = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( regionNumbers[i] );
+
+            objectAsText.replace( sourceString, replacementTextWithIndex );
         }
     }
 
@@ -254,12 +252,12 @@ void RicSaveMultiPlotTemplateFeature::replaceStrings( const std::set<QString>& s
     size_t index = 0;
     for ( const auto& sourceString : sourceStrings )
     {
+        QString sourceTextWithTags = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( sourceString );
+
         QString replacementTextWithIndex =
             QString( "<%1>%2 %3</%1>" ).arg( fieldKeyword ).arg( placeholderText ).arg( index++ );
 
-        QString sourceReplacementString = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( sourceString );
-
-        objectAsText.replace( sourceReplacementString, replacementTextWithIndex );
+        objectAsText.replace( sourceTextWithTags, replacementTextWithIndex );
     }
 }
 
