@@ -184,14 +184,21 @@ void RiuMultiPlotBook::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::removePlot( RiuPlotWidget* plotWidget )
 {
+    removePlotNoUpdate( plotWidget );
+    scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::removePlotNoUpdate( RiuPlotWidget* plotWidget )
+{
     if ( !plotWidget ) return;
 
     int plotWidgetIdx = m_plotWidgets.indexOf( plotWidget );
     CVF_ASSERT( plotWidgetIdx >= 0 );
 
     m_plotWidgets.removeAt( plotWidgetIdx );
-
-    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

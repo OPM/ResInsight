@@ -66,6 +66,9 @@ public:
     void insertPlot( RimPlot* plot, size_t index ) override;
     void removePlot( RimPlot* plot ) override;
 
+    void removePlotNoUpdate( RimPlot* plot ) override;
+    void updateAfterPlotRemove() override;
+
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
     void syncAxisRanges();
