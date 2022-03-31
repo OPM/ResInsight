@@ -94,12 +94,20 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::setParentPlotAndReplot( RiuPlotWidget* plot )
 {
+    setParentPlotNoReplot( plot );
+
+    if ( plot ) plot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSetCollection::setParentPlotNoReplot( RiuPlotWidget* plot )
+{
     for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
         curveSet->setParentPlotNoReplot( plot );
     }
-
-    if ( plot ) plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------

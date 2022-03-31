@@ -126,12 +126,20 @@ void RimSummaryCurveCollection::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::setParentPlotAndReplot( RiuPlotWidget* plot )
 {
+    setParentPlotNoReplot( plot );
+
+    if ( plot ) plot->replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::setParentPlotNoReplot( RiuPlotWidget* plot )
+{
     for ( RimSummaryCurve* curve : m_curves )
     {
         curve->setParentPlotNoReplot( plot );
     }
-
-    if ( plot ) plot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------

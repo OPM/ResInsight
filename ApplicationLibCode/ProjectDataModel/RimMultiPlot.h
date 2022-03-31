@@ -121,8 +121,10 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          onLoadDataAndUpdate() override;
-    void                          initAfterRead() override;
+
+    void onLoadDataAndUpdate() override;
+    void initAfterRead() override;
+    void doUpdateLayout() override;
 
     void applyPlotWindowTitleToWidgets();
     void updatePlots();
@@ -135,7 +137,6 @@ protected:
 
 private:
     void cleanupBeforeClose();
-    void doUpdateLayout() override;
     void updateSubPlotNames();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
     void onPlotAdditionOrRemoval();

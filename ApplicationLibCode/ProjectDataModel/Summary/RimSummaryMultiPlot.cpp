@@ -390,6 +390,21 @@ std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryPlot*> RimSummaryMultiPlot::visibleSummaryPlots() const
+{
+    std::vector<RimSummaryPlot*> visiblePlots;
+
+    for ( auto plot : summaryPlots() )
+    {
+        if ( plot->showWindow() ) visiblePlots.push_back( plot );
+    }
+
+    return visiblePlots;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 {
     std::vector<caf::PdmFieldHandle*> toolBarFields;
@@ -550,4 +565,13 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 {
     updatePlotWindowTitle();
     applyPlotWindowTitleToWidgets();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::doUpdateLayout()
+{
+    RimMultiPlot::doUpdateLayout();
+    signalRefresh();
 }

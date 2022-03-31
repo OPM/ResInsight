@@ -120,7 +120,7 @@ private:
     void changeCurrentPage( int pageNumber );
 
 private slots:
-    virtual void performUpdate();
+    virtual void performUpdate( bool regeneratePages );
 
 protected:
     friend class RiaPlotWindowRedrawScheduler;

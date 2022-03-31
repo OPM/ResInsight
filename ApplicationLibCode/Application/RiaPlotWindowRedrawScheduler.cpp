@@ -118,7 +118,7 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
                 if ( pagesToUpdate.count( page ) > 0 ) pagesToUpdate.erase( page );
             }
 
-            plotWindow->performUpdate();
+            plotWindow->performUpdate( true );
             updatedPlotWindows.insert( plotWindow );
         }
     }

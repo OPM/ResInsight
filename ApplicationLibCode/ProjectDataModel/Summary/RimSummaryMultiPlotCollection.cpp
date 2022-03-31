@@ -141,9 +141,10 @@ void RimSummaryMultiPlotCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering
 {
     for ( auto& plot : m_summaryMultiPlots() )
     {
-        if ( plot->summaryPlots().size() == 1 )
+        auto visiblePlots = plot->visiblePlots();
+        if ( visiblePlots.size() == 1 )
         {
-            uiTreeOrdering.add( plot->summaryPlots()[0] );
+            uiTreeOrdering.add( visiblePlots[0] );
         }
         else
         {
