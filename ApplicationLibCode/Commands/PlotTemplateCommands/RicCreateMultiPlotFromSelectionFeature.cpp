@@ -60,16 +60,12 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
 
     auto summaryAddressCollections = RicSummaryPlotTemplateTools::selectedSummaryAddressCollections();
 
-    bool addSummaryCase = false;
-    if ( sumCases.empty() && sumCaseCollections.empty() )
-    {
-        addSummaryCase = true;
-    }
+    std::vector<QString>                wellNames;
+    std::vector<QString>                wellGroupNames;
+    std::vector<QString>                regions;
+    std::set<RimSummaryCase*>           caseSet;
+    std::set<RimSummaryCaseCollection*> caseCollectionSet;
 
-    std::vector<QString>      wellNames;
-    std::vector<QString>      wellGroupNames;
-    std::vector<QString>      regions;
-    std::set<RimSummaryCase*> casesDerivedFromWellName;
     for ( auto a : summaryAddressCollections )
     {
         if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
@@ -85,16 +81,20 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
             regions.push_back( a->name() );
         }
 
-        if ( addSummaryCase )
-        {
-            auto sumCase = RiaSummaryTools::summaryCaseById( a->caseId() );
-            if ( sumCase ) casesDerivedFromWellName.insert( sumCase );
-        }
+        auto sumCase = RiaSummaryTools::summaryCaseById( a->caseId() );
+        if ( sumCase ) caseSet.insert( sumCase );
+
+        auto ensemble = RiaSummaryTools::ensembleById( a->ensembleId() );
+        if ( ensemble ) caseCollectionSet.insert( ensemble );
     }
 
-    for ( auto s : casesDerivedFromWellName )
+    for ( auto sumCase : caseSet )
     {
-        sumCases.push_back( s );
+        sumCases.push_back( sumCase );
+    }
+    for ( auto sumCaseCollection : caseCollectionSet )
+    {
+        sumCaseCollections.push_back( sumCaseCollection );
     }
 
     auto proj        = RimProject::current();

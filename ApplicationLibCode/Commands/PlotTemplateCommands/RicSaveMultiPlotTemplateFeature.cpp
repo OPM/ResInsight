@@ -170,7 +170,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             }
 
             replaceStrings( sourceStrings,
-                            "SummaryCase",
+                            summaryFieldKeyword,
                             RicSummaryPlotTemplateTools::placeholderTextForSummaryCase(),
                             objectAsText );
         }
@@ -193,7 +193,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             }
 
             replaceStrings( ensembleReferenceStrings,
-                            "SummaryGroupCase",
+                            summaryGroupFieldKeyword,
                             RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup(),
                             objectAsText );
         }

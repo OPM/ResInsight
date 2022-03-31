@@ -87,4 +87,8 @@ private:
                                                             const std::set<RifEclipseSummaryAddress>& allAddresses );
 
     static int findValueForKeyword( const QString& keyword, const QString& valueString, bool* ok );
+
+    static void replaceWellName( RifEclipseSummaryAddress& sourceAdr, const std::vector<QString>& wellNames );
+    static void replaceWellGroupName( RifEclipseSummaryAddress& sourceAdr, const std::vector<QString>& wellGroupNames );
+    static void replaceRegion( RifEclipseSummaryAddress& sourceAdr, const std::vector<QString>& regions );
 };

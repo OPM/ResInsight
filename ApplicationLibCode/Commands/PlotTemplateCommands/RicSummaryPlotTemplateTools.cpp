@@ -119,7 +119,6 @@ void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryPlot*        
 
         const QString summaryFieldKeyword = RicSummaryPlotTemplateTools::summaryCaseFieldKeyword();
 
-        int maximumIndexValue = -1;
         for ( const auto& curve : summaryCurves )
         {
             auto fieldHandle = curve->findField( summaryFieldKeyword );
@@ -132,8 +131,6 @@ void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryPlot*        
                 int  indexValue =
                     RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
 
-                maximumIndexValue = std::max( maximumIndexValue, indexValue );
-
                 if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedSummaryCases.size() ) )
                 {
                     auto summaryCaseY = selectedSummaryCases[static_cast<int>( indexValue )];
@@ -141,66 +138,41 @@ void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryPlot*        
                 }
             }
 
-            if ( !wellNames.empty() )
-            {
-                auto adr = curve->summaryAddressY();
+            // Replace placeholders with object names from selection
+            auto curveAdr = curve->summaryAddressY();
+            replaceWellName( curveAdr, wellNames );
+            replaceWellGroupName( curveAdr, wellGroupNames );
+            replaceRegion( curveAdr, regions );
+            curve->setSummaryAddressY( curveAdr );
+        }
 
-                auto          sourceWellName    = QString::fromStdString( adr.wellName() );
+        for ( const auto& curveSet : summaryPlot->curveSets() )
+        {
+            const QString summaryGroupFieldKeyword = RicSummaryPlotTemplateTools::summaryGroupFieldKeyword();
+
+            auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
+            if ( fieldHandle )
+            {
                 bool          conversionOk      = false;
-                const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForWell();
+                const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup();
 
-                int indexValue =
-                    RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, sourceWellName, &conversionOk );
+                auto referenceString = fieldHandle->xmlCapability()->referenceString();
+                int  indexValue =
+                    RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, referenceString, &conversionOk );
 
-                maximumIndexValue = std::max( maximumIndexValue, indexValue );
-
-                if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellNames.size() ) )
+                if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( selectedEnsembles.size() ) )
                 {
-                    adr.setWellName( wellNames[indexValue].toStdString() );
-                    curve->setSummaryAddressY( adr );
+                    auto ensembleCase = selectedEnsembles[static_cast<int>( indexValue )];
+                    curveSet->setSummaryCaseCollection( ensembleCase );
                 }
             }
 
-            if ( !wellGroupNames.empty() )
-            {
-                auto adr = curve->summaryAddressY();
-
-                auto          sourceWellGroupName = QString::fromStdString( adr.wellGroupName() );
-                bool          conversionOk        = false;
-                const QString placeholderString   = RicSummaryPlotTemplateTools::placeholderTextForWellGroup();
-
-                int indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
-                                                                                   sourceWellGroupName,
-                                                                                   &conversionOk );
-
-                maximumIndexValue = std::max( maximumIndexValue, indexValue );
-
-                if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellGroupNames.size() ) )
-                {
-                    adr.setWellGroupName( wellGroupNames[indexValue].toStdString() );
-                    curve->setSummaryAddressY( adr );
-                }
-            }
-
-            if ( !regions.empty() )
-            {
-                auto adr        = curve->summaryAddressY();
-                int  indexValue = adr.regionNumber();
-
-                if ( indexValue < -1 )
-                {
-                    indexValue = -( indexValue - 2 );
-
-                    maximumIndexValue = std::max( maximumIndexValue, indexValue );
-
-                    bool conversionOk = false;
-                    if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( regions.size() ) )
-                    {
-                        adr.setRegion( regions[indexValue].toInt() );
-                        curve->setSummaryAddressY( adr );
-                    }
-                }
-            }
+            // Replace placeholders with object names from selection
+            auto curveAdr = curveSet->summaryAddress();
+            replaceWellName( curveAdr, wellNames );
+            replaceWellGroupName( curveAdr, wellGroupNames );
+            replaceRegion( curveAdr, regions );
+            curveSet->setSummaryAddress( curveAdr );
         }
     }
 }
@@ -646,4 +618,66 @@ int RicSummaryPlotTemplateTools::findValueForKeyword( const QString& keyword, co
     }
 
     return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotTemplateTools::replaceWellName( RifEclipseSummaryAddress&   sourceAdr,
+                                                   const std::vector<QString>& wellNames )
+{
+    if ( wellNames.empty() ) return;
+
+    auto          sourceWellName    = QString::fromStdString( sourceAdr.wellName() );
+    bool          conversionOk      = false;
+    const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForWell();
+
+    int indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, sourceWellName, &conversionOk );
+
+    if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellNames.size() ) )
+    {
+        sourceAdr.setWellName( wellNames[indexValue].toStdString() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotTemplateTools::replaceWellGroupName( RifEclipseSummaryAddress&   sourceAdr,
+                                                        const std::vector<QString>& wellGroupNames )
+{
+    if ( wellGroupNames.empty() ) return;
+
+    auto          sourceWellGroupName = QString::fromStdString( sourceAdr.wellGroupName() );
+    bool          conversionOk        = false;
+    const QString placeholderString   = RicSummaryPlotTemplateTools::placeholderTextForWellGroup();
+
+    int indexValue =
+        RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, sourceWellGroupName, &conversionOk );
+
+    if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellGroupNames.size() ) )
+    {
+        sourceAdr.setWellGroupName( wellGroupNames[indexValue].toStdString() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotTemplateTools::replaceRegion( RifEclipseSummaryAddress& sourceAdr, const std::vector<QString>& regions )
+{
+    if ( regions.empty() ) return;
+
+    int indexValue = sourceAdr.regionNumber();
+
+    if ( indexValue < -1 )
+    {
+        indexValue = -( indexValue - 2 );
+
+        bool conversionOk = false;
+        if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( regions.size() ) )
+        {
+            sourceAdr.setRegion( regions[indexValue].toInt() );
+        }
+    }
 }
