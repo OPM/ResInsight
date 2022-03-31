@@ -78,7 +78,10 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFil
 void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryMultiPlot*                summaryMultiPlot,
                                                          const std::vector<RimSummaryCase*>& selectedSummaryCases,
                                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                                         const std::vector<QString>&                   wellNames )
+                                                         const std::vector<QString>&                   wellNames,
+                                                         const std::vector<QString>&                   wellGroupNames,
+                                                         const std::vector<QString>&                   regions )
+
 {
     // Assumes this plot is inserted into the project. This is required when assigning the ptrFields
     RimProject* proj = nullptr;
@@ -89,7 +92,8 @@ void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryMultiPlot*   
     for ( auto p : plots )
     {
         auto summaryPlot = dynamic_cast<RimSummaryPlot*>( p );
-        if ( summaryPlot ) fillPlaceholderValues( summaryPlot, selectedSummaryCases, selectedEnsembles, wellNames );
+        if ( summaryPlot )
+            fillPlaceholderValues( summaryPlot, selectedSummaryCases, selectedEnsembles, wellNames, wellGroupNames, regions );
     }
 }
 
@@ -99,7 +103,9 @@ void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryMultiPlot*   
 void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryPlot*                     summaryPlot,
                                                          const std::vector<RimSummaryCase*>& selectedSummaryCases,
                                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                                         const std::vector<QString>&                   wellNames )
+                                                         const std::vector<QString>&                   wellNames,
+                                                         const std::vector<QString>&                   wellGroupNames,
+                                                         const std::vector<QString>&                   regions )
 {
     // Assumes this plot is inserted into the project. This is required when assigning the ptrFields
     RimProject* proj = nullptr;
@@ -150,6 +156,44 @@ void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryPlot*        
                         if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellNames.size() ) )
                         {
                             adr.setWellName( wellNames[indexValue].toStdString() );
+                            curve->setSummaryAddressY( adr );
+                        }
+                    }
+
+                    if ( !wellGroupNames.empty() )
+                    {
+                        auto adr = curve->summaryAddressY();
+
+                        auto          sourceWellGroupName = QString::fromStdString( adr.wellGroupName() );
+                        bool          conversionOk        = false;
+                        const QString placeholderString   = RicSummaryPlotTemplateTools::placeholderTextForWellGroup();
+
+                        int indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
+                                                                                           sourceWellGroupName,
+                                                                                           &conversionOk );
+
+                        maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                        if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellGroupNames.size() ) )
+                        {
+                            adr.setWellGroupName( wellGroupNames[indexValue].toStdString() );
+                            curve->setSummaryAddressY( adr );
+                        }
+                    }
+
+                    if ( !regions.empty() )
+                    {
+                        auto adr = curve->summaryAddressY();
+
+                        auto sourceRegion = adr.regionNumber();
+
+                        if ( indexValue < -1 ) indexValue = -( indexValue - 2 );
+
+                        maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                        if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( regions.size() ) )
+                        {
+                            adr.setRegion( regions[indexValue].toInt() );
                             curve->setSummaryAddressY( adr );
                         }
                     }
@@ -562,14 +606,6 @@ QString RicSummaryPlotTemplateTools::placeholderTextForWell()
 QString RicSummaryPlotTemplateTools::placeholderTextForWellGroup()
 {
     return "__WELL_GROUP__";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RicSummaryPlotTemplateTools::placeholderTextForRegion()
-{
-    return "__REGION__";
 }
 
 //--------------------------------------------------------------------------------------------------

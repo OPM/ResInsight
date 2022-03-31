@@ -46,12 +46,16 @@ public:
     static void fillPlaceholderValues( RimSummaryMultiPlot*                          summaryMultiPlot,
                                        const std::vector<RimSummaryCase*>&           selectedSummaryCases,
                                        const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                       const std::vector<QString>&                   wellNames );
+                                       const std::vector<QString>&                   wellNames,
+                                       const std::vector<QString>&                   wellGroupNames,
+                                       const std::vector<QString>&                   regions );
 
     static void fillPlaceholderValues( RimSummaryPlot*                               summaryPlot,
                                        const std::vector<RimSummaryCase*>&           selectedSummaryCases,
                                        const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                       const std::vector<QString>&                   wellNames );
+                                       const std::vector<QString>&                   wellNames,
+                                       const std::vector<QString>&                   wellGroupNames,
+                                       const std::vector<QString>&                   regions );
 
     static RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName );
     static void            appendSummaryPlotToPlotCollection( RimSummaryPlot*                               summaryPlot,
@@ -77,7 +81,6 @@ public:
     static QString placeholderTextForSummaryGroup();
     static QString placeholderTextForWell();
     static QString placeholderTextForWellGroup();
-    static QString placeholderTextForRegion();
 
 private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,

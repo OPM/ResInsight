@@ -74,18 +74,28 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
     }
 
     std::vector<QString>      wellNames;
+    std::vector<QString>      wellGroupNames;
+    std::vector<QString>      regions;
     std::set<RimSummaryCase*> casesDerivedFromWellName;
     for ( auto a : summaryAddressCollections )
     {
         if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
         {
             wellNames.push_back( a->name() );
+        }
+        else if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+        {
+            wellGroupNames.push_back( a->name() );
+        }
+        else if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
+        {
+            regions.push_back( a->name() );
+        }
 
-            if ( addSummaryCase )
-            {
-                auto sumCase = RiaSummaryTools::summaryCaseById( a->caseId() );
-                if ( sumCase ) casesDerivedFromWellName.insert( sumCase );
-            }
+        if ( addSummaryCase )
+        {
+            auto sumCase = RiaSummaryTools::summaryCaseById( a->caseId() );
+            if ( sumCase ) casesDerivedFromWellName.insert( sumCase );
         }
     }
 
@@ -103,7 +113,12 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
     collections->addSummaryMultiPlot( newSummaryPlot );
     newSummaryPlot->resolveReferencesRecursively();
 
-    RicSummaryPlotTemplateTools::fillPlaceholderValues( newSummaryPlot, sumCases, sumCaseCollections, wellNames );
+    RicSummaryPlotTemplateTools::fillPlaceholderValues( newSummaryPlot,
+                                                        sumCases,
+                                                        sumCaseCollections,
+                                                        wellNames,
+                                                        wellGroupNames,
+                                                        regions );
     newSummaryPlot->initAfterReadRecursively();
     newSummaryPlot->loadDataAndUpdate();
     collections->updateConnectedEditors();

@@ -220,17 +220,23 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         {
-            std::set<QString> sourceStrings;
-
-            for ( const auto& regionNumber : analyzer.regionNumbers() )
+            std::vector<int> regionNumbers;
+            for ( auto regNumber : analyzer.regionNumbers() )
             {
-                sourceStrings.insert( QString::number( regionNumber ) );
+                regionNumbers.push_back( regNumber );
             }
 
-            replaceStrings( sourceStrings,
-                            "SummaryRegion",
-                            RicSummaryPlotTemplateTools::placeholderTextForRegion(),
-                            objectAsText );
+            for ( auto i = 0; i < regionNumbers.size(); i++ )
+            {
+                // Encode placeholder index. Use negative values below -1 to represent a placeholder index
+                int index = -( i + 2 );
+
+                QString fieldKeyword             = "SummaryRegion";
+                QString replacementTextWithIndex = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( index );
+                QString sourceReplacementString  = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( regionNumbers[i] );
+
+                objectAsText.replace( sourceReplacementString, replacementTextWithIndex );
+            }
         }
     }
 
