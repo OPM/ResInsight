@@ -383,7 +383,7 @@ void RiuMultiPlotBook::showEvent( QShowEvent* event )
 {
     m_goToPageAfterUpdate = true;
     QWidget::showEvent( event );
-    performUpdate();
+    performUpdate( false );
     if ( m_previewMode )
     {
         applyPagePreviewBookSize( width() );
@@ -473,16 +473,19 @@ bool RiuMultiPlotBook::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::performUpdate()
+void RiuMultiPlotBook::performUpdate( bool regeneratePages )
 {
     applyLook();
-    deleteAllPages();
-    createPages();
+    if ( regeneratePages || m_pages.size() == 0 )
+    {
+        deleteAllPages();
+        createPages();
+    }
     updateGeometry();
     // use a timer to trigger a viewer page change, if needed
     if ( m_goToPageAfterUpdate )
     {
-        m_pageTimerId         = startTimer( 100 );
+        m_pageTimerId         = startTimer( 50 );
         m_goToPageAfterUpdate = false;
     }
 }

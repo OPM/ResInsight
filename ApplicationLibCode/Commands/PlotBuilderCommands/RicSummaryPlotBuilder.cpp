@@ -336,7 +336,14 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+    if ( !plots.empty() )
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem( plots[0], true );
+    }
+    else
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+    }
 
     return plotWindow;
 }
@@ -360,8 +367,16 @@ RimSummaryMultiPlot*
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
-    RiuPlotMainWindowTools::setExpanded( plotWindow, true );
+    if ( plotWindow->summaryPlots().size() == 1 )
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow->summaryPlots()[0] );
+        RiuPlotMainWindowTools::setExpanded( plotWindow->summaryPlots()[0], true );
+    }
+    else
+    {
+        RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
+        RiuPlotMainWindowTools::setExpanded( plotWindow, true );
+    }
 
     return plotWindow;
 }
@@ -425,7 +440,7 @@ RimSummaryMultiPlot*
     plotWindow->loadDataAndUpdate();
     plotWindow->updateAllRequiredEditors();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
+    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
 
     return plotWindow;
 }
@@ -448,7 +463,10 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     plotWindow->loadDataAndUpdate();
     plotWindow->updateAllRequiredEditors();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
+    if ( !plots.empty() )
+        RiuPlotMainWindowTools::selectAsCurrentItem( plots[0] );
+    else
+        RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
 
     return plotWindow;
 }

@@ -1623,18 +1623,17 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomInParentPlot()
 {
-    if ( plotWidget() )
-    {
-        for ( const auto& axisProperty : m_axisProperties )
-        {
-            updateZoomForAxis( axisProperty->plotAxisType() );
-        }
+    if ( !plotWidget() ) return;
 
-        plotWidget()->updateAxes();
-        updateZoomFromParentPlot();
-        plotWidget()->updateZoomDependentCurveProperties();
-        plotWidget()->scheduleReplot();
+    for ( const auto& axisProperty : m_axisProperties )
+    {
+        updateZoomForAxis( axisProperty->plotAxisType() );
     }
+
+    plotWidget()->updateAxes();
+    updateZoomFromParentPlot();
+    plotWidget()->updateZoomDependentCurveProperties();
+    plotWidget()->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2207,12 +2206,12 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         if ( m_summaryCurveCollection )
         {
-            m_summaryCurveCollection->setParentPlotAndReplot( plotWidget() );
+            m_summaryCurveCollection->setParentPlotNoReplot( plotWidget() );
         }
 
         if ( m_ensembleCurveSetCollection )
         {
-            m_ensembleCurveSetCollection->setParentPlotAndReplot( plotWidget() );
+            m_ensembleCurveSetCollection->setParentPlotNoReplot( plotWidget() );
         }
 
         this->connect( plotWidget(), SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );

@@ -190,10 +190,10 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
 
         if ( m_viewer )
         {
-            plot->createPlotWidget();
+            plot->createPlotWidget( m_viewer );
             m_viewer->insertPlot( plot->plotWidget(), index );
         }
-        plot->setShowWindow( true );
+        // plot->setShowWindow( true );
         plot->updateAfterInsertingIntoMultiPlot();
 
         onPlotAdditionOrRemoval();
@@ -851,7 +851,7 @@ void RimMultiPlot::recreatePlotWidgets()
 
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
-        plotVector[tIdx]->createPlotWidget();
+        plotVector[tIdx]->createPlotWidget( m_viewer );
         m_viewer->addPlot( plotVector[tIdx]->plotWidget() );
     }
 }

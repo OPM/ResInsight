@@ -122,8 +122,10 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly ) override;
-    void                          onLoadDataAndUpdate() override;
-    void                          initAfterRead() override;
+
+    void onLoadDataAndUpdate() override;
+    void initAfterRead() override;
+
 
     void applyPlotWindowTitleToWidgets();
     void updatePlots();

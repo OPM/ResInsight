@@ -64,6 +64,7 @@ public:
 
 private:
     void setParentPlotAndReplot( RiuPlotWidget* plot );
+    void setParentPlotNoReplot( RiuPlotWidget* plot );
     void detachPlotCurves();
     void reattachPlotCurves();
 

@@ -75,10 +75,13 @@ public:
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
+    std::vector<RimSummaryPlot*> visibleSummaryPlots() const;
 
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
+
+    void doUpdateLayout() override;
 
     void initAfterRead() override;
 
