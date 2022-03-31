@@ -68,6 +68,9 @@ public:
     void removePlot( RimPlot* plot ) override;
     void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
 
+    virtual void removePlotNoUpdate( RimPlot* plot );
+    virtual void updateAfterPlotRemove();
+
     void deleteAllPlots() override;
 
     size_t plotCount() const override;
@@ -132,6 +135,7 @@ protected:
     void recreatePlotWidgets();
 
     virtual void updatePlotWindowTitle();
+    void         onPlotAdditionOrRemoval();
 
     bool isMouseCursorInsidePlot();
 
@@ -139,7 +143,6 @@ private:
     void cleanupBeforeClose();
     void updateSubPlotNames();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
-    void onPlotAdditionOrRemoval();
     void onPlotsReordered( const caf::SignalEmitter* emitter );
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;

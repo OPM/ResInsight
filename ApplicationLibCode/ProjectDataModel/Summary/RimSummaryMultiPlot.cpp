@@ -157,6 +157,28 @@ void RimSummaryMultiPlot::removePlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::removePlotNoUpdate( RimPlot* plot )
+{
+    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    CVF_ASSERT( sumPlot != nullptr );
+    if ( sumPlot )
+    {
+        RimMultiPlot::removePlotNoUpdate( plot );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateAfterPlotRemove()
+{
+    onPlotAdditionOrRemoval();
+    signalRefresh();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryDataSourceStepping::Axis> RimSummaryMultiPlot::availableAxes() const
 {
     return { RimSummaryDataSourceStepping::Axis::X_AXIS };

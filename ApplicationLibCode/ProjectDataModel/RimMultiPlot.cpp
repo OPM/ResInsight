@@ -208,6 +208,29 @@ void RimMultiPlot::removePlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimMultiPlot::removePlotNoUpdate( RimPlot* plot )
+{
+    if ( plot )
+    {
+        if ( m_viewer )
+        {
+            m_viewer->removePlotNoUpdate( plot->plotWidget() );
+        }
+        m_plots.removeChildObject( plot );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::updateAfterPlotRemove()
+{
+    onPlotAdditionOrRemoval();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMultiPlot::movePlotsToThis( const std::vector<RimPlot*>& plotsToMove, int insertAtPosition )
 {
     for ( size_t tIdx = 0; tIdx < plotsToMove.size(); tIdx++ )
