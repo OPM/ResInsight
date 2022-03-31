@@ -206,9 +206,10 @@ enum class RowCount
 
 enum class MultiPlotPageUpdateType : uint32_t
 {
-    NONE   = 0,
-    LEGEND = 1,
-    ALL    = 3
+    NONE   = 0b0000,
+    LEGEND = 0b0001,
+    PLOT   = 0b0010,
+    ALL    = 0b0011
 };
 
 constexpr enum MultiPlotPageUpdateType operator|( const enum MultiPlotPageUpdateType selfValue,
