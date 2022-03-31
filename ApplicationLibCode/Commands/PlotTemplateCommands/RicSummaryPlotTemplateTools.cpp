@@ -537,7 +537,7 @@ QString RicSummaryPlotTemplateTools::summaryGroupFieldKeyword()
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::placeholderTextForSummaryCase()
 {
-    return "CASE_NAME";
+    return "__CASE_NAME__";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -545,7 +545,7 @@ QString RicSummaryPlotTemplateTools::placeholderTextForSummaryCase()
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup()
 {
-    return "ENSEMBLE_NAME";
+    return "__ENSEMBLE_NAME__";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -553,7 +553,23 @@ QString RicSummaryPlotTemplateTools::placeholderTextForSummaryGroup()
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::placeholderTextForWell()
 {
-    return "WELL_NAME";
+    return "__WELL_NAME__";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::placeholderTextForWellGroup()
+{
+    return "__WELL_GROUP__";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSummaryPlotTemplateTools::placeholderTextForRegion()
+{
+    return "__REGION__";
 }
 
 //--------------------------------------------------------------------------------------------------

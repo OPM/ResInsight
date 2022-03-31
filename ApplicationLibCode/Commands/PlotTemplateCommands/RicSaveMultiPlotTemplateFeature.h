@@ -20,6 +20,8 @@
 
 #include "cafCmdFeature.h"
 
+#include <set>
+
 class RimSummaryMultiPlot;
 
 //==================================================================================================
@@ -36,6 +38,11 @@ protected:
 
 private:
     static QString createTextFromObject( RimSummaryMultiPlot* summaryPlot );
+
+    static void replaceStrings( const std::set<QString>& sourceStrings,
+                                const QString&           fieldKeyword,
+                                const QString&           placeholderText,
+                                QString&                 objectAsText );
 
 private:
     RimSummaryMultiPlot* selectedSummaryPlot() const;

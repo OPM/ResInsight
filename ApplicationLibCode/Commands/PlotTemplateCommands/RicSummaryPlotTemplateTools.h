@@ -76,6 +76,8 @@ public:
     static QString placeholderTextForSummaryCase();
     static QString placeholderTextForSummaryGroup();
     static QString placeholderTextForWell();
+    static QString placeholderTextForWellGroup();
+    static QString placeholderTextForRegion();
 
 private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
