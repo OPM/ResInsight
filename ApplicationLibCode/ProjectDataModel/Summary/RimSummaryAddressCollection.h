@@ -40,7 +40,10 @@ public:
         WELL_GROUP,
         REGION,
         FIELD,
-        MISC
+        MISC,
+        WELL_FOLDER,
+        WELL_GROUP_FOLDER,
+        REGION_FOLDER
     };
 
 public:
@@ -65,6 +68,8 @@ public:
     int  caseId() const;
     void setEnsembleId( int ensembleId );
     int  ensembleId() const;
+
+    std::vector<RimSummaryAddressCollection*> subFolders() const;
 
 private:
     RimSummaryAddressCollection*

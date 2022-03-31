@@ -129,9 +129,9 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
 
     RimSummaryAddressCollection* misc    = getOrCreateSubfolder( "Miscellaneous", CollectionContentType::MISC );
     RimSummaryAddressCollection* fields  = getOrCreateSubfolder( "Field", CollectionContentType::FIELD );
-    RimSummaryAddressCollection* regions = getOrCreateSubfolder( "Regions" );
-    RimSummaryAddressCollection* wells   = getOrCreateSubfolder( "Wells" );
-    RimSummaryAddressCollection* groups  = getOrCreateSubfolder( "Well Groups" );
+    RimSummaryAddressCollection* regions = getOrCreateSubfolder( "Regions", CollectionContentType::REGION_FOLDER );
+    RimSummaryAddressCollection* wells   = getOrCreateSubfolder( "Wells", CollectionContentType::WELL_FOLDER );
+    RimSummaryAddressCollection* groups = getOrCreateSubfolder( "Well Groups", CollectionContentType::WELL_GROUP_FOLDER );
 
     for ( const auto& address : addresses )
     {
@@ -219,7 +219,6 @@ bool RimSummaryAddressCollection::isEmpty() const
 bool RimSummaryAddressCollection::canBeDragged() const
 {
     bool ok = m_subfolders.size() == 0;
-    ok      = ok && !isEnsemble();
 
     ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::WELL_GROUP ||
                  m_contentType == CollectionContentType::REGION );
@@ -289,6 +288,14 @@ bool RimSummaryAddressCollection::isEnsemble() const
 int RimSummaryAddressCollection::ensembleId() const
 {
     return m_ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryAddressCollection*> RimSummaryAddressCollection::subFolders() const
+{
+    return m_subfolders.childObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

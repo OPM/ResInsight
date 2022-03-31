@@ -99,6 +99,14 @@ bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefinition::setSummaryAddress( const RifEclipseSummaryAddress& address )
+{
+    m_summaryAddress = address;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaSummaryCurveDefinition::resultValues( const RiaSummaryCurveDefinition&    curveDefinition,
                                               gsl::not_null<std::vector<double>*> values )
 {
