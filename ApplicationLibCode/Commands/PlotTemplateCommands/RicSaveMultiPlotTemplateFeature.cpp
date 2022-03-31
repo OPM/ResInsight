@@ -19,6 +19,7 @@
 #include "RicSaveMultiPlotTemplateFeature.h"
 
 #include "RicReloadPlotTemplatesFeature.h"
+#include "RicSaveMultiPlotTemplateFeatureSettings.h"
 #include "RicSummaryPlotTemplateTools.h"
 
 #include "RiaGuiApplication.h"
@@ -37,6 +38,7 @@
 #include "RiuFileDialogTools.h"
 
 #include "cafPdmObject.h"
+#include "cafPdmUiPropertyViewDialog.h"
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
@@ -80,10 +82,13 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
 
     startPath = startPath + "/" + templateCandidateName + ".rpt";
 
-    QString fileName = RiuFileDialogTools::getSaveFileName( nullptr,
-                                                            tr( "Save Plot Template To File" ),
-                                                            startPath,
-                                                            tr( "Plot Template Files (*.rpt);;All files(*.*)" ) );
+    RicSaveMultiPlotTemplateFeatureSettings settings;
+    settings.setFilePath( startPath );
+
+    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &settings, "Export Plot Template", "" );
+    if ( propertyDialog.exec() != QDialog::Accepted ) return;
+
+    QString fileName = settings.filePath();
     if ( !fileName.isEmpty() )
     {
         QFile exportFile( fileName );
@@ -93,7 +98,7 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
             return;
         }
 
-        QString objectAsText = createTextFromObject( selectedSummaryPlot() );
+        QString objectAsText = createTextFromObject( selectedSummaryPlot(), settings );
 
         QTextStream stream( &exportFile );
         stream << objectAsText;
@@ -137,7 +142,8 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPlot* summaryPlot )
+QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPlot* summaryPlot,
+                                                               const RicSaveMultiPlotTemplateFeatureSettings& settings )
 {
     if ( !summaryPlot ) return {};
 
@@ -195,6 +201,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         analyzer.appendAddresses( addresses );
     }
 
+    if ( settings.m_replaceWells )
     {
         std::set<QString> sourceStrings;
         for ( const auto& wellName : analyzer.wellNames() )
@@ -205,6 +212,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         replaceStrings( sourceStrings, "SummaryWell", RicSummaryPlotTemplateTools::placeholderTextForWell(), objectAsText );
     }
 
+    if ( settings.m_replaceWellGroups )
     {
         std::set<QString> sourceStrings;
         for ( const auto& wellGroupName : analyzer.wellGroupNames() )
@@ -218,6 +226,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                         objectAsText );
     }
 
+    if ( settings.m_replaceRegions )
     {
         std::vector<int> regionNumbers;
         for ( auto regNumber : analyzer.regionNumbers() )

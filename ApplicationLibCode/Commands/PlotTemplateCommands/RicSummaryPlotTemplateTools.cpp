@@ -138,80 +138,66 @@ void RicSummaryPlotTemplateTools::fillPlaceholderValues( RimSummaryPlot*        
                 {
                     auto summaryCaseY = selectedSummaryCases[static_cast<int>( indexValue )];
                     curve->setSummaryCaseY( summaryCaseY );
+                }
+            }
 
-                    if ( !wellNames.empty() )
+            if ( !wellNames.empty() )
+            {
+                auto adr = curve->summaryAddressY();
+
+                auto          sourceWellName    = QString::fromStdString( adr.wellName() );
+                bool          conversionOk      = false;
+                const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForWell();
+
+                int indexValue =
+                    RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, sourceWellName, &conversionOk );
+
+                maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellNames.size() ) )
+                {
+                    adr.setWellName( wellNames[indexValue].toStdString() );
+                    curve->setSummaryAddressY( adr );
+                }
+            }
+
+            if ( !wellGroupNames.empty() )
+            {
+                auto adr = curve->summaryAddressY();
+
+                auto          sourceWellGroupName = QString::fromStdString( adr.wellGroupName() );
+                bool          conversionOk        = false;
+                const QString placeholderString   = RicSummaryPlotTemplateTools::placeholderTextForWellGroup();
+
+                int indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
+                                                                                   sourceWellGroupName,
+                                                                                   &conversionOk );
+
+                maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellGroupNames.size() ) )
+                {
+                    adr.setWellGroupName( wellGroupNames[indexValue].toStdString() );
+                    curve->setSummaryAddressY( adr );
+                }
+            }
+
+            if ( !regions.empty() )
+            {
+                auto adr        = curve->summaryAddressY();
+                int  indexValue = adr.regionNumber();
+
+                if ( indexValue < -1 )
+                {
+                    indexValue = -( indexValue - 2 );
+
+                    maximumIndexValue = std::max( maximumIndexValue, indexValue );
+
+                    bool conversionOk = false;
+                    if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( regions.size() ) )
                     {
-                        auto adr = curve->summaryAddressY();
-
-                        auto          sourceWellName    = QString::fromStdString( adr.wellName() );
-                        bool          conversionOk      = false;
-                        const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForWell();
-
-                        int indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
-                                                                                           sourceWellName,
-                                                                                           &conversionOk );
-
-                        maximumIndexValue = std::max( maximumIndexValue, indexValue );
-
-                        if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellNames.size() ) )
-                        {
-                            adr.setWellName( wellNames[indexValue].toStdString() );
-                            curve->setSummaryAddressY( adr );
-                        }
-                    }
-
-                    if ( !wellGroupNames.empty() )
-                    {
-                        auto adr = curve->summaryAddressY();
-
-                        auto          sourceWellGroupName = QString::fromStdString( adr.wellGroupName() );
-                        bool          conversionOk        = false;
-                        const QString placeholderString   = RicSummaryPlotTemplateTools::placeholderTextForWellGroup();
-
-                        int indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString,
-                                                                                           sourceWellGroupName,
-                                                                                           &conversionOk );
-
-                        maximumIndexValue = std::max( maximumIndexValue, indexValue );
-
-                        if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellGroupNames.size() ) )
-                        {
-                            adr.setWellGroupName( wellGroupNames[indexValue].toStdString() );
-                            curve->setSummaryAddressY( adr );
-                        }
-                    }
-
-                    if ( !regions.empty() )
-                    {
-                        auto adr = curve->summaryAddressY();
-
-                        auto sourceRegion = adr.regionNumber();
-
-                        if ( indexValue < -1 ) indexValue = -( indexValue - 2 );
-
-                        maximumIndexValue = std::max( maximumIndexValue, indexValue );
-
-                        if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( regions.size() ) )
-                        {
-                            adr.setRegion( regions[indexValue].toInt() );
-                            curve->setSummaryAddressY( adr );
-                        }
-                    }
-
-                    auto currentAddressY = curve->summaryAddressY();
-                    if ( summaryCaseY->summaryReader() && !summaryCaseY->summaryReader()->hasAddress( currentAddressY ) )
-                    {
-                        // Fallback to first available address by quantity name
-                        // Consider remove this magic behavior
-
-                        auto allAddresses = summaryCaseY->summaryReader()->allResultAddresses();
-
-                        auto candidate =
-                            RicSummaryPlotTemplateTools::firstAddressByQuantity( currentAddressY, allAddresses );
-                        if ( candidate.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
-                        {
-                            curve->setSummaryAddressY( candidate );
-                        }
+                        adr.setRegion( regions[indexValue].toInt() );
+                        curve->setSummaryAddressY( adr );
                     }
                 }
             }

@@ -18,34 +18,34 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-
-#include <set>
-
-class RimSummaryMultiPlot;
-class RicSaveMultiPlotTemplateFeatureSettings;
+#include "cafFilePath.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSaveMultiPlotTemplateFeature : public caf::CmdFeature
+class RicSaveMultiPlotTemplateFeatureSettings : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
-protected:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
+public:
+    RicSaveMultiPlotTemplateFeatureSettings();
 
-private:
-    static QString createTextFromObject( RimSummaryMultiPlot*                           summaryPlot,
-                                         const RicSaveMultiPlotTemplateFeatureSettings& settings );
+    void    setFilePath( const QString& filePath );
+    QString filePath() const;
 
-    static void replaceStrings( const std::set<QString>& sourceStrings,
-                                const QString&           fieldKeyword,
-                                const QString&           placeholderText,
-                                QString&                 objectAsText );
+public:
+    caf::PdmField<bool> m_replaceWells;
+    caf::PdmField<bool> m_replaceWellGroups;
+    caf::PdmField<bool> m_replaceRegions;
 
 private:
-    RimSummaryMultiPlot* selectedSummaryPlot() const;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
+    caf::PdmField<caf::FilePath> m_filePath;
 };
