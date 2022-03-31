@@ -46,6 +46,7 @@ public:
     const RifEclipseSummaryAddress& summaryAddress() const;
     RimSummaryCaseCollection*       ensemble() const;
     bool                            isEnsembleCurve() const;
+    void                            setSummaryAddress( const RifEclipseSummaryAddress& address );
 
     bool operator<( const RiaSummaryCurveDefinition& other ) const;
 
