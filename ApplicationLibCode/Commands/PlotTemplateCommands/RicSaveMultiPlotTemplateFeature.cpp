@@ -225,14 +225,14 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             regionNumbers.push_back( regNumber );
         }
 
-        for ( auto i = 0; i < regionNumbers.size(); i++ )
+        for ( int i = 0; i < static_cast<int>( regionNumbers.size() ); i++ )
         {
             // Encode placeholder index. Use negative values below -1 to represent a placeholder index
             int index = -( i + 2 );
 
             QString fieldKeyword             = "SummaryRegion";
-            QString replacementTextWithIndex = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( index );
             QString sourceString             = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( regionNumbers[i] );
+            QString replacementTextWithIndex = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( index );
 
             objectAsText.replace( sourceString, replacementTextWithIndex );
         }
