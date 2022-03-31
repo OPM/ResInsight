@@ -31,6 +31,7 @@
 #include "cafCmdFeatureMenuBuilder.h"
 
 #include <QMenu>
+#include <QPointer>
 
 #include <cmath>
 
@@ -87,6 +88,14 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
                 if ( ensemble && ensemble->isEnsemble() )
                 {
                     clickedQuantityName = QString::fromStdString( clickedEnsembleCurveSet->summaryAddress().uiText() );
+
+                    if ( curveClicked )
+                    {
+                        QVariant curveVariant( QVariant::fromValue( static_cast<void*>( summaryCurve ) ) );
+                        menuBuilder.addCmdFeatureWithUserData( "RicNewSummaryPlotFromCurveFeature",
+                                                               "Create New Plot from Curve",
+                                                               curveVariant );
+                    }
                 }
             }
 

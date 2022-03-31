@@ -45,7 +45,7 @@ private:
 
 private slots:
     void slotSetMinDepth( int value );
-    void performUpdate() override;
+    void performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate ) override;
 
 private:
     QPointer<QVBoxLayout> m_verticalTrackScrollBarLayout;

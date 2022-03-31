@@ -562,7 +562,7 @@ void RiuMultiPlotBook::createPages()
         }
         CAF_ASSERT( plotWidgets[visibleIndex] );
         page->addPlot( plotWidgets[visibleIndex] );
-        page->performUpdate();
+        page->performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
     }
 
     // Set page numbers in title when there's more than one page

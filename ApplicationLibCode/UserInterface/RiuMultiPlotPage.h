@@ -19,6 +19,8 @@
 
 #include "RiuInterfaceToViewWindow.h"
 
+#include "RiaDefines.h"
+
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
 
@@ -76,8 +78,8 @@ public:
     bool previewModeEnabled() const;
     void setPagePreviewModeEnabled( bool previewMode );
 
-    void         scheduleUpdate();
-    void         scheduleReplotOfAllPlots();
+    void scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate = RiaDefines::MultiPlotPageUpdateType::ALL );
+    void scheduleReplotOfAllPlots();
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
     void         updateSubTitles();
 
@@ -103,6 +105,7 @@ protected:
     virtual bool showYAxis( int row, int column ) const;
 
     virtual void reinsertPlotWidgets();
+    virtual void refreshLegends();
 
     void updateTitleFont();
 
@@ -119,7 +122,7 @@ protected:
     void applyLook();
 
 private slots:
-    virtual void performUpdate();
+    virtual void performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate );
     void         onLegendUpdated();
 
 protected:

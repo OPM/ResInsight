@@ -204,4 +204,24 @@ enum class RowCount
     ROWS_4 = 4,
 };
 
+enum class MultiPlotPageUpdateType : uint32_t
+{
+    NONE   = 0b0000,
+    LEGEND = 0b0001,
+    PLOT   = 0b0010,
+    ALL    = 0b0011
+};
+
+constexpr enum MultiPlotPageUpdateType operator|( const enum MultiPlotPageUpdateType selfValue,
+                                                  const enum MultiPlotPageUpdateType inValue )
+{
+    return ( enum MultiPlotPageUpdateType )( uint32_t( selfValue ) | uint32_t( inValue ) );
+}
+
+constexpr enum MultiPlotPageUpdateType operator&( const enum MultiPlotPageUpdateType selfValue,
+                                                  const enum MultiPlotPageUpdateType inValue )
+{
+    return ( enum MultiPlotPageUpdateType )( uint32_t( selfValue ) & uint32_t( inValue ) );
+}
+
 }; // namespace RiaDefines

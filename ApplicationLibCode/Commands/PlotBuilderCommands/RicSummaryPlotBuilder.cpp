@@ -475,6 +475,24 @@ void RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::vector<RimSummaryCurve*>& summaryCurves )
+{
+    auto* plot = new RimSummaryPlot();
+    plot->enableAutoPlotTitle( true );
+
+    for ( auto& curve : summaryCurves )
+    {
+        plot->addCurveNoUpdate( curve );
+    }
+
+    plot->applyDefaultCurveAppearances();
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryPlot* RicSummaryPlotBuilder::createPlot( const std::set<RifEclipseSummaryAddress>&     addresses,
                                                    const std::vector<RimSummaryCase*>&           summaryCases,
                                                    const std::vector<RimSummaryCaseCollection*>& ensembles )
