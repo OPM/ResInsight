@@ -464,9 +464,13 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     plotWindow->updateAllRequiredEditors();
 
     if ( !plots.empty() )
+    {
         RiuPlotMainWindowTools::selectAsCurrentItem( plots[0] );
+    }
     else
+    {
         RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
+    }
 
     return plotWindow;
 }
