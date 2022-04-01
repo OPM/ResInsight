@@ -564,12 +564,11 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 
         if ( watched == m_plot && !m_plot->canvas()->geometry().contains( mouseEvent->pos() ) )
         {
-            auto eventType = mouseEvent->type();
-            auto eventButton = mouseEvent->button();
+            auto eventType     = mouseEvent->type();
+            auto eventButton   = mouseEvent->button();
             auto clickedIsNull = m_clickPosition.isNull();
             RiaLogging::error( QString( "Event %1" ).arg( eventType ) );
-            if ( eventType == QMouseEvent::MouseButtonPress && eventButton  == Qt::LeftButton &&
-                 !clickedIsNull )
+            if ( eventType == QMouseEvent::MouseButtonPress && eventButton == Qt::LeftButton && !clickedIsNull )
             {
                 QWidget* childClicked = m_plot->childAt( m_clickPosition );
                 if ( childClicked )
@@ -791,21 +790,21 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
     int axisId = -1;
     for ( int i = 0; i < QwtAxis::AxisPositions; ++i )
     {
-        QwtAxis::Position pos = static_cast<QwtAxis::Position>(i);
+        QwtAxis::Position pos   = static_cast<QwtAxis::Position>( i );
         int               count = m_plot->axesCount( pos );
         for ( int id = 0; id < count; id++ )
         {
             QwtAxisId axisId( pos, id );
-        
+
             if ( scale == m_plot->axisWidget( axisId ) )
             {
-                emit axisSelected(findPlotAxisForQwtAxis(axisId), toggleItemInSelection);
+                emit axisSelected( findPlotAxisForQwtAxis( axisId ), toggleItemInSelection );
                 return;
             }
         }
     }
 
-    //emit axisSe
+    // emit axisSe
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1285,8 +1284,6 @@ void RiuQwtPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
         }
         return count;
     };
-
-
 
     auto isLastItem = [this]( RiuPlotAxis plotAxis, int count ) {
         auto qwtAxis = toQwtPlotAxis( plotAxis );
