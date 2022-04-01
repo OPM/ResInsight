@@ -62,6 +62,7 @@
 #include <QPainter>
 #include <QScrollBar>
 #include <QTimer>
+#include <QWidget>
 
 #include <cmath>
 

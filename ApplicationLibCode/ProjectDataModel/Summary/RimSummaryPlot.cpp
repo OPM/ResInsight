@@ -1586,7 +1586,10 @@ void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 void RimSummaryPlot::onLoadDataAndUpdate()
 {
     updatePlotTitle();
-    updateMdiWindowVisibility();
+
+    RimMultiPlot* plotWindow = nullptr;
+    firstAncestorOrThisOfType( plotWindow );
+    if ( plotWindow == nullptr ) updateMdiWindowVisibility();
 
     if ( m_summaryCurveCollection )
     {
@@ -2179,7 +2182,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         if ( useQtCharts )
         {
-            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this );
+            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this, mainWindowParent );
         }
         else
         {
@@ -2218,6 +2221,8 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         updatePlotTitle();
     }
+
+    plotWidget()->setParent( mainWindowParent );
 
     return plotWidget();
 }
