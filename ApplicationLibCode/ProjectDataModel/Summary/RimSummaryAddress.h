@@ -63,6 +63,8 @@ public:
 
     RiaDefines::PhaseType addressPhaseType() const;
 
+    QString keywordForCategory( RifEclipseSummaryAddress::SummaryVarCategory category ) const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

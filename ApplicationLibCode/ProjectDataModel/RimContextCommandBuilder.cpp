@@ -119,6 +119,7 @@
 #include "RimStimPlanModelTemplateCollection.h"
 #include "RimStreamlineInViewCollection.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -1036,6 +1037,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicSnapshotViewToPdfFeature";
+            menuBuilder << "RicSaveMultiPlotTemplateFeature";
         }
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {
@@ -1044,6 +1046,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimStreamlineInViewCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewStreamlineFeature";
+        }
+        else if ( dynamic_cast<RimSummaryAddressCollection*>( firstUiItem ) )
+        {
+            menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )

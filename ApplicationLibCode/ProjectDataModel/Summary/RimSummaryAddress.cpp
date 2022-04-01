@@ -201,6 +201,20 @@ RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddress::SummaryVarCategory category ) const
+{
+    // Return the keyword text for supported field replacement in plot templates
+
+    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL ) return m_wellName.keyword();
+    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ) return m_wellGroupName.keyword();
+    if ( category == RifEclipseSummaryAddress::SUMMARY_REGION ) return m_regionNumber.keyword();
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.skipRemainingFields( true );

@@ -32,6 +32,8 @@ class RimSummaryPlot;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RifEclipseSummaryAddress;
+class RimSummaryMultiPlot;
+class RimSummaryAddressCollection;
 
 //==================================================================================================
 ///
@@ -39,6 +41,22 @@ class RifEclipseSummaryAddress;
 class RicSummaryPlotTemplateTools
 {
 public:
+    static RimSummaryMultiPlot* createMultiPlotFromTemplateFile( const QString& fileName );
+
+    static void setValuesForPlaceholders( RimSummaryMultiPlot*                          summaryMultiPlot,
+                                          const std::vector<RimSummaryCase*>&           selectedSummaryCases,
+                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
+                                          const std::vector<QString>&                   wellNames,
+                                          const std::vector<QString>&                   wellGroupNames,
+                                          const std::vector<QString>&                   regions );
+
+    static void setValuesForPlaceholders( RimSummaryPlot*                               summaryPlot,
+                                          const std::vector<RimSummaryCase*>&           selectedSummaryCases,
+                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
+                                          const std::vector<QString>&                   wellNames,
+                                          const std::vector<QString>&                   wellGroupNames,
+                                          const std::vector<QString>&                   regions );
+
     static RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName );
     static void            appendSummaryPlotToPlotCollection( RimSummaryPlot*                               summaryPlot,
                                                               const std::vector<RimSummaryCase*>&           selectedSummaryCases,
@@ -55,14 +73,24 @@ public:
     static std::vector<RimSummaryCase*>           selectedSummaryCases();
     static std::vector<RimSummaryCaseCollection*> selectedSummaryCaseCollections();
 
+    static std::vector<RimSummaryAddressCollection*> selectedSummaryAddressCollections();
+
     static QString summaryCaseFieldKeyword();
     static QString summaryGroupFieldKeyword();
+
     static QString placeholderTextForSummaryCase();
     static QString placeholderTextForSummaryGroup();
+    static QString placeholderTextForWell();
+    static QString placeholderTextForWellGroup();
 
 private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
                                                             const std::set<RifEclipseSummaryAddress>& allAddresses );
 
     static int findValueForKeyword( const QString& keyword, const QString& valueString, bool* ok );
+
+    static void setPlaceholderWellName( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& wellNames );
+    static void setPlaceholderWellGroupName( RifEclipseSummaryAddress*   summaryAddress,
+                                             const std::vector<QString>& wellGroupNames );
+    static void setPlaceholderRegion( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& regions );
 };

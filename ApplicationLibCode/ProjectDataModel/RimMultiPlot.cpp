@@ -20,6 +20,7 @@
 
 #include "RiaPreferences.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaVersionInfo.h"
 
 #include "RimPlot.h"
 #include "RimProject.h"
@@ -46,6 +47,9 @@ CAF_PDM_SOURCE_INIT( RimMultiPlot, "MultiPlot" );
 RimMultiPlot::RimMultiPlot()
 {
     CAF_PDM_InitObject( "Multi Plot", ":/MultiPlot16x16.png" );
+
+    CAF_PDM_InitFieldNoDefault( &m_projectFileVersionString, "ProjectFileVersionString", "" );
+    m_projectFileVersionString.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_showPlotWindowTitle, "ShowTitleInPlot", true, "Show Title" );
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name" );
@@ -129,6 +133,14 @@ QWidget* RimMultiPlot::viewWidget()
 QString RimMultiPlot::description() const
 {
     return multiPlotTitle();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimMultiPlot::projectFileVersionString() const
+{
+    return m_projectFileVersionString();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -861,6 +873,14 @@ void RimMultiPlot::cleanupBeforeClose()
         delete m_viewer;
         m_viewer = nullptr;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::setupBeforeSave()
+{
+    m_projectFileVersionString = STRPRODUCTVER;
 }
 
 //--------------------------------------------------------------------------------------------------

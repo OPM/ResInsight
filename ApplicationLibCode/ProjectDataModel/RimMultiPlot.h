@@ -58,6 +58,7 @@ public:
     QWidget* viewWidget() override;
 
     QString description() const override;
+    QString projectFileVersionString() const;
 
     bool    isMultiPlotTitleVisible() const;
     void    setMultiPlotTitleVisible( bool visible );
@@ -135,6 +136,7 @@ protected:
 
 private:
     void cleanupBeforeClose();
+    void setupBeforeSave() override;
     void doUpdateLayout() override;
     void updateSubPlotNames();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
@@ -146,6 +148,7 @@ private:
     static void setTickmarkCount( RimPlot* plot, RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
 
 protected:
+    caf::PdmField<QString>                          m_projectFileVersionString;
     caf::PdmField<bool>                             m_showPlotWindowTitle;
     caf::PdmField<QString>                          m_plotWindowTitle;
     caf::PdmField<ColumnCountEnum>                  m_columnCount;
