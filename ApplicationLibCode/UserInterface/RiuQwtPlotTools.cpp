@@ -29,6 +29,7 @@
 #include "RiuQtChartsPlotCurveSymbol.h"
 #include "RiuQwtPlotLegend.h"
 
+#include "qwt_axis.h"
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
 #include "qwt_graphic.h"
@@ -38,9 +39,6 @@
 #include "qwt_plot_layout.h"
 #include "qwt_plot_shapeitem.h"
 #include "qwt_scale_widget.h"
-
-#include "qwt_axis.h"
-#include <QRegExp>
 
 #include <vector>
 
@@ -243,16 +241,6 @@ QwtPlotShapeItem* RiuQwtPlotTools::createBoxShape( const QString& label,
                                                    Qt::BrushStyle brushStyle )
 {
     return createBoxShapeT<QwtPlotShapeItem>( label, startX, endX, startY, endY, color, brushStyle );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QwtAxisId RiuQwtPlotTools::toQwtPlotAxis( RiuPlotAxis axis )
-{
-    QwtAxis::Position qwtPosition = toQwtPlotAxisEnum( axis.axis() );
-
-    return { qwtPosition, axis.index() };
 }
 
 //--------------------------------------------------------------------------------------------------

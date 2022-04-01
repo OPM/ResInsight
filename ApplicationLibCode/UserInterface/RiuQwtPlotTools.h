@@ -65,11 +65,9 @@ public:
                                                QColor         color,
                                                Qt::BrushStyle brushStyle = Qt::SolidPattern );
 
-
     static void                 updateLegendData( RiuQwtPlotLegend* legend, const std::vector<RimPlotCurve*>& curves );
     static QList<QwtLegendData> createLegendData( const std::vector<RimPlotCurve*>& curves );
-    static QwtAxisId         toQwtPlotAxis( RiuPlotAxis riuPlotAxis );
-    static QwtAxis::Position toQwtPlotAxisEnum( RiaDefines::PlotAxis riaPlotAxis );
+    static QwtAxis::Position    toQwtPlotAxisEnum( RiaDefines::PlotAxis riaPlotAxis );
 
     static RiaDefines::PlotAxis fromQwtPlotAxis( QwtAxis::Position );
 };

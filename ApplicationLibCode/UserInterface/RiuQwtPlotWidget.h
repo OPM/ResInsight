@@ -171,6 +171,8 @@ public:
 
     std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const override;
 
+    QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
+
 signals:
     void plotSelected( bool toggleSelection );
     void axisSelected( int axisId, bool toggleSelection );
@@ -195,9 +197,8 @@ protected:
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
-    QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
-    void      setAxisScaleType( QwtAxisId axis, RiuQwtPlotWidget::AxisScaleType axisScaleType );
-    void      setAxisScale( QwtAxisId axis, double min, double max );
+    void setAxisScaleType( QwtAxisId axis, RiuQwtPlotWidget::AxisScaleType axisScaleType );
+    void setAxisScale( QwtAxisId axis, double min, double max );
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );

@@ -25,6 +25,7 @@
 #include "qwt_plot_curve.h"
 
 class QwtPlotIntervalCurve;
+class RiuQwtPlotWidget;
 
 //==================================================================================================
 //
@@ -101,4 +102,6 @@ protected:
 
     QwtPlotIntervalCurve* m_qwtCurveErrorBars;
     bool                  m_showErrorBars;
+
+    QPointer<RiuQwtPlotWidget> m_plotWidget;
 };
