@@ -1254,6 +1254,14 @@ void RiuQtChartsPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
+{
+    deleteAxis( oldAxis );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::tooltip( const QPointF& point, bool state )
 {
     QAbstractSeries* series = qobject_cast<QAbstractSeries*>( sender() );
