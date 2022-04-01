@@ -95,7 +95,7 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Preferred );
 
     connect( this, SIGNAL( plotSelected( bool ) ), plotDefinition, SLOT( onPlotSelected( bool ) ) );
-    connect( this, SIGNAL( axisSelected( int, bool ) ), plotDefinition, SLOT( onAxisSelected( int, bool ) ) );
+    connect( this, SIGNAL( axisSelected( RiuPlotAxis, bool ) ), plotDefinition, SLOT( onAxisSelected( RiuPlotAxis, bool ) ) );
     connect( this,
              SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
              plotDefinition,
@@ -562,9 +562,9 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
             m_clickPosition = mouseEvent->pos();
         }
 
-        if ( watched == this && !m_plot->canvas()->geometry().contains( mouseEvent->pos() ) )
+        if ( watched == m_plot && !m_plot->canvas()->geometry().contains( mouseEvent->pos() ) )
         {
-            if ( mouseEvent->type() == QMouseEvent::MouseButtonRelease && ( mouseEvent->button() == Qt::LeftButton ) &&
+            if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && ( mouseEvent->button() == Qt::LeftButton ) &&
                  !m_clickPosition.isNull() )
             {
                 QWidget* childClicked = m_plot->childAt( m_clickPosition );
@@ -784,15 +784,20 @@ RimViewWindow* RiuQwtPlotWidget::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection )
 {
-    int axisId = -1;
     for ( int i = 0; i < QwtAxis::AxisPositions; ++i )
     {
-        if ( scale == m_plot->axisWidget( i ) )
+        QwtAxis::Position pos   = static_cast<QwtAxis::Position>( i );
+        int               count = m_plot->axesCount( pos );
+        for ( int id = 0; id < count; id++ )
         {
-            axisId = i;
+            QwtAxisId axisId( pos, id );
+            if ( scale == m_plot->axisWidget( axisId ) )
+            {
+                emit axisSelected( findPlotAxisForQwtAxis( axisId ), toggleItemInSelection );
+                return;
+            }
         }
     }
-    emit axisSelected( axisId, toggleItemInSelection );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1250,6 +1255,18 @@ void RiuQwtPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotAxis RiuQwtPlotWidget::findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId ) const
+{
+    for ( auto [plotAxis, qwtMapping] : m_axisMapping )
+        if ( qwtMapping == qwtAxisId ) return plotAxis;
+
+    CAF_ASSERT( false );
+    return RiuPlotAxis::defaultLeft();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
 {
     auto countAxis = [this]( RiaDefines::PlotAxis axis ) {
@@ -1261,20 +1278,12 @@ void RiuQwtPlotWidget::moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis )
         return count;
     };
 
-    auto findPlotAxisForQwtAxis = [this]( const QwtAxisId& qwtAxisId ) {
-        for ( auto [plotAxis, qwtMapping] : m_axisMapping )
-            if ( qwtMapping == qwtAxisId ) return plotAxis;
-
-        CAF_ASSERT( false );
-        return RiuPlotAxis::defaultLeft();
-    };
-
     auto isLastItem = [this]( RiuPlotAxis plotAxis, int count ) {
         auto qwtAxis = toQwtPlotAxis( plotAxis );
         return qwtAxis.id == ( count - 1 );
     };
 
-    auto removeAxis = [this, countAxis, isLastItem, findPlotAxisForQwtAxis]( RiuPlotAxis plotAxis ) {
+    auto removeAxis = [this, countAxis, isLastItem]( RiuPlotAxis plotAxis ) {
         auto qwtAxisPos = RiuQwtPlotTools::toQwtPlotAxisEnum( plotAxis.axis() );
 
         int count = countAxis( plotAxis.axis() );

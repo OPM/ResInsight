@@ -178,7 +178,7 @@ public:
 
     caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
 
-    void onAxisSelected( int axis, bool toggle ) override;
+    void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
 
     static constexpr int precision()
     {

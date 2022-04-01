@@ -175,7 +175,7 @@ public:
 
 signals:
     void plotSelected( bool toggleSelection );
-    void axisSelected( int axisId, bool toggleSelection );
+    void axisSelected( RiuPlotAxis axisId, bool toggleSelection );
     void plotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggleSelection, int sampleIndex );
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
@@ -199,6 +199,8 @@ protected:
 
     void setAxisScaleType( QwtAxisId axis, RiuQwtPlotWidget::AxisScaleType axisScaleType );
     void setAxisScale( QwtAxisId axis, double min, double max );
+
+    RiuPlotAxis findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId ) const;
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );

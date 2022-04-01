@@ -377,30 +377,11 @@ caf::PdmObject* RimSummaryPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::onAxisSelected( int axis, bool toggle )
+void RimSummaryPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
 
-    caf::PdmObject* itemToSelect = nullptr;
-    if ( axis == QwtAxis::YLeft )
-    {
-        itemToSelect = m_leftYAxisProperties_OBSOLETE;
-    }
-    else if ( axis == QwtAxis::YRight )
-    {
-        itemToSelect = m_rightYAxisProperties_OBSOLETE;
-    }
-    else if ( axis == QwtAxis::XBottom )
-    {
-        if ( m_isCrossPlot )
-        {
-            itemToSelect = m_bottomAxisProperties_OBSOLETE;
-        }
-        else
-        {
-            itemToSelect = m_timeAxisProperties_OBSOLETE;
-        }
-    }
+    caf::PdmObject* itemToSelect = axisPropertiesForPlotAxis( axis );
 
     if ( toggle )
     {
