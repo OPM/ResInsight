@@ -1586,7 +1586,10 @@ void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 void RimSummaryPlot::onLoadDataAndUpdate()
 {
     updatePlotTitle();
-    updateMdiWindowVisibility();
+
+    RimMultiPlot* plotWindow = nullptr;
+    firstAncestorOrThisOfType( plotWindow );
+    if ( plotWindow == nullptr ) updateMdiWindowVisibility();
 
     if ( m_summaryCurveCollection )
     {
@@ -1623,18 +1626,17 @@ void RimSummaryPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateZoomInParentPlot()
 {
-    if ( plotWidget() )
-    {
-        for ( const auto& axisProperty : m_axisProperties )
-        {
-            updateZoomForAxis( axisProperty->plotAxisType() );
-        }
+    if ( !plotWidget() ) return;
 
-        plotWidget()->updateAxes();
-        updateZoomFromParentPlot();
-        plotWidget()->updateZoomDependentCurveProperties();
-        plotWidget()->scheduleReplot();
+    for ( const auto& axisProperty : m_axisProperties )
+    {
+        updateZoomForAxis( axisProperty->plotAxisType() );
     }
+
+    plotWidget()->updateAxes();
+    updateZoomFromParentPlot();
+    plotWidget()->updateZoomDependentCurveProperties();
+    plotWidget()->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2180,7 +2182,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         if ( useQtCharts )
         {
-            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this );
+            m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this, mainWindowParent );
         }
         else
         {
@@ -2207,18 +2209,20 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
 
         if ( m_summaryCurveCollection )
         {
-            m_summaryCurveCollection->setParentPlotAndReplot( plotWidget() );
+            m_summaryCurveCollection->setParentPlotNoReplot( plotWidget() );
         }
 
         if ( m_ensembleCurveSetCollection )
         {
-            m_ensembleCurveSetCollection->setParentPlotAndReplot( plotWidget() );
+            m_ensembleCurveSetCollection->setParentPlotNoReplot( plotWidget() );
         }
 
         this->connect( plotWidget(), SIGNAL( plotZoomed() ), SLOT( onPlotZoomed() ) );
 
         updatePlotTitle();
     }
+
+    plotWidget()->setParent( mainWindowParent );
 
     return plotWidget();
 }

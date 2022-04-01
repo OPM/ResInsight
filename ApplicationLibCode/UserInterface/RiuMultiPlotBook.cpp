@@ -184,14 +184,21 @@ void RiuMultiPlotBook::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::removePlot( RiuPlotWidget* plotWidget )
 {
+    removePlotNoUpdate( plotWidget );
+    scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::removePlotNoUpdate( RiuPlotWidget* plotWidget )
+{
     if ( !plotWidget ) return;
 
     int plotWidgetIdx = m_plotWidgets.indexOf( plotWidget );
     CVF_ASSERT( plotWidgetIdx >= 0 );
 
     m_plotWidgets.removeAt( plotWidgetIdx );
-
-    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,7 +390,8 @@ void RiuMultiPlotBook::showEvent( QShowEvent* event )
 {
     m_goToPageAfterUpdate = true;
     QWidget::showEvent( event );
-    performUpdate();
+    const bool regeneratePages = false;
+    performUpdate( regeneratePages );
     if ( m_previewMode )
     {
         applyPagePreviewBookSize( width() );
@@ -473,16 +481,19 @@ bool RiuMultiPlotBook::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::performUpdate()
+void RiuMultiPlotBook::performUpdate( bool regeneratePages )
 {
     applyLook();
-    deleteAllPages();
-    createPages();
+    if ( regeneratePages || m_pages.size() == 0 )
+    {
+        deleteAllPages();
+        createPages();
+    }
     updateGeometry();
     // use a timer to trigger a viewer page change, if needed
     if ( m_goToPageAfterUpdate )
     {
-        m_pageTimerId         = startTimer( 100 );
+        m_pageTimerId         = startTimer( 50 );
         m_goToPageAfterUpdate = false;
     }
 }

@@ -46,7 +46,6 @@ class RimSummaryMultiPlot : public RimMultiPlot, public RimSummaryDataSourceStep
 
 public:
     caf::Signal<RimSummaryMultiPlot*> duplicatePlot;
-    caf::Signal<RimSummaryMultiPlot*> refreshTree;
 
 public:
     RimSummaryMultiPlot();
@@ -66,6 +65,9 @@ public:
     void insertPlot( RimPlot* plot, size_t index ) override;
     void removePlot( RimPlot* plot ) override;
 
+    void removePlotNoUpdate( RimPlot* plot ) override;
+    void updateAfterPlotRemove() override;
+
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
     void syncAxisRanges();
@@ -75,6 +77,7 @@ public:
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
+    std::vector<RimSummaryPlot*> visibleSummaryPlots() const;
 
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
@@ -93,7 +96,6 @@ private:
     void updatePlotWindowTitle() override;
 
     void duplicate();
-    void signalRefresh();
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
 

@@ -75,7 +75,7 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 
     std::vector<RimPlot*> selection;
     caf::SelectionManager::instance()->objectsByType( &selection );
-    std::set<RimPlotWindow*> alteredPlotWindows;
+    std::set<RimMultiPlot*> alteredPlotWindows;
 
     for ( RimPlot* plot : selection )
     {
@@ -94,17 +94,21 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
         if ( multiPlot )
         {
             alteredPlotWindows.insert( multiPlot );
-            multiPlot->removePlot( plot );
+            multiPlot->removePlotNoUpdate( plot );
             multiPlot->updateConnectedEditors();
             delete plot;
         }
         else if ( wellLogPlot )
         {
-            alteredPlotWindows.insert( wellLogPlot );
             wellLogPlot->removePlot( plot );
             wellLogPlot->updateConnectedEditors();
             delete plot;
         }
+    }
+
+    for ( auto mainplot : alteredPlotWindows )
+    {
+        mainplot->updateAfterPlotRemove();
     }
 }
 

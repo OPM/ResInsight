@@ -159,9 +159,6 @@ void RimPlot::removeFromMdiAreaAndCollection()
 void RimPlot::updateAfterInsertingIntoMultiPlot()
 {
     loadDataAndUpdate();
-    /*    updateLegend();
-        updateAxes();
-        updateLayout(); */
 }
 
 //--------------------------------------------------------------------------------------------------

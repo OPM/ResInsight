@@ -52,7 +52,6 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::RimSummaryMultiPlot()
     : duplicatePlot( this )
-    , refreshTree( this )
 {
     CAF_PDM_InitObject( "Multi Summary Plot" );
     this->setDeletable( true );
@@ -117,7 +116,6 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     {
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         RimMultiPlot::insertPlot( plot, index );
-        signalRefresh();
     }
 }
 
@@ -150,8 +148,28 @@ void RimSummaryMultiPlot::removePlot( RimPlot* plot )
     if ( sumPlot )
     {
         RimMultiPlot::removePlot( plot );
-        signalRefresh();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::removePlotNoUpdate( RimPlot* plot )
+{
+    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    CVF_ASSERT( sumPlot != nullptr );
+    if ( sumPlot )
+    {
+        RimMultiPlot::removePlotNoUpdate( plot );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateAfterPlotRemove()
+{
+    onPlotAdditionOrRemoval();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,6 +408,21 @@ std::vector<RimSummaryPlot*> RimSummaryMultiPlot::summaryPlots() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryPlot*> RimSummaryMultiPlot::visibleSummaryPlots() const
+{
+    std::vector<RimSummaryPlot*> visiblePlots;
+
+    for ( auto plot : summaryPlots() )
+    {
+        if ( plot->showWindow() ) visiblePlots.push_back( plot );
+    }
+
+    return visiblePlots;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 {
     std::vector<caf::PdmFieldHandle*> toolBarFields;
@@ -533,14 +566,6 @@ void RimSummaryMultiPlot::summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* o
 void RimSummaryMultiPlot::duplicate()
 {
     duplicatePlot.send( this );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::signalRefresh()
-{
-    refreshTree.send( this );
 }
 
 //--------------------------------------------------------------------------------------------------

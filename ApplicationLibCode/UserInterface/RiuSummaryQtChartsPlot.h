@@ -25,6 +25,7 @@
 
 #include <QPointer>
 
+class QWidget;
 class RimSummaryPlot;
 class RimPlotAxisPropertiesInterface;
 
@@ -38,7 +39,7 @@ class RiuSummaryQtChartsPlot : public RiuSummaryPlot
     Q_OBJECT;
 
 public:
-    RiuSummaryQtChartsPlot( RimSummaryPlot* plot );
+    RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* parent );
     ~RiuSummaryQtChartsPlot() override;
 
     void useDateBasedTimeAxis(

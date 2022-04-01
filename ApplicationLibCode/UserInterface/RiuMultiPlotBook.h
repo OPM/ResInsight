@@ -62,6 +62,7 @@ public:
     void addPlot( RiuPlotWidget* plotWidget );
     void insertPlot( RiuPlotWidget* plotWidget, size_t index );
     void removePlot( RiuPlotWidget* plotWidget );
+    void removePlotNoUpdate( RiuPlotWidget* plotWidget );
     void removeAllPlots();
 
     void setPlotTitle( const QString& plotTitle );
@@ -120,7 +121,7 @@ private:
     void changeCurrentPage( int pageNumber );
 
 private slots:
-    virtual void performUpdate();
+    virtual void performUpdate( bool regeneratePages );
 
 protected:
     friend class RiaPlotWindowRedrawScheduler;

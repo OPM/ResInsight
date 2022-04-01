@@ -55,7 +55,6 @@ void RimSummaryMultiPlotCollection::initAfterRead()
     for ( auto& plot : m_summaryMultiPlots )
     {
         plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
-        plot->refreshTree.connect( this, &RimSummaryMultiPlotCollection::onRefreshTree );
     }
 }
 
@@ -82,7 +81,6 @@ void RimSummaryMultiPlotCollection::addSummaryMultiPlot( RimSummaryMultiPlot* pl
 {
     m_summaryMultiPlots().push_back( plot );
     plot->duplicatePlot.connect( this, &RimSummaryMultiPlotCollection::onDuplicatePlot );
-    plot->refreshTree.connect( this, &RimSummaryMultiPlotCollection::onRefreshTree );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,14 +139,7 @@ void RimSummaryMultiPlotCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering
 {
     for ( auto& plot : m_summaryMultiPlots() )
     {
-        if ( plot->summaryPlots().size() == 1 )
-        {
-            uiTreeOrdering.add( plot->summaryPlots()[0] );
-        }
-        else
-        {
-            uiTreeOrdering.add( plot );
-        }
+        uiTreeOrdering.add( plot );
     }
     uiTreeOrdering.skipRemainingChildren( true );
 }
