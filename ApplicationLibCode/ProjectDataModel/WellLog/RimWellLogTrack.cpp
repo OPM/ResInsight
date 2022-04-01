@@ -1043,7 +1043,7 @@ void RimWellLogTrack::updateZoomFromParentPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::onAxisSelected( int axis, bool toggle )
+void RimWellLogTrack::onAxisSelected( RiuPlotAxis axis, bool toggle )
 {
     if ( toggle )
     {

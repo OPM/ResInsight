@@ -231,7 +231,7 @@ caf::PdmObject* RimWellDistributionPlot::findPdmObjectFromPlotCurve( const RiuPl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::onAxisSelected( int /*axis*/, bool /*toggle*/ )
+void RimWellDistributionPlot::onAxisSelected( RiuPlotAxis /*axis*/, bool /*toggle*/ )
 {
     // cvf::Trace::show("RimWellDistributionPlot::onAxisSelected()");
 }

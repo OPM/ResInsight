@@ -22,6 +22,8 @@
 
 #include "RimPlotWindow.h"
 
+#include "RiuPlotAxis.h"
+
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
@@ -119,7 +121,7 @@ protected:
     virtual void handleWheelEvent( QWheelEvent* event );
 
 private slots:
-    virtual void onAxisSelected( int axis, bool toggle );
+    virtual void onAxisSelected( RiuPlotAxis axis, bool toggle );
     virtual void onPlotItemSelected( std::shared_ptr<RiuPlotItem> selectedItem, bool toggleItem, int sampleIndex );
     void         onPlotSelected( bool toggle );
     void         onViewerDestroyed();
