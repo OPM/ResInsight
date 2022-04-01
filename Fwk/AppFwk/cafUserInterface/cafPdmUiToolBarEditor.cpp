@@ -184,7 +184,19 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
     }
 
     CAF_ASSERT( m_fields.size() == m_fieldViews.size() );
-    CAF_ASSERT( static_cast<int>( m_fields.size() ) == m_actions.size() );
+
+    // An annoying assert error situation has been seen when creating multi plots. A temporary workaround by clearing
+    // toolbar and return seems to work. Consider introducing this assert when codebase is ready.
+    //
+    // https://github.com/OPM/ResInsight/issues/8759
+    //
+    // CAF_ASSERT( static_cast<int>( m_fields.size() ) == m_actions.size() );
+    //
+    if ( static_cast<int>( m_fields.size() ) != m_actions.size() )
+    {
+        clear();
+        return;
+    }
 
     for ( size_t i = 0; i < m_fields.size(); i++ )
     {
