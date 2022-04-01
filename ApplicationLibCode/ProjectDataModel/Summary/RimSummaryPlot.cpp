@@ -2125,7 +2125,6 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
 
     caf::PdmUiGroup* mainOptions = uiOrdering.addNewGroup( "General Plot Options" );
-    mainOptions->setCollapsedByDefault( true );
 #ifdef USE_QTCHARTS
     mainOptions->add( &m_useQtChartsPlot );
 #endif
