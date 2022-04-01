@@ -43,19 +43,19 @@ class RicSummaryPlotTemplateTools
 public:
     static RimSummaryMultiPlot* createMultiPlotFromTemplateFile( const QString& fileName );
 
-    static void fillPlaceholderValues( RimSummaryMultiPlot*                          summaryMultiPlot,
-                                       const std::vector<RimSummaryCase*>&           selectedSummaryCases,
-                                       const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                       const std::vector<QString>&                   wellNames,
-                                       const std::vector<QString>&                   wellGroupNames,
-                                       const std::vector<QString>&                   regions );
+    static void setValuesForPlaceholders( RimSummaryMultiPlot*                          summaryMultiPlot,
+                                          const std::vector<RimSummaryCase*>&           selectedSummaryCases,
+                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
+                                          const std::vector<QString>&                   wellNames,
+                                          const std::vector<QString>&                   wellGroupNames,
+                                          const std::vector<QString>&                   regions );
 
-    static void fillPlaceholderValues( RimSummaryPlot*                               summaryPlot,
-                                       const std::vector<RimSummaryCase*>&           selectedSummaryCases,
-                                       const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
-                                       const std::vector<QString>&                   wellNames,
-                                       const std::vector<QString>&                   wellGroupNames,
-                                       const std::vector<QString>&                   regions );
+    static void setValuesForPlaceholders( RimSummaryPlot*                               summaryPlot,
+                                          const std::vector<RimSummaryCase*>&           selectedSummaryCases,
+                                          const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
+                                          const std::vector<QString>&                   wellNames,
+                                          const std::vector<QString>&                   wellGroupNames,
+                                          const std::vector<QString>&                   regions );
 
     static RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName );
     static void            appendSummaryPlotToPlotCollection( RimSummaryPlot*                               summaryPlot,
@@ -77,6 +77,7 @@ public:
 
     static QString summaryCaseFieldKeyword();
     static QString summaryGroupFieldKeyword();
+
     static QString placeholderTextForSummaryCase();
     static QString placeholderTextForSummaryGroup();
     static QString placeholderTextForWell();
@@ -88,7 +89,8 @@ private:
 
     static int findValueForKeyword( const QString& keyword, const QString& valueString, bool* ok );
 
-    static void replaceWellName( RifEclipseSummaryAddress& sourceAdr, const std::vector<QString>& wellNames );
-    static void replaceWellGroupName( RifEclipseSummaryAddress& sourceAdr, const std::vector<QString>& wellGroupNames );
-    static void replaceRegion( RifEclipseSummaryAddress& sourceAdr, const std::vector<QString>& regions );
+    static void setPlaceholderWellName( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& wellNames );
+    static void setPlaceholderWellGroupName( RifEclipseSummaryAddress*   summaryAddress,
+                                             const std::vector<QString>& wellGroupNames );
+    static void setPlaceholderRegion( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& regions );
 };

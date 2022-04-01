@@ -31,6 +31,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
@@ -201,7 +202,9 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         analyzer.appendAddresses( addresses );
     }
 
-    if ( settings.m_replaceWells )
+    RimSummaryAddress dummy;
+
+    if ( settings.usePlacholderForWells() )
     {
         std::set<QString> sourceStrings;
         for ( const auto& wellName : analyzer.wellNames() )
@@ -209,10 +212,13 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             sourceStrings.insert( QString::fromStdString( wellName ) );
         }
 
-        replaceStrings( sourceStrings, "SummaryWell", RicSummaryPlotTemplateTools::placeholderTextForWell(), objectAsText );
+        replaceStrings( sourceStrings,
+                        dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_WELL ),
+                        RicSummaryPlotTemplateTools::placeholderTextForWell(),
+                        objectAsText );
     }
 
-    if ( settings.m_replaceWellGroups )
+    if ( settings.usePlacholderForWellGroups() )
     {
         std::set<QString> sourceStrings;
         for ( const auto& wellGroupName : analyzer.wellGroupNames() )
@@ -221,12 +227,12 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         replaceStrings( sourceStrings,
-                        "SummaryWellGroup",
+                        dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ),
                         RicSummaryPlotTemplateTools::placeholderTextForWellGroup(),
                         objectAsText );
     }
 
-    if ( settings.m_replaceRegions )
+    if ( settings.usePlacholderForRegions() )
     {
         std::vector<int> regionNumbers;
         for ( auto regNumber : analyzer.regionNumbers() )
@@ -239,7 +245,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
             // Encode placeholder index. Use negative values below -1 to represent a placeholder index
             int index = -( i + 2 );
 
-            QString fieldKeyword             = "SummaryRegion";
+            QString fieldKeyword             = dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_REGION );
             QString sourceString             = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( regionNumbers[i] );
             QString replacementTextWithIndex = QString( "<%1>%2</%1>" ).arg( fieldKeyword ).arg( index );
 

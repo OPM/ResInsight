@@ -106,12 +106,12 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
     collections->addSummaryMultiPlot( newSummaryPlot );
     newSummaryPlot->resolveReferencesRecursively();
 
-    RicSummaryPlotTemplateTools::fillPlaceholderValues( newSummaryPlot,
-                                                        sumCases,
-                                                        sumCaseCollections,
-                                                        wellNames,
-                                                        wellGroupNames,
-                                                        regions );
+    RicSummaryPlotTemplateTools::setValuesForPlaceholders( newSummaryPlot,
+                                                           sumCases,
+                                                           sumCaseCollections,
+                                                           wellNames,
+                                                           wellGroupNames,
+                                                           regions );
     newSummaryPlot->initAfterReadRecursively();
     newSummaryPlot->loadDataAndUpdate();
     collections->updateConnectedEditors();

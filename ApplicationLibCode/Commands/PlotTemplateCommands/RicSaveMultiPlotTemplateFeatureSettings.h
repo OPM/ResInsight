@@ -35,10 +35,9 @@ public:
     void    setFilePath( const QString& filePath );
     QString filePath() const;
 
-public:
-    caf::PdmField<bool> m_replaceWells;
-    caf::PdmField<bool> m_replaceWellGroups;
-    caf::PdmField<bool> m_replaceRegions;
+    bool usePlacholderForWells() const;
+    bool usePlacholderForWellGroups() const;
+    bool usePlacholderForRegions() const;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -48,4 +47,7 @@ private:
 
 private:
     caf::PdmField<caf::FilePath> m_filePath;
+    caf::PdmField<bool>          m_replaceWells;
+    caf::PdmField<bool>          m_replaceWellGroups;
+    caf::PdmField<bool>          m_replaceRegions;
 };

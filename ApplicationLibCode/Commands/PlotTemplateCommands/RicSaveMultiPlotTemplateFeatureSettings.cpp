@@ -53,6 +53,30 @@ QString RicSaveMultiPlotTemplateFeatureSettings::filePath() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForWells() const
+{
+    return m_replaceWells;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForWellGroups() const
+{
+    return m_replaceWellGroups;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForRegions() const
+{
+    return m_replaceRegions;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicSaveMultiPlotTemplateFeatureSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filePath );
