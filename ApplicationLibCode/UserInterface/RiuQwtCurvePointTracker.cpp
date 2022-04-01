@@ -103,8 +103,8 @@ QwtText RiuQwtCurvePointTracker::trackerText( const QPoint& pos ) const
 
     if ( m_plot )
     {
-        QwtAxis::Position relatedYAxis = QwtAxis::YLeft;
-        QwtAxis::Position relatedXAxis = QwtAxis::XBottom;
+        QwtAxisId relatedYAxis( QwtAxis::YLeft, 0 );
+        QwtAxisId relatedXAxis( QwtAxis::XBottom, 0 );
 
         QString curveInfoText;
         QString mainAxisValueString;
@@ -136,12 +136,12 @@ QwtText RiuQwtCurvePointTracker::trackerText( const QPoint& pos ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint&      cursorPosition,
-                                                    QString*           curveInfoText,
-                                                    QString*           valueAxisValueString,
-                                                    QString*           mainAxisValueString,
-                                                    QwtAxis::Position* relatedXAxis,
-                                                    QwtAxis::Position* relatedYAxis ) const
+QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint& cursorPosition,
+                                                    QString*      curveInfoText,
+                                                    QString*      valueAxisValueString,
+                                                    QString*      mainAxisValueString,
+                                                    QwtAxisId*    relatedXAxis,
+                                                    QwtAxisId*    relatedYAxis ) const
 {
     QPointF samplePoint;
 
@@ -170,8 +170,8 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint&      cursorPos
     {
         samplePoint = closestCurve->sample( closestPointSampleIndex );
 
-        if ( relatedXAxis ) *relatedXAxis = static_cast<QwtAxis::Position>( closestCurve->xAxis().pos );
-        if ( relatedYAxis ) *relatedYAxis = static_cast<QwtAxis::Position>( closestCurve->yAxis().pos );
+        if ( relatedXAxis ) *relatedXAxis = closestCurve->xAxis();
+        if ( relatedYAxis ) *relatedYAxis = closestCurve->yAxis();
     }
 
     if ( mainAxisValueString )
@@ -227,9 +227,9 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint&      cursorPos
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtCurvePointTracker::updateClosestCurvePointMarker( const QPointF&    closestPoint,
-                                                             QwtAxis::Position relatedXAxis,
-                                                             QwtAxis::Position relatedYAxis ) const
+void RiuQwtCurvePointTracker::updateClosestCurvePointMarker( const QPointF& closestPoint,
+                                                             QwtAxisId      relatedXAxis,
+                                                             QwtAxisId      relatedYAxis ) const
 {
     bool replotRequired = false;
 
