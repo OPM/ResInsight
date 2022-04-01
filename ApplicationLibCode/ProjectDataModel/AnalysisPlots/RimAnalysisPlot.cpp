@@ -905,12 +905,12 @@ void RimAnalysisPlot::updateAxes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
+void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
 
     caf::PdmObject* itemToSelect = nullptr;
-    if ( axis == QwtAxis::YLeft )
+    if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         if ( m_barOrientation == BARS_VERTICAL )
         {
@@ -921,7 +921,7 @@ void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
             itemToSelect = this;
         }
     }
-    else if ( axis == QwtAxis::XBottom )
+    else if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
         if ( m_barOrientation == BARS_HORIZONTAL )
         {

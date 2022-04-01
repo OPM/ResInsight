@@ -210,7 +210,7 @@ public:
 
     QString asciiDataForPlotExport() const override;
 
-    void onAxisSelected( int axis, bool toggle ) override;
+    void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 

@@ -372,15 +372,15 @@ caf::PdmObject* RimGridCrossPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlot::onAxisSelected( int axis, bool toggle )
+void RimGridCrossPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
     RimPlotAxisProperties* properties = nullptr;
-    if ( axis == QwtAxis::YLeft )
+    if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         properties = m_yAxisProperties;
     }
-    else if ( axis == QwtAxis::XBottom )
+    else if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
         properties = m_xAxisProperties;
     }

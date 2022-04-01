@@ -323,6 +323,7 @@ void RimPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlot::onAxisSelected( int axis, bool toggle )
+void RimPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 {
+    
 }
