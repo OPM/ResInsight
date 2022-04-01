@@ -52,7 +52,6 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot::RimSummaryMultiPlot()
     : duplicatePlot( this )
-    , refreshTree( this )
 {
     CAF_PDM_InitObject( "Multi Summary Plot" );
     this->setDeletable( true );
@@ -117,7 +116,6 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     {
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         RimMultiPlot::insertPlot( plot, index );
-        signalRefresh();
     }
 }
 
@@ -150,7 +148,6 @@ void RimSummaryMultiPlot::removePlot( RimPlot* plot )
     if ( sumPlot )
     {
         RimMultiPlot::removePlot( plot );
-        signalRefresh();
     }
 }
 
@@ -173,7 +170,6 @@ void RimSummaryMultiPlot::removePlotNoUpdate( RimPlot* plot )
 void RimSummaryMultiPlot::updateAfterPlotRemove()
 {
     onPlotAdditionOrRemoval();
-    signalRefresh();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -575,25 +571,8 @@ void RimSummaryMultiPlot::duplicate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::signalRefresh()
-{
-    refreshTree.send( this );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 {
     updatePlotWindowTitle();
     applyPlotWindowTitleToWidgets();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::doUpdateLayout()
-{
-    RimMultiPlot::doUpdateLayout();
-    signalRefresh();
 }

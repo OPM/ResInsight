@@ -46,7 +46,6 @@ class RimSummaryMultiPlot : public RimMultiPlot, public RimSummaryDataSourceStep
 
 public:
     caf::Signal<RimSummaryMultiPlot*> duplicatePlot;
-    caf::Signal<RimSummaryMultiPlot*> refreshTree;
 
 public:
     RimSummaryMultiPlot();
@@ -84,8 +83,6 @@ protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
 
-    void doUpdateLayout() override;
-
     void initAfterRead() override;
 
 private:
@@ -99,7 +96,6 @@ private:
     void updatePlotWindowTitle() override;
 
     void duplicate();
-    void signalRefresh();
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
 

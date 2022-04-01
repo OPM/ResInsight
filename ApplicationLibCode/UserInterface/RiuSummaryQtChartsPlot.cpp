@@ -30,10 +30,10 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot )
+RiuSummaryQtChartsPlot::RiuSummaryQtChartsPlot( RimSummaryPlot* plot, QWidget* parent )
     : RiuSummaryPlot( plot )
 {
-    m_plotWidget = new RiuQtChartsPlotWidget( plot, nullptr, new RimEnsembleCurveInfoTextProvider );
+    m_plotWidget = new RiuQtChartsPlotWidget( plot, parent, new RimEnsembleCurveInfoTextProvider );
     m_plotWidget->setContextMenuPolicy( Qt::CustomContextMenu );
     connect( m_plotWidget, SIGNAL( customContextMenuRequested( QPoint ) ), this, SLOT( showContextMenu( QPoint ) ) );
 
