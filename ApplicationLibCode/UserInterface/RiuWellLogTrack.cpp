@@ -58,8 +58,8 @@ protected:
 
         if ( m_plot )
         {
-            QwtAxis::Position relatedYAxis = QwtAxis::YLeft;
-            QwtAxis::Position relatedXAxis = QwtAxis::XTop;
+            QwtAxisId relatedYAxis( QwtAxis::YLeft, 0 );
+            QwtAxisId relatedXAxis( QwtAxis::XTop, 0 );
 
             QString curveInfoText;
             QString depthAxisValueString;
