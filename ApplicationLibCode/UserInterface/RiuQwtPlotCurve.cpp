@@ -308,12 +308,14 @@ QSize RiuQwtPlotCurve::legendIconSize() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
-    RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
-    attach( qwtPlotWidget->qwtPlot() );
+    m_plotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
+    CAF_ASSERT( m_plotWidget );
+
+    attach( m_plotWidget->qwtPlot() );
 
     if ( m_showErrorBars )
     {
-        m_qwtCurveErrorBars->attach( qwtPlotWidget->qwtPlot() );
+        m_qwtCurveErrorBars->attach( m_plotWidget->qwtPlot() );
     }
 }
 
@@ -479,7 +481,7 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setXAxis( RiuPlotAxis axis )
 {
-    QwtPlotCurve::setXAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
+    if ( m_plotWidget ) QwtPlotCurve::setXAxis( m_plotWidget->toQwtPlotAxis( axis ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -487,7 +489,7 @@ void RiuQwtPlotCurve::setXAxis( RiuPlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setYAxis( RiuPlotAxis axis )
 {
-    QwtPlotCurve::setYAxis( RiuQwtPlotTools::toQwtPlotAxis( axis ) );
+    if ( m_plotWidget ) QwtPlotCurve::setYAxis( m_plotWidget->toQwtPlotAxis( axis ) );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -1060,23 +1060,26 @@ QwtPlot* RiuQwtPlotWidget::qwtPlot() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::ensureAxisIsCreated( RiuPlotAxis axis )
 {
+    // Check if the axis already exists
     auto it = m_axisMapping.find( axis );
     if ( it != m_axisMapping.end() ) return;
 
-    // Need to create the axis
-    auto qwtAxisId = RiuQwtPlotTools::toQwtPlotAxis( axis );
-
-    int requiredCount = axis.index() + 1;
-    int count         = m_plot->axesCount( qwtAxisId.pos );
-    if ( requiredCount > count )
+    // Special handling for default axis (index == 0):
+    // These are already created by qwt.
+    if ( axis.index() == 0 )
     {
-        m_plot->setAxesCount( qwtAxisId.pos, requiredCount );
-        QwtAxisId newQwtAxis( qwtAxisId.pos, count );
+        QwtAxisId newQwtAxis( RiuQwtPlotTools::toQwtPlotAxisEnum( axis.axis() ), 0 );
         m_axisMapping.insert( std::make_pair( axis, newQwtAxis ) );
     }
-    else if ( axis.index() == 0 )
+    else
     {
-        QwtAxisId newQwtAxis( qwtAxisId.pos, 0 );
+        auto qwtAxisId = RiuQwtPlotTools::toQwtPlotAxisEnum( axis.axis() );
+
+        int count         = m_plot->axesCount( qwtAxisId );
+        int requiredCount = count + 1;
+
+        m_plot->setAxesCount( qwtAxisId, requiredCount );
+        QwtAxisId newQwtAxis( qwtAxisId, count );
         m_axisMapping.insert( std::make_pair( axis, newQwtAxis ) );
     }
 }
