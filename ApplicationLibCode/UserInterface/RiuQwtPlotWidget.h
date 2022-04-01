@@ -27,6 +27,8 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
+#include "qwt_axis_id.h"
+
 #include <QPointer>
 
 class RiaPlotWindowRedrawScheduler;
@@ -91,6 +93,7 @@ public:
     void setAxisTitleText( RiuPlotAxis axis, const QString& title ) override;
     void setAxisTitleEnabled( RiuPlotAxis axis, bool enable ) override;
 
+    void        moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis ) override;
     void        pruneAxes( const std::set<RiuPlotAxis>& usedAxes ) override;
     RiuPlotAxis createNextPlotAxis( RiaDefines::PlotAxis axis ) override;
     bool        isMultiAxisSupported() const override;
@@ -192,6 +195,10 @@ protected:
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
+    QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
+    void      setAxisScaleType( QwtAxisId axis, RiuQwtPlotWidget::AxisScaleType axisScaleType );
+    void      setAxisScale( QwtAxisId axis, double min, double max );
+
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
@@ -212,6 +219,7 @@ private:
 
     std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
     std::map<QwtPlotCurve*, double>      m_originalZValues;
+    std::map<RiuPlotAxis, QwtAxisId>     m_axisMapping;
 
     QPointer<QwtPlot> m_plot;
 };
