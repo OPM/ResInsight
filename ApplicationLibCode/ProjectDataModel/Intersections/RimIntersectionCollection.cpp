@@ -383,7 +383,6 @@ void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*  
 void RimIntersectionCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
 {
     syncronize2dIntersectionViews();
-    rebuild3dView();
 }
 
 //--------------------------------------------------------------------------------------------------
