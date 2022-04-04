@@ -74,6 +74,8 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_disableWheelZoom.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
+    CAF_PDM_InitField( &m_syncSubPlotAxes, "SyncSubPlotAxes", false, "Sync Subplot Axes" );
+
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
     m_sourceStepping = new RimSummaryPlotSourceStepping;
     m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
@@ -114,6 +116,7 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
+        sumPlot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         RimMultiPlot::insertPlot( plot, index );
     }
@@ -286,6 +289,9 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     layoutGroup->add( &m_columnCount );
     layoutGroup->add( &m_rowsPerPage );
     layoutGroup->add( &m_majorTickmarkCount );
+
+    caf::PdmUiGroup* axesGroup = uiOrdering.addNewGroup( "Axes" );
+    axesGroup->add( &m_syncSubPlotAxes );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -499,6 +505,7 @@ void RimSummaryMultiPlot::initAfterRead()
 
     for ( auto plot : summaryPlots() )
     {
+        plot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
     }
 }
@@ -575,4 +582,21 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 {
     updatePlotWindowTitle();
     applyPlotWindowTitleToWidgets();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
+{
+    if ( !m_syncSubPlotAxes() ) return;
+
+    for ( auto plot : summaryPlots() )
+    {
+        if ( plot != summaryPlot )
+        {
+            plot->copyMatchingAxisPropertiesFromOther( *summaryPlot );
+            plot->updateAll();
+        }
+    }
 }

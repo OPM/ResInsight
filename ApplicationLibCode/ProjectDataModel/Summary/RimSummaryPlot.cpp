@@ -98,6 +98,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     : RimPlot()
     , m_isCrossPlot( isCrossPlot )
     , curvesChanged( this )
+    , axisChanged( this )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -614,6 +615,24 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
 
         axisPropertiesForPlotAxis( ap->plotAxisType() )
             ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& summaryPlot )
+{
+    for ( auto apToCopy : summaryPlot.plotAxes() )
+    {
+        for ( auto ap : plotAxes() )
+        {
+            if ( ap->name().compare( apToCopy->name() ) == 0 )
+            {
+                QString data = apToCopy->writeObjectToXmlString();
+                ap->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+            }
+        }
     }
 }
 
@@ -1743,6 +1762,7 @@ void RimSummaryPlot::connectAxisSignals( RimPlotAxisProperties* axis )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 {
+    axisChanged.send( this );
     updateAxes();
 }
 
