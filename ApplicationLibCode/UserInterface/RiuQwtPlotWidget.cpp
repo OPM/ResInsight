@@ -793,7 +793,12 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
             QwtAxisId axisId( pos, id );
             if ( scale == m_plot->axisWidget( axisId ) )
             {
-                emit axisSelected( findPlotAxisForQwtAxis( axisId ), toggleItemInSelection );
+                resetPlotItemHighlighting();
+                highlightPlotItemsForQwtAxis( axisId );
+                scheduleReplot();
+
+                RiuPlotAxis plotAxis = findPlotAxisForQwtAxis( axisId );
+                emit        axisSelected( plotAxis, toggleItemInSelection );
                 return;
             }
         }
@@ -919,7 +924,8 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     if ( closestItem && distanceFromClick < 20 )
     {
         // TODO: highlight all selected curves
-        highlightPlotItem( closestItem );
+        std::set<const QwtPlotItem*> plotItems = { closestItem };
+        highlightPlotItems( plotItems );
         auto plotItem = std::make_shared<RiuQwtPlotItem>( closestItem );
         emit plotItemSelected( plotItem, toggleItemInSelection, distanceFromClick < 10 ? closestCurvePoint : -1 );
 
@@ -950,7 +956,7 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* closestItem )
+void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems )
 {
     // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
     // plotCurve->setZ() causes the ordering of items in the list to change
@@ -976,7 +982,7 @@ void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* closestItem )
             }
 
             double zValue = plotCurve->z();
-            if ( plotCurve == closestItem )
+            if ( closestItems.count( plotCurve ) > 0 )
             {
                 plotCurve->setZ( zValue + 100.0 );
             }
@@ -998,7 +1004,7 @@ void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* closestItem )
             m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
         }
-        else if ( plotShapeItem && plotItem == closestItem )
+        else if ( plotShapeItem && closestItems.count( plotItem ) > 0 )
         {
             QPen pen = plotShapeItem->pen();
             pen.setColor( QColor( Qt::green ) );
@@ -1050,6 +1056,30 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
     }
     m_originalCurveColors.clear();
     m_originalZValues.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
+{
+    std::set<const QwtPlotItem*> plotItems;
+    auto                         plotItemList = m_plot->itemList();
+    for ( QwtPlotItem* plotItem : plotItemList )
+    {
+        QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        if ( plotCurve )
+        {
+            QwtAxisId xAxis = plotCurve->xAxis();
+            QwtAxisId yAxis = plotCurve->yAxis();
+            if ( xAxis == axisId || yAxis == axisId )
+            {
+                plotItems.insert( plotItem );
+            }
+        }
+    }
+
+    highlightPlotItems( plotItems );
 }
 
 //--------------------------------------------------------------------------------------------------

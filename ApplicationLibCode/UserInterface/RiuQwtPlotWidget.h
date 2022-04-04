@@ -207,7 +207,8 @@ private:
     static int defaultMinimumWidth();
     void       replot() override;
 
-    void highlightPlotItem( const QwtPlotItem* closestItem );
+    void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
+    void highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems );
     void resetPlotItemHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( RiuPlotAxis axis );
