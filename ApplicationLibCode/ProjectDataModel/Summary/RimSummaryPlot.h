@@ -80,7 +80,8 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
     CAF_PDM_HEADER_INIT;
 
 public:
-    caf::Signal<> curvesChanged;
+    caf::Signal<>                curvesChanged;
+    caf::Signal<RimSummaryPlot*> axisChanged;
 
 public:
     RimSummaryPlot( bool isCrossPlot = false );
@@ -150,6 +151,7 @@ public:
     QString                     generatedPlotTitleFromAllCurves() const;
 
     void copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
+    void copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
 
     void updateAll();
     void updateLegend() override;

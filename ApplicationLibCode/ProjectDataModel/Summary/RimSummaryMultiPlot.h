@@ -98,6 +98,7 @@ private:
     void duplicate();
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
+    void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
 
 private:
     caf::PdmField<bool> m_autoPlotTitles;
@@ -105,6 +106,7 @@ private:
     caf::PdmField<bool> m_syncAxisRanges;
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
+    caf::PdmField<bool> m_syncSubPlotAxes;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
