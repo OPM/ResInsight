@@ -35,17 +35,20 @@
 #include "RivBoxIntersectionPartMgr.h"
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
+#include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiDoubleSliderEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfModelBasicList.h"
 
-CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "CrossSectionCollection" );
+CAF_PDM_SOURCE_INIT( RimIntersectionCollection, "IntersectionCollection", "CrossSectionCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection::RimIntersectionCollection()
 {
-    CAF_PDM_InitObject( "Intersections", ":/CrossSections16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Intersections", ":/CrossSections16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_intersections, "CrossSections", "Intersections", "", "", "" );
     m_intersections.uiCapability()->setUiTreeHidden( true );
@@ -372,6 +375,15 @@ void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*  
     {
         rimView->scheduleCreateDisplayModelAndRedraw();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
+{
+    syncronize2dIntersectionViews();
+    rebuild3dView();
 }
 
 //--------------------------------------------------------------------------------------------------

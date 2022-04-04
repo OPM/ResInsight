@@ -81,6 +81,10 @@ public:
     const std::vector<size_t>&                       triangleToCellIndex() const override;
     const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const override;
     const cvf::Vec3fArray*                           triangleVxes() const override;
+    const cvf::Vec3fArray*                           cellMeshVxes() const override;
+    const cvf::Vec3fArray*                           faultMeshVxes() const override;
+
+    void ensureGeometryIsCalculated();
 
 private:
     void calculateArrays();

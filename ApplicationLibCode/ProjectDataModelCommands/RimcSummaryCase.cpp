@@ -66,10 +66,7 @@ caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
         }
     }
 
-    auto dataObject            = new RimcDataContainerDouble();
-    dataObject->m_doubleValues = values;
-
-    return dataObject;
+    return RimcDataContainerDouble::create( values );
 }
 
 //--------------------------------------------------------------------------------------------------
