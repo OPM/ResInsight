@@ -203,3 +203,33 @@ void RigFault::accumulateFaultsPrCell( RigFaultsPrCellAccumulator* faultsPrCellA
                                       faultIdx );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigFaultsPrCellAccumulator::RigFaultsPrCellAccumulator( size_t reservoirCellCount )
+{
+    std::array<int, 6> initVals = { NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT, NO_FAULT };
+    m_faultIdxForCellFace.resize( reservoirCellCount, initVals );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigFaultsPrCellAccumulator::faultIdx( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face ) const
+{
+    // Ensure no crash after creating temporary LGRs
+    if ( reservoirCellIndex < m_faultIdxForCellFace.size() )
+    {
+        return m_faultIdxForCellFace[reservoirCellIndex][face];
+    }
+    return NO_FAULT;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigFaultsPrCellAccumulator::setFaultIdx( size_t reservoirCellIndex, cvf::StructGridInterface::FaceType face, int faultIdx )
+{
+    m_faultIdxForCellFace[reservoirCellIndex][face] = faultIdx;
+}

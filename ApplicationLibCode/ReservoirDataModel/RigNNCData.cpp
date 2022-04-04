@@ -35,8 +35,9 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigNNCData::RigNNCData()
-    : m_nativeConnectionCount( 0 )
-    , m_connectionsAreProcessed( false )
+    : m_eclipseConnectionCount( 0 )
+    , m_havePolygonsForEclipseConnections( false )
+    , m_haveGeneratedConnections( false )
     , m_mainGrid( nullptr )
     , m_activeCellInfo( nullptr )
     , m_computeNncForInactiveCells( false )
@@ -54,44 +55,52 @@ void RigNNCData::setSourceDataForProcessing( RigMainGrid*             mainGrid,
     m_activeCellInfo             = activeCellInfo;
     m_computeNncForInactiveCells = includeInactiveCells;
 
-    m_connectionsAreProcessed = false;
+    m_havePolygonsForEclipseConnections = false;
+    m_haveGeneratedConnections          = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::processNativeConnections( const RigMainGrid& mainGrid )
+void RigNNCData::buildPolygonsForEclipseConnections()
 {
-    // cvf::Trace::show("NNC: Total number: " + cvf::String((int)m_connections.size()));
+    if ( m_havePolygonsForEclipseConnections ) return;
+    if ( !m_mainGrid ) return;
 
 #pragma omp parallel for
-    for ( int cnIdx = 0; cnIdx < (int)m_connections.size(); ++cnIdx )
+    for ( int cnIdx = 0; cnIdx < static_cast<int>( eclipseConnectionCount() ); ++cnIdx )
     {
-        const RigCell& c1 = mainGrid.globalCellArray()[m_connections[cnIdx].c1GlobIdx()];
-        const RigCell& c2 = mainGrid.globalCellArray()[m_connections[cnIdx].c2GlobIdx()];
+        const RigCell& c1 = m_mainGrid->globalCellArray()[m_connections[cnIdx].c1GlobIdx()];
+        const RigCell& c2 = m_mainGrid->globalCellArray()[m_connections[cnIdx].c2GlobIdx()];
 
         std::vector<size_t>                connectionPolygon;
         std::vector<cvf::Vec3d>            connectionIntersections;
         cvf::StructGridInterface::FaceType connectionFace = cvf::StructGridInterface::NO_FACE;
 
-        connectionFace =
-            RigCellFaceGeometryTools::calculateCellFaceOverlap( c1, c2, mainGrid, &connectionPolygon, &connectionIntersections );
+        connectionFace = RigCellFaceGeometryTools::calculateCellFaceOverlap( c1,
+                                                                             c2,
+                                                                             *m_mainGrid,
+                                                                             &connectionPolygon,
+                                                                             &connectionIntersections );
 
         if ( connectionFace != cvf::StructGridInterface::NO_FACE )
         {
             m_connections[cnIdx].setFace( connectionFace );
-            m_connections[cnIdx].setPolygon(
-                RigCellFaceGeometryTools::extractPolygon( mainGrid.nodes(), connectionPolygon, connectionIntersections ) );
+            m_connections[cnIdx].setPolygon( RigCellFaceGeometryTools::extractPolygon( m_mainGrid->nodes(),
+                                                                                       connectionPolygon,
+                                                                                       connectionIntersections ) );
         }
     }
+
+    m_havePolygonsForEclipseConnections = true;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::computeCompleteSetOfNncs( const RigMainGrid*       mainGrid,
-                                           const RigActiveCellInfo* activeCellInfo,
-                                           bool                     includeInactiveCells )
+void RigNNCData::computeAdditionalNncs( const RigMainGrid*       mainGrid,
+                                        const RigActiveCellInfo* activeCellInfo,
+                                        bool                     includeInactiveCells )
 {
     RigConnectionContainer otherConnections =
         RigCellFaceGeometryTools::computeOtherNncs( mainGrid, m_connections, activeCellInfo, includeInactiveCells );
@@ -188,9 +197,9 @@ size_t RigNNCData::connectionsWithNoCommonArea( QStringList& connectionTextFirst
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigNNCData::ensureConnectionDataIsProcessed()
+bool RigNNCData::ensureAllConnectionDataIsProcessed()
 {
-    if ( m_connectionsAreProcessed ) return false;
+    if ( m_haveGeneratedConnections ) return false;
 
     if ( m_mainGrid )
     {
@@ -198,13 +207,13 @@ bool RigNNCData::ensureConnectionDataIsProcessed()
 
         RiaLogging::info( "NNC geometry computation - starting process" );
 
-        processNativeConnections( *m_mainGrid );
+        buildPolygonsForEclipseConnections();
         progressInfo.incrementProgress();
 
-        computeCompleteSetOfNncs( m_mainGrid, m_activeCellInfo, m_computeNncForInactiveCells );
+        computeAdditionalNncs( m_mainGrid, m_activeCellInfo, m_computeNncForInactiveCells );
         progressInfo.incrementProgress();
 
-        m_connectionsAreProcessed = true;
+        m_haveGeneratedConnections = true;
 
         m_mainGrid->distributeNNCsToFaults();
 
@@ -215,7 +224,7 @@ bool RigNNCData::ensureConnectionDataIsProcessed()
 
         RiaLogging::info( "NNC geometry computation - completed process" );
 
-        RiaLogging::info( QString( "Native NNC count : %1" ).arg( nativeConnectionCount() ) );
+        RiaLogging::info( QString( "Native NNC count : %1" ).arg( eclipseConnectionCount() ) );
         RiaLogging::info( QString( "Computed NNC count : %1" ).arg( m_connections.size() ) );
 
         RiaLogging::info( QString( "NNCs with no common area count : %1" ).arg( noCommonAreaCount ) );
@@ -237,28 +246,41 @@ bool RigNNCData::ensureConnectionDataIsProcessed()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigNNCData::setNativeConnections( RigConnectionContainer& connections )
+void RigNNCData::setEclipseConnections( RigConnectionContainer& eclipseConnections )
 {
-    m_connections           = connections;
-    m_nativeConnectionCount = m_connections.size();
+    m_connections            = eclipseConnections;
+    m_eclipseConnectionCount = m_connections.size();
 
-    m_connectionsAreProcessed = false;
+    m_haveGeneratedConnections = false;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RigNNCData::nativeConnectionCount() const
+size_t RigNNCData::eclipseConnectionCount() const
 {
-    return m_nativeConnectionCount;
+    return m_eclipseConnectionCount;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RigConnectionContainer& RigNNCData::connections()
+const RigConnectionContainer& RigNNCData::availableConnections() const
 {
-    ensureConnectionDataIsProcessed();
+    // Return connections without calling ensureConnectionDataIsProcessed() to avoid potential heavy computations
+    // Relevant if only native connection data is required
+    // NB: If computeAdditionalNncs() is called before this method, the size of this collection is larger than
+    // nativeConnectionCount()
+
+    return m_connections;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RigConnectionContainer& RigNNCData::allConnections()
+{
+    ensureAllConnectionDataIsProcessed();
 
     return m_connections;
 }
@@ -268,7 +290,7 @@ RigConnectionContainer& RigNNCData::connections()
 //--------------------------------------------------------------------------------------------------
 std::vector<double>& RigNNCData::makeStaticConnectionScalarResult( QString nncDataType )
 {
-    ensureConnectionDataIsProcessed();
+    ensureAllConnectionDataIsProcessed();
 
     std::vector<std::vector<double>>& results = m_connectionResults[nncDataType];
     results.resize( 1 );
@@ -623,12 +645,14 @@ bool RigNNCData::generateScalarValues( const RigEclipseResultAddress& resVarAddr
         auto it = m_connectionResults.find( nameit->second );
         if ( it == m_connectionResults.end() ) return false;
 
-        auto& srcdata = it->second;
+        // Connection polygons are used to compute the center for the NNC flow vectors
+        // If connection polygons are present, this is a no-op
+        buildPolygonsForEclipseConnections();
 
+        auto& srcdata = it->second;
         auto& dstdata = makeDynamicConnectionScalarResult( resVarAddr.resultName(), srcdata.size() );
 
-        const double epsilon = 1.0e-3;
-
+        const double        epsilon = 1.0e-3;
         std::vector<double> areas( m_connections.size() );
 
         for ( size_t dataIdx = 0; dataIdx < m_connections.size(); dataIdx++ )

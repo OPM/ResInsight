@@ -73,7 +73,30 @@ RimSimWellInView* RicWellLogTools::selectedSimulationWell( int* branchIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicWellLogTools::wellHasRftData( const QString& wellName )
+bool RicWellLogTools::hasRftData()
+{
+    RimEclipseResultCase* resultCase;
+    std::vector<RimCase*> cases;
+    RimProject::current()->allCases( cases );
+
+    for ( RimCase* rimCase : cases )
+    {
+        if ( ( resultCase = dynamic_cast<RimEclipseResultCase*>( rimCase ) ) )
+        {
+            if ( resultCase->rftReader() )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicWellLogTools::hasRftDataForWell( const QString& wellName )
 {
     RimEclipseResultCase* resultCase;
     std::vector<RimCase*> cases;

@@ -32,3 +32,14 @@ RimcDataContainerDouble::RimcDataContainerDouble()
     CAF_PDM_InitScriptableObject( "Data Container Float", "", "", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_doubleValues, "values", "Float Values", "", "", "" );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcDataContainerDouble* RimcDataContainerDouble::create( const std::vector<double>& values )
+{
+    auto obj            = new RimcDataContainerDouble;
+    obj->m_doubleValues = values;
+
+    return obj;
+}

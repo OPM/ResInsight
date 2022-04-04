@@ -32,6 +32,8 @@ class Transform;
 class Part;
 } // namespace cvf
 
+class RigNNCData;
+class RigConnectionContainer;
 class RigFault;
 
 //==================================================================================================
@@ -42,7 +44,10 @@ class RigFault;
 class RivFaultGeometryGenerator : public cvf::Object
 {
 public:
-    RivFaultGeometryGenerator( const cvf::StructGridInterface* grid, const RigFault* fault, bool computeNativeFaultFaces );
+    RivFaultGeometryGenerator( const cvf::StructGridInterface* grid,
+                               const RigFault*                 fault,
+                               RigNNCData*                     nncData,
+                               bool                            computeNativeFaultFaces );
     ~RivFaultGeometryGenerator() override;
 
     void setCellVisibility( const cvf::UByteArray* cellVisibilities );
@@ -53,18 +58,24 @@ public:
     const cvf::StuctGridTriangleToCellFaceMapper* triangleToCellFaceMapper() { return m_triangleMapper.p(); }
 
     // Generated geometry
-    cvf::ref<cvf::DrawableGeo> generateSurface();
+    cvf::ref<cvf::DrawableGeo> generateSurface( bool onlyShowFacesWithDefinedNeighbors );
     cvf::ref<cvf::DrawableGeo> createMeshDrawable();
     cvf::ref<cvf::DrawableGeo> createOutlineMeshDrawable( double creaseAngle );
 
 private:
-    void computeArrays();
+    void computeArrays( bool onlyShowFacesWithDefinedNeighbors );
+
+    bool hasConnection( size_t                             cellIdx,
+                        cvf::StructGridInterface::FaceType face,
+                        const RigConnectionContainer&      conns,
+                        const std::vector<size_t>&         nncConnectionIndices );
 
 private:
     // Input
     cvf::cref<cvf::StructGridInterface> m_grid;
     cvf::cref<RigFault>                 m_fault;
     cvf::cref<cvf::UByteArray>          m_cellVisibility;
+    cvf::ref<RigNNCData>                m_nncData;
 
     bool m_computeNativeFaultFaces;
 

@@ -80,54 +80,6 @@ QString RiaEclipseFileNameTools::findRelatedDataFile()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaEclipseFileNameTools::isProjectFile( const QString& fileName )
-{
-    return hasMatchingSuffix( fileName, EclipseFileType::RESINSIGHT_PROJECT );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaEclipseFileNameTools::isGridFile( const QString& fileName )
-{
-    if ( hasMatchingSuffix( fileName, EclipseFileType::ECLIPSE_EGRID ) )
-    {
-        return true;
-    }
-
-    return hasMatchingSuffix( fileName, EclipseFileType::ECLIPSE_GRID );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaEclipseFileNameTools::isSummarySpecFile( const QString& fileName )
-{
-    return hasMatchingSuffix( fileName, EclipseFileType::ECLIPSE_SMSPEC );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiaEclipseFileNameTools::isSummaryDataFilePresent( const QString& smspecFileName )
-{
-    QFileInfo fi( smspecFileName );
-    {
-        QString candidateFileName = fi.absolutePath() + '/' + fi.baseName() + ".UNSMRY";
-        if ( QFile::exists( candidateFileName ) ) return true;
-    }
-
-    {
-        QString candidateFileName = fi.absolutePath() + '/' + fi.baseName() + ".FUNSMRY";
-        if ( QFile::exists( candidateFileName ) ) return true;
-    }
-
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RiaEclipseFileNameTools::relatedFilePath( EclipseFileType fileType ) const
 {
     const QString extension        = caf::AppEnum<EclipseFileType>::text( fileType );

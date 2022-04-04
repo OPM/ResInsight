@@ -29,6 +29,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigEclipseResultAddress.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "cafDisplayCoordTransform.h"
 
@@ -95,13 +96,14 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
     double characteristicCellSize = eclipseCase->characteristicCellSize();
     float  arrowConstantScaling   = 10.0 * result->sizeScale() * characteristicCellSize;
 
-    double min, max;
-    result->mappingRange( min, max );
-
     double maxAbsResult = 1.0;
-    if ( min != cvf::UNDEFINED_DOUBLE && max != cvf::UNDEFINED_DOUBLE )
     {
-        maxAbsResult = std::max( cvf::Math::abs( max ), cvf::Math::abs( min ) );
+        double min, max;
+        result->mappingRange( min, max );
+        if ( min != cvf::UNDEFINED_DOUBLE && max != cvf::UNDEFINED_DOUBLE )
+        {
+            maxAbsResult = std::max( cvf::Math::abs( max ), cvf::Math::abs( min ) );
+        }
     }
 
     float arrowScaling = arrowConstantScaling / maxAbsResult;
@@ -120,7 +122,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_I );
 
                 auto candidate = addresses[0 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -129,7 +132,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             {
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_J );
                 auto candidate = addresses[1 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -138,7 +142,8 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             {
                 if ( fluidIndex == 0 ) directions.push_back( cvf::StructGridInterface::POS_K );
                 auto candidate = addresses[2 + fluidIndex];
-                if ( resultsData->hasResultEntry( candidate ) )
+                if ( resultsData->hasResultEntry( candidate ) &&
+                     !resultsData->cellScalarResults( candidate, timeStepIndex ).empty() )
                 {
                     resultAddresses.push_back( candidate );
                 }
@@ -160,75 +165,81 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             faceNormal            = ( faceCenter - cellCenter ).getNormalized() * arrowScaling;
         };
 
-    for ( size_t gcIdx = 0; gcIdx < cells.size(); ++gcIdx )
+    if ( !resultAddresses.empty() && !directions.empty() )
     {
-        if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
+#pragma omp parallel for
+        for ( int gcIdx = 0; gcIdx < static_cast<int>( cells.size() ); ++gcIdx )
         {
-            size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
-            if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
+            if ( !cells[gcIdx].isInvalid() && activeCellInfo->isActive( gcIdx ) )
             {
-                for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
+                size_t resultIdx = activeCellInfo->cellResultIndex( gcIdx );
+                if ( result->vectorView() == RimElementVectorResult::VectorView::PER_FACE )
                 {
-                    double resultValue = 0.0;
-                    for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
+                    for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
                     {
-                        resultValue +=
-                            resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
-                    }
+                        double resultValue = 0.0;
+                        for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
+                        {
+                            resultValue +=
+                                resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
+                        }
 
-                    if ( std::abs( resultValue ) >= result->threshold() )
+                        if ( std::abs( resultValue ) >= result->threshold() )
+                        {
+                            cvf::Vec3d faceCenter;
+                            cvf::Vec3d faceNormal;
+                            getFaceCenterAndNormal( static_cast<size_t>( gcIdx ), directions[dir], faceCenter, faceNormal );
+                            faceNormal *= std::abs( resultValue );
+
+#pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_1 )
+                            tensorVisualizations.push_back(
+                                ElementVectorResultVisualization( faceCenter,
+                                                                  faceNormal,
+                                                                  resultValue,
+                                                                  std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
+                        }
+                    }
+                }
+                else if ( result->vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
+                {
+                    cvf::Vec3d aggregatedVector;
+                    cvf::Vec3d aggregatedResult;
+                    for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
                     {
+                        double resultValue = 0.0;
+                        for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
+                        {
+                            resultValue +=
+                                resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
+                        }
+
                         cvf::Vec3d faceCenter;
                         cvf::Vec3d faceNormal;
+                        cvf::Vec3d faceNormalScaled;
                         getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
-                        faceNormal *= std::abs( resultValue );
-
+                        faceNormalScaled = faceNormal * resultValue;
+                        aggregatedVector += faceNormalScaled;
+                        aggregatedResult += faceNormal.getNormalized() * resultValue;
+                    }
+                    if ( aggregatedResult.length() >= result->threshold() )
+                    {
+#pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_2 )
                         tensorVisualizations.push_back(
-                            ElementVectorResultVisualization( faceCenter,
-                                                              faceNormal,
-                                                              resultValue,
+                            ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
+                                                              aggregatedVector,
+                                                              aggregatedResult.length(),
                                                               std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
                     }
-                }
-            }
-            else if ( result->vectorView() == RimElementVectorResult::VectorView::CELL_CENTER_TOTAL )
-            {
-                cvf::Vec3d aggregatedVector;
-                cvf::Vec3d aggregatedResult;
-                for ( int dir = 0; dir < static_cast<int>( directions.size() ); dir++ )
-                {
-                    double resultValue = 0.0;
-                    for ( size_t flIdx = dir; flIdx < resultAddresses.size(); flIdx += directions.size() )
-                    {
-                        resultValue +=
-                            resultsData->cellScalarResults( resultAddresses[flIdx], timeStepIndex ).at( resultIdx );
-                    }
-
-                    cvf::Vec3d faceCenter;
-                    cvf::Vec3d faceNormal;
-                    cvf::Vec3d faceNormalScaled;
-                    getFaceCenterAndNormal( gcIdx, directions[dir], faceCenter, faceNormal );
-                    faceNormalScaled = faceNormal * resultValue;
-                    aggregatedVector += faceNormalScaled;
-                    aggregatedResult += faceNormal.getNormalized() * resultValue;
-                }
-                if ( aggregatedResult.length() >= result->threshold() )
-                {
-                    tensorVisualizations.push_back(
-                        ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( cells[gcIdx].center() ),
-                                                          aggregatedVector,
-                                                          aggregatedResult.length(),
-                                                          std::cbrt( cells[gcIdx].volume() / 3.0 ) ) );
                 }
             }
         }
     }
 
-    RigNNCData* nncData           = eclipseCaseData->mainGrid()->nncData();
-    size_t      numNncConnections = nncData->connections().size();
-
     if ( result->showNncData() )
     {
+        RigNNCData* nncData = eclipseCaseData->mainGrid()->nncData();
+        nncData->buildPolygonsForEclipseConnections();
+
         std::vector<const std::vector<std::vector<double>>*> nncResultVals;
         std::vector<RigEclipseResultAddress>                 combinedAddresses;
         result->resultAddressesCombined( combinedAddresses );
@@ -244,15 +255,16 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
             }
         }
 
-        for ( size_t nIdx = 0; nIdx < numNncConnections; ++nIdx )
+#pragma omp parallel for
+        for ( int nIdx = 0; nIdx < static_cast<int>( nncData->eclipseConnectionCount() ); ++nIdx )
         {
-            const RigConnection& conn = nncData->connections()[nIdx];
+            const RigConnection& conn = nncData->availableConnections()[nIdx];
             if ( conn.polygon().size() )
             {
                 double resultValue = 0.0;
                 for ( size_t flIdx = 0; flIdx < nncResultVals.size(); flIdx++ )
                 {
-                    if ( nIdx < nncResultVals.at( flIdx )->at( timeStepIndex ).size() )
+                    if ( nIdx < static_cast<int>( nncResultVals.at( flIdx )->at( timeStepIndex ).size() ) )
                     {
                         resultValue += nncResultVals.at( flIdx )->at( timeStepIndex )[nIdx];
                     }
@@ -268,6 +280,7 @@ void RivElementVectorResultPartMgr::appendDynamicGeometryPartsToModel( cvf::Mode
 
                 if ( std::abs( resultValue ) >= result->threshold() )
                 {
+#pragma omp critical( critical_section_RivElementVectorResultPartMgr_add_nnc )
                     tensorVisualizations.push_back(
                         ElementVectorResultVisualization( displayCordXf->transformToDisplayCoord( connCenter ),
                                                           connNormal,

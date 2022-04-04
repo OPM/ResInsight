@@ -27,8 +27,11 @@
 class RivIntersectionGeometryGeneratorInterface
 {
 public:
-    virtual bool                                             isAnyGeometryPresent() const                       = 0;
-    virtual const std::vector<size_t>&                       triangleToCellIndex() const                        = 0;
+    virtual ~RivIntersectionGeometryGeneratorInterface()                                  = default;
+    virtual bool                                             isAnyGeometryPresent() const = 0;
+    virtual const std::vector<size_t>&                       triangleToCellIndex() const  = 0;
     virtual const std::vector<RivIntersectionVertexWeights>& triangleVxToCellCornerInterpolationWeights() const = 0;
     virtual const cvf::Vec3fArray*                           triangleVxes() const                               = 0;
+    virtual const cvf::Vec3fArray*                           cellMeshVxes() const { return nullptr; };
+    virtual const cvf::Vec3fArray*                           faultMeshVxes() const { return nullptr; };
 };

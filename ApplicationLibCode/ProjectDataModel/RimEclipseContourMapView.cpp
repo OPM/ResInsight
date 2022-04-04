@@ -172,6 +172,14 @@ void RimEclipseContourMapView::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimEclipseContourMapView::isTimeStepDependentDataVisible() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimEclipseContourMapView::onCreateDisplayModel()
 {
     RimEclipseView::onCreateDisplayModel();
@@ -551,4 +559,13 @@ void RimEclipseContourMapView::onLegendConfigChanged( const caf::SignalEmitter* 
     {
         m_contourMapProjection->clearGeometry();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSurfaceInViewCollection* RimEclipseContourMapView::surfaceInViewCollection() const
+{
+    // Surfaces should not be shown in contour map.
+    return nullptr;
 }

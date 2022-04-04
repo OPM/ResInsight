@@ -37,7 +37,7 @@ RimcElasticProperties_addPropertyScaling::RimcElasticProperties_addPropertyScali
     CAF_PDM_InitScriptableFieldNoDefault( &m_formation, "Formation", "", "", "", "Formation" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "", "", "", "Facies" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_property, "Property", "", "", "", "Property" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_scale, "Scale", "", "", "", "Scale" );
+    CAF_PDM_InitScriptableField( &m_scale, "Scale", 1.0, "", "", "", "Scale" );
 }
 
 //--------------------------------------------------------------------------------------------------

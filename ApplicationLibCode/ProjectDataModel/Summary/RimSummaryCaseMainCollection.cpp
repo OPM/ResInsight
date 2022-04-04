@@ -625,13 +625,12 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::createSummaryCasesFro
             {
                 const QString& smspecFileName = fileInfo.summaryFileName();
 
-                bool foundDataFile = RiaEclipseFileNameTools::isSummaryDataFilePresent( smspecFileName );
-                if ( foundDataFile )
+                if ( !smspecFileName.isEmpty() )
                 {
-                    RimFileSummaryCase* newSumCase = new RimFileSummaryCase();
+                    auto newSumCase = new RimFileSummaryCase();
 
                     newSumCase->setIncludeRestartFiles( fileInfo.includeRestartFiles() );
-                    newSumCase->setSummaryHeaderFileName( fileInfo.summaryFileName() );
+                    newSumCase->setSummaryHeaderFileName( smspecFileName );
                     newSumCase->updateOptionSensitivity();
                     project->assignCaseIdToSummaryCase( newSumCase );
 
@@ -737,5 +736,21 @@ void RimSummaryCaseMainCollection::updateAutoShortName()
     for ( auto s : allSummaryCases() )
     {
         s->updateAutoShortName();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::onProjectBeingSaved()
+{
+    auto sumCases = allSummaryCases();
+    for ( auto s : sumCases )
+    {
+        auto fileSumCase = dynamic_cast<RimFileSummaryCase*>( s );
+        if ( fileSumCase )
+        {
+            fileSumCase->onProjectBeingSaved();
+        }
     }
 }

@@ -200,6 +200,8 @@ void RifEclipseOutputFileTools::timeSteps( const ecl_file_type*    ecl_file,
         // Some simulations might end up with wrong data reported for day/month/year. If this situation is detected,
         // base all time step on double values and use start of simulation as first date
         // See https://github.com/OPM/ResInsight/issues/4850
+        // https://github.com/OPM/ResInsight/issues/8558
+        if ( uniqueDays.size() == uniqueDayValues.size() ) useStartOfSimulationDate = false;
         if ( uniqueDays.size() == dayValues.size() ) useStartOfSimulationDate = false;
     }
 

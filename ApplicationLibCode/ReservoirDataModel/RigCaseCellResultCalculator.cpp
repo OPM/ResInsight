@@ -264,6 +264,8 @@ bool RigCaseCellResultCalculator::computeDivideByCellFaceArea( RigMainGrid*     
             cvf::ref<RigResultModifier> resultModifier =
                 RigResultModifierFactory::createResultModifier( destination, gridIdx, porosityModel, fIdx, address );
 
+            if ( resultModifier.isNull() ) continue;
+
 #pragma omp parallel for
             for ( int localGridCellIdx = 0; localGridCellIdx < static_cast<int>( grid->cellCount() ); localGridCellIdx++ )
             {

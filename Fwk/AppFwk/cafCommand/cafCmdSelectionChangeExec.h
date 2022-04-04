@@ -59,9 +59,9 @@ public:
                             "CmdSelectionChangeExecData tooltip",
                             "CmdSelectionChangeExecData whatsthis" );
 
-        CAF_PDM_InitFieldNoDefault( &m_selectionLevel, "selectionLevel", "selectionLevel", "", "", "" );
-        CAF_PDM_InitField( &m_previousSelection, "previousSelection", std::vector<QString>(), "previousSelection", "", "", "" );
-        CAF_PDM_InitField( &m_newSelection, "newSelection", std::vector<QString>(), "newSelection", "", "", "" );
+        CAF_PDM_InitFieldNoDefault( &m_selectionLevel, "selectionLevel", "selectionLevel" );
+        CAF_PDM_InitField( &m_previousSelection, "previousSelection", std::vector<QString>(), "previousSelection" );
+        CAF_PDM_InitField( &m_newSelection, "newSelection", std::vector<QString>(), "newSelection" );
     }
 
     PdmField<int>                  m_selectionLevel;

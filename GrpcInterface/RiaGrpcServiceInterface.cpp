@@ -181,9 +181,13 @@ void RiaGrpcServiceInterface::copyPdmObjectFromRipsToCaf( const rips::PdmObject*
         auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
         if ( scriptability )
         {
-            if ( !dynamic_cast<caf::PdmValueField*>( field ) )
+            bool isPdmPtrArrayField = ( dynamic_cast<caf::PdmPtrArrayFieldHandle*>( field ) &&
+                                        !dynamic_cast<caf::PdmChildArrayFieldHandle*>( field ) );
+
+            if ( !isPdmPtrArrayField && !dynamic_cast<caf::PdmValueField*>( field ) )
             {
-                // Recursive object update is not supported
+                // Update of child objects and child object arrays are not supported
+                // Update of PdmPtrArrayField is supported, used by RimcSummaryPlotCollection_newSummaryPlot
                 // https://github.com/OPM/ResInsight/issues/7794
                 continue;
             }

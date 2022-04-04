@@ -16,6 +16,8 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RiaLogging.h"
+
 #include "RigCellFaceGeometryTools.h"
 
 #include "RigActiveCellInfo.h"
@@ -26,8 +28,6 @@
 #include "cvfGeometryTools.h"
 
 #include "cafAssert.h"
-
-#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -150,7 +150,7 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
         QString message = QString( "Nnc connection imported from Eclipse are not unique\nNNC count : %1\nUnique : %2" )
                               .arg( nativeConnections.size() )
                               .arg( nativeCellPairs.size() );
-        qDebug() << message;
+        RiaLogging::warning( message );
     }
 
     const cvf::Collection<RigFault>& faults = mainGrid->faults();
@@ -199,10 +199,23 @@ RigConnectionContainer RigCellFaceGeometryTools::computeOtherNncs( const RigMain
         } // end parallel region
     }
 
+    size_t nncCountWarningThreshold = 5000000;
+    if ( otherConnections.size() > nncCountWarningThreshold )
+    {
+        auto txt = QString( "Additional NNC count has reached %1, and is above the warning threshold of %2. Faults for "
+                            "inactive cells can be managed from Preferences->Eclipse Grid->Include Inactive Cells" )
+                       .arg( otherConnections.size() )
+                       .arg( nncCountWarningThreshold );
+        RiaLogging::warning( txt );
+    }
+
     otherConnections.remove_duplicates();
     return otherConnections;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultFace&                     face,
                                                           const RigMainGrid*                             mainGrid,
                                                           const std::set<std::pair<unsigned, unsigned>>& nativeCellPairs,
@@ -304,8 +317,18 @@ void RigCellFaceGeometryTools::extractConnectionsForFace( const RigFault::FaultF
             }
         }
 
-        std::pair<unsigned, unsigned> candidate( static_cast<unsigned>( sourceReservoirCellIndex ),
-                                                 static_cast<unsigned>( candidateCellIndex ) );
+        // Test if this pair of cells already has a connection. Check both combinations of cell index ordering to avoid
+        // duplicate NNC geometry for the same pair of cells
+
+        auto candidate = std::make_pair( static_cast<unsigned>( sourceReservoirCellIndex ),
+                                         static_cast<unsigned>( candidateCellIndex ) );
+
+        if ( nativeCellPairs.count( candidate ) > 0 )
+        {
+            continue;
+        }
+
+        std::swap( candidate.first, candidate.second );
 
         if ( nativeCellPairs.count( candidate ) > 0 )
         {

@@ -820,7 +820,7 @@ const std::vector<double>*
                                                             QString                 resultName,
                                                             std::vector<double>&    activeCellsResultsTempContainer )
 {
-    size_t                  resultCellCount    = actCellInfo->reservoirCellResultCount();
+    size_t                  resultCellCount    = actCellInfo->reservoirActiveCellCount();
     size_t                  reservoirCellCount = actCellInfo->reservoirCellCount();
     RigEclipseResultAddress resVarAddr( RiaDefines::ResultCatType::STATIC_NATIVE, resultName );
 
@@ -2465,7 +2465,7 @@ void RigCaseCellResultsData::computeNncCombRiTrans()
     bool                     isFaceNormalsOutwards = m_ownerMainGrid->isFaceNormalsOutwards();
 
     // NNC calculation
-    const RigConnectionContainer& nncConnections = m_ownerMainGrid->nncData()->connections();
+    const RigConnectionContainer& nncConnections = m_ownerMainGrid->nncData()->allConnections();
     for ( size_t connIdx = 0; connIdx < nncConnections.size(); connIdx++ )
     {
         size_t                             nativeResvCellIndex = nncConnections[connIdx].c1GlobIdx();
@@ -2829,7 +2829,7 @@ void RigCaseCellResultsData::computeNncCombRiTRANSbyArea()
 
     if ( transResults->size() != riAreaNormTransResults.size() ) return;
 
-    const RigConnectionContainer& connections = m_ownerMainGrid->nncData()->connections();
+    const RigConnectionContainer& connections = m_ownerMainGrid->nncData()->allConnections();
 
     for ( size_t nncConIdx = 0; nncConIdx < riAreaNormTransResults.size(); ++nncConIdx )
     {
@@ -2897,7 +2897,7 @@ void RigCaseCellResultsData::computeCellVolumes()
     }
     std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
 
-    size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
+    size_t cellResultCount = m_activeCellInfo->reservoirActiveCellCount();
     cellVolumeResults.resize( cellResultCount, std::numeric_limits<double>::infinity() );
 
 #pragma omp parallel for
@@ -2938,7 +2938,7 @@ void RigCaseCellResultsData::computeOilVolumes()
                                              false );
     m_cellScalarResults[oilVolIdx].resize( this->maxTimeStepCount() );
 
-    size_t cellResultCount = m_activeCellInfo->reservoirCellResultCount();
+    size_t cellResultCount = m_activeCellInfo->reservoirActiveCellCount();
     for ( size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++ )
     {
         const std::vector<double>& soilResults      = m_cellScalarResults[soilIdx][timeStepIdx];
@@ -3299,7 +3299,7 @@ void RigCaseCellResultsData::computeAllanResults( RigCaseCellResultsData* cellRe
             formationCount = cellResultsData->activeFormationNames()->formationNames().size();
         }
 
-        const RigConnectionContainer& nncConnections = mainGrid->nncData()->connections();
+        const RigConnectionContainer& nncConnections = mainGrid->nncData()->allConnections();
 
         std::map<std::pair<int, int>, int> formationCombinationToCategory;
         for ( size_t i = 0; i < nncConnections.size(); i++ )

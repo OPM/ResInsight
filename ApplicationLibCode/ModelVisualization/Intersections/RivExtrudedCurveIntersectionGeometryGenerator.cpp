@@ -204,14 +204,16 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateSurfaceIntersection
 
                 cvf::Vec3d intersectionPoint;
                 bool foundMatch = RigSurfaceResampler::resamplePoint( surface, pointAbove, pointBelow, intersectionPoint );
-                if ( !foundMatch )
-                    intersectionPoint = cvf::Vec3d( point.x(), point.y(), std::numeric_limits<double>::infinity() );
-
-                const size_t lineIndex = 0;
-                transformedSurfacePolyline.push_back(
-                    transformPointByPolylineSegmentIndex( intersectionPoint, lineIndex, segmentIndex ) );
+                if ( foundMatch )
+                {
+                    const size_t lineIndex = 0;
+                    transformedSurfacePolyline.push_back(
+                        transformPointByPolylineSegmentIndex( intersectionPoint, lineIndex, segmentIndex ) );
+                }
             }
-            m_transformedSurfaceIntersectionPolylines[rimSurface] = transformedSurfacePolyline;
+
+            if ( !transformedSurfacePolyline.empty() )
+                m_transformedSurfaceIntersectionPolylines[rimSurface] = transformedSurfacePolyline;
         }
     }
 }
@@ -436,6 +438,15 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                     point1 = point1.getTransformedPoint( invSectionCS );
                     point2 = point2.getTransformedPoint( invSectionCS );
 
+                    if ( m_isFlattened )
+                    {
+                        // The points are transformed in to the XZ-plane with Y = zero.
+                        // Set all y values to zero to avoid numerical issues
+                        point0.y() = 0.0;
+                        point1.y() = 0.0;
+                        point2.y() = 0.0;
+                    }
+
                     triangleVertices.emplace_back( point0 );
                     triangleVertices.emplace_back( point1 );
                     triangleVertices.emplace_back( point2 );
@@ -639,6 +650,31 @@ const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::triangleVx
 {
     CVF_ASSERT( m_triangleVxes->size() );
     return m_triangleVxes.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::cellMeshVxes() const
+{
+    CVF_ASSERT( m_cellBorderLineVxes->size() );
+    return m_cellBorderLineVxes.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const cvf::Vec3fArray* RivExtrudedCurveIntersectionGeometryGenerator::faultMeshVxes() const
+{
+    return m_faultCellBorderLineVxes.p();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RivExtrudedCurveIntersectionGeometryGenerator::ensureGeometryIsCalculated()
+{
+    calculateArrays();
 }
 
 //--------------------------------------------------------------------------------------------------

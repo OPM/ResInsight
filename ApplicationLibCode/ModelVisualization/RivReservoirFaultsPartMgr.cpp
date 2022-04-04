@@ -20,6 +20,7 @@
 #include "RivReservoirFaultsPartMgr.h"
 
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -118,8 +119,6 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
         forceDisplayOfFault = true;
     }
 
-    // qDebug() << forceDisplayOfFault;
-
     cvf::ModelBasicList parts;
 
     for ( size_t i = 0; i < faultCollection->faults.size(); i++ )
@@ -202,7 +201,7 @@ void RivReservoirFaultsPartMgr::appendPartsToModel( cvf::ModelBasicList* model )
                 if ( showNncs )
                 {
                     RigMainGrid* mainGrid = m_reservoirView->mainGrid();
-                    mainGrid->nncData()->ensureConnectionDataIsProcessed();
+                    mainGrid->nncData()->ensureAllConnectionDataIsProcessed();
 
                     if ( showCompleteNncGeo )
                     {

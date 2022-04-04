@@ -22,6 +22,8 @@
 #include "RiaSummaryTools.h"
 
 #include "RifSummaryReaderInterface.h"
+
+#include "RimFileSummaryCase.h"
 #include "RimSummaryCase.h"
 
 #include "RimcDataContainerDouble.h"
@@ -64,10 +66,7 @@ caf::PdmObjectHandle* RimSummaryCase_summaryVectorValues::execute()
         }
     }
 
-    auto dataObject            = new RimcDataContainerDouble();
-    dataObject->m_doubleValues = values;
-
-    return dataObject;
+    return RimcDataContainerDouble::create( values );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -256,4 +255,58 @@ bool RimSummaryCase_resampleValues::resultIsPersistent() const
 std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_resampleValues::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimcSummaryResampleData );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimSummaryCase, RimSummaryCase_setSummaryVectorValues, "setSummaryValues" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase_setSummaryVectorValues::RimSummaryCase_setSummaryVectorValues( caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Set Summary Values" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_addressString, "Address", "", "", "", "Formatted address specifying the summary vector" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_unitString, "Unit", "", "", "", "Unit" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_values, "Values", "", "", "", "Values" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimSummaryCase_setSummaryVectorValues::execute()
+{
+    auto* summaryCase     = self<RimSummaryCase>();
+    auto* fileSummaryCase = dynamic_cast<RimFileSummaryCase*>( summaryCase );
+    if ( fileSummaryCase )
+    {
+        fileSummaryCase->setSummaryData( m_addressString().toStdString(), m_unitString().toStdString(), m_values() );
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase_setSummaryVectorValues::resultIsPersistent() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimSummaryCase_setSummaryVectorValues::defaultResult() const
+{
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase_setSummaryVectorValues::isNullptrValidResult() const
+{
+    return true;
 }

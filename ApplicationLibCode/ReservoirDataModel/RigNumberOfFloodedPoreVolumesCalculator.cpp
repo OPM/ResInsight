@@ -24,6 +24,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigReservoirBuilderMock.h"
 
 #include "RimEclipseCase.h"
@@ -46,7 +47,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
 
     RigActiveCellInfo* actCellInfo =
         caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t resultCellCount = actCellInfo->reservoirCellResultCount();
+    size_t resultCellCount = actCellInfo->reservoirActiveCellCount();
 
     size_t timeStepCount =
         caseToApply->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount();
@@ -101,7 +102,7 @@ RigNumberOfFloodedPoreVolumesCalculator::RigNumberOfFloodedPoreVolumesCalculator
     std::vector<const std::vector<double>*> flowrateKatAllTimeSteps;
 
     RigNNCData*                  nncData     = eclipseCaseData->mainGrid()->nncData();
-    const RigConnectionContainer connections = nncData->connections();
+    const RigConnectionContainer connections = nncData->allConnections();
 
     progress.incrementProgress();
 
@@ -207,7 +208,7 @@ void RigNumberOfFloodedPoreVolumesCalculator::calculate( RigMainGrid*           
     // size_t totalNumberOfCells = mainGrid->globalCellArray().size();
     RigActiveCellInfo* actCellInfo =
         caseToApply->eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::MATRIX_MODEL );
-    size_t resultCellCount = actCellInfo->reservoirCellResultCount();
+    size_t resultCellCount = actCellInfo->reservoirActiveCellCount();
 
     caf::ProgressInfo progress( 2 * daysSinceSimulationStart.size(), "" );
 

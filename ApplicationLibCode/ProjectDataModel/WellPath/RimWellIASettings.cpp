@@ -47,6 +47,8 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
+#include "cvfMath.h"
+
 #include <QDebug>
 #include <QFileInfo>
 
@@ -326,9 +328,9 @@ QString RimWellIASettings::outputOdbFilename() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellIASettings::outputHeatOdbFilename() const
+QString RimWellIASettings::outputDrillingOdbFilename() const
 {
-    return m_baseDir() + "/" + name() + "_heat.odb";
+    return m_baseDir() + "/" + name() + "_drilling.odb";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -495,8 +497,8 @@ bool RimWellIASettings::updateResInsightParameters()
 
     auto angles = RigWellPathGeometryTools::calculateAzimuthAndInclinationAtMd( ( m_startMD + m_endMD ) / 2.0,
                                                                                 wellPath()->wellPathGeometry() );
-    initialStress->addParameter( "azimuth_well", angles.first );
-    initialStress->addParameter( "inclination_well", angles.second );
+    initialStress->addParameter( "azimuth_well", cvf::Math::toDegrees( angles.first ) );
+    initialStress->addParameter( "inclination_well", cvf::Math::toDegrees( angles.second ) );
 
     m_parametersRI.push_back( initialStress );
 

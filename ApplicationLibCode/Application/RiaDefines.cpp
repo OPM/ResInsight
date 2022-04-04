@@ -20,6 +20,8 @@
 
 #include "RiaDefines.h"
 
+#include "RiaResultNames.h"
+
 #include "cafAppEnum.h"
 
 namespace caf
@@ -151,7 +153,8 @@ void AppEnum<RiaDefines::RINavigationPolicy>::setUp()
 //--------------------------------------------------------------------------------------------------
 bool RiaDefines::isNativeCategoryResult( const QString& resultName )
 {
-    return resultName.endsWith( "NUM" );
+    return resultName.endsWith( "NUM" ) || resultName == RiaResultNames::indexIResultName() ||
+           resultName == RiaResultNames::indexJResultName() || resultName == RiaResultNames::indexKResultName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,6 +285,10 @@ RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString
         return ImportFileType::ECLIPSE_INPUT_FILE;
     }
     else if ( fileName.endsWith( "SMSPEC", Qt::CaseInsensitive ) )
+    {
+        return ImportFileType::ECLIPSE_SUMMARY_FILE;
+    }
+    else if ( fileName.endsWith( "ESMRY", Qt::CaseInsensitive ) )
     {
         return ImportFileType::ECLIPSE_SUMMARY_FILE;
     }

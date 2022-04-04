@@ -35,6 +35,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
+#include "RigNNCData.h"
 #include "RigSimWellData.h"
 #include "RigVirtualPerforationTransmissibilities.h"
 #include "RigWellResultPoint.h"
@@ -711,7 +712,7 @@ bool RimEclipseCase::ensureNncDataIsComputed()
     RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase && rigEclipseCase->mainGrid() )
     {
-        computedData = rigEclipseCase->mainGrid()->nncData()->ensureConnectionDataIsProcessed();
+        computedData = rigEclipseCase->mainGrid()->nncData()->ensureAllConnectionDataIsProcessed();
     }
 
     return computedData;
@@ -1070,7 +1071,8 @@ double RimEclipseCase::characteristicCellSize() const
     const RigEclipseCaseData* rigEclipseCase = eclipseCaseData();
     if ( rigEclipseCase && rigEclipseCase->mainGrid() )
     {
-        return rigEclipseCase->mainGrid()->characteristicIJCellSize();
+        double maxSize = 200.0;
+        return std::min( rigEclipseCase->mainGrid()->characteristicIJCellSize(), maxSize );
     }
 
     return 10.0;

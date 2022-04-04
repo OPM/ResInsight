@@ -85,6 +85,29 @@ TEST( RifEclipseTextFileReader, DISABLED_ReadKeywordsAndValuesPerformanceTest )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( RifEclipseTextFileReader, ReadKeywordsWithComment )
+{
+    QString faceTexts = "SPECGRID                   -- Generated : simulator name\n"
+                        "124 134 41 1 F /\n"
+                        "COORDSYS                   -- Generated : simulator name\n"
+                        " 1 41 INCOMP /\n ";
+
+    auto stdString = faceTexts.toStdString();
+
+    size_t bytesRead = 0;
+    auto   objects   = RifEclipseTextFileReader::readKeywordAndValues( stdString, 0, bytesRead );
+    {
+        std::string toMatch( "SPECGRID" );
+        EXPECT_STREQ( objects.first.data(), toMatch.data() );
+
+        auto values = objects.second;
+        EXPECT_FLOAT_EQ( values[0], 124.0 );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( RifEclipseTextFileReader, ReadKeywordsAndValuesFromFile )
 {
     QString     qtFileName = QString( "%1/RifEclipseTextFileParser/GRID.GRDECL" ).arg( TEST_DATA_DIR );
