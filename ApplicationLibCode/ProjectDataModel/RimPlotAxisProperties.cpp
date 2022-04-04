@@ -20,6 +20,7 @@
 #include "RimPlotAxisProperties.h"
 
 #include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 
 #include "RimPlotAxisAnnotation.h"
@@ -160,6 +161,19 @@ QList<caf::PdmOptionItemInfo>
     else if ( fieldNeedingOptions == &m_titleFontSize || fieldNeedingOptions == &m_valuesFontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultPlotFontSize() );
+    }
+    else if ( fieldNeedingOptions == &m_plotAxis )
+    {
+        std::vector<RiaDefines::PlotAxis> plotAxes = { RiaDefines::PlotAxis::PLOT_AXIS_LEFT,
+                                                       RiaDefines::PlotAxis::PLOT_AXIS_RIGHT };
+
+        for ( auto plotAxis : plotAxes )
+        {
+            auto plotAxisEnum = caf::AppEnum<RiaDefines::PlotAxis>( plotAxis );
+
+            QString uiText = plotAxisEnum.uiText();
+            options.push_back( caf::PdmOptionItemInfo( uiText, plotAxisEnum.value() ) );
+        }
     }
 
     return options;
