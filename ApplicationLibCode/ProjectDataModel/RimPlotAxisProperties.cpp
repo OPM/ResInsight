@@ -489,6 +489,7 @@ caf::FontTools::FontSize RimPlotAxisProperties::plotFontSize() const
 void RimPlotAxisProperties::initAfterRead()
 {
     updateOptionSensitivity();
+    m_isAlwaysRequired = m_plotAxisIndex == 0;
 }
 
 //--------------------------------------------------------------------------------------------------
