@@ -1196,6 +1196,8 @@ void RimSummaryPlot::connectCurveToPlot( RimSummaryCurve* curve, bool update, bo
     connectCurveSignals( curve );
     if ( plotWidget() )
     {
+        plotWidget()->ensureAxisIsCreated( curve->axisY() );
+
         if ( update )
         {
             curve->setParentPlotAndReplot( plotWidget() );
