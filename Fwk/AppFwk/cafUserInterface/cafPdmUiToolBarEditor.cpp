@@ -121,9 +121,9 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
             }
         }
 
-        PdmUiOrdering config;
         for ( caf::PdmUiObjectHandle* ownerUiObject : ownerUiObjects )
         {
+            PdmUiOrdering config;
             ownerUiObject->uiOrdering( uiConfigName, config );
         }
     }
