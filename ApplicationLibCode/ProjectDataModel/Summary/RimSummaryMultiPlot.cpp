@@ -293,6 +293,11 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     caf::PdmUiGroup* axesGroup = uiOrdering.addNewGroup( "Axes" );
     axesGroup->add( &m_syncSubPlotAxes );
 
+    {
+        auto group = uiOrdering.addNewGroup( "Data Source" );
+        m_sourceStepping()->uiOrdering( uiConfigName, *group );
+    }
+
     uiOrdering.skipRemainingFields( true );
 }
 
