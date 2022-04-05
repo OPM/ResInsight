@@ -316,7 +316,7 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
+void RicPasteAsciiDataToSummaryPlotFeatureUi::setCreateNewPlot()
 {
     m_createNewPlot = true;
 }

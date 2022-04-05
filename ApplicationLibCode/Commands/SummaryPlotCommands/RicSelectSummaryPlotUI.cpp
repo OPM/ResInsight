@@ -24,8 +24,8 @@
 #include "RimEclipseView.h"
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 CAF_PDM_SOURCE_INIT( RicSelectSummaryPlotUI, "RicSelectSummaryPlotUI" );
 
@@ -91,7 +91,7 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_selectedSummaryPlot )
     {
-        RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+        RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
         summaryPlotColl->summaryPlotItemInfos( &options );
     }
@@ -104,7 +104,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RicSelectSummaryPlotUI::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( RiaSummaryTools::summaryPlotCollection()->plots().empty() )
+    if ( RiaSummaryTools::summaryMultiPlotCollection()->multiPlots().empty() )
     {
         m_createNewPlot = true;
     }

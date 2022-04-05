@@ -44,7 +44,6 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimTools.h"
 

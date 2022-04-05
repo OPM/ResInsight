@@ -21,6 +21,9 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
+#include "cafPdmUiItem.h"
+
+#include <QList>
 
 class RimSummaryMultiPlot;
 
@@ -43,6 +46,10 @@ public:
     std::vector<RimSummaryMultiPlot*> multiPlots() const;
 
     void addSummaryMultiPlot( RimSummaryMultiPlot* plot );
+
+    void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
+
+    void updateSummaryNameHasChanged();
 
 protected:
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;

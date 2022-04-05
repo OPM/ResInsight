@@ -35,7 +35,6 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -51,13 +50,13 @@ CAF_CMD_SOURCE_INIT( RicOpenSummaryPlotEditorFeature, "RicOpenSummaryPlotEditorF
 //--------------------------------------------------------------------------------------------------
 bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
 {
-    RimSummaryPlotCollection*             sumPlotColl             = nullptr;
+    RimSummaryMultiPlot*                  multiPlot               = nullptr;
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
-        sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection( selObj );
+        multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
         selObj->firstAncestorOrThisOfType( customObjFuncCollection );
     }
 
@@ -66,7 +65,7 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
     auto legendConfig       = dynamic_cast<RimRegularLegendConfig*>( selObj );
 
     if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection ) return false;
-    if ( sumPlotColl ) return true;
+    if ( multiPlot ) return true;
 
     // Multiple case selections
     std::vector<caf::PdmUiItem*> selectedItems = caf::selectedObjectsByTypeStrict<caf::PdmUiItem*>();

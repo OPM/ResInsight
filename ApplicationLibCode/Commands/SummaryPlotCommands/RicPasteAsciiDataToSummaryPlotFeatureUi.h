@@ -129,7 +129,7 @@ public:
 
     UiMode                      uiModeImport() const;
     const AsciiDataParseOptions parseOptions() const;
-    void                        createNewPlot();
+    void                        setCreateNewPlot();
 
     QString contextString() const;
 

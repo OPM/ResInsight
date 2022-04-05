@@ -36,8 +36,8 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
@@ -189,7 +189,7 @@ QList<caf::PdmOptionItemInfo>
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_summaryPlot )
     {
-        auto coll = RiaSummaryTools::summaryPlotCollection();
+        auto coll = RiaSummaryTools::summaryMultiPlotCollection();
         coll->summaryPlotItemInfos( &options );
     }
     else if ( fieldNeedingOptions == &m_filterText )
@@ -419,13 +419,9 @@ void RimSummaryPlotManager::createNewPlot()
     }
     else
     {
-        auto plotCollection = RiaSummaryTools::summaryPlotCollection();
         for ( auto plot : plots )
         {
-            plot->setAsPlotMdiWindow();
-
-            plotCollection->addPlot( plot );
-
+            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
             plot->loadDataAndUpdate();
         }
     }
@@ -549,7 +545,7 @@ void RimSummaryPlotManager::updateFilterTextHistory()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::updateProjectTreeAndRefresUi()
 {
-    RiaSummaryTools::summaryPlotCollection()->updateConnectedEditors();
+    RiaSummaryTools::summaryMultiPlotCollection()->updateConnectedEditors();
 
     updateFilterTextHistory();
     m_filterText.uiCapability()->updateConnectedEditors();

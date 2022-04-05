@@ -64,8 +64,7 @@ caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
     {
         if ( !addressStrings.empty() )
         {
-            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( self<RimSummaryPlotCollection>(),
-                                                                               std::vector<RimSummaryCase*>(),
+            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( std::vector<RimSummaryCase*>(),
                                                                                m_ensemble,
                                                                                addressStrings );
         }
@@ -79,21 +78,17 @@ caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
         std::vector<RimSummaryCase*> summaryCases = m_summaryCases.ptrReferencedObjects();
         if ( !addressStrings.empty() )
         {
-            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForCases( self<RimSummaryPlotCollection>(),
-                                                                            summaryCases,
-                                                                            addressStrings );
+            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForCases( summaryCases, addressStrings );
         }
         else
         {
-            newPlot = RicNewDefaultSummaryPlotFeature::createFromSummaryCases( self<RimSummaryPlotCollection>(),
-                                                                               summaryCases );
+            newPlot = RicNewDefaultSummaryPlotFeature::createFromSummaryCases( summaryCases );
         }
     }
 
     if ( newPlot )
     {
         newPlot->loadDataAndUpdate();
-        self<RimSummaryPlotCollection>()->updateAllRequiredEditors();
     }
 
     return newPlot;

@@ -38,8 +38,8 @@
 #include "RimMultiPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 
@@ -156,10 +156,11 @@ void RimReloadCaseTools::updateAllPlots()
             }
         }
 
-        RimSummaryPlotCollection* summaryPlotCollection = project->mainPlotCollection()->summaryPlotCollection();
-        if ( summaryPlotCollection )
+        RimSummaryMultiPlotCollection* summaryMultiPlotCollection =
+            project->mainPlotCollection()->summaryMultiPlotCollection();
+        if ( summaryMultiPlotCollection )
         {
-            for ( RimSummaryPlot* summaryPlot : summaryPlotCollection->plots() )
+            for ( RimSummaryMultiPlot* summaryPlot : summaryMultiPlotCollection->multiPlots() )
             {
                 summaryPlot->loadDataAndUpdate();
             }

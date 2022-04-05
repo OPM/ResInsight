@@ -26,7 +26,6 @@
 class RimSummaryCurve;
 class RimAsciiDataCurve;
 class RicPasteAsciiDataToSummaryPlotFeatureUi;
-class RimSummaryPlotCollection;
 class RimSummaryPlot;
 
 //==================================================================================================
@@ -58,6 +57,4 @@ private:
                                                         const RicPasteAsciiDataToSummaryPlotFeatureUi& settings );
 
     static CurveType guessCurveType( const QString& curveName );
-
-    static RimSummaryPlot* createSummaryPlotAndAddToPlotCollection( RimSummaryPlotCollection* plotCollection );
 };

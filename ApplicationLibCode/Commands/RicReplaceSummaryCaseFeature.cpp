@@ -36,8 +36,9 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -110,31 +111,34 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
     {
-        // Update summary curves on calculated data
-        std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
-        for ( RimSummaryCurve* summaryCurve : summaryCurves )
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
         {
-            RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
-            if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
-                 ids.find( summaryAddressY.id() ) != ids.end() )
+            // Update summary curves on calculated data
+            std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
+            for ( RimSummaryCurve* summaryCurve : summaryCurves )
             {
-                if ( calcColl )
+                RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
+                if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
+                     ids.find( summaryAddressY.id() ) != ids.end() )
                 {
-                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressY.id() );
-                    QString                description = calculation->description();
+                    if ( calcColl )
+                    {
+                        RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressY.id() );
+                        QString                description = calculation->description();
 
-                    RifEclipseSummaryAddress updatedAdr =
-                        RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
-                    summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
-                    summaryCurve->loadDataAndUpdate( true );
+                        RifEclipseSummaryAddress updatedAdr =
+                            RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
+                        summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                        summaryCurve->loadDataAndUpdate( true );
+                    }
                 }
             }
-        }
 
-        summaryPlot->loadDataAndUpdate();
+            summaryPlot->loadDataAndUpdate();
+        }
     }
 
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = RiaSummaryTools::summaryCrossPlotCollection();

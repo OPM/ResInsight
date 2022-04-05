@@ -25,8 +25,9 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -54,16 +55,19 @@ void RicCloseSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*>& cases )
 {
-    RimSummaryPlotCollection*     summaryPlotColl           = RiaSummaryTools::summaryPlotCollection();
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl           = RiaSummaryTools::summaryMultiPlotCollection();
+    RimSummaryCaseMainCollection*  summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
 
     for ( RimSummaryCase* summaryCase : cases )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
+        for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
         {
-            summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
+            for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+            {
+                summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
+            }
+            multiPlot->updateConnectedEditors();
         }
-        summaryPlotColl->updateConnectedEditors();
 
         summaryCaseMainCollection->removeCase( summaryCase );
     }

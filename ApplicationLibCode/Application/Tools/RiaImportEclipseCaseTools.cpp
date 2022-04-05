@@ -53,7 +53,6 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimWellLogRftCurve.h"
 
 #include "Riu3DMainWindowTools.h"

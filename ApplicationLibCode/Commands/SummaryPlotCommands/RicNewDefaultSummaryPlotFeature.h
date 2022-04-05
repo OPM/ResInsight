@@ -22,7 +22,6 @@
 
 #include "cafCmdFeature.h"
 
-class RimSummaryPlotCollection;
 class RimSummaryCase;
 class RimSummaryPlot;
 
@@ -34,8 +33,7 @@ class RicNewDefaultSummaryPlotFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static RimSummaryPlot* createFromSummaryCases( RimSummaryPlotCollection*           plotCollection,
-                                                   const std::vector<RimSummaryCase*>& summaryCases );
+    static RimSummaryPlot* createFromSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
 
 protected:
     bool isCommandEnabled() override;

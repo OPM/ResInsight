@@ -27,6 +27,7 @@
 #include "RicSelectSummaryPlotUI.h"
 #include "RicWellLogTools.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
@@ -36,7 +37,8 @@
 #include "RimGridTimeHistoryCurve.h"
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuPlotMainWindowTools.h"
@@ -86,7 +88,7 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
 
     const QString lastUsedSummaryPlotKey( "lastUsedSummaryPlotKey" );
 
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
     RimSummaryPlot* defaultSelectedPlot = nullptr;
     {
@@ -96,16 +98,6 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
         if ( lastUsedPlot )
         {
             defaultSelectedPlot = lastUsedPlot;
-        }
-
-        if ( !defaultSelectedPlot )
-        {
-            defaultSelectedPlot = dynamic_cast<RimSummaryPlot*>( app->activePlotWindow() );
-        }
-
-        if ( !defaultSelectedPlot && !summaryPlotColl->plots().empty() )
-        {
-            defaultSelectedPlot = summaryPlotColl->plots().front();
         }
     }
 
@@ -126,10 +118,9 @@ RimSummaryPlot* RicNewGridTimeHistoryCurveFeature::userSelectedSummaryPlot()
     RimSummaryPlot* summaryPlot = nullptr;
     if ( featureUi.isCreateNewPlotChecked() )
     {
-        RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot( featureUi.newPlotName() );
-
-        summaryPlotColl->updateConnectedEditors();
-
+        RimSummaryPlot* plot = new RimSummaryPlot();
+        plot->setUiName( featureUi.newPlotName() );
+        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
         plot->loadDataAndUpdate();
 
         summaryPlot = plot;

@@ -33,7 +33,6 @@ class RimSummaryCurve;
 class RimSummaryPlot;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
-class RimSummaryPlotCollection;
 class RimEnsembleCurveSet;
 
 class QStringList;
@@ -50,28 +49,24 @@ public:
     };
 
     static std::vector<RimSummaryCurve*> addDefaultCurvesToPlot( RimSummaryPlot* plot, RimSummaryCase* summaryCase );
-    static void ensureAtLeastOnePlot( RimSummaryPlotCollection* summaryPlotCollection, RimSummaryCase* summaryCase );
-    static caf::PdmObject* createDefaultSummaryPlot( RimSummaryCase* summaryCase );
+    static caf::PdmObject*               createDefaultSummaryPlot( RimSummaryCase* summaryCase );
 
     static void createSummaryPlotsFromArgumentLine( const QStringList& arguments );
 
     static RimSummaryPlot*
-        createSummaryPlotForEnsemble( RimSummaryPlotCollection*           sumPlotColl,
-                                      const std::vector<RimSummaryCase*>& summaryCasesToUse,
+        createSummaryPlotForEnsemble( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                       RimSummaryCaseCollection*           ensemble,
                                       QStringList                         summaryAddressFilters,
                                       bool                                addHistoryCurves = false,
                                       EnsembleColoringType ensembleColoringStyle           = EnsembleColoringType::NONE,
                                       QString              ensembleColoringParameter       = "" );
 
-    static RimSummaryPlot* createSummaryPlotForCases( RimSummaryPlotCollection*           sumPlotColl,
-                                                      const std::vector<RimSummaryCase*>& summaryCasesToUse,
+    static RimSummaryPlot* createSummaryPlotForCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                                       QStringList                         summaryAddressFilters,
                                                       bool                                addHistoryCurves = false );
 
     static std::vector<RimSummaryPlot*>
-        createMultipleSummaryPlotsFromAddresses( RimSummaryPlotCollection*           sumPlotColl,
-                                                 const std::vector<RimSummaryCase*>& summaryCasesToUse,
+        createMultipleSummaryPlotsFromAddresses( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                                  RimSummaryCaseCollection*           ensemble,
                                                  QStringList                         summaryAddressFilters,
                                                  bool                                addHistoryCurves = false,

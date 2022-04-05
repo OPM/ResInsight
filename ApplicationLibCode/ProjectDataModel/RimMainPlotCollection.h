@@ -34,9 +34,9 @@ class RimPltPlotCollection;
 class RimGridCrossPlotCollection;
 class RimMultiPlotCollection;
 class RimSummaryMultiPlotCollection;
-class RimSummaryPlotCollection;
 class RimSummaryCrossPlotCollection;
 class RimSummaryPlot;
+class RimSummaryPlotCollection;
 class RifReaderEclipseSummary;
 class RimEclipseResultCase;
 class RimFlowPlotCollection;
@@ -65,7 +65,6 @@ public:
     RimWellLogPlotCollection*            wellLogPlotCollection() const;
     RimRftPlotCollection*                rftPlotCollection() const;
     RimPltPlotCollection*                pltPlotCollection() const;
-    RimSummaryPlotCollection*            summaryPlotCollection() const;
     RimSummaryMultiPlotCollection*       summaryMultiPlotCollection() const;
     RimSummaryCrossPlotCollection*       summaryCrossPlotCollection() const;
     RimAnalysisPlotCollection*           analysisPlotCollection() const;
@@ -91,6 +90,9 @@ public:
     void ensureCalculationIdsAreAssigned();
     void loadDataAndUpdateAllPlots();
 
+protected:
+    void initAfterRead() override;
+
 private:
     // Overridden PDM methods
     caf::PdmFieldHandle* objectToggleField() override;
@@ -106,7 +108,6 @@ private:
     caf::PdmChildField<RimWellLogPlotCollection*>            m_wellLogPlotCollection;
     caf::PdmChildField<RimRftPlotCollection*>                m_rftPlotCollection;
     caf::PdmChildField<RimPltPlotCollection*>                m_pltPlotCollection;
-    caf::PdmChildField<RimSummaryPlotCollection*>            m_summaryPlotCollection;
     caf::PdmChildField<RimSummaryMultiPlotCollection*>       m_summaryMultiPlotCollection;
     caf::PdmChildField<RimSummaryCrossPlotCollection*>       m_summaryCrossPlotCollection;
     caf::PdmChildField<RimAnalysisPlotCollection*>           m_analysisPlotCollection;
@@ -123,4 +124,6 @@ private:
 #endif
 
     caf::PdmField<bool> m_show;
+
+    caf::PdmChildField<RimSummaryPlotCollection*> m_summaryPlotCollection_OBSOLETE;
 };

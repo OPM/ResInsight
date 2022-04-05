@@ -23,6 +23,7 @@
 #include "RiaPreferences.h"
 #include "RiaSummaryAddressAnalyzer.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicSelectPlotTemplateUi.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -38,7 +39,6 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -230,9 +230,7 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
 
     if ( selectedSummaryCases.empty() && selectedEnsembles.empty() ) return;
 
-    RimSummaryPlotCollection* plotColl = RimProject::current()->mainPlotCollection()->summaryPlotCollection();
-
-    plotColl->addPlot( summaryPlot );
+    RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( summaryPlot );
     summaryPlot->resolveReferencesRecursively();
     summaryPlot->initAfterReadRecursively();
 
@@ -355,7 +353,7 @@ void RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection(
         }
     }
 
-    plotColl->updateConnectedEditors();
+    multiPlot->updateConnectedEditors();
 
     summaryPlot->loadDataAndUpdate();
 }

@@ -23,9 +23,6 @@
 #include <vector>
 
 class RimSummaryPlot;
-class RimSummaryCase;
-class RimSummaryCurve;
-class RimSummaryPlotCollection;
 
 //==================================================================================================
 ///

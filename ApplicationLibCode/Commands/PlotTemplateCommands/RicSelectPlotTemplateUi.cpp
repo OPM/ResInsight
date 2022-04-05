@@ -27,7 +27,6 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
 
