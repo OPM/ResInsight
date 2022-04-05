@@ -161,7 +161,8 @@ void RimSummaryPlotSourceStepping::applyPrevOtherIdentifier()
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInToolbar()
 {
-    return activeFieldsForDataSourceStepping();
+    bool fieldsForToolbar = true;
+    return activeFieldsForDataSourceStepping( fieldsForToolbar );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +170,8 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto visible = activeFieldsForDataSourceStepping();
+    bool fieldsForToolbar = false;
+    auto visible          = activeFieldsForDataSourceStepping( fieldsForToolbar );
     if ( visible.empty() )
     {
         uiOrdering.add( &m_placeholderForLabel );
@@ -209,8 +211,11 @@ QList<caf::PdmOptionItemInfo>
         {
             if ( sumCase->ensemble() )
             {
-                auto name = sumCase->ensemble()->name() + " : " + sumCase->displayCaseName();
-                options.append( caf::PdmOptionItemInfo( name, sumCase ) );
+                if ( m_includeEnsembleCasesForCaseStepping() )
+                {
+                    auto name = sumCase->ensemble()->name() + " : " + sumCase->displayCaseName();
+                    options.append( caf::PdmOptionItemInfo( name, sumCase ) );
+                }
             }
             else
             {
@@ -744,7 +749,7 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForDataSourceStepping()
+std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForDataSourceStepping( bool toolbarFields )
 {
     std::vector<caf::PdmFieldHandle*> fields;
 
@@ -757,7 +762,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
             m_summaryCase = *( sumCases.begin() );
 
             fields.push_back( &m_summaryCase );
-            fields.push_back( &m_includeEnsembleCasesForCaseStepping );
+            if ( !toolbarFields ) fields.push_back( &m_includeEnsembleCasesForCaseStepping );
         }
     }
 
