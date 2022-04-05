@@ -23,11 +23,11 @@
 
 #include "RigFemResultAddress.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicNewSummaryCurveFeature.h"
 #include "RicSelectSummaryPlotUI.h"
 #include "RicWellLogTools.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultDefinition.h"
@@ -36,9 +36,9 @@
 #include "RimGeoMechView.h"
 #include "RimGridTimeHistoryCurve.h"
 #include "RimProject.h"
-#include "RimSummaryPlot.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
+#include "RimSummaryPlot.h"
 
 #include "Riu3dSelectionManager.h"
 #include "RiuPlotMainWindowTools.h"
