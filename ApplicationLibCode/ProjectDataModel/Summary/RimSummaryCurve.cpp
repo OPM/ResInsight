@@ -260,6 +260,8 @@ std::vector<double> RimSummaryCurve::valuesY() const
     RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
     reader->values( addr, &values );
 
+    if ( values.empty() ) return values;
+
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
     bool isNormalized = plot->isNormalizationEnabled();
