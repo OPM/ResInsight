@@ -19,8 +19,11 @@
 #pragma once
 
 #include <QString>
+
 #include <map>
 #include <vector>
+
+class RimSummaryCase;
 
 //==================================================================================================
 //
@@ -48,6 +51,9 @@ public:
                                                   const QString&                        ensembleCaseName );
 
     static std::vector<QStringList> groupFilesByEnsemble( const QStringList& fileNames, EnsembleGroupingMode groupingMode );
+
+    static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
+    static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
 
 private:
     static QStringList findUniqueEnsembleNames( const QStringList&              fileNames,

@@ -95,9 +95,6 @@ protected:
     void initAfterRead() override;
 
 private:
-    static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
-    static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
-
     void buildChildNodes();
 
 protected:
