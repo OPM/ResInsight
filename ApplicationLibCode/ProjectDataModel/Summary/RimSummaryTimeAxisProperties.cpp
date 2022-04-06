@@ -669,6 +669,8 @@ void RimSummaryTimeAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* 
     }
 
     rimSummaryPlot->updateAxes();
+
+    settingsChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------

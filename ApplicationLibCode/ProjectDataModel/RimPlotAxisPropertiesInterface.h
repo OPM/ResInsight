@@ -47,6 +47,11 @@ public:
     };
     using LegendTickmarkCountEnum = caf::AppEnum<LegendTickmarkCount>;
 
+    caf::Signal<> settingsChanged;
+
+public:
+    RimPlotAxisPropertiesInterface();
+
     virtual std::vector<RimPlotAxisAnnotation*> annotations() const                                   = 0;
     virtual void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) = 0;
     virtual void                                removeAllAnnotations()                                = 0;

@@ -138,6 +138,8 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     else
     {
         auto* timeAxisProperties = new RimSummaryTimeAxisProperties;
+        timeAxisProperties->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
+
         m_axisProperties.push_back( timeAxisProperties );
     }
 
@@ -1770,6 +1772,7 @@ void RimSummaryPlot::axisSettingsChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::axisLogarithmicChanged( const caf::SignalEmitter* emitter, bool isLogarithmic )
 {
+    axisChanged.send( this );
     loadDataAndUpdate();
 }
 
@@ -2273,6 +2276,11 @@ void RimSummaryPlot::initAfterRead()
         if ( plotAxisProperties )
         {
             connectAxisSignals( plotAxisProperties );
+        }
+        auto* timeAxis = dynamic_cast<RimSummaryTimeAxisProperties*>( axisProperties.p() );
+        if ( timeAxis )
+        {
+            timeAxis->settingsChanged.connect( this, &RimSummaryPlot::axisSettingsChanged );
         }
     }
 

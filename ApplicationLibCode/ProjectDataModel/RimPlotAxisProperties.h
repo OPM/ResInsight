@@ -51,7 +51,6 @@ public:
     };
 
 public:
-    caf::Signal<>                                                 settingsChanged;
     caf::Signal<bool>                                             logarithmicChanged;
     caf::Signal<RimPlotAxisProperties*, RiuPlotAxis, RiuPlotAxis> axisPositionChanged;
 

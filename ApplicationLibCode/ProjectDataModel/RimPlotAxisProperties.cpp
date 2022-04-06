@@ -50,8 +50,7 @@ CAF_PDM_SOURCE_INIT( RimPlotAxisProperties, "SummaryYAxisProperties" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimPlotAxisProperties::RimPlotAxisProperties()
-    : settingsChanged( this )
-    , logarithmicChanged( this )
+    : logarithmicChanged( this )
     , axisPositionChanged( this )
     , m_enableTitleTextSettings( true )
     , m_isRangeSettingsEnabled( true )

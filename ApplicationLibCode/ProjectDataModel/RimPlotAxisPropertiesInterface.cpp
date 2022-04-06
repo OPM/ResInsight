@@ -48,6 +48,14 @@ void RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlotAxisPropertiesInterface::RimPlotAxisPropertiesInterface()
+    : settingsChanged( this )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimPlotAxisPropertiesInterface::isAxisInverted() const
 {
     return false;
