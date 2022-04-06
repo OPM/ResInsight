@@ -124,6 +124,6 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicCreateMultiPlotFromSelectionFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Create Summary MultiPlot from Template" );
+    actionToSetup->setText( "Create Summary Plot from Template" );
     actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 }

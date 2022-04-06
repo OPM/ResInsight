@@ -53,7 +53,7 @@ CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
 RimSummaryMultiPlot::RimSummaryMultiPlot()
     : duplicatePlot( this )
 {
-    CAF_PDM_InitObject( "Multi Summary Plot" );
+    CAF_PDM_InitObject( "Multi Summary Plot", ":/SummaryPlotLight16x16.png" );
     this->setDeletable( true );
 
     CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", true, "Auto Plot Titles" );
