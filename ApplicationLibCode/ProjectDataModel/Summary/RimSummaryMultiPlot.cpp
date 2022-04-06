@@ -270,33 +270,32 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* titlesGroup = uiOrdering.addNewGroup( "Titles" );
+    auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
     titlesGroup->add( &m_autoPlotTitles );
-    titlesGroup->add( &m_autoPlotTitlesOnSubPlots );
-
     titlesGroup->add( &m_showPlotWindowTitle );
     titlesGroup->add( &m_plotWindowTitle );
-    titlesGroup->add( &m_showIndividualPlotTitles );
     titlesGroup->add( &m_titleFontSize );
-    titlesGroup->add( &m_subTitleFontSize );
 
-    caf::PdmUiGroup* legendsGroup = uiOrdering.addNewGroup( "Legends" );
+    auto subPlotSettingsGroup = uiOrdering.addNewGroup( "Sub Plot Settings" );
+    subPlotSettingsGroup->add( &m_autoPlotTitlesOnSubPlots );
+    subPlotSettingsGroup->add( &m_showIndividualPlotTitles );
+    subPlotSettingsGroup->add( &m_subTitleFontSize );
+
+    auto legendsGroup = uiOrdering.addNewGroup( "Legends" );
     legendsGroup->add( &m_showPlotLegends );
     legendsGroup->add( &m_plotLegendsHorizontal );
     legendsGroup->add( &m_legendFontSize );
 
-    caf::PdmUiGroup* layoutGroup = uiOrdering.addNewGroup( "Layout" );
+    auto layoutGroup = uiOrdering.addNewGroup( "Layout" );
     layoutGroup->add( &m_columnCount );
     layoutGroup->add( &m_rowsPerPage );
     layoutGroup->add( &m_majorTickmarkCount );
 
-    caf::PdmUiGroup* axesGroup = uiOrdering.addNewGroup( "Axes" );
+    auto axesGroup = uiOrdering.addNewGroup( "Axes" );
     axesGroup->add( &m_syncSubPlotAxes );
 
-    {
-        auto group = uiOrdering.addNewGroup( "Data Source" );
-        m_sourceStepping()->uiOrdering( uiConfigName, *group );
-    }
+    auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
+    m_sourceStepping()->uiOrdering( uiConfigName, *dataSourceGroup );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -322,6 +321,10 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         m_createPlotDuplicate = false;
         duplicate();
+    }
+    else if ( changedField == &m_syncSubPlotAxes && m_syncSubPlotAxes() )
+    {
+        syncAxisRanges();
     }
     else
     {
