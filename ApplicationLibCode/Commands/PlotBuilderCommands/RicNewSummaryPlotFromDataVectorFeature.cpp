@@ -21,7 +21,6 @@
 #include "RiaSummaryTools.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RicSummaryPlotBuilder.h"
 
@@ -101,17 +100,7 @@ void RicNewSummaryPlotFromDataVectorFeature::onActionTriggered( bool isChecked )
     }
 
     auto newPlot = RicSummaryPlotBuilder::createPlot( eclipseAddresses, selectedCases, selectedEnsembles );
-
-    auto plotCollection = RiaSummaryTools::summaryPlotCollection();
-    newPlot->setAsPlotMdiWindow();
-
-    plotCollection->addPlot( newPlot );
-
-    newPlot->loadDataAndUpdate();
-
-    plotCollection->updateConnectedEditors();
-
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot, true );
+    RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

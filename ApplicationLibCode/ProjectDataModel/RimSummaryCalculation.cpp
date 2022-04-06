@@ -30,8 +30,9 @@
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuExpressionContextMenuManager.h"
 
@@ -475,24 +476,27 @@ void RimSummaryCalculation::updateDependentCurvesAndPlots()
     this->firstAncestorOrThisOfTypeAsserted( calcColl );
     calcColl->rebuildCaseMetaData();
 
-    RimSummaryPlotCollection* summaryPlotCollection = RiaSummaryTools::summaryPlotCollection();
-    for ( RimSummaryPlot* sumPlot : summaryPlotCollection->plots() )
+    RimSummaryMultiPlotCollection* summaryPlotCollection = RiaSummaryTools::summaryMultiPlotCollection();
+    for ( auto multiPlot : summaryPlotCollection->multiPlots() )
     {
-        bool plotContainsCalculatedCurves = false;
-
-        for ( RimSummaryCurve* sumCurve : sumPlot->summaryCurves() )
+        for ( RimSummaryPlot* sumPlot : multiPlot->summaryPlots() )
         {
-            if ( sumCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+            bool plotContainsCalculatedCurves = false;
+
+            for ( RimSummaryCurve* sumCurve : sumPlot->summaryCurves() )
             {
-                sumCurve->updateConnectedEditors();
+                if ( sumCurve->summaryAddressY().category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+                {
+                    sumCurve->updateConnectedEditors();
 
-                plotContainsCalculatedCurves = true;
+                    plotContainsCalculatedCurves = true;
+                }
             }
-        }
 
-        if ( plotContainsCalculatedCurves )
-        {
-            sumPlot->loadDataAndUpdate();
+            if ( plotContainsCalculatedCurves )
+            {
+                sumPlot->loadDataAndUpdate();
+            }
         }
     }
 }

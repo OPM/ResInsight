@@ -26,8 +26,9 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -44,17 +45,19 @@ CAF_CMD_SOURCE_INIT( RicDeleteSummaryCaseCollectionFeature, "RicDeleteSummaryCas
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSummaryCaseCollectionFeature::deleteSummaryCaseCollection( RimSummaryCaseCollection* caseCollection )
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
     for ( RimSummaryCase* summaryCase : caseCollection->allSummaryCases() )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
+        for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
         {
-            summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
+            for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+            {
+                summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
+            }
+            multiPlot->updateConnectedEditors();
         }
     }
-
-    summaryPlotColl->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

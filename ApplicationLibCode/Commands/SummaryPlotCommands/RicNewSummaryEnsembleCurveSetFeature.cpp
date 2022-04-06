@@ -21,9 +21,9 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaSummaryTools.h"
 #include "RiaTextStringTools.h"
 
-#include "RiaSummaryTools.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
@@ -34,11 +34,13 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
@@ -109,8 +111,9 @@ RimSummaryPlot*
 
     if ( prefs->defaultSummaryCurvesTextFilter().isEmpty() ) return nullptr;
 
-    RimSummaryPlotCollection* summaryPlotCollection = proj->mainPlotCollection->summaryPlotCollection();
-    RimSummaryPlot*           plot                  = summaryPlotCollection->createSummaryPlotWithAutoTitle();
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->enableAutoPlotTitle( true );
+    RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
 
     RimEnsembleCurveSet* firstCurveSetCreated = nullptr;
     for ( RimSummaryCaseCollection* ensemble : ensembles )
@@ -121,7 +124,7 @@ RimSummaryPlot*
     }
 
     plot->loadDataAndUpdate();
-    summaryPlotCollection->updateConnectedEditors();
+    multiPlot->updateConnectedEditors();
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if ( mainPlotWindow )

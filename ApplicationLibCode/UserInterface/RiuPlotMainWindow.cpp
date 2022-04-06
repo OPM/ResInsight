@@ -37,7 +37,6 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 #include "RimSummaryPlotManager.h"
 #include "RimViewWindow.h"
@@ -154,7 +153,7 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     }
 
     {
-        auto* obj = RiaSummaryTools::summaryPlotCollection();
+        auto* obj = RiaSummaryTools::summaryMultiPlotCollection();
         if ( obj )
         {
             setExpanded( obj );

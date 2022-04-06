@@ -30,8 +30,9 @@
 #include "RimReloadCaseTools.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimTimeStepFilter.h"
 
 #include "Riu3dSelectionManager.h"
@@ -110,10 +111,13 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
                 gridSummaryCase->createSummaryReaderInterface();
                 gridSummaryCase->createRftReaderInterface();
 
-                RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-                for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
+                RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+                for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
                 {
-                    summaryPlot->loadDataAndUpdate();
+                    for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+                    {
+                        summaryPlot->loadDataAndUpdate();
+                    }
                 }
             }
         }

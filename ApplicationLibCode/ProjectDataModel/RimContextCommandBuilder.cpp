@@ -130,7 +130,6 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSurface.h"
 #include "RimSurfaceCollection.h"
 #include "RimValveTemplate.h"
@@ -557,19 +556,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewVfpPlotFeature";
         }
-        else if ( dynamic_cast<RimSummaryPlotCollection*>( firstUiItem ) )
-        {
-            menuBuilder << "RicPasteSummaryPlotFeature";
-            menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicNewDefaultSummaryPlotFeature";
-            menuBuilder << "Separator";
-            menuBuilder << "RicShowSummaryCurveCalculatorFeature";
-        }
         else if ( dynamic_cast<RimSummaryMultiPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSummaryMultiPlotFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicPasteSummaryPlotFeature";
+            menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
+            menuBuilder << "Separator";
+            menuBuilder << "RicShowSummaryCurveCalculatorFeature";
         }
         else if ( dynamic_cast<RimAnalysisPlotCollection*>( firstUiItem ) )
         {
@@ -778,7 +772,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicNewDerivedEnsembleFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicConvertGroupToEnsembleFeature";
@@ -795,7 +788,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
-            menuBuilder << "RicNewDefaultSummaryPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
@@ -1085,7 +1077,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicNewDerivedEnsembleFeature";
         menuBuilder << "RicOpenSummaryPlotEditorFeature";
-        menuBuilder << "RicNewDefaultSummaryPlotFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";

@@ -78,7 +78,6 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryMultiPlotCollection.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
@@ -1450,10 +1449,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
                     statisticsItemCollection->add( mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
             }
 #endif
-            if ( mainPlotCollection->summaryPlotCollection() )
-            {
-                uiTreeOrdering.add( mainPlotCollection->summaryPlotCollection() );
-            }
         }
     }
     else if ( uiConfigName == "PlotWindow.DataSources" )

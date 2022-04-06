@@ -32,7 +32,6 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"

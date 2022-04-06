@@ -19,7 +19,8 @@
 #include "RicDeleteSubItemsFeature.h"
 
 #include "RimProject.h"
-#include "RimSummaryPlotCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFractureCollection.h"
 
@@ -63,7 +64,17 @@ void RicDeleteSubItemsFeature::onActionTriggered( bool isChecked )
         if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) continue;
 
         {
-            auto collection = dynamic_cast<RimSummaryPlotCollection*>( item );
+            auto multiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
+            if ( multiPlot )
+            {
+                multiPlot->deleteAllPlots();
+
+                multiPlot->updateConnectedEditors();
+            }
+        }
+
+        {
+            auto collection = dynamic_cast<RimSummaryMultiPlotCollection*>( item );
             if ( collection )
             {
                 collection->deleteAllPlots();
@@ -115,8 +126,16 @@ void RicDeleteSubItemsFeature::setupActionLook( QAction* actionToSetup )
 bool RicDeleteSubItemsFeature::hasDeletableSubItems( caf::PdmUiItem* uiItem )
 {
     {
-        auto collection = dynamic_cast<RimSummaryPlotCollection*>( uiItem );
-        if ( collection && !collection->plots().empty() )
+        auto multiPlot = dynamic_cast<RimSummaryMultiPlot*>( uiItem );
+        if ( multiPlot && !multiPlot->summaryPlots().empty() )
+        {
+            return true;
+        }
+    }
+
+    {
+        auto collection = dynamic_cast<RimSummaryMultiPlotCollection*>( uiItem );
+        if ( collection && !collection->multiPlots().empty() )
         {
             return true;
         }

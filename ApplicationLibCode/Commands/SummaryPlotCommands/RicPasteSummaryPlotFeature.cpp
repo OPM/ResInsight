@@ -23,7 +23,6 @@
 
 #include "RimMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -56,27 +55,6 @@ void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sou
 
         return;
     }
-
-    RimSummaryPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlotCollection*>();
-    if ( plotColl )
-    {
-        RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(
-            sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-        CVF_ASSERT( newSummaryPlot );
-
-        plotColl->addPlot( newSummaryPlot );
-
-        // Resolve references after object has been inserted into the data model
-        newSummaryPlot->resolveReferencesRecursively();
-        newSummaryPlot->initAfterReadRecursively();
-
-        QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
-        newSummaryPlot->setDescription( nameOfCopy );
-
-        plotColl->updateConnectedEditors();
-
-        newSummaryPlot->loadDataAndUpdate();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,14 +68,7 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled()
     if ( !destinationObject ) return false;
 
     auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot*>();
-    if ( multiPlot ) return true;
-
-    RimSummaryPlotCollection* plotColl = nullptr;
-    destinationObject->firstAncestorOrThisOfType( plotColl );
-    if ( !plotColl )
-    {
-        return false;
-    }
+    if ( !multiPlot ) return false;
 
     return RicPasteSummaryPlotFeature::summaryPlots().size() > 0;
 }

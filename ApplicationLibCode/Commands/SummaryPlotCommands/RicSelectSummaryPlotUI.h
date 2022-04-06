@@ -23,7 +23,6 @@
 #include "cafPdmPtrField.h"
 
 class RimSummaryPlot;
-class RimSummaryPlotCollection;
 
 //==================================================================================================
 ///

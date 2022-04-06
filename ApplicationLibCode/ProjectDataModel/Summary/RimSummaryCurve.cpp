@@ -44,7 +44,6 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSummaryTimeAxisProperties.h"
 #include "RimTools.h"
 
@@ -260,6 +259,8 @@ std::vector<double> RimSummaryCurve::valuesY() const
 
     RifEclipseSummaryAddress addr = m_yValuesSummaryAddress()->address();
     reader->values( addr, &values );
+
+    if ( values.empty() ) return values;
 
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );

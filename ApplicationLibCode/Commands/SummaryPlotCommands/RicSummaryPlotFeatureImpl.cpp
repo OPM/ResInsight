@@ -29,6 +29,7 @@
 #include "RiaSummaryStringTools.h"
 #include "RiaTextStringTools.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicCreateSummaryCaseCollectionFeature.h"
 #include "RicImportGeneralDataFeature.h"
 #include "RicImportSummaryCasesFeature.h"
@@ -53,7 +54,6 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
@@ -297,8 +297,6 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         RimSummaryPlot* lastPlotCreated = nullptr;
 
-        RimSummaryPlotCollection* sumPlotColl = RimProject::current()->mainPlotCollection()->summaryPlotCollection();
-
         RiaSummaryStringTools::splitAddressFiltersInGridAndSummary( summaryCasesToUse[0],
                                                                     allCurveAddressFilters,
                                                                     &summaryAddressFilters,
@@ -318,8 +316,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                 RimSummaryPlot* newPlot = nullptr;
                 if ( ensemble )
                 {
-                    newPlot = createSummaryPlotForEnsemble( sumPlotColl,
-                                                            summaryCasesToUse,
+                    newPlot = createSummaryPlotForEnsemble( summaryCasesToUse,
                                                             ensemble,
                                                             summaryAddressFilters,
                                                             addHistoryCurves,
@@ -328,8 +325,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                 }
                 else
                 {
-                    newPlot =
-                        createSummaryPlotForCases( sumPlotColl, summaryCasesToUse, summaryAddressFilters, addHistoryCurves );
+                    newPlot = createSummaryPlotForCases( summaryCasesToUse, summaryAddressFilters, addHistoryCurves );
                 }
 
                 lastPlotCreated = newPlot;
@@ -337,12 +333,13 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                 newPlot->setLegendsVisible( !hideLegend );
                 newPlot->setNormalizationEnabled( isNormalizedY );
                 newPlot->loadDataAndUpdate();
+
+                RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
             }
-            else // Multiplot, one for each separate summary address
+            else // Multiple plots, one for each separate summary address, put them all in a summary multiplot
             {
                 std::vector<RimSummaryPlot*> summaryPlots =
-                    createMultipleSummaryPlotsFromAddresses( sumPlotColl,
-                                                             summaryCasesToUse,
+                    createMultipleSummaryPlotsFromAddresses( summaryCasesToUse,
                                                              ensemble,
                                                              summaryAddressFilters,
                                                              addHistoryCurves,
@@ -357,6 +354,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     summaryPlot->setNormalizationEnabled( isNormalizedY );
                     summaryPlot->loadDataAndUpdate();
                 }
+
+                RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
             }
         }
 
@@ -412,7 +411,9 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
                 if ( createdCurves.size() )
                 {
-                    RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+                    RimSummaryPlot* newPlot = new RimSummaryPlot();
+                    newPlot->enableAutoPlotTitle( true );
+
                     for ( auto curve : createdCurves )
                     {
                         newPlot->addGridTimeHistoryCurve( curve );
@@ -422,6 +423,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                     newPlot->setNormalizationEnabled( isNormalizedY );
                     newPlot->loadDataAndUpdate();
                     lastPlotCreated = newPlot;
+
+                    RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
                 }
             }
             else // Multiplot
@@ -465,7 +468,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
                         if ( createdCurves.size() )
                         {
-                            RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+                            RimSummaryPlot* newPlot = new RimSummaryPlot();
+                            newPlot->enableAutoPlotTitle( true );
                             for ( auto newCurve : createdCurves )
                             {
                                 newPlot->addGridTimeHistoryCurve( newCurve );
@@ -474,6 +478,8 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
                             newPlot->setNormalizationEnabled( isNormalizedY );
                             newPlot->loadDataAndUpdate();
                             lastPlotCreated = newPlot;
+
+                            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( newPlot );
                         }
                     }
                 }
@@ -482,7 +488,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         if ( lastPlotCreated )
         {
-            sumPlotColl->updateConnectedEditors();
+            RimProject::current()->mainPlotCollection()->summaryMultiPlotCollection()->updateConnectedEditors();
 
             RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
             // Needed to avoid unnecessary activation of sub windows (plots)
@@ -503,15 +509,15 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
     }
 }
 
-RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( RimSummaryPlotCollection* sumPlotColl,
-                                                                         const std::vector<RimSummaryCase*>& summaryCasesToUse,
+RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                                                          RimSummaryCaseCollection*           ensemble,
                                                                          QStringList          summaryAddressFilters,
                                                                          bool                 addHistoryCurves,
                                                                          EnsembleColoringType ensembleColoringStyle,
                                                                          QString ensembleColoringParameter )
 {
-    RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+    RimSummaryPlot* newPlot = new RimSummaryPlot();
+    newPlot->enableAutoPlotTitle( true );
 
     if ( ensemble )
     {
@@ -567,12 +573,12 @@ RimEnsembleCurveSet* RicSummaryPlotFeatureImpl::createCurveSet( RimSummaryCaseCo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForCases( RimSummaryPlotCollection*           sumPlotColl,
-                                                                      const std::vector<RimSummaryCase*>& summaryCasesToUse,
+RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForCases( const std::vector<RimSummaryCase*>& summaryCasesToUse,
                                                                       QStringList summaryAddressFilters,
                                                                       bool        addHistoryCurves /*= false */ )
 {
-    RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+    RimSummaryPlot* newPlot = new RimSummaryPlot();
+    newPlot->enableAutoPlotTitle( true );
 
     for ( RimSummaryCase* sumCase : summaryCasesToUse )
     {
@@ -588,7 +594,6 @@ RimSummaryPlot* RicSummaryPlotFeatureImpl::createSummaryPlotForCases( RimSummary
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlotsFromAddresses(
-    RimSummaryPlotCollection*           sumPlotColl,
     const std::vector<RimSummaryCase*>& summaryCasesToUse,
     RimSummaryCaseCollection*           ensemble,
     QStringList                         summaryAddressFilters,
@@ -631,7 +636,8 @@ std::vector<RimSummaryPlot*> RicSummaryPlotFeatureImpl::createMultipleSummaryPlo
 
         if ( createdCurves.size() || createdEnsembleCurveSets.size() )
         {
-            RimSummaryPlot* newPlot = sumPlotColl->createSummaryPlotWithAutoTitle();
+            RimSummaryPlot* newPlot = new RimSummaryPlot();
+            newPlot->enableAutoPlotTitle( true );
 
             for ( auto curve : createdCurves )
             {

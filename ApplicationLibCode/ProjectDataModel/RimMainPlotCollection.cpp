@@ -19,6 +19,8 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RimAbstractPlotCollection.h"
 #include "RimAnalysisPlotCollection.h"
 #include "RimCorrelationPlotCollection.h"
@@ -80,9 +82,6 @@ RimMainPlotCollection::RimMainPlotCollection()
     CAF_PDM_InitFieldNoDefault( &m_pltPlotCollection, "PltPlotCollection", "" );
     m_pltPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots" );
-    m_summaryPlotCollection.uiCapability()->setUiTreeHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_summaryMultiPlotCollection, "SummaryMultiPlotCollection", "Multi Summary Plots" );
     m_summaryMultiPlotCollection.uiCapability()->setUiTreeHidden( true );
 
@@ -125,7 +124,6 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
     m_pltPlotCollection                = new RimPltPlotCollection();
-    m_summaryPlotCollection            = new RimSummaryPlotCollection();
     m_summaryMultiPlotCollection       = new RimSummaryMultiPlotCollection();
     m_summaryCrossPlotCollection       = new RimSummaryCrossPlotCollection();
     m_flowPlotCollection               = new RimFlowPlotCollection();
@@ -140,6 +138,11 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_gridStatisticsPlotCollection             = new RimGridStatisticsPlotCollection;
     m_ensembleFractureStatisticsPlotCollection = new RimEnsembleFractureStatisticsPlotCollection;
 #endif
+
+    CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection_OBSOLETE, "SummaryPlotCollection", "Summary Plots" );
+    m_summaryPlotCollection_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_summaryPlotCollection_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_summaryPlotCollection_OBSOLETE = new RimSummaryPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,6 +150,25 @@ RimMainPlotCollection::RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection::~RimMainPlotCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::initAfterRead()
+{
+    std::vector<RimSummaryPlot*> plotsToMove;
+    for ( auto singlePlot : m_summaryPlotCollection_OBSOLETE()->plots() )
+    {
+        plotsToMove.push_back( singlePlot );
+    }
+
+    for ( auto singlePlot : plotsToMove )
+    {
+        m_summaryPlotCollection_OBSOLETE()->removePlot( singlePlot );
+
+        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( singlePlot );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -188,14 +210,6 @@ RimRftPlotCollection* RimMainPlotCollection::rftPlotCollection() const
 RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection() const
 {
     return m_pltPlotCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection() const
-{
-    return m_summaryPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -415,7 +429,6 @@ std::vector<RimPlotCollection*> RimMainPlotCollection::allPlotCollections() cons
 {
     std::vector<RimPlotCollection*> plotCollections;
     plotCollections.push_back( wellLogPlotCollection() );
-    plotCollections.push_back( summaryPlotCollection() );
     plotCollections.push_back( summaryMultiPlotCollection() );
     plotCollections.push_back( summaryCrossPlotCollection() );
     plotCollections.push_back( gridCrossPlotCollection() );

@@ -29,8 +29,9 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -54,7 +55,7 @@ bool RicReloadSummaryCaseFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
     for ( RimSummaryCase* summaryCase : caseSelection )
@@ -68,9 +69,12 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }
 
-    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
     {
-        summaryPlot->loadDataAndUpdate();
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+        {
+            summaryPlot->loadDataAndUpdate();
+        }
     }
 }
 

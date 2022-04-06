@@ -23,7 +23,6 @@
 #include "RiaGuiApplication.h"
 #include "RiaSummaryCurveDefinition.h"
 
-#include "RicSelectSummaryPlotUI.h"
 #include "RiuSummaryCurveDefinitionKeywords.h"
 
 #include "RimDerivedEnsembleCaseCollection.h"
@@ -44,7 +43,6 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -275,16 +273,6 @@ QList<caf::PdmOptionItemInfo>
         if ( m_plotContainer )
         {
             m_plotContainer->summaryPlotItemInfos( &options );
-        }
-        else
-        {
-            RimProject* proj = RimProject::current();
-
-            RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-            if ( summaryPlotColl )
-            {
-                summaryPlotColl->summaryPlotItemInfos( &options );
-            }
         }
     }
 
@@ -853,18 +841,12 @@ void RicSummaryPlotEditorUi::createNewPlot()
 
     RimSummaryPlot* newSummaryPlot = nullptr;
 
-    RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-
     if ( m_plotContainer )
     {
         newSummaryPlot = new RimSummaryPlot();
         newSummaryPlot->setAsPlotMdiWindow();
         newSummaryPlot->enableAutoPlotTitle( true );
         m_plotContainer->addPlot( newSummaryPlot );
-    }
-    else if ( summaryPlotColl )
-    {
-        newSummaryPlot = summaryPlotColl->createSummaryPlotWithAutoTitle();
     }
 
     if ( newSummaryPlot )
@@ -874,10 +856,6 @@ void RicSummaryPlotEditorUi::createNewPlot()
         if ( m_plotContainer )
         {
             m_plotContainer->updateConnectedEditors();
-        }
-        else if ( summaryPlotColl )
-        {
-            summaryPlotColl->updateConnectedEditors();
         }
 
         m_targetPlot = newSummaryPlot;

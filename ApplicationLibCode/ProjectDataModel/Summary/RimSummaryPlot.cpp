@@ -51,7 +51,6 @@
 #include "RimSummaryCurveCollection.h"
 #include "RimSummaryCurvesData.h"
 #include "RimSummaryPlotAxisFormatter.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
 #include "RimSummaryPlotNameHelper.h"

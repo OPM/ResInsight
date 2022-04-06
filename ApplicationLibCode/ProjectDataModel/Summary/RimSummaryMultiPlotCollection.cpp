@@ -143,3 +143,33 @@ void RimSummaryMultiPlotCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering
     }
     uiTreeOrdering.skipRemainingChildren( true );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const
+{
+    for ( RimSummaryMultiPlot* multiPlot : multiPlots() )
+    {
+        for ( RimSummaryPlot* plot : multiPlot->summaryPlots() )
+        {
+            QString displayName = plot->description();
+            optionInfos->push_back(
+                caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::updateSummaryNameHasChanged()
+{
+    for ( RimSummaryMultiPlot* multiPlot : multiPlots() )
+    {
+        for ( RimSummaryPlot* plot : multiPlot->summaryPlots() )
+        {
+            plot->updateCaseNameHasChanged();
+        }
+    }
+}

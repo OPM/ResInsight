@@ -24,8 +24,9 @@
 
 #include <vector>
 
-class RimSummaryPlotCollection;
 class RimSummaryPlot;
+class RimSummaryMultiPlot;
+class RimSummaryMultiPlotCollection;
 class RimSummaryCrossPlot;
 class RimSummaryCrossPlotCollection;
 class RimSummaryCaseMainCollection;
@@ -47,14 +48,15 @@ class PdmObject;
 class RiaSummaryTools
 {
 public:
-    static RimSummaryPlotCollection*      summaryPlotCollection();
     static RimSummaryCrossPlotCollection* summaryCrossPlotCollection();
     static RimSummaryCaseMainCollection*  summaryCaseMainCollection();
+    static RimSummaryMultiPlotCollection* summaryMultiPlotCollection();
 
     static void notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName );
 
-    static RimSummaryPlot*           parentSummaryPlot( caf::PdmObject* object );
-    static RimSummaryPlotCollection* parentSummaryPlotCollection( caf::PdmObject* object );
+    static RimSummaryPlot*                parentSummaryPlot( caf::PdmObject* object );
+    static RimSummaryMultiPlot*           parentSummaryMultiPlot( caf::PdmObject* object );
+    static RimSummaryMultiPlotCollection* parentSummaryPlotCollection( caf::PdmObject* object );
 
     static RimSummaryCrossPlot*           parentCrossPlot( caf::PdmObject* object );
     static RimSummaryCrossPlotCollection* parentCrossPlotCollection( caf::PdmObject* object );

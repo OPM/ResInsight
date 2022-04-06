@@ -36,8 +36,9 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmObject.h"
 
@@ -46,11 +47,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
+RimSummaryMultiPlotCollection* RiaSummaryTools::summaryMultiPlotCollection()
 {
     RimProject* project = RimProject::current();
 
-    return project->mainPlotCollection()->summaryPlotCollection();
+    return project->mainPlotCollection()->summaryMultiPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -79,18 +80,21 @@ RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName )
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
-    for ( RimSummaryPlot* plot : summaryPlotColl->plots() )
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
     {
-        for ( RimSummaryCurve* curve : plot->summaryCurves() )
+        for ( RimSummaryPlot* plot : multiPlot->summaryPlots() )
         {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && adr.id() == calculationId )
+            for ( RimSummaryCurve* curve : plot->summaryCurves() )
             {
-                RifEclipseSummaryAddress updatedAdr =
-                    RifEclipseSummaryAddress::calculatedAddress( currentCurveName.toStdString(), calculationId );
-                curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                RifEclipseSummaryAddress adr = curve->summaryAddressY();
+                if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && adr.id() == calculationId )
+                {
+                    RifEclipseSummaryAddress updatedAdr =
+                        RifEclipseSummaryAddress::calculatedAddress( currentCurveName.toStdString(), calculationId );
+                    curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                }
             }
         }
     }
@@ -119,9 +123,9 @@ RimSummaryPlot* RiaSummaryTools::parentSummaryPlot( caf::PdmObject* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotCollection* RiaSummaryTools::parentSummaryPlotCollection( caf::PdmObject* object )
+RimSummaryMultiPlotCollection* RiaSummaryTools::parentSummaryPlotCollection( caf::PdmObject* object )
 {
-    RimSummaryPlotCollection* summaryPlotColl = nullptr;
+    RimSummaryMultiPlotCollection* summaryPlotColl = nullptr;
 
     if ( object )
     {
@@ -129,6 +133,21 @@ RimSummaryPlotCollection* RiaSummaryTools::parentSummaryPlotCollection( caf::Pdm
     }
 
     return summaryPlotColl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot* RiaSummaryTools::parentSummaryMultiPlot( caf::PdmObject* object )
+{
+    RimSummaryMultiPlot* multiPlot = nullptr;
+
+    if ( object )
+    {
+        object->firstAncestorOrThisOfType( multiPlot );
+    }
+
+    return multiPlot;
 }
 
 //--------------------------------------------------------------------------------------------------

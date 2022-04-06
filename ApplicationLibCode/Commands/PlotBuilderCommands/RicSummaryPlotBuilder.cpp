@@ -41,7 +41,7 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
-#include "RimSummaryPlotCollection.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -471,6 +471,31 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     {
         RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
     }
+
+    return plotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( RimSummaryPlot* plot )
+{
+    RimProject* project        = RimProject::current();
+    auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+
+    auto* plotWindow = new RimSummaryMultiPlot();
+    plotWindow->setColumnCount( RiaDefines::ColumnCount::COLUMNS_1 );
+    plotWindow->setRowCount( RiaDefines::RowCount::ROWS_1 );
+    plotWindow->setAsPlotMdiWindow();
+    plotCollection->addSummaryMultiPlot( plotWindow );
+
+    appendPlotsToSummaryMultiPlot( plotWindow, { plot } );
+
+    plotCollection->updateAllRequiredEditors();
+    plotWindow->loadDataAndUpdate();
+    plotWindow->updateAllRequiredEditors();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
 
     return plotWindow;
 }

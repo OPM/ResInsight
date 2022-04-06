@@ -26,8 +26,9 @@
 #include "RimObservedSummaryData.h"
 #include "RimProject.h"
 #include "RimRftPlotCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimWellRftPlot.h"
 
 #include "cafSelectionManager.h"
@@ -52,15 +53,18 @@ void RicCloseObservedDataFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::deleteObservedSummaryData( const std::vector<RimObservedSummaryData*>& data )
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
     for ( RimObservedSummaryData* observedData : data )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
+        for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
         {
-            summaryPlot->deleteCurvesAssosiatedWithCase( observedData );
+            for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+            {
+                summaryPlot->deleteCurvesAssosiatedWithCase( observedData );
+            }
+            multiPlot->updateConnectedEditors();
         }
-        summaryPlotColl->updateConnectedEditors();
 
         RimObservedDataCollection* observedDataCollection = nullptr;
         observedData->firstAncestorOrThisOfTypeAsserted( observedDataCollection );
