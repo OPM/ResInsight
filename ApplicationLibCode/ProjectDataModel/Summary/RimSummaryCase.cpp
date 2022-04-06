@@ -307,58 +307,6 @@ void RimSummaryCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCase::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase )
-{
-    CAF_ASSERT( summaryCase && summaryCase->ensemble() );
-
-    QString ensembleCaseName = summaryCase->caseName();
-
-    auto ensemble = summaryCase->ensemble();
-
-    std::vector<RimSummaryCase*> summaryCases = ensemble->allSummaryCases();
-
-    QRegularExpression trimRe( "^[^a-zA-Z0-9]+" );
-
-    QStringList summaryFilePaths;
-    summaryFilePaths.push_back( summaryCase->summaryHeaderFilename() );
-
-    for ( auto otherSummaryCase : summaryCases )
-    {
-        if ( otherSummaryCase != summaryCase )
-        {
-            summaryFilePaths.push_back( otherSummaryCase->summaryHeaderFilename() );
-        }
-    }
-
-    return RiaEnsembleNameTools::uniqueShortName( summaryCase->summaryHeaderFilename(), summaryFilePaths, ensembleCaseName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryCase::uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase )
-{
-    std::set<QString> allAutoShortNames;
-
-    std::vector<RimSummaryCase*> allCases;
-    RimProject::current()->descendantsOfType( allCases );
-
-    for ( RimSummaryCase* sumCase : allCases )
-    {
-        if ( sumCase && sumCase != summaryCase )
-        {
-            allAutoShortNames.insert( sumCase->displayCaseName() );
-        }
-    }
-
-    return RimCaseDisplayNameTools::uniqueShortName( summaryCase->caseName(),
-                                                     allAutoShortNames,
-                                                     RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateAutoShortName()
 {
     if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME )
@@ -369,11 +317,11 @@ void RimSummaryCase::updateAutoShortName()
     {
         if ( ensemble() )
         {
-            m_displayName = RimSummaryCase::uniqueShortNameForEnsembleCase( this );
+            m_displayName = RiaEnsembleNameTools::uniqueShortNameForEnsembleCase( this );
         }
         else
         {
-            m_displayName = RimSummaryCase::uniqueShortNameForSummaryCase( this );
+            m_displayName = RiaEnsembleNameTools::uniqueShortNameForSummaryCase( this );
         }
     }
     updateTreeItemName();

@@ -18,6 +18,7 @@
 
 #include "RimSummaryPlotSourceStepping.h"
 
+#include "RiaEnsembleNameTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
@@ -58,8 +59,8 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
 
     CAF_PDM_InitField( &m_includeEnsembleCasesForCaseStepping,
                        "IncludeEnsembleCasesForCaseStepping",
-                       false,
-                       "Allow Stepping on Ensemble cases" );
+                       true,
+                       "Include Ensemble Cases in Case List" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "GroupName", "Group Name" );
@@ -195,21 +196,32 @@ QList<caf::PdmOptionItemInfo>
     {
         return caf::PdmObject::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     }
-    else if ( fieldNeedingOptions == &m_placeholderForLabel )
+
+    if ( fieldNeedingOptions == &m_placeholderForLabel )
     {
         return options;
     }
-    else if ( fieldNeedingOptions == &m_summaryCase )
+
+    if ( fieldNeedingOptions == &m_summaryCase )
     {
         auto summaryCases = RimSummaryPlotSourceStepping::summaryCasesForSourceStepping();
         for ( auto sumCase : summaryCases )
         {
-            options.append( caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase ) );
+            if ( sumCase->ensemble() )
+            {
+                auto name = sumCase->ensemble()->name() + " : " + sumCase->displayCaseName();
+                options.append( caf::PdmOptionItemInfo( name, sumCase ) );
+            }
+            else
+            {
+                options.append( caf::PdmOptionItemInfo( sumCase->displayCaseName(), sumCase ) );
+            }
         }
 
         return options;
     }
-    else if ( fieldNeedingOptions == &m_ensemble )
+
+    if ( fieldNeedingOptions == &m_ensemble )
     {
         RimProject* proj = RimProject::current();
         for ( auto ensemble : proj->summaryGroups() )
@@ -745,8 +757,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
             m_summaryCase = *( sumCases.begin() );
 
             fields.push_back( &m_summaryCase );
-
-            m_includeEnsembleCasesForCaseStepping.uiCapability()->setUiHidden( false );
+            fields.push_back( &m_includeEnsembleCasesForCaseStepping );
         }
     }
 

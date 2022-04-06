@@ -22,6 +22,9 @@
 #include "RiaTextStringTools.h"
 
 #include "RimCaseDisplayNameTools.h"
+#include "RimProject.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 
 #include "cafAppEnum.h"
 
@@ -129,6 +132,54 @@ std::vector<QStringList> RiaEnsembleNameTools::groupFilesByEnsemble( const QStri
     }
 
     return groupedByIteration;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaEnsembleNameTools::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase )
+{
+    CAF_ASSERT( summaryCase && summaryCase->ensemble() );
+
+    auto ensembleCaseName = summaryCase->nativeCaseName();
+    auto ensemble         = summaryCase->ensemble();
+    auto summaryCases     = ensemble->allSummaryCases();
+
+    QStringList summaryFilePaths;
+    summaryFilePaths.push_back( summaryCase->summaryHeaderFilename() );
+
+    for ( auto otherSummaryCase : summaryCases )
+    {
+        if ( otherSummaryCase != summaryCase )
+        {
+            summaryFilePaths.push_back( otherSummaryCase->summaryHeaderFilename() );
+        }
+    }
+
+    return RiaEnsembleNameTools::uniqueShortName( summaryCase->summaryHeaderFilename(), summaryFilePaths, ensembleCaseName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaEnsembleNameTools::uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase )
+{
+    std::set<QString> allAutoShortNames;
+
+    std::vector<RimSummaryCase*> allCases;
+    RimProject::current()->descendantsOfType( allCases );
+
+    for ( auto sumCase : allCases )
+    {
+        if ( sumCase && sumCase != summaryCase )
+        {
+            allAutoShortNames.insert( sumCase->displayCaseName() );
+        }
+    }
+
+    return RimCaseDisplayNameTools::uniqueShortName( summaryCase->nativeCaseName(),
+                                                     allAutoShortNames,
+                                                     RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
 }
 
 //--------------------------------------------------------------------------------------------------
