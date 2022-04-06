@@ -48,6 +48,14 @@ public:
     caf::Signal<RimSummaryMultiPlot*> duplicatePlot;
 
 public:
+    enum class AxisRangeAggregation
+    {
+        NONE,
+        REGIONS,
+        WELLS,
+        REALIZATIONS
+    };
+
     RimSummaryMultiPlot();
     ~RimSummaryMultiPlot() override;
 
@@ -98,6 +106,7 @@ private:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
     void updatePlotWindowTitle() override;
+    void computeAggregatedAxisRange();
 
     void duplicate();
 
@@ -111,6 +120,8 @@ private:
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
     caf::PdmField<bool> m_syncSubPlotAxes;
+
+    caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
