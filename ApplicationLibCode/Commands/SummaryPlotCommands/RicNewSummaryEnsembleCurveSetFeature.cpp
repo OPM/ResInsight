@@ -111,8 +111,6 @@ RimSummaryPlot*
 
     if ( prefs->defaultSummaryCurvesTextFilter().isEmpty() ) return nullptr;
 
-    RimSummaryMultiPlotCollection* summaryPlotCollection = proj->mainPlotCollection->summaryMultiPlotCollection();
-
     RimSummaryPlot* plot = new RimSummaryPlot();
     plot->enableAutoPlotTitle( true );
     RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
