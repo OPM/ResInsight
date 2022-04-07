@@ -92,8 +92,9 @@ public:
                                            bool titleBold = false,
                                            int  alignment = (int)Qt::AlignCenter ) = 0;
 
-    virtual void enableAxis( RiuPlotAxis axis, bool isEnabled ) = 0;
-    virtual bool axisEnabled( RiuPlotAxis axis ) const          = 0;
+    virtual void enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled ) = 0;
+    virtual void enableAxis( RiuPlotAxis axis, bool isEnabled )             = 0;
+    virtual bool axisEnabled( RiuPlotAxis axis ) const                      = 0;
 
     virtual void setAxisScale( RiuPlotAxis axis, double min, double max ) = 0;
     virtual void setAxisAutoScale( RiuPlotAxis axis, bool enable )        = 0;

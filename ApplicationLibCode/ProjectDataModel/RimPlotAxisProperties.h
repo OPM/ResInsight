@@ -77,6 +77,8 @@ public:
     void           setAutoZoom( bool enableAutoZoom ) override;
     bool           isAxisInverted() const override;
     void           setAxisInverted( bool inverted );
+    bool           showNumbers() const;
+    void           setShowNumbers( bool enable );
 
     bool isDeletable() const override;
 
@@ -124,6 +126,7 @@ private:
     caf::PdmField<bool> m_displayUnitText;
     caf::PdmField<bool> m_isAutoZoom;
     caf::PdmField<bool> m_isAxisInverted;
+    caf::PdmField<bool> m_showNumbers;
 
     caf::PdmField<double> m_visibleRangeMin;
     caf::PdmField<double> m_visibleRangeMax;
