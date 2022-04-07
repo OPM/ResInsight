@@ -32,7 +32,7 @@ public:
 
     bool isPlotDisplayingSingleQuantity() const override;
     bool isWellNameInTitle() const override;
-    bool isWellGroupNameInTitle() const override;
+    bool isGroupNameInTitle() const override;
     bool isRegionInTitle() const override;
     bool isCaseInTitle() const override;
     bool isBlockInTitle() const override;
@@ -43,7 +43,7 @@ public:
 
     std::string titleQuantity() const override;
     std::string titleWellName() const override;
-    std::string titleWellGroupName() const override;
+    std::string titleGroupName() const override;
     std::string titleRegion() const override;
     std::string titleBlock() const override;
     std::string titleSegment() const override;

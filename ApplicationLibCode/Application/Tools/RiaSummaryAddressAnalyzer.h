@@ -49,7 +49,7 @@ public:
     std::string quantityNameForTitle() const;
 
     std::set<std::string> wellNames() const;
-    std::set<std::string> wellGroupNames() const;
+    std::set<std::string> groupNames() const;
     std::set<int>         regionNumbers() const;
 
     std::set<std::string> wellCompletions( const std::string& wellName ) const;
@@ -90,7 +90,7 @@ private:
     mutable std::set<std::string> m_quantitiesNoMatchingHistory;
 
     std::multimap<std::string, RifEclipseSummaryAddress> m_wellNames;
-    std::multimap<std::string, RifEclipseSummaryAddress> m_wellGroupNames;
+    std::multimap<std::string, RifEclipseSummaryAddress> m_groupNames;
     std::multimap<int, RifEclipseSummaryAddress>         m_regionNumbers;
     std::set<std::pair<std::string, std::string>>        m_wellCompletions;
     std::set<std::pair<std::string, int>>                m_wellSegmentNumbers;

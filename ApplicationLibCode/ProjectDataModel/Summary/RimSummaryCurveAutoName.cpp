@@ -291,11 +291,11 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
         {
             if ( m_wellGroupName )
             {
-                bool skipSubString = nameHelper && nameHelper->isWellGroupNameInTitle();
+                bool skipSubString = nameHelper && nameHelper->isGroupNameInTitle();
                 if ( !skipSubString )
                 {
                     if ( !text.empty() ) text += ":";
-                    text += summaryAddress.wellGroupName();
+                    text += summaryAddress.groupName();
                 }
             }
         }

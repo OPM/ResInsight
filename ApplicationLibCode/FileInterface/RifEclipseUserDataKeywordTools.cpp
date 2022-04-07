@@ -173,7 +173,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
 
     int         regionNumber      = -1;
     int         regionNumber2     = -1;
-    std::string wellGroupName     = "";
+    std::string groupName         = "";
     std::string wellName          = "";
     int         wellSegmentNumber = -1;
     std::string lgrName           = "";
@@ -214,7 +214,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
         {
             if ( columnHeaderText.size() > 0 )
             {
-                wellGroupName = columnHeaderText[0];
+                groupName = columnHeaderText[0];
             }
             break;
         }
@@ -284,7 +284,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                                      quantityName,
                                      regionNumber,
                                      regionNumber2,
-                                     wellGroupName,
+                                     groupName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,

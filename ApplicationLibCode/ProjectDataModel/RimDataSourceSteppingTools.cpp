@@ -109,9 +109,9 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
 
-        if ( adr->wellGroupName() == oldString )
+        if ( adr->groupName() == oldString )
         {
-            adr->setWellGroupName( newString );
+            adr->setGroupName( newString );
 
             return true;
         }

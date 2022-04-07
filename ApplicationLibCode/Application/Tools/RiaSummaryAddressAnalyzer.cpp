@@ -112,9 +112,9 @@ std::set<std::string> RiaSummaryAddressAnalyzer::wellNames() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<std::string> RiaSummaryAddressAnalyzer::wellGroupNames() const
+std::set<std::string> RiaSummaryAddressAnalyzer::groupNames() const
 {
-    return keysInMap( m_wellGroupNames );
+    return keysInMap( m_groupNames );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,15 +190,15 @@ std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryAddressAnalyzer
 //--------------------------------------------------------------------------------------------------
 std::vector<std::vector<RifEclipseSummaryAddress>> RiaSummaryAddressAnalyzer::addressesGroupedByObject() const
 {
-    auto wellAdr      = valuesInMap( m_wellNames );
-    auto wellGroupAdr = valuesInMap( m_wellGroupNames );
-    auto regionAdr    = valuesInMap( m_regionNumbers );
-    auto blockAdr     = valuesInMap( m_blocks );
-    auto aquiferAdr   = valuesInMap( m_aquifers );
+    auto wellAdr    = valuesInMap( m_wellNames );
+    auto groupAdr   = valuesInMap( m_groupNames );
+    auto regionAdr  = valuesInMap( m_regionNumbers );
+    auto blockAdr   = valuesInMap( m_blocks );
+    auto aquiferAdr = valuesInMap( m_aquifers );
 
     std::vector<std::vector<RifEclipseSummaryAddress>> groupedByObject;
     groupedByObject.insert( groupedByObject.end(), wellAdr.begin(), wellAdr.end() );
-    groupedByObject.insert( groupedByObject.end(), wellGroupAdr.begin(), wellGroupAdr.end() );
+    groupedByObject.insert( groupedByObject.end(), groupAdr.begin(), groupAdr.end() );
     groupedByObject.insert( groupedByObject.end(), regionAdr.begin(), regionAdr.end() );
     groupedByObject.insert( groupedByObject.end(), blockAdr.begin(), blockAdr.end() );
     groupedByObject.insert( groupedByObject.end(), aquiferAdr.begin(), aquiferAdr.end() );
@@ -232,7 +232,7 @@ std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSumma
     }
     else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP )
     {
-        auto keys = keysInMap( m_wellGroupNames );
+        auto keys = keysInMap( m_groupNames );
         for ( const auto& key : keys )
         {
             identifierStrings.push_back( QString::fromStdString( key ) );
@@ -317,7 +317,7 @@ void RiaSummaryAddressAnalyzer::clear()
 {
     m_quantities.clear();
     m_wellNames.clear();
-    m_wellGroupNames.clear();
+    m_groupNames.clear();
     m_regionNumbers.clear();
     m_categories.clear();
     m_wellCompletions.clear();
@@ -393,9 +393,9 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
         m_quantities.insert( address.quantityName() );
     }
 
-    if ( !address.wellGroupName().empty() )
+    if ( !address.groupName().empty() )
     {
-        m_wellGroupNames.insert( { address.wellGroupName(), address } );
+        m_groupNames.insert( { address.groupName(), address } );
     }
 
     if ( address.regionNumber() != -1 )

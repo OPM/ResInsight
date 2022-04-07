@@ -762,7 +762,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspecsToFile( RimEclips
         auto ijIntersection     = wellPathUpperGridIntersectionIJ( gridCase, wellPath );
 
         formatter.add( completionSettings->wellNameForExport() )
-            .add( completionSettings->wellGroupNameForExport() )
+            .add( completionSettings->groupNameForExport() )
             .addOneBasedCellIndex( ijIntersection.second.x() )
             .addOneBasedCellIndex( ijIntersection.second.y() )
             .add( completionSettings->referenceDepthForExport() )
@@ -853,7 +853,7 @@ void RicWellPathExportCompletionDataFeatureImpl::exportWelspeclToFile(
             auto completionSettings = wellPath->completionSettings();
 
             formatter.add( completionSettings->wellNameForExport() )
-                .add( completionSettings->wellGroupNameForExport() )
+                .add( completionSettings->groupNameForExport() )
                 .add( lgrName )
                 .addOneBasedCellIndex( ijIntersection.x() )
                 .addOneBasedCellIndex( ijIntersection.y() )

@@ -69,7 +69,7 @@ public:
     void    setWellNameForExport( const QString& name );
     void    updateWellPathNameHasChanged( const QString& newWellPathName, const QString& previousWellPathName );
     QString wellNameForExport() const;
-    QString wellGroupNameForExport() const;
+    QString groupNameForExport() const;
     QString referenceDepthForExport() const;
     QString wellTypeNameForExport() const;
 
@@ -99,7 +99,7 @@ private:
     friend class RimWellPathCompletions;
 
     caf::PdmField<QString> m_wellNameForExport;
-    caf::PdmField<QString> m_wellGroupName;
+    caf::PdmField<QString> m_groupName;
 
     caf::PdmField<QString>                 m_referenceDepth;
     caf::PdmField<WellTypeEnum>            m_preferredFluidPhase;

@@ -52,7 +52,7 @@ bool RicAppendSummaryPlotsForObjectsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
 {
-    // - Select a set of objects in Data Source (wells, well groups, regions, ..)
+    // - Select a set of objects in Data Source (wells, groups, regions, ..)
     // - Use context menu to activate action
     // - For each plot in the current active plot, create a duplicate plot and replace the object name
 
@@ -134,7 +134,7 @@ void RicAppendSummaryPlotsForObjectsFeature::setupActionLook( QAction* actionToS
         }
         else if ( firstAdr->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
         {
-            objectType = "Well Groups";
+            objectType = "Groups";
         }
         else if ( firstAdr->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
         {
@@ -159,7 +159,7 @@ std::vector<RimSummaryAddressCollection*> RicAppendSummaryPlotsForObjectsFeature
     {
         auto coll = sumAddressCollections[0];
         if ( coll->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_FOLDER ||
-             coll->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP_FOLDER ||
+             coll->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP_FOLDER ||
              coll->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION_FOLDER )
         {
             // If a folder is selected, return all sub items in folder
@@ -220,10 +220,9 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot(
     }
     else if ( selectionType == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
     {
-        if ( analyzer.wellGroupNames().size() != 1 )
+        if ( analyzer.groupNames().size() != 1 )
         {
-            errorText =
-                "Source plot must contain one well group only to be able to duplicate a selection of well groups";
+            errorText = "Source plot must contain one well group only to be able to duplicate a selection of groups";
         }
     }
     else if ( selectionType == RimSummaryAddressCollection::CollectionContentType::REGION )
@@ -271,7 +270,7 @@ RifEclipseSummaryAddress
     }
     else if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
     {
-        adr.setWellGroupName( objectName );
+        adr.setGroupName( objectName );
     }
     else if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
     {

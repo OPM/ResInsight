@@ -93,7 +93,7 @@ public:
                               const std::string& quantityName,
                               int16_t            regionNumber,
                               int16_t            regionNumber2,
-                              const std::string& wellGroupName,
+                              const std::string& groupName,
                               const std::string& wellName,
                               int16_t            wellSegmentNumber,
                               const std::string& lgrName,
@@ -107,7 +107,7 @@ public:
         , m_quantityName( quantityName )
         , m_regionNumber( regionNumber )
         , m_regionNumber2( regionNumber2 )
-        , m_wellGroupName( wellGroupName )
+        , m_groupName( groupName )
         , m_wellName( wellName )
         , m_wellSegmentNumber( wellSegmentNumber )
         , m_lgrName( lgrName )
@@ -136,7 +136,7 @@ public:
     static RifEclipseSummaryAddress regionAddress( const std::string& quantityName, int regionNumber );
     static RifEclipseSummaryAddress
                                     regionToRegionAddress( const std::string& quantityName, int regionNumber, int region2Number );
-    static RifEclipseSummaryAddress wellGroupAddress( const std::string& quantityName, const std::string& wellGroupName );
+    static RifEclipseSummaryAddress groupAddress( const std::string& quantityName, const std::string& groupName );
     static RifEclipseSummaryAddress wellAddress( const std::string& quantityName, const std::string& wellName );
     static RifEclipseSummaryAddress
         wellCompletionAddress( const std::string& quantityName, const std::string& wellName, int i, int j, int k );
@@ -172,7 +172,7 @@ public:
     int regionNumber() const { return m_regionNumber; }
     int regionNumber2() const { return m_regionNumber2; }
 
-    const std::string& wellGroupName() const { return m_wellGroupName; }
+    const std::string& groupName() const { return m_groupName; }
     const std::string& wellName() const { return m_wellName; }
     int                wellSegmentNumber() const { return m_wellSegmentNumber; }
     const std::string& lgrName() const { return m_lgrName; }
@@ -195,7 +195,7 @@ public:
     bool isValid() const;
     void setQuantityName( const std::string& quantity ) { m_quantityName = quantity; }
     void setWellName( const std::string& wellName ) { m_wellName = wellName; }
-    void setWellGroupName( const std::string& wellGroupName ) { m_wellGroupName = wellGroupName; }
+    void setGroupName( const std::string& groupName ) { m_groupName = groupName; }
     void setRegion( int region ) { m_regionNumber = (int16_t)region; }
     void setAquiferNumber( int aquiferNumber ) { m_aquiferNumber = (int16_t)aquiferNumber; }
     void setCellIjk( const std::string& uiText );
@@ -219,7 +219,7 @@ private:
     std::pair<int16_t, int16_t>                  regionToRegionPairFromUiText( const std::string& s );
 
     std::string        m_quantityName;
-    std::string        m_wellGroupName;
+    std::string        m_groupName;
     std::string        m_wellName;
     std::string        m_lgrName;
     int32_t            m_cellI;

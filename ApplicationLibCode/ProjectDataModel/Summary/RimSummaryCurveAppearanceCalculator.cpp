@@ -75,8 +75,8 @@ RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator( const 
         if ( curveDef.summaryCase() ) m_caseToAppearanceIdxMap[curveDef.summaryCase()] = -1;
         if ( !curveDef.summaryAddress().wellName().empty() )
             m_welToAppearanceIdxMap[curveDef.summaryAddress().wellName()] = -1;
-        if ( !curveDef.summaryAddress().wellGroupName().empty() )
-            m_grpToAppearanceIdxMap[curveDef.summaryAddress().wellGroupName()] = -1;
+        if ( !curveDef.summaryAddress().groupName().empty() )
+            m_grpToAppearanceIdxMap[curveDef.summaryAddress().groupName()] = -1;
         if ( !( curveDef.summaryAddress().regionNumber() == -1 ) )
             m_regToAppearanceIdxMap[curveDef.summaryAddress().regionNumber()] = -1;
 
@@ -350,12 +350,12 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
     int caseAppearanceIdx = m_caseToAppearanceIdxMap[curve->summaryCaseY()];
     int varAppearanceIdx  = m_varToAppearanceIdxMap[curve->summaryAddressY().quantityName()];
     int welAppearanceIdx  = m_welToAppearanceIdxMap[curve->summaryAddressY().wellName()];
-    int grpAppearanceIdx  = m_grpToAppearanceIdxMap[curve->summaryAddressY().wellGroupName()];
+    int grpAppearanceIdx  = m_grpToAppearanceIdxMap[curve->summaryAddressY().groupName()];
     int regAppearanceIdx  = m_regToAppearanceIdxMap[curve->summaryAddressY().regionNumber()];
 
     // Remove index for curves without value at the specific dimension
     if ( curve->summaryAddressY().wellName().empty() ) welAppearanceIdx = -1;
-    if ( curve->summaryAddressY().wellGroupName().empty() ) grpAppearanceIdx = -1;
+    if ( curve->summaryAddressY().groupName().empty() ) grpAppearanceIdx = -1;
     if ( curve->summaryAddressY().regionNumber() < 0 ) regAppearanceIdx = -1;
 
     setOneCurveAppearance( m_caseAppearanceType, m_allSummaryCaseNames.size(), caseAppearanceIdx, curve );

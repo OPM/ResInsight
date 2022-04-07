@@ -614,7 +614,7 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
         return &m_wellName;
     }
 
-    if ( analyzer.wellGroupNames().size() == 1 )
+    if ( analyzer.groupNames().size() == 1 )
     {
         return &m_wellGroupName;
     }
@@ -820,9 +820,9 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
                 fieldsCommonForAllCurves.push_back( &m_wellName );
             }
 
-            if ( analyzer.wellGroupNames().size() == 1 )
+            if ( analyzer.groupNames().size() == 1 )
             {
-                QString txt     = QString::fromStdString( *( analyzer.wellGroupNames().begin() ) );
+                QString txt     = QString::fromStdString( *( analyzer.groupNames().begin() ) );
                 m_wellGroupName = txt;
 
                 fieldsCommonForAllCurves.push_back( &m_wellGroupName );

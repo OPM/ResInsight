@@ -42,7 +42,7 @@ public:
         FIELD,
         MISC,
         WELL_FOLDER,
-        WELL_GROUP_FOLDER,
+        GROUP_FOLDER,
         REGION_FOLDER
     };
 

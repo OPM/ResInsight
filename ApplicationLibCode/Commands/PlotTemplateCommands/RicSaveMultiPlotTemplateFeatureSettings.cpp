@@ -30,7 +30,7 @@ RicSaveMultiPlotTemplateFeatureSettings::RicSaveMultiPlotTemplateFeatureSettings
     CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path" );
 
     CAF_PDM_InitField( &m_replaceWells, "ReplaceWells", true, "Wells" );
-    CAF_PDM_InitField( &m_replaceWellGroups, "ReplaceWellGroups", true, "Well Groups" );
+    CAF_PDM_InitField( &m_replaceGroups, "ReplaceGroups", true, "Groups" );
     CAF_PDM_InitField( &m_replaceRegions, "ReplaceRegions", true, "Regions" );
 }
 
@@ -61,9 +61,9 @@ bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForWells() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForWellGroups() const
+bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForGroups() const
 {
-    return m_replaceWellGroups;
+    return m_replaceGroups;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void RicSaveMultiPlotTemplateFeatureSettings::defineUiOrdering( QString uiConfig
     {
         auto group = uiOrdering.addNewGroup( "Use Placeholders for Objects" );
         group->add( &m_replaceWells );
-        group->add( &m_replaceWellGroups );
+        group->add( &m_replaceGroups );
         group->add( &m_replaceRegions );
     }
 }

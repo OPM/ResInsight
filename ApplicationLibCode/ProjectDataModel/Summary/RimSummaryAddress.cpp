@@ -120,7 +120,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_quantityName      = addr.quantityName().c_str();
     m_regionNumber      = addr.regionNumber();
     m_regionNumber2     = addr.regionNumber2();
-    m_wellGroupName     = addr.wellGroupName().c_str();
+    m_wellGroupName     = addr.groupName().c_str();
     m_wellName          = addr.wellName().c_str();
     m_wellSegmentNumber = addr.wellSegmentNumber();
     m_lgrName           = addr.lgrName().c_str();

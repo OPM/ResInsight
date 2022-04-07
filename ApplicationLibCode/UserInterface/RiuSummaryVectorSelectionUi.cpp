@@ -187,7 +187,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
 
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][0]->pdmField(),
                                 "WellGroupWellGroupNames",
-                                "Well groups" );
+                                "Groups" );
     CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField(),
                                 "WellGroupVectors",
                                 "Well Group Vectors" );
@@ -962,7 +962,7 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP )
     {
         {
-            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Well Groups" );
+            caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Groups" );
             myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][0]->pdmField() );
         }
 

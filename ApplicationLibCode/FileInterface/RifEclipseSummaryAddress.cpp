@@ -56,7 +56,7 @@ RifEclipseSummaryAddress::RifEclipseSummaryAddress( SummaryVarCategory          
             m_regionNumber2 = reg2regPair.second;
             break;
         case SUMMARY_WELL_GROUP:
-            m_wellGroupName = identifiers[INPUT_WELL_GROUP_NAME];
+            m_groupName = identifiers[INPUT_WELL_GROUP_NAME];
             break;
         case SUMMARY_WELL:
             m_wellName = identifiers[INPUT_WELL_NAME];
@@ -251,13 +251,13 @@ RifEclipseSummaryAddress
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifEclipseSummaryAddress::wellGroupAddress( const std::string& quantityName,
-                                                                     const std::string& wellGroupName )
+RifEclipseSummaryAddress RifEclipseSummaryAddress::groupAddress( const std::string& quantityName,
+                                                                 const std::string& groupName )
 {
     RifEclipseSummaryAddress addr;
     addr.m_variableCategory = SUMMARY_WELL_GROUP;
     addr.m_quantityName     = quantityName;
-    addr.m_wellGroupName    = wellGroupName;
+    addr.m_groupName        = groupName;
     return addr;
 }
 
@@ -511,7 +511,7 @@ std::string RifEclipseSummaryAddress::itemUiText() const
         break;
         case SUMMARY_WELL_GROUP:
         {
-            text += this->wellGroupName();
+            text += this->groupName();
         }
         break;
         case SUMMARY_WELL:
@@ -585,7 +585,7 @@ std::string
         case INPUT_WELL_NAME:
             return wellName();
         case INPUT_WELL_GROUP_NAME:
-            return wellGroupName();
+            return groupName();
         case INPUT_CELL_IJK:
             return blockAsString();
         case INPUT_LGR_NAME:
@@ -644,7 +644,7 @@ bool RifEclipseSummaryAddress::isValid() const
             return true;
 
         case SUMMARY_WELL_GROUP:
-            if ( m_wellGroupName.size() == 0 ) return false;
+            if ( m_groupName.size() == 0 ) return false;
             return true;
 
         case SUMMARY_WELL:
@@ -790,7 +790,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
 
         case SUMMARY_WELL_GROUP:
-            if ( !token1.empty() ) return wellGroupAddress( quantityName, token1 );
+            if ( !token1.empty() ) return groupAddress( quantityName, token1 );
             break;
 
         case SUMMARY_WELL:
@@ -987,7 +987,7 @@ bool operator==( const RifEclipseSummaryAddress& first, const RifEclipseSummaryA
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
         {
-            if ( first.wellGroupName() != second.wellGroupName() ) return false;
+            if ( first.groupName() != second.groupName() ) return false;
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL:
@@ -1085,8 +1085,7 @@ bool operator<( const RifEclipseSummaryAddress& first, const RifEclipseSummaryAd
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
         {
-            if ( first.wellGroupName() != second.wellGroupName() )
-                return first.wellGroupName() < second.wellGroupName();
+            if ( first.groupName() != second.groupName() ) return first.groupName() < second.groupName();
         }
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL:

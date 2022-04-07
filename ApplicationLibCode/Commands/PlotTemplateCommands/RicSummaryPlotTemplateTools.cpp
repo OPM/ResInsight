@@ -79,8 +79,8 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*
                                                             const std::vector<RimSummaryCase*>& selectedSummaryCases,
                                                             const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
                                                             const std::vector<QString>&                   wellNames,
-                                                            const std::vector<QString>& wellGroupNames,
-                                                            const std::vector<QString>& regions )
+                                                            const std::vector<QString>&                   groupNames,
+                                                            const std::vector<QString>&                   regions )
 
 {
     // Assumes this plot is inserted into the project. This is required when assigning the ptrFields
@@ -93,7 +93,7 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*
     {
         auto summaryPlot = dynamic_cast<RimSummaryPlot*>( p );
         if ( summaryPlot )
-            setValuesForPlaceholders( summaryPlot, selectedSummaryCases, selectedEnsembles, wellNames, wellGroupNames, regions );
+            setValuesForPlaceholders( summaryPlot, selectedSummaryCases, selectedEnsembles, wellNames, groupNames, regions );
     }
 }
 
@@ -104,8 +104,8 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
                                                             const std::vector<RimSummaryCase*>& selectedSummaryCases,
                                                             const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
                                                             const std::vector<QString>&                   wellNames,
-                                                            const std::vector<QString>& wellGroupNames,
-                                                            const std::vector<QString>& regions )
+                                                            const std::vector<QString>&                   groupNames,
+                                                            const std::vector<QString>&                   regions )
 {
     // Assumes this plot is inserted into the project. This is required when assigning the ptrFields
     RimProject* proj = nullptr;
@@ -138,7 +138,7 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
             // Replace placeholders with object names from selection
             auto curveAdr = curve->summaryAddressY();
             setPlaceholderWellName( &curveAdr, wellNames );
-            setPlaceholderWellGroupName( &curveAdr, wellGroupNames );
+            setPlaceholderGroupName( &curveAdr, groupNames );
             setPlaceholderRegion( &curveAdr, regions );
             curve->setSummaryAddressY( curveAdr );
         }
@@ -167,7 +167,7 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
             // Replace placeholders with object names from selection
             auto curveAdr = curveSet->summaryAddress();
             setPlaceholderWellName( &curveAdr, wellNames );
-            setPlaceholderWellGroupName( &curveAdr, wellGroupNames );
+            setPlaceholderGroupName( &curveAdr, groupNames );
             setPlaceholderRegion( &curveAdr, regions );
             curveSet->setSummaryAddress( curveAdr );
         }
@@ -413,11 +413,11 @@ QString RicSummaryPlotTemplateTools::htmlTextFromPlotAndSelection( const RimSumm
             text += htmlTextFromCount( itemText, requiredCount, selectedCount );
         }
 
-        if ( !templateAnalyzer.wellGroupNames().empty() )
+        if ( !templateAnalyzer.groupNames().empty() )
         {
-            QString itemText      = "Well Groups";
-            size_t  requiredCount = templateAnalyzer.wellGroupNames().size();
-            size_t  selectedCount = selectionAnalyzer.wellGroupNames().size();
+            QString itemText      = "Groups";
+            size_t  requiredCount = templateAnalyzer.groupNames().size();
+            size_t  selectedCount = selectionAnalyzer.groupNames().size();
             text += htmlTextFromCount( itemText, requiredCount, selectedCount );
         }
 
@@ -556,7 +556,7 @@ QString RicSummaryPlotTemplateTools::placeholderTextForWell()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicSummaryPlotTemplateTools::placeholderTextForWellGroup()
+QString RicSummaryPlotTemplateTools::placeholderTextForGroup()
 {
     return "__WELL_GROUP__";
 }
@@ -637,20 +637,19 @@ void RicSummaryPlotTemplateTools::setPlaceholderWellName( RifEclipseSummaryAddre
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryPlotTemplateTools::setPlaceholderWellGroupName( RifEclipseSummaryAddress*   summaryAddress,
-                                                               const std::vector<QString>& wellGroupNames )
+void RicSummaryPlotTemplateTools::setPlaceholderGroupName( RifEclipseSummaryAddress*   summaryAddress,
+                                                           const std::vector<QString>& groupNames )
 {
-    if ( wellGroupNames.empty() ) return;
+    if ( groupNames.empty() ) return;
 
-    auto          sourceWellGroupName = QString::fromStdString( summaryAddress->wellGroupName() );
-    bool          conversionOk        = false;
-    const QString placeholderString   = RicSummaryPlotTemplateTools::placeholderTextForWellGroup();
+    auto          sourceGroupName   = QString::fromStdString( summaryAddress->groupName() );
+    bool          conversionOk      = false;
+    const QString placeholderString = RicSummaryPlotTemplateTools::placeholderTextForGroup();
 
-    int indexValue =
-        RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, sourceWellGroupName, &conversionOk );
-    if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( wellGroupNames.size() ) )
+    int indexValue = RicSummaryPlotTemplateTools::findValueForKeyword( placeholderString, sourceGroupName, &conversionOk );
+    if ( conversionOk && indexValue >= 0 && indexValue < static_cast<int>( groupNames.size() ) )
     {
-        summaryAddress->setWellGroupName( wellGroupNames[indexValue].toStdString() );
+        summaryAddress->setGroupName( groupNames[indexValue].toStdString() );
     }
 }
 

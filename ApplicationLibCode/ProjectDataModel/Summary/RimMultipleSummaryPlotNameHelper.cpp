@@ -75,10 +75,10 @@ bool RimMultiSummaryPlotNameHelper::isWellNameInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimMultiSummaryPlotNameHelper::isWellGroupNameInTitle() const
+bool RimMultiSummaryPlotNameHelper::isGroupNameInTitle() const
 {
     return std::any_of( m_nameHelpers.begin(), m_nameHelpers.end(), []( auto nameHelper ) {
-        return nameHelper->isWellGroupNameInTitle();
+        return nameHelper->isGroupNameInTitle();
     } );
 }
 
@@ -174,11 +174,11 @@ std::string RimMultiSummaryPlotNameHelper::titleWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimMultiSummaryPlotNameHelper::titleWellGroupName() const
+std::string RimMultiSummaryPlotNameHelper::titleGroupName() const
 {
     for ( auto nameHelper : m_nameHelpers )
     {
-        if ( nameHelper->isWellGroupNameInTitle() ) return nameHelper->titleWellGroupName();
+        if ( nameHelper->isGroupNameInTitle() ) return nameHelper->titleGroupName();
     }
 
     return "";
