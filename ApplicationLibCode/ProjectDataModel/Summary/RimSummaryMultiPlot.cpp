@@ -583,6 +583,14 @@ void RimSummaryMultiPlot::duplicate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::makeSureIsVisible( RimSummaryPlot* summaryPlot )
+{
+    if ( summaryPlot->plotWidget() ) m_viewer->scrollToPlot( summaryPlot->plotWidget() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 {
     updatePlotWindowTitle();

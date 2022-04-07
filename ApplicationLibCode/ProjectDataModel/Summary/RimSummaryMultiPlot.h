@@ -79,6 +79,8 @@ public:
     std::vector<RimSummaryPlot*> summaryPlots() const;
     std::vector<RimSummaryPlot*> visibleSummaryPlots() const;
 
+    void makeSureIsVisible( RimSummaryPlot* plot );
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;

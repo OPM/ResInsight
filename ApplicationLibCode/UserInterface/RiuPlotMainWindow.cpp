@@ -1005,20 +1005,17 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 
             if ( firstSelectedObject )
             {
-                RimSummaryPlot* summaryPlot = nullptr;
-                firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
-                if ( summaryPlot )
+                RimSummaryMultiPlot* multiSummaryPlot = nullptr;
+                firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
+                if ( multiSummaryPlot )
                 {
-                    updateSummaryPlotToolBar();
-                }
-                else
-                {
-                    RimSummaryMultiPlot* multiSummaryPlot = nullptr;
-                    firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
-                    if ( multiSummaryPlot )
+                    updateMultiPlotToolBar();
+
+                    RimSummaryPlot* summaryPlot = nullptr;
+                    firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
+                    if ( summaryPlot )
                     {
-                        updateSummaryPlotToolBar();
-                        updateMultiPlotToolBar();
+                        multiSummaryPlot->makeSureIsVisible( summaryPlot );
                     }
                 }
             }

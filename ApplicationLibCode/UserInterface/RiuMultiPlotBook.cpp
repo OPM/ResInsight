@@ -666,6 +666,24 @@ void RiuMultiPlotBook::changeCurrentPage( int pageNumber )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::scrollToPlot( RiuPlotWidget* plotWidget )
+{
+    int pageNum = 0;
+
+    for ( auto& page : m_pages )
+    {
+        if ( page->indexOfPlotWidget( plotWidget ) >= 0 )
+        {
+            changeCurrentPage( pageNum );
+            return;
+        }
+        pageNum++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::goToNextPage()
 {
     changeCurrentPage( m_currentPageIndex + 1 );
