@@ -588,7 +588,7 @@ void RimSummaryMultiPlot::duplicate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::makeSureIsVisible( RimSummaryPlot* summaryPlot )
 {
-    if ( summaryPlot->plotWidget() ) m_viewer->scrollToPlot( summaryPlot->plotWidget() );
+    if ( summaryPlot->plotWidget() && !m_viewer.isNull() ) m_viewer->scrollToPlot( summaryPlot->plotWidget() );
 }
 
 //--------------------------------------------------------------------------------------------------
