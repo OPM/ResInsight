@@ -583,329 +583,323 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "FTITALK", { A::SUMMARY_FIELD, "Injection Total" } } );
     info.insert( { "FU", { A::SUMMARY_FIELD, "User-defined field quantity" } } );
 
-    info.insert( { "GOPR", { A::SUMMARY_WELL_GROUP, "Oil Production Rate" } } );
-    info.insert( { "GOPRA", { A::SUMMARY_WELL_GROUP, "Oil Production Rate above GOC" } } );
-    info.insert( { "GOPRB", { A::SUMMARY_WELL_GROUP, "Oil Production Rate below GOC" } } );
-    info.insert( { "GOPTA", { A::SUMMARY_WELL_GROUP, "Oil Production Total above GOC" } } );
-    info.insert( { "GOPTB", { A::SUMMARY_WELL_GROUP, "Oil Production Total below GOC" } } );
-    info.insert( { "GOPR1", { A::SUMMARY_WELL_GROUP, "Oil Production Rate above GOC" } } );
-    info.insert( { "GOPR2", { A::SUMMARY_WELL_GROUP, "Oil Production Rate below GOC" } } );
-    info.insert( { "GOPT1", { A::SUMMARY_WELL_GROUP, "Oil Production Total above GOC" } } );
-    info.insert( { "GOPT2", { A::SUMMARY_WELL_GROUP, "Oil Production Total below GOC" } } );
-    info.insert( { "GOMR", { A::SUMMARY_WELL_GROUP, "Oil Mass Rate" } } );
-    info.insert( { "GOMT", { A::SUMMARY_WELL_GROUP, "Oil Mass Total" } } );
-    info.insert( { "GODN", { A::SUMMARY_WELL_GROUP, "Oil Density at Surface Conditions" } } );
-    info.insert( { "GOPRH", { A::SUMMARY_WELL_GROUP, "Oil Production Rate History" } } );
-    info.insert( { "GOPRT", { A::SUMMARY_WELL_GROUP, "Oil Production Rate Target/Limit" } } );
-    info.insert( { "GOPRL", { A::SUMMARY_WELL_GROUP, "Oil Production Rate Target/Limit" } } );
-    info.insert( { "GOPRF", { A::SUMMARY_WELL_GROUP, "Free Oil Production Rate" } } );
-    info.insert( { "GOPRS", { A::SUMMARY_WELL_GROUP, "Solution Oil Production Rate" } } );
-    info.insert( { "GOPT", { A::SUMMARY_WELL_GROUP, "Oil Production Total" } } );
-    info.insert( { "GOPTH", { A::SUMMARY_WELL_GROUP, "Oil Production Total History" } } );
-    info.insert( { "GOPTF", { A::SUMMARY_WELL_GROUP, "Free Oil Production Total" } } );
-    info.insert( { "GOPTS", { A::SUMMARY_WELL_GROUP, "Solution Oil Production Total" } } );
-    info.insert( { "GOIR", { A::SUMMARY_WELL_GROUP, "Oil Injection Rate" } } );
-    info.insert( { "GOIRH", { A::SUMMARY_WELL_GROUP, "Oil Injection Rate History" } } );
-    info.insert( { "GOIRT", { A::SUMMARY_WELL_GROUP, "Oil Injection Rate Target/Limit" } } );
-    info.insert( { "GOIRL", { A::SUMMARY_WELL_GROUP, "Oil Injection Rate Target/Limit" } } );
-    info.insert( { "GOIT", { A::SUMMARY_WELL_GROUP, "Oil Injection Total" } } );
-    info.insert( { "GOITH", { A::SUMMARY_WELL_GROUP, "Oil Injection Total History" } } );
-    info.insert( { "GOPP", { A::SUMMARY_WELL_GROUP, "Oil Potential Production rate" } } );
-    info.insert( { "GOPP2", { A::SUMMARY_WELL_GROUP, "Oil Potential Production rate" } } );
-    info.insert( { "GOPI", { A::SUMMARY_WELL_GROUP, "Oil Potential Injection rate" } } );
-    info.insert( { "GOPI2", { A::SUMMARY_WELL_GROUP, "Oil Potential Injection rate" } } );
-    info.insert( { "GOPGR", { A::SUMMARY_WELL_GROUP, "Oil Production Guide Rate" } } );
-    info.insert( { "GOIGR", { A::SUMMARY_WELL_GROUP, "Oil Injection Guide Rate" } } );
-    info.insert( { "GOVPR", { A::SUMMARY_WELL_GROUP, "Oil Voidage Production Rate" } } );
-    info.insert( { "GOVPT", { A::SUMMARY_WELL_GROUP, "Oil Voidage Production Total" } } );
-    info.insert( { "GOVIR", { A::SUMMARY_WELL_GROUP, "Oil Voidage Injection Rate" } } );
-    info.insert( { "GOVIT", { A::SUMMARY_WELL_GROUP, "Oil Voidage Injection Total" } } );
-    info.insert( { "GOnPR", { A::SUMMARY_WELL_GROUP, "nth separator stage oil rate" } } );
-    info.insert( { "GOnPT", { A::SUMMARY_WELL_GROUP, "nth separator stage oil total" } } );
-    info.insert( { "GEOR", { A::SUMMARY_WELL_GROUP, "Export Oil Rate" } } );
-    info.insert( { "GEOT", { A::SUMMARY_WELL_GROUP, "Export Oil Total" } } );
-    info.insert( { "GEOMF", { A::SUMMARY_WELL_GROUP, "Export Oil Mole Fraction" } } );
-    info.insert( { "GWPR", { A::SUMMARY_WELL_GROUP, "Water Production Rate" } } );
-    info.insert( { "GWMR", { A::SUMMARY_WELL_GROUP, "Water Mass Rate" } } );
-    info.insert( { "GWMT", { A::SUMMARY_WELL_GROUP, "Water Mass Total" } } );
-    info.insert( { "GWPRH", { A::SUMMARY_WELL_GROUP, "Water Production Rate History" } } );
-    info.insert( { "GWPRT", { A::SUMMARY_WELL_GROUP, "Water Production Rate Target/Limit" } } );
-    info.insert( { "GWPRL", { A::SUMMARY_WELL_GROUP, "Water Production Rate Target/Limit" } } );
-    info.insert( { "GWPT", { A::SUMMARY_WELL_GROUP, "Water Production Total" } } );
-    info.insert( { "GWPTH", { A::SUMMARY_WELL_GROUP, "Water Production Total History" } } );
-    info.insert( { "GWIR", { A::SUMMARY_WELL_GROUP, "Water Injection Rate" } } );
-    info.insert( { "GWIRH", { A::SUMMARY_WELL_GROUP, "Water Injection Rate History" } } );
-    info.insert( { "GWIRT", { A::SUMMARY_WELL_GROUP, "Water Injection Rate Target/Limit" } } );
-    info.insert( { "GWIRL", { A::SUMMARY_WELL_GROUP, "Water Injection Rate Target/Limit" } } );
-    info.insert( { "GWIT", { A::SUMMARY_WELL_GROUP, "Water Injection Total" } } );
-    info.insert( { "GWITH", { A::SUMMARY_WELL_GROUP, "Water Injection Total History" } } );
-    info.insert( { "GWPP", { A::SUMMARY_WELL_GROUP, "Water Potential Production rate" } } );
-    info.insert( { "GWPP2", { A::SUMMARY_WELL_GROUP, "Water Potential Production rate" } } );
-    info.insert( { "GWPI", { A::SUMMARY_WELL_GROUP, "Water Potential Injection rate" } } );
-    info.insert( { "GWPI2", { A::SUMMARY_WELL_GROUP, "Water Potential Injection rate" } } );
-    info.insert( { "GWPGR", { A::SUMMARY_WELL_GROUP, "Water Production Guide Rate" } } );
-    info.insert( { "GWIGR", { A::SUMMARY_WELL_GROUP, "Water Injection Guide Rate" } } );
-    info.insert( { "GWVPR", { A::SUMMARY_WELL_GROUP, "Water Voidage Production Rate" } } );
-    info.insert( { "GWVPT", { A::SUMMARY_WELL_GROUP, "Water Voidage Production Total" } } );
-    info.insert( { "GWVIR", { A::SUMMARY_WELL_GROUP, "Water Voidage Injection Rate" } } );
-    info.insert( { "GWVIT", { A::SUMMARY_WELL_GROUP, "Water Voidage Injection Total" } } );
-    info.insert( { "GWPIR", { A::SUMMARY_WELL_GROUP, "Ratio of produced water to injected water (percentage)" } } );
-    info.insert( { "GWMPR", { A::SUMMARY_WELL_GROUP, "Water component molar production rate" } } );
-    info.insert( { "GWMPT", { A::SUMMARY_WELL_GROUP, "Water component molar production total" } } );
-    info.insert( { "GWMIR", { A::SUMMARY_WELL_GROUP, "Water component molar injection rate" } } );
-    info.insert( { "GWMIT", { A::SUMMARY_WELL_GROUP, "Water component molar injection total" } } );
-    info.insert( { "GGPR", { A::SUMMARY_WELL_GROUP, "Gas Production Rate" } } );
-    info.insert( { "GGPRA", { A::SUMMARY_WELL_GROUP, "Gas Production Rate above" } } );
-    info.insert( { "GGPRB", { A::SUMMARY_WELL_GROUP, "Gas Production Rate below" } } );
-    info.insert( { "GGPTA", { A::SUMMARY_WELL_GROUP, "Gas Production Total above" } } );
-    info.insert( { "GGPTB", { A::SUMMARY_WELL_GROUP, "Gas Production Total below" } } );
-    info.insert( { "GGPR1", { A::SUMMARY_WELL_GROUP, "Gas Production Rate above GOC" } } );
-    info.insert( { "GGPR2", { A::SUMMARY_WELL_GROUP, "Gas Production Rate below GOC" } } );
-    info.insert( { "GGPT1", { A::SUMMARY_WELL_GROUP, "Gas Production Total above GOC" } } );
-    info.insert( { "GGPT2", { A::SUMMARY_WELL_GROUP, "Gas Production Total below GOC" } } );
-    info.insert( { "GGMR", { A::SUMMARY_WELL_GROUP, "Gas Mass Rate" } } );
-    info.insert( { "GGMT", { A::SUMMARY_WELL_GROUP, "Gas Mass Total" } } );
-    info.insert( { "GGDN", { A::SUMMARY_WELL_GROUP, "Gas Density at Surface Conditions" } } );
-    info.insert( { "GGPRH", { A::SUMMARY_WELL_GROUP, "Gas Production Rate History" } } );
-    info.insert( { "GGPRT", { A::SUMMARY_WELL_GROUP, "Gas Production Rate Target/Limit" } } );
-    info.insert( { "GGPRL", { A::SUMMARY_WELL_GROUP, "Gas Production Rate Target/Limit" } } );
-    info.insert( { "GGPRF", { A::SUMMARY_WELL_GROUP, "Free Gas Production Rate" } } );
-    info.insert( { "GGPRS", { A::SUMMARY_WELL_GROUP, "Solution Gas Production Rate" } } );
-    info.insert( { "GGPT", { A::SUMMARY_WELL_GROUP, "Gas Production Total" } } );
-    info.insert( { "GGPTH", { A::SUMMARY_WELL_GROUP, "Gas Production Total History" } } );
-    info.insert( { "GGPTF", { A::SUMMARY_WELL_GROUP, "Free Gas Production Total" } } );
-    info.insert( { "GGPTS", { A::SUMMARY_WELL_GROUP, "Solution Gas Production Total" } } );
-    info.insert( { "GGIR", { A::SUMMARY_WELL_GROUP, "Gas Injection Rate" } } );
-    info.insert( { "GGIRH", { A::SUMMARY_WELL_GROUP, "Gas Injection Rate History" } } );
-    info.insert( { "GGIRT", { A::SUMMARY_WELL_GROUP, "Gas Injection Rate Target/Limit" } } );
-    info.insert( { "GGIRL", { A::SUMMARY_WELL_GROUP, "Gas Injection Rate Target/Limit" } } );
-    info.insert( { "GGIT", { A::SUMMARY_WELL_GROUP, "Gas Injection Total" } } );
-    info.insert( { "GGITH", { A::SUMMARY_WELL_GROUP, "Gas Injection Total History" } } );
-    info.insert( { "GGPP", { A::SUMMARY_WELL_GROUP, "Gas Potential Production rate" } } );
-    info.insert( { "GGPP2", { A::SUMMARY_WELL_GROUP, "Gas Potential Production rate" } } );
-    info.insert( { "GGPPS", { A::SUMMARY_WELL_GROUP, "Solution" } } );
-    info.insert( { "GGPPS2", { A::SUMMARY_WELL_GROUP, "Solution" } } );
-    info.insert( { "GGPPF", { A::SUMMARY_WELL_GROUP, "Free Gas Potential Production rate" } } );
-    info.insert( { "GGPPF2", { A::SUMMARY_WELL_GROUP, "Free Gas Potential Production rate" } } );
-    info.insert( { "GGPI", { A::SUMMARY_WELL_GROUP, "Gas Potential Injection rate" } } );
-    info.insert( { "GGPI2", { A::SUMMARY_WELL_GROUP, "Gas Potential Injection rate" } } );
-    info.insert( { "GGPGR", { A::SUMMARY_WELL_GROUP, "Gas Production Guide Rate" } } );
-    info.insert( { "GGIGR", { A::SUMMARY_WELL_GROUP, "Gas Injection Guide Rate" } } );
-    info.insert( { "GSGR", { A::SUMMARY_WELL_GROUP, "Sales Gas Rate" } } );
-    info.insert( { "GGSR", { A::SUMMARY_WELL_GROUP, "Sales Gas Rate" } } );
-    info.insert( { "GSGT", { A::SUMMARY_WELL_GROUP, "Sales Gas Total" } } );
-    info.insert( { "GGST", { A::SUMMARY_WELL_GROUP, "Sales Gas Total" } } );
-    info.insert( { "GSMF", { A::SUMMARY_WELL_GROUP, "Sales Gas Mole Fraction" } } );
-    info.insert( { "GFGR", { A::SUMMARY_WELL_GROUP, "Fuel Gas Rate, at and below this group" } } );
-    info.insert( { "GFGT", { A::SUMMARY_WELL_GROUP, "Fuel Gas cumulative Total, at and below this group" } } );
-    info.insert( { "GFMF", { A::SUMMARY_WELL_GROUP, "Fuel Gas Mole Fraction" } } );
-    info.insert( { "GGCR", { A::SUMMARY_WELL_GROUP, "Gas Consumption Rate, at and below this group" } } );
-    info.insert( { "GGCT", { A::SUMMARY_WELL_GROUP, "Gas Consumption Total, at and below this group" } } );
-    info.insert( { "GGIMR", { A::SUMMARY_WELL_GROUP, "Gas Import Rate, at and below this group" } } );
-    info.insert( { "GGIMT", { A::SUMMARY_WELL_GROUP, "Gas Import Total, at and below this group" } } );
-    info.insert( { "GGLIR", { A::SUMMARY_WELL_GROUP, "Gas Lift Injection Rate" } } );
-    info.insert( { "GWGPR", { A::SUMMARY_WELL_GROUP, "Wet Gas Production Rate" } } );
-    info.insert( { "GWGPT", { A::SUMMARY_WELL_GROUP, "Wet Gas Production Total" } } );
-    info.insert( { "GWGPRH", { A::SUMMARY_WELL_GROUP, "Wet Gas Production Rate History" } } );
-    info.insert( { "GWGIR", { A::SUMMARY_WELL_GROUP, "Wet Gas Injection Rate" } } );
-    info.insert( { "GWGIT", { A::SUMMARY_WELL_GROUP, "Wet Gas Injection Total" } } );
-    info.insert( { "GEGR", { A::SUMMARY_WELL_GROUP, "Export Gas Rate" } } );
-    info.insert( { "GEGT", { A::SUMMARY_WELL_GROUP, "Export Gas Total" } } );
-    info.insert( { "GEMF", { A::SUMMARY_WELL_GROUP, "Export Gas Mole Fraction" } } );
-    info.insert( { "GEXGR", { A::SUMMARY_WELL_GROUP, "Excess Gas Rate" } } );
-    info.insert( { "GEXGT", { A::SUMMARY_WELL_GROUP, "Excess Gas Total" } } );
-    info.insert( { "GRGR", { A::SUMMARY_WELL_GROUP, "Re-injection Gas Rate" } } );
-    info.insert( { "GRGT", { A::SUMMARY_WELL_GROUP, "Re-injection Gas Total" } } );
-    info.insert( { "GGnPR", { A::SUMMARY_WELL_GROUP, "nth separator stage gas rate" } } );
-    info.insert( { "GGnPT", { A::SUMMARY_WELL_GROUP, "nth separator stage gas total" } } );
-    info.insert( { "GGVPR", { A::SUMMARY_WELL_GROUP, "Gas Voidage Production Rate" } } );
-    info.insert( { "GGVPT", { A::SUMMARY_WELL_GROUP, "Gas Voidage Production Total" } } );
-    info.insert( { "GGVIR", { A::SUMMARY_WELL_GROUP, "Gas Voidage Injection Rate" } } );
-    info.insert( { "GGVIT", { A::SUMMARY_WELL_GROUP, "Gas Voidage Injection Total" } } );
-    info.insert( { "GGQ", { A::SUMMARY_WELL_GROUP, "Gas Quality" } } );
-    info.insert( { "GLPR", { A::SUMMARY_WELL_GROUP, "Liquid Production Rate" } } );
-    info.insert( { "GLPRH", { A::SUMMARY_WELL_GROUP, "Liquid Production Rate History" } } );
-    info.insert( { "GLPRT", { A::SUMMARY_WELL_GROUP, "Liquid Production Rate Target/Limit" } } );
-    info.insert( { "GLPRL", { A::SUMMARY_WELL_GROUP, "Liquid Production Rate Target/Limit" } } );
-    info.insert( { "GLPT", { A::SUMMARY_WELL_GROUP, "Liquid Production Total" } } );
-    info.insert( { "GLPTH", { A::SUMMARY_WELL_GROUP, "Liquid Production Total History" } } );
-    info.insert( { "GVPR", { A::SUMMARY_WELL_GROUP, "Res Volume Production Rate" } } );
-    info.insert( { "GVPRT", { A::SUMMARY_WELL_GROUP, "Res Volume Production Rate Target/Limit" } } );
-    info.insert( { "GVPRL", { A::SUMMARY_WELL_GROUP, "Res Volume Production Rate Target/Limit" } } );
-    info.insert( { "GVPT", { A::SUMMARY_WELL_GROUP, "Res Volume Production Total" } } );
-    info.insert( { "GVPGR", { A::SUMMARY_WELL_GROUP, "Res Volume Production Guide Rate" } } );
-    info.insert( { "GVIR", { A::SUMMARY_WELL_GROUP, "Res Volume Injection Rate" } } );
-    info.insert( { "GVIRT", { A::SUMMARY_WELL_GROUP, "Res Volume Injection Rate Target/Limit" } } );
-    info.insert( { "GVIRL", { A::SUMMARY_WELL_GROUP, "Res Volume Injection Rate Target/Limit" } } );
-    info.insert( { "GVIT", { A::SUMMARY_WELL_GROUP, "Res Volume Injection Total" } } );
-    info.insert( { "GWCT", { A::SUMMARY_WELL_GROUP, "Water Cut" } } );
-    info.insert( { "GWCTH", { A::SUMMARY_WELL_GROUP, "Water Cut History" } } );
-    info.insert( { "GGOR", { A::SUMMARY_WELL_GROUP, "Gas-Oil Ratio" } } );
-    info.insert( { "GGORH", { A::SUMMARY_WELL_GROUP, "Gas-Oil Ratio History" } } );
-    info.insert( { "GOGR", { A::SUMMARY_WELL_GROUP, "Oil-Gas Ratio" } } );
-    info.insert( { "GOGRH", { A::SUMMARY_WELL_GROUP, "Oil-Gas Ratio History" } } );
-    info.insert( { "GWGR", { A::SUMMARY_WELL_GROUP, "Water-Gas Ratio" } } );
-    info.insert( { "GWGRH", { A::SUMMARY_WELL_GROUP, "Water-Gas Ratio History" } } );
-    info.insert( { "GGLR", { A::SUMMARY_WELL_GROUP, "Gas-Liquid Ratio" } } );
-    info.insert( { "GGLRH", { A::SUMMARY_WELL_GROUP, "Gas-Liquid Ratio History" } } );
-    info.insert( { "GMCTP", { A::SUMMARY_WELL_GROUP, "Mode of Control for group Production" } } );
-    info.insert( { "GMCTW", { A::SUMMARY_WELL_GROUP, "Mode of Control for group Water Injection" } } );
-    info.insert( { "GMCTG", { A::SUMMARY_WELL_GROUP, "Mode of Control for group Gas Injection" } } );
-    info.insert( { "GMWPT", { A::SUMMARY_WELL_GROUP, "Total number of production wells" } } );
-    info.insert( { "GMWPR", { A::SUMMARY_WELL_GROUP, "Number of production wells currently flowing" } } );
-    info.insert( { "GMWPA", { A::SUMMARY_WELL_GROUP, "Number of abandoned production wells" } } );
-    info.insert( { "GMWPU", { A::SUMMARY_WELL_GROUP, "Number of unused production wells" } } );
-    info.insert( { "GMWPG", { A::SUMMARY_WELL_GROUP, "Number of producers on group control" } } );
-    info.insert( { "GMWPO", { A::SUMMARY_WELL_GROUP, "Number of producers controlled by own oil rate limit" } } );
-    info.insert( { "GMWPS", { A::SUMMARY_WELL_GROUP, "Number of producers on own surface rate limit control" } } );
-    info.insert( { "GMWPV", { A::SUMMARY_WELL_GROUP, "Number of producers on own reservoir volume rate limit control" } } );
-    info.insert( { "GMWPP", { A::SUMMARY_WELL_GROUP, "Number of producers on pressure control" } } );
-    info.insert( { "GMWPL", { A::SUMMARY_WELL_GROUP, "Number of producers using artificial lift" } } );
-    info.insert( { "GMWIT", { A::SUMMARY_WELL_GROUP, "Total number of injection wells" } } );
-    info.insert( { "GMWIN", { A::SUMMARY_WELL_GROUP, "Number of injection wells currently flowing" } } );
-    info.insert( { "GMWIA", { A::SUMMARY_WELL_GROUP, "Number of abandoned injection wells" } } );
-    info.insert( { "GMWIU", { A::SUMMARY_WELL_GROUP, "Number of unused injection wells" } } );
-    info.insert( { "GMWIG", { A::SUMMARY_WELL_GROUP, "Number of injectors on group control" } } );
-    info.insert( { "GMWIS", { A::SUMMARY_WELL_GROUP, "Number of injectors on own surface rate limit control" } } );
-    info.insert( { "GMWIV", { A::SUMMARY_WELL_GROUP, "Number of injectors on own reservoir volume rate limit control" } } );
-    info.insert( { "GMWIP", { A::SUMMARY_WELL_GROUP, "Number of injectors on pressure control" } } );
-    info.insert( { "GMWDR", { A::SUMMARY_WELL_GROUP, "Number of drilling events this timestep" } } );
-    info.insert( { "GMWDT", { A::SUMMARY_WELL_GROUP, "Number of drilling events in total" } } );
-    info.insert( { "GMWWO", { A::SUMMARY_WELL_GROUP, "Number of workover events this timestep" } } );
-    info.insert( { "GMWWT", { A::SUMMARY_WELL_GROUP, "Number of workover events in total" } } );
-    info.insert( { "GEPR", { A::SUMMARY_WELL_GROUP, "Energy Production Rate" } } );
-    info.insert( { "GEPT", { A::SUMMARY_WELL_GROUP, "Energy Production Total" } } );
-    info.insert( { "GEFF", { A::SUMMARY_WELL_GROUP, "Efficiency Factor" } } );
-    info.insert( { "GNLPR", { A::SUMMARY_WELL_GROUP, "NGL Production Rate" } } );
-    info.insert( { "GNLPT", { A::SUMMARY_WELL_GROUP, "NGL Production Total" } } );
-    info.insert( { "GNLPRH", { A::SUMMARY_WELL_GROUP, "NGL Production Rate History" } } );
-    info.insert( { "GNLPTH", { A::SUMMARY_WELL_GROUP, "NGL Production Total History" } } );
-    info.insert( { "GAMF", { A::SUMMARY_WELL_GROUP, "Component aqueous mole fraction, from producing completions" } } );
-    info.insert( { "GXMF", { A::SUMMARY_WELL_GROUP, "Liquid Mole Fraction" } } );
-    info.insert( { "GYMF", { A::SUMMARY_WELL_GROUP, "Vapor Mole Fraction" } } );
-    info.insert( { "GXMFn", { A::SUMMARY_WELL_GROUP, "Liquid Mole Fraction for nth separator stage" } } );
-    info.insert( { "GYMFn", { A::SUMMARY_WELL_GROUP, "Vapor Mole Fraction for nth separator stage" } } );
-    info.insert( { "GZMF", { A::SUMMARY_WELL_GROUP, "Total Mole Fraction" } } );
-    info.insert( { "GCMPR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component Molar Production Rates" } } );
-    info.insert( { "GCMPT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component" } } );
-    info.insert( { "GCMIR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component Molar Injection Rates" } } );
-    info.insert( { "GCMIT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component Molar Injection Totals" } } );
-    info.insert( { "GHMIR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Molar Injection Rate" } } );
-    info.insert( { "GHMIT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Molar Injection Total" } } );
-    info.insert( { "GHMPR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Molar Production Rate" } } );
-    info.insert( { "GHMPT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Molar Production Total" } } );
-    info.insert( { "GCHMR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component" } } );
-    info.insert( { "GCHMT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component" } } );
-    info.insert( { "GCWGPR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component Wet Gas Production Rate" } } );
-    info.insert( { "GCWGPT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component Wet Gas Production Total" } } );
-    info.insert( { "GCWGIR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component Wet Gas Injection Rate" } } );
-    info.insert( { "GCWGIT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon Component Wet Gas Injection Total" } } );
-    info.insert( { "GCGMR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component" } } );
-    info.insert( { "GCGMT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component" } } );
-    info.insert( { "GCOMR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component" } } );
-    info.insert( { "GCOMT", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component" } } );
-    info.insert( { "GCNMR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the NGL phase" } } );
-    info.insert( { "GCNWR", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component mass rates in the NGL phase" } } );
+    info.insert( { "GOPR", { A::SUMMARY_GROUP, "Oil Production Rate" } } );
+    info.insert( { "GOPRA", { A::SUMMARY_GROUP, "Oil Production Rate above GOC" } } );
+    info.insert( { "GOPRB", { A::SUMMARY_GROUP, "Oil Production Rate below GOC" } } );
+    info.insert( { "GOPTA", { A::SUMMARY_GROUP, "Oil Production Total above GOC" } } );
+    info.insert( { "GOPTB", { A::SUMMARY_GROUP, "Oil Production Total below GOC" } } );
+    info.insert( { "GOPR1", { A::SUMMARY_GROUP, "Oil Production Rate above GOC" } } );
+    info.insert( { "GOPR2", { A::SUMMARY_GROUP, "Oil Production Rate below GOC" } } );
+    info.insert( { "GOPT1", { A::SUMMARY_GROUP, "Oil Production Total above GOC" } } );
+    info.insert( { "GOPT2", { A::SUMMARY_GROUP, "Oil Production Total below GOC" } } );
+    info.insert( { "GOMR", { A::SUMMARY_GROUP, "Oil Mass Rate" } } );
+    info.insert( { "GOMT", { A::SUMMARY_GROUP, "Oil Mass Total" } } );
+    info.insert( { "GODN", { A::SUMMARY_GROUP, "Oil Density at Surface Conditions" } } );
+    info.insert( { "GOPRH", { A::SUMMARY_GROUP, "Oil Production Rate History" } } );
+    info.insert( { "GOPRT", { A::SUMMARY_GROUP, "Oil Production Rate Target/Limit" } } );
+    info.insert( { "GOPRL", { A::SUMMARY_GROUP, "Oil Production Rate Target/Limit" } } );
+    info.insert( { "GOPRF", { A::SUMMARY_GROUP, "Free Oil Production Rate" } } );
+    info.insert( { "GOPRS", { A::SUMMARY_GROUP, "Solution Oil Production Rate" } } );
+    info.insert( { "GOPT", { A::SUMMARY_GROUP, "Oil Production Total" } } );
+    info.insert( { "GOPTH", { A::SUMMARY_GROUP, "Oil Production Total History" } } );
+    info.insert( { "GOPTF", { A::SUMMARY_GROUP, "Free Oil Production Total" } } );
+    info.insert( { "GOPTS", { A::SUMMARY_GROUP, "Solution Oil Production Total" } } );
+    info.insert( { "GOIR", { A::SUMMARY_GROUP, "Oil Injection Rate" } } );
+    info.insert( { "GOIRH", { A::SUMMARY_GROUP, "Oil Injection Rate History" } } );
+    info.insert( { "GOIRT", { A::SUMMARY_GROUP, "Oil Injection Rate Target/Limit" } } );
+    info.insert( { "GOIRL", { A::SUMMARY_GROUP, "Oil Injection Rate Target/Limit" } } );
+    info.insert( { "GOIT", { A::SUMMARY_GROUP, "Oil Injection Total" } } );
+    info.insert( { "GOITH", { A::SUMMARY_GROUP, "Oil Injection Total History" } } );
+    info.insert( { "GOPP", { A::SUMMARY_GROUP, "Oil Potential Production rate" } } );
+    info.insert( { "GOPP2", { A::SUMMARY_GROUP, "Oil Potential Production rate" } } );
+    info.insert( { "GOPI", { A::SUMMARY_GROUP, "Oil Potential Injection rate" } } );
+    info.insert( { "GOPI2", { A::SUMMARY_GROUP, "Oil Potential Injection rate" } } );
+    info.insert( { "GOPGR", { A::SUMMARY_GROUP, "Oil Production Guide Rate" } } );
+    info.insert( { "GOIGR", { A::SUMMARY_GROUP, "Oil Injection Guide Rate" } } );
+    info.insert( { "GOVPR", { A::SUMMARY_GROUP, "Oil Voidage Production Rate" } } );
+    info.insert( { "GOVPT", { A::SUMMARY_GROUP, "Oil Voidage Production Total" } } );
+    info.insert( { "GOVIR", { A::SUMMARY_GROUP, "Oil Voidage Injection Rate" } } );
+    info.insert( { "GOVIT", { A::SUMMARY_GROUP, "Oil Voidage Injection Total" } } );
+    info.insert( { "GOnPR", { A::SUMMARY_GROUP, "nth separator stage oil rate" } } );
+    info.insert( { "GOnPT", { A::SUMMARY_GROUP, "nth separator stage oil total" } } );
+    info.insert( { "GEOR", { A::SUMMARY_GROUP, "Export Oil Rate" } } );
+    info.insert( { "GEOT", { A::SUMMARY_GROUP, "Export Oil Total" } } );
+    info.insert( { "GEOMF", { A::SUMMARY_GROUP, "Export Oil Mole Fraction" } } );
+    info.insert( { "GWPR", { A::SUMMARY_GROUP, "Water Production Rate" } } );
+    info.insert( { "GWMR", { A::SUMMARY_GROUP, "Water Mass Rate" } } );
+    info.insert( { "GWMT", { A::SUMMARY_GROUP, "Water Mass Total" } } );
+    info.insert( { "GWPRH", { A::SUMMARY_GROUP, "Water Production Rate History" } } );
+    info.insert( { "GWPRT", { A::SUMMARY_GROUP, "Water Production Rate Target/Limit" } } );
+    info.insert( { "GWPRL", { A::SUMMARY_GROUP, "Water Production Rate Target/Limit" } } );
+    info.insert( { "GWPT", { A::SUMMARY_GROUP, "Water Production Total" } } );
+    info.insert( { "GWPTH", { A::SUMMARY_GROUP, "Water Production Total History" } } );
+    info.insert( { "GWIR", { A::SUMMARY_GROUP, "Water Injection Rate" } } );
+    info.insert( { "GWIRH", { A::SUMMARY_GROUP, "Water Injection Rate History" } } );
+    info.insert( { "GWIRT", { A::SUMMARY_GROUP, "Water Injection Rate Target/Limit" } } );
+    info.insert( { "GWIRL", { A::SUMMARY_GROUP, "Water Injection Rate Target/Limit" } } );
+    info.insert( { "GWIT", { A::SUMMARY_GROUP, "Water Injection Total" } } );
+    info.insert( { "GWITH", { A::SUMMARY_GROUP, "Water Injection Total History" } } );
+    info.insert( { "GWPP", { A::SUMMARY_GROUP, "Water Potential Production rate" } } );
+    info.insert( { "GWPP2", { A::SUMMARY_GROUP, "Water Potential Production rate" } } );
+    info.insert( { "GWPI", { A::SUMMARY_GROUP, "Water Potential Injection rate" } } );
+    info.insert( { "GWPI2", { A::SUMMARY_GROUP, "Water Potential Injection rate" } } );
+    info.insert( { "GWPGR", { A::SUMMARY_GROUP, "Water Production Guide Rate" } } );
+    info.insert( { "GWIGR", { A::SUMMARY_GROUP, "Water Injection Guide Rate" } } );
+    info.insert( { "GWVPR", { A::SUMMARY_GROUP, "Water Voidage Production Rate" } } );
+    info.insert( { "GWVPT", { A::SUMMARY_GROUP, "Water Voidage Production Total" } } );
+    info.insert( { "GWVIR", { A::SUMMARY_GROUP, "Water Voidage Injection Rate" } } );
+    info.insert( { "GWVIT", { A::SUMMARY_GROUP, "Water Voidage Injection Total" } } );
+    info.insert( { "GWPIR", { A::SUMMARY_GROUP, "Ratio of produced water to injected water (percentage)" } } );
+    info.insert( { "GWMPR", { A::SUMMARY_GROUP, "Water component molar production rate" } } );
+    info.insert( { "GWMPT", { A::SUMMARY_GROUP, "Water component molar production total" } } );
+    info.insert( { "GWMIR", { A::SUMMARY_GROUP, "Water component molar injection rate" } } );
+    info.insert( { "GWMIT", { A::SUMMARY_GROUP, "Water component molar injection total" } } );
+    info.insert( { "GGPR", { A::SUMMARY_GROUP, "Gas Production Rate" } } );
+    info.insert( { "GGPRA", { A::SUMMARY_GROUP, "Gas Production Rate above" } } );
+    info.insert( { "GGPRB", { A::SUMMARY_GROUP, "Gas Production Rate below" } } );
+    info.insert( { "GGPTA", { A::SUMMARY_GROUP, "Gas Production Total above" } } );
+    info.insert( { "GGPTB", { A::SUMMARY_GROUP, "Gas Production Total below" } } );
+    info.insert( { "GGPR1", { A::SUMMARY_GROUP, "Gas Production Rate above GOC" } } );
+    info.insert( { "GGPR2", { A::SUMMARY_GROUP, "Gas Production Rate below GOC" } } );
+    info.insert( { "GGPT1", { A::SUMMARY_GROUP, "Gas Production Total above GOC" } } );
+    info.insert( { "GGPT2", { A::SUMMARY_GROUP, "Gas Production Total below GOC" } } );
+    info.insert( { "GGMR", { A::SUMMARY_GROUP, "Gas Mass Rate" } } );
+    info.insert( { "GGMT", { A::SUMMARY_GROUP, "Gas Mass Total" } } );
+    info.insert( { "GGDN", { A::SUMMARY_GROUP, "Gas Density at Surface Conditions" } } );
+    info.insert( { "GGPRH", { A::SUMMARY_GROUP, "Gas Production Rate History" } } );
+    info.insert( { "GGPRT", { A::SUMMARY_GROUP, "Gas Production Rate Target/Limit" } } );
+    info.insert( { "GGPRL", { A::SUMMARY_GROUP, "Gas Production Rate Target/Limit" } } );
+    info.insert( { "GGPRF", { A::SUMMARY_GROUP, "Free Gas Production Rate" } } );
+    info.insert( { "GGPRS", { A::SUMMARY_GROUP, "Solution Gas Production Rate" } } );
+    info.insert( { "GGPT", { A::SUMMARY_GROUP, "Gas Production Total" } } );
+    info.insert( { "GGPTH", { A::SUMMARY_GROUP, "Gas Production Total History" } } );
+    info.insert( { "GGPTF", { A::SUMMARY_GROUP, "Free Gas Production Total" } } );
+    info.insert( { "GGPTS", { A::SUMMARY_GROUP, "Solution Gas Production Total" } } );
+    info.insert( { "GGIR", { A::SUMMARY_GROUP, "Gas Injection Rate" } } );
+    info.insert( { "GGIRH", { A::SUMMARY_GROUP, "Gas Injection Rate History" } } );
+    info.insert( { "GGIRT", { A::SUMMARY_GROUP, "Gas Injection Rate Target/Limit" } } );
+    info.insert( { "GGIRL", { A::SUMMARY_GROUP, "Gas Injection Rate Target/Limit" } } );
+    info.insert( { "GGIT", { A::SUMMARY_GROUP, "Gas Injection Total" } } );
+    info.insert( { "GGITH", { A::SUMMARY_GROUP, "Gas Injection Total History" } } );
+    info.insert( { "GGPP", { A::SUMMARY_GROUP, "Gas Potential Production rate" } } );
+    info.insert( { "GGPP2", { A::SUMMARY_GROUP, "Gas Potential Production rate" } } );
+    info.insert( { "GGPPS", { A::SUMMARY_GROUP, "Solution" } } );
+    info.insert( { "GGPPS2", { A::SUMMARY_GROUP, "Solution" } } );
+    info.insert( { "GGPPF", { A::SUMMARY_GROUP, "Free Gas Potential Production rate" } } );
+    info.insert( { "GGPPF2", { A::SUMMARY_GROUP, "Free Gas Potential Production rate" } } );
+    info.insert( { "GGPI", { A::SUMMARY_GROUP, "Gas Potential Injection rate" } } );
+    info.insert( { "GGPI2", { A::SUMMARY_GROUP, "Gas Potential Injection rate" } } );
+    info.insert( { "GGPGR", { A::SUMMARY_GROUP, "Gas Production Guide Rate" } } );
+    info.insert( { "GGIGR", { A::SUMMARY_GROUP, "Gas Injection Guide Rate" } } );
+    info.insert( { "GSGR", { A::SUMMARY_GROUP, "Sales Gas Rate" } } );
+    info.insert( { "GGSR", { A::SUMMARY_GROUP, "Sales Gas Rate" } } );
+    info.insert( { "GSGT", { A::SUMMARY_GROUP, "Sales Gas Total" } } );
+    info.insert( { "GGST", { A::SUMMARY_GROUP, "Sales Gas Total" } } );
+    info.insert( { "GSMF", { A::SUMMARY_GROUP, "Sales Gas Mole Fraction" } } );
+    info.insert( { "GFGR", { A::SUMMARY_GROUP, "Fuel Gas Rate, at and below this group" } } );
+    info.insert( { "GFGT", { A::SUMMARY_GROUP, "Fuel Gas cumulative Total, at and below this group" } } );
+    info.insert( { "GFMF", { A::SUMMARY_GROUP, "Fuel Gas Mole Fraction" } } );
+    info.insert( { "GGCR", { A::SUMMARY_GROUP, "Gas Consumption Rate, at and below this group" } } );
+    info.insert( { "GGCT", { A::SUMMARY_GROUP, "Gas Consumption Total, at and below this group" } } );
+    info.insert( { "GGIMR", { A::SUMMARY_GROUP, "Gas Import Rate, at and below this group" } } );
+    info.insert( { "GGIMT", { A::SUMMARY_GROUP, "Gas Import Total, at and below this group" } } );
+    info.insert( { "GGLIR", { A::SUMMARY_GROUP, "Gas Lift Injection Rate" } } );
+    info.insert( { "GWGPR", { A::SUMMARY_GROUP, "Wet Gas Production Rate" } } );
+    info.insert( { "GWGPT", { A::SUMMARY_GROUP, "Wet Gas Production Total" } } );
+    info.insert( { "GWGPRH", { A::SUMMARY_GROUP, "Wet Gas Production Rate History" } } );
+    info.insert( { "GWGIR", { A::SUMMARY_GROUP, "Wet Gas Injection Rate" } } );
+    info.insert( { "GWGIT", { A::SUMMARY_GROUP, "Wet Gas Injection Total" } } );
+    info.insert( { "GEGR", { A::SUMMARY_GROUP, "Export Gas Rate" } } );
+    info.insert( { "GEGT", { A::SUMMARY_GROUP, "Export Gas Total" } } );
+    info.insert( { "GEMF", { A::SUMMARY_GROUP, "Export Gas Mole Fraction" } } );
+    info.insert( { "GEXGR", { A::SUMMARY_GROUP, "Excess Gas Rate" } } );
+    info.insert( { "GEXGT", { A::SUMMARY_GROUP, "Excess Gas Total" } } );
+    info.insert( { "GRGR", { A::SUMMARY_GROUP, "Re-injection Gas Rate" } } );
+    info.insert( { "GRGT", { A::SUMMARY_GROUP, "Re-injection Gas Total" } } );
+    info.insert( { "GGnPR", { A::SUMMARY_GROUP, "nth separator stage gas rate" } } );
+    info.insert( { "GGnPT", { A::SUMMARY_GROUP, "nth separator stage gas total" } } );
+    info.insert( { "GGVPR", { A::SUMMARY_GROUP, "Gas Voidage Production Rate" } } );
+    info.insert( { "GGVPT", { A::SUMMARY_GROUP, "Gas Voidage Production Total" } } );
+    info.insert( { "GGVIR", { A::SUMMARY_GROUP, "Gas Voidage Injection Rate" } } );
+    info.insert( { "GGVIT", { A::SUMMARY_GROUP, "Gas Voidage Injection Total" } } );
+    info.insert( { "GGQ", { A::SUMMARY_GROUP, "Gas Quality" } } );
+    info.insert( { "GLPR", { A::SUMMARY_GROUP, "Liquid Production Rate" } } );
+    info.insert( { "GLPRH", { A::SUMMARY_GROUP, "Liquid Production Rate History" } } );
+    info.insert( { "GLPRT", { A::SUMMARY_GROUP, "Liquid Production Rate Target/Limit" } } );
+    info.insert( { "GLPRL", { A::SUMMARY_GROUP, "Liquid Production Rate Target/Limit" } } );
+    info.insert( { "GLPT", { A::SUMMARY_GROUP, "Liquid Production Total" } } );
+    info.insert( { "GLPTH", { A::SUMMARY_GROUP, "Liquid Production Total History" } } );
+    info.insert( { "GVPR", { A::SUMMARY_GROUP, "Res Volume Production Rate" } } );
+    info.insert( { "GVPRT", { A::SUMMARY_GROUP, "Res Volume Production Rate Target/Limit" } } );
+    info.insert( { "GVPRL", { A::SUMMARY_GROUP, "Res Volume Production Rate Target/Limit" } } );
+    info.insert( { "GVPT", { A::SUMMARY_GROUP, "Res Volume Production Total" } } );
+    info.insert( { "GVPGR", { A::SUMMARY_GROUP, "Res Volume Production Guide Rate" } } );
+    info.insert( { "GVIR", { A::SUMMARY_GROUP, "Res Volume Injection Rate" } } );
+    info.insert( { "GVIRT", { A::SUMMARY_GROUP, "Res Volume Injection Rate Target/Limit" } } );
+    info.insert( { "GVIRL", { A::SUMMARY_GROUP, "Res Volume Injection Rate Target/Limit" } } );
+    info.insert( { "GVIT", { A::SUMMARY_GROUP, "Res Volume Injection Total" } } );
+    info.insert( { "GWCT", { A::SUMMARY_GROUP, "Water Cut" } } );
+    info.insert( { "GWCTH", { A::SUMMARY_GROUP, "Water Cut History" } } );
+    info.insert( { "GGOR", { A::SUMMARY_GROUP, "Gas-Oil Ratio" } } );
+    info.insert( { "GGORH", { A::SUMMARY_GROUP, "Gas-Oil Ratio History" } } );
+    info.insert( { "GOGR", { A::SUMMARY_GROUP, "Oil-Gas Ratio" } } );
+    info.insert( { "GOGRH", { A::SUMMARY_GROUP, "Oil-Gas Ratio History" } } );
+    info.insert( { "GWGR", { A::SUMMARY_GROUP, "Water-Gas Ratio" } } );
+    info.insert( { "GWGRH", { A::SUMMARY_GROUP, "Water-Gas Ratio History" } } );
+    info.insert( { "GGLR", { A::SUMMARY_GROUP, "Gas-Liquid Ratio" } } );
+    info.insert( { "GGLRH", { A::SUMMARY_GROUP, "Gas-Liquid Ratio History" } } );
+    info.insert( { "GMCTP", { A::SUMMARY_GROUP, "Mode of Control for group Production" } } );
+    info.insert( { "GMCTW", { A::SUMMARY_GROUP, "Mode of Control for group Water Injection" } } );
+    info.insert( { "GMCTG", { A::SUMMARY_GROUP, "Mode of Control for group Gas Injection" } } );
+    info.insert( { "GMWPT", { A::SUMMARY_GROUP, "Total number of production wells" } } );
+    info.insert( { "GMWPR", { A::SUMMARY_GROUP, "Number of production wells currently flowing" } } );
+    info.insert( { "GMWPA", { A::SUMMARY_GROUP, "Number of abandoned production wells" } } );
+    info.insert( { "GMWPU", { A::SUMMARY_GROUP, "Number of unused production wells" } } );
+    info.insert( { "GMWPG", { A::SUMMARY_GROUP, "Number of producers on group control" } } );
+    info.insert( { "GMWPO", { A::SUMMARY_GROUP, "Number of producers controlled by own oil rate limit" } } );
+    info.insert( { "GMWPS", { A::SUMMARY_GROUP, "Number of producers on own surface rate limit control" } } );
+    info.insert( { "GMWPV", { A::SUMMARY_GROUP, "Number of producers on own reservoir volume rate limit control" } } );
+    info.insert( { "GMWPP", { A::SUMMARY_GROUP, "Number of producers on pressure control" } } );
+    info.insert( { "GMWPL", { A::SUMMARY_GROUP, "Number of producers using artificial lift" } } );
+    info.insert( { "GMWIT", { A::SUMMARY_GROUP, "Total number of injection wells" } } );
+    info.insert( { "GMWIN", { A::SUMMARY_GROUP, "Number of injection wells currently flowing" } } );
+    info.insert( { "GMWIA", { A::SUMMARY_GROUP, "Number of abandoned injection wells" } } );
+    info.insert( { "GMWIU", { A::SUMMARY_GROUP, "Number of unused injection wells" } } );
+    info.insert( { "GMWIG", { A::SUMMARY_GROUP, "Number of injectors on group control" } } );
+    info.insert( { "GMWIS", { A::SUMMARY_GROUP, "Number of injectors on own surface rate limit control" } } );
+    info.insert( { "GMWIV", { A::SUMMARY_GROUP, "Number of injectors on own reservoir volume rate limit control" } } );
+    info.insert( { "GMWIP", { A::SUMMARY_GROUP, "Number of injectors on pressure control" } } );
+    info.insert( { "GMWDR", { A::SUMMARY_GROUP, "Number of drilling events this timestep" } } );
+    info.insert( { "GMWDT", { A::SUMMARY_GROUP, "Number of drilling events in total" } } );
+    info.insert( { "GMWWO", { A::SUMMARY_GROUP, "Number of workover events this timestep" } } );
+    info.insert( { "GMWWT", { A::SUMMARY_GROUP, "Number of workover events in total" } } );
+    info.insert( { "GEPR", { A::SUMMARY_GROUP, "Energy Production Rate" } } );
+    info.insert( { "GEPT", { A::SUMMARY_GROUP, "Energy Production Total" } } );
+    info.insert( { "GEFF", { A::SUMMARY_GROUP, "Efficiency Factor" } } );
+    info.insert( { "GNLPR", { A::SUMMARY_GROUP, "NGL Production Rate" } } );
+    info.insert( { "GNLPT", { A::SUMMARY_GROUP, "NGL Production Total" } } );
+    info.insert( { "GNLPRH", { A::SUMMARY_GROUP, "NGL Production Rate History" } } );
+    info.insert( { "GNLPTH", { A::SUMMARY_GROUP, "NGL Production Total History" } } );
+    info.insert( { "GAMF", { A::SUMMARY_GROUP, "Component aqueous mole fraction, from producing completions" } } );
+    info.insert( { "GXMF", { A::SUMMARY_GROUP, "Liquid Mole Fraction" } } );
+    info.insert( { "GYMF", { A::SUMMARY_GROUP, "Vapor Mole Fraction" } } );
+    info.insert( { "GXMFn", { A::SUMMARY_GROUP, "Liquid Mole Fraction for nth separator stage" } } );
+    info.insert( { "GYMFn", { A::SUMMARY_GROUP, "Vapor Mole Fraction for nth separator stage" } } );
+    info.insert( { "GZMF", { A::SUMMARY_GROUP, "Total Mole Fraction" } } );
+    info.insert( { "GCMPR", { A::SUMMARY_GROUP, "Hydrocarbon Component Molar Production Rates" } } );
+    info.insert( { "GCMPT", { A::SUMMARY_GROUP, "Hydrocarbon Component" } } );
+    info.insert( { "GCMIR", { A::SUMMARY_GROUP, "Hydrocarbon Component Molar Injection Rates" } } );
+    info.insert( { "GCMIT", { A::SUMMARY_GROUP, "Hydrocarbon Component Molar Injection Totals" } } );
+    info.insert( { "GHMIR", { A::SUMMARY_GROUP, "Hydrocarbon Molar Injection Rate" } } );
+    info.insert( { "GHMIT", { A::SUMMARY_GROUP, "Hydrocarbon Molar Injection Total" } } );
+    info.insert( { "GHMPR", { A::SUMMARY_GROUP, "Hydrocarbon Molar Production Rate" } } );
+    info.insert( { "GHMPT", { A::SUMMARY_GROUP, "Hydrocarbon Molar Production Total" } } );
+    info.insert( { "GCHMR", { A::SUMMARY_GROUP, "Hydrocarbon Component" } } );
+    info.insert( { "GCHMT", { A::SUMMARY_GROUP, "Hydrocarbon Component" } } );
+    info.insert( { "GCWGPR", { A::SUMMARY_GROUP, "Hydrocarbon Component Wet Gas Production Rate" } } );
+    info.insert( { "GCWGPT", { A::SUMMARY_GROUP, "Hydrocarbon Component Wet Gas Production Total" } } );
+    info.insert( { "GCWGIR", { A::SUMMARY_GROUP, "Hydrocarbon Component Wet Gas Injection Rate" } } );
+    info.insert( { "GCWGIT", { A::SUMMARY_GROUP, "Hydrocarbon Component Wet Gas Injection Total" } } );
+    info.insert( { "GCGMR", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
+    info.insert( { "GCGMT", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
+    info.insert( { "GCOMR", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
+    info.insert( { "GCOMT", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
+    info.insert( { "GCNMR", { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the NGL phase" } } );
+    info.insert( { "GCNWR", { A::SUMMARY_GROUP, "Hydrocarbon component mass rates in the NGL phase" } } );
+    info.insert( { "GCGMRn",
+                   { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
     info.insert(
-        { "GCGMRn",
-          { A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
+        { "GCGRn", { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
+    info.insert( { "GCOMRn", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
+    info.insert( { "GCORn", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
+    info.insert( { "GMUF", { A::SUMMARY_GROUP, "Make-up fraction" } } );
+    info.insert( { "GAMR", { A::SUMMARY_GROUP, "Make-up gas rate" } } );
+    info.insert( { "GAMT", { A::SUMMARY_GROUP, "Make-up gas total" } } );
     info.insert(
-        { "GCGRn",
-          { A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the gas phase for nth separator stage" } } );
-    info.insert( { "GCOMRn", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component" } } );
-    info.insert( { "GCORn", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component" } } );
-    info.insert( { "GMUF", { A::SUMMARY_WELL_GROUP, "Make-up fraction" } } );
-    info.insert( { "GAMR", { A::SUMMARY_WELL_GROUP, "Make-up gas rate" } } );
-    info.insert( { "GAMT", { A::SUMMARY_WELL_GROUP, "Make-up gas total" } } );
-    info.insert(
-        { "GGSPR", { A::SUMMARY_WELL_GROUP, "Target sustainable rate for most recent sustainable capacity test for gas" } } );
+        { "GGSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for gas" } } );
     info.insert( { "GGSRL",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Maximum tested rate sustained for the test period during the most recent sustainable "
                      "capacity test for gas" } } );
     info.insert( { "GGSRU",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Minimum tested rate not sustained for the test period during the most recent "
                      "sustainable capacity test for "
                      "gas" } } );
     info.insert( { "GGSSP",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Period for which target sustainable rate could be maintained for the most recent "
                      "sustainable capacity test "
                      "for gas" } } );
+    info.insert( { "GGSTP", { A::SUMMARY_GROUP, "Test period for the most recent sustainable capacity test for gas" } } );
     info.insert(
-        { "GGSTP", { A::SUMMARY_WELL_GROUP, "Test period for the most recent sustainable capacity test for gas" } } );
-    info.insert(
-        { "GOSPR", { A::SUMMARY_WELL_GROUP, "Target sustainable rate for most recent sustainable capacity test for oil" } } );
+        { "GOSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for oil" } } );
     info.insert( { "GOSRL",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Maximum tested rate sustained for the test period during the most recent sustainable "
                      "capacity test for oil" } } );
     info.insert( { "GOSRU",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Minimum tested rate not sustained for the test period during the most recent "
                      "sustainable capacity test for "
                      "oil" } } );
     info.insert( { "GOSSP",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Period for which target sustainable rate could be maintained for the most recent "
                      "sustainable capacity test "
                      "for oil" } } );
+    info.insert( { "GOSTP", { A::SUMMARY_GROUP, "Test period for the most recent sustainable capacity test for oil" } } );
     info.insert(
-        { "GOSTP", { A::SUMMARY_WELL_GROUP, "Test period for the most recent sustainable capacity test for oil" } } );
-    info.insert(
-        { "GWSPR",
-          { A::SUMMARY_WELL_GROUP, "Target sustainable rate for most recent sustainable capacity test for water" } } );
+        { "GWSPR", { A::SUMMARY_GROUP, "Target sustainable rate for most recent sustainable capacity test for water" } } );
     info.insert( { "GWSRL",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Maximum tested rate sustained for the test period during the most recent sustainable "
                      "capacity test for water" } } );
     info.insert( { "GWSRU",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Minimum tested rate not sustained for the test period during the most recent "
                      "sustainable capacity test for "
                      "water" } } );
     info.insert( { "GWSSP",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Period for which target sustainable rate could be maintained for the most recent "
                      "sustainable capacity test "
                      "for water" } } );
-    info.insert(
-        { "GWSTP", { A::SUMMARY_WELL_GROUP, "Test period for the most recent sustainable capacity test for water" } } );
-    info.insert( { "GGPRG", { A::SUMMARY_WELL_GROUP, "Gas production rate" } } );
-    info.insert( { "GOPRG", { A::SUMMARY_WELL_GROUP, "Oil production rate" } } );
-    info.insert( { "GNLPRG", { A::SUMMARY_WELL_GROUP, "NGL production rate" } } );
-    info.insert( { "GXMFG", { A::SUMMARY_WELL_GROUP, "Liquid mole fraction" } } );
-    info.insert( { "GYMFG", { A::SUMMARY_WELL_GROUP, "Vapor mole fraction" } } );
-    info.insert( { "GCOMRG", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component" } } );
-    info.insert( { "GCGMRG", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the gas phase" } } );
-    info.insert( { "GCNMRG", { A::SUMMARY_WELL_GROUP, "Hydrocarbon component molar rates in the NGL phase" } } );
-    info.insert( { "GTPR", { A::SUMMARY_WELL_GROUP, "Tracer Production Rate" } } );
-    info.insert( { "GTPT", { A::SUMMARY_WELL_GROUP, "Tracer Production Total" } } );
-    info.insert( { "GTPC", { A::SUMMARY_WELL_GROUP, "Tracer Production Concentration" } } );
-    info.insert( { "GTIR", { A::SUMMARY_WELL_GROUP, "Tracer Injection Rate" } } );
-    info.insert( { "GTIT", { A::SUMMARY_WELL_GROUP, "Tracer Injection Total" } } );
-    info.insert( { "GTIC", { A::SUMMARY_WELL_GROUP, "Tracer Injection Concentration" } } );
-    info.insert( { "GTMR", { A::SUMMARY_WELL_GROUP, "Traced mass Rate" } } );
-    info.insert( { "GTMT", { A::SUMMARY_WELL_GROUP, "Traced mass Total" } } );
-    info.insert( { "GTQR", { A::SUMMARY_WELL_GROUP, "Traced molar Rate" } } );
-    info.insert( { "GTCM", { A::SUMMARY_WELL_GROUP, "Tracer Carrier molar Rate" } } );
-    info.insert( { "GTMF", { A::SUMMARY_WELL_GROUP, "Traced molar fraction" } } );
-    info.insert( { "GTVL", { A::SUMMARY_WELL_GROUP, "Traced liquid volume rate" } } );
-    info.insert( { "GTVV", { A::SUMMARY_WELL_GROUP, "Traced vapor volume rate" } } );
-    info.insert( { "GTTL", { A::SUMMARY_WELL_GROUP, "Traced liquid volume total" } } );
-    info.insert( { "GTTV", { A::SUMMARY_WELL_GROUP, "Traced vapor volume total" } } );
-    info.insert( { "GTML", { A::SUMMARY_WELL_GROUP, "Traced mass liquid rate" } } );
-    info.insert( { "GTMV", { A::SUMMARY_WELL_GROUP, "Traced mass vapor rate" } } );
-    info.insert( { "GTLM", { A::SUMMARY_WELL_GROUP, "Traced mass liquid total" } } );
-    info.insert( { "GTVM", { A::SUMMARY_WELL_GROUP, "Traced mass vapor total" } } );
-    info.insert( { "GAPI", { A::SUMMARY_WELL_GROUP, "Oil API" } } );
-    info.insert( { "GSPR", { A::SUMMARY_WELL_GROUP, "Salt Production Rate" } } );
-    info.insert( { "GSPT", { A::SUMMARY_WELL_GROUP, "Salt Production Total" } } );
-    info.insert( { "GSIR", { A::SUMMARY_WELL_GROUP, "Salt Injection Rate" } } );
-    info.insert( { "GSIT", { A::SUMMARY_WELL_GROUP, "Salt Injection Total" } } );
-    info.insert( { "GSPC", { A::SUMMARY_WELL_GROUP, "Salt Production Concentration" } } );
-    info.insert( { "GSIC", { A::SUMMARY_WELL_GROUP, "Salt Injection Concentration" } } );
+    info.insert( { "GWSTP", { A::SUMMARY_GROUP, "Test period for the most recent sustainable capacity test for water" } } );
+    info.insert( { "GGPRG", { A::SUMMARY_GROUP, "Gas production rate" } } );
+    info.insert( { "GOPRG", { A::SUMMARY_GROUP, "Oil production rate" } } );
+    info.insert( { "GNLPRG", { A::SUMMARY_GROUP, "NGL production rate" } } );
+    info.insert( { "GXMFG", { A::SUMMARY_GROUP, "Liquid mole fraction" } } );
+    info.insert( { "GYMFG", { A::SUMMARY_GROUP, "Vapor mole fraction" } } );
+    info.insert( { "GCOMRG", { A::SUMMARY_GROUP, "Hydrocarbon component" } } );
+    info.insert( { "GCGMRG", { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the gas phase" } } );
+    info.insert( { "GCNMRG", { A::SUMMARY_GROUP, "Hydrocarbon component molar rates in the NGL phase" } } );
+    info.insert( { "GTPR", { A::SUMMARY_GROUP, "Tracer Production Rate" } } );
+    info.insert( { "GTPT", { A::SUMMARY_GROUP, "Tracer Production Total" } } );
+    info.insert( { "GTPC", { A::SUMMARY_GROUP, "Tracer Production Concentration" } } );
+    info.insert( { "GTIR", { A::SUMMARY_GROUP, "Tracer Injection Rate" } } );
+    info.insert( { "GTIT", { A::SUMMARY_GROUP, "Tracer Injection Total" } } );
+    info.insert( { "GTIC", { A::SUMMARY_GROUP, "Tracer Injection Concentration" } } );
+    info.insert( { "GTMR", { A::SUMMARY_GROUP, "Traced mass Rate" } } );
+    info.insert( { "GTMT", { A::SUMMARY_GROUP, "Traced mass Total" } } );
+    info.insert( { "GTQR", { A::SUMMARY_GROUP, "Traced molar Rate" } } );
+    info.insert( { "GTCM", { A::SUMMARY_GROUP, "Tracer Carrier molar Rate" } } );
+    info.insert( { "GTMF", { A::SUMMARY_GROUP, "Traced molar fraction" } } );
+    info.insert( { "GTVL", { A::SUMMARY_GROUP, "Traced liquid volume rate" } } );
+    info.insert( { "GTVV", { A::SUMMARY_GROUP, "Traced vapor volume rate" } } );
+    info.insert( { "GTTL", { A::SUMMARY_GROUP, "Traced liquid volume total" } } );
+    info.insert( { "GTTV", { A::SUMMARY_GROUP, "Traced vapor volume total" } } );
+    info.insert( { "GTML", { A::SUMMARY_GROUP, "Traced mass liquid rate" } } );
+    info.insert( { "GTMV", { A::SUMMARY_GROUP, "Traced mass vapor rate" } } );
+    info.insert( { "GTLM", { A::SUMMARY_GROUP, "Traced mass liquid total" } } );
+    info.insert( { "GTVM", { A::SUMMARY_GROUP, "Traced mass vapor total" } } );
+    info.insert( { "GAPI", { A::SUMMARY_GROUP, "Oil API" } } );
+    info.insert( { "GSPR", { A::SUMMARY_GROUP, "Salt Production Rate" } } );
+    info.insert( { "GSPT", { A::SUMMARY_GROUP, "Salt Production Total" } } );
+    info.insert( { "GSIR", { A::SUMMARY_GROUP, "Salt Injection Rate" } } );
+    info.insert( { "GSIT", { A::SUMMARY_GROUP, "Salt Injection Total" } } );
+    info.insert( { "GSPC", { A::SUMMARY_GROUP, "Salt Production Concentration" } } );
+    info.insert( { "GSIC", { A::SUMMARY_GROUP, "Salt Injection Concentration" } } );
     info.insert( { "WTPRANI", { A::SUMMARY_WELL, "Anion Production Rate" } } );
     info.insert( { "WTPTANI", { A::SUMMARY_WELL, "Anion Production Total" } } );
     info.insert( { "WTIRANI", { A::SUMMARY_WELL, "Anion Injection Rate" } } );
@@ -914,166 +908,165 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "WTPTCAT", { A::SUMMARY_WELL, "Cation Production Total" } } );
     info.insert( { "WTIRCAT", { A::SUMMARY_WELL, "Cation Injection Rate" } } );
     info.insert( { "WTITCAT", { A::SUMMARY_WELL, "Cation Injection Total" } } );
-    info.insert( { "GTPCHEA", { A::SUMMARY_WELL_GROUP, "Production Temperature" } } );
-    info.insert( { "GTICHEA", { A::SUMMARY_WELL_GROUP, "Injection Temperature" } } );
-    info.insert( { "GTPRHEA", { A::SUMMARY_WELL_GROUP, "Energy flows" } } );
-    info.insert( { "GTPTHEA", { A::SUMMARY_WELL_GROUP, "Energy Production Total" } } );
-    info.insert( { "GTIRHEA", { A::SUMMARY_WELL_GROUP, "Energy flows" } } );
-    info.insert( { "GTITHEA", { A::SUMMARY_WELL_GROUP, "Energy Injection Total" } } );
-    info.insert( { "GTPR", { A::SUMMARY_WELL_GROUP, "Tracer Production Rate" } } );
-    info.insert( { "GTPT", { A::SUMMARY_WELL_GROUP, "Tracer Production Total" } } );
-    info.insert( { "GTPC", { A::SUMMARY_WELL_GROUP, "Tracer Production Concentration" } } );
-    info.insert( { "GTIR", { A::SUMMARY_WELL_GROUP, "Tracer Injection Rate" } } );
-    info.insert( { "GTIT", { A::SUMMARY_WELL_GROUP, "Tracer Injection Total" } } );
-    info.insert( { "GTIC", { A::SUMMARY_WELL_GROUP, "Tracer Injection Concentration" } } );
-    info.insert( { "GTIRF", { A::SUMMARY_WELL_GROUP, "Tracer Injection Rate" } } );
-    info.insert( { "GTIRS", { A::SUMMARY_WELL_GROUP, "Tracer Injection Rate" } } );
-    info.insert( { "GTPRF", { A::SUMMARY_WELL_GROUP, "Tracer Production Rate" } } );
-    info.insert( { "GTPRS", { A::SUMMARY_WELL_GROUP, "Tracer Production Rate" } } );
-    info.insert( { "GTITF", { A::SUMMARY_WELL_GROUP, "Tracer Injection Total" } } );
-    info.insert( { "GTITS", { A::SUMMARY_WELL_GROUP, "Tracer Injection Total" } } );
-    info.insert( { "GTPTF", { A::SUMMARY_WELL_GROUP, "Tracer Production Total" } } );
-    info.insert( { "GTPTS", { A::SUMMARY_WELL_GROUP, "Tracer Production Total" } } );
-    info.insert( { "GTICF", { A::SUMMARY_WELL_GROUP, "Tracer Injection Concentration" } } );
-    info.insert( { "GTICS", { A::SUMMARY_WELL_GROUP, "Tracer Injection Concentration" } } );
-    info.insert( { "GTPCF", { A::SUMMARY_WELL_GROUP, "Tracer Production" } } );
-    info.insert( { "GTPCS", { A::SUMMARY_WELL_GROUP, "Tracer Production" } } );
-    info.insert( { "GMPR", { A::SUMMARY_WELL_GROUP, "Methane Production Rate" } } );
-    info.insert( { "GMPT", { A::SUMMARY_WELL_GROUP, "Methane Production Total" } } );
-    info.insert( { "GMIR", { A::SUMMARY_WELL_GROUP, "Methane Injection Rate" } } );
-    info.insert( { "GMIT", { A::SUMMARY_WELL_GROUP, "Methane Injection Total" } } );
-    info.insert( { "GTPRFOA", { A::SUMMARY_WELL_GROUP, "Production Rate" } } );
-    info.insert( { "GTPTFOA", { A::SUMMARY_WELL_GROUP, "Production Total" } } );
-    info.insert( { "GTIRFOA", { A::SUMMARY_WELL_GROUP, "Injection Rate" } } );
-    info.insert( { "GTITFOA", { A::SUMMARY_WELL_GROUP, "Injection Total" } } );
-    info.insert( { "GSGR", { A::SUMMARY_WELL_GROUP, "Sales Gas Rate" } } );
-    info.insert( { "GGSR", { A::SUMMARY_WELL_GROUP, "Sales Gas Rate" } } );
-    info.insert( { "GSGT", { A::SUMMARY_WELL_GROUP, "Sales Gas Total" } } );
-    info.insert( { "GGST", { A::SUMMARY_WELL_GROUP, "Sales Gas Total" } } );
-    info.insert( { "GGDC", { A::SUMMARY_WELL_GROUP, "Gas Delivery Capacity" } } );
-    info.insert( { "GGDCQ", { A::SUMMARY_WELL_GROUP, "Field/Group Gas DCQ" } } );
-    info.insert( { "GMCPL", { A::SUMMARY_WELL_GROUP, "Group Multi-level Compressor Level" } } );
-    info.insert( { "GPR", { A::SUMMARY_WELL_GROUP, "Group nodal Pressure in network" } } );
-    info.insert( { "GPRDC", { A::SUMMARY_WELL_GROUP, "Group Pressure at Delivery Capacity" } } );
-    info.insert( { "GGCR", { A::SUMMARY_WELL_GROUP, "Gas consumption rate, at and below this group" } } );
-    info.insert( { "GGCT", { A::SUMMARY_WELL_GROUP, "Gas consumption cumulative total, at and below this group" } } );
-    info.insert( { "GFGR", { A::SUMMARY_WELL_GROUP, "Fuel Gas rate, at and below this group" } } );
-    info.insert( { "GFGT", { A::SUMMARY_WELL_GROUP, "Fuel Gas cumulative total, at and below this group" } } );
-    info.insert( { "GGIMR", { A::SUMMARY_WELL_GROUP, "Gas import rate, at and below this group" } } );
-    info.insert( { "GGIMT", { A::SUMMARY_WELL_GROUP, "Gas import cumulative total, at and below this group" } } );
-    info.insert( { "GPRFP", { A::SUMMARY_WELL_GROUP, "Group or node Pressure in network from end of First Pass" } } );
+    info.insert( { "GTPCHEA", { A::SUMMARY_GROUP, "Production Temperature" } } );
+    info.insert( { "GTICHEA", { A::SUMMARY_GROUP, "Injection Temperature" } } );
+    info.insert( { "GTPRHEA", { A::SUMMARY_GROUP, "Energy flows" } } );
+    info.insert( { "GTPTHEA", { A::SUMMARY_GROUP, "Energy Production Total" } } );
+    info.insert( { "GTIRHEA", { A::SUMMARY_GROUP, "Energy flows" } } );
+    info.insert( { "GTITHEA", { A::SUMMARY_GROUP, "Energy Injection Total" } } );
+    info.insert( { "GTPR", { A::SUMMARY_GROUP, "Tracer Production Rate" } } );
+    info.insert( { "GTPT", { A::SUMMARY_GROUP, "Tracer Production Total" } } );
+    info.insert( { "GTPC", { A::SUMMARY_GROUP, "Tracer Production Concentration" } } );
+    info.insert( { "GTIR", { A::SUMMARY_GROUP, "Tracer Injection Rate" } } );
+    info.insert( { "GTIT", { A::SUMMARY_GROUP, "Tracer Injection Total" } } );
+    info.insert( { "GTIC", { A::SUMMARY_GROUP, "Tracer Injection Concentration" } } );
+    info.insert( { "GTIRF", { A::SUMMARY_GROUP, "Tracer Injection Rate" } } );
+    info.insert( { "GTIRS", { A::SUMMARY_GROUP, "Tracer Injection Rate" } } );
+    info.insert( { "GTPRF", { A::SUMMARY_GROUP, "Tracer Production Rate" } } );
+    info.insert( { "GTPRS", { A::SUMMARY_GROUP, "Tracer Production Rate" } } );
+    info.insert( { "GTITF", { A::SUMMARY_GROUP, "Tracer Injection Total" } } );
+    info.insert( { "GTITS", { A::SUMMARY_GROUP, "Tracer Injection Total" } } );
+    info.insert( { "GTPTF", { A::SUMMARY_GROUP, "Tracer Production Total" } } );
+    info.insert( { "GTPTS", { A::SUMMARY_GROUP, "Tracer Production Total" } } );
+    info.insert( { "GTICF", { A::SUMMARY_GROUP, "Tracer Injection Concentration" } } );
+    info.insert( { "GTICS", { A::SUMMARY_GROUP, "Tracer Injection Concentration" } } );
+    info.insert( { "GTPCF", { A::SUMMARY_GROUP, "Tracer Production" } } );
+    info.insert( { "GTPCS", { A::SUMMARY_GROUP, "Tracer Production" } } );
+    info.insert( { "GMPR", { A::SUMMARY_GROUP, "Methane Production Rate" } } );
+    info.insert( { "GMPT", { A::SUMMARY_GROUP, "Methane Production Total" } } );
+    info.insert( { "GMIR", { A::SUMMARY_GROUP, "Methane Injection Rate" } } );
+    info.insert( { "GMIT", { A::SUMMARY_GROUP, "Methane Injection Total" } } );
+    info.insert( { "GTPRFOA", { A::SUMMARY_GROUP, "Production Rate" } } );
+    info.insert( { "GTPTFOA", { A::SUMMARY_GROUP, "Production Total" } } );
+    info.insert( { "GTIRFOA", { A::SUMMARY_GROUP, "Injection Rate" } } );
+    info.insert( { "GTITFOA", { A::SUMMARY_GROUP, "Injection Total" } } );
+    info.insert( { "GSGR", { A::SUMMARY_GROUP, "Sales Gas Rate" } } );
+    info.insert( { "GGSR", { A::SUMMARY_GROUP, "Sales Gas Rate" } } );
+    info.insert( { "GSGT", { A::SUMMARY_GROUP, "Sales Gas Total" } } );
+    info.insert( { "GGST", { A::SUMMARY_GROUP, "Sales Gas Total" } } );
+    info.insert( { "GGDC", { A::SUMMARY_GROUP, "Gas Delivery Capacity" } } );
+    info.insert( { "GGDCQ", { A::SUMMARY_GROUP, "Field/Group Gas DCQ" } } );
+    info.insert( { "GMCPL", { A::SUMMARY_GROUP, "Group Multi-level Compressor Level" } } );
+    info.insert( { "GPR", { A::SUMMARY_GROUP, "Group nodal Pressure in network" } } );
+    info.insert( { "GPRDC", { A::SUMMARY_GROUP, "Group Pressure at Delivery Capacity" } } );
+    info.insert( { "GGCR", { A::SUMMARY_GROUP, "Gas consumption rate, at and below this group" } } );
+    info.insert( { "GGCT", { A::SUMMARY_GROUP, "Gas consumption cumulative total, at and below this group" } } );
+    info.insert( { "GFGR", { A::SUMMARY_GROUP, "Fuel Gas rate, at and below this group" } } );
+    info.insert( { "GFGT", { A::SUMMARY_GROUP, "Fuel Gas cumulative total, at and below this group" } } );
+    info.insert( { "GGIMR", { A::SUMMARY_GROUP, "Gas import rate, at and below this group" } } );
+    info.insert( { "GGIMT", { A::SUMMARY_GROUP, "Gas import cumulative total, at and below this group" } } );
+    info.insert( { "GPRFP", { A::SUMMARY_GROUP, "Group or node Pressure in network from end of First Pass" } } );
     info.insert( { "GGPRNBFP",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Gas flow rate along Group's or node's outlet branch in network, from end of First Pass" } } );
-    info.insert( { "GGLIR", { A::SUMMARY_WELL_GROUP, "Gas Lift Injection Rate" } } );
-    info.insert( { "GGCV", { A::SUMMARY_WELL_GROUP, "Gas Calorific Value" } } );
-    info.insert( { "GGQ", { A::SUMMARY_WELL_GROUP, "Gas molar Quality" } } );
-    info.insert( { "GEPR", { A::SUMMARY_WELL_GROUP, "Energy Production Rate" } } );
-    info.insert( { "GEPT", { A::SUMMARY_WELL_GROUP, "Energy Production Total" } } );
-    info.insert( { "GESR", { A::SUMMARY_WELL_GROUP, "Energy Sales Rate" } } );
-    info.insert( { "GEST", { A::SUMMARY_WELL_GROUP, "Energy Sales Total" } } );
-    info.insert( { "GEDC", { A::SUMMARY_WELL_GROUP, "Energy Delivery Capacity" } } );
-    info.insert( { "GEDCQ", { A::SUMMARY_WELL_GROUP, "Energy DCQ" } } );
-    info.insert( { "GPR", { A::SUMMARY_WELL_GROUP, "Group or node Pressure in the production network" } } );
-    info.insert( { "GPRG", { A::SUMMARY_WELL_GROUP, "Group or node Pressure in the gas injection network" } } );
-    info.insert( { "GPRW", { A::SUMMARY_WELL_GROUP, "Group or node Pressure in the water injection network" } } );
-    info.insert( { "GPRB",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Pressure drop along the group's or node's outlet branch in the production network" } } );
-    info.insert( { "GPRBG",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Pressure drop along the group's or node's inlet branch in the gas injection network" } } );
-    info.insert( { "GPRBW",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Pressure drop along the group's or node's inlet branch in the water injection network" } } );
+    info.insert( { "GGLIR", { A::SUMMARY_GROUP, "Gas Lift Injection Rate" } } );
+    info.insert( { "GGCV", { A::SUMMARY_GROUP, "Gas Calorific Value" } } );
+    info.insert( { "GGQ", { A::SUMMARY_GROUP, "Gas molar Quality" } } );
+    info.insert( { "GEPR", { A::SUMMARY_GROUP, "Energy Production Rate" } } );
+    info.insert( { "GEPT", { A::SUMMARY_GROUP, "Energy Production Total" } } );
+    info.insert( { "GESR", { A::SUMMARY_GROUP, "Energy Sales Rate" } } );
+    info.insert( { "GEST", { A::SUMMARY_GROUP, "Energy Sales Total" } } );
+    info.insert( { "GEDC", { A::SUMMARY_GROUP, "Energy Delivery Capacity" } } );
+    info.insert( { "GEDCQ", { A::SUMMARY_GROUP, "Energy DCQ" } } );
+    info.insert( { "GPR", { A::SUMMARY_GROUP, "Group or node Pressure in the production network" } } );
+    info.insert( { "GPRG", { A::SUMMARY_GROUP, "Group or node Pressure in the gas injection network" } } );
+    info.insert( { "GPRW", { A::SUMMARY_GROUP, "Group or node Pressure in the water injection network" } } );
     info.insert(
-        { "GALQ", { A::SUMMARY_WELL_GROUP, "ALQ in the group's or node's outlet branch in the production network" } } );
-    info.insert( { "GOPRNB",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Oil flow rate along the group's or node's outlet branch in the production network" } } );
-    info.insert( { "GWPRNB",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Water flow rate along the group's or node's outlet branch in the production network" } } );
-    info.insert( { "GGPRNB",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Gas flow rate along the group's or node's outlet branch in the production network" } } );
+        { "GPRB",
+          { A::SUMMARY_GROUP, "Pressure drop along the group's or node's outlet branch in the production network" } } );
+    info.insert(
+        { "GPRBG",
+          { A::SUMMARY_GROUP, "Pressure drop along the group's or node's inlet branch in the gas injection network" } } );
+    info.insert( { "GPRBW",
+                   { A::SUMMARY_GROUP,
+                     "Pressure drop along the group's or node's inlet branch in the water injection network" } } );
+    info.insert( { "GALQ", { A::SUMMARY_GROUP, "ALQ in the group's or node's outlet branch in the production network" } } );
+    info.insert(
+        { "GOPRNB",
+          { A::SUMMARY_GROUP, "Oil flow rate along the group's or node's outlet branch in the production network" } } );
+    info.insert(
+        { "GWPRNB",
+          { A::SUMMARY_GROUP, "Water flow rate along the group's or node's outlet branch in the production network" } } );
+    info.insert(
+        { "GGPRNB",
+          { A::SUMMARY_GROUP, "Gas flow rate along the group's or node's outlet branch in the production network" } } );
     info.insert( { "GLPRNB",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Liquid flow rate along the group's or node's outlet branch in the production network" } } );
     info.insert( { "GWIRNB",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Water flow rate along the group's or node's inlet branch in the water injection network" } } );
-    info.insert( { "GGIRNB",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Gas flow rate along the group's or node's inlet branch in the gas injection network" } } );
-    info.insert( { "GOMNR",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node minimum oil rate as specified with GNETDP in the production network" } } );
-    info.insert( { "GGMNR",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node minimum gas rate as specified with GNETDP in the production network" } } );
-    info.insert( { "GWMNR",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node minimum water rate as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GGIRNB",
+          { A::SUMMARY_GROUP, "Gas flow rate along the group's or node's inlet branch in the gas injection network" } } );
+    info.insert(
+        { "GOMNR",
+          { A::SUMMARY_GROUP, "Group or node minimum oil rate as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GGMNR",
+          { A::SUMMARY_GROUP, "Group or node minimum gas rate as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GWMNR",
+          { A::SUMMARY_GROUP, "Group or node minimum water rate as specified with GNETDP in the production network" } } );
     info.insert( { "GLMNR",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Group or node minimum liquid rate as specified with GNETDP in the production network" } } );
-    info.insert( { "GOMXR",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node maximum oil rate as specified with GNETDP in the production network" } } );
-    info.insert( { "GGMXR",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node maximum gas rate as specified with GNETDP in the production network" } } );
-    info.insert( { "GWMXR",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node maximum water rate as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GOMXR",
+          { A::SUMMARY_GROUP, "Group or node maximum oil rate as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GGMXR",
+          { A::SUMMARY_GROUP, "Group or node maximum gas rate as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GWMXR",
+          { A::SUMMARY_GROUP, "Group or node maximum water rate as specified with GNETDP in the production network" } } );
     info.insert( { "GLMXR",
-                   { A::SUMMARY_WELL_GROUP,
+                   { A::SUMMARY_GROUP,
                      "Group or node maximum liquid rate as specified with GNETDP in the production network" } } );
-    info.insert( { "GMNP",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node minimum pressure as specified with GNETDP in the production network" } } );
-    info.insert( { "GMXP",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node maximum pressure as specified with GNETDP in the production network" } } );
-    info.insert( { "GPRINC",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node pressure increment as specified with GNETDP in the production network" } } );
-    info.insert( { "GPRDEC",
-                   { A::SUMMARY_WELL_GROUP,
-                     "Group or node pressure decrement as specified with GNETDP in the production network" } } );
-    info.insert( { "GCPR", { A::SUMMARY_WELL_GROUP, "Polymer Production Rate" } } );
-    info.insert( { "GCPC", { A::SUMMARY_WELL_GROUP, "Polymer Production Concentration" } } );
-    info.insert( { "GCPT", { A::SUMMARY_WELL_GROUP, "Polymer Production Total" } } );
-    info.insert( { "GCIR", { A::SUMMARY_WELL_GROUP, "Polymer Injection Rate" } } );
-    info.insert( { "GCIC", { A::SUMMARY_WELL_GROUP, "Polymer Injection Concentration" } } );
-    info.insert( { "GCIT", { A::SUMMARY_WELL_GROUP, "Polymer Injection Total" } } );
-    info.insert( { "GSPR", { A::SUMMARY_WELL_GROUP, "Salt Production Rate" } } );
-    info.insert( { "GSPT", { A::SUMMARY_WELL_GROUP, "Salt Production Total" } } );
-    info.insert( { "GSIR", { A::SUMMARY_WELL_GROUP, "Salt Injection Rate" } } );
-    info.insert( { "GSIT", { A::SUMMARY_WELL_GROUP, "Salt Injection Total" } } );
-    info.insert( { "GOPRL", { A::SUMMARY_WELL_GROUP, "Group Oil Production Rate Target" } } );
-    info.insert( { "GOIRL", { A::SUMMARY_WELL_GROUP, "Group Oil Injection Rate Target" } } );
-    info.insert( { "GWPRL", { A::SUMMARY_WELL_GROUP, "Group Water Production Rate Target" } } );
-    info.insert( { "GWIRL", { A::SUMMARY_WELL_GROUP, "Group Water Injection Rate Target" } } );
-    info.insert( { "GGPRL", { A::SUMMARY_WELL_GROUP, "Group Gas Production Rate Target" } } );
-    info.insert( { "GGIRL", { A::SUMMARY_WELL_GROUP, "Group Gas Injection Rate Target" } } );
-    info.insert( { "GLPRL", { A::SUMMARY_WELL_GROUP, "Group Liquid Production Rate Target" } } );
-    info.insert( { "GVPRL", { A::SUMMARY_WELL_GROUP, "Group reservoir Volume Production Rate Target" } } );
-    info.insert( { "GVIRL", { A::SUMMARY_WELL_GROUP, "Group reservoir Volume Injection Rate Target" } } );
-    info.insert( { "GNPR", { A::SUMMARY_WELL_GROUP, "Solvent Production Rate" } } );
-    info.insert( { "GNPT", { A::SUMMARY_WELL_GROUP, "Solvent Production Total" } } );
-    info.insert( { "GNIR", { A::SUMMARY_WELL_GROUP, "Solvent Injection Rate" } } );
-    info.insert( { "GNIT", { A::SUMMARY_WELL_GROUP, "Solvent Injection Total" } } );
-    info.insert( { "GTPRSUR", { A::SUMMARY_WELL_GROUP, "Production Rate" } } );
-    info.insert( { "GTPTSUR", { A::SUMMARY_WELL_GROUP, "Production Total" } } );
-    info.insert( { "GTIRSUR", { A::SUMMARY_WELL_GROUP, "Injection Rate" } } );
-    info.insert( { "GTITSUR", { A::SUMMARY_WELL_GROUP, "Injection Total" } } );
-    info.insert( { "GTPRALK", { A::SUMMARY_WELL_GROUP, "Production Rate" } } );
-    info.insert( { "GTPTALK", { A::SUMMARY_WELL_GROUP, "Production Total" } } );
-    info.insert( { "GTIRALK", { A::SUMMARY_WELL_GROUP, "Injection Rate" } } );
-    info.insert( { "GTITALK", { A::SUMMARY_WELL_GROUP, "Injection Total" } } );
-    info.insert( { "GU", { A::SUMMARY_WELL_GROUP, "User-defined group quantity" } } );
+    info.insert(
+        { "GMNP",
+          { A::SUMMARY_GROUP, "Group or node minimum pressure as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GMXP",
+          { A::SUMMARY_GROUP, "Group or node maximum pressure as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GPRINC",
+          { A::SUMMARY_GROUP, "Group or node pressure increment as specified with GNETDP in the production network" } } );
+    info.insert(
+        { "GPRDEC",
+          { A::SUMMARY_GROUP, "Group or node pressure decrement as specified with GNETDP in the production network" } } );
+    info.insert( { "GCPR", { A::SUMMARY_GROUP, "Polymer Production Rate" } } );
+    info.insert( { "GCPC", { A::SUMMARY_GROUP, "Polymer Production Concentration" } } );
+    info.insert( { "GCPT", { A::SUMMARY_GROUP, "Polymer Production Total" } } );
+    info.insert( { "GCIR", { A::SUMMARY_GROUP, "Polymer Injection Rate" } } );
+    info.insert( { "GCIC", { A::SUMMARY_GROUP, "Polymer Injection Concentration" } } );
+    info.insert( { "GCIT", { A::SUMMARY_GROUP, "Polymer Injection Total" } } );
+    info.insert( { "GSPR", { A::SUMMARY_GROUP, "Salt Production Rate" } } );
+    info.insert( { "GSPT", { A::SUMMARY_GROUP, "Salt Production Total" } } );
+    info.insert( { "GSIR", { A::SUMMARY_GROUP, "Salt Injection Rate" } } );
+    info.insert( { "GSIT", { A::SUMMARY_GROUP, "Salt Injection Total" } } );
+    info.insert( { "GOPRL", { A::SUMMARY_GROUP, "Group Oil Production Rate Target" } } );
+    info.insert( { "GOIRL", { A::SUMMARY_GROUP, "Group Oil Injection Rate Target" } } );
+    info.insert( { "GWPRL", { A::SUMMARY_GROUP, "Group Water Production Rate Target" } } );
+    info.insert( { "GWIRL", { A::SUMMARY_GROUP, "Group Water Injection Rate Target" } } );
+    info.insert( { "GGPRL", { A::SUMMARY_GROUP, "Group Gas Production Rate Target" } } );
+    info.insert( { "GGIRL", { A::SUMMARY_GROUP, "Group Gas Injection Rate Target" } } );
+    info.insert( { "GLPRL", { A::SUMMARY_GROUP, "Group Liquid Production Rate Target" } } );
+    info.insert( { "GVPRL", { A::SUMMARY_GROUP, "Group reservoir Volume Production Rate Target" } } );
+    info.insert( { "GVIRL", { A::SUMMARY_GROUP, "Group reservoir Volume Injection Rate Target" } } );
+    info.insert( { "GNPR", { A::SUMMARY_GROUP, "Solvent Production Rate" } } );
+    info.insert( { "GNPT", { A::SUMMARY_GROUP, "Solvent Production Total" } } );
+    info.insert( { "GNIR", { A::SUMMARY_GROUP, "Solvent Injection Rate" } } );
+    info.insert( { "GNIT", { A::SUMMARY_GROUP, "Solvent Injection Total" } } );
+    info.insert( { "GTPRSUR", { A::SUMMARY_GROUP, "Production Rate" } } );
+    info.insert( { "GTPTSUR", { A::SUMMARY_GROUP, "Production Total" } } );
+    info.insert( { "GTIRSUR", { A::SUMMARY_GROUP, "Injection Rate" } } );
+    info.insert( { "GTITSUR", { A::SUMMARY_GROUP, "Injection Total" } } );
+    info.insert( { "GTPRALK", { A::SUMMARY_GROUP, "Production Rate" } } );
+    info.insert( { "GTPTALK", { A::SUMMARY_GROUP, "Production Total" } } );
+    info.insert( { "GTIRALK", { A::SUMMARY_GROUP, "Injection Rate" } } );
+    info.insert( { "GTITALK", { A::SUMMARY_GROUP, "Injection Total" } } );
+    info.insert( { "GU", { A::SUMMARY_GROUP, "User-defined group quantity" } } );
 
     info.insert( { "WOPR", { A::SUMMARY_WELL, "Oil Production Rate" } } );
     info.insert( { "WOPRA", { A::SUMMARY_WELL, "Oil Production Rate above GOC" } } );
@@ -2293,9 +2286,9 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "WTPR", { A::SUMMARY_WELL, "Well Tracer Production Rate" } } );
     info.insert( { "WTPT", { A::SUMMARY_WELL, "Well Tracer Cumulative Production" } } );
 
-    info.insert( { "GLIR", { A::SUMMARY_WELL_GROUP, "Liquid Injection Rate" } } );
-    info.insert( { "GLIRH", { A::SUMMARY_WELL_GROUP, "Liquid Injection Rate History" } } );
-    info.insert( { "GLIT", { A::SUMMARY_WELL_GROUP, "Liquid Injection Total" } } );
+    info.insert( { "GLIR", { A::SUMMARY_GROUP, "Liquid Injection Rate" } } );
+    info.insert( { "GLIRH", { A::SUMMARY_GROUP, "Liquid Injection Rate History" } } );
+    info.insert( { "GLIT", { A::SUMMARY_GROUP, "Liquid Injection Total" } } );
 
     info.insert( { "CPDIAM", { A::SUMMARY_WELL_COMPLETION, "Perforation Diameter" } } );
     info.insert( { "MSDEPTH", { A::SUMMARY_WELL_COMPLETION, "Depth of Well Completion" } } );

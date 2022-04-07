@@ -153,7 +153,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                                          ensembleId );
                 break;
 
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP:
                 groups->addToSubfolder( QString::fromStdString( address.groupName() ),
                                         CollectionContentType::WELL_GROUP,
                                         address,

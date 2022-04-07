@@ -91,7 +91,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellGroup )
     RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fromEclipseTextAddressParseErrorTokens( addrString );
 
     EXPECT_TRUE( addr.isValid() );
-    EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP, addr.category() );
+    EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_GROUP, addr.category() );
     EXPECT_EQ( "GOPR", addr.quantityName() );
     EXPECT_EQ( "WELLS1", addr.groupName() );
     EXPECT_FALSE( addr.isErrorResult() );

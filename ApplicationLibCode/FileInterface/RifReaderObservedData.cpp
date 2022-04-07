@@ -174,7 +174,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
 
     switch ( summaryCategory )
     {
-        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        case RifEclipseSummaryAddress::SUMMARY_GROUP:
             groupName = identifierName.toStdString();
             break;
         case RifEclipseSummaryAddress::SUMMARY_WELL:

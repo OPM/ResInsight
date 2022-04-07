@@ -35,7 +35,7 @@ void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
     addItem( RifEclipseSummaryAddress::SUMMARY_MISC, "SUMMARY_MISC", "Misc" );
     addItem( RifEclipseSummaryAddress::SUMMARY_REGION, "SUMMARY_REGION", "Region" );
     addItem( RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, "SUMMARY_REGION_2_REGION", "Region-Region" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP, "SUMMARY_WELL_GROUP", "Group" );
+    addItem( RifEclipseSummaryAddress::SUMMARY_GROUP, "SUMMARY_WELL_GROUP", "Group" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL, "SUMMARY_WELL", "Well" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", "Completion" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR, "SUMMARY_WELL_COMPLETION_LGR", "Lgr-Completion" );
@@ -206,7 +206,7 @@ QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddress::Summary
     // Return the keyword text for supported field replacement in plot templates
 
     if ( category == RifEclipseSummaryAddress::SUMMARY_WELL ) return m_wellName.keyword();
-    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ) return m_groupName.keyword();
+    if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP ) return m_groupName.keyword();
     if ( category == RifEclipseSummaryAddress::SUMMARY_REGION ) return m_regionNumber.keyword();
 
     return {};

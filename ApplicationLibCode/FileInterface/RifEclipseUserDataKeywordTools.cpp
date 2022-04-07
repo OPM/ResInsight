@@ -210,7 +210,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
         }
         case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        case RifEclipseSummaryAddress::SUMMARY_GROUP:
         {
             if ( columnHeaderText.size() > 0 )
             {

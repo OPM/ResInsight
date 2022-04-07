@@ -287,7 +287,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
             }
         }
         break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        case RifEclipseSummaryAddress::SUMMARY_GROUP:
         {
             if ( m_groupName )
             {

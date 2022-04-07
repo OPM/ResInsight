@@ -109,8 +109,8 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
           { RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_REGION_2_REGION ) },
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
-          { RifEclipseSummaryAddress::SUMMARY_WELL_GROUP,
-            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_GROUP_NAME ) },
+          { RifEclipseSummaryAddress::SUMMARY_GROUP,
+            { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_GROUP_NAME ) },
               { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
           { RifEclipseSummaryAddress::SUMMARY_WELL,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_WELL_NAME ) },
@@ -185,10 +185,10 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
                                 "Region2RegionVectors",
                                 "Region2s Vectors" );
 
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][0]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_GROUP][0]->pdmField(),
                                 "WellGroupWellGroupNames",
                                 "Groups" );
-    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField(),
+    CAF_PDM_InitFieldNoDefault( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_GROUP][1]->pdmField(),
                                 "WellGroupVectors",
                                 "Well Group Vectors" );
 
@@ -959,14 +959,14 @@ void RiuSummaryVectorSelectionUi::defineUiOrdering( QString uiConfigName, caf::P
 
         summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION][1]->pdmField();
     }
-    else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP )
+    else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
         {
             caf::PdmUiGroup* myGroup = uiOrdering.addNewGroup( "Groups" );
-            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][0]->pdmField() );
+            myGroup->add( m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_GROUP][0]->pdmField() );
         }
 
-        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_WELL_GROUP][1]->pdmField();
+        summaryiesField = m_identifierFieldsMap[RifEclipseSummaryAddress::SUMMARY_GROUP][1]->pdmField();
     }
     else if ( sumCategory == RifEclipseSummaryAddress::SUMMARY_WELL )
     {
@@ -1470,7 +1470,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForCategories( QList<caf::Pdm
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION_2_REGION );
-    sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP );
+    sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION );
     sortedCategoriesForUi.push_back( RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT );

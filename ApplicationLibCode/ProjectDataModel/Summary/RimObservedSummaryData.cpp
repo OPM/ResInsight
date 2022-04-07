@@ -122,8 +122,8 @@ QList<caf::PdmOptionItemInfo>
         using AddressAppEnum = caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>;
         options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddress::SUMMARY_WELL ),
                                                    RifEclipseSummaryAddress::SUMMARY_WELL ) );
-        options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ),
-                                                   RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ) );
+        options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddress::SUMMARY_GROUP ),
+                                                   RifEclipseSummaryAddress::SUMMARY_GROUP ) );
 
         return options;
     }

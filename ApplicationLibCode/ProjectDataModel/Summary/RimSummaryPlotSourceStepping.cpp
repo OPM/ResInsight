@@ -323,7 +323,7 @@ QList<caf::PdmOptionItemInfo>
             }
             else if ( fieldNeedingOptions == &m_groupName )
             {
-                category = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
+                category = RifEclipseSummaryAddress::SUMMARY_GROUP;
             }
             else if ( fieldNeedingOptions == &m_cellBlock )
             {
@@ -507,7 +507,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
         else if ( changedField == &m_groupName )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
+            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_GROUP;
         }
         else if ( changedField == &m_cellBlock )
         {

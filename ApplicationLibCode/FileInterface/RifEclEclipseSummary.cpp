@@ -151,7 +151,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_GROUP_VAR:
         {
-            sumCategory = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
+            sumCategory = RifEclipseSummaryAddress::SUMMARY_GROUP;
             groupName   = stringFromPointer( ertSumVarNode.get_wgname() );
         }
         break;

@@ -230,7 +230,7 @@ std::vector<QString> RiaSummaryAddressAnalyzer::identifierTexts( RifEclipseSumma
             identifierStrings.push_back( QString::fromStdString( key ) );
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP )
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
         auto keys = keysInMap( m_groupNames );
         for ( const auto& key : keys )

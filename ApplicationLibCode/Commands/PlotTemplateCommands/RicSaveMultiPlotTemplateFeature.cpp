@@ -227,7 +227,7 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
         }
 
         replaceStrings( sourceStrings,
-                        dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ),
+                        dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_GROUP ),
                         RicSummaryPlotTemplateTools::placeholderTextForGroup(),
                         objectAsText );
     }
