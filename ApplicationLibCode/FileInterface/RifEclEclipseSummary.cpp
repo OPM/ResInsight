@@ -111,7 +111,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
     std::string                                  quantityName;
     int                                          regionNumber( -1 );
     int                                          regionNumber2( -1 );
-    std::string                                  wellGroupName;
+    std::string                                  groupName;
     std::string                                  wellName;
     int                                          wellSegmentNumber( -1 );
     std::string                                  lgrName;
@@ -151,8 +151,8 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
         break;
         case ECL_SMSPEC_GROUP_VAR:
         {
-            sumCategory   = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
-            wellGroupName = stringFromPointer( ertSumVarNode.get_wgname() );
+            sumCategory = RifEclipseSummaryAddress::SUMMARY_GROUP;
+            groupName   = stringFromPointer( ertSumVarNode.get_wgname() );
         }
         break;
         case ECL_SMSPEC_BLOCK_VAR:
@@ -239,7 +239,7 @@ RifEclipseSummaryAddress addressFromErtSmSpecNode( const ecl::smspec_node& ertSu
                                      quantityName,
                                      regionNumber,
                                      regionNumber2,
-                                     wellGroupName,
+                                     groupName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,

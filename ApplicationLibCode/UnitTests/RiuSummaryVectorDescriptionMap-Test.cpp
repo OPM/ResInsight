@@ -79,7 +79,7 @@ TEST( RiuSummaryQuantityNameInfoProvider, Test6x )
     {
         std::string s( "GLIT" );
         auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromQuantityName( s );
-        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP );
+        EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_GROUP );
     }
 
     {

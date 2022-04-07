@@ -130,9 +130,9 @@ bool RimSummaryPlotNameHelper::isWellNameInTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isWellGroupNameInTitle() const
+bool RimSummaryPlotNameHelper::isGroupNameInTitle() const
 {
-    return !m_titleWellGroupName.empty();
+    return !m_titleGroupName.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,9 +202,9 @@ std::string RimSummaryPlotNameHelper::titleWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimSummaryPlotNameHelper::titleWellGroupName() const
+std::string RimSummaryPlotNameHelper::titleGroupName() const
 {
-    return m_titleWellGroupName;
+    return m_titleGroupName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,11 +262,11 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
 {
     clearTitleSubStrings();
 
-    auto wellNames      = m_analyzer->wellNames();
-    auto wellGroupNames = m_analyzer->wellGroupNames();
-    auto regions        = m_analyzer->regionNumbers();
-    auto blocks         = m_analyzer->blocks();
-    auto categories     = m_analyzer->categories();
+    auto wellNames  = m_analyzer->wellNames();
+    auto groupNames = m_analyzer->groupNames();
+    auto regions    = m_analyzer->regionNumbers();
+    auto blocks     = m_analyzer->blocks();
+    auto categories = m_analyzer->categories();
 
     if ( categories.size() == 1 )
     {
@@ -293,9 +293,9 @@ void RimSummaryPlotNameHelper::extractPlotTitleSubStrings()
             }
         }
 
-        if ( wellGroupNames.size() == 1 )
+        if ( groupNames.size() == 1 )
         {
-            m_titleWellGroupName = *( wellGroupNames.begin() );
+            m_titleGroupName = *( groupNames.begin() );
         }
 
         if ( regions.size() == 1 )

@@ -1981,8 +1981,8 @@ int RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* ad
         }
         else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
         {
-            auto currentObjectString = curveAdr.wellGroupName();
-            curveAdr.setWellGroupName( droppedName );
+            auto currentObjectString = curveAdr.groupName();
+            curveAdr.setGroupName( droppedName );
             newCurveDef.setSummaryAddress( curveAdr );
             newCurveDefsWithObjectNames[newCurveDef].insert( currentObjectString );
         }

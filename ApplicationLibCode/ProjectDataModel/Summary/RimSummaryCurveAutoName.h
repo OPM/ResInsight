@@ -60,7 +60,7 @@ private:
     caf::PdmField<bool> m_longVectorName;
     caf::PdmField<bool> m_unit;
     caf::PdmField<bool> m_regionNumber;
-    caf::PdmField<bool> m_wellGroupName;
+    caf::PdmField<bool> m_groupName;
     caf::PdmField<bool> m_wellName;
     caf::PdmField<bool> m_wellSegmentNumber;
     caf::PdmField<bool> m_lgrName;

@@ -74,7 +74,7 @@ private:
     caf::PdmField<QString> m_quantityName;
     caf::PdmField<int>     m_regionNumber;
     caf::PdmField<int>     m_regionNumber2;
-    caf::PdmField<QString> m_wellGroupName;
+    caf::PdmField<QString> m_groupName;
     caf::PdmField<QString> m_wellName;
     caf::PdmField<int>     m_wellSegmentNumber;
     caf::PdmField<QString> m_lgrName;

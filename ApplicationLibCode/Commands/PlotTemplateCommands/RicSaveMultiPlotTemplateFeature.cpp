@@ -218,17 +218,17 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                         objectAsText );
     }
 
-    if ( settings.usePlacholderForWellGroups() )
+    if ( settings.usePlacholderForGroups() )
     {
         std::set<QString> sourceStrings;
-        for ( const auto& wellGroupName : analyzer.wellGroupNames() )
+        for ( const auto& groupName : analyzer.groupNames() )
         {
-            sourceStrings.insert( QString::fromStdString( wellGroupName ) );
+            sourceStrings.insert( QString::fromStdString( groupName ) );
         }
 
         replaceStrings( sourceStrings,
-                        dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ),
-                        RicSummaryPlotTemplateTools::placeholderTextForWellGroup(),
+                        dummy.keywordForCategory( RifEclipseSummaryAddress::SUMMARY_GROUP ),
+                        RicSummaryPlotTemplateTools::placeholderTextForGroup(),
                         objectAsText );
     }
 

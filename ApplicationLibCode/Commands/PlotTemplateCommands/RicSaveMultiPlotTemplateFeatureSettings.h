@@ -36,7 +36,7 @@ public:
     QString filePath() const;
 
     bool usePlacholderForWells() const;
-    bool usePlacholderForWellGroups() const;
+    bool usePlacholderForGroups() const;
     bool usePlacholderForRegions() const;
 
 private:
@@ -48,6 +48,6 @@ private:
 private:
     caf::PdmField<caf::FilePath> m_filePath;
     caf::PdmField<bool>          m_replaceWells;
-    caf::PdmField<bool>          m_replaceWellGroups;
+    caf::PdmField<bool>          m_replaceGroups;
     caf::PdmField<bool>          m_replaceRegions;
 };

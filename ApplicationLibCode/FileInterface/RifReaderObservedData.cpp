@@ -161,7 +161,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
     std::string quantityName = quantity.toStdString();
     int         regionNumber( -1 );
     int         regionNumber2( -1 );
-    std::string wellGroupName;
+    std::string groupName;
     std::string wellName;
     int         wellSegmentNumber( -1 );
     std::string lgrName;
@@ -174,8 +174,8 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
 
     switch ( summaryCategory )
     {
-        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
-            wellGroupName = identifierName.toStdString();
+        case RifEclipseSummaryAddress::SUMMARY_GROUP:
+            groupName = identifierName.toStdString();
             break;
         case RifEclipseSummaryAddress::SUMMARY_WELL:
             wellName = identifierName.toStdString();
@@ -191,7 +191,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
                                      quantityName,
                                      regionNumber,
                                      regionNumber2,
-                                     wellGroupName,
+                                     groupName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,

@@ -43,11 +43,11 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
         title += QString::fromStdString( wellName );
     }
 
-    auto wellGroupName = this->titleWellGroupName();
-    if ( !other.isWellGroupNameInTitle() && !wellGroupName.empty() )
+    auto groupName = this->titleGroupName();
+    if ( !other.isGroupNameInTitle() && !groupName.empty() )
     {
         if ( !title.isEmpty() ) title += ", ";
-        title += QString::fromStdString( wellGroupName );
+        title += QString::fromStdString( groupName );
     }
 
     auto region = this->titleRegion();

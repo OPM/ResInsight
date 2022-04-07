@@ -131,7 +131,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     RimSummaryAddressCollection* fields  = getOrCreateSubfolder( "Field", CollectionContentType::FIELD );
     RimSummaryAddressCollection* regions = getOrCreateSubfolder( "Regions", CollectionContentType::REGION_FOLDER );
     RimSummaryAddressCollection* wells   = getOrCreateSubfolder( "Wells", CollectionContentType::WELL_FOLDER );
-    RimSummaryAddressCollection* groups = getOrCreateSubfolder( "Well Groups", CollectionContentType::WELL_GROUP_FOLDER );
+    RimSummaryAddressCollection* groups  = getOrCreateSubfolder( "Groups", CollectionContentType::GROUP_FOLDER );
 
     for ( const auto& address : addresses )
     {
@@ -153,8 +153,8 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                                          ensembleId );
                 break;
 
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_GROUP:
-                groups->addToSubfolder( QString::fromStdString( address.wellGroupName() ),
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP:
+                groups->addToSubfolder( QString::fromStdString( address.groupName() ),
                                         CollectionContentType::WELL_GROUP,
                                         address,
                                         caseId,

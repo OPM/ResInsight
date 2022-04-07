@@ -47,14 +47,14 @@ public:
                                           const std::vector<RimSummaryCase*>&           selectedSummaryCases,
                                           const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
                                           const std::vector<QString>&                   wellNames,
-                                          const std::vector<QString>&                   wellGroupNames,
+                                          const std::vector<QString>&                   groupNames,
                                           const std::vector<QString>&                   regions );
 
     static void setValuesForPlaceholders( RimSummaryPlot*                               summaryPlot,
                                           const std::vector<RimSummaryCase*>&           selectedSummaryCases,
                                           const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
                                           const std::vector<QString>&                   wellNames,
-                                          const std::vector<QString>&                   wellGroupNames,
+                                          const std::vector<QString>&                   groupNames,
                                           const std::vector<QString>&                   regions );
 
     static RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName );
@@ -81,7 +81,7 @@ public:
     static QString placeholderTextForSummaryCase();
     static QString placeholderTextForSummaryGroup();
     static QString placeholderTextForWell();
-    static QString placeholderTextForWellGroup();
+    static QString placeholderTextForGroup();
 
 private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
@@ -90,7 +90,6 @@ private:
     static int findValueForKeyword( const QString& keyword, const QString& valueString, bool* ok );
 
     static void setPlaceholderWellName( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& wellNames );
-    static void setPlaceholderWellGroupName( RifEclipseSummaryAddress*   summaryAddress,
-                                             const std::vector<QString>& wellGroupNames );
+    static void setPlaceholderGroupName( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& groupNames );
     static void setPlaceholderRegion( RifEclipseSummaryAddress* summaryAddress, const std::vector<QString>& regions );
 };

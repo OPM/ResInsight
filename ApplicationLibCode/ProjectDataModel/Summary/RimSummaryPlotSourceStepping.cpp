@@ -63,7 +63,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
                        "Include Ensemble Cases in Case List" );
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
-    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "GroupName", "Group Name" );
+    CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name" );
     CAF_PDM_InitFieldNoDefault( &m_region, "Region", "Region" );
     CAF_PDM_InitFieldNoDefault( &m_quantity, "Quantities", "Quantity" );
 
@@ -321,9 +321,9 @@ QList<caf::PdmOptionItemInfo>
             {
                 category = RifEclipseSummaryAddress::SUMMARY_REGION;
             }
-            else if ( fieldNeedingOptions == &m_wellGroupName )
+            else if ( fieldNeedingOptions == &m_groupName )
             {
-                category = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
+                category = RifEclipseSummaryAddress::SUMMARY_GROUP;
             }
             else if ( fieldNeedingOptions == &m_cellBlock )
             {
@@ -436,7 +436,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
 
         m_wellName.uiCapability()->updateConnectedEditors();
-        m_wellGroupName.uiCapability()->updateConnectedEditors();
+        m_groupName.uiCapability()->updateConnectedEditors();
         m_region.uiCapability()->updateConnectedEditors();
         m_quantity.uiCapability()->updateConnectedEditors();
     }
@@ -459,7 +459,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
 
         m_wellName.uiCapability()->updateConnectedEditors();
-        m_wellGroupName.uiCapability()->updateConnectedEditors();
+        m_groupName.uiCapability()->updateConnectedEditors();
         m_region.uiCapability()->updateConnectedEditors();
         m_quantity.uiCapability()->updateConnectedEditors();
     }
@@ -505,9 +505,9 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_REGION;
         }
-        else if ( changedField == &m_wellGroupName )
+        else if ( changedField == &m_groupName )
         {
-            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_WELL_GROUP;
+            summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_GROUP;
         }
         else if ( changedField == &m_cellBlock )
         {
@@ -614,9 +614,9 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
         return &m_wellName;
     }
 
-    if ( analyzer.wellGroupNames().size() == 1 )
+    if ( analyzer.groupNames().size() == 1 )
     {
-        return &m_wellGroupName;
+        return &m_groupName;
     }
 
     if ( analyzer.regionNumbers().size() == 1 )
@@ -820,12 +820,12 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
                 fieldsCommonForAllCurves.push_back( &m_wellName );
             }
 
-            if ( analyzer.wellGroupNames().size() == 1 )
+            if ( analyzer.groupNames().size() == 1 )
             {
-                QString txt     = QString::fromStdString( *( analyzer.wellGroupNames().begin() ) );
-                m_wellGroupName = txt;
+                QString txt = QString::fromStdString( *( analyzer.groupNames().begin() ) );
+                m_groupName = txt;
 
-                fieldsCommonForAllCurves.push_back( &m_wellGroupName );
+                fieldsCommonForAllCurves.push_back( &m_groupName );
             }
 
             if ( analyzer.regionNumbers().size() == 1 )
@@ -1000,7 +1000,7 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
             nextText = RimSummaryPlotControls::caseNextKeyText();
             prevText = RimSummaryPlotControls::casePrevKeyText();
         }
-        else if ( field == &m_wellName || field == &m_wellGroupName || field == &m_region )
+        else if ( field == &m_wellName || field == &m_groupName || field == &m_region )
         {
             nextText = RimSummaryPlotControls::otherNextKeyText();
             prevText = RimSummaryPlotControls::otherPrevKeyText();

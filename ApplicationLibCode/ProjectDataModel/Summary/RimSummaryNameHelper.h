@@ -39,7 +39,7 @@ public:
 
     virtual bool isPlotDisplayingSingleQuantity() const = 0;
     virtual bool isWellNameInTitle() const              = 0;
-    virtual bool isWellGroupNameInTitle() const         = 0;
+    virtual bool isGroupNameInTitle() const             = 0;
     virtual bool isRegionInTitle() const                = 0;
     virtual bool isCaseInTitle() const                  = 0;
     virtual bool isBlockInTitle() const                 = 0;
@@ -48,11 +48,11 @@ public:
 
     virtual QString caseName() const = 0;
 
-    virtual std::string titleQuantity() const      = 0;
-    virtual std::string titleWellName() const      = 0;
-    virtual std::string titleWellGroupName() const = 0;
-    virtual std::string titleRegion() const        = 0;
-    virtual std::string titleBlock() const         = 0;
-    virtual std::string titleSegment() const       = 0;
-    virtual std::string titleCompletion() const    = 0;
+    virtual std::string titleQuantity() const   = 0;
+    virtual std::string titleWellName() const   = 0;
+    virtual std::string titleGroupName() const  = 0;
+    virtual std::string titleRegion() const     = 0;
+    virtual std::string titleBlock() const      = 0;
+    virtual std::string titleSegment() const    = 0;
+    virtual std::string titleCompletion() const = 0;
 };

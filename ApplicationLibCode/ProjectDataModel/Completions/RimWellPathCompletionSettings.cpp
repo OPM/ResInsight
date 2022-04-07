@@ -81,7 +81,7 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings()
     CAF_PDM_InitField( &m_wellNameForExport, "WellNameForExport", QString(), "Well Name" );
     m_wellNameForExport.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_wellGroupName, "WellGroupNameForExport", QString(), "Well Group Name" );
+    CAF_PDM_InitField( &m_groupName, "WellGroupNameForExport", QString(), "Group Name" );
     CAF_PDM_InitField( &m_referenceDepth, "ReferenceDepthForExport", QString(), "Reference Depth for BHP" );
     CAF_PDM_InitFieldNoDefault( &m_preferredFluidPhase, "WellTypeForExport", "Preferred Fluid Phase" );
     CAF_PDM_InitField( &m_drainageRadiusForPI, "DrainageRadiusForPI", QString( "0.0" ), "Drainage Radius for PI" );
@@ -113,7 +113,7 @@ RimWellPathCompletionSettings::RimWellPathCompletionSettings( const RimWellPathC
 RimWellPathCompletionSettings& RimWellPathCompletionSettings::operator=( const RimWellPathCompletionSettings& rhs )
 {
     m_wellNameForExport     = rhs.m_wellNameForExport;
-    m_wellGroupName         = rhs.m_wellGroupName;
+    m_groupName             = rhs.m_groupName;
     m_referenceDepth        = rhs.m_referenceDepth;
     m_preferredFluidPhase   = rhs.m_preferredFluidPhase;
     m_drainageRadiusForPI   = rhs.m_drainageRadiusForPI;
@@ -158,9 +158,9 @@ QString RimWellPathCompletionSettings::wellNameForExport() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimWellPathCompletionSettings::wellGroupNameForExport() const
+QString RimWellPathCompletionSettings::groupNameForExport() const
 {
-    return formatStringForExport( m_wellGroupName, "1*" );
+    return formatStringForExport( m_groupName, "1*" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,7 +280,7 @@ void RimWellPathCompletionSettings::defineUiOrdering( QString uiConfigName, caf:
     {
         caf::PdmUiGroup* compExportGroup = uiOrdering.addNewGroup( "Completion Export Parameters" );
         compExportGroup->add( &m_wellNameForExport );
-        compExportGroup->add( &m_wellGroupName );
+        compExportGroup->add( &m_groupName );
         compExportGroup->add( &m_referenceDepth );
         compExportGroup->add( &m_preferredFluidPhase );
         compExportGroup->add( &m_drainageRadiusForPI );

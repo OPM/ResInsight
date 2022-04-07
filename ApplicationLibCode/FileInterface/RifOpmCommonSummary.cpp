@@ -292,7 +292,7 @@ RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode(
             return RifEclipseSummaryAddress::wellAddress( summaryNode.keyword, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Group:
-            return RifEclipseSummaryAddress::wellGroupAddress( summaryNode.keyword, summaryNode.wgname );
+            return RifEclipseSummaryAddress::groupAddress( summaryNode.keyword, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Field:
             return RifEclipseSummaryAddress::fieldAddress( summaryNode.keyword );
@@ -328,7 +328,7 @@ RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode(
             // The vector "GPR" is defined as Node
             // The behavior in libecl is to use the category Group
             // https://github.com/OPM/ResInsight/issues/7838
-            return RifEclipseSummaryAddress::wellGroupAddress( summaryNode.keyword, summaryNode.wgname );
+            return RifEclipseSummaryAddress::groupAddress( summaryNode.keyword, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Network:
             return RifEclipseSummaryAddress::networkAddress( summaryNode.keyword );

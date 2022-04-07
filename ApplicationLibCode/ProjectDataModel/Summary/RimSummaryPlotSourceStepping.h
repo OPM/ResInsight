@@ -97,7 +97,7 @@ private:
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
 
     caf::PdmField<QString> m_wellName;
-    caf::PdmField<QString> m_wellGroupName;
+    caf::PdmField<QString> m_groupName;
     caf::PdmField<int>     m_region;
     caf::PdmField<QString> m_quantity;
     caf::PdmField<QString> m_placeholderForLabel;

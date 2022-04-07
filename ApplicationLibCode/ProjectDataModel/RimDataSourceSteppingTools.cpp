@@ -104,14 +104,14 @@ bool RimDataSourceSteppingTools::updateAddressIfMatching( const QVariant&       
             return true;
         }
     }
-    else if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP )
+    else if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP )
     {
         std::string oldString = oldValue.toString().toStdString();
         std::string newString = newValue.toString().toStdString();
 
-        if ( adr->wellGroupName() == oldString )
+        if ( adr->groupName() == oldString )
         {
-            adr->setWellGroupName( newString );
+            adr->setGroupName( newString );
 
             return true;
         }

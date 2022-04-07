@@ -35,7 +35,7 @@ void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
     addItem( RifEclipseSummaryAddress::SUMMARY_MISC, "SUMMARY_MISC", "Misc" );
     addItem( RifEclipseSummaryAddress::SUMMARY_REGION, "SUMMARY_REGION", "Region" );
     addItem( RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, "SUMMARY_REGION_2_REGION", "Region-Region" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP, "SUMMARY_WELL_GROUP", "Group" );
+    addItem( RifEclipseSummaryAddress::SUMMARY_GROUP, "SUMMARY_WELL_GROUP", "Group" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL, "SUMMARY_WELL", "Well" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", "Completion" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR, "SUMMARY_WELL_COMPLETION_LGR", "Lgr-Completion" );
@@ -64,7 +64,7 @@ RimSummaryAddress::RimSummaryAddress()
     CAF_PDM_InitFieldNoDefault( &m_quantityName, "SummaryQuantityName", "Quantity" );
     CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region" );
     CAF_PDM_InitFieldNoDefault( &m_regionNumber2, "SummaryRegion2", "Region2" );
-    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "SummaryWellGroup", "Group" );
+    CAF_PDM_InitFieldNoDefault( &m_groupName, "SummaryWellGroup", "Group" );
     CAF_PDM_InitFieldNoDefault( &m_wellName, "SummaryWell", "Well" );
     CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumber, "SummaryWellSegment", "Well Segment" );
     CAF_PDM_InitFieldNoDefault( &m_lgrName, "SummaryLgr", "Grid" );
@@ -120,7 +120,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_quantityName      = addr.quantityName().c_str();
     m_regionNumber      = addr.regionNumber();
     m_regionNumber2     = addr.regionNumber2();
-    m_wellGroupName     = addr.wellGroupName().c_str();
+    m_groupName         = addr.groupName().c_str();
     m_wellName          = addr.wellName().c_str();
     m_wellSegmentNumber = addr.wellSegmentNumber();
     m_lgrName           = addr.lgrName().c_str();
@@ -144,7 +144,7 @@ RifEclipseSummaryAddress RimSummaryAddress::address()
                                      m_quantityName().toStdString(),
                                      m_regionNumber(),
                                      m_regionNumber2(),
-                                     m_wellGroupName().toStdString(),
+                                     m_groupName().toStdString(),
                                      m_wellName().toStdString(),
                                      m_wellSegmentNumber(),
                                      m_lgrName().toStdString(),
@@ -206,7 +206,7 @@ QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddress::Summary
     // Return the keyword text for supported field replacement in plot templates
 
     if ( category == RifEclipseSummaryAddress::SUMMARY_WELL ) return m_wellName.keyword();
-    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ) return m_wellGroupName.keyword();
+    if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP ) return m_groupName.keyword();
     if ( category == RifEclipseSummaryAddress::SUMMARY_REGION ) return m_regionNumber.keyword();
 
     return {};

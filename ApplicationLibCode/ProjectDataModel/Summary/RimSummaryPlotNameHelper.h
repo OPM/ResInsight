@@ -53,7 +53,7 @@ public:
 
     bool isPlotDisplayingSingleQuantity() const override;
     bool isWellNameInTitle() const override;
-    bool isWellGroupNameInTitle() const override;
+    bool isGroupNameInTitle() const override;
     bool isRegionInTitle() const override;
     bool isCaseInTitle() const override;
     bool isBlockInTitle() const override;
@@ -64,7 +64,7 @@ public:
 
     std::string titleQuantity() const override;
     std::string titleWellName() const override;
-    std::string titleWellGroupName() const override;
+    std::string titleGroupName() const override;
     std::string titleRegion() const override;
     std::string titleBlock() const override;
     std::string titleSegment() const override;
@@ -85,7 +85,7 @@ private:
 
     std::string m_titleQuantity;
     std::string m_titleWellName;
-    std::string m_titleWellGroupName;
+    std::string m_titleGroupName;
     std::string m_titleRegion;
     std::string m_titleBlock;
     std::string m_titleSegment;

@@ -90,7 +90,7 @@ caf::PdmOptionItemInfo
         case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
             iconText = ":/summary/components/images/region-region.svg";
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        case RifEclipseSummaryAddress::SUMMARY_GROUP:
             iconText = ":/summary/components/images/group.svg";
             break;
         case RifEclipseSummaryAddress::SUMMARY_WELL:

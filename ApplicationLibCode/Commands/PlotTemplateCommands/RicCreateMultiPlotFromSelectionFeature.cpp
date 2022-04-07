@@ -61,7 +61,7 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
     auto summaryAddressCollections = RicSummaryPlotTemplateTools::selectedSummaryAddressCollections();
 
     std::vector<QString>                wellNames;
-    std::vector<QString>                wellGroupNames;
+    std::vector<QString>                groupNames;
     std::vector<QString>                regions;
     std::set<RimSummaryCase*>           caseSet;
     std::set<RimSummaryCaseCollection*> caseCollectionSet;
@@ -74,7 +74,7 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
         }
         else if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
         {
-            wellGroupNames.push_back( a->name() );
+            groupNames.push_back( a->name() );
         }
         else if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
         {
@@ -110,7 +110,7 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
                                                            sumCases,
                                                            sumCaseCollections,
                                                            wellNames,
-                                                           wellGroupNames,
+                                                           groupNames,
                                                            regions );
     newSummaryPlot->initAfterReadRecursively();
     newSummaryPlot->loadDataAndUpdate();
