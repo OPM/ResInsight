@@ -108,7 +108,7 @@ public:
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
 
-    virtual std::vector<caf::PdmFieldHandle*> RimMultiPlot::fieldsToShowInToolbar();
+    virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
 protected:
     QImage snapshotWindowContent() override;
