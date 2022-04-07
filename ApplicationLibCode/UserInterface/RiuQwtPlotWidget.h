@@ -79,6 +79,7 @@ public:
                                    int  alignment = (int)Qt::AlignCenter ) override;
 
     void enableAxis( RiuPlotAxis axis, bool isEnabled ) override;
+    void enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled ) override;
     bool axisEnabled( RiuPlotAxis axis ) const override;
 
     void setAxisScale( RiuPlotAxis axis, double min, double max ) override;

@@ -1132,6 +1132,14 @@ void RiuQwtPlotWidget::enableAxis( RiuPlotAxis axis, bool isEnabled )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled )
+{
+    m_plot->axisScaleDraw( toQwtPlotAxis( axis ) )->enableComponent( QwtAbstractScaleDraw::Labels, isEnabled );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::axisEnabled( RiuPlotAxis axis ) const
 {
     return m_plot->isAxisVisible( toQwtPlotAxis( axis ) );

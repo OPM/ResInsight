@@ -825,6 +825,8 @@ void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
             {
                 plotWidget()->enableAxis( riuPlotAxis, false );
             }
+
+            plotWidget()->enableAxisNumberLabels( riuPlotAxis, axisProperties->showNumbers() );
         }
     }
 }

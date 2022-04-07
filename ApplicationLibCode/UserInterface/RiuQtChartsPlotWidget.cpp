@@ -200,6 +200,13 @@ void RiuQtChartsPlotWidget::setAxesFontsAndAlignment( int titleFontSize, int val
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotWidget::enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotWidget::setAxisTitleText( RiuPlotAxis axis, const QString& title )
 {
     m_axisTitles[axis] = title;

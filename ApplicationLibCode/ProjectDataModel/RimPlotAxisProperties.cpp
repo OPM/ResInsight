@@ -82,6 +82,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
     CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
     CAF_PDM_InitField( &m_isAxisInverted, "AxisInverted", false, "Invert Axis" );
+    CAF_PDM_InitField( &m_showNumbers, "ShowNumbers", true, "Show Numbers" );
 
     auto defaultPlotAxis = caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     CAF_PDM_InitField( &m_plotAxis, "PlotAxis", defaultPlotAxis, "Plot Axis" );
@@ -215,6 +216,7 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     {
         scaleGroup.add( &m_isLogarithmicScaleEnabled );
         scaleGroup.add( &m_isAxisInverted );
+        scaleGroup.add( &m_showNumbers );
     }
     scaleGroup.add( &numberFormat );
 
@@ -377,6 +379,22 @@ void RimPlotAxisProperties::removeAllAnnotations()
 void RimPlotAxisProperties::setAxisInverted( bool inverted )
 {
     m_isAxisInverted = inverted;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotAxisProperties::showNumbers() const
+{
+    return m_showNumbers;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setShowNumbers( bool enable )
+{
+    m_showNumbers = enable;
 }
 
 //--------------------------------------------------------------------------------------------------

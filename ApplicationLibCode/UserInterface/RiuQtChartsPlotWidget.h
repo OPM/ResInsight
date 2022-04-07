@@ -86,6 +86,7 @@ public:
                                    bool titleBold = false,
                                    int  alignment = (int)Qt::AlignCenter ) override;
 
+    void enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled ) override;
     void enableAxis( RiuPlotAxis axis, bool isEnabled ) override;
     bool axisEnabled( RiuPlotAxis axis ) const override;
 
