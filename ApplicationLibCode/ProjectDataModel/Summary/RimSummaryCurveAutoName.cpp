@@ -49,7 +49,7 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
     CAF_PDM_InitField(       &m_vectorName, "VectorName",           true,   "Vector Name");
     CAF_PDM_InitField(             &m_unit, "Unit",                 false,  "Unit");
     CAF_PDM_InitField(     &m_regionNumber, "RegionNumber",         true,   "Region Number");
-    CAF_PDM_InitField(    &m_wellGroupName, "WellGroupName",        true,   "Group Name");
+    CAF_PDM_InitField(        &m_groupName, "WellGroupName",        true,   "Group Name");
     CAF_PDM_InitField(         &m_wellName, "WellName",             true,   "Well Name");
     CAF_PDM_InitField(&m_wellSegmentNumber, "WellSegmentNumber",    true,   "Well Segment Number");
     CAF_PDM_InitField(          &m_lgrName, "LgrName",              true,   "Lgr Name");
@@ -141,7 +141,7 @@ void RimSummaryCurveAutoName::applySettings( const RimSummaryCurveAutoName& othe
     m_longVectorName    = other.m_longVectorName;
     m_unit              = other.m_unit;
     m_regionNumber      = other.m_regionNumber;
-    m_wellGroupName     = other.m_wellGroupName;
+    m_groupName         = other.m_groupName;
     m_wellName          = other.m_wellName;
     m_wellSegmentNumber = other.m_wellSegmentNumber;
     m_lgrName           = other.m_lgrName;
@@ -289,7 +289,7 @@ void RimSummaryCurveAutoName::appendAddressDetails( std::string&                
         break;
         case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
         {
-            if ( m_wellGroupName )
+            if ( m_groupName )
             {
                 bool skipSubString = nameHelper && nameHelper->isGroupNameInTitle();
                 if ( !skipSubString )
@@ -440,7 +440,7 @@ void RimSummaryCurveAutoName::defineUiOrdering( QString uiConfigName, caf::PdmUi
     uiOrdering.add( &m_caseName );
     uiOrdering.add( &m_vectorName );
     uiOrdering.add( &m_longVectorName );
-    uiOrdering.add( &m_wellGroupName );
+    uiOrdering.add( &m_groupName );
     uiOrdering.add( &m_wellName );
 
     caf::PdmUiGroup& advanced = *( uiOrdering.addNewGroup( "Advanced" ) );
