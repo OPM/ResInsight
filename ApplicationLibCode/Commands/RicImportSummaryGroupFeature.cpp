@@ -71,8 +71,7 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
     if ( mainPlotWindow && !cases.empty() )
     {
         mainPlotWindow->selectAsCurrentItem( cases.back() );
-
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 
     std::vector<RimCase*> allCases;

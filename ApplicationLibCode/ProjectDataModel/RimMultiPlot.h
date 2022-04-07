@@ -89,11 +89,8 @@ public:
     void setRowCount( RiaDefines::RowCount rowCount );
     void setTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
 
-    int                  columnCount() const override;
-    int                  rowsPerPage() const;
-    caf::PdmFieldHandle* columnCountField();
-    caf::PdmFieldHandle* rowsPerPageField();
-    caf::PdmFieldHandle* pagePreviewField();
+    int columnCount() const override;
+    int rowsPerPage() const;
 
     void setShowPlotTitles( bool enable );
     bool showPlotTitles() const;
@@ -107,6 +104,8 @@ public:
     int subTitleFontSize() const;
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
+
+    virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
 protected:
     QImage snapshotWindowContent() override;
@@ -128,7 +127,6 @@ protected:
 
     void onLoadDataAndUpdate() override;
     void initAfterRead() override;
-
 
     void applyPlotWindowTitleToWidgets();
     void updatePlots();

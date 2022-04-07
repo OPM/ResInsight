@@ -84,6 +84,8 @@ public:
 
     void renderTo( QPaintDevice* painter );
 
+    void scrollToPlot( RiuPlotWidget* plotWidget );
+
     void goToNextPage();
     void goToPrevPage();
     void goToLastPage();

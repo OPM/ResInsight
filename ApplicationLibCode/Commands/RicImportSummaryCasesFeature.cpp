@@ -98,7 +98,7 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if ( mainPlotWindow && !cases.empty() )
     {
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 
     std::vector<RimCase*> allCases;
@@ -147,7 +147,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
         RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
         if ( mainPlotWindow && !cases->empty() )
         {
-            mainPlotWindow->updateSummaryPlotToolBar();
+            mainPlotWindow->updateMultiPlotToolBar();
 
             // Close main window if there are no eclipse cases imported
             std::vector<RimCase*> allCases;

@@ -236,7 +236,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::fieldChangedByUi( const caf::PdmFie
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         if ( mainPlotWindow )
         {
-            mainPlotWindow->updateSummaryPlotToolBar();
+            mainPlotWindow->updateMultiPlotToolBar();
         }
     }
 }

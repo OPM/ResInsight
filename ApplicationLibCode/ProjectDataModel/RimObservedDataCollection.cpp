@@ -128,7 +128,7 @@ void updateNewObservedDataCreated( caf::PdmObject* object )
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 
     RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-    if ( mpw ) mpw->updateSummaryPlotToolBar();
+    if ( mpw ) mpw->updateMultiPlotToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------

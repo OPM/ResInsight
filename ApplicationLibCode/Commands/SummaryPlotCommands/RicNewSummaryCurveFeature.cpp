@@ -107,7 +107,7 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
         app->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem( newCurve );
 
         RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 }
 

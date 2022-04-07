@@ -449,6 +449,9 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
         toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
     }
 
+    auto multiFields = RimMultiPlot::fieldsToShowInToolbar();
+    toolBarFields.insert( std::end( toolBarFields ), std::begin( multiFields ), std::end( multiFields ) );
+
     return toolBarFields;
 }
 
@@ -578,6 +581,14 @@ void RimSummaryMultiPlot::summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* o
 void RimSummaryMultiPlot::duplicate()
 {
     duplicatePlot.send( this );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::makeSureIsVisible( RimSummaryPlot* summaryPlot )
+{
+    if ( summaryPlot->plotWidget() && !m_viewer.isNull() ) m_viewer->scrollToPlot( summaryPlot->plotWidget() );
 }
 
 //--------------------------------------------------------------------------------------------------

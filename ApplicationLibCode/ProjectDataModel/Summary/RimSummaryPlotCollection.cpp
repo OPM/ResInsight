@@ -112,7 +112,7 @@ void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*   
 {
     updateSummaryNameHasChanged();
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    mainPlotWindow->updateSummaryPlotToolBar();
+    mainPlotWindow->updateMultiPlotToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------

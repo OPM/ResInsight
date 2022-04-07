@@ -68,7 +68,7 @@ public:
     void removePlotNoUpdate( RimPlot* plot ) override;
     void updateAfterPlotRemove() override;
 
-    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar() override;
 
     void syncAxisRanges();
 
@@ -78,6 +78,8 @@ public:
 
     std::vector<RimSummaryPlot*> summaryPlots() const;
     std::vector<RimSummaryPlot*> visibleSummaryPlots() const;
+
+    void makeSureIsVisible( RimSummaryPlot* plot );
 
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;

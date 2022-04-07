@@ -236,7 +236,7 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         field->setValueWithFieldChanged( true );
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
     else if ( changedField == &m_useAutoAppearanceAssignment && m_useAutoAppearanceAssignment )
     {
@@ -861,7 +861,7 @@ void RicSummaryPlotEditorUi::createNewPlot()
         m_targetPlot = newSummaryPlot;
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 }
 

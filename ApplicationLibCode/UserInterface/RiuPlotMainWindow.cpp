@@ -196,7 +196,6 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
     cleanUpTemporaryWidgets();
 
     m_wellLogPlotToolBarEditor->clear();
-    m_summaryPlotToolBarEditor->clear();
     m_multiPlotToolBarEditor->clear();
 
     setWindowTitle( "Plots - ResInsight" );
@@ -428,9 +427,6 @@ void RiuPlotMainWindow::createToolBars()
 
     m_wellLogPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Well Log Plot", this );
     m_wellLogPlotToolBarEditor->hide();
-
-    m_summaryPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Summary Plot", this );
-    m_summaryPlotToolBarEditor->hide();
 
     m_multiPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Multi Plot", this );
     m_multiPlotToolBarEditor->hide();
@@ -691,9 +687,8 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
     RimMultiPlot* plotWindow = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
     if ( plotWindow )
     {
-        std::vector<caf::PdmFieldHandle*> toolBarFields = { plotWindow->pagePreviewField(),
-                                                            plotWindow->columnCountField(),
-                                                            plotWindow->rowsPerPageField() };
+        std::vector<caf::PdmFieldHandle*> toolBarFields = plotWindow->fieldsToShowInToolbar();
+
         m_multiPlotToolBarEditor->setFields( toolBarFields );
         m_multiPlotToolBarEditor->updateUi();
         m_multiPlotToolBarEditor->show();
@@ -704,61 +699,6 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
         m_multiPlotToolBarEditor->hide();
     }
     refreshToolbars();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
-{
-    RimSummaryPlot*      summaryPlot      = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
-    RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_activePlotViewWindow.p() );
-
-    std::vector<caf::PdmFieldHandle*> toolBarFields;
-
-    if ( summaryMultiPlot )
-    {
-        toolBarFields = summaryMultiPlot->fieldsToShowInToolbar();
-    }
-    else if ( summaryPlot )
-    {
-        toolBarFields = summaryPlot->fieldsToShowInToolbar();
-    }
-
-    if ( toolBarFields.size() > 0 )
-    {
-        QString keyword;
-
-        if ( !m_summaryPlotToolBarEditor->isEditorDataValid( toolBarFields ) )
-        {
-            keyword = m_summaryPlotToolBarEditor->keywordForFocusWidget();
-
-            m_summaryPlotToolBarEditor->setFields( toolBarFields );
-        }
-
-        m_summaryPlotToolBarEditor->updateUi( caf::PdmUiToolBarEditor::uiEditorConfigName() );
-        m_summaryPlotToolBarEditor->show();
-        m_summaryPlotToolBarEditor->setFocusWidgetFromKeyword( keyword );
-    }
-    else
-    {
-        m_summaryPlotToolBarEditor->clear();
-        m_summaryPlotToolBarEditor->hide();
-    }
-
-    refreshToolbars();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::setFocusToLineEditInSummaryToolBar()
-{
-    if ( m_summaryPlotToolBarEditor )
-    {
-        m_summaryPlotToolBarEditor->setFocusWidgetFromKeyword(
-            RimSummaryPlotFilterTextCurveSetEditor::curveFilterFieldKeyword() );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -901,7 +841,6 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
     }
 
     updateWellLogPlotToolBar();
-    updateSummaryPlotToolBar();
     updateMultiPlotToolBar();
 }
 
@@ -1005,20 +944,17 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 
             if ( firstSelectedObject )
             {
-                RimSummaryPlot* summaryPlot = nullptr;
-                firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
-                if ( summaryPlot )
+                RimSummaryMultiPlot* multiSummaryPlot = nullptr;
+                firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
+                if ( multiSummaryPlot )
                 {
-                    updateSummaryPlotToolBar();
-                }
-                else
-                {
-                    RimSummaryMultiPlot* multiSummaryPlot = nullptr;
-                    firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
-                    if ( multiSummaryPlot )
+                    updateMultiPlotToolBar();
+
+                    RimSummaryPlot* summaryPlot = nullptr;
+                    firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
+                    if ( summaryPlot )
                     {
-                        updateSummaryPlotToolBar();
-                        updateMultiPlotToolBar();
+                        multiSummaryPlot->makeSureIsVisible( summaryPlot );
                     }
                 }
             }
