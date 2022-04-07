@@ -495,30 +495,6 @@ int RimMultiPlot::rowsPerPage() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimMultiPlot::columnCountField()
-{
-    return &m_columnCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimMultiPlot::rowsPerPageField()
-{
-    return &m_rowsPerPage;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-caf::PdmFieldHandle* RimMultiPlot::pagePreviewField()
-{
-    return &m_pagePreviewMode;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimMultiPlot::setShowPlotTitles( bool enable )
 {
     m_showIndividualPlotTitles = enable;
@@ -919,5 +895,5 @@ bool RimMultiPlot::isMouseCursorInsidePlot()
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimMultiPlot::fieldsToShowInToolbar()
 {
-    return { pagePreviewField(), columnCountField(), rowsPerPageField() };
+    return { &m_pagePreviewMode, &m_columnCount, &m_rowsPerPage };
 }

@@ -687,7 +687,9 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
     RimMultiPlot* plotWindow = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
     if ( plotWindow )
     {
-        m_multiPlotToolBarEditor->setFields( plotWindow->fieldsToShowInToolbar() );
+        std::vector<caf::PdmFieldHandle*> toolBarFields = plotWindow->fieldsToShowInToolbar();
+
+        m_multiPlotToolBarEditor->setFields( toolBarFields );
         m_multiPlotToolBarEditor->updateUi();
         m_multiPlotToolBarEditor->show();
     }

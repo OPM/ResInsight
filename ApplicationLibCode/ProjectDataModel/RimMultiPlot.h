@@ -89,11 +89,8 @@ public:
     void setRowCount( RiaDefines::RowCount rowCount );
     void setTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
 
-    int                  columnCount() const override;
-    int                  rowsPerPage() const;
-    caf::PdmFieldHandle* columnCountField();
-    caf::PdmFieldHandle* rowsPerPageField();
-    caf::PdmFieldHandle* pagePreviewField();
+    int columnCount() const override;
+    int rowsPerPage() const;
 
     void setShowPlotTitles( bool enable );
     bool showPlotTitles() const;
