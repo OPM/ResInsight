@@ -397,9 +397,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             ensembleCurveColl->updateConnectedEditors();
         }
 
-        RiuPlotMainWindow* mainPlotWindow               = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
-        bool               forceUpdateOfFieldsInToolbar = true;
-        mainPlotWindow->updateSummaryPlotToolBar( forceUpdateOfFieldsInToolbar );
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+        mainPlotWindow->updateMultiPlotToolBar();
 
         return;
     }
@@ -597,7 +596,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             }
 
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-            mainPlotWindow->updateSummaryPlotToolBar();
+            mainPlotWindow->updateMultiPlotToolBar();
         }
     }
 }

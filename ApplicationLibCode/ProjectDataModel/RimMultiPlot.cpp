@@ -913,3 +913,11 @@ bool RimMultiPlot::isMouseCursorInsidePlot()
     if ( !m_viewer ) return false;
     return m_viewer->underMouse();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimMultiPlot::fieldsToShowInToolbar()
+{
+    return { pagePreviewField(), columnCountField(), rowsPerPageField() };
+}

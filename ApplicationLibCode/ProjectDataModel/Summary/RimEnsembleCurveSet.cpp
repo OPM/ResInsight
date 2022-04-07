@@ -795,7 +795,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 plot->updateConnectedEditors();
 
                 RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-                mainPlotWindow->updateSummaryPlotToolBar();
+                mainPlotWindow->updateMultiPlotToolBar();
             }
         }
 

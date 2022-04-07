@@ -68,7 +68,7 @@ public:
     void removePlotNoUpdate( RimPlot* plot ) override;
     void updateAfterPlotRemove() override;
 
-    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+    std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar() override;
 
     void syncAxisRanges();
 

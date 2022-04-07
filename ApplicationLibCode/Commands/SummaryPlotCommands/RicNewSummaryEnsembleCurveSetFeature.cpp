@@ -130,7 +130,7 @@ RimSummaryPlot*
     if ( mainPlotWindow )
     {
         mainPlotWindow->selectAsCurrentItem( firstCurveSetCreated );
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
     return plot;
 }
@@ -183,7 +183,7 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
         if ( mainPlotWindow && firstCurveSet )
         {
             mainPlotWindow->selectAsCurrentItem( firstCurveSet );
-            mainPlotWindow->updateSummaryPlotToolBar();
+            mainPlotWindow->updateMultiPlotToolBar();
         }
     }
 }

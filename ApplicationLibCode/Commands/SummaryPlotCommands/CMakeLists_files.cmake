@@ -41,7 +41,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingSummaryCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingEnsembleCurveSetFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingEnsembleCurveSetFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicActivateCurveFilterInToolbarFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedSummaryFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPlotAxisPropertiesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryPlotManagerFeature.h
@@ -90,7 +89,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingSummaryCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicClearSourceSteppingEnsembleCurveSetFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSetSourceSteppingEnsembleCurveSetFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicActivateCurveFilterInToolbarFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedSummaryFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPlotAxisPropertiesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryPlotManagerFeature.cpp

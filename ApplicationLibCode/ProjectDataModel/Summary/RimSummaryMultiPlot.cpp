@@ -449,6 +449,9 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
         toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
     }
 
+    auto multiFields = RimMultiPlot::fieldsToShowInToolbar();
+    toolBarFields.insert( std::end( toolBarFields ), std::begin( multiFields ), std::end( multiFields ) );
+
     return toolBarFields;
 }
 

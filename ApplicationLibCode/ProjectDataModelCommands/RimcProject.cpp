@@ -76,7 +76,7 @@ caf::PdmObjectHandle* RimProject_importSummaryCase::execute()
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             if ( mainPlotWindow && !newCases.empty() )
             {
-                mainPlotWindow->updateSummaryPlotToolBar();
+                mainPlotWindow->updateMultiPlotToolBar();
             }
         }
 

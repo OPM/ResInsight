@@ -85,8 +85,6 @@ public:
 
     void updateWellLogPlotToolBar();
     void updateMultiPlotToolBar();
-    void updateSummaryPlotToolBar( bool forceUpdateUi = false );
-    void setFocusToLineEditInSummaryToolBar();
 
     RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog( bool createIfNotPresent );
     RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog( bool createIfNotPresent );
@@ -136,7 +134,6 @@ private:
 
     std::unique_ptr<caf::PdmUiToolBarEditor> m_wellLogPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotToolBarEditor;
-    std::unique_ptr<caf::PdmUiToolBarEditor> m_summaryPlotToolBarEditor;
 
     std::unique_ptr<caf::PdmUiPropertyView> m_pdmUiPropertyView;
     std::unique_ptr<caf::PdmUiPropertyView> m_summaryPlotManagerView;
