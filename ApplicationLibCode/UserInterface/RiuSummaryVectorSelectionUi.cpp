@@ -144,7 +144,7 @@ RiuSummaryVectorSelectionUi::RiuSummaryVectorSelectionUi()
           { RifEclipseSummaryAddress::SUMMARY_IMPORTED,
             { { new SummaryIdentifierAndField( RifEclipseSummaryAddress::INPUT_VECTOR_NAME ) } } },
       } )
-    , m_showIndividualEnsembleCases( false )
+    , m_showIndividualEnsembleCases( true )
 {
     CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SummaryCases", "Cases" );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
