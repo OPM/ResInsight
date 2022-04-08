@@ -558,7 +558,7 @@ QString RicSummaryPlotTemplateTools::placeholderTextForWell()
 //--------------------------------------------------------------------------------------------------
 QString RicSummaryPlotTemplateTools::placeholderTextForGroup()
 {
-    return "__WELL_GROUP__";
+    return "__GROUP__";
 }
 
 //--------------------------------------------------------------------------------------------------

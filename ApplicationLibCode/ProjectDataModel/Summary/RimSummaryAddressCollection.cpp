@@ -29,7 +29,7 @@ void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
 {
     addItem( RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED, "NOT_DEFINED", "Not Defined" );
     addItem( RimSummaryAddressCollection::CollectionContentType::WELL, "WELL", "Well" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_GROUP, "WELL_GROUP", "Well Group" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::GROUP, "GROUP", "Group" );
     addItem( RimSummaryAddressCollection::CollectionContentType::REGION, "REGION", "Region" );
     addItem( RimSummaryAddressCollection::CollectionContentType::MISC, "MISC", "Miscellaneous" );
     addItem( RimSummaryAddressCollection::CollectionContentType::FIELD, "FIELD", "Field" );
@@ -155,7 +155,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP:
                 groups->addToSubfolder( QString::fromStdString( address.groupName() ),
-                                        CollectionContentType::WELL_GROUP,
+                                        CollectionContentType::GROUP,
                                         address,
                                         caseId,
                                         ensembleId );
@@ -220,7 +220,7 @@ bool RimSummaryAddressCollection::canBeDragged() const
 {
     bool ok = m_subfolders.size() == 0;
 
-    ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::WELL_GROUP ||
+    ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::GROUP ||
                  m_contentType == CollectionContentType::REGION );
 
     return ok;

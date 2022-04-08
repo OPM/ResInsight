@@ -37,7 +37,7 @@ public:
     {
         NOT_DEFINED,
         WELL,
-        WELL_GROUP,
+        GROUP,
         REGION,
         FIELD,
         MISC,

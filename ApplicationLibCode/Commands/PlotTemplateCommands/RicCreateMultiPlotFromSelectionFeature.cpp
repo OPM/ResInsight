@@ -72,7 +72,7 @@ void RicCreateMultiPlotFromSelectionFeature::onActionTriggered( bool isChecked )
         {
             wellNames.push_back( a->name() );
         }
-        else if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+        else if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP )
         {
             groupNames.push_back( a->name() );
         }
