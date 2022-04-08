@@ -132,7 +132,7 @@ void RicAppendSummaryPlotsForObjectsFeature::setupActionLook( QAction* actionToS
         {
             objectType = "Wells";
         }
-        else if ( firstAdr->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+        else if ( firstAdr->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP )
         {
             objectType = "Groups";
         }
@@ -218,7 +218,7 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot(
             errorText = "Source plot must contain one well only to be able to duplicate a selection of wells";
         }
     }
-    else if ( selectionType == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+    else if ( selectionType == RimSummaryAddressCollection::CollectionContentType::GROUP )
     {
         if ( analyzer.groupNames().size() != 1 )
         {
@@ -268,7 +268,7 @@ RifEclipseSummaryAddress
     {
         adr.setWellName( objectName );
     }
-    else if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+    else if ( summaryAddressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP )
     {
         adr.setGroupName( objectName );
     }

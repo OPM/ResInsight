@@ -1972,21 +1972,24 @@ int RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* ad
     {
         auto newCurveDef = curveDef;
         auto curveAdr    = newCurveDef.summaryAddress();
-        if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
+        if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_WELL ) &&
+             ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL ) )
         {
             auto currentObjectString = curveAdr.wellName();
             curveAdr.setWellName( droppedName );
             newCurveDef.setSummaryAddress( curveAdr );
             newCurveDefsWithObjectNames[newCurveDef].insert( currentObjectString );
         }
-        else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_GROUP )
+        else if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_GROUP ) &&
+                  ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP ) )
         {
             auto currentObjectString = curveAdr.groupName();
             curveAdr.setGroupName( droppedName );
             newCurveDef.setSummaryAddress( curveAdr );
             newCurveDefsWithObjectNames[newCurveDef].insert( currentObjectString );
         }
-        else if ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
+        else if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_REGION ) &&
+                  ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION ) )
         {
             auto currentObjectString = std::to_string( curveAdr.regionNumber() );
 
