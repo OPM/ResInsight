@@ -147,6 +147,7 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
             }
 
             visibleIndex++;
+            col += colSpan - 1;
         }
     }
 }
