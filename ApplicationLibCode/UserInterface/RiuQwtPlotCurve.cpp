@@ -35,6 +35,7 @@
 #include "qwt_point_mapper.h"
 #include "qwt_scale_map.h"
 #include "qwt_symbol.h"
+#include "qwt_weeding_curve_fitter.h"
 
 #include <cmath>
 #include <limits>
@@ -519,4 +520,38 @@ void RiuQwtPlotCurve::setSymbol( RiuPlotCurveSymbol* symbol )
 RiuPlotCurveSymbol* RiuQwtPlotCurve::createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const
 {
     return new RiuQwtSymbol( symbol );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::enableCurveFitting( bool enable )
+{
+    if ( !enable )
+    {
+        setCurveAttribute( QwtPlotCurve::Fitted, false );
+    }
+    else
+    {
+        auto cf = dynamic_cast<QwtWeedingCurveFitter*>( curveFitter() );
+        if ( !cf )
+        {
+            auto curveFitter = new QwtWeedingCurveFitter;
+            setCurveFitter( curveFitter );
+        }
+        setCurveAttribute( QwtPlotCurve::Fitted, true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setCurveFittingData( double tolerance, size_t chunckSize )
+{
+    auto cf = dynamic_cast<QwtWeedingCurveFitter*>( curveFitter() );
+    if ( cf )
+    {
+        cf->setTolerance( tolerance );
+        cf->setChunkSize( static_cast<uint>( chunckSize ) );
+    }
 }

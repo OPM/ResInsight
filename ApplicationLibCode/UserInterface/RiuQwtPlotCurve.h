@@ -81,6 +81,9 @@ public:
     void                setSymbol( RiuPlotCurveSymbol* symbol ) override;
     RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
 
+    void enableCurveFitting( bool enable ) override;
+    void setCurveFittingData( double tolerance, size_t chunckSize ) override;
+
 protected:
     void drawCurve( QPainter*          p,
                     int                style,

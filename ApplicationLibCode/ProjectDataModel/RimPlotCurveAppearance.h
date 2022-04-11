@@ -84,6 +84,8 @@ public:
     void         setFillColor( const cvf::Color3f& fillColor );
     cvf::Color3f fillColor() const;
 
+    void curveFittingValues( bool& useCurveFitting, double& tolerance, double& chunkSize );
+
     void                                           setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
     RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolation() const;
 
@@ -108,6 +110,9 @@ protected:
     caf::PdmField<cvf::Color3f> m_curveColor;
     caf::PdmField<int>          m_curveThickness;
     caf::PdmField<float>        m_symbolSkipPixelDistance;
+
+    caf::PdmField<bool>  m_useCurveFitting;
+    caf::PdmField<float> m_curveFittingTolerance;
 
     caf::PdmField<PointSymbol>        m_pointSymbol;
     caf::PdmField<LineStyle>          m_lineStyle;

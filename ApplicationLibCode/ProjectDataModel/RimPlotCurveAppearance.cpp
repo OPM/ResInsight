@@ -106,6 +106,9 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
                        "Minimum pixel distance between symbols",
                        "" );
 
+    CAF_PDM_InitField( &m_useCurveFitting, "m_useCurveFitting", false, "Use Curve Fitting" );
+    CAF_PDM_InitField( &m_curveFittingTolerance, "m_curveFittingTolerance", 1.0f, "Curve Fitting Tolerance" );
+
     CAF_PDM_InitFieldNoDefault( &m_symbolLabel, "SymbolLabel", "Symbol Label" );
     CAF_PDM_InitField( &m_symbolSize, "SymbolSize", 6, "Symbol Size" );
 
@@ -126,30 +129,23 @@ void RimPlotCurveAppearance::fieldChangedByUi( const caf::PdmFieldHandle* change
                                                const QVariant&            oldValue,
                                                const QVariant&            newValue )
 {
-    if ( &m_curveColor == changedField || &m_curveThickness == changedField || &m_pointSymbol == changedField ||
-         &m_lineStyle == changedField || &m_symbolSkipPixelDistance == changedField ||
-         &m_curveInterpolation == changedField || &m_symbolSize == changedField || &m_symbolEdgeColor == changedField ||
-         &m_fillStyle == changedField || &m_fillColor == changedField )
+    if ( &m_pointSymbol == changedField )
     {
-        if ( &m_pointSymbol == changedField )
-        {
-            m_symbolSize.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE );
-            m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE );
-        }
-        else if ( &m_lineStyle == changedField )
-        {
-            m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() ==
-                                                            RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-            m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() ==
-                                                                RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-        }
-        else if ( &m_fillColor == changedField )
-        {
-            fillColorChanged.send();
-        }
-
-        appearanceChanged.send();
+        m_symbolSize.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE );
+        m_symbolSkipPixelDistance.uiCapability()->setUiReadOnly( m_pointSymbol() == RiuPlotCurveSymbol::SYMBOL_NONE );
     }
+    else if ( &m_lineStyle == changedField )
+    {
+        m_curveThickness.uiCapability()->setUiReadOnly( m_lineStyle() == RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+        m_curveInterpolation.uiCapability()->setUiReadOnly( m_lineStyle() ==
+                                                            RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+    }
+    else if ( &m_fillColor == changedField )
+    {
+        fillColorChanged.send();
+    }
+
+    appearanceChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,6 +205,10 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
     uiOrdering.add( &m_curveInterpolation );
     m_curveInterpolation.uiCapability()->setUiHidden( !m_interpolationVisible );
+
+    auto curveFittingGroup = uiOrdering.addNewGroup( "Curve Fitting" );
+    curveFittingGroup->add( &m_useCurveFitting );
+    curveFittingGroup->add( &m_curveFittingTolerance );
 
     uiOrdering.skipRemainingFields();
 }
@@ -420,6 +420,18 @@ void RimPlotCurveAppearance::setFillColor( const cvf::Color3f& fillColor )
 cvf::Color3f RimPlotCurveAppearance::fillColor() const
 {
     return m_fillColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurveAppearance::curveFittingValues( bool& useCurveFitting, double& tolerance, double& chunkSize )
+{
+    useCurveFitting = m_useCurveFitting();
+    tolerance       = m_curveFittingTolerance();
+
+    // Testing indicates that the tolerance is most important to improved visual appearance
+    chunkSize = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
