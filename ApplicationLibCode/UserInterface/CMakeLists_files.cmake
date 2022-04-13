@@ -261,6 +261,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotBook.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotPage.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h

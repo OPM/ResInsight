@@ -49,30 +49,35 @@ void RiuSummaryMultiPlotBook::createPages()
     CAF_ASSERT( m_plotDefinition );
 
     QList<QPointer<RiuPlotWidget>> plotWidgets = this->visiblePlotWidgets();
-    auto [rowCount, columnCount]               = this->rowAndColumnCount( plotWidgets.size() );
 
+    int columns     = std::max( 1, m_plotDefinition->columnCount() );
     int rowsPerPage = m_plotDefinition->rowsPerPage();
-    int row         = 0;
-    int column      = 0;
 
-    // Make sure we always add a page. For empty multi-plots we'll have an empty page with a drop target.
-    RiuMultiPlotPage* page = createPage();
+    int row = 0;
+    int col = 0;
+
+    RiuSummaryMultiPlotPage* page = createSummaryPage();
 
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
         int expectedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
-        int colSpan         = std::min( expectedColSpan, columnCount );
+        int colSpan         = std::min( expectedColSpan, columns );
 
-        // std::tie( row, column ) = page->findAvailableRowAndColumn( row, column, colSpan, columnCount );
-        // if ( row >= rowsPerPage )
-        //{
-        //    page   = createPage();
-        //    row    = 0;
-        //    column = 0;
-        //}
-        // CAF_ASSERT( plotWidgets[visibleIndex] );
-        // page->addPlot( plotWidgets[visibleIndex] );
-        // page->performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
+        if ( row >= rowsPerPage )
+        {
+            row  = 0;
+            page = createSummaryPage();
+        }
+
+        page->addPlot( plotWidgets[visibleIndex] );
+        page->performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
+
+        col += colSpan;
+        if ( col >= columns )
+        {
+            row++;
+            col = 0;
+        }
     }
 
     // Set page numbers in title when there's more than one page
@@ -84,5 +89,22 @@ void RiuSummaryMultiPlotBook::createPages()
             m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( m_pages.size() ) );
         }
     }
-    m_book->adjustSize();
+    adjustBookFrame();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuSummaryMultiPlotPage* RiuSummaryMultiPlotBook::createSummaryPage()
+{
+    RimSummaryMultiPlot*     sumMultPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
+    RiuSummaryMultiPlotPage* page        = new RiuSummaryMultiPlotPage( sumMultPlot, this );
+
+    applyPageSettings( page );
+
+    m_pages.push_back( page );
+    m_bookLayout->addWidget( page );
+
+    page->setVisible( true );
+    return page;
 }

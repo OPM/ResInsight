@@ -31,12 +31,12 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryPlotControls.h"
 
-#include "RimMultiPlot.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
 
+#include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
 #include "cafPdmUiComboBoxEditor.h"
@@ -618,4 +618,18 @@ void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitte
             plot->updateAll();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent )
+{
+    if ( m_viewer.isNull() )
+    {
+        m_viewer = new RiuSummaryMultiPlotBook( this, mainWindowParent );
+    }
+    recreatePlotWidgets();
+
+    return m_viewer;
 }

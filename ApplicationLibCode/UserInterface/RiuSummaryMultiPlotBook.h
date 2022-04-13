@@ -20,6 +20,7 @@
 #include "RiuMultiPlotBook.h"
 
 class RimSummaryMultiPlot;
+class RiuSummaryMultiPlotPage;
 
 //==================================================================================================
 //
@@ -35,4 +36,7 @@ public:
 
 protected:
     void createPages() override;
+
+private:
+    RiuSummaryMultiPlotPage* createSummaryPage();
 };

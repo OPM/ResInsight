@@ -90,6 +90,11 @@ public:
     QSize minimumSizeHint() const override;
     int   heightForWidth( int width ) const override;
 
+    std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
+
+public slots:
+    virtual void performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate );
+
 protected:
     void    contextMenuEvent( QContextMenuEvent* ) override;
     QLabel* createTitleLabel() const;
@@ -117,17 +122,12 @@ protected:
     QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
     QList<QPointer<QLabel>>           subTitlesForVisiblePlots() const;
 
-    std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
-
     void applyLook();
 
 private slots:
-    virtual void performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate );
-    void         onLegendUpdated();
+    void onLegendUpdated();
 
 protected:
-    friend class RiuMultiPlotBook;
-
     QPointer<QVBoxLayout>             m_layout;
     QPointer<QHBoxLayout>             m_plotLayout;
     QPointer<QFrame>                  m_plotWidgetFrame;

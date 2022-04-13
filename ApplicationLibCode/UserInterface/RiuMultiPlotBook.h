@@ -113,13 +113,17 @@ protected:
 
     bool eventFilter( QObject* obj, QEvent* ev ) override;
 
-    virtual void      createPages();
-    RiuMultiPlotPage* createPage();
+    virtual void createPages();
+
+    void adjustBookFrame();
+    void applyPageSettings( RiuMultiPlotPage* page );
+
+    const QList<QPointer<RiuMultiPlotPage>>& pages() const;
 
 private:
-    void                                     deleteAllPages();
-    const QList<QPointer<RiuMultiPlotPage>>& pages() const;
-    void                                     applyLook();
+    RiuMultiPlotPage* createPage();
+    void              deleteAllPages();
+    void              applyLook();
 
     void changeCurrentPage( int pageNumber );
 
