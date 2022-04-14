@@ -19,6 +19,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 
 #include "RiaColorTables.h"
+#include "RiaPreferences.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RiuQwtPlotCurve.h"
@@ -363,52 +364,12 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
     setOneCurveAppearance( m_groupAppearanceType, m_grpToAppearanceIdxMap.size(), grpAppearanceIdx, curve );
     setOneCurveAppearance( m_regionAppearanceType, m_regToAppearanceIdxMap.size(), regAppearanceIdx, curve );
 
-    if ( m_varAppearanceType == COLOR && m_secondCharToVarToAppearanceIdxMap.size() > 1 )
+    bool assignByPhase = m_varAppearanceType == COLOR && m_secondCharToVarToAppearanceIdxMap.size() > 1;
+    if ( RiaPreferences::current()->colorCurvesByPhase() ) assignByPhase = true;
+
+    if ( assignByPhase )
     {
-        int         subColorIndex = -1;
-        char        secondChar    = 0;
-        std::string varname       = curve->summaryAddressY().quantityName();
-
-        if ( curve->summaryAddressY().isHistoryQuantity() )
-        {
-            varname = varname.substr( 0, varname.size() - 1 );
-        }
-
-        if ( varname.size() > 1 )
-        {
-            secondChar = varname[1];
-            if ( !isExcplicitHandled( secondChar ) )
-            {
-                secondChar = 0; // Consider all others as one group for coloring
-            }
-        }
-
-        subColorIndex = m_secondCharToVarToAppearanceIdxMap[secondChar][varname];
-
-        if ( secondChar == 'W' )
-        {
-            // Pick blue
-            m_currentCurveBaseColor = cycledBlueColor( subColorIndex );
-        }
-        else if ( secondChar == 'O' )
-        {
-            // Pick Green
-            m_currentCurveBaseColor = cycledGreenColor( subColorIndex );
-        }
-        else if ( secondChar == 'G' )
-        {
-            // Pick Red
-            m_currentCurveBaseColor = cycledRedColor( subColorIndex );
-        }
-        else if ( secondChar == 'V' )
-        {
-            // Pick Brown
-            m_currentCurveBaseColor = cycledBrownColor( subColorIndex );
-        }
-        else
-        {
-            m_currentCurveBaseColor = cycledNoneRGBBrColor( subColorIndex );
-        }
+        assignColorByPhase( curve );
     }
     else
     {
@@ -418,6 +379,57 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
     curve->setColor( gradeColor( m_currentCurveBaseColor, m_currentCurveGradient ) );
 
     curve->setCurveAppearanceFromCaseType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveAppearanceCalculator::assignColorByPhase( RimSummaryCurve* curve )
+{
+    int         subColorIndex = -1;
+    char        secondChar    = 0;
+    std::string varname       = curve->summaryAddressY().quantityName();
+
+    if ( curve->summaryAddressY().isHistoryQuantity() )
+    {
+        varname = varname.substr( 0, varname.size() - 1 );
+    }
+
+    if ( varname.size() > 1 )
+    {
+        secondChar = varname[1];
+        if ( !isExcplicitHandled( secondChar ) )
+        {
+            secondChar = 0; // Consider all others as one group for coloring
+        }
+    }
+
+    subColorIndex = std::max( 0, m_secondCharToVarToAppearanceIdxMap[secondChar][varname] );
+
+    if ( secondChar == 'W' )
+    {
+        // Pick blue
+        m_currentCurveBaseColor = cycledBlueColor( subColorIndex );
+    }
+    else if ( secondChar == 'O' )
+    {
+        // Pick Green
+        m_currentCurveBaseColor = cycledGreenColor( subColorIndex );
+    }
+    else if ( secondChar == 'G' )
+    {
+        // Pick Red
+        m_currentCurveBaseColor = cycledRedColor( subColorIndex );
+    }
+    else if ( secondChar == 'V' )
+    {
+        // Pick Brown
+        m_currentCurveBaseColor = cycledBrownColor( subColorIndex );
+    }
+    else
+    {
+        m_currentCurveBaseColor = cycledNoneRGBBrColor( subColorIndex );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

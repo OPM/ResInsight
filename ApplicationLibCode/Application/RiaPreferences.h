@@ -83,6 +83,7 @@ public:
     void        setDefaultPlotTemplatePath( const QString& templatePath );
     bool        openExportedPdfInViewer() const;
     bool        useQtChartsAsDefaultPlotType() const;
+    bool        colorCurvesByPhase() const;
 
     RiaDefines::ThemeEnum guiTheme() const;
 
@@ -187,6 +188,7 @@ private:
     caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
     caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
     caf::PdmField<bool>          m_useQtChartsPlotByDefault;
+    caf::PdmField<bool>          m_curveColorByPhase;
 
     // Script paths
     caf::PdmField<QString> m_octaveExecutable;

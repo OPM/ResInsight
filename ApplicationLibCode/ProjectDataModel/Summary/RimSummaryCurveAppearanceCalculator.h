@@ -57,6 +57,8 @@ public:
 
     void setupCurveLook( RimSummaryCurve* curve );
 
+    void assignColorByPhase( RimSummaryCurve* curve );
+
     static cvf::Color3f                        cycledPaletteColor( int colorIndex );
     static cvf::Color3f                        cycledNoneRGBBrColor( int colorIndex );
     static cvf::Color3f                        cycledGreenColor( int colorIndex );
