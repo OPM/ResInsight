@@ -13,8 +13,13 @@ endif()
 
 # Qt
 if(NOT DEFINED (CEE_USE_QT5))
-  option(CEE_USE_QT5 "Use Qt5" ON)
+  option(CEE_USE_QT5 "Use Qt5" OFF)
 endif(NOT DEFINED (CEE_USE_QT5))
+
+# Qt
+if(NOT DEFINED (CEE_USE_QT6))
+  option(CEE_USE_QT6 "Use Qt6" ON)
+endif(NOT DEFINED (CEE_USE_QT6))
 
 if(CEE_USE_QT5)
   find_package(
@@ -23,6 +28,14 @@ if(CEE_USE_QT5)
     REQUIRED Core Gui OpenGL Widgets
   )
   set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::OpenGL Qt5::Widgets)
+elseif(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core Gui OpenGL Widgets
+  )
+  qt_standard_project_setup()
+  set(CMAKE_AUTOMOC ON) 
 else()
   find_package(
     Qt4

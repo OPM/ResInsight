@@ -2,12 +2,20 @@ cmake_minimum_required(VERSION 2.8.12)
 
 project(cafPdmScripting_UnitTests)
 
-find_package(
-  Qt5
-  COMPONENTS
-  REQUIRED Core Xml Gui
-)
-set(QT_LIBRARIES Qt5::Core Qt5::Xml Qt5::Gui)
+if(CEE_USE_QT6)
+  find_package(
+    Qt6
+    COMPONENTS
+    REQUIRED Core Gui Widgets 
+  )
+else()
+  find_package(
+    Qt5
+    COMPONENTS
+    REQUIRED Core Xml Gui
+  )
+  set(QT_LIBRARIES Qt5::Core Qt5::Xml Qt5::Gui)
+endif()
 
 if(MSVC AND (CMAKE_CXX_COMPILER_VERSION VERSION_GREATER 19.11))
   # VS 2017 : Disable warnings from from gtest code, using deprecated code
