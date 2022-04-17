@@ -261,7 +261,7 @@ TEST( BaseTest, Start )
         SimpleObj s;
         s.m_dir        = 10000;
         sp             = &s;
-        a->m_textField = "Hei og hå";
+        a->m_textField = "Hei";
         //*s2 = s;
         a->m_simpleObjPtrField = s2;
 

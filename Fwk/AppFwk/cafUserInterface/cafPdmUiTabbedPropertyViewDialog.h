@@ -11,7 +11,6 @@ class PdmUiPropertyView;
 class QDialogButtonBox;
 class QWidget;
 class QString;
-class QStringList;
 
 namespace caf
 {

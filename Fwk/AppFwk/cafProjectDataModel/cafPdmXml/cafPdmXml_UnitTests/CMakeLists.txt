@@ -6,8 +6,9 @@ if(CEE_USE_QT6)
   find_package(
     Qt6
     COMPONENTS
-    REQUIRED Core 
+    REQUIRED Core Xml
   )
+  set(QT_LIBRARIES Qt6::Core Qt6::Xml)
 else()
   find_package(
     Qt5

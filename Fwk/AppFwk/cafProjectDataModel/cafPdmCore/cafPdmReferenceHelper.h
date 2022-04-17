@@ -39,7 +39,7 @@
 #include "cafPdmObjectHandle.h"
 #include "cafPdmPointer.h"
 
-class QStringList;
+#include <QStringList>
 
 namespace caf
 {
