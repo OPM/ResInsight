@@ -40,13 +40,13 @@
 #include <set>
 #include <vector>
 
+#include "QWidget"
 #include <QObject>
 #include <QPointer>
 #include <QStringList>
 
 class QAction;
 class QKeySequence;
-class QWidget;
 
 namespace caf
 {

@@ -38,6 +38,7 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include "QStringListModel"
 #include <QLabel>
 #include <QLineEdit>
 #include <QPointer>

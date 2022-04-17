@@ -3,7 +3,6 @@
 #include "cafMemoryInspector.h"
 
 #include <QFile>
-#include <QRegExp>
 #include <QString>
 #include <QStringList>
 

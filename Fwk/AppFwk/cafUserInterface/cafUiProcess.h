@@ -36,6 +36,8 @@
 
 #pragma once
 
+#include "QElapsedTimer"
+#include "QTimer"
 #include <QDateTime>
 #include <QtCore/QProcess>
 
@@ -54,7 +56,7 @@ class UiProcess : public QProcess
     Q_OBJECT
 
 private:
-    QTime m_timer;
+    QElapsedTimer m_timer;
 
 public:
     explicit UiProcess( QObject* pParent = nullptr );

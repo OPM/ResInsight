@@ -403,7 +403,7 @@ void QMinimizePanel::initialize( const QString& title )
         {
             m_titleLabel               = new QLabel( title );
             QPalette titleLabelPalette = m_titleLabel->palette();
-            titleLabelPalette.setBrush( QPalette::Foreground, titleLabelPalette.windowText() );
+            // titleLabelPalette.setBrush( QPalette::Foreground, titleLabelPalette.windowText() );
             m_titleLabel->setPalette( titleLabelPalette );
             titleLayout->addWidget( m_titleLabel, 1, Qt::AlignLeft );
         }

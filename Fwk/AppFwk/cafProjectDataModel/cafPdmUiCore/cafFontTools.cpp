@@ -40,7 +40,7 @@
 #include "cafPdmUiItem.h"
 
 #include <QApplication>
-#include <QDesktopWidget>
+//#include <QDesktopWidget>
 
 #include <cmath>
 
@@ -95,7 +95,7 @@ int FontTools::pointSizeToPixelSize( int pointSize )
     auto app = dynamic_cast<const QApplication*>( QCoreApplication::instance() );
     if ( app )
     {
-        int    dpi    = app->desktop()->logicalDpiX();
+        int    dpi    = 10; // app->desktop()->logicalDpiX();
         double inches = pointSize / 72.0;
         return static_cast<int>( std::ceil( inches * dpi ) );
     }
@@ -118,7 +118,7 @@ int FontTools::pixelSizeToPointSize( int pixelSize )
     auto app = dynamic_cast<const QApplication*>( QCoreApplication::instance() );
     if ( app )
     {
-        int    dpi    = app->desktop()->logicalDpiX();
+        int    dpi    = 10; // app->desktop()->logicalDpiX();
         double inches = pixelSize / dpi;
         return static_cast<int>( std::ceil( inches * 72.0 ) );
     }

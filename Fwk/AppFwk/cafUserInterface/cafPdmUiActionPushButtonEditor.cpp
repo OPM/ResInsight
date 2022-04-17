@@ -76,7 +76,8 @@ void PdmUiActionPushButtonEditor::configureAndUpdateUi( const QString& uiConfigN
     {
         m_pushButton->setText( uiField()->uiName( uiConfigName ) );
         QFontMetrics fontMetr = m_pushButton->fontMetrics();
-        m_pushButton->setMaximumWidth( fontMetr.width( m_pushButton->text() ) + 2 * fontMetr.width( "M" ) );
+        m_pushButton->setMaximumWidth( fontMetr.horizontalAdvance( m_pushButton->text() ) +
+                                       2 * fontMetr.horizontalAdvance( "M" ) );
     }
 
     QVariant variantFieldValue = uiField()->uiValue();
@@ -116,7 +117,7 @@ QWidget* PdmUiActionPushButtonEditor::createEditorWidget( QWidget* parent )
 
     m_buttonLayout = new QHBoxLayout( containerWidget );
     m_buttonLayout->addWidget( m_pushButton );
-    m_buttonLayout->setMargin( 0 );
+    m_buttonLayout->setContentsMargins( 0, 0, 0, 0 );
     m_buttonLayout->setSpacing( 0 );
     containerWidget->setLayout( m_buttonLayout );
 

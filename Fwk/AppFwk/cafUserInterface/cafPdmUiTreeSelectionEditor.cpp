@@ -524,8 +524,8 @@ void PdmUiTreeSelectionEditor::slotTextFilterChanged()
     searchString.replace( "[", "\\[" );
     searchString.replace( "]", "\\]" );
 
-    QRegExp searcher( searchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
-    m_proxyModel->setFilterRegExp( searcher );
+    // QRegExp searcher( searchString, Qt::CaseInsensitive, QRegExp::WildcardUnix );
+    // m_proxyModel->setFilterRegExp( searcher );
 
     updateUi();
 }

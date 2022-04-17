@@ -41,7 +41,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include <QVariant>
-#include <QtOpenGL/QGLFormat>
+//#include <QtOpenGL/QQGLFormat>
 
 namespace caf
 {
@@ -299,46 +299,48 @@ QString AboutDialog::versionStringForcurrentOpenGLContext()
 {
     QString versionString( "OpenGL " );
 
-    QGLFormat::OpenGLVersionFlags flags = QGLFormat::openGLVersionFlags();
+    /*
+        QGLFormat::OpenGLVersionFlags flags = QGLFormat::openGLVersionFlags();
 
-    if ( flags & QGLFormat::OpenGL_Version_4_0 )
-        versionString += "4.0";
-    else if ( flags & QGLFormat::OpenGL_Version_3_3 )
-        versionString += "3.3";
-    else if ( flags & QGLFormat::OpenGL_Version_3_2 )
-        versionString += "3.2";
-    else if ( flags & QGLFormat::OpenGL_Version_3_1 )
-        versionString += "3.1";
-    else if ( flags & QGLFormat::OpenGL_Version_3_0 )
-        versionString += "3.0";
-    else if ( flags & QGLFormat::OpenGL_ES_Version_2_0 )
-        versionString += "ES_Version 2.0";
-    else if ( flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_1 )
-        versionString += "ES_CommonLite_Version 1.1";
-    else if ( flags & QGLFormat::OpenGL_ES_Common_Version_1_1 )
-        versionString += "ES_Common_Version 1.1";
-    else if ( flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_0 )
-        versionString += "ES_CommonLite_Version 1.0";
-    else if ( flags & QGLFormat::OpenGL_ES_Common_Version_1_0 )
-        versionString += "ES_Common_Version 1.0";
-    else if ( flags & QGLFormat::OpenGL_Version_2_1 )
-        versionString += "2.1";
-    else if ( flags & QGLFormat::OpenGL_Version_2_0 )
-        versionString += "2.0";
-    else if ( flags & QGLFormat::OpenGL_Version_1_5 )
-        versionString += "1.5";
-    else if ( flags & QGLFormat::OpenGL_Version_1_4 )
-        versionString += "1.4";
-    else if ( flags & QGLFormat::OpenGL_Version_1_3 )
-        versionString += "1.3";
-    else if ( flags & QGLFormat::OpenGL_Version_1_2 )
-        versionString += "1.2";
-    else if ( flags & QGLFormat::OpenGL_Version_1_1 )
-        versionString += "1.1";
-    else if ( flags & QGLFormat::OpenGL_Version_None )
-        versionString += "None";
-    else
-        versionString += "Unknown";
+        if ( flags & QGLFormat::OpenGL_Version_4_0 )
+            versionString += "4.0";
+        else if ( flags & QGLFormat::OpenGL_Version_3_3 )
+            versionString += "3.3";
+        else if ( flags & QGLFormat::OpenGL_Version_3_2 )
+            versionString += "3.2";
+        else if ( flags & QGLFormat::OpenGL_Version_3_1 )
+            versionString += "3.1";
+        else if ( flags & QGLFormat::OpenGL_Version_3_0 )
+            versionString += "3.0";
+        else if ( flags & QGLFormat::OpenGL_ES_Version_2_0 )
+            versionString += "ES_Version 2.0";
+        else if ( flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_1 )
+            versionString += "ES_CommonLite_Version 1.1";
+        else if ( flags & QGLFormat::OpenGL_ES_Common_Version_1_1 )
+            versionString += "ES_Common_Version 1.1";
+        else if ( flags & QGLFormat::OpenGL_ES_CommonLite_Version_1_0 )
+            versionString += "ES_CommonLite_Version 1.0";
+        else if ( flags & QGLFormat::OpenGL_ES_Common_Version_1_0 )
+            versionString += "ES_Common_Version 1.0";
+        else if ( flags & QGLFormat::OpenGL_Version_2_1 )
+            versionString += "2.1";
+        else if ( flags & QGLFormat::OpenGL_Version_2_0 )
+            versionString += "2.0";
+        else if ( flags & QGLFormat::OpenGL_Version_1_5 )
+            versionString += "1.5";
+        else if ( flags & QGLFormat::OpenGL_Version_1_4 )
+            versionString += "1.4";
+        else if ( flags & QGLFormat::OpenGL_Version_1_3 )
+            versionString += "1.3";
+        else if ( flags & QGLFormat::OpenGL_Version_1_2 )
+            versionString += "1.2";
+        else if ( flags & QGLFormat::OpenGL_Version_1_1 )
+            versionString += "1.1";
+        else if ( flags & QGLFormat::OpenGL_Version_None )
+            versionString += "None";
+        else
+            versionString += "Unknown";
+    */
 
     return versionString;
 }
