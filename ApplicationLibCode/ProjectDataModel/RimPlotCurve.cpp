@@ -915,15 +915,13 @@ void RimPlotCurve::updateCurveAppearance()
         m_plotCurve->setLegendIconSize( legendIconSize );
     }
 
-    bool   useCurveFitting = false;
-    double tolerance       = 0.0;
-    double chunkSize       = 0.0;
-    m_curveAppearance->curveFittingValues( useCurveFitting, tolerance, chunkSize );
-    m_plotCurve->enableCurveFitting( useCurveFitting );
-    if ( useCurveFitting )
+    double tolerance = 0.0;
+    double chunkSize = 0.0;
+    if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID )
     {
-        m_plotCurve->setCurveFittingData( tolerance, chunkSize );
+        m_curveAppearance->curveFittingValues( tolerance, chunkSize );
     }
+    m_plotCurve->setCurveFittingData( tolerance, chunkSize );
 }
 
 //--------------------------------------------------------------------------------------------------

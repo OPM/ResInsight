@@ -106,8 +106,12 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
                        "Minimum pixel distance between symbols",
                        "" );
 
-    CAF_PDM_InitField( &m_useCurveFitting, "m_useCurveFitting", false, "Use Curve Fitting" );
-    CAF_PDM_InitField( &m_curveFittingTolerance, "m_curveFittingTolerance", 1.0f, "Curve Fitting Tolerance" );
+    CAF_PDM_InitField( &m_curveFittingTolerance,
+                       "m_curveFittingTolerance",
+                       1.0f,
+                       "Curve Fitting Tolerance",
+                       "",
+                       "Value above 0 : Curve fitting tolerance (default 1.0), 0 : disable curve fitting" );
 
     CAF_PDM_InitFieldNoDefault( &m_symbolLabel, "SymbolLabel", "Symbol Label" );
     CAF_PDM_InitField( &m_symbolSize, "SymbolSize", 6, "Symbol Size" );
@@ -194,6 +198,9 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     uiOrdering.add( &m_lineStyle );
     uiOrdering.add( &m_curveThickness );
 
+    uiOrdering.add( &m_curveFittingTolerance );
+    m_curveFittingTolerance.uiCapability()->setUiReadOnly( m_lineStyle() ==
+                                                           RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
     uiOrdering.add( &m_fillStyle );
     m_fillStyle.uiCapability()->setUiHidden( !m_fillOptionsVisible );
 
@@ -205,10 +212,6 @@ void RimPlotCurveAppearance::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 
     uiOrdering.add( &m_curveInterpolation );
     m_curveInterpolation.uiCapability()->setUiHidden( !m_interpolationVisible );
-
-    auto curveFittingGroup = uiOrdering.addNewGroup( "Curve Fitting" );
-    curveFittingGroup->add( &m_useCurveFitting );
-    curveFittingGroup->add( &m_curveFittingTolerance );
 
     uiOrdering.skipRemainingFields();
 }
@@ -425,10 +428,9 @@ cvf::Color3f RimPlotCurveAppearance::fillColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurveAppearance::curveFittingValues( bool& useCurveFitting, double& tolerance, double& chunkSize )
+void RimPlotCurveAppearance::curveFittingValues( double& tolerance, double& chunkSize )
 {
-    useCurveFitting = m_useCurveFitting();
-    tolerance       = m_curveFittingTolerance();
+    tolerance = m_curveFittingTolerance();
 
     // Testing indicates that the tolerance is most important to improved visual appearance
     chunkSize = 0.0;

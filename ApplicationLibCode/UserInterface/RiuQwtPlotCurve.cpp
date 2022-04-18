@@ -525,9 +525,10 @@ RiuPlotCurveSymbol* RiuQwtPlotCurve::createSymbol( RiuPlotCurveSymbol::PointSymb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::enableCurveFitting( bool enable )
+void RiuQwtPlotCurve::setCurveFittingData( double tolerance, size_t chunckSize )
 {
-    if ( !enable )
+    bool enableCurveFitting = ( tolerance > 0.0 );
+    if ( !enableCurveFitting )
     {
         setCurveAttribute( QwtPlotCurve::Fitted, false );
     }
@@ -536,21 +537,11 @@ void RiuQwtPlotCurve::enableCurveFitting( bool enable )
         auto cf = dynamic_cast<QwtWeedingCurveFitter*>( curveFitter() );
         if ( !cf )
         {
-            auto curveFitter = new QwtWeedingCurveFitter;
-            setCurveFitter( curveFitter );
+            cf = new QwtWeedingCurveFitter;
+            setCurveFitter( cf );
         }
         setCurveAttribute( QwtPlotCurve::Fitted, true );
-    }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setCurveFittingData( double tolerance, size_t chunckSize )
-{
-    auto cf = dynamic_cast<QwtWeedingCurveFitter*>( curveFitter() );
-    if ( cf )
-    {
         cf->setTolerance( tolerance );
         cf->setChunkSize( static_cast<uint>( chunckSize ) );
     }
