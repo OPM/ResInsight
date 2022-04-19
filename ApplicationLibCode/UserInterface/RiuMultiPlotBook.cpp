@@ -594,8 +594,9 @@ void RiuMultiPlotBook::createPages()
             m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( m_pages.size() ) );
         }
     }
-    m_book->adjustSize();
+    adjustBookFrame();
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -609,20 +610,24 @@ const QList<QPointer<RiuMultiPlotPage>>& RiuMultiPlotBook::pages() const
 //--------------------------------------------------------------------------------------------------
 RiuMultiPlotPage* RiuMultiPlotBook::createPage()
 {
-    RiuMultiPlotPage* page;
+    RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
 
-    RimSummaryMultiPlot* sumMultPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
+    applyPageSettings( page );
 
-    if ( sumMultPlot )
-    {
-        page = new RiuSummaryMultiPlotPage( sumMultPlot, this );
-    }
-    else
-    {
-        page = new RiuMultiPlotPage( m_plotDefinition, this );
-    }
+    m_pages.push_back( page );
+    m_bookLayout->addWidget( page );
 
-    // Reapply plot settings
+    page->setVisible( true );
+    return page;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::applyPageSettings( RiuMultiPlotPage* page )
+{
+    if ( !page ) return;
+
     page->setPlotTitle( m_plotTitle );
     page->setTitleFontSizes( m_plotDefinition->titleFontSize(), m_plotDefinition->subTitleFontSize() );
     page->setLegendFontSize( m_plotDefinition->legendFontSize() );
@@ -630,12 +635,6 @@ RiuMultiPlotPage* RiuMultiPlotBook::createPage()
     page->setTitleVisible( m_titleVisible );
     page->setSubTitlesVisible( m_subTitlesVisible );
     page->setPagePreviewModeEnabled( m_previewMode );
-
-    m_pages.push_back( page );
-    m_bookLayout->addWidget( page );
-
-    page->setVisible( true );
-    return page;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -747,4 +746,12 @@ bool RiuMultiPlotBook::eventFilter( QObject* obj, QEvent* event )
         return true;
     }
     return QWidget::eventFilter( obj, event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::adjustBookFrame()
+{
+    m_book->adjustSize();
 }

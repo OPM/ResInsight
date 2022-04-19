@@ -54,9 +54,10 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuPickItemInfo.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotPage.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotPage.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotBook.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotAxis.h
     ${CMAKE_CURRENT_LIST_DIR}/RiuQwtPlotWidget.h
@@ -157,6 +158,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotPage.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotBook.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiuPlotWidget.cpp
@@ -259,6 +261,7 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RiuTreeViewEventFilter.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogPlot.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuWellLogTrack.h
+  ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotBook.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuSummaryMultiPlotPage.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotPage.h
   ${CMAKE_CURRENT_LIST_DIR}/RiuMultiPlotBook.h
