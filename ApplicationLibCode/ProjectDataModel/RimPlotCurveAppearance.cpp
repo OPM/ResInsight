@@ -428,12 +428,9 @@ cvf::Color3f RimPlotCurveAppearance::fillColor() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurveAppearance::curveFittingValues( double& tolerance, double& chunkSize )
+float RimPlotCurveAppearance::curveFittingTolerance() const
 {
-    tolerance = m_curveFittingTolerance();
-
-    // Testing indicates that the tolerance is most important to improved visual appearance
-    chunkSize = 0.0;
+    return m_curveFittingTolerance();
 }
 
 //--------------------------------------------------------------------------------------------------

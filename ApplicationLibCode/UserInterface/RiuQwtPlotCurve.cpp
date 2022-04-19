@@ -525,7 +525,7 @@ RiuPlotCurveSymbol* RiuQwtPlotCurve::createSymbol( RiuPlotCurveSymbol::PointSymb
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotCurve::setCurveFittingData( double tolerance, size_t chunckSize )
+void RiuQwtPlotCurve::setCurveFittingTolerance( double tolerance )
 {
     bool enableCurveFitting = ( tolerance > 0.0 );
     if ( !enableCurveFitting )
@@ -543,6 +543,5 @@ void RiuQwtPlotCurve::setCurveFittingData( double tolerance, size_t chunckSize )
         setCurveAttribute( QwtPlotCurve::Fitted, true );
 
         cf->setTolerance( tolerance );
-        cf->setChunkSize( static_cast<uint>( chunckSize ) );
     }
 }

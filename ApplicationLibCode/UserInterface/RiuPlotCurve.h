@@ -129,7 +129,7 @@ public:
 
     virtual RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const = 0;
 
-    virtual void setCurveFittingData( double tolerance, size_t chunckSize );
+    virtual void setCurveFittingTolerance( double tolerance );
 
 protected:
     virtual void setSamplesInPlot( const std::vector<double>& xValues, const std::vector<double>& yValues ) = 0;

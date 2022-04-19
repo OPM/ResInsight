@@ -916,12 +916,11 @@ void RimPlotCurve::updateCurveAppearance()
     }
 
     double tolerance = 0.0;
-    double chunkSize = 0.0;
     if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID )
     {
-        m_curveAppearance->curveFittingValues( tolerance, chunkSize );
+        tolerance = m_curveAppearance->curveFittingTolerance();
     }
-    m_plotCurve->setCurveFittingData( tolerance, chunkSize );
+    m_plotCurve->setCurveFittingTolerance( tolerance );
 }
 
 //--------------------------------------------------------------------------------------------------

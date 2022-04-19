@@ -84,7 +84,7 @@ public:
     void         setFillColor( const cvf::Color3f& fillColor );
     cvf::Color3f fillColor() const;
 
-    void curveFittingValues( double& tolerance, double& chunkSize );
+    float curveFittingTolerance() const;
 
     void                                           setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
     RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolation() const;

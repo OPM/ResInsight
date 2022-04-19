@@ -208,6 +208,6 @@ const RimPlotCurve* RiuPlotCurve::ownerRimCurve() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotCurve::setCurveFittingData( double tolerance, size_t chunckSize )
+void RiuPlotCurve::setCurveFittingTolerance( double tolerance )
 {
 }
