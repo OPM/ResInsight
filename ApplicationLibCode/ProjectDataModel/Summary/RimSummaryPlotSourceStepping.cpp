@@ -750,12 +750,14 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollect
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForDataSourceStepping( bool toolbarFields )
 {
+    RimProject* proj = RimProject::current();
+    if ( !proj ) return {};
+
     std::vector<caf::PdmFieldHandle*> fields;
 
     auto sumCases = summaryCasesCurveCollection();
     if ( sumCases.size() == 1 )
     {
-        RimProject* proj = RimProject::current();
         if ( proj->allSummaryCases().size() > 1 )
         {
             m_summaryCase = *( sumCases.begin() );
@@ -768,8 +770,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
     auto ensembleColl = ensembleCollection();
     if ( ensembleColl.size() == 1 )
     {
-        RimProject* proj = RimProject::current();
-
         if ( proj->summaryGroups().size() > 1 )
         {
             m_ensemble = *( ensembleColl.begin() );
