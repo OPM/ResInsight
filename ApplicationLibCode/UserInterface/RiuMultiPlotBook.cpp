@@ -345,20 +345,29 @@ void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
     int    resolution = paintDevice->logicalDpiX();
     double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
 
-    bool     firstPage = true;
     QPainter painter( paintDevice );
-    for ( RiuMultiPlotPage* page : m_pages )
+
+    auto pagedDevice = dynamic_cast<QPagedPaintDevice*>( paintDevice );
+    if ( pagedDevice )
     {
-        if ( !firstPage )
+        bool firstPage = true;
+        for ( RiuMultiPlotPage* page : m_pages )
         {
-            QPagedPaintDevice* pagedDevice = dynamic_cast<QPagedPaintDevice*>( paintDevice );
-            if ( pagedDevice )
+            if ( !firstPage )
             {
                 pagedDevice->newPage();
             }
+            page->renderTo( &painter, scaling );
+            firstPage = false;
         }
-        page->renderTo( &painter, scaling );
-        firstPage = false;
+    }
+    else
+    {
+        if ( m_currentPageIndex < m_pages.size() )
+        {
+            auto page = m_pages[m_currentPageIndex];
+            page->renderTo( &painter, scaling );
+        }
     }
 }
 
