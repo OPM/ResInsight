@@ -229,7 +229,6 @@ private:
     RimPlotAxisProperties* addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
 
 protected:
-    // Overridden PDM methods
     caf::PdmFieldHandle* userDescriptionField() override;
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
@@ -281,16 +280,17 @@ private:
 
     void assignPlotAxis( RimSummaryCurve* curve );
 
-    void addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
+    RimSummaryCurve* addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
     void addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
 
     void updateStackedCurveData();
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
     bool updateStackedCurveDataForRelevantAxes();
 
-    int handleSummaryCaseDrop( RimSummaryCase* summaryCase );
-    int handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
-    int handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
+    std::pair<int, std::vector<RimSummaryCurve*>> handleSummaryCaseDrop( RimSummaryCase* summaryCase );
+    std::pair<int, std::vector<RimSummaryCurve*>> handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
+    std::pair<int, std::vector<RimSummaryCurve*>> handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
+    void applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
 

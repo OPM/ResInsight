@@ -24,6 +24,8 @@
 
 #include <map>
 #include <set>
+#include <unordered_map>
+#include <vector>
 
 class RimSummaryCurve;
 class RimSummaryCase;
@@ -34,6 +36,7 @@ class RimSummaryCurveAppearanceCalculator
 {
 public:
     explicit RimSummaryCurveAppearanceCalculator( const std::set<RiaSummaryCurveDefinition>& curveDefinitions );
+    explicit RimSummaryCurveAppearanceCalculator( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     enum CurveAppearanceType
     {
         NONE,
@@ -57,7 +60,7 @@ public:
 
     void setupCurveLook( RimSummaryCurve* curve );
 
-    void assignColorByPhase( RimSummaryCurve* curve );
+    void assignColorByPhase( RimSummaryCurve* curve, int colorIndex );
 
     static cvf::Color3f                        cycledPaletteColor( int colorIndex );
     static cvf::Color3f                        cycledNoneRGBBrColor( int colorIndex );
@@ -68,6 +71,7 @@ public:
     static RiuPlotCurveSymbol::PointSymbolEnum cycledSymbol( int index );
 
 private:
+    void init( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     void setOneCurveAppearance( CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve );
     void                          updateApperanceIndices();
     std::map<std::string, size_t> mapNameToAppearanceIndex( CurveAppearanceType&         appearance,
@@ -93,11 +97,11 @@ private:
     CurveAppearanceType m_groupAppearanceType;
     CurveAppearanceType m_regionAppearanceType;
 
-    std::map<RimSummaryCase*, int> m_caseToAppearanceIdxMap;
-    std::map<std::string, int>     m_varToAppearanceIdxMap;
-    std::map<std::string, int>     m_welToAppearanceIdxMap;
-    std::map<std::string, int>     m_grpToAppearanceIdxMap;
-    std::map<int, int>             m_regToAppearanceIdxMap;
+    std::map<RimSummaryCase*, int>       m_caseToAppearanceIdxMap;
+    std::unordered_map<std::string, int> m_varToAppearanceIdxMap;
+    std::unordered_map<std::string, int> m_welToAppearanceIdxMap;
+    std::unordered_map<std::string, int> m_grpToAppearanceIdxMap;
+    std::unordered_map<int, int>         m_regToAppearanceIdxMap;
 
     std::map<char, std::map<std::string, int>> m_secondCharToVarToAppearanceIdxMap;
 
