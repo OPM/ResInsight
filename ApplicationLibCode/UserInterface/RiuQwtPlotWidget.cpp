@@ -1288,6 +1288,18 @@ bool RiuQwtPlotWidget::isMultiAxisSupported() const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
 {
+    // Make a list of axes to remove since moving the axis invalidates the m_axisMapping iterator
+    std::vector<RiuPlotAxis> axesToRemove;
+    for ( auto [plotAxis, qwtMapping] : m_axisMapping )
+    {
+        if ( usedAxes.count( plotAxis ) == 0 )
+        {
+            axesToRemove.push_back( plotAxis );
+        }
+    }
+
+    for ( auto plotAxis : axesToRemove )
+        moveAxis( plotAxis, RiuPlotAxis::defaultLeft() );
 }
 
 //--------------------------------------------------------------------------------------------------
