@@ -18,13 +18,17 @@
 
 #pragma once
 
+#include "RimSummaryAddressCollection.h"
+
 #include "cafCmdFeature.h"
 
+#include <set>
 #include <vector>
 
 class RimSummaryAddressCollection;
 class RimSummaryMultiPlot;
 class RifEclipseSummaryAddress;
+class RimSummaryPlot;
 
 //==================================================================================================
 ///
@@ -46,4 +50,8 @@ private:
 
     RifEclipseSummaryAddress modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
                                             RimSummaryAddressCollection*    summaryAddressCollection );
+
+    static std::vector<RimSummaryPlot*>
+        plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
+                                         RimSummaryAddressCollection::CollectionContentType objectType );
 };

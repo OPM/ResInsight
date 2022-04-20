@@ -39,6 +39,80 @@
 
 CAF_CMD_SOURCE_INIT( RicAppendSummaryPlotsForObjectsFeature, "RicAppendSummaryPlotsForObjectsFeature" );
 
+class SummaryAdrModifier
+{
+public:
+    SummaryAdrModifier( RimSummaryCurve* curve )
+        : m_curve( curve )
+        , m_curveSet( nullptr )
+    {
+    }
+
+    SummaryAdrModifier( RimEnsembleCurveSet* curveSet )
+        : m_curve( nullptr )
+        , m_curveSet( curveSet )
+    {
+    }
+
+    static std::vector<SummaryAdrModifier> createAddressModifiersForPlot( RimSummaryPlot* summaryPlot )
+    {
+        std::vector<SummaryAdrModifier> mods;
+        if ( summaryPlot )
+        {
+            auto curveSets = summaryPlot->curveSets();
+            for ( auto curveSet : curveSets )
+            {
+                mods.emplace_back( SummaryAdrModifier( curveSet ) );
+            }
+
+            auto curves = summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+            for ( auto c : curves )
+            {
+                mods.emplace_back( SummaryAdrModifier( c ) );
+            }
+        }
+
+        return mods;
+    }
+
+    static std::vector<RifEclipseSummaryAddress> createEclipseSummaryAddress( RimSummaryPlot* summaryPlot )
+    {
+        auto mods = createAddressModifiersForPlot( summaryPlot );
+        return convertToEclipseSummaryAddress( mods );
+    }
+
+    RifEclipseSummaryAddress address() const
+    {
+        if ( m_curve ) return m_curve->summaryAddressY();
+        if ( m_curveSet ) return m_curveSet->summaryAddress();
+
+        return {};
+    }
+
+    void setAddress( const RifEclipseSummaryAddress& address )
+    {
+        if ( m_curve ) m_curve->setSummaryAddressY( address );
+        if ( m_curveSet ) m_curveSet->setSummaryAddress( address );
+    }
+
+private:
+    static std::vector<RifEclipseSummaryAddress>
+        convertToEclipseSummaryAddress( const std::vector<SummaryAdrModifier>& modifiers )
+    {
+        std::vector<RifEclipseSummaryAddress> tmp;
+        tmp.reserve( modifiers.size() );
+        for ( const auto& m : modifiers )
+        {
+            tmp.emplace_back( m.address() );
+        }
+        return tmp;
+    }
+
+private:
+    RimSummaryCurve*     m_curve;
+    RimEnsembleCurveSet* m_curveSet;
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -61,59 +135,36 @@ void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
 
     RiaGuiApplication* app = RiaGuiApplication::instance();
 
-    auto activePlotWindow = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( activePlotWindow )
+    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
+    if ( !summaryMultiPlot ) return;
+
+    isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot );
+
+    auto                         selectionType       = sumAddressCollections.front()->contentType();
+    auto                         sourcePlots         = summaryMultiPlot->summaryPlots();
+    std::vector<RimSummaryPlot*> plotsForOneInstance = plotsForOneInstanceOfObjectType( sourcePlots, selectionType );
+
+    for ( auto summaryAdrCollection : sumAddressCollections )
     {
-        if ( !isSelectionCompatibleWithPlot( sumAddressCollections, activePlotWindow ) ) return;
-
-        std::vector<RimSummaryPlot*> sourcePlots;
+        auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plotsForOneInstance );
+        for ( auto duplicatedPlot : duplicatedPlots )
         {
-            auto plots = activePlotWindow->plots();
-
-            for ( auto p : plots )
+            auto adrMods = SummaryAdrModifier::createAddressModifiersForPlot( duplicatedPlot );
+            for ( auto adrMod : adrMods )
             {
-                auto sumPlot = dynamic_cast<RimSummaryPlot*>( p );
+                auto sourceAddress = adrMod.address();
+                auto modifiedAdr   = modifyAddress( sourceAddress, summaryAdrCollection );
 
-                if ( p ) sourcePlots.push_back( sumPlot );
+                adrMod.setAddress( modifiedAdr );
             }
+
+            summaryMultiPlot->addPlot( duplicatedPlot );
+
+            duplicatedPlot->resolveReferencesRecursively();
         }
-
-        for ( auto summaryAdrCollection : sumAddressCollections )
-        {
-            auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( sourcePlots );
-            for ( auto duplicatedPlot : duplicatedPlots )
-            {
-                auto curveSets = duplicatedPlot->curveSets();
-                if ( !curveSets.empty() )
-                {
-                    for ( auto curveSet : curveSets )
-                    {
-                        auto sourceAddress = curveSet->summaryAddress();
-                        auto modifiedAdr   = modifyAddress( sourceAddress, summaryAdrCollection );
-
-                        curveSet->setSummaryAddress( modifiedAdr );
-                    }
-                }
-                else
-                {
-                    auto curves = duplicatedPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS );
-                    for ( auto c : curves )
-                    {
-                        auto sourceAddress = c->summaryAddressY();
-                        auto modifiedAdr   = modifyAddress( sourceAddress, summaryAdrCollection );
-
-                        c->setSummaryAddressY( modifiedAdr );
-                    }
-                }
-
-                activePlotWindow->addPlot( duplicatedPlot );
-
-                duplicatedPlot->resolveReferencesRecursively();
-            }
-        }
-
-        activePlotWindow->loadDataAndUpdate();
     }
+
+    summaryMultiPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -182,65 +233,45 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot(
     if ( !summaryMultiPlot ) return false;
     if ( selection.empty() ) return false;
 
+    auto selectionType = selection.front()->contentType();
+
     RiaSummaryAddressAnalyzer analyzer;
-    bool                      sourcePlotHasEnsembleData = false;
 
     {
-        std::set<RifEclipseSummaryAddress> allAddresses;
+        // Find all plots for one object type
+        auto sourcePlots = summaryMultiPlot->summaryPlots();
 
-        auto curveSets = summaryMultiPlot->curveSets();
-        if ( !curveSets.empty() )
-        {
-            for ( auto curveSet : curveSets )
-            {
-                allAddresses.insert( curveSet->summaryAddress() );
-            }
-            sourcePlotHasEnsembleData = true;
-        }
-        else
-        {
-            auto curves = summaryMultiPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS );
-            for ( auto c : curves )
-            {
-                allAddresses.insert( c->summaryAddressY() );
-            }
-        }
+        std::vector<RimSummaryPlot*> plotsForObjectType =
+            RicAppendSummaryPlotsForObjectsFeature::plotsForOneInstanceOfObjectType( sourcePlots, selectionType );
 
-        analyzer.appendAddresses( allAddresses );
+        for ( auto plot : plotsForObjectType )
+        {
+            auto addresses = SummaryAdrModifier::createEclipseSummaryAddress( plot );
+            analyzer.appendAddresses( addresses );
+        }
     }
 
     QString errorText;
-    auto    selectionType = selection.front()->contentType();
     if ( selectionType == RimSummaryAddressCollection::CollectionContentType::WELL )
     {
-        if ( analyzer.wellNames().size() != 1 )
+        if ( analyzer.wellNames().empty() )
         {
-            errorText = "Source plot must contain one well only to be able to duplicate a selection of wells";
+            errorText = "Source plot must contain at least one well to be able to duplicate a selection of wells";
         }
     }
     else if ( selectionType == RimSummaryAddressCollection::CollectionContentType::GROUP )
     {
-        if ( analyzer.groupNames().size() != 1 )
+        if ( analyzer.groupNames().empty() )
         {
-            errorText = "Source plot must contain one well group only to be able to duplicate a selection of groups";
+            errorText = "Source plot must contain at least one group to be able to duplicate a selection of groups";
         }
     }
     else if ( selectionType == RimSummaryAddressCollection::CollectionContentType::REGION )
     {
-        if ( analyzer.regionNumbers().size() != 1 )
+        if ( analyzer.regionNumbers().empty() )
         {
-            errorText = "Source plot must contain one region only to be able to duplicate a selection of regions";
+            errorText = "Source plot must contain at least one region to be able to duplicate a selection of regions";
         }
-    }
-
-    if ( sourcePlotHasEnsembleData && selection.front()->ensembleId() == -1 )
-    {
-        errorText = "Source plot must contain single cases to be able to duplicate a selection of single cases";
-    }
-    else if ( !sourcePlotHasEnsembleData && selection.front()->caseId() == -1 )
-    {
-        errorText =
-            "Source plot must contain ensemble case plots to be able to duplicate a selection of ensemble cases";
     }
 
     if ( !errorText.isEmpty() )
@@ -290,4 +321,64 @@ RifEclipseSummaryAddress
     }
 
     return adr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOneInstanceOfObjectType(
+    const std::vector<RimSummaryPlot*>&                sourcePlots,
+    RimSummaryAddressCollection::CollectionContentType objectType )
+{
+    std::vector<RimSummaryPlot*> plotsForOneInstance;
+
+    std::string wellNameToMatch;
+    std::string groupNameToMatch;
+    int         regionToMatch = -1;
+
+    RiaSummaryAddressAnalyzer myAnalyser;
+    for ( auto sourcePlot : sourcePlots )
+    {
+        auto addresses = SummaryAdrModifier::createEclipseSummaryAddress( sourcePlot );
+        myAnalyser.appendAddresses( addresses );
+    }
+
+    if ( objectType == RimSummaryAddressCollection::CollectionContentType::WELL )
+    {
+        if ( !myAnalyser.wellNames().empty() ) wellNameToMatch = *( myAnalyser.wellNames().begin() );
+    }
+    else if ( objectType == RimSummaryAddressCollection::CollectionContentType::GROUP )
+    {
+        if ( !myAnalyser.groupNames().empty() ) groupNameToMatch = *( myAnalyser.groupNames().begin() );
+    }
+    else if ( objectType == RimSummaryAddressCollection::CollectionContentType::REGION )
+    {
+        if ( !myAnalyser.regionNumbers().empty() ) regionToMatch = *( myAnalyser.regionNumbers().begin() );
+    }
+
+    for ( auto sourcePlot : sourcePlots )
+    {
+        auto addresses = SummaryAdrModifier::createEclipseSummaryAddress( sourcePlot );
+
+        bool isMatching = false;
+        for ( const auto& a : addresses )
+        {
+            if ( !wellNameToMatch.empty() && a.wellName() == wellNameToMatch )
+            {
+                isMatching = true;
+            }
+            else if ( !groupNameToMatch.empty() && a.groupName() == groupNameToMatch )
+            {
+                isMatching = true;
+            }
+            else if ( regionToMatch != -1 && a.regionNumber() == regionToMatch )
+            {
+                isMatching = true;
+            }
+        }
+
+        if ( isMatching ) plotsForOneInstance.push_back( sourcePlot );
+    }
+
+    return plotsForOneInstance;
 }
