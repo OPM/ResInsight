@@ -204,10 +204,3 @@ const RimPlotCurve* RiuPlotCurve::ownerRimCurve() const
 {
     return m_ownerRimCurve;
 }
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotCurve::setCurveFittingTolerance( double tolerance )
-{
-}

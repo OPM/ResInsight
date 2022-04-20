@@ -80,6 +80,7 @@ public:
     void updateLineAndAreaSeries();
 
     RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
+    void                setCurveFittingTolerance( double tolerance ) override;
 
     void updateScatterSeries();
 

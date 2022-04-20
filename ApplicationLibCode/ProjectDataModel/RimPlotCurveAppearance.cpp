@@ -107,7 +107,7 @@ RimPlotCurveAppearance::RimPlotCurveAppearance()
                        "" );
 
     CAF_PDM_InitField( &m_curveFittingTolerance,
-                       "m_curveFittingTolerance",
+                       "CurveFittingTolerance",
                        1.0f,
                        "Curve Fitting Tolerance",
                        "",
