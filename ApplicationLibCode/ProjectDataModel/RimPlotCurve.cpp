@@ -914,6 +914,13 @@ void RimPlotCurve::updateCurveAppearance()
         legendIconSize.setWidth( width );
         m_plotCurve->setLegendIconSize( legendIconSize );
     }
+
+    double tolerance = 0.0;
+    if ( m_curveAppearance->lineStyle() != RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID )
+    {
+        tolerance = m_curveAppearance->curveFittingTolerance();
+    }
+    m_plotCurve->setCurveFittingTolerance( tolerance );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -584,6 +584,14 @@ RiuPlotCurveSymbol* RiuQtChartsPlotCurve::createSymbol( RiuPlotCurveSymbol::Poin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setCurveFittingTolerance( double tolerance )
+{
+    // Not supported
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::setLegendIconSize( const QSize& iconSize )
 {
 }
