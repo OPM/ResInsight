@@ -93,7 +93,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_disableWheelZoom.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
-    CAF_PDM_InitField( &m_syncSubPlotAxes, "SyncSubPlotAxes", false, "Sync Subplot Axes" );
+    CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", false, "Link Sub Plot Axes" );
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Aggregation" );
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
@@ -312,7 +312,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     layoutGroup->add( &m_majorTickmarkCount );
 
     auto axesGroup = uiOrdering.addNewGroup( "Axes" );
-    axesGroup->add( &m_syncSubPlotAxes );
+    axesGroup->add( &m_linkSubPlotAxes );
     axesGroup->add( &m_axisRangeAggregation );
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
@@ -343,7 +343,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         m_createPlotDuplicate = false;
         duplicate();
     }
-    else if ( changedField == &m_syncSubPlotAxes && m_syncSubPlotAxes() )
+    else if ( changedField == &m_linkSubPlotAxes && m_linkSubPlotAxes() )
     {
         syncAxisRanges();
     }
@@ -800,7 +800,7 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
 {
-    if ( !m_syncSubPlotAxes() ) return;
+    if ( !m_linkSubPlotAxes() ) return;
 
     for ( auto plot : summaryPlots() )
     {

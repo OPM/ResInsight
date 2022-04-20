@@ -119,7 +119,7 @@ private:
     caf::PdmField<bool> m_syncAxisRanges;
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
-    caf::PdmField<bool> m_syncSubPlotAxes;
+    caf::PdmField<bool> m_linkSubPlotAxes;
 
     caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
 
