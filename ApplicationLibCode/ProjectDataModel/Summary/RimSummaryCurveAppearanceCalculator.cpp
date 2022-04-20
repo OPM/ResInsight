@@ -19,7 +19,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 
 #include "RiaColorTables.h"
-#include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RiuQwtPlotCurve.h"
@@ -300,7 +300,7 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
     setOneCurveAppearance( m_regionAppearanceType, m_regToAppearanceIdxMap.size(), regAppearanceIdx, curve );
 
     bool assignByPhase = false;
-    if ( RiaPreferences::current()->colorCurvesByPhase() )
+    if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
     {
         assignByPhase = ( m_varAppearanceType == COLOR );
     }

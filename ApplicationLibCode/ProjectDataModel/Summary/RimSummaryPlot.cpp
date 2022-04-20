@@ -107,6 +107,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 #ifdef USE_QTCHARTS
     bool useQtChart = RiaPreferences::current()->useQtChartsAsDefaultPlotType();
     CAF_PDM_InitScriptableField( &m_useQtChartsPlot, "useQtChartsPlot", useQtChart, "Use Qt Charts" );
+    m_useQtChartsPlot.uiCapability()->setUiHidden( true );
 #endif
     CAF_PDM_InitFieldNoDefault( &m_summaryCurveCollection, "SummaryCurveCollection", "" );
     m_summaryCurveCollection.uiCapability()->setUiTreeHidden( true );

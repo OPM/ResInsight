@@ -144,6 +144,9 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     m_defaultColumnCount = RiaDefines::ColumnCount::COLUMNS_2;
     CAF_PDM_InitFieldNoDefault( &m_defaultRowsPerPage, "DefaultRowsPerPage", "Rows per Page" );
     m_defaultRowsPerPage = RiaDefines::RowCount::ROWS_2;
+
+    CAF_PDM_InitField( &m_curveColorByPhase, "curveColorByPhase", true, "Curve Color By Phase" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_curveColorByPhase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,6 +230,8 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
 {
     uiOrdering.add( &m_defaultSummaryCurvesTextFilter );
     uiOrdering.add( &m_defaultSummaryHistoryCurveStyle );
+    uiOrdering.add( &m_curveColorByPhase );
+
     uiOrdering.add( &m_showSummaryTimeAsLongString );
 
     auto multiGroup = uiOrdering.addNewGroup( "Multi Plot Defaults" );
@@ -289,6 +294,14 @@ RiaPreferencesSummary::SummaryRestartFilesImportMode RiaPreferencesSummary::summ
 QString RiaPreferencesSummary::defaultSummaryCurvesTextFilter() const
 {
     return m_defaultSummaryCurvesTextFilter;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSummary::colorCurvesByPhase() const
+{
+    return m_curveColorByPhase();
 }
 
 //--------------------------------------------------------------------------------------------------
