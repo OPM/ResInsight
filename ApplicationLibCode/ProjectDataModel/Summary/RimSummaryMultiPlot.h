@@ -50,7 +50,8 @@ public:
 public:
     enum class AxisRangeAggregation
     {
-        NONE,
+        INDIVIDUAL,
+        SUB_PLOTS,
         REGIONS,
         WELLS,
         REALIZATIONS
@@ -89,6 +90,8 @@ public:
 
     void makeSureIsVisible( RimSummaryPlot* plot );
 
+    void zoomAll() override;
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
@@ -101,9 +104,6 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
-    void defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                QString                    uiConfigName,
-                                caf::PdmUiEditorAttribute* attribute ) override;
 
     void updatePlotWindowTitle() override;
     void computeAggregatedAxisRange();
@@ -116,7 +116,6 @@ private:
 private:
     caf::PdmField<bool> m_autoPlotTitles;
     caf::PdmField<bool> m_autoPlotTitlesOnSubPlots;
-    caf::PdmField<bool> m_syncAxisRanges;
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
     caf::PdmField<bool> m_linkSubPlotAxes;
