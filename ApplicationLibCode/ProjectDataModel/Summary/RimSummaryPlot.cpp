@@ -777,6 +777,27 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate )
+{
+    std::vector<RiaSummaryCurveDefinition> allCurveDefs;
+
+    for ( const auto& curve : this->summaryAndEnsembleCurves() )
+    {
+        allCurveDefs.emplace_back( curve->summaryCaseY(), curve->summaryAddressY(), curve->isEnsembleCurve() );
+    }
+
+    RimSummaryCurveAppearanceCalculator curveLookCalc( allCurveDefs );
+
+    for ( auto& curve : curvesToUpdate )
+    {
+        curve->resetAppearance();
+        curveLookCalc.setupCurveLook( curve );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::setNormalizationEnabled( bool enable )
 {
     m_normalizeCurveYValues = enable;
@@ -1914,9 +1935,10 @@ bool RimSummaryPlot::autoPlotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase* summaryCase )
+std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase* summaryCase )
 {
-    int newCurves = 0;
+    int                           newCurves = 0;
+    std::vector<RimSummaryCurve*> curves;
 
     std::map<RifEclipseSummaryAddress, std::set<RimSummaryCase*>> dataVectorMap;
 
@@ -1930,19 +1952,22 @@ int RimSummaryPlot::handleSummaryCaseDrop( RimSummaryCase* summaryCase )
     {
         if ( cases.count( summaryCase ) > 0 ) continue;
 
-        addNewCurveY( addr, summaryCase );
+        curves.push_back( addNewCurveY( addr, summaryCase ) );
         newCurves++;
     }
 
-    return newCurves;
+    return { newCurves, curves };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* addressCollection )
+std::pair<int, std::vector<RimSummaryCurve*>>
+    RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* addressCollection )
 {
-    int  newCurves   = 0;
+    int                           newCurves = 0;
+    std::vector<RimSummaryCurve*> curves;
+
     auto droppedName = addressCollection->name().toStdString();
 
     auto summaryCase  = RiaSummaryTools::summaryCaseById( addressCollection->caseId() );
@@ -2013,20 +2038,21 @@ int RimSummaryPlot::handleAddressCollectionDrop( RimSummaryAddressCollection* ad
         }
         else if ( curveDef.summaryCase() )
         {
-            addNewCurveY( curveDef.summaryAddress(), curveDef.summaryCase() );
+            curves.push_back( addNewCurveY( curveDef.summaryAddress(), curveDef.summaryCase() ) );
             newCurves++;
         }
     }
 
-    return newCurves;
+    return { newCurves, curves };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
+std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
 {
-    int newCurves = 0;
+    int                           newCurves = 0;
+    std::vector<RimSummaryCurve*> curves;
 
     if ( summaryAddr->isEnsemble() )
     {
@@ -2042,11 +2068,11 @@ int RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
         auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
         if ( summaryCase )
         {
-            addNewCurveY( summaryAddr->address(), summaryCase );
+            curves.push_back( addNewCurveY( summaryAddr->address(), summaryCase ) );
             newCurves++;
         }
     }
-    return newCurves;
+    return { newCurves, curves };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2054,35 +2080,51 @@ int RimSummaryPlot::handleSummaryAddressDrop( RimSummaryAddress* summaryAddr )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    int newCurves = 0;
+    int                           accumulatedCurveCount = 0;
+    std::vector<RimSummaryCurve*> curvesToUpdate;
 
     for ( auto obj : objects )
     {
         auto summaryCase = dynamic_cast<RimSummaryCase*>( obj );
         if ( summaryCase )
         {
-            newCurves += handleSummaryCaseDrop( summaryCase );
+            auto [curveCount, curvesCreated] = handleSummaryCaseDrop( summaryCase );
+            accumulatedCurveCount += curveCount;
+            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
             continue;
         }
 
         auto summaryAddr = dynamic_cast<RimSummaryAddress*>( obj );
         if ( summaryAddr )
         {
-            newCurves += handleSummaryAddressDrop( summaryAddr );
+            auto [curveCount, curvesCreated] = handleSummaryAddressDrop( summaryAddr );
+            accumulatedCurveCount += curveCount;
+            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
             continue;
         }
 
         auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj );
         if ( addressCollection )
         {
-            newCurves += handleAddressCollectionDrop( addressCollection );
+            auto [curveCount, curvesCreated] = handleAddressCollectionDrop( addressCollection );
+            accumulatedCurveCount += curveCount;
+            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
             continue;
         }
     }
 
-    if ( newCurves > 0 )
+    if ( accumulatedCurveCount > 0 )
     {
-        applyDefaultCurveAppearances();
+        applyDefaultCurveAppearances( curvesToUpdate );
+
+        // Ensemble curve sets
+        int colorIndex = 0;
+        for ( auto& curveSet : this->ensembleCurveSetCollection()->curveSets() )
+        {
+            if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
+            curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ ) );
+        }
+
         loadDataAndUpdate();
 
         curvesChanged.send();
@@ -2094,12 +2136,14 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase )
+RimSummaryCurve* RimSummaryPlot::addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase )
 {
     auto* newCurve = new RimSummaryCurve();
     newCurve->setSummaryCaseY( summaryCase );
     newCurve->setSummaryAddressYAndApplyInterpolation( address );
     addCurveNoUpdate( newCurve );
+
+    return newCurve;
 }
 
 //--------------------------------------------------------------------------------------------------

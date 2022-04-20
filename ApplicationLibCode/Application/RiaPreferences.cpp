@@ -262,6 +262,9 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
+
+    CAF_PDM_InitField( &m_curveColorByPhase, "curveColorByPhase", true, "Curve Color By Phase" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_curveColorByPhase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -385,6 +388,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
         group->add( &m_searchPlotTemplateFoldersRecursively );
+        group->add( &m_curveColorByPhase );
 
         caf::PdmUiGroup* pageSetup = uiOrdering.addNewGroup( "Page Setup" );
         pageSetup->add( &m_pageSize );
@@ -744,6 +748,14 @@ bool RiaPreferences::openExportedPdfInViewer() const
 bool RiaPreferences::useQtChartsAsDefaultPlotType() const
 {
     return m_useQtChartsPlotByDefault;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::colorCurvesByPhase() const
+{
+    return m_curveColorByPhase();
 }
 
 //--------------------------------------------------------------------------------------------------
