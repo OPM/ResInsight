@@ -21,6 +21,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSystem.h"
 
 #include "RicSnapshotFilenameGenerator.h"
 #include "RicSnapshotViewToFileFeature.h"
@@ -58,13 +59,22 @@ void RicSnapshotViewToPdfFeature::onActionTriggered( bool isChecked )
         return;
     }
 
-    RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
+    auto* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
 
     if ( plotWindow )
     {
         QString fileExtension   = "pdf";
         QString defaultFileName = RicSnapshotFilenameGenerator::generateSnapshotFileName( viewWindow );
-        QString fileName = RicSnapshotViewToFileFeature::generateSaveFileName( defaultFileName, true, fileExtension );
+        QString fileName;
+        if ( RiaPreferencesSystem::current()->showPdfExportDialog() )
+        {
+            fileName = RicSnapshotViewToFileFeature::generateSaveFileName( defaultFileName, true, fileExtension );
+        }
+        else
+        {
+            fileName = defaultFileName + ".pdf";
+        }
+
         if ( !fileName.isEmpty() )
         {
             if ( plotWindow && fileName.endsWith( "PDF", Qt::CaseInsensitive ) )

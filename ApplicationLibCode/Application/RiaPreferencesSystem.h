@@ -53,6 +53,7 @@ public:
     bool    show3dInformation() const;
     QString gtestFilter() const;
     bool    showProgressBar() const;
+    bool    showPdfExportDialog() const;
 
     EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
 
@@ -77,6 +78,7 @@ private:
     caf::PdmField<bool>    m_includeFractureDebugInfoFile;
     caf::PdmField<QString> m_holoLensExportFolder;
 
+    caf::PdmField<bool>    m_showPdfExportDialog;
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;
 
