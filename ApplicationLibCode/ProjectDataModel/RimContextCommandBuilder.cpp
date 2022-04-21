@@ -771,7 +771,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicNewDerivedEnsembleFeature";
-            menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicConvertGroupToEnsembleFeature";
@@ -787,7 +786,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
-            menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
@@ -795,7 +793,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             if ( !dynamic_cast<RimObservedSummaryData*>( firstUiItem ) )
             {
                 menuBuilder << "RicShowSummaryCurveCalculatorFeature";
-                // menuBuilder << "RicOpenSummaryPlotEditorFeature";
             }
         }
         else if ( dynamic_cast<RimWellLogFileChannel*>( firstUiItem ) )
@@ -1076,7 +1073,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicNewDerivedEnsembleFeature";
-        menuBuilder << "RicOpenSummaryPlotEditorFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";
