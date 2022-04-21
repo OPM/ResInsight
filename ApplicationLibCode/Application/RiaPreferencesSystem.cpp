@@ -81,6 +81,9 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProgressBar );
 
+    CAF_PDM_InitField( &m_showPdfExportDialog, "showPdfExportDialog", true, "Show PDF Export Dialog" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showPdfExportDialog );
+
     CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)" );
 
     CAF_PDM_InitField( &m_eclipseReaderMode,
@@ -198,6 +201,14 @@ bool RiaPreferencesSystem::showProgressBar() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::showPdfExportDialog() const
+{
+    return m_showPdfExportDialog();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTextFileReaderMode() const
 {
     return m_eclipseReaderMode();
@@ -227,6 +238,7 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_includeFractureDebugInfoFile );
     uiOrdering.add( &m_holoLensExportFolder );
     uiOrdering.add( &m_showProgressBar );
+    uiOrdering.add( &m_showPdfExportDialog );
 }
 
 //--------------------------------------------------------------------------------------------------
