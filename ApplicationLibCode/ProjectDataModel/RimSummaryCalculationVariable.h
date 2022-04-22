@@ -18,13 +18,13 @@
 
 #pragma once
 
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
-#include "cafPdmChildField.h"
 
 class RimSummaryCase;
 class RimSummaryAddress;
