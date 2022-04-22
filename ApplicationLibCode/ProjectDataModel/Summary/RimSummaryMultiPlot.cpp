@@ -26,18 +26,18 @@
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
+
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
 #include "RimMultipleSummaryPlotNameHelper.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlotControls.h"
-
-#include "RimSummaryAddress.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
 
@@ -48,6 +48,8 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
+#include "qwt_scale_engine.h"
 
 #include <QKeyEvent>
 #include <cmath>
@@ -115,7 +117,7 @@ RimSummaryMultiPlot::~RimSummaryMultiPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 {
-    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
@@ -128,7 +130,7 @@ void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
-    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
@@ -145,10 +147,10 @@ void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& obj
 {
     if ( objects.empty() ) return;
 
-    RimSummaryAddress* addr = dynamic_cast<RimSummaryAddress*>( objects[0] );
+    auto* addr = dynamic_cast<RimSummaryAddress*>( objects[0] );
     if ( addr )
     {
-        RimSummaryPlot* plot = new RimSummaryPlot();
+        auto* plot = new RimSummaryPlot();
         plot->enableAutoPlotTitle( true );
 
         plot->handleDroppedObjects( objects );
@@ -162,7 +164,7 @@ void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& obj
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::removePlot( RimPlot* plot )
 {
-    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
@@ -175,7 +177,7 @@ void RimSummaryMultiPlot::removePlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::removePlotNoUpdate( RimPlot* plot )
 {
-    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
@@ -660,7 +662,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
             if ( axisRangeAggregation == AxisRangeAggregation::WELLS )
             {
-                for ( auto wellName : analyzer.wellNames() )
+                for ( const auto& wellName : analyzer.wellNames() )
                 {
                     addresses.push_back(
                         RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().quantityName(), wellName ) );
@@ -687,7 +689,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
             double maximum = -HUGE_VAL;
             for ( auto summaryCase : summaryCases )
             {
-                for ( auto addr : addresses )
+                for ( const auto& addr : addresses )
                 {
                     auto [caseMinimum, caseMaximum] = findMinMaxForSummaryCase( summaryCase, addr );
                     minimum                         = std::min( minimum, caseMinimum );
@@ -731,12 +733,25 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         // set all plots to use the global min/max values for each category
         for ( auto axis : plot->plotAxes() )
         {
+            QwtLinearScaleEngine scaleEngine;
+
             const auto& [minVal, maxVal] = axisRanges[axis->plotAxisType()];
             if ( axis->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT && minVal <= maxVal )
             {
                 axis->setAutoZoom( false );
-                axis->setVisibleRangeMin( minVal );
-                axis->setVisibleRangeMax( maxVal );
+
+                auto adjustedMin = minVal;
+                auto adjustedMax = maxVal;
+
+                if ( !axis->isLogarithmicScaleEnabled() )
+                {
+                    int    maxMajorTickIntervalCount = 8;
+                    double stepSize                  = 0.0;
+                    scaleEngine.autoScale( maxMajorTickIntervalCount, adjustedMin, adjustedMax, stepSize );
+                }
+
+                axis->setVisibleRangeMin( adjustedMin );
+                axis->setVisibleRangeMax( adjustedMax );
             }
         }
 
