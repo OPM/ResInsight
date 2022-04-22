@@ -1,6 +1,6 @@
-/////////////////////////////////////////////////////////////////////////////////
+////////////////////////////    /////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,36 +18,22 @@
 
 #pragma once
 
-#include "RimSummaryCalculation.h"
-#include "RimUserDefinedCalculationCollection.h"
+#include "RicUserDefinedCalculatorUi.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
-#include "cafPdmObject.h"
-
-class RimSummaryCase;
-class RimCalculatedSummaryCase;
+class RimUserDefinedCalculationCollection;
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimSummaryCalculationCollection : public RimUserDefinedCalculationCollection
+class RicGridCalculatorUi : public RicUserDefinedCalculatorUi
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCalculationCollection();
+    RicGridCalculatorUi();
 
-    RimSummaryCase* calculationSummaryCase();
-
-    void rebuildCaseMetaData() override;
-
-    RimSummaryCalculation* createCalculation() const override;
-
-private:
-    void initAfterRead() override;
-
-private:
-    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
+    QString                              calculationsGroupName() const override;
+    QString                              calulationGroupName() const override;
+    RimUserDefinedCalculationCollection* calculationCollection() const override;
+    void                                 notifyCalculatedNameChanged( int id, const QString& newName ) const override;
 };

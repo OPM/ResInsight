@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,68 +16,49 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCalculatorDialog.h"
+#include "RicGridCalculatorUi.h"
 
-#include "RicCalculatorWidgetCreator.h"
-#include "RicSummaryCurveCalculatorUi.h"
+#include "RimGridCalculationCollection.h"
+#include "RimProject.h"
+#include "RimUserDefinedCalculationCollection.h"
 
-#include "RimSummaryCalculation.h"
-#include "RimSummaryCalculationCollection.h"
+CAF_PDM_SOURCE_INIT( RicGridCalculatorUi, "RicGridCalculator" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog( QWidget* parent )
-    : RicUserDefinedCalculatorDialog( parent, "Summary Curve Calculator" )
+RicGridCalculatorUi::RicGridCalculatorUi()
 {
-    setUp();
+    CAF_PDM_InitObject( "RicGridCalculator" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
+QString RicGridCalculatorUi::calculationsGroupName() const
+{
+    return "CalculationsGroupName";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicGridCalculatorUi::calulationGroupName() const
+{
+    return "CalulationGroupName";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicGridCalculatorUi::notifyCalculatedNameChanged( int id, const QString& newName ) const
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation )
+RimUserDefinedCalculationCollection* RicGridCalculatorUi::calculationCollection() const
 {
-    CAF_ASSERT( m_summaryCalcEditor );
-    m_summaryCalcEditor->calculator()->setCurrentCalculation( dynamic_cast<RimSummaryCalculation*>( calculation ) );
-    updateUi();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::updateUi()
-{
-    CAF_ASSERT( m_summaryCalcEditor );
-    m_summaryCalcEditor->updateUi();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimUserDefinedCalculationCollection* RicSummaryCurveCalculatorDialog::calculationCollection() const
-{
-    CAF_ASSERT( m_summaryCalcEditor );
-    return m_summaryCalcEditor->calculator()->calculationCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCalculatorDialog::getCalculatorWidget()
-{
-    if ( !m_summaryCalcEditor )
-    {
-        m_summaryCalcEditor = std::unique_ptr<RicCalculatorWidgetCreator>(
-            new RicCalculatorWidgetCreator( std::make_unique<RicSummaryCurveCalculatorUi>() ) );
-    }
-
-    return m_summaryCalcEditor->getOrCreateWidget( this );
+    return RimProject::current()->gridCalculationCollection();
 }

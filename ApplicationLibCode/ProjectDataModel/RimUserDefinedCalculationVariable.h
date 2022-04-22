@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2017     Statoil ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,23 +18,29 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
-class RimUserDefinedCalculation;
-class RimSummaryCase;
+class RimUserDefinedCase;
 
-class RicReplaceSummaryCaseFeature : public caf::CmdFeature
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimUserDefinedCalculationVariable : public caf::PdmObject
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static void updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
+    RimUserDefinedCalculationVariable();
+
+    QString name() const;
+    void    setName( const QString& name );
+
+    virtual QString displayString() const = 0;
 
 protected:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-
-    static bool checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation,
-                                               const RimSummaryCase*            summaryCase );
+    caf::PdmField<QString>           m_name;
+    caf::PdmProxyValueField<QString> m_addressUi;
 };

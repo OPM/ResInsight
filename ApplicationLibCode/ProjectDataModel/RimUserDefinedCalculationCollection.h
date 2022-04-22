@@ -18,36 +18,39 @@
 
 #pragma once
 
-#include "RimSummaryCalculation.h"
-#include "RimUserDefinedCalculationCollection.h"
-
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
-class RimSummaryCase;
+class RimUserDefinedCalculation;
+class RimUserDefinedCase;
 class RimCalculatedSummaryCase;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculationCollection : public RimUserDefinedCalculationCollection
+class RimUserDefinedCalculationCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCalculationCollection();
+    RimUserDefinedCalculationCollection();
 
-    RimSummaryCase* calculationSummaryCase();
+    RimUserDefinedCalculation*              addCalculation();
+    RimUserDefinedCalculation*              addCalculationCopy( const RimUserDefinedCalculation* sourceCalculation );
+    void                                    deleteCalculation( RimUserDefinedCalculation* calculation );
+    std::vector<RimUserDefinedCalculation*> calculations() const;
+    RimUserDefinedCalculation*              findCalculationById( int id ) const;
 
-    void rebuildCaseMetaData() override;
+    void deleteAllContainedObjects();
 
-    RimSummaryCalculation* createCalculation() const override;
+    virtual RimUserDefinedCalculation* createCalculation() const = 0;
+    virtual void                       rebuildCaseMetaData()     = 0;
+
+    void ensureCalculationIds();
+    void assignCalculationIdToCalculation( RimUserDefinedCalculation* calculation ) const;
 
 private:
-    void initAfterRead() override;
-
-private:
-    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
+    caf::PdmChildArrayField<RimUserDefinedCalculation*> m_calculations;
 };

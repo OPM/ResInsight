@@ -18,56 +18,22 @@
 
 #pragma once
 
-#include "RiuCalculationsContextMenuManager.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-#include "cafPdmPtrField.h"
-#include <memory>
+#include "RicUserDefinedCalculatorUi.h"
 
-class RimSummaryCalculationCollection;
-class RimSummaryCalculation;
+class RimUserDefinedCalculationCollection;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicSummaryCurveCalculatorUi : public caf::PdmObject
+class RicSummaryCurveCalculatorUi : public RicUserDefinedCalculatorUi
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RicSummaryCurveCalculatorUi();
 
-    static QString calculatedSummariesGroupName();
-    static QString calulationGroupName();
-
-    RimSummaryCalculation* currentCalculation() const;
-    void                   setCurrentCalculation( RimSummaryCalculation* calculation );
-
-    bool parseExpression() const;
-    bool calculate() const;
-
-    static RimSummaryCalculationCollection* calculationCollection();
-
-private:
-    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                         QString                    uiConfigName,
-                                                         caf::PdmUiEditorAttribute* attribute ) override;
-    void                          onEditorWidgetsCreated() override;
-
-private:
-    // TODO : Move to a common caf helper class
-    static void assignPushButtonEditor( caf::PdmFieldHandle* fieldHandle );
-    static void assignPushButtonEditorText( caf::PdmUiEditorAttribute* attribute, const QString& text );
-
-private:
-    caf::PdmPtrField<RimSummaryCalculation*> m_currentCalculation;
-
-    caf::PdmField<bool> m_newCalculation;
-    caf::PdmField<bool> m_deleteCalculation;
-
-    std::unique_ptr<RiuCalculationsContextMenuManager> m_calcContextMenuMgr;
+    QString                              calculationsGroupName() const override;
+    QString                              calulationGroupName() const override;
+    RimUserDefinedCalculationCollection* calculationCollection() const override;
+    void                                 notifyCalculatedNameChanged( int id, const QString& newName ) const override;
 };

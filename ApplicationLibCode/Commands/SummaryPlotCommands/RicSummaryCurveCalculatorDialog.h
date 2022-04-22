@@ -18,17 +18,17 @@
 
 #pragma once
 
-#include <QDialog>
+#include "RicUserDefinedCalculatorDialog.h"
+
 #include <memory>
 
-class RicSummaryCurveCalculatorWidgetCreator;
-class RimSummaryCalculation;
+class RicCalculatorWidgetCreator;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RicSummaryCurveCalculatorDialog : public QDialog
+class RicSummaryCurveCalculatorDialog : public RicUserDefinedCalculatorDialog
 {
     Q_OBJECT
 
@@ -36,15 +36,11 @@ public:
     RicSummaryCurveCalculatorDialog( QWidget* parent );
     ~RicSummaryCurveCalculatorDialog() override;
 
-    void setCalculationAndUpdateUi( RimSummaryCalculation* calculation );
-
-private slots:
-    void slotTryCloseDialog();
-
-private:
-    void   setUp();
-    size_t dirtyCount() const;
+    void                                 setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation ) override;
+    QWidget*                             getCalculatorWidget() override;
+    void                                 updateUi() override;
+    RimUserDefinedCalculationCollection* calculationCollection() const override;
 
 private:
-    std::unique_ptr<RicSummaryCurveCalculatorWidgetCreator> m_summaryCalcEditor;
+    std::unique_ptr<RicCalculatorWidgetCreator> m_summaryCalcEditor;
 };

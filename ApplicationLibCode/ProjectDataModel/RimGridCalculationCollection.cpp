@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,57 +16,42 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RimSummaryCalculationCollection.h"
+#include "RimGridCalculationCollection.h"
 
-#include "RimCalculatedSummaryCase.h"
-#include "RimProject.h"
-#include "RimSummaryCalculation.h"
+#include "RimGridCalculation.h"
 
 #include "cafPdmUiGroup.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
-CAF_PDM_SOURCE_INIT( RimSummaryCalculationCollection, "RimSummaryCalculationCollection" );
+CAF_PDM_SOURCE_INIT( RimGridCalculationCollection, "RimGridCalculationCollection" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculationCollection::RimSummaryCalculationCollection()
+RimGridCalculationCollection::RimGridCalculationCollection()
 {
     CAF_PDM_InitObject( "Calculation Collection", ":/chain.png" );
-
-    CAF_PDM_InitFieldNoDefault( &m_calcuationSummaryCase, "CalculationsSummaryCase", "Calculations Summary Case" );
-    m_calcuationSummaryCase.xmlCapability()->disableIO();
-    m_calcuationSummaryCase = new RimCalculatedSummaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculation* RimSummaryCalculationCollection::createCalculation() const
+RimGridCalculation* RimGridCalculationCollection::createCalculation() const
 {
-    return new RimSummaryCalculation;
+    return new RimGridCalculation;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
-{
-    return m_calcuationSummaryCase();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationCollection::rebuildCaseMetaData()
+void RimGridCalculationCollection::rebuildCaseMetaData()
 {
     ensureCalculationIds();
-    m_calcuationSummaryCase->buildMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationCollection::initAfterRead()
+void RimGridCalculationCollection::initAfterRead()
 {
     rebuildCaseMetaData();
 }

@@ -226,13 +226,17 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
     RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
     if ( !calculationColl ) return;
 
-    RimSummaryCalculation* calculation = calculationColl->findCalculationById( id );
+    RimUserDefinedCalculation* calculation = calculationColl->findCalculationById( id );
     if ( !calculation ) return;
 
-    for ( RimSummaryCalculationVariable* v : calculation->allVariables() )
+    for ( RimUserDefinedCalculationVariable* v : calculation->allVariables() )
     {
-        cases.push_back( v->summaryCase() );
-        addresses.push_back( v->summaryAddress()->address() );
+        RimSummaryCalculationVariable* scv = dynamic_cast<RimSummaryCalculationVariable*>( v );
+        if ( scv )
+        {
+            cases.push_back( scv->summaryCase() );
+            addresses.push_back( scv->summaryAddress()->address() );
+        }
     }
 }
 

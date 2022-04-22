@@ -27,6 +27,8 @@
 #include "RiaRegressionTest.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RicGridCalculatorDialog.h"
+
 #include "Rim2dIntersectionView.h"
 #include "Rim3dView.h"
 #include "RimCellEdgeColors.h"
@@ -2112,4 +2114,17 @@ bool RiuMainWindow::subWindowsAreTiled() const
 bool RiuMainWindow::isAnyMdiSubWindowVisible()
 {
     return !m_mdiArea->subWindowList().empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RicGridCalculatorDialog* RiuMainWindow::gridCalculatorDialog( bool createIfNotPresent )
+{
+    if ( !m_gridCalculatorDialog && createIfNotPresent )
+    {
+        m_gridCalculatorDialog = std::make_unique<RicGridCalculatorDialog>( this );
+    }
+
+    return m_gridCalculatorDialog.get();
 }

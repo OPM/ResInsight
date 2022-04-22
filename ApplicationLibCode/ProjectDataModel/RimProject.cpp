@@ -55,6 +55,7 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridCalculationCollection.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimGridView.h"
@@ -126,7 +127,6 @@ RimProject::RimProject( void )
     , m_nextValidCaseGroupId( 0 )
     , m_nextValidViewId( 1 )
     , m_nextValidPlotId( 1 )
-    , m_nextValidCalculationId( 1 )
     , m_nextValidSummaryCaseId( 1 )
     , m_nextValidEnsembleId( 1 )
 {
@@ -163,6 +163,9 @@ RimProject::RimProject( void )
 
     CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection" );
     calculationCollection = new RimSummaryCalculationCollection;
+
+    CAF_PDM_InitFieldNoDefault( &gridCalculationCollection, "GridCalculationCollection", "Grid Calculation Collection" );
+    gridCalculationCollection = new RimGridCalculationCollection;
 
     CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects" );
 
@@ -261,6 +264,7 @@ void RimProject::close()
     m_dialogData->clearProjectSpecificData();
 
     calculationCollection->deleteAllContainedObjects();
+    gridCalculationCollection->deleteAllContainedObjects();
     colorLegendCollection->deleteCustomColorLegends();
 
     delete viewLinkerCollection->viewLinker();
@@ -277,7 +281,6 @@ void RimProject::close()
     m_nextValidCaseGroupId   = 0;
     m_nextValidViewId        = 1;
     m_nextValidPlotId        = 1;
-    m_nextValidCalculationId = 1;
     m_nextValidSummaryCaseId = 1;
     m_nextValidEnsembleId    = 1;
 }
@@ -604,22 +607,6 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
         }
 
         plotWindow->setId( m_nextValidPlotId++ );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::assignCalculationIdToCalculation( RimSummaryCalculation* calculation )
-{
-    if ( calculation )
-    {
-        for ( RimSummaryCalculation* existingCalculation : calculationCollection->calculations() )
-        {
-            m_nextValidCalculationId = std::max( m_nextValidCalculationId, existingCalculation->id() + 1 );
-        }
-
-        calculation->setId( m_nextValidCalculationId++ );
     }
 }
 

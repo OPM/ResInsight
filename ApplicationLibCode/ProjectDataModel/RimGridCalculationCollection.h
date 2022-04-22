@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,36 +18,31 @@
 
 #pragma once
 
-#include "RimSummaryCalculation.h"
+#include "RimGridCalculation.h"
 #include "RimUserDefinedCalculationCollection.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
-class RimSummaryCase;
-class RimCalculatedSummaryCase;
+class RimGridCase;
+class RimCalculatedGridCase;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculationCollection : public RimUserDefinedCalculationCollection
+class RimGridCalculationCollection : public RimUserDefinedCalculationCollection
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCalculationCollection();
-
-    RimSummaryCase* calculationSummaryCase();
+    RimGridCalculationCollection();
 
     void rebuildCaseMetaData() override;
 
-    RimSummaryCalculation* createCalculation() const override;
+    RimGridCalculation* createCalculation() const override;
 
 private:
     void initAfterRead() override;
-
-private:
-    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
 };

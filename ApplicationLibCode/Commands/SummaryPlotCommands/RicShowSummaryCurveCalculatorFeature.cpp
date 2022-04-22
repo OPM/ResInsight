@@ -77,7 +77,7 @@ void RicShowSummaryCurveCalculatorFeature::onActionTriggered( bool isChecked )
 
     RimProject*                      proj     = RimProject::current();
     RimSummaryCalculationCollection* calcColl = proj->calculationCollection();
-    if ( calcColl->calculations().size() == 0 )
+    if ( calcColl->calculations().empty() )
     {
         calcColl->addCalculation();
     }

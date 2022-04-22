@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,36 +18,29 @@
 
 #pragma once
 
-#include "RimSummaryCalculation.h"
-#include "RimUserDefinedCalculationCollection.h"
+#include "RicUserDefinedCalculatorDialog.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
-#include "cafPdmObject.h"
+#include <memory>
 
-class RimSummaryCase;
-class RimCalculatedSummaryCase;
+class RicCalculatorWidgetCreator;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculationCollection : public RimUserDefinedCalculationCollection
+class RicGridCalculatorDialog : public RicUserDefinedCalculatorDialog
 {
-    CAF_PDM_HEADER_INIT;
+    Q_OBJECT
 
 public:
-    RimSummaryCalculationCollection();
+    RicGridCalculatorDialog( QWidget* parent );
+    ~RicGridCalculatorDialog() override;
 
-    RimSummaryCase* calculationSummaryCase();
-
-    void rebuildCaseMetaData() override;
-
-    RimSummaryCalculation* createCalculation() const override;
-
-private:
-    void initAfterRead() override;
+    void                                 setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation ) override;
+    QWidget*                             getCalculatorWidget() override;
+    void                                 updateUi() override;
+    RimUserDefinedCalculationCollection* calculationCollection() const override;
 
 private:
-    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
+    std::unique_ptr<RicCalculatorWidgetCreator> m_calcEditor;
 };
