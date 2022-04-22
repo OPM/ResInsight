@@ -26,18 +26,18 @@
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
+
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
 #include "RimMultipleSummaryPlotNameHelper.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlotControls.h"
-
-#include "RimSummaryAddress.h"
 #include "RimSummaryPlot.h"
+#include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
 
@@ -49,6 +49,8 @@
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include "qwt_scale_engine.h"
+
 #include <QKeyEvent>
 #include <cmath>
 
@@ -57,11 +59,12 @@ namespace caf
 template <>
 void AppEnum<RimSummaryMultiPlot::AxisRangeAggregation>::setUp()
 {
-    addItem( RimSummaryMultiPlot::AxisRangeAggregation::NONE, "NONE", "Disabled" );
-    addItem( RimSummaryMultiPlot::AxisRangeAggregation::WELLS, "WELLS", "Wells" );
-    addItem( RimSummaryMultiPlot::AxisRangeAggregation::REGIONS, "REGIONS", "Regions" );
-    addItem( RimSummaryMultiPlot::AxisRangeAggregation::REALIZATIONS, "REALIZATIONS", "Realizations" );
-    setDefault( RimSummaryMultiPlot::AxisRangeAggregation::NONE );
+    addItem( RimSummaryMultiPlot::AxisRangeAggregation::INDIVIDUAL, "INDIVIDUAL", "Individual" );
+    addItem( RimSummaryMultiPlot::AxisRangeAggregation::SUB_PLOTS, "SUB_PLOTS", "All Sub Plots" );
+    addItem( RimSummaryMultiPlot::AxisRangeAggregation::WELLS, "WELLS", "All Wells" );
+    addItem( RimSummaryMultiPlot::AxisRangeAggregation::REGIONS, "REGIONS", "All Regions" );
+    addItem( RimSummaryMultiPlot::AxisRangeAggregation::REALIZATIONS, "REALIZATIONS", "All Realizations" );
+    setDefault( RimSummaryMultiPlot::AxisRangeAggregation::INDIVIDUAL );
 }
 } // namespace caf
 
@@ -78,11 +81,6 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", true, "Auto Plot Titles" );
     CAF_PDM_InitField( &m_autoPlotTitlesOnSubPlots, "AutoPlotTitlesSubPlots", true, "Auto Plot Titles Sub Plots" );
 
-    CAF_PDM_InitField( &m_syncAxisRanges, "SyncAxisRanges", false, "", "", "Sync Axis Ranges in All Plots" );
-    m_syncAxisRanges.xmlCapability()->disableIO();
-    m_syncAxisRanges.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
-    m_syncAxisRanges.uiCapability()->setUiIconFromResourceString( ":/AxesSync16x16.png" );
-
     CAF_PDM_InitField( &m_createPlotDuplicate, "DuplicatePlot", false, "", "", "Duplicate Plot" );
     m_createPlotDuplicate.xmlCapability()->disableIO();
     m_createPlotDuplicate.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
@@ -93,7 +91,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_disableWheelZoom.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
-    CAF_PDM_InitField( &m_syncSubPlotAxes, "SyncSubPlotAxes", false, "Sync Subplot Axes" );
+    CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Aggregation" );
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
@@ -119,7 +117,7 @@ RimSummaryMultiPlot::~RimSummaryMultiPlot()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 {
-    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
@@ -132,7 +130,7 @@ void RimSummaryMultiPlot::addPlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 {
-    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
@@ -149,10 +147,10 @@ void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& obj
 {
     if ( objects.empty() ) return;
 
-    RimSummaryAddress* addr = dynamic_cast<RimSummaryAddress*>( objects[0] );
+    auto* addr = dynamic_cast<RimSummaryAddress*>( objects[0] );
     if ( addr )
     {
-        RimSummaryPlot* plot = new RimSummaryPlot();
+        auto* plot = new RimSummaryPlot();
         plot->enableAutoPlotTitle( true );
 
         plot->handleDroppedObjects( objects );
@@ -166,7 +164,7 @@ void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& obj
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::removePlot( RimPlot* plot )
 {
-    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
@@ -179,7 +177,7 @@ void RimSummaryMultiPlot::removePlot( RimPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::removePlotNoUpdate( RimPlot* plot )
 {
-    RimSummaryPlot* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+    auto* sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
     CVF_ASSERT( sumPlot != nullptr );
     if ( sumPlot )
     {
@@ -312,8 +310,8 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     layoutGroup->add( &m_majorTickmarkCount );
 
     auto axesGroup = uiOrdering.addNewGroup( "Axes" );
-    axesGroup->add( &m_syncSubPlotAxes );
     axesGroup->add( &m_axisRangeAggregation );
+    axesGroup->add( &m_linkSubPlotAxes );
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
     m_sourceStepping()->uiOrdering( uiConfigName, *dataSourceGroup );
@@ -333,9 +331,8 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         onLoadDataAndUpdate();
         updateLayout();
     }
-    else if ( changedField == &m_syncAxisRanges )
+    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation )
     {
-        m_syncAxisRanges = false;
         syncAxisRanges();
     }
     else if ( changedField == &m_createPlotDuplicate )
@@ -343,37 +340,9 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         m_createPlotDuplicate = false;
         duplicate();
     }
-    else if ( changedField == &m_syncSubPlotAxes && m_syncSubPlotAxes() )
-    {
-        syncAxisRanges();
-    }
-    else if ( changedField == &m_axisRangeAggregation )
-    {
-        if ( m_axisRangeAggregation() != AxisRangeAggregation::NONE )
-            computeAggregatedAxisRange();
-        else
-            onLoadDataAndUpdate();
-    }
     else
     {
         RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
-                                                 QString                    uiConfigName,
-                                                 caf::PdmUiEditorAttribute* attribute )
-{
-    if ( &m_syncAxisRanges == field )
-    {
-        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
-        if ( attrib )
-        {
-            attrib->m_buttonText = "Sync Axes";
-        }
     }
 }
 
@@ -470,7 +439,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
     std::vector<caf::PdmFieldHandle*> toolBarFields;
 
     toolBarFields.push_back( &m_disableWheelZoom );
-    toolBarFields.push_back( &m_syncAxisRanges );
     toolBarFields.push_back( &m_createPlotDuplicate );
 
     auto& sourceObject = m_sourceStepping();
@@ -552,45 +520,65 @@ void RimSummaryMultiPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::zoomAll()
+{
+    syncAxisRanges();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
-    std::map<QString, std::pair<double, double>> axisRanges;
-
     // Reset zoom to make sure the complete range for min/max is available
-    zoomAll();
+    RimMultiPlot::zoomAll();
 
-    // gather current min/max values for each category (axis label)
-    for ( auto plot : summaryPlots() )
+    if ( m_axisRangeAggregation() == AxisRangeAggregation::INDIVIDUAL )
     {
-        for ( auto axis : plot->plotAxes() )
-        {
-            double minVal = axis->visibleRangeMin();
-            double maxVal = axis->visibleRangeMax();
+        return;
+    }
+    else if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
+    {
+        std::map<QString, std::pair<double, double>> axisRanges;
 
-            if ( axisRanges.count( axis->name() ) == 0 )
+        // gather current min/max values for each category (axis label)
+        for ( auto plot : summaryPlots() )
+        {
+            for ( auto axis : plot->plotAxes() )
             {
-                axisRanges[axis->name()] = std::make_pair( axis->visibleRangeMin(), axis->visibleRangeMax() );
+                double minVal = axis->visibleRangeMin();
+                double maxVal = axis->visibleRangeMax();
+
+                if ( axisRanges.count( axis->name() ) == 0 )
+                {
+                    axisRanges[axis->name()] = std::make_pair( axis->visibleRangeMin(), axis->visibleRangeMax() );
+                }
+                else
+                {
+                    auto& [currentMin, currentMax] = axisRanges[axis->name()];
+                    axisRanges[axis->name()] =
+                        std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+                }
             }
-            else
+        }
+
+        // set all plots to use the global min/max values for each category
+        for ( auto plot : summaryPlots() )
+        {
+            for ( auto axis : plot->plotAxes() )
             {
-                auto& [currentMin, currentMax] = axisRanges[axis->name()];
-                axisRanges[axis->name()] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+                const auto& [minVal, maxVal] = axisRanges[axis->name()];
+                axis->setAutoZoom( false );
+                axis->setVisibleRangeMin( minVal );
+                axis->setVisibleRangeMax( maxVal );
             }
+
+            plot->updateAxes();
         }
     }
-
-    // set all plots to use the global min/max values for each category
-    for ( auto plot : summaryPlots() )
+    else
     {
-        for ( auto axis : plot->plotAxes() )
-        {
-            const auto& [minVal, maxVal] = axisRanges[axis->name()];
-            axis->setAutoZoom( false );
-            axis->setVisibleRangeMin( minVal );
-            axis->setVisibleRangeMax( maxVal );
-        }
-
-        plot->updateAxes();
+        computeAggregatedAxisRange();
     }
 }
 
@@ -674,7 +662,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
             if ( axisRangeAggregation == AxisRangeAggregation::WELLS )
             {
-                for ( auto wellName : analyzer.wellNames() )
+                for ( const auto& wellName : analyzer.wellNames() )
                 {
                     addresses.push_back(
                         RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().quantityName(), wellName ) );
@@ -701,7 +689,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
             double maximum = -HUGE_VAL;
             for ( auto summaryCase : summaryCases )
             {
-                for ( auto addr : addresses )
+                for ( const auto& addr : addresses )
                 {
                     auto [caseMinimum, caseMaximum] = findMinMaxForSummaryCase( summaryCase, addr );
                     minimum                         = std::min( minimum, caseMinimum );
@@ -745,12 +733,25 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         // set all plots to use the global min/max values for each category
         for ( auto axis : plot->plotAxes() )
         {
+            QwtLinearScaleEngine scaleEngine;
+
             const auto& [minVal, maxVal] = axisRanges[axis->plotAxisType()];
             if ( axis->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT && minVal <= maxVal )
             {
                 axis->setAutoZoom( false );
-                axis->setVisibleRangeMin( minVal );
-                axis->setVisibleRangeMax( maxVal );
+
+                auto adjustedMin = minVal;
+                auto adjustedMax = maxVal;
+
+                if ( !axis->isLogarithmicScaleEnabled() )
+                {
+                    int    maxMajorTickIntervalCount = 8;
+                    double stepSize                  = 0.0;
+                    scaleEngine.autoScale( maxMajorTickIntervalCount, adjustedMin, adjustedMax, stepSize );
+                }
+
+                axis->setVisibleRangeMin( adjustedMin );
+                axis->setVisibleRangeMax( adjustedMax );
             }
         }
 
@@ -800,7 +801,7 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
 {
-    if ( !m_syncSubPlotAxes() ) return;
+    if ( !m_linkSubPlotAxes() ) return;
 
     for ( auto plot : summaryPlots() )
     {
