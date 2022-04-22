@@ -200,10 +200,11 @@ void RicReplaceSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 bool RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( const RimSummaryCalculation* summaryCalculation,
                                                                   const RimSummaryCase*        summaryCase )
 {
-    std::vector<RimSummaryCalculationVariable*> variables = summaryCalculation->allVariables();
-    for ( RimSummaryCalculationVariable* variable : variables )
+    std::vector<RimUserDefinedCalculationVariable*> variables = summaryCalculation->allVariables();
+    for ( RimUserDefinedCalculationVariable* variable : variables )
     {
-        if ( variable->summaryCase() == summaryCase )
+        RimSummaryCalculationVariable* summaryVariable = dynamic_cast<RimSummaryCalculationVariable*>( variable );
+        if ( summaryVariable->summaryCase() == summaryCase )
         {
             return true;
         }

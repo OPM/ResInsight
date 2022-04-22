@@ -18,35 +18,29 @@
 
 #pragma once
 
-#include "RimSummaryCalculationVariable.h"
-#include "RimUserDefinedCalculation.h"
-
-#include "RiuExpressionContextMenuManager.h"
-
-#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmProxyValueField.h"
 
-#include <QPointer>
-
-#include <memory>
-
-class QTextEdit;
+class RimUserDefinedCase;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculation : public RimUserDefinedCalculation
+class RimUserDefinedCalculationVariable : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCalculation();
+    RimUserDefinedCalculationVariable();
 
-    bool calculate() override;
-    void updateDependentCurvesAndPlots();
+    QString name() const;
+    void    setName( const QString& name );
+
+    virtual QString displayString() const = 0;
 
 protected:
-    RimSummaryCalculationVariable* createVariable() const override;
+    caf::PdmField<QString>           m_name;
+    caf::PdmProxyValueField<QString> m_addressUi;
 };

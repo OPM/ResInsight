@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RimUserDefinedCalculationVariable.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -34,17 +36,14 @@ class RiuSummaryVectorSelectionDialog;
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculationVariable : public caf::PdmObject
+class RimSummaryCalculationVariable : public RimUserDefinedCalculationVariable
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimSummaryCalculationVariable();
 
-    QString name() const;
-    void    setName( const QString& name );
-
-    QString summaryAddressDisplayString() const;
+    QString displayString() const override;
 
     RimSummaryCase*    summaryCase();
     RimSummaryAddress* summaryAddress();
@@ -58,9 +57,6 @@ private:
     void writeDataToApplicationStore() const;
 
 private:
-    caf::PdmField<QString>           m_name;
-    caf::PdmProxyValueField<QString> m_summaryAddressUi;
-
     caf::PdmField<bool> m_button;
 
     caf::PdmPtrField<RimSummaryCase*>      m_case;
