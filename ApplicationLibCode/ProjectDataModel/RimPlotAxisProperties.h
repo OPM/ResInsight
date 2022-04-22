@@ -103,6 +103,9 @@ public:
     void setVisibleRangeMin( double value ) override;
     void setVisibleRangeMax( double value ) override;
 
+    LegendTickmarkCount majorTickmarkCount() const override;
+    void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
+
 protected:
     void                 initAfterRead() override;
     caf::PdmFieldHandle* userDescriptionField() override;
@@ -134,6 +137,7 @@ private:
     caf::PdmField<QString>                            m_name;
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
     caf::PdmField<int>                                m_plotAxisIndex;
+    caf::PdmField<LegendTickmarkCountEnum>            m_majorTickmarkCount;
 
     caf::PdmField<bool> m_isLogarithmicScaleEnabled;
 

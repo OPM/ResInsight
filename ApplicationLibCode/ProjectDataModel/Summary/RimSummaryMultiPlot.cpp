@@ -307,7 +307,6 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     auto layoutGroup = uiOrdering.addNewGroup( "Layout" );
     layoutGroup->add( &m_columnCount );
     layoutGroup->add( &m_rowsPerPage );
-    layoutGroup->add( &m_majorTickmarkCount );
 
     auto axesGroup = uiOrdering.addNewGroup( "Axes" );
     axesGroup->add( &m_axisRangeAggregation );
@@ -785,6 +784,14 @@ void RimSummaryMultiPlot::duplicate()
 void RimSummaryMultiPlot::makeSureIsVisible( RimSummaryPlot* summaryPlot )
 {
     if ( summaryPlot->plotWidget() && !m_viewer.isNull() ) m_viewer->scrollToPlot( summaryPlot->plotWidget() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::isSubPlotAxesLinked() const
+{
+    return m_linkSubPlotAxes();
 }
 
 //--------------------------------------------------------------------------------------------------

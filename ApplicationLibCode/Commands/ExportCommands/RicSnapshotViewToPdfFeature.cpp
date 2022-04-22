@@ -72,12 +72,12 @@ void RicSnapshotViewToPdfFeature::onActionTriggered( bool isChecked )
         }
         else
         {
-            fileName = defaultFileName + ".pdf";
+            fileName = defaultFileName + "." + fileExtension;
         }
 
         if ( !fileName.isEmpty() )
         {
-            if ( plotWindow && fileName.endsWith( "PDF", Qt::CaseInsensitive ) )
+            if ( plotWindow && fileName.endsWith( fileExtension, Qt::CaseInsensitive ) )
             {
                 RicSnapshotViewToFileFeature::savePlotPdfReportAs( fileName, plotWindow );
 

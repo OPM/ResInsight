@@ -90,6 +90,8 @@ public:
 
     void makeSureIsVisible( RimSummaryPlot* plot );
 
+    bool isSubPlotAxesLinked() const;
+
     void zoomAll() override;
 
 protected:

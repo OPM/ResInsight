@@ -18,6 +18,7 @@
 #include "RiuMultiPlotBook.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 
@@ -342,8 +343,7 @@ void RiuMultiPlotBook::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
 {
-    int    resolution = paintDevice->logicalDpiX();
-    double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+    auto scaling = RiaDefines::scalingFactor( paintDevice );
 
     QPainter painter( paintDevice );
 

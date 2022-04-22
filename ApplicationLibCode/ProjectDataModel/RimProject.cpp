@@ -157,10 +157,7 @@ RimProject::RimProject( void )
     CAF_PDM_InitFieldNoDefault( &mainPlotCollection, "MainPlotCollection", "Plots" );
     mainPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &viewLinkerCollection,
-                                "LinkedViews",
-                                "Linked Views (field in RimProject",
-                                ":/LinkView16x16.png" );
+    CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
     viewLinkerCollection.uiCapability()->setUiTreeHidden( true );
     viewLinkerCollection = new RimViewLinkerCollection;
 

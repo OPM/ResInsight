@@ -104,8 +104,8 @@ public:
     void setVisibleDateTimeMin( const QDateTime& dateTime );
     void setVisibleDateTimeMax( const QDateTime& dateTime );
 
-    LegendTickmarkCount majorTickmarkCount() const;
-    void                setMajorTickmarkCount( LegendTickmarkCount count );
+    LegendTickmarkCount majorTickmarkCount() const override;
+    void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
 
     const QString& name() const override;
 

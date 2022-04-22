@@ -85,6 +85,7 @@ RiaPreferencesSystem::RiaPreferencesSystem()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showPdfExportDialog );
 
     CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)" );
+    CAF_PDM_InitField( &m_exportScalingFactor, "exportScalingFactor", -1.0, "Export Scaling Factor (<0 disable)" );
 
     CAF_PDM_InitField( &m_eclipseReaderMode,
                        "eclipseReaderMode",
@@ -209,6 +210,14 @@ bool RiaPreferencesSystem::showPdfExportDialog() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RiaPreferencesSystem::exportPdfScalingFactor() const
+{
+    return m_exportScalingFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTextFileReaderMode() const
 {
     return m_eclipseReaderMode();
@@ -238,7 +247,9 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_includeFractureDebugInfoFile );
     uiOrdering.add( &m_holoLensExportFolder );
     uiOrdering.add( &m_showProgressBar );
+
     uiOrdering.add( &m_showPdfExportDialog );
+    uiOrdering.add( &m_exportScalingFactor );
 }
 
 //--------------------------------------------------------------------------------------------------

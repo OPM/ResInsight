@@ -74,8 +74,16 @@ public:
 
     virtual bool isLogarithmicScaleEnabled() const;
 
+    virtual LegendTickmarkCount majorTickmarkCount() const                         = 0;
+    virtual void                setMajorTickmarkCount( LegendTickmarkCount count ) = 0;
+
+    static int tickmarkCountFromEnum( LegendTickmarkCount count );
+
 public:
     virtual AxisTitlePositionType titlePosition() const  = 0;
     virtual int                   titleFontSize() const  = 0;
     virtual int                   valuesFontSize() const = 0;
+
+private:
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 };

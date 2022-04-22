@@ -573,7 +573,10 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
         timeGroup->add( &m_visibleTimeSinceStartRangeMax );
         timeGroup->add( &m_visibleTimeSinceStartRangeMin );
     }
+
     timeGroup->add( &m_valuesFontSize );
+    timeGroup->add( &m_majorTickmarkCount );
+
     if ( m_timeMode() == DATE )
     {
         caf::PdmUiGroup* advancedGroup = timeGroup->addNewGroup( "Date/Time Label Format" );

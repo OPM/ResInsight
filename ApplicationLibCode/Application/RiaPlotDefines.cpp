@@ -18,6 +18,9 @@
 
 #include "RiaPlotDefines.h"
 
+#include "RiaGuiApplication.h"
+#include "RiaPreferencesSystem.h"
+
 #include "cafAppEnum.h"
 
 namespace caf
@@ -72,4 +75,21 @@ bool RiaDefines::isHorizontal( RiaDefines::PlotAxis axis )
 bool RiaDefines::isVertical( RiaDefines::PlotAxis axis )
 {
     return ( axis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT || axis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaDefines::scalingFactor( QPaintDevice* paintDevice )
+{
+    auto scalingFactor = RiaPreferencesSystem::current()->exportPdfScalingFactor();
+
+    if ( scalingFactor > 0.0 ) return scalingFactor;
+
+    if ( !paintDevice ) return 1.0;
+
+    int    resolution = paintDevice->logicalDpiX();
+    double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+
+    return scaling;
 }
