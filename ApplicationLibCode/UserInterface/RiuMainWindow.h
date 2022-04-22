@@ -51,6 +51,8 @@ class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
 
+class RicGridCalculatorDialog;
+
 struct RimMdiWindowGeometry;
 
 namespace caf
@@ -126,6 +128,8 @@ public:
     void setDefaultToolbarVisibility();
     void applyFontSizesToDockedPlots();
 
+    RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
+
 protected:
     void closeEvent( QCloseEvent* event ) override;
 
@@ -171,10 +175,11 @@ private:
     RiuProcessMonitor*        m_processMonitor;
     QPointer<RiuMessagePanel> m_messagePanel;
 
-    RiuResultQwtPlot*                 m_resultQwtPlot;
-    RiuMohrsCirclePlot*               m_mohrsCirclePlot;
-    RiuRelativePermeabilityPlotPanel* m_relPermPlotPanel;
-    RiuPvtPlotPanel*                  m_pvtPlotPanel;
+    RiuResultQwtPlot*                        m_resultQwtPlot;
+    RiuMohrsCirclePlot*                      m_mohrsCirclePlot;
+    RiuRelativePermeabilityPlotPanel*        m_relPermPlotPanel;
+    RiuPvtPlotPanel*                         m_pvtPlotPanel;
+    std::unique_ptr<RicGridCalculatorDialog> m_gridCalculatorDialog;
 
     QMenu*       m_windowMenu;
     QLabel*      m_memoryCriticalWarning;

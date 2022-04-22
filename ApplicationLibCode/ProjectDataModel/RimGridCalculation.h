@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2019-     Equinor ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,23 +18,23 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
+#include "RimGridCalculationVariable.h"
+#include "RimUserDefinedCalculation.h"
 
-class RimUserDefinedCalculation;
-class RimSummaryCase;
-
-class RicReplaceSummaryCaseFeature : public caf::CmdFeature
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimGridCalculation : public RimUserDefinedCalculation
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
 public:
-    static void updateRequredCalculatedCurves( RimSummaryCase* sourceSummaryCase );
+    RimGridCalculation();
+
+    bool calculate() override;
+    void updateDependentObjects() override;
 
 protected:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-
-    static bool checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation,
-                                               const RimSummaryCase*            summaryCase );
+    RimGridCalculationVariable* createVariable() const override;
 };

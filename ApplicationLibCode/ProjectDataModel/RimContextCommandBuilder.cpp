@@ -318,6 +318,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicSaveEclipseInputVisibleCellsFeature";
             menuBuilder << "RicCreateGridCrossPlotFeature";
             menuBuilder << "RicAddEclipseInputPropertyFeature";
+            menuBuilder << "RicShowGridCalculatorFeature";
         }
         else if ( dynamic_cast<RimEclipseInputProperty*>( firstUiItem ) )
         {

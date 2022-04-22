@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,49 +20,48 @@
 
 #include "RimUserDefinedCalculationVariable.h"
 
+#include "RiaDefines.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
-#include "RifEclipseSummaryAddressQMetaType.h"
-
-class RimSummaryCase;
-class RimSummaryAddress;
-class RiuSummaryVectorSelectionDialog;
+class RimEclipseCase;
+class RigCaseCellResultsData;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculationVariable : public RimUserDefinedCalculationVariable
+class RimGridCalculationVariable : public RimUserDefinedCalculationVariable
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimSummaryCalculationVariable();
+    RimGridCalculationVariable();
 
     QString displayString() const override;
 
-    RimSummaryCase*    summaryCase();
-    RimSummaryAddress* summaryAddress();
-
-    void setSummaryAddress( const RimSummaryAddress& address );
-
-    void handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) override;
+    RimEclipseCase*           eclipseCase() const;
+    RiaDefines::ResultCatType resultCategoryType() const;
+    QString                   resultVariable() const;
+    int                       timeStep() const;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
-    void readDataFromApplicationStore( RiuSummaryVectorSelectionDialog* selectionDialog ) const;
-    void writeDataToApplicationStore() const;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+    RigCaseCellResultsData*       currentGridCellResults() const;
+    QStringList                   getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
+                                                               const RigCaseCellResultsData* results );
 
 private:
-    caf::PdmField<bool> m_button;
-
-    caf::PdmPtrField<RimSummaryCase*>      m_case;
-    caf::PdmChildField<RimSummaryAddress*> m_summaryAddress;
+    caf::PdmPtrField<RimEclipseCase*>                      m_eclipseCase;
+    caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_resultType;
+    caf::PdmField<QString>                                 m_resultVariable;
+    caf::PdmField<int>                                     m_timeStep;
 };

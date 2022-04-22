@@ -17,14 +17,17 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuCalculationsContextMenuManager.h"
+
 #include "RimSummaryCalculationCollection.h"
-#include "SummaryPlotCommands/RicSummaryCurveCalculatorUi.h"
+
+#include "RicUserDefinedCalculatorUi.h"
+
 #include <QMenu>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuCalculationsContextMenuManager::attachWidget( QWidget* widget, RicSummaryCurveCalculatorUi* curveCalc )
+void RiuCalculationsContextMenuManager::attachWidget( QWidget* widget, RicUserDefinedCalculatorUi* curveCalc )
 {
     if ( m_widget != widget )
     {
@@ -63,13 +66,15 @@ void RiuCalculationsContextMenuManager::slotMenuItems( QPoint point )
 //--------------------------------------------------------------------------------------------------
 void RiuCalculationsContextMenuManager::slotCreateCalculationCopy()
 {
-    RimSummaryCalculation* currCalculation = m_curveCalc != nullptr ? m_curveCalc->currentCalculation() : nullptr;
-
-    if ( m_widget != nullptr && currCalculation != nullptr )
+    if ( m_widget != nullptr && m_curveCalc != nullptr )
     {
-        RimSummaryCalculationCollection* coll     = RicSummaryCurveCalculatorUi::calculationCollection();
-        RimSummaryCalculation*           calcCopy = coll->addCalculationCopy( currCalculation );
-        m_curveCalc->setCurrentCalculation( calcCopy );
-        m_curveCalc->updateConnectedEditors();
+        RimUserDefinedCalculation* currCalculation = m_curveCalc->currentCalculation();
+        if ( currCalculation != nullptr )
+        {
+            RimUserDefinedCalculationCollection* coll     = m_curveCalc->calculationCollection();
+            RimUserDefinedCalculation*           calcCopy = coll->addCalculationCopy( currCalculation );
+            m_curveCalc->setCurrentCalculation( calcCopy );
+            m_curveCalc->updateConnectedEditors();
+        }
     }
 }

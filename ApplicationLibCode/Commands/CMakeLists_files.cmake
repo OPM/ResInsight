@@ -78,6 +78,12 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionBandFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionCurveFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowGridCalculatorFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorDialog.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorUi.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -159,6 +165,12 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionBandFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionCurveFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowGridCalculatorFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
@@ -185,6 +197,9 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.h
   ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
   ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
+  ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.h
+  ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorDialog.h
+  ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
 )
 
 source_group(

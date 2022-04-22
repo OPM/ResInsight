@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2017-     Statoil ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,36 +18,32 @@
 
 #pragma once
 
-#include "RimSummaryCalculation.h"
-#include "RimUserDefinedCalculationCollection.h"
+#include <QDialog>
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
-#include "cafPdmObject.h"
-
-class RimSummaryCase;
-class RimCalculatedSummaryCase;
+class RimUserDefinedCalculation;
+class RimUserDefinedCalculationCollection;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculationCollection : public RimUserDefinedCalculationCollection
+class RicUserDefinedCalculatorDialog : public QDialog
 {
-    CAF_PDM_HEADER_INIT;
+    Q_OBJECT
 
 public:
-    RimSummaryCalculationCollection();
+    RicUserDefinedCalculatorDialog( QWidget* parent, const QString& title );
+    ~RicUserDefinedCalculatorDialog() override;
 
-    RimSummaryCase* calculationSummaryCase();
+    virtual void setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation ) = 0;
+    virtual RimUserDefinedCalculationCollection* calculationCollection() const       = 0;
+    virtual QWidget*                             getCalculatorWidget()               = 0;
+    virtual void                                 updateUi()                          = 0;
 
-    void rebuildCaseMetaData() override;
+private slots:
+    void slotTryCloseDialog();
 
-    RimSummaryCalculation* createCalculation() const override;
-
-private:
-    void initAfterRead() override;
-
-private:
-    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
+protected:
+    void   setUp();
+    size_t dirtyCount() const;
 };

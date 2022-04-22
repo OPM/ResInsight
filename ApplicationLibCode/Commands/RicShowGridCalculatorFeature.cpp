@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,68 +16,79 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCalculatorDialog.h"
+#include "RicShowGridCalculatorFeature.h"
 
-#include "RicCalculatorWidgetCreator.h"
-#include "RicSummaryCurveCalculatorUi.h"
+#include "RicGridCalculatorDialog.h"
 
-#include "RimSummaryCalculation.h"
+#include "RiaGuiApplication.h"
+
+#include "RimGridCalculationCollection.h"
+#include "RimProject.h"
 #include "RimSummaryCalculationCollection.h"
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog( QWidget* parent )
-    : RicUserDefinedCalculatorDialog( parent, "Summary Curve Calculator" )
-{
-    setUp();
-}
+#include "RiuMainWindow.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT( RicShowGridCalculatorFeature, "RicShowGridCalculatorFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
+RicGridCalculatorDialog* RicShowGridCalculatorFeature::gridCalculatorDialog( bool createIfNotPresent )
 {
-}
+    RiuMainWindow* mainWindow = RiaGuiApplication::instance()->mainWindow();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation )
-{
-    CAF_ASSERT( m_summaryCalcEditor );
-    m_summaryCalcEditor->calculator()->setCurrentCalculation( dynamic_cast<RimSummaryCalculation*>( calculation ) );
-    updateUi();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::updateUi()
-{
-    CAF_ASSERT( m_summaryCalcEditor );
-    m_summaryCalcEditor->updateUi();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimUserDefinedCalculationCollection* RicSummaryCurveCalculatorDialog::calculationCollection() const
-{
-    CAF_ASSERT( m_summaryCalcEditor );
-    return m_summaryCalcEditor->calculator()->calculationCollection();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCalculatorDialog::getCalculatorWidget()
-{
-    if ( !m_summaryCalcEditor )
+    if ( mainWindow )
     {
-        m_summaryCalcEditor = std::unique_ptr<RicCalculatorWidgetCreator>(
-            new RicCalculatorWidgetCreator( std::make_unique<RicSummaryCurveCalculatorUi>() ) );
+        return mainWindow->gridCalculatorDialog( createIfNotPresent );
     }
 
-    return m_summaryCalcEditor->getOrCreateWidget( this );
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicShowGridCalculatorFeature::hideGridCalculatorDialog()
+{
+    auto dialog = RicShowGridCalculatorFeature::gridCalculatorDialog( false );
+    if ( dialog ) dialog->hide();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicShowGridCalculatorFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicShowGridCalculatorFeature::onActionTriggered( bool isChecked )
+{
+    RicGridCalculatorDialog* dialog = RicShowGridCalculatorFeature::gridCalculatorDialog( true );
+
+    RimProject*                   proj     = RimProject::current();
+    RimGridCalculationCollection* calcColl = proj->gridCalculationCollection();
+    if ( calcColl->calculations().empty() )
+    {
+        calcColl->addCalculation();
+    }
+
+    dialog->setCalculationAndUpdateUi( calcColl->calculations()[0] );
+
+    dialog->show();
+    dialog->raise();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicShowGridCalculatorFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "Grid Calculator" );
+    actionToSetup->setIcon( QIcon( ":/Calculator.svg" ) );
 }

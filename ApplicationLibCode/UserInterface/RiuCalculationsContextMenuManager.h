@@ -21,14 +21,15 @@
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
 #include <QAction>
 #include <QPointer>
 #include <QWidget>
+
 #include <map>
 #include <memory>
 
-class RimSummaryCalculationVariable;
-class RicSummaryCurveCalculatorUi;
+class RicUserDefinedCalculatorUi;
 
 //==================================================================================================
 ///
@@ -47,7 +48,7 @@ public:
     {
     }
 
-    void attachWidget( QWidget* widget, RicSummaryCurveCalculatorUi* curveCalc );
+    void attachWidget( QWidget* widget, RicUserDefinedCalculatorUi* curveCalc );
 
 public slots:
     void slotMenuItems( QPoint point );
@@ -57,7 +58,7 @@ private slots:
 
 private:
     QPointer<QWidget>                           m_widget;
-    RicSummaryCurveCalculatorUi*                m_curveCalc;
+    RicUserDefinedCalculatorUi*                 m_curveCalc;
     int                                         m_textPosition;
     std::map<QString, std::unique_ptr<QAction>> m_actionCache;
 };

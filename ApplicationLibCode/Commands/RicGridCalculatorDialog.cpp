@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-     Statoil ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,19 +16,19 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicSummaryCurveCalculatorDialog.h"
+#include "RicGridCalculatorDialog.h"
 
 #include "RicCalculatorWidgetCreator.h"
-#include "RicSummaryCurveCalculatorUi.h"
+#include "RicGridCalculatorUi.h"
 
-#include "RimSummaryCalculation.h"
-#include "RimSummaryCalculationCollection.h"
+#include "RimGridCalculation.h"
+#include "RimGridCalculationCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog( QWidget* parent )
-    : RicUserDefinedCalculatorDialog( parent, "Summary Curve Calculator" )
+RicGridCalculatorDialog::RicGridCalculatorDialog( QWidget* parent )
+    : RicUserDefinedCalculatorDialog( parent, "Grid Calculator" )
 {
     setUp();
 }
@@ -36,48 +36,48 @@ RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog( QWidget* paren
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
+RicGridCalculatorDialog::~RicGridCalculatorDialog()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation )
+void RicGridCalculatorDialog::setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation )
 {
-    CAF_ASSERT( m_summaryCalcEditor );
-    m_summaryCalcEditor->calculator()->setCurrentCalculation( dynamic_cast<RimSummaryCalculation*>( calculation ) );
+    CAF_ASSERT( m_calcEditor );
+    m_calcEditor->calculator()->setCurrentCalculation( calculation );
     updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::updateUi()
+void RicGridCalculatorDialog::updateUi()
 {
-    CAF_ASSERT( m_summaryCalcEditor );
-    m_summaryCalcEditor->updateUi();
+    CAF_ASSERT( m_calcEditor );
+    m_calcEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedCalculationCollection* RicSummaryCurveCalculatorDialog::calculationCollection() const
+RimUserDefinedCalculationCollection* RicGridCalculatorDialog::calculationCollection() const
 {
-    CAF_ASSERT( m_summaryCalcEditor );
-    return m_summaryCalcEditor->calculator()->calculationCollection();
+    CAF_ASSERT( m_calcEditor );
+    return m_calcEditor->calculator()->calculationCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RicSummaryCurveCalculatorDialog::getCalculatorWidget()
+QWidget* RicGridCalculatorDialog::getCalculatorWidget()
 {
-    if ( !m_summaryCalcEditor )
+    if ( !m_calcEditor )
     {
-        m_summaryCalcEditor = std::unique_ptr<RicCalculatorWidgetCreator>(
-            new RicCalculatorWidgetCreator( std::make_unique<RicSummaryCurveCalculatorUi>() ) );
+        m_calcEditor = std::unique_ptr<RicCalculatorWidgetCreator>(
+            new RicCalculatorWidgetCreator( std::make_unique<RicGridCalculatorUi>() ) );
     }
 
-    return m_summaryCalcEditor->getOrCreateWidget( this );
+    return m_calcEditor->getOrCreateWidget( this );
 }
