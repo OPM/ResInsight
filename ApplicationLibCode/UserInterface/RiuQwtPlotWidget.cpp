@@ -24,6 +24,7 @@
 #include "RiaGuiApplication.h"
 #include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
+
 #include "RimPlot.h"
 
 #include "RiuDraggableOverlayFrame.h"
@@ -757,8 +758,8 @@ void RiuQwtPlotWidget::renderTo( QPainter* painter, const QRect& targetRect, dou
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::renderTo( QPaintDevice* paintDevice, const QRect& targetRect )
 {
-    int      resolution = paintDevice->logicalDpiX();
-    double   scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+    auto scaling = RiaDefines::scalingFactor( paintDevice );
+
     QPainter painter( paintDevice );
     renderTo( &painter, targetRect, scaling );
 }

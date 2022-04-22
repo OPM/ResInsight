@@ -15,9 +15,13 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RimPlotAxisPropertiesInterface.h"
 
+#include "RimSummaryMultiPlot.h"
+
 #include "cafAppEnum.h"
+#include "cafPdmUiTreeAttributes.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotAxisPropertiesInterface,
                                   "PlotAxisPropertiesInterface",
@@ -67,4 +71,54 @@ bool RimPlotAxisPropertiesInterface::isAxisInverted() const
 bool RimPlotAxisPropertiesInterface::isLogarithmicScaleEnabled() const
 {
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotAxisPropertiesInterface::tickmarkCountFromEnum( LegendTickmarkCount count )
+{
+    int maxTickmarkCount = 8;
+
+    switch ( count )
+    {
+        case LegendTickmarkCount::TICKMARK_VERY_FEW:
+            maxTickmarkCount = 2;
+            break;
+        case LegendTickmarkCount::TICKMARK_FEW:
+            maxTickmarkCount = 4;
+            break;
+        case LegendTickmarkCount::TICKMARK_DEFAULT:
+            maxTickmarkCount = 8; // Taken from QwtPlot::initAxesData()
+            break;
+        case LegendTickmarkCount::TICKMARK_MANY:
+            maxTickmarkCount = 10;
+            break;
+        default:
+            break;
+    }
+
+    return maxTickmarkCount;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisPropertiesInterface::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
+    firstAncestorOfType( summaryMultiPlot );
+
+    if ( summaryMultiPlot && summaryMultiPlot->isSubPlotAxesLinked() )
+    {
+        auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+        if ( treeItemAttribute )
+        {
+            treeItemAttribute->tags.clear();
+            auto tag  = caf::PdmUiTreeViewItemAttribute::Tag::create();
+            tag->icon = caf::IconProvider( ":/chain.png" );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+    }
 }

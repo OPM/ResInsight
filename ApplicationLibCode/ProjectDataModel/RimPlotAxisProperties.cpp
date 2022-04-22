@@ -96,6 +96,8 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "" );
     m_annotations.uiCapability()->setUiTreeHidden( true );
 
+    CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
+
     updateOptionSensitivity();
 }
 
@@ -231,6 +233,7 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         scaleGroup.add( &m_visibleRangeMax );
     }
     scaleGroup.add( &m_valuesFontSize );
+    scaleGroup.add( &m_majorTickmarkCount );
 
     scaleGroup.add( &m_plotAxis );
     m_plotAxis.uiCapability()->setUiReadOnly( m_isAlwaysRequired );
@@ -435,6 +438,22 @@ void RimPlotAxisProperties::setVisibleRangeMin( double value )
 void RimPlotAxisProperties::setVisibleRangeMax( double value )
 {
     m_visibleRangeMax = value;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisPropertiesInterface::LegendTickmarkCount RimPlotAxisProperties::majorTickmarkCount() const
+{
+    return m_majorTickmarkCount();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setMajorTickmarkCount( LegendTickmarkCount count )
+{
+    m_majorTickmarkCount = count;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -849,6 +849,11 @@ void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
             }
 
             plotWidget()->enableAxisNumberLabels( riuPlotAxis, axisProperties->showNumbers() );
+
+            RimSummaryTimeAxisProperties::LegendTickmarkCount tickmarkCountEnum = axisProperties->majorTickmarkCount();
+            int maxTickmarkCount = RimPlotAxisPropertiesInterface::tickmarkCountFromEnum( tickmarkCountEnum );
+
+            plotWidget()->setAutoTickIntervalCounts( riuPlotAxis, maxTickmarkCount, maxTickmarkCount );
         }
     }
 }
@@ -1110,26 +1115,7 @@ void RimSummaryPlot::updateTimeAxis( RimSummaryTimeAxisProperties* timeAxisPrope
 
         {
             RimSummaryTimeAxisProperties::LegendTickmarkCount tickmarkCountEnum = timeAxisProperties->majorTickmarkCount();
-
-            int maxTickmarkCount = 8;
-
-            switch ( tickmarkCountEnum )
-            {
-                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_VERY_FEW:
-                    maxTickmarkCount = 2;
-                    break;
-                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_FEW:
-                    maxTickmarkCount = 4;
-                    break;
-                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT:
-                    maxTickmarkCount = 8; // Taken from QwtPlot::initAxesData()
-                    break;
-                case RimSummaryTimeAxisProperties::LegendTickmarkCount::TICKMARK_MANY:
-                    maxTickmarkCount = 10;
-                    break;
-                default:
-                    break;
-            }
+            int maxTickmarkCount = RimPlotAxisPropertiesInterface::tickmarkCountFromEnum( tickmarkCountEnum );
 
             plotWidget()->setAxisMaxMajor( RiuPlotAxis::defaultBottom(), maxTickmarkCount );
         }

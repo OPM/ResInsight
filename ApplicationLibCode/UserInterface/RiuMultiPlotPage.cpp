@@ -26,6 +26,7 @@
 #include "WellLogCommands/RicWellLogPlotTrackFeatureImpl.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaPlotDefines.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimMultiPlot.h"
@@ -359,8 +360,7 @@ void RiuMultiPlotPage::updateSubTitles()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::renderTo( QPaintDevice* paintDevice )
 {
-    int    resolution = paintDevice->logicalDpiX();
-    double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+    auto scaling = RiaDefines::scalingFactor( paintDevice );
 
     QPainter painter( paintDevice );
     renderTo( &painter, scaling );

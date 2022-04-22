@@ -18,6 +18,8 @@
 
 #pragma once
 
+class QPaintDevice;
+
 // Defines relate to plotting
 namespace RiaDefines
 {
@@ -35,5 +37,7 @@ double maximumDefaultValuePlot();
 
 bool isHorizontal( PlotAxis axis );
 bool isVertical( PlotAxis axis );
+
+double scalingFactor( QPaintDevice* paintDevice );
 
 }; // namespace RiaDefines
