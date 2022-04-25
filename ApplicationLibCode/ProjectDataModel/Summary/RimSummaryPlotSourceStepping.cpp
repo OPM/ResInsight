@@ -58,9 +58,6 @@ void AppEnum<RimSummaryPlotSourceStepping::SourceSteppingDimension>::setUp()
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::GROUP, "GROUP", "Group" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION, "REGION", "Region" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", "Block" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::SEGMENT, "SEGMENT", "Segment" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::COMPLETION, "COMPLETION", "Completion" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", "Aquifer" );
     setDefault( RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY );
 }
 } // namespace caf
@@ -157,8 +154,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    bool fieldsForToolbar = false;
-
     auto visible = activeFieldsForDataSourceStepping();
     if ( visible.empty() )
     {
