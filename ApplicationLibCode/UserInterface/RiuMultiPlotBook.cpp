@@ -492,6 +492,8 @@ bool RiuMultiPlotBook::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::performUpdate( bool regeneratePages )
 {
+    if ( !m_plotDefinition || !m_plotDefinition->isValid() ) return;
+
     applyLook();
     if ( regeneratePages || m_pages.size() == 0 )
     {

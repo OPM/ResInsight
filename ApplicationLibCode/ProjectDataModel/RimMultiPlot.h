@@ -107,6 +107,8 @@ public:
 
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
+    bool isValid() const;
+
 protected:
     QImage snapshotWindowContent() override;
 
@@ -169,4 +171,6 @@ protected:
 
 private:
     caf::PdmChildArrayField<RimPlot*> m_plots;
+
+    bool m_isValid;
 };

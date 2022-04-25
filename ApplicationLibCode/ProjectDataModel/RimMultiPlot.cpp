@@ -45,6 +45,7 @@ CAF_PDM_SOURCE_INIT( RimMultiPlot, "MultiPlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimMultiPlot::RimMultiPlot()
+    : m_isValid( true )
 {
     CAF_PDM_InitObject( "Multi Plot", ":/MultiPlot16x16.png" );
 
@@ -84,6 +85,8 @@ RimMultiPlot::RimMultiPlot()
 //--------------------------------------------------------------------------------------------------
 RimMultiPlot::~RimMultiPlot()
 {
+    m_isValid = false;
+
     removeMdiWindowFromMdiArea();
     m_plots.deleteAllChildObjects();
 
@@ -896,4 +899,12 @@ bool RimMultiPlot::isMouseCursorInsidePlot()
 std::vector<caf::PdmFieldHandle*> RimMultiPlot::fieldsToShowInToolbar()
 {
     return { &m_pagePreviewMode, &m_columnCount, &m_rowsPerPage };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimMultiPlot::isValid() const
+{
+    return m_isValid;
 }
