@@ -177,12 +177,7 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_includeEnsembleCasesForCaseStepping )
-    {
-        return caf::PdmObject::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
-    }
-
-    if ( fieldNeedingOptions == &m_stepDimension )
+    if ( ( fieldNeedingOptions == &m_includeEnsembleCasesForCaseStepping ) || ( fieldNeedingOptions == &m_stepDimension ) )
     {
         return caf::PdmObject::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     }
