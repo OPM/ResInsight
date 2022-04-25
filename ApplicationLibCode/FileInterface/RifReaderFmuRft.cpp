@@ -418,32 +418,32 @@ RifReaderFmuRft::WellObservationMap RifReaderFmuRft::loadWellDates( QDir& dir, Q
             return WellObservationMap();
         }
         QTextStream fileStream( &wellDateFile );
-        while ( true )
+        while ( !fileStream.atEnd() )
         {
             QString line = fileStream.readLine();
-            if ( line.isNull() )
+
+            line = line.simplified();
+            if ( line.isNull() || line.isEmpty() )
             {
-                break;
+                continue;
             }
-            else
+
+            QTextStream lineStream( &line );
+
+            QString wellName;
+            int     day, month, year, measurementIndex;
+
+            lineStream >> wellName >> day >> month >> year >> measurementIndex;
+            if ( lineStream.status() != QTextStream::Ok )
             {
-                QTextStream lineStream( &line );
-
-                QString wellName;
-                int     day, month, year, measurementIndex;
-
-                lineStream >> wellName >> day >> month >> year >> measurementIndex;
-                if ( lineStream.status() != QTextStream::Ok )
-                {
-                    *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
-                    return WellObservationMap();
-                }
-
-                QDateTime dateTime = RiaQDateTimeTools::createDateTime( QDate( year, month, day ) );
-                dateTime.setTimeSpec( Qt::UTC );
-                WellObservationSet observationSet( dateTime, measurementIndex );
-                validObservations.insert( std::make_pair( wellName, observationSet ) );
+                *errorMsg = QString( "Failed to parse '%1'" ).arg( wellDateFileInfo.absoluteFilePath() );
+                return WellObservationMap();
             }
+
+            QDateTime dateTime = RiaQDateTimeTools::createDateTime( QDate( year, month, day ) );
+            dateTime.setTimeSpec( Qt::UTC );
+            WellObservationSet observationSet( dateTime, measurementIndex );
+            validObservations.insert( std::make_pair( wellName, observationSet ) );
         }
     }
 
