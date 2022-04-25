@@ -78,7 +78,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionBandFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionCurveFeature.h
-#    ${CMAKE_CURRENT_LIST_DIR}/RicShowGridCalculatorFeature.h
+    # ${CMAKE_CURRENT_LIST_DIR}/RicShowGridCalculatorFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.h
 )
 
@@ -161,7 +161,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionBandFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionCurveFeature.cpp
-#    ${CMAKE_CURRENT_LIST_DIR}/RicShowGridCalculatorFeature.cpp
+    # ${CMAKE_CURRENT_LIST_DIR}/RicShowGridCalculatorFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.cpp
 )
 
