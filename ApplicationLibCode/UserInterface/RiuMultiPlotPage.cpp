@@ -563,6 +563,9 @@ bool RiuMultiPlotPage::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate )
 {
+    auto multiPlot = dynamic_cast<RimMultiPlot*>( m_plotDefinition.p() );
+    if ( !multiPlot || !multiPlot->isValid() ) return;
+
     if ( whatToUpdate == RiaDefines::MultiPlotPageUpdateType::ALL )
     {
         applyLook();
