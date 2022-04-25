@@ -55,6 +55,7 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridCalculationCollection.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimGridView.h"
@@ -163,6 +164,9 @@ RimProject::RimProject( void )
     CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection" );
     calculationCollection = new RimSummaryCalculationCollection;
 
+    CAF_PDM_InitFieldNoDefault( &gridCalculationCollection, "GridCalculationCollection", "Grid Calculation Collection" );
+    gridCalculationCollection = new RimGridCalculationCollection;
+
     CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects" );
 
     CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions" );
@@ -260,6 +264,7 @@ void RimProject::close()
     m_dialogData->clearProjectSpecificData();
 
     calculationCollection->deleteAllContainedObjects();
+    gridCalculationCollection->deleteAllContainedObjects();
     colorLegendCollection->deleteCustomColorLegends();
 
     delete viewLinkerCollection->viewLinker();

@@ -80,6 +80,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculationCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculationVariable.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.h
     ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.h
@@ -205,6 +208,9 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculationCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculationVariable.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.cpp

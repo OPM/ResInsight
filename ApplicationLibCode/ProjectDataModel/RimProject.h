@@ -70,6 +70,7 @@ class RimValveTemplateCollection;
 class RimValveTemplate;
 class RimCompletionTemplateCollection;
 class RimPlotTemplateFolderItem;
+class RimGridCalculationCollection;
 
 namespace caf
 {
@@ -99,6 +100,7 @@ public:
     caf::PdmChildField<RimMainPlotCollection*>           mainPlotCollection;
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
+    caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
     caf::PdmChildArrayField<RimCommandObject*>           commandObjects;
 
     caf::PdmChildArrayField<RimAdvancedSnapshotExportDefinition*> multiSnapshotDefinitions;
