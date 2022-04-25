@@ -183,8 +183,11 @@ void PdmUiToolBarEditor::configureAndUpdateUi( const QString& uiConfigName )
         }
     }
 
-    CAF_ASSERT( m_fields.size() == m_fieldViews.size() );
-    CAF_ASSERT( static_cast<int>( m_fields.size() ) == m_actions.size() );
+    // CAF_ASSERT( m_fields.size() == m_fieldViews.size() );
+    if ( static_cast<int>( m_fields.size() ) != m_actions.size() ) return;
+
+    // CAF_ASSERT( static_cast<int>( m_fields.size() ) == m_actions.size() );
+    if ( static_cast<int>( m_fields.size() ) != m_actions.size() ) return;
 
     for ( size_t i = 0; i < m_fields.size(); i++ )
     {

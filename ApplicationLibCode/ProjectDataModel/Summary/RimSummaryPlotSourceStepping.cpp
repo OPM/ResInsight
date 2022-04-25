@@ -42,8 +42,28 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiItem.h"
+#include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolBarEditor.h"
+
+namespace caf
+{
+template <>
+void AppEnum<RimSummaryPlotSourceStepping::SourceSteppingDimension>::setUp()
+{
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY, "QUANTITY", "Quantity" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::WELL, "WELL", "Well" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::ENSEMBLE, "ENSEMBLE", "Ensemble" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::GROUP, "GROUP", "Group" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION, "REGION", "Region" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", "Block" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::SEGMENT, "SEGMENT", "Segment" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::COMPLETION, "COMPLETION", "Completion" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", "Aquifer" );
+    setDefault( RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY );
+}
+} // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModifier" );
 
@@ -54,6 +74,8 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     : m_sourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS )
 {
     CAF_PDM_InitObject( "Summary Curves Modifier" );
+
+    CAF_PDM_InitFieldNoDefault( &m_stepDimension, "StepDimension", "Step Dimension" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveCase", "Case" );
 
@@ -78,6 +100,10 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     m_placeholderForLabel = "No common identifiers detected";
     m_placeholderForLabel.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_placeholderForLabel.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitField( &m_indexLabel, "IndexLabel", QString( "Step By" ), "Step By" );
+    m_indexLabel.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
+    m_indexLabel.xmlCapability()->disableIO();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -99,45 +125,7 @@ void RimSummaryPlotSourceStepping::setSourceSteppingObject( caf::PdmObject* sour
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyNextCase()
-{
-    modifyCurrentIndex( &m_summaryCase, 1 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyPrevCase()
-{
-    modifyCurrentIndex( &m_summaryCase, -1 );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyNextQuantity()
-{
-    if ( !m_quantity.uiCapability()->isUiHidden() )
-    {
-        modifyCurrentIndex( &m_quantity, 1 );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyPrevQuantity()
-{
-    if ( !m_quantity.uiCapability()->isUiHidden() )
-    {
-        modifyCurrentIndex( &m_quantity, -1 );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyNextOtherIdentifier()
+void RimSummaryPlotSourceStepping::applyNextStep()
 {
     caf::PdmValueField* valueField = fieldToModify();
     if ( !valueField ) return;
@@ -148,7 +136,7 @@ void RimSummaryPlotSourceStepping::applyNextOtherIdentifier()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::applyPrevOtherIdentifier()
+void RimSummaryPlotSourceStepping::applyPrevStep()
 {
     caf::PdmValueField* valueField = fieldToModify();
     if ( !valueField ) return;
@@ -161,8 +149,7 @@ void RimSummaryPlotSourceStepping::applyPrevOtherIdentifier()
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInToolbar()
 {
-    bool fieldsForToolbar = true;
-    return activeFieldsForDataSourceStepping( fieldsForToolbar );
+    return toolbarFieldsForDataSourceStepping();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,7 +158,8 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::fieldsToShowInTo
 void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     bool fieldsForToolbar = false;
-    auto visible          = activeFieldsForDataSourceStepping( fieldsForToolbar );
+
+    auto visible = activeFieldsForDataSourceStepping();
     if ( visible.empty() )
     {
         uiOrdering.add( &m_placeholderForLabel );
@@ -199,7 +187,12 @@ QList<caf::PdmOptionItemInfo>
         return caf::PdmObject::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
     }
 
-    if ( fieldNeedingOptions == &m_placeholderForLabel )
+    if ( fieldNeedingOptions == &m_stepDimension )
+    {
+        return caf::PdmObject::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    }
+
+    if ( ( fieldNeedingOptions == &m_placeholderForLabel ) || ( fieldNeedingOptions == &m_indexLabel ) )
     {
         return options;
     }
@@ -380,6 +373,13 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 {
     std::vector<RimSummaryCurve*> curves;
     if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( m_sourceSteppingType );
+
+    if ( changedField == &m_stepDimension )
+    {
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
+        mainPlotWindow->updateMultiPlotToolBar();
+        return;
+    }
 
     if ( changedField == &m_includeEnsembleCasesForCaseStepping )
     {
@@ -606,37 +606,41 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 {
-    RiaSummaryAddressAnalyzer analyzer;
-    analyzer.appendAddresses( addressesForCurvesInPlot() );
-
-    if ( analyzer.wellNames().size() == 1 )
+    switch ( m_stepDimension() )
     {
-        return &m_wellName;
-    }
+        case SourceSteppingDimension::SUMMARY_CASE:
+            return &m_summaryCase;
+            break;
 
-    if ( analyzer.groupNames().size() == 1 )
-    {
-        return &m_groupName;
-    }
+        case SourceSteppingDimension::ENSEMBLE:
+            return &m_ensemble;
 
-    if ( analyzer.regionNumbers().size() == 1 )
-    {
-        return &m_region;
-    }
+        case SourceSteppingDimension::WELL:
+            return &m_wellName;
 
-    if ( analyzer.blocks().size() == 1 )
-    {
-        return &m_cellBlock;
-    }
+        case SourceSteppingDimension::GROUP:
+            return &m_groupName;
 
-    if ( analyzer.wellNames().size() == 1 )
-    {
-        auto wellName = *( analyzer.wellNames().begin() );
+        case SourceSteppingDimension::REGION:
+            return &m_region;
 
-        if ( analyzer.wellSegmentNumbers( wellName ).size() == 1 )
-        {
+        case SourceSteppingDimension::QUANTITY:
+            return &m_quantity;
+
+        case SourceSteppingDimension::BLOCK:
+            return &m_cellBlock;
+
+        case SourceSteppingDimension::SEGMENT:
             return &m_segment;
-        }
+
+        case SourceSteppingDimension::COMPLETION:
+            return &m_completion;
+
+        case SourceSteppingDimension::AQUIFER:
+            return &m_aquifer;
+
+        default:
+            break;
     }
 
     return nullptr;
@@ -748,12 +752,14 @@ std::set<RimSummaryCase*> RimSummaryPlotSourceStepping::summaryCasesCurveCollect
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForDataSourceStepping( bool toolbarFields )
+std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForDataSourceStepping()
 {
     RimProject* proj = RimProject::current();
     if ( !proj ) return {};
 
     std::vector<caf::PdmFieldHandle*> fields;
+
+    fields.push_back( &m_stepDimension );
 
     auto sumCases = summaryCasesCurveCollection();
     if ( sumCases.size() == 1 )
@@ -763,7 +769,7 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
             m_summaryCase = *( sumCases.begin() );
 
             fields.push_back( &m_summaryCase );
-            if ( !toolbarFields ) fields.push_back( &m_includeEnsembleCasesForCaseStepping );
+            fields.push_back( &m_includeEnsembleCasesForCaseStepping );
         }
     }
 
@@ -988,33 +994,21 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
     caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
     if ( myAttr )
     {
-        myAttr->showPreviousAndNextButtons = true;
-        myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
-        myAttr->previousIcon               = QIcon( ":/ComboBoxUp.svg" );
-
-        QString nextText;
-        QString prevText;
-
-        if ( field == &m_summaryCase )
+        if ( field == &m_stepDimension )
         {
-            nextText = RimSummaryPlotControls::caseNextKeyText();
-            prevText = RimSummaryPlotControls::casePrevKeyText();
+            myAttr->showPreviousAndNextButtons = false;
         }
-        else if ( field == &m_wellName || field == &m_groupName || field == &m_region )
+        else
         {
-            nextText = RimSummaryPlotControls::otherNextKeyText();
-            prevText = RimSummaryPlotControls::otherPrevKeyText();
-        }
-        else if ( field == &m_quantity )
-        {
-            nextText = RimSummaryPlotControls::quantityNextKeyText();
-            prevText = RimSummaryPlotControls::quantityPrevKeyText();
-        }
-
-        if ( !nextText.isEmpty() )
-        {
+            QString nextText       = RimSummaryPlotControls::nextStepKeyText();
+            QString prevText       = RimSummaryPlotControls::prevStepKeyText();
             myAttr->nextButtonText = "Next (" + nextText + ")";
             myAttr->prevButtonText = "Previous (" + prevText + ")";
+
+            myAttr->nextIcon     = QIcon( ":/ComboBoxDown.svg" );
+            myAttr->previousIcon = QIcon( ":/ComboBoxUp.svg" );
+
+            myAttr->showPreviousAndNextButtons = true;
         }
     }
 
@@ -1022,4 +1016,19 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
     {
         myAttr->minimumWidth = 120;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::toolbarFieldsForDataSourceStepping()
+{
+    std::vector<caf::PdmFieldHandle*> fields;
+    fields.push_back( &m_indexLabel );
+    fields.push_back( &m_stepDimension );
+
+    caf::PdmFieldHandle* field = fieldToModify();
+    if ( field != nullptr ) fields.push_back( field );
+
+    return fields;
 }
