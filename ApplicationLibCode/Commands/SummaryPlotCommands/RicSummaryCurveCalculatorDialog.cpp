@@ -24,21 +24,12 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 
-#include "RiuTools.h"
-
-#include <QDialogButtonBox>
-#include <QMessageBox>
-#include <QVBoxLayout>
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RicSummaryCurveCalculatorDialog::RicSummaryCurveCalculatorDialog( QWidget* parent )
-    : QDialog( parent, RiuTools::defaultDialogFlags() )
+    : RicUserDefinedCalculatorDialog( parent, "Summary Curve Calculator" )
 {
-    setWindowTitle( "Summary Curve Calculator" );
-    resize( 1200, 800 );
-
     setUp();
 }
 
@@ -52,96 +43,41 @@ RicSummaryCurveCalculatorDialog::~RicSummaryCurveCalculatorDialog()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi( RimSummaryCalculation* calculation )
+void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation )
 {
-    m_summaryCalcEditor->calculator()->setCurrentCalculation( calculation );
+    CAF_ASSERT( m_summaryCalcEditor );
 
+    m_summaryCalcEditor->calculator()->setCurrentCalculation( dynamic_cast<RimSummaryCalculation*>( calculation ) );
+    updateUi();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryCurveCalculatorDialog::updateUi()
+{
+    CAF_ASSERT( m_summaryCalcEditor );
     m_summaryCalcEditor->updateUi();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
+RimUserDefinedCalculationCollection* RicSummaryCurveCalculatorDialog::calculationCollection() const
 {
-    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculatorUi::calculationCollection();
-
-    if ( dirtyCount() > 0 )
-    {
-        QMessageBox msgBox( this );
-        msgBox.setIcon( QMessageBox::Question );
-
-        QString questionText = QString( "Detected calculation expression text modifications." );
-
-        msgBox.setText( questionText );
-        msgBox.setInformativeText( "Do you want to trigger calculation?" );
-        msgBox.setStandardButtons( QMessageBox::Yes | QMessageBox::No );
-
-        int ret = msgBox.exec();
-        if ( ret == QMessageBox::No )
-        {
-            reject();
-        }
-        else if ( ret == QMessageBox::Yes )
-        {
-            for ( auto c : calculationCollection->calculations() )
-            {
-                if ( c->isDirty() )
-                {
-                    c->calculate();
-                    c->updateDependentObjects();
-                }
-            }
-
-            if ( dirtyCount() > 0 )
-            {
-                return;
-            }
-        }
-        else
-        {
-            return;
-        }
-    }
-
-    accept();
+    return RicSummaryCurveCalculatorUi::calculationCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSummaryCurveCalculatorDialog::setUp()
+QWidget* RicSummaryCurveCalculatorDialog::getCalculatorWidget()
 {
-    QVBoxLayout* mainLayout = new QVBoxLayout( this );
-    mainLayout->setContentsMargins( 0, 0, 0, 0 );
-
-    m_summaryCalcEditor =
-        std::unique_ptr<RicSummaryCurveCalculatorWidgetCreator>( new RicSummaryCurveCalculatorWidgetCreator() );
-    mainLayout->addWidget( m_summaryCalcEditor->getOrCreateWidget( this ) );
-
-    QDialogButtonBox* buttonBox = new QDialogButtonBox( QDialogButtonBox::Close );
-    connect( buttonBox, SIGNAL( rejected() ), this, SLOT( slotTryCloseDialog() ) );
-
-    mainLayout->addWidget( buttonBox );
-
-    m_summaryCalcEditor->updateUi();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-size_t RicSummaryCurveCalculatorDialog::dirtyCount() const
-{
-    size_t count = 0;
-
-    RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculatorUi::calculationCollection();
-    for ( auto c : calculationCollection->calculations() )
+    if ( !m_summaryCalcEditor )
     {
-        if ( c->isDirty() )
-        {
-            count++;
-        }
+        m_summaryCalcEditor =
+            std::unique_ptr<RicSummaryCurveCalculatorWidgetCreator>( new RicSummaryCurveCalculatorWidgetCreator() );
     }
 
-    return count;
+    return m_summaryCalcEditor->getOrCreateWidget( this );
 }

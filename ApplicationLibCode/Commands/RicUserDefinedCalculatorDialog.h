@@ -18,30 +18,32 @@
 
 #pragma once
 
-#include "RicUserDefinedCalculatorDialog.h"
+#include <QDialog>
 
-#include <memory>
-
-class RicSummaryCurveCalculatorWidgetCreator;
-class RimSummaryCalculation;
+class RimUserDefinedCalculation;
+class RimUserDefinedCalculationCollection;
 
 //==================================================================================================
 ///
 ///
 //==================================================================================================
-class RicSummaryCurveCalculatorDialog : public RicUserDefinedCalculatorDialog
+class RicUserDefinedCalculatorDialog : public QDialog
 {
     Q_OBJECT
 
 public:
-    RicSummaryCurveCalculatorDialog( QWidget* parent );
-    ~RicSummaryCurveCalculatorDialog() override;
+    RicUserDefinedCalculatorDialog( QWidget* parent, const QString& title );
+    ~RicUserDefinedCalculatorDialog() override;
 
-    void                                 setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation ) override;
-    QWidget*                             getCalculatorWidget() override;
-    void                                 updateUi() override;
-    RimUserDefinedCalculationCollection* calculationCollection() const override;
+    virtual void setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation ) = 0;
+    virtual RimUserDefinedCalculationCollection* calculationCollection() const       = 0;
+    virtual QWidget*                             getCalculatorWidget()               = 0;
+    virtual void                                 updateUi()                          = 0;
 
-private:
-    std::unique_ptr<RicSummaryCurveCalculatorWidgetCreator> m_summaryCalcEditor;
+private slots:
+    void slotTryCloseDialog();
+
+protected:
+    void   setUp();
+    size_t dirtyCount() const;
 };
