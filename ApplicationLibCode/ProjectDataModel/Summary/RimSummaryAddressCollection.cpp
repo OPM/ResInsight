@@ -33,6 +33,7 @@ void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
     addItem( RimSummaryAddressCollection::CollectionContentType::REGION, "REGION", "Region" );
     addItem( RimSummaryAddressCollection::CollectionContentType::MISC, "MISC", "Miscellaneous" );
     addItem( RimSummaryAddressCollection::CollectionContentType::FIELD, "FIELD", "Field" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::BLOCK, "BLOCK", "Block" );
     setDefault( RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED );
 }
 
@@ -132,6 +133,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
     RimSummaryAddressCollection* regions = getOrCreateSubfolder( "Regions", CollectionContentType::REGION_FOLDER );
     RimSummaryAddressCollection* wells   = getOrCreateSubfolder( "Wells", CollectionContentType::WELL_FOLDER );
     RimSummaryAddressCollection* groups  = getOrCreateSubfolder( "Groups", CollectionContentType::GROUP_FOLDER );
+    RimSummaryAddressCollection* blocks  = getOrCreateSubfolder( "Blocks", CollectionContentType::BLOCK_FOLDER );
 
     for ( const auto& address : addresses )
     {
@@ -156,6 +158,14 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP:
                 groups->addToSubfolder( QString::fromStdString( address.groupName() ),
                                         CollectionContentType::GROUP,
+                                        address,
+                                        caseId,
+                                        ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK:
+                blocks->addToSubfolder( QString::fromStdString( address.blockAsString() ),
+                                        CollectionContentType::BLOCK,
                                         address,
                                         caseId,
                                         ensembleId );

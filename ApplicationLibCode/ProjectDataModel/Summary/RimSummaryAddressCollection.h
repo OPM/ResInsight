@@ -43,7 +43,9 @@ public:
         MISC,
         WELL_FOLDER,
         GROUP_FOLDER,
-        REGION_FOLDER
+        REGION_FOLDER,
+        BLOCK,
+        BLOCK_FOLDER
     };
 
 public:
