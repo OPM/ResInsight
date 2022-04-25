@@ -538,7 +538,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
     }
     else if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
     {
-        std::map<QString, std::pair<double, double>> axisRanges;
+        std::map<RiuPlotAxis, std::pair<double, double>> axisRanges;
 
         // gather current min/max values for each category (axis label)
         for ( auto plot : summaryPlots() )
@@ -548,14 +548,14 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 double minVal = axis->visibleRangeMin();
                 double maxVal = axis->visibleRangeMax();
 
-                if ( axisRanges.count( axis->name() ) == 0 )
+                if ( axisRanges.count( axis->plotAxisType() ) == 0 )
                 {
-                    axisRanges[axis->name()] = std::make_pair( axis->visibleRangeMin(), axis->visibleRangeMax() );
+                    axisRanges[axis->plotAxisType()] = std::make_pair( axis->visibleRangeMin(), axis->visibleRangeMax() );
                 }
                 else
                 {
-                    auto& [currentMin, currentMax] = axisRanges[axis->name()];
-                    axisRanges[axis->name()] =
+                    auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
+                    axisRanges[axis->plotAxisType()] =
                         std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
                 }
             }
@@ -566,7 +566,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         {
             for ( auto axis : plot->plotAxes() )
             {
-                const auto& [minVal, maxVal] = axisRanges[axis->name()];
+                const auto& [minVal, maxVal] = axisRanges[axis->plotAxisType()];
                 axis->setAutoZoom( false );
                 axis->setVisibleRangeMin( minVal );
                 axis->setVisibleRangeMax( maxVal );
