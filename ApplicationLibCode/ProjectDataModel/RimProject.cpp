@@ -126,7 +126,6 @@ RimProject::RimProject( void )
     , m_nextValidCaseGroupId( 0 )
     , m_nextValidViewId( 1 )
     , m_nextValidPlotId( 1 )
-    , m_nextValidCalculationId( 1 )
     , m_nextValidSummaryCaseId( 1 )
     , m_nextValidEnsembleId( 1 )
 {
@@ -277,7 +276,6 @@ void RimProject::close()
     m_nextValidCaseGroupId   = 0;
     m_nextValidViewId        = 1;
     m_nextValidPlotId        = 1;
-    m_nextValidCalculationId = 1;
     m_nextValidSummaryCaseId = 1;
     m_nextValidEnsembleId    = 1;
 }
@@ -604,22 +602,6 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
         }
 
         plotWindow->setId( m_nextValidPlotId++ );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::assignCalculationIdToCalculation( RimSummaryCalculation* calculation )
-{
-    if ( calculation )
-    {
-        for ( RimSummaryCalculation* existingCalculation : calculationCollection->calculations() )
-        {
-            m_nextValidCalculationId = std::max( m_nextValidCalculationId, existingCalculation->id() + 1 );
-        }
-
-        calculation->setId( m_nextValidCalculationId++ );
     }
 }
 

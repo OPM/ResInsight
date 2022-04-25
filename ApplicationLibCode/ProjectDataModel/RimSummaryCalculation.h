@@ -45,7 +45,7 @@ public:
     RimSummaryCalculation();
 
     bool calculate() override;
-    void updateDependentCurvesAndPlots();
+    void updateDependentObjects() override;
 
 protected:
     RimSummaryCalculationVariable* createVariable() const override;

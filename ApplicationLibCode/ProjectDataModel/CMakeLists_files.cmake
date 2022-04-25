@@ -75,6 +75,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.h
     ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculationCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculationVariable.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.h
@@ -199,6 +200,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculationCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculationVariable.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.cpp

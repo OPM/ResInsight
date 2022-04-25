@@ -124,7 +124,6 @@ public:
     void assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup );
     void assignViewIdToView( Rim3dView* view );
     void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
-    void assignCalculationIdToCalculation( RimSummaryCalculation* calculation );
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
     void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
 
@@ -223,7 +222,6 @@ private:
     int m_nextValidCaseGroupId;
     int m_nextValidViewId;
     int m_nextValidPlotId;
-    int m_nextValidCalculationId;
     int m_nextValidSummaryCaseId;
     int m_nextValidEnsembleId;
 

@@ -159,7 +159,7 @@ bool RimSummaryCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCalculation::updateDependentCurvesAndPlots()
+void RimSummaryCalculation::updateDependentObjects()
 {
     RimSummaryCalculationCollection* calcColl = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( calcColl );

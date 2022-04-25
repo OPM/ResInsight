@@ -165,7 +165,7 @@ void RimSummaryAddress::ensureCalculationIdIsAssigned()
     {
         RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
-        for ( const RimSummaryCalculation* c : calcColl->calculations() )
+        for ( const RimUserDefinedCalculation* c : calcColl->calculations() )
         {
             QString description = c->description();
 

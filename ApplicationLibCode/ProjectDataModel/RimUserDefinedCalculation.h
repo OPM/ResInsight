@@ -62,8 +62,8 @@ public:
     QString unitName() const;
 
     bool         parseExpression();
-    virtual bool calculate() = 0;
-    void         updateDependentCurvesAndPlots();
+    virtual bool calculate()              = 0;
+    virtual void updateDependentObjects() = 0;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 

@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-class RimSummaryCalculation;
+class RimUserDefinedCalculation;
 class RimSummaryCase;
 
 class RicReplaceSummaryCaseFeature : public caf::CmdFeature
@@ -35,6 +35,6 @@ protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static bool checkIfCalculationNeedsUpdate( const RimSummaryCalculation* summaryCalculation,
-                                               const RimSummaryCase*        summaryCase );
+    static bool checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation,
+                                               const RimSummaryCase*            summaryCase );
 };

@@ -54,7 +54,7 @@ void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase
 {
     RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
-    for ( RimSummaryCalculation* summaryCalculation : calcColl->calculations() )
+    for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
     {
         bool needsUpdate =
             RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
@@ -62,7 +62,7 @@ void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase
         {
             summaryCalculation->parseExpression();
             summaryCalculation->calculate();
-            summaryCalculation->updateDependentCurvesAndPlots();
+            summaryCalculation->updateDependentObjects();
         }
     }
 }
@@ -102,7 +102,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     // Find and update all changed calculations
     std::set<int>                    ids;
     RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-    for ( RimSummaryCalculation* summaryCalculation : calcColl->calculations() )
+    for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
     {
         bool needsUpdate = checkIfCalculationNeedsUpdate( summaryCalculation, summaryCase );
         if ( needsUpdate )
@@ -126,8 +126,8 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
                 {
                     if ( calcColl )
                     {
-                        RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressY.id() );
-                        QString                description = calculation->description();
+                        RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressY.id() );
+                        QString                    description = calculation->description();
 
                         RifEclipseSummaryAddress updatedAdr =
                             RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
@@ -154,8 +154,8 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
             {
                 if ( calcColl )
                 {
-                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
-                    QString                description = calculation->description();
+                    RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
+                    QString                    description = calculation->description();
 
                     RifEclipseSummaryAddress updatedAdr =
                         RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
@@ -170,8 +170,8 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
             {
                 if ( calcColl )
                 {
-                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
-                    QString                description = calculation->description();
+                    RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
+                    QString                    description = calculation->description();
 
                     RifEclipseSummaryAddress updatedAdr =
                         RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
@@ -197,8 +197,8 @@ void RicReplaceSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( const RimSummaryCalculation* summaryCalculation,
-                                                                  const RimSummaryCase*        summaryCase )
+bool RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation,
+                                                                  const RimSummaryCase*            summaryCase )
 {
     std::vector<RimUserDefinedCalculationVariable*> variables = summaryCalculation->allVariables();
     for ( RimUserDefinedCalculationVariable* variable : variables )

@@ -89,7 +89,7 @@ void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
                 if ( c->isDirty() )
                 {
                     c->calculate();
-                    c->updateDependentCurvesAndPlots();
+                    c->updateDependentObjects();
                 }
             }
 

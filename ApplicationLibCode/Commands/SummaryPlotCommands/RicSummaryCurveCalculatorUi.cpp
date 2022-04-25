@@ -103,7 +103,7 @@ bool RicSummaryCurveCalculatorUi::parseExpression() const
             RiaSummaryTools::notifyCalculatedCurveNameHasChanged( m_currentCalculation()->id(), currentCurveName );
         }
 
-        m_currentCalculation()->updateDependentCurvesAndPlots();
+        m_currentCalculation()->updateDependentObjects();
     }
 
     return true;
@@ -120,7 +120,7 @@ void RicSummaryCurveCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* c
     {
         m_newCalculation = false;
 
-        m_currentCalculation = calculationCollection()->addCalculation();
+        m_currentCalculation = dynamic_cast<RimSummaryCalculation*>( calculationCollection()->addCalculation() );
 
         this->updateConnectedEditors();
     }
@@ -144,12 +144,9 @@ void RicSummaryCurveCalculatorUi::fieldChangedByUi( const caf::PdmFieldHandle* c
 //--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    if ( !m_currentCalculation() )
+    if ( !m_currentCalculation() && !calculationCollection()->calculations().empty() )
     {
-        if ( calculationCollection()->calculations().size() > 0 )
-        {
-            m_currentCalculation = calculationCollection()->calculations()[0];
-        }
+        m_currentCalculation = dynamic_cast<RimSummaryCalculation*>( calculationCollection()->calculations()[0] );
     }
 
     {
@@ -251,7 +248,7 @@ bool RicSummaryCurveCalculatorUi::calculate() const
             return false;
         }
 
-        m_currentCalculation()->updateDependentCurvesAndPlots();
+        m_currentCalculation()->updateDependentObjects();
         caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
     }
 

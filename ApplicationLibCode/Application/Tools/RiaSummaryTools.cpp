@@ -226,7 +226,7 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
     RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
     if ( !calculationColl ) return;
 
-    RimSummaryCalculation* calculation = calculationColl->findCalculationById( id );
+    RimUserDefinedCalculation* calculation = calculationColl->findCalculationById( id );
     if ( !calculation ) return;
 
     for ( RimUserDefinedCalculationVariable* v : calculation->allVariables() )
