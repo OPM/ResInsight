@@ -119,7 +119,7 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
 
             if ( legends[visibleIndex] )
             {
-                if ( m_plotDefinition->legendsVisible() )
+                if ( m_plotDefinition->legendsVisible() && !legends[visibleIndex]->isEmpty() )
                 {
                     int legendColumns = 1;
                     if ( m_plotDefinition->legendsHorizontal() )
