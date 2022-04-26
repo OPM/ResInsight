@@ -98,6 +98,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     , m_isCrossPlot( isCrossPlot )
     , curvesChanged( this )
     , axisChanged( this )
+    , m_isValid( true )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
 
@@ -192,6 +193,8 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlot::~RimSummaryPlot()
 {
+    m_isValid = false;
+
     removeMdiWindowFromMdiArea();
 
     deletePlotCurvesAndPlotWidget();
@@ -1567,6 +1570,8 @@ QImage RimSummaryPlot::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
+    if ( !m_isValid ) return;
+
     bool isPlotEditor = ( uiConfigName == RicSummaryPlotEditorUi::CONFIGURATION_NAME );
 
     if ( !isPlotEditor ) uiTreeOrdering.add( &m_axisProperties );
