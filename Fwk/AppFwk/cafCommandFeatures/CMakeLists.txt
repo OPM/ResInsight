@@ -76,28 +76,28 @@ set(QRC_FILES
 # https://cmake.org/cmake/help/v3.15/command/add_library.html?highlight=add_library#object-libraries
 add_library(${PROJECT_NAME} OBJECT ${PROJECT_FILES} ${MOC_SOURCE_FILES})
 
-target_include_directories(
-  ${PROJECT_NAME}
-  PUBLIC
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    $<TARGET_PROPERTY:cafCommand,INCLUDE_DIRECTORIES> # Needed for cmake version
-                                                      # < 3.12. Remove when we
-                                                      # can use
-                                                      # target_link_libraries
-    $<TARGET_PROPERTY:cafUserInterface,INCLUDE_DIRECTORIES> # Needed for cmake
-                                                            # version < 3.12.
-                                                            # Remove when we can
-                                                            # use
-                                                            # target_link_libraries
-)
+#target_include_directories(
+#  ${PROJECT_NAME}
+#  PUBLIC
+#    ${CMAKE_CURRENT_SOURCE_DIR}
+#    $<TARGET_PROPERTY:cafCommand,INCLUDE_DIRECTORIES> # Needed for cmake version
+#                                                      # < 3.12. Remove when we
+#                                                      # can use
+#                                                      # target_link_libraries
+#    $<TARGET_PROPERTY:cafUserInterface,INCLUDE_DIRECTORIES> # Needed for cmake
+#                                                            # version < 3.12.
+#                                                            # Remove when we can
+#                                                            # use
+#                                                            # target_link_libraries
+#)
 
 # Before cmake 3.12 OBJECT libraries could not use the target_link_libraries
 # command, So we need to set the POSITION_INDEPENDENT_CODE option  manually
 
 set_property(TARGET ${PROJECT_NAME} PROPERTY POSITION_INDEPENDENT_CODE ON)
 
-# Not to be used until we can use cmake 3.12 or above target_link_libraries (
-# ${PROJECT_NAME} cafCommand cafUserInterface ${QT_LIBRARIES} )
+# Not to be used until we can use cmake 3.12 or above 
+target_link_libraries ( ${PROJECT_NAME} cafCommand cafUserInterface ${QT_LIBRARIES} )
 
 if(MSVC)
   set_target_properties(
