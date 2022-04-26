@@ -12,7 +12,7 @@ if(CEE_USE_QT6)
   find_package(
     Qt6
     COMPONENTS
-    REQUIRED Core 
+    REQUIRED Core
   )
   set(QT_LIBRARIES Qt6::Core)
 else()
@@ -21,7 +21,7 @@ else()
     COMPONENTS
     REQUIRED Core
   )
-set(QT_LIBRARIES Qt5::Core)
+  set(QT_LIBRARIES Qt5::Core)
 endif()
 
 set(PROJECT_FILES

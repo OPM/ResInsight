@@ -40,7 +40,7 @@ elseif(CEE_USE_QT6)
     REQUIRED Core Gui OpenGL Widgets
   )
   qt_standard_project_setup()
-  set(CMAKE_AUTOMOC ON) 
+  set(CMAKE_AUTOMOC ON)
 else()
   find_package(
     Qt4
