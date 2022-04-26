@@ -327,4 +327,6 @@ private:
 
     std::unique_ptr<RimSummaryPlotNameHelper>         m_nameHelperAllCurves;
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
+
+    bool m_isValid;
 };
