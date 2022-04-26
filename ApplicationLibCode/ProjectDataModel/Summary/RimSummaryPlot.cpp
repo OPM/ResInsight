@@ -758,16 +758,7 @@ size_t RimSummaryPlot::singleColorCurveCount() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::applyDefaultCurveAppearances()
 {
-    std::set<RiaSummaryCurveDefinition> allCurveDefs = this->summaryAndEnsembleCurveDefinitions();
-
-    RimSummaryCurveAppearanceCalculator curveLookCalc( allCurveDefs );
-
-    // Summary curves
-    for ( auto& curve : this->summaryCurves() )
-    {
-        curve->resetAppearance();
-        curveLookCalc.setupCurveLook( curve );
-    }
+    applyDefaultCurveAppearances( summaryCurves() );
 
     // Ensemble curve sets
     int colorIndex = 0;
@@ -783,13 +774,7 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate )
 {
-    std::vector<RiaSummaryCurveDefinition> allCurveDefs;
-
-    for ( const auto& curve : this->summaryAndEnsembleCurves() )
-    {
-        allCurveDefs.emplace_back( curve->summaryCaseY(), curve->summaryAddressY(), curve->isEnsembleCurve() );
-    }
-
+    std::set<RiaSummaryCurveDefinition> allCurveDefs = this->summaryAndEnsembleCurveDefinitions();
     RimSummaryCurveAppearanceCalculator curveLookCalc( allCurveDefs );
 
     for ( auto& curve : curvesToUpdate )

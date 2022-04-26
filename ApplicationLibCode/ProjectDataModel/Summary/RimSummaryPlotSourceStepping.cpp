@@ -470,6 +470,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
                 RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( oldValue, newValue, &adr );
                 curve->setSummaryAddressX( adr );
             }
+
+            curve->setDefaultCurveAppearance();
         }
 
         if ( dataSourceSteppingObject() )

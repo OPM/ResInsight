@@ -56,6 +56,9 @@ void RiuSummaryMultiPlotBook::createPages()
     int row = 0;
     int col = 0;
 
+    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
+    if ( summaryMultiPlot ) summaryMultiPlot->clearLayoutInfo();
+
     RiuSummaryMultiPlotPage* page = createSummaryPage();
 
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )

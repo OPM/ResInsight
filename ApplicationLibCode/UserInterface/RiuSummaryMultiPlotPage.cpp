@@ -19,6 +19,7 @@
 #include "RiuSummaryMultiPlotPage.h"
 
 #include "RimSummaryMultiPlot.h"
+#include "RimSummaryPlot.h"
 
 #include "RiuPlotWidget.h"
 #include "RiuQwtPlotLegend.h"
@@ -89,33 +90,36 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
                 continue;
             }
 
-            int expectedColSpan = plotWidgets[visibleIndex]->colSpan();
-            int colSpan         = std::min( expectedColSpan, cols - col );
+            auto plotWidget      = plotWidgets[visibleIndex];
+            int  expectedColSpan = plotWidget->colSpan();
+            int  colSpan         = std::min( expectedColSpan, cols - col );
 
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, col, 1, colSpan );
             if ( legends[visibleIndex] )
             {
                 m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, col, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
             }
-            m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, col, 1, colSpan );
+            m_gridLayout->addWidget( plotWidget, 3 * row + 2, col, 1, colSpan );
+            auto summaryPlot = dynamic_cast<RimSummaryPlot*>( plotWidget->plotDefinition() );
+            if ( summaryPlot ) m_summaryMultiPlot->setLayoutInfo( summaryPlot, row, col );
 
             subTitles[visibleIndex]->setVisible( m_showSubTitles );
             QFont subTitleFont = subTitles[visibleIndex]->font();
             subTitleFont.setPixelSize( m_subTitleFontPixelSize );
             subTitles[visibleIndex]->setFont( subTitleFont );
 
-            plotWidgets[visibleIndex]->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(),
-                                                                     showYAxis( row, col ),
-                                                                     showYAxis( row, col ) );
-            plotWidgets[visibleIndex]->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, col ) );
-            plotWidgets[visibleIndex]->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
+            plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(),
+                                                      showYAxis( row, col ),
+                                                      showYAxis( row, col ) );
+            plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, col ) );
+            plotWidget->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
 
             // Adjust the space below a graph to make sure the heading of the row below is closest to the
             // corresponding graph
-            auto margins = plotWidgets[visibleIndex]->contentsMargins();
+            auto margins = plotWidget->contentsMargins();
             margins.setBottom( 40 );
-            plotWidgets[visibleIndex]->setContentsMargins( margins );
-            plotWidgets[visibleIndex]->show();
+            plotWidget->setContentsMargins( margins );
+            plotWidget->show();
 
             if ( legends[visibleIndex] )
             {

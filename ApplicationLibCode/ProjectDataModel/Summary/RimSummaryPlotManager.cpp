@@ -110,7 +110,7 @@ RimSummaryPlotManager::RimSummaryPlotManager()
     m_labelB.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_labelB.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_individualPlotPerObject, "IndividualPlotPerObject", false, "One plot per Object" );
+    CAF_PDM_InitField( &m_individualPlotPerObject, "IndividualPlotPerObject", true, "One plot per Object" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_individualPlotPerObject );
 
     CAF_PDM_InitField( &m_individualPlotPerVector, "IndividualPlotPerVector", false, "One plot per Vector" );
@@ -119,7 +119,7 @@ RimSummaryPlotManager::RimSummaryPlotManager()
     CAF_PDM_InitField( &m_individualPlotPerDataSource, "IndividualPlotPerDataSource", false, "One plot per Data Source" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_individualPlotPerDataSource );
 
-    CAF_PDM_InitField( &m_createMultiPlot, "CreateMultiPlot", false, "Create Multiple Plots in One Window" );
+    CAF_PDM_InitField( &m_createMultiPlot, "CreateMultiPlot", true, "Create Multiple Plots in One Window" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_createMultiPlot );
 }
 
