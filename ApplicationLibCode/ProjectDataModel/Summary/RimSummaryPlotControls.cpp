@@ -34,39 +34,15 @@ bool RimSummaryPlotControls::handleKeyEvents( RimSummaryPlotSourceStepping* srcS
 
     bool bHandled = false;
 
-    if ( keyEvent->key() == Qt::Key_Left )
+    if ( keyEvent->key() == Qt::Key_Up )
     {
-        srcStepping->applyPrevOtherIdentifier();
-        keyEvent->accept();
-        bHandled = true;
-    }
-    else if ( keyEvent->key() == Qt::Key_Right )
-    {
-        srcStepping->applyNextOtherIdentifier();
-        keyEvent->accept();
-        bHandled = true;
-    }
-    else if ( keyEvent->key() == Qt::Key_PageDown )
-    {
-        srcStepping->applyNextCase();
-        keyEvent->accept();
-        bHandled = true;
-    }
-    else if ( keyEvent->key() == Qt::Key_PageUp )
-    {
-        srcStepping->applyPrevCase();
-        keyEvent->accept();
-        bHandled = true;
-    }
-    else if ( keyEvent->key() == Qt::Key_Up )
-    {
-        srcStepping->applyPrevQuantity();
+        srcStepping->applyPrevStep();
         keyEvent->accept();
         bHandled = true;
     }
     else if ( keyEvent->key() == Qt::Key_Down )
     {
-        srcStepping->applyNextQuantity();
+        srcStepping->applyNextStep();
         keyEvent->accept();
         bHandled = true;
     }
@@ -77,7 +53,7 @@ bool RimSummaryPlotControls::handleKeyEvents( RimSummaryPlotSourceStepping* srcS
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotControls::quantityNextKeyText()
+QString RimSummaryPlotControls::nextStepKeyText()
 {
     return QString( "Ctrl-Down" );
 }
@@ -85,39 +61,7 @@ QString RimSummaryPlotControls::quantityNextKeyText()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotControls::quantityPrevKeyText()
+QString RimSummaryPlotControls::prevStepKeyText()
 {
     return QString( "Ctrl-Up" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotControls::caseNextKeyText()
-{
-    return QString( "Ctrl-PgDown" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotControls::casePrevKeyText()
-{
-    return QString( "Ctrl-PgUp" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotControls::otherNextKeyText()
-{
-    return QString( "Ctrl-Right" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryPlotControls::otherPrevKeyText()
-{
-    return QString( "Ctrl-Left" );
 }

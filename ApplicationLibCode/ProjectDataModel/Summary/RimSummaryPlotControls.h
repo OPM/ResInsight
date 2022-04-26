@@ -28,12 +28,8 @@ class RimSummaryPlotControls
 public:
     static bool handleKeyEvents( RimSummaryPlotSourceStepping* srcStepping, QKeyEvent* keyEvent );
 
-    static QString quantityNextKeyText();
-    static QString quantityPrevKeyText();
-    static QString caseNextKeyText();
-    static QString casePrevKeyText();
-    static QString otherNextKeyText();
-    static QString otherPrevKeyText();
+    static QString nextStepKeyText();
+    static QString prevStepKeyText();
 
 private:
     RimSummaryPlotControls() = default;

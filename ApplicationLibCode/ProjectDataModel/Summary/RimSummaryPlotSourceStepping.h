@@ -43,19 +43,28 @@ class RimSummaryPlotSourceStepping : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class SourceSteppingDimension
+    {
+        SUMMARY_CASE,
+        ENSEMBLE,
+        WELL,
+        GROUP,
+        REGION,
+        QUANTITY,
+        BLOCK,
+        SEGMENT,
+        COMPLETION,
+        AQUIFER
+    };
+
+public:
     RimSummaryPlotSourceStepping();
 
     void setSourceSteppingType( RimSummaryDataSourceStepping::Axis sourceSteppingType );
     void setSourceSteppingObject( caf::PdmObject* sourceObject );
 
-    void applyNextCase();
-    void applyPrevCase();
-
-    void applyNextQuantity();
-    void applyPrevQuantity();
-
-    void applyNextOtherIdentifier();
-    void applyPrevOtherIdentifier();
+    void applyNextStep();
+    void applyPrevStep();
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
@@ -78,8 +87,10 @@ private:
 
     std::set<RifEclipseSummaryAddress>  addressesForCurvesInPlot() const;
     std::set<RimSummaryCase*>           summaryCasesCurveCollection() const;
-    std::vector<caf::PdmFieldHandle*>   activeFieldsForDataSourceStepping( bool toolbarFields );
     std::set<RimSummaryCaseCollection*> ensembleCollection() const;
+
+    std::vector<caf::PdmFieldHandle*> activeFieldsForDataSourceStepping();
+    std::vector<caf::PdmFieldHandle*> toolbarFieldsForDataSourceStepping();
 
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
@@ -92,6 +103,9 @@ private:
 
 private:
     caf::PdmPointer<caf::PdmObject> m_objectForSourceStepping;
+
+    caf::PdmField<QString>                               m_indexLabel;
+    caf::PdmField<caf::AppEnum<SourceSteppingDimension>> m_stepDimension;
 
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
