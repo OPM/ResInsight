@@ -27,6 +27,7 @@
 
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryAddressCollection.h"
+#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -38,80 +39,6 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicAppendSummaryPlotsForObjectsFeature, "RicAppendSummaryPlotsForObjectsFeature" );
-
-class SummaryAdrModifier
-{
-public:
-    SummaryAdrModifier( RimSummaryCurve* curve )
-        : m_curve( curve )
-        , m_curveSet( nullptr )
-    {
-    }
-
-    SummaryAdrModifier( RimEnsembleCurveSet* curveSet )
-        : m_curve( nullptr )
-        , m_curveSet( curveSet )
-    {
-    }
-
-    static std::vector<SummaryAdrModifier> createAddressModifiersForPlot( RimSummaryPlot* summaryPlot )
-    {
-        std::vector<SummaryAdrModifier> mods;
-        if ( summaryPlot )
-        {
-            auto curveSets = summaryPlot->curveSets();
-            for ( auto curveSet : curveSets )
-            {
-                mods.emplace_back( SummaryAdrModifier( curveSet ) );
-            }
-
-            auto curves = summaryPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS );
-            for ( auto c : curves )
-            {
-                mods.emplace_back( SummaryAdrModifier( c ) );
-            }
-        }
-
-        return mods;
-    }
-
-    static std::vector<RifEclipseSummaryAddress> createEclipseSummaryAddress( RimSummaryPlot* summaryPlot )
-    {
-        auto mods = createAddressModifiersForPlot( summaryPlot );
-        return convertToEclipseSummaryAddress( mods );
-    }
-
-    RifEclipseSummaryAddress address() const
-    {
-        if ( m_curve ) return m_curve->summaryAddressY();
-        if ( m_curveSet ) return m_curveSet->summaryAddress();
-
-        return {};
-    }
-
-    void setAddress( const RifEclipseSummaryAddress& address )
-    {
-        if ( m_curve ) m_curve->setSummaryAddressY( address );
-        if ( m_curveSet ) m_curveSet->setSummaryAddress( address );
-    }
-
-private:
-    static std::vector<RifEclipseSummaryAddress>
-        convertToEclipseSummaryAddress( const std::vector<SummaryAdrModifier>& modifiers )
-    {
-        std::vector<RifEclipseSummaryAddress> tmp;
-        tmp.reserve( modifiers.size() );
-        for ( const auto& m : modifiers )
-        {
-            tmp.emplace_back( m.address() );
-        }
-        return tmp;
-    }
-
-private:
-    RimSummaryCurve*     m_curve;
-    RimEnsembleCurveSet* m_curveSet;
-};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -149,7 +76,7 @@ void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
         auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plotsForOneInstance );
         for ( auto duplicatedPlot : duplicatedPlots )
         {
-            auto adrMods = SummaryAdrModifier::createAddressModifiersForPlot( duplicatedPlot );
+            auto adrMods = RimSummaryAddressModifier::createAddressModifiersForPlot( duplicatedPlot );
             for ( auto adrMod : adrMods )
             {
                 auto sourceAddress = adrMod.address();
@@ -246,7 +173,7 @@ bool RicAppendSummaryPlotsForObjectsFeature::isSelectionCompatibleWithPlot(
 
         for ( auto plot : plotsForObjectType )
         {
-            auto addresses = SummaryAdrModifier::createEclipseSummaryAddress( plot );
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( plot );
             analyzer.appendAddresses( addresses );
         }
     }
@@ -339,7 +266,7 @@ std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOne
     RiaSummaryAddressAnalyzer myAnalyser;
     for ( auto sourcePlot : sourcePlots )
     {
-        auto addresses = SummaryAdrModifier::createEclipseSummaryAddress( sourcePlot );
+        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( sourcePlot );
         myAnalyser.appendAddresses( addresses );
     }
 
@@ -358,7 +285,7 @@ std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOne
 
     for ( auto sourcePlot : sourcePlots )
     {
-        auto addresses = SummaryAdrModifier::createEclipseSummaryAddress( sourcePlot );
+        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( sourcePlot );
 
         bool isMatching = false;
         for ( const auto& a : addresses )

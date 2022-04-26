@@ -1029,6 +1029,16 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurve::setDefaultCurveAppearance()
+{
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfType( plot );
+    if ( plot ) plot->applyDefaultCurveAppearances( { this } );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setAsTopZWithinCategory( bool enable )
 {
     m_isTopZWithinCategory = enable;

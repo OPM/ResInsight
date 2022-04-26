@@ -214,12 +214,12 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         size_t cutPos = sumAddress.quantityName().find( ':' );
         if ( cutPos == std::string::npos ) cutPos = -1;
 
-        std::string        quantityNameForDisplay;
+        std::string        titleText;
         const std::string& quantityName = sumAddress.quantityName().substr( cutPos + 1 );
 
         if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {
-            quantityNameForDisplay = shortCalculationName( quantityName );
+            titleText = shortCalculationName( quantityName );
         }
         else
         {
@@ -229,27 +229,25 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
                 if ( sumAddress.isHistoryQuantity() ) candidateName = quantityName.substr( 0, quantityName.size() - 1 );
 
-                quantityNameForDisplay =
-                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( candidateName );
+                titleText = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( candidateName );
             }
 
             if ( m_axisProperties->showAcronym() )
             {
-                if ( !quantityNameForDisplay.empty() )
+                if ( !titleText.empty() )
                 {
-                    quantityNameForDisplay += " (";
-                    quantityNameForDisplay += quantityName;
-                    quantityNameForDisplay += ")";
+                    titleText += " (";
+                    titleText += quantityName;
+                    titleText += ")";
                 }
-            }
-
-            if ( quantityNameForDisplay.empty() )
-            {
-                quantityNameForDisplay = quantityName;
+                else
+                {
+                    titleText += quantityName;
+                }
             }
         }
 
-        unitToQuantityNameMap[unitText].insert( quantityNameForDisplay );
+        unitToQuantityNameMap[unitText].insert( titleText );
     };
 
     for ( RimSummaryCurve* rimCurve : m_summaryCurves )

@@ -70,15 +70,25 @@ public:
     const QString& name() const override;
     RiuPlotAxis    plotAxisType() const override;
     bool           useAutoTitle() const;
-    bool           showDescription() const;
-    bool           showAcronym() const;
-    bool           showUnitText() const;
-    bool           isAutoZoom() const override;
-    void           setAutoZoom( bool enableAutoZoom ) override;
-    bool           isAxisInverted() const override;
-    void           setAxisInverted( bool inverted );
-    bool           showNumbers() const;
-    void           setShowNumbers( bool enable );
+
+    void setShowDescription( bool enable );
+    bool showDescription() const;
+
+    void setShowAcronym( bool enable );
+    bool showAcronym() const;
+
+    void setShowUnitText( bool enable );
+    bool showUnitText() const;
+
+    bool isAutoZoom() const override;
+    void setAutoZoom( bool enableAutoZoom ) override;
+    bool isAxisInverted() const override;
+    void setAxisInverted( bool inverted );
+    bool showNumbers() const;
+    void setShowNumbers( bool enable );
+
+    void setVisible( bool visible );
+    void computeAndSetScaleFactor();
 
     bool isDeletable() const override;
 

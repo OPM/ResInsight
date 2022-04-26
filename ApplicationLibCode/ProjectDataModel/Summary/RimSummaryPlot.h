@@ -164,6 +164,7 @@ public:
 
     size_t singleColorCurveCount() const;
     void   applyDefaultCurveAppearances();
+    void   applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );
 
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
@@ -290,7 +291,6 @@ private:
     std::pair<int, std::vector<RimSummaryCurve*>> handleSummaryCaseDrop( RimSummaryCase* summaryCase );
     std::pair<int, std::vector<RimSummaryCurve*>> handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
     std::pair<int, std::vector<RimSummaryCurve*>> handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
-    void applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );
 
     bool isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis );
 

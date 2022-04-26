@@ -62,6 +62,9 @@ public:
 
     const RimSummaryNameHelper* nameHelper() const;
 
+    void setLayoutInfo( RimSummaryPlot* summaryPlot, int row, int col );
+    void clearLayoutInfo();
+
     void setAutoTitlePlot( bool enable );
     void setAutoTitleGraphs( bool enable );
 
@@ -90,15 +93,21 @@ public:
 
     void makeSureIsVisible( RimSummaryPlot* plot );
 
+    void setSubPlotAxesLinked( bool enable );
     bool isSubPlotAxesLinked() const;
 
+    std::pair<int, int> gridLayoutInfoForSubPlot( RimSummaryPlot* summaryPlot ) const;
+
     void zoomAll() override;
+
+    void checkAndApplyAutoAppearance();
 
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
 
     void initAfterRead() override;
+    void onLoadDataAndUpdate() override;
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
 
@@ -112,6 +121,8 @@ private:
 
     void duplicate();
 
+    void analyzePlotsAndAdjustAppearanceSettings();
+
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
 
@@ -121,10 +132,13 @@ private:
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
     caf::PdmField<bool> m_linkSubPlotAxes;
+    caf::PdmField<bool> m_autoAdjustAppearance;
 
     caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
 
     caf::PdmChildField<RimSummaryPlotSourceStepping*> m_sourceStepping;
 
     std::unique_ptr<RimSummaryPlotNameHelper> m_nameHelper;
+
+    std::map<RimSummaryPlot*, std::pair<int, int>> m_gridLayoutInfo;
 };

@@ -31,8 +31,10 @@
 #include "RimMainPlotCollection.h"
 #include "RimMultiPlotCollection.h"
 #include "RimMultipleSummaryPlotNameHelper.h"
+#include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
@@ -40,6 +42,7 @@
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
 #include "RimSummaryPlotSourceStepping.h"
+#include "RimSummaryTimeAxisProperties.h"
 
 #include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
@@ -69,6 +72,23 @@ void AppEnum<RimSummaryMultiPlot::AxisRangeAggregation>::setUp()
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RimSummaryMultiPlot, "MultiSummaryPlot" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setLayoutInfo( RimSummaryPlot* summaryPlot, int row, int col )
+{
+    m_gridLayoutInfo[summaryPlot] = std::make_pair( row, col );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::clearLayoutInfo()
+{
+    m_gridLayoutInfo.clear();
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -92,9 +112,12 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
 
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
+    CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", false, "Auto Adjust Appearance" );
+
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Aggregation" );
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
+
     m_sourceStepping = new RimSummaryPlotSourceStepping;
     m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     m_sourceStepping->setSourceSteppingObject( this );
@@ -310,7 +333,12 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     auto axesGroup = uiOrdering.addNewGroup( "Axes" );
     axesGroup->add( &m_axisRangeAggregation );
+
     axesGroup->add( &m_linkSubPlotAxes );
+    axesGroup->add( &m_autoAdjustAppearance );
+
+    m_linkSubPlotAxes.uiCapability()->setUiReadOnly( m_autoAdjustAppearance() );
+    if ( m_autoAdjustAppearance() ) m_linkSubPlotAxes = false;
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
     m_sourceStepping()->uiOrdering( uiConfigName, *dataSourceGroup );
@@ -338,6 +366,10 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         m_createPlotDuplicate = false;
         duplicate();
+    }
+    else if ( changedField == &m_autoAdjustAppearance )
+    {
+        checkAndApplyAutoAppearance();
     }
     else
     {
@@ -519,9 +551,31 @@ void RimSummaryMultiPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onLoadDataAndUpdate()
+{
+    RimMultiPlot::onLoadDataAndUpdate();
+
+    checkAndApplyAutoAppearance();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::zoomAll()
 {
     syncAxisRanges();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
+{
+    if ( m_autoAdjustAppearance )
+    {
+        analyzePlotsAndAdjustAppearanceSettings();
+        syncAxisRanges();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -781,6 +835,62 @@ void RimSummaryMultiPlot::duplicate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
+{
+    RiaSummaryAddressAnalyzer analyzer;
+
+    for ( auto p : summaryPlots() )
+    {
+        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
+        analyzer.appendAddresses( addresses );
+    }
+
+    bool hasOnlyOneQuantity = analyzer.quantities().size() == 1;
+
+    for ( auto p : summaryPlots() )
+    {
+        auto timeAxisProp = p->timeAxisProperties();
+
+        if ( columnCount() < 3 )
+            timeAxisProp->setMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
+        else
+            timeAxisProp->setMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
+
+        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotAxes() )
+        {
+            auto axisProp = dynamic_cast<RimPlotAxisProperties*>( axisInterface );
+
+            if ( !axisProp ) continue;
+
+            if ( rowsPerPage() == 1 )
+                axisProp->setMajorTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
+            else
+                axisProp->setMajorTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
+
+            axisProp->computeAndSetScaleFactor();
+
+            if ( hasOnlyOneQuantity )
+            {
+                // Disable sub plot linking to be able to configure individually
+                setSubPlotAxesLinked( false );
+
+                axisProp->setShowDescription( false );
+
+                auto [row, col] = gridLayoutInfoForSubPlot( p );
+                if ( col == 0 )
+                    axisProp->setShowUnitText( true );
+                else
+                    axisProp->setShowUnitText( false );
+            }
+        }
+
+        p->updateAxes();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::makeSureIsVisible( RimSummaryPlot* summaryPlot )
 {
     if ( summaryPlot->plotWidget() && !m_viewer.isNull() ) m_viewer->scrollToPlot( summaryPlot->plotWidget() );
@@ -789,9 +899,28 @@ void RimSummaryMultiPlot::makeSureIsVisible( RimSummaryPlot* summaryPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setSubPlotAxesLinked( bool enable )
+{
+    m_linkSubPlotAxes = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimSummaryMultiPlot::isSubPlotAxesLinked() const
 {
     return m_linkSubPlotAxes();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<int, int> RimSummaryMultiPlot::gridLayoutInfoForSubPlot( RimSummaryPlot* summaryPlot ) const
+{
+    auto it = m_gridLayoutInfo.find( summaryPlot );
+    if ( it != m_gridLayoutInfo.end() ) return it->second;
+
+    return { -1, -1 };
 }
 
 //--------------------------------------------------------------------------------------------------
