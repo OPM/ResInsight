@@ -33,6 +33,7 @@
 #include "RimSummaryCaseCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
 #include "cvfAssert.h"
@@ -53,6 +54,9 @@ RimSummaryCase::RimSummaryCase()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting" );
+
+    CAF_PDM_InitScriptableField( &m_showSubNodesInTree, "ShowSubNodesInTree", false, "Show Summary Data Sub-Tree" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showSubNodesInTree );
 
     CAF_PDM_InitScriptableField( &m_useAutoShortName_OBSOLETE, "AutoShortyName", false, "Use Auto Display Name" );
     m_useAutoShortName_OBSOLETE.xmlCapability()->setIOWritable( false );
@@ -181,6 +185,10 @@ void RimSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateTreeItemName();
         nameChanged.send();
     }
+    else if ( changedField == &m_showSubNodesInTree )
+    {
+        updateConnectedEditors();
+    }
 
     updateOptionSensitivity();
 }
@@ -225,9 +233,24 @@ void RimSummaryCase::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_displayName );
+    uiOrdering.add( &m_displayNameOption );
+    uiOrdering.add( &m_summaryHeaderFilename );
+    uiOrdering.add( &m_caseId );
+
+    if ( ensemble() ) uiOrdering.add( &m_showSubNodesInTree );
+
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( !ensemble() )
+    if ( !ensemble() || m_showSubNodesInTree() )
     {
         if ( m_dataVectorFolders->isEmpty() ) buildChildNodes();
         m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
