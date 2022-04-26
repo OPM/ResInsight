@@ -7,7 +7,7 @@ if(CEE_USE_QT6)
   find_package(
     Qt6
     COMPONENTS
-    REQUIRED Core 
+    REQUIRED Core
   )
 else()
   find_package(
