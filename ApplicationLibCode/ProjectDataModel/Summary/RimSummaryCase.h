@@ -86,6 +86,7 @@ public:
     bool                                          operator<( const RimSummaryCase& rhs ) const;
 
 protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void updateTreeItemName();
@@ -101,6 +102,8 @@ protected:
     caf::PdmField<QString>         m_displayName;
     caf::PdmField<DisplayNameEnum> m_displayNameOption;
     caf::PdmField<caf::FilePath>   m_summaryHeaderFilename;
+
+    caf::PdmField<bool> m_showSubNodesInTree;
 
     caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
 
