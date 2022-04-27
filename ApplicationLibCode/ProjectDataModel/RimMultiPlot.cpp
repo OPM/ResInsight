@@ -898,7 +898,15 @@ bool RimMultiPlot::isMouseCursorInsidePlot()
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimMultiPlot::fieldsToShowInToolbar()
 {
-    return { &m_pagePreviewMode, &m_columnCount, &m_rowsPerPage };
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldHandle*> RimMultiPlot::fieldsToShowInLayoutToolbar()
+{
+    return { &m_columnCount, &m_rowsPerPage, &m_pagePreviewMode };
 }
 
 //--------------------------------------------------------------------------------------------------

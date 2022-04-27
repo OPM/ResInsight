@@ -106,6 +106,7 @@ public:
     int axisValueFontSize() const;
 
     virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+    virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInLayoutToolbar();
 
     bool isValid() const;
 
