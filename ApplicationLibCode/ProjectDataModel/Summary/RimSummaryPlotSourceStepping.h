@@ -68,6 +68,8 @@ public:
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
+    RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSummaryAddress addr, int direction );
+
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

@@ -121,6 +121,8 @@ private:
 
     void duplicate();
 
+    void appendSubPlotByStepping( int direction );
+
     void analyzePlotsAndAdjustAppearanceSettings();
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
@@ -133,6 +135,9 @@ private:
     caf::PdmField<bool> m_createPlotDuplicate;
     caf::PdmField<bool> m_linkSubPlotAxes;
     caf::PdmField<bool> m_autoAdjustAppearance;
+
+    caf::PdmField<bool> m_appendNextPlot;
+    caf::PdmField<bool> m_appendPrevPlot;
 
     caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
 

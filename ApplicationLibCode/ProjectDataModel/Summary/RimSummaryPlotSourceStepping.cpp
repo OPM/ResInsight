@@ -46,6 +46,11 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiToolBarEditor.h"
 
+#include <QString>
+
+#include <algorithm>
+#include <vector>
+
 namespace caf
 {
 template <>
@@ -1023,4 +1028,69 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::toolbarFieldsFor
     if ( field != nullptr ) fields.push_back( field );
 
     return fields;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSummaryAddress addr, int direction )
+{
+    auto                      addresses = adressesForSourceStepping();
+    RiaSummaryAddressAnalyzer analyzer;
+    analyzer.appendAddresses( addresses );
+
+    switch ( m_stepDimension() )
+    {
+        case SourceSteppingDimension::SUMMARY_CASE:
+            break;
+
+        case SourceSteppingDimension::ENSEMBLE:
+            break;
+
+        case SourceSteppingDimension::WELL:
+        {
+            auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_WELL, "" );
+            auto& curName = addr.wellName();
+            auto  found   = std::find( ids.begin(), ids.end(), QString::fromStdString( curName ) );
+            if ( found != ids.end() )
+            {
+                if ( direction > 0 )
+                {
+                    found++;
+                    if ( found != ids.end() ) addr.setWellName( ( *found ).toStdString() );
+                }
+                else
+                {
+                    if ( found != ids.begin() ) found--;
+                    addr.setWellName( ( *found ).toStdString() );
+                }
+            }
+        }
+        break;
+
+        case SourceSteppingDimension::GROUP:
+            break;
+
+        case SourceSteppingDimension::REGION:
+            break;
+
+        case SourceSteppingDimension::QUANTITY:
+            break;
+
+        case SourceSteppingDimension::BLOCK:
+            break;
+
+        case SourceSteppingDimension::SEGMENT:
+            break;
+
+        case SourceSteppingDimension::COMPLETION:
+            break;
+
+        case SourceSteppingDimension::AQUIFER:
+            break;
+
+        default:
+            break;
+    }
+    return addr;
 }

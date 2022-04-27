@@ -259,6 +259,10 @@
         <file>well-log-plot.svg</file>
         <file>window-management.svg</file>
         <file>DisableZoom.png</file>
+        <file>AppendNext.svg</file>
+        <file>AppendPrev.svg</file>
+        <file>AppendNext.png</file>
+        <file>AppendPrev.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
