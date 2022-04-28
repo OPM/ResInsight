@@ -739,11 +739,14 @@ void RiuMultiPlotBook::dropEvent( QDropEvent* event )
         RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
         if ( multiPlot )
         {
-            multiPlot->addPlot( objects );
+            multiPlot->handleDroppedObjects( objects );
         }
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiuMultiPlotBook::eventFilter( QObject* obj, QEvent* event )
 {
     if ( event->type() == QEvent::Wheel )

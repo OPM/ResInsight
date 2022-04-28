@@ -51,20 +51,9 @@ bool RicAppendSummaryPlotsForObjectsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
+void RicAppendSummaryPlotsForObjectsFeature::appendPlot( const std::vector<RimSummaryAddressCollection*>& sumAddressCollections,
+                                                         RimSummaryMultiPlot* summaryMultiPlot )
 {
-    // - Select a set of objects in Data Source (wells, groups, regions, ..)
-    // - Use context menu to activate action
-    // - For each plot in the current active plot, create a duplicate plot and replace the object name
-
-    auto sumAddressCollections = selectedCollections();
-    if ( sumAddressCollections.empty() ) return;
-
-    RiaGuiApplication* app = RiaGuiApplication::instance();
-
-    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
-    if ( !summaryMultiPlot ) return;
-
     isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot );
 
     auto                         selectionType       = sumAddressCollections.front()->contentType();
@@ -92,6 +81,26 @@ void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
     }
 
     summaryMultiPlot->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
+{
+    // - Select a set of objects in Data Source (wells, groups, regions, ..)
+    // - Use context menu to activate action
+    // - For each plot in the current active plot, create a duplicate plot and replace the object name
+
+    auto sumAddressCollections = selectedCollections();
+    if ( sumAddressCollections.empty() ) return;
+
+    RiaGuiApplication* app = RiaGuiApplication::instance();
+
+    auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
+    if ( !summaryMultiPlot ) return;
+
+    appendPlot( sumAddressCollections, summaryMultiPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

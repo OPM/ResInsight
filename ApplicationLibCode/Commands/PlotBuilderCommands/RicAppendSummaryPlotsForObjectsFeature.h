@@ -40,10 +40,13 @@ class RicAppendSummaryPlotsForObjectsFeature : public caf::CmdFeature
 public:
     static std::vector<RimSummaryAddressCollection*> selectedCollections();
     static std::vector<RimSummaryPlot*>
-        plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
-                                         RimSummaryAddressCollection::CollectionContentType objectType );
+                plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
+                                                 RimSummaryAddressCollection::CollectionContentType objectType );
     static bool isSelectionCompatibleWithPlot( const std::vector<RimSummaryAddressCollection*>& selection,
                                                RimSummaryMultiPlot*                             summaryMultiPlot );
+
+    static void appendPlot( const std::vector<RimSummaryAddressCollection*>& selection,
+                            RimSummaryMultiPlot*                             summaryMultiPlot );
 
 protected:
     bool isCommandEnabled() override;
@@ -51,8 +54,6 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-
-    RifEclipseSummaryAddress modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
-                                            RimSummaryAddressCollection*    summaryAddressCollection );
-
+    static RifEclipseSummaryAddress modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
+                                                   RimSummaryAddressCollection*    summaryAddressCollection );
 };

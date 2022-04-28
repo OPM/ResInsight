@@ -84,7 +84,7 @@ public:
 
     void syncAxisRanges();
 
-    void addPlot( const std::vector<caf::PdmObjectHandle*>& objects );
+    void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
 
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
 

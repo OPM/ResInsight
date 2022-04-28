@@ -54,6 +54,8 @@
 
 #include "qwt_scale_engine.h"
 
+#include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
+#include "RimSummaryAddressCollection.h"
 #include <QKeyEvent>
 #include <cmath>
 
@@ -166,19 +168,30 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& objects )
+void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    if ( objects.empty() ) return;
-
-    auto* addr = dynamic_cast<RimSummaryAddress*>( objects[0] );
-    if ( addr )
+    for ( auto firstObject : objects )
     {
-        auto* plot = new RimSummaryPlot();
-        plot->enableAutoPlotTitle( true );
+        auto addr = dynamic_cast<RimSummaryAddress*>( firstObject );
+        if ( addr )
+        {
+            auto* plot = new RimSummaryPlot();
+            plot->enableAutoPlotTitle( true );
 
-        plot->handleDroppedObjects( objects );
+            plot->handleDroppedObjects( objects );
 
-        addPlot( plot );
+            addPlot( plot );
+
+            continue;
+        }
+
+        auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( firstObject );
+        if ( addressCollection )
+        {
+            RicAppendSummaryPlotsForObjectsFeature::appendPlot( { addressCollection }, this );
+
+            continue;
+        }
     }
 }
 
