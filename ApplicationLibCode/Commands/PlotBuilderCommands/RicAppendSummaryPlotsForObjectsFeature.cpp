@@ -106,18 +106,7 @@ void RicAppendSummaryPlotsForObjectsFeature::setupActionLook( QAction* actionToS
     if ( !addresses.empty() )
     {
         auto firstAdr = addresses.front();
-        if ( firstAdr->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
-        {
-            objectType = "Wells";
-        }
-        else if ( firstAdr->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP )
-        {
-            objectType = "Groups";
-        }
-        else if ( firstAdr->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
-        {
-            objectType = "Regions";
-        }
+        objectType = caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::uiText( firstAdr->contentType() );
     }
 
     auto text = QString( "Append Plots For " ) + objectType;
@@ -136,9 +125,7 @@ std::vector<RimSummaryAddressCollection*> RicAppendSummaryPlotsForObjectsFeature
     if ( sumAddressCollections.size() == 1 )
     {
         auto coll = sumAddressCollections[0];
-        if ( coll->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL_FOLDER ||
-             coll->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP_FOLDER ||
-             coll->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION_FOLDER )
+        if ( coll->isFolder() )
         {
             // If a folder is selected, return all sub items in folder
             auto childObjects = coll->subFolders();

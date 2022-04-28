@@ -295,6 +295,20 @@ bool RimSummaryAddressCollection::isEnsemble() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryAddressCollection::isFolder() const
+{
+    if ( contentType() == CollectionContentType::WELL_FOLDER || contentType() == CollectionContentType::GROUP_FOLDER ||
+         contentType() == CollectionContentType::REGION_FOLDER || contentType() == CollectionContentType::BLOCK_FOLDER )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int RimSummaryAddressCollection::ensembleId() const
 {
     return m_ensembleId;
