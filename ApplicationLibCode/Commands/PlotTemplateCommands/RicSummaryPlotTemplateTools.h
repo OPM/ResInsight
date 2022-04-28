@@ -43,6 +43,8 @@ class RicSummaryPlotTemplateTools
 public:
     static RimSummaryMultiPlot* createMultiPlotFromTemplateFile( const QString& fileName );
 
+    static RimSummaryMultiPlot* create( const QString& fileName );
+
     static void setValuesForPlaceholders( RimSummaryMultiPlot*                          summaryMultiPlot,
                                           const std::vector<RimSummaryCase*>&           selectedSummaryCases,
                                           const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,

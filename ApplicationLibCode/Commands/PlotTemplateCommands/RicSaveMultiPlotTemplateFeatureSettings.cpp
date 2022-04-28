@@ -29,9 +29,9 @@ RicSaveMultiPlotTemplateFeatureSettings::RicSaveMultiPlotTemplateFeatureSettings
 
     CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path" );
 
-    CAF_PDM_InitField( &m_replaceWells, "ReplaceWells", true, "Wells" );
-    CAF_PDM_InitField( &m_replaceGroups, "ReplaceGroups", true, "Groups" );
-    CAF_PDM_InitField( &m_replaceRegions, "ReplaceRegions", true, "Regions" );
+    CAF_PDM_InitField( &m_persistObjectNameForWells, "PersistObjectNameWells", false, "Wells" );
+    CAF_PDM_InitField( &m_persistObjectNameGroups, "PersistObjectNameGroups", false, "Groups" );
+    CAF_PDM_InitField( &m_persistObjectNameRegions, "PersistObjectNameRegions", false, "Regions" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -55,7 +55,7 @@ QString RicSaveMultiPlotTemplateFeatureSettings::filePath() const
 //--------------------------------------------------------------------------------------------------
 bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForWells() const
 {
-    return m_replaceWells;
+    return !m_persistObjectNameForWells;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,7 +63,7 @@ bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForWells() const
 //--------------------------------------------------------------------------------------------------
 bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForGroups() const
 {
-    return m_replaceGroups;
+    return !m_persistObjectNameGroups;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForGroups() const
 //--------------------------------------------------------------------------------------------------
 bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForRegions() const
 {
-    return m_replaceRegions;
+    return !m_persistObjectNameRegions;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,10 +82,11 @@ void RicSaveMultiPlotTemplateFeatureSettings::defineUiOrdering( QString uiConfig
     uiOrdering.add( &m_filePath );
 
     {
-        auto group = uiOrdering.addNewGroup( "Use Placeholders for Objects" );
-        group->add( &m_replaceWells );
-        group->add( &m_replaceGroups );
-        group->add( &m_replaceRegions );
+        auto group = uiOrdering.addNewGroup( "Persist Object Names" );
+        group->setCollapsedByDefault( true );
+        group->add( &m_persistObjectNameForWells );
+        group->add( &m_persistObjectNameGroups );
+        group->add( &m_persistObjectNameRegions );
     }
 }
 
