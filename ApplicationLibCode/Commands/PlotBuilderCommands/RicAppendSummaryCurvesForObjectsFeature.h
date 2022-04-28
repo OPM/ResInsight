@@ -18,41 +18,17 @@
 
 #pragma once
 
-#include "RimSummaryAddressCollection.h"
-
 #include "cafCmdFeature.h"
-
-#include <set>
-#include <vector>
-
-class RimSummaryAddressCollection;
-class RimSummaryMultiPlot;
-class RifEclipseSummaryAddress;
-class RimSummaryPlot;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicAppendSummaryPlotsForObjectsFeature : public caf::CmdFeature
+class RicAppendSummaryCurvesForObjectsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static std::vector<RimSummaryAddressCollection*> selectedCollections();
-    static std::vector<RimSummaryPlot*>
-        plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
-                                         RimSummaryAddressCollection::CollectionContentType objectType );
-    static bool isSelectionCompatibleWithPlot( const std::vector<RimSummaryAddressCollection*>& selection,
-                                               RimSummaryMultiPlot*                             summaryMultiPlot );
 
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-
-    RifEclipseSummaryAddress modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
-                                            RimSummaryAddressCollection*    summaryAddressCollection );
-
 };

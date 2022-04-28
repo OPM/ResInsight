@@ -1113,6 +1113,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         menuBuilder << "RicNewMultiPlotFeature";
         menuBuilder << "RicAppendSummaryPlotsForObjectsFeature";
+        menuBuilder << "RicAppendSummaryCurvesForObjectsFeature";
 
         // Work in progress -- End
 

@@ -58,6 +58,7 @@ public:
 
     bool isEmpty() const;
     bool isEnsemble() const;
+    bool isFolder() const;
 
     bool canBeDragged() const;
 
