@@ -163,7 +163,9 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                 auto fieldHandle = curve->findField( summaryFieldKeyword );
                 if ( fieldHandle )
                 {
-                    auto reference = fieldHandle->xmlCapability()->referenceString();
+                    auto reference =
+                        caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle, curve->summaryCaseY() );
+
                     sourceStrings.insert( reference );
                 }
 
@@ -186,7 +188,9 @@ QString RicSaveMultiPlotTemplateFeature::createTextFromObject( RimSummaryMultiPl
                 auto fieldHandle = curveSet->findField( summaryGroupFieldKeyword );
                 if ( fieldHandle )
                 {
-                    auto reference = fieldHandle->xmlCapability()->referenceString();
+                    auto reference =
+                        caf::PdmReferenceHelper::referenceFromFieldToObject( fieldHandle,
+                                                                             curveSet->summaryCaseCollection() );
                     ensembleReferenceStrings.insert( reference );
                 }
 

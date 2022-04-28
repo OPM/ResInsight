@@ -47,7 +47,8 @@ private:
 
 private:
     caf::PdmField<caf::FilePath> m_filePath;
-    caf::PdmField<bool>          m_replaceWells;
-    caf::PdmField<bool>          m_replaceGroups;
-    caf::PdmField<bool>          m_replaceRegions;
+
+    caf::PdmField<bool> m_persistObjectNameForWells;
+    caf::PdmField<bool> m_persistObjectNameGroups;
+    caf::PdmField<bool> m_persistObjectNameRegions;
 };

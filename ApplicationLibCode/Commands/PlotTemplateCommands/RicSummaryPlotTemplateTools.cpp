@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaSummaryAddressAnalyzer.h"
+#include "RiaSummaryTools.h"
 
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicSelectPlotTemplateUi.h"
@@ -38,6 +39,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindow.h"
@@ -70,6 +72,108 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFil
                                                                  true );
 
     return dynamic_cast<RimSummaryMultiPlot*>( obj );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileName )
+{
+    auto sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();
+    auto sumCaseCollections = RicSummaryPlotTemplateTools::selectedSummaryCaseCollections();
+
+    auto summaryAddressCollections = RicSummaryPlotTemplateTools::selectedSummaryAddressCollections();
+
+    std::vector<QString>                wellNames;
+    std::vector<QString>                groupNames;
+    std::vector<QString>                regions;
+    std::set<RimSummaryCase*>           caseSet;
+    std::set<RimSummaryCaseCollection*> caseCollectionSet;
+
+    if ( summaryAddressCollections.empty() )
+    {
+        RiaSummaryAddressAnalyzer analyzer;
+
+        if ( !sumCases.empty() )
+        {
+            auto firstCase = sumCases.front();
+
+            analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
+        }
+        else if ( !sumCaseCollections.empty() )
+        {
+            auto caseCollection = sumCaseCollections.front();
+
+            if ( !caseCollection->allSummaryCases().empty() )
+            {
+                auto firstCase = caseCollection->allSummaryCases().front();
+
+                analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
+            }
+        }
+
+        if ( !analyzer.wellNames().empty() )
+            wellNames.push_back( QString::fromStdString( *( analyzer.wellNames().begin() ) ) );
+        if ( !analyzer.groupNames().empty() )
+            groupNames.push_back( QString::fromStdString( *( analyzer.groupNames().begin() ) ) );
+        if ( !analyzer.regionNumbers().empty() )
+            regions.push_back( QString::number( *( analyzer.regionNumbers().begin() ) ) );
+    }
+    else
+    {
+        for ( auto a : summaryAddressCollections )
+        {
+            if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL )
+            {
+                wellNames.push_back( a->name() );
+            }
+            else if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP )
+            {
+                groupNames.push_back( a->name() );
+            }
+            else if ( a->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION )
+            {
+                regions.push_back( a->name() );
+            }
+
+            auto sumCase = RiaSummaryTools::summaryCaseById( a->caseId() );
+            if ( sumCase ) caseSet.insert( sumCase );
+
+            auto ensemble = RiaSummaryTools::ensembleById( a->ensembleId() );
+            if ( ensemble ) caseCollectionSet.insert( ensemble );
+        }
+    }
+
+    for ( auto sumCase : caseSet )
+    {
+        sumCases.push_back( sumCase );
+    }
+
+    for ( auto sumCaseCollection : caseCollectionSet )
+    {
+        sumCaseCollections.push_back( sumCaseCollection );
+    }
+
+    auto proj        = RimProject::current();
+    auto collections = proj->mainPlotCollection()->summaryMultiPlotCollection();
+
+    auto newSummaryPlot = RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFile( fileName );
+    if ( !newSummaryPlot ) return nullptr;
+
+    collections->addSummaryMultiPlot( newSummaryPlot );
+    newSummaryPlot->resolveReferencesRecursively();
+
+    RicSummaryPlotTemplateTools::setValuesForPlaceholders( newSummaryPlot,
+                                                           sumCases,
+                                                           sumCaseCollections,
+                                                           wellNames,
+                                                           groupNames,
+                                                           regions );
+    newSummaryPlot->initAfterReadRecursively();
+    newSummaryPlot->loadDataAndUpdate();
+    collections->updateConnectedEditors();
+
+    return newSummaryPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
