@@ -1203,6 +1203,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryAddress*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSummaryMultiPlotFromDataVectorFeature";
+            menuBuilder << "RicAppendSummaryCurvesForSummaryAddressesFeature";
+            menuBuilder << "RicAppendSummaryPlotsForSummaryAddressesFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )

@@ -9,6 +9,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryCurvesForObjectsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryPlotsForSummaryCasesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryCurvesForSummaryCasesFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryPlotsForSummaryAddressesFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryCurvesForSummaryAddressesFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -22,6 +24,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryCurvesForObjectsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryPlotsForSummaryCasesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryCurvesForSummaryCasesFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryPlotsForSummaryAddressesFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicAppendSummaryCurvesForSummaryAddressesFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
