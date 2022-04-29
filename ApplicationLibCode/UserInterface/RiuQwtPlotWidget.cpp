@@ -1143,7 +1143,10 @@ void RiuQwtPlotWidget::enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled 
 //--------------------------------------------------------------------------------------------------
 bool RiuQwtPlotWidget::axisEnabled( RiuPlotAxis axis ) const
 {
-    return m_plot->isAxisVisible( toQwtPlotAxis( axis ) );
+    auto qwtPlotAxis = toQwtPlotAxis( axis );
+    if ( qwtPlotAxis.pos < 0 ) return false;
+
+    return m_plot->isAxisVisible( qwtPlotAxis );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1388,9 +1391,6 @@ QwtAxisId RiuQwtPlotWidget::toQwtPlotAxis( RiuPlotAxis plotAxis ) const
     {
         return it->second;
     }
-    else
-    {
-        CAF_ASSERT( false );
-        return QwtAxisId( 0, 0 );
-    }
+
+    return QwtAxisId( -1, -1 );
 }
