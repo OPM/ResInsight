@@ -62,6 +62,14 @@ void RicSummaryCurveCalculatorDialog::setCalculationAndUpdateUi( RimSummaryCalcu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCalculation* RicSummaryCurveCalculatorDialog::currentCalculation()
+{
+    return m_summaryCalcEditor->calculator()->currentCalculation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicSummaryCurveCalculatorDialog::slotTryCloseDialog()
 {
     RimSummaryCalculationCollection* calculationCollection = RicSummaryCurveCalculatorUi::calculationCollection();

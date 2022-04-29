@@ -31,6 +31,7 @@
 
 #include "RiuSummaryVectorSelectionDialog.h"
 
+#include "RiaSummaryTools.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTableViewEditor.h"
 
@@ -151,6 +152,18 @@ RimSummaryCase* RimSummaryCalculationVariable::summaryCase()
 RimSummaryAddress* RimSummaryCalculationVariable::summaryAddress()
 {
     return m_summaryAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationVariable::setSummaryAddress( const RimSummaryAddress& address )
+{
+    m_summaryAddress()->setAddress( address.address() );
+
+    auto summaryCase = RiaSummaryTools::summaryCaseById( address.caseId() );
+
+    if ( summaryCase ) m_case = summaryCase;
 }
 
 //--------------------------------------------------------------------------------------------------

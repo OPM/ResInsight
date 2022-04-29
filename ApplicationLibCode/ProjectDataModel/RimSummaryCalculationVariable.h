@@ -49,6 +49,8 @@ public:
     RimSummaryCase*    summaryCase();
     RimSummaryAddress* summaryAddress();
 
+    void setSummaryAddress( const RimSummaryAddress& address );
+
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;

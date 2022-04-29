@@ -36,7 +36,8 @@ public:
     RicSummaryCurveCalculatorDialog( QWidget* parent );
     ~RicSummaryCurveCalculatorDialog() override;
 
-    void setCalculationAndUpdateUi( RimSummaryCalculation* calculation );
+    void                   setCalculationAndUpdateUi( RimSummaryCalculation* calculation );
+    RimSummaryCalculation* currentCalculation();
 
 private slots:
     void slotTryCloseDialog();

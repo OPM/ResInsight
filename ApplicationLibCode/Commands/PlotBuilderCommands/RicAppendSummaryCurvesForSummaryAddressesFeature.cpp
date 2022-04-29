@@ -24,12 +24,16 @@
 
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
+#include "RimSummaryCalculation.h"
+#include "RimSummaryCalculationVariable.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "cafSelectionManager.h"
 
+#include "../SummaryPlotCommands/RicShowSummaryCurveCalculatorFeature.h"
+#include "../SummaryPlotCommands/RicSummaryCurveCalculatorDialog.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicAppendSummaryCurvesForSummaryAddressesFeature, "RicAppendSummaryCurvesForSummaryAddressesFeature" );
@@ -54,6 +58,28 @@ void RicAppendSummaryCurvesForSummaryAddressesFeature::onActionTriggered( bool i
 
     auto addresses = selectedAddresses();
     if ( addresses.empty() ) return;
+
+    {
+        // TODO: Hack
+
+        RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog( false );
+        if ( dialog )
+        {
+            std::vector<RimSummaryAddress*> objects;
+            caf::SelectionManager::instance()->objectsByType( &objects );
+
+            auto calc = dialog->currentCalculation();
+            auto vars = calc->allVariables();
+
+            if ( !vars.empty() )
+            {
+                auto firstVar = vars.front();
+
+                firstVar->setSummaryAddress( *( objects.front() ) );
+                firstVar->updateConnectedEditors();
+            }
+        }
+    }
 
     for ( auto plot : summaryMultiPlot->summaryPlots() )
     {
