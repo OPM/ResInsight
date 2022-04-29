@@ -45,7 +45,8 @@ public:
         GROUP_FOLDER,
         REGION_FOLDER,
         BLOCK,
-        BLOCK_FOLDER
+        BLOCK_FOLDER,
+        SUMMARY_CASE
     };
 
 public:

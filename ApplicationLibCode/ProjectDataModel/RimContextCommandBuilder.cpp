@@ -787,6 +787,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
+            menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+            menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
 
@@ -1102,6 +1104,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) || dynamic_cast<RimSummaryCaseCollection*>( firstUiItem ) )
         {
+            menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+            menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
         }
@@ -1199,6 +1203,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryAddress*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSummaryMultiPlotFromDataVectorFeature";
+            menuBuilder << "RicAppendSummaryCurvesForSummaryAddressesFeature";
+            menuBuilder << "RicAppendSummaryPlotsForSummaryAddressesFeature";
         }
 #ifdef USE_ODB_API
         else if ( dynamic_cast<RimWellIASettings*>( firstUiItem ) )

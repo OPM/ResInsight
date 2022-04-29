@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
+#include "RiaSummaryTools.h"
 
 #include "RicSummaryPlotBuilder.h"
 
@@ -51,6 +52,56 @@ bool RicAppendSummaryPlotsForObjectsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* summaryMultiPlot,
+                                                          const std::vector<RimSummaryAddressCollection*>& sumAddressCollections )
+{
+    if ( sumAddressCollections.empty() ) return;
+
+    isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot );
+
+    auto selectionType       = sumAddressCollections.front()->contentType();
+    auto sourcePlots         = summaryMultiPlot->summaryPlots();
+    auto plotsForOneInstance = plotsForOneInstanceOfObjectType( sourcePlots, selectionType );
+
+    for ( auto summaryAdrCollection : sumAddressCollections )
+    {
+        auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plotsForOneInstance );
+
+        for ( auto duplicatedPlot : duplicatedPlots )
+        {
+            if ( summaryAdrCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE )
+            {
+                summaryMultiPlot->addPlot( duplicatedPlot );
+
+                auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdrCollection->caseId() );
+                for ( auto c : duplicatedPlot->summaryCurves() )
+                {
+                    c->setSummaryCaseY( summaryCase );
+                }
+            }
+            else
+            {
+                auto adrMods = RimSummaryAddressModifier::createAddressModifiersForPlot( duplicatedPlot );
+                for ( auto adrMod : adrMods )
+                {
+                    auto sourceAddress = adrMod.address();
+                    auto modifiedAdr   = modifyAddress( sourceAddress, summaryAdrCollection );
+
+                    adrMod.setAddress( modifiedAdr );
+                }
+                summaryMultiPlot->addPlot( duplicatedPlot );
+
+                duplicatedPlot->resolveReferencesRecursively();
+            }
+        }
+    }
+
+    summaryMultiPlot->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
 {
     // - Select a set of objects in Data Source (wells, groups, regions, ..)
@@ -65,33 +116,7 @@ void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
     auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
     if ( !summaryMultiPlot ) return;
 
-    isSelectionCompatibleWithPlot( sumAddressCollections, summaryMultiPlot );
-
-    auto                         selectionType       = sumAddressCollections.front()->contentType();
-    auto                         sourcePlots         = summaryMultiPlot->summaryPlots();
-    std::vector<RimSummaryPlot*> plotsForOneInstance = plotsForOneInstanceOfObjectType( sourcePlots, selectionType );
-
-    for ( auto summaryAdrCollection : sumAddressCollections )
-    {
-        auto duplicatedPlots = RicSummaryPlotBuilder::duplicateSummaryPlots( plotsForOneInstance );
-        for ( auto duplicatedPlot : duplicatedPlots )
-        {
-            auto adrMods = RimSummaryAddressModifier::createAddressModifiersForPlot( duplicatedPlot );
-            for ( auto adrMod : adrMods )
-            {
-                auto sourceAddress = adrMod.address();
-                auto modifiedAdr   = modifyAddress( sourceAddress, summaryAdrCollection );
-
-                adrMod.setAddress( modifiedAdr );
-            }
-
-            summaryMultiPlot->addPlot( duplicatedPlot );
-
-            duplicatedPlot->resolveReferencesRecursively();
-        }
-    }
-
-    summaryMultiPlot->loadDataAndUpdate();
+    appendPlots( summaryMultiPlot, sumAddressCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,6 +274,7 @@ std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOne
     std::string wellNameToMatch;
     std::string groupNameToMatch;
     int         regionToMatch = -1;
+    int         caseIdToMatch = -1;
 
     RiaSummaryAddressAnalyzer myAnalyser;
     for ( auto sourcePlot : sourcePlots )
@@ -269,25 +295,45 @@ std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOne
     {
         if ( !myAnalyser.regionNumbers().empty() ) regionToMatch = *( myAnalyser.regionNumbers().begin() );
     }
+    else if ( objectType == RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE )
+    {
+        auto curves = sourcePlots.back()->summaryCurves();
+        if ( !curves.empty() )
+        {
+            caseIdToMatch = curves.front()->summaryCaseY()->caseId();
+        }
+    }
 
     for ( auto sourcePlot : sourcePlots )
     {
-        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( sourcePlot );
-
         bool isMatching = false;
-        for ( const auto& a : addresses )
+
+        if ( caseIdToMatch != -1 )
         {
-            if ( !wellNameToMatch.empty() && a.wellName() == wellNameToMatch )
+            auto curves = sourcePlot->summaryCurves();
+            for ( auto c : curves )
             {
-                isMatching = true;
+                if ( c->summaryCaseY()->caseId() == caseIdToMatch ) isMatching = true;
             }
-            else if ( !groupNameToMatch.empty() && a.groupName() == groupNameToMatch )
+        }
+        else
+        {
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( sourcePlot );
+
+            for ( const auto& a : addresses )
             {
-                isMatching = true;
-            }
-            else if ( regionToMatch != -1 && a.regionNumber() == regionToMatch )
-            {
-                isMatching = true;
+                if ( !wellNameToMatch.empty() && a.wellName() == wellNameToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( !groupNameToMatch.empty() && a.groupName() == groupNameToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( regionToMatch != -1 && a.regionNumber() == regionToMatch )
+                {
+                    isMatching = true;
+                }
             }
         }
 

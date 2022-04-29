@@ -23,6 +23,11 @@
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryStringTools.h"
 
+#include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
+#include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryAddressesFeature.h"
+#include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryCasesFeature.h"
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
@@ -34,6 +39,7 @@
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -55,6 +61,7 @@
 #include "qwt_scale_engine.h"
 
 #include <QKeyEvent>
+
 #include <cmath>
 
 namespace caf
@@ -166,20 +173,29 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::addPlot( const std::vector<caf::PdmObjectHandle*>& objects )
+void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
     if ( objects.empty() ) return;
 
-    auto* addr = dynamic_cast<RimSummaryAddress*>( objects[0] );
-    if ( addr )
+    std::vector<RimSummaryAddress*>           addresses;
+    std::vector<RimSummaryAddressCollection*> addressCollections;
+    std::vector<RimSummaryCase*>              cases;
+
+    for ( auto o : objects )
     {
-        auto* plot = new RimSummaryPlot();
-        plot->enableAutoPlotTitle( true );
+        auto address = dynamic_cast<RimSummaryAddress*>( o );
+        if ( address ) addresses.push_back( address );
 
-        plot->handleDroppedObjects( objects );
+        auto adrColl = dynamic_cast<RimSummaryAddressCollection*>( o );
+        if ( adrColl ) addressCollections.push_back( adrColl );
 
-        addPlot( plot );
+        auto summaryCase = dynamic_cast<RimSummaryCase*>( o );
+        if ( summaryCase ) cases.push_back( summaryCase );
     }
+
+    RicAppendSummaryPlotsForSummaryAddressesFeature::appendPlotsForAddresses( this, addresses );
+    RicAppendSummaryPlotsForObjectsFeature::appendPlots( this, addressCollections );
+    RicAppendSummaryPlotsForSummaryCasesFeature::appendPlotsForCases( this, cases );
 }
 
 //--------------------------------------------------------------------------------------------------

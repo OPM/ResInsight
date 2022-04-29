@@ -362,7 +362,7 @@ RimSummaryMultiPlot*
     plotWindow->setAsPlotMdiWindow();
     plotCollection->addSummaryMultiPlot( plotWindow );
 
-    plotWindow->addPlot( objects );
+    plotWindow->handleDroppedObjects( objects );
 
     plotCollection->updateAllRequiredEditors();
     plotWindow->loadDataAndUpdate();
