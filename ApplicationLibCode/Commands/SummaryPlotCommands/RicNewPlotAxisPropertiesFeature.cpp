@@ -36,8 +36,8 @@ CAF_CMD_SOURCE_INIT( RicNewPlotAxisPropertiesFeature, "RicNewPlotAxisPropertiesF
 //--------------------------------------------------------------------------------------------------
 bool RicNewPlotAxisPropertiesFeature::isCommandEnabled()
 {
-    std::vector<RimSummaryPlot*> summaryPlots = caf::selectedObjectsByTypeStrict<RimSummaryPlot*>();
-    return summaryPlots.size() == 1;
+    auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    return ( summaryPlot != nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -45,13 +45,13 @@ bool RicNewPlotAxisPropertiesFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPlotAxisPropertiesFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSummaryPlot*> summaryPlots = caf::selectedObjectsByTypeStrict<RimSummaryPlot*>();
-    if ( summaryPlots.size() != 1 ) return;
-
-    RimSummaryPlot* summaryPlot = summaryPlots[0];
+    auto* summaryPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlot*>();
+    if ( !summaryPlot ) return;
 
     RimPlotAxisProperties* newPlotAxisProperties =
         summaryPlot->addNewAxisProperties( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "New Axis" );
+    summaryPlot->plotWidget()->ensureAxisIsCreated( newPlotAxisProperties->plotAxisType() );
+    newPlotAxisProperties->setNameForUnusedAxis();
 
     summaryPlot->updateConnectedEditors();
     RiuPlotMainWindowTools::selectAsCurrentItem( newPlotAxisProperties );

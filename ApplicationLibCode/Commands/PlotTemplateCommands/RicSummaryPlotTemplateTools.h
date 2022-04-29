@@ -41,9 +41,31 @@ class RimSummaryAddressCollection;
 class RicSummaryPlotTemplateTools
 {
 public:
+    static RimSummaryMultiPlot* create( const QString& fileName );
+
+    static QString selectPlotTemplatePath();
+
+    static QString summaryCaseFieldKeyword();
+    static QString summaryGroupFieldKeyword();
+
+    static QString placeholderTextForSummaryCase();
+    static QString placeholderTextForSummaryGroup();
+    static QString placeholderTextForWell();
+    static QString placeholderTextForGroup();
+
+private:
     static RimSummaryMultiPlot* createMultiPlotFromTemplateFile( const QString& fileName );
 
-    static RimSummaryMultiPlot* create( const QString& fileName );
+    static std::vector<RimSummaryCase*>              selectedSummaryCases();
+    static std::vector<RimSummaryCaseCollection*>    selectedSummaryCaseCollections();
+    static std::vector<RimSummaryAddressCollection*> selectedSummaryAddressCollections();
+
+    static QString htmlTextFromPlotAndSelection( const RimSummaryPlot* templatePlot,
+
+                                                 const std::set<RifEclipseSummaryAddress>& selectedSummaryAddresses,
+                                                 const std::vector<caf::PdmObject*>&       selectedSources );
+
+    static QString htmlTextFromCount( const QString& itemText, size_t requiredItemCount, size_t selectionCount );
 
     static void setValuesForPlaceholders( RimSummaryMultiPlot*                          summaryMultiPlot,
                                           const std::vector<RimSummaryCase*>&           selectedSummaryCases,
@@ -59,33 +81,6 @@ public:
                                           const std::vector<QString>&                   groupNames,
                                           const std::vector<QString>&                   regions );
 
-    static RimSummaryPlot* createPlotFromTemplateFile( const QString& fileName );
-    static void            appendSummaryPlotToPlotCollection( RimSummaryPlot*                               summaryPlot,
-                                                              const std::vector<RimSummaryCase*>&           selectedSummaryCases,
-                                                              const std::vector<RimSummaryCaseCollection*>& selectedEnsembles );
-
-    static QString htmlTextFromPlotAndSelection( const RimSummaryPlot*                     templatePlot,
-                                                 const std::set<RifEclipseSummaryAddress>& selectedSummaryAddresses,
-                                                 const std::vector<caf::PdmObject*>&       selectedSources );
-
-    static QString htmlTextFromCount( const QString& itemText, size_t requiredItemCount, size_t selectionCount );
-
-    static QString selectPlotTemplatePath();
-
-    static std::vector<RimSummaryCase*>           selectedSummaryCases();
-    static std::vector<RimSummaryCaseCollection*> selectedSummaryCaseCollections();
-
-    static std::vector<RimSummaryAddressCollection*> selectedSummaryAddressCollections();
-
-    static QString summaryCaseFieldKeyword();
-    static QString summaryGroupFieldKeyword();
-
-    static QString placeholderTextForSummaryCase();
-    static QString placeholderTextForSummaryGroup();
-    static QString placeholderTextForWell();
-    static QString placeholderTextForGroup();
-
-private:
     static RifEclipseSummaryAddress firstAddressByQuantity( const RifEclipseSummaryAddress&           sourceAddress,
                                                             const std::set<RifEclipseSummaryAddress>& allAddresses );
 

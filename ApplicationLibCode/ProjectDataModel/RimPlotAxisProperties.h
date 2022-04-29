@@ -61,6 +61,7 @@ public:
 
     void                  setEnableTitleTextSettings( bool enable );
     void                  enableRangeSettings( bool enable );
+    void                  setNameForUnusedAxis();
     void                  setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex = 0 );
     AxisTitlePositionType titlePosition() const override;
 

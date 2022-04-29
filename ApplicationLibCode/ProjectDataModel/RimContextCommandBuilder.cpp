@@ -100,6 +100,7 @@
 #include "RimParameterResultCrossPlot.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotDataFilterCollection.h"
 #include "RimPlotDataFilterItem.h"
 #include "RimPltPlotCollection.h"
@@ -680,7 +681,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewSummaryCrossPlotCurveFeature";
             menuBuilder << "RicNewPlotAxisPropertiesFeature";
             menuBuilder << "Separator";
-            menuBuilder << "RicSavePlotTemplateFeature";
 
             // Export is not supported for cross plot
             if ( !summaryCrossPlot ) menuBuilder << "RicAsciiExportSummaryPlotFeature";
@@ -1042,6 +1042,10 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
+        }
+        else if ( dynamic_cast<RimPlotAxisPropertiesInterface*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewPlotAxisPropertiesFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
