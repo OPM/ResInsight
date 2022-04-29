@@ -18,35 +18,22 @@
 
 #pragma once
 
-#include "RimSummaryAddressCollection.h"
-
 #include "cafCmdFeature.h"
 
-#include <set>
 #include <vector>
 
-class RimSummaryAddressCollection;
+class RimSummaryCase;
 class RimSummaryMultiPlot;
-class RifEclipseSummaryAddress;
-class RimSummaryPlot;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicAppendSummaryPlotsForObjectsFeature : public caf::CmdFeature
+class RicAppendSummaryPlotsForSummaryCasesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
 public:
-    static std::vector<RimSummaryAddressCollection*> selectedCollections();
-    static std::vector<RimSummaryPlot*>
-                plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
-                                                 RimSummaryAddressCollection::CollectionContentType objectType );
-    static bool isSelectionCompatibleWithPlot( const std::vector<RimSummaryAddressCollection*>& selection,
-                                               RimSummaryMultiPlot*                             summaryMultiPlot );
-
-    static void appendPlots( RimSummaryMultiPlot*                             summaryMultiPlot,
-                             const std::vector<RimSummaryAddressCollection*>& selection );
+    static void appendPlotsForCases( RimSummaryMultiPlot* summaryMultiPlot, const std::vector<RimSummaryCase*>& cases );
 
 protected:
     bool isCommandEnabled() override;
@@ -54,6 +41,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static RifEclipseSummaryAddress modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
-                                                   RimSummaryAddressCollection*    summaryAddressCollection );
+    static std::vector<RimSummaryCase*> selectedCases();
 };

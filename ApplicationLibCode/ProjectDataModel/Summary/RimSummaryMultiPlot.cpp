@@ -23,6 +23,10 @@
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryStringTools.h"
 
+#include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
+#include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryCasesFeature.h"
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
@@ -34,6 +38,7 @@
 #include "RimPlotAxisProperties.h"
 #include "RimProject.h"
 #include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -54,10 +59,8 @@
 
 #include "qwt_scale_engine.h"
 
-#include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
-#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
-#include "RimSummaryAddressCollection.h"
 #include <QKeyEvent>
+
 #include <cmath>
 
 namespace caf
@@ -189,7 +192,14 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
         auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( firstObject );
         if ( addressCollection )
         {
-            RicAppendSummaryPlotsForObjectsFeature::appendPlot( { addressCollection }, this );
+            std::vector<RimSummaryAddressCollection*> addressCollections;
+            for ( auto o : objects )
+            {
+                auto adrColl = dynamic_cast<RimSummaryAddressCollection*>( o );
+                if ( adrColl ) addressCollections.push_back( adrColl );
+            }
+
+            RicAppendSummaryPlotsForObjectsFeature::appendPlots( this, addressCollections );
 
             continue;
         }
@@ -197,10 +207,13 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
         auto summaryCase = dynamic_cast<RimSummaryCase*>( firstObject );
         if ( summaryCase )
         {
-            RimSummaryAddressCollection myColl;
-            myColl.setContentType( RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE );
-            myColl.setCaseId( summaryCase->caseId() );
-            RicAppendSummaryPlotsForObjectsFeature::appendPlot( { &myColl }, this );
+            std::vector<RimSummaryCase*> cases;
+            for ( auto o : objects )
+            {
+                auto summaryCase = dynamic_cast<RimSummaryCase*>( o );
+                if ( summaryCase ) cases.push_back( summaryCase );
+            }
+            RicAppendSummaryPlotsForSummaryCasesFeature::appendPlotsForCases( this, cases );
 
             continue;
         }

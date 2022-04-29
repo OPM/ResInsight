@@ -52,8 +52,8 @@ bool RicAppendSummaryPlotsForObjectsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendSummaryPlotsForObjectsFeature::appendPlot( const std::vector<RimSummaryAddressCollection*>& sumAddressCollections,
-                                                         RimSummaryMultiPlot* summaryMultiPlot )
+void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* summaryMultiPlot,
+                                                          const std::vector<RimSummaryAddressCollection*>& sumAddressCollections )
 {
     if ( sumAddressCollections.empty() ) return;
 
@@ -116,7 +116,7 @@ void RicAppendSummaryPlotsForObjectsFeature::onActionTriggered( bool isChecked )
     auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
     if ( !summaryMultiPlot ) return;
 
-    appendPlot( sumAddressCollections, summaryMultiPlot );
+    appendPlots( summaryMultiPlot, sumAddressCollections );
 }
 
 //--------------------------------------------------------------------------------------------------

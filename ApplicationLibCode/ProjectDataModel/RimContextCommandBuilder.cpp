@@ -787,6 +787,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
+            menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+            menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicImportGridModelFromSummaryCaseFeature";
 
@@ -1102,6 +1104,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) || dynamic_cast<RimSummaryCaseCollection*>( firstUiItem ) )
         {
+            menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+            menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder << "RicCreateMultiPlotFromSelectionFeature";
             menuBuilder << "RicCreatePlotFromTemplateByShortcutFeature";
         }
