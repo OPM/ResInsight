@@ -24,6 +24,7 @@
 #include "RiaSummaryStringTools.h"
 
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
+#include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryAddressesFeature.h"
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryCasesFeature.h"
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
@@ -174,50 +175,27 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    for ( auto firstObject : objects )
+    if ( objects.empty() ) return;
+
+    std::vector<RimSummaryAddress*>           addresses;
+    std::vector<RimSummaryAddressCollection*> addressCollections;
+    std::vector<RimSummaryCase*>              cases;
+
+    for ( auto o : objects )
     {
-        auto addr = dynamic_cast<RimSummaryAddress*>( firstObject );
-        if ( addr )
-        {
-            auto* plot = new RimSummaryPlot();
-            plot->enableAutoPlotTitle( true );
+        auto address = dynamic_cast<RimSummaryAddress*>( o );
+        if ( address ) addresses.push_back( address );
 
-            plot->handleDroppedObjects( objects );
+        auto adrColl = dynamic_cast<RimSummaryAddressCollection*>( o );
+        if ( adrColl ) addressCollections.push_back( adrColl );
 
-            addPlot( plot );
-
-            continue;
-        }
-
-        auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( firstObject );
-        if ( addressCollection )
-        {
-            std::vector<RimSummaryAddressCollection*> addressCollections;
-            for ( auto o : objects )
-            {
-                auto adrColl = dynamic_cast<RimSummaryAddressCollection*>( o );
-                if ( adrColl ) addressCollections.push_back( adrColl );
-            }
-
-            RicAppendSummaryPlotsForObjectsFeature::appendPlots( this, addressCollections );
-
-            continue;
-        }
-
-        auto summaryCase = dynamic_cast<RimSummaryCase*>( firstObject );
-        if ( summaryCase )
-        {
-            std::vector<RimSummaryCase*> cases;
-            for ( auto o : objects )
-            {
-                auto summaryCase = dynamic_cast<RimSummaryCase*>( o );
-                if ( summaryCase ) cases.push_back( summaryCase );
-            }
-            RicAppendSummaryPlotsForSummaryCasesFeature::appendPlotsForCases( this, cases );
-
-            continue;
-        }
+        auto summaryCase = dynamic_cast<RimSummaryCase*>( o );
+        if ( summaryCase ) cases.push_back( summaryCase );
     }
+
+    RicAppendSummaryPlotsForSummaryAddressesFeature::appendPlotsForAddresses( this, addresses );
+    RicAppendSummaryPlotsForObjectsFeature::appendPlots( this, addressCollections );
+    RicAppendSummaryPlotsForSummaryCasesFeature::appendPlotsForCases( this, cases );
 }
 
 //--------------------------------------------------------------------------------------------------
