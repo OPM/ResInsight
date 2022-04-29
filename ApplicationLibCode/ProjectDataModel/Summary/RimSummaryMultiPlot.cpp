@@ -197,23 +197,12 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
         auto summaryCase = dynamic_cast<RimSummaryCase*>( firstObject );
         if ( summaryCase )
         {
-            if ( !summaryPlots().empty() )
-            {
-                auto lastPlot = summaryPlots().back();
-                auto plots    = RicSummaryPlotBuilder::duplicateSummaryPlots( { lastPlot } );
-                for ( auto p : plots )
-                {
-                    for ( auto c : p->summaryCurves() )
-                    {
-                        c->setSummaryCaseY( summaryCase );
-                    }
-                    addPlot( p );
-                }
+            RimSummaryAddressCollection myColl;
+            myColl.setContentType( RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE );
+            myColl.setCaseId( summaryCase->caseId() );
+            RicAppendSummaryPlotsForObjectsFeature::appendPlot( { &myColl }, this );
 
-                // RicSummaryPlotBuilder::appendPlotsToMultiPlot( this, { plots[0] } );
-
-                loadDataAndUpdate();
-            }
+            continue;
         }
     }
 }
