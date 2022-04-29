@@ -127,12 +127,6 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_axisProperties, "AxisProperties", "Axes", ":/Axes16x16.png" );
 
-    auto leftAxis = addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
-    leftAxis->setAlwaysRequired( true );
-
-    auto rightAxis = addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
-    rightAxis->setAlwaysRequired( true );
-
     if ( m_isCrossPlot )
     {
         addNewAxisProperties( RiuPlotAxis::defaultBottom(), "Bottom" );
@@ -144,6 +138,12 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
         m_axisProperties.push_back( timeAxisProperties );
     }
+
+    auto leftAxis = addNewAxisProperties( RiuPlotAxis::defaultLeft(), "Left" );
+    leftAxis->setAlwaysRequired( true );
+
+    auto rightAxis = addNewAxisProperties( RiuPlotAxis::defaultRight(), "Right" );
+    rightAxis->setAlwaysRequired( true );
 
     CAF_PDM_InitFieldNoDefault( &m_textCurveSetEditor, "SummaryPlotFilterTextCurveSetEditor", "Text Filter Curve Creator" );
     m_textCurveSetEditor.uiCapability()->setUiTreeHidden( true );
@@ -813,27 +813,37 @@ void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
         if ( riuPlotAxis.axis() == plotAxis )
         {
             auto* axisProperties = dynamic_cast<RimPlotAxisProperties*>( yAxisProperties );
-            if ( yAxisProperties->isActive() && hasVisibleCurvesForAxis( riuPlotAxis ) && axisProperties )
+            if ( axisProperties )
             {
-                plotWidget()->enableAxis( riuPlotAxis, true );
-
-                std::set<QString> timeHistoryQuantities;
-
-                for ( auto c : visibleTimeHistoryCurvesForAxis( riuPlotAxis ) )
+                if ( yAxisProperties->isActive() && hasVisibleCurvesForAxis( riuPlotAxis ) )
                 {
-                    timeHistoryQuantities.insert( c->quantityName() );
+                    plotWidget()->enableAxis( riuPlotAxis, true );
+                }
+                else
+                {
+                    plotWidget()->enableAxis( riuPlotAxis, false );
                 }
 
-                RimSummaryPlotAxisFormatter calc( axisProperties,
-                                                  visibleSummaryCurvesForAxis( riuPlotAxis ),
-                                                  {},
-                                                  visibleAsciiDataCurvesForAxis( riuPlotAxis ),
-                                                  timeHistoryQuantities );
-                calc.applyAxisPropertiesToPlot( plotWidget() );
-            }
-            else
-            {
-                plotWidget()->enableAxis( riuPlotAxis, false );
+                if ( !hasVisibleCurvesForAxis( riuPlotAxis ) )
+                {
+                    axisProperties->setNameForUnusedAxis();
+                }
+                else
+                {
+                    std::set<QString> timeHistoryQuantities;
+
+                    for ( auto c : visibleTimeHistoryCurvesForAxis( riuPlotAxis ) )
+                    {
+                        timeHistoryQuantities.insert( c->quantityName() );
+                    }
+
+                    RimSummaryPlotAxisFormatter calc( axisProperties,
+                                                      visibleSummaryCurvesForAxis( riuPlotAxis ),
+                                                      {},
+                                                      visibleAsciiDataCurvesForAxis( riuPlotAxis ),
+                                                      timeHistoryQuantities );
+                    calc.applyAxisPropertiesToPlot( plotWidget() );
+                }
             }
 
             plotWidget()->enableAxisNumberLabels( riuPlotAxis, axisProperties->showNumbers() );

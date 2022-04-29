@@ -136,6 +136,21 @@ void RimPlotAxisProperties::enableRangeSettings( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setNameForUnusedAxis()
+{
+    QString name = "Unused ";
+
+    if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        name += "Left";
+    else if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+        name += "Right";
+
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimPlotAxisProperties::userDescriptionField()
 {
     return &m_name;

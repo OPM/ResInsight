@@ -511,7 +511,10 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 
         for ( auto axis : plot->plotAxes() )
         {
-            options.push_back( caf::PdmOptionItemInfo( axis->name(), axis ) );
+            if ( dynamic_cast<RimPlotAxisProperties*>( axis ) )
+            {
+                options.push_back( caf::PdmOptionItemInfo( axis->name(), axis ) );
+            }
         }
     }
 
