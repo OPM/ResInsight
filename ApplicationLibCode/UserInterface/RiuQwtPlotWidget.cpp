@@ -80,7 +80,7 @@ RiuQwtPlotWidget::RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent )
 {
     CAF_ASSERT( m_plotDefinition );
 
-    QVBoxLayout* layout = new QVBoxLayout;
+    auto* layout = new QVBoxLayout;
     layout->setContentsMargins( 0, 0, 0, 0 );
     setLayout( layout );
 
@@ -275,7 +275,7 @@ void RiuQwtPlotWidget::setInternalLegendVisible( bool visible )
 {
     if ( visible )
     {
-        QwtLegend* legend = new QwtLegend( this );
+        auto* legend = new QwtLegend( this );
         m_plot->insertLegend( legend, QwtPlot::BottomLegend );
     }
     else
@@ -291,7 +291,7 @@ void RiuQwtPlotWidget::insertLegend( RiuPlotWidget::Legend legendPosition )
 {
     CAF_ASSERT( legendPosition == RiuPlotWidget::Legend::BOTTOM );
 
-    QwtLegend* legend = new QwtLegend( this );
+    auto* legend = new QwtLegend( this );
     m_plot->insertLegend( legend, QwtPlot::BottomLegend );
 }
 
@@ -355,7 +355,7 @@ void RiuQwtPlotWidget::enableGridLines( RiuPlotAxis axis, bool majorGridLines, b
     auto            qwtAxis   = toQwtPlotAxis( axis );
     for ( QwtPlotItem* plotItem : plotItems )
     {
-        QwtPlotGrid* grid = static_cast<QwtPlotGrid*>( plotItem );
+        auto* grid = static_cast<QwtPlotGrid*>( plotItem );
         if ( qwtAxis == QwtAxis::XTop || qwtAxis == QwtAxis::XBottom )
         {
             grid->setXAxis( qwtAxis );
@@ -382,8 +382,8 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervals( RiuPlotAxis axis,
                                                       double      minValue,
                                                       double      maxValue )
 {
-    auto                     qwtAxis     = toQwtPlotAxis( axis );
-    RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
+    auto  qwtAxis     = toQwtPlotAxis( axis );
+    auto* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
     if ( scaleEngine )
     {
         QwtScaleDiv scaleDiv =
@@ -404,8 +404,8 @@ void RiuQwtPlotWidget::setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
                                                               double      rangeMin,
                                                               double      rangeMax )
 {
-    auto                     qwtAxis     = toQwtPlotAxis( axis );
-    RiuQwtLinearScaleEngine* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
+    auto  qwtAxis     = toQwtPlotAxis( axis );
+    auto* scaleEngine = dynamic_cast<RiuQwtLinearScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
     if ( scaleEngine )
     {
         QwtScaleDiv scaleDiv = scaleEngine->divideScaleWithExplicitIntervalsAndRange( minTickValue,
@@ -542,7 +542,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 {
     if ( RiuPlotWidget::handleDragDropEvent( event ) ) return true;
 
-    QWheelEvent* wheelEvent = dynamic_cast<QWheelEvent*>( event );
+    auto* wheelEvent = dynamic_cast<QWheelEvent*>( event );
     if ( wheelEvent && watched == m_plot->canvas() )
     {
         event->accept();
@@ -551,7 +551,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
         return true;
     }
 
-    QMouseEvent* mouseEvent = dynamic_cast<QMouseEvent*>( event );
+    auto* mouseEvent = dynamic_cast<QMouseEvent*>( event );
     if ( mouseEvent )
     {
         if ( isZoomerActive() ) return false;
@@ -571,7 +571,7 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                 QWidget* childClicked = m_plot->childAt( m_clickPosition );
                 if ( childClicked )
                 {
-                    QwtScaleWidget* scaleWidget = qobject_cast<QwtScaleWidget*>( childClicked );
+                    auto* scaleWidget = qobject_cast<QwtScaleWidget*>( childClicked );
                     if ( scaleWidget )
                     {
                         onAxisSelected( scaleWidget, toggleItemInSelection );
@@ -678,7 +678,7 @@ void RiuQwtPlotWidget::applyAxisTitleToQwt( RiuPlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 QSize RiuQwtPlotWidget::sizeHint() const
 {
-    return QSize( 0, 0 );
+    return { 0, 0 };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -686,7 +686,7 @@ QSize RiuQwtPlotWidget::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 QSize RiuQwtPlotWidget::minimumSizeHint() const
 {
-    return QSize( 0, 0 );
+    return { 0, 0 };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -787,8 +787,8 @@ void RiuQwtPlotWidget::onAxisSelected( QwtScaleWidget* scale, bool toggleItemInS
 {
     for ( int i = 0; i < QwtAxis::AxisPositions; ++i )
     {
-        QwtAxis::Position pos   = static_cast<QwtAxis::Position>( i );
-        int               count = m_plot->axesCount( pos );
+        auto pos   = static_cast<QwtAxis::Position>( i );
+        int  count = m_plot->axesCount( pos );
         for ( int id = 0; id < count; id++ )
         {
             QwtAxisId axisId( pos, id );
@@ -844,13 +844,13 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
     *distanceFromClick = std::numeric_limits<double>::infinity();
 
     const QwtPlotItemList& itmList = m_plot->itemList();
-    for ( QwtPlotItemIterator it = itmList.begin(); it != itmList.end(); it++ )
+    for ( auto it : itmList )
     {
-        if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotCurve )
+        if ( it->rtti() == QwtPlotItem::Rtti_PlotCurve )
         {
-            QwtPlotCurve* candidateCurve = static_cast<QwtPlotCurve*>( *it );
-            double        dist           = std::numeric_limits<double>::infinity();
-            int           curvePoint     = candidateCurve->closestPoint( pos, &dist );
+            auto*  candidateCurve = static_cast<QwtPlotCurve*>( it );
+            double dist           = std::numeric_limits<double>::infinity();
+            int    curvePoint     = candidateCurve->closestPoint( pos, &dist );
             if ( dist < *distanceFromClick )
             {
                 *closestItem       = candidateCurve;
@@ -858,21 +858,21 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
                 *closestCurvePoint = curvePoint;
             }
         }
-        else if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotShape )
+        else if ( it->rtti() == QwtPlotItem::Rtti_PlotShape )
         {
-            QwtPlotShapeItem* shapeItem = static_cast<QwtPlotShapeItem*>( *it );
-            QPointF           scalePos( m_plot->invTransform( QwtAxis::XBottom, pos.x() ),
+            auto*   shapeItem = static_cast<QwtPlotShapeItem*>( it );
+            QPointF scalePos( m_plot->invTransform( QwtAxis::XBottom, pos.x() ),
                               m_plot->invTransform( QwtAxis::YLeft, pos.y() ) );
             if ( shapeItem->shape().boundingRect().contains( scalePos ) )
             {
-                *closestItem       = *it;
+                *closestItem       = it;
                 *distanceFromClick = 0.0;
             }
         }
-        else if ( ( *it )->rtti() == QwtPlotItem::Rtti_PlotBarChart )
+        else if ( it->rtti() == QwtPlotItem::Rtti_PlotBarChart )
         {
-            QwtPlotBarChart* barChart = static_cast<QwtPlotBarChart*>( *it );
-            QPointF          scalePos( m_plot->invTransform( QwtAxis::XBottom, pos.x() ),
+            auto*   barChart = static_cast<QwtPlotBarChart*>( it );
+            QPointF scalePos( m_plot->invTransform( QwtAxis::XBottom, pos.x() ),
                               m_plot->invTransform( QwtAxis::YLeft, pos.y() ) );
 
             bool horizontal = barChart->orientation() == Qt::Horizontal;
@@ -883,7 +883,7 @@ void RiuQwtPlotWidget::findClosestPlotItem( const QPoint& pos,
                                          : std::abs( samplePoint.x() - scalePos.x() );
                 if ( dist < *distanceFromClick )
                 {
-                    *closestItem       = *it;
+                    *closestItem       = it;
                     *closestCurvePoint = (int)i;
                     *distanceFromClick = dist;
                 }
@@ -964,8 +964,8 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        QwtPlotCurve*     plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
-        QwtPlotShapeItem* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
+        auto* plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
+        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
         if ( plotCurve )
         {
             QPen   existingPen = plotCurve->pen();
@@ -975,7 +975,7 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
             QColor symbolColor;
             QColor symbolLineColor;
 
-            QwtSymbol* symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
+            auto* symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
             if ( symbol )
             {
                 symbolColor     = symbol->brush().color();
@@ -1026,8 +1026,8 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        QwtPlotCurve*     plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
-        QwtPlotShapeItem* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
+        auto* plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
+        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
         if ( plotCurve && m_originalCurveColors.count( plotCurve ) )
         {
             const QPen& existingPen = plotCurve->pen();
@@ -1036,7 +1036,7 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
 
             plotCurve->setPen( colors.lineColor, existingPen.width(), existingPen.style() );
             plotCurve->setZ( zValue );
-            QwtSymbol* symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
+            auto* symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
             if ( symbol )
             {
                 symbol->setColor( colors.symbolColor );
@@ -1068,7 +1068,7 @@ void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
     auto                         plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        QwtPlotCurve* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
         if ( plotCurve )
         {
             QwtAxisId xAxis = plotCurve->xAxis();
@@ -1205,12 +1205,10 @@ RiuQwtPlotWidget::AxisScaleType RiuQwtPlotWidget::axisScaleType( RiuPlotAxis axi
 {
     auto qwtAxis = toQwtPlotAxis( axis );
 
-    QwtLogScaleEngine*  logScaleEngine  = dynamic_cast<QwtLogScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
-    QwtDateScaleEngine* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
-    if ( logScaleEngine != nullptr )
-        return AxisScaleType::LOGARITHMIC;
-    else if ( dateScaleEngine != nullptr )
-        return AxisScaleType::DATE;
+    auto* logScaleEngine  = dynamic_cast<QwtLogScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
+    auto* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( m_plot->axisScaleEngine( qwtAxis ) );
+    if ( logScaleEngine != nullptr ) return AxisScaleType::LOGARITHMIC;
+    if ( dateScaleEngine != nullptr ) return AxisScaleType::DATE;
 
     return AxisScaleType::LINEAR;
 }
@@ -1302,7 +1300,7 @@ void RiuQwtPlotWidget::pruneAxes( const std::set<RiuPlotAxis>& usedAxes )
         }
     }
 
-    for ( auto plotAxis : axesToRemove )
+    for ( const auto& plotAxis : axesToRemove )
         moveAxis( plotAxis, RiuPlotAxis::defaultLeft() );
 }
 
@@ -1392,5 +1390,5 @@ QwtAxisId RiuQwtPlotWidget::toQwtPlotAxis( RiuPlotAxis plotAxis ) const
         return it->second;
     }
 
-    return QwtAxisId( -1, -1 );
+    return { -1, -1 };
 }
