@@ -60,7 +60,6 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
     caf::CmdFeatureMenuBuilder menuBuilder;
 
     menuBuilder << "RicShowPlotDataFeature";
-    menuBuilder << "RicSavePlotTemplateFeature";
 
     double distanceFromClick = std::numeric_limits<double>::infinity();
 

@@ -95,7 +95,9 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
         QFile exportFile( fileName );
         if ( !exportFile.open( QIODevice::WriteOnly | QIODevice::Text ) )
         {
-            RiaLogging::error( QString( "Save Plot Template : Could not open the file: %1" ).arg( fileName ) );
+            RiaLogging::errorInMessageBox( NULL,
+                                           "Save Plot Template",
+                                           QString( "Could not save to the file: %1" ).arg( fileName ) );
             return;
         }
 
