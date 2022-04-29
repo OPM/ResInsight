@@ -55,6 +55,7 @@
 #include "qwt_scale_engine.h"
 
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForObjectsFeature.h"
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RimSummaryAddressCollection.h"
 #include <QKeyEvent>
 #include <cmath>
@@ -191,6 +192,28 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
             RicAppendSummaryPlotsForObjectsFeature::appendPlot( { addressCollection }, this );
 
             continue;
+        }
+
+        auto summaryCase = dynamic_cast<RimSummaryCase*>( firstObject );
+        if ( summaryCase )
+        {
+            if ( !summaryPlots().empty() )
+            {
+                auto lastPlot = summaryPlots().back();
+                auto plots    = RicSummaryPlotBuilder::duplicateSummaryPlots( { lastPlot } );
+                for ( auto p : plots )
+                {
+                    for ( auto c : p->summaryCurves() )
+                    {
+                        c->setSummaryCaseY( summaryCase );
+                    }
+                    addPlot( p );
+                }
+
+                // RicSummaryPlotBuilder::appendPlotsToMultiPlot( this, { plots[0] } );
+
+                loadDataAndUpdate();
+            }
         }
     }
 }
