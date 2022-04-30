@@ -164,6 +164,11 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         QPalette myPalette( m_tableView->palette() );
         myPalette.setColor( QPalette::Base, editorAttrib.baseColor );
         m_tableView->setPalette( myPalette );
+
+        // Drop target settings
+        m_tableView->setAcceptDrops( editorAttrib.enableDropTarget );
+        m_tableView->setDropIndicatorShown( editorAttrib.enableDropTarget );
+        m_tableModelPdm->enableDropTarget( editorAttrib.enableDropTarget );
     }
 
     m_tableModelPdm->setArrayFieldAndBuildEditors( childArrayFH, uiConfigName );

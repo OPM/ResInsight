@@ -57,8 +57,9 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmUiTableViewQModel::PdmUiTableViewQModel( QWidget* parent )
     : QAbstractTableModel( parent )
+    , m_pdmList( nullptr )
+    , m_dropTargetEnabled( false )
 {
-    m_pdmList = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,6 +142,12 @@ Qt::ItemFlags PdmUiTableViewQModel::flags( const QModelIndex& index ) const
             }
         }
     }
+
+    if ( m_dropTargetEnabled )
+    {
+        flagMask |= Qt::ItemIsDropEnabled;
+    }
+
     return flagMask;
 }
 
@@ -659,6 +666,63 @@ void PdmUiTableViewQModel::createPersistentPushButtonWidgets( QTableView* tableV
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiTableViewQModel::enableDropTarget( bool enable )
+{
+    m_dropTargetEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTableViewQModel::dropMimeData( const QMimeData*   data,
+                                         Qt::DropAction     action,
+                                         int                row,
+                                         int                column,
+                                         const QModelIndex& parent )
+{
+    // The receiving model index is specified by the parent. Find object and field from parent, and send QMimeData to
+    // this object
+
+    if ( !m_dropTargetEnabled ) return false;
+
+    auto pdmObject = pdmObjectForRow( parent.row() );
+    auto field     = getField( parent );
+
+    if ( pdmObject )
+    {
+        pdmObject->handleDroppedMimeData( data, action, field );
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Qt::DropActions PdmUiTableViewQModel::supportedDropActions() const
+{
+    return Qt::CopyAction | Qt::MoveAction | Qt::LinkAction;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiTableViewQModel::canDropMimeData( const QMimeData*   data,
+                                            Qt::DropAction     action,
+                                            int                row,
+                                            int                column,
+                                            const QModelIndex& parent ) const
+{
+    // This function can be extended to validate incoming QMimeData and see if this data is matching with the drop
+    // target. For now, all data is allowed to be dropped when drop target is enabled
+
+    return m_dropTargetEnabled;
 }
 
 //--------------------------------------------------------------------------------------------------
