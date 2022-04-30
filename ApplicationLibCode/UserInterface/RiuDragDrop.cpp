@@ -810,9 +810,27 @@ bool RiuDragDrop::handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObj
 
     if ( mimeData )
     {
+        auto objects = convertToObjects( mimeData );
+        droppedObjects.insert( droppedObjects.end(), objects.begin(), objects.end() );
+
+        bResult = true;
+    }
+
+    return bResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmObjectHandle*> RiuDragDrop::convertToObjects( const QMimeData* mimeData )
+{
+    std::vector<caf::PdmObjectHandle*> droppedObjects;
+    if ( mimeData )
+    {
         QString mimeType = caf::PdmUiDragDropInterface::mimeTypeForObjectReferenceList();
 
-        auto data = mimeData->data( mimeType );
+        QByteArray data = mimeData->data( mimeType );
+        if ( data.isEmpty() ) return {};
 
         QStringList objectReferences;
         QDataStream in( &data, QIODevice::ReadOnly );
@@ -824,9 +842,7 @@ bool RiuDragDrop::handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObj
             auto obj = caf::PdmReferenceHelper::objectFromReference( proj, objRef );
             if ( obj ) droppedObjects.push_back( obj );
         }
-
-        bResult = true;
     }
 
-    return bResult;
+    return droppedObjects;
 }

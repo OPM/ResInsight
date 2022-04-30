@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
 
@@ -29,6 +30,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 
+#include "RiuDragDrop.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiPushButtonEditor.h"
@@ -151,6 +153,33 @@ RimSummaryCase* RimSummaryCalculationVariable::summaryCase()
 RimSummaryAddress* RimSummaryCalculationVariable::summaryAddress()
 {
     return m_summaryAddress();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationVariable::setSummaryAddress( const RimSummaryAddress& address )
+{
+    m_summaryAddress()->setAddress( address.address() );
+
+    auto summaryCase = RiaSummaryTools::summaryCaseById( address.caseId() );
+
+    if ( summaryCase ) m_case = summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationVariable::handleDroppedMimeData( const QMimeData*     data,
+                                                           Qt::DropAction       action,
+                                                           caf::PdmFieldHandle* destinationField )
+{
+    auto objects = RiuDragDrop::convertToObjects( data );
+    if ( !objects.empty() )
+    {
+        auto address = dynamic_cast<RimSummaryAddress*>( objects.front() );
+        if ( address ) setSummaryAddress( *address );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

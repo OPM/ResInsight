@@ -56,6 +56,8 @@ public:
 
     static bool handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObjectHandle*>& droppedObjects );
 
+    static std::vector<caf::PdmObjectHandle*> convertToObjects( const QMimeData* mimeData );
+
 protected:
     Qt::DropActions supportedDropActions() const override;
     Qt::ItemFlags   flags( const QModelIndex& index ) const override;
