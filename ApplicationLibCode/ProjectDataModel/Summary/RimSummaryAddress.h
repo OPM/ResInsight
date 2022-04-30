@@ -48,7 +48,7 @@ public:
         wrapFileReaderAddress( const RifEclipseSummaryAddress& addr, int caseId = -1, int ensembleId = -1 );
 
     void                     setAddress( const RifEclipseSummaryAddress& addr );
-    RifEclipseSummaryAddress address();
+    RifEclipseSummaryAddress address() const;
 
     void setCaseId( int caseId );
     int  caseId() const;

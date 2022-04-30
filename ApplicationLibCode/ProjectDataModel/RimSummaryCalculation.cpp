@@ -37,6 +37,7 @@
 #include "RiuExpressionContextMenuManager.h"
 
 #include "cafPdmUiLineEditor.h"
+#include "cafPdmUiTableViewEditor.h"
 #include "cafPdmUiTextEditor.h"
 
 #include <algorithm>
@@ -463,6 +464,14 @@ void RimSummaryCalculation::defineEditorAttribute( const caf::PdmFieldHandle* fi
         if ( myAttr )
         {
             myAttr->heightHint = -1;
+        }
+    }
+    else if ( field == &m_variables )
+    {
+        auto* myAttr = dynamic_cast<caf::PdmUiTableViewEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->enableDropTarget = true;
         }
     }
 }

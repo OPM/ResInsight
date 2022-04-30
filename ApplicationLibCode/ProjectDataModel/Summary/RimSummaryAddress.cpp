@@ -138,7 +138,7 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RimSummaryAddress::address()
+RifEclipseSummaryAddress RimSummaryAddress::address() const
 {
     return RifEclipseSummaryAddress( m_category(),
                                      m_quantityName().toStdString(),
