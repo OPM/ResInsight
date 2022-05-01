@@ -90,6 +90,8 @@ public:
     void goToPrevPage();
     void goToLastPage();
 
+    void keepCurrentPageAfterUpdate();
+
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 

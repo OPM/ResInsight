@@ -102,6 +102,8 @@ public:
 
     void checkAndApplyAutoAppearance();
 
+    void keepVisiblePageAfterUpdate( bool keepPage );
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
@@ -118,6 +120,7 @@ private:
 
     void updatePlotWindowTitle() override;
     void computeAggregatedAxisRange();
+    void updateSourceStepper();
 
     void duplicate();
 

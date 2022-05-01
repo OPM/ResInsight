@@ -27,6 +27,7 @@
 
 #include <QString>
 
+#include <map>
 #include <set>
 
 class RimSummaryCase;
@@ -68,7 +69,9 @@ public:
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
-    RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSummaryAddress addr, int direction );
+    RifEclipseSummaryAddress stepAddress( RifEclipseSummaryAddress addr, int direction );
+
+    void syncWithStepper( RimSummaryPlotSourceStepping* other );
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -94,6 +97,8 @@ private:
     std::vector<caf::PdmFieldHandle*> activeFieldsForDataSourceStepping();
     std::vector<caf::PdmFieldHandle*> toolbarFieldsForDataSourceStepping();
 
+    RimSummaryPlotSourceStepping::SourceSteppingDimension preferredStepDimension();
+
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
 
@@ -102,6 +107,8 @@ private:
     std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
 
     RimSummaryDataSourceStepping* dataSourceSteppingObject() const;
+
+    std::map<QString, QString> optionsForQuantity( std::set<RifEclipseSummaryAddress> addresses );
 
 private:
     caf::PdmPointer<caf::PdmObject> m_objectForSourceStepping;

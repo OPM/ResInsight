@@ -2744,3 +2744,11 @@ void RimSummaryPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childAr
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotSourceStepping* RimSummaryPlot::sourceStepper()
+{
+    return m_sourceStepping();
+}

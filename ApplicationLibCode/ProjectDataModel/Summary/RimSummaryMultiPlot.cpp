@@ -52,6 +52,7 @@
 #include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryTimeAxisProperties.h"
 
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
@@ -597,6 +598,7 @@ void RimSummaryMultiPlot::initAfterRead()
 void RimSummaryMultiPlot::onLoadDataAndUpdate()
 {
     RimMultiPlot::onLoadDataAndUpdate();
+    updatePlotWindowTitle();
 
     checkAndApplyAutoAppearance();
 }
@@ -1029,4 +1031,38 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
     addPlot( newPlot );
 
     newPlot->resolveReferencesRecursively();
+    newPlot->loadDataAndUpdate();
+
+    updatePlotWindowTitle();
+    updateConnectedEditors();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot, true );
+
+    updateSourceStepper();
+    RiuPlotMainWindowTools::refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateSourceStepper()
+{
+    if ( summaryPlots().empty() ) return;
+
+    RimSummaryPlot* plot = summaryPlots().back();
+
+    auto sourceStepper = plot->sourceStepper();
+    if ( sourceStepper == nullptr ) return;
+
+    m_sourceStepping->syncWithStepper( sourceStepper );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::keepVisiblePageAfterUpdate( bool keepPage )
+{
+    if ( !m_viewer ) return;
+
+    if ( keepPage ) m_viewer->keepCurrentPageAfterUpdate();
 }

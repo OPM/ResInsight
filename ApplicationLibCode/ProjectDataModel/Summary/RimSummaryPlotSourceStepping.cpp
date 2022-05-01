@@ -233,58 +233,7 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( fieldNeedingOptions == &m_quantity )
         {
-            RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
-
-            auto visibleCurveAddresses = addressesForCurvesInPlot();
-            if ( !visibleCurveAddresses.empty() )
-            {
-                category = visibleCurveAddresses.begin()->category();
-            }
-
-            std::map<QString, QString> displayAndValueStrings;
-
-            {
-                RiaSummaryAddressAnalyzer quantityAnalyzer;
-
-                auto subset = RiaSummaryAddressAnalyzer::addressesForCategory( addresses, category );
-                quantityAnalyzer.appendAddresses( subset );
-
-                RiaSummaryAddressAnalyzer analyzerForVisibleCurves;
-                analyzerForVisibleCurves.appendAddresses( visibleCurveAddresses );
-
-                if ( analyzerForVisibleCurves.quantityNamesWithHistory().empty() )
-                {
-                    auto quantities = quantityAnalyzer.quantities();
-                    for ( const auto& s : quantities )
-                    {
-                        QString valueString = QString::fromStdString( s );
-
-                        displayAndValueStrings[valueString] = valueString;
-                    }
-                }
-                else
-                {
-                    // The plot displays a mix of simulated and observed vectors
-                    // Create a combined item for source stepping
-
-                    auto quantitiesWithHistory = quantityAnalyzer.quantityNamesWithHistory();
-                    for ( const auto& s : quantitiesWithHistory )
-                    {
-                        QString valueString   = QString::fromStdString( s );
-                        QString displayString = valueString + " (H)";
-
-                        displayAndValueStrings[displayString] = valueString;
-                    }
-
-                    auto quantitiesNoHistory = quantityAnalyzer.quantityNamesNoHistory();
-                    for ( const auto& s : quantitiesNoHistory )
-                    {
-                        QString valueString = QString::fromStdString( s );
-
-                        displayAndValueStrings[valueString] = valueString;
-                    }
-                }
-            }
+            std::map<QString, QString> displayAndValueStrings = optionsForQuantity( addresses );
 
             for ( const auto& displayAndValue : displayAndValueStrings )
             {
@@ -560,18 +509,22 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         RimSummaryPlot* summaryPlot = nullptr;
         this->firstAncestorOrThisOfType( summaryPlot );
-        if ( summaryPlot )
+
+        RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_objectForSourceStepping.p() );
+        if ( summaryMultiPlot )
+        {
+            summaryMultiPlot->keepVisiblePageAfterUpdate( true );
+            summaryMultiPlot->loadDataAndUpdate();
+        }
+        else
         {
             summaryPlot->updatePlotTitle();
             summaryPlot->loadDataAndUpdate();
             summaryPlot->updateConnectedEditors();
         }
 
-        RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_objectForSourceStepping.p() );
-        if ( summaryMultiPlot )
-        {
-            summaryMultiPlot->loadDataAndUpdate();
-        }
+        // TODO - make sure multiplot autotitle logic is triggered whenever either a multiplot or one of the subplots
+        // are source stepped
 
         RimEnsembleCurveSetCollection* ensembleCurveColl = nullptr;
         this->firstAncestorOrThisOfType( ensembleCurveColl );
@@ -1057,25 +1010,82 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
                 if ( direction > 0 )
                 {
                     found++;
-                    if ( found != ids.end() ) addr.setWellName( ( *found ).toStdString() );
                 }
                 else
                 {
                     if ( found != ids.begin() ) found--;
-                    addr.setWellName( ( *found ).toStdString() );
                 }
+                if ( found != ids.end() ) addr.setWellName( ( *found ).toStdString() );
             }
         }
         break;
 
         case SourceSteppingDimension::GROUP:
-            break;
+        {
+            auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_GROUP, "" );
+            auto& curName = addr.groupName();
+            auto  found   = std::find( ids.begin(), ids.end(), QString::fromStdString( curName ) );
+            if ( found != ids.end() )
+            {
+                if ( direction > 0 )
+                {
+                    found++;
+                }
+                else
+                {
+                    if ( found != ids.begin() ) found--;
+                }
+                if ( found != ids.end() ) addr.setGroupName( ( *found ).toStdString() );
+            }
+        }
+        break;
 
         case SourceSteppingDimension::REGION:
-            break;
+        {
+            auto ids       = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_REGION, "" );
+            int  curRegion = addr.regionNumber();
+            auto found     = std::find( ids.begin(), ids.end(), curRegion );
+            if ( found != ids.end() )
+            {
+                if ( direction > 0 )
+                {
+                    found++;
+                }
+                else
+                {
+                    if ( found != ids.begin() ) found--;
+                }
+                if ( found != ids.end() ) addr.setRegion( ( *found ).toInt() );
+            }
+        }
+        break;
 
         case SourceSteppingDimension::QUANTITY:
-            break;
+        {
+            auto options = optionsForQuantity( addresses );
+
+            std::vector<QString> values;
+            for ( auto it = options.begin(); it != options.end(); it++ )
+            {
+                values.push_back( it->second );
+            }
+
+            QString qName = QString::fromStdString( addr.quantityName() );
+            auto    found = std::find( values.begin(), values.end(), qName );
+            if ( found != values.end() )
+            {
+                if ( direction > 0 )
+                {
+                    found++;
+                }
+                else
+                {
+                    if ( found != values.begin() ) found--;
+                }
+                if ( found != values.end() ) addr.setQuantityName( ( *found ).toStdString() );
+            }
+        }
+        break;
 
         case SourceSteppingDimension::BLOCK:
             break;
@@ -1093,4 +1103,147 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
             break;
     }
     return addr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping* other )
+{
+    // m_stepDimension = other->preferredStepDimension();
+
+    switch ( m_stepDimension() )
+    {
+        case SourceSteppingDimension::SUMMARY_CASE:
+            m_summaryCase = other->m_summaryCase();
+            break;
+
+        case SourceSteppingDimension::ENSEMBLE:
+            m_ensemble = other->m_ensemble();
+            break;
+
+        case SourceSteppingDimension::WELL:
+            m_wellName = other->m_wellName();
+            break;
+
+        case SourceSteppingDimension::GROUP:
+            m_groupName = other->m_groupName();
+            break;
+
+        case SourceSteppingDimension::REGION:
+            m_region = other->m_region();
+            break;
+
+        case SourceSteppingDimension::QUANTITY:
+        {
+            std::string s = other->m_quantity().toStdString();
+            m_quantity    = other->m_quantity();
+        }
+        break;
+
+        case SourceSteppingDimension::BLOCK:
+            m_cellBlock = other->m_cellBlock();
+            break;
+
+        case SourceSteppingDimension::SEGMENT:
+            m_segment = other->m_segment();
+            break;
+
+        case SourceSteppingDimension::COMPLETION:
+            m_completion = other->m_completion();
+            break;
+
+        case SourceSteppingDimension::AQUIFER:
+            m_aquifer = other->m_aquifer();
+            break;
+
+        default:
+            break;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotSourceStepping::SourceSteppingDimension RimSummaryPlotSourceStepping::preferredStepDimension()
+{
+    // return m_stepDimension();
+    const auto fields = activeFieldsForDataSourceStepping();
+
+    if ( std::find( fields.begin(), fields.end(), &m_wellName ) != fields.end() ) return SourceSteppingDimension::WELL;
+
+    if ( std::find( fields.begin(), fields.end(), &m_quantity ) != fields.end() )
+        return SourceSteppingDimension::QUANTITY;
+
+    if ( std::find( fields.begin(), fields.end(), &m_summaryCase ) != fields.end() )
+        return SourceSteppingDimension::SUMMARY_CASE;
+
+    if ( std::find( fields.begin(), fields.end(), &m_ensemble ) != fields.end() )
+        return SourceSteppingDimension::ENSEMBLE;
+
+    if ( std::find( fields.begin(), fields.end(), &m_groupName ) != fields.end() )
+        return SourceSteppingDimension::GROUP;
+
+    return SourceSteppingDimension::QUANTITY;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std::set<RifEclipseSummaryAddress> addresses )
+{
+    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
+
+    auto visibleCurveAddresses = addressesForCurvesInPlot();
+    if ( !visibleCurveAddresses.empty() )
+    {
+        category = visibleCurveAddresses.begin()->category();
+    }
+
+    std::map<QString, QString> displayAndValueStrings;
+
+    {
+        RiaSummaryAddressAnalyzer quantityAnalyzer;
+
+        auto subset = RiaSummaryAddressAnalyzer::addressesForCategory( addresses, category );
+        quantityAnalyzer.appendAddresses( subset );
+
+        RiaSummaryAddressAnalyzer analyzerForVisibleCurves;
+        analyzerForVisibleCurves.appendAddresses( visibleCurveAddresses );
+
+        if ( analyzerForVisibleCurves.quantityNamesWithHistory().empty() )
+        {
+            auto quantities = quantityAnalyzer.quantities();
+            for ( const auto& s : quantities )
+            {
+                QString valueString = QString::fromStdString( s );
+
+                displayAndValueStrings[valueString] = valueString;
+            }
+        }
+        else
+        {
+            // The plot displays a mix of simulated and observed vectors
+            // Create a combined item for source stepping
+
+            auto quantitiesWithHistory = quantityAnalyzer.quantityNamesWithHistory();
+            for ( const auto& s : quantitiesWithHistory )
+            {
+                QString valueString   = QString::fromStdString( s );
+                QString displayString = valueString + " (H)";
+
+                displayAndValueStrings[valueString] = valueString;
+            }
+
+            auto quantitiesNoHistory = quantityAnalyzer.quantityNamesNoHistory();
+            for ( const auto& s : quantitiesNoHistory )
+            {
+                QString valueString = QString::fromStdString( s );
+
+                displayAndValueStrings[valueString] = valueString;
+            }
+        }
+    }
+
+    return displayAndValueStrings;
 }
