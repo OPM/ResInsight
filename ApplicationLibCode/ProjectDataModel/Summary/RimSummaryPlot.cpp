@@ -2504,6 +2504,8 @@ void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     updateStackedCurveData();
     if ( plotWidget() ) plotWidget()->scheduleReplot();
+
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
