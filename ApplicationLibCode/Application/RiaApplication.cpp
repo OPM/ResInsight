@@ -56,6 +56,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
+#include "RimGridCalculationCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
@@ -645,6 +646,11 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
             }
             caseProgress.incrementProgress();
         }
+    }
+
+    for ( auto gridCalculation : m_project->gridCalculationCollection()->calculations() )
+    {
+        gridCalculation->calculate();
     }
 
     if ( m_project->viewLinkerCollection() && m_project->viewLinkerCollection()->viewLinker() )

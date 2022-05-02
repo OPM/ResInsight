@@ -18,7 +18,11 @@
 
 #include "RimGridCalculation.h"
 
+#include "RiaDefines.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseCellColors.h"
+#include "RimEclipseView.h"
+#include "RimReloadCaseTools.h"
 
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
@@ -122,6 +126,9 @@ bool RimGridCalculation::calculate()
         {
             eclipseCase->results( porosityModel )->createResultEntry( resAddr, true );
         }
+
+        eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
+
         std::vector<std::vector<double>>* scalarResultFrames =
             eclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
         size_t timeStepCount = eclipseCase->results( porosityModel )->maxTimeStepCount();
@@ -146,33 +153,58 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimGridCalculation::findEclipseCaseFromVariables()
+{
+    RimEclipseCase* eclipseCase = nullptr;
+    for ( size_t i = 0; i < m_variables.size(); i++ )
+    {
+        RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+        if ( v->eclipseCase() ) eclipseCase = v->eclipseCase();
+    }
+
+    return eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimGridCalculation::updateDependentObjects()
 {
-    // RimGridCalculationCollection* calcColl = nullptr;
-    // this->firstAncestorOrThisOfTypeAsserted( calcColl );
-    // calcColl->rebuildCaseMetaData();
+    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    if ( eclipseCase )
+    {
+        RimReloadCaseTools::updateAll3dViews( eclipseCase );
+    }
+}
 
-    // RimGridMultiPlotCollection* summaryPlotCollection = RiaGridTools::summaryMultiPlotCollection();
-    // for ( auto multiPlot : summaryPlotCollection->multiPlots() )
-    // {
-    //     for ( RimGridPlot* sumPlot : multiPlot->summaryPlots() )
-    //     {
-    //         bool plotContainsCalculatedCurves = false;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::removeDependentObjects()
+{
+    QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
 
-    //         for ( RimGridCurve* sumCurve : sumPlot->summaryCurves() )
-    //         {
-    //             if ( sumCurve->summaryAddressY().category() == RifEclipseGridAddress::SUMMARY_CALCULATED )
-    //             {
-    //                 sumCurve->updateConnectedEditors();
+    auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
-    //                 plotContainsCalculatedCurves = true;
-    //             }
-    //         }
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
 
-    //         if ( plotContainsCalculatedCurves )
-    //         {
-    //             sumPlot->loadDataAndUpdate();
-    //         }
-    //     }
-    // }
+    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    if ( eclipseCase )
+    {
+        // Select default result if
+        for ( auto v : eclipseCase->reservoirViews() )
+        {
+            if ( v->cellResult()->resultType() == resAddr.resultCatType() &&
+                 v->cellResult()->resultVariable() == resAddr.resultName() )
+            {
+                v->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
+                v->cellResult()->setResultVariable( "SOIL" );
+            }
+        }
+
+        eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
+        eclipseCase->results( porosityModel )->eraseGeneratedResult( resAddr );
+
+        RimReloadCaseTools::updateAll3dViews( eclipseCase );
+    }
 }

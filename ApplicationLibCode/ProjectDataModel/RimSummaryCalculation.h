@@ -46,6 +46,7 @@ public:
 
     bool calculate() override;
     void updateDependentObjects() override;
+    void removeDependentObjects() override;
 
 protected:
     RimSummaryCalculationVariable* createVariable() const override;

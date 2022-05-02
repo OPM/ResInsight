@@ -21,6 +21,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
@@ -42,6 +43,7 @@
 
 #include "RifReaderEclipseOutput.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 #include "cvfGeometryTools.h"
 
@@ -903,6 +905,23 @@ void RigCaseCellResultsData::eraseAllSourSimData()
         if ( ri.resultType() == RiaDefines::ResultCatType::SOURSIMRL )
         {
             ri.setResultType( RiaDefines::ResultCatType::REMOVED );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::eraseGeneratedResult( const RigEclipseResultAddress& resultAddress )
+{
+    CAF_ASSERT( resultAddress.resultCatType() == RiaDefines::ResultCatType::GENERATED );
+
+    for ( auto& it : m_resultInfos )
+    {
+        if ( it.resultType() == RiaDefines::ResultCatType::GENERATED && it.resultName() == resultAddress.resultName() )
+        {
+            it.setResultType( RiaDefines::ResultCatType::REMOVED );
+            return;
         }
     }
 }

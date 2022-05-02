@@ -21,6 +21,8 @@
 #include "RimGridCalculationVariable.h"
 #include "RimUserDefinedCalculation.h"
 
+class RimEclipseCase;
+
 //==================================================================================================
 ///
 ///
@@ -34,7 +36,10 @@ public:
 
     bool calculate() override;
     void updateDependentObjects() override;
+    void removeDependentObjects() override;
 
 protected:
     RimGridCalculationVariable* createVariable() const override;
+
+    RimEclipseCase* findEclipseCaseFromVariables();
 };
