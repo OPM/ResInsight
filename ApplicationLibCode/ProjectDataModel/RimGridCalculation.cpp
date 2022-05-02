@@ -155,14 +155,13 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimGridCalculation::findEclipseCaseFromVariables()
 {
-    RimEclipseCase* eclipseCase = nullptr;
-    for ( size_t i = 0; i < m_variables.size(); i++ )
+    for ( auto variable : m_variables )
     {
-        RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
-        if ( v->eclipseCase() ) eclipseCase = v->eclipseCase();
+        RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
+        if ( v->eclipseCase() ) return v->eclipseCase();
     }
 
-    return eclipseCase;
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
