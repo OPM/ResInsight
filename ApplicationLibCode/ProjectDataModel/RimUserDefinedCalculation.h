@@ -64,6 +64,7 @@ public:
     bool         parseExpression();
     virtual bool calculate()              = 0;
     virtual void updateDependentObjects() = 0;
+    virtual void removeDependentObjects() = 0;
 
     caf::PdmFieldHandle* userDescriptionField() override;
 

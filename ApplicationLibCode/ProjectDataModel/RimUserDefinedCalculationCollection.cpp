@@ -102,6 +102,7 @@ RimUserDefinedCalculation*
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedCalculationCollection::deleteCalculation( RimUserDefinedCalculation* calculation )
 {
+    calculation->removeDependentObjects();
     m_calculations.removeChildObject( calculation );
 
     rebuildCaseMetaData();
