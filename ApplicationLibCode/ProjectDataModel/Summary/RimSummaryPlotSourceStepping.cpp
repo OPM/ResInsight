@@ -63,6 +63,7 @@ void AppEnum<RimSummaryPlotSourceStepping::SourceSteppingDimension>::setUp()
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::GROUP, "GROUP", "Group" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION, "REGION", "Region" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", "Block" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", "Aquifer" );
     setDefault( RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY );
 }
 } // namespace caf
@@ -527,9 +528,6 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             summaryPlot->curvesChanged.send();
         }
 
-        // TODO - make sure multiplot autotitle logic is triggered whenever either a multiplot or one of the subplots
-        // are source stepped
-
         RimEnsembleCurveSetCollection* ensembleCurveColl = nullptr;
         this->firstAncestorOrThisOfType( ensembleCurveColl );
         if ( ensembleCurveColl )
@@ -583,12 +581,6 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 
         case SourceSteppingDimension::BLOCK:
             return &m_cellBlock;
-
-        case SourceSteppingDimension::SEGMENT:
-            return &m_segment;
-
-        case SourceSteppingDimension::COMPLETION:
-            return &m_completion;
 
         case SourceSteppingDimension::AQUIFER:
             return &m_aquifer;
@@ -998,12 +990,6 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
     switch ( m_stepDimension() )
     {
-        case SourceSteppingDimension::SUMMARY_CASE:
-            break;
-
-        case SourceSteppingDimension::ENSEMBLE:
-            break;
-
         case SourceSteppingDimension::WELL:
         {
             auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_WELL, "" );
@@ -1092,16 +1078,47 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
         break;
 
         case SourceSteppingDimension::BLOCK:
-            break;
-
-        case SourceSteppingDimension::SEGMENT:
-            break;
-
-        case SourceSteppingDimension::COMPLETION:
-            break;
+        {
+            auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_BLOCK, "" );
+            auto& curName = addr.blockAsString();
+            auto  found   = std::find( ids.begin(), ids.end(), QString::fromStdString( curName ) );
+            if ( found != ids.end() )
+            {
+                if ( direction > 0 )
+                {
+                    found++;
+                }
+                else
+                {
+                    if ( found != ids.begin() ) found--;
+                }
+                if ( found != ids.end() )
+                {
+                    addr.setCellIjk( ( *found ).toStdString() );
+                }
+            }
+        }
+        break;
 
         case SourceSteppingDimension::AQUIFER:
-            break;
+        {
+            auto ids       = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_AQUIFER, "" );
+            int  curRegion = addr.aquiferNumber();
+            auto found     = std::find( ids.begin(), ids.end(), curRegion );
+            if ( found != ids.end() )
+            {
+                if ( direction > 0 )
+                {
+                    found++;
+                }
+                else
+                {
+                    if ( found != ids.begin() ) found--;
+                }
+                if ( found != ids.end() ) addr.setAquiferNumber( ( *found ).toInt() );
+            }
+        }
+        break;
 
         default:
             break;
@@ -1114,8 +1131,6 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping* other )
 {
-    // m_stepDimension = other->preferredStepDimension();
-
     switch ( m_stepDimension() )
     {
         case SourceSteppingDimension::SUMMARY_CASE:
@@ -1139,22 +1154,11 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
             break;
 
         case SourceSteppingDimension::QUANTITY:
-        {
-            std::string s = other->m_quantity().toStdString();
-            m_quantity    = other->m_quantity();
-        }
-        break;
+            m_quantity = other->m_quantity();
+            break;
 
         case SourceSteppingDimension::BLOCK:
             m_cellBlock = other->m_cellBlock();
-            break;
-
-        case SourceSteppingDimension::SEGMENT:
-            m_segment = other->m_segment();
-            break;
-
-        case SourceSteppingDimension::COMPLETION:
-            m_completion = other->m_completion();
             break;
 
         case SourceSteppingDimension::AQUIFER:
@@ -1164,31 +1168,6 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
         default:
             break;
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlotSourceStepping::SourceSteppingDimension RimSummaryPlotSourceStepping::preferredStepDimension()
-{
-    // return m_stepDimension();
-    const auto fields = activeFieldsForDataSourceStepping();
-
-    if ( std::find( fields.begin(), fields.end(), &m_wellName ) != fields.end() ) return SourceSteppingDimension::WELL;
-
-    if ( std::find( fields.begin(), fields.end(), &m_quantity ) != fields.end() )
-        return SourceSteppingDimension::QUANTITY;
-
-    if ( std::find( fields.begin(), fields.end(), &m_summaryCase ) != fields.end() )
-        return SourceSteppingDimension::SUMMARY_CASE;
-
-    if ( std::find( fields.begin(), fields.end(), &m_ensemble ) != fields.end() )
-        return SourceSteppingDimension::ENSEMBLE;
-
-    if ( std::find( fields.begin(), fields.end(), &m_groupName ) != fields.end() )
-        return SourceSteppingDimension::GROUP;
-
-    return SourceSteppingDimension::QUANTITY;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1225,4 +1204,85 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
     }
 
     return displayAndValueStrings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryPlotSourceStepping::SourceSteppingDimension RimSummaryPlotSourceStepping::stepDimension() const
+{
+    return m_stepDimension();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryPlotSourceStepping::stepCase( int direction )
+{
+    std::vector<RimSummaryCase*> cases;
+
+    auto summaryCases = RimSummaryPlotSourceStepping::summaryCasesForSourceStepping();
+    for ( auto sumCase : summaryCases )
+    {
+        if ( sumCase->ensemble() )
+        {
+            if ( m_includeEnsembleCasesForCaseStepping() )
+            {
+                cases.push_back( sumCase );
+            }
+        }
+        else
+        {
+            cases.push_back( sumCase );
+        }
+    }
+
+    auto found = std::find( cases.begin(), cases.end(), m_summaryCase() );
+    if ( found != cases.end() )
+    {
+        if ( direction > 0 )
+        {
+            found++;
+        }
+        else
+        {
+            if ( found != cases.begin() ) found--;
+        }
+        if ( found != cases.end() ) return *found;
+    }
+
+    return m_summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RimSummaryPlotSourceStepping::stepEnsemble( int direction )
+{
+    std::vector<RimSummaryCaseCollection*> ensembles;
+
+    RimProject* proj = RimProject::current();
+    for ( auto ensemble : proj->summaryGroups() )
+    {
+        if ( ensemble->isEnsemble() )
+        {
+            ensembles.push_back( ensemble );
+        }
+    }
+
+    auto found = std::find( ensembles.begin(), ensembles.end(), m_ensemble() );
+    if ( found != ensembles.end() )
+    {
+        if ( direction > 0 )
+        {
+            found++;
+        }
+        else
+        {
+            if ( found != ensembles.begin() ) found--;
+        }
+        if ( found != ensembles.end() ) return *found;
+    }
+
+    return m_ensemble;
 }

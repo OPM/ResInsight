@@ -1024,11 +1024,35 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
     RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( newPlots[0] );
     if ( newPlot == nullptr ) return;
 
-    auto mods = RimSummaryAddressModifier::createAddressModifiersForPlot( newPlot );
-    for ( auto& mod : mods )
+    if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
     {
-        auto modifiedAdr = m_sourceStepping()->stepAddress( mod.address(), direction );
-        mod.setAddress( modifiedAdr );
+        newPlot->resolveReferencesRecursively();
+
+        RimSummaryCase* newCase = m_sourceStepping()->stepCase( direction );
+        for ( auto curve : newPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+        {
+            curve->setSummaryCaseX( newCase );
+            curve->setSummaryCaseY( newCase );
+        }
+    }
+    else if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::ENSEMBLE )
+    {
+        newPlot->resolveReferencesRecursively();
+
+        RimSummaryCaseCollection* newEnsemble = m_sourceStepping()->stepEnsemble( direction );
+        for ( auto curveSet : newPlot->curveSets() )
+        {
+            curveSet->setSummaryCaseCollection( newEnsemble );
+        }
+    }
+    else
+    {
+        auto mods = RimSummaryAddressModifier::createAddressModifiersForPlot( newPlot );
+        for ( auto& mod : mods )
+        {
+            auto modifiedAdr = m_sourceStepping()->stepAddress( mod.address(), direction );
+            mod.setAddress( modifiedAdr );
+        }
     }
 
     addPlot( newPlot );

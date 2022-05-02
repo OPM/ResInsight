@@ -53,8 +53,6 @@ public:
         REGION,
         QUANTITY,
         BLOCK,
-        SEGMENT,
-        COMPLETION,
         AQUIFER
     };
 
@@ -69,9 +67,13 @@ public:
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
 
-    RifEclipseSummaryAddress stepAddress( RifEclipseSummaryAddress addr, int direction );
+    RifEclipseSummaryAddress  stepAddress( RifEclipseSummaryAddress addr, int direction );
+    RimSummaryCase*           stepCase( int direction );
+    RimSummaryCaseCollection* stepEnsemble( int direction );
 
     void syncWithStepper( RimSummaryPlotSourceStepping* other );
+
+    RimSummaryPlotSourceStepping::SourceSteppingDimension stepDimension() const;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -96,8 +98,6 @@ private:
 
     std::vector<caf::PdmFieldHandle*> activeFieldsForDataSourceStepping();
     std::vector<caf::PdmFieldHandle*> toolbarFieldsForDataSourceStepping();
-
-    RimSummaryPlotSourceStepping::SourceSteppingDimension preferredStepDimension();
 
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
