@@ -18,14 +18,15 @@
 
 #include "RimGridCalculation.h"
 
-#include "RigCaseCellResultsData.h"
 #include "RimEclipseCase.h"
-#include "expressionparser/ExpressionParser.h"
 
 #include "RiaLogging.h"
 #include "RiaPorosityModel.h"
 
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
+
+#include "expressionparser/ExpressionParser.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCalculation, "RimGridCalculation" );
 

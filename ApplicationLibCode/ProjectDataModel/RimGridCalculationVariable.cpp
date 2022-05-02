@@ -19,6 +19,7 @@
 #include "RimGridCalculationVariable.h"
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
 
@@ -39,7 +40,7 @@ RimGridCalculationVariable::RimGridCalculationVariable()
     CAF_PDM_InitFieldNoDefault( &m_resultType, "ResultType", "Type" );
     CAF_PDM_InitField( &m_resultVariable, "ResultVariable", RiaResultNames::undefinedResultName(), "Variable" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseGridCase", "Grid Case" );
-    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +117,9 @@ void RimGridCalculationVariable::defineUiOrdering( QString uiConfigName, caf::Pd
     uiOrdering.add( &m_timeStep );
 
     uiOrdering.skipRemainingFields();
+
+    m_resultType.uiCapability()->setUiReadOnly( m_eclipseCase == nullptr );
+    m_timeStep.uiCapability()->setUiReadOnly( m_resultType == RiaDefines::ResultCatType::STATIC_NATIVE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +130,19 @@ QList<caf::PdmOptionItemInfo>
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &m_resultVariable )
+    if ( fieldNeedingOptions == &m_resultType )
+    {
+        std::vector<RiaDefines::ResultCatType> resultCategories = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                                    RiaDefines::ResultCatType::GENERATED };
+
+        for ( auto c : resultCategories )
+        {
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ResultCatType>( c ).uiText(), c ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_resultVariable )
     {
         auto results = currentGridCellResults();
         if ( results )
