@@ -1079,9 +1079,9 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
         case SourceSteppingDimension::BLOCK:
         {
-            auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_BLOCK, "" );
-            auto& curName = addr.blockAsString();
-            auto  found   = std::find( ids.begin(), ids.end(), QString::fromStdString( curName ) );
+            auto ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_BLOCK, "" );
+            auto curName = addr.blockAsString();
+            auto found   = std::find( ids.begin(), ids.end(), QString::fromStdString( curName ) );
             if ( found != ids.end() )
             {
                 if ( direction > 0 )
