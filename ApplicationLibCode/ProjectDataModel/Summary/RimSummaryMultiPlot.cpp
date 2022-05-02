@@ -405,7 +405,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_appendPrevPlot )
     {
         m_appendPrevPlot  = false;
-        int stepDirection = -11;
+        int stepDirection = -1;
         appendSubPlotByStepping( stepDirection );
     }
     else if ( changedField == &m_autoAdjustAppearance )
@@ -447,7 +447,7 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
             plot->updatePlotTitle();
         }
 
-        if ( !m_viewer.isNull() ) m_viewer->scheduleSubTitleUpdate();
+        if ( !m_viewer.isNull() ) m_viewer->scheduleTitleUpdate();
     }
 }
 

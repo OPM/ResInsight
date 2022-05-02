@@ -260,7 +260,7 @@ void RiuMultiPlotBook::setSubTitlesVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::scheduleSubTitleUpdate()
+void RiuMultiPlotBook::scheduleTitleUpdate()
 {
     for ( auto page : m_pages )
     {
