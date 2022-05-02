@@ -69,6 +69,7 @@ public:
 
     void setTitleVisible( bool visible );
     void setSubTitlesVisible( bool visible );
+    void scheduleSubTitleUpdate();
 
     void setTitleFontSizes( int titleFontSize, int subTitleFontSize );
     void setLegendFontSize( int legendFontSize );

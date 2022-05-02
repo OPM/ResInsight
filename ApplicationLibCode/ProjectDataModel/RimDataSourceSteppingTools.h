@@ -41,4 +41,7 @@ public:
     static bool updateHistoryAndSummaryQuantityIfMatching( const QVariant&           oldValue,
                                                            const QVariant&           newValue,
                                                            RifEclipseSummaryAddress* adr );
+
+    static bool
+        updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr );
 };

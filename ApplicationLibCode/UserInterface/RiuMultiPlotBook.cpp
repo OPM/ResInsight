@@ -260,6 +260,17 @@ void RiuMultiPlotBook::setSubTitlesVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::scheduleSubTitleUpdate()
+{
+    for ( auto page : m_pages )
+    {
+        page->scheduleUpdate( RiaDefines::MultiPlotPageUpdateType::TITLE );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::setTitleFontSizes( int titleFontSize, int subTitleFontSize )
 {
     for ( auto page : m_pages )

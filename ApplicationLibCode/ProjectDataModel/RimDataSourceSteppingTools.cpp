@@ -186,3 +186,25 @@ bool RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( cons
 
     return false;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant&           oldValue,
+                                                           const QVariant&           newValue,
+                                                           RifEclipseSummaryAddress* adr )
+{
+    if ( !adr ) return false;
+
+    std::string oldString = oldValue.toString().toStdString();
+    std::string newString = newValue.toString().toStdString();
+
+    if ( adr->quantityName() == oldString )
+    {
+        adr->setQuantityName( newString );
+
+        return true;
+    }
+
+    return false;
+}

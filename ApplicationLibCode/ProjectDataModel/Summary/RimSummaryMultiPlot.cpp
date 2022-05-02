@@ -438,13 +438,16 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
         {
             auto subPlotNameHelper = plot->plotTitleHelper();
 
-            // Disable auto plot, as this is required to be able to include the information in the multi plot title
+            // Disable auto plot title, as this is required to be able to include the information in the multi plot title
             plot->enableAutoPlotTitle( false );
 
             auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelper );
+            plot->setPlotTitleVisible( true );
             plot->setDescription( plotName );
             plot->updatePlotTitle();
         }
+
+        if ( !m_viewer.isNull() ) m_viewer->scheduleSubTitleUpdate();
     }
 }
 

@@ -573,14 +573,17 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
 
         reinsertPlotWidgets();
         alignCanvasTops();
+        return;
     }
-    else
+
+    if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::LEGEND ) == RiaDefines::MultiPlotPageUpdateType::LEGEND )
     {
-        if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::LEGEND ) == RiaDefines::MultiPlotPageUpdateType::LEGEND )
-        {
-            refreshLegends();
-            alignCanvasTops();
-        }
+        refreshLegends();
+        alignCanvasTops();
+    }
+    if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::TITLE ) == RiaDefines::MultiPlotPageUpdateType::TITLE )
+    {
+        updateSubTitles();
     }
 }
 

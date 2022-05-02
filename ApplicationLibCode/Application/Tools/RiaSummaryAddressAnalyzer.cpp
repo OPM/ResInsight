@@ -88,14 +88,9 @@ std::set<std::string> RiaSummaryAddressAnalyzer::quantityNamesNoHistory() const
 //--------------------------------------------------------------------------------------------------
 std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
 {
-    if ( quantityNamesWithHistory().size() == 1 && quantityNamesNoHistory().empty() )
+    if ( quantities().size() == 1 )
     {
-        return *quantityNamesWithHistory().begin();
-    }
-
-    if ( quantityNamesNoHistory().size() == 1 && quantityNamesWithHistory().empty() )
-    {
-        return *quantityNamesNoHistory().begin();
+        return *quantities().begin();
     }
 
     return {};

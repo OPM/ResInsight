@@ -414,15 +414,15 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             if ( isYAxisStepping() )
             {
                 auto adr = curve->summaryAddressY();
-                RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( oldValue, newValue, &adr );
-                curve->setSummaryAddressY( adr );
+                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
+                    curve->setSummaryAddressY( adr );
             }
 
             if ( isXAxisStepping() )
             {
                 auto adr = curve->summaryAddressX();
-                RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( oldValue, newValue, &adr );
-                curve->setSummaryAddressX( adr );
+                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
+                    curve->setSummaryAddressX( adr );
             }
 
             curve->setDefaultCurveAppearance();
@@ -433,14 +433,15 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
             for ( auto curveSet : dataSourceSteppingObject()->curveSets() )
             {
                 auto adr = curveSet->summaryAddress();
-                RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( oldValue, newValue, &adr );
-                curveSet->setSummaryAddress( adr );
+                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
+                    curveSet->setSummaryAddress( adr );
             }
         }
-
+        m_quantity.uiCapability()->updateConnectedEditors();
         triggerLoadDataAndUpdate = true;
     }
 
+    if ( changedField != &m_quantity )
     {
         RifEclipseSummaryAddress::SummaryVarCategory summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_INVALID;
         if ( changedField == &m_wellName )
@@ -515,12 +516,15 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             summaryMultiPlot->keepVisiblePageAfterUpdate( true );
             summaryMultiPlot->loadDataAndUpdate();
+            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+            mainPlotWindow->updateMultiPlotToolBar();
         }
         else
         {
             summaryPlot->updatePlotTitle();
             summaryPlot->loadDataAndUpdate();
             summaryPlot->updateConnectedEditors();
+            summaryPlot->curvesChanged.send();
         }
 
         // TODO - make sure multiplot autotitle logic is triggered whenever either a multiplot or one of the subplots
@@ -1211,37 +1215,12 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
         RiaSummaryAddressAnalyzer analyzerForVisibleCurves;
         analyzerForVisibleCurves.appendAddresses( visibleCurveAddresses );
 
-        if ( analyzerForVisibleCurves.quantityNamesWithHistory().empty() )
+        auto quantities = quantityAnalyzer.quantities();
+        for ( const auto& s : quantities )
         {
-            auto quantities = quantityAnalyzer.quantities();
-            for ( const auto& s : quantities )
-            {
-                QString valueString = QString::fromStdString( s );
+            QString valueString = QString::fromStdString( s );
 
-                displayAndValueStrings[valueString] = valueString;
-            }
-        }
-        else
-        {
-            // The plot displays a mix of simulated and observed vectors
-            // Create a combined item for source stepping
-
-            auto quantitiesWithHistory = quantityAnalyzer.quantityNamesWithHistory();
-            for ( const auto& s : quantitiesWithHistory )
-            {
-                QString valueString   = QString::fromStdString( s );
-                QString displayString = valueString + " (H)";
-
-                displayAndValueStrings[valueString] = valueString;
-            }
-
-            auto quantitiesNoHistory = quantityAnalyzer.quantityNamesNoHistory();
-            for ( const auto& s : quantitiesNoHistory )
-            {
-                QString valueString = QString::fromStdString( s );
-
-                displayAndValueStrings[valueString] = valueString;
-            }
+            displayAndValueStrings[valueString] = valueString;
         }
     }
 
