@@ -28,12 +28,24 @@ template <>
 void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
 {
     addItem( RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED, "NOT_DEFINED", "Not Defined" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::WELL, "WELL", "Well" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::GROUP, "GROUP", "Group" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::REGION, "REGION", "Region" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::MISC, "MISC", "Miscellaneous" );
     addItem( RimSummaryAddressCollection::CollectionContentType::FIELD, "FIELD", "Field" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::AQUIFER, "AQUIFER", "Aquifer" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::NETWORK, "NETWORK", "Network" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::MISC, "MISC", "Miscellaneous" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::REGION, "REGION", "Region" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::REGION_2_REGION, "REGION_2_REGION", "Region-Region" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::GROUP, "GROUP", "Group" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::WELL, "WELL", "Well" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION, "WELL_COMPLETION", "Completion" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_SEGMENT, "WELL_SEGMENT", "Segment" );
     addItem( RimSummaryAddressCollection::CollectionContentType::BLOCK, "BLOCK", "Block" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_LGR, "WELL_LGR", "Lgr-Well" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION_LGR,
+             "WELL_COMPLETION_LGR",
+             "Lgr Completion" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::BLOCK_LGR, "BLOCK_LGR", "Lgr-Block" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::CALCULATED, "CALCULATED", "Calculated" );
+    addItem( RimSummaryAddressCollection::CollectionContentType::IMPORTED, "IMPORTED", "Imported" );
     setDefault( RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED );
 }
 
@@ -64,6 +76,8 @@ RimSummaryAddressCollection::RimSummaryAddressCollection()
     m_ensembleId.uiCapability()->setUiHidden( true );
 
     nameField()->uiCapability()->setUiHidden( true );
+
+    setUiIconFromResourceString( iconResourceText() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,29 +136,69 @@ void RimSummaryAddressCollection::addToSubfolder( QString                       
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryAddressCollection::addToSubfolderTree( std::vector<QString>            folders,
+                                                      CollectionContentType           folderType,
+                                                      const RifEclipseSummaryAddress& address,
+                                                      int                             caseId,
+                                                      int                             ensembleId )
+{
+    RimSummaryAddressCollection* thefolder = this;
+    for ( auto& subfoldername : folders )
+    {
+        thefolder = thefolder->getOrCreateSubfolder( subfoldername, folderType );
+    }
+    thefolder->setContentType( folderType );
+    thefolder->addAddress( address, caseId, ensembleId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses,
                                                          int                                       caseId,
                                                          int                                       ensembleId )
 {
     if ( addresses.size() == 0 ) return;
 
-    RimSummaryAddressCollection* misc    = getOrCreateSubfolder( "Miscellaneous", CollectionContentType::MISC );
-    RimSummaryAddressCollection* fields  = getOrCreateSubfolder( "Field", CollectionContentType::FIELD );
-    RimSummaryAddressCollection* regions = getOrCreateSubfolder( "Regions", CollectionContentType::REGION_FOLDER );
-    RimSummaryAddressCollection* wells   = getOrCreateSubfolder( "Wells", CollectionContentType::WELL_FOLDER );
-    RimSummaryAddressCollection* groups  = getOrCreateSubfolder( "Groups", CollectionContentType::GROUP_FOLDER );
-    RimSummaryAddressCollection* blocks  = getOrCreateSubfolder( "Blocks", CollectionContentType::BLOCK_FOLDER );
+    auto* fields        = getOrCreateSubfolder( "Field", CollectionContentType::FIELD );
+    auto* aquifer       = getOrCreateSubfolder( "Aquifer", CollectionContentType::AQUIFER );
+    auto* network       = getOrCreateSubfolder( "Network", CollectionContentType::NETWORK );
+    auto* misc          = getOrCreateSubfolder( "Miscellaneous", CollectionContentType::MISC );
+    auto* regions       = getOrCreateSubfolder( "Region", CollectionContentType::REGION_FOLDER );
+    auto* region2region = getOrCreateSubfolder( "Region-Region", CollectionContentType::REGION_2_REGION );
+    auto* groups        = getOrCreateSubfolder( "Group", CollectionContentType::GROUP_FOLDER );
+    auto* wells         = getOrCreateSubfolder( "Well", CollectionContentType::WELL_FOLDER );
+    auto* completion    = getOrCreateSubfolder( "Completion", CollectionContentType::WELL_COMPLETION );
+    auto* segment       = getOrCreateSubfolder( "Segment", CollectionContentType::WELL_SEGMENT );
+    auto* blocks        = getOrCreateSubfolder( "Block", CollectionContentType::BLOCK );
+    auto* lgrwell       = getOrCreateSubfolder( "Lgr-Well", CollectionContentType::WELL_LGR );
+    auto* lgrcompletion = getOrCreateSubfolder( "Lgr-Completion", CollectionContentType::WELL_COMPLETION_LGR );
+    auto* lgrblock      = getOrCreateSubfolder( "Lgr-Block", CollectionContentType::BLOCK_LGR );
+    auto* calculated    = getOrCreateSubfolder( "Calculated", CollectionContentType::CALCULATED );
+    auto* imported      = getOrCreateSubfolder( "Imported", CollectionContentType::IMPORTED );
 
     for ( const auto& address : addresses )
     {
         switch ( address.category() )
         {
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
-                misc->addAddress( address, caseId, ensembleId );
-                break;
-
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD:
                 fields->addAddress( address, caseId, ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_AQUIFER:
+                aquifer->addToSubfolder( QString::number( address.aquiferNumber() ),
+                                         CollectionContentType::AQUIFER,
+                                         address,
+                                         caseId,
+                                         ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK:
+                network->addAddress( address, caseId, ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_MISC:
+                misc->addAddress( address, caseId, ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION:
@@ -155,17 +209,17 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                                          ensembleId );
                 break;
 
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION_2_REGION:
+                region2region->addToSubfolder( QString::fromStdString( address.itemUiText() ),
+                                               CollectionContentType::REGION_2_REGION,
+                                               address,
+                                               caseId,
+                                               ensembleId );
+                break;
+
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_GROUP:
                 groups->addToSubfolder( QString::fromStdString( address.groupName() ),
                                         CollectionContentType::GROUP,
-                                        address,
-                                        caseId,
-                                        ensembleId );
-                break;
-
-            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK:
-                blocks->addToSubfolder( QString::fromStdString( address.blockAsString() ),
-                                        CollectionContentType::BLOCK,
                                         address,
                                         caseId,
                                         ensembleId );
@@ -177,6 +231,76 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                                        address,
                                        caseId,
                                        ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION:
+                completion->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
+                                                  QString::fromStdString( address.blockAsString() ) },
+                                                CollectionContentType::WELL_COMPLETION,
+                                                address,
+                                                caseId,
+                                                ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT:
+                segment->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
+                                               QString::number( address.wellSegmentNumber() ) },
+                                             CollectionContentType::WELL_SEGMENT,
+                                             address,
+                                             caseId,
+                                             ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK:
+                blocks->addToSubfolder( QString::fromStdString( address.blockAsString() ),
+                                        CollectionContentType::BLOCK,
+                                        address,
+                                        caseId,
+                                        ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR:
+                lgrwell->addToSubfolderTree( { QString::fromStdString( address.lgrName() ),
+                                               QString::fromStdString( address.wellName() ) },
+                                             CollectionContentType::WELL_LGR,
+                                             address,
+                                             caseId,
+                                             ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR:
+                lgrcompletion->addToSubfolderTree( { QString::fromStdString( address.lgrName() ),
+                                                     QString::fromStdString( address.wellName() ),
+                                                     QString::fromStdString( address.blockAsString() ) },
+                                                   CollectionContentType::WELL_COMPLETION_LGR,
+                                                   address,
+                                                   caseId,
+                                                   ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK_LGR:
+                lgrblock->addToSubfolderTree( { QString::fromStdString( address.lgrName() ),
+                                                QString::fromStdString( address.blockAsString() ) },
+                                              CollectionContentType::BLOCK_LGR,
+                                              address,
+                                              caseId,
+                                              ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_IMPORTED:
+                imported->addToSubfolder( QString::fromStdString( address.itemUiText() ),
+                                          CollectionContentType::IMPORTED,
+                                          address,
+                                          caseId,
+                                          ensembleId );
+                break;
+
+            case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_CALCULATED:
+                calculated->addToSubfolder( QString::fromStdString( address.itemUiText() ),
+                                            CollectionContentType::CALCULATED,
+                                            address,
+                                            caseId,
+                                            ensembleId );
                 break;
 
             default:
@@ -243,7 +367,7 @@ void RimSummaryAddressCollection::updateUiTreeOrdering( caf::PdmUiTreeOrdering& 
 {
     for ( auto& folder : m_subfolders() )
     {
-        uiTreeOrdering.add( folder );
+        if ( !folder->isEmpty() ) uiTreeOrdering.add( folder );
     }
 
     for ( auto& address : m_adresses() )
@@ -258,6 +382,7 @@ void RimSummaryAddressCollection::updateUiTreeOrdering( caf::PdmUiTreeOrdering& 
 void RimSummaryAddressCollection::setContentType( CollectionContentType content )
 {
     m_contentType = content;
+    setUiIconFromResourceString( iconResourceText() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,7 +423,7 @@ bool RimSummaryAddressCollection::isEnsemble() const
 bool RimSummaryAddressCollection::isFolder() const
 {
     if ( contentType() == CollectionContentType::WELL_FOLDER || contentType() == CollectionContentType::GROUP_FOLDER ||
-         contentType() == CollectionContentType::REGION_FOLDER || contentType() == CollectionContentType::BLOCK_FOLDER )
+         contentType() == CollectionContentType::REGION_FOLDER )
     {
         return true;
     }
@@ -328,4 +453,58 @@ std::vector<RimSummaryAddressCollection*> RimSummaryAddressCollection::subFolder
 int RimSummaryAddressCollection::caseId() const
 {
     return m_caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryAddressCollection::iconResourceText() const
+{
+    switch ( m_contentType() )
+    {
+        case RimSummaryAddressCollection::CollectionContentType::WELL:
+            return ":/summary/components/images/well.svg";
+        case RimSummaryAddressCollection::CollectionContentType::GROUP:
+            return ":/summary/components/images/group.svg";
+        case RimSummaryAddressCollection::CollectionContentType::REGION:
+            return ":/summary/components/images/region.svg";
+        case RimSummaryAddressCollection::CollectionContentType::FIELD:
+            return ":/summary/components/images/field.svg";
+        case RimSummaryAddressCollection::CollectionContentType::MISC:
+            return ":/summary/components/images/misc.svg";
+        case RimSummaryAddressCollection::CollectionContentType::WELL_FOLDER:
+            return ":/summary/components/images/well.svg";
+        case RimSummaryAddressCollection::CollectionContentType::GROUP_FOLDER:
+            return ":/summary/components/images/group.svg";
+        case RimSummaryAddressCollection::CollectionContentType::REGION_FOLDER:
+            return ":/summary/components/images/region.svg";
+        case RimSummaryAddressCollection::CollectionContentType::BLOCK:
+            return ":/summary/components/images/block.svg";
+        case RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE:
+            return ":/SummaryCase.svg";
+        case RimSummaryAddressCollection::CollectionContentType::AQUIFER:
+            return ":/summary/components/images/aquifer.svg";
+        case RimSummaryAddressCollection::CollectionContentType::NETWORK:
+            return ":/summary/components/images/network.svg";
+        case RimSummaryAddressCollection::CollectionContentType::REGION_2_REGION:
+            return ":/summary/components/images/region-region.svg";
+        case RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION:
+            return ":/summary/components/images/well-completion.svg";
+        case RimSummaryAddressCollection::CollectionContentType::WELL_LGR:
+            return ":/summary/components/images/well.svg";
+        case RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION_LGR:
+            return ":/summary/components/images/well-completion.svg";
+        case RimSummaryAddressCollection::CollectionContentType::WELL_SEGMENT:
+            return ":/summary/components/images/segment.svg";
+        case RimSummaryAddressCollection::CollectionContentType::BLOCK_LGR:
+            return ":/summary/components/images/block.svg";
+        case RimSummaryAddressCollection::CollectionContentType::CALCULATED:
+            return ":/summary/components/images/calculated.svg";
+        case RimSummaryAddressCollection::CollectionContentType::IMPORTED:
+            return ":/summary/components/images/others.svg";
+        case RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED:
+        default:
+            break;
+    }
+    return ":/Folder.png";
 }

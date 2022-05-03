@@ -45,8 +45,17 @@ public:
         GROUP_FOLDER,
         REGION_FOLDER,
         BLOCK,
-        BLOCK_FOLDER,
-        SUMMARY_CASE
+        SUMMARY_CASE,
+        AQUIFER,
+        NETWORK,
+        REGION_2_REGION,
+        WELL_COMPLETION,
+        WELL_LGR,
+        WELL_COMPLETION_LGR,
+        WELL_SEGMENT,
+        BLOCK_LGR,
+        CALCULATED,
+        IMPORTED
     };
 
 public:
@@ -89,6 +98,14 @@ private:
                          const RifEclipseSummaryAddress& address,
                          int                             caseId,
                          int                             ensembleId = -1 );
+
+    void addToSubfolderTree( std::vector<QString>            folders,
+                             CollectionContentType           folderType,
+                             const RifEclipseSummaryAddress& address,
+                             int                             caseId,
+                             int                             ensembleId = -1 );
+
+    QString iconResourceText() const;
 
 private:
     caf::PdmChildArrayField<RimSummaryAddress*>           m_adresses;
