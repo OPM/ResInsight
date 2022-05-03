@@ -73,6 +73,7 @@ public:
     virtual void updateAfterPlotRemove();
 
     void deleteAllPlots() override;
+    void updatePlots();
 
     size_t plotCount() const override;
     size_t plotIndex( const RimPlot* plot ) const;
@@ -132,7 +133,6 @@ protected:
     void initAfterRead() override;
 
     void applyPlotWindowTitleToWidgets();
-    void updatePlots();
     void updateZoom();
     void recreatePlotWidgets();
 
