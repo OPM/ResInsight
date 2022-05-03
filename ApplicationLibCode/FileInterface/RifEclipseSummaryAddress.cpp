@@ -565,6 +565,11 @@ std::string RifEclipseSummaryAddress::itemUiText() const
             text += std::to_string( this->id() );
         }
         break;
+        case SUMMARY_IMPORTED:
+        {
+            text += this->quantityName();
+        }
+        break;
     }
 
     return text;
