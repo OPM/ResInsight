@@ -186,7 +186,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_AQUIFER:
-                regions->addToSubfolder( QString::number( address.aquiferNumber() ),
+                aquifer->addToSubfolder( QString::number( address.aquiferNumber() ),
                                          CollectionContentType::AQUIFER,
                                          address,
                                          caseId,
@@ -243,12 +243,12 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT:
-                completion->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
-                                                  QString::number( address.wellSegmentNumber() ) },
-                                                CollectionContentType::WELL_SEGMENT,
-                                                address,
-                                                caseId,
-                                                ensembleId );
+                segment->addToSubfolderTree( { QString::fromStdString( address.wellName() ),
+                                               QString::number( address.wellSegmentNumber() ) },
+                                             CollectionContentType::WELL_SEGMENT,
+                                             address,
+                                             caseId,
+                                             ensembleId );
                 break;
 
             case RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK:
