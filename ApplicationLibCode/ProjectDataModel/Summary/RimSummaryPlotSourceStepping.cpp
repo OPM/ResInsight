@@ -515,8 +515,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         RimSummaryMultiPlot* summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_objectForSourceStepping.p() );
         if ( summaryMultiPlot )
         {
-            summaryMultiPlot->keepVisiblePageAfterUpdate( true );
-            summaryMultiPlot->loadDataAndUpdate();
+            summaryMultiPlot->updatePlots();
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateMultiPlotToolBar();
         }
