@@ -105,6 +105,8 @@ private:
                              int                             caseId,
                              int                             ensembleId = -1 );
 
+    QString iconResourceText() const;
+
 private:
     caf::PdmChildArrayField<RimSummaryAddress*>           m_adresses;
     caf::PdmChildArrayField<RimSummaryAddressCollection*> m_subfolders;
