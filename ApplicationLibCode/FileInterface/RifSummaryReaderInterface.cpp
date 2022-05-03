@@ -54,6 +54,9 @@ RifEclipseSummaryAddress RifSummaryReaderInterface::errorAddress( const RifEclip
 //--------------------------------------------------------------------------------------------------
 bool RifSummaryReaderInterface::hasAddress( const RifEclipseSummaryAddress& resultAddress ) const
 {
+    static const RifEclipseSummaryAddress defaultAdr = RifEclipseSummaryAddress();
+    if ( resultAddress == defaultAdr ) return true;
+
     for ( const RifEclipseSummaryAddress& summaryAddress : m_allResultAddresses )
     {
         if ( summaryAddress == resultAddress )
