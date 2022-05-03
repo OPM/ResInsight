@@ -94,7 +94,7 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     CAF_PDM_InitFieldNoDefault( &m_groupAppearanceType, "GroupAppearanceType", "Group" );
     CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region" );
 
-    m_previewPlot.reset( new RimSummaryPlot() );
+    m_previewPlot = std::make_unique<RimSummaryPlot>();
 
     CAF_PDM_InitFieldNoDefault( &m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title" );
     m_useAutoPlotTitleProxy.registerGetMethod( this, &RicSummaryPlotEditorUi::proxyPlotAutoTitle );
@@ -124,7 +124,7 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
-    m_summaryCurveSelectionEditor.reset( new RiuSummaryVectorSelectionWidgetCreator() );
+    m_summaryCurveSelectionEditor = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();
 
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setFieldChangedHandler(
         [this]() { this->selectionEditorFieldChanged(); } );
@@ -338,6 +338,13 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 {
     std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsVector =
         m_summaryCurveSelectionEditor->summaryAddressSelection()->allCurveDefinitionsFromSelection();
+
+    auto curveSetDefs = m_summaryCurveSelectionEditor->summaryAddressSelection()->allCurveSetDefinitionsFromSelections();
+    for ( const auto& curveSet : curveSetDefs )
+    {
+        allCurveDefinitionsVector.emplace_back( curveSet.ensemble(), curveSet.summaryAddress() );
+    }
+
     std::set<RiaSummaryCurveDefinition> allCurveDefinitions =
         std::set<RiaSummaryCurveDefinition>( allCurveDefinitionsVector.begin(), allCurveDefinitionsVector.end() );
 
@@ -461,18 +468,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
     std::map<RimSummaryCurve*, std::pair<bool, bool>> stashedErrorBarsAndLegendVisibility;
     for ( const auto& curveDef : curveDefsToAdd )
     {
-        RimSummaryCase*  currentCase = curveDef.summaryCase();
-        RimSummaryCurve* curve       = new RimSummaryCurve();
-        if ( speedCheatsRequired )
-        {
-            stashedErrorBarsAndLegendVisibility[curve] = std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
-            curve->setErrorBarsVisible( false );
-            curve->setShowInLegend( false );
-        }
-        curve->setSummaryCaseY( currentCase );
-        curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress() );
-        curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
-        if ( currentCase->isObservedData() ) curve->setSymbolSkipDistance( 0 );
+        RimSummaryCase* currentCase = curveDef.summaryCase();
 
         if ( curveDef.isEnsembleCurve() )
         {
@@ -522,10 +518,22 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
                     }
                 }
             }
-            curveSet->addCurve( curve );
         }
         else
         {
+            RimSummaryCurve* curve = new RimSummaryCurve();
+            if ( speedCheatsRequired )
+            {
+                stashedErrorBarsAndLegendVisibility[curve] =
+                    std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
+                curve->setErrorBarsVisible( false );
+                curve->setShowInLegend( false );
+            }
+            curve->setSummaryCaseY( currentCase );
+            curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress() );
+            curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
+            if ( currentCase && currentCase->isObservedData() ) curve->setSymbolSkipDistance( 0 );
+
             m_previewPlot->addCurveNoUpdate( curve );
             curveLookCalc.setupCurveLook( curve );
         }
@@ -625,10 +633,7 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
         previewCurveSetColl->addCurveSet( newCurveSet );
 
         RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
-        for ( const auto& curve : curveSet->curves() )
-        {
-            curveDefs.push_back( curve->curveDefinitionY() );
-        }
+        curveDefs.emplace_back( ensemble, curveSet->summaryAddress() );
     }
 
     m_previewPlot->copyAxisPropertiesFromOther( sourceSummaryPlot );

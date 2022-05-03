@@ -108,6 +108,7 @@ QSize RiuQwtPlotLegend::sizeHint() const
 void RiuQwtPlotLegend::updateLegend( const QVariant& variant, const QList<QwtLegendData>& legendItems )
 {
     QwtLegend::updateLegend( variant, legendItems );
+    setVisible( !legendItems.empty() );
     emit legendUpdated();
 }
 

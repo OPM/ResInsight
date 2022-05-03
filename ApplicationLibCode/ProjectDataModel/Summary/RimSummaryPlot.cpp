@@ -2453,6 +2453,11 @@ void RimSummaryPlot::updateCurveNames()
     for ( auto curveSet : m_ensembleCurveSetCollection->curveSets() )
     {
         curveSet->updateEnsembleLegendItem();
+
+        if ( curveSet->isCurvesVisible() )
+        {
+            shortCurveNames.append( QString::fromStdString( curveSet->summaryAddress().quantityName() ) );
+        }
     }
 
     m_alternatePlotName = shortCurveNames.join( "," );
@@ -2504,6 +2509,8 @@ void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     updateStackedCurveData();
     if ( plotWidget() ) plotWidget()->scheduleReplot();
+
+    updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

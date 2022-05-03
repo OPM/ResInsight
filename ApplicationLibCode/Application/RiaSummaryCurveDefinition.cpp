@@ -42,14 +42,9 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*           
                                                       bool                            isEnsembleCurve )
     : m_summaryCase( summaryCase )
     , m_summaryAddress( summaryAddress )
+    , m_ensemble( nullptr )
     , m_isEnsembleCurve( isEnsembleCurve )
 {
-    if ( summaryCase )
-    {
-        RimSummaryCaseCollection* ensemble = nullptr;
-        summaryCase->firstAncestorOfType( ensemble );
-        m_ensemble = ensemble;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
