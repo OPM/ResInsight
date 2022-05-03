@@ -69,6 +69,7 @@ public:
 
     void setTitleVisible( bool visible );
     void setSubTitlesVisible( bool visible );
+    void scheduleTitleUpdate();
 
     void setTitleFontSizes( int titleFontSize, int subTitleFontSize );
     void setLegendFontSize( int legendFontSize );
@@ -89,6 +90,8 @@ public:
     void goToNextPage();
     void goToPrevPage();
     void goToLastPage();
+
+    void keepCurrentPageAfterUpdate();
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;

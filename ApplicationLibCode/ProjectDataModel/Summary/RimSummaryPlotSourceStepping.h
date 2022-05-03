@@ -27,6 +27,7 @@
 
 #include <QString>
 
+#include <map>
 #include <set>
 
 class RimSummaryCase;
@@ -52,8 +53,6 @@ public:
         REGION,
         QUANTITY,
         BLOCK,
-        SEGMENT,
-        COMPLETION,
         AQUIFER
     };
 
@@ -67,6 +66,14 @@ public:
     void applyPrevStep();
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+
+    RifEclipseSummaryAddress  stepAddress( RifEclipseSummaryAddress addr, int direction );
+    RimSummaryCase*           stepCase( int direction );
+    RimSummaryCaseCollection* stepEnsemble( int direction );
+
+    void syncWithStepper( RimSummaryPlotSourceStepping* other );
+
+    RimSummaryPlotSourceStepping::SourceSteppingDimension stepDimension() const;
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -100,6 +107,8 @@ private:
     std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
 
     RimSummaryDataSourceStepping* dataSourceSteppingObject() const;
+
+    std::map<QString, QString> optionsForQuantity( std::set<RifEclipseSummaryAddress> addresses );
 
 private:
     caf::PdmPointer<caf::PdmObject> m_objectForSourceStepping;

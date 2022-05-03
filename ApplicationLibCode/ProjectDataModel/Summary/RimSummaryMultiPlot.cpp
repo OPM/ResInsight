@@ -28,6 +28,8 @@
 #include "PlotBuilderCommands/RicAppendSummaryPlotsForSummaryCasesFeature.h"
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RifEclEclipseSummary.h"
 #include "RifEclipseRftAddress.h"
 #include "RifEclipseSummaryAddress.h"
@@ -50,6 +52,7 @@
 #include "RimSummaryPlotSourceStepping.h"
 #include "RimSummaryTimeAxisProperties.h"
 
+#include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
@@ -117,6 +120,16 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_disableWheelZoom.xmlCapability()->disableIO();
     m_disableWheelZoom.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_disableWheelZoom.uiCapability()->setUiIconFromResourceString( ":/DisableZoom.png" );
+
+    CAF_PDM_InitField( &m_appendNextPlot, "AppendNextPlot", false, "", "", "Step Next and Add to New Plot" );
+    m_appendNextPlot.xmlCapability()->disableIO();
+    m_appendNextPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_appendNextPlot.uiCapability()->setUiIconFromResourceString( ":/AppendNext.png" );
+
+    CAF_PDM_InitField( &m_appendPrevPlot, "AppendPrevPlot", false, "", "", "Step Previous and Add to New Plot" );
+    m_appendPrevPlot.xmlCapability()->disableIO();
+    m_appendPrevPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_appendPrevPlot.uiCapability()->setUiIconFromResourceString( ":/AppendPrev.png" );
 
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
     CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", false, "Auto Adjust Appearance" );
@@ -383,6 +396,18 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         m_createPlotDuplicate = false;
         duplicate();
     }
+    else if ( changedField == &m_appendNextPlot )
+    {
+        m_appendNextPlot  = false;
+        int stepDirection = 1;
+        appendSubPlotByStepping( stepDirection );
+    }
+    else if ( changedField == &m_appendPrevPlot )
+    {
+        m_appendPrevPlot  = false;
+        int stepDirection = -1;
+        appendSubPlotByStepping( stepDirection );
+    }
     else if ( changedField == &m_autoAdjustAppearance )
     {
         checkAndApplyAutoAppearance();
@@ -413,13 +438,16 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
         {
             auto subPlotNameHelper = plot->plotTitleHelper();
 
-            // Disable auto plot, as this is required to be able to include the information in the multi plot title
+            // Disable auto plot title, as this is required to be able to include the information in the multi plot title
             plot->enableAutoPlotTitle( false );
 
             auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelper );
+            plot->setPlotTitleVisible( true );
             plot->setDescription( plotName );
             plot->updatePlotTitle();
         }
+
+        if ( !m_viewer.isNull() ) m_viewer->scheduleTitleUpdate();
     }
 }
 
@@ -494,6 +522,9 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
         auto fields = sourceObject->fieldsToShowInToolbar();
         toolBarFields.insert( std::end( toolBarFields ), std::begin( fields ), std::end( fields ) );
     }
+
+    toolBarFields.push_back( &m_appendPrevPlot );
+    toolBarFields.push_back( &m_appendNextPlot );
 
     auto multiFields = RimMultiPlot::fieldsToShowInToolbar();
     toolBarFields.insert( std::end( toolBarFields ), std::begin( multiFields ), std::end( multiFields ) );
@@ -570,6 +601,7 @@ void RimSummaryMultiPlot::initAfterRead()
 void RimSummaryMultiPlot::onLoadDataAndUpdate()
 {
     RimMultiPlot::onLoadDataAndUpdate();
+    updatePlotWindowTitle();
 
     checkAndApplyAutoAppearance();
 }
@@ -977,4 +1009,87 @@ QWidget* RimSummaryMultiPlot::createViewWidget( QWidget* mainWindowParent )
     recreatePlotWidgets();
 
     return m_viewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
+{
+    if ( summaryPlots().empty() ) return;
+
+    auto newPlots = RicSummaryPlotBuilder::duplicatePlots( { summaryPlots().back() } );
+    if ( newPlots.empty() ) return;
+
+    RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( newPlots[0] );
+    if ( newPlot == nullptr ) return;
+
+    if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
+    {
+        newPlot->resolveReferencesRecursively();
+
+        RimSummaryCase* newCase = m_sourceStepping()->stepCase( direction );
+        for ( auto curve : newPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+        {
+            curve->setSummaryCaseX( newCase );
+            curve->setSummaryCaseY( newCase );
+        }
+    }
+    else if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::ENSEMBLE )
+    {
+        newPlot->resolveReferencesRecursively();
+
+        RimSummaryCaseCollection* newEnsemble = m_sourceStepping()->stepEnsemble( direction );
+        for ( auto curveSet : newPlot->curveSets() )
+        {
+            curveSet->setSummaryCaseCollection( newEnsemble );
+        }
+    }
+    else
+    {
+        auto mods = RimSummaryAddressModifier::createAddressModifiersForPlot( newPlot );
+        for ( auto& mod : mods )
+        {
+            auto modifiedAdr = m_sourceStepping()->stepAddress( mod.address(), direction );
+            mod.setAddress( modifiedAdr );
+        }
+    }
+
+    addPlot( newPlot );
+
+    newPlot->resolveReferencesRecursively();
+    newPlot->loadDataAndUpdate();
+
+    updatePlotWindowTitle();
+    updateConnectedEditors();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot, true );
+
+    updateSourceStepper();
+    RiuPlotMainWindowTools::refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateSourceStepper()
+{
+    if ( summaryPlots().empty() ) return;
+
+    RimSummaryPlot* plot = summaryPlots().back();
+
+    auto sourceStepper = plot->sourceStepper();
+    if ( sourceStepper == nullptr ) return;
+
+    m_sourceStepping->syncWithStepper( sourceStepper );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::keepVisiblePageAfterUpdate( bool keepPage )
+{
+    if ( !m_viewer ) return;
+
+    if ( keepPage ) m_viewer->keepCurrentPageAfterUpdate();
 }

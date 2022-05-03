@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Generator: Adobe Illustrator 24.1.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+
+<svg
+   version="1.1"
+   id="Layer_1"
+   x="0px"
+   y="0px"
+   viewBox="0 0 16 16"
+   style="enable-background:new 0 0 16 16;"
+   xml:space="preserve"
+   sodipodi:docname="AppendPrev.svg"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   inkscape:export-filename="D:\Repos\OPM\ResInsight\ApplicationExeCode\Resources\AppendPrev.png"
+   inkscape:export-xdpi="314.46732"
+   inkscape:export-ydpi="314.46732"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"><defs
+   id="defs9"><symbol
+     id="FirstAid"><title
+       id="title1005">First Aid</title><path
+       d="m 44,13 0,15 15,0 0,16 -15,0 0,15 -16,0 0,-15 -15,0 0,-16 15,0 0,-15 z"
+       style="stroke:none"
+       id="path1007" /></symbol></defs><sodipodi:namedview
+   id="namedview7"
+   pagecolor="#ffffff"
+   bordercolor="#666666"
+   borderopacity="1.0"
+   inkscape:pageshadow="2"
+   inkscape:pageopacity="0.0"
+   inkscape:pagecheckerboard="0"
+   showgrid="false"
+   inkscape:zoom="44.9375"
+   inkscape:cx="6.9652295"
+   inkscape:cy="6.2197497"
+   inkscape:window-width="2560"
+   inkscape:window-height="1351"
+   inkscape:window-x="-9"
+   inkscape:window-y="-9"
+   inkscape:window-maximized="1"
+   inkscape:current-layer="Layer_1" />
+<style
+   type="text/css"
+   id="style2">
+	.st0{fill-rule:evenodd;clip-rule:evenodd;fill:#75BEFF;}
+</style>
+
+<g
+   id="g4186"><path
+     class="st0"
+     d="M 2.1,13.2 H 13.9 L 8,2.8 Z"
+     id="path4" /><use
+     xlink:href="#FirstAid"
+     style="opacity:0.78;fill:#008000;stroke:#000000"
+     id="use3426"
+     x="0"
+     y="0"
+     width="100%"
+     height="100%"
+     transform="matrix(0.15988928,0,0,0.15002721,6.0894814,-0.96147989)" /></g></svg>

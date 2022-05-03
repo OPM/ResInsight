@@ -67,14 +67,21 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
     {
         // Check for custom vector naming
 
+        std::string postfix  = quantity.substr( quantity.size() - 5, 5 );
         std::string baseName = quantity.substr( 0, 5 );
         while ( baseName.back() == '_' )
             baseName.pop_back();
+
+        bool isDifference = ( postfix == "_DIFF" );
 
         it = m_summaryToDescMap.find( baseName );
 
         if ( it != m_summaryToDescMap.end() )
         {
+            if ( isDifference )
+            {
+                return RiuSummaryQuantityInfo( it->second.category, it->second.longName + " Difference" );
+            }
             return it->second;
         }
     }

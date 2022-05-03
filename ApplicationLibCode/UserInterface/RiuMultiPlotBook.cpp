@@ -260,6 +260,17 @@ void RiuMultiPlotBook::setSubTitlesVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::scheduleTitleUpdate()
+{
+    for ( auto page : m_pages )
+    {
+        page->scheduleUpdate( RiaDefines::MultiPlotPageUpdateType::TITLE );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::setTitleFontSizes( int titleFontSize, int subTitleFontSize )
 {
     for ( auto page : m_pages )
@@ -717,6 +728,14 @@ void RiuMultiPlotBook::goToPrevPage()
 void RiuMultiPlotBook::goToLastPage()
 {
     changeCurrentPage( m_pages.size() - 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::keepCurrentPageAfterUpdate()
+{
+    m_goToPageAfterUpdate = true;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -197,6 +197,7 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
 
     m_wellLogPlotToolBarEditor->clear();
     m_multiPlotToolBarEditor->clear();
+    m_multiPlotLayoutToolBarEditor->clear();
 
     setWindowTitle( "Plots - ResInsight" );
 }
@@ -430,6 +431,9 @@ void RiuPlotMainWindow::createToolBars()
 
     m_multiPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Multi Plot", this );
     m_multiPlotToolBarEditor->hide();
+
+    m_multiPlotLayoutToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Multi Plot Layout", this );
+    m_multiPlotLayoutToolBarEditor->hide();
 
     if ( RiaPreferences::current()->useUndoRedo() )
     {
@@ -689,14 +693,29 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
     {
         std::vector<caf::PdmFieldHandle*> toolBarFields = plotWindow->fieldsToShowInToolbar();
 
-        m_multiPlotToolBarEditor->setFields( toolBarFields );
-        m_multiPlotToolBarEditor->updateUi();
-        m_multiPlotToolBarEditor->show();
+        if ( toolBarFields.empty() )
+        {
+            m_multiPlotToolBarEditor->clear();
+            m_multiPlotToolBarEditor->hide();
+        }
+        else
+        {
+            m_multiPlotToolBarEditor->setFields( toolBarFields );
+            m_multiPlotToolBarEditor->updateUi();
+            m_multiPlotToolBarEditor->show();
+        }
+
+        std::vector<caf::PdmFieldHandle*> layoutFields = plotWindow->fieldsToShowInLayoutToolbar();
+        m_multiPlotLayoutToolBarEditor->setFields( layoutFields );
+        m_multiPlotLayoutToolBarEditor->updateUi();
+        m_multiPlotLayoutToolBarEditor->show();
     }
     else
     {
         m_multiPlotToolBarEditor->clear();
         m_multiPlotToolBarEditor->hide();
+        m_multiPlotLayoutToolBarEditor->clear();
+        m_multiPlotLayoutToolBarEditor->hide();
     }
     refreshToolbars();
 }

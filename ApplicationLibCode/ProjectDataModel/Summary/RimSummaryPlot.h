@@ -204,6 +204,8 @@ public:
 
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 
+    RimSummaryPlotSourceStepping* sourceStepper();
+
 public:
     // RimViewWindow overrides
     void deleteViewWidget() override;

@@ -79,7 +79,7 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
     }
 
     auto quantity = this->titleQuantity();
-    if ( !other.isPlotDisplayingSingleQuantity() && !quantity.empty() )
+    if ( ( other.titleQuantity() != this->titleQuantity() ) && ( !quantity.empty() ) )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString(
