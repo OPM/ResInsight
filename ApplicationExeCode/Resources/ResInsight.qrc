@@ -263,6 +263,10 @@
         <file>AppendPrev.svg</file>
         <file>AppendNext.png</file>
         <file>AppendPrev.png</file>
+        <file>AppendNextCurve.svg</file>
+        <file>AppendPrevCurve.svg</file>
+        <file>AppendNextCurve.png</file>
+        <file>AppendPrevCurve.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

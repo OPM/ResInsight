@@ -131,6 +131,16 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_appendPrevPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_appendPrevPlot.uiCapability()->setUiIconFromResourceString( ":/AppendPrev.png" );
 
+    CAF_PDM_InitField( &m_appendNextCurve, "AppendNextCurve", false, "", "", "Step Next and Add Curve to Plot" );
+    m_appendNextCurve.xmlCapability()->disableIO();
+    m_appendNextCurve.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_appendNextCurve.uiCapability()->setUiIconFromResourceString( ":/AppendNextCurve.png" );
+
+    CAF_PDM_InitField( &m_appendPrevCurve, "AppendPrevCurve", false, "", "", "Step Previous and Add Curve to Plot" );
+    m_appendPrevCurve.xmlCapability()->disableIO();
+    m_appendPrevCurve.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+    m_appendPrevCurve.uiCapability()->setUiIconFromResourceString( ":/AppendPrevCurve.png" );
+
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
     CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", false, "Auto Adjust Appearance" );
 
@@ -408,6 +418,18 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         int stepDirection = -1;
         appendSubPlotByStepping( stepDirection );
     }
+    else if ( changedField == &m_appendNextCurve )
+    {
+        m_appendNextCurve = false;
+        int stepDirection = 1;
+        appendCurveByStepping( stepDirection );
+    }
+    else if ( changedField == &m_appendPrevCurve )
+    {
+        m_appendPrevCurve = false;
+        int stepDirection = -1;
+        appendCurveByStepping( stepDirection );
+    }
     else if ( changedField == &m_autoAdjustAppearance )
     {
         checkAndApplyAutoAppearance();
@@ -525,6 +547,9 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 
     toolBarFields.push_back( &m_appendPrevPlot );
     toolBarFields.push_back( &m_appendNextPlot );
+
+    toolBarFields.push_back( &m_appendPrevCurve );
+    toolBarFields.push_back( &m_appendNextCurve );
 
     auto multiFields = RimMultiPlot::fieldsToShowInToolbar();
     toolBarFields.insert( std::end( toolBarFields ), std::begin( multiFields ), std::end( multiFields ) );
@@ -1067,6 +1092,13 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
 
     updateSourceStepper();
     RiuPlotMainWindowTools::refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::appendCurveByStepping( int direction )
+{
 }
 
 //--------------------------------------------------------------------------------------------------

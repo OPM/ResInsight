@@ -125,6 +125,7 @@ private:
     void duplicate();
 
     void appendSubPlotByStepping( int direction );
+    void appendCurveByStepping( int direction );
 
     void analyzePlotsAndAdjustAppearanceSettings();
 
@@ -141,6 +142,9 @@ private:
 
     caf::PdmField<bool> m_appendNextPlot;
     caf::PdmField<bool> m_appendPrevPlot;
+
+    caf::PdmField<bool> m_appendNextCurve;
+    caf::PdmField<bool> m_appendPrevCurve;
 
     caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
 
