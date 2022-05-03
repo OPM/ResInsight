@@ -192,6 +192,9 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
         }
     }
 
+    menuBuilder.addSeparator();
+    menuBuilder << "RicDeleteSubPlotFeature";
+
     menuBuilder.appendToMenu( &menu );
 
     if ( !menu.actions().empty() )
@@ -201,7 +204,7 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
         // Parts of progress dialog GUI can be present after menu has closed related to
         // RicImportGridModelFromSummaryCurveFeature. Make sure the plot is updated, and call processEvents() to make
         // sure all GUI events are processed
-        plotWidget()->update();
+        // plotWidget()->update();
         QApplication::processEvents();
     }
 }
