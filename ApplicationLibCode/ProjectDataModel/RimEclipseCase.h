@@ -50,6 +50,7 @@ class RimEclipseInputPropertyCollection;
 class RimEclipseView;
 class RimIdenticalGridCaseGroup;
 class RimReservoirCellResultsStorage;
+class RimEclipseResultAddressCollection;
 class RifReaderSettings;
 
 //==================================================================================================
@@ -139,6 +140,7 @@ protected:
 private:
     void                    createTimeStepFormatString();
     std::vector<Rim3dView*> allSpecialViews() const override;
+    void                    buildChildNodes();
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;
@@ -155,6 +157,8 @@ private:
     cvf::ref<RigEclipseCaseData>    m_rigEclipseCase;
     QString                         m_timeStepFormatString;
     std::map<QString, cvf::Color3f> m_wellToColorMap;
+
+    caf::PdmChildArrayField<RimEclipseResultAddressCollection*> m_resultAddressCollections;
 
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_matrixModelResults;
     caf::PdmChildField<RimReservoirCellResultsStorage*> m_fractureModelResults;

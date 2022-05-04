@@ -1458,6 +1458,14 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     {
         uiTreeOrdering.add( scriptCollection() );
     }
+    else if ( uiConfigName == "MainWindow.DataSources" )
+    {
+        RimOilField* oilField = activeOilField();
+        if ( oilField )
+        {
+            if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
+        }
+    }
     else
     {
         if ( viewLinkerCollection()->viewLinker() )
