@@ -40,56 +40,7 @@ RimGridCalculationVariable::RimGridCalculationVariable()
     CAF_PDM_InitFieldNoDefault( &m_resultType, "ResultType", "Type" );
     CAF_PDM_InitField( &m_resultVariable, "ResultVariable", RiaResultNames::undefinedResultName(), "Variable" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseGridCase", "Grid Case" );
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimGridCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                   const QVariant&            oldValue,
-                                                   const QVariant&            newValue )
-{
-    // if ( changedField == &m_button )
-    // {
-    //     bool updateContainingEditor = false;
-
-    //     {
-    //         RiuGridVectorSelectionDialog dlg( nullptr );
-    //         dlg.hideEnsembles();
-
-    //         readDataFromApplicationStore( &dlg );
-
-    //         if ( dlg.exec() == QDialog::Accepted )
-    //         {
-    //             std::vector<RiaGridCurveDefinition> curveSelection = dlg.curveSelection();
-    //             if ( curveSelection.size() > 0 )
-    //             {
-    //                 m_case = curveSelection[0].summaryCase();
-    //                 m_summaryAddress->setAddress( curveSelection[0].summaryAddress() );
-
-    //                 writeDataToApplicationStore();
-
-    //                 updateContainingEditor = true;
-    //             }
-    //         }
-    //     }
-
-    //     if ( updateContainingEditor )
-    //     {
-    //         RimGridCalculation* rimCalculation = nullptr;
-    //         this->firstAncestorOrThisOfTypeAsserted( rimCalculation );
-
-    //         // RimCalculation is pointed to by RicGridCurveCalculator in a PtrField
-    //         // Update editors connected to RicGridCurveCalculator
-    //         std::vector<caf::PdmObjectHandle*> referringObjects;
-    //         rimCalculation->objectsWithReferringPtrFields( referringObjects );
-    //         for ( auto o : referringObjects )
-    //         {
-    //             o->uiCapability()->updateConnectedEditors();
-    //         }
-    //     }
-    // }
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", allTimeStepsValue(), "Time Step" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,6 +110,8 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
+        options.push_back( caf::PdmOptionItemInfo( "All timesteps", allTimeStepsValue() ) );
+
         RimTools::timeStepsForCase( m_eclipseCase(), &options );
     }
 
@@ -217,4 +170,12 @@ QString RimGridCalculationVariable::resultVariable() const
 int RimGridCalculationVariable::timeStep() const
 {
     return m_timeStep;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimGridCalculationVariable::allTimeStepsValue()
+{
+    return -1;
 }

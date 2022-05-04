@@ -49,8 +49,9 @@ public:
     QString                   resultVariable() const;
     int                       timeStep() const;
 
+    static int allTimeStepsValue();
+
 private:
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
