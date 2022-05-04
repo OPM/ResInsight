@@ -72,8 +72,9 @@ public:
     virtual void removePlotNoUpdate( RimPlot* plot );
     virtual void updateAfterPlotRemove();
 
-    void deleteAllPlots() override;
-    void updatePlots();
+    void         deleteAllPlots() override;
+    void         updatePlots();
+    virtual void updatePlotWindowTitle();
 
     size_t plotCount() const override;
     size_t plotIndex( const RimPlot* plot ) const;
@@ -136,8 +137,7 @@ protected:
     void updateZoom();
     void recreatePlotWidgets();
 
-    virtual void updatePlotWindowTitle();
-    void         onPlotAdditionOrRemoval();
+    void onPlotAdditionOrRemoval();
 
     bool isMouseCursorInsidePlot();
 

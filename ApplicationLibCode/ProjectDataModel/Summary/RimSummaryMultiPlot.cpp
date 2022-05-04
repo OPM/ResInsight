@@ -1099,6 +1099,35 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::appendCurveByStepping( int direction )
 {
+    for ( auto plot : summaryPlots() )
+    {
+        std::vector<caf::PdmObjectHandle*> addresses;
+
+        for ( auto curve : plot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+        {
+            auto address = curve->summaryAddressY();
+            auto sumCase = curve->summaryCaseY();
+            address      = m_sourceStepping->stepAddress( address, direction );
+            addresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, sumCase->caseId() ) );
+        }
+
+        for ( auto curveSet : plot->curveSets() )
+        {
+            auto address = curveSet->summaryAddress();
+            auto sumEns  = curveSet->summaryCaseCollection();
+            address      = m_sourceStepping->stepAddress( address, direction );
+            addresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, -1, sumEns->ensembleId() ) );
+        }
+
+        plot->handleDroppedObjects( addresses );
+
+        for ( auto adr : addresses )
+            delete adr;
+    }
+
+    m_sourceStepping->updateStepIndex( direction );
+
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

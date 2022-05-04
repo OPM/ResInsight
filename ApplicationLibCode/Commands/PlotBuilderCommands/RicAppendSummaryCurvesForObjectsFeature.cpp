@@ -57,8 +57,6 @@ void RicAppendSummaryCurvesForObjectsFeature::onActionTriggered( bool isChecked 
 
     auto selectionType = sumAddressCollections.front()->contentType();
     auto sourcePlots   = summaryMultiPlot->summaryPlots();
-    auto plotsForOneInstance =
-        RicAppendSummaryPlotsForObjectsFeature::plotsForOneInstanceOfObjectType( sourcePlots, selectionType );
 
     std::vector<caf::PdmObjectHandle*> pdmObjects;
     for ( auto summaryAdrCollection : sumAddressCollections )
@@ -70,8 +68,6 @@ void RicAppendSummaryCurvesForObjectsFeature::onActionTriggered( bool isChecked 
     {
         plot->handleDroppedObjects( pdmObjects );
     }
-
-    summaryMultiPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -84,14 +84,7 @@ void RiuSummaryMultiPlotBook::createPages()
     }
 
     // Set page numbers in title when there's more than one page
-    if ( m_pages.size() > 1 )
-    {
-        for ( int i = 0; i < m_pages.size(); ++i )
-        {
-            int pageNumber = i + 1;
-            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( m_pages.size() ) );
-        }
-    }
+    updatePageTitles();
     adjustBookFrame();
 }
 

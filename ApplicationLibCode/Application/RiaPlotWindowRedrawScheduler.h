@@ -40,7 +40,9 @@ class RiaPlotWindowRedrawScheduler : public QObject
 public:
     static RiaPlotWindowRedrawScheduler* instance();
 
-    void scheduleMultiPlotWindowUpdate( RiuMultiPlotBook* plotWindow );
+    void scheduleMultiPlotBookUpdate(
+        RiuMultiPlotBook*                   plotWindow,
+        RiaDefines::MultiPlotPageUpdateType updateType = RiaDefines::MultiPlotPageUpdateType::ALL );
     void scheduleMultiPlotPageUpdate(
         RiuMultiPlotPage*                   plotWindow,
         RiaDefines::MultiPlotPageUpdateType updateType = RiaDefines::MultiPlotPageUpdateType::ALL );
@@ -59,9 +61,9 @@ private:
 
 private:
     std::map<QPointer<RiuMultiPlotPage>, RiaDefines::MultiPlotPageUpdateType> m_plotPagesToUpdate;
+    std::map<QPointer<RiuMultiPlotBook>, RiaDefines::MultiPlotPageUpdateType> m_plotBooksToUpdate;
 
-    std::vector<QPointer<RiuPlotWidget>>    m_plotWidgetsToReplot;
-    std::vector<QPointer<RiuMultiPlotBook>> m_plotWindowsToUpdate;
+    std::vector<QPointer<RiuPlotWidget>> m_plotWidgetsToReplot;
 
     QScopedPointer<QTimer> m_plotWindowUpdateTimer;
 };

@@ -2043,20 +2043,60 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
 
     if ( summaryAddr->isEnsemble() )
     {
+        std::map<RifEclipseSummaryAddress, std::set<RimSummaryCaseCollection*>> dataVectorMap;
+
+        for ( auto& curve : curveSets() )
+        {
+            const auto curveAddress = curve->summaryAddress();
+            dataVectorMap[curveAddress].insert( curve->summaryCaseCollection() );
+        }
+
         auto ensemble = RiaSummaryTools::ensembleById( summaryAddr->ensembleId() );
         if ( ensemble )
         {
-            addNewEnsembleCurveY( summaryAddr->address(), ensemble );
-            newCurves++;
+            RifEclipseSummaryAddress droppedAddress = summaryAddr->address();
+
+            bool skipAddress = false;
+
+            if ( dataVectorMap.count( droppedAddress ) > 0 )
+            {
+                skipAddress = ( dataVectorMap[droppedAddress].count( ensemble ) > 0 );
+            }
+
+            if ( !skipAddress )
+            {
+                addNewEnsembleCurveY( droppedAddress, ensemble );
+                newCurves++;
+            }
         }
     }
     else
     {
+        std::map<RifEclipseSummaryAddress, std::set<RimSummaryCase*>> dataVectorMap;
+
+        for ( auto& curve : summaryCurves() )
+        {
+            const auto curveAddress = curve->summaryAddressY();
+            dataVectorMap[curveAddress].insert( curve->summaryCaseY() );
+        }
+
         auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
         if ( summaryCase )
         {
-            curves.push_back( addNewCurveY( summaryAddr->address(), summaryCase ) );
-            newCurves++;
+            RifEclipseSummaryAddress droppedAddress = summaryAddr->address();
+
+            bool skipAddress = false;
+
+            if ( dataVectorMap.count( droppedAddress ) > 0 )
+            {
+                skipAddress = ( dataVectorMap[droppedAddress].count( summaryCase ) > 0 );
+            }
+
+            if ( !skipAddress )
+            {
+                curves.push_back( addNewCurveY( droppedAddress, summaryCase ) );
+                newCurves++;
+            }
         }
     }
     return { newCurves, curves };

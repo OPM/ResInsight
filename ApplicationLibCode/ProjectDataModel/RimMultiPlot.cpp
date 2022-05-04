@@ -176,6 +176,7 @@ QString RimMultiPlot::multiPlotTitle() const
 void RimMultiPlot::setMultiPlotTitle( const QString& title )
 {
     m_plotWindowTitle = title;
+    if ( !m_viewer.isNull() ) m_viewer->setPlotTitle( title );
 }
 
 //--------------------------------------------------------------------------------------------------

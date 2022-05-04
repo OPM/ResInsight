@@ -79,6 +79,7 @@ public:
 
     void removePlotNoUpdate( RimPlot* plot ) override;
     void updateAfterPlotRemove() override;
+    void updatePlotWindowTitle() override;
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar() override;
 
@@ -118,7 +119,6 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
 
-    void updatePlotWindowTitle() override;
     void computeAggregatedAxisRange();
     void updateSourceStepper();
 
