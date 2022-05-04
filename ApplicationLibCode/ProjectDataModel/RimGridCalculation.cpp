@@ -59,21 +59,27 @@ bool RimGridCalculation::calculate()
 
     auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
 
-    RimEclipseCase*                  eclipseCase = nullptr;
-    std::vector<std::vector<double>> values;
+    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    if ( !eclipseCase )
+    {
+        RiaLogging::errorInMessageBox( nullptr,
+                                       "Expression Parser",
+                                       QString( "No case found for calculation : %1" ).arg( leftHandSideVariableName ) );
+        return false;
+    }
+
+    const size_t timeStepCount = eclipseCase->results( porosityModel )->maxTimeStepCount();
+
+    std::vector<std::vector<std::vector<double>>> values;
     for ( size_t i = 0; i < m_variables.size(); i++ )
     {
         RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
-
-        // Use the first defined eclipse case from for output
-        if ( !eclipseCase ) eclipseCase = v->eclipseCase();
 
         if ( !v->eclipseCase() )
         {
             RiaLogging::errorInMessageBox( nullptr,
                                            "Expression Parser",
                                            QString( "No case defined for variable : %1" ).arg( v->name() ) );
-
             return false;
         }
 
@@ -82,11 +88,11 @@ bool RimGridCalculation::calculate()
             RiaLogging::errorInMessageBox( nullptr,
                                            "Expression Parser",
                                            QString( "No result variable defined for variable : %1" ).arg( v->name() ) );
-
             return false;
         }
 
-        RigEclipseResultAddress resAddr( v->resultCategoryType(), v->resultVariable() );
+        auto                    resultCategoryType = v->resultCategoryType();
+        RigEclipseResultAddress resAddr( resultCategoryType, v->resultVariable() );
         if ( !eclipseCase->results( porosityModel )->ensureKnownResultLoaded( resAddr ) )
         {
             RiaLogging::errorInMessageBox( nullptr,
@@ -95,59 +101,79 @@ bool RimGridCalculation::calculate()
             return false;
         }
 
+        int timeStep = v->timeStep();
+
         std::vector<std::vector<double>> inputValues = eclipseCase->results( porosityModel )->cellScalarResults( resAddr );
-
-        values.push_back( inputValues[0] );
-    }
-
-    ExpressionParser parser;
-    for ( size_t i = 0; i < m_variables.size(); i++ )
-    {
-        RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
-
-        parser.assignVector( v->name(), values[i] );
-    }
-
-    std::vector<double> resultValues;
-    resultValues.resize( values[0].size() );
-    parser.assignVector( leftHandSideVariableName, resultValues );
-
-    QString errorText;
-    bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
-
-    if ( evaluatedOk )
-    {
-        m_timesteps.v().clear();
-        m_calculatedValues.v().clear();
-
-        RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
-
-        if ( !eclipseCase->results( porosityModel )->ensureKnownResultLoaded( resAddr ) )
+        if ( resultCategoryType == RiaDefines::ResultCatType::STATIC_NATIVE )
         {
-            eclipseCase->results( porosityModel )->createResultEntry( resAddr, true );
+            // Use static data for all time steps
+            inputValues.resize( timeStepCount );
+            for ( size_t tsId = 1; tsId < timeStepCount; tsId++ )
+            {
+                inputValues[tsId] = inputValues[0];
+            }
+        }
+        else if ( timeStep != RimGridCalculationVariable::allTimeStepsValue() )
+        {
+            // Use data from a specific time step for this variable for all result time steps
+            for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
+            {
+                if ( static_cast<int>( tsId ) != timeStep )
+                {
+                    inputValues[tsId] = inputValues[timeStep];
+                }
+            }
         }
 
-        eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
-
-        std::vector<std::vector<double>>* scalarResultFrames =
-            eclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
-        size_t timeStepCount = eclipseCase->results( porosityModel )->maxTimeStepCount();
-        scalarResultFrames->resize( timeStepCount );
-
-        size_t tsId                    = 0;
-        scalarResultFrames->at( tsId ) = resultValues;
-
-        m_isDirty = false;
+        values.push_back( inputValues );
     }
-    else
+
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
+
+    if ( !eclipseCase->results( porosityModel )->ensureKnownResultLoaded( resAddr ) )
     {
-        QString s = "The following error message was received from the parser library : \n\n";
-        s += errorText;
-
-        RiaLogging::errorInMessageBox( nullptr, "Expression Parser", s );
+        eclipseCase->results( porosityModel )->createResultEntry( resAddr, true );
     }
 
-    return evaluatedOk;
+    eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
+
+    std::vector<std::vector<double>>* scalarResultFrames =
+        eclipseCase->results( porosityModel )->modifiableCellScalarResultTimesteps( resAddr );
+    scalarResultFrames->resize( timeStepCount );
+
+    for ( size_t tsId = 0; tsId < timeStepCount; tsId++ )
+    {
+        ExpressionParser parser;
+        for ( size_t i = 0; i < m_variables.size(); i++ )
+        {
+            RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+            parser.assignVector( v->name(), values[i][tsId] );
+        }
+
+        std::vector<double> resultValues;
+        resultValues.resize( values[0][tsId].size() );
+        parser.assignVector( leftHandSideVariableName, resultValues );
+
+        QString errorText;
+        bool    evaluatedOk = parser.expandIfStatementsAndEvaluate( m_expression, &errorText );
+
+        if ( evaluatedOk )
+        {
+            scalarResultFrames->at( tsId ) = resultValues;
+
+            m_isDirty = false;
+        }
+        else
+        {
+            QString s = "The following error message was received from the parser library : \n\n";
+            s += errorText;
+
+            RiaLogging::errorInMessageBox( nullptr, "Expression Parser", s );
+            return false;
+        }
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
