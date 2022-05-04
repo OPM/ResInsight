@@ -29,7 +29,8 @@
 //--------------------------------------------------------------------------------------------------
 void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*                  valueField,
                                                      const QList<caf::PdmOptionItemInfo>& options,
-                                                     int                                  indexOffset )
+                                                     int                                  indexOffset,
+                                                     bool                                 notifyChange )
 {
     if ( valueField && !options.isEmpty() )
     {
@@ -65,7 +66,7 @@ void RimDataSourceSteppingTools::modifyCurrentIndex( caf::PdmValueField*        
         {
             QVariant newValue = options[nextIndex].value();
             valueField->setFromQVariant( newValue );
-            valueField->uiCapability()->notifyFieldChanged( currentValue, newValue );
+            if ( notifyChange ) valueField->uiCapability()->notifyFieldChanged( currentValue, newValue );
         }
     }
 }

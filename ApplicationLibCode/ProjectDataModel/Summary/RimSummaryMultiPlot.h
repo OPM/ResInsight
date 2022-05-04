@@ -79,6 +79,7 @@ public:
 
     void removePlotNoUpdate( RimPlot* plot ) override;
     void updateAfterPlotRemove() override;
+    void updatePlotWindowTitle() override;
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar() override;
 
@@ -118,13 +119,13 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
 
-    void updatePlotWindowTitle() override;
     void computeAggregatedAxisRange();
     void updateSourceStepper();
 
     void duplicate();
 
     void appendSubPlotByStepping( int direction );
+    void appendCurveByStepping( int direction );
 
     void analyzePlotsAndAdjustAppearanceSettings();
 
@@ -141,6 +142,9 @@ private:
 
     caf::PdmField<bool> m_appendNextPlot;
     caf::PdmField<bool> m_appendPrevPlot;
+
+    caf::PdmField<bool> m_appendNextCurve;
+    caf::PdmField<bool> m_appendPrevCurve;
 
     caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
 

@@ -80,7 +80,7 @@ public:
     bool pagePreviewModeEnabled() const;
     void setPagePreviewModeEnabled( bool previewMode );
 
-    void scheduleUpdate();
+    void scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate = RiaDefines::MultiPlotPageUpdateType::ALL );
     void scheduleReplotOfAllPlots();
 
     void renderTo( QPaintDevice* painter );
@@ -123,6 +123,8 @@ protected:
 
     const QList<QPointer<RiuMultiPlotPage>>& pages() const;
 
+    void updatePageTitles();
+
 private:
     RiuMultiPlotPage* createPage();
     void              deleteAllPages();
@@ -131,7 +133,7 @@ private:
     void changeCurrentPage( int pageNumber );
 
 private slots:
-    virtual void performUpdate( bool regeneratePages );
+    virtual void performUpdate( RiaDefines::MultiPlotPageUpdateType updateType );
 
 protected:
     friend class RiaPlotWindowRedrawScheduler;

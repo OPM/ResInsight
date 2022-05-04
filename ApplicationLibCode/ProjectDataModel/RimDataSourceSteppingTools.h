@@ -31,7 +31,8 @@ class RimDataSourceSteppingTools
 public:
     static void modifyCurrentIndex( caf::PdmValueField*                  valueField,
                                     const QList<caf::PdmOptionItemInfo>& options,
-                                    int                                  indexOffset );
+                                    int                                  indexOffset,
+                                    bool                                 notifyChange = true );
 
     static bool updateAddressIfMatching( const QVariant&                              oldValue,
                                          const QVariant&                              newValue,

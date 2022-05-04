@@ -218,19 +218,6 @@ void RiuMultiPlotBook::removeAllPlots()
 void RiuMultiPlotBook::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
-    for ( int i = 0; i < m_pages.size(); ++i )
-    {
-        int pageIndex = i + 1;
-        int pageCount = (int)m_pages.size();
-        if ( pageCount > pageIndex )
-        {
-            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( i + 1 ).arg( m_pages.size() ) );
-        }
-        else
-        {
-            m_pages[i]->setPlotTitle( QString( "%1" ).arg( m_plotTitle ) );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -266,6 +253,7 @@ void RiuMultiPlotBook::scheduleTitleUpdate()
     {
         page->scheduleUpdate( RiaDefines::MultiPlotPageUpdateType::TITLE );
     }
+    scheduleUpdate( RiaDefines::MultiPlotPageUpdateType::TITLE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -333,9 +321,9 @@ void RiuMultiPlotBook::setPagePreviewModeEnabled( bool previewMode )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::scheduleUpdate()
+void RiuMultiPlotBook::scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate )
 {
-    RiaPlotWindowRedrawScheduler::instance()->scheduleMultiPlotWindowUpdate( this );
+    RiaPlotWindowRedrawScheduler::instance()->scheduleMultiPlotBookUpdate( this, whatToUpdate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,8 +398,8 @@ void RiuMultiPlotBook::showEvent( QShowEvent* event )
 {
     m_goToPageAfterUpdate = true;
     QWidget::showEvent( event );
-    const bool regeneratePages = false;
-    performUpdate( regeneratePages );
+
+    performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
     if ( m_previewMode )
     {
         applyPagePreviewBookSize( width() );
@@ -501,16 +489,22 @@ bool RiuMultiPlotBook::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::performUpdate( bool regeneratePages )
+void RiuMultiPlotBook::performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate )
 {
     if ( !m_plotDefinition || !m_plotDefinition->isValid() ) return;
 
     applyLook();
-    if ( regeneratePages || m_pages.size() == 0 )
+    if ( ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::PLOT ) == RiaDefines::MultiPlotPageUpdateType::PLOT ) ||
+         m_pages.size() == 0 )
     {
         deleteAllPages();
         createPages();
     }
+    else if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::TITLE ) == RiaDefines::MultiPlotPageUpdateType::TITLE )
+    {
+        updatePageTitles();
+    }
+
     updateGeometry();
 
     RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
@@ -521,6 +515,27 @@ void RiuMultiPlotBook::performUpdate( bool regeneratePages )
     {
         m_pageTimerId         = startTimer( 50 );
         m_goToPageAfterUpdate = false;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::updatePageTitles()
+{
+    if ( m_pages.isEmpty() ) return;
+
+    if ( m_pages.size() > 1 )
+    {
+        for ( int i = 0; i < m_pages.size(); ++i )
+        {
+            int pageNumber = i + 1;
+            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( m_pages.size() ) );
+        }
+    }
+    else
+    {
+        m_pages[0]->setPlotTitle( QString( "%1" ).arg( m_plotTitle ) );
     }
 }
 
@@ -603,14 +618,8 @@ void RiuMultiPlotBook::createPages()
     }
 
     // Set page numbers in title when there's more than one page
-    if ( m_pages.size() > 1 )
-    {
-        for ( int i = 0; i < m_pages.size(); ++i )
-        {
-            int pageNumber = i + 1;
-            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( m_pages.size() ) );
-        }
-    }
+    updatePageTitles();
+
     adjustBookFrame();
 }
 

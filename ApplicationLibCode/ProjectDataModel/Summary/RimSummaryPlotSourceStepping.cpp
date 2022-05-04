@@ -516,6 +516,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         if ( summaryMultiPlot )
         {
             summaryMultiPlot->updatePlots();
+            summaryMultiPlot->updatePlotWindowTitle();
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateMultiPlotToolBar();
         }
@@ -883,11 +884,11 @@ bool RimSummaryPlotSourceStepping::isYAxisStepping() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset )
+void RimSummaryPlotSourceStepping::modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset, bool notifyChange )
 {
     bool                          useOptionsOnly;
     QList<caf::PdmOptionItemInfo> options = calculateValueOptions( valueField, &useOptionsOnly );
-    RimDataSourceSteppingTools::modifyCurrentIndex( valueField, options, indexOffset );
+    RimDataSourceSteppingTools::modifyCurrentIndex( valueField, options, indexOffset, notifyChange );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1284,4 +1285,16 @@ RimSummaryCaseCollection* RimSummaryPlotSourceStepping::stepEnsemble( int direct
     }
 
     return m_ensemble;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::updateStepIndex( int direction )
+{
+    caf::PdmValueField* valueField = fieldToModify();
+    if ( !valueField ) return;
+
+    bool notifyChange = false;
+    modifyCurrentIndex( valueField, direction, notifyChange );
 }

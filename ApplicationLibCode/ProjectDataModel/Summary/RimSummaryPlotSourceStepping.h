@@ -75,6 +75,8 @@ public:
 
     RimSummaryPlotSourceStepping::SourceSteppingDimension stepDimension() const;
 
+    void updateStepIndex( int direction );
+
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -102,7 +104,7 @@ private:
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
 
-    void modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset );
+    void modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset, bool notifyChange = true );
 
     std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
 
