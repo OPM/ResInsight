@@ -1122,7 +1122,9 @@ void RimSummaryMultiPlot::appendCurveByStepping( int direction )
         plot->handleDroppedObjects( addresses );
 
         for ( auto adr : addresses )
+        {
             delete adr;
+        }
     }
 
     m_sourceStepping->updateStepIndex( direction );

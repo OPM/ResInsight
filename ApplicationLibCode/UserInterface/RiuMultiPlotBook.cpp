@@ -218,7 +218,6 @@ void RiuMultiPlotBook::removeAllPlots()
 void RiuMultiPlotBook::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
-    // updatePageTitles();
 }
 
 //--------------------------------------------------------------------------------------------------
