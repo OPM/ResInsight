@@ -1454,7 +1454,7 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             }
         }
     }
-    else if ( uiConfigName == "PlotWindow.Scripts" )
+    else if ( uiConfigName == "PlotWindow.Scripts" || uiConfigName == "MainWindow.Scripts" )
     {
         uiTreeOrdering.add( scriptCollection() );
     }
@@ -1480,7 +1480,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         }
 
         uiTreeOrdering.add( colorLegendCollection() );
-        uiTreeOrdering.add( scriptCollection() );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
