@@ -132,10 +132,12 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
 
         m_axisProperties->setNameAndAxis( axisTitle, axis.axis(), axis.index() );
         plotWidget->setAxisTitleText( axis, axisTitle );
+
+        bool titleBold = false;
         plotWidget->setAxisFontsAndAlignment( axis,
                                               m_axisProperties->titleFontSize(),
                                               m_axisProperties->valuesFontSize(),
-                                              true,
+                                              titleBold,
                                               titleAlignment );
         plotWidget->setAxisTitleEnabled( axis, true );
     }
