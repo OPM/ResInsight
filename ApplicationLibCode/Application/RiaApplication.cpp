@@ -31,6 +31,7 @@
 #include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
+#include "RiaWellNameComparer.h"
 
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
@@ -781,6 +782,8 @@ void RiaApplication::closeProject()
 
     m_project->close();
     m_commandQueue.clear();
+
+    RiaWellNameComparer::clearCache();
 
     onProjectClosed();
 

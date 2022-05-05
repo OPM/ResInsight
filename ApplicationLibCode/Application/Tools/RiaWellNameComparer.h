@@ -19,7 +19,9 @@
 #pragma once
 
 #include <QString>
+
 #include <functional>
+#include <map>
 #include <vector>
 
 //==================================================================================================
@@ -32,8 +34,9 @@ class RiaWellNameComparer
 public:
     static QString tryFindMatchingSimWellName( QString searchName );
     static QString tryFindMatchingWellPath( QString wellName );
-
     static QString tryMatchNameInList( QString searchName, const std::vector<QString>& nameList );
+
+    static void clearCache();
 
 private:
     static QString tryMatchName( QString                           searchName,
@@ -41,4 +44,8 @@ private:
                                  std::function<QString( QString )> stringFormatter = nullptr );
 
     static QString removeWellNamePrefix( const QString& name );
+
+private:
+    static std::map<QString, QString> sm_nameWithoutPrefix;
+    static std::map<QString, QString> sm_matchedName;
 };
