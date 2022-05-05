@@ -453,15 +453,18 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
 
-    auto* plotWindow = new RimSummaryMultiPlot();
-    plotWindow->setAsPlotMdiWindow();
-    plotCollection->addSummaryMultiPlot( plotWindow );
+    auto* summaryMultiPlot = new RimSummaryMultiPlot();
+    summaryMultiPlot->setAsPlotMdiWindow();
+    plotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
-    appendPlotsToSummaryMultiPlot( plotWindow, plots );
+    appendPlotsToSummaryMultiPlot( summaryMultiPlot, plots );
+
+    summaryMultiPlot->setDefaultRangeAggregationSteppingDimension();
+    summaryMultiPlot->zoomAll();
 
     plotCollection->updateAllRequiredEditors();
-    plotWindow->loadDataAndUpdate();
-    plotWindow->updateAllRequiredEditors();
+    summaryMultiPlot->loadDataAndUpdate();
+    summaryMultiPlot->updateAllRequiredEditors();
 
     if ( !plots.empty() )
     {
@@ -469,10 +472,10 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     }
     else
     {
-        RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
+        RiuPlotMainWindowTools::selectAsCurrentItem( summaryMultiPlot );
     }
 
-    return plotWindow;
+    return summaryMultiPlot;
 }
 
 //--------------------------------------------------------------------------------------------------

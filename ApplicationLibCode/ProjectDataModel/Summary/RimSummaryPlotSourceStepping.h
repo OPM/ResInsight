@@ -74,6 +74,7 @@ public:
     void syncWithStepper( RimSummaryPlotSourceStepping* other );
 
     RimSummaryPlotSourceStepping::SourceSteppingDimension stepDimension() const;
+    void setStepDimension( RimSummaryPlotSourceStepping::SourceSteppingDimension dimension );
 
     void updateStepIndex( int direction );
 

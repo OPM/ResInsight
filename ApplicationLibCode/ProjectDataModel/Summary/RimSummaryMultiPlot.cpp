@@ -642,6 +642,52 @@ void RimSummaryMultiPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
+{
+    RiaSummaryAddressAnalyzer analyzer;
+
+    for ( auto p : summaryPlots() )
+    {
+        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
+        analyzer.appendAddresses( addresses );
+    }
+
+    auto rangeAggregation = AxisRangeAggregation::INDIVIDUAL;
+    auto stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY;
+
+    if ( !analyzer.wellNames().empty() )
+    {
+        rangeAggregation = AxisRangeAggregation::WELLS;
+        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::WELL;
+    }
+    else if ( !analyzer.groupNames().empty() )
+    {
+        rangeAggregation = AxisRangeAggregation::INDIVIDUAL;
+        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::GROUP;
+    }
+    else if ( !analyzer.regionNumbers().empty() )
+    {
+        rangeAggregation = AxisRangeAggregation::REGIONS;
+        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION;
+    }
+    else if ( !analyzer.aquifers().empty() )
+    {
+        rangeAggregation = AxisRangeAggregation::INDIVIDUAL;
+        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER;
+    }
+    else if ( !analyzer.blocks().empty() )
+    {
+        rangeAggregation = AxisRangeAggregation::INDIVIDUAL;
+        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK;
+    }
+
+    m_axisRangeAggregation = rangeAggregation;
+    m_sourceStepping->setStepDimension( stepDimension );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 {
     if ( m_autoAdjustAppearance )

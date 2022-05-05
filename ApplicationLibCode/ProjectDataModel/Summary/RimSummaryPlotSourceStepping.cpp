@@ -517,6 +517,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             summaryMultiPlot->updatePlots();
             summaryMultiPlot->updatePlotWindowTitle();
+            summaryMultiPlot->zoomAll();
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateMultiPlotToolBar();
         }
@@ -1212,6 +1213,14 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
 RimSummaryPlotSourceStepping::SourceSteppingDimension RimSummaryPlotSourceStepping::stepDimension() const
 {
     return m_stepDimension();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::setStepDimension( SourceSteppingDimension dimension )
+{
+    m_stepDimension = dimension;
 }
 
 //--------------------------------------------------------------------------------------------------

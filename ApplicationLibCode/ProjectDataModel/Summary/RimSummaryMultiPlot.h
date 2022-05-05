@@ -101,6 +101,7 @@ public:
 
     void zoomAll() override;
 
+    void setDefaultRangeAggregationSteppingDimension();
     void checkAndApplyAutoAppearance();
 
     void keepVisiblePageAfterUpdate( bool keepPage );
