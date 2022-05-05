@@ -84,7 +84,7 @@ public:
     void deleteAllContainedObjects();
     void updateCurrentTimeStepInPlots();
     void updatePlotsWithFormations();
-    void updatePlotsWithCompletions();
+    void scheduleUpdatePlotsWithCompletions();
     void deleteAllCachedData();
     void ensureDefaultFlowPlotsAreCreated();
     void ensureCalculationIdsAreAssigned();

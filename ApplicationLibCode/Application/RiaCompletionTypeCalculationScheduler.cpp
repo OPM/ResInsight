@@ -78,38 +78,50 @@ void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAnd
 void RiaCompletionTypeCalculationScheduler::scheduleRecalculateCompletionTypeAndRedrawAllViews(
     const std::vector<RimEclipseCase*>& eclipseCases )
 {
+    clearCompletionTypeResults( eclipseCases );
+
     for ( RimEclipseCase* eclipseCase : eclipseCases )
     {
-        CVF_ASSERT( eclipseCase );
-
-        if ( eclipseCase->eclipseCaseData() )
-        {
-            eclipseCase->eclipseCaseData()
-                ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
-                ->clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                     RiaResultNames::completionTypeResultName() );
-
-            // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type
-            eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities( nullptr );
-        }
-
-        m_eclipseCasesToRecalculate.push_back( eclipseCase );
+        if ( eclipseCase ) m_eclipseCasesToRecalculate.emplace_back( eclipseCase );
     }
 
-    startTimer();
+    startTimer( 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
+void RiaCompletionTypeCalculationScheduler::clearCompletionTypeResultsInAllCases()
 {
-    if ( caf::ProgressState::isActive() )
-    {
-        startTimer();
-        return;
-    }
+    std::vector<RimEclipseCase*> eclipseCases =
+        RimProject::current()->activeOilField()->analysisModels->cases().childObjects();
 
+    clearCompletionTypeResults( eclipseCases );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaCompletionTypeCalculationScheduler::clearCompletionTypeResults( const std::vector<RimEclipseCase*>& eclipseCases )
+{
+    for ( RimEclipseCase* eclipseCase : eclipseCases )
+    {
+        if ( !eclipseCase || !eclipseCase->eclipseCaseData() ) continue;
+
+        eclipseCase->eclipseCaseData()
+            ->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
+            ->clearScalarResult( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::completionTypeResultName() );
+
+        // Delete virtual perforation transmissibilities, as these are the basis for the computation of completion type
+        eclipseCase->eclipseCaseData()->setVirtualPerforationTransmissibilities( nullptr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaCompletionTypeCalculationScheduler::performScheduledUpdates()
+{
     std::set<RimEclipseCase*> uniqueCases( m_eclipseCasesToRecalculate.begin(), m_eclipseCasesToRecalculate.end() );
 
     Rim3dView* activeView = RiaApplication::instance()->activeReservoirView();
@@ -149,28 +161,11 @@ void RiaCompletionTypeCalculationScheduler::slotRecalculateCompletionType()
 //--------------------------------------------------------------------------------------------------
 RiaCompletionTypeCalculationScheduler::~RiaCompletionTypeCalculationScheduler()
 {
-    delete m_recalculateCompletionTypeTimer;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiaCompletionTypeCalculationScheduler::RiaCompletionTypeCalculationScheduler()
-    : m_recalculateCompletionTypeTimer( nullptr )
 {
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaCompletionTypeCalculationScheduler::startTimer()
-{
-    if ( !m_recalculateCompletionTypeTimer )
-    {
-        m_recalculateCompletionTypeTimer = new QTimer( this );
-        m_recalculateCompletionTypeTimer->setSingleShot( true );
-        connect( m_recalculateCompletionTypeTimer, SIGNAL( timeout() ), this, SLOT( slotRecalculateCompletionType() ) );
-    }
-
-    m_recalculateCompletionTypeTimer->start( 1500 );
 }

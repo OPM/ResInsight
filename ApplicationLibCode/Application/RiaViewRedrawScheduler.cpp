@@ -17,13 +17,24 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaViewRedrawScheduler.h"
+
 #include "Rim3dView.h"
 
-#include <QCoreApplication>
-#include <QTimer>
-
-#include "cafProgressState.h"
 #include <set>
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaViewRedrawScheduler::RiaViewRedrawScheduler()
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaViewRedrawScheduler::~RiaViewRedrawScheduler()
+{
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -51,13 +62,8 @@ void RiaViewRedrawScheduler::scheduleDisplayModelUpdateAndRedraw( Rim3dView* res
 //--------------------------------------------------------------------------------------------------
 void RiaViewRedrawScheduler::clearViewsScheduledForUpdate()
 {
-    if ( m_resViewUpdateTimer )
-    {
-        while ( m_resViewUpdateTimer->isActive() )
-        {
-            QCoreApplication::processEvents();
-        }
-    }
+    waitUntilWorkIsDone();
+
     m_resViewsToUpdate.clear();
 }
 
@@ -105,39 +111,7 @@ void RiaViewRedrawScheduler::updateAndRedrawScheduledViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaViewRedrawScheduler::slotUpdateAndRedrawScheduledViewsWhenReady()
+void RiaViewRedrawScheduler::performScheduledUpdates()
 {
-    if ( caf::ProgressState::isActive() )
-    {
-        startTimer( 100 );
-        return;
-    }
-
     updateAndRedrawScheduledViews();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaViewRedrawScheduler::startTimer( int msecs )
-{
-    if ( !m_resViewUpdateTimer )
-    {
-        m_resViewUpdateTimer = new QTimer( this );
-        connect( m_resViewUpdateTimer, SIGNAL( timeout() ), this, SLOT( slotUpdateAndRedrawScheduledViewsWhenReady() ) );
-    }
-
-    if ( !m_resViewUpdateTimer->isActive() )
-    {
-        m_resViewUpdateTimer->setSingleShot( true );
-        m_resViewUpdateTimer->start( msecs );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaViewRedrawScheduler::~RiaViewRedrawScheduler()
-{
-    delete m_resViewUpdateTimer;
 }

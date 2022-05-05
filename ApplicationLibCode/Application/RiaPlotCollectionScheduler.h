@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2022- Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -20,26 +20,23 @@
 
 #include "RiaScheduler.h"
 
-#include "cafPdmPointer.h"
+class RimPlotCollection;
 
-#include <vector>
-
-class Rim3dView;
-
-class RiaViewRedrawScheduler : public RiaScheduler
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+class RiaPlotCollectionScheduler : public RiaScheduler
 {
 public:
-    RiaViewRedrawScheduler();
-    ~RiaViewRedrawScheduler() override;
+    RiaPlotCollectionScheduler();
+    ~RiaPlotCollectionScheduler() override;
 
-    static RiaViewRedrawScheduler* instance();
+    static RiaPlotCollectionScheduler* instance();
 
-    void scheduleDisplayModelUpdateAndRedraw( Rim3dView* resViewToUpdate );
-    void clearViewsScheduledForUpdate();
-    void updateAndRedrawScheduledViews();
+    void schedulePlotCollectionUpdate( const std::vector<RimPlotCollection*> plotCollections );
 
     void performScheduledUpdates() override;
 
 private:
-    std::vector<caf::PdmPointer<Rim3dView>> m_resViewsToUpdate;
+    std::vector<RimPlotCollection*> m_plotCollectionsToUpdate;
 };
