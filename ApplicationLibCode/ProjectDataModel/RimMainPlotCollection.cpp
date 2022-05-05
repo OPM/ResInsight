@@ -19,6 +19,8 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RiaPlotCollectionScheduler.h"
+
 #include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "RimAbstractPlotCollection.h"
@@ -340,10 +342,11 @@ void RimMainPlotCollection::updatePlotsWithFormations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::updatePlotsWithCompletions()
+void RimMainPlotCollection::scheduleUpdatePlotsWithCompletions()
 {
     std::vector<RimPlotCollection*> plotCollections = plotCollectionsWithCompletions();
-    loadDataAndUpdatePlotCollections( plotCollections );
+
+    RiaPlotCollectionScheduler::instance()->schedulePlotCollectionUpdate( plotCollections );
 }
 
 //--------------------------------------------------------------------------------------------------

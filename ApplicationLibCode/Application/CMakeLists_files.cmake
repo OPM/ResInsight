@@ -27,6 +27,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumberFormat.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -58,6 +60,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumberFormat.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaRftDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
@@ -71,6 +75,7 @@ set(QT_MOC_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
 )
 
 source_group(

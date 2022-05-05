@@ -18,29 +18,30 @@
 
 #pragma once
 
-#include "cafPdmPointer.h"
+#include "RiaScheduler.h"
 
-#include <QObject>
+#include "cafPdmPointer.h"
 
 #include <vector>
 
-class QTimer;
 class RimEclipseCase;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RiaCompletionTypeCalculationScheduler : public QObject
+class RiaCompletionTypeCalculationScheduler : public RiaScheduler
 {
     Q_OBJECT;
 
 public:
     static RiaCompletionTypeCalculationScheduler* instance();
     void                                          scheduleRecalculateCompletionTypeAndRedrawAllViews();
-    void scheduleRecalculateCompletionTypeAndRedrawAllViews( RimEclipseCase* eclipseCase );
+    void                                          clearCompletionTypeResultsInAllCases();
 
-private slots:
-    void slotRecalculateCompletionType();
+    void scheduleRecalculateCompletionTypeAndRedrawAllViews( RimEclipseCase* eclipseCase );
+    void clearCompletionTypeResults( const std::vector<RimEclipseCase*>& eclipseCases );
+
+    void performScheduledUpdates() override;
 
 private:
     RiaCompletionTypeCalculationScheduler();
@@ -51,9 +52,6 @@ private:
 
     void scheduleRecalculateCompletionTypeAndRedrawAllViews( const std::vector<RimEclipseCase*>& eclipseCases );
 
-    void startTimer();
-
 private:
     std::vector<caf::PdmPointer<RimEclipseCase>> m_eclipseCasesToRecalculate;
-    QTimer*                                      m_recalculateCompletionTypeTimer;
 };

@@ -999,10 +999,10 @@ void RimProject::setSubWindowsTiledInPlotWindow( bool tiled )
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsInAllViews()
 {
+    RiaCompletionTypeCalculationScheduler::instance()->clearCompletionTypeResultsInAllCases();
     scheduleCreateDisplayModelAndRedrawAllViews();
-    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
 
-    this->mainPlotCollection()->updatePlotsWithCompletions();
+    mainPlotCollection()->scheduleUpdatePlotsWithCompletions();
 }
 
 //--------------------------------------------------------------------------------------------------
