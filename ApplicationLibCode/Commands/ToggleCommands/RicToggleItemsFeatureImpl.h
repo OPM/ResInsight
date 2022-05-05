@@ -19,6 +19,10 @@
 
 #pragma once
 
+#include "cafPdmField.h"
+
+#include <vector>
+
 namespace caf
 {
 class PdmUiItem;
@@ -46,6 +50,7 @@ public:
     static void setObjectToggleStateForSelection( SelectionToggleType state );
 
 private:
-    static caf::PdmUiTreeView*     findTreeView( const caf::PdmUiItem* uiItem );
-    static caf::PdmUiTreeOrdering* findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem );
+    static caf::PdmUiTreeView*               findTreeView( const caf::PdmUiItem* uiItem );
+    static caf::PdmUiTreeOrdering*           findTreeItemFromSelectedUiItem( const caf::PdmUiItem* uiItem );
+    static std::vector<caf::PdmField<bool>*> findToggleFieldsFromSelection( SelectionToggleType state );
 };
