@@ -48,6 +48,8 @@ bool RicDeleteSubPlotFeature::isCommandEnabled()
 
     if ( selection.size() > 0 )
     {
+        if ( dynamic_cast<RimMultiPlot*>( selection.front() ) ) return false;
+
         size_t plotsSelected = 0;
         for ( caf::PdmObject* object : selection )
         {
