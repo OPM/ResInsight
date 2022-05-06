@@ -160,7 +160,7 @@ QString RimFishbones::generatedName() const
         dynamic_cast<caf::PdmChildArrayField<RimFishbones*>*>( this->parentField() );
     CVF_ASSERT( container );
 
-    size_t index = container->index( this ) + 1;
+    size_t index = container->indexOf( this ) + 1;
     return QString( "Fishbone %1" ).arg( index );
 }
 

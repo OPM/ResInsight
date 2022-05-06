@@ -144,7 +144,7 @@ std::vector<RicCreateMultipleFracturesOptionItemUi*> RiuCreateMultipleFractionsU
 void RiuCreateMultipleFractionsUi::insertOptionItem( RicCreateMultipleFracturesOptionItemUi* insertAfterThisObject,
                                                      RicCreateMultipleFracturesOptionItemUi* objectToInsert )
 {
-    size_t index = m_options.index( insertAfterThisObject );
+    size_t index = m_options.indexOf( insertAfterThisObject );
     if ( index < m_options.size() - 1 )
     {
         m_options.insert( index + 1, objectToInsert );

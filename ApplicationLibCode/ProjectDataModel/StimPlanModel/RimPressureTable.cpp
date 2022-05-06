@@ -71,7 +71,7 @@ std::vector<RimPressureTableItem*> RimPressureTable::items() const
 //--------------------------------------------------------------------------------------------------
 void RimPressureTable::insertItem( RimPressureTableItem* insertBefore, RimPressureTableItem* item )
 {
-    size_t index = m_pressureTableItems.index( insertBefore );
+    size_t index = m_pressureTableItems.indexOf( insertBefore );
     item->changed.connect( this, &RimPressureTable::onTableChanged );
     if ( index < m_pressureTableItems.size() )
         m_pressureTableItems.insert( index, item );

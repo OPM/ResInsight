@@ -67,9 +67,8 @@ public:
     void   insert( size_t indexAfter, const std::vector<PdmPointer<DataType>>& objects );
     size_t count( const DataType* pointer ) const;
 
-    void   erase( size_t index );
-    size_t index( DataType* pointer );
-    void   removePtr( PdmObjectHandle* object );
+    void erase( size_t index );
+    void removePtr( PdmObjectHandle* object );
 
     typename std::vector<PdmPointer<DataType>>::iterator begin() { return m_pointers.begin(); };
     typename std::vector<PdmPointer<DataType>>::iterator end() { return m_pointers.end(); };

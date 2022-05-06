@@ -214,23 +214,6 @@ void PdmChildArrayField<DataType*>::erase( size_t index )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get the index of the given object pointer
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-size_t PdmChildArrayField<DataType*>::index( const DataType* pointer ) const
-{
-    for ( size_t i = 0; i < m_pointers.size(); ++i )
-    {
-        if ( pointer == m_pointers[i].p() )
-        {
-            return i;
-        }
-    }
-
-    return ( size_t )( -1 ); // Undefined size_t > m_pointers.size();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Assign objects to the field, replacing the current child objects
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>

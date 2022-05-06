@@ -189,23 +189,6 @@ void PdmPtrArrayField<DataType*>::erase( size_t index )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Get the index of the given object pointer
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-size_t PdmPtrArrayField<DataType*>::index( DataType* pointer )
-{
-    for ( size_t i = 0; i < m_pointers.size(); ++i )
-    {
-        if ( pointer == m_pointers[i].p() )
-        {
-            return i;
-        }
-    }
-
-    return ( size_t )( -1 ); // Undefined size_t > m_pointers.size();
-}
-
-//--------------------------------------------------------------------------------------------------
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
