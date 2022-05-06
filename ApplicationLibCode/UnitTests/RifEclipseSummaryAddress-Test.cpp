@@ -16,7 +16,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Field )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_FIELD, addr.category() );
-    EXPECT_EQ( "FOPT", addr.quantityName() );
+    EXPECT_EQ( "FOPT", addr.vectorName() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
@@ -28,7 +28,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Aquifer )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_AQUIFER, addr.category() );
-    EXPECT_EQ( "AAQR", addr.quantityName() );
+    EXPECT_EQ( "AAQR", addr.vectorName() );
     EXPECT_EQ( 456, addr.aquiferNumber() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
@@ -41,7 +41,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Network )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_NETWORK, addr.category() );
-    EXPECT_EQ( "NETW", addr.quantityName() );
+    EXPECT_EQ( "NETW", addr.vectorName() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
@@ -53,7 +53,7 @@ TEST( RifEclipseSummaryAddressTest, DISABLED_TestEclipseAddressParsing_Misc )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_MISC, addr.category() );
-    EXPECT_EQ( "CPU", addr.quantityName() );
+    EXPECT_EQ( "CPU", addr.vectorName() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
@@ -65,7 +65,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Region )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_REGION, addr.category() );
-    EXPECT_EQ( "RPR", addr.quantityName() );
+    EXPECT_EQ( "RPR", addr.vectorName() );
     EXPECT_EQ( 7081, addr.regionNumber() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
@@ -78,7 +78,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_RegionToRegion )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, addr.category() );
-    EXPECT_EQ( "ROFR", addr.quantityName() );
+    EXPECT_EQ( "ROFR", addr.vectorName() );
     EXPECT_EQ( 7081, addr.regionNumber() );
     EXPECT_EQ( 8001, addr.regionNumber2() );
     EXPECT_FALSE( addr.isErrorResult() );
@@ -92,7 +92,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellGroup )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_GROUP, addr.category() );
-    EXPECT_EQ( "GOPR", addr.quantityName() );
+    EXPECT_EQ( "GOPR", addr.vectorName() );
     EXPECT_EQ( "WELLS1", addr.groupName() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
@@ -105,7 +105,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Well )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_WELL, addr.category() );
-    EXPECT_EQ( "WOPR", addr.quantityName() );
+    EXPECT_EQ( "WOPR", addr.vectorName() );
     EXPECT_EQ( "B-2H", addr.wellName() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
@@ -118,7 +118,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletion )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, addr.category() );
-    EXPECT_EQ( "COFRL", addr.quantityName() );
+    EXPECT_EQ( "COFRL", addr.vectorName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
     EXPECT_EQ( 15, addr.cellI() );
     EXPECT_EQ( 13, addr.cellJ() );
@@ -134,7 +134,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellLgr )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_WELL_LGR, addr.category() );
-    EXPECT_EQ( "LWABC", addr.quantityName() );
+    EXPECT_EQ( "LWABC", addr.vectorName() );
     EXPECT_EQ( "LGRNA", addr.lgrName() );
     EXPECT_EQ( "B-10H", addr.wellName() );
     EXPECT_FALSE( addr.isErrorResult() );
@@ -148,7 +148,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellCompletionLgr 
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR, addr.category() );
-    EXPECT_EQ( "LCGAS", addr.quantityName() );
+    EXPECT_EQ( "LCGAS", addr.vectorName() );
     EXPECT_EQ( "LGR1", addr.lgrName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
     EXPECT_EQ( 11, addr.cellI() );
@@ -165,7 +165,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_WellSegment )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT, addr.category() );
-    EXPECT_EQ( "SOFR", addr.quantityName() );
+    EXPECT_EQ( "SOFR", addr.vectorName() );
     EXPECT_EQ( "B-5H", addr.wellName() );
     EXPECT_EQ( 32, addr.wellSegmentNumber() );
     EXPECT_FALSE( addr.isErrorResult() );
@@ -179,7 +179,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Block )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_BLOCK, addr.category() );
-    EXPECT_EQ( "BPR", addr.quantityName() );
+    EXPECT_EQ( "BPR", addr.vectorName() );
     EXPECT_EQ( 123, addr.cellI() );
     EXPECT_EQ( 122, addr.cellJ() );
     EXPECT_EQ( 121, addr.cellK() );
@@ -194,7 +194,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_BlockLgr )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_BLOCK_LGR, addr.category() );
-    EXPECT_EQ( "LBABC", addr.quantityName() );
+    EXPECT_EQ( "LBABC", addr.vectorName() );
     EXPECT_EQ( "LGRN", addr.lgrName() );
     EXPECT_EQ( 45, addr.cellI() );
     EXPECT_EQ( 47, addr.cellJ() );
@@ -210,7 +210,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_Imported )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_IMPORTED, addr.category() );
-    EXPECT_EQ( "FAULT (Imp)", addr.quantityName() );
+    EXPECT_EQ( "FAULT (Imp)", addr.vectorName() );
     EXPECT_FALSE( addr.isErrorResult() );
 }
 
@@ -222,7 +222,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult1 )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_AQUIFER, addr.category() );
-    EXPECT_EQ( "AAQR", addr.quantityName() );
+    EXPECT_EQ( "AAQR", addr.vectorName() );
     EXPECT_EQ( 456, addr.aquiferNumber() );
     EXPECT_TRUE( addr.isErrorResult() );
 }
@@ -235,7 +235,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult2 )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR, addr.category() );
-    EXPECT_EQ( "LCGAS", addr.quantityName() );
+    EXPECT_EQ( "LCGAS", addr.vectorName() );
     EXPECT_EQ( "LGR1", addr.lgrName() );
     EXPECT_EQ( "B-1H", addr.wellName() );
     EXPECT_EQ( 11, addr.cellI() );
@@ -252,7 +252,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressParsing_ErrorResult3 )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_IMPORTED, addr.category() );
-    EXPECT_EQ( "FAULT (Imp)", addr.quantityName() );
+    EXPECT_EQ( "FAULT (Imp)", addr.vectorName() );
     EXPECT_TRUE( addr.isErrorResult() );
 }
 
@@ -269,7 +269,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressIjkParsing )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, addr.category() );
-    EXPECT_EQ( "WOPR", addr.quantityName() );
+    EXPECT_EQ( "WOPR", addr.vectorName() );
     EXPECT_EQ( "1-BH", addr.wellName() );
     EXPECT_EQ( 6, addr.cellI() );
     EXPECT_EQ( 7, addr.cellJ() );
@@ -289,7 +289,7 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressRegToRegParsing )
 
     EXPECT_TRUE( addr.isValid() );
     EXPECT_EQ( RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, addr.category() );
-    EXPECT_EQ( "ROFR", addr.quantityName() );
+    EXPECT_EQ( "ROFR", addr.vectorName() );
     EXPECT_EQ( 123, addr.regionNumber() );
     EXPECT_EQ( 456, addr.regionNumber2() );
     EXPECT_TRUE( !addr.isErrorResult() );
@@ -298,28 +298,28 @@ TEST( RifEclipseSummaryAddressTest, TestEclipseAddressRegToRegParsing )
 TEST( RifEclipseSummaryAddressTest, TestQuantityNameManipulations )
 {
     {
-        auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPT" );
+        auto s = RifEclipseSummaryAddress::baseVectorName( "FOPT" );
         EXPECT_EQ( "FOPT", s );
     }
 
     {
-        auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPT_1" );
+        auto s = RifEclipseSummaryAddress::baseVectorName( "FOPT_1" );
         EXPECT_EQ( "FOPT", s );
     }
 
     {
-        auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPR" );
+        auto s = RifEclipseSummaryAddress::baseVectorName( "FOPR" );
         EXPECT_EQ( "FOPR", s );
     }
 
     {
-        auto s = RifEclipseSummaryAddress::baseQuantityName( "FOPR_1" );
+        auto s = RifEclipseSummaryAddress::baseVectorName( "FOPR_1" );
         EXPECT_EQ( "FOPR", s );
     }
 
     {
         // https://github.com/OPM/ResInsight/issues/6481
-        auto s = RifEclipseSummaryAddress::baseQuantityName( "FCMIT_1" );
+        auto s = RifEclipseSummaryAddress::baseVectorName( "FCMIT_1" );
         EXPECT_EQ( "FCMIT", s );
     }
 }

@@ -102,7 +102,7 @@ bool RifOpmHdf5Summary::values( const RifEclipseSummaryAddress& resultAddress, s
             auto   node  = m_eSmry->summaryNodeList()[index];
 
             int         smspecIndex = static_cast<int>( node.smspecKeywordIndex );
-            const auto& vectorName  = resultAddress.quantityName();
+            const auto& vectorName  = resultAddress.vectorName();
 
             *values = m_hdf5Reader->values( vectorName, smspecIndex );
 

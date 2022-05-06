@@ -260,21 +260,21 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSou
         {
             // Add corresponding history/summary curve with or without H
 
-            std::string quantity = m_curveSetForSourceStepping->summaryAddress().quantityName();
+            std::string vectorName = m_curveSetForSourceStepping->summaryAddress().vectorName();
 
             std::string candidateName;
-            if ( m_curveSetForSourceStepping->summaryAddress().isHistoryQuantity() )
+            if ( m_curveSetForSourceStepping->summaryAddress().isHistoryVector() )
             {
-                candidateName = quantity.substr( 0, quantity.size() - 1 );
+                candidateName = vectorName.substr( 0, vectorName.size() - 1 );
             }
             else
             {
-                candidateName = quantity + "H";
+                candidateName = vectorName + "H";
             }
 
             for ( const auto& c : curveSets() )
             {
-                if ( c->summaryAddress().quantityName() == candidateName )
+                if ( c->summaryAddress().vectorName() == candidateName )
                 {
                     steppingCurveSets.push_back( c );
                 }

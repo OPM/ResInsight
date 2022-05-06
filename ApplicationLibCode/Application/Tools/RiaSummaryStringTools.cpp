@@ -261,7 +261,7 @@ std::set<RifEclipseSummaryAddress>
     std::set<RifEclipseSummaryAddress> addressesWithoutDiffVectors;
     for ( const auto& adr : addresses )
     {
-        if ( RiaStdStringTools::endsWith( adr.quantityName(), diffText ) ) continue;
+        if ( RiaStdStringTools::endsWith( adr.vectorName(), diffText ) ) continue;
 
         addressesWithoutDiffVectors.insert( adr );
     }

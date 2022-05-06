@@ -209,7 +209,7 @@ void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot(
             {
                 if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
                 {
-                    if ( quantityName.empty() || quantityName == address.quantityName() )
+                    if ( quantityName.empty() || quantityName == address.vectorName() )
                     {
                         for ( auto summaryCase : summaryCaseCollection->allSummaryCases() )
                         {

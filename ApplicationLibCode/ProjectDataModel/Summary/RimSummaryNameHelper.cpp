@@ -78,12 +78,12 @@ QString RimSummaryNameHelper::aggregatedPlotTitle( const RimSummaryNameHelper& o
         title += "Completion : " + QString::fromStdString( completion );
     }
 
-    auto quantity = this->titleQuantity();
-    if ( ( other.titleQuantity() != this->titleQuantity() ) && ( !quantity.empty() ) )
+    auto vectorName = this->titleVectorName();
+    if ( ( other.titleVectorName() != this->titleVectorName() ) && ( !vectorName.empty() ) )
     {
         if ( !title.isEmpty() ) title += ", ";
         title += QString::fromStdString(
-            RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantity, true ) );
+            RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( vectorName, true ) );
     }
 
     return title;

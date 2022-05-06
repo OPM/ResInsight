@@ -30,7 +30,7 @@ public:
 
     QString plotTitle() const override;
 
-    bool isPlotDisplayingSingleQuantity() const override;
+    bool isPlotDisplayingSingleVectorName() const override;
     bool isWellNameInTitle() const override;
     bool isGroupNameInTitle() const override;
     bool isRegionInTitle() const override;
@@ -41,7 +41,7 @@ public:
 
     QString caseName() const override;
 
-    std::string titleQuantity() const override;
+    std::string titleVectorName() const override;
     std::string titleWellName() const override;
     std::string titleGroupName() const override;
     std::string titleRegion() const override;

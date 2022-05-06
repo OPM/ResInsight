@@ -277,8 +277,8 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
     m_currentCurveBaseColor = cvf::Color3f( 0.5f, 0.5f, 0.5f );
     m_currentCurveGradient  = 0.0f;
 
-    std::string quantityName = curve->summaryAddressY().quantityName();
-    if ( curve->summaryAddressY().isHistoryQuantity() )
+    std::string quantityName = curve->summaryAddressY().vectorName();
+    if ( curve->summaryAddressY().isHistoryVector() )
     {
         quantityName = quantityName.substr( 0, quantityName.size() - 1 );
     }
@@ -325,7 +325,7 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
 void RimSummaryCurveAppearanceCalculator::assignColorByPhase( RimSummaryCurve* curve, int colorIndex )
 {
     char        secondChar = 0;
-    std::string varname    = curve->summaryAddressY().quantityName();
+    std::string varname    = curve->summaryAddressY().vectorName();
 
     if ( varname.size() > 1 )
     {
@@ -380,11 +380,11 @@ void RimSummaryCurveAppearanceCalculator::init( const std::vector<RiaSummaryCurv
         if ( !( curveDef.summaryAddress().regionNumber() == -1 ) )
             m_regToAppearanceIdxMap[curveDef.summaryAddress().regionNumber()] = -1;
 
-        if ( !curveDef.summaryAddress().quantityName().empty() )
+        if ( !curveDef.summaryAddress().vectorName().empty() )
         {
-            std::string varname = curveDef.summaryAddress().quantityName();
+            std::string varname = curveDef.summaryAddress().vectorName();
 
-            if ( curveDef.summaryAddress().isHistoryQuantity() )
+            if ( curveDef.summaryAddress().isHistoryVector() )
             {
                 varname = varname.substr( 0, varname.size() - 1 );
             }

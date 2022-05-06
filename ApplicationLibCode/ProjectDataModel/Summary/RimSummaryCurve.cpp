@@ -1000,7 +1000,7 @@ void RimSummaryCurve::setCurveAppearanceFromCaseType()
         }
     }
 
-    if ( m_yValuesSummaryAddress && m_yValuesSummaryAddress->address().isHistoryQuantity() )
+    if ( m_yValuesSummaryAddress && m_yValuesSummaryAddress->address().isHistoryVector() )
     {
         RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 

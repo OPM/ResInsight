@@ -86,7 +86,7 @@ RimSummaryCurve* RicSummaryPlotFeatureImpl::createHistoryCurve( const RifEclipse
                                                                 RimSummaryCase*                 summaryCasesToUse )
 {
     RifEclipseSummaryAddress historyAddr = addr;
-    historyAddr.setQuantityName( historyAddr.quantityName() + "H" );
+    historyAddr.setVectorName( historyAddr.vectorName() + "H" );
     if ( summaryCasesToUse->summaryReader()->allResultAddresses().count( historyAddr ) )
     {
         return createCurve( summaryCasesToUse, historyAddr );
@@ -730,7 +730,7 @@ std::vector<RimSummaryCurve*> RicSummaryPlotFeatureImpl::addCurvesFromAddressFil
         std::vector<RifEclipseSummaryAddress> historyAddressesToUse;
         for ( RifEclipseSummaryAddress historyAddr : curveAddressesToUse )
         {
-            historyAddr.setQuantityName( historyAddr.quantityName() + "H" );
+            historyAddr.setVectorName( historyAddr.vectorName() + "H" );
             if ( addrs.count( historyAddr ) )
             {
                 historyAddressesToUse.push_back( historyAddr );

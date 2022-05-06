@@ -533,7 +533,7 @@ QList<caf::PdmOptionItemInfo>
                 {
                     if ( addr.category() == RifEclipseSummaryAddress::SUMMARY_WELL )
                     {
-                        summaries.insert( addr.quantityName() );
+                        summaries.insert( addr.vectorName() );
                     }
                 }
             }
@@ -543,7 +543,7 @@ QList<caf::PdmOptionItemInfo>
                 QString displayName;
 
                 std::string longVectorName =
-                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( itemName );
+                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( itemName );
 
                 if ( longVectorName.empty() )
                 {

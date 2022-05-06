@@ -254,25 +254,25 @@ std::vector<RimSummaryCurve*>
 
             const std::string historyIdentifier = "H";
 
-            std::string quantity;
+            std::string vectorName;
 
             if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
             {
-                quantity = m_curveForSourceStepping->summaryAddressX().quantityName();
+                vectorName = m_curveForSourceStepping->summaryAddressX().vectorName();
             }
             else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
             {
-                quantity = m_curveForSourceStepping->summaryAddressY().quantityName();
+                vectorName = m_curveForSourceStepping->summaryAddressY().vectorName();
             }
 
             std::string candidateName;
-            if ( RiaStdStringTools::endsWith( quantity, historyIdentifier ) )
+            if ( RiaStdStringTools::endsWith( vectorName, historyIdentifier ) )
             {
-                candidateName = quantity.substr( 0, quantity.size() - 1 );
+                candidateName = vectorName.substr( 0, vectorName.size() - 1 );
             }
             else
             {
-                candidateName = quantity + historyIdentifier;
+                candidateName = vectorName + historyIdentifier;
             }
 
             for ( const auto& c : curves() )
@@ -280,7 +280,7 @@ std::vector<RimSummaryCurve*>
                 if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
                 {
                     if ( c->summaryCaseX() == m_curveForSourceStepping->summaryCaseX() &&
-                         c->summaryAddressX().quantityName() == candidateName )
+                         c->summaryAddressX().vectorName() == candidateName )
                     {
                         stepCurves.push_back( c );
                     }
@@ -288,7 +288,7 @@ std::vector<RimSummaryCurve*>
                 else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
                 {
                     if ( c->summaryCaseY() == m_curveForSourceStepping->summaryCaseY() &&
-                         c->summaryAddressY().quantityName() == candidateName )
+                         c->summaryAddressY().vectorName() == candidateName )
                     {
                         stepCurves.push_back( c );
                     }

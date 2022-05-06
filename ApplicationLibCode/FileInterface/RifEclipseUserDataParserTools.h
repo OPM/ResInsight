@@ -60,7 +60,7 @@ public:
     size_t      itemCount() const;
 
 public:
-    static Column createColumnInfoFromRsmData( const std::string&              quantity,
+    static Column createColumnInfoFromRsmData( const std::string&              vectorName,
                                                const std::string&              unit,
                                                const RifEclipseSummaryAddress& addr );
     static Column createColumnInfoFromCsvData( const RifEclipseSummaryAddress& addr, const std::string& unit );

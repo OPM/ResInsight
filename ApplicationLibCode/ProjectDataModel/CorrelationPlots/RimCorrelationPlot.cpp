@@ -175,7 +175,7 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_selectedVarsUiField = selectedQuantitiesText();
+    m_selectedVarsUiField = selectedVectorNamesText();
 
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {

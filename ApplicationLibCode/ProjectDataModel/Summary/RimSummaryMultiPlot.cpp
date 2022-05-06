@@ -673,7 +673,7 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
     }
 
-    auto stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY;
+    auto stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::VECTOR;
     if ( analyzer.wellNames().size() == 1 )
     {
         stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::WELL;
@@ -828,9 +828,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
         if ( axisRangeAggregation == AxisRangeAggregation::REALIZATIONS )
         {
-            RifEclipseSummaryAddress addr =
-                RifEclipseSummaryAddress::fieldAddress( curve->summaryAddressY().quantityName() );
-            addresses = { addr };
+            RifEclipseSummaryAddress addr = RifEclipseSummaryAddress::fieldAddress( curve->summaryAddressY().vectorName() );
+            addresses                     = { addr };
         }
         else if ( axisRangeAggregation == AxisRangeAggregation::WELLS ||
                   axisRangeAggregation == AxisRangeAggregation::REGIONS )
@@ -851,7 +850,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                 for ( const auto& wellName : analyzer.wellNames() )
                 {
                     addresses.push_back(
-                        RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().quantityName(), wellName ) );
+                        RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().vectorName(), wellName ) );
                 }
             }
 
@@ -859,7 +858,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
             {
                 for ( auto regionNumber : analyzer.regionNumbers() )
                 {
-                    addresses.push_back( RifEclipseSummaryAddress::regionAddress( curve->summaryAddressY().quantityName(),
+                    addresses.push_back( RifEclipseSummaryAddress::regionAddress( curve->summaryAddressY().vectorName(),
                                                                                   regionNumber ) );
                 }
             }

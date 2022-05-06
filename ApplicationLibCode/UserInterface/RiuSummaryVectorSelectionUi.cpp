@@ -1115,22 +1115,22 @@ std::set<RifEclipseSummaryAddress>
 
         for ( const auto& adr : addrUnion )
         {
-            if ( m_hideHistoryVectors && adr.isHistoryQuantity() ) continue;
+            if ( m_hideHistoryVectors && adr.isHistoryVector() ) continue;
 
             if ( m_hideDifferenceVectors )
             {
                 const auto diffText = RifReaderEclipseSummary::differenceIdentifier();
-                if ( RiaStdStringTools::endsWith( adr.quantityName(), diffText ) ) continue;
+                if ( RiaStdStringTools::endsWith( adr.vectorName(), diffText ) ) continue;
             }
 
             if ( m_hideVectorsWithoutHistory )
             {
-                auto candidateName = adr.quantityName() + RifReaderEclipseSummary::historyIdentifier();
+                auto candidateName = adr.vectorName() + RifReaderEclipseSummary::historyIdentifier();
 
                 bool found = false;
                 for ( const auto& ad : addrUnion )
                 {
-                    if ( ad.quantityName() == candidateName ) found = true;
+                    if ( ad.vectorName() == candidateName ) found = true;
                 }
 
                 if ( !found ) continue;
@@ -1549,7 +1549,7 @@ void RiuSummaryVectorSelectionUi::appendOptionItemsForSubCategoriesAndVectors( Q
             if ( isVectorField )
             {
                 std::string longVectorName =
-                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( itemName );
+                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( itemName );
 
                 if ( longVectorName.empty() )
                 {

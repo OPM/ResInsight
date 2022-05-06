@@ -151,7 +151,7 @@ void RifEclipseSummaryTools::dumpMetaData( RifSummaryReaderInterface* readerEcli
 
             for ( const auto& catAddresse : catAddresses )
             {
-                std::cout << catAddresse.quantityName() << " " << catAddresse.regionNumber() << " "
+                std::cout << catAddresse.vectorName() << " " << catAddresse.regionNumber() << " "
                           << catAddresse.regionNumber2() << " " << catAddresse.groupName() << " "
                           << catAddresse.wellName() << " " << catAddresse.wellSegmentNumber() << " "
                           << catAddresse.lgrName() << " " << catAddresse.cellI() << " " << catAddresse.cellJ() << " "

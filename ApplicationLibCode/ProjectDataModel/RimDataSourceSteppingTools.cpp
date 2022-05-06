@@ -168,9 +168,9 @@ bool RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( cons
     std::string oldString = oldValue.toString().toStdString();
     std::string newString = newValue.toString().toStdString();
 
-    if ( adr->quantityName() == oldString )
+    if ( adr->vectorName() == oldString )
     {
-        adr->setQuantityName( newString );
+        adr->setVectorName( newString );
 
         return true;
     }
@@ -178,9 +178,9 @@ bool RimDataSourceSteppingTools::updateHistoryAndSummaryQuantityIfMatching( cons
     std::string correspondingOldString = RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( oldString );
     std::string correspondingNewString = RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( newString );
 
-    if ( adr->quantityName() == correspondingOldString )
+    if ( adr->vectorName() == correspondingOldString )
     {
-        adr->setQuantityName( correspondingNewString );
+        adr->setVectorName( correspondingNewString );
 
         return true;
     }
@@ -200,9 +200,9 @@ bool RimDataSourceSteppingTools::updateQuantityIfMatching( const QVariant&      
     std::string oldString = oldValue.toString().toStdString();
     std::string newString = newValue.toString().toStdString();
 
-    if ( adr->quantityName() == oldString )
+    if ( adr->vectorName() == oldString )
     {
-        adr->setQuantityName( newString );
+        adr->setVectorName( newString );
 
         return true;
     }

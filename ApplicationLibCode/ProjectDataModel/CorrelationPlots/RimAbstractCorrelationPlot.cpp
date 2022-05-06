@@ -707,10 +707,10 @@ time_t RimAbstractCorrelationPlot::timeDiff( time_t lhs, time_t rhs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimAbstractCorrelationPlot::selectedQuantitiesText()
+QString RimAbstractCorrelationPlot::selectedVectorNamesText()
 {
     QString vectorNames;
-    for ( const std::string& quantityName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )
+    for ( const std::string& quantityName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
     {
         vectorNames += QString::fromStdString( quantityName ) + ", ";
     }
@@ -758,7 +758,7 @@ void RimAbstractCorrelationPlot::appendDataSourceFields( QString uiConfigName, c
 {
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
 
-    m_selectedVarsUiField = selectedQuantitiesText();
+    m_selectedVarsUiField = selectedVectorNamesText();
 
     curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );

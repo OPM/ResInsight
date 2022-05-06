@@ -383,9 +383,9 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
         m_wellNames.insert( { wellName, address } );
     }
 
-    if ( !address.quantityName().empty() )
+    if ( !address.vectorName().empty() )
     {
-        m_quantities.insert( address.quantityName() );
+        m_quantities.insert( address.vectorName() );
     }
 
     if ( !address.groupName().empty() )

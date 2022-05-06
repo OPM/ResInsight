@@ -118,7 +118,7 @@ protected:
 
     static time_t timeDiff( time_t lhs, time_t rhs );
 
-    QString selectedQuantitiesText();
+    QString selectedVectorNamesText();
     QString completeAddressText();
 
     void initAfterRead() final;

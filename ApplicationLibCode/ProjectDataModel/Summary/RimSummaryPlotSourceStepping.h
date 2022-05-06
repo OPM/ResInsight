@@ -51,7 +51,7 @@ public:
         WELL,
         GROUP,
         REGION,
-        QUANTITY,
+        VECTOR,
         BLOCK,
         AQUIFER
     };
@@ -125,7 +125,7 @@ private:
     caf::PdmField<QString> m_wellName;
     caf::PdmField<QString> m_groupName;
     caf::PdmField<int>     m_region;
-    caf::PdmField<QString> m_quantity;
+    caf::PdmField<QString> m_vectorName;
     caf::PdmField<QString> m_placeholderForLabel;
 
     caf::PdmField<QString> m_cellBlock;

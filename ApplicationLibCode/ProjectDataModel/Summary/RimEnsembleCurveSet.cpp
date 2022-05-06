@@ -1777,16 +1777,16 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
         if ( m_statistics->showP10Curve() && m_ensembleStatCase->hasP10Data() )
             addresses.push_back(
-                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddress.quantityName() ) );
+                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddress.vectorName() ) );
         if ( m_statistics->showP50Curve() && m_ensembleStatCase->hasP50Data() )
             addresses.push_back(
-                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.quantityName() ) );
+                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.vectorName() ) );
         if ( m_statistics->showP90Curve() && m_ensembleStatCase->hasP90Data() )
             addresses.push_back(
-                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.quantityName() ) );
+                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.vectorName() ) );
         if ( m_statistics->showMeanCurve() && m_ensembleStatCase->hasMeanData() )
             addresses.push_back(
-                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.quantityName() ) );
+                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.vectorName() ) );
     }
 
     deleteStatisticsCurves();
@@ -1807,7 +1807,7 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
             curve->setSymbolSkipDistance( 150 );
             if ( m_statistics->showCurveLabels() )
             {
-                curve->setSymbolLabel( QString::fromStdString( address.ensembleStatisticsQuantityName() ) );
+                curve->setSymbolLabel( QString::fromStdString( address.ensembleStatisticsVectorName() ) );
             }
             curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
             curve->setSummaryCaseY( m_ensembleStatCase.get() );
@@ -2066,7 +2066,7 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
 //--------------------------------------------------------------------------------------------------
 RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address )
 {
-    auto qName = QString::fromStdString( address.quantityName() );
+    auto qName = QString::fromStdString( address.vectorName() );
 
     if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
     if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;

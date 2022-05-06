@@ -68,7 +68,7 @@ void caf::AppEnum<RimAnalysisPlot::SortGroupType>::setUp()
 {
     addItem( RimAnalysisPlot::NONE, "NONE", "None" );
     addItem( RimAnalysisPlot::SUMMARY_ITEM, "SUMMARY_ITEM", "Summary Item" );
-    addItem( RimAnalysisPlot::QUANTITY, "QUANTITY", "Quantity" );
+    addItem( RimAnalysisPlot::VECTOR, "VECTOR", "Vector" );
     addItem( RimAnalysisPlot::CASE, "CASE", "Case" );
     addItem( RimAnalysisPlot::ENSEMBLE, "ENSEMBLE", "Ensemble" );
     addItem( RimAnalysisPlot::VALUE, "VALUE", "Value" );
@@ -157,7 +157,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", false, "Ensemble" );
     CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", false, "Summary Item" );
     CAF_PDM_InitField( &m_useTimeStepInBarText, "UseTimeStepInBarText", false, "Time Step" );
-    CAF_PDM_InitField( &m_useQuantityInBarText, "UseQuantityInBarText", false, "Quantity" );
+    CAF_PDM_InitField( &m_useVectorNameInBarText, "UseQuantityInBarText", false, "Vector" );
 
     CAF_PDM_InitFieldNoDefault( &m_barTextFontSize, "BarTextFontSize", "Font Size" );
 
@@ -391,7 +391,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
                 {
                     RifEclipseSummaryAddress historyAddr = address;
 
-                    if ( !historyAddr.isHistoryQuantity() ) historyAddr.setQuantityName( address.quantityName() + "H" );
+                    if ( !historyAddr.isHistoryVector() ) historyAddr.setVectorName( address.vectorName() + "H" );
 
                     const std::vector<time_t>& historyTimesteps = reader->timeSteps( historyAddr );
                     if ( historyTimesteps.size() )
@@ -498,9 +498,9 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     QString vectorNames;
     if ( getOrCreateSelectedCurveDefAnalyser() )
     {
-        for ( const std::string& quantityName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )
+        for ( const std::string& vectorName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
         {
-            vectorNames += QString::fromStdString( quantityName ) + ", ";
+            vectorNames += QString::fromStdString( vectorName ) + ", ";
         }
 
         if ( !vectorNames.isEmpty() )
@@ -546,14 +546,14 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     caf::PdmUiGroup* barLabelGrp = uiOrdering.addNewGroup( "Bar Labels" );
     barLabelGrp->add( &m_useBarText );
     barLabelGrp->add( &m_barTextFontSize );
-    barLabelGrp->add( &m_useQuantityInBarText );
+    barLabelGrp->add( &m_useVectorNameInBarText );
     barLabelGrp->add( &m_useSummaryItemInBarText );
     barLabelGrp->add( &m_useCaseInBarText );
     barLabelGrp->add( &m_useEnsembleInBarText );
     barLabelGrp->add( &m_useTimeStepInBarText );
 
     m_barTextFontSize.uiCapability()->setUiReadOnly( !m_useBarText );
-    m_useQuantityInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
+    m_useVectorNameInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
     m_useSummaryItemInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
     m_useCaseInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
     m_useEnsembleInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
@@ -671,7 +671,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
                 QString( "%1 (%2)" ).arg( SortGroupAppEnum::uiText( SUMMARY_ITEM ) ).arg( exampleString );
             options.push_back( caf::PdmOptionItemInfo( summaryItemText, SUMMARY_ITEM ) );
         }
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( QUANTITY ), QUANTITY ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( VECTOR ), VECTOR ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( CASE ), CASE ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( ENSEMBLE ), ENSEMBLE ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( TIME_STEP ), TIME_STEP ) );
@@ -991,11 +991,11 @@ QString RimAnalysisPlot::assignGroupingText( RimAnalysisPlot::SortGroupType  sor
             }
         }
         break;
-        case RimAnalysisPlot::QUANTITY:
+        case RimAnalysisPlot::VECTOR:
         {
             RifEclipseSummaryAddress addr = dataEntry.summaryAddress();
 
-            groupingText = QString::fromStdString( addr.quantityName() );
+            groupingText = QString::fromStdString( addr.vectorName() );
         }
         break;
         case RimAnalysisPlot::TIME_STEP:
@@ -1056,7 +1056,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
             RifEclipseSummaryAddress address = curveDef.summaryAddress();
 
-            address.setQuantityName( "" ); // Quantity name set to "" in order to store only unique summary items
+            address.setVectorName( "" ); // Vector name set to "" in order to store only unique summary items
             filteredSummaryItems.insert( address );
         }
     }
@@ -1076,7 +1076,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
     {
         RimSummaryCase*          sumCase = curveDefCandidate.summaryCase();
         RifEclipseSummaryAddress addr    = curveDefCandidate.summaryAddress();
-        addr.setQuantityName( "" );
+        addr.setVectorName( "" );
 
         if ( filteredSumCases.count( sumCase ) && filteredSummaryItems.count( addr ) )
         {
@@ -1230,8 +1230,8 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                         {
                             RifEclipseSummaryAddress historyAddr = addrToFilterValue;
 
-                            if ( !historyAddr.isHistoryQuantity() )
-                                historyAddr.setQuantityName( addrToFilterValue.quantityName() + "H" );
+                            if ( !historyAddr.isHistoryVector() )
+                                historyAddr.setVectorName( addrToFilterValue.vectorName() + "H" );
 
                             const std::vector<time_t>& historyTimesteps = reader->timeSteps( historyAddr );
                             if ( historyTimesteps.size() )
@@ -1314,13 +1314,13 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             {
                 RifEclipseSummaryAddress addrToFilterValue = filter->summaryAddress();
 
-                quantityName = addrToFilterValue.quantityName();
+                quantityName = addrToFilterValue.vectorName();
             }
 
             for ( auto sumItem : *filteredSummaryItems )
             {
                 RifEclipseSummaryAddress addrToFilterValue = sumItem;
-                addrToFilterValue.setQuantityName( quantityName );
+                addrToFilterValue.setVectorName( quantityName );
 
                 if ( filter->filterOperation() == RimPlotDataFilterItem::RANGE )
                 {
@@ -1541,9 +1541,9 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
             if ( m_useBarText() )
             {
                 QStringList barTextComponents;
-                if ( m_useQuantityInBarText )
+                if ( m_useVectorNameInBarText )
                 {
-                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().quantityName() );
+                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().vectorName() );
                 }
 
                 if ( m_useSummaryItemInBarText )
@@ -1625,7 +1625,7 @@ void RimAnalysisPlot::updatePlotTitle()
                 QString::fromStdString( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.begin()->itemUiText() );
         }
 
-        for ( std::string quantName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )
+        for ( std::string quantName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
             autoTitle += QString::fromStdString( quantName );

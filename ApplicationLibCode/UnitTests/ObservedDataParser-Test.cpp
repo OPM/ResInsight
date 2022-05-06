@@ -563,7 +563,7 @@ TEST( RifColumnBasedRsmspecParserTest, TestTableValues )
     EXPECT_EQ( 3.0, tables.at( 1 ).columnInfos().at( 0 ).values.at( 2 ) );
     EXPECT_EQ( 370.0, tables.at( 1 ).columnInfos().at( 3 ).values.at( 3 ) );
 
-    EXPECT_EQ( "WOPR", tables.at( 0 ).columnInfos().at( 1 ).summaryAddress.quantityName() );
+    EXPECT_EQ( "WOPR", tables.at( 0 ).columnInfos().at( 1 ).summaryAddress.vectorName() );
     EXPECT_EQ( "P-15P", tables.at( 0 ).columnInfos().at( 5 ).summaryAddress.wellName() );
     EXPECT_EQ( "P-9P", tables.at( 1 ).columnInfos().at( 1 ).summaryAddress.wellName() );
     EXPECT_NE( "P-9P", tables.at( 1 ).columnInfos().at( 0 ).summaryAddress.wellName() );
@@ -875,7 +875,7 @@ TEST( RifKeywordBasedRsmspecParserTest, TestShutins )
 
     EXPECT_EQ( 2014.39, tables.at( 0 ).columnInfos().at( 1 ).values[2] );
 
-    EXPECT_EQ( "WOPR", tables.at( 0 ).columnInfos().at( 2 ).summaryAddress.quantityName() );
+    EXPECT_EQ( "WOPR", tables.at( 0 ).columnInfos().at( 2 ).summaryAddress.vectorName() );
 
     EXPECT_EQ( "OP-1", tables.at( 0 ).columnInfos().at( 2 ).summaryAddress.wellName() );
     EXPECT_NE( "OP-1", tables.at( 0 ).columnInfos().at( 1 ).summaryAddress.wellName() );
