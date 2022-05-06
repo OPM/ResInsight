@@ -31,7 +31,7 @@ class RiaScheduler : public QObject
 
 public:
     RiaScheduler();
-    virtual ~RiaScheduler();
+    ~RiaScheduler() override;
 
     virtual void performScheduledUpdates() = 0;
 
