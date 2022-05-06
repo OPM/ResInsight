@@ -274,7 +274,9 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
             const PdmUiTreeViewItemAttribute::Tag* tag;
             if ( tagClicked( mouseEvent->pos(), option.rect, itemIndex, &tag ) )
             {
-                auto uiItem = m_treeView->uiItemFromModelIndex( itemIndex );
+                auto uiItem       = m_treeView->uiItemFromModelIndex( itemIndex );
+                auto parentIndex  = itemIndex.parent();
+                auto parentUiItem = m_treeView->uiItemFromModelIndex( parentIndex );
 
                 auto* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( uiItem );
                 if ( uiObjectHandle )
@@ -289,9 +291,6 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
                         tag->clicked.send( indexInParent );
                     }
                 }
-
-                auto parentIndex  = itemIndex.parent();
-                auto parentUiItem = m_treeView->uiItemFromModelIndex( parentIndex );
 
                 m_treeView->updateSubTree( parentUiItem );
                 m_treeView->selectAsCurrentItem( uiItem );
