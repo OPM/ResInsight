@@ -140,22 +140,21 @@ size_t PdmPtrArrayField<DataType*>::count( const DataType* pointer ) const
     return itemCount;
 }
 
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-size_t PdmPtrArrayField<DataType*>::indexOf(const PdmObjectHandle* obj) const
+size_t PdmPtrArrayField<DataType*>::indexOf( const PdmObjectHandle* obj ) const
 {
-	for (size_t i = 0; i < m_pointers.size(); ++i)
-	{
-		if (obj == m_pointers[i].rawPtr())
-		{
-			return i;
-		}
-	}
+    for ( size_t i = 0; i < m_pointers.size(); ++i )
+    {
+        if ( obj == m_pointers[i].rawPtr() )
+        {
+            return i;
+        }
+    }
 
-	return (size_t)(-1); // Undefined size_t > m_pointers.size();
+    return ( size_t )( -1 ); // Undefined size_t > m_pointers.size();
 }
 
 //--------------------------------------------------------------------------------------------------
