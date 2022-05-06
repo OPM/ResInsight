@@ -69,6 +69,7 @@ public:
     void             insertAt( int indexAfter, std::unique_ptr<PdmObjectHandle> obj );
     PdmObjectHandle* at( size_t index ) override;
     void             setValue( const std::vector<DataType*>& objects );
+    size_t           indexOf( const PdmObjectHandle* obj ) const override;
 
     virtual void deleteAllChildObjectsAsync();
 

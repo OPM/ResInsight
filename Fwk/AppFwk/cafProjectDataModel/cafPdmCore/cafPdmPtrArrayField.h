@@ -55,6 +55,7 @@ public:
     virtual void             clear();
     virtual void             insertAt( int indexAfter, PdmObjectHandle* obj );
     virtual PdmObjectHandle* at( size_t index );
+    size_t                   indexOf( const PdmObjectHandle* obj ) const override;
 
     // std::vector-like access
 

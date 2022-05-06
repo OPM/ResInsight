@@ -605,12 +605,12 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
 
                 if ( reorderability && filterIndex.row() >= 0 && selection.size() == 1u && selection.front() == uiItem )
                 {
-                    size_t indexInParent = static_cast<size_t>( filterIndex.row() );
+                    size_t indexInParentField = reorderability->indexOf( pdmObject );
                     {
                         auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
                         tag->icon         = caf::IconProvider( ":/caf/Up16x16.png" );
                         tag->selectedOnly = true;
-                        if ( reorderability->canItemBeMovedUp( indexInParent ) )
+                        if ( reorderability->canItemBeMovedUp( indexInParentField ) )
                         {
                             tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemUp );
                         }
@@ -625,7 +625,7 @@ void PdmUiTreeViewEditor::updateItemDelegateForSubTree( const QModelIndex& subRo
                         auto tag          = PdmUiTreeViewItemAttribute::Tag::create();
                         tag->icon         = IconProvider( ":/caf/Down16x16.png" );
                         tag->selectedOnly = true;
-                        if ( reorderability->canItemBeMovedDown( indexInParent ) )
+                        if ( reorderability->canItemBeMovedDown( indexInParentField ) )
                         {
                             tag->clicked.connect( reorderability, &PdmFieldReorderCapability::onMoveItemDown );
                         }

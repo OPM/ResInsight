@@ -268,22 +268,34 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
 {
     if ( event->type() == QEvent::MouseButtonPress )
     {
-        QMouseEvent* mouseEvent = static_cast<QMouseEvent*>( event );
-
+        auto* mouseEvent = static_cast<QMouseEvent*>( event );
         if ( mouseEvent->button() == Qt::LeftButton && mouseEvent->modifiers() == Qt::NoModifier )
         {
             const PdmUiTreeViewItemAttribute::Tag* tag;
             if ( tagClicked( mouseEvent->pos(), option.rect, itemIndex, &tag ) )
             {
-                QModelIndex parentIndex = itemIndex.parent();
+                auto uiItem = m_treeView->uiItemFromModelIndex( itemIndex );
 
-                auto uiItem       = m_treeView->uiItemFromModelIndex( itemIndex );
+                auto* uiObjectHandle = dynamic_cast<PdmUiObjectHandle*>( uiItem );
+                if ( uiObjectHandle )
+                {
+                    PdmObjectHandle* pdmObject = uiObjectHandle->objectHandle();
+                    if ( pdmObject )
+                    {
+                        PdmFieldReorderCapability* reorderability =
+                            PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject );
+
+                        size_t indexInParent = reorderability->indexOf( pdmObject );
+                        tag->clicked.send( indexInParent );
+                    }
+                }
+
+                auto parentIndex  = itemIndex.parent();
                 auto parentUiItem = m_treeView->uiItemFromModelIndex( parentIndex );
-
-                tag->clicked.send( (size_t)itemIndex.row() );
 
                 m_treeView->updateSubTree( parentUiItem );
                 m_treeView->selectAsCurrentItem( uiItem );
+
                 return true;
             }
         }
