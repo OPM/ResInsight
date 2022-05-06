@@ -142,7 +142,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_appendPrevCurve.uiCapability()->setUiIconFromResourceString( ":/AppendPrevCurve.png" );
 
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
-    CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", false, "Auto Adjust Appearance" );
+    CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Adjust Appearance" );
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Aggregation" );
 
@@ -350,29 +350,8 @@ void RimSummaryMultiPlot::populateNameHelper( RimSummaryPlotNameHelper* nameHelp
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
-    titlesGroup->add( &m_autoPlotTitles );
-    titlesGroup->add( &m_showPlotWindowTitle );
-    titlesGroup->add( &m_plotWindowTitle );
-    titlesGroup->add( &m_titleFontSize );
-
-    auto subPlotSettingsGroup = uiOrdering.addNewGroup( "Sub Plot Settings" );
-    subPlotSettingsGroup->add( &m_autoPlotTitlesOnSubPlots );
-    subPlotSettingsGroup->add( &m_showIndividualPlotTitles );
-    subPlotSettingsGroup->add( &m_subTitleFontSize );
-
-    auto legendsGroup = uiOrdering.addNewGroup( "Legends" );
-    legendsGroup->add( &m_showPlotLegends );
-    legendsGroup->add( &m_plotLegendsHorizontal );
-    legendsGroup->add( &m_legendFontSize );
-
-    auto layoutGroup = uiOrdering.addNewGroup( "Layout" );
-    layoutGroup->add( &m_columnCount );
-    layoutGroup->add( &m_rowsPerPage );
-
     auto axesGroup = uiOrdering.addNewGroup( "Axes" );
     axesGroup->add( &m_axisRangeAggregation );
-
     axesGroup->add( &m_linkSubPlotAxes );
     axesGroup->add( &m_autoAdjustAppearance );
 
@@ -381,6 +360,25 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
     m_sourceStepping()->uiOrdering( uiConfigName, *dataSourceGroup );
+
+    auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
+    titlesGroup->setCollapsedByDefault( true );
+    titlesGroup->add( &m_autoPlotTitles );
+    titlesGroup->add( &m_showPlotWindowTitle );
+    titlesGroup->add( &m_plotWindowTitle );
+    titlesGroup->add( &m_titleFontSize );
+
+    auto subPlotSettingsGroup = uiOrdering.addNewGroup( "Sub Plot Settings" );
+    subPlotSettingsGroup->setCollapsedByDefault( true );
+    subPlotSettingsGroup->add( &m_autoPlotTitlesOnSubPlots );
+    subPlotSettingsGroup->add( &m_showIndividualPlotTitles );
+    subPlotSettingsGroup->add( &m_subTitleFontSize );
+
+    auto legendsGroup = uiOrdering.addNewGroup( "Legends" );
+    legendsGroup->setCollapsedByDefault( true );
+    legendsGroup->add( &m_showPlotLegends );
+    legendsGroup->add( &m_plotLegendsHorizontal );
+    legendsGroup->add( &m_legendFontSize );
 
     uiOrdering.skipRemainingFields( true );
 }
