@@ -129,7 +129,7 @@ bool RimWellMeasurementCollection::isEmpty() const
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insertBefore, RimWellMeasurement* measurement )
 {
-    size_t index = m_measurements.index( insertBefore );
+    size_t index = m_measurements.indexOf( insertBefore );
     if ( index < m_measurements.size() )
         m_measurements.insert( index, measurement );
     else

@@ -20,6 +20,7 @@ public:
     virtual void   clear()                                          = 0;
     virtual void   insertAt( int indexAfter, PdmObjectHandle* obj ) = 0;
     virtual void   erase( size_t index )                            = 0;
+    virtual size_t indexOf( const PdmObjectHandle* obj ) const      = 0;
 
     virtual PdmObjectHandle* at( size_t index ) = 0;
 };

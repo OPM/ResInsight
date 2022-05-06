@@ -513,7 +513,7 @@ void RimSurfaceCollection::deleteSubCollection( const QString& name )
     auto coll = getSubCollection( name );
     if ( coll )
     {
-        auto index = m_subCollections.index( coll );
+        auto index = m_subCollections.indexOf( coll );
         m_subCollections.erase( index );
     }
 }

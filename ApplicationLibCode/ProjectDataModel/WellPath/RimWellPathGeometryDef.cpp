@@ -375,7 +375,7 @@ std::pair<RimWellPathTarget*, RimWellPathTarget*>
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGeometryDef::insertTarget( const RimWellPathTarget* targetToInsertBefore, RimWellPathTarget* targetToInsert )
 {
-    size_t index = m_wellTargets.index( targetToInsertBefore );
+    size_t index = m_wellTargets.indexOf( targetToInsertBefore );
     if ( index < m_wellTargets.size() )
         m_wellTargets.insert( index, targetToInsert );
     else

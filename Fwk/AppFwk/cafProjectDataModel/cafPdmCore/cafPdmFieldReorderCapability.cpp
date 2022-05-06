@@ -189,3 +189,11 @@ PdmFieldReorderCapability* PdmFieldReorderCapability::reorderCapabilityOfParentC
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+size_t PdmFieldReorderCapability::indexOf( PdmObjectHandle* pdmObject )
+{
+    return m_field->indexOf( pdmObject );
+}

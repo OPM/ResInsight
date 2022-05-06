@@ -247,7 +247,7 @@ size_t RimDepthTrackPlot::plotCount() const
 //--------------------------------------------------------------------------------------------------
 size_t RimDepthTrackPlot::plotIndex( const RimWellLogTrack* plot ) const
 {
-    return m_plots.index( plot );
+    return m_plots.indexOf( plot );
 }
 
 //--------------------------------------------------------------------------------------------------

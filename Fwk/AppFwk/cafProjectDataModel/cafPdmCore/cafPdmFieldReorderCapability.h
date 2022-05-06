@@ -51,6 +51,8 @@ public:
 public:
     PdmFieldReorderCapability( PdmPtrArrayFieldHandle* field, bool giveOwnership );
 
+    size_t indexOf( PdmObjectHandle* pdmObject );
+
     bool canItemBeMovedUp( size_t index ) const;
     bool canItemBeMovedDown( size_t index ) const;
 
