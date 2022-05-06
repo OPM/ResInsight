@@ -452,17 +452,25 @@ void RimPlotAxisProperties::setVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::computeAndSetScaleFactor()
 {
-    int exponent = std::log10( visibleRangeMax() );
+    auto maxAbsValue = std::max( std::fabs( visibleRangeMax() ), std::fabs( visibleRangeMin() ) );
 
-    while ( exponent > 0 && ( exponent % 3 ) != 0 )
-    {
-        exponent--;
-    }
-
+    int exponent = std::floor( std::log10( maxAbsValue ) );
     if ( exponent > 0 )
     {
-        scaleFactor = std::pow( 10, exponent );
+        while ( exponent > -20 && ( exponent % 3 ) != 0 )
+        {
+            exponent--;
+        }
     }
+    else
+    {
+        while ( exponent < 1 && ( exponent % 3 ) != 0 )
+        {
+            exponent++;
+        }
+    }
+
+    scaleFactor = std::pow( 10, exponent );
 }
 
 //--------------------------------------------------------------------------------------------------
