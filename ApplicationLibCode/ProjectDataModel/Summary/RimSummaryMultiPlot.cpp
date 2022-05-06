@@ -652,33 +652,49 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         analyzer.appendAddresses( addresses );
     }
 
-    auto rangeAggregation = AxisRangeAggregation::INDIVIDUAL;
-    auto stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY;
+    auto rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
 
     if ( !analyzer.wellNames().empty() )
     {
         rangeAggregation = AxisRangeAggregation::WELLS;
-        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::WELL;
     }
     else if ( !analyzer.groupNames().empty() )
     {
-        rangeAggregation = AxisRangeAggregation::INDIVIDUAL;
-        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::GROUP;
+        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
     }
     else if ( !analyzer.regionNumbers().empty() )
     {
         rangeAggregation = AxisRangeAggregation::REGIONS;
-        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION;
     }
     else if ( !analyzer.aquifers().empty() )
     {
-        rangeAggregation = AxisRangeAggregation::INDIVIDUAL;
-        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER;
+        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
     }
     else if ( !analyzer.blocks().empty() )
     {
-        rangeAggregation = AxisRangeAggregation::INDIVIDUAL;
-        stepDimension    = RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK;
+        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
+    }
+
+    auto stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY;
+    if ( analyzer.wellNames().size() == 1 )
+    {
+        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::WELL;
+    }
+    else if ( analyzer.groupNames().size() == 1 )
+    {
+        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::GROUP;
+    }
+    else if ( analyzer.regionNumbers().size() == 1 )
+    {
+        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION;
+    }
+    else if ( analyzer.aquifers().size() == 1 )
+    {
+        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER;
+    }
+    else if ( analyzer.blocks().size() == 1 )
+    {
+        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK;
     }
 
     m_axisRangeAggregation = rangeAggregation;
