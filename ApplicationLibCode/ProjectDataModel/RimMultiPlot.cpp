@@ -308,7 +308,7 @@ size_t RimMultiPlot::plotCount() const
 //--------------------------------------------------------------------------------------------------
 size_t RimMultiPlot::plotIndex( const RimPlot* plot ) const
 {
-    return m_plots.index( plot );
+    return m_plots.indexOf( plot );
 }
 
 //--------------------------------------------------------------------------------------------------

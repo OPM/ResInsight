@@ -263,7 +263,7 @@ std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
 {
-    size_t index = m_targets.index( targetToInsertBefore );
+    size_t index = m_targets.indexOf( targetToInsertBefore );
     if ( index < m_targets.size() )
         m_targets.insert( index, targetToInsert );
     else

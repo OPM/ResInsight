@@ -82,7 +82,7 @@ std::vector<RimWellPathAttribute*> RimWellPathAttributeCollection::attributes() 
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::insertAttribute( RimWellPathAttribute* insertBefore, RimWellPathAttribute* attribute )
 {
-    size_t index = m_attributes.index( insertBefore );
+    size_t index = m_attributes.indexOf( insertBefore );
     if ( index < m_attributes.size() )
         m_attributes.insert( index, attribute );
     else

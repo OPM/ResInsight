@@ -1176,7 +1176,7 @@ void RimWellLogTrack::insertCurve( RimWellLogCurve* curve, size_t index )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
 {
-    size_t index = m_curves.index( curve );
+    size_t index = m_curves.indexOf( curve );
     if ( index < m_curves.size() )
     {
         m_curves[index]->detach();
@@ -2014,7 +2014,7 @@ caf::PdmFieldHandle* RimWellLogTrack::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 size_t RimWellLogTrack::curveIndex( RimWellLogCurve* curve )
 {
-    return m_curves.index( curve );
+    return m_curves.indexOf( curve );
 }
 
 //--------------------------------------------------------------------------------------------------
