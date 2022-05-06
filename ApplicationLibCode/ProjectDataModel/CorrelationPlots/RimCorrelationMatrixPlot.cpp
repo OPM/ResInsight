@@ -366,7 +366,7 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_selectedVarsUiField = selectedQuantitiesText();
+    m_selectedVarsUiField = selectedVectorNamesText();
 
     if ( m_plotWidget )
     {

@@ -112,7 +112,7 @@ bool RimSummaryAddressCollection::hasDataVector( const std::string quantityName 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryAddressCollection::addAddress( const RifEclipseSummaryAddress& address, int caseId, int ensembleId )
 {
-    if ( !hasDataVector( address.quantityName() ) )
+    if ( !hasDataVector( address.vectorName() ) )
     {
         m_adresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, caseId, ensembleId ) );
         if ( m_caseId == -1 ) m_caseId = caseId;

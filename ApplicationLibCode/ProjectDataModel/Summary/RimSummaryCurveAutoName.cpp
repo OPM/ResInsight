@@ -190,26 +190,26 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     if ( m_vectorName )
     {
-        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleQuantity();
+        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleVectorName();
         if ( !skipSubString )
         {
             if ( m_longVectorName() )
             {
-                auto quantityName = summaryAddress.quantityName();
-                if ( summaryAddress.isHistoryQuantity() )
+                auto quantityName = summaryAddress.vectorName();
+                if ( summaryAddress.isHistoryVector() )
                     quantityName = quantityName.substr( 0, quantityName.size() - 1 );
 
-                text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantityName );
+                text = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( quantityName );
             }
             else
             {
-                text = summaryAddress.quantityName();
+                text = summaryAddress.vectorName();
             }
         }
 
         if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
         {
-            text = summaryAddress.quantityName();
+            text = summaryAddress.vectorName();
         }
         else if ( summaryAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {

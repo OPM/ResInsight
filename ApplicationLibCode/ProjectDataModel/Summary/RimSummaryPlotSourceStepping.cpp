@@ -56,7 +56,7 @@ namespace caf
 template <>
 void AppEnum<RimSummaryPlotSourceStepping::SourceSteppingDimension>::setUp()
 {
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY, "QUANTITY", "Quantity" );
+    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::VECTOR, "VECTOR", "Vector" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::WELL, "WELL", "Well" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::ENSEMBLE, "ENSEMBLE", "Ensemble" );
@@ -64,7 +64,7 @@ void AppEnum<RimSummaryPlotSourceStepping::SourceSteppingDimension>::setUp()
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION, "REGION", "Region" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", "Block" );
     addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", "Aquifer" );
-    setDefault( RimSummaryPlotSourceStepping::SourceSteppingDimension::QUANTITY );
+    setDefault( RimSummaryPlotSourceStepping::SourceSteppingDimension::VECTOR );
 }
 } // namespace caf
 
@@ -90,7 +90,7 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name" );
     CAF_PDM_InitFieldNoDefault( &m_region, "Region", "Region" );
-    CAF_PDM_InitFieldNoDefault( &m_quantity, "Quantities", "Quantity" );
+    CAF_PDM_InitFieldNoDefault( &m_vectorName, "VectorName", "Vector" );
 
     CAF_PDM_InitFieldNoDefault( &m_cellBlock, "CellBlock", "Block" );
     CAF_PDM_InitFieldNoDefault( &m_segment, "Segment", "Segment" );
@@ -232,7 +232,7 @@ QList<caf::PdmOptionItemInfo>
     auto addresses = adressesForSourceStepping();
     if ( !addresses.empty() )
     {
-        if ( fieldNeedingOptions == &m_quantity )
+        if ( fieldNeedingOptions == &m_vectorName )
         {
             std::map<QString, QString> displayAndValueStrings = optionsForQuantity( addresses );
 
@@ -383,7 +383,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         m_wellName.uiCapability()->updateConnectedEditors();
         m_groupName.uiCapability()->updateConnectedEditors();
         m_region.uiCapability()->updateConnectedEditors();
-        m_quantity.uiCapability()->updateConnectedEditors();
+        m_vectorName.uiCapability()->updateConnectedEditors();
     }
     else if ( changedField == &m_ensemble )
     {
@@ -406,9 +406,9 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         m_wellName.uiCapability()->updateConnectedEditors();
         m_groupName.uiCapability()->updateConnectedEditors();
         m_region.uiCapability()->updateConnectedEditors();
-        m_quantity.uiCapability()->updateConnectedEditors();
+        m_vectorName.uiCapability()->updateConnectedEditors();
     }
-    else if ( changedField == &m_quantity )
+    else if ( changedField == &m_vectorName )
     {
         for ( auto curve : curves )
         {
@@ -438,11 +438,11 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
                     curveSet->setSummaryAddress( adr );
             }
         }
-        m_quantity.uiCapability()->updateConnectedEditors();
+        m_vectorName.uiCapability()->updateConnectedEditors();
         triggerLoadDataAndUpdate = true;
     }
 
-    if ( changedField != &m_quantity )
+    if ( changedField != &m_vectorName )
     {
         RifEclipseSummaryAddress::SummaryVarCategory summaryCategoryToModify = RifEclipseSummaryAddress::SUMMARY_INVALID;
         if ( changedField == &m_wellName )
@@ -577,8 +577,8 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
         case SourceSteppingDimension::REGION:
             return &m_region;
 
-        case SourceSteppingDimension::QUANTITY:
-            return &m_quantity;
+        case SourceSteppingDimension::VECTOR:
+            return &m_vectorName;
 
         case SourceSteppingDimension::BLOCK:
             return &m_cellBlock;
@@ -821,10 +821,10 @@ std::vector<caf::PdmFieldHandle*> RimSummaryPlotSourceStepping::activeFieldsForD
 
             if ( !analyzer.quantityNameForTitle().empty() )
             {
-                QString txt = QString::fromStdString( analyzer.quantityNameForTitle() );
-                m_quantity  = txt;
+                QString txt  = QString::fromStdString( analyzer.quantityNameForTitle() );
+                m_vectorName = txt;
 
-                fieldsCommonForAllCurves.push_back( &m_quantity );
+                fieldsCommonForAllCurves.push_back( &m_vectorName );
             }
         }
     }
@@ -1051,7 +1051,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
         }
         break;
 
-        case SourceSteppingDimension::QUANTITY:
+        case SourceSteppingDimension::VECTOR:
         {
             auto options = optionsForQuantity( addresses );
 
@@ -1061,7 +1061,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
                 values.push_back( it->second );
             }
 
-            QString qName = QString::fromStdString( addr.quantityName() );
+            QString qName = QString::fromStdString( addr.vectorName() );
             auto    found = std::find( values.begin(), values.end(), qName );
             if ( found != values.end() )
             {
@@ -1073,7 +1073,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
                 {
                     if ( found != values.begin() ) found--;
                 }
-                if ( found != values.end() ) addr.setQuantityName( ( *found ).toStdString() );
+                if ( found != values.end() ) addr.setVectorName( ( *found ).toStdString() );
             }
         }
         break;
@@ -1154,8 +1154,8 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
             m_region = other->m_region();
             break;
 
-        case SourceSteppingDimension::QUANTITY:
-            m_quantity = other->m_quantity();
+        case SourceSteppingDimension::VECTOR:
+            m_vectorName = other->m_vectorName();
             break;
 
         case SourceSteppingDimension::BLOCK:

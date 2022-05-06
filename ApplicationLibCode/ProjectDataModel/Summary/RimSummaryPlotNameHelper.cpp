@@ -102,7 +102,7 @@ QString RimSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimSummaryPlotNameHelper::isPlotDisplayingSingleQuantity() const
+bool RimSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
 {
     if ( m_analyzer->quantities().size() == 2 )
     {
@@ -186,7 +186,7 @@ QString RimSummaryPlotNameHelper::caseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimSummaryPlotNameHelper::titleQuantity() const
+std::string RimSummaryPlotNameHelper::titleVectorName() const
 {
     return m_titleQuantity;
 }

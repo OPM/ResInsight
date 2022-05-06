@@ -361,8 +361,8 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
 
             RifEclipseSummaryAddress candidateAdr = parentCurveSet()->summaryAddress();
 
-            auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.quantityName() );
-            candidateAdr.setQuantityName( nativeQuantityName );
+            auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.vectorName() );
+            candidateAdr.setVectorName( nativeQuantityName );
             summaryAddress->setAddress( candidateAdr );
             m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
             updateAddressesUiField();

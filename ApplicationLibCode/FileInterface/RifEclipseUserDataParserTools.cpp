@@ -430,17 +430,17 @@ TableData RifEclipseUserDataParserTools::tableDataFromText( std::stringstream&  
                 continue;
             }
 
-            std::string quantity = columnText[0];
-            std::string unit     = unitNames[i];
+            std::string vectorName = columnText[0];
+            std::string unit       = unitNames[i];
 
             std::vector<std::string> columnHeader;
 
             if ( columnText.size() > 1 )
                 columnHeader.insert( columnHeader.begin(), columnText.begin() + 1, columnText.end() );
 
-            RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantity, columnHeader );
+            RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress( vectorName, columnHeader );
 
-            Column ci = Column::createColumnInfoFromRsmData( quantity, unit, adr );
+            Column ci = Column::createColumnInfoFromRsmData( vectorName, unit, adr );
 
             columnInfos.push_back( ci );
         }
@@ -667,7 +667,7 @@ std::vector<Column>
     {
         if ( columnLines.size() == 0 ) continue;
 
-        std::string quantity = columnLines[0];
+        std::string vectorName = columnLines[0];
         std::string unit;
 
         size_t startIndex = 1;
@@ -692,9 +692,9 @@ std::vector<Column>
             restOfHeader.push_back( columnLines[i] );
         }
 
-        RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress( quantity, restOfHeader );
+        RifEclipseSummaryAddress adr = RifEclipseUserDataKeywordTools::makeAndFillAddress( vectorName, restOfHeader );
 
-        Column ci = Column::createColumnInfoFromRsmData( quantity, unit, adr );
+        Column ci = Column::createColumnInfoFromRsmData( vectorName, unit, adr );
 
         table.push_back( ci );
     }
@@ -736,7 +736,7 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps( const
     QDateTime firstTableStartTime;
     for ( auto c : tables[0].columnInfos() )
     {
-        if ( c.summaryAddress.quantityName() == "DATE" )
+        if ( c.summaryAddress.vectorName() == "DATE" )
         {
             if ( c.itemCount() > 0 )
             {
@@ -766,7 +766,7 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps( const
             QDateTime tableFirstTime;
             for ( auto& c : tables[i].columnInfos() )
             {
-                if ( c.summaryAddress.quantityName() == "DATE" )
+                if ( c.summaryAddress.vectorName() == "DATE" )
                 {
                     if ( c.itemCount() > 0 )
                     {
@@ -786,7 +786,7 @@ std::vector<TableData> RifEclipseUserDataParserTools::mergeEqualTimeSteps( const
         {
             for ( auto& c : tables[i].columnInfos() )
             {
-                if ( c.summaryAddress.quantityName() != "DATE" )
+                if ( c.summaryAddress.vectorName() != "DATE" )
                 {
                     firstTable.columnInfos().push_back( c );
                 }
@@ -866,17 +866,17 @@ size_t Column::itemCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Column Column::createColumnInfoFromRsmData( const std::string&              quantity,
+Column Column::createColumnInfoFromRsmData( const std::string&              vectorName,
                                             const std::string&              unit,
                                             const RifEclipseSummaryAddress& addr )
 {
     Column ci( addr, unit );
 
-    if ( RifEclipseUserDataKeywordTools::isDate( quantity ) )
+    if ( RifEclipseUserDataKeywordTools::isDate( vectorName ) )
     {
         ci.dataType = TEXT;
     }
-    else if ( RifEclipseUserDataKeywordTools::isStepType( quantity ) )
+    else if ( RifEclipseUserDataKeywordTools::isStepType( vectorName ) )
     {
         ci.dataType = TEXT;
     }
@@ -924,7 +924,7 @@ QDateTime TableData::findFirstDate() const
 
     for ( auto ci : m_columnInfos )
     {
-        if ( RifEclipseUserDataKeywordTools::isDate( ci.summaryAddress.quantityName() ) )
+        if ( RifEclipseUserDataKeywordTools::isDate( ci.summaryAddress.vectorName() ) )
         {
             if ( ci.itemCount() > 0 )
             {

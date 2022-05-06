@@ -58,7 +58,7 @@ public:
     {
         NONE,
         SUMMARY_ITEM,
-        QUANTITY,
+        VECTOR,
         CASE,
         ENSEMBLE,
         VALUE,
@@ -214,7 +214,7 @@ private:
     caf::PdmField<bool>                             m_useEnsembleInBarText;
     caf::PdmField<bool>                             m_useSummaryItemInBarText;
     caf::PdmField<bool>                             m_useTimeStepInBarText;
-    caf::PdmField<bool>                             m_useQuantityInBarText;
+    caf::PdmField<bool>                             m_useVectorNameInBarText;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_barTextFontSize;
 
     caf::PdmChildField<RimPlotAxisProperties*>       m_valueAxisProperties;

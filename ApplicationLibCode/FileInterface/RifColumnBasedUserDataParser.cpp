@@ -105,7 +105,7 @@ void RifColumnBasedUserDataParser::parseTableData( const QString& data )
         int stepTypeIndex = -1;
         for ( size_t i = 0; i < columnInfos.size(); i++ )
         {
-            if ( RifEclipseUserDataKeywordTools::isStepType( columnInfos[i].summaryAddress.quantityName() ) )
+            if ( RifEclipseUserDataKeywordTools::isStepType( columnInfos[i].summaryAddress.vectorName() ) )
             {
                 stepTypeIndex = static_cast<int>( i );
             }

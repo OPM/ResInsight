@@ -379,7 +379,7 @@ bool RifCsvUserDataParser::parseColumnBasedData( const AsciiDataParseOptions& pa
                 // Determine column data type
                 if ( col.dataType == Column::NONE )
                 {
-                    if ( QString::fromStdString( col.summaryAddress.quantityName() ) == parseOptions.timeSeriesColumnName )
+                    if ( QString::fromStdString( col.summaryAddress.vectorName() ) == parseOptions.timeSeriesColumnName )
                     {
                         col.dataType = Column::DATETIME;
                     }

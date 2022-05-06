@@ -490,7 +490,7 @@ RifEclipseSummaryAddress
 {
     for ( const auto& a : allAddresses )
     {
-        if ( sourceAddress.quantityName() == a.quantityName() )
+        if ( sourceAddress.vectorName() == a.vectorName() )
         {
             return a;
         }

@@ -49,12 +49,12 @@ QString RimMultiSummaryPlotNameHelper::plotTitle() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleQuantity() const
+bool RimMultiSummaryPlotNameHelper::isPlotDisplayingSingleVectorName() const
 {
     int plotCountWithSingleQuantity = 0;
     for ( auto nameHelper : m_nameHelpers )
     {
-        if ( nameHelper->isPlotDisplayingSingleQuantity() ) plotCountWithSingleQuantity++;
+        if ( nameHelper->isPlotDisplayingSingleVectorName() ) plotCountWithSingleQuantity++;
     }
 
     if ( plotCountWithSingleQuantity == 1 ) return true;
@@ -148,11 +148,11 @@ QString RimMultiSummaryPlotNameHelper::caseName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RimMultiSummaryPlotNameHelper::titleQuantity() const
+std::string RimMultiSummaryPlotNameHelper::titleVectorName() const
 {
     for ( auto nameHelper : m_nameHelpers )
     {
-        if ( nameHelper->isPlotDisplayingSingleQuantity() ) return nameHelper->titleQuantity();
+        if ( nameHelper->isPlotDisplayingSingleVectorName() ) return nameHelper->titleVectorName();
     }
 
     return "";

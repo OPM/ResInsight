@@ -322,7 +322,7 @@ size_t RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount( const std
         }
     }
 
-    // Quantity and unit, scaling is optional
+    // Vector name and unit, scaling is optional
     return 1 + maxHeaderLinesFromKeywords;
 }
 

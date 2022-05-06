@@ -154,11 +154,11 @@ const std::vector<time_t>& RifReaderObservedData::timeSteps( const RifEclipseSum
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifReaderObservedData::address( const QString&                               quantity,
+RifEclipseSummaryAddress RifReaderObservedData::address( const QString&                               vectorName,
                                                          const QString&                               identifierName,
                                                          RifEclipseSummaryAddress::SummaryVarCategory summaryCategory )
 {
-    std::string quantityName = quantity.toStdString();
+    std::string stdVectorName = vectorName.toStdString();
     int         regionNumber( -1 );
     int         regionNumber2( -1 );
     std::string groupName;
@@ -188,7 +188,7 @@ RifEclipseSummaryAddress RifReaderObservedData::address( const QString&         
     }
 
     return RifEclipseSummaryAddress( summaryCategory,
-                                     quantityName,
+                                     stdVectorName,
                                      regionNumber,
                                      regionNumber2,
                                      groupName,

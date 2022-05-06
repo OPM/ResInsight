@@ -46,9 +46,9 @@ RimCustomObjectiveFunctionWeight* RimObjectiveFunctionTools::addWeight( RimCusto
         candidateAdr = newWeight->parentCurveSet()->summaryAddress();
     }
 
-    auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.quantityName() );
+    auto nativeQuantityName = RimObjectiveFunctionTools::nativeQuantityName( candidateAdr.vectorName() );
 
-    candidateAdr.setQuantityName( nativeQuantityName );
+    candidateAdr.setVectorName( nativeQuantityName );
     newWeight->setSummaryAddress( candidateAdr );
 
     return newWeight;

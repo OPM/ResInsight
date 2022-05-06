@@ -108,20 +108,20 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
 
         for ( auto vectorSummaryAddress : vectorSummaryAddresses )
         {
-            std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
-            if ( !vectorSummaryAddress.quantityName().empty() )
+            std::string s = vectorSummaryAddress.vectorName() + RifReaderEclipseSummary::differenceIdentifier();
+            if ( !vectorSummaryAddress.vectorName().empty() )
             {
-                if ( vectorSummaryAddress.quantityName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
+                if ( vectorSummaryAddress.vectorName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
                      std::string::npos )
                 {
-                    s = vectorSummaryAddress.quantityName();
+                    s = vectorSummaryAddress.vectorName();
                 }
                 RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
-                vectorSummaryAddressDiff.setQuantityName( s );
+                vectorSummaryAddressDiff.setVectorName( s );
 
                 RifEclipseSummaryAddress vectorSummaryAddressHistory = vectorSummaryAddress;
-                vectorSummaryAddressHistory.setQuantityName( vectorSummaryAddress.quantityName() +
-                                                             RifReaderEclipseSummary::historyIdentifier() );
+                vectorSummaryAddressHistory.setVectorName( vectorSummaryAddress.vectorName() +
+                                                           RifReaderEclipseSummary::historyIdentifier() );
 
                 if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
                 {

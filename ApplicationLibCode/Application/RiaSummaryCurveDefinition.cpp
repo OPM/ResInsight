@@ -229,7 +229,7 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
 {
     m_singleSummaryCases.clear();
     m_ensembles.clear();
-    m_quantityNames.clear();
+    m_vectorNames.clear();
     m_summaryAdresses.clear();
 
     for ( const auto& curveDef : curveDefs )
@@ -255,7 +255,7 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
         {
             const RifEclipseSummaryAddress& address = curveDef.summaryAddress();
 
-            m_quantityNames.insert( address.quantityName() );
+            m_vectorNames.insert( address.vectorName() );
             m_summaryAdresses.insert( address );
         }
     }

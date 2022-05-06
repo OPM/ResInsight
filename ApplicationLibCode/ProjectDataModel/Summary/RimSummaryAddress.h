@@ -71,7 +71,7 @@ protected:
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;
 
-    caf::PdmField<QString> m_quantityName;
+    caf::PdmField<QString> m_vectorName;
     caf::PdmField<int>     m_regionNumber;
     caf::PdmField<int>     m_regionNumber2;
     caf::PdmField<QString> m_groupName;

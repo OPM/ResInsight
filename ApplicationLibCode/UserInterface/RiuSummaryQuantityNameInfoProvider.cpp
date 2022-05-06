@@ -33,9 +33,9 @@ RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance
 ///
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::SummaryVarCategory
-    RiuSummaryQuantityNameInfoProvider::categoryFromQuantityName( const std::string& quantity ) const
+    RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName ) const
 {
-    auto info = quantityInfo( quantity );
+    auto info = quantityInfo( vectorName );
 
     return info.category;
 }
@@ -44,16 +44,16 @@ RifEclipseSummaryAddress::SummaryVarCategory
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
-    RiuSummaryQuantityNameInfoProvider::quantityInfo( const std::string& quantity ) const
+    RiuSummaryQuantityNameInfoProvider::quantityInfo( const std::string& vectorName ) const
 {
-    auto it = m_summaryToDescMap.find( quantity );
+    auto it = m_summaryToDescMap.find( vectorName );
 
     if ( it != m_summaryToDescMap.end() )
     {
         return it->second;
     }
 
-    if ( quantity.size() > 1 && quantity[1] == 'U' )
+    if ( vectorName.size() > 1 && vectorName[1] == 'U' )
     {
         // User defined vector name
         // The summary type is given by the first letter, and U defines user-defined
@@ -63,12 +63,12 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
 
         return RiuSummaryQuantityInfo();
     }
-    if ( quantity.size() > 5 )
+    if ( vectorName.size() > 5 )
     {
         // Check for custom vector naming
 
-        std::string postfix  = quantity.substr( quantity.size() - 5, 5 );
-        std::string baseName = quantity.substr( 0, 5 );
+        std::string postfix  = vectorName.substr( vectorName.size() - 5, 5 );
+        std::string baseName = vectorName.substr( 0, 5 );
         while ( baseName.back() == '_' )
             baseName.pop_back();
 
@@ -92,8 +92,8 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::string RiuSummaryQuantityNameInfoProvider::longNameFromQuantityName( const std::string& vectorName,
-                                                                          bool returnVectorNameIfNotFound ) const
+std::string RiuSummaryQuantityNameInfoProvider::longNameFromVectorName( const std::string& vectorName,
+                                                                        bool returnVectorNameIfNotFound ) const
 {
     auto info = quantityInfo( vectorName );
     return info.category != RifEclipseSummaryAddress::SUMMARY_INVALID || !returnVectorNameIfNotFound ? info.longName

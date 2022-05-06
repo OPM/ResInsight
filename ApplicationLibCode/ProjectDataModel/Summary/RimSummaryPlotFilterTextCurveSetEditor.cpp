@@ -635,7 +635,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::insertFilteredAddressesInSet(
 
         for ( const auto& adr : candidateAddresses )
         {
-            if ( RiaStdStringTools::endsWith( adr.quantityName(), diffText ) ) continue;
+            if ( RiaStdStringTools::endsWith( adr.vectorName(), diffText ) ) continue;
 
             tmp.insert( adr );
         }

@@ -365,7 +365,7 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         eParm = selectedEnsembleParameter();
     }
 
-    if ( m_filterTarget() == ENSEMBLE_CASE && eParm.isText() ) // Ensemble Quantity is a category value
+    if ( m_filterTarget() == ENSEMBLE_CASE && eParm.isText() ) // Ensemble vector is a category value
     {
         uiOrdering.add( &m_ensembleParameterValueCategories );
     }

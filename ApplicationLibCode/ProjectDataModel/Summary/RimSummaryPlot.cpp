@@ -928,7 +928,7 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
     auto   curves             = visibleSummaryCurvesForAxis( plotAxis );
     for ( auto c : curves )
     {
-        auto quantityName = c->summaryAddressY().quantityName();
+        auto quantityName = c->summaryAddressY().vectorName();
 
         if ( RiaStdStringTools::endsWith( quantityName, "WCT" ) ) waterCutCurveCount++;
     }
@@ -2485,7 +2485,7 @@ void RimSummaryPlot::updateCurveNames()
             if ( c->isCurveVisible() )
             {
                 c->updateCurveNameNoLegendUpdate();
-                shortCurveNames.append( QString::fromStdString( c->summaryAddressY().quantityName() ) );
+                shortCurveNames.append( QString::fromStdString( c->summaryAddressY().vectorName() ) );
             }
         }
     }
@@ -2496,7 +2496,7 @@ void RimSummaryPlot::updateCurveNames()
 
         if ( curveSet->isCurvesVisible() )
         {
-            shortCurveNames.append( QString::fromStdString( curveSet->summaryAddress().quantityName() ) );
+            shortCurveNames.append( QString::fromStdString( curveSet->summaryAddress().vectorName() ) );
         }
     }
 
