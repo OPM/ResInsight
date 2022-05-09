@@ -21,13 +21,6 @@
 #include "RimGridCalculation.h"
 #include "RimUserDefinedCalculationCollection.h"
 
-#include "cafPdmChildArrayField.h"
-#include "cafPdmChildField.h"
-#include "cafPdmObject.h"
-
-class RimGridCase;
-class RimCalculatedGridCase;
-
 //==================================================================================================
 ///
 ///

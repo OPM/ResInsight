@@ -59,7 +59,7 @@ RimSummaryCase* RimSummaryCalculationCollection::calculationSummaryCase()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationCollection::rebuildCaseMetaData()
 {
-    ensureCalculationIds();
+    ensureValidCalculationIds();
     m_calcuationSummaryCase->buildMetaData();
 }
 

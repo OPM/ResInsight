@@ -21,18 +21,6 @@
 #include "RimSummaryCalculationVariable.h"
 #include "RimUserDefinedCalculation.h"
 
-#include "RiuExpressionContextMenuManager.h"
-
-#include "cafPdmChildArrayField.h"
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
-
-#include <QPointer>
-
-#include <memory>
-
-class QTextEdit;
-
 //==================================================================================================
 ///
 ///
