@@ -28,7 +28,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RicGridCalculatorDialog::RicGridCalculatorDialog( QWidget* parent )
-    : RicUserDefinedCalculatorDialog( parent, "Grid Calculator" )
+    : RicUserDefinedCalculatorDialog( parent, "Grid Property Calculator" )
 {
     setUp();
 }

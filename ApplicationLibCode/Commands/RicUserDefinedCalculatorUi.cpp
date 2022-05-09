@@ -132,7 +132,7 @@ void RicUserDefinedCalculatorUi::defineUiOrdering( QString uiConfigName, caf::Pd
     }
 
     {
-        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword( "Calculated Summaries", calculationsGroupName() );
+        caf::PdmUiGroup* group = uiOrdering.addNewGroupWithKeyword( "Calculations", calculationsGroupName() );
         group->add( &m_currentCalculation );
         group->add( &m_newCalculation );
         group->add( &m_deleteCalculation );
