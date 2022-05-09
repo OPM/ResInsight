@@ -45,7 +45,7 @@ RimGridCalculation* RimGridCalculationCollection::createCalculation() const
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculationCollection::rebuildCaseMetaData()
 {
-    ensureCalculationIds();
+    ensureValidCalculationIds();
 }
 
 //--------------------------------------------------------------------------------------------------

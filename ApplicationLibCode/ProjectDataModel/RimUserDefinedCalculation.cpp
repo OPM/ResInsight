@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017     Statoil ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -353,7 +353,7 @@ void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle
 {
     if ( field == &m_expression )
     {
-        caf::PdmUiTextEditorAttribute* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiTextEditorAttribute*>( attribute );
         if ( myAttr )
         {
             myAttr->heightHint = -1;
@@ -374,9 +374,5 @@ void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 std::vector<RimUserDefinedCalculationVariable*> RimUserDefinedCalculation::allVariables() const
 {
-    std::vector<RimUserDefinedCalculationVariable*> outVariables;
-    for ( RimUserDefinedCalculationVariable* v : m_variables )
-        outVariables.push_back( v );
-
-    return outVariables;
+    return m_variables.childObjects();
 }

@@ -71,6 +71,7 @@ bool RimSummaryCalculation::calculate()
     for ( size_t i = 0; i < m_variables.size(); i++ )
     {
         RimSummaryCalculationVariable* v = dynamic_cast<RimSummaryCalculationVariable*>( m_variables[i] );
+        CAF_ASSERT( v != nullptr );
 
         if ( !v->summaryCase() )
         {
@@ -109,6 +110,7 @@ bool RimSummaryCalculation::calculate()
     for ( size_t i = 0; i < m_variables.size(); i++ )
     {
         RimSummaryCalculationVariable* v = dynamic_cast<RimSummaryCalculationVariable*>( m_variables[i] );
+        CAF_ASSERT( v != nullptr );
 
         parser.assignVector( v->name(), timeHistoryCurveMerger.interpolatedYValuesForAllXValues( i ) );
     }

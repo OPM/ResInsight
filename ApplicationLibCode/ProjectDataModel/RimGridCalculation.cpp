@@ -74,6 +74,7 @@ bool RimGridCalculation::calculate()
     for ( size_t i = 0; i < m_variables.size(); i++ )
     {
         RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+        CAF_ASSERT( v != nullptr );
 
         if ( !v->eclipseCase() )
         {
@@ -147,6 +148,7 @@ bool RimGridCalculation::calculate()
         for ( size_t i = 0; i < m_variables.size(); i++ )
         {
             RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+            CAF_ASSERT( v != nullptr );
             parser.assignVector( v->name(), values[i][tsId] );
         }
 
@@ -184,6 +186,8 @@ RimEclipseCase* RimGridCalculation::findEclipseCaseFromVariables()
     for ( auto variable : m_variables )
     {
         RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
+        CAF_ASSERT( v != nullptr );
+
         if ( v->eclipseCase() ) return v->eclipseCase();
     }
 
@@ -216,19 +220,19 @@ void RimGridCalculation::removeDependentObjects()
     RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
     if ( eclipseCase )
     {
-        // Select default result if
+        // Select "None" result if the result that is being removed were displayed in a view.
         for ( auto v : eclipseCase->reservoirViews() )
         {
             if ( v->cellResult()->resultType() == resAddr.resultCatType() &&
                  v->cellResult()->resultVariable() == resAddr.resultName() )
             {
-                v->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-                v->cellResult()->setResultVariable( "SOIL" );
+                v->cellResult()->setResultType( RiaDefines::ResultCatType::GENERATED );
+                v->cellResult()->setResultVariable( "None" );
             }
         }
 
         eclipseCase->results( porosityModel )->clearScalarResult( resAddr );
-        eclipseCase->results( porosityModel )->eraseGeneratedResult( resAddr );
+        eclipseCase->results( porosityModel )->setRemovedTagOnGeneratedResult( resAddr );
 
         RimReloadCaseTools::updateAll3dViews( eclipseCase );
     }

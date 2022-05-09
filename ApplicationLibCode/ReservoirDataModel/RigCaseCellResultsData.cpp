@@ -912,7 +912,7 @@ void RigCaseCellResultsData::eraseAllSourSimData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigCaseCellResultsData::eraseGeneratedResult( const RigEclipseResultAddress& resultAddress )
+void RigCaseCellResultsData::setRemovedTagOnGeneratedResult( const RigEclipseResultAddress& resultAddress )
 {
     CAF_ASSERT( resultAddress.resultCatType() == RiaDefines::ResultCatType::GENERATED );
 
