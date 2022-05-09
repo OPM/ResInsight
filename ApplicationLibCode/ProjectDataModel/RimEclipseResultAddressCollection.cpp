@@ -58,10 +58,15 @@ void RimEclipseResultAddressCollection::setResultType( RiaDefines::ResultCatType
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultAddressCollection::addAddress( const QString& resultName )
+void RimEclipseResultAddressCollection::addAddress( const QString&            resultName,
+                                                    RiaDefines::ResultCatType resultType,
+                                                    RimEclipseCase*           eclipseCase )
 {
     auto addr = new RimEclipseResultAddress;
     addr->setUiName( resultName );
+    addr->setResultName( resultName );
+    addr->setResultType( resultType );
+    addr->setEclipseCase( eclipseCase );
     m_adresses.push_back( addr );
 }
 

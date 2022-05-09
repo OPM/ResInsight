@@ -617,7 +617,7 @@ void RimEclipseCase::buildChildNodes()
         QStringList resultNames = results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( resultType );
         for ( auto resultName : resultNames )
         {
-            resultAddressCollection->addAddress( resultName );
+            resultAddressCollection->addAddress( resultName, resultType, this );
         }
 
         m_resultAddressCollections.push_back( resultAddressCollection );

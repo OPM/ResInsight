@@ -21,10 +21,12 @@
 #include "RimNamedObject.h"
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmPtrField.h"
 
 #include <QString>
 
 class RimEclipseResultAddress;
+class RimEclipseCase;
 
 class RimEclipseResultAddressCollection : public RimNamedObject
 {
@@ -36,7 +38,7 @@ public:
 
     void setResultType( RiaDefines::ResultCatType val );
 
-    void addAddress( const QString& resultName );
+    void addAddress( const QString& resultName, RiaDefines::ResultCatType resultType, RimEclipseCase* eclipseCase );
 
     bool isEmpty() const;
 
@@ -45,4 +47,5 @@ public:
 private:
     caf::PdmChildArrayField<RimEclipseResultAddress*>      m_adresses;
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_resultType;
+    caf::PdmPtrField<RimEclipseCase*>                      m_eclipseCase;
 };

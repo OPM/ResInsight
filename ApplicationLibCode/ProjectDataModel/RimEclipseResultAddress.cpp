@@ -18,6 +18,8 @@
 
 #include "RimEclipseResultAddress.h"
 
+#include "RimEclipseCase.h"
+
 CAF_PDM_SOURCE_INIT( RimEclipseResultAddress, "EclipseResultAddress" );
 
 //--------------------------------------------------------------------------------------------------
@@ -28,6 +30,8 @@ RimEclipseResultAddress::RimEclipseResultAddress()
     CAF_PDM_InitObject( "EclipseResultAddress", ":/DataVector.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultName, "ResultName", "Result Name" );
+    CAF_PDM_InitFieldNoDefault( &m_resultType, "ResultType", "Type" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -35,4 +39,52 @@ RimEclipseResultAddress::RimEclipseResultAddress()
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultAddress::~RimEclipseResultAddress()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimEclipseResultAddress::resultName() const
+{
+    return m_resultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultAddress::setResultName( const QString& resultName )
+{
+    m_resultName = resultName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultAddress::setResultType( RiaDefines::ResultCatType val )
+{
+    m_resultType = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::ResultCatType RimEclipseResultAddress::resultType() const
+{
+    return m_resultType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultAddress::setEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_eclipseCase = eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimEclipseResultAddress::eclipseCase() const
+{
+    return m_eclipseCase;
 }
