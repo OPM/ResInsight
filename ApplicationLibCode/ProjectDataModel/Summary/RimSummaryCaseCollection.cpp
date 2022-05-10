@@ -169,7 +169,7 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
             calculateEnsembleParametersIntersectionHash();
     }
 
-    buildChildNodes();
+    clearChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,7 +201,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 
     updateReferringCurveSets();
 
-    buildChildNodes();
+    clearChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -210,6 +210,16 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 {
     return m_cases.childObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryCaseCollection::firstSummaryCase() const
+{
+    if ( !m_cases.empty() ) return m_cases[0];
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -891,7 +901,7 @@ void RimSummaryCaseCollection::onLoadDataAndUpdate()
     if ( m_isEnsemble )
     {
         calculateEnsembleParametersIntersectionHash();
-        buildChildNodes();
+        clearChildNodes();
     }
 }
 
@@ -953,8 +963,6 @@ void RimSummaryCaseCollection::initAfterRead()
     }
 
     updateIcon();
-
-    buildChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -999,10 +1007,8 @@ void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiT
 {
     if ( m_isEnsemble() )
     {
-        if ( m_dataVectorFolders->isEmpty() )
-        {
-            buildChildNodes();
-        }
+        buildChildNodes();
+
         m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
 
         if ( !m_cases.empty() )
@@ -1063,13 +1069,14 @@ bool RimSummaryCaseCollection::hasEnsembleParameters() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::buildChildNodes()
 {
-    m_dataVectorFolders->clear();
-
-    for ( auto& smcase : m_cases )
+    if ( m_dataVectorFolders->isEmpty() )
     {
-        m_dataVectorFolders->updateFolderStructure( smcase->summaryReader()->allResultAddresses(),
-                                                    smcase->caseId(),
-                                                    m_ensembleId );
+        for ( auto& smcase : m_cases )
+        {
+            m_dataVectorFolders->updateFolderStructure( smcase->summaryReader()->allResultAddresses(),
+                                                        smcase->caseId(),
+                                                        m_ensembleId );
+        }
     }
 }
 
@@ -1078,6 +1085,15 @@ void RimSummaryCaseCollection::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::refreshMetaData()
 {
+    clearChildNodes();
     buildChildNodes();
     updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::clearChildNodes()
+{
+    m_dataVectorFolders->clear();
 }

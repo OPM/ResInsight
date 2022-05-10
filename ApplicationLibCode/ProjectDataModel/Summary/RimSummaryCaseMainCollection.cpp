@@ -223,8 +223,10 @@ void RimSummaryCaseMainCollection::addCases( const std::vector<RimSummaryCase*> 
 {
     for ( RimSummaryCase* sumCase : cases )
     {
-        addCase( sumCase );
+        m_cases.push_back( sumCase );
+        sumCase->nameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
     }
+    dataSourceHasChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,7 +357,15 @@ size_t RimSummaryCaseMainCollection::summaryCaseCount() const
 std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::allSummaryCases() const
 {
     std::vector<RimSummaryCase*> cases;
-    this->descendantsIncludingThisOfType( cases );
+
+    if ( !cases.empty() ) cases.insert( cases.end(), m_cases.begin(), m_cases.end() );
+
+    for ( auto& coll : m_caseCollections )
+    {
+        auto collCases = coll->allSummaryCases();
+        if ( collCases.empty() ) continue;
+        cases.insert( cases.end(), collCases.begin(), collCases.end() );
+    }
 
     return cases;
 }

@@ -104,10 +104,9 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
         {
             auto caseCollection = sumCaseCollections.front();
 
-            if ( !caseCollection->allSummaryCases().empty() )
+            auto firstCase = caseCollection->firstSummaryCase();
+            if ( firstCase != nullptr )
             {
-                auto firstCase = caseCollection->allSummaryCases().front();
-
                 analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
             }
         }
