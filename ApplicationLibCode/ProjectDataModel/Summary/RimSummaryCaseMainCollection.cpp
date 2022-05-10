@@ -358,7 +358,7 @@ std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::allSummaryCases() con
 {
     std::vector<RimSummaryCase*> cases;
 
-    if ( !cases.empty() ) cases.insert( cases.end(), m_cases.begin(), m_cases.end() );
+    if ( !m_cases.empty() ) cases.insert( cases.end(), m_cases.begin(), m_cases.end() );
 
     for ( auto& coll : m_caseCollections )
     {
