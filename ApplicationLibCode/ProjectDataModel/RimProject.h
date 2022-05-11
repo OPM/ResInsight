@@ -212,7 +212,7 @@ private:
     caf::PdmField<QString> m_projectFileVersionString;
 
     caf::PdmChildField<RimDialogData*>             m_dialogData;
-    caf::PdmChildField<RimPlotTemplateFolderItem*> m_plotTemplateFolderItem;
+    caf::PdmChildField<RimPlotTemplateFolderItem*> m_plotTemplateTopFolder;
 
     caf::PdmField<bool> m_show3DWindow;
     caf::PdmField<bool> m_showPlotWindow;

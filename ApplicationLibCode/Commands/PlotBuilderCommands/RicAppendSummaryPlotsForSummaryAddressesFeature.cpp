@@ -82,9 +82,7 @@ void RicAppendSummaryPlotsForSummaryAddressesFeature::onActionTriggered( bool is
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryPlotsForSummaryAddressesFeature::setupActionLook( QAction* actionToSetup )
 {
-    QString objectType = "Addresses";
-
-    auto text = QString( "Append Plots For " ) + objectType;
+    auto text = QString( "Append Plots For Vector" );
     actionToSetup->setText( text );
     actionToSetup->setIcon( QIcon( ":/SummaryPlotLight16x16.png" ) );
 }

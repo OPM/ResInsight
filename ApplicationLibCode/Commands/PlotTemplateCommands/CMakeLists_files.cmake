@@ -6,6 +6,8 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveMultiPlotTemplateFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveMultiPlotTemplateFeatureSettings.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultiPlotFromSelectionFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicRenamePlotTemplateFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicEditPlotTemplateFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -16,6 +18,8 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveMultiPlotTemplateFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveMultiPlotTemplateFeatureSettings.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultiPlotFromSelectionFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicRenamePlotTemplateFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicEditPlotTemplateFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
