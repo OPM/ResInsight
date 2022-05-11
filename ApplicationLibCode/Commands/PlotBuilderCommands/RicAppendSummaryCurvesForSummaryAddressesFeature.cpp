@@ -66,9 +66,7 @@ void RicAppendSummaryCurvesForSummaryAddressesFeature::onActionTriggered( bool i
 //--------------------------------------------------------------------------------------------------
 void RicAppendSummaryCurvesForSummaryAddressesFeature::setupActionLook( QAction* actionToSetup )
 {
-    QString objectType = "Addresses";
-
-    auto text = QString( "Append Curves For " ) + objectType;
+    auto text = QString( "Append Curves For Vector" );
     actionToSetup->setText( text );
     actionToSetup->setIcon( QIcon( ":/SummaryCurve16x16.png" ) );
 }
