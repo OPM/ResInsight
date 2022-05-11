@@ -73,7 +73,6 @@ set(QT_MOC_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
 )

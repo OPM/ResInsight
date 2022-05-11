@@ -124,6 +124,18 @@ QString RiuPlotMainWindow::mainWindowName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotMainWindow* RiuPlotMainWindow::instance()
+{
+    if ( RiaGuiApplication::isRunning() )
+    {
+        return RiaGuiApplication::instance()->mainPlotWindow();
+    }
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
 {
     setPdmRoot( RimProject::current() );
@@ -460,11 +472,15 @@ void RiuPlotMainWindow::refreshToolbars()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::createDockPanels()
 {
-    const int                  nTreeViews      = 3;
-    const std::vector<QString> treeViewTitles  = { "Plots", "Data Sources", "Scripts" };
-    const std::vector<QString> treeViewConfigs = { "PlotWindow.Plots", "PlotWindow.DataSources", "PlotWindow.Scripts" };
+    const int                  nTreeViews        = 4;
+    const std::vector<QString> treeViewTitles    = { "Plots", "Data Sources", "Templates", "Scripts" };
+    const std::vector<QString> treeViewConfigs   = { "PlotWindow.Plots",
+                                                   "PlotWindow.DataSources",
+                                                   "PlotWindow.Templates",
+                                                   "PlotWindow.Scripts" };
     const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::plotMainWindowPlotsTreeName(),
                                                      RiuDockWidgetTools::plotMainWindowDataSourceTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowTemplateTreeName(),
                                                      RiuDockWidgetTools::plotMainWindowScriptsTreeName() };
 
     createTreeViews( nTreeViews );

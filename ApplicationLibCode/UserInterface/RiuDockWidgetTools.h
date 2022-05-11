@@ -54,6 +54,7 @@ public:
 
     static QString plotMainWindowDataSourceTreeName();
     static QString plotMainWindowPlotsTreeName();
+    static QString plotMainWindowTemplateTreeName();
     static QString plotMainWindowScriptsTreeName();
 
     static QString plotMainWindowPropertyEditorName();
