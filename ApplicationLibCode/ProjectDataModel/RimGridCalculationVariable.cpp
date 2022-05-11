@@ -23,9 +23,12 @@
 #include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
 
+#include "RiuDragDrop.h"
+
 #include "RigCaseCellResultsData.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseResultAddress.h"
 #include "RimTools.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCalculationVariable, "RimGridCalculationVariable" );
@@ -178,4 +181,30 @@ int RimGridCalculationVariable::timeStep() const
 int RimGridCalculationVariable::allTimeStepsValue()
 {
     return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculationVariable::handleDroppedMimeData( const QMimeData*     data,
+                                                        Qt::DropAction       action,
+                                                        caf::PdmFieldHandle* destinationField )
+{
+    auto objects = RiuDragDrop::convertToObjects( data );
+    if ( !objects.empty() )
+    {
+        auto address = dynamic_cast<RimEclipseResultAddress*>( objects.front() );
+        if ( address ) setEclipseResultAddress( *address );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculationVariable::setEclipseResultAddress( const RimEclipseResultAddress& address )
+{
+    m_resultVariable = address.resultName();
+    m_resultType     = address.resultType();
+    m_eclipseCase    = address.eclipseCase();
+    updateConnectedEditors();
 }

@@ -1457,9 +1457,17 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             }
         }
     }
-    else if ( uiConfigName == "PlotWindow.Scripts" )
+    else if ( uiConfigName == "PlotWindow.Scripts" || uiConfigName == "MainWindow.Scripts" )
     {
         uiTreeOrdering.add( scriptCollection() );
+    }
+    else if ( uiConfigName == "MainWindow.DataSources" )
+    {
+        RimOilField* oilField = activeOilField();
+        if ( oilField )
+        {
+            if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
+        }
     }
     else
     {
@@ -1483,7 +1491,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         }
 
         uiTreeOrdering.add( colorLegendCollection() );
-        uiTreeOrdering.add( scriptCollection() );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );

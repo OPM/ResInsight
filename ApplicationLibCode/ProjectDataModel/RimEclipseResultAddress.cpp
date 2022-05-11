@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022-     Equinor ASA
+//  Copyright (C) 2022 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,68 +16,75 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicGridCalculatorDialog.h"
+#include "RimEclipseResultAddress.h"
 
-#include "RicCalculatorWidgetCreator.h"
-#include "RicGridCalculatorUi.h"
+#include "RimEclipseCase.h"
 
-#include "RimGridCalculation.h"
-#include "RimGridCalculationCollection.h"
+CAF_PDM_SOURCE_INIT( RimEclipseResultAddress, "EclipseResultAddress" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGridCalculatorDialog::RicGridCalculatorDialog( QWidget* parent )
-    : RicUserDefinedCalculatorDialog( parent, "Grid Property Calculator" )
+RimEclipseResultAddress::RimEclipseResultAddress()
 {
-    setUp();
+    CAF_PDM_InitObject( "EclipseResultAddress", ":/DataVector.png", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_resultName, "ResultName", "Result Name" );
+    CAF_PDM_InitFieldNoDefault( &m_resultType, "ResultType", "Type" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGridCalculatorDialog::~RicGridCalculatorDialog()
+RimEclipseResultAddress::~RimEclipseResultAddress()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGridCalculatorDialog::setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation )
+QString RimEclipseResultAddress::resultName() const
 {
-    CAF_ASSERT( m_calcEditor );
-    m_calcEditor->calculator()->setCurrentCalculation( calculation );
-    updateUi();
+    return m_resultName;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGridCalculatorDialog::updateUi()
+void RimEclipseResultAddress::setResultName( const QString& resultName )
 {
-    CAF_ASSERT( m_calcEditor );
-    m_calcEditor->updateUi();
+    m_resultName = resultName;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedCalculationCollection* RicGridCalculatorDialog::calculationCollection() const
+void RimEclipseResultAddress::setResultType( RiaDefines::ResultCatType val )
 {
-    CAF_ASSERT( m_calcEditor );
-    return m_calcEditor->calculator()->calculationCollection();
+    m_resultType = val;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RicGridCalculatorDialog::getCalculatorWidget()
+RiaDefines::ResultCatType RimEclipseResultAddress::resultType() const
 {
-    if ( !m_calcEditor )
-    {
-        m_calcEditor = std::unique_ptr<RicCalculatorWidgetCreator>(
-            new RicCalculatorWidgetCreator( std::make_unique<RicGridCalculatorUi>() ) );
-    }
+    return m_resultType();
+}
 
-    return m_calcEditor->getOrCreateWidget( this );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultAddress::setEclipseCase( RimEclipseCase* eclipseCase )
+{
+    m_eclipseCase = eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseCase* RimEclipseResultAddress::eclipseCase() const
+{
+    return m_eclipseCase;
 }

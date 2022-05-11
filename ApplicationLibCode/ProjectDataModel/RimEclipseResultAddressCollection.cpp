@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022-     Equinor ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,68 +16,72 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicGridCalculatorDialog.h"
+#include "RimEclipseResultAddressCollection.h"
 
-#include "RicCalculatorWidgetCreator.h"
-#include "RicGridCalculatorUi.h"
+#include "RimEclipseResultAddress.h"
 
-#include "RimGridCalculation.h"
-#include "RimGridCalculationCollection.h"
+#include "cafPdmUiTreeOrdering.h"
+
+CAF_PDM_SOURCE_INIT( RimEclipseResultAddressCollection, "RimEclipseResultAddressCollection" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGridCalculatorDialog::RicGridCalculatorDialog( QWidget* parent )
-    : RicUserDefinedCalculatorDialog( parent, "Grid Property Calculator" )
+RimEclipseResultAddressCollection::RimEclipseResultAddressCollection()
 {
-    setUp();
+    CAF_PDM_InitObject( "Folder", ":/Folder.png", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_adresses, "Addresses", "Addresses" );
+    m_adresses.uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_resultType, "ResultType", "Type" );
+    m_resultType.uiCapability()->setUiHidden( true );
+
+    nameField()->uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RicGridCalculatorDialog::~RicGridCalculatorDialog()
+RimEclipseResultAddressCollection::~RimEclipseResultAddressCollection()
 {
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGridCalculatorDialog::setCalculationAndUpdateUi( RimUserDefinedCalculation* calculation )
+void RimEclipseResultAddressCollection::setResultType( RiaDefines::ResultCatType val )
 {
-    CAF_ASSERT( m_calcEditor );
-    m_calcEditor->calculator()->setCurrentCalculation( calculation );
-    updateUi();
+    m_resultType = val;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicGridCalculatorDialog::updateUi()
+void RimEclipseResultAddressCollection::addAddress( const QString&            resultName,
+                                                    RiaDefines::ResultCatType resultType,
+                                                    RimEclipseCase*           eclipseCase )
 {
-    CAF_ASSERT( m_calcEditor );
-    m_calcEditor->updateUi();
+    auto addr = new RimEclipseResultAddress;
+    addr->setUiName( resultName );
+    addr->setResultName( resultName );
+    addr->setResultType( resultType );
+    addr->setEclipseCase( eclipseCase );
+    m_adresses.push_back( addr );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimUserDefinedCalculationCollection* RicGridCalculatorDialog::calculationCollection() const
+void RimEclipseResultAddressCollection::clear()
 {
-    CAF_ASSERT( m_calcEditor );
-    return m_calcEditor->calculator()->calculationCollection();
+    m_adresses.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* RicGridCalculatorDialog::getCalculatorWidget()
+bool RimEclipseResultAddressCollection::isEmpty() const
 {
-    if ( !m_calcEditor )
-    {
-        m_calcEditor = std::unique_ptr<RicCalculatorWidgetCreator>(
-            new RicCalculatorWidgetCreator( std::make_unique<RicGridCalculatorUi>() ) );
-    }
-
-    return m_calcEditor->getOrCreateWidget( this );
+    return m_adresses.empty();
 }

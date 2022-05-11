@@ -710,16 +710,24 @@ void RiuMainWindow::createToolBars()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::createDockPanels()
 {
-    const int nTreeViews = 1;
+    const int                  nTreeViews     = 3;
+    const std::vector<QString> treeViewTitles = { "Project Tree", "Data Sources", "Scripts" };
+    const std::vector<QString> treeViewConfigs = { "MainWindow.ProjectTree", "MainWindow.DataSources", "MainWindow.Scripts" };
+    const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::mainWindowProjectTreeName(),
+                                                     RiuDockWidgetTools::mainWindowDataSourceTreeName(),
+                                                     RiuDockWidgetTools::mainWindowScriptsTreeName() };
 
     createTreeViews( nTreeViews );
 
+    QDockWidget* dockOntopOfWidget = nullptr;
+
+    for ( int i = 0; i < nTreeViews; i++ )
     {
-        QDockWidget* dockWidget = new QDockWidget( "Project Tree", this );
-        dockWidget->setObjectName( RiuDockWidgetTools::projectTreeName() );
+        QDockWidget* dockWidget = new QDockWidget( treeViewTitles[i], this );
+        dockWidget->setObjectName( treeViewDockNames[i] );
         dockWidget->setAllowedAreas( Qt::AllDockWidgetAreas );
 
-        caf::PdmUiTreeView* projectTree = projectTreeView( 0 );
+        caf::PdmUiTreeView* projectTree = projectTreeView( i );
         projectTree->enableSelectionManagerUpdating( true );
 
         projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
@@ -741,11 +749,25 @@ void RiuMainWindow::createDockPanels()
 
         addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
 
+        if ( dockOntopOfWidget )
+        {
+            tabifyDockWidget( dockOntopOfWidget, dockWidget );
+        }
+        else
+        {
+            dockOntopOfWidget = dockWidget;
+        }
+
+        connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
+
         connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
+
         projectTree->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
         connect( projectTree->treeView(),
                  SIGNAL( customContextMenuRequested( const QPoint& ) ),
                  SLOT( customMenuRequested( const QPoint& ) ) );
+
+        projectTree->setUiConfigurationName( treeViewConfigs[i] );
     }
 
     QDockWidget* resultPlotDock  = nullptr;

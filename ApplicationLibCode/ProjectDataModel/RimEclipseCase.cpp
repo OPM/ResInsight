@@ -21,7 +21,9 @@
 #include "RimEclipseCase.h"
 
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
@@ -50,6 +52,8 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultAddress.h"
+#include "RimEclipseResultAddressCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
@@ -118,6 +122,10 @@ RimEclipseCase::RimEclipseCase()
     CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
     m_inputPropertyCollection->parentField()->uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_resultAddressCollections, "ResultAddressCollections", "Result Addresses" );
+    m_resultAddressCollections.uiCapability()->setUiHidden( true );
+    m_resultAddressCollections.xmlCapability()->disableIO();
 
     // Init
 
@@ -559,25 +567,61 @@ void RimEclipseCase::updateFormationNamesData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    std::vector<PdmObjectHandle*> children;
-    reservoirViews.childObjects( &children );
-
-    for ( auto child : children )
-        uiTreeOrdering.add( child );
-
-    if ( !m_2dIntersectionViewCollection->views().empty() )
+    if ( uiConfigName == "MainWindow.ProjectTree" )
     {
-        uiTreeOrdering.add( &m_2dIntersectionViewCollection );
+        std::vector<PdmObjectHandle*> children;
+        reservoirViews.childObjects( &children );
+
+        for ( auto child : children )
+            uiTreeOrdering.add( child );
+
+        if ( !m_2dIntersectionViewCollection->views().empty() )
+        {
+            uiTreeOrdering.add( &m_2dIntersectionViewCollection );
+        }
+
+        if ( !m_contourMapCollection->views().empty() )
+        {
+            uiTreeOrdering.add( &m_contourMapCollection );
+        }
     }
-
-    if ( !m_contourMapCollection->views().empty() )
+    else if ( uiConfigName == "MainWindow.DataSources" )
     {
-        uiTreeOrdering.add( &m_contourMapCollection );
+        if ( m_resultAddressCollections.empty() ) buildChildNodes();
+        uiTreeOrdering.add( &m_resultAddressCollections );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::buildChildNodes()
+{
+    m_resultAddressCollections.clear();
+
+    std::vector<RiaDefines::ResultCatType> resultTypes = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                           RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                           RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                           RiaDefines::ResultCatType::GENERATED };
+    for ( auto resultType : resultTypes )
+    {
+        auto resultAddressCollection = new RimEclipseResultAddressCollection;
+        resultAddressCollection->setResultType( resultType );
+        QString name = caf::AppEnum<RiaDefines::ResultCatType>::uiText( resultType );
+        resultAddressCollection->setName( name );
+
+        QStringList resultNames = results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( resultType );
+        for ( auto resultName : resultNames )
+        {
+            resultAddressCollection->addAddress( resultName, resultType, this );
+        }
+
+        m_resultAddressCollections.push_back( resultAddressCollection );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

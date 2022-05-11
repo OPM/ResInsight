@@ -28,6 +28,7 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultAddress.h"
 #include "RimEclipseResultCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
@@ -49,6 +50,7 @@
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+
 #include "RiuMainWindow.h"
 
 #include "RicWellLogTools.h"
@@ -268,6 +270,11 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
             }
             auto sumAdr = dynamic_cast<RimSummaryAddress*>( uiItem );
             if ( sumAdr )
+            {
+                itemflags |= Qt::ItemIsDragEnabled;
+            }
+            auto eclipseResultAdr = dynamic_cast<RimEclipseResultAddress*>( uiItem );
+            if ( eclipseResultAdr )
             {
                 itemflags |= Qt::ItemIsDragEnabled;
             }

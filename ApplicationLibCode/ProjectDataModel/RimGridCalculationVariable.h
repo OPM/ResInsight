@@ -22,13 +22,12 @@
 
 #include "RiaDefines.h"
 
-#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 class RimEclipseCase;
+class RimEclipseResultAddress;
 class RigCaseCellResultsData;
 
 //==================================================================================================
@@ -50,6 +49,10 @@ public:
     int                       timeStep() const;
 
     static int allTimeStepsValue();
+
+    void handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) override;
+
+    void setEclipseResultAddress( const RimEclipseResultAddress& address );
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
