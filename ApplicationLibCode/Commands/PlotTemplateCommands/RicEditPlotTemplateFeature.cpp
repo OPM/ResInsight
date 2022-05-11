@@ -76,8 +76,8 @@ void RicEditPlotTemplateFeature::onActionTriggered( bool isChecked )
         if ( !myProcess->waitForStarted( 1000 ) )
         {
             RiaLogging::errorInMessageBox( RiuPlotMainWindow::instance(),
-                                           "Script editor",
-                                           "Failed to start script editor executable\n" + scriptEditor );
+                                           "Text editor",
+                                           "Failed to start text editor executable\n" + scriptEditor );
         }
     }
 }
