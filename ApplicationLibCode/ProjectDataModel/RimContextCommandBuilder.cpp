@@ -1022,6 +1022,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimPlotTemplateFolderItem*>( firstUiItem ) ||
                   dynamic_cast<RimPlotTemplateFileItem*>( firstUiItem ) )
         {
+            menuBuilder << "RicRenamePlotTemplateFeature";
+            menuBuilder << "RicEditPlotTemplateFeature";
             menuBuilder << "RicReloadPlotTemplatesFeature";
         }
         else if ( dynamic_cast<RimSummaryMultiPlot*>( firstUiItem ) )

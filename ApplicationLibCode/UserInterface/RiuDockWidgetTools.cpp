@@ -127,6 +127,14 @@ QString RiuDockWidgetTools::plotMainWindowPlotsTreeName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowTemplateTreeName()
+{
+    return "plotMainWindow_dockTemplatesTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiuDockWidgetTools::plotMainWindowScriptsTreeName()
 {
     return "plotMainWindow_dockScriptsTree";

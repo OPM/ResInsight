@@ -58,6 +58,8 @@ public:
     RiuPlotMainWindow();
     ~RiuPlotMainWindow() override;
 
+    static RiuPlotMainWindow* instance();
+
     QString mainWindowName() override;
 
     void initializeGuiNewProjectLoaded();

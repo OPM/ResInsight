@@ -214,9 +214,9 @@ RimProject::RimProject( void )
 
     mainPlotCollection = new RimMainPlotCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolderItem, "PlotTemplateCollection", "Plot Templates" );
-    m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
-    m_plotTemplateFolderItem.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault( &m_plotTemplateTopFolder, "PlotTemplateCollection", "Plot Templates" );
+    m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
+    m_plotTemplateTopFolder.xmlCapability()->disableIO();
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back( new RimOilField );
@@ -403,12 +403,12 @@ void RimProject::setScriptDirectories( const QString& scriptDirectories )
 //--------------------------------------------------------------------------------------------------
 void RimProject::setPlotTemplateFolders( const QStringList& plotTemplateFolders )
 {
-    if ( !m_plotTemplateFolderItem() )
+    if ( !m_plotTemplateTopFolder() )
     {
-        m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
+        m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
     }
 
-    m_plotTemplateFolderItem->createRootFolderItemsFromFolderPaths( plotTemplateFolders );
+    m_plotTemplateTopFolder->createRootFolderItemsFromFolderPaths( plotTemplateFolders );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1322,7 +1322,7 @@ RimMeasurement* RimProject::measurement() const
 //--------------------------------------------------------------------------------------------------
 RimPlotTemplateFolderItem* RimProject::rootPlotTemlateItem() const
 {
-    return m_plotTemplateFolderItem;
+    return m_plotTemplateTopFolder;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1460,6 +1460,10 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     else if ( uiConfigName == "PlotWindow.Scripts" )
     {
         uiTreeOrdering.add( scriptCollection() );
+    }
+    else if ( uiConfigName == "PlotWindow.Templates" )
+    {
+        uiTreeOrdering.add( m_plotTemplateTopFolder );
     }
     else
     {
