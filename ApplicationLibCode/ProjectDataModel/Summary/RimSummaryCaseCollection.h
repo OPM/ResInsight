@@ -58,21 +58,25 @@ public:
     RimSummaryCaseCollection();
     ~RimSummaryCaseCollection() override;
 
-    void                                       removeCase( RimSummaryCase* summaryCase );
-    void                                       addCase( RimSummaryCase* summaryCase );
-    virtual std::vector<RimSummaryCase*>       allSummaryCases() const;
-    void                                       setName( const QString& name );
-    QString                                    name() const;
+    void                                 removeCase( RimSummaryCase* summaryCase );
+    void                                 addCase( RimSummaryCase* summaryCase );
+    virtual std::vector<RimSummaryCase*> allSummaryCases() const;
+    RimSummaryCase*                      firstSummaryCase() const;
+
+    void    setName( const QString& name );
+    QString name() const;
+
     bool                                       isEnsemble() const;
     void                                       setAsEnsemble( bool isEnsemble );
     virtual std::set<RifEclipseSummaryAddress> ensembleSummaryAddresses() const;
     virtual std::set<time_t>                   ensembleTimeSteps() const;
-    std::set<QString>                          wellsWithRftData() const;
-    std::set<QDateTime>                        rftTimeStepsForWell( const QString& wellName ) const;
-    RifReaderRftInterface*                     rftStatisticsReader();
-    void                                       setEnsembleId( int ensembleId );
-    int                                        ensembleId() const;
-    bool                                       hasEnsembleParameters() const;
+
+    std::set<QString>      wellsWithRftData() const;
+    std::set<QDateTime>    rftTimeStepsForWell( const QString& wellName ) const;
+    RifReaderRftInterface* rftStatisticsReader();
+    void                   setEnsembleId( int ensembleId );
+    int                    ensembleId() const;
+    bool                   hasEnsembleParameters() const;
 
     std::vector<RigEnsembleParameter> variationSortedEnsembleParameters( bool excludeNoVariation = false ) const;
     std::vector<std::pair<RigEnsembleParameter, double>>
@@ -119,6 +123,7 @@ private:
     void onCaseNameChanged( const SignalEmitter* emitter );
 
     void buildChildNodes();
+    void clearChildNodes();
 
 protected:
     virtual void onLoadDataAndUpdate();

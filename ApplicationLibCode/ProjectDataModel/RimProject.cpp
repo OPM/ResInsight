@@ -675,10 +675,13 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
         if ( sumCaseMainColl )
         {
             std::vector<RimSummaryCase*> allSummaryCases = sumCaseMainColl->allSummaryCases();
-            sumCases.insert( sumCases.end(), allSummaryCases.begin(), allSummaryCases.end() );
+            if ( !allSummaryCases.empty() )
+            {
+                sumCases.insert( sumCases.end(), allSummaryCases.begin(), allSummaryCases.end() );
+            }
         }
 
-        auto observedDataColl = oilField->observedDataCollection();
+        auto& observedDataColl = oilField->observedDataCollection();
         if ( observedDataColl != nullptr && observedDataColl->allObservedSummaryData().size() > 0 )
         {
             auto observedData = observedDataColl->allObservedSummaryData();
