@@ -8,6 +8,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultiPlotFromSelectionFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRenamePlotTemplateFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEditPlotTemplateFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeletePlotTemplateFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -20,6 +21,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultiPlotFromSelectionFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRenamePlotTemplateFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEditPlotTemplateFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeletePlotTemplateFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
