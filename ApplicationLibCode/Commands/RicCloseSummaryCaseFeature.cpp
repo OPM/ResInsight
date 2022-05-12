@@ -58,6 +58,8 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
     RimSummaryMultiPlotCollection* summaryPlotColl           = RiaSummaryTools::summaryMultiPlotCollection();
     RimSummaryCaseMainCollection*  summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
 
+    std::set<RimSummaryMultiPlot*> plotsToUpdate;
+
     for ( RimSummaryCase* summaryCase : cases )
     {
         for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
@@ -66,10 +68,15 @@ void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*
             {
                 summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
             }
-            multiPlot->updateConnectedEditors();
+            plotsToUpdate.insert( multiPlot );
         }
+    }
 
-        summaryCaseMainCollection->removeCase( summaryCase );
+    summaryCaseMainCollection->removeCases( cases );
+
+    for ( auto plot : plotsToUpdate )
+    {
+        plot->updateConnectedEditors();
     }
 
     summaryCaseMainCollection->updateAllRequiredEditors();

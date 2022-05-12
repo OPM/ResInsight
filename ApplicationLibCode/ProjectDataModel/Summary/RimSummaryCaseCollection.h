@@ -58,7 +58,7 @@ public:
     RimSummaryCaseCollection();
     ~RimSummaryCaseCollection() override;
 
-    void                                 removeCase( RimSummaryCase* summaryCase );
+    void                                 removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
     void                                 addCase( RimSummaryCase* summaryCase );
     virtual std::vector<RimSummaryCase*> allSummaryCases() const;
     RimSummaryCase*                      firstSummaryCase() const;
@@ -108,6 +108,8 @@ public:
 
     void refreshMetaData();
 
+    void updateReferringCurveSets();
+
 private:
     RigEnsembleParameter createEnsembleParameter( const QString& paramName ) const;
     static void          sortByBinnedVariation( std::vector<RigEnsembleParameter>& parameterVector );
@@ -127,7 +129,6 @@ private:
 
 protected:
     virtual void onLoadDataAndUpdate();
-    void         updateReferringCurveSets();
     void         defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void         defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void         setNameAsReadOnly();

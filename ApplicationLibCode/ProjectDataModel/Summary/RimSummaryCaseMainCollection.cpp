@@ -243,7 +243,7 @@ void RimSummaryCaseMainCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
+void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool notifyChange )
 {
     std::vector<RimDerivedEnsembleCaseCollection*> derivedEnsembles;
 
@@ -264,13 +264,31 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
 
     for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
     {
-        summaryCaseCollection->removeCase( summaryCase );
+        summaryCaseCollection->removeCase( summaryCase, notifyChange );
     }
 
     // Update derived ensemble cases (if any)
     for ( auto derEnsemble : derivedEnsembles )
     {
         derEnsemble->createDerivedEnsembleCases();
+    }
+
+    if ( notifyChange ) dataSourceHasChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& cases )
+{
+    for ( auto sumCase : cases )
+    {
+        removeCase( sumCase, false );
+    }
+
+    for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
+    {
+        summaryCaseCollection->updateReferringCurveSets();
     }
 
     dataSourceHasChanged.send();
