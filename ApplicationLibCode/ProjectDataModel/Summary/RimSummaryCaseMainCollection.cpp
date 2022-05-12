@@ -264,7 +264,7 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool
 
     for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
     {
-        summaryCaseCollection->removeCase( summaryCase, false );
+        summaryCaseCollection->removeCase( summaryCase, notifyChange );
     }
 
     // Update derived ensemble cases (if any)
