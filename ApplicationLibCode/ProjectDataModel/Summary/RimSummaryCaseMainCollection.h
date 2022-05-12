@@ -62,7 +62,8 @@ public:
 
     void addCases( const std::vector<RimSummaryCase*> cases );
     void addCase( RimSummaryCase* summaryCase );
-    void removeCase( RimSummaryCase* summaryCase );
+    void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
+    void removeCases( std::vector<RimSummaryCase*>& cases );
 
     RimSummaryCaseCollection* addCaseCollection( std::vector<RimSummaryCase*>               summaryCases,
                                                  const QString&                             coolectionName,

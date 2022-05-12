@@ -151,7 +151,7 @@ RimSummaryCaseCollection::~RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
+void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase, bool notifyChange )
 {
     size_t caseCountBeforeRemove = m_cases.size();
 
@@ -161,7 +161,10 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
 
     caseRemoved.send( summaryCase );
 
-    updateReferringCurveSets();
+    if ( notifyChange )
+    {
+        updateReferringCurveSets();
+    }
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
     {
