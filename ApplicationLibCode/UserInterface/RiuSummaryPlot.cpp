@@ -193,7 +193,14 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
     }
 
     menuBuilder.addSeparator();
-    menuBuilder << "RicDeleteSubPlotFeature";
+
+    RimSummaryPlot* plot = dynamic_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
+    if ( plot )
+    {
+        QVariant plotVariant( QVariant::fromValue( static_cast<void*>( plot ) ) );
+        menuBuilder.addCmdFeatureWithUserData( "RicSplitMultiPlotFeature", "Split into Multiple Plots", plotVariant );
+        menuBuilder.addCmdFeatureWithUserData( "RicDeleteSubPlotFeature", "Delete Plot", plotVariant );
+    }
 
     menuBuilder.appendToMenu( &menu );
 

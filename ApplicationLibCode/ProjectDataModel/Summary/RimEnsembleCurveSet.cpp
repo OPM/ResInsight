@@ -2004,6 +2004,16 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimEnsembleCurveSet::ensembleId() const
+{
+    if ( m_yValuesSummaryCaseCollection() != nullptr ) return m_yValuesSummaryCaseCollection()->ensembleId();
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimEnsembleCurveSet::name() const
 {
     QString curveSetName;
