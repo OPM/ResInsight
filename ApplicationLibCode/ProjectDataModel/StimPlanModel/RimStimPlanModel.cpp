@@ -795,8 +795,20 @@ void RimStimPlanModel::updatePerforationInterval()
             m_thicknessDirectionWellPath->perforationIntervalCollection()->appendPerforation( m_perforationInterval );
         }
 
+        double halfPerforationLength = m_perforationLength() * 0.5;
+        if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
+        {
+            // Adjust perforation interval for longitudinal fractures to correct TVD depth
+            CAF_ASSERT( wellPath() );
+            CAF_ASSERT( wellPath()->wellPathGeometry() );
+
+            cvf::Vec3d wellPathTangent = wellPath()->wellPathGeometry()->tangentAlongWellPath( m_MD() );
+            halfPerforationLength =
+                RigStimPlanModelTools::calculatePerforationLength( wellPathTangent, m_perforationLength() ) * 0.5;
+        }
+
         double closestMd = m_thicknessDirectionWellPath->wellPathGeometry()->closestMeasuredDepth( m_anchorPosition );
-        m_perforationInterval->setStartAndEndMD( closestMd - perforationLength(), closestMd + perforationLength() );
+        m_perforationInterval->setStartAndEndMD( closestMd - halfPerforationLength, closestMd + halfPerforationLength );
         m_perforationInterval->updateConnectedEditors();
         updateViewsAndPlots();
     }
