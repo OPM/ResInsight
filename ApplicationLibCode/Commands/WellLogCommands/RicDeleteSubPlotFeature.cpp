@@ -26,6 +26,7 @@
 #include "RiuQwtPlotWidget.h"
 
 #include "RimMultiPlot.h"
+#include "RimPlot.h"
 #include "RimPlotWindow.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
@@ -76,7 +77,8 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return;
 
     std::vector<RimPlot*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
+    getSelection( selection );
+
     std::set<RimMultiPlot*> alteredPlotWindows;
 
     for ( RimPlot* plot : selection )
@@ -119,12 +121,12 @@ void RicDeleteSubPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSubPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    QString                      actionText;
-    std::vector<caf::PdmObject*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
+    QString               actionText;
+    std::vector<RimPlot*> selection;
+    getSelection( selection );
 
     size_t tracksSelected = 0u;
-    for ( caf::PdmObject* object : selection )
+    for ( RimPlot* object : selection )
     {
         if ( dynamic_cast<RimWellLogTrack*>( object ) )
         {
@@ -147,4 +149,25 @@ void RicDeleteSubPlotFeature::setupActionLook( QAction* actionToSetup )
     actionToSetup->setText( actionText );
     actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
     applyShortcutWithHintToAction( actionToSetup, QKeySequence::Delete );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicDeleteSubPlotFeature::getSelection( std::vector<RimPlot*>& selection )
+{
+    if ( sender() )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<void*>() )
+        {
+            RimPlot* plot = static_cast<RimPlot*>( userData.value<void*>() );
+            if ( plot ) selection.push_back( plot );
+        }
+    }
+
+    if ( selection.empty() )
+    {
+        caf::SelectionManager::instance()->objectsByType( &selection );
+    }
 }

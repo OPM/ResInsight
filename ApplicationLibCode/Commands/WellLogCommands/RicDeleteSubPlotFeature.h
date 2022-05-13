@@ -21,6 +21,10 @@
 
 #include "cafCmdFeature.h"
 
+class RimPlot;
+
+#include <vector>
+
 //==================================================================================================
 ///
 //==================================================================================================
@@ -32,4 +36,7 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    void getSelection( std::vector<RimPlot*>& selection );
 };
