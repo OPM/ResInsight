@@ -147,6 +147,7 @@ std::pair<std::vector<RimSummaryCase*>, std::vector<RimSummaryCaseCollection*>>
     RiaSummaryStringTools::allDataSourcesInProject()
 {
     auto sumCaseMainColl = RiaSummaryTools::summaryCaseMainCollection();
+    if ( !sumCaseMainColl ) return { {}, {} };
 
     auto summaryCases = sumCaseMainColl->topLevelSummaryCases();
     auto ensembles    = sumCaseMainColl->summaryCaseCollections();
