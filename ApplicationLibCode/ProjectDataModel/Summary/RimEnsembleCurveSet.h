@@ -108,6 +108,8 @@ public:
     RifEclipseSummaryAddress      summaryAddress() const;
     std::vector<RimSummaryCurve*> curves() const;
 
+    int ensembleId() const;
+
     RimCustomObjectiveFunctionCollection* customObjectiveFunctionCollection();
 
     void deleteEnsembleCurves();

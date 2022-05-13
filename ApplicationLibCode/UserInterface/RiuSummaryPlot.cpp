@@ -61,6 +61,13 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
 
     menuBuilder << "RicShowPlotDataFeature";
 
+    RimSummaryPlot* plot = dynamic_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
+    if ( plot )
+    {
+        QVariant plotVariant( QVariant::fromValue( static_cast<void*>( plot ) ) );
+        menuBuilder.addCmdFeatureWithUserData( "RicSplitMultiPlotFeature", "Split", plotVariant );
+    }
+
     double distanceFromClick = std::numeric_limits<double>::infinity();
 
     auto [plotCurve, closestCurvePoint] = plotWidget()->findClosestCurve( pos, distanceFromClick );
