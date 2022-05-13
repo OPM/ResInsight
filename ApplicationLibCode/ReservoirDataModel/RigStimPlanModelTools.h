@@ -67,4 +67,6 @@ public:
         generateBarrierIntersectionsBetweenPoints( RigEclipseCaseData* eclipseCaseData,
                                                    const cvf::Vec3d&   startPosition,
                                                    const cvf::Vec3d&   endPosition );
+
+    static double calculatePerforationLength( const cvf::Vec3d& wellPathDirection, double perforationLength );
 };
