@@ -190,6 +190,12 @@ RimStimPlanModel::RimStimPlanModel()
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
     m_thicknessDirection.xmlCapability()->disableIO();
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_originalThicknessDirection,
+                                          "OriginalThicknessDirection",
+                                          "Original Thickness Direction" );
+    m_originalThicknessDirection.uiCapability()->setUiReadOnly( true );
+    m_originalThicknessDirection.xmlCapability()->disableIO();
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
                                           "ThicknessDirectionWellPath",
                                           "Thickness Direction Well Path" );
@@ -537,18 +543,26 @@ void RimStimPlanModel::updatePositionFromMeasuredDepth()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::updateThicknessDirection()
 {
-    // True vertical thickness: just point straight up
-    cvf::Vec3d direction( 0.0, 0.0, -1.0 );
+    cvf::Vec3d defaultDirection( 0.0, 0.0, -1.0 );
 
     if ( m_extractionType() == ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS )
     {
-        direction = RigStimPlanModelTools::calculateTSTDirection( getEclipseCaseData(),
-                                                                  m_anchorPosition(),
-                                                                  m_boundingBoxHorizontal,
-                                                                  m_boundingBoxVertical );
-    }
+        cvf::Vec3d direction = RigStimPlanModelTools::calculateTSTDirection( getEclipseCaseData(),
+                                                                             m_anchorPosition(),
+                                                                             m_boundingBoxHorizontal,
+                                                                             m_boundingBoxVertical );
 
-    m_thicknessDirection = direction;
+        // Calculate an adjusted TST direction to improve the zone thickness in the well log plot.
+        // Using average of TST and TVD (default direction) in 3D.
+        m_thicknessDirection         = ( direction + defaultDirection ) / 2.0;
+        m_originalThicknessDirection = direction;
+    }
+    else
+    {
+        // True vertical thickness: just point straight up
+        m_thicknessDirection         = defaultDirection;
+        m_originalThicknessDirection = defaultDirection;
+    }
 
     if ( m_thicknessDirectionWellPath )
     {
@@ -642,65 +656,22 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     RiaLogging::info( "Computing distance to barrier." );
     RiaLogging::info( QString( "Anchor position: %1" ).arg( RigStimPlanModelTools::vecToString( position ) ) );
 
-    RigWellPath* wellPathGeometry = wellPath()->wellPathGeometry();
-
-    // Find the well path points closest to the anchor position
-    cvf::Vec3d p1;
-    cvf::Vec3d p2;
-    wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
-    RiaLogging::info( QString( "Closest points on well path: %1 %2" )
-                          .arg( RigStimPlanModelTools::vecToString( p1 ) )
-                          .arg( RigStimPlanModelTools::vecToString( p2 ) ) );
-
-    // Create a well direction based on the two points
-    cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
-    RiaLogging::info( QString( "Well direction: %1" ).arg( RigStimPlanModelTools::vecToString( wellDirection ) ) );
-
-    cvf::Vec3d fractureDirectionNormal = wellDirection;
-    if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
-    {
-        cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
-        fractureDirectionNormal.transformVector( azimuthRotation );
-    }
-    else if ( m_fractureOrientation == FractureOrientation::AZIMUTH )
-    {
-        // Azimuth angle of fracture is relative to north.
-        double     wellAzimuth = wellPathGeometry->wellPathAzimuthAngle( position );
-        cvf::Mat3d azimuthRotation =
-            cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuthAngle() - 90.0 ) );
-        fractureDirectionNormal.transformVector( azimuthRotation );
-    }
-
-    // Create a fracture plane
-    cvf::Plane fracturePlane;
-    if ( !fracturePlane.setFromPointAndNormal( position, fractureDirectionNormal ) )
-    {
-        RiaLogging::error( "Unable to create fracture plane" );
-        return;
-    }
-
-    // The direction to the barrier must be in the fracture plane.
-    // Project the TST onto the fracture plane.
-    cvf::Vec3d tstInPlane;
-    if ( !fracturePlane.projectVector( thicknessDirection(), &tstInPlane ) )
-    {
-        RiaLogging::error( "Unable to project thickess vector into fracture plane" );
-        return;
-    }
-    RiaLogging::info(
-        QString( "Thickness direction: %1" ).arg( RigStimPlanModelTools::vecToString( thicknessDirection() ) ) );
-    RiaLogging::info(
-        QString( "Thickness direction in fracture plane: %1" ).arg( RigStimPlanModelTools::vecToString( tstInPlane ) ) );
-
-    // The direction to the barrier is normal to the TST project into the fracture plane
-    cvf::Vec3d directionToBarrier = ( tstInPlane ^ fractureDirectionNormal ).getNormalized();
-    RiaLogging::info(
-        QString( "Direction to barrier: %1" ).arg( RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
+    cvf::Vec3d fractureDirectionNormal = computeFractureDirectionNormal( wellPath(), position );
 
     // Update formation dip. The direction for the barrier search follows the
     // inclination of the formation, and is in effect the formation dip in the
     // fracture plane. -90 to convert from horizontal to vertical.
-    m_formationDip = std::abs( RigStimPlanModelTools::calculateFormationDip( directionToBarrier ) - 90.0 );
+    cvf::Vec3d formationDirection =
+        projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_originalThicknessDirection );
+    if ( formationDirection.isUndefined() ) return;
+    m_formationDip = std::abs( RigStimPlanModelTools::calculateFormationDip( formationDirection ) - 90.0 );
+
+    cvf::Vec3d directionToBarrier =
+        projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_thicknessDirection );
+    if ( directionToBarrier.isUndefined() ) return;
+
+    RiaLogging::info(
+        QString( "Direction to barrier: %1" ).arg( RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
 
     auto [foundFault, shortestDistance, barrierPosition, barrierDip] =
         RigStimPlanModelTools::findClosestFaultBarrier( eclipseCaseData, position, directionToBarrier );
@@ -731,6 +702,73 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
         m_distanceToBarrier = 0.0;
         m_barrierFaultName  = "";
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimStimPlanModel::computeFractureDirectionNormal( RimWellPath* wellPath, const cvf::Vec3d& position ) const
+{
+    CAF_ASSERT( wellPath );
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+    CAF_ASSERT( wellPathGeometry );
+
+    // Find the well path points closest to the anchor position
+    cvf::Vec3d p1;
+    cvf::Vec3d p2;
+    wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
+    RiaLogging::info( QString( "Closest points on well path: %1 %2" )
+                          .arg( RigStimPlanModelTools::vecToString( p1 ) )
+                          .arg( RigStimPlanModelTools::vecToString( p2 ) ) );
+
+    // Create a well direction based on the two points
+    cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
+    RiaLogging::info( QString( "Well direction: %1" ).arg( RigStimPlanModelTools::vecToString( wellDirection ) ) );
+
+    cvf::Vec3d fractureDirectionNormal = wellDirection;
+    if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
+    {
+        cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
+        fractureDirectionNormal.transformVector( azimuthRotation );
+    }
+    else if ( m_fractureOrientation == FractureOrientation::AZIMUTH )
+    {
+        // Azimuth angle of fracture is relative to north.
+        double     wellAzimuth = wellPathGeometry->wellPathAzimuthAngle( position );
+        cvf::Mat3d azimuthRotation =
+            cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuthAngle() - 90.0 ) );
+        fractureDirectionNormal.transformVector( azimuthRotation );
+    }
+
+    return fractureDirectionNormal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimStimPlanModel::projectVectorIntoFracturePlane( const cvf::Vec3d& position,
+                                                             const cvf::Vec3d& fractureDirectionNormal,
+                                                             const cvf::Vec3d& direction ) const
+{
+    // Create a fracture plane
+    cvf::Plane fracturePlane;
+    if ( !fracturePlane.setFromPointAndNormal( position, fractureDirectionNormal ) )
+    {
+        RiaLogging::error( "Unable to create fracture plane" );
+        return cvf::Vec3d::UNDEFINED;
+    }
+
+    // Project the direction onto the fracture plane.
+    cvf::Vec3d tstInPlane;
+    if ( !fracturePlane.projectVector( direction, &tstInPlane ) )
+    {
+        RiaLogging::error( "Unable to project thickess vector into fracture plane" );
+        return cvf::Vec3d::UNDEFINED;
+    }
+
+    // The direction to the barrier is normal to the TST project into the fracture plane
+    cvf::Vec3d directionInPlane = ( tstInPlane ^ fractureDirectionNormal ).getNormalized();
+    return directionInPlane;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -861,6 +899,8 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     asymmetricGroup->add( &m_showAllFaults, { false, 1, 0 } );
 
     asymmetricGroup->add( &m_wellPenetrationLayer );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------
