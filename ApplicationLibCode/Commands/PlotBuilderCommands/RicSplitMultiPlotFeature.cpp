@@ -23,9 +23,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "RicSummaryPlotBuilder.h"
@@ -75,7 +73,7 @@ void RicSplitMultiPlotFeature::onActionTriggered( bool isChecked )
         objects.push_back( addr );
     }
 
-    RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
+    RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
 
     for ( auto object : objects )
         delete object;
@@ -89,7 +87,6 @@ void RicSplitMultiPlotFeature::onActionTriggered( bool isChecked )
 void RicSplitMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Split" );
-    // actionToSetup->setIcon( QIcon( ":/MultiPlot16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
