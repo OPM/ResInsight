@@ -48,7 +48,6 @@ RiuMdiSubWindow::RiuMdiSubWindow( QWidget* parent /*= 0*/, Qt::WindowFlags flags
 //--------------------------------------------------------------------------------------------------
 RiuMdiSubWindow::~RiuMdiSubWindow()
 {
-    RiuMainWindow::instance()->slotRefreshViewActions();
 }
 
 //--------------------------------------------------------------------------------------------------
