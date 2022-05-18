@@ -189,6 +189,7 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
 //--------------------------------------------------------------------------------------------------
 RiaGuiApplication::~RiaGuiApplication()
 {
+    m_mainWindow.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -923,7 +924,7 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
         m_mainWindow->loadWinGeoAndDockToolBarLayout();
     }
 
-    return m_mainWindow.get();
+    return m_mainWindow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -931,7 +932,7 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuMainWindow* RiaGuiApplication::mainWindow()
 {
-    return m_mainWindow.get();
+    return m_mainWindow;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -960,7 +961,7 @@ void RiaGuiApplication::createMainWindow()
         caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
     }
 
-    m_mainWindow     = std::make_unique<RiuMainWindow>();
+    m_mainWindow     = new RiuMainWindow;
     QString platform = cvf::System::is64Bit() ? "(64bit)" : "(32bit)";
     m_mainWindow->setWindowTitle( "ResInsight " + platform );
     m_mainWindow->setDefaultWindowSize();
@@ -1042,7 +1043,7 @@ RiuPlotMainWindow* RiaGuiApplication::mainPlotWindow()
 RiuMainWindowBase* RiaGuiApplication::mainWindowByID( int mainWindowID )
 {
     if ( mainWindowID == 0 )
-        return m_mainWindow.get();
+        return m_mainWindow;
     else if ( mainWindowID == 1 )
         return m_mainPlotWindow.get();
     else
@@ -1451,7 +1452,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
             }
 
             QMessageBox::StandardButton reply;
-            reply                   = QMessageBox::question( m_mainWindow.get(),
+            reply                   = QMessageBox::question( m_mainWindow,
                                            QString( "Apply %1 to Existing Views or Plots?" ).arg( listString ),
                                            QString( "You have changed default %1 and have existing views or plots with "
                                                     "different settings.\n" )

@@ -121,6 +121,8 @@ RiuMainWindow::RiuMainWindow()
     , m_windowMenu( nullptr )
     , m_holoLensToolBar( nullptr )
 {
+    setAttribute( Qt::WA_DeleteOnClose );
+
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
     setCentralWidget( m_mdiArea );
@@ -171,6 +173,11 @@ RiuMainWindow::RiuMainWindow()
 RiuMainWindow::~RiuMainWindow()
 {
     setPdmRoot( nullptr );
+
+    if ( m_pdmUiPropertyView )
+    {
+        m_pdmUiPropertyView->showProperties( nullptr );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
