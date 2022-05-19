@@ -322,8 +322,6 @@ void RimSummaryCase::initAfterRead()
     }
 
     updateOptionSensitivity();
-
-    refreshMetaData();
 }
 
 //--------------------------------------------------------------------------------------------------
