@@ -50,16 +50,6 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
             }
-          - {
-              name: "Mac OS",
-              os: macos-latest,
-              cc: "gcc-9",
-              cxx: "g++-9",
-              vcpkg-response-file: vcpkg_x64-osx.txt,
-              vcpkg-triplet: x64-osx,
-              build-python-module: false,
-              execute-unit-tests: false,
-            }
     steps:
       - name: Checkout
         uses: actions/checkout@v2
