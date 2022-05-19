@@ -42,8 +42,6 @@ public:
 
     bool isEmpty() const;
 
-    void clear();
-
 private:
     caf::PdmChildArrayField<RimEclipseResultAddress*>      m_adresses;
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_resultType;
