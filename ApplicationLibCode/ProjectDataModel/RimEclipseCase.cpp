@@ -614,10 +614,14 @@ void RimEclipseCase::buildChildNodes()
         QString name = caf::AppEnum<RiaDefines::ResultCatType>::uiText( resultType );
         resultAddressCollection->setName( name );
 
-        QStringList resultNames = results( RiaDefines::PorosityModelType::MATRIX_MODEL )->resultNames( resultType );
-        for ( auto resultName : resultNames )
+        auto cellResultData = results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        if ( cellResultData )
         {
-            resultAddressCollection->addAddress( resultName, resultType, this );
+            QStringList resultNames = cellResultData->resultNames( resultType );
+            for ( auto resultName : resultNames )
+            {
+                resultAddressCollection->addAddress( resultName, resultType, this );
+            }
         }
 
         m_resultAddressCollections.push_back( resultAddressCollection );
