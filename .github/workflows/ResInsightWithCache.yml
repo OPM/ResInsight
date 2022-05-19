@@ -52,7 +52,7 @@ jobs:
             }
           - {
               name: "Mac OS",
-              os: macos-latest,
+              os: macos-10.15,
               cc: "clang",
               cxx: "clang++",
               vcpkg-response-file: vcpkg_x64-osx.txt,
