@@ -112,7 +112,6 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
 
     if ( cases.empty() ) return;
 
-    RicImportSummaryCasesFeature::addSummaryCases( cases );
     RimSummaryCaseCollection* ensemble =
         RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
 
