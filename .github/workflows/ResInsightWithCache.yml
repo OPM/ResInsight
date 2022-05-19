@@ -52,9 +52,9 @@ jobs:
             }
           - {
               name: "Mac OS",
-              os: macos-10.15,
-              cc: "clang",
-              cxx: "clang++",
+              os: macos-latest,
+              cc: "gcc-9",
+              cxx: "g++-9",
               vcpkg-response-file: vcpkg_x64-osx.txt,
               vcpkg-triplet: x64-osx,
               build-python-module: false,
