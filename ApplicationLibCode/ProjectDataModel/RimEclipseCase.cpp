@@ -601,7 +601,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::buildChildNodes()
 {
-    m_resultAddressCollections.clear();
+    m_resultAddressCollections.deleteAllChildObjects();
 
     std::vector<RiaDefines::ResultCatType> resultTypes = { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                            RiaDefines::ResultCatType::DYNAMIC_NATIVE,
