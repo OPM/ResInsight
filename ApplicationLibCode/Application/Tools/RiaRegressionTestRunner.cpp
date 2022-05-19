@@ -43,6 +43,7 @@
 #include "ExportCommands/RicSnapshotAllPlotsToFileFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 
+#include "cafMemoryInspector.h"
 #include "cafUtils.h"
 
 #include <QDateTime>
@@ -82,6 +83,7 @@ void logInfoTextWithTimeInSeconds( const QElapsedTimer& time, const QString& msg
     QString timeText = QString( "(%1 s) " ).arg( timeRunning, 0, 'f', 1 );
 
     RiaLogging::info( timeText + msg );
+    QApplication::processEvents();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -127,6 +129,8 @@ void RiaRegressionTestRunner::runRegressionTest()
     m_runningRegressionTests = true;
 
     QString currentApplicationPath = QDir::currentPath();
+
+    std::vector<std::tuple<QString, double, uint64_t, uint64_t>> memoryUsagePerTest;
 
     RiaRegressionTest regressionTestConfig;
     regressionTestConfig.readSettingsFromApplicationStore();
@@ -215,6 +219,9 @@ void RiaRegressionTestRunner::runRegressionTest()
 
             if ( !projectFileName.isEmpty() )
             {
+                QElapsedTimer timerForOneTest;
+                timerForOneTest.start();
+
                 cvf::ref<RiaProjectModifier> projectModifier;
                 if ( regressionTestConfig.invalidateExternalFilePaths )
                 {
@@ -240,7 +247,18 @@ void RiaRegressionTestRunner::runRegressionTest()
 
                 RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( fullPathGeneratedFolder );
 
+                uint64_t usedMemoryBeforeClose = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
+
                 app->closeProject();
+
+                QApplication::processEvents();
+
+                auto testDuration = timerForOneTest.elapsed() / 1000.0;
+
+                uint64_t usedMemoryAfterClose = caf::MemoryInspector::getApplicationPhysicalMemoryUsageMiB();
+
+                auto folderName = folderFileInfo.baseName();
+                memoryUsagePerTest.push_back( { folderName, testDuration, usedMemoryBeforeClose, usedMemoryAfterClose } );
             }
             else
             {
@@ -273,6 +291,15 @@ void RiaRegressionTestRunner::runRegressionTest()
         }
 
         logInfoTextWithTimeInSeconds( timeStamp, "Completed test :" + testCaseFolder.absolutePath() );
+    }
+
+    // Profiling logging
+    RiaLogging::info( "| Duration [sec] | Before Close [MB] | After Close [MB] | Name " );
+    for ( const auto& [name, testDuration, beforeMemory, afterMemory] : memoryUsagePerTest )
+    {
+        auto timeText = QString( "(%1 s) " ).arg( testDuration, 5, 'f', 1 );
+        auto logInfo  = QString( "%1 %2    %3 %4" ).arg( timeText ).arg( beforeMemory ).arg( afterMemory ).arg( name );
+        RiaLogging::info( logInfo );
     }
 
     // Invoke git diff
