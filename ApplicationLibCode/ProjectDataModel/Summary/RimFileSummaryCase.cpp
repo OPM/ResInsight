@@ -225,6 +225,7 @@ void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field
 void RimFileSummaryCase::openAndAttachAdditionalReader()
 {
     QString additionalSummaryFilePath = m_additionalSummaryFilePath().path();
+    if ( additionalSummaryFilePath.isEmpty() ) return;
 
     cvf::ref<RifOpmCommonEclipseSummary> opmCommonReader = new RifOpmCommonEclipseSummary;
     opmCommonReader->useEnhancedSummaryFiles( true );
