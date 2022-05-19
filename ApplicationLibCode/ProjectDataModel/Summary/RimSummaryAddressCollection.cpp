@@ -333,10 +333,10 @@ RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::clear()
+void RimSummaryAddressCollection::deleteAllChildObjects()
 {
-    m_adresses.clear();
-    m_subfolders.clear();
+    m_adresses.deleteAllChildObjects();
+    m_subfolders.deleteAllChildObjects();
 }
 
 //--------------------------------------------------------------------------------------------------

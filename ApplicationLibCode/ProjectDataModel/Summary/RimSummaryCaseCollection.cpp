@@ -1098,5 +1098,5 @@ void RimSummaryCaseCollection::refreshMetaData()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::clearChildNodes()
 {
-    m_dataVectorFolders->clear();
+    m_dataVectorFolders->deleteAllChildObjects();
 }

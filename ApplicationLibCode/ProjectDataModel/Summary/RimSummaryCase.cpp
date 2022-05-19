@@ -222,7 +222,7 @@ QString RimSummaryCase::errorMessagesFromReader()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::buildChildNodes()
 {
-    m_dataVectorFolders->clear();
+    m_dataVectorFolders->deleteAllChildObjects();
 
     RifSummaryReaderInterface* reader = summaryReader();
     if ( !reader ) return;
