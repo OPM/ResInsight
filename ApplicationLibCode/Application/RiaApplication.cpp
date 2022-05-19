@@ -1534,7 +1534,9 @@ void RiaApplication::resetProject()
     m_project.reset();
     m_preferences.reset();
 
-    initialize();
+    // Call RiaApplication::initialize() to recreate project and preferences. Do not call virtual method initialize(),
+    // as RiaGuiApplication::initialize() creates a new logger causing console text to disappear.
+    RiaApplication::initialize();
 }
 
 //--------------------------------------------------------------------------------------------------
