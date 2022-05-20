@@ -72,4 +72,5 @@ void RicDeleteWellPathFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Delete Well Path" );
     actionToSetup->setIcon( QIcon( ":/Erase.svg" ) );
+    actionToSetup->setShortcut( Qt::Key_Delete );
 }
