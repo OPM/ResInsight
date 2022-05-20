@@ -117,11 +117,17 @@ protected:
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void populateNameHelper( RimSummaryPlotNameHelper* nameHelper );
 
     void computeAggregatedAxisRange();
     void updateSourceStepper();
+
+    void updatePlotVisibility();
 
     void duplicate();
 
@@ -140,6 +146,9 @@ private:
     caf::PdmField<bool> m_createPlotDuplicate;
     caf::PdmField<bool> m_linkSubPlotAxes;
     caf::PdmField<bool> m_autoAdjustAppearance;
+
+    caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
+    caf::PdmField<double> m_plotFilterYAxisThreshold;
 
     caf::PdmField<bool> m_appendNextPlot;
     caf::PdmField<bool> m_appendPrevPlot;
