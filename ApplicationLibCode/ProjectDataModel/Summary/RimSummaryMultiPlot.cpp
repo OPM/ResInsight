@@ -1164,18 +1164,36 @@ void RimSummaryMultiPlot::appendCurveByStepping( int direction )
 
         for ( auto curve : plot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
         {
-            auto address = curve->summaryAddressY();
-            auto sumCase = curve->summaryCaseY();
-            address      = m_sourceStepping->stepAddress( address, direction );
-            addresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, sumCase->caseId() ) );
+            auto address   = curve->summaryAddressY();
+            auto sumCase   = curve->summaryCaseY();
+            int  sumCaseId = sumCase->caseId();
+            if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
+            {
+                auto nextSumCase = m_sourceStepping->stepCase( direction );
+                if ( nextSumCase ) sumCaseId = nextSumCase->caseId();
+            }
+            else
+            {
+                address = m_sourceStepping->stepAddress( address, direction );
+            }
+            addresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, sumCaseId ) );
         }
 
         for ( auto curveSet : plot->curveSets() )
         {
-            auto address = curveSet->summaryAddress();
-            auto sumEns  = curveSet->summaryCaseCollection();
-            address      = m_sourceStepping->stepAddress( address, direction );
-            addresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, -1, sumEns->ensembleId() ) );
+            auto address  = curveSet->summaryAddress();
+            auto sumEns   = curveSet->summaryCaseCollection();
+            int  sumEnsId = sumEns->ensembleId();
+            if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::ENSEMBLE )
+            {
+                auto nextEns = m_sourceStepping->stepEnsemble( direction );
+                if ( nextEns ) sumEnsId = nextEns->ensembleId();
+            }
+            else
+            {
+                address = m_sourceStepping->stepAddress( address, direction );
+            }
+            addresses.push_back( RimSummaryAddress::wrapFileReaderAddress( address, -1, sumEnsId ) );
         }
 
         plot->handleDroppedObjects( addresses );
