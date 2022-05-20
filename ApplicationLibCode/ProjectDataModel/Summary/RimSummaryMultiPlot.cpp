@@ -146,6 +146,12 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Aggregation" );
 
+    CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "Hide Plots With Values Below" );
+    m_hidePlotsWithValuesBelow.xmlCapability()->disableIO();
+    m_hidePlotsWithValuesBelow.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_plotFilterYAxisThreshold, "PlotFilterYAxisThreshold", 0.0, "Y-Axis Threshold" );
+
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
 
     m_sourceStepping = new RimSummaryPlotSourceStepping;
@@ -358,7 +364,12 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     m_linkSubPlotAxes.uiCapability()->setUiReadOnly( m_autoAdjustAppearance() );
     if ( m_autoAdjustAppearance() ) m_linkSubPlotAxes = false;
 
+    auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
+    plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
+    plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
+
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
+    dataSourceGroup->setCollapsedByDefault( true );
     m_sourceStepping()->uiOrdering( uiConfigName, *dataSourceGroup );
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
@@ -399,6 +410,11 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         syncAxisRanges();
     }
+    else if ( changedField == &m_hidePlotsWithValuesBelow )
+    {
+        m_hidePlotsWithValuesBelow = false;
+        updatePlotVisibility();
+    }
     else if ( changedField == &m_createPlotDuplicate )
     {
         m_createPlotDuplicate = false;
@@ -435,6 +451,23 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else
     {
         RimMultiPlot::fieldChangedByUi( changedField, oldValue, newValue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                 QString                    uiConfigName,
+                                                 caf::PdmUiEditorAttribute* attribute )
+{
+    if ( &m_hidePlotsWithValuesBelow == field )
+    {
+        caf::PdmUiPushButtonEditorAttribute* attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_buttonText = "Apply Filter";
+        }
     }
 }
 
@@ -942,6 +975,32 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
         plot->updateAxes();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updatePlotVisibility()
+{
+    auto hasValuesAboveLimit = []( RimSummaryPlot* plot, double limit ) {
+        for ( auto curve : plot->summaryAndEnsembleCurves() )
+        {
+            auto address  = curve->valuesY();
+            auto maxValue = std::max_element( address.begin(), address.end() );
+
+            if ( *maxValue > limit ) return true;
+        }
+
+        return false;
+    };
+
+    for ( auto plot : summaryPlots() )
+    {
+        bool hasValueAboveLimit = hasValuesAboveLimit( plot, m_plotFilterYAxisThreshold );
+        plot->setShowWindow( hasValueAboveLimit );
+    }
+
+    if ( !m_viewer.isNull() ) m_viewer->scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
