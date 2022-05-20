@@ -567,7 +567,6 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
     std::vector<caf::PdmFieldHandle*> toolBarFields;
 
     toolBarFields.push_back( &m_disableWheelZoom );
-    toolBarFields.push_back( &m_createPlotDuplicate );
 
     auto& sourceObject = m_sourceStepping();
     if ( sourceObject )
@@ -581,6 +580,8 @@ std::vector<caf::PdmFieldHandle*> RimSummaryMultiPlot::fieldsToShowInToolbar()
 
     toolBarFields.push_back( &m_appendPrevCurve );
     toolBarFields.push_back( &m_appendNextCurve );
+
+    toolBarFields.push_back( &m_createPlotDuplicate );
 
     auto multiFields = RimMultiPlot::fieldsToShowInToolbar();
     toolBarFields.insert( std::end( toolBarFields ), std::begin( multiFields ), std::end( multiFields ) );
