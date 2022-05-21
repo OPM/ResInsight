@@ -1291,12 +1291,8 @@ void RiaGuiApplication::onProjectBeingClosed()
 
     RiaGuiApplication::clearAllSelections();
 
-    m_mainWindow->cleanupGuiBeforeProjectClose();
-
-    if ( m_mainPlotWindow )
-    {
-        m_mainPlotWindow->cleanupGuiBeforeProjectClose();
-    }
+    if ( m_mainWindow ) m_mainWindow->cleanupGuiBeforeProjectClose();
+    if ( m_mainPlotWindow ) m_mainPlotWindow->cleanupGuiBeforeProjectClose();
 
     caf::EffectGenerator::clearEffectCache();
 }

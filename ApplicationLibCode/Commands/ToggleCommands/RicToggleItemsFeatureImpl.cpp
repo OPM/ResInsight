@@ -136,13 +136,16 @@ caf::PdmUiTreeView* RicToggleItemsFeatureImpl::findTreeView( const caf::PdmUiIte
         return customActiveTreeView;
     }
 
-    caf::PdmUiTreeView* activeTree = RiuMainWindow::instance()->getTreeViewWithItem( uiItem );
-    if ( activeTree ) return activeTree;
+    if ( RiuMainWindow::instance() )
+    {
+        auto activeTree = RiuMainWindow::instance()->getTreeViewWithItem( uiItem );
+        if ( activeTree ) return activeTree;
+    }
 
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( mainPlotWindow )
     {
-        activeTree = mainPlotWindow->getTreeViewWithItem( uiItem );
+        auto activeTree = mainPlotWindow->getTreeViewWithItem( uiItem );
         if ( activeTree )
         {
             return activeTree;

@@ -353,7 +353,7 @@ void RimProject::setupBeforeSave()
 
         if ( guiApp )
         {
-            m_show3DWindow   = guiApp->mainWindow()->isVisible();
+            if ( guiApp->mainWindow() ) m_show3DWindow = guiApp->mainWindow()->isVisible();
             m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
         }
     }
