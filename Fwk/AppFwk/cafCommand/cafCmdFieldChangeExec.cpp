@@ -105,7 +105,7 @@ void CmdFieldChangeExec::redo()
             // The ui value might be an index into the option entry cache, so we need to set the value
             // and be aware of the option entries, and then serialize the actual field value we ended up with.
 
-            uiFieldHandle->setValueFromUiEditor( m_commandData->m_newUiValue );
+            uiFieldHandle->setValueFromUiEditor( m_commandData->m_newUiValue, m_enableFieldChanged );
 
             {
                 QXmlStreamWriter xmlStream( &m_commandData->m_redoFieldValueSerialized );
@@ -123,11 +123,14 @@ void CmdFieldChangeExec::redo()
             QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
 
             // New data is present in field, notify data changed
-            uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
+            if ( m_enableFieldChanged ) uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
         }
     }
 
-    if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
+    if ( m_enableFieldChanged && m_notificationCenter )
+    {
+        m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,10 +158,19 @@ void CmdFieldChangeExec::undo()
         QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
 
         // New data is present in field, notify data changed
-        uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
+        if ( m_enableFieldChanged ) uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
     }
 
-    if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
+    if ( m_notificationCenter && m_enableFieldChanged )
+        m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void CmdFieldChangeExec::enableFieldChanged( bool enable )
+{
+    m_enableFieldChanged = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,6 +178,7 @@ void CmdFieldChangeExec::undo()
 //--------------------------------------------------------------------------------------------------
 CmdFieldChangeExec::CmdFieldChangeExec( NotificationCenter* notificationCenter )
     : CmdExecuteCommand( notificationCenter )
+    , m_enableFieldChanged( true )
 {
     m_commandData = new CmdFieldChangeExecData;
 }

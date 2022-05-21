@@ -124,7 +124,7 @@ void PdmUiFieldHandle::setAutoAddingOptionFromValue( bool isAddingValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldHandle::setValueFromUiEditor( const QVariant& uiValue )
+void PdmUiFieldHandle::setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged )
 {
 }
 

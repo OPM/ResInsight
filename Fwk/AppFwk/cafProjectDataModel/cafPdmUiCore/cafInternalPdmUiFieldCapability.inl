@@ -14,7 +14,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue )
+void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged )
 {
     QVariant oldUiBasedQVariant = toUiBasedQVariant();
 
@@ -100,7 +100,7 @@ void PdmFieldUiCap<FieldType>::setValueFromUiEditor( const QVariant& uiValue )
 
     QVariant newUiBasedQVariant = toUiBasedQVariant();
 
-    this->notifyFieldChanged( oldUiBasedQVariant, newUiBasedQVariant );
+    if ( notifyFieldChanged ) this->notifyFieldChanged( oldUiBasedQVariant, newUiBasedQVariant );
 }
 
 //--------------------------------------------------------------------------------------------------
