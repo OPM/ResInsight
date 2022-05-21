@@ -86,12 +86,15 @@ public:
     void    redo() override;
     void    undo() override;
 
+    void enableFieldChanged( bool enable );
+
 private:
     void readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmXmlFieldHandle* xmlFieldHandle );
     void writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmXmlFieldHandle* xmlFieldHandle );
 
 private:
     CmdFieldChangeExecData* m_commandData;
+    bool                    m_enableFieldChanged;
 };
 
 } // end namespace caf

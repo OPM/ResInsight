@@ -97,6 +97,13 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
                 fieldChangeExec->commandData()->m_pathToField = reference;
                 fieldChangeExec->commandData()->m_rootObject  = rootObjHandle;
 
+                if ( fieldsToUpdate.size() > 1 && i < fieldsToUpdate.size() - 1 )
+                {
+                    // Disable field changes for all fields except the last to avoid multiple calls to fieldChanged that
+                    // can cause performance issues when many objects are manipulated at the same time
+                    fieldChangeExec->enableFieldChanged( false );
+                }
+
                 commands.push_back( fieldChangeExec );
             }
         }
