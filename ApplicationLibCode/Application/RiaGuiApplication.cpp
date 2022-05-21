@@ -299,7 +299,7 @@ void RiaGuiApplication::storeTreeViewState()
         QStringList treeStates;
         QStringList treeIndexes;
 
-        for ( auto& tv : mainWindow()->projectTreeViews() )
+        for ( auto& tv : m_mainWindow->projectTreeViews() )
         {
             QString treeViewState;
             tv->storeTreeViewStateToString( treeViewState );
@@ -1291,12 +1291,8 @@ void RiaGuiApplication::onProjectBeingClosed()
 
     RiaGuiApplication::clearAllSelections();
 
-    m_mainWindow->cleanupGuiBeforeProjectClose();
-
-    if ( m_mainPlotWindow )
-    {
-        m_mainPlotWindow->cleanupGuiBeforeProjectClose();
-    }
+    if ( m_mainWindow ) m_mainWindow->cleanupGuiBeforeProjectClose();
+    if ( m_mainPlotWindow ) m_mainPlotWindow->cleanupGuiBeforeProjectClose();
 
     caf::EffectGenerator::clearEffectCache();
 }
@@ -1306,14 +1302,8 @@ void RiaGuiApplication::onProjectBeingClosed()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProjectClosed()
 {
-    if ( m_mainWindow )
-    {
-        m_mainWindow->initializeGuiNewProjectLoaded();
-    }
-    if ( m_mainPlotWindow )
-    {
-        m_mainPlotWindow->initializeGuiNewProjectLoaded();
-    }
+    if ( m_mainWindow ) m_mainWindow->initializeGuiNewProjectLoaded();
+    if ( m_mainPlotWindow ) m_mainPlotWindow->initializeGuiNewProjectLoaded();
 
     setWindowCaptionFromAppState();
 
@@ -1364,16 +1354,16 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
 
     if ( m_mainWindow )
     {
-        for ( auto& tv : mainWindow()->projectTreeViews() )
+        for ( auto& tv : m_mainWindow->projectTreeViews() )
         {
             tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
         }
-        if ( mainPlotWindow() )
+    }
+    if ( mainPlotWindow() )
+    {
+        for ( auto& tv : mainPlotWindow()->projectTreeViews() )
         {
-            for ( auto& tv : mainPlotWindow()->projectTreeViews() )
-            {
-                tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
-            }
+            tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
         }
     }
 
@@ -1561,6 +1551,7 @@ int RiaGuiApplication::applicationResolution()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::startMonitoringWorkProgress( caf::UiProcess* uiProcess )
 {
+    CAF_ASSERT( m_mainWindow );
     m_mainWindow->processMonitor()->startMonitorWorkProcess( uiProcess );
 }
 
@@ -1569,6 +1560,7 @@ void RiaGuiApplication::startMonitoringWorkProgress( caf::UiProcess* uiProcess )
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::stopMonitoringWorkProgress()
 {
+    CAF_ASSERT( m_mainWindow );
     m_mainWindow->processMonitor()->stopMonitorWorkProcess();
 }
 
@@ -1577,6 +1569,8 @@ void RiaGuiApplication::stopMonitoringWorkProgress()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitStatus exitStatus )
 {
+    CAF_ASSERT( m_mainWindow );
+
     m_mainWindow->processMonitor()->stopMonitorWorkProcess();
 
     QProcessEnvironment processEnvironment = m_workerProcess->processEnvironment();

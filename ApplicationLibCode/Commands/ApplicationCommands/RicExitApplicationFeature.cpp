@@ -61,7 +61,10 @@ void RicExitApplicationFeature::onActionTriggered( bool isChecked )
         topLevelWidget->hide();
     }
     // Close just the main window, it'll take care of closing the plot window
-    app->mainWindow()->close();
+    if ( app->mainWindow() )
+    {
+        app->mainWindow()->close();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
