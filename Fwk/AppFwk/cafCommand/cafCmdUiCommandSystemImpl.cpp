@@ -40,10 +40,9 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafCmdFeatureManager.h"
 #include "cafCmdFieldChangeExec.h"
-
+#include "cafPdmChildArrayField.h"
 #include "cafPdmFieldHandle.h"
 #include "cafPdmUiObjectHandle.h"
-
 #include "cafSelectionManager.h"
 
 #include <QMenu>
@@ -71,6 +70,9 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
 
     std::vector<CmdExecuteCommand*> commands;
 
+    caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
+    PdmObjectHandle*               ownerOfChildArrayField = nullptr;
+
     for ( size_t i = 0; i < fieldsToUpdate.size(); i++ )
     {
         PdmFieldHandle*   field         = fieldsToUpdate[i];
@@ -88,6 +90,26 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
                 {
                     CAF_ASSERT( false );
                     return;
+                }
+
+                if ( !ownerOfChildArrayField || !childArrayFieldHandle )
+                {
+                    ownerOfChildArrayField = field->ownerObject();
+                    while ( ownerOfChildArrayField )
+                    {
+                        if ( ownerOfChildArrayField->parentField() )
+                        {
+                            childArrayFieldHandle =
+                                dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
+                            ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
+
+                            if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
+                        }
+                        else
+                        {
+                            ownerOfChildArrayField = nullptr;
+                        }
+                    }
                 }
 
                 CmdFieldChangeExec* fieldChangeExec =
@@ -116,6 +138,12 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
     else
     {
         CmdExecCommandManager::instance()->processExecuteCommandsAsMacro( commands );
+    }
+
+    if ( ownerOfChildArrayField && childArrayFieldHandle )
+    {
+        std::vector<caf::PdmObjectHandle*> objs;
+        ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
     }
 }
 
