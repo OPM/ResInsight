@@ -198,6 +198,8 @@ std::vector<std::vector<RifEclipseSummaryAddress>> RiaSummaryAddressAnalyzer::ad
     groupedByObject.insert( groupedByObject.end(), blockAdr.begin(), blockAdr.end() );
     groupedByObject.insert( groupedByObject.end(), aquiferAdr.begin(), aquiferAdr.end() );
 
+    groupedByObject.push_back( m_otherCategory );
+
     return groupedByObject;
 }
 
@@ -417,6 +419,11 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
     else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_AQUIFER )
     {
         m_aquifers.insert( { address.aquiferNumber(), address } );
+    }
+    else if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD ||
+              address.category() == RifEclipseSummaryAddress::SUMMARY_MISC )
+    {
+        m_otherCategory.push_back( address );
     }
 
     if ( address.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )

@@ -50,6 +50,7 @@
 #include "cafPdmUiLabelEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTextEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafSelectionManager.h"
 
@@ -76,6 +77,8 @@ RimSummaryPlotManager::RimSummaryPlotManager()
 
     CAF_PDM_InitFieldNoDefault( &m_addressCandidates, "AddressCandidates", "Vectors" );
     m_addressCandidates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+    m_addressCandidates.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_selectedDataSources, "SelectedDataSources", "Data Sources" );
     m_selectedDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_selectedDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
@@ -470,14 +473,6 @@ void RimSummaryPlotManager::updateUiFromSelection()
 
         updateSelectionFromUiChange();
         updateCurveCandidates();
-    }
-
-    if ( !summaryPlot )
-    {
-        m_summaryPlot = nullptr;
-
-        std::vector<QString> tmp;
-        m_addressCandidates = tmp;
     }
 
     updateConnectedEditors();

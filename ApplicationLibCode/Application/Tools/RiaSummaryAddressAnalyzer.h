@@ -89,6 +89,7 @@ private:
     mutable std::set<std::string> m_quantitiesWithMatchingHistory;
     mutable std::set<std::string> m_quantitiesNoMatchingHistory;
 
+    std::vector<RifEclipseSummaryAddress>                m_otherCategory;
     std::multimap<std::string, RifEclipseSummaryAddress> m_wellNames;
     std::multimap<std::string, RifEclipseSummaryAddress> m_groupNames;
     std::multimap<int, RifEclipseSummaryAddress>         m_regionNumbers;

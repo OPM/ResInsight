@@ -215,6 +215,8 @@ public:
 
     void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects ) override;
 
+    caf::PdmFieldHandle* userDescriptionField() override;
+
 private:
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
@@ -232,11 +234,10 @@ private:
     RimPlotAxisProperties* addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name );
 
 protected:
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void                 childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
-    void                 onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
+    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
