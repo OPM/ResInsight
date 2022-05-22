@@ -153,7 +153,7 @@ void RimSummaryMultiPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionIt
     {
         for ( RimSummaryPlot* plot : multiPlot->summaryPlots() )
         {
-            QString displayName = plot->description();
+            QString displayName = plot->userDescriptionField()->uiCapability()->uiValue().toString();
             optionInfos->push_back(
                 caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
         }
