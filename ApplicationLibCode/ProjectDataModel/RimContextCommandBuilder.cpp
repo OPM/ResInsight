@@ -1104,6 +1104,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicReloadSummaryCaseFeature";
         menuBuilder << "RicReplaceSummaryCaseFeature";
         menuBuilder << "RicCreateSummaryCaseCollectionFeature";
+        menuBuilder << "RicShowDataSourcesForRealization";
         menuBuilder << "Separator";
         menuBuilder << "RicCutReferencesToClipboardFeature";
 

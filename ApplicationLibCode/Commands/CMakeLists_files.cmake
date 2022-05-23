@@ -84,6 +84,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -171,6 +172,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

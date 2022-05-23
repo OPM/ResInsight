@@ -115,6 +115,23 @@ bool RimSummaryCase::isObservedData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::showRealizationDataSources() const
+{
+    return m_showSubNodesInTree();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::setShowRealizationDataSource( bool enable )
+{
+    m_showSubNodesInTree = enable;
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::setCaseRealizationParameters( const std::shared_ptr<RigCaseRealizationParameters>& crlParameters )
 {
     m_crlParameters = crlParameters;
