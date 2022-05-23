@@ -277,6 +277,8 @@ QAction* RiuDockWidgetTools::toggleActionForWidget( const QObject* parent, const
 //--------------------------------------------------------------------------------------------------
 void RiuDockWidgetTools::setVisibleDockingWindowsForEclipse()
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     RiuMainWindow* mainWindow         = RiuMainWindow::instance();
     auto           widgetVisibilities = widgetVisibilitiesForEclipse();
 
@@ -288,6 +290,8 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForEclipse()
 //--------------------------------------------------------------------------------------------------
 void RiuDockWidgetTools::setVisibleDockingWindowsForGeoMech()
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     RiuMainWindow* mainWindow         = RiuMainWindow::instance();
     auto           widgetVisibilities = widgetVisibilitiesForGeoMech();
 
@@ -348,6 +352,8 @@ QVariant RiuDockWidgetTools::defaultDockWidgetVisibilities()
 //--------------------------------------------------------------------------------------------------
 void RiuDockWidgetTools::workaroundForQwtDockWidgets()
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
 
     QList<QDockWidget*> dockWidgets = mainWindow->findChildren<QDockWidget*>();

@@ -86,7 +86,7 @@ void RicCloseCaseFeature::onActionTriggered( bool isChecked )
             {
                 deleteEclipseCase( eclipseCase );
             }
-            RiuMainWindow::instance()->cleanupGuiCaseClose();
+            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->cleanupGuiCaseClose();
         }
     }
 
@@ -96,7 +96,7 @@ void RicCloseCaseFeature::onActionTriggered( bool isChecked )
         {
             deleteGeoMechCase( geoMechCase );
         }
-        RiuMainWindow::instance()->cleanupGuiCaseClose();
+        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->cleanupGuiCaseClose();
     }
 }
 

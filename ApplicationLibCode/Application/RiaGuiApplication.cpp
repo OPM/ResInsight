@@ -788,7 +788,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
             mainPlotWnd->loadWinGeoAndDockToolBarLayout();
         }
 
-        RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
+        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
 
         return ApplicationStatus::EXIT_COMPLETED;
     }
@@ -1140,7 +1140,7 @@ void RiaGuiApplication::clearAllSelections()
 void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole( const QString& text )
 {
     // Create a message dialog with cut/paste friendly text
-    QDialog dlg( RiuMainWindow::instance() );
+    QDialog dlg;
     dlg.setModal( true );
 
     QGridLayout* layout = new QGridLayout;
@@ -1478,7 +1478,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
                     rim3dView->updateScaling();
                     if ( rim3dView == activeViewWindow() )
                     {
-                        RiuMainWindow::instance()->updateScaleValue();
+                        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->updateScaleValue();
                     }
                 }
 
