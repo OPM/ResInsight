@@ -911,9 +911,10 @@ void RimSummaryPlot::updateZoomForAxis( RiuPlotAxis plotAxis )
     }
     else
     {
-        plotWidget()->setAxisScale( yAxisProps->plotAxisType(),
-                                    yAxisProps->visibleRangeMin(),
-                                    yAxisProps->visibleRangeMax() );
+        double min = yAxisProps->visibleRangeMin();
+        double max = yAxisProps->visibleRangeMax();
+        if ( yAxisProps->isAxisInverted() ) std::swap( min, max );
+        plotWidget()->setAxisScale( yAxisProps->plotAxisType(), min, max );
     }
 
     plotWidget()->setAxisInverted( yAxisProps->plotAxisType(), yAxisProps->isAxisInverted() );
@@ -1662,6 +1663,8 @@ void RimSummaryPlot::updateZoomFromParentPlot()
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
     {
         auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
+        if ( axisProperties->isAxisInverted() ) std::swap( axisMin, axisMax );
+
         axisProperties->setVisibleRangeMax( axisMax );
         axisProperties->setVisibleRangeMin( axisMin );
         axisProperties->updateConnectedEditors();

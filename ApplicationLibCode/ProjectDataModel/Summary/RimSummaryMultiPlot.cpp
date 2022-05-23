@@ -768,10 +768,11 @@ void RimSummaryMultiPlot::syncAxisRanges()
             {
                 double minVal = axis->visibleRangeMin();
                 double maxVal = axis->visibleRangeMax();
+                if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
 
                 if ( axisRanges.count( axis->plotAxisType() ) == 0 )
                 {
-                    axisRanges[axis->plotAxisType()] = std::make_pair( axis->visibleRangeMin(), axis->visibleRangeMax() );
+                    axisRanges[axis->plotAxisType()] = std::make_pair( minVal, maxVal );
                 }
                 else
                 {
@@ -787,7 +788,8 @@ void RimSummaryMultiPlot::syncAxisRanges()
         {
             for ( auto axis : plot->plotAxes() )
             {
-                const auto& [minVal, maxVal] = axisRanges[axis->plotAxisType()];
+                auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
+                if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
                 axis->setAutoZoom( false );
                 axis->setVisibleRangeMin( minVal );
                 axis->setVisibleRangeMax( maxVal );
@@ -955,25 +957,23 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         // set all plots to use the global min/max values for each category
         for ( auto axis : plot->plotAxes() )
         {
-            QwtLinearScaleEngine scaleEngine;
-
-            const auto& [minVal, maxVal] = axisRanges[axis->plotAxisType()];
-            if ( axis->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT && minVal <= maxVal )
+            auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
+            if ( RiaDefines::isVertical( axis->plotAxisType().axis() ) && !std::isinf( minVal ) && !std::isinf( maxVal ) )
             {
                 axis->setAutoZoom( false );
 
-                auto adjustedMin = minVal;
-                auto adjustedMax = maxVal;
+                if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
 
                 if ( !axis->isLogarithmicScaleEnabled() )
                 {
-                    int    maxMajorTickIntervalCount = 8;
-                    double stepSize                  = 0.0;
-                    scaleEngine.autoScale( maxMajorTickIntervalCount, adjustedMin, adjustedMax, stepSize );
+                    int                  maxMajorTickIntervalCount = 8;
+                    double               stepSize                  = 0.0;
+                    QwtLinearScaleEngine scaleEngine;
+                    scaleEngine.autoScale( maxMajorTickIntervalCount, minVal, maxVal, stepSize );
                 }
 
-                axis->setVisibleRangeMin( adjustedMin );
-                axis->setVisibleRangeMax( adjustedMax );
+                axis->setVisibleRangeMin( minVal );
+                axis->setVisibleRangeMax( maxVal );
             }
         }
 
@@ -1132,7 +1132,11 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
 {
-    if ( !m_linkSubPlotAxes() ) return;
+    if ( !m_linkSubPlotAxes() )
+    {
+        syncAxisRanges();
+        return;
+    }
 
     for ( auto plot : summaryPlots() )
     {
@@ -1142,6 +1146,8 @@ void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitte
             plot->updateAll();
         }
     }
+
+    syncAxisRanges();
 }
 
 //--------------------------------------------------------------------------------------------------
