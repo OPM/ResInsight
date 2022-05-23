@@ -154,14 +154,13 @@ protected:
 
 private:
     static QString tabNameGeneral();
-    static QString tabNameEclipseGrid();
-    static QString tabNameEclipseSummary();
+    static QString tabNameGrid();
+    static QString tabNameSummary();
     static QString tabNameGeomech();
     static QString tabNamePlotting();
     static QString tabNameScripting();
-    static QString tabNameExport();
     static QString tabNameSystem();
-    static QString tabNameImport();
+    static QString tabNameImportExport();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 

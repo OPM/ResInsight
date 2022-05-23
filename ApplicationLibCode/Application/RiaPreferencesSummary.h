@@ -56,6 +56,14 @@ public:
     };
     using SummaryHistoryCurveStyleModeType = caf::AppEnum<SummaryHistoryCurveStyleMode>;
 
+    enum class DefaultSummaryPlotType
+    {
+        NONE,
+        DATA_VECTORS,
+        PLOT_TEMPLATES
+    };
+    using DefaultSummaryPlotEnum = caf::AppEnum<DefaultSummaryPlotType>;
+
     using ColumnCountEnum = caf::AppEnum<RiaDefines::ColumnCount>;
     using RowCountEnum    = caf::AppEnum<RiaDefines::RowCount>;
 
@@ -99,6 +107,8 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
 private:
+    caf::PdmField<DefaultSummaryPlotEnum> m_defaultSummaryPlot;
+
     caf::PdmField<bool>                              m_summaryRestartFilesShowImportDialog;
     caf::PdmField<SummaryRestartFilesImportModeType> m_summaryImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType> m_gridImportMode;

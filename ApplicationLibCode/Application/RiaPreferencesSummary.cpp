@@ -57,6 +57,15 @@ void RiaPreferencesSummary::SummaryReaderModeType::setUp()
     setDefault( RiaPreferencesSummary::SummaryReaderMode::HDF5_OPM_COMMON );
 }
 
+template <>
+void RiaPreferencesSummary::DefaultSummaryPlotEnum::setUp()
+{
+    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::NONE, "NONE", "Do not create any plots" );
+    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::DATA_VECTORS, "DATA_VECTORS", "From selected Data Vectors" );
+    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES, "PLOT_TEMPLATES", "From selected Plot Templates" );
+    setDefault( RiaPreferencesSummary::DefaultSummaryPlotType::DATA_VECTORS );
+}
+
 } // namespace caf
 
 CAF_PDM_SOURCE_INIT( RiaPreferencesSummary, "RiaPreferencesSummary" );
@@ -96,6 +105,7 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "Semicolon separated list of filters used to create curves in new summary plots",
                        "" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultSummaryPlot, "defaultSummaryPlot", "Create plot on summary data import" );
 
     CAF_PDM_InitField( &m_createEnhancedSummaryDataFile,
                        "createEnhancedSummaryDataFile_v01",
@@ -228,7 +238,21 @@ void RiaPreferencesSummary::appendRestartFileGroup( caf::PdmUiOrdering& uiOrderi
 //--------------------------------------------------------------------------------------------------
 void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const
 {
-    uiOrdering.add( &m_defaultSummaryCurvesTextFilter );
+    uiOrdering.add( &m_defaultSummaryPlot );
+
+    switch ( m_defaultSummaryPlot() )
+    {
+        case RiaPreferencesSummary::DefaultSummaryPlotType::DATA_VECTORS:
+            uiOrdering.add( &m_defaultSummaryCurvesTextFilter );
+            break;
+
+        case RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES:
+            break;
+
+        default:
+            break;
+    }
+
     uiOrdering.add( &m_defaultSummaryHistoryCurveStyle );
     uiOrdering.add( &m_curveColorByPhase );
 
