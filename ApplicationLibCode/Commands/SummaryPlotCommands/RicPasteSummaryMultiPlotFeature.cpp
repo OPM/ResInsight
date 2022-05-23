@@ -38,28 +38,6 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryMultiPlotFeature, "RicPasteSummaryMultiPlotF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteSummaryMultiPlotFeature::copyPlotAndAddToCollection( RimSummaryMultiPlot* sourcePlot )
-{
-    auto newSummaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>(
-        sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-    CVF_ASSERT( newSummaryMultiPlot );
-
-    RiaSummaryTools::summaryMultiPlotCollection()->addSummaryMultiPlot( newSummaryMultiPlot );
-
-    // Resolve references after object has been inserted into the project data model
-    newSummaryMultiPlot->resolveReferencesRecursively();
-
-    newSummaryMultiPlot->initAfterReadRecursively();
-
-    newSummaryMultiPlot->loadDataAndUpdate();
-    newSummaryMultiPlot->updateConnectedEditors();
-
-    RiaSummaryTools::summaryMultiPlotCollection()->updateAllRequiredEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RicPasteSummaryMultiPlotFeature::isCommandEnabled()
 {
     auto multiPlots = caf::selectedObjectsByTypeStrict<RimSummaryMultiPlot*>();
@@ -75,7 +53,7 @@ void RicPasteSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
 
     for ( const auto& sourceObject : sourceObjects )
     {
-        copyPlotAndAddToCollection( sourceObject );
+        RiaSummaryTools::summaryMultiPlotCollection()->duplicatePlot( sourceObject );
     }
 }
 

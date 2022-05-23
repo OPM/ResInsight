@@ -38,8 +38,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static void copyPlotAndAddToCollection( RimSummaryMultiPlot* sourcePlot );
-
-private:
     static std::vector<caf::PdmPointer<RimSummaryMultiPlot>> summaryMultiPlots();
 };
