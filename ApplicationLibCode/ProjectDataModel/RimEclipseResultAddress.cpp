@@ -19,6 +19,7 @@
 #include "RimEclipseResultAddress.h"
 
 #include "RimEclipseCase.h"
+#include "RimProject.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipseResultAddress, "EclipseResultAddress" );
 
@@ -30,8 +31,13 @@ RimEclipseResultAddress::RimEclipseResultAddress()
     CAF_PDM_InitObject( "EclipseResultAddress", ":/DataVector.png", "", "" );
 
     CAF_PDM_InitFieldNoDefault( &m_resultName, "ResultName", "Result Name" );
+    m_resultName.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_resultType, "ResultType", "Type" );
+    m_resultType.uiCapability()->setUiReadOnly( true );
+
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
+    m_eclipseCase.uiCapability()->setUiReadOnly( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -87,4 +93,30 @@ void RimEclipseResultAddress::setEclipseCase( RimEclipseCase* eclipseCase )
 RimEclipseCase* RimEclipseResultAddress::eclipseCase() const
 {
     return m_eclipseCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo>
+    RimEclipseResultAddress::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_eclipseCase )
+    {
+        RimProject* proj = nullptr;
+        this->firstAncestorOrThisOfType( proj );
+        if ( proj )
+        {
+            std::vector<RimEclipseCase*> cases;
+            proj->descendantsIncludingThisOfType( cases );
+            for ( auto* c : cases )
+            {
+                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
+            }
+        }
+    }
+
+    return options;
 }
