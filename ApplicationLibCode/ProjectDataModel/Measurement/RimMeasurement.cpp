@@ -76,7 +76,7 @@ void RimMeasurement::setMeasurementMode( MeasurementMode measurementMode )
         }
     }
 
-    RiuMainWindow::instance()->refreshViewActions();
+    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->refreshViewActions();
 }
 
 //--------------------------------------------------------------------------------------------------

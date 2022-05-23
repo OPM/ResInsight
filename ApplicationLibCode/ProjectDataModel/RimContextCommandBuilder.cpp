@@ -564,6 +564,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicPasteSummaryPlotFeature";
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
+            menuBuilder << "RicPasteSummaryMultiPlotFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicShowSummaryCurveCalculatorFeature";
         }
@@ -1035,6 +1036,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "Separator";
             menuBuilder << "RicSnapshotViewToPdfFeature";
             menuBuilder << "RicSaveMultiPlotTemplateFeature";
+            menuBuilder << "RicPasteSummaryMultiPlotFeature";
         }
         else if ( dynamic_cast<RimMultiPlot*>( firstUiItem ) )
         {
@@ -1104,6 +1106,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicReloadSummaryCaseFeature";
         menuBuilder << "RicReplaceSummaryCaseFeature";
         menuBuilder << "RicCreateSummaryCaseCollectionFeature";
+        menuBuilder << "RicShowDataSourcesForRealization";
         menuBuilder << "Separator";
         menuBuilder << "RicCutReferencesToClipboardFeature";
 

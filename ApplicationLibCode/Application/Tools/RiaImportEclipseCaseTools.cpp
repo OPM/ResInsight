@@ -367,7 +367,7 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
 
         if ( RiaGuiApplication::isRunning() )
         {
-            RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
+            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
         }
     }
     else
@@ -479,7 +479,8 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fil
 
     if ( RiaGuiApplication::isRunning() && gridCaseGroup && !gridCaseGroup->statisticsCaseCollection()->reservoirs.empty() )
     {
-        RiuMainWindow::instance()->selectAsCurrentItem( gridCaseGroup->statisticsCaseCollection()->reservoirs[0] );
+        if ( RiuMainWindow::instance() )
+            RiuMainWindow::instance()->selectAsCurrentItem( gridCaseGroup->statisticsCaseCollection()->reservoirs[0] );
     }
 
     return true;

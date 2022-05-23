@@ -1230,8 +1230,6 @@ void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
             projPropView->setPdmItem( pdmRoot );
         }
     }
-
-    caf::SelectionManager::instance()->setPdmRootObject( pdmRoot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1343,7 +1341,10 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
 
     if ( is3dViewCurrentlySelected && ( previousActiveReservoirView != activatedView ) )
     {
-        QModelIndex newViewModelIndex = projectTreeView( 0 )->findModelIndex( activatedView );
+        auto tv = getTreeViewWithItem( activatedView );
+        if ( !tv ) return;
+
+        QModelIndex newViewModelIndex = tv->findModelIndex( activatedView );
         if ( !newViewModelIndex.isValid() ) return;
 
         QModelIndex newSelectionIndex = newViewModelIndex;
@@ -1352,8 +1353,8 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
         {
             // Try to select the same entry in the new View, as was selected in the previous
 
-            QModelIndex previousViewModelIndex = projectTreeView( 0 )->findModelIndex( previousActiveReservoirView );
-            QModelIndex currentSelectionIndex  = projectTreeView( 0 )->treeView()->selectionModel()->currentIndex();
+            QModelIndex previousViewModelIndex = tv->findModelIndex( previousActiveReservoirView );
+            QModelIndex currentSelectionIndex  = tv->treeView()->selectionModel()->currentIndex();
 
             if ( currentSelectionIndex != newViewModelIndex && currentSelectionIndex.isValid() )
             {
@@ -1376,8 +1377,7 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
                     QModelIndex tmp = route[i];
                     if ( newSelectionIndex.isValid() )
                     {
-                        newSelectionIndex =
-                            projectTreeView( 0 )->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
+                        newSelectionIndex = tv->treeView()->model()->index( tmp.row(), tmp.column(), newSelectionIndex );
                     }
                 }
 
@@ -1389,10 +1389,10 @@ void RiuMainWindow::selectViewInProjectTreePreservingSubItemSelection( const Rim
             }
         }
 
-        projectTreeView( 0 )->treeView()->setCurrentIndex( newSelectionIndex );
+        tv->treeView()->setCurrentIndex( newSelectionIndex );
         if ( newSelectionIndex != newViewModelIndex )
         {
-            projectTreeView( 0 )->treeView()->setExpanded( newViewModelIndex, true );
+            tv->treeView()->setExpanded( newViewModelIndex, true );
         }
     }
 }
@@ -1484,8 +1484,11 @@ void RiuMainWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::selectedObjectsChanged()
 {
+    caf::PdmUiTreeView* projectTree = dynamic_cast<caf::PdmUiTreeView*>( sender() );
+    if ( !projectTree ) return;
+
     std::vector<caf::PdmUiItem*> uiItems;
-    projectTreeView( 0 )->selectedUiItems( uiItems );
+    projectTree->selectedUiItems( uiItems );
 
     caf::PdmObjectHandle* firstSelectedObject = nullptr;
     if ( !uiItems.empty() )
@@ -1543,7 +1546,7 @@ void RiuMainWindow::selectedObjectsChanged()
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
-            projectTreeView( 0 )->treeView()->setFocus();
+            projectTree->treeView()->setFocus();
         }
     }
 }
@@ -1906,8 +1909,11 @@ void RiuMainWindow::slotCreateCommandObject()
     RiaApplication* app = RiaApplication::instance();
     if ( !app->project() ) return;
 
+    caf::PdmUiTreeView* projectTree = dynamic_cast<caf::PdmUiTreeView*>( sender() );
+    if ( !projectTree ) return;
+
     std::vector<caf::PdmUiItem*> selectedUiItems;
-    projectTreeView( 0 )->selectedUiItems( selectedUiItems );
+    projectTree->selectedUiItems( selectedUiItems );
 
     caf::PdmObjectGroup selectedObjects;
     for ( auto* selectedUiItem : selectedUiItems )

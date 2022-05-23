@@ -419,7 +419,7 @@ bool Rim2dIntersectionView::handleOverlayItemPicked( const cvf::OverlayItem* pic
 {
     if ( m_legendObjectToSelect )
     {
-        RiuMainWindow::instance()->selectAsCurrentItem( m_legendObjectToSelect );
+        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( m_legendObjectToSelect );
 
         return true;
     }

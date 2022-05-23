@@ -44,6 +44,10 @@ public:
     RimEclipseCase* eclipseCase() const;
 
 private:
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
+                                                         bool*                      useOptionsOnly ) override;
+
+private:
     caf::PdmField<QString>                                 m_resultName;
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_resultType;
     caf::PdmPtrField<RimEclipseCase*>                      m_eclipseCase;

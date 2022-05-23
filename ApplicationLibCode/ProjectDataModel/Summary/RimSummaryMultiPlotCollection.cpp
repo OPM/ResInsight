@@ -105,21 +105,7 @@ size_t RimSummaryMultiPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlotCollection::onDuplicatePlot( const caf::SignalEmitter* emitter, RimSummaryMultiPlot* plotToDuplicate )
 {
-    if ( !plotToDuplicate ) return;
-
-    auto plotCopy = dynamic_cast<RimSummaryMultiPlot*>(
-        plotToDuplicate->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-
-    addSummaryMultiPlot( plotCopy );
-
-    plotCopy->resolveReferencesRecursively();
-    plotCopy->initAfterReadRecursively();
-    plotCopy->updateAllRequiredEditors();
-    plotCopy->loadDataAndUpdate();
-
-    updateConnectedEditors();
-
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotCopy, true );
+    duplicatePlot( plotToDuplicate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,6 +144,28 @@ void RimSummaryMultiPlotCollection::summaryPlotItemInfos( QList<caf::PdmOptionIt
                 caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMultiPlot* plotToDuplicate )
+{
+    if ( !plotToDuplicate ) return;
+
+    auto plotCopy = dynamic_cast<RimSummaryMultiPlot*>(
+        plotToDuplicate->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+
+    addSummaryMultiPlot( plotCopy );
+
+    plotCopy->resolveReferencesRecursively();
+    plotCopy->initAfterReadRecursively();
+    plotCopy->updateAllRequiredEditors();
+    plotCopy->loadDataAndUpdate();
+
+    updateConnectedEditors();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( plotCopy, true );
 }
 
 //--------------------------------------------------------------------------------------------------

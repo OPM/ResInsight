@@ -96,6 +96,7 @@
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafProgressInfo.h"
+#include "cafSelectionManager.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
 
@@ -163,6 +164,8 @@ RiaApplication::RiaApplication()
 RiaApplication::~RiaApplication()
 {
     RiaFontCache::clear();
+
+    caf::SelectionManager::instance()->setPdmRootObject( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1505,6 +1508,8 @@ void RiaApplication::initialize()
     m_project = std::make_unique<RimProject>();
     m_project->setScriptDirectories( m_preferences->scriptDirectories() );
     m_project->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
+
+    caf::SelectionManager::instance()->setPdmRootObject( project() );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -46,8 +46,8 @@ public:
     std::vector<RimSummaryMultiPlot*> multiPlots() const;
 
     void addSummaryMultiPlot( RimSummaryMultiPlot* plot );
-
     void summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* optionInfos ) const;
+    void duplicatePlot( RimSummaryMultiPlot* plotToDuplicate );
 
     void updateSummaryNameHasChanged();
 

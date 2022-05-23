@@ -125,6 +125,7 @@ RimEclipseCase::RimEclipseCase()
 
     CAF_PDM_InitFieldNoDefault( &m_resultAddressCollections, "ResultAddressCollections", "Result Addresses" );
     m_resultAddressCollections.uiCapability()->setUiHidden( true );
+    m_resultAddressCollections.uiCapability()->setUiTreeHidden( true );
     m_resultAddressCollections.xmlCapability()->disableIO();
 
     // Init

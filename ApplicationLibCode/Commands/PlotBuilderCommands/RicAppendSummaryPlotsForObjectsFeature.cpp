@@ -297,10 +297,13 @@ std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOne
     }
     else if ( objectType == RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE )
     {
-        auto curves = sourcePlots.back()->summaryCurves();
-        if ( !curves.empty() )
+        if ( !sourcePlots.empty() )
         {
-            caseIdToMatch = curves.front()->summaryCaseY()->caseId();
+            auto curves = sourcePlots.back()->summaryCurves();
+            if ( !curves.empty() )
+            {
+                caseIdToMatch = curves.front()->summaryCaseY()->caseId();
+            }
         }
     }
 

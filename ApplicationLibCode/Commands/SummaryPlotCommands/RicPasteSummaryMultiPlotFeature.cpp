@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -16,51 +16,67 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "Riu3DMainWindowTools.h"
+#include "RicPasteSummaryMultiPlotFeature.h"
 
-#include "RiaGuiApplication.h"
-#include "RiaLogging.h"
+#include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
-#include "RiuMainWindow.h"
+#include "RiaSummaryTools.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 
-#include <QString>
+#include "cafPdmDefaultObjectFactory.h"
+#include "cafPdmObjectGroup.h"
+#include "cafSelectionManagerTools.h"
+
+#include "cvfAssert.h"
+
+#include <QAction>
+
+CAF_CMD_SOURCE_INIT( RicPasteSummaryMultiPlotFeature, "RicPasteSummaryMultiPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QWidget* Riu3DMainWindowTools::mainWindowWidget()
+bool RicPasteSummaryMultiPlotFeature::isCommandEnabled()
 {
-    return RiuMainWindow::instance();
+    auto multiPlots = caf::selectedObjectsByTypeStrict<RimSummaryMultiPlot*>();
+    return !multiPlots.empty();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riu3DMainWindowTools::setActiveViewer( QWidget* subWindow )
+void RicPasteSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
 {
-    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->setActiveViewer( subWindow );
+    auto sourceObjects = RicPasteSummaryMultiPlotFeature::summaryMultiPlots();
+
+    for ( const auto& sourceObject : sourceObjects )
+    {
+        RiaSummaryTools::summaryMultiPlotCollection()->duplicatePlot( sourceObject );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riu3DMainWindowTools::setExpanded( const caf::PdmUiItem* uiItem, bool expanded /*= true*/ )
+void RicPasteSummaryMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->setExpanded( uiItem, expanded );
+    actionToSetup->setText( "Paste Summary Plot" );
+
+    RicPasteFeatureImpl::setIconAndShortcuts( actionToSetup );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void Riu3DMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange /*= true*/ )
+std::vector<caf::PdmPointer<RimSummaryMultiPlot>> RicPasteSummaryMultiPlotFeature::summaryMultiPlots()
 {
-    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( object, allowActiveViewChange );
-}
+    caf::PdmObjectGroup objectGroup;
+    RicPasteFeatureImpl::findObjectsFromClipboardRefs( &objectGroup );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void Riu3DMainWindowTools::reportAndShowWarning( const QString& warningDialogHeader, const QString& warningtext )
-{
-    RiaLogging::errorInMessageBox( Riu3DMainWindowTools::mainWindowWidget(), warningDialogHeader, warningtext );
+    std::vector<caf::PdmPointer<RimSummaryMultiPlot>> typedObjects;
+    objectGroup.objectsByType( &typedObjects );
+
+    return typedObjects;
 }

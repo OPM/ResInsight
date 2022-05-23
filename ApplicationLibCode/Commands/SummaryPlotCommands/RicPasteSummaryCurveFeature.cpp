@@ -63,7 +63,7 @@ RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( RimSummaryC
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
 
-    summaryPlot->summaryCurveCollection()->updateAllRequiredEditors();
+    summaryPlot->updateAllRequiredEditors();
 
     return newCurve;
 }

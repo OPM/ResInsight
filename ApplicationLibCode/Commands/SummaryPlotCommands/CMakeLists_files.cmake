@@ -42,6 +42,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedSummaryFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPlotAxisPropertiesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryPlotManagerFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryMultiPlotFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -88,6 +89,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewDerivedSummaryFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewPlotAxisPropertiesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowSummaryPlotManagerFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryMultiPlotFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

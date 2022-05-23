@@ -39,6 +39,6 @@ RicfSetMainWindowSize::RicfSetMainWindowSize()
 //--------------------------------------------------------------------------------------------------
 caf::PdmScriptResponse RicfSetMainWindowSize::execute()
 {
-    RiuMainWindow::instance()->resize( m_width, m_height );
+    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->resize( m_width, m_height );
     return caf::PdmScriptResponse();
 }
