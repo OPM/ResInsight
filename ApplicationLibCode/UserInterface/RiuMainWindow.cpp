@@ -1230,8 +1230,6 @@ void RiuMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
             projPropView->setPdmItem( pdmRoot );
         }
     }
-
-    caf::SelectionManager::instance()->setPdmRootObject( pdmRoot );
 }
 
 //--------------------------------------------------------------------------------------------------
