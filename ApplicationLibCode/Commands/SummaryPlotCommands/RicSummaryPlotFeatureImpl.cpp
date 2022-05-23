@@ -500,7 +500,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
             RiuPlotMainWindowTools::setExpanded( lastPlotCreated );
             RiuPlotMainWindowTools::selectAsCurrentItem( lastPlotCreated );
 
-            RiuMainWindow::instance()->close();
+            RiuMainWindow::closeIfOpen();
         }
     }
     else

@@ -106,7 +106,7 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 
     if ( allCases.size() == 0 )
     {
-        RiuMainWindow::instance()->close();
+        RiuMainWindow::closeIfOpen();
     }
 }
 
@@ -155,7 +155,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
 
             if ( allCases.size() == 0 )
             {
-                RiuMainWindow::instance()->close();
+                RiuMainWindow::closeIfOpen();
             }
         }
         return true;
