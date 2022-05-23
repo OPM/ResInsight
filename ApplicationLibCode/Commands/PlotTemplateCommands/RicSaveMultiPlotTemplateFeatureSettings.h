@@ -35,6 +35,9 @@ public:
     void    setFilePath( const QString& filePath );
     QString filePath() const;
 
+    void    setName( const QString& name );
+    QString name() const;
+
     bool usePlacholderForWells() const;
     bool usePlacholderForGroups() const;
     bool usePlacholderForRegions() const;
@@ -47,6 +50,7 @@ private:
 
 private:
     caf::PdmField<caf::FilePath> m_filePath;
+    caf::PdmField<QString>       m_name;
 
     caf::PdmField<bool> m_persistObjectNameForWells;
     caf::PdmField<bool> m_persistObjectNameGroups;

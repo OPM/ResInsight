@@ -28,6 +28,7 @@ RicSaveMultiPlotTemplateFeatureSettings::RicSaveMultiPlotTemplateFeatureSettings
     CAF_PDM_InitObject( "Save Summary Plot", ":/CrossSection16x16.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path" );
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
 
     CAF_PDM_InitField( &m_persistObjectNameForWells, "PersistObjectNameWells", false, "Wells" );
     CAF_PDM_InitField( &m_persistObjectNameGroups, "PersistObjectNameGroups", false, "Groups" );
@@ -48,6 +49,22 @@ void RicSaveMultiPlotTemplateFeatureSettings::setFilePath( const QString& filePa
 QString RicSaveMultiPlotTemplateFeatureSettings::filePath() const
 {
     return m_filePath().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSaveMultiPlotTemplateFeatureSettings::setName( const QString& name )
+{
+    m_name = name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RicSaveMultiPlotTemplateFeatureSettings::name() const
+{
+    return m_name();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,6 +97,7 @@ bool RicSaveMultiPlotTemplateFeatureSettings::usePlacholderForRegions() const
 void RicSaveMultiPlotTemplateFeatureSettings::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_filePath );
+    uiOrdering.add( &m_name );
 
     {
         auto group = uiOrdering.addNewGroup( "Persist Object Names" );
@@ -102,8 +120,7 @@ void RicSaveMultiPlotTemplateFeatureSettings::defineEditorAttribute( const caf::
         auto attr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( attr )
         {
-            attr->m_selectSaveFileName  = true;
-            attr->m_fileSelectionFilter = "Plot Template Files(*.rpt);; All files(*.*)";
+            attr->m_selectDirectory = true;
         }
     }
 }
