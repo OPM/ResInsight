@@ -869,14 +869,17 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                   axisRangeAggregation == AxisRangeAggregation::REGIONS )
         {
             RiaSummaryAddressAnalyzer analyzer;
-            auto                      ensemble = curve->summaryCaseY()->ensemble();
-            if ( ensemble )
+            if ( curve->summaryCaseY() )
             {
-                analyzer.appendAddresses( ensemble->ensembleSummaryAddresses() );
-            }
-            else
-            {
-                analyzer.appendAddresses( curve->summaryCaseY()->summaryReader()->allResultAddresses() );
+                auto ensemble = curve->summaryCaseY()->ensemble();
+                if ( ensemble )
+                {
+                    analyzer.appendAddresses( ensemble->ensembleSummaryAddresses() );
+                }
+                else
+                {
+                    analyzer.appendAddresses( curve->summaryCaseY()->summaryReader()->allResultAddresses() );
+                }
             }
 
             if ( axisRangeAggregation == AxisRangeAggregation::WELLS )
