@@ -41,6 +41,7 @@
 
 #include "cafAssert.h"
 
+#include "qwt_axis.h"
 #include "qwt_date_scale_engine.h"
 #include "qwt_legend.h"
 #include "qwt_legend_label.h"
@@ -986,6 +987,7 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
             if ( closestItems.count( plotCurve ) > 0 )
             {
                 plotCurve->setZ( zValue + 100.0 );
+                highlightPlotAxes( plotCurve->xAxis(), plotCurve->yAxis() );
             }
             else
             {
@@ -1057,6 +1059,36 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
     }
     m_originalCurveColors.clear();
     m_originalZValues.clear();
+
+    resetPlotAxisHighlighting();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::resetPlotAxisHighlighting()
+{
+    // Reset axis widgets highlighting
+    std::vector<QwtAxis::Position> axisPositions = { QwtAxis::Position::YLeft,
+                                                     QwtAxis::Position::YRight,
+                                                     QwtAxis::Position::XTop,
+                                                     QwtAxis::Position::XBottom };
+
+    // Use text color from theme
+    QColor  textColor = RiuGuiTheme::getColorByVariableName( "text-color" );
+    QString style =
+        QString( "color: rgb(%1, %2, %3);" ).arg( textColor.red() ).arg( textColor.green() ).arg( textColor.blue() );
+
+    for ( auto pos : axisPositions )
+    {
+        int count = m_plot->axesCount( pos );
+        for ( int i = 0; i < count; i++ )
+        {
+            QwtAxisId axisId( pos, i );
+            auto      axisWidget = m_plot->axisWidget( axisId );
+            axisWidget->setStyleSheet( style );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1081,6 +1113,33 @@ void RiuQwtPlotWidget::highlightPlotItemsForQwtAxis( QwtAxisId axisId )
     }
 
     highlightPlotItems( plotItems );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY )
+{
+    std::vector<QwtAxis::Position> axisPositions = { QwtAxis::Position::YLeft,
+                                                     QwtAxis::Position::YRight,
+                                                     QwtAxis::Position::XTop,
+                                                     QwtAxis::Position::XBottom };
+
+    // Highlight selected axis by toning down the others in same dimension
+    for ( auto pos : axisPositions )
+    {
+        int count = m_plot->axesCount( pos );
+        for ( int i = 0; i < count; i++ )
+        {
+            QwtAxisId axisId( pos, i );
+
+            if ( axisId != axisIdX && axisId != axisIdY )
+            {
+                auto axisWidget = m_plot->axisWidget( axisId );
+                axisWidget->setStyleSheet( "color: gray" );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
