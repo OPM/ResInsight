@@ -79,7 +79,7 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
 
     if ( allCases.size() == 0 )
     {
-        RiuMainWindow::instance()->close();
+        RiuMainWindow::closeIfOpen();
     }
 }
 

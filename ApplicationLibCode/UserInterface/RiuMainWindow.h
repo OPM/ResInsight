@@ -83,6 +83,7 @@ public:
     ~RiuMainWindow() override;
 
     static RiuMainWindow* instance();
+    static void           closeIfOpen();
 
     QString mainWindowName() override;
 

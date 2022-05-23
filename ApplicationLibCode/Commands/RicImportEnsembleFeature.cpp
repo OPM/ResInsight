@@ -130,7 +130,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
 
     if ( allCases.size() == 0 )
     {
-        RiuMainWindow::instance()->close();
+        RiuMainWindow::closeIfOpen();
     }
 }
 
