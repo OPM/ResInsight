@@ -1136,7 +1136,7 @@ void RiuQwtPlotWidget::highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY )
             if ( axisId != axisIdX && axisId != axisIdY )
             {
                 auto axisWidget = m_plot->axisWidget( axisId );
-                axisWidget->setStyleSheet( "color: gray" );
+                axisWidget->setStyleSheet( "color: #D9D9D9" );
             }
         }
     }
