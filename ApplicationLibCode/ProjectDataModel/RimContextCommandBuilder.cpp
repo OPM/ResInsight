@@ -1028,6 +1028,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicDeletePlotTemplateFeature";
             menuBuilder << "RicEditPlotTemplateFeature";
             menuBuilder << "Separator";
+            menuBuilder << "RicSetAsDefaultTemplateFeature";
+            menuBuilder << "Separator";
             menuBuilder << "RicReloadPlotTemplatesFeature";
         }
         else if ( dynamic_cast<RimSummaryMultiPlot*>( firstUiItem ) )

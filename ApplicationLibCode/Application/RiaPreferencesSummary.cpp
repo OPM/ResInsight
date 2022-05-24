@@ -66,9 +66,9 @@ void RiaPreferencesSummary::SummaryReaderModeType::setUp()
 template <>
 void RiaPreferencesSummary::DefaultSummaryPlotEnum::setUp()
 {
-    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::NONE, "NONE", "Do not create any plots" );
-    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::DATA_VECTORS, "DATA_VECTORS", "From selected Data Vectors" );
-    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES, "PLOT_TEMPLATES", "From selected Plot Templates" );
+    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::NONE, "NONE", "No Plots" );
+    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::DATA_VECTORS, "DATA_VECTORS", "Use Data Vector Names" );
+    addItem( RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES, "PLOT_TEMPLATES", "Use Plot Templates" );
     setDefault( RiaPreferencesSummary::DefaultSummaryPlotType::DATA_VECTORS );
 }
 
@@ -111,13 +111,13 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "",
                        "Semicolon separated list of filters used to create curves in new summary plots",
                        "" );
-    CAF_PDM_InitFieldNoDefault( &m_defaultSummaryPlot, "defaultSummaryPlot", "Create plot on summary data import" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultSummaryPlot, "defaultSummaryPlot", "Create Plot On Summary Data Import" );
 
     CAF_PDM_InitField( &m_selectDefaultTemplates, "selectDefaultTemplate", false, "", "", "Select Default Templates" );
     m_selectDefaultTemplates.xmlCapability()->disableIO();
     m_selectDefaultTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedDefaultTemplates, "defaultSummaryTemplates", "Default Summary Templates" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedDefaultTemplates, "defaultSummaryTemplates", "Select Summary Plot Templates" );
     m_selectedDefaultTemplates.uiCapability()->setUiReadOnly( true );
     m_selectedDefaultTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_selectedDefaultTemplates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -524,4 +524,62 @@ void RiaPreferencesSummary::fieldChangedByUi( const caf::PdmFieldHandle* changed
 
         m_selectedDefaultTemplates = selection;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaPreferencesSummary::DefaultSummaryPlotType RiaPreferencesSummary::defaultSummaryPlotType() const
+{
+    return m_defaultSummaryPlot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RiaPreferencesSummary::defaultSummaryPlotTemplates() const
+{
+    return m_selectedDefaultTemplates();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSummary::isDefaultSummaryPlotTemplate( QString filename ) const
+{
+    int count = std::count( m_selectedDefaultTemplates().begin(), m_selectedDefaultTemplates().end(), filename );
+    return ( count > 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSummary::addToDefaultPlotTemplates( QString filename )
+{
+    if ( isDefaultSummaryPlotTemplate( filename ) ) return;
+
+    std::vector<QString> newlist;
+    newlist.insert( newlist.end(), m_selectedDefaultTemplates().begin(), m_selectedDefaultTemplates().end() );
+    newlist.push_back( filename );
+    m_selectedDefaultTemplates = newlist;
+
+    RiaPreferences::current()->writePreferencesToApplicationStore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSummary::removeFromDefaultPlotTemplates( QString filename )
+{
+    if ( !isDefaultSummaryPlotTemplate( filename ) ) return;
+
+    std::vector<QString> newlist;
+
+    for ( auto& item : m_selectedDefaultTemplates() )
+    {
+        if ( item != filename ) newlist.push_back( item );
+    }
+    m_selectedDefaultTemplates = newlist;
+
+    RiaPreferences::current()->writePreferencesToApplicationStore();
 }

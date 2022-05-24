@@ -83,6 +83,12 @@ public:
     bool createH5SummaryDataFiles() const;
     int  createH5SummaryDataThreadCount() const;
 
+    DefaultSummaryPlotType defaultSummaryPlotType() const;
+    std::vector<QString>   defaultSummaryPlotTemplates() const;
+    bool                   isDefaultSummaryPlotTemplate( QString filename ) const;
+    void                   addToDefaultPlotTemplates( QString filename );
+    void                   removeFromDefaultPlotTemplates( QString filename );
+
     void appendRestartFileGroup( caf::PdmUiOrdering& uiOrdering ) const;
     void appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const;
 

@@ -44,6 +44,10 @@ class RicSummaryPlotTemplateTools
 public:
     static RimSummaryMultiPlot* create( const QString& fileName );
 
+    static RimSummaryMultiPlot* create( const QString&                                fileName,
+                                        const std::vector<RimSummaryCase*>&           cases,
+                                        const std::vector<RimSummaryCaseCollection*>& ensembles );
+
     static QString              selectPlotTemplatePath();
     static std::vector<QString> selectDefaultPlotTemplates( std::vector<QString> currentSelection );
 

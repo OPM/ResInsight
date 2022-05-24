@@ -19,6 +19,7 @@
 #include "RimPlotTemplateFolderItem.h"
 
 #include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 
 #include "RimPlotTemplateFileItem.h"
 
@@ -209,6 +210,8 @@ void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QL
     }
 
     caf::IconProvider templateIcon( ":/SummaryTemplate16x16.png" );
+
+    auto prefs = RiaPreferencesSummary::current();
 
     auto files = templateFolderItem->fileNames();
     for ( auto file : files )

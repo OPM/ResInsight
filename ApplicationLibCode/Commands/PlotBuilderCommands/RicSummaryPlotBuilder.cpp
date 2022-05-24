@@ -18,6 +18,7 @@
 
 #include "RicSummaryPlotBuilder.h"
 
+#include "PlotTemplateCommands/RicSummaryPlotTemplateTools.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
@@ -28,6 +29,7 @@
 #include "RifReaderEclipseSummary.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "RiaPreferencesSummary.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
@@ -408,6 +410,20 @@ RimSummaryMultiPlot*
     RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
                                                                    const std::vector<RimSummaryCaseCollection*>& ensembles )
 {
+    RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
+
+    if ( prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::NONE ) return nullptr;
+
+    if ( prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES )
+    {
+        RimSummaryMultiPlot* plotToSelect = nullptr;
+        for ( auto& filename : prefs->defaultSummaryPlotTemplates() )
+        {
+            plotToSelect = RicSummaryPlotTemplateTools::create( filename, cases, ensembles );
+        }
+        return plotToSelect;
+    }
+
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
 

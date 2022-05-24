@@ -178,6 +178,60 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&                                fileName,
+                                                          const std::vector<RimSummaryCase*>&           sumCases,
+                                                          const std::vector<RimSummaryCaseCollection*>& ensembles )
+{
+    std::vector<QString> wellNames;
+    std::vector<QString> groupNames;
+    std::vector<QString> regions;
+
+    RiaSummaryAddressAnalyzer analyzer;
+
+    if ( !sumCases.empty() )
+    {
+        auto firstCase = sumCases.front();
+
+        analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
+    }
+    else if ( !ensembles.empty() )
+    {
+        auto caseCollection = ensembles.front();
+
+        auto firstCase = caseCollection->firstSummaryCase();
+        if ( firstCase != nullptr )
+        {
+            analyzer.appendAddresses( firstCase->summaryReader()->allResultAddresses() );
+        }
+    }
+
+    if ( !analyzer.wellNames().empty() )
+        wellNames.push_back( QString::fromStdString( *( analyzer.wellNames().begin() ) ) );
+    if ( !analyzer.groupNames().empty() )
+        groupNames.push_back( QString::fromStdString( *( analyzer.groupNames().begin() ) ) );
+    if ( !analyzer.regionNumbers().empty() )
+        regions.push_back( QString::number( *( analyzer.regionNumbers().begin() ) ) );
+
+    auto proj        = RimProject::current();
+    auto collections = proj->mainPlotCollection()->summaryMultiPlotCollection();
+
+    auto newSummaryPlot = RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFile( fileName );
+    if ( !newSummaryPlot ) return nullptr;
+
+    collections->addSummaryMultiPlot( newSummaryPlot );
+    newSummaryPlot->resolveReferencesRecursively();
+
+    RicSummaryPlotTemplateTools::setValuesForPlaceholders( newSummaryPlot, sumCases, ensembles, wellNames, groupNames, regions );
+    newSummaryPlot->initAfterReadRecursively();
+    newSummaryPlot->loadDataAndUpdate();
+    collections->updateConnectedEditors();
+
+    return newSummaryPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*                summaryMultiPlot,
                                                             const std::vector<RimSummaryCase*>& selectedSummaryCases,
                                                             const std::vector<RimSummaryCaseCollection*>& selectedEnsembles,
