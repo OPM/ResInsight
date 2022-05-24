@@ -68,7 +68,8 @@ public:
 
     virtual bool isActive() const = 0;
 
-    virtual const QString& name() const = 0;
+    virtual const QString objectName() const    = 0;
+    virtual const QString axisTitleText() const = 0;
 
     virtual bool isAxisInverted() const;
 

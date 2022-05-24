@@ -58,6 +58,8 @@
 
 #include "RiuPlotAxis.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTreeViewEventFilter.h"
 
@@ -159,10 +161,10 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_sourceStepping.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_alternatePlotName, "AlternateName", "AlternateName" );
-    m_alternatePlotName.uiCapability()->setUiReadOnly( true );
-    m_alternatePlotName.uiCapability()->setUiHidden( true );
-    m_alternatePlotName.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault( &m_fallbackPlotName, "AlternateName", "AlternateName" );
+    m_fallbackPlotName.uiCapability()->setUiReadOnly( true );
+    m_fallbackPlotName.uiCapability()->setUiHidden( true );
+    m_fallbackPlotName.xmlCapability()->disableIO();
 
     setPlotInfoLabel( "Filters Active" );
 
@@ -389,14 +391,7 @@ void RimSummaryPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 
     caf::PdmObject* itemToSelect = axisPropertiesForPlotAxis( axis );
 
-    if ( toggle )
-    {
-        RiuPlotMainWindowTools::toggleItemInSelection( itemToSelect );
-    }
-    else
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
-    }
+    RiuPlotMainWindowTools::selectOrToggleObject( itemToSelect, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -602,16 +597,6 @@ const RimSummaryNameHelper* RimSummaryPlot::plotTitleHelper() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryPlot::generatedPlotTitleFromAllCurves() const
-{
-    RimSummaryPlotNameHelper nameHelper;
-    updateNameHelperWithCurveData( &nameHelper );
-    return nameHelper.plotTitle();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot )
 {
     for ( auto ap : sourceSummaryPlot.plotAxes() )
@@ -632,7 +617,7 @@ void RimSummaryPlot::copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& 
     {
         for ( auto ap : plotAxes() )
         {
-            if ( ap->name().compare( apToCopy->name() ) == 0 )
+            if ( ap->objectName().compare( apToCopy->objectName() ) == 0 )
             {
                 QString data = apToCopy->writeObjectToXmlString();
                 ap->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
@@ -1383,7 +1368,7 @@ caf::PdmFieldHandle* RimSummaryPlot::userDescriptionField()
 {
     if ( m_description().isEmpty() )
     {
-        return &m_alternatePlotName;
+        return &m_fallbackPlotName;
     }
     return &m_description;
 }
@@ -1804,7 +1789,7 @@ RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiaDefines::PlotAxi
 RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name )
 {
     auto* axisProperties = new RimPlotAxisProperties;
-    axisProperties->setNameAndAxis( name, plotAxis.axis(), plotAxis.index() );
+    axisProperties->setNameAndAxis( name, name, plotAxis.axis(), plotAxis.index() );
     m_axisProperties.push_back( axisProperties );
     connectAxisSignals( axisProperties );
 
@@ -1854,7 +1839,10 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
         // Make sure the new axis on the correct side exists.
         RiuPlotAxis fixedUpPlotAxis = plotWidget()->createNextPlotAxis( newPlotAxis.axis() );
         // The index can change so need to update.
-        axisProperties->setNameAndAxis( axisProperties->name(), fixedUpPlotAxis.axis(), fixedUpPlotAxis.index() );
+        axisProperties->setNameAndAxis( axisProperties->objectName(),
+                                        axisProperties->axisTitleText(),
+                                        fixedUpPlotAxis.axis(),
+                                        fixedUpPlotAxis.index() );
 
         // Move all attached curves
         for ( auto curve : summaryCurves() )
@@ -2335,7 +2323,10 @@ void RimSummaryPlot::initAfterRead()
                 if ( plotAxisProperties )
                 {
                     // Reset the plot axis for the axis property
-                    plotAxisProperties->setNameAndAxis( axisProperties->name(), axis.axis(), 0 );
+                    plotAxisProperties->setNameAndAxis( axisProperties->objectName(),
+                                                        axisProperties->axisTitleText(),
+                                                        axis.axis(),
+                                                        0 );
                 }
             }
         };
@@ -2477,10 +2468,6 @@ void RimSummaryPlot::deleteAllPlotCurves()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::updateCurveNames()
 {
-    m_alternatePlotName = "";
-
-    QStringList shortCurveNames;
-
     if ( m_summaryCurveCollection->isCurvesVisible() )
     {
         for ( auto c : summaryCurves() )
@@ -2488,7 +2475,6 @@ void RimSummaryPlot::updateCurveNames()
             if ( c->isCurveVisible() )
             {
                 c->updateCurveNameNoLegendUpdate();
-                shortCurveNames.append( QString::fromStdString( c->summaryAddressY().vectorName() ) );
             }
         }
     }
@@ -2496,14 +2482,11 @@ void RimSummaryPlot::updateCurveNames()
     for ( auto curveSet : m_ensembleCurveSetCollection->curveSets() )
     {
         curveSet->updateEnsembleLegendItem();
-
-        if ( curveSet->isCurvesVisible() )
-        {
-            shortCurveNames.append( QString::fromStdString( curveSet->summaryAddress().vectorName() ) );
-        }
     }
 
-    m_alternatePlotName = shortCurveNames.join( "," );
+    RimSummaryPlotNameHelper nameHelper;
+    updateNameHelperWithCurveData( &nameHelper );
+    m_fallbackPlotName = nameHelper.plotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2554,6 +2537,25 @@ void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
     if ( plotWidget() ) plotWidget()->scheduleReplot();
 
     updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
+{
+    auto wrapper = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !wrapper ) return;
+
+    auto qwtPlotItem = wrapper->qwtPlotItem();
+    if ( !qwtPlotItem ) return;
+
+    auto riuPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( qwtPlotItem );
+    if ( !riuPlotCurve ) return;
+
+    auto rimPlotCurve = riuPlotCurve->ownerRimCurve();
+
+    RiuPlotMainWindowTools::selectOrToggleObject( rimPlotCurve, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------

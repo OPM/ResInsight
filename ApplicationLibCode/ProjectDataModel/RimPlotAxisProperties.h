@@ -62,15 +62,17 @@ public:
     void                  setEnableTitleTextSettings( bool enable );
     void                  enableRangeSettings( bool enable );
     void                  setNameForUnusedAxis();
-    void                  setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex = 0 );
+    void                  setNameAndAxis( const QString& objectName, const QString& axistTitle, RiaDefines::PlotAxis axis, int axisIndex = 0 );
     AxisTitlePositionType titlePosition() const override;
 
     int titleFontSize() const override;
     int valuesFontSize() const override;
 
-    const QString& name() const override;
-    RiuPlotAxis    plotAxisType() const override;
-    bool           useAutoTitle() const;
+    const QString objectName() const override;
+    const QString axisTitleText() const override;
+
+    RiuPlotAxis plotAxisType() const override;
+    bool        useAutoTitle() const;
 
     void setShowDescription( bool enable );
     bool showDescription() const;
@@ -145,7 +147,9 @@ private:
     caf::PdmField<double> m_visibleRangeMin;
     caf::PdmField<double> m_visibleRangeMax;
 
-    caf::PdmField<QString>                            m_name;
+    caf::PdmField<QString> m_objectName;
+    caf::PdmField<QString> m_axisTitle;
+
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
     caf::PdmField<int>                                m_plotAxisIndex;
     caf::PdmField<LegendTickmarkCountEnum>            m_majorTickmarkCount;

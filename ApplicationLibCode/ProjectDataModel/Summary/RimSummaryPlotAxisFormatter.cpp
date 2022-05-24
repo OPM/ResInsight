@@ -130,7 +130,8 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
             titleAlignment = Qt::AlignRight;
         }
 
-        m_axisProperties->setNameAndAxis( axisTitle, axis.axis(), axis.index() );
+        QString objectName = createAxisObjectName();
+        m_axisProperties->setNameAndAxis( objectName, axisTitle, axis.axis(), axis.index() );
         plotWidget->setAxisTitleText( axis, axisTitle );
 
         bool titleBold = false;
@@ -276,8 +277,8 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        RifEclipseSummaryAddress sumAddress = curveDef.summaryAddress();
-        std::string              unitText;
+        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
+        std::string                     unitText;
         if ( curveDef.summaryCase() && curveDef.summaryCase()->summaryReader() )
         {
             unitText = curveDef.summaryCase()->summaryReader()->unitName( sumAddress );
@@ -285,7 +286,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         else if ( curveDef.ensemble() )
         {
             std::vector<RimSummaryCase*> sumCases = curveDef.ensemble()->allSummaryCases();
-            if ( sumCases.size() && sumCases[0] && sumCases[0]->summaryReader() )
+            if ( !sumCases.empty() && sumCases[0] && sumCases[0]->summaryReader() )
             {
                 unitText = sumCases[0]->summaryReader()->unitName( sumAddress );
             }
@@ -303,7 +304,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         scaleFactorText = QString( " x 10<sup>%1</sup> " ).arg( QString::number( exponent ) );
     }
 
-    for ( auto unitIt : unitToQuantityNameMap )
+    for ( const auto& unitIt : unitToQuantityNameMap )
     {
         for ( const auto& quantIt : unitIt.second )
         {
@@ -335,6 +336,86 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
     }
 
     return assembledYAxisText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
+{
+    std::set<std::string> vectorNames;
+
+    auto addVectorNames = [&]( const RifEclipseSummaryAddress& sumAddress ) {
+        size_t cutPos = sumAddress.vectorName().find( ':' );
+        if ( cutPos == std::string::npos ) cutPos = -1;
+
+        std::string        name;
+        const std::string& quantityName = sumAddress.vectorName().substr( cutPos + 1 );
+
+        if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        {
+            name = shortCalculationName( quantityName );
+        }
+        else
+        {
+            name = quantityName;
+        }
+        vectorNames.insert( name );
+    };
+
+    for ( RimSummaryCurve* rimCurve : m_summaryCurves )
+    {
+        RifEclipseSummaryAddress sumAddress;
+
+        if ( m_axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        {
+            sumAddress = rimCurve->summaryAddressX();
+        }
+        else if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
+        {
+            sumAddress = rimCurve->summaryAddressY();
+        }
+        else
+        {
+            continue;
+        }
+
+        addVectorNames( sumAddress );
+    }
+
+    for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
+    {
+        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
+
+        addVectorNames( sumAddress );
+    }
+
+    QString assembledAxisObjectName;
+
+    for ( const auto& vectorName : vectorNames )
+    {
+        assembledAxisObjectName += QString::fromStdString( vectorName ) + " ";
+    }
+
+    if ( !m_timeHistoryCurveQuantities.empty() )
+    {
+        if ( !assembledAxisObjectName.isEmpty() )
+        {
+            assembledAxisObjectName += " : ";
+        }
+
+        for ( const auto& timeQuantity : m_timeHistoryCurveQuantities )
+        {
+            assembledAxisObjectName += timeQuantity + " ";
+        }
+    }
+
+    const int    maxChars = 100;
+    QFont        font;
+    QFontMetrics fm( font );
+    assembledAxisObjectName = fm.elidedText( assembledAxisObjectName, Qt::ElideRight, maxChars );
+
+    return assembledAxisObjectName;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,6 +42,7 @@ public:
 
 private:
     QString autoAxisTitle() const;
+    QString createAxisObjectName() const;
 
     static std::string shortCalculationName( const std::string& calculationName );
 

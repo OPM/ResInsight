@@ -164,7 +164,7 @@ RimAnalysisPlot::RimAnalysisPlot()
     CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties" );
     m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_valueAxisProperties = new RimPlotAxisProperties;
-    m_valueAxisProperties->setNameAndAxis( "Value-Axis", RiuQwtPlotTools::fromQwtPlotAxis( QwtAxis::YLeft ) );
+    m_valueAxisProperties->setNameAndAxis( "Value-Axis", "Value-Axis", RiuQwtPlotTools::fromQwtPlotAxis( QwtAxis::YLeft ) );
     m_valueAxisProperties->enableRangeSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection" );
@@ -891,7 +891,7 @@ void RimAnalysisPlot::updateAxes()
     if ( valAxisProperties->isActive() )
     {
         m_plotWidget->enableAxis( axis, true );
-        m_valueAxisProperties->setNameAndAxis( "Value-Axis", axis.axis() );
+        m_valueAxisProperties->setNameAndAxis( "Value-Axis", "Value-Axis", axis.axis() );
 
         RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitions(), {}, {} );
         calc.applyAxisPropertiesToPlot( m_plotWidget );
@@ -933,14 +933,7 @@ void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
         }
     }
 
-    if ( toggle )
-    {
-        RiuPlotMainWindowTools::toggleItemInSelection( itemToSelect );
-    }
-    else
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
-    }
+    RiuPlotMainWindowTools::selectOrToggleObject( itemToSelect, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -25,6 +25,7 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmDefaultObjectFactory.h"
@@ -62,6 +63,17 @@ RimSummaryCurve* RicPasteSummaryCurveFeature::copyCurveAndAddToPlot( RimSummaryC
 
     newCurve->loadDataAndUpdate( true );
     newCurve->updateConnectedEditors();
+
+    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
+    summaryPlot->firstAncestorOrThisOfType( summaryMultiPlot );
+    if ( summaryMultiPlot )
+    {
+        summaryMultiPlot->updatePlotWindowTitle();
+    }
+    else
+    {
+        summaryPlot->updatePlotTitle();
+    }
 
     summaryPlot->updateAllRequiredEditors();
 

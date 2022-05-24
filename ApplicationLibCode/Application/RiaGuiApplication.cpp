@@ -571,7 +571,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
 
     if ( cvf::Option o = progOpt->option( "openplotwindow" ) )
     {
-        m_mainWindow->hide();
+        if ( m_mainWindow ) m_mainWindow->hide();
         getOrCreateAndShowMainPlotWindow();
     }
 
@@ -1223,7 +1223,7 @@ void RiaGuiApplication::onProjectBeingOpened()
 void RiaGuiApplication::onProjectOpeningError( const QString& errMsg )
 {
     RiaLogging::errorInMessageBox( nullptr, "Error when opening project file", errMsg );
-    m_mainWindow->setPdmRoot( nullptr );
+    if ( m_mainWindow ) m_mainWindow->setPdmRoot( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1233,11 +1233,11 @@ void RiaGuiApplication::onProjectOpened()
 {
     if ( m_project->show3DWindow() )
     {
-        m_mainWindow->show();
+        getOrCreateAndShowMainWindow();
     }
     else
     {
-        m_mainWindow->hide();
+        if ( m_mainWindow ) m_mainWindow->hide();
     }
 
     if ( m_project->showPlotWindow() )

@@ -557,6 +557,12 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
     {
         if ( isZoomerActive() ) return false;
 
+        if ( mouseEvent->type() == QMouseEvent::MouseButtonDblClick )
+        {
+            if ( m_plotDefinition ) m_plotDefinition->zoomAll();
+            return true;
+        }
+
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
 
         if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
@@ -930,13 +936,14 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
         highlightPlotItems( plotItems );
         auto plotItem = std::make_shared<RiuQwtPlotItem>( closestItem );
         emit plotItemSelected( plotItem, toggleItemInSelection, distanceFromClick < 10 ? closestCurvePoint : -1 );
-
-        scheduleReplot();
     }
     else
     {
         emit plotSelected( toggleItemInSelection );
     }
+
+    // Always do a replot, as the reset operation also requires replot
+    replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1136,7 +1143,7 @@ void RiuQwtPlotWidget::highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY )
             if ( axisId != axisIdX && axisId != axisIdY )
             {
                 auto axisWidget = m_plot->axisWidget( axisId );
-                axisWidget->setStyleSheet( "color: gray" );
+                axisWidget->setStyleSheet( "color: #D9D9D9" );
             }
         }
     }

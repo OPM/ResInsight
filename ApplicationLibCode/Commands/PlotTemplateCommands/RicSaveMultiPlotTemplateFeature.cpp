@@ -37,6 +37,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuFileDialogTools.h"
+#include "RiuPlotMainWindow.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmUiPropertyViewDialog.h"
@@ -81,15 +82,14 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
 
     QString templateCandidateName = caf::Utils::makeValidFileBasename( selectedSummaryPlot()->description() );
 
-    startPath = startPath + "/" + templateCandidateName + ".rpt";
-
     RicSaveMultiPlotTemplateFeatureSettings settings;
     settings.setFilePath( startPath );
+    settings.setName( templateCandidateName );
 
-    caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &settings, "Export Plot Template", "" );
+    caf::PdmUiPropertyViewDialog propertyDialog( RiuPlotMainWindow::instance(), &settings, "Export Plot Template", "" );
     if ( propertyDialog.exec() != QDialog::Accepted ) return;
 
-    QString fileName = settings.filePath();
+    QString fileName = settings.filePath() + "/" + settings.name() + ".rpt";
     if ( !fileName.isEmpty() )
     {
         QFile exportFile( fileName );

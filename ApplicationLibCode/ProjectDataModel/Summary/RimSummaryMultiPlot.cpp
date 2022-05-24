@@ -46,6 +46,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotControls.h"
 #include "RimSummaryPlotNameHelper.h"
@@ -481,7 +482,22 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
         populateNameHelper( m_nameHelper.get() );
 
         auto title = m_nameHelper->plotTitle();
-        if ( title.isEmpty() ) title = "Empty Plot";
+
+        if ( title.isEmpty() )
+        {
+            auto proj        = RimProject::current();
+            auto collections = proj->mainPlotCollection()->summaryMultiPlotCollection();
+
+            size_t index = 0;
+            for ( auto p : collections->multiPlots() )
+            {
+                index++;
+                if ( p == this ) break;
+            }
+
+            title = QString( "Plot %1" ).arg( index );
+        }
+
         setMultiPlotTitle( title );
     }
 
@@ -491,7 +507,8 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
         {
             auto subPlotNameHelper = plot->plotTitleHelper();
 
-            // Disable auto plot title, as this is required to be able to include the information in the multi plot title
+            // Disable auto plot title, as this is required to be able to include the information in the multi plot
+            // title
             plot->enableAutoPlotTitle( false );
 
             auto plotName = subPlotNameHelper->aggregatedPlotTitle( *m_nameHelper );
@@ -609,9 +626,8 @@ bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
                 return true;
             }
         }
-        return false;
     }
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -107,7 +107,8 @@ public:
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
 
-    const QString& name() const override;
+    const QString objectName() const override;
+    const QString axisTitleText() const override;
 
 protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;

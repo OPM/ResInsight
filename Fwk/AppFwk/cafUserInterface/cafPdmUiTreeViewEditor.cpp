@@ -429,11 +429,16 @@ PdmChildArrayFieldHandle* PdmUiTreeViewEditor::currentChildArrayFieldHandle()
 void PdmUiTreeViewEditor::selectAsCurrentItem( const PdmUiItem* uiItem )
 {
     QModelIndex index        = m_treeViewModel->findModelIndex( uiItem );
-    QModelIndex currentIndex = m_filterModel->mapFromSource( index );
+    QModelIndex indexForItem = m_filterModel->mapFromSource( index );
+
+    auto currentSelected = treeView()->currentIndex();
+
+    // Return if index is the same, as resetting the selection causes flickering
+    if ( indexForItem == currentSelected ) return;
 
     m_treeView->clearSelection();
 
-    m_treeView->setCurrentIndex( currentIndex );
+    m_treeView->setCurrentIndex( indexForItem );
 }
 
 //--------------------------------------------------------------------------------------------------
