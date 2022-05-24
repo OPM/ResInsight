@@ -424,6 +424,8 @@ RimSummaryMultiPlot*
         return plotToSelect;
     }
 
+    if ( prefs->defaultSummaryCurvesTextFilter().trimmed().isEmpty() ) return nullptr;
+
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
 
