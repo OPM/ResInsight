@@ -632,7 +632,7 @@ void RimSummaryPlot::copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& 
     {
         for ( auto ap : plotAxes() )
         {
-            if ( ap->name().compare( apToCopy->name() ) == 0 )
+            if ( ap->objectName().compare( apToCopy->objectName() ) == 0 )
             {
                 QString data = apToCopy->writeObjectToXmlString();
                 ap->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
@@ -1804,7 +1804,7 @@ RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiaDefines::PlotAxi
 RimPlotAxisProperties* RimSummaryPlot::addNewAxisProperties( RiuPlotAxis plotAxis, const QString& name )
 {
     auto* axisProperties = new RimPlotAxisProperties;
-    axisProperties->setNameAndAxis( name, plotAxis.axis(), plotAxis.index() );
+    axisProperties->setNameAndAxis( name, name, plotAxis.axis(), plotAxis.index() );
     m_axisProperties.push_back( axisProperties );
     connectAxisSignals( axisProperties );
 
@@ -1854,7 +1854,10 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
         // Make sure the new axis on the correct side exists.
         RiuPlotAxis fixedUpPlotAxis = plotWidget()->createNextPlotAxis( newPlotAxis.axis() );
         // The index can change so need to update.
-        axisProperties->setNameAndAxis( axisProperties->name(), fixedUpPlotAxis.axis(), fixedUpPlotAxis.index() );
+        axisProperties->setNameAndAxis( axisProperties->objectName(),
+                                        axisProperties->axisTitleText(),
+                                        fixedUpPlotAxis.axis(),
+                                        fixedUpPlotAxis.index() );
 
         // Move all attached curves
         for ( auto curve : summaryCurves() )
@@ -2335,7 +2338,10 @@ void RimSummaryPlot::initAfterRead()
                 if ( plotAxisProperties )
                 {
                     // Reset the plot axis for the axis property
-                    plotAxisProperties->setNameAndAxis( axisProperties->name(), axis.axis(), 0 );
+                    plotAxisProperties->setNameAndAxis( axisProperties->objectName(),
+                                                        axisProperties->axisTitleText(),
+                                                        axis.axis(),
+                                                        0 );
                 }
             }
         };

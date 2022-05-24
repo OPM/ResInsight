@@ -61,8 +61,11 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
-    m_name.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_objectName, "Name", "Name" );
+    m_objectName.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_axisTitle, "AxisTitle", "Axis Title" );
+    m_objectName.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitField( &isAutoTitle, "AutoTitle", true, "Auto Title" );
 
@@ -145,7 +148,7 @@ void RimPlotAxisProperties::setNameForUnusedAxis()
     else if ( m_plotAxis() == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
         name += "Right";
 
-    m_name = name;
+    m_objectName = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,7 +156,7 @@ void RimPlotAxisProperties::setNameForUnusedAxis()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimPlotAxisProperties::userDescriptionField()
 {
-    return &m_name;
+    return &m_objectName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -259,9 +262,13 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::setNameAndAxis( const QString& name, RiaDefines::PlotAxis axis, int axisIndex )
+void RimPlotAxisProperties::setNameAndAxis( const QString&       objectName,
+                                            const QString&       axistTitle,
+                                            RiaDefines::PlotAxis axis,
+                                            int                  axisIndex )
 {
-    m_name          = name;
+    m_objectName    = objectName;
+    m_axisTitle     = axistTitle;
     m_plotAxis      = axis;
     m_plotAxisIndex = axisIndex;
 
@@ -298,9 +305,17 @@ int RimPlotAxisProperties::valuesFontSize() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QString& RimPlotAxisProperties::name() const
+const QString RimPlotAxisProperties::objectName() const
 {
-    return m_name();
+    return m_objectName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString RimPlotAxisProperties::axisTitleText() const
+{
+    return m_axisTitle;
 }
 
 //--------------------------------------------------------------------------------------------------

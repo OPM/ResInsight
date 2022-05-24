@@ -65,13 +65,13 @@ RimGridCrossPlot::RimGridCrossPlot()
     CAF_PDM_InitFieldNoDefault( &m_xAxisProperties, "xAxisProperties", "X Axis" );
     m_xAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_xAxisProperties = new RimPlotAxisProperties;
-    m_xAxisProperties->setNameAndAxis( "X-Axis", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
+    m_xAxisProperties->setNameAndAxis( "X-Axis", "X-Axis", RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM );
     m_xAxisProperties->setEnableTitleTextSettings( false );
 
     CAF_PDM_InitFieldNoDefault( &m_yAxisProperties, "yAxisProperties", "Y Axis" );
     m_yAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_yAxisProperties = new RimPlotAxisProperties;
-    m_yAxisProperties->setNameAndAxis( "Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
+    m_yAxisProperties->setNameAndAxis( "Y-Axis", "Y-Axis", RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     m_yAxisProperties->setEnableTitleTextSettings( false );
 
     connectAxisSignals( m_xAxisProperties() );
@@ -641,10 +641,13 @@ void RimGridCrossPlot::swapAxes()
     RimPlotAxisProperties* xAxisProperties = m_xAxisProperties();
     RimPlotAxisProperties* yAxisProperties = m_yAxisProperties();
 
-    QString     tmpName = xAxisProperties->name();
-    RiuPlotAxis tmpAxis = xAxisProperties->plotAxisType();
-    xAxisProperties->setNameAndAxis( yAxisProperties->name(), yAxisProperties->plotAxisType().axis() );
-    yAxisProperties->setNameAndAxis( tmpName, tmpAxis.axis() );
+    QString     tmpName  = xAxisProperties->objectName();
+    QString     tmpTitle = xAxisProperties->axisTitleText();
+    RiuPlotAxis tmpAxis  = xAxisProperties->plotAxisType();
+    xAxisProperties->setNameAndAxis( yAxisProperties->objectName(),
+                                     yAxisProperties->axisTitleText(),
+                                     yAxisProperties->plotAxisType().axis() );
+    yAxisProperties->setNameAndAxis( tmpName, tmpTitle, tmpAxis.axis() );
 
     m_xAxisProperties.removeChildObject( xAxisProperties );
     m_yAxisProperties.removeChildObject( yAxisProperties );

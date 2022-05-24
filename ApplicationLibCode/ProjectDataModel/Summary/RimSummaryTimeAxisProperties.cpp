@@ -351,6 +351,22 @@ void RimSummaryTimeAxisProperties::setMajorTickmarkCount( LegendTickmarkCount co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QString RimSummaryTimeAxisProperties::objectName() const
+{
+    return title();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QString RimSummaryTimeAxisProperties::axisTitleText() const
+{
+    return title();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
     RimSummaryTimeAxisProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
                                                          bool*                      useOptionsOnly )
@@ -703,12 +719,4 @@ void RimSummaryTimeAxisProperties::defineEditorAttribute( const caf::PdmFieldHan
                                                      RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QString& RimSummaryTimeAxisProperties::name() const
-{
-    return title();
 }
