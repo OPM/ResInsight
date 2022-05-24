@@ -936,13 +936,14 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
         highlightPlotItems( plotItems );
         auto plotItem = std::make_shared<RiuQwtPlotItem>( closestItem );
         emit plotItemSelected( plotItem, toggleItemInSelection, distanceFromClick < 10 ? closestCurvePoint : -1 );
-
-        scheduleReplot();
     }
     else
     {
         emit plotSelected( toggleItemInSelection );
     }
+
+    // Always do a replot, as the reset operation also requires replot
+    replot();
 }
 
 //--------------------------------------------------------------------------------------------------

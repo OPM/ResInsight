@@ -148,7 +148,6 @@ public:
     const RimSummaryNameHelper* activePlotTitleHelperAllCurves() const;
     const RimSummaryNameHelper* plotTitleHelper() const;
     void                        updateCurveNames();
-    QString                     generatedPlotTitleFromAllCurves() const;
 
     void copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
     void copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
@@ -305,7 +304,7 @@ private:
 
     caf::PdmField<bool>    m_useAutoPlotTitle;
     caf::PdmField<QString> m_description;
-    caf::PdmField<QString> m_alternatePlotName;
+    caf::PdmField<QString> m_fallbackPlotName;
 
     caf::PdmChildArrayField<RimGridTimeHistoryCurve*>  m_gridTimeHistoryCurves;
     caf::PdmChildField<RimSummaryCurveCollection*>     m_summaryCurveCollection;
