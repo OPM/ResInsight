@@ -626,9 +626,8 @@ bool RimSummaryMultiPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
                 return true;
             }
         }
-        return false;
     }
-    return true;
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
