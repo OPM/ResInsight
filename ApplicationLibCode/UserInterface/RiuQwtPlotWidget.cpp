@@ -557,6 +557,12 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
     {
         if ( isZoomerActive() ) return false;
 
+        if ( mouseEvent->type() == QMouseEvent::MouseButtonDblClick )
+        {
+            if ( m_plotDefinition ) m_plotDefinition->zoomAll();
+            return true;
+        }
+
         bool toggleItemInSelection = ( mouseEvent->modifiers() & Qt::ControlModifier ) != 0;
 
         if ( mouseEvent->type() == QMouseEvent::MouseButtonPress && mouseEvent->button() == Qt::LeftButton )
