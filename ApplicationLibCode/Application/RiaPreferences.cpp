@@ -513,10 +513,13 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_pageTopMargin    = defaultMarginSize( m_pageSize() );
         m_pageBottomMargin = defaultMarginSize( m_pageSize() );
     }
-
-    if ( changedField == &m_guiTheme )
+    else if ( changedField == &m_guiTheme )
     {
         RiuGuiTheme::updateGuiTheme( m_guiTheme() );
+    }
+    else
+    {
+        m_summaryPreferences->fieldChangedByUi( changedField, oldValue, newValue );
     }
 }
 //--------------------------------------------------------------------------------------------------

@@ -402,6 +402,32 @@ QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RicSummaryPlotTemplateTools::selectDefaultPlotTemplates( std::vector<QString> currentSelection )
+{
+    RiuPlotMainWindow*      plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
+    RicSelectPlotTemplateUi ui;
+    ui.setMultiSelectMode( true );
+    ui.setInitialSelection( currentSelection );
+
+    caf::PdmUiPropertyViewDialog propertyDialog( plotwindow, &ui, "Select Default Plot Templates", "" );
+    propertyDialog.resize( QSize( 500, 600 ) );
+
+    std::vector<QString> selection;
+
+    if ( propertyDialog.exec() == QDialog::Accepted && !ui.selectedPlotTemplates().empty() )
+    {
+        for ( auto item : ui.selectedPlotTemplates() )
+        {
+            selection.push_back( item->absoluteFilePath() );
+        }
+    }
+
+    return selection;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RicSummaryPlotTemplateTools::selectedSummaryCases()
 {
     std::vector<RimSummaryCase*> objects;

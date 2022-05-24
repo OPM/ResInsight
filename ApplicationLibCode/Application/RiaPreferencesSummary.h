@@ -19,10 +19,14 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
+
+#include <QString>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -100,6 +104,7 @@ public:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -108,6 +113,8 @@ protected:
 
 private:
     caf::PdmField<DefaultSummaryPlotEnum> m_defaultSummaryPlot;
+    caf::PdmField<bool>                   m_selectDefaultTemplates;
+    caf::PdmField<std::vector<QString>>   m_selectedDefaultTemplates;
 
     caf::PdmField<bool>                              m_summaryRestartFilesShowImportDialog;
     caf::PdmField<SummaryRestartFilesImportModeType> m_summaryImportMode;

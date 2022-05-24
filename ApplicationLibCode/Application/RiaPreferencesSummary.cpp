@@ -18,11 +18,17 @@
 
 #include "RiaPreferencesSummary.h"
 
+#include "PlotTemplateCommands/RicSummaryPlotTemplateTools.h"
+
 #include "RiaApplication.h"
 #include "RiaPreferences.h"
 
+#include "PlotTemplates/RimPlotTemplateFileItem.h"
+
 #include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiListEditor.h"
+#include "cafPdmUiPushButtonEditor.h"
 
 #include <algorithm>
 
@@ -106,6 +112,15 @@ RiaPreferencesSummary::RiaPreferencesSummary()
                        "Semicolon separated list of filters used to create curves in new summary plots",
                        "" );
     CAF_PDM_InitFieldNoDefault( &m_defaultSummaryPlot, "defaultSummaryPlot", "Create plot on summary data import" );
+
+    CAF_PDM_InitField( &m_selectDefaultTemplates, "selectDefaultTemplate", false, "", "", "Select Default Templates" );
+    m_selectDefaultTemplates.xmlCapability()->disableIO();
+    m_selectDefaultTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_selectedDefaultTemplates, "defaultSummaryTemplates", "Default Summary Templates" );
+    m_selectedDefaultTemplates.uiCapability()->setUiReadOnly( true );
+    m_selectedDefaultTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
+    m_selectedDefaultTemplates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     CAF_PDM_InitField( &m_createEnhancedSummaryDataFile,
                        "createEnhancedSummaryDataFile_v01",
@@ -247,6 +262,8 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
             break;
 
         case RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES:
+            uiOrdering.add( &m_selectedDefaultTemplates );
+            uiOrdering.add( &m_selectDefaultTemplates );
             break;
 
         default:
@@ -380,6 +397,22 @@ void RiaPreferencesSummary::defineEditorAttribute( const caf::PdmFieldHandle* fi
             myattr->iconSize = QSize( 24, 16 );
         }
     }
+    else if ( field == &m_selectDefaultTemplates )
+    {
+        auto attrib = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_buttonText = "Select Default Templates";
+        }
+    }
+    else if ( field == &m_selectedDefaultTemplates )
+    {
+        auto attrib = dynamic_cast<caf::PdmUiListEditorAttribute*>( attribute );
+        if ( attrib )
+        {
+            attrib->m_heightHint = 30;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -473,4 +506,22 @@ RiaDefines::ColumnCount RiaPreferencesSummary::defaultMultiPlotColumnCount() con
 RiaDefines::RowCount RiaPreferencesSummary::defaultMultiPlotRowCount() const
 {
     return m_defaultRowsPerPage();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSummary::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                              const QVariant&            oldValue,
+                                              const QVariant&            newValue )
+{
+    if ( changedField == &m_selectDefaultTemplates )
+    {
+        m_selectDefaultTemplates = false;
+
+        auto selection = RicSummaryPlotTemplateTools::selectDefaultPlotTemplates( m_selectedDefaultTemplates() );
+        if ( selection.empty() ) return;
+
+        m_selectedDefaultTemplates = selection;
+    }
 }

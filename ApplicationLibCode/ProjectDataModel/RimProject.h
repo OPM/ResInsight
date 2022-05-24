@@ -189,7 +189,7 @@ public:
     caf::AppEnum<RiaDefines::EclipseUnitSystem> commonUnitSystemForAllCases() const;
     RimMeasurement*                             measurement() const;
 
-    RimPlotTemplateFolderItem* rootPlotTemlateItem() const;
+    RimPlotTemplateFolderItem* rootPlotTemplateItem() const;
 
     std::vector<caf::FilePath*> allFilePaths() const;
 
