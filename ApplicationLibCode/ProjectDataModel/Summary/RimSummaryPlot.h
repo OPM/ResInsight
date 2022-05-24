@@ -227,6 +227,7 @@ private:
     void deleteAllPlotCurves();
 
     void onCurveCollectionChanged( const SignalEmitter* emitter );
+    void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
     void connectCurveToPlot( RimSummaryCurve* curve, bool update, bool autoAssignPlotAxis );
 

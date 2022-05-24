@@ -58,6 +58,8 @@
 
 #include "RiuPlotAxis.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuTreeViewEventFilter.h"
 
@@ -389,14 +391,7 @@ void RimSummaryPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 
     caf::PdmObject* itemToSelect = axisPropertiesForPlotAxis( axis );
 
-    if ( toggle )
-    {
-        RiuPlotMainWindowTools::toggleItemInSelection( itemToSelect );
-    }
-    else
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
-    }
+    RiuPlotMainWindowTools::selectOrToggleObject( itemToSelect, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2542,6 +2537,25 @@ void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
     if ( plotWidget() ) plotWidget()->scheduleReplot();
 
     updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
+{
+    auto wrapper = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !wrapper ) return;
+
+    auto qwtPlotItem = wrapper->qwtPlotItem();
+    if ( !qwtPlotItem ) return;
+
+    auto riuPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( qwtPlotItem );
+    if ( !riuPlotCurve ) return;
+
+    auto rimPlotCurve = riuPlotCurve->ownerRimCurve();
+
+    RiuPlotMainWindowTools::selectOrToggleObject( rimPlotCurve, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------

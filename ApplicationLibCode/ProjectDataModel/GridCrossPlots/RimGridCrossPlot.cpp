@@ -385,14 +385,7 @@ void RimGridCrossPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
         properties = m_xAxisProperties;
     }
 
-    if ( toggle )
-    {
-        RiuPlotMainWindowTools::toggleItemInSelection( properties );
-    }
-    else
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( properties );
-    }
+    RiuPlotMainWindowTools::selectOrToggleObject( properties, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -933,14 +933,7 @@ void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
         }
     }
 
-    if ( toggle )
-    {
-        RiuPlotMainWindowTools::toggleItemInSelection( itemToSelect );
-    }
-    else
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
-    }
+    RiuPlotMainWindowTools::selectOrToggleObject( itemToSelect, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------
