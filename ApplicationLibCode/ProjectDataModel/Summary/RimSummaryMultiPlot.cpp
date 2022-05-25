@@ -217,7 +217,20 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
         if ( address ) addresses.push_back( address );
 
         auto adrColl = dynamic_cast<RimSummaryAddressCollection*>( o );
-        if ( adrColl ) addressCollections.push_back( adrColl );
+        if ( adrColl )
+        {
+            if ( objects.size() == 1 )
+            {
+                if ( adrColl->isFolder() )
+                {
+                    // If a folder is selected, return all sub items in folder
+                    auto childObjects = adrColl->subFolders();
+                    addressCollections.insert( addressCollections.end(), childObjects.begin(), childObjects.end() );
+                }
+            }
+            else
+                addressCollections.push_back( adrColl );
+        }
 
         auto summaryCase = dynamic_cast<RimSummaryCase*>( o );
         if ( summaryCase ) cases.push_back( summaryCase );
