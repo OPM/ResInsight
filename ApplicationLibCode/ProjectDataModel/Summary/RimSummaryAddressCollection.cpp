@@ -357,7 +357,7 @@ bool RimSummaryAddressCollection::canBeDragged() const
     ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::GROUP ||
                  m_contentType == CollectionContentType::REGION );
 
-    return ok;
+    return ok || isFolder();
 }
 
 //--------------------------------------------------------------------------------------------------

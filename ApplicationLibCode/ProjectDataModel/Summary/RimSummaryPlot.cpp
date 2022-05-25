@@ -2124,10 +2124,23 @@ void RimSummaryPlot::handleDroppedObjects( const std::vector<caf::PdmObjectHandl
         auto addressCollection = dynamic_cast<RimSummaryAddressCollection*>( obj );
         if ( addressCollection )
         {
-            auto [curveCount, curvesCreated] = handleAddressCollectionDrop( addressCollection );
-            accumulatedCurveCount += curveCount;
-            curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
-            continue;
+            if ( addressCollection->isFolder() )
+            {
+                for ( auto coll : addressCollection->subFolders() )
+                {
+                    auto [curveCount, curvesCreated] = handleAddressCollectionDrop( coll );
+                    accumulatedCurveCount += curveCount;
+                    curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
+                }
+                continue;
+            }
+            else
+            {
+                auto [curveCount, curvesCreated] = handleAddressCollectionDrop( addressCollection );
+                accumulatedCurveCount += curveCount;
+                curvesToUpdate.insert( curvesToUpdate.end(), curvesCreated.begin(), curvesCreated.end() );
+                continue;
+            }
         }
     }
 
