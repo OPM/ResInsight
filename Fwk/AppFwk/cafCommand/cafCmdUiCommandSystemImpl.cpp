@@ -42,6 +42,7 @@
 #include "cafCmdFieldChangeExec.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmFieldHandle.h"
+#include "cafPdmObjectHandle.h"
 #include "cafPdmUiObjectHandle.h"
 #include "cafSelectionManager.h"
 
@@ -70,14 +71,38 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
 
     std::vector<CmdExecuteCommand*> commands;
 
-    caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
-    PdmObjectHandle*               ownerOfChildArrayField = nullptr;
-    PdmObjectHandle*               rootObjHandle          = nullptr;
-    std::vector<QString>           fieldTextPaths;
+    PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
+    PdmObjectHandle*          ownerOfChildArrayField = nullptr;
+    PdmObjectHandle*          rootObjHandle          = nullptr;
+    std::vector<QString>      fieldTextPaths;
 
     for ( size_t i = 0; i < fieldsToUpdate.size(); i++ )
     {
-        PdmFieldHandle*   field         = fieldsToUpdate[i];
+        PdmFieldHandle* field = fieldsToUpdate[i];
+        if ( fieldsToUpdate.size() > 0 && i == 0 )
+        {
+            // Find the first childArrayField by traversing parent field and objects. Usually, the childArrayField is
+            // the parent, but in some cases when we change fields in a sub-object of the object we need to traverse
+            // more levels
+
+            ownerOfChildArrayField = field->ownerObject();
+            while ( ownerOfChildArrayField )
+            {
+                if ( ownerOfChildArrayField->parentField() )
+                {
+                    childArrayFieldHandle =
+                        dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
+                    ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
+
+                    if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
+                }
+                else
+                {
+                    ownerOfChildArrayField = nullptr;
+                }
+            }
+        }
+
         PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if ( uiFieldHandle )
         {
@@ -94,26 +119,6 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
                     return;
                 }
 
-                if ( !ownerOfChildArrayField || !childArrayFieldHandle )
-                {
-                    ownerOfChildArrayField = field->ownerObject();
-                    while ( ownerOfChildArrayField )
-                    {
-                        if ( ownerOfChildArrayField->parentField() )
-                        {
-                            childArrayFieldHandle =
-                                dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
-                            ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
-
-                            if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
-                        }
-                        else
-                        {
-                            ownerOfChildArrayField = nullptr;
-                        }
-                    }
-                }
-
                 fieldTextPaths.push_back( reference );
             }
         }
@@ -122,7 +127,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
     CmdFieldChangeExec* fieldChangeExec = new CmdFieldChangeExec( SelectionManager::instance()->notificationCenter() );
 
     fieldChangeExec->commandData()->m_newUiValue             = newUiValue;
-    fieldChangeExec->commandData()->m_pathToField            = fieldTextPaths;
+    fieldChangeExec->commandData()->m_pathToFields           = fieldTextPaths;
     fieldChangeExec->commandData()->m_rootObject             = rootObjHandle;
     fieldChangeExec->commandData()->m_ownerOfChildArrayField = ownerOfChildArrayField;
     fieldChangeExec->commandData()->m_childArrayFieldHandle  = childArrayFieldHandle;

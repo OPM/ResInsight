@@ -47,10 +47,10 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 QString CmdFieldChangeExec::name()
 {
-    if ( !m_commandData->m_pathToField.empty() )
+    if ( !m_commandData->m_pathToFields.empty() )
     {
         PdmFieldHandle* field =
-            PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField.front() );
+            PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToFields.front() );
         if ( field )
         {
             QString fieldText;
@@ -81,12 +81,12 @@ QString CmdFieldChangeExec::name()
 //--------------------------------------------------------------------------------------------------
 void CmdFieldChangeExec::redo()
 {
-    m_commandData->m_undoFieldValueSerialized.resize( m_commandData->m_pathToField.size() );
+    m_commandData->m_undoFieldValueSerialized.resize( m_commandData->m_pathToFields.size() );
 
-    for ( size_t i = 0; i < m_commandData->m_pathToField.size(); i++ )
+    for ( size_t i = 0; i < m_commandData->m_pathToFields.size(); i++ )
     {
-        auto fieldTextPath = m_commandData->m_pathToField[i];
-        bool isLastField   = ( i == m_commandData->m_pathToField.size() - 1 );
+        auto fieldTextPath = m_commandData->m_pathToFields[i];
+        bool isLastField   = ( i == m_commandData->m_pathToFields.size() - 1 );
 
         PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, fieldTextPath );
         if ( !field )
@@ -152,10 +152,10 @@ void CmdFieldChangeExec::redo()
 //--------------------------------------------------------------------------------------------------
 void CmdFieldChangeExec::undo()
 {
-    for ( size_t i = 0; i < m_commandData->m_pathToField.size(); i++ )
+    for ( size_t i = 0; i < m_commandData->m_pathToFields.size(); i++ )
     {
-        auto fieldTextPath = m_commandData->m_pathToField[i];
-        bool isLastField   = ( i == m_commandData->m_pathToField.size() - 1 );
+        auto fieldTextPath = m_commandData->m_pathToFields[i];
+        bool isLastField   = ( i == m_commandData->m_pathToFields.size() - 1 );
 
         PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, fieldTextPath );
 
@@ -195,17 +195,8 @@ void CmdFieldChangeExec::undo()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void CmdFieldChangeExec::enableFieldChanged( bool enable )
-{
-    m_enableFieldChanged = enable;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 CmdFieldChangeExec::CmdFieldChangeExec( NotificationCenter* notificationCenter )
     : CmdExecuteCommand( notificationCenter )
-    , m_enableFieldChanged( true )
 {
     m_commandData = new CmdFieldChangeExecData;
 }

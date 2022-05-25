@@ -44,8 +44,6 @@
 
 namespace caf
 {
-class PdmChildArrayFieldHandle;
-
 //==================================================================================================
 ///
 //==================================================================================================
@@ -60,15 +58,14 @@ public:
     }
 
     caf::PdmPointer<PdmObjectHandle> m_rootObject;
+    PdmChildArrayFieldHandle*        m_childArrayFieldHandle;
+    PdmObjectHandle*                 m_ownerOfChildArrayField;
 
-    std::vector<QString> m_pathToField;
-    QVariant             m_newUiValue;
-
-    caf::PdmChildArrayFieldHandle* m_childArrayFieldHandle;
-    caf::PdmObjectHandle*          m_ownerOfChildArrayField;
-
+    std::vector<QString> m_pathToFields;
     std::vector<QString> m_undoFieldValueSerialized;
-    QString              m_redoFieldValueSerialized;
+
+    QVariant m_newUiValue;
+    QString  m_redoFieldValueSerialized;
 };
 
 //==================================================================================================
@@ -86,15 +83,12 @@ public:
     void    redo() override;
     void    undo() override;
 
-    void enableFieldChanged( bool enable );
-
 private:
     void readFieldValueFromValidXmlDocument( QXmlStreamReader& xmlStream, PdmXmlFieldHandle* xmlFieldHandle );
     void writeFieldDataToValidXmlDocument( QXmlStreamWriter& xmlStream, PdmXmlFieldHandle* xmlFieldHandle );
 
 private:
     CmdFieldChangeExecData* m_commandData;
-    bool                    m_enableFieldChanged;
 };
 
 } // end namespace caf
