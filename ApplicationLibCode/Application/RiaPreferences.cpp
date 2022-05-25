@@ -357,7 +357,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
     }
-    else if ( uiConfigName == RiaPreferences::tabNameEclipseGrid() )
+    else if ( uiConfigName == RiaPreferences::tabNameGrid() )
     {
         caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
         newCaseBehaviourGroup->add( &autocomputeDepthRelatedProperties );
@@ -365,7 +365,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         m_readerSettings->uiOrdering( uiConfigName, *newCaseBehaviourGroup );
     }
-    else if ( uiConfigName == RiaPreferences::tabNameEclipseSummary() )
+    else if ( uiConfigName == RiaPreferences::tabNameSummary() )
     {
         m_summaryPreferences->appendRestartFileGroup( uiOrdering );
 
@@ -377,16 +377,20 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
-        uiOrdering.add( &m_dateFormat );
-        uiOrdering.add( &m_timeFormat );
+        caf::PdmUiGroup* summaryGrp = uiOrdering.addNewGroup( "Summary Plots" );
 
-        summaryPreferences()->appendItemsToPlottingGroup( uiOrdering );
+        summaryPreferences()->appendItemsToPlottingGroup( *summaryGrp );
 
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
+        caf::PdmUiGroup* group = summaryGrp->addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
         group->add( &m_searchPlotTemplateFoldersRecursively );
 
-        caf::PdmUiGroup* pageSetup = uiOrdering.addNewGroup( "Page Setup" );
+        caf::PdmUiGroup* generalGrp = uiOrdering.addNewGroup( "General" );
+
+        generalGrp->add( &m_dateFormat );
+        generalGrp->add( &m_timeFormat );
+
+        caf::PdmUiGroup* pageSetup = generalGrp->addNewGroup( "Page Setup" );
         pageSetup->add( &m_pageSize );
         pageSetup->add( &m_pageOrientation, false );
         pageSetup->add( &m_pageLeftMargin );
@@ -394,7 +398,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         pageSetup->add( &m_pageTopMargin );
         pageSetup->add( &m_pageBottomMargin, false );
 
-        uiOrdering.add( &m_useQtChartsPlotByDefault );
+        generalGrp->add( &m_useQtChartsPlotByDefault );
         m_useQtChartsPlotByDefault.uiCapability()->setUiHidden( true );
 
         QString unitLabel = " [mm]";
@@ -431,15 +435,15 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         m_geoMechPreferences()->appendItems( uiOrdering );
     }
 #endif
-    else if ( uiConfigName == RiaPreferences::tabNameExport() )
+    else if ( uiConfigName == RiaPreferences::tabNameImportExport() )
     {
-        uiOrdering.add( &csvTextExportFieldSeparator );
-        uiOrdering.add( &m_openExportedPdfInViewer );
-    }
-    else if ( uiConfigName == RiaPreferences::tabNameImport() )
-    {
-        uiOrdering.add( &m_surfaceImportResamplingDistance );
-        uiOrdering.add( &m_multiLateralWellPattern );
+        caf::PdmUiGroup* importGroup = uiOrdering.addNewGroup( "Import" );
+        importGroup->add( &m_surfaceImportResamplingDistance );
+        importGroup->add( &m_multiLateralWellPattern );
+
+        caf::PdmUiGroup* exportGroup = uiOrdering.addNewGroup( "Export" );
+        exportGroup->add( &csvTextExportFieldSeparator );
+        exportGroup->add( &m_openExportedPdfInViewer );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -509,10 +513,13 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_pageTopMargin    = defaultMarginSize( m_pageSize() );
         m_pageBottomMargin = defaultMarginSize( m_pageSize() );
     }
-
-    if ( changedField == &m_guiTheme )
+    else if ( changedField == &m_guiTheme )
     {
         RiuGuiTheme::updateGuiTheme( m_guiTheme() );
+    }
+    else
+    {
+        m_summaryPreferences->fieldChangedByUi( changedField, oldValue, newValue );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -526,17 +533,17 @@ QString RiaPreferences::tabNameGeneral()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameEclipseGrid()
+QString RiaPreferences::tabNameGrid()
 {
-    return "Eclipse Grid";
+    return "Grid";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameEclipseSummary()
+QString RiaPreferences::tabNameSummary()
 {
-    return "Eclipse Summary";
+    return "Summary";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -566,14 +573,6 @@ QString RiaPreferences::tabNameScripting()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameExport()
-{
-    return "Export";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNameSystem()
 {
     return "System";
@@ -582,9 +581,9 @@ QString RiaPreferences::tabNameSystem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameImport()
+QString RiaPreferences::tabNameImportExport()
 {
-    return "Import";
+    return "Import/Export";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -611,15 +610,14 @@ QStringList RiaPreferences::tabNames()
     QStringList names;
 
     names << tabNameGeneral();
-    names << tabNameEclipseGrid();
-    names << tabNameEclipseSummary();
+    names << tabNameGrid();
+    names << tabNameSummary();
     names << tabNamePlotting();
     names << tabNameScripting();
 #ifdef USE_ODB_API
     names << tabNameGeomech();
 #endif
-    names << tabNameExport();
-    names << tabNameImport();
+    names << tabNameImportExport();
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {

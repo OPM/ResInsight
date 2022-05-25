@@ -1320,7 +1320,7 @@ RimMeasurement* RimProject::measurement() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotTemplateFolderItem* RimProject::rootPlotTemlateItem() const
+RimPlotTemplateFolderItem* RimProject::rootPlotTemplateItem() const
 {
     return m_plotTemplateTopFolder;
 }

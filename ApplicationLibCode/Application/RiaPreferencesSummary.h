@@ -19,10 +19,14 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include "RiaDefines.h"
+
+#include <QString>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -56,6 +60,14 @@ public:
     };
     using SummaryHistoryCurveStyleModeType = caf::AppEnum<SummaryHistoryCurveStyleMode>;
 
+    enum class DefaultSummaryPlotType
+    {
+        NONE,
+        DATA_VECTORS,
+        PLOT_TEMPLATES
+    };
+    using DefaultSummaryPlotEnum = caf::AppEnum<DefaultSummaryPlotType>;
+
     using ColumnCountEnum = caf::AppEnum<RiaDefines::ColumnCount>;
     using RowCountEnum    = caf::AppEnum<RiaDefines::RowCount>;
 
@@ -70,6 +82,12 @@ public:
 
     bool createH5SummaryDataFiles() const;
     int  createH5SummaryDataThreadCount() const;
+
+    DefaultSummaryPlotType defaultSummaryPlotType() const;
+    std::vector<QString>   defaultSummaryPlotTemplates() const;
+    bool                   isDefaultSummaryPlotTemplate( QString filename ) const;
+    void                   addToDefaultPlotTemplates( QString filename );
+    void                   removeFromDefaultPlotTemplates( QString filename );
 
     void appendRestartFileGroup( caf::PdmUiOrdering& uiOrdering ) const;
     void appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const;
@@ -92,6 +110,7 @@ public:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -99,6 +118,10 @@ protected:
                                                          bool*                      useOptionsOnly ) override;
 
 private:
+    caf::PdmField<DefaultSummaryPlotEnum> m_defaultSummaryPlot;
+    caf::PdmField<bool>                   m_selectDefaultTemplates;
+    caf::PdmField<std::vector<QString>>   m_selectedDefaultTemplates;
+
     caf::PdmField<bool>                              m_summaryRestartFilesShowImportDialog;
     caf::PdmField<SummaryRestartFilesImportModeType> m_summaryImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType> m_gridImportMode;

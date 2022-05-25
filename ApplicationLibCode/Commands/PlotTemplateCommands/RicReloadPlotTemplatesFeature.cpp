@@ -36,7 +36,7 @@ void RicReloadPlotTemplatesFeature::rebuildFromDisc()
     RiaPreferences* prefs = RiaPreferences::current();
 
     proj->setPlotTemplateFolders( prefs->plotTemplateFolders() );
-    proj->rootPlotTemlateItem()->updateConnectedEditors();
+    proj->rootPlotTemplateItem()->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
