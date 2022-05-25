@@ -54,6 +54,8 @@
 
 #include <QValidator>
 
+#include <limits>
+
 namespace caf
 {
 template <>
@@ -900,6 +902,45 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
             mainGrid->ijkFromCellIndexUnguarded( cIdx, &ni, &nj, &nk );
             if ( mainGrid->isCellValid( ni, nj, nk ) ) return static_cast<int>( nk );
         }
+    }
+
+    auto findKLayerBelowPoint = []( const cvf::Vec3d& point, RigMainGrid* mainGrid ) {
+        // Create a bounding box (ie a ray) from the point down to minimum of grid
+        cvf::Vec3d lowestPoint( point.x(), point.y(), mainGrid->boundingBox().min().z() );
+
+        cvf::BoundingBox rayBBox;
+        rayBBox.add( point );
+        rayBBox.add( lowestPoint );
+
+        // Find the cells intersecting the ray
+        std::vector<size_t> allCellIndices;
+        mainGrid->findIntersectingCells( rayBBox, &allCellIndices );
+
+        // Get the minimum K layer index
+        int  minK    = std::numeric_limits<int>::max();
+        bool anyHits = false;
+        for ( size_t cIdx : allCellIndices )
+        {
+            if ( cIdx != cvf::UNDEFINED_SIZE_T )
+            {
+                size_t ni, nj, nk;
+                mainGrid->ijkFromCellIndexUnguarded( cIdx, &ni, &nj, &nk );
+                if ( mainGrid->isCellValid( ni, nj, nk ) )
+                {
+                    anyHits = true;
+                    minK    = std::min( minK, static_cast<int>( nk ) );
+                }
+            }
+        }
+
+        return anyHits ? minK : -1;
+    };
+
+    // shoot a ray down from each point to try to find a valid hit there
+    for ( size_t p = 0; p < points.size() - 1; p++ )
+    {
+        int k = findKLayerBelowPoint( points[p], data->mainGrid() );
+        if ( k != -1 ) return k;
     }
 
     // loop over all sub-grids to find one with a cell hit in case main grid search failed
