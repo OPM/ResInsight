@@ -42,39 +42,38 @@
 
 namespace caf
 {
-CAF_PDM_SOURCE_INIT( CmdFieldChangeExecData, "CmdFieldChangeExecData" );
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QString CmdFieldChangeExec::name()
 {
-    PdmFieldHandle* field =
-        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
-    if ( field )
+    if ( !m_commandData->m_pathToField.empty() )
     {
-        QString fieldText;
-
-        PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
-        if ( uiFieldHandle )
+        PdmFieldHandle* field =
+            PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField.front() );
+        if ( field )
         {
-            fieldText = QString( "Change field '%1'" ).arg( uiFieldHandle->uiName() );
-        }
+            QString fieldText;
 
-        if ( field->ownerObject() )
-        {
-            PdmUiObjectHandle* uiObjHandle = uiObj( field->ownerObject() );
-            if ( uiObjHandle )
+            PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
+            if ( uiFieldHandle )
             {
-                fieldText += QString( " in '%1'" ).arg( uiObjHandle->uiName() );
+                fieldText = QString( "Change field '%1'" ).arg( uiFieldHandle->uiName() );
             }
+
+            if ( field->ownerObject() )
+            {
+                PdmUiObjectHandle* uiObjHandle = uiObj( field->ownerObject() );
+                if ( uiObjHandle )
+                {
+                    fieldText += QString( " in '%1'" ).arg( uiObjHandle->uiName() );
+                }
+            }
+            return fieldText;
         }
-        return fieldText;
     }
-    else
-    {
-        return m_commandData->classKeyword();
-    }
+
+    return "Field Changed";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,87 +81,69 @@ QString CmdFieldChangeExec::name()
 //--------------------------------------------------------------------------------------------------
 void CmdFieldChangeExec::redo()
 {
-    PdmFieldHandle* field =
-        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
-    if ( !field )
-    {
-        CAF_ASSERT( false );
-        return;
-    }
+    m_commandData->m_undoFieldValueSerialized.resize( m_commandData->m_pathToField.size() );
 
-    PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
-    PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
-    if ( uiFieldHandle && xmlFieldHandle )
+    for ( size_t i = 0; i < m_commandData->m_pathToField.size(); i++ )
     {
-        if ( m_commandData->m_redoFieldValueSerialized.isEmpty() )
+        auto fieldTextPath = m_commandData->m_pathToField[i];
+        bool isLastField   = ( i == m_commandData->m_pathToField.size() - 1 );
+
+        PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, fieldTextPath );
+        if ( !field )
         {
-            // We end up here only when the user actually has done something in the actual living Gui editor.
-            {
-                QXmlStreamWriter xmlStream( &m_commandData->m_undoFieldValueSerialized );
-                writeFieldDataToValidXmlDocument( xmlStream, xmlFieldHandle );
-            }
-
-            // This function will notify field change, no need to explicitly call notification
-            // The ui value might be an index into the option entry cache, so we need to set the value
-            // and be aware of the option entries, and then serialize the actual field value we ended up with.
-
-            uiFieldHandle->setValueFromUiEditor( m_commandData->m_newUiValue, m_enableFieldChanged );
-
-            {
-                QXmlStreamWriter xmlStream( &m_commandData->m_redoFieldValueSerialized );
-                writeFieldDataToValidXmlDocument( xmlStream, xmlFieldHandle );
-            }
+            CAF_ASSERT( false );
+            return;
         }
-        else
+
+        PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
+        PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
+        if ( uiFieldHandle && xmlFieldHandle )
         {
-            QVariant oldFieldData = uiFieldHandle->toUiBasedQVariant();
-
-            QXmlStreamReader xmlStream( m_commandData->m_redoFieldValueSerialized );
-
-            readFieldValueFromValidXmlDocument( xmlStream, xmlFieldHandle );
-
-            QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
-
-            // New data is present in field, notify data changed
-            if ( m_enableFieldChanged ) uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
-        }
-    }
-
-    if ( m_enableFieldChanged && m_notificationCenter )
-    {
-        m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
-    }
-
-    if ( m_enableFieldChanged )
-    {
-        caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
-        PdmObjectHandle*               ownerOfChildArrayField = nullptr;
-
-        if ( !ownerOfChildArrayField || !childArrayFieldHandle )
-        {
-            ownerOfChildArrayField = field->ownerObject();
-            while ( ownerOfChildArrayField )
+            if ( m_commandData->m_undoFieldValueSerialized[i].isEmpty() )
             {
-                if ( ownerOfChildArrayField->parentField() )
+                // We end up here only when the user actually has done something in the actual living Gui editor.
                 {
-                    childArrayFieldHandle =
-                        dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
-                    ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
-
-                    if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
+                    QXmlStreamWriter xmlStream( &m_commandData->m_undoFieldValueSerialized[i] );
+                    writeFieldDataToValidXmlDocument( xmlStream, xmlFieldHandle );
                 }
-                else
+
+                // This function will notify field change, no need to explicitly call notification
+                // The ui value might be an index into the option entry cache, so we need to set the value
+                // and be aware of the option entries, and then serialize the actual field value we ended up with.
+
+                uiFieldHandle->setValueFromUiEditor( m_commandData->m_newUiValue, isLastField );
+
+                if ( m_commandData->m_redoFieldValueSerialized.isEmpty() )
                 {
-                    ownerOfChildArrayField = nullptr;
+                    QXmlStreamWriter xmlStream( &m_commandData->m_redoFieldValueSerialized );
+                    writeFieldDataToValidXmlDocument( xmlStream, xmlFieldHandle );
                 }
             }
-
-            if ( ownerOfChildArrayField && childArrayFieldHandle )
+            else
             {
-                std::vector<caf::PdmObjectHandle*> objs;
-                ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
+                QVariant oldFieldData = uiFieldHandle->toUiBasedQVariant();
+
+                QXmlStreamReader xmlStream( m_commandData->m_redoFieldValueSerialized );
+
+                readFieldValueFromValidXmlDocument( xmlStream, xmlFieldHandle );
+
+                QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
+
+                // New data is present in field, notify data changed
+                if ( isLastField )
+                {
+                    uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
+                    if ( m_notificationCenter )
+                        m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
+                }
             }
         }
+    }
+
+    if ( m_commandData->m_ownerOfChildArrayField && m_commandData->m_childArrayFieldHandle )
+    {
+        std::vector<caf::PdmObjectHandle*> objs;
+        m_commandData->m_ownerOfChildArrayField->onChildrenUpdated( m_commandData->m_childArrayFieldHandle, objs );
     }
 }
 
@@ -171,62 +152,43 @@ void CmdFieldChangeExec::redo()
 //--------------------------------------------------------------------------------------------------
 void CmdFieldChangeExec::undo()
 {
-    PdmFieldHandle* field =
-        PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, m_commandData->m_pathToField );
-    if ( !field )
+    for ( size_t i = 0; i < m_commandData->m_pathToField.size(); i++ )
     {
-        CAF_ASSERT( false );
-        return;
-    }
+        auto fieldTextPath = m_commandData->m_pathToField[i];
+        bool isLastField   = ( i == m_commandData->m_pathToField.size() - 1 );
 
-    PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
-    PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
-    if ( uiFieldHandle && xmlFieldHandle )
-    {
-        QXmlStreamReader xmlStream( m_commandData->m_undoFieldValueSerialized );
-        QVariant         oldFieldData = uiFieldHandle->toUiBasedQVariant();
+        PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, fieldTextPath );
 
-        readFieldValueFromValidXmlDocument( xmlStream, xmlFieldHandle );
-
-        QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
-
-        // New data is present in field, notify data changed
-        if ( m_enableFieldChanged ) uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
-    }
-
-    if ( m_notificationCenter && m_enableFieldChanged )
-        m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
-
-    if ( m_enableFieldChanged )
-    {
-        caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
-        PdmObjectHandle*               ownerOfChildArrayField = nullptr;
-
-        if ( !ownerOfChildArrayField || !childArrayFieldHandle )
+        if ( !field )
         {
-            ownerOfChildArrayField = field->ownerObject();
-            while ( ownerOfChildArrayField )
-            {
-                if ( ownerOfChildArrayField->parentField() )
-                {
-                    childArrayFieldHandle =
-                        dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
-                    ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
+            CAF_ASSERT( false );
+            return;
+        }
 
-                    if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
-                }
-                else
-                {
-                    ownerOfChildArrayField = nullptr;
-                }
-            }
+        PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
+        PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
+        if ( uiFieldHandle && xmlFieldHandle )
+        {
+            QXmlStreamReader xmlStream( m_commandData->m_undoFieldValueSerialized[i] );
+            QVariant         oldFieldData = uiFieldHandle->toUiBasedQVariant();
 
-            if ( ownerOfChildArrayField && childArrayFieldHandle )
+            readFieldValueFromValidXmlDocument( xmlStream, xmlFieldHandle );
+
+            QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
+
+            // New data is present in field, notify data changed
+            if ( isLastField )
             {
-                std::vector<caf::PdmObjectHandle*> objs;
-                ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
+                uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
+                if ( m_notificationCenter ) m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
             }
         }
+    }
+
+    if ( m_commandData->m_ownerOfChildArrayField && m_commandData->m_childArrayFieldHandle )
+    {
+        std::vector<caf::PdmObjectHandle*> objs;
+        m_commandData->m_ownerOfChildArrayField->onChildrenUpdated( m_commandData->m_childArrayFieldHandle, objs );
     }
 }
 

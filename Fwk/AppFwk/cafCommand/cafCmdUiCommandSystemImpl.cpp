@@ -72,6 +72,8 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
 
     caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
     PdmObjectHandle*               ownerOfChildArrayField = nullptr;
+    PdmObjectHandle*               rootObjHandle          = nullptr;
+    std::vector<QString>           fieldTextPaths;
 
     for ( size_t i = 0; i < fieldsToUpdate.size(); i++ )
     {
@@ -83,7 +85,7 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
 
             if ( fieldCurrentUiValue != newUiValue )
             {
-                PdmObjectHandle* rootObjHandle = PdmReferenceHelper::findRoot( field );
+                if ( !rootObjHandle ) rootObjHandle = PdmReferenceHelper::findRoot( field );
 
                 QString reference = PdmReferenceHelper::referenceFromRootToField( rootObjHandle, field );
                 if ( reference.isEmpty() )
@@ -112,24 +114,20 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
                     }
                 }
 
-                CmdFieldChangeExec* fieldChangeExec =
-                    new CmdFieldChangeExec( SelectionManager::instance()->notificationCenter() );
-
-                fieldChangeExec->commandData()->m_newUiValue  = newUiValue;
-                fieldChangeExec->commandData()->m_pathToField = reference;
-                fieldChangeExec->commandData()->m_rootObject  = rootObjHandle;
-
-                if ( fieldsToUpdate.size() > 1 && i > 0 && i < fieldsToUpdate.size() - 1 )
-                {
-                    // Disable field changes for all fields except the last to avoid multiple calls to fieldChanged that
-                    // can cause performance issues when many objects are manipulated at the same time
-                    fieldChangeExec->enableFieldChanged( false );
-                }
-
-                commands.push_back( fieldChangeExec );
+                fieldTextPaths.push_back( reference );
             }
         }
     }
+
+    CmdFieldChangeExec* fieldChangeExec = new CmdFieldChangeExec( SelectionManager::instance()->notificationCenter() );
+
+    fieldChangeExec->commandData()->m_newUiValue             = newUiValue;
+    fieldChangeExec->commandData()->m_pathToField            = fieldTextPaths;
+    fieldChangeExec->commandData()->m_rootObject             = rootObjHandle;
+    fieldChangeExec->commandData()->m_ownerOfChildArrayField = ownerOfChildArrayField;
+    fieldChangeExec->commandData()->m_childArrayFieldHandle  = childArrayFieldHandle;
+
+    commands.push_back( fieldChangeExec );
 
     if ( commands.size() == 1 )
     {

@@ -40,6 +40,8 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
+#include <vector>
+
 namespace caf
 {
 class PdmChildArrayFieldHandle;
@@ -47,28 +49,26 @@ class PdmChildArrayFieldHandle;
 //==================================================================================================
 ///
 //==================================================================================================
-class CmdFieldChangeExecData : public PdmObject
+class CmdFieldChangeExecData
 {
-    CAF_PDM_HEADER_INIT;
-
 public:
     CmdFieldChangeExecData()
+        : m_rootObject( nullptr )
+        , m_childArrayFieldHandle( nullptr )
+        , m_ownerOfChildArrayField( nullptr )
     {
-        CAF_PDM_InitObject( "CmdFieldChangeExecData uiName",
-                            "",
-                            "CmdFieldChangeExecData tooltip",
-                            "CmdFieldChangeExecData whatsthis" );
-
-        CAF_PDM_InitField( &m_pathToField, "PathToField", QString(), "PathToField", "", "PathToField tooltip", "PathToField whatsthis" );
     }
 
     caf::PdmPointer<PdmObjectHandle> m_rootObject;
 
-    PdmField<QString> m_pathToField;
-    QVariant          m_newUiValue; // QVariant coming from the UI
+    std::vector<QString> m_pathToField;
+    QVariant             m_newUiValue;
 
-    QString m_undoFieldValueSerialized;
-    QString m_redoFieldValueSerialized;
+    caf::PdmChildArrayFieldHandle* m_childArrayFieldHandle;
+    caf::PdmObjectHandle*          m_ownerOfChildArrayField;
+
+    std::vector<QString> m_undoFieldValueSerialized;
+    QString              m_redoFieldValueSerialized;
 };
 
 //==================================================================================================
