@@ -63,7 +63,7 @@ private:
     std::map<QPointer<RiuMultiPlotPage>, RiaDefines::MultiPlotPageUpdateType> m_plotPagesToUpdate;
     std::map<QPointer<RiuMultiPlotBook>, RiaDefines::MultiPlotPageUpdateType> m_plotBooksToUpdate;
 
-    std::vector<QPointer<RiuPlotWidget>> m_plotWidgetsToReplot;
+    std::set<QPointer<RiuPlotWidget>> m_plotWidgetsToReplot;
 
     QScopedPointer<QTimer> m_plotWindowUpdateTimer;
 };
