@@ -37,6 +37,7 @@
 #include "cafCmdFieldChangeExec.h"
 
 #include "cafNotificationCenter.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmReferenceHelper.h"
 
 namespace caf
@@ -131,6 +132,38 @@ void CmdFieldChangeExec::redo()
     {
         m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
     }
+
+    if ( m_enableFieldChanged )
+    {
+        caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
+        PdmObjectHandle*               ownerOfChildArrayField = nullptr;
+
+        if ( !ownerOfChildArrayField || !childArrayFieldHandle )
+        {
+            ownerOfChildArrayField = field->ownerObject();
+            while ( ownerOfChildArrayField )
+            {
+                if ( ownerOfChildArrayField->parentField() )
+                {
+                    childArrayFieldHandle =
+                        dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
+                    ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
+
+                    if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
+                }
+                else
+                {
+                    ownerOfChildArrayField = nullptr;
+                }
+            }
+
+            if ( ownerOfChildArrayField && childArrayFieldHandle )
+            {
+                std::vector<caf::PdmObjectHandle*> objs;
+                ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,6 +196,38 @@ void CmdFieldChangeExec::undo()
 
     if ( m_notificationCenter && m_enableFieldChanged )
         m_notificationCenter->notifyObserversOfDataChange( field->ownerObject() );
+
+    if ( m_enableFieldChanged )
+    {
+        caf::PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
+        PdmObjectHandle*               ownerOfChildArrayField = nullptr;
+
+        if ( !ownerOfChildArrayField || !childArrayFieldHandle )
+        {
+            ownerOfChildArrayField = field->ownerObject();
+            while ( ownerOfChildArrayField )
+            {
+                if ( ownerOfChildArrayField->parentField() )
+                {
+                    childArrayFieldHandle =
+                        dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
+                    ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
+
+                    if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
+                }
+                else
+                {
+                    ownerOfChildArrayField = nullptr;
+                }
+            }
+
+            if ( ownerOfChildArrayField && childArrayFieldHandle )
+            {
+                std::vector<caf::PdmObjectHandle*> objs;
+                ownerOfChildArrayField->onChildrenUpdated( childArrayFieldHandle, objs );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

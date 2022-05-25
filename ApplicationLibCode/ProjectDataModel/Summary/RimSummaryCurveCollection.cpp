@@ -129,7 +129,14 @@ void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle
 {
     if ( childArray == &m_curves )
     {
-        loadDataAndUpdate( true );
+        for ( RimSummaryCurve* curve : m_curves )
+        {
+            curve->updateCurveAppearance();
+        }
+
+        RimSummaryPlot* parentPlot;
+        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        parentPlot->plotWidget()->scheduleReplot();
     }
 }
 
