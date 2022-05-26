@@ -124,6 +124,25 @@ void RimSummaryCurveCollection::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                                                   std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_curves )
+    {
+        for ( RimSummaryCurve* curve : m_curves )
+        {
+            curve->updateCurveAppearance();
+        }
+
+        RimSummaryPlot* parentPlot;
+        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        parentPlot->plotWidget()->scheduleReplot();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::setParentPlotAndReplot( RiuPlotWidget* plot )
 {
     setParentPlotNoReplot( plot );

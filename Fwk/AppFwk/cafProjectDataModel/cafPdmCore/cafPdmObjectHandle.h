@@ -107,6 +107,8 @@ public:
                                  std::vector<caf::PdmObjectHandle*>& referringObjects );
 
     virtual void onChildAdded( caf::PdmFieldHandle* containerForNewObject ){};
+    virtual void onChildrenUpdated( PdmChildArrayFieldHandle*           childArray,
+                                    std::vector<caf::PdmObjectHandle*>& updatedObjects ){};
 
     virtual void
         handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ){};

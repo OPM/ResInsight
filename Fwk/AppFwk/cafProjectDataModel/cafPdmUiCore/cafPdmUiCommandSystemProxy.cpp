@@ -114,7 +114,7 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
 
         for ( auto fieldHandle : fieldsToUpdate )
         {
-            fieldHandle->uiCapability()->setValueFromUiEditor( newUiValue );
+            fieldHandle->uiCapability()->setValueFromUiEditor( newUiValue, true );
         }
     }
 }

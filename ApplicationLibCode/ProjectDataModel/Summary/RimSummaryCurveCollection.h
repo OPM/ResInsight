@@ -99,6 +99,9 @@ private:
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                            std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
+
 private:
     friend class RimSummaryCrossPlot;
     friend class RimSummaryPlot;
