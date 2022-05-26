@@ -40,10 +40,10 @@
 #include "cafCmdExecuteCommand.h"
 #include "cafCmdFeatureManager.h"
 #include "cafCmdFieldChangeExec.h"
-
+#include "cafPdmChildArrayField.h"
 #include "cafPdmFieldHandle.h"
+#include "cafPdmObjectHandle.h"
 #include "cafPdmUiObjectHandle.h"
-
 #include "cafSelectionManager.h"
 
 #include <QMenu>
@@ -71,45 +71,64 @@ void CmdUiCommandSystemImpl::fieldChangedCommand( const std::vector<PdmFieldHand
 
     std::vector<CmdExecuteCommand*> commands;
 
-    for ( size_t i = 0; i < fieldsToUpdate.size(); i++ )
+    PdmChildArrayFieldHandle* childArrayFieldHandle  = nullptr;
+    PdmObjectHandle*          ownerOfChildArrayField = nullptr;
+    PdmObjectHandle*          rootObjHandle          = nullptr;
+
+    auto firstField = fieldsToUpdate.front();
+    if ( firstField )
     {
-        PdmFieldHandle*   field         = fieldsToUpdate[i];
+        // Find the first childArrayField by traversing parent field and objects. Usually, the childArrayField is
+        // the parent, but in some cases when we change fields in a sub-object of the object we need to traverse
+        // more levels
+
+        ownerOfChildArrayField = firstField->ownerObject();
+        while ( ownerOfChildArrayField )
+        {
+            if ( ownerOfChildArrayField->parentField() )
+            {
+                childArrayFieldHandle =
+                    dynamic_cast<caf::PdmChildArrayFieldHandle*>( ownerOfChildArrayField->parentField() );
+                ownerOfChildArrayField = ownerOfChildArrayField->parentField()->ownerObject();
+
+                if ( childArrayFieldHandle && ownerOfChildArrayField ) break;
+            }
+            else
+            {
+                ownerOfChildArrayField = nullptr;
+            }
+        }
+
+        rootObjHandle = PdmReferenceHelper::findRoot( firstField );
+    }
+
+    std::vector<QString> pathsToFields;
+    for ( caf::PdmFieldHandle* field : fieldsToUpdate )
+    {
         PdmUiFieldHandle* uiFieldHandle = field->uiCapability();
         if ( uiFieldHandle )
         {
             QVariant fieldCurrentUiValue = uiFieldHandle->uiValue();
-
             if ( fieldCurrentUiValue != newUiValue )
             {
-                PdmObjectHandle* rootObjHandle = PdmReferenceHelper::findRoot( field );
-
-                QString reference = PdmReferenceHelper::referenceFromRootToField( rootObjHandle, field );
-                if ( reference.isEmpty() )
+                QString pathToField = PdmReferenceHelper::referenceFromRootToField( rootObjHandle, field );
+                if ( !pathToField.isEmpty() )
                 {
-                    CAF_ASSERT( false );
-                    return;
+                    pathsToFields.push_back( pathToField );
                 }
-
-                CmdFieldChangeExec* fieldChangeExec =
-                    new CmdFieldChangeExec( SelectionManager::instance()->notificationCenter() );
-
-                fieldChangeExec->commandData()->m_newUiValue  = newUiValue;
-                fieldChangeExec->commandData()->m_pathToField = reference;
-                fieldChangeExec->commandData()->m_rootObject  = rootObjHandle;
-
-                commands.push_back( fieldChangeExec );
             }
         }
     }
 
-    if ( commands.size() == 1 )
-    {
-        CmdExecCommandManager::instance()->processExecuteCommand( commands[0] );
-    }
-    else
-    {
-        CmdExecCommandManager::instance()->processExecuteCommandsAsMacro( commands );
-    }
+    auto* fieldChangeExec = new CmdFieldChangeExec( SelectionManager::instance()->notificationCenter() );
+
+    fieldChangeExec->commandData()->m_newUiValue             = newUiValue;
+    fieldChangeExec->commandData()->m_pathToFields           = pathsToFields;
+    fieldChangeExec->commandData()->m_rootObject             = rootObjHandle;
+    fieldChangeExec->commandData()->m_ownerOfChildArrayField = ownerOfChildArrayField;
+    fieldChangeExec->commandData()->m_childArrayFieldHandle  = childArrayFieldHandle;
+
+    CmdExecCommandManager::instance()->processExecuteCommand( fieldChangeExec );
 }
 
 //--------------------------------------------------------------------------------------------------
