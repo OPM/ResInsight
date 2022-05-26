@@ -204,6 +204,10 @@ std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFro
             if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() )
             {
                 auto* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
+                if ( !field ) continue;
+
+                if ( state == SelectionToggleType::TOGGLE_ON && field->value() ) continue;
+                if ( state == SelectionToggleType::TOGGLE_OFF && !field->value() ) continue;
 
                 fields.emplace_back( field );
             }
