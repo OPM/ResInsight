@@ -86,7 +86,7 @@ void RicSplitMultiPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicSplitMultiPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Split" );
+    actionToSetup->setText( "Split Into Single Curve Plots" );
 }
 
 //--------------------------------------------------------------------------------------------------
