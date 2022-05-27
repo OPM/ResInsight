@@ -103,11 +103,11 @@ public:
 
     virtual void setDeletable( bool isDeletable );
     virtual bool isDeletable() const;
-    virtual void onChildDeleted( caf::PdmChildArrayFieldHandle*           childArray,
+    virtual void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                  std::vector<caf::PdmObjectHandle*>& referringObjects );
 
     virtual void onChildAdded( caf::PdmFieldHandle* containerForNewObject ){};
-    virtual void onChildrenUpdated( caf::PdmChildArrayFieldHandle*           childArray,
+    virtual void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
                                     std::vector<caf::PdmObjectHandle*>& updatedObjects ){};
 
     virtual void
