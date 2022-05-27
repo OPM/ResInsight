@@ -478,11 +478,11 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
     appendPlotsToSummaryMultiPlot( summaryMultiPlot, plots );
 
     summaryMultiPlot->setDefaultRangeAggregationSteppingDimension();
-    summaryMultiPlot->zoomAll();
 
     plotCollection->updateAllRequiredEditors();
     summaryMultiPlot->loadDataAndUpdate();
     summaryMultiPlot->updateAllRequiredEditors();
+    summaryMultiPlot->zoomAll();
 
     if ( !plots.empty() )
     {
@@ -527,6 +527,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlo
 void RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot*                multiPlot,
                                                            const std::vector<RimSummaryPlot*>& plots )
 {
+    multiPlot->startBatchAddOperation();
     for ( auto plot : plots )
     {
         plot->revokeMdiWindowStatus();
@@ -535,9 +536,8 @@ void RicSummaryPlotBuilder::appendPlotsToSummaryMultiPlot( RimSummaryMultiPlot* 
 
         plot->resolveReferencesRecursively();
         plot->setShowWindow( true );
-
-        plot->loadDataAndUpdate();
     }
+    multiPlot->endBatchAddOperation();
 }
 
 //--------------------------------------------------------------------------------------------------

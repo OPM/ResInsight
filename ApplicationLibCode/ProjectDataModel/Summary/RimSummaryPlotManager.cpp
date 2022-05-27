@@ -403,24 +403,8 @@ void RimSummaryPlotManager::createNewPlot()
     auto plots = plotBuilder.createPlots();
     if ( m_createMultiPlot )
     {
-        {
-            auto summaryPlots = plotBuilder.createPlots();
-            RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
-        }
-
-        bool createStandardMultiPlot = false;
-        if ( createStandardMultiPlot )
-        {
-            // Code to generate a standard multi plot
-            std::vector<RimPlot*> plotsForMultiPlot;
-            for ( auto p : plots )
-            {
-                p->loadDataAndUpdate();
-                plotsForMultiPlot.push_back( dynamic_cast<RimPlot*>( p ) );
-            }
-
-            RicSummaryPlotBuilder::createAndAppendMultiPlot( plotsForMultiPlot );
-        }
+        auto summaryPlots = plotBuilder.createPlots();
+        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( summaryPlots );
     }
     else
     {
