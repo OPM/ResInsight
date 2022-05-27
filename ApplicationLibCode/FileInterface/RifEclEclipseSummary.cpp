@@ -65,7 +65,7 @@ bool RifEclEclipseSummary::open( const QString& headerFileName, RiaThreadSafeLog
 {
     assert( m_ecl_sum == nullptr );
 
-    m_ecl_sum = RifEclipseSummaryTools::openEclSum( headerFileName, false );
+    m_ecl_sum = RifEclipseSummaryTools::openEclSum( headerFileName, true );
     if ( m_ecl_sum )
     {
         m_timeSteps.clear();
