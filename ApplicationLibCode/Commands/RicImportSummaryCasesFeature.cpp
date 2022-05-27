@@ -135,12 +135,16 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
         addSummaryCases( *cases );
         if ( !cases->empty() && doCreateDefaultPlot )
         {
-            auto objectToSelect = RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { cases->back() }, {} );
-
-            if ( objectToSelect )
+            RimSummaryMultiPlot* plotToSelect = nullptr;
+            for ( auto sumCase : *cases )
             {
-                RiuPlotMainWindowTools::setExpanded( objectToSelect );
-                RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+                plotToSelect = RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { sumCase }, {} );
+            }
+
+            if ( plotToSelect )
+            {
+                RiuPlotMainWindowTools::setExpanded( plotToSelect );
+                RiuPlotMainWindowTools::selectAsCurrentItem( plotToSelect );
             }
         }
 
