@@ -40,6 +40,7 @@
 #include "RicfCommandObject.h"
 
 #include "CommandRouter/RimCommandRouter.h"
+#include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -65,6 +66,7 @@
 #include "RimOilField.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
+#include "RimScriptCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanModel.h"
@@ -1223,7 +1225,9 @@ void RiaApplication::applyPreferences()
     {
         this->project()->setScriptDirectories( m_preferences->scriptDirectories() );
         this->project()->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
-        this->project()->updateConnectedEditors();
+
+        project()->scriptCollection()->updateConnectedEditors();
+        project()->rootPlotTemplateItem()->updateConnectedEditors();
     }
 
     caf::ProgressInfoStatic::setEnabled( RiaPreferencesSystem::current()->showProgressBar() );
