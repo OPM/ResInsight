@@ -90,24 +90,24 @@ std::vector<time_t> RifHdf5SummaryReader::timeSteps() const
         double time_unit = 24 * 3600;
 
         using namespace std::chrono;
-        using TP      = time_point<system_clock>;
         using DoubSec = duration<double, seconds::period>;
+        using TP      = time_point<system_clock, DoubSec>;
 
         auto timeDeltasInDays = values( "TIME" );
 
-        std::vector<std::chrono::system_clock::time_point> timePoints;
+        // Add custom method to convert from time_point to time_t. The usual implementation of
+        // chrono::system_clock::to_time_t() uses nanoseconds which will overflow on data with
+        // long time spans.
+        auto convertTimePointToTimeT = []( const TP& value ) {
+            return std::chrono::duration_cast<std::chrono::seconds>( value.time_since_epoch() ).count();
+        };
 
-        TP startDat = std::chrono::system_clock::from_time_t( startDate() );
+        auto startDat = std::chrono::system_clock::from_time_t( startDate() );
 
-        timePoints.reserve( timeDeltasInDays.size() );
         for ( const auto& t : timeDeltasInDays )
         {
-            timePoints.push_back( startDat + duration_cast<TP::duration>( DoubSec( t * time_unit ) ) );
-        }
-
-        for ( const auto& d : timePoints )
-        {
-            auto timeAsTimeT = std::chrono::system_clock::to_time_t( d );
+            TP          timePoint   = startDat + duration_cast<TP::duration>( DoubSec( t * time_unit ) );
+            std::time_t timeAsTimeT = convertTimePointToTimeT( timePoint );
             times.push_back( timeAsTimeT );
         }
 
