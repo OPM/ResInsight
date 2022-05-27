@@ -383,6 +383,8 @@ void RimSummaryPlotManager::replaceCurves()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotManager::createNewPlot()
 {
+    if ( m_filterText().trimmed().isEmpty() ) return;
+
     std::vector<RimSummaryCase*>           summaryCases;
     std::vector<RimSummaryCaseCollection*> ensembles;
     findFilteredSummaryCasesAndEnsembles( summaryCases, ensembles );
