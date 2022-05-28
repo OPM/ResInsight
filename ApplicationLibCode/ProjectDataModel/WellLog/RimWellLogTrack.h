@@ -241,6 +241,8 @@ protected:
     // RimViewWindow overrides
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                            std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
 private:
     RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
@@ -372,4 +374,5 @@ private:
     double m_availablePropertyValueRangeMax;
     double m_availableDepthRangeMin;
     double m_availableDepthRangeMax;
+
 };
