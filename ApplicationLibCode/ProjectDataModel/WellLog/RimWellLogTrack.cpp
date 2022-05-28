@@ -1236,6 +1236,18 @@ bool RimWellLogTrack::isEmptyVisibleXRange() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                                         std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_curves )
+    {
+        loadDataAndUpdate();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::onLoadDataAndUpdate()
 {
     RimDepthTrackPlot* wellLogPlot = nullptr;
