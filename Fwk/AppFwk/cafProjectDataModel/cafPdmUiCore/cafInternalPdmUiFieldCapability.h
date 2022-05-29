@@ -18,7 +18,7 @@ public:
 public:
     QVariant                 uiValue() const override;
     void                     setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged ) override;
-    QList<PdmOptionItemInfo> valueOptions() const;
+    QList<PdmOptionItemInfo> valueOptions() const override;
 
     QVariant toUiBasedQVariant() const override;
 
