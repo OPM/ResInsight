@@ -471,11 +471,9 @@ void RimSummaryCurve::setIsEnsembleCurve( bool isEnsembleCurve )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                      bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options =
-        this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = this->RimPlotCurve::calculateValueOptions( fieldNeedingOptions );
     if ( !options.isEmpty() ) return options;
 
     if ( fieldNeedingOptions == &m_yValuesSummaryCase || fieldNeedingOptions == &m_xValuesSummaryCase )

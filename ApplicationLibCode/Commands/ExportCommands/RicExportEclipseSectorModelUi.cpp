@@ -436,8 +436,7 @@ void RicExportEclipseSectorModelUi::fieldChangedByUi( const caf::PdmFieldHandle*
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicExportEclipseSectorModelUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                          bool*                      useOptionsOnly )
+    RicExportEclipseSectorModelUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &selectedKeywords )

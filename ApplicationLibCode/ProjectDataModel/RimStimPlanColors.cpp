@@ -163,8 +163,7 @@ void RimStimPlanColors::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimStimPlanColors::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

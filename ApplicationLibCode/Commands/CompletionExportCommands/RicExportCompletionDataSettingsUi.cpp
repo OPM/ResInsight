@@ -276,8 +276,7 @@ void RicExportCompletionDataSettingsUi::fieldChangedByUi( const caf::PdmFieldHan
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicExportCompletionDataSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                              bool*                      useOptionsOnly )
+    RicExportCompletionDataSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &timeStep )
@@ -349,7 +348,7 @@ QList<caf::PdmOptionItemInfo>
 
     else
     {
-        options = RicCaseAndFileExportSettingsUi::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+        options = RicCaseAndFileExportSettingsUi::calculateValueOptions( fieldNeedingOptions );
     }
     return options;
 }

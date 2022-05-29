@@ -108,8 +108,7 @@ void RimFaciesProperties::clearFaciesCodeNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFaciesProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                          bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimFaciesProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_colorLegend )

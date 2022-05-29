@@ -823,7 +823,7 @@ void RiuSummaryVectorSelectionUi::fieldChangedByUi( const caf::PdmFieldHandle* c
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RiuSummaryVectorSelectionUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RiuSummaryVectorSelectionUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

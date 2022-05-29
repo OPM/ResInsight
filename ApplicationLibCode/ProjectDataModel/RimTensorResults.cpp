@@ -290,11 +290,9 @@ caf::PdmFieldHandle* RimTensorResults::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                       bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
 
     if ( fieldNeedingOptions == &m_resultFieldNameUiField )
     {

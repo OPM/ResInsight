@@ -178,14 +178,13 @@ void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimSummaryPlotSourceStepping::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RimSummaryPlotSourceStepping::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( ( fieldNeedingOptions == &m_includeEnsembleCasesForCaseStepping ) || ( fieldNeedingOptions == &m_stepDimension ) )
     {
-        return caf::PdmObject::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+        return caf::PdmObject::calculateValueOptions( fieldNeedingOptions );
     }
 
     if ( ( fieldNeedingOptions == &m_placeholderForLabel ) || ( fieldNeedingOptions == &m_indexLabel ) )
@@ -887,8 +886,7 @@ bool RimSummaryPlotSourceStepping::isYAxisStepping() const
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotSourceStepping::modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset, bool notifyChange )
 {
-    bool                          useOptionsOnly;
-    QList<caf::PdmOptionItemInfo> options = calculateValueOptions( valueField, &useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = calculateValueOptions( valueField );
     RimDataSourceSteppingTools::modifyCurrentIndex( valueField, options, indexOffset, notifyChange );
 }
 

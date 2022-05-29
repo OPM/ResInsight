@@ -368,11 +368,9 @@ const QString RimSummaryTimeAxisProperties::axisTitleText() const
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimSummaryTimeAxisProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RimSummaryTimeAxisProperties::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
 
     if ( fieldNeedingOptions == &m_dateFormat )
     {

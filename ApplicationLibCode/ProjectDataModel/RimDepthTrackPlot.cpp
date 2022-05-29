@@ -940,10 +940,9 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_depthType )
     {
@@ -976,7 +975,6 @@ QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const ca
         RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( &options );
     }
 
-    ( *useOptionsOnly ) = true;
     return options;
 }
 

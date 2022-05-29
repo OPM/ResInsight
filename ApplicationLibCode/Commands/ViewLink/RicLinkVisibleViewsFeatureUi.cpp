@@ -96,8 +96,7 @@ std::vector<RimGridView*> RicLinkVisibleViewsFeatureUi::masterViewCandidates() c
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicLinkVisibleViewsFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RicLinkVisibleViewsFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

@@ -137,8 +137,7 @@ public:
     double                            endMD() const override;
 
 protected:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,

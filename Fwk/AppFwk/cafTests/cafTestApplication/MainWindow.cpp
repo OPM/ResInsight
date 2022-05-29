@@ -199,8 +199,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions) override
     {
         QList<caf::PdmOptionItemInfo> options;
 
@@ -750,8 +749,7 @@ public:
         }
     }
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions) override
     {
         QList<caf::PdmOptionItemInfo> options;
 
@@ -793,8 +791,6 @@ public:
                                                          caf::AppEnum<TestEnumType>::fromIndex(i)));
             }
         }
-
-        if (useOptionsOnly) *useOptionsOnly = true;
 
         return options;
     }
@@ -942,8 +938,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions) override
     {
         QList<caf::PdmOptionItemInfo> options;
         if (&m_multiSelectList == fieldNeedingOptions)
@@ -969,8 +964,6 @@ public:
                 }
             }
         }
-
-        if (useOptionsOnly) *useOptionsOnly = true;
 
         return options;
     }

@@ -452,8 +452,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering( QString uiConfig
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                    bool*                      useOptionsOnly )
+    RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     CVF_ASSERT( m_uiMode != UI_MODE_NONE );
 

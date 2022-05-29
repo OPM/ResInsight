@@ -67,8 +67,7 @@ public:
     std::vector<RifEclipseSummaryAddress> summaryAddresses() const;
     void                                  setSummaryAddresses( std::vector<RifEclipseSummaryAddress> addresses );
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          updateAddressesUiField();
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle*          userDescriptionField() override;

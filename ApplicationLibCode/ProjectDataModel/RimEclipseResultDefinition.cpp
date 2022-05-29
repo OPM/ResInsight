@@ -654,7 +654,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -859,8 +859,6 @@ QList<caf::PdmOptionItemInfo>
             }
         }
     }
-
-    ( *useOptionsOnly ) = true;
 
     return options;
 }

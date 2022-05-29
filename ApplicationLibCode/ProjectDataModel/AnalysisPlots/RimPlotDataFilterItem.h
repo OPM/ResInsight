@@ -113,8 +113,7 @@ private:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle*          objectToggleField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     RigEnsembleParameter selectedEnsembleParameter() const;
 

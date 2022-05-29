@@ -44,8 +44,7 @@ public:
     RimEclipseCase* eclipseCase() const;
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     caf::PdmField<QString>                                 m_resultName;

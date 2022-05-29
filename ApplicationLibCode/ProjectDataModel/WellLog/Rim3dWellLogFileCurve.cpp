@@ -195,12 +195,11 @@ void Rim3dWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    Rim3dWellLogFileCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> Rim3dWellLogFileCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = Rim3dWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = Rim3dWellLogCurve::calculateValueOptions( fieldNeedingOptions );
 
     if ( !options.empty() ) return options;
 

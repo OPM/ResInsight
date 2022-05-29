@@ -697,12 +697,11 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
 
     if ( !options.empty() ) return options;
 

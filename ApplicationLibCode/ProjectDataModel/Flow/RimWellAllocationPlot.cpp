@@ -702,8 +702,7 @@ RimWellAllocationPlot::FlowType RimWellAllocationPlot::flowType()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellAllocationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

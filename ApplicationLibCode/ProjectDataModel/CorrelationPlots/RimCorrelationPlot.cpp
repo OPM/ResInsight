@@ -147,11 +147,9 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options =
-        RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_selectedParametersList )
     {

@@ -59,10 +59,10 @@ public:
 
     void setAlwaysRequired( bool enable );
 
-    void                  setEnableTitleTextSettings( bool enable );
-    void                  enableRangeSettings( bool enable );
-    void                  setNameForUnusedAxis();
-    void                  setNameAndAxis( const QString& objectName, const QString& axistTitle, RiaDefines::PlotAxis axis, int axisIndex = 0 );
+    void setEnableTitleTextSettings( bool enable );
+    void enableRangeSettings( bool enable );
+    void setNameForUnusedAxis();
+    void setNameAndAxis( const QString& objectName, const QString& axistTitle, RiaDefines::PlotAxis axis, int axisIndex = 0 );
     AxisTitlePositionType titlePosition() const override;
 
     int titleFontSize() const override;
@@ -126,8 +126,7 @@ protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     void                     updateOptionSensitivity();

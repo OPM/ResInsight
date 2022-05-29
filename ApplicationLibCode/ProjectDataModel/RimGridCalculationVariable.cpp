@@ -80,7 +80,7 @@ void RimGridCalculationVariable::defineUiOrdering( QString uiConfigName, caf::Pd
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimGridCalculationVariable::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimGridCalculationVariable::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -117,8 +117,6 @@ QList<caf::PdmOptionItemInfo>
 
         RimTools::timeStepsForCase( m_eclipseCase(), &options );
     }
-
-    if ( useOptionsOnly ) *useOptionsOnly = true;
 
     return options;
 }

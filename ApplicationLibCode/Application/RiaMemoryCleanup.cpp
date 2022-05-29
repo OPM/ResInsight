@@ -215,8 +215,7 @@ void RiaMemoryCleanup::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                       bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_case )

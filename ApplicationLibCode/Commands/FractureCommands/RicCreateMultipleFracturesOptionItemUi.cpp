@@ -125,8 +125,7 @@ void RicCreateMultipleFracturesOptionItemUi::fieldChangedByUi( const caf::PdmFie
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicCreateMultipleFracturesOptionItemUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                   bool*                      useOptionsOnly )
+    RicCreateMultipleFracturesOptionItemUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

@@ -112,8 +112,7 @@ QColor RimEquilibriumAxisAnnotation::color() const
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEquilibriumAxisAnnotation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RimEquilibriumAxisAnnotation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

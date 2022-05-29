@@ -213,8 +213,7 @@ void RimWellPathTieIn::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellPathTieIn::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                       bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellPathTieIn::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

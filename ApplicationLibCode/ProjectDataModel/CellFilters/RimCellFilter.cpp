@@ -250,12 +250,9 @@ const cvf::StructGridInterface* RimCellFilter::selectedGrid() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                    bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimCellFilter::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-
-    if ( useOptionsOnly ) ( *useOptionsOnly ) = true;
 
     if ( &m_gridIndex == fieldNeedingOptions )
     {

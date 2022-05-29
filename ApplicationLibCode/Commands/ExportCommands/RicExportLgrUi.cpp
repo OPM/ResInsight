@@ -188,8 +188,7 @@ void RicExportLgrUi::setDefaultValuesFromCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicExportLgrUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RicExportLgrUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

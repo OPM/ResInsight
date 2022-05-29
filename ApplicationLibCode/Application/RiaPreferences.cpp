@@ -456,11 +456,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
 
     if ( fieldNeedingOptions == &m_dateFormat )
     {

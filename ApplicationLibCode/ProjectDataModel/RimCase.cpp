@@ -206,8 +206,7 @@ void RimCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                              bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

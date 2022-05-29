@@ -85,8 +85,7 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle*          userDescriptionField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     std::set<RifEclipseSummaryAddress> addresses();
     std::set<RigEnsembleParameter>     ensembleParameters();

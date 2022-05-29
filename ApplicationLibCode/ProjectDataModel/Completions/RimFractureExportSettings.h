@@ -39,8 +39,7 @@ public:
     caf::PdmField<QString>            fileName;
     caf::PdmPtrField<RimEclipseCase*> caseToApply;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,

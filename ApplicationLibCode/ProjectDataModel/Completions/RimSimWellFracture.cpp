@@ -286,10 +286,9 @@ void RimSimWellFracture::defineEditorAttribute( const caf::PdmFieldHandle* field
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimSimWellFracture::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimFracture::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimFracture::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_branchIndex )
     {

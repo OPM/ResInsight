@@ -148,11 +148,8 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             }
         }
 
-        bool fromMenuOnly = true;
-        m_optionCache     = uiField()->valueOptions( &fromMenuOnly );
-        CAF_ASSERT( fromMenuOnly ); // Not supported
-
-        if ( !m_optionCache.isEmpty() && fromMenuOnly == true )
+        m_optionCache = uiField()->valueOptions();
+        if ( !m_optionCache.isEmpty() )
         {
             if ( !m_completer )
             {

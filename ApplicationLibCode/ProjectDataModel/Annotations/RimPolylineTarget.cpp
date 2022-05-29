@@ -95,8 +95,7 @@ void RimPolylineTarget::enableFullUpdate( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimPolylineTarget::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimPolylineTarget::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     return options;

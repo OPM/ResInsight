@@ -205,10 +205,9 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
 
     if ( m_geomCase )
     {

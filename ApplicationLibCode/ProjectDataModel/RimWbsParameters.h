@@ -58,8 +58,7 @@ public:
 
     caf::PdmField<ParameterSourceEnum>* sourceField( const RigWbsParameter& parameter ) const;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void loadDataAndUpdate();
 

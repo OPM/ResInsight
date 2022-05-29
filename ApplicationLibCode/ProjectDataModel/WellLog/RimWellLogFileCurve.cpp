@@ -359,12 +359,11 @@ void RimWellLogFileCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                          bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
     if ( options.size() > 0 ) return options;
 
     if ( fieldNeedingOptions == &m_wellPath )

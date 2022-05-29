@@ -117,7 +117,7 @@ void RicCreateEnsembleWellLogUi::defineUiOrdering( QString uiConfigName, caf::Pd
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicCreateEnsembleWellLogUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RicCreateEnsembleWellLogUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

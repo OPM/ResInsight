@@ -252,10 +252,9 @@ void RimWellDistributionPlotCollection::defineUiOrdering( QString uiConfigName, 
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimWellDistributionPlotCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                              bool*                      useOptionsOnly )
+    RimWellDistributionPlotCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_case )
     {
