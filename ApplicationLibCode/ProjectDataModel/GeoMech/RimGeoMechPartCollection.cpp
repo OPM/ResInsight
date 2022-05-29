@@ -69,7 +69,7 @@ void RimGeoMechPartCollection::syncWithCase( RimGeoMechCase* geoCase )
 
         if ( count != (int)m_parts.size() )
         {
-            m_parts.clearWithoutDelete();
+            m_parts.deleteChildren();
 
             for ( int i = 0; i < count; i++ )
             {

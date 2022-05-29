@@ -534,7 +534,7 @@ void RimSummaryTimeAxisProperties::appendAnnotation( RimPlotAxisAnnotation* anno
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::removeAllAnnotations()
 {
-    m_annotations.clearWithoutDelete();
+    m_annotations.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
