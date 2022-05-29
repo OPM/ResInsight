@@ -98,8 +98,7 @@ int RimEnsembleCurveFilterCollection::countActiveFilters() const
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEnsembleCurveFilterCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                             bool*                      useOptionsOnly )
+    RimEnsembleCurveFilterCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

@@ -1327,8 +1327,7 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimRegularLegendConfig::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     bool hasStimPlanParent         = false;
     bool hasEnsembleCurveSetParent = false;

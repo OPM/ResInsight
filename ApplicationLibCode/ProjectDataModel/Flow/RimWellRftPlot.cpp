@@ -328,7 +328,7 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
     m_selectedTimeSteps.v().clear();
 
     bool dummy             = false;
-    auto dataSourceOptions = calculateValueOptions( &m_selectedSources, &dummy );
+    auto dataSourceOptions = calculateValueOptions( &m_selectedSources );
     for ( const auto& dataSourceOption : dataSourceOptions )
     {
         if ( dataSourceOption.level() == 1 )
@@ -343,7 +343,7 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
 
     // This has to happen after the m_selectedSources is filled
     // because the available time steps is dependent on the selected sources.
-    auto timeStepOptions = calculateValueOptions( &m_selectedTimeSteps, &dummy );
+    auto timeStepOptions = calculateValueOptions( &m_selectedTimeSteps );
     for ( const auto& timeStepOption : timeStepOptions )
     {
         QDateTime timeStep = timeStepOption.value().toDateTime();
@@ -743,10 +743,9 @@ void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData( const RimObservedF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions );
 
     const QString simWellName = associatedSimWellName();
 

@@ -112,8 +112,7 @@ QString RimObservedSummaryData::customWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimObservedSummaryData::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimObservedSummaryData::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     if ( fieldNeedingOptions == &m_summaryCategory )
     {
@@ -128,7 +127,7 @@ QList<caf::PdmOptionItemInfo>
         return options;
     }
 
-    return RimSummaryCase::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    return RimSummaryCase::calculateValueOptions( fieldNeedingOptions );
 }
 
 //--------------------------------------------------------------------------------------------------

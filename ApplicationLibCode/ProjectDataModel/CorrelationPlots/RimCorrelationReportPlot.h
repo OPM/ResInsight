@@ -32,7 +32,7 @@ class RimCorrelationMatrixPlot;
 class RimParameterResultCrossPlot;
 class RimSummaryCaseCollection;
 class RimCorrelationPlot;
-class RiaSummaryCurveDefinition;	
+class RiaSummaryCurveDefinition;
 
 class RiuMultiPlotPage;
 
@@ -74,8 +74,7 @@ private:
     void     childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void     doUpdateLayout() override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          onDataSelection( const caf::SignalEmitter*                     emitter,
                                                    std::pair<QString, RiaSummaryCurveDefinition> parameterAndCurveDef );
 

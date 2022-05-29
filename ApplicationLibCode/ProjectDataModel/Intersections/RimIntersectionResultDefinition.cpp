@@ -409,8 +409,7 @@ void RimIntersectionResultDefinition::setDefaultEclipseLegendConfig()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimIntersectionResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                            bool*                      useOptionsOnly )
+    RimIntersectionResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

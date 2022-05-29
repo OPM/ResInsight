@@ -495,8 +495,7 @@ void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                  bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

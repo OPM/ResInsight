@@ -159,9 +159,8 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
     m_listView->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
     m_listView->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-    bool                     optionsOnly = true;
-    QList<PdmOptionItemInfo> options     = uiField()->valueOptions( &optionsOnly );
-    m_optionItemCount                    = options.size();
+    QList<PdmOptionItemInfo> options = uiField()->valueOptions();
+    m_optionItemCount                = options.size();
     if ( options.size() > 0 || uiField()->isUiReadOnly( uiConfigName ) )
     {
         m_isEditOperationsAvailable = false;
@@ -194,8 +193,6 @@ void PdmUiListEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( !options.isEmpty() )
     {
-        CAF_ASSERT( optionsOnly ); // Handling Additions on the fly not implemented
-
         strListModel->setItemsEditable( false );
         QModelIndex currentItem = m_listView->selectionModel()->currentIndex();
         QStringList texts       = PdmOptionItemInfo::extractUiTexts( options );

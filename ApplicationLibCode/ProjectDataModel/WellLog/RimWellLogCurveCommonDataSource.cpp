@@ -791,8 +791,7 @@ void RimWellLogCurveCommonDataSource::fieldChangedByUi( const caf::PdmFieldHandl
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimWellLogCurveCommonDataSource::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                            bool*                      useOptionsOnly )
+    RimWellLogCurveCommonDataSource::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -1076,6 +1075,6 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
 void RimWellLogCurveCommonDataSource::modifyCurrentIndex( caf::PdmValueField* field, int indexOffset )
 {
     bool                          useOptionsOnly;
-    QList<caf::PdmOptionItemInfo> options = calculateValueOptions( field, &useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = calculateValueOptions( field );
     RimDataSourceSteppingTools::modifyCurrentIndex( field, options, indexOffset );
 }

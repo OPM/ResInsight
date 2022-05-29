@@ -185,11 +185,10 @@ private:
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    QList<caf::PdmOptionItemInfo>          calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                  bool*                      useOptionsOnly ) override;
-    std::set<time_t>                       allAvailableTimeSteps();
-    std::set<RimSummaryCase*>              timestepDefiningSourceCases();
-    RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
+    QList<caf::PdmOptionItemInfo>      calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    std::set<time_t>                   allAvailableTimeSteps();
+    std::set<RimSummaryCase*>          timestepDefiningSourceCases();
+    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

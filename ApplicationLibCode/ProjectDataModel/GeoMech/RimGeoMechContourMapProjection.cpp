@@ -615,8 +615,7 @@ void RimGeoMechContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimGeoMechContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                           bool*                      useOptionsOnly )
+    RimGeoMechContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

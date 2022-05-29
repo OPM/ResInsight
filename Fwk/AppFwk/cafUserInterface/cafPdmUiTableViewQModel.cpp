@@ -221,9 +221,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
                 if ( !valuesSelectedInField.empty() )
                 {
                     QList<PdmOptionItemInfo> options;
-                    bool                     useOptionsOnly = true;
-                    options                                 = uiFieldHandle->valueOptions( &useOptionsOnly );
-                    CAF_ASSERT( useOptionsOnly ); // Not supported
+                    options = uiFieldHandle->valueOptions();
 
                     for ( const QVariant& v : valuesSelectedInField )
                     {
@@ -244,7 +242,7 @@ QVariant PdmUiTableViewQModel::data( const QModelIndex& index, int role /*= Qt::
             }
 
             bool                     useOptionsOnly = true;
-            QList<PdmOptionItemInfo> valueOptions   = uiFieldHandle->valueOptions( &useOptionsOnly );
+            QList<PdmOptionItemInfo> valueOptions   = uiFieldHandle->valueOptions();
             CAF_ASSERT( useOptionsOnly ); // Not supported
 
             if ( !valueOptions.isEmpty() )

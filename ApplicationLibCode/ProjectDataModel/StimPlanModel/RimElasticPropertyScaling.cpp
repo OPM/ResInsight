@@ -65,7 +65,7 @@ RimElasticPropertyScaling::~RimElasticPropertyScaling()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimElasticPropertyScaling::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimElasticPropertyScaling::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_formation )
@@ -95,8 +95,6 @@ QList<caf::PdmOptionItemInfo>
                 caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveProperty>::uiText( property ), property ) );
         }
     }
-
-    if ( useOptionsOnly ) *useOptionsOnly = true;
 
     return options;
 }

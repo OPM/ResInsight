@@ -240,8 +240,7 @@ void RimDerivedEnsembleCaseCollection::onLoadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimDerivedEnsembleCaseCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                             bool*                      useOptionsOnly )
+    RimDerivedEnsembleCaseCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

@@ -57,8 +57,7 @@ public:
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     RigCaseCellResultsData*       currentGridCellResults() const;
     QStringList                   getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
                                                                const RigCaseCellResultsData* results );

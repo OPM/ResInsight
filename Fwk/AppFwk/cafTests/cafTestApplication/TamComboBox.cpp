@@ -19,8 +19,7 @@ TamComboBox::TamComboBox()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> TamComboBox::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo> TamComboBox::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions)
 {
     QList<caf::PdmOptionItemInfo> options;
 

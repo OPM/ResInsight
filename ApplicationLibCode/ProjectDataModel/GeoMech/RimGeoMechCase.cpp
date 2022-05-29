@@ -1178,12 +1178,11 @@ void RimGeoMechCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = RimCase::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = RimCase::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_elementPropertyFileNameIndexUiSelection )
     {

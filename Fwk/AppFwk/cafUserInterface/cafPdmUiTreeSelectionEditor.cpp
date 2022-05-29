@@ -178,8 +178,7 @@ void PdmUiTreeSelectionEditor::configureAndUpdateUi( const QString& uiConfigName
         m_treeView->setModel( m_proxyModel );
     }
 
-    bool                     optionsOnly = true;
-    QList<PdmOptionItemInfo> options     = uiField()->valueOptions( &optionsOnly );
+    QList<PdmOptionItemInfo> options = uiField()->valueOptions();
 
     bool itemCountHasChaged = false;
     if ( m_model->optionItemCount() != options.size() ) itemCountHasChaged = true;

@@ -514,8 +514,7 @@ void RimViewLinker::notifyManagedViewChange( RimGridView* oldManagedView, RimGri
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                    bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

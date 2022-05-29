@@ -190,8 +190,7 @@ void RimCellEdgeColors::EdgeFaceEnum::setUp()
 ///
 //--------------------------------------------------------------------------------------------------
 
-QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     if ( fieldNeedingOptions == &m_resultVariable )
     {
@@ -254,8 +253,6 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
             }
 
             options.push_front( caf::PdmOptionItemInfo( RiaResultNames::undefinedResultName(), "" ) );
-
-            if ( useOptionsOnly ) *useOptionsOnly = true;
 
             return options;
         }

@@ -516,7 +516,7 @@ void RimSimWellInViewCollection::fieldChangedByUi( const caf::PdmFieldHandle* ch
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimSimWellInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimSimWellInViewCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -559,8 +559,6 @@ QList<caf::PdmOptionItemInfo>
                 options.push_back( optionItem );
             }
         }
-
-        if ( useOptionsOnly ) *useOptionsOnly = true;
     }
     else if ( fieldNeedingOptions == &m_wellDiskSummaryCase )
     {

@@ -18,7 +18,7 @@ public:
 public:
     QVariant                 uiValue() const override;
     void                     setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged ) override;
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override;
+    QList<PdmOptionItemInfo> valueOptions() const;
 
     QVariant toUiBasedQVariant() const override;
 
@@ -49,7 +49,7 @@ public:
 public:
     QVariant                 uiValue() const override { return QVariant(); }
     void                     setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged ) override {}
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override { return QList<PdmOptionItemInfo>(); }
+    QList<PdmOptionItemInfo> valueOptions() const override { return QList<PdmOptionItemInfo>(); }
 
     QVariant toUiBasedQVariant() const override { return QVariant(); }
 };
@@ -72,7 +72,7 @@ public:
 public:
     QVariant                 uiValue() const override { return QVariant(); }
     void                     setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged ) override {}
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override { return QList<PdmOptionItemInfo>(); }
+    QList<PdmOptionItemInfo> valueOptions() const override { return QList<PdmOptionItemInfo>(); }
 
     QVariant toUiBasedQVariant() const override { return QVariant(); }
 };
