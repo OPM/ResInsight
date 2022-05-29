@@ -52,7 +52,7 @@ void RicDeleteItemExec::redo()
     if ( listField )
     {
         std::vector<caf::PdmObjectHandle*> children;
-        listField->children( &children );
+        listField->children();
 
         caf::PdmObjectHandle* obj = children[m_commandData.m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );

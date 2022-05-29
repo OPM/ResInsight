@@ -259,11 +259,11 @@ void PdmChildArrayField<DataType*>::removeChild( PdmObjectHandle* object )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<DataType*> caf::PdmChildArrayField<DataType*>::children() const
+std::vector<PdmObjectHandle*> caf::PdmChildArrayField<DataType*>::children() 
 {
-    std::vector<DataType*> objects;
+    std::vector<PdmObjectHandle*> objects;
 
-    for ( DataType* p : m_pointers )
+    for ( auto p : m_pointers )
     {
         if ( p != nullptr )
         {
@@ -274,6 +274,7 @@ std::vector<DataType*> caf::PdmChildArrayField<DataType*>::children() const
     return objects;
 }
 
+/*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -287,6 +288,7 @@ void PdmChildArrayField<DataType*>::children( std::vector<PdmObjectHandle*>* obj
         objects->push_back( m_pointers[i].rawPtr() );
     }
 }
+*/
 
 //--------------------------------------------------------------------------------------------------
 ///

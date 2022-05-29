@@ -292,7 +292,7 @@ TEST( BaseTest, PdmChildArrayField )
 
     // childObjects
     std::vector<caf::PdmObjectHandle*> objects;
-    ihd1->m_childArrayField.children( &objects );
+    ihd1->m_childArrayField.children();
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
     std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.children();
@@ -474,7 +474,7 @@ TEST( BaseTest, PdmChildField )
         EXPECT_TRUE( c2 == a.field2 );
 
         std::vector<caf::PdmObjectHandle*> objects;
-        a.field2.children( &objects );
+        a.field2.children();
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( c2, objects[0] );
     }

@@ -359,7 +359,7 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
         PdmFieldHandle* field = fields[fIdx];
         if ( field )
         {
-            field->children( &children );
+            field->children();
 
             bool resolvedOk = field->xmlCapability()->resolveReferences();
             if ( fieldWithFailingResolve && !resolvedOk )

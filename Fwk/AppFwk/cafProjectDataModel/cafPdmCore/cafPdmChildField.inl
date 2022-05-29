@@ -9,15 +9,16 @@ namespace caf
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void caf::PdmChildField<DataType*>::children( std::vector<PdmObjectHandle*>* objects )
+std::vector<PdmObjectHandle*> caf::PdmChildField<DataType*>::children()
 {
-    CAF_ASSERT( objects );
     PdmObjectHandle* obj = m_fieldValue.rawPtr();
-    if ( obj )
+    if (obj)
     {
-        objects->push_back( obj );
+        return { obj };
     }
-}
+
+    return {};
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -84,7 +85,7 @@ caf::PdmChildField<DataType*>::~PdmChildField()
 /// External use should be considered deprecated.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( const DataTypePtr& fieldValue )
+caf::PdmChildField<DataType*>& caf::PdmChildField<DataType*>::operator=( const DataTypePtr& fieldValue )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -99,7 +100,7 @@ caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( const DataTy
 /// This should be preferred over the method taking a raw pointer
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-caf::PdmChildField<DataType*>& PdmChildField<DataType*>::operator=( DataTypeUniquePtr fieldValue )
+caf::PdmChildField<DataType*>& caf::PdmChildField<DataType*>::operator=( DataTypeUniquePtr fieldValue )
 {
     return this->operator=( fieldValue.release() );
 }

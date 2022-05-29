@@ -21,8 +21,7 @@ class PdmFieldXmlCap;
 class PdmChildFieldHandle : public PdmFieldHandle
 {
 public:
-    virtual void children( std::vector<PdmObjectHandle*>* objects ) = 0;
-    virtual void setChildObject( PdmObjectHandle* object )          = 0;
+    virtual void setChildObject( PdmObjectHandle* object ) = 0;
 };
 
 template <typename DataType>
@@ -67,9 +66,9 @@ public:
     const PdmPointer<DataType>& v() const { return m_fieldValue; }
 
     // Child objects
-    virtual void children( std::vector<PdmObjectHandle*>* objects ) override;
-    void         setChildObject( PdmObjectHandle* object ) override;
-    virtual void removeChild( PdmObjectHandle* object ) override;
+    std::vector<caf::PdmObjectHandle*> children() override;
+    void                               setChildObject( PdmObjectHandle* object ) override;
+    void                               removeChild( PdmObjectHandle* object ) override;
 
 private:
     PDM_DISABLE_COPY_AND_ASSIGN( PdmChildField );

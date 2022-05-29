@@ -80,7 +80,7 @@ void RicDeleteItemFeature::onActionTriggered( bool isChecked )
         int indexAfter = -1;
 
         std::vector<caf::PdmObjectHandle*> childObjects;
-        childArrayFieldHandle->children( &childObjects );
+        childArrayFieldHandle->children();
 
         for ( size_t i = 0; i < childObjects.size(); i++ )
         {

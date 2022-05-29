@@ -573,7 +573,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
         std::vector<PdmObjectHandle*> children;
-        reservoirViews.children( &children );
+        reservoirViews.children();
 
         for ( auto child : children )
             uiTreeOrdering.add( child );

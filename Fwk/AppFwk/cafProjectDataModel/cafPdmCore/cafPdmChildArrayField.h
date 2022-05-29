@@ -95,9 +95,9 @@ public:
     typename std::vector<PdmPointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
 
     // Child objects
-    std::vector<DataType*> children() const;
+    std::vector<caf::PdmObjectHandle*> children() override;
 
-    void children( std::vector<PdmObjectHandle*>* objects ) override;
+    // void children( std::vector<PdmObjectHandle*>* objects ) override;
     void removeChild( PdmObjectHandle* object ) override;
 
 private: // To be disabled

@@ -193,7 +193,7 @@ void PdmUiObjectHandle::expandUiTree( PdmUiTreeOrdering* root, const QString& ui
                  !root->field()->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
             {
                 std::vector<PdmObjectHandle*> fieldsChildObjects;
-                root->field()->children( &fieldsChildObjects );
+                root->field()->children();
                 for ( size_t cIdx = 0; cIdx < fieldsChildObjects.size(); ++cIdx )
                 {
                     PdmObjectHandle* childObject = fieldsChildObjects[cIdx];

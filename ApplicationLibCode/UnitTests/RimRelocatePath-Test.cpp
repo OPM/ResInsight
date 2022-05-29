@@ -39,7 +39,7 @@ void fieldsByType( caf::PdmObjectHandle* object, std::vector<T*>& typedFields )
             }
         }
 
-        field->children( &children );
+        field->children();
     }
 
     for ( const auto& child : children )

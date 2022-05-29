@@ -198,7 +198,7 @@ std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( PdmFi
                 for ( auto field : childFields )
                 {
                     std::vector<PdmObjectHandle*> childObjects;
-                    field->children( &childObjects );
+                    field->children();
                     for ( auto childObj : childObjects )
                     {
                         auto childFieldHandle = childObj->findField( fieldKeyword );

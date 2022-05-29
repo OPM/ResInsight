@@ -123,7 +123,7 @@ void CmdAddItemExec::undo()
     if ( listField && m_commandData->m_createdItemIndex >= 0 )
     {
         std::vector<caf::PdmObjectHandle*> children;
-        listField->children( &children );
+        listField->children();
 
         caf::PdmObjectHandle* obj = children[m_commandData->m_createdItemIndex];
 

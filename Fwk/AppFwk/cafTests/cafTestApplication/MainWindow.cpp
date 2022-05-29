@@ -761,7 +761,7 @@ public:
             std::vector<caf::PdmObjectHandle*> objects;
             field = this->parentField();
 
-            field->children(&objects);
+            field->children();
 
             for (size_t i = 0; i < objects.size(); ++i)
             {
