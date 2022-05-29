@@ -183,22 +183,21 @@ QVariant PdmFieldUiCap<FieldType>::uiValue() const
 //--------------------------------------------------------------------------------------------------
 
 template <typename FieldType>
-QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions( ) const
+QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
 {
     m_optionEntryCache.clear();
 
     // First check if the owner PdmObject has a value options specification. If it has, we use it.
     if ( m_field->ownerObject() )
     {
-        m_optionEntryCache = uiObj( m_field->ownerObject() )->calculateValueOptions( this->m_field);
+        m_optionEntryCache = uiObj( m_field->ownerObject() )->calculateValueOptions( this->m_field );
     }
 
     // If we got no options, use the options defined by the type. Normally only caf::AppEnum type
 
     if ( !m_optionEntryCache.size() )
     {
-        m_optionEntryCache =
-            PdmUiFieldSpecialization<typename FieldType::FieldDataType>::valueOptions( m_field->value() );
+        m_optionEntryCache = PdmUiFieldSpecialization<typename FieldType::FieldDataType>::valueOptions( m_field->value() );
     }
 
     if ( m_optionEntryCache.size() && isAutoAddingOptionFromValue() )
