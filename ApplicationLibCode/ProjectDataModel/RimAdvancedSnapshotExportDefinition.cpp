@@ -75,8 +75,7 @@ RimAdvancedSnapshotExportDefinition::~RimAdvancedSnapshotExportDefinition()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimAdvancedSnapshotExportDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly )
+    RimAdvancedSnapshotExportDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -135,8 +134,6 @@ QList<caf::PdmOptionItemInfo>
     {
         RimTools::caseOptionItems( &options );
     }
-
-    if ( useOptionsOnly ) *useOptionsOnly = true;
 
     return options;
 }

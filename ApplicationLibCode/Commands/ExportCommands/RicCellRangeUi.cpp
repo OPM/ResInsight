@@ -139,12 +139,9 @@ void RicCellRangeUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicCellRangeUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RicCellRangeUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-
-    if ( useOptionsOnly ) ( *useOptionsOnly ) = true;
 
     if ( &m_gridIndex == fieldNeedingOptions )
     {

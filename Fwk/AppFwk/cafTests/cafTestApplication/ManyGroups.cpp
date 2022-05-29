@@ -87,8 +87,7 @@ void ManyGroups::fieldChangedByUi(const caf::PdmFieldHandle* changedField, const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                bool*                      useOptionsOnly)
+QList<caf::PdmOptionItemInfo> ManyGroups::calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions)
 {
     QList<caf::PdmOptionItemInfo> options;
 

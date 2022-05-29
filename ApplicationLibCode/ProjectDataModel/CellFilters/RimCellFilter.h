@@ -80,8 +80,7 @@ protected:
 
     const cvf::StructGridInterface* selectedGrid() const;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     caf::PdmField<QString>                      m_name;
     caf::PdmProxyValueField<QString>            m_nameProxy;

@@ -592,8 +592,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -640,7 +639,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else
     {
-        options = RimIntersection::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+        options = RimIntersection::calculateValueOptions( fieldNeedingOptions );
     }
 
     return options;

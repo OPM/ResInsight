@@ -44,7 +44,7 @@ QVariant PdmUiFieldHandle::uiValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> PdmUiFieldHandle::valueOptions( bool* useOptionsOnly ) const
+QList<caf::PdmOptionItemInfo> PdmUiFieldHandle::valueOptions() const
 {
     return QList<PdmOptionItemInfo>();
 }

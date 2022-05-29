@@ -439,11 +439,9 @@ QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEclipseStatisticsCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if ( useOptionsOnly ) *useOptionsOnly = true;
 
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
     if ( !( caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData() ) )
@@ -515,7 +513,7 @@ QList<caf::PdmOptionItemInfo>
         return toOptionList( sourceCaseNames );
     }
 
-    if ( !options.size() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    if ( !options.size() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
 
     return options;
 }

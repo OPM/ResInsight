@@ -52,15 +52,12 @@ std::vector<int> RimPropertyFilter::selectedCategoryValues() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimPropertyFilter::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimPropertyFilter::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( &m_selectedCategoryValues == fieldNeedingOptions )
     {
-        if ( useOptionsOnly ) *useOptionsOnly = true;
-
         if ( m_categoryValues.size() == m_categoryNames.size() )
         {
             for ( size_t i = 0; i < m_categoryValues.size(); i++ )

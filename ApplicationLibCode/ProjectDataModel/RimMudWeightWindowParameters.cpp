@@ -564,8 +564,7 @@ void RimMudWeightWindowParameters::defineEditorAttribute( const caf::PdmFieldHan
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimMudWeightWindowParameters::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RimMudWeightWindowParameters::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

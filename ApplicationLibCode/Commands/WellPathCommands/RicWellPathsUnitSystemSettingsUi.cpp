@@ -34,8 +34,7 @@ RicWellPathsUnitSystemSettingsUi::RicWellPathsUnitSystemSettingsUi()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicWellPathsUnitSystemSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                             bool*                      useOptionsOnly )
+    RicWellPathsUnitSystemSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &unitSystem )

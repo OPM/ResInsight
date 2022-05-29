@@ -217,9 +217,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         m_comboBox->setEnabled( !uiField()->isUiReadOnly( uiConfigName ) );
         m_comboBox->setToolTip( uiField()->uiToolTip( uiConfigName ) );
 
-        bool                     fromMenuOnly = true;
-        QList<PdmOptionItemInfo> options      = uiField()->valueOptions( &fromMenuOnly );
-        CAF_ASSERT( fromMenuOnly ); // Not supported
+        QList<PdmOptionItemInfo> options = uiField()->valueOptions();
 
         m_comboBox->blockSignals( true );
         m_comboBox->clear();

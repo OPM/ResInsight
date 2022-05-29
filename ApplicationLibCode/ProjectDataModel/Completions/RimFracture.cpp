@@ -619,8 +619,7 @@ cvf::Vec3d RimFracture::fracturePositionForUi() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                  bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
