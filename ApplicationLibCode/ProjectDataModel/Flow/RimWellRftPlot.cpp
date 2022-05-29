@@ -327,7 +327,6 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
     m_selectedSources.v().clear();
     m_selectedTimeSteps.v().clear();
 
-    bool dummy             = false;
     auto dataSourceOptions = calculateValueOptions( &m_selectedSources );
     for ( const auto& dataSourceOption : dataSourceOptions )
     {
