@@ -321,17 +321,15 @@ void PdmXmlObjectHandle::initAfterReadRecursively( PdmObjectHandle* object )
     std::vector<PdmFieldHandle*> fields;
     object->fields( fields );
 
-    std::vector<PdmObjectHandle*> children;
-    size_t                        fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( auto field : fields )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
-    }
+        if ( !field ) continue;
 
-    size_t cIdx;
-    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
-    {
-        initAfterReadRecursively( children[cIdx] );
+        auto children = field->children();
+        for ( auto child : children )
+        {
+            initAfterReadRecursively( child );
+        }
     }
 
     PdmXmlObjectHandle* xmlObject = xmlObj( object );
@@ -404,17 +402,15 @@ void PdmXmlObjectHandle::setupBeforeSaveRecursively( PdmObjectHandle* object )
     std::vector<PdmFieldHandle*> fields;
     object->fields( fields );
 
-    std::vector<PdmObjectHandle*> children;
-    size_t                        fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( auto field : fields )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
-    }
+        if ( !field ) continue;
 
-    size_t cIdx;
-    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
-    {
-        setupBeforeSaveRecursively( children[cIdx] );
+        auto children = field->children();
+        for ( auto child : children )
+        {
+            setupBeforeSaveRecursively( child );
+        }
     }
 
     PdmXmlObjectHandle* xmlObject = xmlObj( object );

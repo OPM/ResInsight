@@ -265,30 +265,16 @@ std::vector<PdmObjectHandle*> caf::PdmChildArrayField<DataType*>::children()
 
     for ( auto p : m_pointers )
     {
-        if ( p != nullptr )
-        {
-            objects.push_back( p );
-        }
+        if (p.isNull()) continue;
+
+        auto rawPointer = p.rawPtr();
+        objects.push_back( rawPointer );
     }
 
     return objects;
 }
 
-/*
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-void PdmChildArrayField<DataType*>::children( std::vector<PdmObjectHandle*>* objects )
-{
-    if ( !objects ) return;
-    size_t i;
-    for ( i = 0; i < m_pointers.size(); ++i )
-    {
-        objects->push_back( m_pointers[i].rawPtr() );
-    }
-}
-*/
+
 
 //--------------------------------------------------------------------------------------------------
 ///

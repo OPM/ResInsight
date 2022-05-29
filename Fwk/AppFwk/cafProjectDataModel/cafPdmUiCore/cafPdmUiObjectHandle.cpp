@@ -123,8 +123,7 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrder
                 if ( fields[fIdx]->uiCapability()->isUiTreeHidden() &&
                      !fields[fIdx]->uiCapability()->isUiTreeChildrenHidden() )
                 {
-                    std::vector<PdmObjectHandle*> children;
-                    fields[fIdx]->children( &children );
+                    std::vector<PdmObjectHandle*> children = fields[fIdx]->children();
 
                     std::set<PdmObjectHandle*> objectsAddedByApplication;
                     for ( int i = 0; i < uiTreeOrdering->childCount(); i++ )

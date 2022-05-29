@@ -133,17 +133,15 @@ void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
     std::vector<PdmFieldHandle*> fields;
     object->fields( fields );
 
-    std::vector<PdmObjectHandle*> children;
-    size_t                        fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( auto field : fields )
     {
-        if ( fields[fIdx] ) fields[fIdx]->children( &children );
-    }
+        if ( !field ) continue;
 
-    size_t cIdx;
-    for ( cIdx = 0; cIdx < children.size(); ++cIdx )
-    {
-        PdmDocument::updateUiIconStateRecursively( children[cIdx] );
+        auto children = field->children();
+        for ( auto child : children )
+        {
+            PdmDocument::updateUiIconStateRecursively( child );
+        }
     }
 
     PdmUiObjectHandle* uiObjectHandle = uiObj( object );
