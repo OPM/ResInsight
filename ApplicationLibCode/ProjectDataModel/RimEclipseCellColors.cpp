@@ -81,7 +81,7 @@ RimEclipseCellColors::~RimEclipseCellColors()
 {
     CVF_ASSERT( obsoleteField_legendConfig() == nullptr );
 
-    m_legendConfigData.deleteAllChildObjects();
+    m_legendConfigData.deleteChildren();
 
     delete m_ternaryLegendConfig();
 }

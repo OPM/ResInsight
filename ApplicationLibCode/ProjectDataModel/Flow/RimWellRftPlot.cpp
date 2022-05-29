@@ -1362,7 +1362,7 @@ void RimWellRftPlot::createEnsembleCurveSets()
 
     for ( RimWellRftEnsembleCurveSet* curveSet : curveSetsToDelete )
     {
-        m_ensembleCurveSets.removeChildObject( curveSet );
+        m_ensembleCurveSets.removeChild( curveSet );
         delete curveSet;
     }
 

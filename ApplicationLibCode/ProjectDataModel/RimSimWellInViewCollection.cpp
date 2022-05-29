@@ -245,7 +245,7 @@ RimSimWellInViewCollection::RimSimWellInViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection::~RimSimWellInViewCollection()
 {
-    wells.deleteAllChildObjects();
+    wells.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

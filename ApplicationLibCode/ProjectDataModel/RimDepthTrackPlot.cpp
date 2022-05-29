@@ -165,7 +165,7 @@ RimDepthTrackPlot::~RimDepthTrackPlot()
     delete m_nameConfig;
 
     removeMdiWindowFromMdiArea();
-    m_plots.deleteAllChildObjects();
+    m_plots.deleteChildren();
 
     cleanupBeforeClose();
 }
@@ -178,8 +178,8 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    auto plots = rhs.m_plots.childObjects();
-    rhs.m_plots.clear();
+    auto plots = rhs.m_plots.children();
+    rhs.m_plots.clearWithoutDelete();
     for ( auto plot : plots )
     {
         m_plots.push_back( plot );
@@ -190,7 +190,7 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     // They had their own description at top level which we don't want to overwrite.
 
     auto dataSource = rhs.m_commonDataSource();
-    rhs.m_commonDataSource.removeChildObject( dataSource );
+    rhs.m_commonDataSource.removeChild( dataSource );
     m_commonDataSource        = dataSource;
     m_commonDataSourceEnabled = rhs.m_commonDataSourceEnabled;
 
@@ -270,7 +270,7 @@ std::vector<RimPlot*> RimDepthTrackPlot::plots() const
 {
     std::vector<RimPlot*> baseClassPlots;
 
-    for ( auto p : m_plots.childObjects() )
+    for ( auto p : m_plots.children() )
     {
         baseClassPlots.push_back( p );
     }
@@ -1084,7 +1084,7 @@ void RimDepthTrackPlot::removePlot( RimPlot* plot )
         {
             m_viewer->removePlot( plot->plotWidget() );
         }
-        m_plots.removeChildObject( plot );
+        m_plots.removeChild( plot );
 
         onPlotAdditionOrRemoval();
     }
@@ -1213,7 +1213,7 @@ RiuPlotAxis RimDepthTrackPlot::valueAxis() const
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 {
-    for ( auto plot : m_plots.childObjects() )
+    for ( auto plot : m_plots.children() )
     {
         plot->setAutoScalePropertyValuesEnabled( enabled );
     }

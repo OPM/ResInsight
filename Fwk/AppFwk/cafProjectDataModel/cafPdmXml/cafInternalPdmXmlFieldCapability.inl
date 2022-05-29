@@ -163,7 +163,7 @@ void caf::PdmFieldXmlCap<caf::PdmPtrArrayField<DataType*>>::readFieldData( QXmlS
 
     m_isResolved      = false;
     m_referenceString = dataString;
-    m_field->clear();
+    m_field->clearWithoutDelete();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -193,7 +193,7 @@ bool caf::PdmFieldXmlCap<PdmPtrArrayField<DataType*>>::resolveReferences()
 {
     if ( m_isResolved ) return true;
     if ( m_referenceString.isEmpty() ) return true;
-    m_field->clear();
+    m_field->clearWithoutDelete();
 
     bool        foundValidObjectFromString = true;
     QStringList tokens                     = m_referenceString.split( '|' );
@@ -373,7 +373,7 @@ template <typename DataType>
 void caf::PdmFieldXmlCap<caf::PdmChildArrayField<DataType*>>::readFieldData( QXmlStreamReader& xmlStream,
                                                                              PdmObjectFactory* objectFactory )
 {
-    m_field->deleteAllChildObjects();
+    m_field->deleteChildren();
     PdmFieldIOHelper::skipCharactersAndComments( xmlStream );
     while ( xmlStream.isStartElement() )
     {

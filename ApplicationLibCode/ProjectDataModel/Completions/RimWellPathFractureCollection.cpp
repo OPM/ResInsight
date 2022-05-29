@@ -69,7 +69,7 @@ void RimWellPathFractureCollection::addFracture( RimWellPathFracture* fracture )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::deleteFractures()
 {
-    m_fractures.deleteAllChildObjects();
+    m_fractures.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void RimWellPathFractureCollection::deleteFractures()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathFracture*> RimWellPathFractureCollection::allFractures() const
 {
-    return m_fractures.childObjects();
+    return m_fractures.children();
 }
 
 //--------------------------------------------------------------------------------------------------

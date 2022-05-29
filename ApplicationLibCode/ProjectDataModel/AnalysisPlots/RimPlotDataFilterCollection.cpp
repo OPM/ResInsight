@@ -56,7 +56,7 @@ RimPlotDataFilterItem* RimPlotDataFilterCollection::addFilter()
 //--------------------------------------------------------------------------------------------------
 void RimPlotDataFilterCollection::removeFilter( RimPlotDataFilterItem* filter )
 {
-    m_filters.removeChildObject( filter );
+    m_filters.removeChild( filter );
     delete filter;
 
     filtersChanged.send();
@@ -67,7 +67,7 @@ void RimPlotDataFilterCollection::removeFilter( RimPlotDataFilterItem* filter )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotDataFilterItem*> RimPlotDataFilterCollection::filters() const
 {
-    return m_filters.childObjects();
+    return m_filters.children();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -155,7 +155,7 @@ std::vector<RimFishbones*> RimFishbonesCollection::activeFishbonesSubs() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 {
-    return m_fishbones.childObjects();
+    return m_fishbones.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,7 +228,7 @@ double RimFishbonesCollection::endMD() const
     double endMD = m_startMD;
     if ( !m_fishbones.empty() )
     {
-        auto lastFishbone = m_fishbones.childObjects().back();
+        auto lastFishbone = m_fishbones.children().back();
         CVF_ASSERT( lastFishbone );
         endMD = lastFishbone->endMD();
     }

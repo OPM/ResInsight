@@ -64,7 +64,7 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 {
-    m_resultCacheMetaData.deleteAllChildObjects();
+    m_resultCacheMetaData.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirCellResultsStorage::setupBeforeSave()
 {
-    m_resultCacheMetaData.deleteAllChildObjects();
+    m_resultCacheMetaData.deleteChildren();
     QString newValidCacheFileName = getValidCacheFileName();
 
     // Delete the storage file

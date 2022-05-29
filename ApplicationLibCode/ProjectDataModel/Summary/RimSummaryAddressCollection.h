@@ -64,7 +64,7 @@ public:
 
     void updateFolderStructure( const std::set<RifEclipseSummaryAddress>& addresses, int caseId, int ensembleId = -1 );
 
-    void deleteAllChildObjects();
+    void deleteChildren();
 
     bool isEmpty() const;
     bool isEnsemble() const;

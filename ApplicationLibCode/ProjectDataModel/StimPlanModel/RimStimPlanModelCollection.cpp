@@ -69,7 +69,7 @@ void RimStimPlanModelCollection::addStimPlanModel( RimStimPlanModel* fracture )
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelCollection::deleteStimPlanModels()
 {
-    m_stimPlanModels.deleteAllChildObjects();
+    m_stimPlanModels.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void RimStimPlanModelCollection::deleteStimPlanModels()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimStimPlanModel*> RimStimPlanModelCollection::allStimPlanModels() const
 {
-    return m_stimPlanModels.childObjects();
+    return m_stimPlanModels.children();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -257,7 +257,7 @@ QString RimPolygonFilter::fullName() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 {
-    return m_targets.childObjects();
+    return m_targets.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -279,7 +279,7 @@ void RimPolygonFilter::insertTarget( const RimPolylineTarget* targetToInsertBefo
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::deleteTarget( RimPolylineTarget* targetToDelete )
 {
-    m_targets.removeChildObject( targetToDelete );
+    m_targets.removeChild( targetToDelete );
     delete targetToDelete;
 }
 

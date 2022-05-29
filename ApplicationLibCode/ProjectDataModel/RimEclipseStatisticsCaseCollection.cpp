@@ -42,7 +42,7 @@ RimEclipseStatisticsCaseCollection::RimEclipseStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCaseCollection::~RimEclipseStatisticsCaseCollection()
 {
-    cases.deleteAllChildObjects();
+    cases.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -63,7 +63,7 @@ void RimSummaryMultiPlotCollection::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlotCollection::deleteAllPlots()
 {
-    m_summaryMultiPlots.deleteAllChildObjects();
+    m_summaryMultiPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -71,7 +71,7 @@ void RimSummaryMultiPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryMultiPlot*> RimSummaryMultiPlotCollection::multiPlots() const
 {
-    return m_summaryMultiPlots.childObjects();
+    return m_summaryMultiPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ void RimSummaryMultiPlotCollection::addSummaryMultiPlot( RimSummaryMultiPlot* pl
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlotCollection::loadDataAndUpdateAllPlots()
 {
-    for ( const auto& p : m_summaryMultiPlots.childObjects() )
+    for ( const auto& p : m_summaryMultiPlots.children() )
         p->loadDataAndUpdate();
 }
 

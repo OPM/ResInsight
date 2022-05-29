@@ -56,7 +56,7 @@ public:
     ~ReferenceSimpleObj()
     {
         delete m_pointersField();
-        m_simpleObjPtrField.deleteAllChildObjects();
+        m_simpleObjPtrField.deleteChildren();
     }
 
     // Fields
@@ -203,10 +203,10 @@ TEST( PdmReferenceHelperTest, ObjectFromReference )
         QString refString = caf::PdmReferenceHelper::referenceFromRootToObject( ihd1, s2 );
         EXPECT_EQ( s2, caf::PdmReferenceHelper::objectFromReference( ihd1, refString ) );
 
-        ihd1->m_simpleObjPtrField.removeChildObject( s2 );
+        ihd1->m_simpleObjPtrField.removeChild( s2 );
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::objectFromReference( ihd1, refString ) );
 
-        ihd1->m_simpleObjPtrField.deleteAllChildObjects();
+        ihd1->m_simpleObjPtrField.deleteChildren();
 
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::objectFromReference( ihd1, refString ) );
 
@@ -241,10 +241,10 @@ TEST( PdmReferenceHelperTest, FieldFromReference )
         QString refString = caf::PdmReferenceHelper::referenceFromRootToField( ihd1, fHandle );
         EXPECT_EQ( fHandle, caf::PdmReferenceHelper::fieldFromReference( ihd1, refString ) );
 
-        ihd1->m_simpleObjPtrField.removeChildObject( s2 );
+        ihd1->m_simpleObjPtrField.removeChild( s2 );
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::fieldFromReference( ihd1, refString ) );
 
-        ihd1->m_simpleObjPtrField.deleteAllChildObjects();
+        ihd1->m_simpleObjPtrField.deleteChildren();
 
         EXPECT_EQ( NULL, caf::PdmReferenceHelper::fieldFromReference( ihd1, refString ) );
 

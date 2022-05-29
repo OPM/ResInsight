@@ -183,7 +183,7 @@ RimGeoMechCase::RimGeoMechCase( void )
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase::~RimGeoMechCase( void )
 {
-    geoMechViews.deleteAllChildObjects();
+    geoMechViews.deleteChildren();
 
     RimProject* project = RimProject::current();
     if ( project )
@@ -418,7 +418,7 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 void RimGeoMechCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     std::vector<PdmObjectHandle*> children;
-    geoMechViews.childObjects( &children );
+    geoMechViews.children( &children );
 
     for ( auto child : children )
         uiTreeOrdering.add( child );

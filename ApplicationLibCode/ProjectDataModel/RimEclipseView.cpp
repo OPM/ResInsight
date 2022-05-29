@@ -1627,7 +1627,7 @@ void RimEclipseView::syncronizeWellsWithResults()
             delete well;
         }
     }
-    this->wellCollection()->wells().clear();
+    this->wellCollection()->wells().clearWithoutDelete();
 
     // Set the new wells into the field.
     this->wellCollection()->wells().insert( 0, newWells );

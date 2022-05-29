@@ -99,7 +99,7 @@ void RimWellPathImport::updateRegions( const QStringList& regionStrings,
 
             for ( size_t i = 0; i < fieldsToRemove.size(); i++ )
             {
-                this->regions[regionIdx]->fields.removeChildObject( fieldsToRemove[i] );
+                this->regions[regionIdx]->fields.removeChild( fieldsToRemove[i] );
 
                 delete fieldsToRemove[i];
             }
@@ -108,7 +108,7 @@ void RimWellPathImport::updateRegions( const QStringList& regionStrings,
 
     for ( size_t i = 0; i < regionsToRemove.size(); i++ )
     {
-        this->regions.removeChildObject( regionsToRemove[i] );
+        this->regions.removeChild( regionsToRemove[i] );
 
         delete regionsToRemove[i];
     }
@@ -218,7 +218,7 @@ void RimWellPathImport::defineObjectEditorAttribute( QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 RimWellPathImport::~RimWellPathImport()
 {
-    regions.deleteAllChildObjects();
+    regions.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

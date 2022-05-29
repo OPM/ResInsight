@@ -103,7 +103,7 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCellFilter*> RimCellFilterCollection::filters() const
 {
-    return m_cellFilters.childObjects();
+    return m_cellFilters.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ void RimCellFilterCollection::initAfterRead()
     }
     for ( auto& filter : filters )
     {
-        m_rangeFilters_OBSOLETE.removeChildObject( filter );
+        m_rangeFilters_OBSOLETE.removeChild( filter );
         m_cellFilters.push_back( filter );
     }
 
@@ -328,7 +328,7 @@ void RimCellFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*    
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::removeFilter( RimCellFilter* filter )
 {
-    m_cellFilters.removeChildObject( filter );
+    m_cellFilters.removeChild( filter );
 }
 
 //--------------------------------------------------------------------------------------------------

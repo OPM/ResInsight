@@ -69,7 +69,7 @@ void RimGeoMechPartCollection::syncWithCase( RimGeoMechCase* geoCase )
 
         if ( count != (int)m_parts.size() )
         {
-            m_parts.clear();
+            m_parts.clearWithoutDelete();
 
             for ( int i = 0; i < count; i++ )
             {
@@ -91,7 +91,7 @@ void RimGeoMechPartCollection::syncWithCase( RimGeoMechCase* geoCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechPart*> RimGeoMechPartCollection::parts() const
 {
-    return m_parts.childObjects();
+    return m_parts.children();
 }
 
 //--------------------------------------------------------------------------------------------------

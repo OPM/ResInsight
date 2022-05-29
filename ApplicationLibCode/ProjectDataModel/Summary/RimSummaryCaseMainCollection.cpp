@@ -110,8 +110,8 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 {
-    m_cases.deleteAllChildObjectsAsync();
-    m_caseCollections.deleteAllChildObjectsAsync();
+    m_cases.deleteChildrenAsync();
+    m_caseCollections.deleteChildrenAsync();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -260,7 +260,7 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool
         }
     }
 
-    m_cases.removeChildObject( summaryCase );
+    m_cases.removeChild( summaryCase );
 
     for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
     {
@@ -323,7 +323,7 @@ RimSummaryCaseCollection*
         }
         else
         {
-            m_cases.removeChildObject( summaryCase );
+            m_cases.removeChild( summaryCase );
         }
 
         summaryCaseCollection->addCase( summaryCase );
@@ -348,7 +348,7 @@ RimSummaryCaseCollection*
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollection* caseCollection )
 {
-    m_caseCollections.removeChildObject( caseCollection );
+    m_caseCollections.removeChild( caseCollection );
 
     dataSourceHasChanged.send();
 }

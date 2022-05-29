@@ -95,7 +95,7 @@ void RimAnnotationGroupCollection::addAnnotation( caf::PdmObject* annotation )
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationGroupCollection::removeAnnotation( caf::PdmObject* annotation )
 {
-    m_annotations.removeChildObject( annotation );
+    m_annotations.removeChild( annotation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void RimAnnotationGroupCollection::removeAnnotation( caf::PdmObject* annotation 
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 {
-    return m_annotations.childObjects();
+    return m_annotations.children();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -325,7 +325,7 @@ void PdmXmlObjectHandle::initAfterReadRecursively( PdmObjectHandle* object )
     size_t                        fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
+        if ( fields[fIdx] ) fields[fIdx]->children( &children );
     }
 
     size_t cIdx;
@@ -359,7 +359,7 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
         PdmFieldHandle* field = fields[fIdx];
         if ( field )
         {
-            field->childObjects( &children );
+            field->children( &children );
 
             bool resolvedOk = field->xmlCapability()->resolveReferences();
             if ( fieldWithFailingResolve && !resolvedOk )
@@ -408,7 +408,7 @@ void PdmXmlObjectHandle::setupBeforeSaveRecursively( PdmObjectHandle* object )
     size_t                        fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
+        if ( fields[fIdx] ) fields[fIdx]->children( &children );
     }
 
     size_t cIdx;

@@ -60,7 +60,7 @@ RimFlowPlotCollection::~RimFlowPlotCollection()
 {
     delete m_defaultWellAllocPlot();
 
-    m_storedWellAllocPlots.deleteAllChildObjects();
+    m_storedWellAllocPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,8 +78,8 @@ void RimFlowPlotCollection::deleteAllPlots()
     // delete m_dbgWellDistributionPlot;
     delete m_wellDistributionPlotCollection;
 
-    m_storedWellAllocPlots.deleteAllChildObjects();
-    m_storedFlowCharacteristicsPlots.deleteAllChildObjects();
+    m_storedWellAllocPlots.deleteChildren();
+    m_storedFlowCharacteristicsPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

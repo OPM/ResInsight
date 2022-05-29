@@ -176,7 +176,7 @@ void RimSummaryPlotFilterTextCurveSetEditor::updateTextFilter()
 
     if ( !usedSources.empty() )
     {
-        m_selectedSources.clear();
+        m_selectedSources.clearWithoutDelete();
         m_selectedSources.setValue( usedSources );
     }
 

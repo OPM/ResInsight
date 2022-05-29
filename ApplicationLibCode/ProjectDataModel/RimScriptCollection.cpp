@@ -53,8 +53,8 @@ RimScriptCollection::RimScriptCollection()
 //--------------------------------------------------------------------------------------------------
 RimScriptCollection::~RimScriptCollection()
 {
-    calcScripts.deleteAllChildObjects();
-    subDirectories.deleteAllChildObjects();
+    calcScripts.deleteChildren();
+    subDirectories.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ RimScriptCollection::~RimScriptCollection()
 //--------------------------------------------------------------------------------------------------
 void RimScriptCollection::readContentFromDisc()
 {
-    calcScripts.deleteAllChildObjects();
+    calcScripts.deleteChildren();
 
     if ( directory().isEmpty() )
     {
@@ -104,7 +104,7 @@ void RimScriptCollection::readContentFromDisc()
         }
     }
 
-    subDirectories.deleteAllChildObjects();
+    subDirectories.deleteChildren();
 
     if ( m_searchSubFolders() )
     {

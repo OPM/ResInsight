@@ -99,7 +99,7 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathGroup::childWellPaths() const
 {
-    return m_childWellPaths.childObjects();
+    return m_childWellPaths.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ bool RimWellPathGroup::hasChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 {
-    m_childWellPaths.removeChildObject( wellPath );
+    m_childWellPaths.removeChild( wellPath );
     RimWellPath::copyCompletionSettings( this, wellPath );
 
     if ( auto geometry = wellPath->wellPathGeometry(); geometry )
@@ -145,7 +145,7 @@ void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::removeAllChildWellPaths()
 {
-    auto childWellPaths = m_childWellPaths.childObjects();
+    auto childWellPaths = m_childWellPaths.children();
     for ( auto wellPath : childWellPaths )
     {
         removeChildWellPath( wellPath );
@@ -419,7 +419,7 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
                 RimWellPathGroup* newGroup = new RimWellPathGroup;
                 for ( auto wellPath : wellPaths )
                 {
-                    m_childWellPaths().removeChildObject( wellPath );
+                    m_childWellPaths().removeChild( wellPath );
                     newGroup->addChildWellPath( wellPath );
                     newGroup->wellPathGeometry()->setUniqueStartAndEndIndex( childStartIndex,
                                                                              std::numeric_limits<size_t>::max() );

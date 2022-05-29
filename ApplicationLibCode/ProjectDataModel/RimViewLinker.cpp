@@ -84,7 +84,7 @@ RimViewLinker::~RimViewLinker()
 {
     removeOverrides();
 
-    m_viewControllers.deleteAllChildObjects();
+    m_viewControllers.deleteChildren();
     RimGridView* masterView = m_masterView;
     m_masterView            = nullptr;
     if ( masterView ) masterView->updateAutoName();
@@ -313,7 +313,7 @@ void RimViewLinker::setMasterView( RimGridView* view )
     if ( previousViewController )
     {
         delete previousViewController;
-        this->m_viewControllers.removeChildObject( nullptr );
+        this->m_viewControllers.removeChild( nullptr );
     }
 
     this->removeOverrides();
@@ -674,7 +674,7 @@ void RimViewLinker::updatePropertyFilters( RimPropertyFilter* changedPropertyFil
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::removeViewController( RimViewController* viewController )
 {
-    m_viewControllers.removeChildObject( viewController );
+    m_viewControllers.removeChild( viewController );
 }
 
 //--------------------------------------------------------------------------------------------------

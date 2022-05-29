@@ -259,7 +259,7 @@ void RiaGrpcCommandService::assignPdmObjectValues( caf::PdmObjectHandle*        
             if ( pdmChildFieldHandle )
             {
                 std::vector<caf::PdmObjectHandle*> childObjects;
-                pdmChildFieldHandle->childObjects( &childObjects );
+                pdmChildFieldHandle->children( &childObjects );
                 caf::PdmObjectHandle* childObject = nullptr;
                 CAF_ASSERT( childObjects.size() <= 1u ); // We do not support child array fields yet
 

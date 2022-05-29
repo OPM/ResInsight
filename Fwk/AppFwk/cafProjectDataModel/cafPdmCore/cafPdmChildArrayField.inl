@@ -14,7 +14,7 @@ namespace caf
 template <typename DataType>
 PdmChildArrayField<DataType*>::~PdmChildArrayField()
 {
-    deleteAllChildObjects();
+    deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -159,7 +159,7 @@ size_t PdmChildArrayField<DataType*>::indexOf( const PdmObjectHandle* obj ) cons
 /// Empty the container without deleting the objects pointed to.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::clear()
+void PdmChildArrayField<DataType*>::clearWithoutDelete()
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -171,7 +171,7 @@ void PdmChildArrayField<DataType*>::clear()
 /// Deletes all the objects pointed to by the field, then clears the container.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::deleteAllChildObjects()
+void PdmChildArrayField<DataType*>::deleteChildren()
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -189,7 +189,7 @@ void PdmChildArrayField<DataType*>::deleteAllChildObjects()
 /// Then clears the container and lets the thread delete the objects.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::deleteAllChildObjectsAsync()
+void PdmChildArrayField<DataType*>::deleteChildrenAsync()
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -219,7 +219,7 @@ void PdmChildArrayField<DataType*>::erase( size_t index )
 template <typename DataType>
 void PdmChildArrayField<DataType*>::setValue( const std::vector<DataType*>& objects )
 {
-    clear();
+    clearWithoutDelete();
     for ( auto object : objects )
     {
         push_back( object );
@@ -230,7 +230,7 @@ void PdmChildArrayField<DataType*>::setValue( const std::vector<DataType*>& obje
 /// Removes all instances of object pointer from the container without deleting the object.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::removeChildObject( PdmObjectHandle* object )
+void PdmChildArrayField<DataType*>::removeChild( PdmObjectHandle* object )
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -259,7 +259,7 @@ void PdmChildArrayField<DataType*>::removeChildObject( PdmObjectHandle* object )
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childObjects() const
+std::vector<DataType*> caf::PdmChildArrayField<DataType*>::children() const
 {
     std::vector<DataType*> objects;
 
@@ -278,7 +278,7 @@ std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childObjects() const
 ///
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmChildArrayField<DataType*>::childObjects( std::vector<PdmObjectHandle*>* objects )
+void PdmChildArrayField<DataType*>::children( std::vector<PdmObjectHandle*>* objects )
 {
     if ( !objects ) return;
     size_t i;

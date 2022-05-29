@@ -10,7 +10,7 @@ Parent::Parent()
 Parent::~Parent()
 {
     delete m_simpleObjectF();
-    m_simpleObjectsField.deleteAllChildObjects();
+    m_simpleObjectsField.deleteChildren();
 }
 
 void Parent::doSome()

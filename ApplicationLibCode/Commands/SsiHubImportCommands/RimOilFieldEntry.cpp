@@ -53,7 +53,7 @@ RimOilFieldEntry::RimOilFieldEntry()
 //--------------------------------------------------------------------------------------------------
 RimOilFieldEntry::~RimOilFieldEntry()
 {
-    wells.deleteAllChildObjects();
+    wells.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

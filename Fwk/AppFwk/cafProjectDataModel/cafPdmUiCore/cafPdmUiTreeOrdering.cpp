@@ -59,7 +59,7 @@ void PdmUiTreeOrdering::add( PdmFieldHandle* field, QString uiConfigName )
         if ( !field->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
         {
             std::vector<PdmObjectHandle*> children;
-            field->childObjects( &children );
+            field->children( &children );
 
             for ( PdmObjectHandle* objHandle : children )
             {
@@ -382,7 +382,7 @@ void PdmUiTreeOrdering::insertChild( int position, PdmUiTreeOrdering* child )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeOrdering::removeChildren( int position, int count )
+bool PdmUiTreeOrdering::removeChild( int position, int count )
 {
     if ( position < 0 || position + count > m_childItems.size() ) return false;
 
@@ -399,7 +399,7 @@ bool PdmUiTreeOrdering::removeChildren( int position, int count )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool PdmUiTreeOrdering::removeChildrenNoDelete( int position, int count )
+bool PdmUiTreeOrdering::removeChildNoDelete( int position, int count )
 {
     if ( position < 0 || position + count > m_childItems.size() ) return false;
 

@@ -143,7 +143,7 @@ void RimGridCrossPlot::addDataSet( RimGridCrossPlotDataSet* dataSet )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotDataSet*> RimGridCrossPlot::dataSets() const
 {
-    return m_crossPlotDataSets.childObjects();
+    return m_crossPlotDataSets.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -642,8 +642,8 @@ void RimGridCrossPlot::swapAxes()
                                      yAxisProperties->plotAxisType().axis() );
     yAxisProperties->setNameAndAxis( tmpName, tmpTitle, tmpAxis.axis() );
 
-    m_xAxisProperties.removeChildObject( xAxisProperties );
-    m_yAxisProperties.removeChildObject( yAxisProperties );
+    m_xAxisProperties.removeChild( xAxisProperties );
+    m_yAxisProperties.removeChild( yAxisProperties );
     m_yAxisProperties = xAxisProperties;
     m_xAxisProperties = yAxisProperties;
 

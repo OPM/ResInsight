@@ -249,17 +249,17 @@ void RimProject::close()
         mainPlotCollection()->deleteAllContainedObjects();
     }
 
-    oilFields.deleteAllChildObjects();
+    oilFields.deleteChildren();
     oilFields.push_back( new RimOilField );
 
-    casesObsolete.deleteAllChildObjects();
-    caseGroupsObsolete.deleteAllChildObjects();
+    casesObsolete.deleteChildren();
+    caseGroupsObsolete.deleteChildren();
 
-    wellPathImport->regions().deleteAllChildObjects();
+    wellPathImport->regions().deleteChildren();
 
-    commandObjects.deleteAllChildObjects();
+    commandObjects.deleteChildren();
 
-    multiSnapshotDefinitions.deleteAllChildObjects();
+    multiSnapshotDefinitions.deleteChildren();
 
     m_dialogData->clearProjectSpecificData();
 
@@ -314,7 +314,7 @@ void RimProject::initAfterRead()
 
     if ( movedOneRimIdenticalGridCaseGroup )
     {
-        caseGroupsObsolete.clear();
+        caseGroupsObsolete.clearWithoutDelete();
     }
 
     bool movedOneRimCase = false;
@@ -331,7 +331,7 @@ void RimProject::initAfterRead()
 
     if ( movedOneRimCase )
     {
-        casesObsolete.clear();
+        casesObsolete.clearWithoutDelete();
     }
 
     // Set project pointer to each well path
@@ -378,8 +378,8 @@ bool RimProject::writeProjectFile()
 //--------------------------------------------------------------------------------------------------
 void RimProject::setScriptDirectories( const QString& scriptDirectories )
 {
-    scriptCollection->calcScripts().deleteAllChildObjects();
-    scriptCollection->subDirectories().deleteAllChildObjects();
+    scriptCollection->calcScripts().deleteChildren();
+    scriptCollection->subDirectories().deleteChildren();
 
     QStringList pathList = scriptDirectories.split( ';' );
     foreach ( QString path, pathList )

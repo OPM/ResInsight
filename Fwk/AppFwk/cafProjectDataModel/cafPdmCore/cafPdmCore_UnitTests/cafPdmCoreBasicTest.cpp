@@ -292,10 +292,10 @@ TEST( BaseTest, PdmChildArrayField )
 
     // childObjects
     std::vector<caf::PdmObjectHandle*> objects;
-    ihd1->m_childArrayField.childObjects( &objects );
+    ihd1->m_childArrayField.children( &objects );
     EXPECT_EQ( size_t( 3 ), objects.size() );
 
-    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.childObjects();
+    std::vector<DemoPdmObject*> typedObjects = ihd1->m_childArrayField.children();
     EXPECT_EQ( size_t( 3 ), typedObjects.size() );
 
     // set()
@@ -303,7 +303,7 @@ TEST( BaseTest, PdmChildArrayField )
     EXPECT_TRUE( NULL == ihd1->m_childArrayField[1] );
     EXPECT_TRUE( s2->parentField() == NULL );
 
-    ihd1->m_childArrayField.removeChildObject( NULL );
+    ihd1->m_childArrayField.removeChild( NULL );
     EXPECT_EQ( size_t( 2 ), ihd1->m_childArrayField.size() );
     EXPECT_EQ( s3, ihd1->m_childArrayField[1] );
     EXPECT_EQ( s1, ihd1->m_childArrayField[0] );
@@ -325,7 +325,7 @@ TEST( BaseTest, PdmChildArrayField )
     EXPECT_TRUE( s2->parentField() == NULL );
 
     // clear()
-    ihd1->m_childArrayField.clear();
+    ihd1->m_childArrayField.clearWithoutDelete();
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
 
     EXPECT_TRUE( s1->parentField() == NULL );
@@ -334,7 +334,7 @@ TEST( BaseTest, PdmChildArrayField )
     ihd1->m_childArrayField.push_back( s2 );
     ihd1->m_childArrayField.push_back( s3 );
 
-    ihd1->m_childArrayField.deleteAllChildObjects();
+    ihd1->m_childArrayField.deleteChildren();
     EXPECT_EQ( size_t( 0 ), ihd1->m_childArrayField.size() );
     EXPECT_TRUE( s1 == NULL );
     EXPECT_TRUE( s2 == NULL );
@@ -382,7 +382,7 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
     //     virtual void        clear() = 0;
     //     virtual PdmObject*  createAppendObject(int indexAfter) = 0;
     //     virtual void        erase(size_t index) = 0;
-    //     virtual void        deleteAllChildObjects() = 0;
+    //     virtual void        deleteChildren() = 0;
     //
     //     virtual PdmObject*  at(size_t index) = 0;
     //
@@ -424,7 +424,7 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
-    listField->deleteAllChildObjects();
+    listField->deleteChildren();
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );
@@ -474,7 +474,7 @@ TEST( BaseTest, PdmChildField )
         EXPECT_TRUE( c2 == a.field2 );
 
         std::vector<caf::PdmObjectHandle*> objects;
-        a.field2.childObjects( &objects );
+        a.field2.children( &objects );
         EXPECT_EQ( (size_t)1, objects.size() );
         EXPECT_EQ( c2, objects[0] );
     }

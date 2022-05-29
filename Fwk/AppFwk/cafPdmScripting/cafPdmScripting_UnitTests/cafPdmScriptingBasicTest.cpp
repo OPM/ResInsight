@@ -201,7 +201,7 @@ public:
                                     "Whatsthis SimpleObjectsField" );
     }
 
-    ~InheritedDemoObj() { m_simpleObjectsField.deleteAllChildObjects(); }
+    ~InheritedDemoObj() { m_simpleObjectsField.deleteChildren(); }
 
     caf::PdmField<std::vector<QString>> m_texts;
     caf::PdmField<std::vector<double>>  m_numbers;
@@ -222,7 +222,7 @@ public:
         CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" )
     }
 
-    ~MyPdmDocument() { objects.deleteAllChildObjects(); }
+    ~MyPdmDocument() { objects.deleteChildren(); }
 
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
 };

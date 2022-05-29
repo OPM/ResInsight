@@ -111,8 +111,8 @@ private:
     PdmUiEditorHandle* editor();
     void               setEditor( PdmUiEditorHandle* editor );
     void               insertChild( int position, PdmUiTreeOrdering* child );
-    bool               removeChildren( int position, int count );
-    bool               removeChildrenNoDelete( int position, int count );
+    bool               removeChild( int position, int count );
+    bool               removeChildNoDelete( int position, int count );
 
 private:
     PdmUiTreeOrdering( PdmUiTreeOrdering* parent, PdmObjectHandle* pdmItem );

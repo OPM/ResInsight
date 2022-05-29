@@ -154,7 +154,7 @@ void RimWellMeasurementCollection::appendMeasurement( RimWellMeasurement* measur
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measurementToDelete )
 {
-    m_measurements.removeChildObject( measurementToDelete );
+    m_measurements.removeChild( measurementToDelete );
     delete measurementToDelete;
 
     this->updateAllCurves();
@@ -165,7 +165,7 @@ void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measur
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::deleteAllMeasurements()
 {
-    m_measurements.deleteAllChildObjects();
+    m_measurements.deleteChildren();
     this->updateAllCurves();
 }
 
@@ -243,7 +243,7 @@ void RimWellMeasurementCollection::addFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::removeFilePath( RimWellMeasurementFilePath* measurementFilePath )
 {
-    m_importedFiles.removeChildObject( measurementFilePath );
+    m_importedFiles.removeChild( measurementFilePath );
     delete measurementFilePath;
 }
 
@@ -265,7 +265,7 @@ void RimWellMeasurementCollection::removeMeasurementsForFilePath( RimWellMeasure
     // Remove then remove them without invalidating the iterator
     for ( unsigned int i = 0; i < measurementsToRemove.size(); i++ )
     {
-        m_measurements.removeChildObject( measurementsToRemove[i] );
+        m_measurements.removeChild( measurementsToRemove[i] );
         delete measurementsToRemove[i];
     }
 

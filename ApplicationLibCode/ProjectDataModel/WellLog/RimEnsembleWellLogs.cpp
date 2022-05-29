@@ -43,7 +43,7 @@ RimEnsembleWellLogs::RimEnsembleWellLogs()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleWellLogs::removeWellLogFile( RimWellLogFile* summaryCase )
 {
-    m_wellLogFiles.removeChildObject( summaryCase );
+    m_wellLogFiles.removeChild( summaryCase );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ void RimEnsembleWellLogs::addWellLogFile( RimWellLogFile* summaryCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogFile*> RimEnsembleWellLogs::wellLogFiles() const
 {
-    return m_wellLogFiles().childObjects();
+    return m_wellLogFiles().children();
 }
 
 //--------------------------------------------------------------------------------------------------

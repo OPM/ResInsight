@@ -68,7 +68,7 @@ void RimGridStatisticsPlotCollection::addGridStatisticsPlot( RimGridStatisticsPl
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridStatisticsPlot*> RimGridStatisticsPlotCollection::gridStatisticsPlots() const
 {
-    return m_gridStatisticsPlots.childObjects();
+    return m_gridStatisticsPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,5 +76,5 @@ std::vector<RimGridStatisticsPlot*> RimGridStatisticsPlotCollection::gridStatist
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlotCollection::deleteAllPlots()
 {
-    m_gridStatisticsPlots.deleteAllChildObjects();
+    m_gridStatisticsPlots.deleteChildren();
 }

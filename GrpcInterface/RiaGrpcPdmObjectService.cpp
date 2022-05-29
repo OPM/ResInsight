@@ -416,7 +416,7 @@ grpc::Status RiaGrpcPdmObjectService::GetChildPdmObjects( grpc::ServerContext*  
             if ( scriptability && scriptability->scriptFieldName() == fieldName )
             {
                 std::vector<caf::PdmObjectHandle*> childObjects;
-                field->childObjects( &childObjects );
+                field->children( &childObjects );
                 for ( auto pdmChild : childObjects )
                 {
                     rips::PdmObject* ripsChild = reply->add_objects();

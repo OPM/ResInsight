@@ -258,7 +258,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
           ++it )
     {
         this->beginRemoveRows( existingSubTreeRootModIdx, *it, *it );
-        existingSubTreeRoot->removeChildren( *it, 1 );
+        existingSubTreeRoot->removeChild( *it, 1 );
         this->endRemoveRows();
     }
 
@@ -341,12 +341,12 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
                   it != indicesToRemoveFromSource.rend();
                   ++it )
             {
-                // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
-                sourceSubTreeRoot->removeChildrenNoDelete( *it, 1 );
+                // Use the removeChildNoDelete() to remove the pointer from the list without deleting the pointer
+                sourceSubTreeRoot->removeChildNoDelete( *it, 1 );
             }
 
             // Delete all items from existingSubTreeRoot, as the complete list is present in newMergedOrdering
-            existingSubTreeRoot->removeChildrenNoDelete( 0, existingSubTreeRoot->childCount() );
+            existingSubTreeRoot->removeChildNoDelete( 0, existingSubTreeRoot->childCount() );
 
             // First, reorder all items in existing tree, as this operation is valid when later emitting the signal
             // layoutChanged() Insert of new items before issuing this signal causes the tree items below the inserted

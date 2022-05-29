@@ -95,7 +95,7 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimUserDefinedPolylinesAnnotation::activeTargets() const
 {
-    return m_targets.childObjects();
+    return m_targets.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void RimUserDefinedPolylinesAnnotation::appendTarget( const cvf::Vec3d& defaultP
 {
     RimPolylineTarget* target = nullptr;
 
-    auto targets = m_targets.childObjects();
+    auto targets = m_targets.children();
     if ( targets.empty() )
     {
         target = new RimPolylineTarget();
@@ -149,7 +149,7 @@ void RimUserDefinedPolylinesAnnotation::insertTarget( const RimPolylineTarget* t
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::deleteTarget( RimPolylineTarget* targetToDelete )
 {
-    m_targets.removeChildObject( targetToDelete );
+    m_targets.removeChild( targetToDelete );
     delete targetToDelete;
 }
 

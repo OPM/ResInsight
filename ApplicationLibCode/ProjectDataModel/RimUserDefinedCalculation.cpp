@@ -129,7 +129,7 @@ RimUserDefinedCalculationVariable* RimUserDefinedCalculation::addVariable( const
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedCalculation::deleteVariable( RimUserDefinedCalculationVariable* calcVariable )
 {
-    m_variables.removeChildObject( calcVariable );
+    m_variables.removeChild( calcVariable );
 
     delete calcVariable;
 }
@@ -374,5 +374,5 @@ void RimUserDefinedCalculation::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 std::vector<RimUserDefinedCalculationVariable*> RimUserDefinedCalculation::allVariables() const
 {
-    return m_variables.childObjects();
+    return m_variables.children();
 }

@@ -114,7 +114,7 @@ public:
         child->m_parentItem = this;
     }
 
-    bool removeChildren( int position, int count )
+    bool removeChild( int position, int count )
     {
         if ( position < 0 || position + count > m_childItems.size() ) return false;
 
@@ -128,7 +128,7 @@ public:
         return true;
     }
 
-    bool removeChildrenNoDelete( int position, int count )
+    bool removeChildNoDelete( int position, int count )
     {
         if ( position < 0 || position + count > m_childItems.size() ) return false;
 

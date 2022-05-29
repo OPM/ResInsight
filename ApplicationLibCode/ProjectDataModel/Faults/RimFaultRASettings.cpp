@@ -271,7 +271,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
     RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechFRADefaultBasicXML() );
     if ( !basicreader.parseFile( errorText ) ) return;
 
-    m_basicParameters.clear();
+    m_basicParameters.clearWithoutDelete();
     for ( auto group : basicreader.parameterGroups() )
     {
         m_basicParameters.push_back( group );
@@ -282,7 +282,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
         RifParameterXmlReader advreader( RiaPreferencesGeoMech::current()->geomechFRADefaultAdvXML() );
         if ( !advreader.parseFile( errorText ) ) return;
 
-        m_advancedParameters.clear();
+        m_advancedParameters.clearWithoutDelete();
         for ( auto group : advreader.parameterGroups() )
         {
             m_advancedParameters.push_back( group );
@@ -407,7 +407,7 @@ std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID
         retlist.push_back( p );
     }
 
-    for ( auto& group : m_basicParameters.childObjects() )
+    for ( auto& group : m_basicParameters.children() )
     {
         for ( auto& p : group->parameters() )
         {
@@ -438,7 +438,7 @@ std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faul
         retlist.push_back( p );
     }
 
-    for ( auto& group : m_advancedParameters.childObjects() )
+    for ( auto& group : m_advancedParameters.children() )
     {
         for ( auto& p : group->parameters() )
         {
@@ -612,13 +612,13 @@ RimGenericParameter* RimFaultRASettings::getInputParameter( QString name ) const
 {
     RimGenericParameter* retval = nullptr;
 
-    for ( auto group : m_basicParameters.childObjects() )
+    for ( auto group : m_basicParameters.children() )
     {
         retval = group->parameter( name );
         if ( retval != nullptr ) return retval;
     }
 
-    for ( auto group : m_advancedParameters.childObjects() )
+    for ( auto group : m_advancedParameters.children() )
     {
         retval = group->parameter( name );
         if ( retval != nullptr ) return retval;
