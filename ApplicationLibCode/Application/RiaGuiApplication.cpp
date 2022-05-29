@@ -922,6 +922,7 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
     else
     {
         m_mainWindow->loadWinGeoAndDockToolBarLayout();
+        m_mainWindow->show();
     }
 
     return m_mainWindow;
