@@ -271,7 +271,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
     RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechFRADefaultBasicXML() );
     if ( !basicreader.parseFile( errorText ) ) return;
 
-    m_basicParameters.clearWithoutDelete();
+    m_basicParameters.deleteChildren();
     for ( auto group : basicreader.parameterGroups() )
     {
         m_basicParameters.push_back( group );
@@ -282,7 +282,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
         RifParameterXmlReader advreader( RiaPreferencesGeoMech::current()->geomechFRADefaultAdvXML() );
         if ( !advreader.parseFile( errorText ) ) return;
 
-        m_advancedParameters.clearWithoutDelete();
+        m_advancedParameters.deleteChildren();
         for ( auto group : advreader.parameterGroups() )
         {
             m_advancedParameters.push_back( group );
