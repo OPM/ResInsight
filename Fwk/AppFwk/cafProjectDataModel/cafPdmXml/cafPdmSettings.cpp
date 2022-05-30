@@ -108,8 +108,7 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
     {
         caf::PdmFieldHandle* fieldHandle = fields[i];
 
-        std::vector<caf::PdmObjectHandle*> children;
-        fieldHandle->children();
+        std::vector<caf::PdmObjectHandle*> children = fieldHandle->children();
         for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
         {
             caf::PdmObjectHandle* child = children[childIdx];
