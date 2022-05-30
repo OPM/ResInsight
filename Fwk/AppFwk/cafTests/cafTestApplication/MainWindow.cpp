@@ -757,17 +757,13 @@ public:
 
         if (&m_ptrField == fieldNeedingOptions)
         {
-            caf::PdmFieldHandle*               field;
-            std::vector<caf::PdmObjectHandle*> objects;
-            field = this->parentField();
+            caf::PdmFieldHandle* field = this->parentField();
 
-            field->children();
-
-            for (size_t i = 0; i < objects.size(); ++i)
+            for (auto& object : field->children())
             {
                 QString userDesc;
 
-                caf::PdmUiObjectHandle* uiObject = caf::uiObj(objects[i]);
+                caf::PdmUiObjectHandle* uiObject = caf::uiObj(object);
                 if (uiObject)
                 {
                     if (uiObject->userDescriptionField())
@@ -779,9 +775,8 @@ public:
                         }
                     }
 
-                    options.push_back(
-                        caf::PdmOptionItemInfo(uiObject->uiName() + "(" + userDesc + ")",
-                                               QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(objects[i]))));
+                    options.push_back(caf::PdmOptionItemInfo(uiObject->uiName() + "(" + userDesc + ")",
+                                                             QVariant::fromValue(caf::PdmPointer<caf::PdmObjectHandle>(object))));
                 }
             }
         }

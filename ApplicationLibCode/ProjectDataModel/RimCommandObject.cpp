@@ -262,12 +262,11 @@ void RimCommandIssueFieldChanged::childObjects( caf::PdmObject* pdmObject, std::
     std::vector<caf::PdmFieldHandle*> fields;
     pdmObject->fields( fields );
 
-    size_t fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( auto& field : fields )
     {
-        if ( fields[fIdx] )
+        if ( field )
         {
-            auto fieldChildren = fields[fIdx]->children();
+            auto fieldChildren = field->children();
             children.insert( children.end(), fieldChildren.begin(), fieldChildren.end() );
         }
     }
@@ -288,14 +287,13 @@ caf::PdmObjectHandle* RimCommandIssueFieldChanged::findObjectByName( caf::PdmObj
         return pdmObject;
     }
 
-    for ( size_t fIdx = 0; fIdx < fields.size(); fIdx++ )
+    for ( auto& field : fields )
     {
-        if ( fields[fIdx] )
+        if ( field )
         {
-            std::vector<caf::PdmObjectHandle*> children = fields[fIdx]->children();
-            for ( size_t cIdx = 0; cIdx < children.size(); cIdx++ )
+            for ( auto& cIdx : field->children() )
             {
-                PdmObjectHandle* candidateObj = findObjectByName( children[cIdx], name );
+                PdmObjectHandle* candidateObj = findObjectByName( cIdx, name );
                 if ( candidateObj )
                 {
                     return candidateObj;

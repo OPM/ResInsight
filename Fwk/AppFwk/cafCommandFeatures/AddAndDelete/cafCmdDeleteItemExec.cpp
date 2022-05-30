@@ -65,8 +65,7 @@ void CmdDeleteItemExec::redo()
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
-        std::vector<PdmObjectHandle*> children;
-        listField->children();
+        std::vector<PdmObjectHandle*> children = listField->children();
 
         PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );

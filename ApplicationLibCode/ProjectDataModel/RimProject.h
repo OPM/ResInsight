@@ -261,7 +261,8 @@ void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::v
             }
         }
 
-        field->children();
+        auto fieldChildren = field->children();
+        children.insert( children.end(), fieldChildren.begin(), fieldChildren.end() );
     }
 
     for ( const auto& child : children )

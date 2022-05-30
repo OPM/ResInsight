@@ -39,9 +39,7 @@ void PdmFieldHandle::setKeyword( const QString& keyword )
 //--------------------------------------------------------------------------------------------------
 bool PdmFieldHandle::hasChildren()
 {
-    std::vector<PdmObjectHandle*> children;
-    this->children();
-    return ( children.size() > 0 );
+    return ( !children().empty() );
 }
 
 //--------------------------------------------------------------------------------------------------

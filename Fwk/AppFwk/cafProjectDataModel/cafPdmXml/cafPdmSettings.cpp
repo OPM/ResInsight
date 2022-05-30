@@ -55,23 +55,17 @@ void PdmSettings::readFieldsFromApplicationStore( caf::PdmObjectHandle* object, 
     std::vector<caf::PdmFieldHandle*> fields;
 
     object->fields( fields );
-    size_t i;
-    for ( i = 0; i < fields.size(); i++ )
+    for ( caf::PdmFieldHandle* fieldHandle : fields )
     {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
-
-        std::vector<caf::PdmObjectHandle*> children;
-        fieldHandle->children();
-        for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
+        for ( caf::PdmObjectHandle* child : fieldHandle->children() )
         {
-            caf::PdmObjectHandle*    child        = children[childIdx];
             caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj( child );
 
             QString subContext = context + xmlObjHandle->classKeyword() + "/";
             readFieldsFromApplicationStore( child, subContext );
         }
 
-        if ( children.size() == 0 )
+        if ( fieldHandle->children().empty() )
         {
             QString key = context + fieldHandle->keyword();
             if ( settings.contains( key ) )
@@ -103,16 +97,11 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
     std::vector<caf::PdmFieldHandle*> fields;
     object->fields( fields );
 
-    size_t i;
-    for ( i = 0; i < fields.size(); i++ )
+    for ( caf::PdmFieldHandle* fieldHandle : fields )
     {
-        caf::PdmFieldHandle* fieldHandle = fields[i];
-
-        std::vector<caf::PdmObjectHandle*> children = fieldHandle->children();
-        for ( size_t childIdx = 0; childIdx < children.size(); childIdx++ )
+        for ( caf::PdmObjectHandle* child : fieldHandle->children() )
         {
-            caf::PdmObjectHandle* child = children[childIdx];
-            QString               subContext;
+            QString subContext;
             if ( context.isEmpty() )
             {
                 caf::PdmXmlObjectHandle* xmlObjHandle = xmlObj( child );
@@ -123,7 +112,7 @@ void PdmSettings::writeFieldsToApplicationStore( const caf::PdmObjectHandle* obj
             writeFieldsToApplicationStore( child, subContext );
         }
 
-        if ( children.size() == 0 )
+        if ( fieldHandle->children().empty() )
         {
             caf::PdmValueField* valueField = dynamic_cast<caf::PdmValueField*>( fieldHandle );
             CAF_ASSERT( valueField );

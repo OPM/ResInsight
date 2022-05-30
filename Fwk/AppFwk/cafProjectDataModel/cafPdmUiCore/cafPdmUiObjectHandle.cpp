@@ -123,8 +123,6 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrder
                 if ( fields[fIdx]->uiCapability()->isUiTreeHidden() &&
                      !fields[fIdx]->uiCapability()->isUiTreeChildrenHidden() )
                 {
-                    std::vector<PdmObjectHandle*> children = fields[fIdx]->children();
-
                     std::set<PdmObjectHandle*> objectsAddedByApplication;
                     for ( int i = 0; i < uiTreeOrdering->childCount(); i++ )
                     {
@@ -135,21 +133,21 @@ void PdmUiObjectHandle::addDefaultUiTreeChildren( PdmUiTreeOrdering* uiTreeOrder
                         }
                     }
 
-                    for ( size_t cIdx = 0; cIdx < children.size(); cIdx++ )
+                    for ( auto& cIdx : fields[fIdx]->children() )
                     {
-                        if ( children[cIdx] )
+                        if ( cIdx )
                         {
                             bool                                 isAlreadyAdded = false;
-                            std::set<PdmObjectHandle*>::iterator it = objectsAddedByApplication.find( children[cIdx] );
+                            std::set<PdmObjectHandle*>::iterator it = objectsAddedByApplication.find( cIdx );
                             if ( it != objectsAddedByApplication.end() )
                             {
                                 isAlreadyAdded = true;
                                 break;
                             }
 
-                            if ( !isAlreadyAdded && !children[cIdx]->uiCapability()->isUiTreeHidden() )
+                            if ( !isAlreadyAdded && !cIdx->uiCapability()->isUiTreeHidden() )
                             {
-                                uiTreeOrdering->add( children[cIdx] );
+                                uiTreeOrdering->add( cIdx );
                             }
                         }
                     }
@@ -191,11 +189,8 @@ void PdmUiObjectHandle::expandUiTree( PdmUiTreeOrdering* root, const QString& ui
             if ( root->isRepresentingField() && !root->field()->uiCapability()->isUiTreeHidden( uiConfigName ) &&
                  !root->field()->uiCapability()->isUiTreeChildrenHidden( uiConfigName ) )
             {
-                std::vector<PdmObjectHandle*> fieldsChildObjects;
-                root->field()->children();
-                for ( size_t cIdx = 0; cIdx < fieldsChildObjects.size(); ++cIdx )
+                for ( caf::PdmObjectHandle* childObject : root->field()->children() )
                 {
-                    PdmObjectHandle* childObject = fieldsChildObjects[cIdx];
                     if ( childObject && !childObject->uiCapability()->isUiTreeHidden() )
                     {
                         root->appendChild( uiObj( childObject )->uiTreeOrdering( uiConfigName ) );

@@ -417,10 +417,7 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    std::vector<PdmObjectHandle*> children;
-    geoMechViews.children();
-
-    for ( auto child : children )
+    for ( auto child : geoMechViews.children() )
         uiTreeOrdering.add( child );
 
     if ( !m_2dIntersectionViewCollection->views().empty() )

@@ -78,9 +78,7 @@ CmdExecuteCommand* CmdDeleteItemFeature::createExecuteCommand()
 
     int indexAfter = -1;
 
-    std::vector<PdmObjectHandle*> childObjects;
-    childArrayFieldHandle->children();
-
+    std::vector<PdmObjectHandle*> childObjects = childArrayFieldHandle->children();
     for ( size_t i = 0; i < childObjects.size(); i++ )
     {
         if ( childObjects[i] == currentPdmObject )

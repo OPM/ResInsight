@@ -10,10 +10,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 bool PdmChildArrayFieldHandle::hasSameFieldCountForAllObjects()
 {
-    std::vector<PdmObjectHandle*> listObjects;
-    this->children();
-
-    if ( listObjects.size() == 0 )
+    std::vector<PdmObjectHandle*> listObjects = this->children();
+    if ( listObjects.empty() )
     {
         return true;
     }

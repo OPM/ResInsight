@@ -122,8 +122,7 @@ void CmdAddItemExec::undo()
     PdmChildArrayFieldHandle* listField = dynamic_cast<PdmChildArrayFieldHandle*>( field );
     if ( listField && m_commandData->m_createdItemIndex >= 0 )
     {
-        std::vector<caf::PdmObjectHandle*> children;
-        listField->children();
+        std::vector<caf::PdmObjectHandle*> children = listField->children();
 
         caf::PdmObjectHandle* obj = children[m_commandData->m_createdItemIndex];
 

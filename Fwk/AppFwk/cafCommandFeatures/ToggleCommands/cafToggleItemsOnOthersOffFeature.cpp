@@ -138,12 +138,11 @@ caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObjectHandle*> ToggleItemsOnOthersOffFeature::childObjects( caf::PdmFieldHandle* parent )
 {
-    std::vector<caf::PdmObjectHandle*> children;
     if ( parent )
     {
-        parent->children();
+        return parent->children();
     }
-    return children;
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -51,8 +51,7 @@ void RicDeleteItemExec::redo()
     caf::PdmChildArrayFieldHandle* listField = dynamic_cast<caf::PdmChildArrayFieldHandle*>( field );
     if ( listField )
     {
-        std::vector<caf::PdmObjectHandle*> children;
-        listField->children();
+        std::vector<caf::PdmObjectHandle*> children = listField->children();
 
         caf::PdmObjectHandle* obj = children[m_commandData.m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );

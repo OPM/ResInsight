@@ -325,8 +325,7 @@ void PdmXmlObjectHandle::initAfterReadRecursively( PdmObjectHandle* object )
     {
         if ( !field ) continue;
 
-        auto children = field->children();
-        for ( auto child : children )
+        for ( auto child : field->children() )
         {
             initAfterReadRecursively( child );
         }
@@ -351,13 +350,12 @@ void PdmXmlObjectHandle::resolveReferencesRecursively( PdmObjectHandle*         
     object->fields( fields );
 
     std::vector<PdmObjectHandle*> children;
-    size_t                        fIdx;
-    for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
+    for ( caf::PdmFieldHandle* field : fields )
     {
-        PdmFieldHandle* field = fields[fIdx];
         if ( field )
         {
-            field->children();
+            auto fieldChildren = field->children();
+            children.insert( children.end(), fieldChildren.begin(), fieldChildren.end() );
 
             bool resolvedOk = field->xmlCapability()->resolveReferences();
             if ( fieldWithFailingResolve && !resolvedOk )
@@ -406,8 +404,7 @@ void PdmXmlObjectHandle::setupBeforeSaveRecursively( PdmObjectHandle* object )
     {
         if ( !field ) continue;
 
-        auto children = field->children();
-        for ( auto child : children )
+        for ( auto child : field->children() )
         {
             setupBeforeSaveRecursively( child );
         }

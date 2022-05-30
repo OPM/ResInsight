@@ -979,13 +979,11 @@ void WellSelectionPage::selectedWellPathEntries( std::vector<DownloadEntity>& do
 
     std::vector<caf::PdmFieldHandle*> childFields;
     objHandle->fields( childFields );
-    for ( size_t i = 0; i < childFields.size(); i++ )
+    for ( auto& childField : childFields )
     {
-        std::vector<caf::PdmObjectHandle*> childObjects = childFields[i]->children();
-
-        for ( size_t j = 0; j < childObjects.size(); j++ )
+        for ( auto& childObject : childField->children() )
         {
-            RimWellPathEntry* wellPathEntry = ( dynamic_cast<RimWellPathEntry*>( childObjects[j] ) );
+            RimWellPathEntry* wellPathEntry = ( dynamic_cast<RimWellPathEntry*>( childObject ) );
             if ( wellPathEntry )
             {
                 if ( wellPathEntry->selected && wellPathEntry->isWellPathValid() )
@@ -1001,7 +999,7 @@ void WellSelectionPage::selectedWellPathEntries( std::vector<DownloadEntity>& do
             }
             else
             {
-                selectedWellPathEntries( downloadEntities, childObjects[j] );
+                selectedWellPathEntries( downloadEntities, childObject );
             }
         }
     }
