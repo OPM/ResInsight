@@ -265,8 +265,6 @@ std::vector<PdmObjectHandle*> caf::PdmChildArrayField<DataType*>::children()
 
     for ( auto p : m_pointers )
     {
-        if ( p.isNull() ) continue;
-
         auto rawPointer = p.rawPtr();
         objects.push_back( rawPointer );
     }
@@ -284,10 +282,7 @@ std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childrenByType() cons
 
     for ( DataType* p : m_pointers )
     {
-        if ( p != nullptr )
-        {
-            objects.push_back( p );
-        }
+        objects.push_back( p );
     }
 
     return objects;
