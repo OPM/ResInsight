@@ -12,7 +12,7 @@ template <typename DataType>
 std::vector<PdmObjectHandle*> caf::PdmChildField<DataType*>::children()
 {
     PdmObjectHandle* obj = m_fieldValue.rawPtr();
-    if (obj)
+    if ( obj )
     {
         return { obj };
     }
