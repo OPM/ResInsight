@@ -46,6 +46,7 @@ CAF_PDM_SOURCE_INIT( RimMultiPlot, "MultiPlot" );
 //--------------------------------------------------------------------------------------------------
 RimMultiPlot::RimMultiPlot()
     : m_isValid( true )
+    , m_delayPlotUpdatesDuringBatchAdd( false )
 {
     CAF_PDM_InitObject( "Multi Plot", ":/MultiPlot16x16.png" );
 
@@ -197,9 +198,12 @@ void RimMultiPlot::insertPlot( RimPlot* plot, size_t index )
             plot->createPlotWidget( m_viewer );
             m_viewer->insertPlot( plot->plotWidget(), index );
         }
-        plot->updateAfterInsertingIntoMultiPlot();
 
-        onPlotAdditionOrRemoval();
+        if ( !m_delayPlotUpdatesDuringBatchAdd )
+        {
+            plot->updateAfterInsertingIntoMultiPlot();
+            onPlotAdditionOrRemoval();
+        }
     }
 }
 
@@ -915,4 +919,21 @@ std::vector<caf::PdmFieldHandle*> RimMultiPlot::fieldsToShowInLayoutToolbar()
 bool RimMultiPlot::isValid() const
 {
     return m_isValid;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::startBatchAddOperation()
+{
+    m_delayPlotUpdatesDuringBatchAdd = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMultiPlot::endBatchAddOperation()
+{
+    m_delayPlotUpdatesDuringBatchAdd = false;
+    onPlotAdditionOrRemoval();
 }

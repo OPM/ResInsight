@@ -28,6 +28,7 @@
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
+#include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -43,6 +44,8 @@ void RicAppendSummaryPlotsForSummaryAddressesFeature::appendPlotsForAddresses( R
     if ( !summaryMultiPlot ) return;
     if ( addresses.empty() ) return;
 
+    caf::ProgressInfo info( addresses.size(), "Appending plots..." );
+
     for ( auto adr : addresses )
     {
         auto* plot = new RimSummaryPlot();
@@ -50,6 +53,8 @@ void RicAppendSummaryPlotsForSummaryAddressesFeature::appendPlotsForAddresses( R
         plot->handleDroppedObjects( { adr } );
 
         summaryMultiPlot->addPlot( plot );
+
+        info.incrementProgress();
     }
 }
 

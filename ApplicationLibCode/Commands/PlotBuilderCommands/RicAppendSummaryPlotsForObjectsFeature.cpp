@@ -35,6 +35,7 @@
 #include "RimSummaryPlot.h"
 
 #include "cafAssert.h"
+#include "cafProgressInfo.h"
 #include "cafSelectionManager.h"
 
 #include <QAction>
@@ -62,6 +63,8 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
     auto selectionType       = sumAddressCollections.front()->contentType();
     auto sourcePlots         = summaryMultiPlot->summaryPlots();
     auto plotsForOneInstance = plotsForOneInstanceOfObjectType( sourcePlots, selectionType );
+
+    caf::ProgressInfo info( sumAddressCollections.size(), "Appending plots..." );
 
     for ( auto summaryAdrCollection : sumAddressCollections )
     {
@@ -94,6 +97,7 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
                 duplicatedPlot->resolveReferencesRecursively();
             }
         }
+        info.incrementProgress();
     }
 
     summaryMultiPlot->loadDataAndUpdate();

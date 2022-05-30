@@ -69,6 +69,9 @@ public:
     void removePlot( RimPlot* plot ) override;
     void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
 
+    virtual void startBatchAddOperation();
+    virtual void endBatchAddOperation();
+
     virtual void removePlotNoUpdate( RimPlot* plot );
     virtual void updateAfterPlotRemove();
 
@@ -168,6 +171,8 @@ protected:
 
     friend class RiuMultiPlotBook;
     QPointer<RiuMultiPlotBook> m_viewer;
+
+    bool m_delayPlotUpdatesDuringBatchAdd;
 
 private:
     caf::PdmChildArrayField<RimPlot*> m_plots;
