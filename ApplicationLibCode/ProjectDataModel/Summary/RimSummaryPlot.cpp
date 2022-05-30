@@ -328,8 +328,8 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
     std::vector<RimSummaryCurve*> curves;
     this->descendantsIncludingThisOfType( curves );
 
-    auto gridCurves  = m_gridTimeHistoryCurves.children();
-    auto asciiCurves = m_asciiDataCurves.children();
+    auto gridCurves  = m_gridTimeHistoryCurves.childrenByType();
+    auto asciiCurves = m_asciiDataCurves.childrenByType();
 
     QString text =
         RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
@@ -1344,7 +1344,7 @@ void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* c
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::gridTimeHistoryCurves() const
 {
-    return m_gridTimeHistoryCurves.children();
+    return m_gridTimeHistoryCurves.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

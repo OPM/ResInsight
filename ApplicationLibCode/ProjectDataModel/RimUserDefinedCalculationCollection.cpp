@@ -115,7 +115,7 @@ void RimUserDefinedCalculationCollection::deleteCalculation( RimUserDefinedCalcu
 //--------------------------------------------------------------------------------------------------
 std::vector<RimUserDefinedCalculation*> RimUserDefinedCalculationCollection::calculations() const
 {
-    return m_calculations.children();
+    return m_calculations.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

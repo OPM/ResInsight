@@ -101,7 +101,7 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.children();
+    std::vector<RimPlot*> plots = rhs.m_plots.childrenByType();
     rhs.m_plots.clearWithoutDelete();
     for ( RimPlot* plot : plots )
     {
@@ -316,7 +316,7 @@ size_t RimMultiPlot::plotIndex( const RimPlot* plot ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RimMultiPlot::plots() const
 {
-    return m_plots.children();
+    return m_plots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

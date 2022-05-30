@@ -91,7 +91,7 @@ void RimGeoMechPartCollection::syncWithCase( RimGeoMechCase* geoCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechPart*> RimGeoMechPartCollection::parts() const
 {
-    return m_parts.children();
+    return m_parts.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

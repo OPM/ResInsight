@@ -244,7 +244,9 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         computeUnionOfActiveCells();
     }
 
-    RigCaseCellResultsData::copyResultsMetaDataFromMainCase( rigCaseData, poroModel, caseCollection->reservoirs.children() );
+    RigCaseCellResultsData::copyResultsMetaDataFromMainCase( rigCaseData,
+                                                             poroModel,
+                                                             caseCollection->reservoirs.childrenByType() );
 
     // "Load" the statistical cases
 

@@ -385,7 +385,7 @@ void RimWellDistributionPlotCollection::updatePlots()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::cleanupBeforeClose()
 {
-    auto plotVector = m_plots.children();
+    auto plotVector = m_plots.childrenByType();
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->detachAllCurves();

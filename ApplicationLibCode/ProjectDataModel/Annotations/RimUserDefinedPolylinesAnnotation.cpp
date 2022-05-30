@@ -95,7 +95,7 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimUserDefinedPolylinesAnnotation::activeTargets() const
 {
-    return m_targets.children();
+    return m_targets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

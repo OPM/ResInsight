@@ -648,7 +648,7 @@ public:
 
     void readFromField( QTextStream& outputStream, bool quoteStrings = true, bool quoteNonBuiltins = false ) const override
     {
-        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->children(),
+        PdmFieldScriptingCapabilityIOHandler<std::vector<DataType*>>::readFromField( m_field->childrenByType(),
                                                                                      outputStream,
                                                                                      quoteStrings,
                                                                                      quoteNonBuiltins );

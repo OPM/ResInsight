@@ -56,7 +56,7 @@ RimPressureTable::~RimPressureTable()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPressureTableItem*> RimPressureTable::items() const
 {
-    std::vector<RimPressureTableItem*> pressureTableItems = m_pressureTableItems.children();
+    std::vector<RimPressureTableItem*> pressureTableItems = m_pressureTableItems.childrenByType();
 
     // Sort by depth
     std::sort( pressureTableItems.begin(), pressureTableItems.end(), []( auto const& a, auto const& b ) {

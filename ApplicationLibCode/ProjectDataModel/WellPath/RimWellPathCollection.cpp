@@ -294,7 +294,7 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, b
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 {
-    return m_wellPaths.children();
+    return m_wellPaths.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -791,7 +791,7 @@ void RimWellPathCollection::rebuildWellPathNodes()
 {
     m_wellPathNodes.deleteChildren();
 
-    std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.children() );
+    std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.childrenByType() );
     for ( auto [groupName, wellPathGroup] : rootWells )
     {
         if ( groupName == unGroupedText() )

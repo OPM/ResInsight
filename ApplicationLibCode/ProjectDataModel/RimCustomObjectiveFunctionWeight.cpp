@@ -156,7 +156,7 @@ void RimCustomObjectiveFunctionWeight::fieldChangedByUi( const caf::PdmFieldHand
         RimSummaryCaseCollection* candidateEnsemble = parentCurveSet()->summaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().children() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().childrenByType() )
         {
             candidateAddresses.push_back( address->address() );
         }

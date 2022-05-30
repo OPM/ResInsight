@@ -280,7 +280,7 @@ std::vector<RimGenericParameter*> RimParameterGroup::parameters() const
 {
     std::vector<RimGenericParameter*> retParams;
 
-    for ( const auto& p : m_parameters.children() )
+    for ( const auto& p : m_parameters.childrenByType() )
     {
         if ( isListParameter( p->name() ) ) continue;
         retParams.push_back( p );
@@ -288,7 +288,7 @@ std::vector<RimGenericParameter*> RimParameterGroup::parameters() const
 
     for ( const auto& list : m_lists )
     {
-        retParams.push_back( list->getAsListParameter( m_parameters.children() ) );
+        retParams.push_back( list->getAsListParameter( m_parameters.childrenByType() ) );
     }
 
     return retParams;
@@ -324,7 +324,7 @@ void RimParameterGroup::setParameterValue( QString name, QString value )
 //--------------------------------------------------------------------------------------------------
 RimGenericParameter* RimParameterGroup::parameter( QString name ) const
 {
-    for ( auto& p : m_parameters.children() )
+    for ( auto& p : m_parameters.childrenByType() )
     {
         if ( p->name() == name )
         {

@@ -372,7 +372,7 @@ RimRegularLegendConfig* RimGridCrossPlotDataSet::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotDataSet::curves() const
 {
-    return m_crossPlotCurves.children();
+    return m_crossPlotCurves.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -971,7 +971,7 @@ QList<caf::PdmOptionItemInfo>
         if ( eclipseCase )
         {
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
-            for ( RimEclipseView* view : eclipseCase->reservoirViews.children() )
+            for ( RimEclipseView* view : eclipseCase->reservoirViews.childrenByType() )
             {
                 CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
                 options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );

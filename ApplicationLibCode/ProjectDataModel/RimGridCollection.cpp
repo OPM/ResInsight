@@ -219,7 +219,7 @@ void RimGridInfoCollection::deleteGridInfo( const QString& gridName )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridInfo*> RimGridInfoCollection::gridInfos() const
 {
-    return m_gridInfos.children();
+    return m_gridInfos.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

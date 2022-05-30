@@ -2271,7 +2271,7 @@ std::map<int, std::vector<RimWellLogCurve*>> RimWellLogTrack::visibleStackedCurv
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogCurve*> RimWellLogTrack::curves() const
 {
-    return m_curves.children();
+    return m_curves.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2281,7 +2281,7 @@ std::vector<RimWellLogCurve*> RimWellLogTrack::visibleCurves() const
 {
     std::vector<RimWellLogCurve*> curvesVector;
 
-    for ( RimWellLogCurve* curve : m_curves.children() )
+    for ( RimWellLogCurve* curve : m_curves.childrenByType() )
     {
         if ( curve->isCurveVisible() )
         {

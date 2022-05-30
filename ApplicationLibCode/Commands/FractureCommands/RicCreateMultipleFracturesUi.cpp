@@ -135,7 +135,7 @@ void RiuCreateMultipleFractionsUi::resetValues()
 //--------------------------------------------------------------------------------------------------
 std::vector<RicCreateMultipleFracturesOptionItemUi*> RiuCreateMultipleFractionsUi::options() const
 {
-    return m_options.children();
+    return m_options.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

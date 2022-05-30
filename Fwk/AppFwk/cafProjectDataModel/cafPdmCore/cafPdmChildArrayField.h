@@ -96,6 +96,7 @@ public:
 
     // Child objects
     std::vector<caf::PdmObjectHandle*> children() override;
+    std::vector<DataType*>             childrenByType() const;
 
     // void children( std::vector<PdmObjectHandle*>* objects ) override;
     void removeChild( PdmObjectHandle* object ) override;

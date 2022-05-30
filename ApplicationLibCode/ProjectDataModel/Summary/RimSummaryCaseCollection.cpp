@@ -212,7 +212,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 {
-    return m_cases.children();
+    return m_cases.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

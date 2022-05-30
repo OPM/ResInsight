@@ -407,7 +407,7 @@ std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID
         retlist.push_back( p );
     }
 
-    for ( auto& group : m_basicParameters.children() )
+    for ( auto& group : m_basicParameters.childrenByType() )
     {
         for ( auto& p : group->parameters() )
         {
@@ -438,7 +438,7 @@ std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faul
         retlist.push_back( p );
     }
 
-    for ( auto& group : m_advancedParameters.children() )
+    for ( auto& group : m_advancedParameters.childrenByType() )
     {
         for ( auto& p : group->parameters() )
         {
@@ -612,13 +612,13 @@ RimGenericParameter* RimFaultRASettings::getInputParameter( QString name ) const
 {
     RimGenericParameter* retval = nullptr;
 
-    for ( auto group : m_basicParameters.children() )
+    for ( auto group : m_basicParameters.childrenByType() )
     {
         retval = group->parameter( name );
         if ( retval != nullptr ) return retval;
     }
 
-    for ( auto group : m_advancedParameters.children() )
+    for ( auto group : m_advancedParameters.childrenByType() )
     {
         retval = group->parameter( name );
         if ( retval != nullptr ) return retval;

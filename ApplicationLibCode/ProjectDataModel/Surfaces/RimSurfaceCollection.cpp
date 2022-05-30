@@ -269,7 +269,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 {
-    return m_surfaces.children();
+    return m_surfaces.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 {
-    return m_subCollections.children();
+    return m_subCollections.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

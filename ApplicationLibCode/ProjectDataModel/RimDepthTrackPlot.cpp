@@ -178,7 +178,7 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    auto plots = rhs.m_plots.children();
+    auto plots = rhs.m_plots.childrenByType();
     rhs.m_plots.clearWithoutDelete();
     for ( auto plot : plots )
     {
@@ -270,7 +270,7 @@ std::vector<RimPlot*> RimDepthTrackPlot::plots() const
 {
     std::vector<RimPlot*> baseClassPlots;
 
-    for ( auto p : m_plots.children() )
+    for ( auto p : m_plots.childrenByType() )
     {
         baseClassPlots.push_back( p );
     }
@@ -1213,7 +1213,7 @@ RiuPlotAxis RimDepthTrackPlot::valueAxis() const
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::setAutoScalePropertyValuesEnabled( bool enabled )
 {
-    for ( auto plot : m_plots.children() )
+    for ( auto plot : m_plots.childrenByType() )
     {
         plot->setAutoScalePropertyValuesEnabled( enabled );
     }

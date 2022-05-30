@@ -69,7 +69,7 @@ void RimEnsembleFractureStatisticsPlotCollection::addEnsembleFractureStatisticsP
 std::vector<RimEnsembleFractureStatisticsPlot*>
     RimEnsembleFractureStatisticsPlotCollection::ensembleFractureStatisticsPlots() const
 {
-    return m_ensembleFractureStatisticsPlots.children();
+    return m_ensembleFractureStatisticsPlots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

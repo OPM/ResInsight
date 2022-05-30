@@ -80,7 +80,7 @@ RimCustomObjectiveFunctionWeight* RimCustomObjectiveFunction::addWeight()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCustomObjectiveFunctionWeight*> RimCustomObjectiveFunction::weights() const
 {
-    return m_weights.children();
+    return m_weights.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -350,7 +350,7 @@ RimCustomObjectiveFunctionCollection* RimCustomObjectiveFunction::parentCollecti
 //--------------------------------------------------------------------------------------------------
 RimObjectiveFunction* RimCustomObjectiveFunction::objectiveFunction( RimObjectiveFunction::FunctionType functionType ) const
 {
-    for ( auto objectiveFunc : m_objectiveFunctions.children() )
+    for ( auto objectiveFunc : m_objectiveFunctions.childrenByType() )
     {
         if ( objectiveFunc->functionType() == functionType )
         {

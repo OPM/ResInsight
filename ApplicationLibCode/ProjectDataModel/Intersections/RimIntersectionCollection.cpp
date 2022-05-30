@@ -254,7 +254,7 @@ void RimIntersectionCollection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersections() const
 {
-    return m_intersections.children();
+    return m_intersections.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,7 +262,7 @@ std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersecti
 //--------------------------------------------------------------------------------------------------
 std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() const
 {
-    return m_intersectionBoxes.children();
+    return m_intersectionBoxes.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

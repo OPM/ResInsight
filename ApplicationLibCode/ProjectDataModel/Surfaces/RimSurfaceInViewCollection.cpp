@@ -137,7 +137,7 @@ void RimSurfaceInViewCollection::updateAllViewItems()
 void RimSurfaceInViewCollection::syncCollectionsWithView()
 {
     // check that we have surface in view collections for all sub-collections
-    std::vector<RimSurfaceInViewCollection*> colls = m_collectionsInView.children();
+    std::vector<RimSurfaceInViewCollection*> colls = m_collectionsInView.childrenByType();
 
     for ( auto surfcoll : colls )
     {
@@ -188,7 +188,7 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
 {
     // Delete surfaceInView without any real Surface connection
 
-    std::vector<RimSurfaceInView*> surfsInView = m_surfacesInView.children();
+    std::vector<RimSurfaceInView*> surfsInView = m_surfacesInView.childrenByType();
 
     for ( auto surf : surfsInView )
     {

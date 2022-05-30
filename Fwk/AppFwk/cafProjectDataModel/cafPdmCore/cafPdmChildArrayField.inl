@@ -274,6 +274,25 @@ std::vector<PdmObjectHandle*> caf::PdmChildArrayField<DataType*>::children()
     return objects;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+std::vector<DataType*> caf::PdmChildArrayField<DataType*>::childrenByType() const
+{
+	std::vector<DataType*> objects;
+
+	for (DataType* p : m_pointers)
+	{
+		if (p != nullptr)
+		{
+			objects.push_back(p);
+		}
+	}
+
+	return objects;
+}
+
 
 
 //--------------------------------------------------------------------------------------------------

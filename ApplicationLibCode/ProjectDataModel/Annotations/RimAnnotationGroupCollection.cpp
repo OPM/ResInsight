@@ -103,7 +103,7 @@ void RimAnnotationGroupCollection::removeAnnotation( caf::PdmObject* annotation 
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 {
-    return m_annotations.children();
+    return m_annotations.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

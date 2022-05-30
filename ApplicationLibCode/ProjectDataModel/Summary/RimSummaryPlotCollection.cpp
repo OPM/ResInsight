@@ -120,7 +120,7 @@ void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*   
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RimSummaryPlotCollection::plots() const
 {
-    return m_summaryPlots.children();
+    return m_summaryPlots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

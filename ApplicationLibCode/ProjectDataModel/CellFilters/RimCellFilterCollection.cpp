@@ -103,7 +103,7 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCellFilter*> RimCellFilterCollection::filters() const
 {
-    return m_cellFilters.children();
+    return m_cellFilters.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -253,7 +253,7 @@ void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 {
-    return m_curves.children();
+    return m_curves.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

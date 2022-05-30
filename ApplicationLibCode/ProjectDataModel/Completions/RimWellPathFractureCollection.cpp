@@ -77,7 +77,7 @@ void RimWellPathFractureCollection::deleteFractures()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPathFracture*> RimWellPathFractureCollection::allFractures() const
 {
-    return m_fractures.children();
+    return m_fractures.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

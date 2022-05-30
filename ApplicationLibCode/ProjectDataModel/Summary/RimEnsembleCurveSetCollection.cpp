@@ -206,7 +206,7 @@ void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsemb
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSets() const
 {
-    return m_curveSets.children();
+    return m_curveSets.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -444,7 +444,7 @@ int RimSummaryAddressCollection::ensembleId() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryAddressCollection*> RimSummaryAddressCollection::subFolders() const
 {
-    return m_subfolders.children();
+    return m_subfolders.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

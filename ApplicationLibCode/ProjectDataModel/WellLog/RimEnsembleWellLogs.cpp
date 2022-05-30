@@ -59,7 +59,7 @@ void RimEnsembleWellLogs::addWellLogFile( RimWellLogFile* summaryCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogFile*> RimEnsembleWellLogs::wellLogFiles() const
 {
-    return m_wellLogFiles().children();
+    return m_wellLogFiles().childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -123,7 +123,7 @@ void RimAnalysisPlotCollection::updateSummaryNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots() const
 {
-    return m_analysisPlots.children();
+    return m_analysisPlots.childrenByType();
 }
 
 //--------------------------------------------------------------------------------------------------
