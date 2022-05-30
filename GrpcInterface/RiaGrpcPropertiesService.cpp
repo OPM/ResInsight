@@ -248,12 +248,31 @@ protected:
                            RigEclipseResultAddress       resVarAddr ) override
     {
         auto activeCellInfo = caseData->activeCellInfo( porosityModel );
+        m_cellCount         = activeCellInfo->reservoirActiveCellCount();
         m_resultValues = caseData->results( porosityModel )->modifiableCellScalarResult( resVarAddr, timeStepIndex );
         if ( m_resultValues->empty() )
         {
             m_resultValues->resize( activeCellInfo->reservoirActiveCellCount() );
         }
-        m_cellCount = activeCellInfo->reservoirActiveCellCount();
+        else if ( m_resultValues->size() != m_cellCount )
+        {
+            // Filter out inactive cells
+            std::vector<double> activeCellResultValues( m_cellCount );
+            size_t              reservoirCellCount = activeCellInfo->reservoirCellCount();
+            for ( size_t cellIdx = 0; cellIdx < reservoirCellCount; cellIdx++ )
+            {
+                size_t activeCellIdx = caseData->activeCellInfo( m_porosityModel )->cellResultIndex( cellIdx );
+                if ( activeCellIdx != cvf::UNDEFINED_SIZE_T )
+                    activeCellResultValues[activeCellIdx] = ( *m_resultValues )[cellIdx];
+            }
+
+            // Use the filtered result
+            m_resultValues->resize( m_cellCount );
+            for ( size_t activeIdx = 0; activeIdx < m_cellCount; activeIdx++ )
+            {
+                ( *m_resultValues )[activeIdx] = activeCellResultValues[activeIdx];
+            }
+        }
     }
 
     double cellResult( size_t currentCellIndex ) const override { return ( *m_resultValues )[currentCellIndex]; }
