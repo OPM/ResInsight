@@ -19,8 +19,6 @@
 
 #include "RiuDragDrop.h"
 
-#include "RiaGuiApplication.h"
-
 #include "OperationsUsingObjReferences/RicPasteEclipseCasesFeature.h"
 #include "RicCloseCaseFeature.h"
 #include "WellLogCommands/RicNewWellLogFileCurveFeature.h"
@@ -242,7 +240,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 {
     Qt::ItemFlags itemflags;
 
-    if ( index.isValid() && RiaGuiApplication::activeMainWindow() )
+    if ( index.isValid() )
     {
         caf::PdmUiItem* uiItem = m_projectTreeView->uiItemFromModelIndex( index );
 
@@ -383,8 +381,6 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& dropTargetIndex )
 {
-    CVF_ASSERT( RiaGuiApplication::activeMainWindow() );
-
     caf::PdmUiTreeView*   uiTreeView       = m_projectTreeView;
     caf::PdmUiItem*       dropTargetUiItem = uiTreeView->uiItemFromModelIndex( dropTargetIndex );
     caf::PdmObjectHandle* dropTarget       = dynamic_cast<caf::PdmObjectHandle*>( dropTargetUiItem );
