@@ -53,6 +53,8 @@ void RicSetAsDefaultTemplateFeature::onActionTriggered( bool isChecked )
         RiaPreferencesSummary::current()->addToDefaultPlotTemplates( file->absoluteFilePath() );
     else
         RiaPreferencesSummary::current()->removeFromDefaultPlotTemplates( file->absoluteFilePath() );
+
+    file->updateIconState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -67,8 +69,7 @@ void RicSetAsDefaultTemplateFeature::setupActionLook( QAction* actionToSetup )
     if ( file != nullptr )
     {
         actionToSetup->setCheckable( true );
-        actionToSetup->setChecked(
-            RiaPreferencesSummary::current()->isDefaultSummaryPlotTemplate( file->absoluteFilePath() ) );
+        actionToSetup->setChecked( file->isDefaultTemplate() );
     }
 }
 

@@ -88,5 +88,4 @@ void RicEditPlotTemplateFeature::onActionTriggered( bool isChecked )
 void RicEditPlotTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Edit" );
-    actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 }

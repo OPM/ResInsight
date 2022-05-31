@@ -60,6 +60,23 @@ void RimPlotTemplateFolderItem::createRootFolderItemsFromFolderPaths( const QStr
     m_subFolders.deleteAllChildObjects();
 
     createSubFolderItemsFromFolderPaths( folderPaths );
+    updateIconState();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotTemplateFolderItem::updateIconState() const
+{
+    for ( auto& folder : m_subFolders() )
+    {
+        folder->updateIconState();
+    }
+
+    for ( auto& item : m_fileNames() )
+    {
+        item->updateIconState();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,6 +142,7 @@ void RimPlotTemplateFolderItem::searchForFileAndFolderNames()
     {
         QStringList nameFilters;
         nameFilters << "*.rpt";
+        nameFilters << "*.erpt";
         QStringList fileList = caf::Utils::getFilesInDirectory( m_folderName().path(), nameFilters, true );
 
         for ( int i = 0; i < fileList.size(); i++ )
@@ -192,6 +210,19 @@ void RimPlotTemplateFolderItem::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotTemplateFolderItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( !m_folderName().path().isEmpty() )
+    {
+        uiOrdering.add( &m_folderName );
+    }
+
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QList<caf::PdmOptionItemInfo>& options,
                                                                               RimPlotTemplateFolderItem* templateFolderItem,
                                                                               int                        menuLevel )
@@ -209,11 +240,15 @@ void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QL
     }
 
     caf::IconProvider templateIcon( ":/SummaryTemplate16x16.png" );
+    caf::IconProvider ensTemplateIcon( ":/SummaryEnsembleTemplate16x16.png" );
 
     auto files = templateFolderItem->fileNames();
     for ( auto file : files )
     {
-        caf::PdmOptionItemInfo optionInfo( file->uiName(), file, false, templateIcon );
+        caf::IconProvider icon = templateIcon;
+        if ( file->isEnsembleTemplate() ) icon = ensTemplateIcon;
+
+        caf::PdmOptionItemInfo optionInfo( file->uiName(), file, false, icon );
 
         optionInfo.setLevel( menuLevel );
 

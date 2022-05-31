@@ -89,7 +89,13 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
     caf::PdmUiPropertyViewDialog propertyDialog( RiuPlotMainWindow::instance(), &settings, "Export Plot Template", "" );
     if ( propertyDialog.exec() != QDialog::Accepted ) return;
 
-    QString fileName = settings.filePath() + "/" + settings.name() + ".rpt";
+    auto plot = selectedSummaryPlot();
+    if ( !plot ) return;
+
+    QString ext = ".rpt";
+    if ( selectedSummaryPlot()->curveSets().size() > 0 ) ext = ".erpt";
+
+    QString fileName = settings.filePath() + "/" + settings.name() + ext;
     if ( !fileName.isEmpty() )
     {
         QFile exportFile( fileName );

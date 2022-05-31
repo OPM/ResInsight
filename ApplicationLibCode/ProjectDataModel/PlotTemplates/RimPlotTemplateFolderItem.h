@@ -48,6 +48,7 @@ public:
 
     static void appendOptionItemsForPlotTemplates( QList<caf::PdmOptionItemInfo>& options,
                                                    RimPlotTemplateFolderItem*     templateFolderItem );
+    void        updateIconState() const;
 
 private:
     void searchForFileAndFolderNames();
@@ -60,6 +61,7 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     static void appendOptionItemsForPlotTemplatesRecursively( QList<caf::PdmOptionItemInfo>& options,
                                                               RimPlotTemplateFolderItem*     templateFolderItem,
