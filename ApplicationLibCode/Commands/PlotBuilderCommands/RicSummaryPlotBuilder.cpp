@@ -416,8 +416,9 @@ RimSummaryMultiPlot*
 
     if ( prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES )
     {
-        RimSummaryMultiPlot* plotToSelect = nullptr;
-        for ( auto& filename : prefs->defaultSummaryPlotTemplates() )
+        RimSummaryMultiPlot* plotToSelect      = nullptr;
+        bool                 ensembleTemplates = ( ensembles.size() > 0 );
+        for ( auto& filename : prefs->defaultSummaryPlotTemplates( ensembleTemplates ) )
         {
             plotToSelect = RicSummaryPlotTemplateTools::create( filename, cases, ensembles );
         }
