@@ -444,7 +444,7 @@ QString RicSummaryPlotTemplateTools::selectPlotTemplatePath()
     {
         QString fileName = ui.selectedPlotTemplates().front()->absoluteFilePath();
 
-        RiaPreferences::current()->setDefaultPlotTemplatePath( fileName );
+        RiaPreferences::current()->setLastUsedPlotTemplatePath( fileName );
         RiaPreferences::current()->writePreferencesToApplicationStore();
 
         return fileName;

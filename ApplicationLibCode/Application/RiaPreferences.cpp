@@ -219,7 +219,7 @@ RiaPreferences::RiaPreferences()
                        "Search Plot Templates Recursively" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_searchPlotTemplateFoldersRecursively );
 
-    CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );
+    CAF_PDM_InitFieldNoDefault( &m_lastUsedPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );
 
     CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size" );
     CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation" );
@@ -714,17 +714,17 @@ void RiaPreferences::appendPlotTemplateFolders( const QString& folder )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::defaultPlotTemplateAbsolutePath() const
+QString RiaPreferences::lastUsedPlotTemplateAbsolutePath() const
 {
-    return m_defaultPlotTemplate().path();
+    return m_lastUsedPlotTemplate().path();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
+void RiaPreferences::setLastUsedPlotTemplatePath( const QString& templatePath )
 {
-    m_defaultPlotTemplate = templatePath;
+    m_lastUsedPlotTemplate = templatePath;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -47,7 +47,7 @@ bool RicCreatePlotFromTemplateByShortcutFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isChecked )
 {
-    QString fileName = RiaPreferences::current()->defaultPlotTemplateAbsolutePath();
+    QString fileName = RiaPreferences::current()->lastUsedPlotTemplateAbsolutePath();
 
     if ( !QFile::exists( fileName ) )
     {
