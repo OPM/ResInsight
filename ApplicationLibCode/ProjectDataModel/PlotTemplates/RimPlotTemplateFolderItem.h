@@ -51,13 +51,10 @@ public:
     void        updateIconState() const;
 
 private:
-    void searchForFileAndFolderNames();
+    void searchForFileAndFolderNames( int levelsLeft );
     void setFolderPath( const QString& path );
-    void createSubFolderItemsFromFolderPaths( const QStringList& folderPaths );
+    void createSubFolderItemsFromFolderPaths( const QStringList& folderPaths, int levelsLeft );
 
-    bool searchSubFoldersRecursively() const;
-
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;

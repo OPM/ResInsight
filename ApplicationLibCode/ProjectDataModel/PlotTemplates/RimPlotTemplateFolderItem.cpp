@@ -38,6 +38,7 @@ RimPlotTemplateFolderItem::RimPlotTemplateFolderItem()
     CAF_PDM_InitObject( "Plot Templates", ":/Folder.png" );
 
     CAF_PDM_InitFieldNoDefault( &m_folderName, "FolderName", "Folder" );
+    m_folderName.uiCapability()->setUiReadOnly( true );
     CAF_PDM_InitFieldNoDefault( &m_fileNames, "FileNames", "" );
     m_fileNames.uiCapability()->setUiTreeHidden( true );
     CAF_PDM_InitFieldNoDefault( &m_subFolders, "SubFolders", "" );
@@ -59,7 +60,7 @@ void RimPlotTemplateFolderItem::createRootFolderItemsFromFolderPaths( const QStr
     m_fileNames.deleteAllChildObjects();
     m_subFolders.deleteAllChildObjects();
 
-    createSubFolderItemsFromFolderPaths( folderPaths );
+    createSubFolderItemsFromFolderPaths( folderPaths, RiaPreferences::current()->maxPlotTemplateFoldersDepth() );
     updateIconState();
 }
 
@@ -118,16 +119,19 @@ void RimPlotTemplateFolderItem::setFolderPath( const QString& path )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotTemplateFolderItem::searchForFileAndFolderNames()
+void RimPlotTemplateFolderItem::searchForFileAndFolderNames( int levelsLeft )
 {
     m_fileNames.deleteAllChildObjects();
     m_subFolders.deleteAllChildObjects();
+
+    levelsLeft--;
+    if ( levelsLeft < 0 ) return;
 
     if ( m_folderName().path().isEmpty() )
     {
         for ( size_t i = 0; i < m_subFolders.size(); ++i )
         {
-            if ( m_subFolders[i] ) m_subFolders[i]->searchForFileAndFolderNames();
+            if ( m_subFolders[i] ) m_subFolders[i]->searchForFileAndFolderNames( levelsLeft );
         }
         return;
     }
@@ -138,7 +142,7 @@ void RimPlotTemplateFolderItem::searchForFileAndFolderNames()
         return;
     }
 
-    // Build a list of all scripts in the specified directory
+    // Build a list of all templates in the specified directory
     {
         QStringList nameFilters;
         nameFilters << "*.rpt";
@@ -158,7 +162,7 @@ void RimPlotTemplateFolderItem::searchForFileAndFolderNames()
         }
     }
 
-    if ( searchSubFoldersRecursively() )
+    if ( levelsLeft > 0 )
     {
         QStringList folderPaths;
 
@@ -170,23 +174,7 @@ void RimPlotTemplateFolderItem::searchForFileAndFolderNames()
             folderPaths.push_back( fi.absoluteFilePath() );
         }
 
-        createSubFolderItemsFromFolderPaths( folderPaths );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotTemplateFolderItem::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                                  const QVariant&            oldValue,
-                                                  const QVariant&            newValue )
-{
-    if ( &m_folderName == changedField )
-    {
-        QFileInfo fi( m_folderName().path() );
-        this->setUiName( fi.baseName() );
-
-        this->searchForFileAndFolderNames();
+        createSubFolderItemsFromFolderPaths( folderPaths, levelsLeft );
     }
 }
 
@@ -259,22 +247,14 @@ void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QL
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotTemplateFolderItem::createSubFolderItemsFromFolderPaths( const QStringList& folderPaths )
+void RimPlotTemplateFolderItem::createSubFolderItemsFromFolderPaths( const QStringList& folderPaths, int levelsLeft )
 {
     for ( const auto& path : folderPaths )
     {
-        RimPlotTemplateFolderItem* scriptLocation = new RimPlotTemplateFolderItem();
-        scriptLocation->setFolderPath( path );
-        scriptLocation->searchForFileAndFolderNames();
+        RimPlotTemplateFolderItem* templateLocation = new RimPlotTemplateFolderItem();
+        templateLocation->setFolderPath( path );
+        templateLocation->searchForFileAndFolderNames( levelsLeft );
 
-        m_subFolders.push_back( scriptLocation );
+        m_subFolders.push_back( templateLocation );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPlotTemplateFolderItem::searchSubFoldersRecursively() const
-{
-    return RiaPreferences::current()->searchPlotTemplateFoldersRecursively();
 }

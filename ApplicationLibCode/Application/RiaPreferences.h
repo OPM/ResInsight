@@ -76,7 +76,7 @@ public:
                RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
                RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) const;
 
-    bool        searchPlotTemplateFoldersRecursively() const;
+    int         maxPlotTemplateFoldersDepth() const;
     QStringList plotTemplateFolders() const;
     void        appendPlotTemplateFolders( const QString& folder );
     QString     lastUsedPlotTemplateAbsolutePath() const;
@@ -182,7 +182,7 @@ private:
     caf::PdmField<bool>                m_openExportedPdfInViewer;
 
     caf::PdmField<QString>       m_plotTemplateFolders;
-    caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
+    caf::PdmField<int>           m_maxPlotTemplateFoldersDepth;
     caf::PdmField<caf::FilePath> m_lastUsedPlotTemplate;
     caf::PdmField<bool>          m_useQtChartsPlotByDefault;
 
