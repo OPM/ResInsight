@@ -101,6 +101,7 @@ public:
     SummaryRestartFilesImportMode summaryEnsembleImportMode() const;
     QString                       defaultSummaryCurvesTextFilter() const;
     bool                          colorCurvesByPhase() const;
+    bool                          appendHistoryVectorForDragDrop() const;
 
     SummaryHistoryCurveStyleMode defaultSummaryHistoryCurveStyle() const;
 
@@ -129,6 +130,7 @@ private:
     caf::PdmField<QString>                          m_defaultSummaryCurvesTextFilter;
     caf::PdmField<SummaryHistoryCurveStyleModeType> m_defaultSummaryHistoryCurveStyle;
     caf::PdmField<bool>                             m_curveColorByPhase;
+    caf::PdmField<bool>                             m_appendHistoryVectorForDragDrop;
 
     caf::PdmField<bool> m_showSummaryTimeAsLongString;
     caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryCases;

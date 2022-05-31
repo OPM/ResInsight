@@ -172,6 +172,12 @@ RiaPreferencesSummary::RiaPreferencesSummary()
 
     CAF_PDM_InitField( &m_curveColorByPhase, "curveColorByPhase", true, "Curve Color By Phase" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_curveColorByPhase );
+
+    CAF_PDM_InitField( &m_appendHistoryVectorForDragDrop,
+                       "appendHistoryVectorForDragDrop",
+                       false,
+                       "Append History Vector for Drag/Drop" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendHistoryVectorForDragDrop );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,6 +278,7 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
 
     uiOrdering.add( &m_defaultSummaryHistoryCurveStyle );
     uiOrdering.add( &m_curveColorByPhase );
+    uiOrdering.add( &m_appendHistoryVectorForDragDrop );
 
     uiOrdering.add( &m_showSummaryTimeAsLongString );
 
@@ -343,6 +350,14 @@ QString RiaPreferencesSummary::defaultSummaryCurvesTextFilter() const
 bool RiaPreferencesSummary::colorCurvesByPhase() const
 {
     return m_curveColorByPhase();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSummary::appendHistoryVectorForDragDrop() const
+{
+    return m_appendHistoryVectorForDragDrop();
 }
 
 //--------------------------------------------------------------------------------------------------
