@@ -21,6 +21,7 @@
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaPreferences.h"
 
 #include "RicSelectCaseOrEnsembleUi.h"
 #include "RicSummaryPlotTemplateTools.h"
@@ -36,10 +37,6 @@
 #include "cafSelectionManager.h"
 
 #include <QAction>
-#include <QFile>
-#include <QFileInfo>
-#include <QInputDialog>
-#include <QMessageBox>
 #include <QString>
 
 CAF_CMD_SOURCE_INIT( RicCreateNewPlotFromTemplateFeature, "RicCreateNewPlotFromTemplateFeature" );
@@ -70,8 +67,6 @@ void RicCreateNewPlotFromTemplateFeature::onActionTriggered( bool isChecked )
     RimPlotTemplateFileItem* file = dynamic_cast<RimPlotTemplateFileItem*>( uiItems[0] );
     if ( file == nullptr ) return;
 
-    QWidget* parent = RiuPlotMainWindow::instance();
-
     RimSummaryMultiPlot* plot = nullptr;
 
     if ( file->isEnsembleTemplate() )
@@ -87,6 +82,12 @@ void RicCreateNewPlotFromTemplateFeature::onActionTriggered( bool isChecked )
         if ( !sumCase ) return;
 
         plot = RicSummaryPlotTemplateTools::create( file->absoluteFilePath(), { sumCase }, {} );
+    }
+
+    if ( plot != nullptr )
+    {
+        RiaPreferences::current()->setLastUsedPlotTemplatePath( file->absoluteFilePath() );
+        RiaPreferences::current()->writePreferencesToApplicationStore();
     }
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );
