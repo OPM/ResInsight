@@ -157,8 +157,14 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyCategory( const std::string& vectorName )
 {
+    // Try to an exact match on the vector name first in the vector table.
+    bool exactMatch    = true;
+    auto exactCategory = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( vectorName, exactMatch );
+    if ( exactCategory != SUMMARY_INVALID ) return exactCategory;
+
     if ( vectorName.size() < 3 || vectorName.size() > 8 ) return SUMMARY_INVALID;
 
+    // Try to match the base vector name with more heuristics
     auto strippedQuantityName = baseVectorName( vectorName );
 
     // First, try to lookup vector in vector table

@@ -33,9 +33,9 @@ RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance
 ///
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::SummaryVarCategory
-    RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName ) const
+    RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName, bool exactMatch ) const
 {
-    auto info = quantityInfo( vectorName );
+    auto info = quantityInfo( vectorName, exactMatch );
 
     return info.category;
 }
@@ -44,14 +44,16 @@ RifEclipseSummaryAddress::SummaryVarCategory
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
-    RiuSummaryQuantityNameInfoProvider::quantityInfo( const std::string& vectorName ) const
+    RiuSummaryQuantityNameInfoProvider::quantityInfo( const std::string& vectorName, bool exactMatch ) const
 {
     auto it = m_summaryToDescMap.find( vectorName );
-
     if ( it != m_summaryToDescMap.end() )
     {
         return it->second;
     }
+
+    // Stop searching if not found in lookup table and exact match was requested.
+    if ( exactMatch ) return RiuSummaryQuantityInfo();
 
     if ( vectorName.size() > 1 && vectorName[1] == 'U' )
     {
@@ -63,6 +65,7 @@ RiuSummaryQuantityNameInfoProvider::RiuSummaryQuantityInfo
 
         return RiuSummaryQuantityInfo();
     }
+
     if ( vectorName.size() > 5 )
     {
         // Check for custom vector naming
