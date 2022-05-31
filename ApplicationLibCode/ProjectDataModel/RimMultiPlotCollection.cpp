@@ -48,7 +48,7 @@ RimMultiPlotCollection::~RimMultiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotCollection::deleteAllPlots()
 {
-    m_multiPlots.deleteAllChildObjects();
+    m_multiPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ void RimMultiPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimMultiPlot*> RimMultiPlotCollection::multiPlots() const
 {
-    return m_multiPlots.childObjects();
+    return m_multiPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ void RimMultiPlotCollection::addMultiPlot( RimMultiPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotCollection::loadDataAndUpdateAllPlots()
 {
-    for ( const auto& p : m_multiPlots.childObjects() )
+    for ( const auto& p : m_multiPlots.children() )
         p->loadDataAndUpdate();
 }
 

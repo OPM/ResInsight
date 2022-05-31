@@ -294,7 +294,7 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, b
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 {
-    return m_wellPaths.childObjects();
+    return m_wellPaths.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -572,8 +572,8 @@ RimWellPath* RimWellPathCollection::tryFindMatchingWellPath( const QString& well
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::deleteAllWellPaths()
 {
-    m_wellPaths.deleteAllChildObjects();
-    m_wellPathNodes.deleteAllChildObjects();
+    m_wellPaths.deleteChildren();
+    m_wellPathNodes.deleteChildren();
 
     m_wellPathImporter->clear();
     updateAllRequiredEditors();
@@ -584,7 +584,7 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
 {
-    m_wellPaths.removeChildObject( wellPath );
+    m_wellPaths.removeChild( wellPath );
     delete wellPath;
 }
 
@@ -789,9 +789,9 @@ caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSyste
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::rebuildWellPathNodes()
 {
-    m_wellPathNodes.deleteAllChildObjects();
+    m_wellPathNodes.deleteChildren();
 
-    std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.childObjects() );
+    std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.children() );
     for ( auto [groupName, wellPathGroup] : rootWells )
     {
         if ( groupName == unGroupedText() )

@@ -299,7 +299,7 @@ void RimGridView::replaceCellFilterCollectionWithOverride()
 
     // Must call removeChildObject() to make sure the object has no parent
     // No parent is required when assigning a object into a field
-    m_overrideCellFilterCollection.removeChildObject( overrideRfc );
+    m_overrideCellFilterCollection.removeChild( overrideRfc );
 
     m_cellFilterCollection = overrideRfc;
 

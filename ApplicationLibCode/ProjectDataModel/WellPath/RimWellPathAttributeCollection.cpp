@@ -96,7 +96,7 @@ void RimWellPathAttributeCollection::insertAttribute( RimWellPathAttribute* inse
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::deleteAttribute( RimWellPathAttribute* attributeToDelete )
 {
-    m_attributes.removeChildObject( attributeToDelete );
+    m_attributes.removeChild( attributeToDelete );
     delete attributeToDelete;
 
     this->updateAllReferringTracks();
@@ -107,7 +107,7 @@ void RimWellPathAttributeCollection::deleteAttribute( RimWellPathAttribute* attr
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::deleteAllAttributes()
 {
-    m_attributes.deleteAllChildObjects();
+    m_attributes.deleteChildren();
     this->updateAllReferringTracks();
 }
 

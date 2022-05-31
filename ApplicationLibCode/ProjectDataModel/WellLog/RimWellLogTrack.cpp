@@ -286,7 +286,7 @@ RimWellLogTrack::RimWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 RimWellLogTrack::~RimWellLogTrack()
 {
-    m_curves.deleteAllChildObjects();
+    m_curves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1172,7 +1172,7 @@ void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
     if ( index < m_curves.size() )
     {
         m_curves[index]->detach();
-        m_curves.removeChildObject( curve );
+        m_curves.removeChild( curve );
     }
 }
 
@@ -1181,7 +1181,7 @@ void RimWellLogTrack::removeCurve( RimWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::deleteAllCurves()
 {
-    m_curves.deleteAllChildObjects();
+    m_curves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2282,7 +2282,7 @@ std::map<int, std::vector<RimWellLogCurve*>> RimWellLogTrack::visibleStackedCurv
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogCurve*> RimWellLogTrack::curves() const
 {
-    return m_curves.childObjects();
+    return m_curves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2292,7 +2292,7 @@ std::vector<RimWellLogCurve*> RimWellLogTrack::visibleCurves() const
 {
     std::vector<RimWellLogCurve*> curvesVector;
 
-    for ( RimWellLogCurve* curve : m_curves.childObjects() )
+    for ( RimWellLogCurve* curve : m_curves.children() )
     {
         if ( curve->isCurveVisible() )
         {

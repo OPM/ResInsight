@@ -137,13 +137,13 @@ void RimSurfaceInViewCollection::updateAllViewItems()
 void RimSurfaceInViewCollection::syncCollectionsWithView()
 {
     // check that we have surface in view collections for all sub-collections
-    std::vector<RimSurfaceInViewCollection*> colls = m_collectionsInView.childObjects();
+    std::vector<RimSurfaceInViewCollection*> colls = m_collectionsInView.children();
 
     for ( auto surfcoll : colls )
     {
         if ( !surfcoll->surfaceCollection() )
         {
-            m_collectionsInView.removeChildObject( surfcoll );
+            m_collectionsInView.removeChild( surfcoll );
             delete surfcoll;
         }
     }
@@ -172,7 +172,7 @@ void RimSurfaceInViewCollection::syncCollectionsWithView()
         }
 
         // make sure our view surfaces have the same order as the source surface collection
-        m_collectionsInView.clear();
+        m_collectionsInView.clearWithoutDelete();
         for ( auto viewColl : orderedColls )
         {
             m_collectionsInView.push_back( viewColl );
@@ -188,13 +188,13 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
 {
     // Delete surfaceInView without any real Surface connection
 
-    std::vector<RimSurfaceInView*> surfsInView = m_surfacesInView.childObjects();
+    std::vector<RimSurfaceInView*> surfsInView = m_surfacesInView.children();
 
     for ( auto surf : surfsInView )
     {
         if ( !surf->surface() )
         {
-            m_surfacesInView.removeChildObject( surf );
+            m_surfacesInView.removeChild( surf );
             delete surf;
         }
     }
@@ -229,7 +229,7 @@ void RimSurfaceInViewCollection::syncSurfacesWithView()
         }
 
         // make sure our view surfaces have the same order as the source surface collection
-        m_surfacesInView.clear();
+        m_surfacesInView.clearWithoutDelete();
         for ( auto viewSurf : orderedSurfs )
         {
             m_surfacesInView.push_back( viewSurf );

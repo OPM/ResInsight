@@ -56,8 +56,8 @@ RimPlotTemplateFolderItem::~RimPlotTemplateFolderItem()
 //--------------------------------------------------------------------------------------------------
 void RimPlotTemplateFolderItem::createRootFolderItemsFromFolderPaths( const QStringList& folderPaths )
 {
-    m_fileNames.deleteAllChildObjects();
-    m_subFolders.deleteAllChildObjects();
+    m_fileNames.deleteChildren();
+    m_subFolders.deleteChildren();
 
     createSubFolderItemsFromFolderPaths( folderPaths );
 }
@@ -67,7 +67,7 @@ void RimPlotTemplateFolderItem::createRootFolderItemsFromFolderPaths( const QStr
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotTemplateFileItem*> RimPlotTemplateFolderItem::fileNames() const
 {
-    return m_fileNames.childObjects();
+    return m_fileNames.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -75,7 +75,7 @@ std::vector<RimPlotTemplateFileItem*> RimPlotTemplateFolderItem::fileNames() con
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotTemplateFolderItem*> RimPlotTemplateFolderItem::subFolders() const
 {
-    return m_subFolders.childObjects();
+    return m_subFolders.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,8 +103,8 @@ void RimPlotTemplateFolderItem::setFolderPath( const QString& path )
 //--------------------------------------------------------------------------------------------------
 void RimPlotTemplateFolderItem::searchForFileAndFolderNames()
 {
-    m_fileNames.deleteAllChildObjects();
-    m_subFolders.deleteAllChildObjects();
+    m_fileNames.deleteChildren();
+    m_subFolders.deleteChildren();
 
     if ( m_folderName().path().isEmpty() )
     {

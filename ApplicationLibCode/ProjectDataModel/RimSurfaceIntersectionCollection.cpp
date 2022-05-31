@@ -64,7 +64,7 @@ RimSurfaceIntersectionBand* RimSurfaceIntersectionCollection::addIntersectionBan
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurfaceIntersectionCurve*> RimSurfaceIntersectionCollection::surfaceIntersectionCurves() const
 {
-    return m_intersectionCurves.childObjects();
+    return m_intersectionCurves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ std::vector<RimSurfaceIntersectionCurve*> RimSurfaceIntersectionCollection::surf
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurfaceIntersectionBand*> RimSurfaceIntersectionCollection::surfaceIntersectionBands() const
 {
-    return m_intersectionBands.childObjects();
+    return m_intersectionBands.children();
 }
 
 //--------------------------------------------------------------------------------------------------

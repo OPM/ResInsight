@@ -222,7 +222,7 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet::~RimEnsembleCurveSet()
 {
-    m_curves.deleteAllChildObjects();
+    m_curves.deleteChildren();
 
     RimSummaryPlot* parentPlot;
     firstAncestorOrThisOfType( parentPlot );
@@ -373,7 +373,7 @@ void RimEnsembleCurveSet::deleteCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
-        m_curves.removeChildObject( curve );
+        m_curves.removeChild( curve );
         delete curve;
     }
 }
@@ -402,7 +402,7 @@ RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 {
-    return m_curves.childObjects();
+    return m_curves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -808,7 +808,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().children() )
         {
             candidateAddresses.push_back( address->address() );
         }
@@ -820,7 +820,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
-                m_objectiveValuesSummaryAddresses.clear();
+                m_objectiveValuesSummaryAddresses.clearWithoutDelete();
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
@@ -1385,7 +1385,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION )
             {
                 std::vector<RifEclipseSummaryAddress> addresses;
-                for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+                for ( auto address : m_objectiveValuesSummaryAddresses().children() )
                 {
                     addresses.push_back( address->address() );
                 }
@@ -1398,7 +1398,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             else if ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() )
             {
                 std::vector<RifEclipseSummaryAddress> addresses;
-                for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+                for ( auto address : m_objectiveValuesSummaryAddresses().children() )
                 {
                     addresses.push_back( address->address() );
                 }

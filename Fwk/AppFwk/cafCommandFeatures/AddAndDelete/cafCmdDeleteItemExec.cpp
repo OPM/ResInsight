@@ -66,7 +66,7 @@ void CmdDeleteItemExec::redo()
     if ( listField )
     {
         std::vector<PdmObjectHandle*> children;
-        listField->childObjects( &children );
+        listField->children( &children );
 
         PdmObjectHandle* obj = children[m_commandData->m_indexToObject];
         caf::SelectionManager::instance()->removeObjectFromAllSelections( obj );

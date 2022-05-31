@@ -127,7 +127,7 @@ void RiuCreateMultipleFractionsUi::setValues( RimEclipseCase* eclipseCase,
 void RiuCreateMultipleFractionsUi::resetValues()
 {
     m_sourceCase = nullptr;
-    m_options.deleteAllChildObjects();
+    m_options.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ void RiuCreateMultipleFractionsUi::resetValues()
 //--------------------------------------------------------------------------------------------------
 std::vector<RicCreateMultipleFracturesOptionItemUi*> RiuCreateMultipleFractionsUi::options() const
 {
-    return m_options.childObjects();
+    return m_options.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -160,7 +160,7 @@ void RiuCreateMultipleFractionsUi::insertOptionItem( RicCreateMultipleFracturesO
 //--------------------------------------------------------------------------------------------------
 void RiuCreateMultipleFractionsUi::deleteOptionItem( RicCreateMultipleFracturesOptionItemUi* optionsItem )
 {
-    m_options.removeChildObject( optionsItem );
+    m_options.removeChild( optionsItem );
     delete optionsItem;
 }
 
@@ -169,7 +169,7 @@ void RiuCreateMultipleFractionsUi::deleteOptionItem( RicCreateMultipleFracturesO
 //--------------------------------------------------------------------------------------------------
 void RiuCreateMultipleFractionsUi::clearOptions()
 {
-    m_options.deleteAllChildObjects();
+    m_options.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

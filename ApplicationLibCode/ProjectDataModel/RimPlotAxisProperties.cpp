@@ -409,7 +409,7 @@ bool RimPlotAxisProperties::isAxisInverted() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimPlotAxisProperties::annotations() const
 {
-    return m_annotations.childObjects();
+    return m_annotations.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -425,7 +425,7 @@ void RimPlotAxisProperties::appendAnnotation( RimPlotAxisAnnotation* annotation 
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::removeAllAnnotations()
 {
-    m_annotations.clear();
+    m_annotations.clearWithoutDelete();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -169,7 +169,7 @@ void RiaProjectModifier::replaceSourceCases( RimProject* project )
                     if ( groupIdToReplace == caseGroup->groupId() )
                     {
                         RimCaseCollection* caseCollection = caseGroup->caseCollection;
-                        caseCollection->reservoirs.deleteAllChildObjects();
+                        caseCollection->reservoirs.deleteChildren();
 
                         for ( QString fileName : item.second )
                         {

@@ -116,7 +116,7 @@ bool RimWellIASettings::initSettings( QString& outErrmsg )
     RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechWIADefaultXML() );
     if ( !basicreader.parseFile( outErrmsg ) ) return false;
 
-    m_parameters.clear();
+    m_parameters.clearWithoutDelete();
     for ( auto group : basicreader.parameterGroups() )
     {
         m_parameters.push_back( group );
@@ -525,7 +525,7 @@ void RimWellIASettings::addCsvGroup( QString name, QStringList timeSteps, double
 //--------------------------------------------------------------------------------------------------
 void RimWellIASettings::initCsvParameters()
 {
-    m_csvParameters.clear();
+    m_csvParameters.clearWithoutDelete();
 
     QStringList timeSteps = m_geomechCase->timeStepStrings();
 

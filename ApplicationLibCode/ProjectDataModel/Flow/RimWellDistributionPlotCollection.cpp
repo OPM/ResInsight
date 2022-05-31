@@ -99,7 +99,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 RimWellDistributionPlotCollection::~RimWellDistributionPlotCollection()
 {
     removeMdiWindowFromMdiArea();
-    m_plots.deleteAllChildObjects();
+    m_plots.deleteChildren();
 
     cleanupBeforeClose();
 }
@@ -384,7 +384,7 @@ void RimWellDistributionPlotCollection::updatePlots()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::cleanupBeforeClose()
 {
-    auto plotVector = m_plots.childObjects();
+    auto plotVector = m_plots.children();
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->detachAllCurves();

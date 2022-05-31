@@ -226,7 +226,7 @@ void RiuAdvancedSnapshotExportWidget::deleteAllSnapshotItems()
 {
     if ( !m_rimProject ) return;
 
-    m_rimProject->multiSnapshotDefinitions.deleteAllChildObjects();
+    m_rimProject->multiSnapshotDefinitions.deleteChildren();
 
     m_rimProject->multiSnapshotDefinitions.uiCapability()->updateConnectedEditors();
 }

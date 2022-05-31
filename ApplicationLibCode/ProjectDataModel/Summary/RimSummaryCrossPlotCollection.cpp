@@ -50,7 +50,7 @@ RimSummaryCrossPlotCollection::~RimSummaryCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCrossPlotCollection::deleteAllPlots()
 {
-    m_summaryCrossPlots.deleteAllChildObjects();
+    m_summaryCrossPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ void RimSummaryCrossPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RimSummaryCrossPlotCollection::plots() const
 {
-    return m_summaryCrossPlots.childObjects();
+    return m_summaryCrossPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void RimSummaryCrossPlotCollection::insertPlot( RimSummaryPlot* plot, size_t ind
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCrossPlotCollection::removePlot( RimSummaryPlot* plot )
 {
-    m_summaryCrossPlots.removeChildObject( plot );
+    m_summaryCrossPlots.removeChild( plot );
     updateAllRequiredEditors();
 }
 

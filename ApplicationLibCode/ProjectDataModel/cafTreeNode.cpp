@@ -45,7 +45,7 @@ void cafTreeNode::addChild( cafTreeNode* treeNode )
 //--------------------------------------------------------------------------------------------------
 std::vector<cafTreeNode*> cafTreeNode::childNodes() const
 {
-    return m_childNodes.childObjects();
+    return m_childNodes.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,7 +226,7 @@ void cafObjectReferenceTreeNode::defineUiTreeOrdering( caf::PdmUiTreeOrdering& u
         uiTreeOrdering.add( m_referencedObject() );
     }
 
-    for ( auto c : m_childNodes.childObjects() )
+    for ( auto c : m_childNodes.children() )
     {
         if ( auto obj = c->referencedObject() )
         {

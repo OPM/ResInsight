@@ -50,7 +50,7 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurveCollection::~Rim3dWellLogCurveCollection()
 {
-    m_3dWellLogCurves.deleteAllChildObjects();
+    m_3dWellLogCurves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve( Rim3dWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::remove3dWellLogCurve( Rim3dWellLogCurve* curve )
 {
-    m_3dWellLogCurves.removeChildObject( curve );
+    m_3dWellLogCurves.removeChild( curve );
 }
 
 //--------------------------------------------------------------------------------------------------

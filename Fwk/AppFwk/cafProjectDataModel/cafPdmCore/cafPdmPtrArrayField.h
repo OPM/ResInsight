@@ -52,7 +52,7 @@ public:
 
     size_t           size() const override { return m_pointers.size(); }
     bool             empty() const override { return m_pointers.empty(); }
-    void             clear() override;
+    void             clearWithoutDelete() override;
     void             insertAt( int indexAfter, PdmObjectHandle* obj ) override;
     PdmObjectHandle* at( size_t index ) override;
     size_t           indexOf( const PdmObjectHandle* obj ) const override;

@@ -110,7 +110,7 @@ std::vector<RimSaturationPressurePlot*>
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSaturationPressurePlot*> RimSaturationPressurePlotCollection::plots() const
 {
-    return m_saturationPressurePlots.childObjects();
+    return m_saturationPressurePlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ size_t RimSaturationPressurePlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 void RimSaturationPressurePlotCollection::deleteAllPlots()
 {
-    m_saturationPressurePlots.deleteAllChildObjects();
+    m_saturationPressurePlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -42,7 +42,7 @@ RimEclipseInputPropertyCollection::RimEclipseInputPropertyCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputPropertyCollection::~RimEclipseInputPropertyCollection()
 {
-    inputProperties.deleteAllChildObjects();
+    inputProperties.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

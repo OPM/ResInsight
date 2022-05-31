@@ -117,7 +117,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection::~RimFaultInViewCollection()
 {
-    faults.deleteAllChildObjects();
+    faults.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ void RimFaultInViewCollection::syncronizeFaults()
         newFaults.push_back( rimFault );
     }
 
-    this->faults().clear();
+    this->faults().clearWithoutDelete();
     this->faults().insert( 0, newFaults );
 
     QString toolTip = QString( "Fault count (%1)" ).arg( newFaults.size() );

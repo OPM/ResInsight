@@ -759,7 +759,7 @@ public:
             std::vector<caf::PdmObjectHandle*> objects;
             field = this->parentField();
 
-            field->childObjects(&objects);
+            field->children(&objects);
 
             for (size_t i = 0; i < objects.size(); ++i)
             {
@@ -1308,7 +1308,7 @@ void MainWindow::releaseTestData()
 {
     if (m_testRoot)
     {
-        m_testRoot->objects.deleteAllChildObjects();
+        m_testRoot->objects.deleteChildren();
         delete m_testRoot;
     }
 }
@@ -1407,7 +1407,7 @@ void MainWindow::slotRemove()
 
             // Ordering is important
 
-            field->removeChildObject(obj);
+            field->removeChild(obj);
 
             // Delete object
             delete obj;

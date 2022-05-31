@@ -372,7 +372,7 @@ RimRegularLegendConfig* RimGridCrossPlotDataSet::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotDataSet::curves() const
 {
-    return m_crossPlotCurves.childObjects();
+    return m_crossPlotCurves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -684,7 +684,7 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves( const RigEclipseCro
 void RimGridCrossPlotDataSet::destroyCurves()
 {
     detachAllCurves();
-    m_crossPlotCurves.deleteAllChildObjects();
+    m_crossPlotCurves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -970,7 +970,7 @@ QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions( co
         if ( eclipseCase )
         {
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
-            for ( RimEclipseView* view : eclipseCase->reservoirViews.childObjects() )
+            for ( RimEclipseView* view : eclipseCase->reservoirViews.children() )
             {
                 CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
                 options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
@@ -1122,8 +1122,8 @@ void RimGridCrossPlotDataSet::swapAxisProperties( bool updatePlot )
     RimEclipseResultDefinition* xAxisProperties = m_xAxisProperty();
     RimEclipseResultDefinition* yAxisProperties = m_yAxisProperty();
 
-    m_xAxisProperty.removeChildObject( xAxisProperties );
-    m_yAxisProperty.removeChildObject( yAxisProperties );
+    m_xAxisProperty.removeChild( xAxisProperties );
+    m_yAxisProperty.removeChild( yAxisProperties );
     m_yAxisProperty = xAxisProperties;
     m_xAxisProperty = yAxisProperties;
 

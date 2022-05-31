@@ -89,7 +89,7 @@ RimMultiPlot::~RimMultiPlot()
     m_isValid = false;
 
     removeMdiWindowFromMdiArea();
-    m_plots.deleteAllChildObjects();
+    m_plots.deleteChildren();
 
     cleanupBeforeClose();
 }
@@ -102,8 +102,8 @@ RimMultiPlot& RimMultiPlot::operator=( RimMultiPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
-    rhs.m_plots.clear();
+    std::vector<RimPlot*> plots = rhs.m_plots.children();
+    rhs.m_plots.clearWithoutDelete();
     for ( RimPlot* plot : plots )
     {
         m_plots.push_back( plot );
@@ -218,7 +218,7 @@ void RimMultiPlot::removePlot( RimPlot* plot )
         {
             m_viewer->removePlot( plot->plotWidget() );
         }
-        m_plots.removeChildObject( plot );
+        m_plots.removeChild( plot );
 
         onPlotAdditionOrRemoval();
     }
@@ -235,7 +235,7 @@ void RimMultiPlot::removePlotNoUpdate( RimPlot* plot )
         {
             m_viewer->removePlotNoUpdate( plot->plotWidget() );
         }
-        m_plots.removeChildObject( plot );
+        m_plots.removeChild( plot );
     }
 }
 
@@ -295,7 +295,7 @@ void RimMultiPlot::deleteAllPlots()
         }
     }
 
-    m_plots.deleteAllChildObjects();
+    m_plots.deleteChildren();
     onPlotAdditionOrRemoval();
 }
 
@@ -320,7 +320,7 @@ size_t RimMultiPlot::plotIndex( const RimPlot* plot ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RimMultiPlot::plots() const
 {
-    return m_plots.childObjects();
+    return m_plots.children();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -189,7 +189,7 @@ public:
         CAF_PDM_XML_InitField( &m_childArrayField, "DemoPdmObjectects" );
     }
 
-    ~InheritedDemoObj() { m_childArrayField.deleteAllChildObjects(); }
+    ~InheritedDemoObj() { m_childArrayField.deleteChildren(); }
 
     caf::PdmDataValueField<QString>         m_texts;
     caf::PdmChildArrayField<DemoPdmObject*> m_childArrayField;
@@ -257,7 +257,7 @@ public:
     ~ReferenceDemoPdmObject()
     {
         delete m_pointersField();
-        m_simpleObjPtrField2.deleteAllChildObjects();
+        m_simpleObjPtrField2.deleteChildren();
     }
 
     // Fields

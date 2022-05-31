@@ -556,7 +556,7 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
             RimEclipseView* reservoirView = reservoirViews()[i];
             CVF_ASSERT( reservoirView );
 
-            reservoirView->wellCollection()->wells.deleteAllChildObjects();
+            reservoirView->wellCollection()->wells.deleteChildren();
             reservoirView->updateDisplayModelForWellResults();
             reservoirView->wellCollection()->updateConnectedEditors();
 

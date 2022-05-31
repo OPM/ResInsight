@@ -47,7 +47,7 @@ RimEclipsePropertyFilterCollection::RimEclipsePropertyFilterCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipsePropertyFilterCollection::~RimEclipsePropertyFilterCollection()
 {
-    propertyFilters.deleteAllChildObjects();
+    propertyFilters.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

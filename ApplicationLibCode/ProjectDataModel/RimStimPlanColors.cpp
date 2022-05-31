@@ -125,7 +125,7 @@ void RimStimPlanColors::loadDataAndUpdate()
 
         for ( auto legend : toBeDeleted )
         {
-            m_legendConfigurations.removeChildObject( legend );
+            m_legendConfigurations.removeChild( legend );
 
             delete legend;
         }

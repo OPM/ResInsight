@@ -206,7 +206,7 @@ RimPlotDataFilterCollection* RimAnalysisPlot::plotDataFilterCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    m_analysisPlotDataSelection.deleteAllChildObjects();
+    m_analysisPlotDataSelection.deleteChildren();
     for ( auto curveDef : curveDefinitions )
     {
         auto dataEntry = new RimAnalysisPlotDataEntry();
@@ -463,7 +463,7 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
 
-            m_analysisPlotDataSelection.deleteAllChildObjects();
+            m_analysisPlotDataSelection.deleteChildren();
             for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
             {
                 auto dataEntry = new RimAnalysisPlotDataEntry();
@@ -1794,7 +1794,7 @@ void RimAnalysisPlot::onCaseRemoved( const SignalEmitter* emitter, RimSummaryCas
     {
         if ( existingEntry->summaryCase() == summaryCase )
         {
-            m_analysisPlotDataSelection.removeChildObject( existingEntry );
+            m_analysisPlotDataSelection.removeChild( existingEntry );
             delete existingEntry;
             break;
         }

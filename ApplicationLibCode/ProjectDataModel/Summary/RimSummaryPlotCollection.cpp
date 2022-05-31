@@ -120,7 +120,7 @@ void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*   
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RimSummaryPlotCollection::plots() const
 {
-    return m_summaryPlots.childObjects();
+    return m_summaryPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +144,6 @@ void RimSummaryPlotCollection::insertPlot( RimSummaryPlot* summaryPlot, size_t i
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotCollection::removePlot( RimSummaryPlot* summaryPlot )
 {
-    m_summaryPlots.removeChildObject( summaryPlot );
+    m_summaryPlots.removeChild( summaryPlot );
     updateAllRequiredEditors();
 }

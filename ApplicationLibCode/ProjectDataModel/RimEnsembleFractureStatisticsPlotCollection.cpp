@@ -69,7 +69,7 @@ void RimEnsembleFractureStatisticsPlotCollection::addEnsembleFractureStatisticsP
 std::vector<RimEnsembleFractureStatisticsPlot*>
     RimEnsembleFractureStatisticsPlotCollection::ensembleFractureStatisticsPlots() const
 {
-    return m_ensembleFractureStatisticsPlots.childObjects();
+    return m_ensembleFractureStatisticsPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,5 +77,5 @@ std::vector<RimEnsembleFractureStatisticsPlot*>
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatisticsPlotCollection::deleteAllPlots()
 {
-    m_ensembleFractureStatisticsPlots.deleteAllChildObjects();
+    m_ensembleFractureStatisticsPlots.deleteChildren();
 }

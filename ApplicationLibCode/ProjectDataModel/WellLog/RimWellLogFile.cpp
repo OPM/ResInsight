@@ -101,7 +101,7 @@ RimWellLogFile::RimWellLogFile()
 //--------------------------------------------------------------------------------------------------
 RimWellLogFile::~RimWellLogFile()
 {
-    m_wellLogChannelNames.deleteAllChildObjects();
+    m_wellLogChannelNames.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,7 +172,7 @@ bool RimWellLogFile::readFile( QString* errorMessage )
         m_date = DEFAULT_DATE_TIME;
     }
 
-    m_wellLogChannelNames.deleteAllChildObjects();
+    m_wellLogChannelNames.deleteChildren();
 
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )

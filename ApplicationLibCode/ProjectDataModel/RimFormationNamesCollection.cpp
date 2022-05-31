@@ -42,7 +42,7 @@ RimFormationNamesCollection::RimFormationNamesCollection()
 //--------------------------------------------------------------------------------------------------
 RimFormationNamesCollection::~RimFormationNamesCollection()
 {
-    m_formationNamesList.deleteAllChildObjects();
+    m_formationNamesList.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
         RiaLogging::errorInMessageBox( nullptr, "Import Formation Names", totalErrorMessage );
     }
 
-    return m_formationNamesList.childObjects();
+    return m_formationNamesList.children();
 }
 
 //--------------------------------------------------------------------------------------------------

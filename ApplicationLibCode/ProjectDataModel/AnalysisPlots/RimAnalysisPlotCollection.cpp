@@ -123,7 +123,7 @@ void RimAnalysisPlotCollection::updateSummaryNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots() const
 {
-    return m_analysisPlots.childObjects();
+    return m_analysisPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,6 +263,6 @@ void RimAnalysisPlotCollection::insertPlot( RimAnalysisPlot* analysisPlot, size_
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlotCollection::removePlot( RimAnalysisPlot* analysisPlot )
 {
-    m_analysisPlots.removeChildObject( analysisPlot );
+    m_analysisPlots.removeChild( analysisPlot );
     updateAllRequiredEditors();
 }

@@ -193,7 +193,7 @@ public:
                                     "Whatsthis SimpleObjectsField" );
     }
 
-    ~InheritedDemoObj() { m_simpleObjectsField.deleteAllChildObjects(); }
+    ~InheritedDemoObj() { m_simpleObjectsField.deleteChildren(); }
 
     caf::PdmField<std::vector<QString>>       m_texts;
     caf::PdmField<caf::AppEnum<TestEnumType>> m_testEnumField;
@@ -212,7 +212,7 @@ public:
         CAF_PDM_InitFieldNoDefault( &objects, "PdmObjects", "", "", "", "" )
     }
 
-    ~MyPdmDocument() { objects.deleteAllChildObjects(); }
+    ~MyPdmDocument() { objects.deleteChildren(); }
 
     caf::PdmChildArrayField<PdmObjectHandle*> objects;
 };
@@ -550,7 +550,7 @@ TEST( BaseTest, ReadWrite )
         }
 
         d2->m_simpleObjPtrField = NULL;
-        xmlDoc.objects.deleteAllChildObjects();
+        xmlDoc.objects.deleteChildren();
     }
 
     {
@@ -866,7 +866,7 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
     //     virtual void        clear() = 0;
     //     virtual PdmObject*  createAppendObject(int indexAfter) = 0;
     //     virtual void        erase(size_t index) = 0;
-    //     virtual void        deleteAllChildObjects() = 0;
+    //     virtual void        deleteChildren() = 0;
     //
     //     virtual PdmObject*  at(size_t index) = 0;
     //
@@ -907,7 +907,7 @@ TEST( BaseTest, PdmChildArrayFieldHandle )
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_FALSE( listField->empty() );
 
-    listField->deleteAllChildObjects();
+    listField->deleteChildren();
     EXPECT_EQ( 0u, listField->size() );
     EXPECT_TRUE( listField->hasSameFieldCountForAllObjects() );
     EXPECT_TRUE( listField->empty() );

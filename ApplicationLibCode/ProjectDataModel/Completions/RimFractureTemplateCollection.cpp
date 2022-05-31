@@ -71,7 +71,7 @@ RimFractureTemplateCollection::RimFractureTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 RimFractureTemplateCollection::~RimFractureTemplateCollection()
 {
-    m_fractureDefinitions.deleteAllChildObjects();
+    m_fractureDefinitions.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -441,7 +441,7 @@ void RimStreamlineInViewCollection::updateStreamlines()
     if ( m_shouldGenerateTracers && isActive() )
     {
         // reset generated streamlines
-        m_streamlines().clear();
+        m_streamlines().clearWithoutDelete();
         m_wellCellIds.clear();
 
         // get current simulation timestep

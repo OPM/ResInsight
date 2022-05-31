@@ -140,7 +140,7 @@ void RimIdenticalGridCaseGroup::removeCase( RimEclipseCase* reservoir )
         return;
     }
 
-    caseCollection()->reservoirs().removeChildObject( reservoir );
+    caseCollection()->reservoirs().removeChild( reservoir );
 
     if ( caseCollection()->reservoirs().size() == 0 )
     {
@@ -244,9 +244,7 @@ void RimIdenticalGridCaseGroup::loadMainCaseAndActiveCellInfo()
         computeUnionOfActiveCells();
     }
 
-    RigCaseCellResultsData::copyResultsMetaDataFromMainCase( rigCaseData,
-                                                             poroModel,
-                                                             caseCollection->reservoirs.childObjects() );
+    RigCaseCellResultsData::copyResultsMetaDataFromMainCase( rigCaseData, poroModel, caseCollection->reservoirs.children() );
 
     // "Load" the statistical cases
 

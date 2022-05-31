@@ -69,7 +69,7 @@ void RimValveTemplateCollection::addValveTemplate( RimValveTemplate* valveTempla
 //--------------------------------------------------------------------------------------------------
 void RimValveTemplateCollection::removeAndDeleteValveTemplate( RimValveTemplate* valveTemplate )
 {
-    m_valveDefinitions.removeChildObject( valveTemplate );
+    m_valveDefinitions.removeChild( valveTemplate );
     delete valveTemplate;
 }
 

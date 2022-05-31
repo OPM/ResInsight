@@ -79,7 +79,7 @@ RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceIntersectionBand::setSurfaces( RimSurface* surface1, RimSurface* surface2 )
 {
-    m_surfaces.clear();
+    m_surfaces.clearWithoutDelete();
 
     m_surfaces.push_back( surface1 );
     m_surfaces.push_back( surface2 );

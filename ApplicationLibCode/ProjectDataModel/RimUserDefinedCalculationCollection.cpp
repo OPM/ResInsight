@@ -103,7 +103,7 @@ RimUserDefinedCalculation*
 void RimUserDefinedCalculationCollection::deleteCalculation( RimUserDefinedCalculation* calculation )
 {
     calculation->removeDependentObjects();
-    m_calculations.removeChildObject( calculation );
+    m_calculations.removeChild( calculation );
 
     rebuildCaseMetaData();
 
@@ -115,7 +115,7 @@ void RimUserDefinedCalculationCollection::deleteCalculation( RimUserDefinedCalcu
 //--------------------------------------------------------------------------------------------------
 std::vector<RimUserDefinedCalculation*> RimUserDefinedCalculationCollection::calculations() const
 {
-    return m_calculations.childObjects();
+    return m_calculations.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,7 +139,7 @@ RimUserDefinedCalculation* RimUserDefinedCalculationCollection::findCalculationB
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedCalculationCollection::deleteAllContainedObjects()
 {
-    m_calculations.deleteAllChildObjects();
+    m_calculations.deleteChildren();
 
     rebuildCaseMetaData();
 }

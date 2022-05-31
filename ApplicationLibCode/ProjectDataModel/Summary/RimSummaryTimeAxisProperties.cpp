@@ -516,7 +516,7 @@ RiaDefines::TimeFormatComponents RimSummaryTimeAxisProperties::timeComponents( R
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlotAxisAnnotation*> RimSummaryTimeAxisProperties::annotations() const
 {
-    return m_annotations.childObjects();
+    return m_annotations.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -532,7 +532,7 @@ void RimSummaryTimeAxisProperties::appendAnnotation( RimPlotAxisAnnotation* anno
 //--------------------------------------------------------------------------------------------------
 void RimSummaryTimeAxisProperties::removeAllAnnotations()
 {
-    m_annotations.clear();
+    m_annotations.clearWithoutDelete();
 }
 
 //--------------------------------------------------------------------------------------------------
