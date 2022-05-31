@@ -23,12 +23,14 @@
 #include "RiaFieldHandleTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaRegressionTestRunner.h"
 #include "RiaStdStringTools.h"
 #include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaSummaryTools.h"
 #include "RiaTimeHistoryCurveResampler.h"
+#include "RifReaderEclipseSummary.h"
 
 #include "RicfCommandObject.h"
 
@@ -1922,8 +1924,15 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryCaseD
 
     for ( auto& curve : summaryCurves() )
     {
-        const auto curveAddress = curve->summaryAddressY();
-        dataVectorMap[curveAddress].insert( curve->summaryCaseY() );
+        const auto addr = curve->summaryAddressY();
+        dataVectorMap[addr].insert( curve->summaryCaseY() );
+
+        if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectorForDragDrop() )
+        {
+            auto historyAddr = addr;
+            historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+            dataVectorMap[historyAddr].insert( curve->summaryCaseY() );
+        }
     }
 
     for ( const auto& [addr, cases] : dataVectorMap )
@@ -1973,34 +1982,47 @@ std::pair<int, std::vector<RimSummaryCurve*>>
 
     for ( auto& curveDef : sourceCurveDefs )
     {
-        auto newCurveDef = curveDef;
-        auto curveAdr    = newCurveDef.summaryAddress();
+        auto        newCurveDef = curveDef;
+        auto        curveAdr    = newCurveDef.summaryAddress();
+        std::string objectIdentifierString;
         if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_WELL ) &&
              ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::WELL ) )
         {
-            auto currentObjectString = curveAdr.wellName();
+            objectIdentifierString = curveAdr.wellName();
             curveAdr.setWellName( droppedName );
             newCurveDef.setSummaryAddress( curveAdr );
-            newCurveDefsWithObjectNames[newCurveDef].insert( currentObjectString );
         }
         else if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_GROUP ) &&
                   ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::GROUP ) )
         {
-            auto currentObjectString = curveAdr.groupName();
+            objectIdentifierString = curveAdr.groupName();
             curveAdr.setGroupName( droppedName );
             newCurveDef.setSummaryAddress( curveAdr );
-            newCurveDefsWithObjectNames[newCurveDef].insert( currentObjectString );
         }
         else if ( ( curveAdr.category() == RifEclipseSummaryAddress::SUMMARY_REGION ) &&
                   ( addressCollection->contentType() == RimSummaryAddressCollection::CollectionContentType::REGION ) )
         {
-            auto currentObjectString = std::to_string( curveAdr.regionNumber() );
+            objectIdentifierString = std::to_string( curveAdr.regionNumber() );
 
             int droppedRegion = std::stoi( droppedName );
 
             curveAdr.setRegion( droppedRegion );
             newCurveDef.setSummaryAddress( curveAdr );
-            newCurveDefsWithObjectNames[newCurveDef].insert( currentObjectString );
+        }
+
+        if ( !objectIdentifierString.empty() )
+        {
+            newCurveDefsWithObjectNames[newCurveDef].insert( objectIdentifierString );
+            const auto& addr = curveDef.summaryAddress();
+            if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectorForDragDrop() )
+            {
+                auto historyAddr = addr;
+                historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+
+                auto historyCurveDef = newCurveDef;
+                historyCurveDef.setSummaryAddress( historyAddr );
+                newCurveDefsWithObjectNames[historyCurveDef].insert( objectIdentifierString );
+            }
         }
     }
 
@@ -2032,32 +2054,42 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
     int                           newCurves = 0;
     std::vector<RimSummaryCurve*> curves;
 
+    std::vector<RifEclipseSummaryAddress> newCurveAddresses;
+    newCurveAddresses.push_back( summaryAddr->address() );
+    if ( !summaryAddr->address().isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectorForDragDrop() )
+    {
+        auto historyAddr = summaryAddr->address();
+        historyAddr.setVectorName( summaryAddr->address().vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+        newCurveAddresses.push_back( historyAddr );
+    }
+
     if ( summaryAddr->isEnsemble() )
     {
         std::map<RifEclipseSummaryAddress, std::set<RimSummaryCaseCollection*>> dataVectorMap;
 
         for ( auto& curve : curveSets() )
         {
-            const auto curveAddress = curve->summaryAddress();
-            dataVectorMap[curveAddress].insert( curve->summaryCaseCollection() );
+            const auto addr = curve->summaryAddress();
+            dataVectorMap[addr].insert( curve->summaryCaseCollection() );
         }
 
         auto ensemble = RiaSummaryTools::ensembleById( summaryAddr->ensembleId() );
         if ( ensemble )
         {
-            RifEclipseSummaryAddress droppedAddress = summaryAddr->address();
-
-            bool skipAddress = false;
-
-            if ( dataVectorMap.count( droppedAddress ) > 0 )
+            for ( const auto& droppedAddress : newCurveAddresses )
             {
-                skipAddress = ( dataVectorMap[droppedAddress].count( ensemble ) > 0 );
-            }
+                bool skipAddress = false;
 
-            if ( !skipAddress )
-            {
-                addNewEnsembleCurveY( droppedAddress, ensemble );
-                newCurves++;
+                if ( dataVectorMap.count( droppedAddress ) > 0 )
+                {
+                    skipAddress = ( dataVectorMap[droppedAddress].count( ensemble ) > 0 );
+                }
+
+                if ( !skipAddress )
+                {
+                    addNewEnsembleCurveY( droppedAddress, ensemble );
+                    newCurves++;
+                }
             }
         }
     }
@@ -2067,26 +2099,27 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
 
         for ( auto& curve : summaryCurves() )
         {
-            const auto curveAddress = curve->summaryAddressY();
-            dataVectorMap[curveAddress].insert( curve->summaryCaseY() );
+            const auto addr = curve->summaryAddressY();
+            dataVectorMap[addr].insert( curve->summaryCaseY() );
         }
 
         auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAddr->caseId() );
         if ( summaryCase )
         {
-            RifEclipseSummaryAddress droppedAddress = summaryAddr->address();
-
-            bool skipAddress = false;
-
-            if ( dataVectorMap.count( droppedAddress ) > 0 )
+            for ( const auto& droppedAddress : newCurveAddresses )
             {
-                skipAddress = ( dataVectorMap[droppedAddress].count( summaryCase ) > 0 );
-            }
+                bool skipAddress = false;
 
-            if ( !skipAddress )
-            {
-                curves.push_back( addNewCurveY( droppedAddress, summaryCase ) );
-                newCurves++;
+                if ( dataVectorMap.count( droppedAddress ) > 0 )
+                {
+                    skipAddress = ( dataVectorMap[droppedAddress].count( summaryCase ) > 0 );
+                }
+
+                if ( !skipAddress )
+                {
+                    curves.push_back( addNewCurveY( droppedAddress, summaryCase ) );
+                    newCurves++;
+                }
             }
         }
     }
