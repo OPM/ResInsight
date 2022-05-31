@@ -600,7 +600,11 @@ void RiuMultiPlotPage::onLegendUpdated()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotPage::refreshLegends()
 {
-    // TODO - might need to do something here, but at the moment it looks like alignCanvasTops() is sufficient
+    QList<QPointer<RiuQwtPlotLegend>> legends = this->legendsForVisiblePlots();
+    for ( const auto& l : legends )
+    {
+        l->setVisible( !l->isEmpty() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
