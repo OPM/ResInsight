@@ -40,7 +40,7 @@ RimEnsembleWellLogsCollection::RimEnsembleWellLogsCollection()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleWellLogsCollection::~RimEnsembleWellLogsCollection()
 {
-    m_ensembleWellLogs.deleteAllChildObjects();
+    m_ensembleWellLogs.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

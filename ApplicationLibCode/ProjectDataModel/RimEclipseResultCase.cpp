@@ -487,8 +487,8 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase::~RimEclipseResultCase()
 {
-    reservoirViews.deleteAllChildObjects();
-    m_flowDiagSolutions.deleteAllChildObjects();
+    reservoirViews.deleteChildren();
+    m_flowDiagSolutions.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

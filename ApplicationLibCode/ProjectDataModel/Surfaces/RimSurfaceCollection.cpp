@@ -269,7 +269,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 {
-    return m_surfaces.childObjects();
+    return m_surfaces.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 {
-    return m_subCollections.childObjects();
+    return m_subCollections.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -392,7 +392,7 @@ void RimSurfaceCollection::orderChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::removeSurface( RimSurface* surface )
 {
-    m_surfaces.removeChildObject( surface );
+    m_surfaces.removeChild( surface );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
         }
 
         // reset the surface collection and use the new order
-        m_surfaces.clear();
+        m_surfaces.clearWithoutDelete();
         for ( auto surf : orderedSurfs )
         {
             m_surfaces.push_back( surf );

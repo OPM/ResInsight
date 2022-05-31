@@ -931,7 +931,7 @@ void RimWellPath::detachWellLogFile( RimWellLogFile* logFileInfo )
     {
         if ( m_wellLogFiles[i] == pdmObject )
         {
-            m_wellLogFiles.removeChildObject( pdmObject );
+            m_wellLogFiles.removeChild( pdmObject );
             break;
         }
     }

@@ -146,7 +146,7 @@ RimEclipseCase::RimEclipseCase()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::~RimEclipseCase()
 {
-    reservoirViews.deleteAllChildObjects();
+    reservoirViews.deleteChildren();
 
     delete m_matrixModelResults();
     delete m_fractureModelResults();
@@ -573,7 +573,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     if ( uiConfigName == "MainWindow.ProjectTree" )
     {
         std::vector<PdmObjectHandle*> children;
-        reservoirViews.childObjects( &children );
+        reservoirViews.children( &children );
 
         for ( auto child : children )
             uiTreeOrdering.add( child );
@@ -602,7 +602,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 void RimEclipseCase::buildChildNodes()
 {
-    m_resultAddressCollections.deleteAllChildObjects();
+    m_resultAddressCollections.deleteChildren();
 
     std::vector<RiaDefines::ResultCatType> resultTypes = { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                            RiaDefines::ResultCatType::DYNAMIC_NATIVE,

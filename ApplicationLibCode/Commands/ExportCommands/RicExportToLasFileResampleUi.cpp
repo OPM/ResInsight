@@ -84,7 +84,7 @@ RicExportToLasFileResampleUi::RicExportToLasFileResampleUi( void )
 //--------------------------------------------------------------------------------------------------
 RicExportToLasFileResampleUi::~RicExportToLasFileResampleUi()
 {
-    m_tvdrkbOffsets.deleteAllChildObjects();
+    m_tvdrkbOffsets.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

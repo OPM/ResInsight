@@ -87,7 +87,7 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
         {
             // Remove the view linker object from the view linker collection
             // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
-            RimProject::current()->viewLinkerCollection->viewLinker.removeChildObject( viewLinker );
+            RimProject::current()->viewLinkerCollection->viewLinker.removeChild( viewLinker );
 
             delete viewLinker;
         }

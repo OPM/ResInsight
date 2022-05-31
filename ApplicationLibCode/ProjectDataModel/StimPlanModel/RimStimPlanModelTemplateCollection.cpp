@@ -50,7 +50,7 @@ RimStimPlanModelTemplateCollection::RimStimPlanModelTemplateCollection()
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelTemplateCollection::~RimStimPlanModelTemplateCollection()
 {
-    m_stimPlanModelTemplates.deleteAllChildObjects();
+    m_stimPlanModelTemplates.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

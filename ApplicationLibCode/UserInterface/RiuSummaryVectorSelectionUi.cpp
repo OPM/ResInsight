@@ -1336,7 +1336,7 @@ void RiuSummaryVectorSelectionUi::defineEditorAttribute( const caf::PdmFieldHand
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryVectorSelectionUi::resetAllFields()
 {
-    m_selectedSources.clear();
+    m_selectedSources.clearWithoutDelete();
     m_selectedSummaryCategories = std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>();
 
     // clear all state in fields

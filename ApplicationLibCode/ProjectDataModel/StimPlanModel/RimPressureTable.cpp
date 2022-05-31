@@ -56,7 +56,7 @@ RimPressureTable::~RimPressureTable()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPressureTableItem*> RimPressureTable::items() const
 {
-    std::vector<RimPressureTableItem*> pressureTableItems = m_pressureTableItems.childObjects();
+    std::vector<RimPressureTableItem*> pressureTableItems = m_pressureTableItems.children();
 
     // Sort by depth
     std::sort( pressureTableItems.begin(), pressureTableItems.end(), []( auto const& a, auto const& b ) {
@@ -86,7 +86,7 @@ void RimPressureTable::insertItem( RimPressureTableItem* insertBefore, RimPressu
 //--------------------------------------------------------------------------------------------------
 void RimPressureTable::deleteItem( RimPressureTableItem* itemToDelete )
 {
-    m_pressureTableItems.removeChildObject( itemToDelete );
+    m_pressureTableItems.removeChild( itemToDelete );
     delete itemToDelete;
     onTableChanged();
 }
@@ -96,7 +96,7 @@ void RimPressureTable::deleteItem( RimPressureTableItem* itemToDelete )
 //--------------------------------------------------------------------------------------------------
 void RimPressureTable::deleteAllItems()
 {
-    m_pressureTableItems.deleteAllChildObjects();
+    m_pressureTableItems.deleteChildren();
     onTableChanged();
 }
 

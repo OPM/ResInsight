@@ -59,7 +59,7 @@ RimPerforationCollection::RimPerforationCollection()
 //--------------------------------------------------------------------------------------------------
 RimPerforationCollection::~RimPerforationCollection()
 {
-    m_perforations.deleteAllChildObjects();
+    m_perforations.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

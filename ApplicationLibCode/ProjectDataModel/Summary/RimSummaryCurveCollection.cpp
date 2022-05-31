@@ -91,7 +91,7 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::~RimSummaryCurveCollection()
 {
-    m_curves.deleteAllChildObjects();
+    m_curves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -244,7 +244,7 @@ void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
-        m_curves.removeChildObject( curve );
+        m_curves.removeChild( curve );
     }
 }
 
@@ -253,7 +253,7 @@ void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 {
-    return m_curves.childObjects();
+    return m_curves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,7 +342,7 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase( RimSummaryCase* 
     }
     for ( RimSummaryCurve* summaryCurve : summaryCurvesToDelete )
     {
-        m_curves.removeChildObject( summaryCurve );
+        m_curves.removeChild( summaryCurve );
         delete summaryCurve;
     }
 }
@@ -352,7 +352,7 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase( RimSummaryCase* 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteAllCurves()
 {
-    m_curves.deleteAllChildObjects();
+    m_curves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

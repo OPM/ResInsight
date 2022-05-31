@@ -60,7 +60,7 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSetCollection::~RimEnsembleCurveSetCollection()
 {
-    m_curveSets.deleteAllChildObjects();
+    m_curveSets.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,7 +196,7 @@ void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsemb
 {
     for ( const auto curveSet : curveSets )
     {
-        m_curveSets.removeChildObject( curveSet );
+        m_curveSets.removeChild( curveSet );
         delete curveSet;
     }
 }
@@ -206,7 +206,7 @@ void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsemb
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSets() const
 {
-    return m_curveSets.childObjects();
+    return m_curveSets.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,7 +302,7 @@ RimSummaryPlotSourceStepping* RimEnsembleCurveSetCollection::sourceSteppingObjec
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteAllCurveSets()
 {
-    m_curveSets.deleteAllChildObjects();
+    m_curveSets.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

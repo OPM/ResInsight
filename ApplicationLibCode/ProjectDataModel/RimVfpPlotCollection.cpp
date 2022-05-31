@@ -70,15 +70,15 @@ void RimVfpPlotCollection::insertPlot( RimVfpPlot* vfpPlot, size_t index )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimVfpPlot*> RimVfpPlotCollection::plots() const
 {
-    return m_vfpPlots.childObjects();
+    return m_vfpPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlotCollection::deleteAllChildObjects()
+void RimVfpPlotCollection::deleteChildren()
 {
-    m_vfpPlots.deleteAllChildObjects();
+    m_vfpPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,6 +94,6 @@ size_t RimVfpPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 void RimVfpPlotCollection::removePlot( RimVfpPlot* vfpPlot )
 {
-    m_vfpPlots.removeChildObject( vfpPlot );
+    m_vfpPlots.removeChild( vfpPlot );
     updateAllRequiredEditors();
 }

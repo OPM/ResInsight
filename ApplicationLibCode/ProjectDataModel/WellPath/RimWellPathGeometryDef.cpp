@@ -389,7 +389,7 @@ void RimWellPathGeometryDef::insertTarget( const RimWellPathTarget* targetToInse
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGeometryDef::deleteTarget( RimWellPathTarget* targetTodelete )
 {
-    m_wellTargets.removeChildObject( targetTodelete );
+    m_wellTargets.removeChild( targetTodelete );
     delete targetTodelete;
 }
 
@@ -398,7 +398,7 @@ void RimWellPathGeometryDef::deleteTarget( RimWellPathTarget* targetTodelete )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGeometryDef::deleteAllTargets()
 {
-    m_wellTargets.deleteAllChildObjects();
+    m_wellTargets.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -408,7 +408,7 @@ RimWellPathTarget* RimWellPathGeometryDef::appendTarget()
 {
     RimWellPathTarget* wellPathTarget = nullptr;
 
-    auto targets = m_wellTargets.childObjects();
+    auto targets = m_wellTargets.children();
     if ( targets.empty() )
     {
         wellPathTarget = new RimWellPathTarget;

@@ -41,7 +41,7 @@ RimCaseCollection::RimCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection::~RimCaseCollection()
 {
-    reservoirs.deleteAllChildObjects();
+    reservoirs.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

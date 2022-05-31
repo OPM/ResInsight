@@ -147,7 +147,7 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( Rim
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogPlot*> RimWellLogPlotCollection::wellLogPlots() const
 {
-    return m_wellLogPlots.childObjects();
+    return m_wellLogPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ void RimWellLogPlotCollection::addWellLogPlot( gsl::not_null<RimWellLogPlot*> we
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::deleteAllPlots()
 {
-    m_wellLogPlots.deleteAllChildObjects();
+    m_wellLogPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ void RimWellLogPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::removePlot( gsl::not_null<RimWellLogPlot*> plot )
 {
-    m_wellLogPlots.removeChildObject( plot );
+    m_wellLogPlots.removeChild( plot );
     updateAllRequiredEditors();
 }
 

@@ -728,7 +728,7 @@ void RiuWellImportWizard::parseWellsResponse( RimOilFieldEntry* oilFieldEntry )
 
     for ( size_t i = 0; i < wellsToRemove.size(); i++ )
     {
-        oilFieldEntry->wells.removeChildObject( wellsToRemove[i] );
+        oilFieldEntry->wells.removeChild( wellsToRemove[i] );
 
         delete wellsToRemove[i];
     }
@@ -902,7 +902,7 @@ void WellSelectionPage::buildWellTreeView()
     }
 
     // Delete all temporary pdm object groups
-    m_regionsWithVisibleWells->objects.deleteAllChildObjects();
+    m_regionsWithVisibleWells->objects.deleteChildren();
 
     for ( size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++ )
     {
@@ -982,7 +982,7 @@ void WellSelectionPage::selectedWellPathEntries( std::vector<DownloadEntity>& do
     for ( size_t i = 0; i < childFields.size(); i++ )
     {
         std::vector<caf::PdmObjectHandle*> childObjects;
-        childFields[i]->childObjects( &childObjects );
+        childFields[i]->children( &childObjects );
 
         for ( size_t j = 0; j < childObjects.size(); j++ )
         {
@@ -1117,7 +1117,7 @@ void WellSummaryPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 void WellSummaryPage::updateSummaryPage()
 {
-    m_objectGroup->objects.clear();
+    m_objectGroup->objects.clearWithoutDelete();
 
     m_textEdit->setText( "Summary of imported wells\n\n" );
 

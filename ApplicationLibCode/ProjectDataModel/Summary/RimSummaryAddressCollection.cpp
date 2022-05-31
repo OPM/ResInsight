@@ -333,10 +333,10 @@ RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddressCollection::deleteAllChildObjects()
+void RimSummaryAddressCollection::deleteChildren()
 {
-    m_adresses.deleteAllChildObjects();
-    m_subfolders.deleteAllChildObjects();
+    m_adresses.deleteChildren();
+    m_subfolders.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -444,7 +444,7 @@ int RimSummaryAddressCollection::ensembleId() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryAddressCollection*> RimSummaryAddressCollection::subFolders() const
 {
-    return m_subfolders.childObjects();
+    return m_subfolders.children();
 }
 
 //--------------------------------------------------------------------------------------------------

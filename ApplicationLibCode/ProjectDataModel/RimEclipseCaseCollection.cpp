@@ -67,8 +67,8 @@ void RimEclipseCaseCollection::close()
 {
     m_gridCollection->clear();
 
-    cases.deleteAllChildObjects();
-    caseGroups.deleteAllChildObjects();
+    cases.deleteChildren();
+    caseGroups.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups( RimEclipseCase* reservoi
         cg->removeCase( reservoir );
     }
 
-    cases().removeChildObject( reservoir );
+    cases().removeChild( reservoir );
 }
 
 //--------------------------------------------------------------------------------------------------

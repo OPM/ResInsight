@@ -144,7 +144,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::~RimSummaryCaseCollection()
 {
-    m_cases.deleteAllChildObjectsAsync();
+    m_cases.deleteChildrenAsync();
     updateReferringCurveSets();
 }
 
@@ -155,7 +155,7 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase, bool not
 {
     size_t caseCountBeforeRemove = m_cases.size();
 
-    m_cases.removeChildObject( summaryCase );
+    m_cases.removeChild( summaryCase );
 
     m_cachedSortedEnsembleParameters.clear();
 
@@ -212,7 +212,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 {
-    return m_cases.childObjects();
+    return m_cases.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1098,5 +1098,5 @@ void RimSummaryCaseCollection::refreshMetaData()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::clearChildNodes()
 {
-    m_dataVectorFolders->deleteAllChildObjects();
+    m_dataVectorFolders->deleteChildren();
 }

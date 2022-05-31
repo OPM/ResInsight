@@ -126,7 +126,7 @@ void RimOilField::initAfterRead()
     RimFractureTemplateCollection* fractureTemplateCollection = m_fractureTemplateCollection_OBSOLETE.value();
     if ( !fractureTemplateCollection->fractureTemplates().empty() )
     {
-        m_fractureTemplateCollection_OBSOLETE.removeChildObject( fractureTemplateCollection );
+        m_fractureTemplateCollection_OBSOLETE.removeChild( fractureTemplateCollection );
         completionTemplateCollection->setFractureTemplateCollection( fractureTemplateCollection );
     }
 }

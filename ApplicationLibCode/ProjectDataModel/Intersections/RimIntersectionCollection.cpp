@@ -79,8 +79,8 @@ RimIntersectionCollection::RimIntersectionCollection()
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection::~RimIntersectionCollection()
 {
-    m_intersections.deleteAllChildObjects();
-    m_intersectionBoxes.deleteAllChildObjects();
+    m_intersections.deleteChildren();
+    m_intersectionBoxes.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,7 +254,7 @@ void RimIntersectionCollection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersections() const
 {
-    return m_intersections.childObjects();
+    return m_intersections.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -262,7 +262,7 @@ std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersecti
 //--------------------------------------------------------------------------------------------------
 std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() const
 {
-    return m_intersectionBoxes.childObjects();
+    return m_intersectionBoxes.children();
 }
 
 //--------------------------------------------------------------------------------------------------

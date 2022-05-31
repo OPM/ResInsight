@@ -45,7 +45,7 @@ RimGridCrossPlotCollection::~RimGridCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlot*> RimGridCrossPlotCollection::plots() const
 {
-    return m_gridCrossPlots.childObjects();
+    return m_gridCrossPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +82,6 @@ void RimGridCrossPlotCollection::insertPlot( RimGridCrossPlot* plot, size_t inde
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCollection::removePlot( RimGridCrossPlot* plot )
 {
-    m_gridCrossPlots.removeChildObject( plot );
+    m_gridCrossPlots.removeChild( plot );
     updateAllRequiredEditors();
 }

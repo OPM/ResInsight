@@ -328,8 +328,8 @@ QString RimSummaryPlot::asciiDataForSummaryPlotExport( RiaDefines::DateTimePerio
     std::vector<RimSummaryCurve*> curves;
     this->descendantsIncludingThisOfType( curves );
 
-    auto gridCurves  = m_gridTimeHistoryCurves.childObjects();
-    auto asciiCurves = m_asciiDataCurves.childObjects();
+    auto gridCurves  = m_gridTimeHistoryCurves.children();
+    auto asciiCurves = m_asciiDataCurves.children();
 
     QString text =
         RimSummaryCurvesData::createTextForExport( curves, asciiCurves, gridCurves, resamplingPeriod, showTimeAsLongString );
@@ -1344,7 +1344,7 @@ void RimSummaryPlot::addGridTimeHistoryCurveNoUpdate( RimGridTimeHistoryCurve* c
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridTimeHistoryCurve*> RimSummaryPlot::gridTimeHistoryCurves() const
 {
-    return m_gridTimeHistoryCurves.childObjects();
+    return m_gridTimeHistoryCurves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1859,7 +1859,7 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
         if ( oldPlotAxis != RiuPlotAxis::defaultLeft() && oldPlotAxis != RiuPlotAxis::defaultRight() )
         {
             auto oldAxisProperties = axisPropertiesForPlotAxis( oldPlotAxis );
-            if ( oldAxisProperties ) m_axisProperties.removeChildObject( oldAxisProperties );
+            if ( oldAxisProperties ) m_axisProperties.removeChild( oldAxisProperties );
             plotWidget()->moveAxis( oldPlotAxis, newPlotAxis );
         }
 
@@ -1875,7 +1875,7 @@ void RimSummaryPlot::axisPositionChanged( const caf::SignalEmitter* emitter,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::deleteAllGridTimeHistoryCurves()
 {
-    m_gridTimeHistoryCurves.deleteAllChildObjects();
+    m_gridTimeHistoryCurves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

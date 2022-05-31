@@ -267,7 +267,7 @@ void PdmObjectHandle::descendantsOfType( std::vector<T*>& descendants ) const
     for ( auto f : m_fields )
     {
         std::vector<PdmObjectHandle*> childObjects;
-        f->childObjects( &childObjects );
+        f->children( &childObjects );
 
         for ( auto childObject : childObjects )
         {

@@ -41,7 +41,7 @@ RimOilRegionEntry::RimOilRegionEntry()
 //--------------------------------------------------------------------------------------------------
 RimOilRegionEntry::~RimOilRegionEntry()
 {
-    fields.deleteAllChildObjects();
+    fields.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

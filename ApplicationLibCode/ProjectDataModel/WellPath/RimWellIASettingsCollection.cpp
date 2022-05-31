@@ -89,7 +89,7 @@ RimWellIASettings* RimWellIASettingsCollection::startWellIntegrationAnalysis( QS
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellIASettings*> RimWellIASettingsCollection::settings() const
 {
-    return m_wellIASettings.childObjects();
+    return m_wellIASettings.children();
 }
 
 //--------------------------------------------------------------------------------------------------

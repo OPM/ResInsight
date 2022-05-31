@@ -341,7 +341,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
                   it != indicesToRemoveFromSource.rend();
                   ++it )
             {
-                // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
+                // Use the removeChildNoDelete() to remove the pointer from the list without deleting the pointer
                 sourceSubTreeRoot->removeChildrenNoDelete( *it, 1 );
             }
 

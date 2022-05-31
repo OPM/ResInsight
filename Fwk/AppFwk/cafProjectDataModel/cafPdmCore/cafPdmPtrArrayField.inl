@@ -24,7 +24,7 @@ PdmPtrArrayField<DataType*>::~PdmPtrArrayField()
 template <typename DataType>
 void PdmPtrArrayField<DataType*>::setValue( const std::vector<PdmPointer<DataType>>& fieldValue )
 {
-    this->clear();
+    this->clearWithoutDelete();
     this->insert( 0, fieldValue );
 }
 
@@ -43,7 +43,7 @@ const std::vector<PdmPointer<DataType>>& PdmPtrArrayField<DataType*>::value() co
 template <typename DataType>
 void PdmPtrArrayField<DataType*>::setValue( const std::vector<DataType*>& fieldValue )
 {
-    this->clear();
+    this->clearWithoutDelete();
     for ( DataType* rawPtr : fieldValue )
     {
         this->push_back( PdmPointer<DataType>( rawPtr ) );
@@ -161,7 +161,7 @@ size_t PdmPtrArrayField<DataType*>::indexOf( const PdmObjectHandle* obj ) const
 /// Empty the container without deleting the objects pointed to.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrArrayField<DataType*>::clear()
+void PdmPtrArrayField<DataType*>::clearWithoutDelete()
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 

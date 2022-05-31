@@ -122,7 +122,7 @@ std::vector<caf::PdmObjectHandle*> RicToggleItemsOnOthersOffFeature::childObject
     std::vector<caf::PdmObjectHandle*> children;
     if ( parent )
     {
-        parent->childObjects( &children );
+        parent->children( &children );
     }
     return children;
 }

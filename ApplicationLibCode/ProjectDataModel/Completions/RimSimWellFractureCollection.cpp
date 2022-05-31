@@ -41,7 +41,7 @@ RimSimWellFractureCollection::RimSimWellFractureCollection( void )
 //--------------------------------------------------------------------------------------------------
 RimSimWellFractureCollection::~RimSimWellFractureCollection()
 {
-    simwellFractures.deleteAllChildObjects();
+    simwellFractures.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ RimSimWellFractureCollection::~RimSimWellFractureCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFractureCollection::deleteFractures()
 {
-    simwellFractures.deleteAllChildObjects();
+    simwellFractures.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

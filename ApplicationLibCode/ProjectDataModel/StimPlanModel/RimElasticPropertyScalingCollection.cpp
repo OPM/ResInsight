@@ -43,7 +43,7 @@ RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
 //--------------------------------------------------------------------------------------------------
 RimElasticPropertyScalingCollection::~RimElasticPropertyScalingCollection()
 {
-    m_elasticPropertyScalings.deleteAllChildObjects();
+    m_elasticPropertyScalings.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

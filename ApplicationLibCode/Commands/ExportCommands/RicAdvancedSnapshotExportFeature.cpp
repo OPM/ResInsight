@@ -147,7 +147,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 
                 exportViewVariations( copyOfEclipseView, msd, folder );
 
-                eclCase->reservoirViews().removeChildObject( copyOfEclipseView );
+                eclCase->reservoirViews().removeChild( copyOfEclipseView );
 
                 delete copyOfEclipseView;
             }
@@ -172,7 +172,7 @@ void RicAdvancedSnapshotExportFeature::exportMultipleSnapshots( const QString& f
 
                 exportViewVariations( copyOfGeoMechView, msd, folder );
 
-                geomCase->geoMechViews().removeChildObject( copyOfGeoMechView );
+                geomCase->geoMechViews().removeChild( copyOfGeoMechView );
 
                 delete copyOfGeoMechView;
             }
@@ -210,7 +210,7 @@ void RicAdvancedSnapshotExportFeature::exportViewVariations( Rim3dView*         
             exportViewVariationsToFolder( copyOfView, msd, folder );
         }
 
-        eclCase->reservoirViews().removeChildObject( copyOfView );
+        eclCase->reservoirViews().removeChild( copyOfView );
 
         delete copyOfView;
     }

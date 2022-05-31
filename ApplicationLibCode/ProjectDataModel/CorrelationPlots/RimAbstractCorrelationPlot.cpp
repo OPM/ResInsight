@@ -105,7 +105,7 @@ RimAbstractCorrelationPlot::~RimAbstractCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    m_dataSources.deleteAllChildObjects();
+    m_dataSources.deleteChildren();
     for ( auto curveDef : curveDefinitions )
     {
         auto dataEntry = new RimAnalysisPlotDataEntry();
@@ -155,7 +155,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( !curveSelection.empty() )
             {
                 std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
-                m_dataSources.deleteAllChildObjects();
+                m_dataSources.deleteChildren();
                 for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
                 {
                     auto plotEntry = new RimAnalysisPlotDataEntry();
