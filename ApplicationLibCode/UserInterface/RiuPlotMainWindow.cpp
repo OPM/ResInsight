@@ -483,9 +483,15 @@ void RiuPlotMainWindow::createDockPanels()
                                                      RiuDockWidgetTools::plotMainWindowTemplateTreeName(),
                                                      RiuDockWidgetTools::plotMainWindowScriptsTreeName() };
 
+    const std::vector<Qt::DockWidgetArea> defaultDockWidgetArea{ Qt::LeftDockWidgetArea,
+                                                                 Qt::RightDockWidgetArea,
+                                                                 Qt::LeftDockWidgetArea,
+                                                                 Qt::LeftDockWidgetArea };
+
     createTreeViews( nTreeViews );
 
-    QDockWidget* dockOntopOfWidget = nullptr;
+    std::vector<QDockWidget*> rightTabbedWidgets;
+    std::vector<QDockWidget*> leftTabbedWidgets;
 
     for ( int i = 0; i < nTreeViews; i++ )
     {
@@ -513,19 +519,12 @@ void RiuPlotMainWindow::createDockPanels()
         RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this, projectTree );
         projectTree->treeView()->installEventFilter( treeViewEventFilter );
 
-        addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
+        addDockWidget( defaultDockWidgetArea[i], dockWidget );
 
-        if ( dockOntopOfWidget )
-        {
-            tabifyDockWidget( dockOntopOfWidget, dockWidget );
-        }
-        else
-        {
-            dockOntopOfWidget = dockWidget;
-        }
+        if ( defaultDockWidgetArea[i] == Qt::LeftDockWidgetArea ) leftTabbedWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == Qt::RightDockWidgetArea ) rightTabbedWidgets.push_back( dockWidget );
 
         connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
-
         connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
 
         projectTree->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
@@ -568,7 +567,10 @@ void RiuPlotMainWindow::createDockPanels()
         m_summaryPlotManager = std::move( plotManager );
 
         dockWidget->setWidget( m_summaryPlotManagerView.get() );
-        addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
+        addDockWidget( Qt::RightDockWidgetArea, dockWidget );
+
+        rightTabbedWidgets.push_back( dockWidget );
+
         dockWidget->hide();
     }
 
@@ -580,8 +582,30 @@ void RiuPlotMainWindow::createDockPanels()
 
         dockWidget->setWidget( m_undoView );
         addDockWidget( Qt::RightDockWidgetArea, dockWidget );
+        rightTabbedWidgets.push_back( dockWidget );
 
         dockWidget->hide();
+    }
+
+    {
+        QDockWidget* topDock = nullptr;
+        for ( auto d : leftTabbedWidgets )
+        {
+            if ( !topDock )
+                topDock = d;
+            else
+                tabifyDockWidget( topDock, d );
+        }
+    }
+    {
+        QDockWidget* topDock = nullptr;
+        for ( auto d : rightTabbedWidgets )
+        {
+            if ( !topDock )
+                topDock = d;
+            else
+                tabifyDockWidget( topDock, d );
+        }
     }
 
     setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
