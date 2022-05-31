@@ -44,7 +44,8 @@ public:
     RimSummaryCaseCollection* selectedEnsemble() const;
 
 protected:
-    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
