@@ -1046,7 +1046,7 @@ void RimWellPltPlot::initAfterLoad()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
 {
-    m_selectedSourcesForIo.clearWithoutDelete();
+    m_selectedSourcesForIo.deleteChildren();
 
     for ( const RifDataSourceForRftPlt& addr : m_selectedSources() )
     {

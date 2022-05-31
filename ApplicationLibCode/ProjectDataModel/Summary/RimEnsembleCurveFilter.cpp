@@ -238,7 +238,7 @@ std::vector<RifEclipseSummaryAddress> RimEnsembleCurveFilter::summaryAddresses()
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveFilter::setSummaryAddresses( std::vector<RifEclipseSummaryAddress> addresses )
 {
-    m_objectiveValuesSummaryAddresses.clearWithoutDelete();
+    m_objectiveValuesSummaryAddresses.deleteChildren();
     for ( auto address : addresses )
     {
         RimSummaryAddress* summaryAddress = new RimSummaryAddress();
@@ -397,7 +397,7 @@ void RimEnsembleCurveFilter::fieldChangedByUi( const caf::PdmFieldHandle* change
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
-                m_objectiveValuesSummaryAddresses.clearWithoutDelete();
+                m_objectiveValuesSummaryAddresses.deleteChildren();
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();

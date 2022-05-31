@@ -427,7 +427,7 @@ void RimPlotAxisProperties::appendAnnotation( RimPlotAxisAnnotation* annotation 
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::removeAllAnnotations()
 {
-    m_annotations.clearWithoutDelete();
+    m_annotations.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
