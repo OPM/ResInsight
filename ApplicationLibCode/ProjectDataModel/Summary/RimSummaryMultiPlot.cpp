@@ -198,6 +198,9 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
         RimMultiPlot::insertPlot( plot, index );
     }
+
+    if ( summaryPlots().size() == 1 ) m_disableWheelZoom = false;
+    if ( summaryPlots().size() == 2 ) m_disableWheelZoom = true;
 }
 
 //--------------------------------------------------------------------------------------------------
