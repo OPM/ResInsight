@@ -226,6 +226,8 @@ void RiuMultiPlotPage::removePlot( RiuPlotWidget* plotWidget )
     m_subTitles.removeAt( plotWidgetIdx );
     delete subTitle;
 
+    m_childCountForAdjustSizeOperation.clear();
+
     scheduleUpdate();
 }
 
@@ -733,9 +735,23 @@ int RiuMultiPlotPage::alignCanvasTops()
         {
             int row = visibleIndex / rowAndColumnCount.second;
             qwtPlotWidget->qwtPlot()->axisScaleDraw( QwtAxis::XTop )->setMinimumExtent( maxExtents[row] );
-            if ( legends[visibleIndex] )
+            auto legend = legends[visibleIndex];
+            if ( legend )
             {
-                legends[visibleIndex]->adjustSize();
+                int previousChildCount = -1;
+
+                auto it = m_childCountForAdjustSizeOperation.find( legend );
+                if ( it != m_childCountForAdjustSizeOperation.end() )
+                {
+                    previousChildCount = it->second;
+                }
+
+                auto legendItemCount = legend->contentsWidget()->children().size();
+                if ( previousChildCount != legendItemCount )
+                {
+                    legends[visibleIndex]->adjustSize();
+                    m_childCountForAdjustSizeOperation[legend] = legendItemCount;
+                }
             }
         }
     }
