@@ -820,7 +820,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
-                m_objectiveValuesSummaryAddresses.clearWithoutDelete();
+                m_objectiveValuesSummaryAddresses.deleteChildren();
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();

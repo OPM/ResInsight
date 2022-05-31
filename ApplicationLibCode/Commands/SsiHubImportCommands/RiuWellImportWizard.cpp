@@ -1117,7 +1117,7 @@ void WellSummaryPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 void WellSummaryPage::updateSummaryPage()
 {
-    m_objectGroup->objects.clearWithoutDelete();
+    m_objectGroup->objects.deleteChildren();
 
     m_textEdit->setText( "Summary of imported wells\n\n" );
 
