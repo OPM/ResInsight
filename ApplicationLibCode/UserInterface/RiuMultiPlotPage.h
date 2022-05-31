@@ -147,6 +147,8 @@ protected:
     bool m_previewMode;
     bool m_showSubTitles;
 
+    std::map<RiuQwtPlotLegend*, int> m_childCountForAdjustSizeOperation;
+
 private:
     friend class RiaPlotWindowRedrawScheduler;
 };
