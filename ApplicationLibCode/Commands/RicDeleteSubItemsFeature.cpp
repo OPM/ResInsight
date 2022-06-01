@@ -38,6 +38,14 @@ CAF_CMD_SOURCE_INIT( RicDeleteSubItemsFeature, "RicDeleteSubItemsFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteSubItemsFeature::isCommandEnabled()
 {
+    return RicDeleteSubItemsFeature::canCommandBeEnabled();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicDeleteSubItemsFeature::canCommandBeEnabled()
+{
     std::vector<caf::PdmUiItem*> items;
     caf::SelectionManager::instance()->selectedItems( items );
 

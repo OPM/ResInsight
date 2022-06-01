@@ -32,17 +32,7 @@ CAF_CMD_SOURCE_INIT( RicDeleteUncheckedSubItemsFeature, "RicDeleteUncheckedSubIt
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteUncheckedSubItemsFeature::isCommandEnabled()
 {
-    std::vector<caf::PdmUiItem*> items;
-    caf::SelectionManager::instance()->selectedItems( items );
-
-    if ( items.empty() ) return false;
-
-    for ( auto* item : items )
-    {
-        if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) return false;
-    }
-
-    return true;
+    return RicDeleteSubItemsFeature::canCommandBeEnabled();
 }
 
 //--------------------------------------------------------------------------------------------------

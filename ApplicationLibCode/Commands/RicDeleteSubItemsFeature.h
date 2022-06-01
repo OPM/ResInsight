@@ -35,6 +35,7 @@ class RicDeleteSubItemsFeature : public caf::CmdFeature
 public:
     static bool hasDeletableSubItems( caf::PdmUiItem* uiItem );
     static void deleteSubItems( bool onlyDeleteUnchecked );
+    static bool canCommandBeEnabled();
 
 protected:
     bool isCommandEnabled() override;
