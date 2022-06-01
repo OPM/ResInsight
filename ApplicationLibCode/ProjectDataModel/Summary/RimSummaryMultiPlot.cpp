@@ -147,11 +147,11 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Aggregation" );
 
-    CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "Hide Plots With Values Below" );
+    CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "" );
     m_hidePlotsWithValuesBelow.xmlCapability()->disableIO();
     m_hidePlotsWithValuesBelow.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_plotFilterYAxisThreshold, "PlotFilterYAxisThreshold", 0.0, "Y-Axis Threshold" );
+    CAF_PDM_InitField( &m_plotFilterYAxisThreshold, "PlotFilterYAxisThreshold", 0.0, "Y-Axis Filter Threshold" );
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
 
@@ -379,8 +379,8 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     if ( m_autoAdjustAppearance() ) m_linkSubPlotAxes = false;
 
     auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
-    plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
     plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
+    plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
     dataSourceGroup->setCollapsedByDefault( true );
@@ -1032,6 +1032,8 @@ void RimSummaryMultiPlot::updatePlotVisibility()
         bool hasValueAboveLimit = hasValuesAboveLimit( plot, m_plotFilterYAxisThreshold );
         plot->setShowWindow( hasValueAboveLimit );
     }
+
+    updateLayout();
 
     if ( !m_viewer.isNull() ) m_viewer->scheduleUpdate();
 }
