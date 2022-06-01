@@ -6,7 +6,7 @@ on:
   schedule:
     # Every day at 1am to make sure we have a build cache for the current date
     # build cache is
-    - cron: "0 1 * * * "
+    - cron: "0 1 * * *"
 env:
   BUILD_TYPE: Release
   BUILDCACHE_VERSION: 0.27.6
@@ -22,7 +22,7 @@ jobs:
         config:
           - {
               name: "Windows Latest MSVC",
-              os: windows-latest,
+              os:  ${{ fromJSON(github.event.schedule == '0 1 * * *' && 'windows-latest' || 'windows-2022') }},
               cc: "cl",
               cxx: "cl",
               vcpkg-response-file: vcpkg_x64-windows.txt,
@@ -32,7 +32,7 @@ jobs:
             }
           - {
               name: "Ubuntu Latest gcc",
-              os: ubuntu-latest,
+              os:  ${{ fromJSON(github.event.schedule == '0 1 * * *' && 'ubuntu-latest' || 'ubuntu-20.04') }},
               cc: "gcc",
               cxx: "g++",
               vcpkg-response-file: vcpkg_x64-linux.txt,
@@ -42,7 +42,7 @@ jobs:
             }
           - {
               name: "Ubuntu Latest clang",
-              os: ubuntu-latest,
+              os:  ${{ fromJSON(github.event.schedule == '0 1 * * *' && 'ubuntu-latest' || 'ubuntu-20.04') }},
               cc: "clang",
               cxx: "clang++",
               vcpkg-response-file: vcpkg_x64-linux.txt,
