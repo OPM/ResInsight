@@ -243,6 +243,8 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
         }
     }
 
+    if ( text.empty() ) text = summaryAddress.vectorName();
+
     return QString::fromStdString( text );
 }
 

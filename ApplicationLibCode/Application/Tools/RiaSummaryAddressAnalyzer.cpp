@@ -93,6 +93,11 @@ std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
         return *quantities().begin();
     }
 
+    if ( quantities().size() == 2 && quantityNamesWithHistory().size() == 1 )
+    {
+        return *quantityNamesWithHistory().begin();
+    }
+
     return {};
 }
 
