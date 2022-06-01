@@ -76,6 +76,7 @@ RimSummaryAddressCollection::RimSummaryAddressCollection()
     m_ensembleId.uiCapability()->setUiHidden( true );
 
     nameField()->uiCapability()->setUiHidden( true );
+    nameField()->uiCapability()->setUiReadOnly( true );
 
     setUiIconFromResourceString( iconResourceText() );
 }
