@@ -213,13 +213,12 @@ RiaPreferences::RiaPreferences()
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_searchPlotTemplateFoldersRecursively,
-                       "SearchPlotTemplateFoldersRecursively",
-                       true,
-                       "Search Plot Templates Recursively" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_searchPlotTemplateFoldersRecursively );
+    CAF_PDM_InitField( &m_maxPlotTemplateFoldersDepth,
+                       "MaxPlotTemplateFoldersDepth",
+                       2,
+                       "Maximum Plot Template Folder Search Depth" );
 
-    CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );
+    CAF_PDM_InitFieldNoDefault( &m_lastUsedPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );
 
     CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size" );
     CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation" );
@@ -383,7 +382,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         caf::PdmUiGroup* group = summaryGrp->addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
-        group->add( &m_searchPlotTemplateFoldersRecursively );
+        group->add( &m_maxPlotTemplateFoldersDepth );
 
         caf::PdmUiGroup* generalGrp = uiOrdering.addNewGroup( "General" );
 
@@ -671,9 +670,9 @@ QString RiaPreferences::dateTimeFormat( RiaDefines::DateFormatComponents dateCom
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferences::searchPlotTemplateFoldersRecursively() const
+int RiaPreferences::maxPlotTemplateFoldersDepth() const
 {
-    return m_searchPlotTemplateFoldersRecursively();
+    return m_maxPlotTemplateFoldersDepth();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -714,17 +713,17 @@ void RiaPreferences::appendPlotTemplateFolders( const QString& folder )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::defaultPlotTemplateAbsolutePath() const
+QString RiaPreferences::lastUsedPlotTemplateAbsolutePath() const
 {
-    return m_defaultPlotTemplate().path();
+    return m_lastUsedPlotTemplate().path();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
+void RiaPreferences::setLastUsedPlotTemplatePath( const QString& templatePath )
 {
-    m_defaultPlotTemplate = templatePath;
+    m_lastUsedPlotTemplate = templatePath;
 }
 
 //--------------------------------------------------------------------------------------------------

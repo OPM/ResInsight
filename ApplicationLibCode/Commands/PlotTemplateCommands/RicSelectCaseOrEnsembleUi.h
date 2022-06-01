@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2011-2012 Statoil ASA, Ceetron AS
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,39 @@
 
 #pragma once
 
-#include "cafPdmField.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
+
+#include <QList>
+#include <QString>
+#include <vector>
+
+class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///
-///
 //==================================================================================================
-class RimPlotTemplateFileItem : public caf::PdmObject
+class RicSelectCaseOrEnsembleUi : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
 
 public:
-    RimPlotTemplateFileItem();
-    ~RimPlotTemplateFileItem() override;
+    RicSelectCaseOrEnsembleUi();
 
-    void    setFilePath( const QString& filePath );
-    QString absoluteFilePath() const;
+    void setEnsembleSelectionMode( bool selectEnsemble );
 
-    bool isEnsembleTemplate() const;
+    RimSummaryCase*           selectedSummaryCase() const;
+    RimSummaryCaseCollection* selectedEnsemble() const;
 
-    bool isDefaultTemplate() const;
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    void updateIconState();
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
-    caf::PdmField<QString> m_absoluteFileName;
+    caf::PdmPtrField<RimSummaryCase*>           m_selectedSummaryCase;
+    caf::PdmPtrField<RimSummaryCaseCollection*> m_selectedEnsemble;
+
+    bool m_useEnsembleMode;
 };

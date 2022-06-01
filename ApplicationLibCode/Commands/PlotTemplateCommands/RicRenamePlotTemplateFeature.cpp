@@ -95,5 +95,4 @@ void RicRenamePlotTemplateFeature::onActionTriggered( bool isChecked )
 void RicRenamePlotTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Rename" );
-    actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
 }

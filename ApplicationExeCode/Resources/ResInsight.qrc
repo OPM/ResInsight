@@ -146,6 +146,7 @@
         <file>SummaryPlots16x16.png</file>
         <file>SummaryPlotsLight16x16.png</file>
         <file>SummaryTemplate16x16.png</file>
+        <file>SummaryEnsembleTemplate16x16.png</file>
         <file>SummaryXPlotLight16x16.png</file>
         <file>SummaryXPlotsLight16x16.png</file>
         <file>Swap.png</file>
@@ -267,6 +268,7 @@
         <file>AppendPrevCurve.svg</file>
         <file>AppendNextCurve.png</file>
         <file>AppendPrevCurve.png</file>
+        <file>CheckOverlay16x16.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

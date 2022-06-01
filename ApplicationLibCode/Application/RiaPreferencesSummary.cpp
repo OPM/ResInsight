@@ -31,6 +31,7 @@
 #include "cafPdmUiPushButtonEditor.h"
 
 #include <algorithm>
+#include <vector>
 
 namespace caf
 {
@@ -535,9 +536,20 @@ RiaPreferencesSummary::DefaultSummaryPlotType RiaPreferencesSummary::defaultSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<QString> RiaPreferencesSummary::defaultSummaryPlotTemplates() const
+std::vector<QString> RiaPreferencesSummary::defaultSummaryPlotTemplates( bool returnEnsembleTemplates ) const
 {
-    return m_selectedDefaultTemplates();
+    std::vector<QString> templatesToUse;
+    for ( auto& fileName : m_selectedDefaultTemplates() )
+    {
+        bool singleTemplate = fileName.toLower().endsWith( ".rpt" );
+        if ( singleTemplate && returnEnsembleTemplates ) continue;
+        if ( !singleTemplate && !returnEnsembleTemplates ) continue;
+
+        if ( std::count( templatesToUse.begin(), templatesToUse.end(), fileName ) == 0 )
+            templatesToUse.push_back( fileName );
+    }
+
+    return templatesToUse;
 }
 
 //--------------------------------------------------------------------------------------------------

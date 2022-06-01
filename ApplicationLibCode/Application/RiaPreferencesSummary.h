@@ -84,7 +84,7 @@ public:
     int  createH5SummaryDataThreadCount() const;
 
     DefaultSummaryPlotType defaultSummaryPlotType() const;
-    std::vector<QString>   defaultSummaryPlotTemplates() const;
+    std::vector<QString>   defaultSummaryPlotTemplates( bool returnEnsembleTemplates ) const;
     bool                   isDefaultSummaryPlotTemplate( QString filename ) const;
     void                   addToDefaultPlotTemplates( QString filename );
     void                   removeFromDefaultPlotTemplates( QString filename );
