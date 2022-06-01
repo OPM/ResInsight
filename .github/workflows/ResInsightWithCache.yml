@@ -15,7 +15,6 @@ env:
 
 jobs:
   ResInsight-x64-buildcache:
-    runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -50,6 +49,8 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
             }
+    runs-on: ${{ matrix.config.os }}
+
     steps:
       - name: Checkout
         uses: actions/checkout@v2
