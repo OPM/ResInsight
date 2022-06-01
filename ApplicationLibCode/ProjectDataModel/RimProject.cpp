@@ -376,7 +376,7 @@ bool RimProject::writeProjectFile()
 //--------------------------------------------------------------------------------------------------
 /// Support list of multiple script paths divided by ';'
 //--------------------------------------------------------------------------------------------------
-void RimProject::setScriptDirectories( const QString& scriptDirectories )
+void RimProject::setScriptDirectories( const QString& scriptDirectories, int maxFolderDepth )
 {
     scriptCollection->calcScripts().deleteChildren();
     scriptCollection->subDirectories().deleteChildren();
@@ -391,7 +391,7 @@ void RimProject::setScriptDirectories( const QString& scriptDirectories )
             sharedScriptLocation->directory           = path;
             sharedScriptLocation->setUiName( dir.dirName() );
 
-            sharedScriptLocation->readContentFromDisc();
+            sharedScriptLocation->readContentFromDisc( maxFolderDepth );
 
             scriptCollection->subDirectories.push_back( sharedScriptLocation );
         }

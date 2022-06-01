@@ -113,7 +113,7 @@ public:
 
     bool writeProjectFile();
 
-    void setScriptDirectories( const QString& scriptDirectories );
+    void setScriptDirectories( const QString& scriptDirectories, int maxFolderDepth );
     void setPlotTemplateFolders( const QStringList& plotTemplateFolders );
 
     QString projectFileVersionString() const;
