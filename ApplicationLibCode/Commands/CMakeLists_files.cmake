@@ -29,7 +29,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Ric3dViewPickEventHandler.h
     ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.h
     ${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.h
-    # General delete of any object in a child array field
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExecData.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemFeature.h
@@ -85,6 +84,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -117,7 +117,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Ric3dViewPickEventHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.cpp
-    # General delete of any object in a child array field
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExecData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemFeature.cpp
@@ -173,6 +172,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

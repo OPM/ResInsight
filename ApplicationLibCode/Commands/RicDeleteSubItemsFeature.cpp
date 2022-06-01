@@ -21,7 +21,9 @@
 #include "RimProject.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
+#include "RimWellPath.h"
 #include "RimWellPathCollection.h"
+#include "RimWellPathFracture.h"
 #include "RimWellPathFractureCollection.h"
 
 #include "cafPdmUiItem.h"
@@ -54,60 +56,8 @@ bool RicDeleteSubItemsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteSubItemsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<caf::PdmUiItem*> items;
-    caf::SelectionManager::instance()->selectedItems( items );
-
-    CVF_ASSERT( items.size() > 0 );
-
-    for ( auto item : items )
-    {
-        if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) continue;
-
-        {
-            auto multiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
-            if ( multiPlot )
-            {
-                multiPlot->deleteAllPlots();
-
-                multiPlot->updateConnectedEditors();
-            }
-        }
-
-        {
-            auto collection = dynamic_cast<RimSummaryMultiPlotCollection*>( item );
-            if ( collection )
-            {
-                collection->deleteAllPlots();
-
-                collection->updateConnectedEditors();
-            }
-        }
-
-        {
-            auto collection = dynamic_cast<RimWellPathCollection*>( item );
-            if ( collection )
-            {
-                collection->deleteAllWellPaths();
-
-                collection->updateConnectedEditors();
-                collection->scheduleRedrawAffectedViews();
-            }
-        }
-
-        {
-            auto collection = dynamic_cast<RimWellPathFractureCollection*>( item );
-            if ( collection )
-            {
-                collection->deleteFractures();
-
-                collection->updateConnectedEditors();
-
-                RimProject* proj = nullptr;
-                collection->firstAncestorOrThisOfType( proj );
-                if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
-            }
-        }
-    }
+    bool onlyUnchecked = false;
+    RicDeleteSubItemsFeature::deleteSubItems( onlyUnchecked );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,4 +108,117 @@ bool RicDeleteSubItemsFeature::hasDeletableSubItems( caf::PdmUiItem* uiItem )
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicDeleteSubItemsFeature::deleteSubItems( bool onlyDeleteUnchecked )
+{
+    std::vector<caf::PdmUiItem*> items;
+    caf::SelectionManager::instance()->selectedItems( items );
+
+    CVF_ASSERT( items.size() > 0 );
+
+    for ( auto item : items )
+    {
+        if ( !RicDeleteSubItemsFeature::hasDeletableSubItems( item ) ) continue;
+
+        {
+            auto multiPlot = dynamic_cast<RimSummaryMultiPlot*>( item );
+            if ( multiPlot )
+            {
+                if ( onlyDeleteUnchecked )
+                {
+                    auto plots = multiPlot->plots();
+                    for ( auto plot : plots )
+                    {
+                        if ( plot->showWindow() ) continue;
+                        multiPlot->removePlotNoUpdate( plot );
+                        delete plot;
+                    }
+                }
+                else
+                {
+                    multiPlot->deleteAllPlots();
+                }
+
+                multiPlot->updateConnectedEditors();
+            }
+        }
+
+        {
+            auto collection = dynamic_cast<RimSummaryMultiPlotCollection*>( item );
+            if ( collection )
+            {
+                if ( onlyDeleteUnchecked )
+                {
+                    auto plots = collection->multiPlots();
+                    for ( auto plot : plots )
+                    {
+                        if ( plot->showWindow() ) continue;
+                        collection->removePlotNoUpdate( plot );
+                        delete plot;
+                    }
+                }
+                else
+                {
+                    collection->deleteAllPlots();
+                }
+
+                collection->updateConnectedEditors();
+            }
+        }
+
+        {
+            auto collection = dynamic_cast<RimWellPathCollection*>( item );
+            if ( collection )
+            {
+                if ( onlyDeleteUnchecked )
+                {
+                    auto paths = collection->allWellPaths();
+                    for ( auto path : paths )
+                    {
+                        if ( path->showWellPath() ) continue;
+                        collection->removeWellPath( path );
+                        delete path;
+                    }
+                }
+                else
+                {
+                    collection->deleteAllWellPaths();
+                }
+
+                collection->updateConnectedEditors();
+                collection->scheduleRedrawAffectedViews();
+            }
+        }
+
+        {
+            auto collection = dynamic_cast<RimWellPathFractureCollection*>( item );
+            if ( collection )
+            {
+                if ( onlyDeleteUnchecked )
+                {
+                    auto items = collection->allFractures();
+                    for ( auto item : items )
+                    {
+                        if ( item->isChecked() ) continue;
+                        collection->removeFracture( item );
+                        delete item;
+                    }
+                }
+                else
+                {
+                    collection->deleteFractures();
+                }
+
+                collection->updateConnectedEditors();
+
+                RimProject* proj = nullptr;
+                collection->firstAncestorOrThisOfType( proj );
+                if ( proj ) proj->reloadCompletionTypeResultsInAllViews();
+            }
+        }
+    }
 }

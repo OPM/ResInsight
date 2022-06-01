@@ -1305,6 +1305,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
     if ( caf::CmdFeatureManager::instance()->getCommandFeature( "RicDeleteSubItemsFeature" )->canFeatureBeExecuted() )
     {
         menuBuilder << "Separator";
+        menuBuilder << "RicDeleteUncheckedSubItemsFeature";
         menuBuilder << "RicDeleteSubItemsFeature";
     }
 

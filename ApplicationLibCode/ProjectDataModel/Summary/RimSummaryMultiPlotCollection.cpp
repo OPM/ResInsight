@@ -86,6 +86,15 @@ void RimSummaryMultiPlotCollection::addSummaryMultiPlot( RimSummaryMultiPlot* pl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlotCollection::removePlotNoUpdate( RimSummaryMultiPlot* plot )
+{
+    if ( plot == nullptr ) return;
+    m_summaryMultiPlots().removeChild( plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlotCollection::loadDataAndUpdateAllPlots()
 {
     for ( const auto& p : m_summaryMultiPlots.children() )

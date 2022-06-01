@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017 Statoil ASA
+//  Copyright (C) 2022 Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -28,13 +28,9 @@ class PdmUiItem;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicDeleteSubItemsFeature : public caf::CmdFeature
+class RicDeleteUncheckedSubItemsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static bool hasDeletableSubItems( caf::PdmUiItem* uiItem );
-    static void deleteSubItems( bool onlyDeleteUnchecked );
 
 protected:
     bool isCommandEnabled() override;
