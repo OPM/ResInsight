@@ -563,6 +563,17 @@ void RimSummaryPlot::updatePlotTitle()
         m_description = m_nameHelperAllCurves->plotTitle();
     }
 
+    if ( m_description().isEmpty() )
+    {
+        RimMultiPlot* plotWindow = nullptr;
+        firstAncestorOrThisOfType( plotWindow );
+
+        auto index = plotWindow->plotIndex( this );
+
+        QString title      = QString( "Sub Plot %1" ).arg( index + 1 );
+        m_fallbackPlotName = title;
+    }
+
     updateCurveNames();
     updateMdiWindowTitle();
 
@@ -2529,10 +2540,6 @@ void RimSummaryPlot::updateCurveNames()
     {
         curveSet->updateEnsembleLegendItem();
     }
-
-    RimSummaryPlotNameHelper nameHelper;
-    updateNameHelperWithCurveData( &nameHelper );
-    m_fallbackPlotName = nameHelper.plotTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
