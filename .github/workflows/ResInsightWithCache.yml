@@ -15,13 +15,14 @@ env:
 
 jobs:
   ResInsight-x64-buildcache:
+    runs-on: ${{ matrix.config.os }}
     strategy:
       fail-fast: false
       matrix:
         config:
           - {
               name: "Windows Latest MSVC",
-              os:  ${{ fromJSON(github.event.schedule == '0 1 * * *' && '["windows-latest"]' || '["windows-2022"]') }},
+              os: ${{ fromJSON(github.event.schedule == '0 1 * * *' && '["windows-latest"]' || '["windows-2022"]') }},
               cc: "cl",
               cxx: "cl",
               vcpkg-response-file: vcpkg_x64-windows.txt,
@@ -31,7 +32,7 @@ jobs:
             }
           - {
               name: "Ubuntu Latest gcc",
-              os:  ${{ fromJSON(github.event.schedule == '0 1 * * *' && '["ubuntu-latest' || '["ubuntu-20.04"]') }},
+              os: ${{ fromJSON(github.event.schedule == '0 1 * * *' && '["ubuntu-latest' || '["ubuntu-20.04"]') }},
               cc: "gcc",
               cxx: "g++",
               vcpkg-response-file: vcpkg_x64-linux.txt,
@@ -41,7 +42,7 @@ jobs:
             }
           - {
               name: "Ubuntu Latest clang",
-              os:  ${{ fromJSON(github.event.schedule == '0 1 * * *' && '["ubuntu-latest' || '["ubuntu-20.04"]') }},
+              os: ${{ fromJSON(github.event.schedule == '0 1 * * *' && '["ubuntu-latest' || '["ubuntu-20.04"]') }},
               cc: "clang",
               cxx: "clang++",
               vcpkg-response-file: vcpkg_x64-linux.txt,
@@ -49,7 +50,7 @@ jobs:
               build-python-module: true,
               execute-unit-tests: true,
             }
-    runs-on: ${{ matrix.config.os }}
+
 
     steps:
       - name: Checkout
