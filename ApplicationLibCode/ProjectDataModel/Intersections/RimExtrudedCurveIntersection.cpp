@@ -346,6 +346,18 @@ double RimExtrudedCurveIntersection::upperFilterDepth( double sceneRadius ) cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimIntersectionFilterEnum RimExtrudedCurveIntersection::depthFilterType() const
+{
+    if ( m_depthThresholdOverridden )
+    {
+        return m_collectionDepthFilterType();
+    }
+    return m_depthFilterType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RimExtrudedCurveIntersection::lowerFilterDepth( double sceneRadius ) const
 {
     if ( m_depthThresholdOverridden )
