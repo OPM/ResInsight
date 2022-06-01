@@ -697,6 +697,9 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::zoomAll()
 {
+    // Reset zoom to make sure the complete range for min/max is available
+    RimMultiPlot::zoomAll();
+
     syncAxisRanges();
 }
 
@@ -779,14 +782,15 @@ void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
-    // Reset zoom to make sure the complete range for min/max is available
-    RimMultiPlot::zoomAll();
-
     if ( m_axisRangeAggregation() == AxisRangeAggregation::INDIVIDUAL )
     {
         return;
     }
-    else if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
+
+    // Reset zoom to make sure the complete range for min/max is available
+    RimMultiPlot::zoomAll();
+
+    if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
     {
         std::map<RiuPlotAxis, std::pair<double, double>> axisRanges;
 
