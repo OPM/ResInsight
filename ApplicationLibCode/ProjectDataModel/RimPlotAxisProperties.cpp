@@ -467,6 +467,20 @@ void RimPlotAxisProperties::computeAndSetScaleFactor()
 {
     auto maxAbsValue = std::max( std::fabs( visibleRangeMax() ), std::fabs( visibleRangeMin() ) );
 
+    if ( maxAbsValue < 1.0 && maxAbsValue > 1e-6 )
+    {
+        // Do not use scale factor for small values above 1e-6
+        scaleFactor = 1.0;
+        return;
+    }
+
+    if ( maxAbsValue > 1.0 && maxAbsValue < 1e6 )
+    {
+        // Do not use scale factor for values above 1 and below 1e-6
+        scaleFactor = 1.0;
+        return;
+    }
+
     int exponent = std::floor( std::log10( maxAbsValue ) );
     if ( exponent > 0 )
     {
