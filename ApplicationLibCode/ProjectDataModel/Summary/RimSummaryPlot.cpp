@@ -1942,7 +1942,11 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryCaseD
         {
             auto historyAddr = addr;
             historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
-            dataVectorMap[historyAddr].insert( curve->summaryCaseY() );
+
+            if ( summaryCase->summaryReader() && summaryCase->summaryReader()->hasAddress( historyAddr ) )
+            {
+                dataVectorMap[historyAddr].insert( curve->summaryCaseY() );
+            }
         }
     }
 
@@ -2044,13 +2048,21 @@ std::pair<int, std::vector<RimSummaryCurve*>>
 
         if ( curveDef.ensemble() )
         {
-            addNewEnsembleCurveY( curveDef.summaryAddress(), curveDef.ensemble() );
-            newCurves++;
+            auto addresses = curveDef.ensemble()->ensembleSummaryAddresses();
+            if ( addresses.find( curveDef.summaryAddress() ) != addresses.end() )
+            {
+                addNewEnsembleCurveY( curveDef.summaryAddress(), curveDef.ensemble() );
+                newCurves++;
+            }
         }
         else if ( curveDef.summaryCase() )
         {
-            curves.push_back( addNewCurveY( curveDef.summaryAddress(), curveDef.summaryCase() ) );
-            newCurves++;
+            if ( curveDef.summaryCase()->summaryReader() &&
+                 curveDef.summaryCase()->summaryReader()->hasAddress( curveDef.summaryAddress() ) )
+            {
+                curves.push_back( addNewCurveY( curveDef.summaryAddress(), curveDef.summaryCase() ) );
+                newCurves++;
+            }
         }
     }
 
@@ -2089,8 +2101,10 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
         {
             for ( const auto& droppedAddress : newCurveAddresses )
             {
-                bool skipAddress = false;
+                auto addresses = ensemble->ensembleSummaryAddresses();
+                if ( addresses.find( droppedAddress ) == addresses.end() ) continue;
 
+                bool skipAddress = false;
                 if ( dataVectorMap.count( droppedAddress ) > 0 )
                 {
                     skipAddress = ( dataVectorMap[droppedAddress].count( ensemble ) > 0 );
@@ -2119,6 +2133,9 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
         {
             for ( const auto& droppedAddress : newCurveAddresses )
             {
+                if ( !summaryCase->summaryReader() || !summaryCase->summaryReader()->hasAddress( droppedAddress ) )
+                    continue;
+
                 bool skipAddress = false;
 
                 if ( dataVectorMap.count( droppedAddress ) > 0 )
