@@ -67,6 +67,14 @@ void RimWellPathFractureCollection::addFracture( RimWellPathFracture* fracture )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathFractureCollection::removeFracture( RimWellPathFracture* fracture )
+{
+    m_fractures.removeChild( fracture );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFractureCollection::deleteFractures()
 {
     m_fractures.deleteChildren();
