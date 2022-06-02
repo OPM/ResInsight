@@ -171,6 +171,33 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyC
     auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( strippedQuantityName );
     if ( category != SUMMARY_INVALID ) return category;
 
+    if ( strippedQuantityName[0] == 'N' ) return SUMMARY_NETWORK;
+    if ( strippedQuantityName[0] == 'W' ) return SUMMARY_WELL;
+
+    if ( strippedQuantityName[0] == 'R' )
+    {
+        // Taken from
+        // \ThirdParty\custom-opm-common\opm-common\src\opm\parser\eclipse\EclipseState\SummaryConfig\SummaryConfig.cpp
+
+        auto is_region_to_region = []( const std::string& keyword ) {
+            using sz_t = std::string::size_type;
+            if ( ( keyword.size() == sz_t{ 3 } ) && keyword[2] == 'F' ) return true;
+            if ( ( keyword == "RNLF" ) || ( keyword == "RORFR" ) ) return true;
+            if ( ( keyword.size() >= sz_t{ 4 } ) &&
+                 ( ( keyword[2] == 'F' ) && ( ( keyword[3] == 'T' ) || ( keyword[3] == 'R' ) ) ) )
+                return true;
+            if ( ( keyword.size() >= sz_t{ 5 } ) &&
+                 ( ( keyword[3] == 'F' ) && ( ( keyword[4] == 'T' ) || ( keyword[4] == 'R' ) ) ) )
+                return true;
+
+            return false;
+        };
+
+        if ( is_region_to_region( strippedQuantityName ) ) return SUMMARY_REGION_2_REGION;
+
+        return SUMMARY_REGION;
+    }
+
     // Then check LGR categories
     std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
 
@@ -178,7 +205,6 @@ RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyC
     if ( firstTwoLetters == "LC" ) return SUMMARY_WELL_COMPLETION_LGR;
     if ( firstTwoLetters == "LW" ) return SUMMARY_WELL_LGR;
 
-    if ( strippedQuantityName[0] == 'N' ) return SUMMARY_NETWORK;
     return SUMMARY_INVALID;
 }
 

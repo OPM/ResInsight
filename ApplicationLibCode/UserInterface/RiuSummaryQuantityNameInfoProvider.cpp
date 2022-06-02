@@ -1705,6 +1705,9 @@ std::unordered_map<std::string, RiuSummaryQuantityNameInfoProvider::RiuSummaryQu
     info.insert( { "RNFT", { A::SUMMARY_REGION_2_REGION, "Solvent inter-region Flow" } } );
     info.insert( { "RTFTTSUR", { A::SUMMARY_REGION_2_REGION, "Inter-region Flow Total" } } );
 
+    // Taken from smspec_node.cpp from libecl
+    info.insert( { "RNLF", { A::SUMMARY_REGION_2_REGION, "" } } );
+
     info.insert( { "BPR", { A::SUMMARY_BLOCK, "Oil phase Pressure" } } );
     info.insert( { "BPRESSUR", { A::SUMMARY_BLOCK, "Oil phase Pressure" } } );
     info.insert( { "BWPR", { A::SUMMARY_BLOCK, "Water phase Pressure" } } );
