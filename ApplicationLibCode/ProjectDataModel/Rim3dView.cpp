@@ -1493,7 +1493,7 @@ void Rim3dView::disableGridBoxField()
 {
     m_showGridBox = false;
 
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_showGridBox );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_showGridBox );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1503,7 +1503,7 @@ void Rim3dView::disablePerspectiveProjectionField()
 {
     isPerspectiveView = false;
 
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &isPerspectiveView );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &isPerspectiveView );
 }
 
 //--------------------------------------------------------------------------------------------------

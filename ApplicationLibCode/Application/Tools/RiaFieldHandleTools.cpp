@@ -30,7 +30,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaFieldhandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fieldHandle )
+void RiaFieldHandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fieldHandle )
 {
     CVF_ASSERT( fieldHandle );
 
@@ -52,7 +52,7 @@ void RiaFieldhandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaFieldhandleTools::updateOverrideStateAndLabel( caf::PdmFieldHandle* fieldHandle,
+void RiaFieldHandleTools::updateOverrideStateAndLabel( caf::PdmFieldHandle* fieldHandle,
                                                        bool                 isOverridden,
                                                        const QString&       toolTip )
 {

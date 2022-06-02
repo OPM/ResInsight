@@ -200,10 +200,10 @@ RimProject::RimProject( void )
 
     // Obsolete fields. The content is moved to OilFields and friends
     CAF_PDM_InitFieldNoDefault( &casesObsolete, "Reservoirs", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &casesObsolete );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &casesObsolete );
 
     CAF_PDM_InitFieldNoDefault( &caseGroupsObsolete, "CaseGroups", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &caseGroupsObsolete );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &caseGroupsObsolete );
 
     // Initialization
 

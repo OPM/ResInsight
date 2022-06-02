@@ -29,7 +29,7 @@ class PdmFieldHandle;
 //==================================================================================================
 //
 //==================================================================================================
-class RiaFieldhandleTools
+class RiaFieldHandleTools
 {
 public:
     static void disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fieldHandle );

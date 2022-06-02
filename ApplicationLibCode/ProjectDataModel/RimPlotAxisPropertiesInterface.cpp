@@ -55,7 +55,7 @@ void RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum::setUp()
 RimPlotAxisPropertiesInterface::RimPlotAxisPropertiesInterface()
     : settingsChanged( this )
 {
-    CAF_PDM_InitObject( "Time Axis Interface" );
+    CAF_PDM_InitObject( "Plot Axis Properties Interface" );
 
     CAF_PDM_InitField( &m_isAppearanceOverridden, "IsAppearanceOverridden", false, "IsAppearanceOverridden" );
     m_isAppearanceOverridden.uiCapability()->setUiHidden( true );

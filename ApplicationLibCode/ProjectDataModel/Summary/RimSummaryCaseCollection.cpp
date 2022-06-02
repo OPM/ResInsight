@@ -117,7 +117,7 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryCaseCollection::nameAndItemCount );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
 
     CAF_PDM_InitScriptableField( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble" );
     m_isEnsemble.uiCapability()->setUiHidden( true );
