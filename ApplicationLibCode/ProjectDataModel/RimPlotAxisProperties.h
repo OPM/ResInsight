@@ -65,6 +65,8 @@ public:
     void setNameAndAxis( const QString& objectName, const QString& axistTitle, RiaDefines::PlotAxis axis, int axisIndex = 0 );
     AxisTitlePositionType titlePosition() const override;
 
+    QString customTitle() const;
+
     int titleFontSize() const override;
     int valuesFontSize() const override;
 
@@ -90,6 +92,10 @@ public:
     bool showNumbers() const;
     void setShowNumbers( bool enable );
 
+    NumberFormatType numberFormat() const;
+    int              decimalCount() const;
+    double           scaleFactor() const;
+
     void setVisible( bool visible );
     void computeAndSetScaleFactor();
 
@@ -99,12 +105,6 @@ public:
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
     void                                removeAllAnnotations() override;
 
-    caf::PdmField<QString> customTitle;
-
-    caf::PdmField<caf::AppEnum<NumberFormatType>> numberFormat;
-    caf::PdmField<int>                            numberOfDecimals;
-    caf::PdmField<double>                         scaleFactor;
-
     bool isLogarithmicScaleEnabled() const override;
     bool isActive() const override;
 
@@ -113,6 +113,7 @@ public:
     double visibleRangeMin() const override;
     double visibleRangeMax() const override;
 
+    void setMinMaxOverridden( bool isOverridden );
     void setVisibleRangeMin( double value ) override;
     void setVisibleRangeMax( double value ) override;
 
@@ -130,10 +131,13 @@ protected:
 
 private:
     void                     updateOptionSensitivity();
+    void                     updateOverriddenLabelAndReadOnlyState();
     caf::FontTools::FontSize plotFontSize() const;
 
 private:
     caf::PdmField<bool> m_isActive;
+
+    caf::PdmField<bool> m_isMinMaxOverridden;
 
     caf::PdmField<bool> isAutoTitle;
     caf::PdmField<bool> m_displayShortName;
@@ -152,6 +156,12 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
     caf::PdmField<int>                                m_plotAxisIndex;
     caf::PdmField<LegendTickmarkCountEnum>            m_majorTickmarkCount;
+
+    caf::PdmField<QString> m_customTitle;
+
+    caf::PdmField<caf::AppEnum<NumberFormatType>> m_numberFormat;
+    caf::PdmField<int>                            m_numberOfDecimals;
+    caf::PdmField<double>                         m_scaleFactor;
 
     caf::PdmField<bool> m_isLogarithmicScaleEnabled;
 

@@ -19,6 +19,7 @@
 #include "RimSummaryTimeAxisProperties.h"
 
 #include "RiaApplication.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
@@ -590,6 +591,10 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
 
     timeGroup->add( &m_valuesFontSize );
     timeGroup->add( &m_majorTickmarkCount );
+
+    // Auto Appearance is defined in RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
+    QString autoAppearanceToolTip = "Controlled by Auto Adjust Appearance";
+    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_majorTickmarkCount, isAppearanceOverridden(), autoAppearanceToolTip );
 
     if ( m_timeMode() == DATE )
     {

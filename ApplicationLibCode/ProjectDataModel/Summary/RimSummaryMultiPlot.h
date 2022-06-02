@@ -128,6 +128,8 @@ private:
     void updateSourceStepper();
 
     void updatePlotVisibility();
+    void setOverriddenFlag();
+    void setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
 
     void duplicate();
 

@@ -19,6 +19,8 @@
 
 #pragma once
 
+#include <QString>
+
 namespace caf
 {
 class PdmFieldHandle;
@@ -31,4 +33,5 @@ class RiaFieldhandleTools
 {
 public:
     static void disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fieldHandle );
+    static void updateOverrideStateAndLabel( caf::PdmFieldHandle* fieldHandle, bool isOverridden, const QString& toolTip );
 };

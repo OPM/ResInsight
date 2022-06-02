@@ -196,6 +196,10 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     {
         sumPlot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
+
+        bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
+        setOverriddenFlagsForPlot( sumPlot, isMinMaxOverridden, m_autoAdjustAppearance() );
+
         RimMultiPlot::insertPlot( plot, index );
     }
 
@@ -426,6 +430,8 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation )
     {
         syncAxisRanges();
+
+        setOverriddenFlag();
     }
     else if ( changedField == &m_hidePlotsWithValuesBelow )
     {
@@ -464,6 +470,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_autoAdjustAppearance )
     {
         checkAndApplyAutoAppearance();
+        setOverriddenFlag();
     }
     else
     {
@@ -766,6 +773,8 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 
     m_axisRangeAggregation = rangeAggregation;
     m_sourceStepping->setStepDimension( stepDimension );
+
+    setOverriddenFlag();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1043,6 +1052,36 @@ void RimSummaryMultiPlot::updatePlotVisibility()
     updateLayout();
 
     if ( !m_viewer.isNull() ) m_viewer->scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setOverriddenFlag()
+{
+    bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
+    for ( auto p : summaryPlots() )
+    {
+        setOverriddenFlagsForPlot( p, isMinMaxOverridden, m_autoAdjustAppearance() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot,
+                                                     bool            isMinMaxOverridden,
+                                                     bool            isAppearanceOverridden )
+{
+    for ( auto plotAxis : summaryPlot->plotAxes() )
+    {
+        plotAxis->setAppearanceOverridden( isAppearanceOverridden );
+        auto plotAxProp = dynamic_cast<RimPlotAxisProperties*>( plotAxis );
+        if ( plotAxProp )
+        {
+            plotAxProp->setMinMaxOverridden( isMinMaxOverridden );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

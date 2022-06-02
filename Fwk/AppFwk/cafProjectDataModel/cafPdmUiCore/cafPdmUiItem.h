@@ -248,8 +248,9 @@ public:
     PdmUiItem( const PdmUiItem& ) = delete;
     PdmUiItem& operator=( const PdmUiItem& ) = delete;
 
-    const QString uiName( const QString& uiConfigName = "" ) const;
-    void          setUiName( const QString& uiName, const QString& uiConfigName = "" );
+    const QString  uiName( const QString& uiConfigName = "" ) const;
+    void           setUiName( const QString& uiName, const QString& uiConfigName = "" );
+    static QString uiConfigNameForStaticData();
 
     std::unique_ptr<QIcon> uiIcon( const QString& uiConfigName = "" ) const;
     const IconProvider     uiIconProvider( const QString& uiConfigName = "" ) const;
