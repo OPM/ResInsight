@@ -227,9 +227,11 @@ bool PdmUiItem::sm_showExtraDebugText = false;
 //--------------------------------------------------------------------------------------------------
 const QString PdmUiItem::uiName( const QString& uiConfigName ) const
 {
+    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
+    if ( uiConfigName == uiConfigNameForStaticData() && sttInfo ) return sttInfo->m_uiName;
+
     const PdmUiItemInfo* conInfo = configInfo( uiConfigName );
     const PdmUiItemInfo* defInfo = defaultInfo();
-    const PdmUiItemInfo* sttInfo = m_staticItemInfo;
 
     if ( conInfo && !( conInfo->m_uiName.isNull() ) ) return conInfo->m_uiName;
     if ( defInfo && !( defInfo->m_uiName.isNull() ) ) return defInfo->m_uiName;
@@ -244,6 +246,14 @@ const QString PdmUiItem::uiName( const QString& uiConfigName ) const
 void PdmUiItem::setUiName( const QString& uiName, const QString& uiConfigName /*= ""*/ )
 {
     m_configItemInfos[uiConfigName].m_uiName = uiName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString PdmUiItem::uiConfigNameForStaticData()
+{
+    return "uiConfigNameForStaticData";
 }
 
 //--------------------------------------------------------------------------------------------------

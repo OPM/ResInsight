@@ -23,6 +23,7 @@
 #include "RiuPlotAxis.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 class RimPlotAxisAnnotation;
@@ -77,6 +78,7 @@ public:
 
     virtual LegendTickmarkCount majorTickmarkCount() const                         = 0;
     virtual void                setMajorTickmarkCount( LegendTickmarkCount count ) = 0;
+    void                        setAppearanceOverridden( bool isOverridden );
 
     static int tickmarkCountFromEnum( LegendTickmarkCount count );
 
@@ -85,6 +87,12 @@ public:
     virtual int                   titleFontSize() const  = 0;
     virtual int                   valuesFontSize() const = 0;
 
+protected:
+    bool isAppearanceOverridden() const;
+
 private:
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
+    caf::PdmField<bool> m_isAppearanceOverridden;
 };

@@ -48,3 +48,19 @@ void RiaFieldhandleTools::disableWriteAndSetFieldHidden( caf::PdmFieldHandle* fi
         fieldHandle->xmlCapability()->setIOWritable( false );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaFieldhandleTools::updateOverrideStateAndLabel( caf::PdmFieldHandle* fieldHandle,
+                                                       bool                 isOverridden,
+                                                       const QString&       toolTip )
+{
+    // Get the label text as given by the init_field macro
+    QString labelText = fieldHandle->uiCapability()->uiName( fieldHandle->uiCapability()->uiConfigNameForStaticData() );
+
+    if ( isOverridden ) labelText += " (overridden)";
+    fieldHandle->uiCapability()->setUiToolTip( toolTip );
+    fieldHandle->uiCapability()->setUiName( labelText );
+    fieldHandle->uiCapability()->setUiReadOnly( isOverridden );
+}

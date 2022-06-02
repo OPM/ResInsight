@@ -20,6 +20,7 @@
 #include "RimPlotAxisProperties.h"
 
 #include "RiaDefines.h"
+#include "RiaFieldHandleTools.h"
 #include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
 
@@ -61,6 +62,9 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
+    CAF_PDM_InitField( &m_isMinMaxOverridden, "IsMinMaxOverridden", false, "IsMinMaxOverridden" );
+    m_isMinMaxOverridden.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitFieldNoDefault( &m_objectName, "Name", "Name" );
     m_objectName.uiCapability()->setUiHidden( true );
 
@@ -73,14 +77,14 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &m_displayShortName, "DisplayShortName", false, "   Acronyms" );
     CAF_PDM_InitField( &m_displayUnitText, "DisplayUnitText", true, "   Units" );
 
-    CAF_PDM_InitFieldNoDefault( &customTitle, "CustomTitle", "Title" );
+    CAF_PDM_InitFieldNoDefault( &m_customTitle, "CustomTitle", "Title" );
 
     CAF_PDM_InitField( &m_visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max" );
     CAF_PDM_InitField( &m_visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min" );
 
-    CAF_PDM_InitFieldNoDefault( &numberFormat, "NumberFormat", "Number Format" );
-    CAF_PDM_InitField( &numberOfDecimals, "Decimals", 2, "Number of Decimals" );
-    CAF_PDM_InitField( &scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
+    CAF_PDM_InitFieldNoDefault( &m_numberFormat, "NumberFormat", "Number Format" );
+    CAF_PDM_InitField( &m_numberOfDecimals, "Decimals", 2, "Number of Decimals" );
+    CAF_PDM_InitField( &m_scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
 
     CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
     CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
@@ -166,7 +170,7 @@ QList<caf::PdmOptionItemInfo> RimPlotAxisProperties::calculateValueOptions( cons
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( fieldNeedingOptions == &scaleFactor )
+    if ( fieldNeedingOptions == &m_scaleFactor )
     {
         for ( int exp = -12; exp <= 12; exp += 3 )
         {
@@ -214,12 +218,12 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
             titleTextGroup->add( &m_displayShortName );
             titleTextGroup->add( &m_displayUnitText );
 
-            customTitle.uiCapability()->setUiReadOnly( true );
+            m_customTitle.uiCapability()->setUiReadOnly( true );
         }
         else
         {
-            titleTextGroup->add( &customTitle );
-            customTitle.uiCapability()->setUiReadOnly( false );
+            titleTextGroup->add( &m_customTitle );
+            m_customTitle.uiCapability()->setUiReadOnly( false );
         }
     }
 
@@ -236,25 +240,27 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         scaleGroup.add( &m_isAxisInverted );
         scaleGroup.add( &m_showNumbers );
     }
-    scaleGroup.add( &numberFormat );
+    scaleGroup.add( &m_numberFormat );
 
-    if ( numberFormat() != NUMBER_FORMAT_AUTO )
+    if ( m_numberFormat() != NUMBER_FORMAT_AUTO )
     {
-        scaleGroup.add( &numberOfDecimals );
+        scaleGroup.add( &m_numberOfDecimals );
     }
-    scaleGroup.add( &scaleFactor );
+    scaleGroup.add( &m_scaleFactor );
     if ( m_isRangeSettingsEnabled )
     {
         scaleGroup.add( &m_visibleRangeMin );
         scaleGroup.add( &m_visibleRangeMax );
     }
+
     scaleGroup.add( &m_valuesFontSize );
     scaleGroup.add( &m_majorTickmarkCount );
-
     scaleGroup.add( &m_plotAxis );
     m_plotAxis.uiCapability()->setUiReadOnly( m_isAlwaysRequired );
 
     uiOrdering.skipRemainingFields( true );
+
+    updateOverriddenLabelAndReadOnlyState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -282,6 +288,14 @@ void RimPlotAxisProperties::setNameAndAxis( const QString&       objectName,
 RimPlotAxisPropertiesInterface::AxisTitlePositionType RimPlotAxisProperties::titlePosition() const
 {
     return m_titlePositionEnum();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPlotAxisProperties::customTitle() const
+{
+    return m_customTitle();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -455,6 +469,30 @@ void RimPlotAxisProperties::setShowNumbers( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlotAxisProperties::NumberFormatType RimPlotAxisProperties::numberFormat() const
+{
+    return m_numberFormat();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotAxisProperties::decimalCount() const
+{
+    return m_numberOfDecimals();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimPlotAxisProperties::scaleFactor() const
+{
+    return m_scaleFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setVisible( bool visible )
 {
     m_isActive = visible;
@@ -470,14 +508,14 @@ void RimPlotAxisProperties::computeAndSetScaleFactor()
     if ( maxAbsValue < 1.0 && maxAbsValue > 1e-6 )
     {
         // Do not use scale factor for small values above 1e-6
-        scaleFactor = 1.0;
+        m_scaleFactor = 1.0;
         return;
     }
 
     if ( maxAbsValue > 1.0 && maxAbsValue < 1e6 )
     {
         // Do not use scale factor for values above 1 and below 1e-6
-        scaleFactor = 1.0;
+        m_scaleFactor = 1.0;
         return;
     }
 
@@ -497,7 +535,7 @@ void RimPlotAxisProperties::computeAndSetScaleFactor()
         }
     }
 
-    scaleFactor = std::pow( 10, exponent );
+    m_scaleFactor = std::pow( 10, exponent );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -522,6 +560,14 @@ double RimPlotAxisProperties::visibleRangeMin() const
 double RimPlotAxisProperties::visibleRangeMax() const
 {
     return m_visibleRangeMax;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setMinMaxOverridden( bool isOverridden )
+{
+    m_isMinMaxOverridden = isOverridden;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -608,7 +654,24 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::updateOptionSensitivity()
 {
-    customTitle.uiCapability()->setUiReadOnly( isAutoTitle );
+    m_customTitle.uiCapability()->setUiReadOnly( isAutoTitle );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::updateOverriddenLabelAndReadOnlyState()
+{
+    // Auto Appearance is defined in RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
+    QString axisRangeToolTip = "Controlled by Axis Range Control";
+
+    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_visibleRangeMin, m_isMinMaxOverridden, axisRangeToolTip );
+    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_visibleRangeMax, m_isMinMaxOverridden, axisRangeToolTip );
+
+    QString autoAppearanceToolTip = "Controlled by Auto Adjust Appearance";
+    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_majorTickmarkCount, isAppearanceOverridden(), autoAppearanceToolTip );
+    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_scaleFactor, isAppearanceOverridden(), autoAppearanceToolTip );
+    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_displayLongName, isAppearanceOverridden(), autoAppearanceToolTip );
 }
 
 //--------------------------------------------------------------------------------------------------

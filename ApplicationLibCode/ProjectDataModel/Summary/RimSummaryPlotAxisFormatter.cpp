@@ -121,7 +121,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
 
     RiuPlotAxis axis = m_axisProperties->plotAxisType();
     {
-        QString axisTitle = m_axisProperties->customTitle;
+        QString axisTitle = m_axisProperties->customTitle();
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
 
         Qt::AlignmentFlag titleAlignment = Qt::AlignCenter;
@@ -148,7 +148,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
     {
         auto qwtAxisId = qwtPlotWidget->toQwtPlotAxis( axis );
 
-        if ( m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
+        if ( m_axisProperties->numberFormat() == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
              m_axisProperties->scaleFactor() == 1.0 )
         {
             // Default to Qwt's own scale draw to avoid changing too much for default values
@@ -158,7 +158,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         {
             qwtPlotWidget->qwtPlot()->setAxisScaleDraw( qwtAxisId,
                                                         new SummaryScaleDraw( m_axisProperties->scaleFactor(),
-                                                                              m_axisProperties->numberOfDecimals(),
+                                                                              m_axisProperties->decimalCount(),
                                                                               m_axisProperties->numberFormat() ) );
         }
     }
@@ -178,7 +178,7 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plot
         };
 
         auto    formatType = mapToRiaNumberFormatType( m_axisProperties->numberFormat() );
-        QString format     = RiaNumberFormat::sprintfFormat( formatType, m_axisProperties->numberOfDecimals() );
+        QString format     = RiaNumberFormat::sprintfFormat( formatType, m_axisProperties->decimalCount() );
         qtChartsPlotWidget->setAxisFormat( axis, format );
     }
 #endif
