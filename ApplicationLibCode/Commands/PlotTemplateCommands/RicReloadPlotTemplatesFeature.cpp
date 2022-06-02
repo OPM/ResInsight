@@ -61,5 +61,5 @@ void RicReloadPlotTemplatesFeature::onActionTriggered( bool isChecked )
 void RicReloadPlotTemplatesFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Reload Templates" );
-    actionToSetup->setIcon( QIcon( ":/SummaryTemplate16x16.png" ) );
+    actionToSetup->setIcon( QIcon( ":/Refresh.svg" ) );
 }

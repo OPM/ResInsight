@@ -60,6 +60,6 @@ void RicRefreshScriptsFeature::refreshScriptFolders()
     RimProject*     proj  = RimProject::current();
     RiaPreferences* prefs = RiaPreferences::current();
 
-    proj->setScriptDirectories( prefs->scriptDirectories() );
+    proj->setScriptDirectories( prefs->scriptDirectories(), prefs->maxScriptFoldersDepth() );
     proj->scriptCollection()->updateConnectedEditors();
 }

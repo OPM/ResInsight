@@ -1223,7 +1223,7 @@ void RiaApplication::applyPreferences()
 
     if ( this->project() )
     {
-        this->project()->setScriptDirectories( m_preferences->scriptDirectories() );
+        this->project()->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
         this->project()->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
 
         project()->scriptCollection()->updateConnectedEditors();
@@ -1510,7 +1510,7 @@ void RiaApplication::initialize()
 
     // Start with a project
     m_project = std::make_unique<RimProject>();
-    m_project->setScriptDirectories( m_preferences->scriptDirectories() );
+    m_project->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
     m_project->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
 
     caf::SelectionManager::instance()->setPdmRootObject( project() );

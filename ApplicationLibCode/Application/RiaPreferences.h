@@ -76,7 +76,9 @@ public:
                RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
                RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) const;
 
-    int         maxPlotTemplateFoldersDepth() const;
+    int maxScriptFoldersDepth() const;
+    int maxPlotTemplateFoldersDepth() const;
+
     QStringList plotTemplateFolders() const;
     void        appendPlotTemplateFolders( const QString& folder );
     QString     lastUsedPlotTemplateAbsolutePath() const;
@@ -172,6 +174,8 @@ private:
     caf::PdmField<bool> m_useUndoRedo;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
+
+    caf::PdmField<int> m_maxScriptFoldersDepth;
 
     caf::PdmField<PageSizeEnum>        m_pageSize;
     caf::PdmField<PageOrientationEnum> m_pageOrientation;

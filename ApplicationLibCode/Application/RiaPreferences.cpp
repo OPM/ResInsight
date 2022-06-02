@@ -113,6 +113,8 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &scriptEditorExecutable, "scriptEditorExecutable", defaultTextEditor, "Script Editor" );
     scriptEditorExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
+    CAF_PDM_InitField( &m_maxScriptFoldersDepth, "MaxScriptFoldersDepth", 2, "Maximum Scripts Folder Search Depth" );
+
     CAF_PDM_InitField( &m_octaveExecutable, "octaveExecutable", QString( "octave" ), "Octave Executable Location" );
     m_octaveExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_octaveExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
@@ -426,6 +428,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 #endif
         caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup( "Script files" );
         scriptGroup->add( &scriptDirectories );
+        scriptGroup->add( &m_maxScriptFoldersDepth );
         scriptGroup->add( &scriptEditorExecutable );
     }
 #ifdef USE_ODB_API
@@ -665,6 +668,14 @@ QString RiaPreferences::dateTimeFormat( RiaDefines::DateFormatComponents dateCom
     return QString( "%1 %2" )
         .arg( RiaQDateTimeTools::dateFormatString( m_dateFormat(), dateComponents ) )
         .arg( RiaQDateTimeTools::timeFormatString( m_timeFormat(), timeComponents ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferences::maxScriptFoldersDepth() const
+{
+    return m_maxScriptFoldersDepth();
 }
 
 //--------------------------------------------------------------------------------------------------

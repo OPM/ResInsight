@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 
 #include "RicRefreshScriptsFeature.h"
 #include "RicScriptFeatureImpl.h"
@@ -124,7 +125,7 @@ void RicNewPythonScriptFeature::onActionTriggered( bool isChecked )
                       "resinsight.version_string())\n";
         }
 
-        scriptColl->readContentFromDisc();
+        scriptColl->readContentFromDisc( RiaPreferences::current()->maxScriptFoldersDepth() );
         scriptColl->updateConnectedEditors();
 
         if ( calcScript )
