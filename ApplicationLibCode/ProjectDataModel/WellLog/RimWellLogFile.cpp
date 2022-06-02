@@ -68,7 +68,7 @@ RimWellLogFile::RimWellLogFile()
 
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "" );
     m_wellName.uiCapability()->setUiReadOnly( true );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_wellName );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellName );
 
     CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
     m_date.uiCapability()->setUiReadOnly( true );
@@ -78,10 +78,10 @@ RimWellLogFile::RimWellLogFile()
 
     CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
     m_name.uiCapability()->setUiReadOnly( true );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_name );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
 
     CAF_PDM_InitFieldNoDefault( &m_wellLogChannelNames, "WellLogFileChannels", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannelNames );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannelNames );
 
     CAF_PDM_InitField( &m_wellFlowCondition,
                        "WellFlowCondition",

@@ -594,7 +594,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
 
     // Auto Appearance is defined in RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
     QString autoAppearanceToolTip = "Controlled by Auto Adjust Appearance";
-    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_majorTickmarkCount, isAppearanceOverridden(), autoAppearanceToolTip );
+    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_majorTickmarkCount, isAppearanceOverridden(), autoAppearanceToolTip );
 
     if ( m_timeMode() == DATE )
     {

@@ -665,13 +665,13 @@ void RimPlotAxisProperties::updateOverriddenLabelAndReadOnlyState()
     // Auto Appearance is defined in RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
     QString axisRangeToolTip = "Controlled by Axis Range Control";
 
-    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_visibleRangeMin, m_isMinMaxOverridden, axisRangeToolTip );
-    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_visibleRangeMax, m_isMinMaxOverridden, axisRangeToolTip );
+    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_visibleRangeMin, m_isMinMaxOverridden, axisRangeToolTip );
+    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_visibleRangeMax, m_isMinMaxOverridden, axisRangeToolTip );
 
     QString autoAppearanceToolTip = "Controlled by Auto Adjust Appearance";
-    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_majorTickmarkCount, isAppearanceOverridden(), autoAppearanceToolTip );
-    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_scaleFactor, isAppearanceOverridden(), autoAppearanceToolTip );
-    RiaFieldhandleTools::updateOverrideStateAndLabel( &m_displayLongName, isAppearanceOverridden(), autoAppearanceToolTip );
+    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_majorTickmarkCount, isAppearanceOverridden(), autoAppearanceToolTip );
+    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_scaleFactor, isAppearanceOverridden(), autoAppearanceToolTip );
+    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_displayLongName, isAppearanceOverridden(), autoAppearanceToolTip );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -58,7 +58,7 @@ RimViewWindow::RimViewWindow( void )
 
     // Obsolete field
     CAF_PDM_InitFieldNoDefault( &obsoleteField_windowGeometry, "WindowGeometry", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &obsoleteField_windowGeometry );
 }
 
 //--------------------------------------------------------------------------------------------------
