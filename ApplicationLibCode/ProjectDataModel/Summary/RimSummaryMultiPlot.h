@@ -50,7 +50,7 @@ public:
 public:
     enum class AxisRangeAggregation
     {
-        INDIVIDUAL,
+        NONE,
         SUB_PLOTS,
         REGIONS,
         WELLS,
