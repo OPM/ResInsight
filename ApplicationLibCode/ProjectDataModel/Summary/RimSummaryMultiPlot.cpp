@@ -73,12 +73,12 @@ namespace caf
 template <>
 void AppEnum<RimSummaryMultiPlot::AxisRangeAggregation>::setUp()
 {
-    addItem( RimSummaryMultiPlot::AxisRangeAggregation::INDIVIDUAL, "INDIVIDUAL", "Individual" );
+    addItem( RimSummaryMultiPlot::AxisRangeAggregation::NONE, "NONE", "None" );
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::SUB_PLOTS, "SUB_PLOTS", "All Sub Plots" );
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::WELLS, "WELLS", "All Wells" );
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::REGIONS, "REGIONS", "All Regions" );
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::REALIZATIONS, "REALIZATIONS", "All Realizations" );
-    setDefault( RimSummaryMultiPlot::AxisRangeAggregation::INDIVIDUAL );
+    setDefault( RimSummaryMultiPlot::AxisRangeAggregation::NONE );
 }
 } // namespace caf
 
@@ -145,7 +145,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
     CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Adjust Appearance" );
 
-    CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Aggregation" );
+    CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Control" );
 
     CAF_PDM_InitField( &m_hidePlotsWithValuesBelow, "HidePlotsWithValuesBelow", false, "" );
     m_hidePlotsWithValuesBelow.xmlCapability()->disableIO();
@@ -785,7 +785,7 @@ void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
-    if ( m_axisRangeAggregation() == AxisRangeAggregation::INDIVIDUAL )
+    if ( m_axisRangeAggregation() == AxisRangeAggregation::NONE )
     {
         return;
     }
