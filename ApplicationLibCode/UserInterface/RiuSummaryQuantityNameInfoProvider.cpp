@@ -18,7 +18,36 @@
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
+#include <regex>
 #include <sstream>
+
+// The region_to_region helper functions are taken from
+// https://github.com/OPM/opm-common/blob/e1e0edba7da2d3b30f1f009511a62be073c27eb0/src/opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.cpp#L317-L342
+
+namespace ParseHelpers
+{
+bool is_supported_region_to_region( const std::string& keyword )
+{
+    static const auto supported_kw = std::regex{ R"~~(R[OGW]F[RT][-+GL_]?([A-Z0-9_]{3})?)~~" };
+
+    // R[OGW]F[RT][-+GL]? (e.g., "ROFTG", "RGFR+", or "RWFT")
+    return std::regex_match( keyword, supported_kw );
+}
+
+bool is_unsupported_region_to_region( const std::string& keyword )
+{
+    static const auto unsupported_kw = std::regex{ R"~~(R([EK]|NL)F[RT][-+_]?([A-Z0-9_]{3})?)~~" };
+
+    // R[EK]F[RT][-+]? (e.g., "REFT" or "RKFR+")
+    // RNLF[RT][-+]? (e.g., "RNLFR-" or "RNLFT")
+    return std::regex_match( keyword, unsupported_kw );
+}
+
+bool is_region_to_region( const std::string& keyword )
+{
+    return is_supported_region_to_region( keyword ) || is_unsupported_region_to_region( keyword );
+}
+} // namespace ParseHelpers
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -27,6 +56,63 @@ RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance
 {
     static auto* singleton = new RiuSummaryQuantityNameInfoProvider;
     return singleton;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress::SummaryVarCategory
+    RiuSummaryQuantityNameInfoProvider::identifyCategory( const std::string& vectorName )
+{
+    // Try to an exact match on the vector name first in the vector table.
+    bool exactMatch    = true;
+    auto exactCategory = categoryFromVectorName( vectorName, exactMatch );
+    if ( exactCategory != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return exactCategory;
+
+    if ( vectorName.size() < 3 || vectorName.size() > 8 )
+        return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
+
+    // Try to match the base vector name with more heuristics
+    auto strippedQuantityName = RifEclipseSummaryAddress::baseVectorName( vectorName );
+
+    // First, try to lookup vector in vector table
+    auto category = categoryFromVectorName( strippedQuantityName );
+    if ( category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return category;
+
+    switch ( strippedQuantityName[0] )
+    {
+        case 'A':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_AQUIFER;
+        case 'B':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK;
+        case 'F':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD;
+        case 'N':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK;
+        case 'S':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT;
+        case 'W':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL;
+        default:
+            break;
+    }
+
+    if ( strippedQuantityName[0] == 'R' )
+    {
+        if ( ParseHelpers::is_region_to_region( strippedQuantityName ) )
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION_2_REGION;
+
+        return RifEclipseSummaryAddress::SUMMARY_REGION;
+    }
+
+    // Then check LGR categories
+    std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
+
+    if ( firstTwoLetters == "LB" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK_LGR;
+    if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR;
+    if ( firstTwoLetters == "LW" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR;
+
+    return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
 }
 
 //--------------------------------------------------------------------------------------------------

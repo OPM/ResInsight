@@ -127,8 +127,6 @@ public:
     static RifEclipseSummaryAddress fromEclipseTextAddress( const std::string& textAddress );
     static RifEclipseSummaryAddress fromEclipseTextAddressParseErrorTokens( const std::string& textAddress );
 
-    static SummaryVarCategory identifyCategory( const std::string& vectorName );
-
     static RifEclipseSummaryAddress fieldAddress( const std::string& vectorName );
     static RifEclipseSummaryAddress aquiferAddress( const std::string& vectorName, int aquiferNumber );
     static RifEclipseSummaryAddress networkAddress( const std::string& vectorName );
