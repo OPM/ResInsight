@@ -29,9 +29,22 @@
 
 #include "RimEclipseCase.h"
 #include "RimEclipseResultAddress.h"
+#include "RimEclipseView.h"
 #include "RimTools.h"
 
 CAF_PDM_SOURCE_INIT( RimGridCalculationVariable, "RimGridCalculationVariable" );
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimGridCalculationVariable::DefaultValueType>::setUp()
+{
+    addItem( RimGridCalculationVariable::DefaultValueType::POSITIVE_INFINITY, "POSITIVE_INFINITY", "Inf" );
+    addItem( RimGridCalculationVariable::DefaultValueType::FROM_PROPERTY, "FROM_PROPERTY", "Property Value" );
+    addItem( RimGridCalculationVariable::DefaultValueType::USER_DEFINED, "USER_DEFINED", "User Defined" );
+    setDefault( RimGridCalculationVariable::DefaultValueType::POSITIVE_INFINITY );
+}
+}; // namespace caf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -44,6 +57,9 @@ RimGridCalculationVariable::RimGridCalculationVariable()
     CAF_PDM_InitField( &m_resultVariable, "ResultVariable", RiaResultNames::undefinedResultName(), "Variable" );
     CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseGridCase", "Grid Case" );
     CAF_PDM_InitField( &m_timeStep, "TimeStep", allTimeStepsValue(), "Time Step" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Default Value Type" );
+    CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Default Value" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,11 +85,19 @@ void RimGridCalculationVariable::defineUiOrdering( QString uiConfigName, caf::Pd
     uiOrdering.add( &m_resultType );
     uiOrdering.add( &m_resultVariable );
     uiOrdering.add( &m_timeStep );
+    uiOrdering.add( &m_cellFilterView );
+    uiOrdering.add( &m_defaultValueType );
+    uiOrdering.add( &m_defaultValue );
 
     uiOrdering.skipRemainingFields();
 
     m_resultType.uiCapability()->setUiReadOnly( m_eclipseCase == nullptr );
     m_timeStep.uiCapability()->setUiReadOnly( m_resultType == RiaDefines::ResultCatType::STATIC_NATIVE );
+
+    m_cellFilterView.uiCapability()->setUiReadOnly( m_eclipseCase == nullptr );
+    m_defaultValueType.uiCapability()->setUiReadOnly( m_cellFilterView == nullptr );
+    m_defaultValue.uiCapability()->setUiReadOnly(
+        m_cellFilterView == nullptr || defaultValueType() != RimGridCalculationVariable::DefaultValueType::USER_DEFINED );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -116,6 +140,18 @@ QList<caf::PdmOptionItemInfo>
         options.push_back( caf::PdmOptionItemInfo( "All timesteps", allTimeStepsValue() ) );
 
         RimTools::timeStepsForCase( m_eclipseCase(), &options );
+    }
+    else if ( fieldNeedingOptions == &m_cellFilterView )
+    {
+        if ( m_eclipseCase )
+        {
+            options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
+            for ( RimEclipseView* view : m_eclipseCase->reservoirViews.children() )
+            {
+                CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
+                options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
+            }
+        }
     }
 
     return options;
@@ -179,6 +215,41 @@ int RimGridCalculationVariable::timeStep() const
 int RimGridCalculationVariable::allTimeStepsValue()
 {
     return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridView* RimGridCalculationVariable::cellFilterView() const
+{
+    return m_cellFilterView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimGridCalculationVariable::defaultValue() const
+{
+    return m_defaultValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCalculationVariable::DefaultValueType RimGridCalculationVariable::defaultValueType() const
+{
+    return m_defaultValueType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCalculationVariable::DefaultValueConfig RimGridCalculationVariable::defaultValueConfiguration() const
+{
+    if ( m_defaultValueType() == RimGridCalculationVariable::DefaultValueType::USER_DEFINED )
+        return std::make_pair( m_defaultValueType(), m_defaultValue() );
+
+    return std::make_pair( m_defaultValueType(), HUGE_VAL );
 }
 
 //--------------------------------------------------------------------------------------------------
