@@ -18,7 +18,36 @@
 
 #include "RiuSummaryQuantityNameInfoProvider.h"
 
+#include <regex>
 #include <sstream>
+
+// The region_to_region helper functions are taken from
+// https://github.com/OPM/opm-common/blob/e1e0edba7da2d3b30f1f009511a62be073c27eb0/src/opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.cpp#L317-L342
+
+namespace ParseHelpers
+{
+bool is_supported_region_to_region( const std::string& keyword )
+{
+    static const auto supported_kw = std::regex{ R"~~(R[OGW]F[RT][-+GL_]?([A-Z0-9_]{3})?)~~" };
+
+    // R[OGW]F[RT][-+GL]? (e.g., "ROFTG", "RGFR+", or "RWFT")
+    return std::regex_match( keyword, supported_kw );
+}
+
+bool is_unsupported_region_to_region( const std::string& keyword )
+{
+    static const auto unsupported_kw = std::regex{ R"~~(R([EK]|NL)F[RT][-+_]?([A-Z0-9_]{3})?)~~" };
+
+    // R[EK]F[RT][-+]? (e.g., "REFT" or "RKFR+")
+    // RNLF[RT][-+]? (e.g., "RNLFR-" or "RNLFT")
+    return std::regex_match( keyword, unsupported_kw );
+}
+
+bool is_region_to_region( const std::string& keyword )
+{
+    return is_supported_region_to_region( keyword ) || is_unsupported_region_to_region( keyword );
+}
+} // namespace ParseHelpers
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -50,14 +79,22 @@ RifEclipseSummaryAddress::SummaryVarCategory
     auto category = categoryFromVectorName( strippedQuantityName );
     if ( category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return category;
 
+    if ( strippedQuantityName[0] == 'N' ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK;
+
+    if ( strippedQuantityName[0] == 'R' )
+    {
+        if ( ParseHelpers::is_region_to_region( strippedQuantityName ) )
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_REGION_2_REGION;
+
+        return RifEclipseSummaryAddress::SUMMARY_REGION;
+    }
+
     // Then check LGR categories
     std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
 
     if ( firstTwoLetters == "LB" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK_LGR;
     if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR;
     if ( firstTwoLetters == "LW" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR;
-
-    if ( strippedQuantityName[0] == 'N' ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK;
 
     return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
 }
