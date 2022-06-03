@@ -18,10 +18,14 @@
 
 #pragma once
 
+#include "RiaPorosityModel.h"
 #include "RimGridCalculationVariable.h"
 #include "RimUserDefinedCalculation.h"
 
+#include "cvfArray.h"
+
 class RimEclipseCase;
+class RimGridView;
 
 //==================================================================================================
 ///
@@ -40,6 +44,29 @@ public:
 
 protected:
     RimGridCalculationVariable* createVariable() const override;
+    std::pair<bool, QString>    validateVariables();
 
-    RimEclipseCase* findEclipseCaseFromVariables();
+    RimEclipseCase* findEclipseCaseFromVariables() const;
+
+    std::vector<double> getInputVectorForVariable( RimGridCalculationVariable*   v,
+                                                   size_t                        tsId,
+                                                   RiaDefines::PorosityModelType porosityModel ) const;
+
+    void filterResults( RimGridView*                                 cellFilterView,
+                        const std::vector<std::vector<double>>&      values,
+                        RimGridCalculationVariable::DefaultValueType defaultValueType,
+                        double                                       defaultValue,
+                        std::vector<double>&                         resultValues ) const;
+
+    static void replaceFilteredValuesWithVector( const std::vector<double>& inputValues,
+                                                 cvf::ref<cvf::UByteArray>  visibility,
+                                                 std::vector<double>&       resultValues );
+
+    static void replaceFilteredValuesWithDefaultValue( double                    defaultValue,
+                                                       cvf::ref<cvf::UByteArray> visibility,
+                                                       std::vector<double>&      resultValues );
+
+    int findFilterVariableIndex() const;
+
+    std::pair<RimGridView*, RimGridCalculationVariable::DefaultValueConfig> findFilterValuesFromVariables() const;
 };
