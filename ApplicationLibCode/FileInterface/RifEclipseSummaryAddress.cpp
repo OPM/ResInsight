@@ -155,36 +155,6 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromEclipseTextAddress( const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress::SummaryVarCategory RifEclipseSummaryAddress::identifyCategory( const std::string& vectorName )
-{
-    // Try to an exact match on the vector name first in the vector table.
-    bool exactMatch    = true;
-    auto exactCategory = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( vectorName, exactMatch );
-    if ( exactCategory != SUMMARY_INVALID ) return exactCategory;
-
-    if ( vectorName.size() < 3 || vectorName.size() > 8 ) return SUMMARY_INVALID;
-
-    // Try to match the base vector name with more heuristics
-    auto strippedQuantityName = baseVectorName( vectorName );
-
-    // First, try to lookup vector in vector table
-    auto category = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( strippedQuantityName );
-    if ( category != SUMMARY_INVALID ) return category;
-
-    // Then check LGR categories
-    std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
-
-    if ( firstTwoLetters == "LB" ) return SUMMARY_BLOCK_LGR;
-    if ( firstTwoLetters == "LC" ) return SUMMARY_WELL_COMPLETION_LGR;
-    if ( firstTwoLetters == "LW" ) return SUMMARY_WELL_LGR;
-
-    if ( strippedQuantityName[0] == 'N' ) return SUMMARY_NETWORK;
-    return SUMMARY_INVALID;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress RifEclipseSummaryAddress::fieldAddress( const std::string& vectorName )
 {
     RifEclipseSummaryAddress addr;
@@ -762,7 +732,7 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
     if ( tokens.size() > 1 ) token1 = tokens[1];
     if ( tokens.size() > 2 ) token2 = tokens[2];
 
-    SummaryVarCategory category = identifyCategory( vectorName );
+    SummaryVarCategory category = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( vectorName );
 
     switch ( category )
     {

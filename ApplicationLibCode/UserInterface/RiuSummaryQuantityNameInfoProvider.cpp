@@ -33,6 +33,39 @@ RiuSummaryQuantityNameInfoProvider* RiuSummaryQuantityNameInfoProvider::instance
 ///
 //--------------------------------------------------------------------------------------------------
 RifEclipseSummaryAddress::SummaryVarCategory
+    RiuSummaryQuantityNameInfoProvider::identifyCategory( const std::string& vectorName )
+{
+    // Try to an exact match on the vector name first in the vector table.
+    bool exactMatch    = true;
+    auto exactCategory = categoryFromVectorName( vectorName, exactMatch );
+    if ( exactCategory != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return exactCategory;
+
+    if ( vectorName.size() < 3 || vectorName.size() > 8 )
+        return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
+
+    // Try to match the base vector name with more heuristics
+    auto strippedQuantityName = RifEclipseSummaryAddress::baseVectorName( vectorName );
+
+    // First, try to lookup vector in vector table
+    auto category = categoryFromVectorName( strippedQuantityName );
+    if ( category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return category;
+
+    // Then check LGR categories
+    std::string firstTwoLetters = strippedQuantityName.substr( 0, 2 );
+
+    if ( firstTwoLetters == "LB" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK_LGR;
+    if ( firstTwoLetters == "LC" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_COMPLETION_LGR;
+    if ( firstTwoLetters == "LW" ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_LGR;
+
+    if ( strippedQuantityName[0] == 'N' ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK;
+
+    return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseSummaryAddress::SummaryVarCategory
     RiuSummaryQuantityNameInfoProvider::categoryFromVectorName( const std::string& vectorName, bool exactMatch ) const
 {
     auto info = quantityInfo( vectorName, exactMatch );

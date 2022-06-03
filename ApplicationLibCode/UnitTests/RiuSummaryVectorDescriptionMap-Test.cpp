@@ -10,7 +10,7 @@ TEST( RiuSummaryQuantityNameInfoProvider, TestInit )
 {
     {
         std::string s( "SRSFC" );
-        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( s );
+        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
         EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT );
 
         auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( s );
@@ -26,7 +26,7 @@ TEST( RiuSummaryQuantityNameInfoProvider, TestInit )
 
     {
         std::string s( "does not exist" );
-        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( s );
+        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
         EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_INVALID );
 
         auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( s );
@@ -56,7 +56,7 @@ TEST( RiuSummaryQuantityNameInfoProvider, TestCustomNaming )
 {
     {
         std::string s( "SRSFCABC" );
-        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( s );
+        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
         EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL_SEGMENT );
 
         auto longName = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( s );
@@ -78,13 +78,13 @@ TEST( RiuSummaryQuantityNameInfoProvider, Test6x )
 {
     {
         std::string s( "GLIT" );
-        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( s );
+        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
         EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_GROUP );
     }
 
     {
         std::string s( "WSBVPROP" );
-        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( s );
+        auto        cat = RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
         EXPECT_TRUE( cat == RifEclipseSummaryAddress::SUMMARY_WELL );
     }
 }
@@ -108,7 +108,7 @@ TEST( DISABLED_RiuSummaryQuantityNameInfoProvider, PerformanceLookup )
     {
         for ( const auto& s : values )
         {
-            RiuSummaryQuantityNameInfoProvider::instance()->categoryFromVectorName( s );
+            RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( s );
         }
     }
 
