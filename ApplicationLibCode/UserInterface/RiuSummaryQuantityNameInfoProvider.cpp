@@ -79,7 +79,23 @@ RifEclipseSummaryAddress::SummaryVarCategory
     auto category = categoryFromVectorName( strippedQuantityName );
     if ( category != RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_INVALID ) return category;
 
-    if ( strippedQuantityName[0] == 'N' ) return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK;
+    switch ( strippedQuantityName[0] )
+    {
+        case 'A':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_AQUIFER;
+        case 'B':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_BLOCK;
+        case 'F':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_FIELD;
+        case 'N':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_NETWORK;
+        case 'S':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL_SEGMENT;
+        case 'W':
+            return RifEclipseSummaryAddress::SummaryVarCategory::SUMMARY_WELL;
+        default:
+            break;
+    }
 
     if ( strippedQuantityName[0] == 'R' )
     {
