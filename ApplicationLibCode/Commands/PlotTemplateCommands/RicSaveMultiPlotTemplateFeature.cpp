@@ -92,6 +92,8 @@ void RicSaveMultiPlotTemplateFeature::onActionTriggered( bool isChecked )
     auto plot = selectedSummaryPlot();
     if ( !plot ) return;
 
+    plot->storeStepDimensionFromToolbar();
+
     QString ext = ".rpt";
     if ( selectedSummaryPlot()->curveSets().size() > 0 ) ext = ".erpt";
 

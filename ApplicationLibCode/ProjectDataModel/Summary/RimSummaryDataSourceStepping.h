@@ -33,6 +33,18 @@ public:
         UNION_X_Y_AXIS
     };
 
+    enum class SourceSteppingDimension
+    {
+        SUMMARY_CASE,
+        ENSEMBLE,
+        WELL,
+        GROUP,
+        REGION,
+        VECTOR,
+        BLOCK,
+        AQUIFER
+    };
+
 public:
     virtual std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const                                = 0;
     virtual std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const = 0;

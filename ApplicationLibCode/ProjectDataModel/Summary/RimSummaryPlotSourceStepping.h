@@ -44,19 +44,6 @@ class RimSummaryPlotSourceStepping : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class SourceSteppingDimension
-    {
-        SUMMARY_CASE,
-        ENSEMBLE,
-        WELL,
-        GROUP,
-        REGION,
-        VECTOR,
-        BLOCK,
-        AQUIFER
-    };
-
-public:
     RimSummaryPlotSourceStepping();
 
     void setSourceSteppingType( RimSummaryDataSourceStepping::Axis sourceSteppingType );
@@ -73,8 +60,8 @@ public:
 
     void syncWithStepper( RimSummaryPlotSourceStepping* other );
 
-    RimSummaryPlotSourceStepping::SourceSteppingDimension stepDimension() const;
-    void setStepDimension( RimSummaryPlotSourceStepping::SourceSteppingDimension dimension );
+    RimSummaryDataSourceStepping::SourceSteppingDimension stepDimension() const;
+    void setStepDimension( RimSummaryDataSourceStepping::SourceSteppingDimension dimension );
 
     void updateStepIndex( int direction );
 
@@ -115,8 +102,9 @@ private:
 private:
     caf::PdmPointer<caf::PdmObject> m_objectForSourceStepping;
 
-    caf::PdmField<QString>                               m_indexLabel;
-    caf::PdmField<caf::AppEnum<SourceSteppingDimension>> m_stepDimension;
+    caf::PdmField<QString> m_indexLabel;
+
+    caf::PdmField<caf::AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>> m_stepDimension;
 
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
