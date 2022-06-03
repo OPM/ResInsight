@@ -162,6 +162,10 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_sourceStepping.xmlCapability()->disableIO();
 
+    CAF_PDM_InitFieldNoDefault( &m_defaultStepDimension, "DefaultStepDimension", "Default Step Dimension" );
+    m_defaultStepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
+    m_defaultStepDimension.uiCapability()->setUiHidden( true );
+
     m_nameHelper = std::make_unique<RimSummaryPlotNameHelper>();
 }
 
@@ -689,6 +693,7 @@ void RimSummaryMultiPlot::initAfterRead()
         plot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
     }
+    updateStepDimensionFromDefault();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -749,26 +754,26 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
     }
 
-    auto stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::VECTOR;
+    auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
     if ( analyzer.wellNames().size() == 1 )
     {
-        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::WELL;
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::WELL;
     }
     else if ( analyzer.groupNames().size() == 1 )
     {
-        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::GROUP;
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP;
     }
     else if ( analyzer.regionNumbers().size() == 1 )
     {
-        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION;
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::REGION;
     }
     else if ( analyzer.aquifers().size() == 1 )
     {
-        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER;
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER;
     }
     else if ( analyzer.blocks().size() == 1 )
     {
-        stepDimension = RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK;
+        stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK;
     }
 
     m_axisRangeAggregation = rangeAggregation;
@@ -1254,7 +1259,7 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
     RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( newPlots[0] );
     if ( newPlot == nullptr ) return;
 
-    if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
+    if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
     {
         newPlot->resolveReferencesRecursively();
 
@@ -1265,7 +1270,7 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
             curve->setSummaryCaseY( newCase );
         }
     }
-    else if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::ENSEMBLE )
+    else if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )
     {
         newPlot->resolveReferencesRecursively();
 
@@ -1313,7 +1318,7 @@ void RimSummaryMultiPlot::appendCurveByStepping( int direction )
             auto address   = curve->summaryAddressY();
             auto sumCase   = curve->summaryCaseY();
             int  sumCaseId = sumCase->caseId();
-            if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
+            if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
             {
                 auto nextSumCase = m_sourceStepping->stepCase( direction );
                 if ( nextSumCase ) sumCaseId = nextSumCase->caseId();
@@ -1330,7 +1335,7 @@ void RimSummaryMultiPlot::appendCurveByStepping( int direction )
             auto address  = curveSet->summaryAddress();
             auto sumEns   = curveSet->summaryCaseCollection();
             int  sumEnsId = sumEns->ensembleId();
-            if ( m_sourceStepping()->stepDimension() == RimSummaryPlotSourceStepping::SourceSteppingDimension::ENSEMBLE )
+            if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )
             {
                 auto nextEns = m_sourceStepping->stepEnsemble( direction );
                 if ( nextEns ) sumEnsId = nextEns->ensembleId();
@@ -1378,4 +1383,20 @@ void RimSummaryMultiPlot::keepVisiblePageAfterUpdate( bool keepPage )
     if ( !m_viewer ) return;
 
     if ( keepPage ) m_viewer->keepCurrentPageAfterUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::storeStepDimensionFromToolbar()
+{
+    m_defaultStepDimension = m_sourceStepping->stepDimension();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateStepDimensionFromDefault()
+{
+    m_sourceStepping->setStepDimension( m_defaultStepDimension() );
 }

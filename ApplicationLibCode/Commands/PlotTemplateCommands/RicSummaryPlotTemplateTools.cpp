@@ -170,6 +170,7 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
                                                            regions );
     newSummaryPlot->initAfterReadRecursively();
     newSummaryPlot->loadDataAndUpdate();
+
     collections->updateConnectedEditors();
 
     return newSummaryPlot;

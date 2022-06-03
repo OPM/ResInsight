@@ -430,9 +430,9 @@ RimSummaryMultiPlot*
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
 
-    auto* plotWindow = new RimSummaryMultiPlot();
-    plotWindow->setAsPlotMdiWindow();
-    plotCollection->addSummaryMultiPlot( plotWindow );
+    auto* summaryMultiPlot = new RimSummaryMultiPlot();
+    summaryMultiPlot->setAsPlotMdiWindow();
+    plotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
     RimSummaryPlot* plot = new RimSummaryPlot();
     plot->setAsPlotMdiWindow();
@@ -453,15 +453,17 @@ RimSummaryMultiPlot*
 
     plotCollection->updateConnectedEditors();
 
-    appendPlotsToSummaryMultiPlot( plotWindow, { plot } );
+    appendPlotsToSummaryMultiPlot( summaryMultiPlot, { plot } );
+
+    summaryMultiPlot->setDefaultRangeAggregationSteppingDimension();
 
     plotCollection->updateAllRequiredEditors();
-    plotWindow->loadDataAndUpdate();
-    plotWindow->updateAllRequiredEditors();
+    summaryMultiPlot->loadDataAndUpdate();
+    summaryMultiPlot->updateAllRequiredEditors();
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );
 
-    return plotWindow;
+    return summaryMultiPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -505,21 +507,23 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlo
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
 
-    auto* plotWindow = new RimSummaryMultiPlot();
-    plotWindow->setColumnCount( RiaDefines::ColumnCount::COLUMNS_1 );
-    plotWindow->setRowCount( RiaDefines::RowCount::ROWS_1 );
-    plotWindow->setAsPlotMdiWindow();
-    plotCollection->addSummaryMultiPlot( plotWindow );
+    auto* summaryMultiPlot = new RimSummaryMultiPlot();
+    summaryMultiPlot->setColumnCount( RiaDefines::ColumnCount::COLUMNS_1 );
+    summaryMultiPlot->setRowCount( RiaDefines::RowCount::ROWS_1 );
+    summaryMultiPlot->setAsPlotMdiWindow();
+    plotCollection->addSummaryMultiPlot( summaryMultiPlot );
 
-    appendPlotsToSummaryMultiPlot( plotWindow, { plot } );
+    appendPlotsToSummaryMultiPlot( summaryMultiPlot, { plot } );
+
+    summaryMultiPlot->setDefaultRangeAggregationSteppingDimension();
 
     plotCollection->updateAllRequiredEditors();
-    plotWindow->loadDataAndUpdate();
-    plotWindow->updateAllRequiredEditors();
+    summaryMultiPlot->loadDataAndUpdate();
+    summaryMultiPlot->updateAllRequiredEditors();
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );
 
-    return plotWindow;
+    return summaryMultiPlot;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -106,6 +106,9 @@ public:
 
     void keepVisiblePageAfterUpdate( bool keepPage );
 
+    void storeStepDimensionFromToolbar();
+    void updateStepDimensionFromDefault();
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
@@ -157,6 +160,8 @@ private:
 
     caf::PdmField<bool> m_appendNextCurve;
     caf::PdmField<bool> m_appendPrevCurve;
+
+    caf::PdmField<caf::AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>> m_defaultStepDimension;
 
     caf::PdmField<caf::AppEnum<AxisRangeAggregation>> m_axisRangeAggregation;
 

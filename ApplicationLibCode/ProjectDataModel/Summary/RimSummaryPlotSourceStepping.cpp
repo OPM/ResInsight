@@ -51,23 +51,6 @@
 #include <algorithm>
 #include <vector>
 
-namespace caf
-{
-template <>
-void AppEnum<RimSummaryPlotSourceStepping::SourceSteppingDimension>::setUp()
-{
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::VECTOR, "VECTOR", "Vector" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::WELL, "WELL", "Well" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::ENSEMBLE, "ENSEMBLE", "Ensemble" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::GROUP, "GROUP", "Group" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::REGION, "REGION", "Region" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", "Block" );
-    addItem( RimSummaryPlotSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", "Aquifer" );
-    setDefault( RimSummaryPlotSourceStepping::SourceSteppingDimension::VECTOR );
-}
-} // namespace caf
-
 CAF_PDM_SOURCE_INIT( RimSummaryPlotSourceStepping, "RimSummaryCurveCollectionModifier" );
 
 //--------------------------------------------------------------------------------------------------
@@ -322,6 +305,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     {
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
         mainPlotWindow->updateMultiPlotToolBar();
+        RimSummaryMultiPlot* plot = dynamic_cast<RimSummaryMultiPlot*>( m_objectForSourceStepping.p() );
+        if ( plot ) plot->storeStepDimensionFromToolbar();
         return;
     }
 
@@ -560,29 +545,29 @@ caf::PdmValueField* RimSummaryPlotSourceStepping::fieldToModify()
 {
     switch ( m_stepDimension() )
     {
-        case SourceSteppingDimension::SUMMARY_CASE:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE:
             return &m_summaryCase;
             break;
 
-        case SourceSteppingDimension::ENSEMBLE:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE:
             return &m_ensemble;
 
-        case SourceSteppingDimension::WELL:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
             return &m_wellName;
 
-        case SourceSteppingDimension::GROUP:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
             return &m_groupName;
 
-        case SourceSteppingDimension::REGION:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
             return &m_region;
 
-        case SourceSteppingDimension::VECTOR:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
             return &m_vectorName;
 
-        case SourceSteppingDimension::BLOCK:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
             return &m_cellBlock;
 
-        case SourceSteppingDimension::AQUIFER:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
             return &m_aquifer;
 
         default:
@@ -989,7 +974,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
     switch ( m_stepDimension() )
     {
-        case SourceSteppingDimension::WELL:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
         {
             auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_WELL, "" );
             auto& curName = addr.wellName();
@@ -1009,7 +994,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
         }
         break;
 
-        case SourceSteppingDimension::GROUP:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
         {
             auto  ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_GROUP, "" );
             auto& curName = addr.groupName();
@@ -1029,7 +1014,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
         }
         break;
 
-        case SourceSteppingDimension::REGION:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
         {
             auto ids       = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_REGION, "" );
             int  curRegion = addr.regionNumber();
@@ -1049,7 +1034,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
         }
         break;
 
-        case SourceSteppingDimension::VECTOR:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
         {
             auto options = optionsForQuantity( addresses );
 
@@ -1076,7 +1061,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
         }
         break;
 
-        case SourceSteppingDimension::BLOCK:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
         {
             auto ids     = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_BLOCK, "" );
             auto curName = addr.blockAsString();
@@ -1099,7 +1084,7 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
         }
         break;
 
-        case SourceSteppingDimension::AQUIFER:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
         {
             auto ids       = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_AQUIFER, "" );
             int  curRegion = addr.aquiferNumber();
@@ -1132,35 +1117,35 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
 {
     switch ( m_stepDimension() )
     {
-        case SourceSteppingDimension::SUMMARY_CASE:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE:
             m_summaryCase = other->m_summaryCase();
             break;
 
-        case SourceSteppingDimension::ENSEMBLE:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE:
             m_ensemble = other->m_ensemble();
             break;
 
-        case SourceSteppingDimension::WELL:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
             m_wellName = other->m_wellName();
             break;
 
-        case SourceSteppingDimension::GROUP:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
             m_groupName = other->m_groupName();
             break;
 
-        case SourceSteppingDimension::REGION:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
             m_region = other->m_region();
             break;
 
-        case SourceSteppingDimension::VECTOR:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
             m_vectorName = other->m_vectorName();
             break;
 
-        case SourceSteppingDimension::BLOCK:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
             m_cellBlock = other->m_cellBlock();
             break;
 
-        case SourceSteppingDimension::AQUIFER:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
             m_aquifer = other->m_aquifer();
             break;
 
@@ -1208,7 +1193,7 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotSourceStepping::SourceSteppingDimension RimSummaryPlotSourceStepping::stepDimension() const
+RimSummaryDataSourceStepping::SourceSteppingDimension RimSummaryPlotSourceStepping::stepDimension() const
 {
     return m_stepDimension();
 }
@@ -1216,7 +1201,7 @@ RimSummaryPlotSourceStepping::SourceSteppingDimension RimSummaryPlotSourceSteppi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotSourceStepping::setStepDimension( SourceSteppingDimension dimension )
+void RimSummaryPlotSourceStepping::setStepDimension( RimSummaryDataSourceStepping::SourceSteppingDimension dimension )
 {
     m_stepDimension = dimension;
 }
