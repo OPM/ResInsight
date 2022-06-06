@@ -182,7 +182,7 @@ std::set<int> RiaSummaryAddressAnalyzer::aquifers() const
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryAddressAnalyzer::categories() const
 {
-    return m_categories;
+    return keysInMap( m_categories );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -315,6 +315,18 @@ std::string RiaSummaryAddressAnalyzer::correspondingHistorySummaryCurveName( con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<std::string>
+    RiaSummaryAddressAnalyzer::vectorNamesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category )
+{
+    auto it = m_categories.find( category );
+    if ( it != m_categories.end() ) return it->second;
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiaSummaryAddressAnalyzer::clear()
 {
     m_quantities.clear();
@@ -433,7 +445,12 @@ void RiaSummaryAddressAnalyzer::analyzeSingleAddress( const RifEclipseSummaryAdd
 
     if ( address.category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
     {
-        m_categories.insert( address.category() );
+        if ( m_categories.count( address.category() ) == 0 )
+        {
+            m_categories[address.category()] = { address.vectorName() };
+        }
+        else
+            m_categories[address.category()].insert( address.vectorName() );
     }
 }
 
@@ -456,6 +473,20 @@ std::set<std::string> RiaSummaryAddressAnalyzer::keysInMap( const std::multimap<
 std::set<int> RiaSummaryAddressAnalyzer::keysInMap( const std::multimap<int, RifEclipseSummaryAddress>& map )
 {
     std::set<int> keys;
+    for ( const auto& [key, value] : map )
+    {
+        keys.insert( key );
+    }
+    return keys;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<RifEclipseSummaryAddress::SummaryVarCategory> RiaSummaryAddressAnalyzer::keysInMap(
+    const std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::set<std::string>>& map )
+{
+    std::set<RifEclipseSummaryAddress::SummaryVarCategory> keys;
     for ( const auto& [key, value] : map )
     {
         keys.insert( key );
