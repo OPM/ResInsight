@@ -35,6 +35,7 @@ class RimSummaryCurve;
 class RifSummaryReaderInterface;
 class RimSummaryCaseCollection;
 class RifEclipseSummaryAddress;
+class RiaSummaryAddressAnalyzer;
 
 //==================================================================================================
 ///
@@ -98,6 +99,7 @@ private:
     RimSummaryDataSourceStepping* dataSourceSteppingObject() const;
 
     std::map<QString, QString> optionsForQuantity( std::set<RifEclipseSummaryAddress> addresses );
+    std::map<QString, QString> optionsForQuantity( RiaSummaryAddressAnalyzer* analyzser );
 
 private:
     caf::PdmPointer<caf::PdmObject> m_objectForSourceStepping;
