@@ -105,20 +105,16 @@ void RigStatisticsMath::calculateStatisticsCurves( const std::vector<double>& va
         P90
     };
 
-    std::vector<double> sortedValues;
-    double              valueSum = 0;
+    std::vector<double> sortedValues = values;
 
-    {
-        std::multiset<double> vSet( values.begin(), values.end() );
-        for ( double v : vSet )
-        {
-            if ( RiaStatisticsTools::isValidNumber( v ) )
-            {
-                sortedValues.push_back( v );
-                valueSum += v;
-            }
-        }
-    }
+    sortedValues.erase( std::remove_if( sortedValues.begin(),
+                                        sortedValues.end(),
+                                        []( double x ) { return !RiaStatisticsTools::isValidNumber( x ); } ),
+                        sortedValues.end() );
+
+    std::sort( sortedValues.begin(), sortedValues.end() );
+
+    double valueSum = std::accumulate( sortedValues.begin(), sortedValues.end(), 0.0 );
 
     int    valueCount    = (int)sortedValues.size();
     double percentiles[] = { 0.1, 0.5, 0.9 };
