@@ -138,3 +138,42 @@ TEST( RiaSummaryAddressAnalyzer, CellBlocks )
     auto blocks = analyzer.blocks();
     EXPECT_EQ( 3u, blocks.size() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RiaSummaryAddressAnalyzer, QuantitiesPerCategory )
+{
+    std::vector<RifEclipseSummaryAddress> addresses;
+
+    {
+        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::fieldAddress( "FOPT" );
+        addresses.push_back( adr );
+    }
+    {
+        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::fieldAddress( "FOPR" );
+        addresses.push_back( adr );
+    }
+
+    {
+        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellAddress( "WOPT", "WellA" );
+        addresses.push_back( adr );
+    }
+    {
+        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellAddress( "WOPR", "WellB" );
+        addresses.push_back( adr );
+    }
+    {
+        RifEclipseSummaryAddress adr = RifEclipseSummaryAddress::wellAddress( "WWPR", "WellA" );
+        addresses.push_back( adr );
+    }
+
+    RiaSummaryAddressAnalyzer analyzer;
+    analyzer.appendAddresses( addresses );
+
+    auto categories = analyzer.categories();
+    EXPECT_EQ( 2u, categories.size() );
+
+    auto vectorNamesForWells = analyzer.vectorNamesForCategory( RifEclipseSummaryAddress::SUMMARY_WELL );
+    EXPECT_EQ( 3u, vectorNamesForWells.size() );
+}

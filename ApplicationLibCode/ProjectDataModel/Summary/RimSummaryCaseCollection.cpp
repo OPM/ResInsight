@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
 #include "RiaStdStringTools.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RicfCommandObject.h"
@@ -158,6 +159,7 @@ void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase, bool not
     m_cases.removeChild( summaryCase );
 
     m_cachedSortedEnsembleParameters.clear();
+    m_analyzer.reset();
 
     caseRemoved.send( summaryCase );
 
@@ -184,6 +186,7 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 
     m_cases.push_back( summaryCase );
     m_cachedSortedEnsembleParameters.clear();
+    m_analyzer.reset();
 
     // Update derived ensemble cases (if any)
     std::vector<RimDerivedEnsembleCaseCollection*> referringObjects;
@@ -344,6 +347,7 @@ std::set<time_t> RimSummaryCaseCollection::ensembleTimeSteps() const
     }
     return allTimeSteps;
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -927,6 +931,21 @@ void RimSummaryCaseCollection::updateReferringCurveSets()
             curveSet->loadDataAndUpdate( updateParentPlot );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryAddressAnalyzer* RimSummaryCaseCollection::addressAnalyzer()
+{
+    if ( !m_analyzer )
+    {
+        m_analyzer = std::make_unique<RiaSummaryAddressAnalyzer>();
+
+        m_analyzer->appendAddresses( ensembleSummaryAddresses() );
+    }
+
+    return m_analyzer.get();
 }
 
 //--------------------------------------------------------------------------------------------------

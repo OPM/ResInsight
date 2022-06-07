@@ -211,12 +211,29 @@ QList<caf::PdmOptionItemInfo>
         return options;
     }
 
-    auto addresses = adressesForSourceStepping();
-    if ( !addresses.empty() )
+    RiaSummaryAddressAnalyzer  fallbackAnalyzer;
+    RiaSummaryAddressAnalyzer* analyzer = nullptr;
+    if ( !dataSourceSteppingObject()->curveSets().empty() )
+    {
+        auto first = dataSourceSteppingObject()->curveSets().front();
+        analyzer   = first->summaryCaseCollection()->addressAnalyzer();
+    }
+
+    if ( !analyzer )
+    {
+        // No cached analyzer found. Fallback to population of a local analyzer. Try to avoid this, as the analysis
+        // operation is quite expensive.
+
+        auto addresses = adressesForSourceStepping();
+        fallbackAnalyzer.appendAddresses( addresses );
+        analyzer = &fallbackAnalyzer;
+    }
+
+    if ( analyzer )
     {
         if ( fieldNeedingOptions == &m_vectorName )
         {
-            std::map<QString, QString> displayAndValueStrings = optionsForQuantity( addresses );
+            auto displayAndValueStrings = optionsForQuantity( analyzer );
 
             for ( const auto& displayAndValue : displayAndValueStrings )
             {
@@ -268,10 +285,7 @@ QList<caf::PdmOptionItemInfo>
 
             if ( category != RifEclipseSummaryAddress::SUMMARY_INVALID )
             {
-                RiaSummaryAddressAnalyzer analyzer;
-                analyzer.appendAddresses( addresses );
-
-                identifierTexts = analyzer.identifierTexts( category, secondaryIdentifier );
+                identifierTexts = analyzer->identifierTexts( category, secondaryIdentifier );
             }
 
             if ( !identifierTexts.empty() )
@@ -1175,11 +1189,38 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( std
         auto subset = RiaSummaryAddressAnalyzer::addressesForCategory( addresses, category );
         quantityAnalyzer.appendAddresses( subset );
 
-        RiaSummaryAddressAnalyzer analyzerForVisibleCurves;
-        analyzerForVisibleCurves.appendAddresses( visibleCurveAddresses );
-
         auto quantities = quantityAnalyzer.quantities();
         for ( const auto& s : quantities )
+        {
+            QString valueString = QString::fromStdString( s );
+
+            displayAndValueStrings[valueString] = valueString;
+        }
+    }
+
+    return displayAndValueStrings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( RiaSummaryAddressAnalyzer* analyzser )
+{
+    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::SUMMARY_FIELD;
+
+    auto visibleCurveAddresses = addressesForCurvesInPlot();
+    if ( !visibleCurveAddresses.empty() )
+    {
+        category = visibleCurveAddresses.begin()->category();
+    }
+
+    std::map<QString, QString> displayAndValueStrings;
+
+    if ( analyzser )
+    {
+        auto vectorNames = analyzser->vectorNamesForCategory( category );
+
+        for ( const auto& s : vectorNames )
         {
             QString valueString = QString::fromStdString( s );
 

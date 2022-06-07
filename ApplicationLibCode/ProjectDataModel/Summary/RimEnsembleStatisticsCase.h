@@ -40,6 +40,8 @@ public:
     const std::vector<double>& p90() const;
     const std::vector<double>& mean() const;
 
+    const std::pair<double, double> minimumAndMaximumValues() const;
+
     bool hasP10Data() const { return !m_p10Data.empty(); }
     bool hasP50Data() const { return !m_p50Data.empty(); }
     bool hasP90Data() const { return !m_p90Data.empty(); }
@@ -72,4 +74,7 @@ private:
     std::vector<double> m_p50Data;
     std::vector<double> m_p90Data;
     std::vector<double> m_meanData;
+
+    double m_maximumValue;
+    double m_minimumValue;
 };

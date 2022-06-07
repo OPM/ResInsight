@@ -69,6 +69,8 @@ public:
 
     static std::string correspondingHistorySummaryCurveName( const std::string& curveName );
 
+    std::set<std::string> vectorNamesForCategory( RifEclipseSummaryAddress::SummaryVarCategory category );
+
 private:
     void assignCategoryToQuantities() const;
     void computeQuantityNamesWithHistory() const;
@@ -77,6 +79,8 @@ private:
 
     static std::set<std::string> keysInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
     static std::set<int>         keysInMap( const std::multimap<int, RifEclipseSummaryAddress>& map );
+    static std::set<RifEclipseSummaryAddress::SummaryVarCategory>
+        keysInMap( const std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::set<std::string>>& map );
 
     static std::vector<std::vector<RifEclipseSummaryAddress>>
         valuesInMap( const std::multimap<std::string, RifEclipseSummaryAddress>& map );
@@ -98,5 +102,5 @@ private:
     std::multimap<std::string, RifEclipseSummaryAddress> m_blocks;
     std::multimap<int, RifEclipseSummaryAddress>         m_aquifers;
 
-    std::set<RifEclipseSummaryAddress::SummaryVarCategory> m_categories;
+    std::map<RifEclipseSummaryAddress::SummaryVarCategory, std::set<std::string>> m_categories;
 };

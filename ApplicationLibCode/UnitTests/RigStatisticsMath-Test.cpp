@@ -20,6 +20,7 @@
 
 #include "gtest/gtest.h"
 
+#include "QElapsedTimer"
 #include "RigStatisticsMath.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -293,5 +294,39 @@ TEST( RigStatisticsMath, calculateStatisticsCurves )
         EXPECT_DOUBLE_EQ( 1.0, p50 );
         EXPECT_DOUBLE_EQ( 1.0, p90 );
         EXPECT_DOUBLE_EQ( 1.0, mean );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RigStatisticsMath, DISABLED_performanceTesting )
+{
+    RigStatisticsMath::PercentileStyle percentileStyle = RigStatisticsMath::PercentileStyle::REGULAR;
+    {
+        size_t timerCount = 10;
+        for ( size_t t = 0; t < timerCount; t++ )
+        {
+            QElapsedTimer timer;
+            timer.start();
+
+            size_t iterationCount = 10000;
+            for ( size_t i = 0; i < iterationCount; i++ )
+            {
+                size_t              numberOfValues = 200;
+                std::vector<double> values( numberOfValues );
+                std::iota( values.begin(), values.end(), numberOfValues );
+
+                double mean = HUGE_VAL;
+                double p10  = HUGE_VAL;
+                double p50  = HUGE_VAL;
+                double p90  = HUGE_VAL;
+
+                RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, percentileStyle );
+            }
+
+            auto testDuration = timer.elapsed();
+            std::cout << testDuration << "\n";
+        }
     }
 }

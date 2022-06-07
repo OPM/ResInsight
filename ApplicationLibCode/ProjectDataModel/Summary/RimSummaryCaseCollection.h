@@ -35,6 +35,7 @@
 
 #include <QString>
 
+#include <memory>
 #include <utility>
 #include <vector>
 
@@ -42,6 +43,7 @@ class RifReaderRftInterface;
 class RifReaderEnsembleStatisticsRft;
 class RimSummaryCase;
 class RimSummaryAddressCollection;
+class RiaSummaryAddressAnalyzer;
 
 //==================================================================================================
 ///
@@ -110,6 +112,8 @@ public:
 
     void updateReferringCurveSets();
 
+    RiaSummaryAddressAnalyzer* addressAnalyzer();
+
 private:
     RigEnsembleParameter createEnsembleParameter( const QString& paramName ) const;
     static void          sortByBinnedVariation( std::vector<RigEnsembleParameter>& parameterVector );
@@ -146,5 +150,6 @@ private:
 
     size_t m_commonAddressCount; // if different address count among cases, set to 0
 
-    mutable std::vector<RigEnsembleParameter> m_cachedSortedEnsembleParameters;
+    mutable std::vector<RigEnsembleParameter>  m_cachedSortedEnsembleParameters;
+    std::unique_ptr<RiaSummaryAddressAnalyzer> m_analyzer;
 };

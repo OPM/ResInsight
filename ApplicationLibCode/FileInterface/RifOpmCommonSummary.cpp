@@ -395,32 +395,49 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
 
     std::vector<std::string> invalidKeywords;
 
-    for ( const auto& keyword : keywords )
+#pragma omp parallel
     {
-        auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
-        if ( !eclAdr.isValid() )
-        {
-            invalidKeywords.push_back( keyword );
+        std::set<RifEclipseSummaryAddress>              threadAddresses;
+        std::map<RifEclipseSummaryAddress, std::string> threadAddressToNodeIndexMap;
+        std::vector<std::string>                        threadInvalidKeywords;
 
-            // If a category is not found, use the MISC category
-            eclAdr = RifEclipseSummaryAddress::miscAddress( keyword );
+#pragma omp for
+        for ( int index = 0; index < (int)keywords.size(); index++ )
+        {
+            auto keyword = keywords[index];
+
+            auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+            if ( !eclAdr.isValid() )
+            {
+                threadInvalidKeywords.push_back( keyword );
+
+                // If a category is not found, use the MISC category
+                eclAdr = RifEclipseSummaryAddress::miscAddress( keyword );
+            }
+
+            if ( eclAdr.isValid() )
+            {
+                threadAddresses.insert( eclAdr );
+                threadAddressToNodeIndexMap[eclAdr] = keyword;
+            }
         }
 
-        if ( eclAdr.isValid() )
+#pragma omp critical
         {
-            addresses.insert( eclAdr );
-            addressToNodeIndexMap[eclAdr] = keyword;
+            addresses.insert( threadAddresses.begin(), threadAddresses.end() );
+            addressToNodeIndexMap.insert( threadAddressToNodeIndexMap.begin(), threadAddressToNodeIndexMap.end() );
+            invalidKeywords.insert( invalidKeywords.end(), threadInvalidKeywords.begin(), threadInvalidKeywords.end() );
         }
+
+        // DEBUG code
+        // Used to print keywords not being categorized correctly
+        /*
+            for ( const auto& kw : invalidKeywords )
+            {
+                RiaLogging::warning( QString::fromStdString( kw ) );
+            }
+        */
     }
-
-    // DEBUG code
-    // Used to print keywords not being categorized correctly
-    /*
-        for ( const auto& kw : invalidKeywords )
-        {
-            RiaLogging::warning( QString::fromStdString( kw ) );
-        }
-    */
 
     return { addresses, addressToNodeIndexMap };
 }

@@ -727,6 +727,10 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
     std::string token1;
     std::string token2;
 
+    int intValue0 = 0;
+    int intValue1 = 0;
+    int intValue2 = 0;
+
     vectorName = tokens[0];
 
     if ( tokens.size() > 1 ) token1 = tokens[1];
@@ -740,7 +744,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             return fieldAddress( vectorName );
 
         case SUMMARY_AQUIFER:
-            if ( !token1.empty() ) return aquiferAddress( vectorName, RiaStdStringTools::toInt( token1 ) );
+            if ( !token1.empty() )
+            {
+                RiaStdStringTools::toInt( token1, intValue0 );
+                return aquiferAddress( vectorName, intValue0 );
+            }
             break;
 
         case SUMMARY_NETWORK:
@@ -752,7 +760,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
             break;
 
         case SUMMARY_REGION:
-            if ( !token1.empty() ) return regionAddress( vectorName, RiaStdStringTools::toInt( token1 ) );
+            if ( !token1.empty() )
+            {
+                RiaStdStringTools::toInt( token1, intValue0 );
+                return regionAddress( vectorName, intValue0 );
+            }
             break;
 
         case SUMMARY_REGION_2_REGION:
@@ -761,9 +773,10 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
                 auto regions = RiaStdStringTools::splitString( token1, '-' );
                 if ( regions.size() == 2 )
                 {
-                    return regionToRegionAddress( vectorName,
-                                                  RiaStdStringTools::toInt( regions[0] ),
-                                                  RiaStdStringTools::toInt( regions[1] ) );
+                    RiaStdStringTools::toInt( regions[0], intValue0 );
+                    RiaStdStringTools::toInt( regions[1], intValue1 );
+
+                    return regionToRegionAddress( vectorName, intValue0, intValue1 );
                 }
             }
             break;
@@ -782,11 +795,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
                 auto ijk = RiaStdStringTools::splitString( token2, ',' );
                 if ( ijk.size() == 3 )
                 {
-                    return wellCompletionAddress( vectorName,
-                                                  token1,
-                                                  RiaStdStringTools::toInt( ijk[0] ),
-                                                  RiaStdStringTools::toInt( ijk[1] ),
-                                                  RiaStdStringTools::toInt( ijk[2] ) );
+                    RiaStdStringTools::toInt( ijk[0], intValue0 );
+                    RiaStdStringTools::toInt( ijk[1], intValue1 );
+                    RiaStdStringTools::toInt( ijk[2], intValue2 );
+
+                    return wellCompletionAddress( vectorName, token1, intValue0, intValue1, intValue2 );
                 }
             }
             break;
@@ -802,18 +815,23 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
                 auto ijk    = RiaStdStringTools::splitString( token3, ',' );
                 if ( ijk.size() == 3 )
                 {
-                    return wellCompletionLgrAddress( vectorName,
-                                                     token1,
-                                                     token2,
-                                                     RiaStdStringTools::toInt( ijk[0] ),
-                                                     RiaStdStringTools::toInt( ijk[1] ),
-                                                     RiaStdStringTools::toInt( ijk[2] ) );
+                    RiaStdStringTools::toInt( ijk[0], intValue0 );
+                    RiaStdStringTools::toInt( ijk[1], intValue1 );
+                    RiaStdStringTools::toInt( ijk[2], intValue2 );
+
+                    return wellCompletionLgrAddress( vectorName, token1, token2, intValue0, intValue1, intValue2 );
                 }
             }
             break;
 
         case SUMMARY_WELL_SEGMENT:
-            if ( !token2.empty() ) return wellSegmentAddress( vectorName, token1, RiaStdStringTools::toInt( token2 ) );
+
+            if ( !token2.empty() )
+            {
+                RiaStdStringTools::toInt( token2, intValue0 );
+
+                return wellSegmentAddress( vectorName, token1, intValue0 );
+            }
             break;
 
         case SUMMARY_BLOCK:
@@ -822,10 +840,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
                 auto ijk = RiaStdStringTools::splitString( token1, ',' );
                 if ( ijk.size() == 3 )
                 {
-                    return blockAddress( vectorName,
-                                         RiaStdStringTools::toInt( ijk[0] ),
-                                         RiaStdStringTools::toInt( ijk[1] ),
-                                         RiaStdStringTools::toInt( ijk[2] ) );
+                    RiaStdStringTools::toInt( ijk[0], intValue0 );
+                    RiaStdStringTools::toInt( ijk[1], intValue1 );
+                    RiaStdStringTools::toInt( ijk[2], intValue2 );
+
+                    return blockAddress( vectorName, intValue0, intValue1, intValue2 );
                 }
             }
             break;
@@ -836,11 +855,11 @@ RifEclipseSummaryAddress RifEclipseSummaryAddress::fromTokens( const std::vector
                 auto ijk = RiaStdStringTools::splitString( token2, ',' );
                 if ( ijk.size() == 3 )
                 {
-                    return blockLgrAddress( vectorName,
-                                            token1,
-                                            RiaStdStringTools::toInt( ijk[0] ),
-                                            RiaStdStringTools::toInt( ijk[1] ),
-                                            RiaStdStringTools::toInt( ijk[2] ) );
+                    RiaStdStringTools::toInt( ijk[0], intValue0 );
+                    RiaStdStringTools::toInt( ijk[1], intValue1 );
+                    RiaStdStringTools::toInt( ijk[2], intValue2 );
+
+                    return blockLgrAddress( vectorName, token1, intValue0, intValue1, intValue2 );
                 }
             }
             break;
