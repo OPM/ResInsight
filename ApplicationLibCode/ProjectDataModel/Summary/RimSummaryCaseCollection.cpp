@@ -951,6 +951,49 @@ RiaSummaryAddressAnalyzer* RimSummaryCaseCollection::addressAnalyzer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& address )
+{
+    if ( m_minMaxValues.count( address ) > 0 ) return;
+
+    double minimumValue( std::numeric_limits<double>::infinity() );
+    double maximumValue( -std::numeric_limits<double>::infinity() );
+
+    std::vector<double> values;
+    for ( auto s : m_cases() )
+    {
+        if ( !s->summaryReader() ) continue;
+
+        s->summaryReader()->values( address, &values );
+        const auto [min, max] = std::minmax_element( begin( values ), end( values ) );
+
+        minimumValue = std::min( *min, minimumValue );
+        maximumValue = std::max( *max, maximumValue );
+    }
+
+    setMinMax( address, minimumValue, maximumValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::setMinMax( const RifEclipseSummaryAddress& address, double min, double max )
+{
+    m_minMaxValues[address] = std::pair( min, max );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimSummaryCaseCollection::minMax( const RifEclipseSummaryAddress& address )
+{
+    computeMinMax( address );
+
+    return m_minMaxValues[address];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimSummaryCaseCollection::nameAndItemCount() const
 {
     size_t itemCount = m_cases.size();

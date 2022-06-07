@@ -114,6 +114,10 @@ public:
 
     RiaSummaryAddressAnalyzer* addressAnalyzer();
 
+    void                      computeMinMax( const RifEclipseSummaryAddress& address );
+    void                      setMinMax( const RifEclipseSummaryAddress& address, double min, double max );
+    std::pair<double, double> minMax( const RifEclipseSummaryAddress& address );
+
 private:
     RigEnsembleParameter createEnsembleParameter( const QString& paramName ) const;
     static void          sortByBinnedVariation( std::vector<RigEnsembleParameter>& parameterVector );
@@ -152,4 +156,6 @@ private:
 
     mutable std::vector<RigEnsembleParameter>  m_cachedSortedEnsembleParameters;
     std::unique_ptr<RiaSummaryAddressAnalyzer> m_analyzer;
+
+    std::map<RifEclipseSummaryAddress, std::pair<double, double>> m_minMaxValues;
 };

@@ -1007,7 +1007,27 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
             {
                 if ( curveSet->axisY() == axis->plotAxisType() )
                 {
-                    auto [minimum, maximum] = curveSet->minimumAndMaximumValues();
+                    double minimum( std::numeric_limits<double>::infinity() );
+                    double maximum( -std::numeric_limits<double>::infinity() );
+
+                    auto curves = curveSet->curves();
+                    if ( !curves.empty() )
+                    {
+                        // TODO: Use analyzer as input to addressesForCurve instead of curve
+
+                        auto curve = curves.front();
+
+                        std::vector<RifEclipseSummaryAddress> addresses =
+                            addressesForCurve( curve, m_axisRangeAggregation() );
+
+                        for ( auto adr : addresses )
+                        {
+                            auto [min, max] = curveSet->summaryCaseCollection()->minMax( adr );
+
+                            minimum = std::min( min, minimum );
+                            maximum = std::max( max, maximum );
+                        }
+                    }
 
                     if ( axisRanges.count( axis->plotAxisType() ) == 0 )
                     {
