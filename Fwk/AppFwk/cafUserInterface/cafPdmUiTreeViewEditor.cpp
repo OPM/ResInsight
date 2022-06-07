@@ -306,7 +306,7 @@ void PdmUiTreeViewEditor::selectedUiItems( std::vector<PdmUiItem*>& objects )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem )
+void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem, bool notifyEditors )
 {
     if ( m_treeViewModel )
     {
@@ -324,7 +324,7 @@ void PdmUiTreeViewEditor::updateMySubTree( PdmUiItem* uiItem )
             }
         }
 
-        m_treeViewModel->updateSubTree( itemToUpdate );
+        m_treeViewModel->updateSubTree( itemToUpdate, notifyEditors );
         QModelIndex itemIndex = m_treeViewModel->findModelIndex( itemToUpdate );
         updateItemDelegateForSubTree( itemIndex );
     }

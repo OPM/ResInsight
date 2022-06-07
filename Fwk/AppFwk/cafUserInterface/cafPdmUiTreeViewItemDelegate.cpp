@@ -292,7 +292,8 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
                     }
                 }
 
-                m_treeView->updateSubTree( parentUiItem );
+                bool notifyEditors = true;
+                m_treeView->updateSubTree( parentUiItem, notifyEditors );
                 m_treeView->selectAsCurrentItem( uiItem );
 
                 return true;

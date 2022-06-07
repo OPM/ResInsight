@@ -284,7 +284,8 @@ void PdmUiTreeView::updateSubTree( const QModelIndex& index )
     auto uiItem = uiItemFromModelIndex( index );
     if ( uiItem )
     {
-        m_treeViewEditor->updateSubTree( uiItem );
+        bool notifyEditors = true;
+        m_treeViewEditor->updateSubTree( uiItem, notifyEditors );
     }
 }
 

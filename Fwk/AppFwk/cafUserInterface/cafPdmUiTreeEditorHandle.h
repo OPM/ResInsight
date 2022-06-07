@@ -61,14 +61,14 @@ public:
 
     void       setPdmItemRoot( PdmUiItem* root );
     PdmUiItem* pdmItemRoot();
-    void       updateSubTree( PdmUiItem* root ) { this->updateMySubTree( root ); }
+    void       updateSubTree( PdmUiItem* root, bool notifyEditors ) { this->updateMySubTree( root, notifyEditors ); }
 
 protected:
     virtual QWidget* createWidget( QWidget* parent ) = 0;
 
     /// Supposed to update the representation of the tree from root and downwards, as gracefully as possible.
     /// Will be called when the content of root might have been changed
-    virtual void updateMySubTree( PdmUiItem* root ) = 0;
+    virtual void updateMySubTree( PdmUiItem* root, bool notifyEditors ) = 0;
 
 protected:
     QPointer<QWidget> m_widget;

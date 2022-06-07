@@ -55,7 +55,8 @@ void PdmUiTreeItemEditor::configureAndUpdateUi( const QString& uiConfigName )
 {
     if ( m_treeViewEditor )
     {
-        m_treeViewEditor->updateSubTree( this->pdmItem() );
+        bool notifyEditors = true;
+        m_treeViewEditor->updateSubTree( this->pdmItem(), notifyEditors );
     }
 }
 

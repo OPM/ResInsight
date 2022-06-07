@@ -139,7 +139,7 @@ signals:
 protected:
     void configureAndUpdateUi( const QString& uiConfigName ) override;
 
-    void updateMySubTree( PdmUiItem* uiItem ) override;
+    void updateMySubTree( PdmUiItem* uiItem, bool notifyEditors ) override;
     void updateContextMenuSignals();
 
 private slots:
