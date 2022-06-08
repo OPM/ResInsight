@@ -1338,8 +1338,7 @@ void RimSummaryPlotSourceStepping::updateStepIndex( int direction )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( std::vector<RimSummaryPlot*> plots )
 {
-    std::vector<RimPlot*>                                 matchingPlots;
-    RimSummaryDataSourceStepping::SourceSteppingDimension selectedDimension = m_stepDimension();
+    std::vector<RimPlot*> matchingPlots;
 
     int         caseIdToMatch     = -1;
     int         ensembleIdToMatch = -1;
