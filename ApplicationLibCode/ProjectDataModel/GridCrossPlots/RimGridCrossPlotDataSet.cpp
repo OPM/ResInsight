@@ -165,18 +165,29 @@ void RimGridCrossPlotDataSet::setCellFilterView( RimGridView* cellFilterView )
         RigEclipseResultAddress resAddr = eclipseView->cellResult()->eclipseResultAddress();
         if ( resAddr.isValid() )
         {
+            m_grouping = NO_GROUPING;
+
+            RimEclipseCase* eclipseCase = eclipseView->eclipseCase();
+            if ( eclipseCase )
+            {
+                m_case = eclipseCase;
+                m_xAxisProperty->setEclipseCase( eclipseCase );
+                m_yAxisProperty->setEclipseCase( eclipseCase );
+                m_groupingProperty->setEclipseCase( eclipseCase );
+
+                if ( eclipseCase->activeFormationNames() )
+                {
+                    m_grouping = GROUP_BY_FORMATION;
+                    m_groupingProperty->legendConfig()->setColorLegend(
+                        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+                }
+            }
+
             m_xAxisProperty->setResultType( resAddr.resultCatType() );
             m_xAxisProperty->setResultVariable( resAddr.resultName() );
             m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_yAxisProperty->setResultVariable( "DEPTH" );
             m_timeStep = eclipseView->currentTimeStep();
-            m_grouping = NO_GROUPING;
-            if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->activeFormationNames() )
-            {
-                m_grouping = GROUP_BY_FORMATION;
-                m_groupingProperty->legendConfig()->setColorLegend(
-                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
-            }
 
             RimGridCrossPlot* parentPlot = nullptr;
             firstAncestorOrThisOfType( parentPlot );
