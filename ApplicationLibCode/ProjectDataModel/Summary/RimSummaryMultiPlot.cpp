@@ -1292,52 +1292,54 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
 {
     if ( summaryPlots().empty() ) return;
 
-    auto newPlots = RicSummaryPlotBuilder::duplicatePlots( { summaryPlots().back() } );
+    // find matching plots
+    std::vector<RimPlot*> plots = m_sourceStepping->plotsMatchingStepSettings( summaryPlots() );
+    if ( plots.empty() ) return;
+
+    // duplicate them
+    auto newPlots = RicSummaryPlotBuilder::duplicatePlots( plots );
     if ( newPlots.empty() ) return;
 
-    RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( newPlots[0] );
-    if ( newPlot == nullptr ) return;
-
-    if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
+    for ( auto plot : newPlots )
     {
+        RimSummaryPlot* newPlot = dynamic_cast<RimSummaryPlot*>( plot );
+        if ( newPlot == nullptr ) continue;
+
+        addPlot( newPlot );
         newPlot->resolveReferencesRecursively();
 
-        RimSummaryCase* newCase = m_sourceStepping()->stepCase( direction );
-        for ( auto curve : newPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+        if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE )
         {
-            curve->setSummaryCaseX( newCase );
-            curve->setSummaryCaseY( newCase );
+            RimSummaryCase* newCase = m_sourceStepping()->stepCase( direction );
+            for ( auto curve : newPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
+            {
+                curve->setSummaryCaseX( newCase );
+                curve->setSummaryCaseY( newCase );
+            }
+        }
+        else if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )
+        {
+            RimSummaryCaseCollection* newEnsemble = m_sourceStepping()->stepEnsemble( direction );
+            for ( auto curveSet : newPlot->curveSets() )
+            {
+                curveSet->setSummaryCaseCollection( newEnsemble );
+            }
+        }
+        else
+        {
+            auto mods = RimSummaryAddressModifier::createAddressModifiersForPlot( newPlot );
+            for ( auto& mod : mods )
+            {
+                auto modifiedAdr = m_sourceStepping()->stepAddress( mod.address(), direction );
+                mod.setAddress( modifiedAdr );
+            }
         }
     }
-    else if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )
-    {
-        newPlot->resolveReferencesRecursively();
 
-        RimSummaryCaseCollection* newEnsemble = m_sourceStepping()->stepEnsemble( direction );
-        for ( auto curveSet : newPlot->curveSets() )
-        {
-            curveSet->setSummaryCaseCollection( newEnsemble );
-        }
-    }
-    else
-    {
-        auto mods = RimSummaryAddressModifier::createAddressModifiersForPlot( newPlot );
-        for ( auto& mod : mods )
-        {
-            auto modifiedAdr = m_sourceStepping()->stepAddress( mod.address(), direction );
-            mod.setAddress( modifiedAdr );
-        }
-    }
-
-    addPlot( newPlot );
-
-    newPlot->resolveReferencesRecursively();
-    newPlot->loadDataAndUpdate();
-
-    updatePlotWindowTitle();
+    loadDataAndUpdate();
     updateConnectedEditors();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot, true );
+    RiuPlotMainWindowTools::selectAsCurrentItem( newPlots.back(), true );
 
     updateSourceStepper();
     RiuPlotMainWindowTools::refreshToolbars();
