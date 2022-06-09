@@ -42,6 +42,10 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
 
         buildMetaData();
     }
+    catch ( const std::exception& e )
+    {
+        RiaLogging::error( QString( "Failed to open RFT file %1\n%2" ).arg( fileName ).arg( e.what() ) );
+    }
     catch ( ... )
     {
         RiaLogging::error( QString( "Failed to open RFT file %1" ).arg( fileName ) );
@@ -445,9 +449,16 @@ void RifReaderOpmRft::importWellNames()
 std::vector<int>
     RifReaderOpmRft::importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const
 {
-    if ( m_opm_rft->hasArray( propertyName, wellName, date ) )
+    try
     {
-        return m_opm_rft->getRft<int>( propertyName, wellName, date );
+        // THe hasArray method can throw, so we must use a try/catch block here
+        if ( m_opm_rft->hasArray( propertyName, wellName, date ) )
+        {
+            return m_opm_rft->getRft<int>( propertyName, wellName, date );
+        }
+    }
+    catch ( ... )
+    {
     }
 
     return {};
