@@ -28,6 +28,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimProject.h"
+#include "RimSummaryAddressModifier.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
@@ -1030,9 +1031,9 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
         {
-            auto ids       = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_REGION, "" );
-            int  curRegion = addr.regionNumber();
-            auto found     = std::find( ids.begin(), ids.end(), curRegion );
+            auto    ids       = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_REGION, "" );
+            QString curRegion = QString::number( addr.regionNumber() );
+            auto    found     = std::find( ids.begin(), ids.end(), curRegion );
             if ( found != ids.end() )
             {
                 if ( direction > 0 )
@@ -1100,9 +1101,9 @@ RifEclipseSummaryAddress RimSummaryPlotSourceStepping::stepAddress( RifEclipseSu
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
         {
-            auto ids       = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_AQUIFER, "" );
-            int  curRegion = addr.aquiferNumber();
-            auto found     = std::find( ids.begin(), ids.end(), curRegion );
+            auto    ids   = analyzer.identifierTexts( RifEclipseSummaryAddress::SUMMARY_AQUIFER, "" );
+            QString curAq = QString::number( addr.aquiferNumber() );
+            auto    found = std::find( ids.begin(), ids.end(), curAq );
             if ( found != ids.end() )
             {
                 if ( direction > 0 )
@@ -1330,4 +1331,117 @@ void RimSummaryPlotSourceStepping::updateStepIndex( int direction )
 
     bool notifyChange = false;
     modifyCurrentIndex( valueField, direction, notifyChange );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlot*> RimSummaryPlotSourceStepping::plotsMatchingStepSettings( std::vector<RimSummaryPlot*> plots )
+{
+    std::vector<RimPlot*> matchingPlots;
+
+    int         caseIdToMatch     = -1;
+    int         ensembleIdToMatch = -1;
+    std::string wellNameToMatch;
+    std::string groupNameToMatch;
+    int         regionToMatch = -1;
+    std::string vectorToMatch;
+    std::string blockToMatch;
+    int         aquiferToMatch = -1;
+
+    switch ( m_stepDimension() )
+    {
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE:
+            if ( m_summaryCase() ) caseIdToMatch = m_summaryCase()->caseId();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE:
+            if ( m_ensemble() ) ensembleIdToMatch = m_ensemble()->ensembleId();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
+            wellNameToMatch = m_wellName().toStdString();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
+            groupNameToMatch = m_groupName().toStdString();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
+            regionToMatch = m_region();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
+            vectorToMatch = m_vectorName().toStdString();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
+            blockToMatch = m_cellBlock().toStdString();
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
+            aquiferToMatch = m_aquifer();
+            break;
+
+        default:
+            break;
+    }
+
+    for ( auto plot : plots )
+    {
+        bool isMatching = false;
+
+        if ( caseIdToMatch != -1 )
+        {
+            auto curves = plot->summaryCurves();
+            for ( auto c : curves )
+            {
+                if ( c->summaryCaseY()->caseId() == caseIdToMatch ) isMatching = true;
+            }
+        }
+        else if ( ensembleIdToMatch != -1 )
+        {
+            auto curves = plot->curveSets();
+            for ( auto c : curves )
+            {
+                if ( c->ensembleId() == ensembleIdToMatch ) isMatching = true;
+            }
+        }
+        else
+        {
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( plot );
+
+            for ( const auto& a : addresses )
+            {
+                if ( !wellNameToMatch.empty() && a.wellName() == wellNameToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( !vectorToMatch.empty() && a.vectorName() == vectorToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( !groupNameToMatch.empty() && a.groupName() == groupNameToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( regionToMatch != -1 && a.regionNumber() == regionToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( !blockToMatch.empty() && a.blockAsString() == blockToMatch )
+                {
+                    isMatching = true;
+                }
+                else if ( aquiferToMatch != -1 && a.aquiferNumber() == aquiferToMatch )
+                {
+                    isMatching = true;
+                }
+            }
+        }
+
+        if ( isMatching ) matchingPlots.push_back( plot );
+    }
+
+    return matchingPlots;
 }

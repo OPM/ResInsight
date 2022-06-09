@@ -36,6 +36,8 @@ class RifSummaryReaderInterface;
 class RimSummaryCaseCollection;
 class RifEclipseSummaryAddress;
 class RiaSummaryAddressAnalyzer;
+class RimSummaryPlot;
+class RimPlot;
 
 //==================================================================================================
 ///
@@ -65,6 +67,8 @@ public:
     void setStepDimension( RimSummaryDataSourceStepping::SourceSteppingDimension dimension );
 
     void updateStepIndex( int direction );
+
+    std::vector<RimPlot*> plotsMatchingStepSettings( std::vector<RimSummaryPlot*> plots );
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
