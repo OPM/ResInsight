@@ -82,7 +82,7 @@ void RicImportPolylinesAnnotationFeature::onActionTriggered( bool isChecked )
 
     RimPolylinesFromFileAnnotation* lastCreatedOrUpdated = annotColl->importOrUpdatePolylinesFromFile( fileNames );
 
-    proj->updateConnectedEditors();
+    proj->activeOilField()->updateConnectedEditors();
 
     if ( lastCreatedOrUpdated )
     {

@@ -75,7 +75,7 @@ void RicSetMasterViewFeature::onActionTriggered( bool isChecked )
     viewLinker->addDependentView( previousMasterView );
 
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
-    proj->updateConnectedEditors();
+    proj->viewLinkerCollection->updateConnectedEditors();
 
     // Set managed view collection to selected and expanded in project tree
     Riu3DMainWindowTools::selectAsCurrentItem( viewLinker );

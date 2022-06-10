@@ -1475,11 +1475,8 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
     }
     else
     {
-        if ( viewLinkerCollection()->viewLinker() )
-        {
-            // Use object instead of field to avoid duplicate entries in the tree view
-            uiTreeOrdering.add( viewLinkerCollection() );
-        }
+        // Use object instead of field to avoid duplicate entries in the tree view
+        uiTreeOrdering.add( viewLinkerCollection() );
 
         RimOilField* oilField = activeOilField();
         if ( oilField )
