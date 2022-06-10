@@ -1970,14 +1970,6 @@ bool RimEnsembleCurveSet::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<double, double> RimEnsembleCurveSet::minimumAndMaximumValues() const
-{
-    return m_ensembleStatCase->minimumAndMaximumValues();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateEnsembleLegendItem()
 {
     if ( !m_plotCurveForLegendText ) return;

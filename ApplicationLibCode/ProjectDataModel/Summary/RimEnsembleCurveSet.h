@@ -155,8 +155,6 @@ public:
     bool hasP90Data() const override;
     bool hasMeanData() const override;
 
-    std::pair<double, double> minimumAndMaximumValues() const;
-
     void appendColorGroup( caf::PdmUiOrdering& uiOrdering );
 
     static void appendOptionItemsForSummaryAddresses( QList<caf::PdmOptionItemInfo>* options,

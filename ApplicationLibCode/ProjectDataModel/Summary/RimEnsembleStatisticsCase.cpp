@@ -39,8 +39,6 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RimEnsembleStatisticsCase::RimEnsembleStatisticsCase( RimEnsembleCurveSet* curveSet )
-    : m_minimumValue( DOUBLE_INF )
-    , m_maximumValue( -DOUBLE_INF )
 {
     m_curveSet = curveSet;
 }
@@ -83,14 +81,6 @@ const std::vector<double>& RimEnsembleStatisticsCase::p90() const
 const std::vector<double>& RimEnsembleStatisticsCase::mean() const
 {
     return m_meanData;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const std::pair<double, double> RimEnsembleStatisticsCase::minimumAndMaximumValues() const
-{
-    return { m_minimumValue, m_maximumValue };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,11 +195,6 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
         m_p50Data.push_back( p50 );
         m_p90Data.push_back( p90 );
         m_meanData.push_back( mean );
-
-        const auto [min, max] = std::minmax_element( begin( valuesAtTimeStep ), end( valuesAtTimeStep ) );
-
-        m_maximumValue = std::max( m_maximumValue, *max );
-        m_minimumValue = std::min( m_minimumValue, *min );
     }
 }
 
