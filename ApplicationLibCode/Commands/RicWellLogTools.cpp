@@ -325,7 +325,6 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
 
-    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -387,7 +386,6 @@ RimWellLogRftCurve*
     plotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
     plotTrack->updateConnectedEditors();
 
-    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -416,7 +414,6 @@ RimWellLogFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, 
 
     plotTrack->updateConnectedEditors();
 
-    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -489,7 +486,6 @@ RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTra
     plotTrack->addCurve( curve );
     plotTrack->updateConnectedEditors();
 
-    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 

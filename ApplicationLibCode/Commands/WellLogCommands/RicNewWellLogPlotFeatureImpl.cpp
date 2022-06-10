@@ -106,6 +106,8 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterC
             QString( "Well Log Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots().size() ) );
     }
 
+    wellLogPlotColl->updateConnectedEditors();
+
     if ( showAfterCreation )
     {
         RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
