@@ -653,11 +653,6 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
         }
     }
 
-    for ( auto gridCalculation : m_project->gridCalculationCollection()->calculations() )
-    {
-        gridCalculation->calculate();
-    }
-
     if ( m_project->viewLinkerCollection() && m_project->viewLinkerCollection()->viewLinker() )
     {
         m_project->viewLinkerCollection()->viewLinker()->updateOverrides();
@@ -712,6 +707,14 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
 
     // Execute command objects, and release the mutex when the queue is empty
     executeCommandObjects();
+
+    // Recalculate the results from grid property calculations.
+    // Has to be done late since the results are filtered by view cell visibility
+    for ( auto gridCalculation : m_project->gridCalculationCollection()->calculations() )
+    {
+        gridCalculation->calculate();
+        gridCalculation->updateDependentObjects();
+    }
 
     RiaLogging::info( QString( "Completed open of project file : '%1'" ).arg( projectFileName ) );
 
