@@ -959,18 +959,24 @@ void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& ad
     double maximumValue( -std::numeric_limits<double>::infinity() );
 
     std::vector<double> values;
-    for ( auto s : m_cases() )
+    for ( const auto& s : m_cases() )
     {
         if ( !s->summaryReader() ) continue;
 
         s->summaryReader()->values( address, &values );
-        const auto [min, max] = std::minmax_element( begin( values ), end( values ) );
+        if ( values.empty() ) continue;
+
+        const auto [min, max] = std::minmax_element( values.begin(), values.end() );
 
         minimumValue = std::min( *min, minimumValue );
         maximumValue = std::max( *max, maximumValue );
     }
 
-    setMinMax( address, minimumValue, maximumValue );
+    if ( minimumValue != std::numeric_limits<double>::infinity() &&
+         maximumValue != -std::numeric_limits<double>::infinity() )
+    {
+        setMinMax( address, minimumValue, maximumValue );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1136,12 +1142,7 @@ void RimSummaryCaseCollection::buildChildNodes()
 {
     if ( m_dataVectorFolders->isEmpty() )
     {
-        for ( auto& smcase : m_cases )
-        {
-            m_dataVectorFolders->updateFolderStructure( smcase->summaryReader()->allResultAddresses(),
-                                                        smcase->caseId(),
-                                                        m_ensembleId );
-        }
+        m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
     }
 }
 

@@ -230,14 +230,11 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
         auto adrColl = dynamic_cast<RimSummaryAddressCollection*>( o );
         if ( adrColl )
         {
-            if ( objects.size() == 1 )
+            if ( objects.size() == 1 && adrColl->isFolder() )
             {
-                if ( adrColl->isFolder() )
-                {
-                    // If a folder is selected, return all sub items in folder
-                    auto childObjects = adrColl->subFolders();
-                    addressCollections.insert( addressCollections.end(), childObjects.begin(), childObjects.end() );
-                }
+                // If a folder is selected, return all sub items in folder
+                auto childObjects = adrColl->subFolders();
+                addressCollections.insert( addressCollections.end(), childObjects.begin(), childObjects.end() );
             }
             else
                 addressCollections.push_back( adrColl );
@@ -731,27 +728,20 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
         analyzer.appendAddresses( addresses );
     }
 
-    auto rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
+    auto rangeAggregation = AxisRangeAggregation::NONE;
+    if ( analyzer.quantities().size() == 1 && summaryPlots().size() > 1 )
+    {
+        // Many plots, single summary vector
+        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
+    }
 
     if ( !analyzer.wellNames().empty() )
     {
         rangeAggregation = AxisRangeAggregation::WELLS;
     }
-    else if ( !analyzer.groupNames().empty() )
-    {
-        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
-    }
     else if ( !analyzer.regionNumbers().empty() )
     {
         rangeAggregation = AxisRangeAggregation::REGIONS;
-    }
-    else if ( !analyzer.aquifers().empty() )
-    {
-        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
-    }
-    else if ( !analyzer.blocks().empty() )
-    {
-        rangeAggregation = AxisRangeAggregation::SUB_PLOTS;
     }
 
     auto stepDimension = RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR;
@@ -920,35 +910,41 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         else if ( axisRangeAggregation == AxisRangeAggregation::WELLS ||
                   axisRangeAggregation == AxisRangeAggregation::REGIONS )
         {
-            RiaSummaryAddressAnalyzer analyzer;
+            RiaSummaryAddressAnalyzer  fallbackAnalyzer;
+            RiaSummaryAddressAnalyzer* analyzer = nullptr;
+
             if ( curve->summaryCaseY() )
             {
                 auto ensemble = curve->summaryCaseY()->ensemble();
                 if ( ensemble )
                 {
-                    analyzer.appendAddresses( ensemble->ensembleSummaryAddresses() );
+                    analyzer = ensemble->addressAnalyzer();
                 }
                 else
                 {
-                    analyzer.appendAddresses( curve->summaryCaseY()->summaryReader()->allResultAddresses() );
+                    fallbackAnalyzer.appendAddresses( curve->summaryCaseY()->summaryReader()->allResultAddresses() );
+                    analyzer = &fallbackAnalyzer;
                 }
             }
 
-            if ( axisRangeAggregation == AxisRangeAggregation::WELLS )
+            if ( analyzer )
             {
-                for ( const auto& wellName : analyzer.wellNames() )
+                if ( axisRangeAggregation == AxisRangeAggregation::WELLS )
                 {
-                    addresses.push_back(
-                        RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().vectorName(), wellName ) );
+                    for ( const auto& wellName : analyzer->wellNames() )
+                    {
+                        addresses.push_back(
+                            RifEclipseSummaryAddress::wellAddress( curve->summaryAddressY().vectorName(), wellName ) );
+                    }
                 }
-            }
 
-            if ( axisRangeAggregation == AxisRangeAggregation::REGIONS )
-            {
-                for ( auto regionNumber : analyzer.regionNumbers() )
+                if ( axisRangeAggregation == AxisRangeAggregation::REGIONS )
                 {
-                    addresses.push_back( RifEclipseSummaryAddress::regionAddress( curve->summaryAddressY().vectorName(),
-                                                                                  regionNumber ) );
+                    for ( auto regionNumber : analyzer->regionNumbers() )
+                    {
+                        addresses.push_back( RifEclipseSummaryAddress::regionAddress( curve->summaryAddressY().vectorName(),
+                                                                                      regionNumber ) );
+                    }
                 }
             }
         }
@@ -1005,6 +1001,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
             for ( auto curveSet : plot->curveSets() )
             {
+                if ( !curveSet->summaryCaseCollection() ) continue;
+
                 if ( curveSet->axisY() == axis->plotAxisType() )
                 {
                     double minimum( std::numeric_limits<double>::infinity() );
@@ -1020,7 +1018,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                         std::vector<RifEclipseSummaryAddress> addresses =
                             addressesForCurve( curve, m_axisRangeAggregation() );
 
-                        for ( auto adr : addresses )
+                        for ( const auto& adr : addresses )
                         {
                             auto [min, max] = curveSet->summaryCaseCollection()->minMax( adr );
 
