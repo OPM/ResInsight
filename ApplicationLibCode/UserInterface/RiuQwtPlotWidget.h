@@ -216,17 +216,20 @@ private:
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( RiuPlotAxis axis );
 
+    static int hightlightItemWidthAdjustment();
+
 private:
-    struct CurveColors
+    struct CurveProperties
     {
         QColor lineColor;
         QColor symbolColor;
         QColor symbolLineColor;
+        int    lineWidth;
     };
 
-    std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
-    std::map<QwtPlotCurve*, double>      m_originalZValues;
-    std::map<RiuPlotAxis, QwtAxisId>     m_axisMapping;
+    std::map<QwtPlotCurve*, CurveProperties> m_originalCurveProperties;
+    std::map<QwtPlotCurve*, double>          m_originalZValues;
+    std::map<RiuPlotAxis, QwtAxisId>         m_axisMapping;
 
     QPointer<QwtPlot> m_plot;
 };
