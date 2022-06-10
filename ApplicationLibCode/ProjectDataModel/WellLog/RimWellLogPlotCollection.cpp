@@ -251,15 +251,7 @@ void RimWellLogPlotCollection::removeExtractors( const RigGeoMechCaseData* caseD
 void RimWellLogPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    // Make sure the plot collection disappears with the last plot
-    if ( m_wellLogPlots().empty() )
-    {
-        RimProject* project = RimProject::current();
-        if ( project )
-        {
-            project->updateConnectedEditors();
-        }
-    }
+    updateConnectedEditors();
 
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateWellLogPlotToolBar();

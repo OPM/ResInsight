@@ -86,7 +86,7 @@ RimStimPlanModel* RicNewStimPlanModelFeature::addStimPlanModel( RimWellPath*    
     if ( project )
     {
         project->reloadCompletionTypeResultsInAllViews();
-        project->updateAllRequiredEditors();
+        stimPlanModelCollection->updateAllRequiredEditors();
     }
 
     if ( measuredDepth > 0.0 )
