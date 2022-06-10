@@ -385,3 +385,21 @@ std::pair<bool, QString> RimGridCalculation::validateVariables()
 
     return std::make_pair( true, "" );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                                            std::vector<caf::PdmObjectHandle*>& updatedObjects )
+{
+    if ( childArray == &m_variables )
+    {
+        // Update the editors of all the variables if a variable changes.
+        // This makes the read-only state of the filter parameters consistent:
+        // only one filter is allowed at a time.
+        for ( auto v : m_variables )
+        {
+            v->updateConnectedEditors();
+        }
+    }
+}
