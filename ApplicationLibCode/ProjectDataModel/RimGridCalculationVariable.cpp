@@ -23,6 +23,7 @@
 #include "RiaPorosityModel.h"
 #include "RiaResultNames.h"
 
+#include "RimGridCalculation.h"
 #include "RiuDragDrop.h"
 
 #include "RigCaseCellResultsData.h"
@@ -94,10 +95,26 @@ void RimGridCalculationVariable::defineUiOrdering( QString uiConfigName, caf::Pd
     m_resultType.uiCapability()->setUiReadOnly( m_eclipseCase == nullptr );
     m_timeStep.uiCapability()->setUiReadOnly( m_resultType == RiaDefines::ResultCatType::STATIC_NATIVE );
 
-    m_cellFilterView.uiCapability()->setUiReadOnly( m_eclipseCase == nullptr );
-    m_defaultValueType.uiCapability()->setUiReadOnly( m_cellFilterView == nullptr );
+    // Can have only one variable with cell filter at a time.
+    // Set read-only state based on the state of the sibling variables.
+    RimGridCalculation* calculation = nullptr;
+    firstAncestorOfType( calculation );
+
+    bool hasOtherVariableWithFilter = false;
+    for ( auto variable : calculation->allVariables() )
+    {
+        auto v = dynamic_cast<RimGridCalculationVariable*>( variable );
+        if ( variable != this && v->cellFilterView() )
+        {
+            hasOtherVariableWithFilter = true;
+        }
+    }
+
+    m_cellFilterView.uiCapability()->setUiReadOnly( m_eclipseCase == nullptr || hasOtherVariableWithFilter );
+    m_defaultValueType.uiCapability()->setUiReadOnly( m_cellFilterView == nullptr || hasOtherVariableWithFilter );
     m_defaultValue.uiCapability()->setUiReadOnly(
-        m_cellFilterView == nullptr || defaultValueType() != RimGridCalculationVariable::DefaultValueType::USER_DEFINED );
+        m_cellFilterView == nullptr ||
+        defaultValueType() != RimGridCalculationVariable::DefaultValueType::USER_DEFINED || hasOtherVariableWithFilter );
 }
 
 //--------------------------------------------------------------------------------------------------

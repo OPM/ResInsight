@@ -43,6 +43,9 @@ public:
     void removeDependentObjects() override;
 
 protected:
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                            std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
+
     RimGridCalculationVariable* createVariable() const override;
     std::pair<bool, QString>    validateVariables();
 
