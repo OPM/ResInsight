@@ -125,8 +125,8 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 RimProject::RimProject( void )
     : m_nextValidCaseId( 0 )
     , m_nextValidCaseGroupId( 0 )
-    , m_nextValidViewId( 1 )
-    , m_nextValidPlotId( 1 )
+    , m_nextValidViewId( -1 )
+    , m_nextValidPlotId( -1 )
     , m_nextValidSummaryCaseId( 1 )
     , m_nextValidEnsembleId( 1 )
 {
@@ -279,8 +279,8 @@ void RimProject::close()
 
     m_nextValidCaseId        = 0;
     m_nextValidCaseGroupId   = 0;
-    m_nextValidViewId        = 1;
-    m_nextValidPlotId        = 1;
+    m_nextValidViewId        = -1;
+    m_nextValidPlotId        = -1;
     m_nextValidSummaryCaseId = 1;
     m_nextValidEnsembleId    = 1;
 }
@@ -579,12 +579,15 @@ void RimProject::assignViewIdToView( Rim3dView* view )
 {
     if ( view )
     {
-        std::vector<Rim3dView*> views;
-        this->descendantsIncludingThisOfType( views );
-
-        for ( Rim3dView* existingView : views )
+        if ( m_nextValidViewId < 0 )
         {
-            m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
+            std::vector<Rim3dView*> views;
+            this->descendantsIncludingThisOfType( views );
+
+            for ( Rim3dView* existingView : views )
+            {
+                m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
+            }
         }
 
         view->setId( m_nextValidViewId++ );
@@ -598,12 +601,15 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
 {
     if ( plotWindow )
     {
-        std::vector<RimPlotWindow*> plotWindows;
-        this->descendantsIncludingThisOfType( plotWindows );
-
-        for ( RimPlotWindow* existingPlotWindow : plotWindows )
+        if ( m_nextValidPlotId < 0 )
         {
-            m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
+            std::vector<RimPlotWindow*> plotWindows;
+            this->descendantsIncludingThisOfType( plotWindows );
+
+            for ( RimPlotWindow* existingPlotWindow : plotWindows )
+            {
+                m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
+            }
         }
 
         plotWindow->setId( m_nextValidPlotId++ );
