@@ -7,7 +7,7 @@ find_package(
   COMPONENTS
   REQUIRED Core Gui Widgets
 )
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
