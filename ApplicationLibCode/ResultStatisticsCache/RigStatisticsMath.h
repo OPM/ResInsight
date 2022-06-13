@@ -130,6 +130,40 @@ public:
     double min;
 };
 
+class PercentilAccumulator
+{
+public:
+    PercentilAccumulator() {}
+
+    void addData( const std::vector<double>& values )
+    {
+        for ( double val : values )
+        {
+            addValue( val );
+        }
+    }
+
+    void addData( const std::vector<float>& values )
+    {
+        for ( float val : values )
+        {
+            addValue( val );
+        }
+    }
+
+    void addValue( double value ) { values.push_back( value ); }
+
+    void computep10p90( double& p10, double& p90 )
+    {
+        double mean = HUGE_VAL;
+        double p50  = HUGE_VAL;
+
+        RigStatisticsMath::calculateStatisticsCurves( values, &p10, &p50, &p90, &mean, RigStatisticsMath::PercentileStyle::SWITCHED );
+    }
+
+    std::vector<double> values;
+};
+
 class PosNegAccumulator
 {
 public:
