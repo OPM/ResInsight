@@ -60,6 +60,8 @@ public:
 
     void setupCurveLook( RimSummaryCurve* curve );
 
+    static cvf::Color3f assignColorByPhase( const RifEclipseSummaryAddress& address );
+
     void assignColorByPhase( RimSummaryCurve* curve, int colorIndex );
 
     static cvf::Color3f                        cycledPaletteColor( int colorIndex );

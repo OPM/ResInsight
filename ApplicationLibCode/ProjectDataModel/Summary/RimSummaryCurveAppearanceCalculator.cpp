@@ -365,6 +365,31 @@ void RimSummaryCurveAppearanceCalculator::assignColorByPhase( RimSummaryCurve* c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::assignColorByPhase( const RifEclipseSummaryAddress& address )
+{
+    char        secondChar = 0;
+    std::string vectorName    = address.vectorName();
+
+    if ( vectorName.size() > 1 )
+    {
+        secondChar = vectorName[1];
+        if ( !isExcplicitHandled( secondChar ) )
+        {
+            secondChar = 0; // Consider all others as one group for coloring
+        }
+    }
+
+    if ( secondChar == 'W' ) return cycledBlueColor( 0 );
+    if ( secondChar == 'O' ) return cycledGreenColor( 0 );
+    if ( secondChar == 'G' ) return cycledRedColor( 0 );
+    if ( secondChar == 'V' ) return cycledBrownColor( 0 );
+
+    return cycledNoneRGBBrColor( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurveAppearanceCalculator::init( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
     m_allSummaryCaseNames = getAllSummaryCaseNames();

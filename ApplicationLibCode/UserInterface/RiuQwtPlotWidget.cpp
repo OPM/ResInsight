@@ -827,6 +827,14 @@ void RiuQwtPlotWidget::recalculateAxisExtents( RiuPlotAxis axis )
     }
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiuQwtPlotWidget::highlightItemWidthAdjustment()
+{
+    return 2;
+}
+
 //--------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -967,13 +975,57 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems )
 {
+    if ( closestItems.size() == 1 )
+    {
+        auto* constPlotCurve = dynamic_cast<const QwtPlotCurve*>( *closestItems.begin() );
+        auto* plotCurve      = const_cast<QwtPlotCurve*>( constPlotCurve );
+
+        if ( plotCurve )
+        {
+            auto curveColor = plotCurve->pen().color();
+            if ( RiaColorTools::isBrightnessAboveThreshold( RiaColorTools::fromQColorTo3f( curveColor ) ) )
+            {
+                // The brightness of selected curve is above threshold. Modify the saturation, and leave the other
+                // curves unchanged
+
+                QColor symbolColor;
+                QColor symbolLineColor;
+                auto*  symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
+                if ( symbol )
+                {
+                    symbolColor     = symbol->brush().color();
+                    symbolLineColor = symbol->pen().color();
+                }
+
+                double zValue = plotCurve->z();
+                plotCurve->setZ( zValue + 100.0 );
+                highlightPlotAxes( plotCurve->xAxis(), plotCurve->yAxis() );
+
+                auto  hightlightColor = curveColor;
+                qreal h, s, v;
+                hightlightColor.getHsvF( &h, &s, &v );
+                hightlightColor.setHsvF( h, 0.95, v );
+
+                auto curveWidth = plotCurve->pen().width();
+                plotCurve->setPen( hightlightColor,
+                                   plotCurve->pen().width() + highlightItemWidthAdjustment(),
+                                   plotCurve->pen().style() );
+
+                CurveProperties properties = { curveColor, symbolColor, symbolLineColor, curveWidth };
+                m_originalCurveProperties.insert( std::make_pair( plotCurve, properties ) );
+                m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
+
+                return;
+            }
+        }
+    }
+
     // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
     // plotCurve->setZ() causes the ordering of items in the list to change
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        auto* plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
-        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
+        auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
         if ( plotCurve )
         {
             QPen   existingPen = plotCurve->pen();
@@ -982,6 +1034,7 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
             QColor curveColor = existingPen.color();
             QColor symbolColor;
             QColor symbolLineColor;
+            auto   penWidth = existingPen.width();
 
             auto* symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
             if ( symbol )
@@ -993,6 +1046,8 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
             double zValue = plotCurve->z();
             if ( closestItems.count( plotCurve ) > 0 )
             {
+                existingPen.setWidth( penWidth + highlightItemWidthAdjustment() );
+                plotCurve->setPen( existingPen );
                 plotCurve->setZ( zValue + 100.0 );
                 highlightPlotAxes( plotCurve->xAxis(), plotCurve->yAxis() );
             }
@@ -1009,12 +1064,15 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
                     symbol->setPen( blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style() );
                 }
             }
-            CurveColors curveColors = { curveColor, symbolColor, symbolLineColor };
-            m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
-            m_originalCurveColors.insert( std::make_pair( plotCurve, curveColors ) );
+            CurveProperties properties = { curveColor, symbolColor, symbolLineColor, penWidth };
+            m_originalCurveProperties.insert( std::make_pair( plotCurve, properties ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
+
+            continue;
         }
-        else if ( plotShapeItem && closestItems.count( plotItem ) > 0 )
+
+        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
+        if ( plotShapeItem && closestItems.count( plotItem ) > 0 )
         {
             QPen pen = plotShapeItem->pen();
             pen.setColor( QColor( Qt::green ) );
@@ -1035,24 +1093,27 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        auto* plotCurve     = dynamic_cast<QwtPlotCurve*>( plotItem );
-        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
-        if ( plotCurve && m_originalCurveColors.count( plotCurve ) )
+        auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        if ( plotCurve && m_originalCurveProperties.count( plotCurve ) )
         {
             const QPen& existingPen = plotCurve->pen();
-            auto        colors      = m_originalCurveColors[plotCurve];
+            auto        properties  = m_originalCurveProperties[plotCurve];
             double      zValue      = m_originalZValues[plotCurve];
 
-            plotCurve->setPen( colors.lineColor, existingPen.width(), existingPen.style() );
+            plotCurve->setPen( properties.lineColor, properties.lineWidth, existingPen.style() );
             plotCurve->setZ( zValue );
             auto* symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
             if ( symbol )
             {
-                symbol->setColor( colors.symbolColor );
-                symbol->setPen( colors.symbolLineColor, symbol->pen().width(), symbol->pen().style() );
+                symbol->setColor( properties.symbolColor );
+                symbol->setPen( properties.symbolLineColor, symbol->pen().width(), symbol->pen().style() );
             }
+
+            continue;
         }
-        else if ( plotShapeItem )
+
+        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
+        if ( plotShapeItem )
         {
             QPen pen = plotShapeItem->pen();
 
@@ -1064,7 +1125,7 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
             plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
         }
     }
-    m_originalCurveColors.clear();
+    m_originalCurveProperties.clear();
     m_originalZValues.clear();
 
     resetPlotAxisHighlighting();

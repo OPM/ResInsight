@@ -1703,6 +1703,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 curve->setSummaryCaseY( sumCase );
                 curve->setSummaryAddressYAndApplyInterpolation( addr->address() );
                 curve->setResampling( m_resampling() );
+                curve->setLineThickness( 1 );
 
                 addCurve( curve );
 
