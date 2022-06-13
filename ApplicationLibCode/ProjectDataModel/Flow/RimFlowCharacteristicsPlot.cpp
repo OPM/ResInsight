@@ -26,6 +26,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
 
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -33,7 +34,6 @@
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFlowDiagSolution.h"
-#include "RimProject.h"
 
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 #include "RicSelectOrCreateViewFeatureImpl.h"
@@ -268,18 +268,12 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> cases;
-            proj->descendantsIncludingThisOfType( cases );
-            for ( RimEclipseResultCase* c : cases )
+            if ( c->defaultFlowDiagSolution() )
             {
-                if ( c->defaultFlowDiagSolution() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
-                }
+                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
         }
     }
@@ -399,29 +393,23 @@ QList<caf::PdmOptionItemInfo>
 void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        // Ensure a case is selected if one is available
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        RimEclipseResultCase* defaultCase = nullptr;
+
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> cases;
-            proj->descendantsIncludingThisOfType( cases );
-            RimEclipseResultCase* defaultCase = nullptr;
-            for ( RimEclipseResultCase* c : cases )
+            if ( c->defaultFlowDiagSolution() )
             {
-                if ( c->defaultFlowDiagSolution() )
-                {
-                    if ( !defaultCase ) defaultCase = c; // Select first
-                }
+                if ( !defaultCase ) defaultCase = c; // Select first
             }
-            if ( !m_case() && defaultCase )
+        }
+        if ( !m_case() && defaultCase )
+        {
+            m_case             = defaultCase;
+            m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+            if ( !m_case()->reservoirViews.empty() )
             {
-                m_case             = defaultCase;
-                m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-                if ( !m_case()->reservoirViews.empty() )
-                {
-                    m_cellFilterView = m_case()->reservoirViews()[0];
-                }
+                m_cellFilterView = m_case()->reservoirViews()[0];
             }
         }
     }
