@@ -830,7 +830,7 @@ void RiuQwtPlotWidget::recalculateAxisExtents( RiuPlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuQwtPlotWidget::hightlightItemWidthAdjustment()
+int RiuQwtPlotWidget::highlightItemWidthAdjustment()
 {
     return 2;
 }
@@ -1008,7 +1008,7 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
 
                 auto curveWidth = plotCurve->pen().width();
                 plotCurve->setPen( hightlightColor,
-                                   plotCurve->pen().width() + hightlightItemWidthAdjustment(),
+                                   plotCurve->pen().width() + highlightItemWidthAdjustment(),
                                    plotCurve->pen().style() );
 
                 CurveProperties properties = { curveColor, symbolColor, symbolLineColor, curveWidth };
@@ -1046,7 +1046,7 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
             double zValue = plotCurve->z();
             if ( closestItems.count( plotCurve ) > 0 )
             {
-                existingPen.setWidth( penWidth + hightlightItemWidthAdjustment() );
+                existingPen.setWidth( penWidth + highlightItemWidthAdjustment() );
                 plotCurve->setPen( existingPen );
                 plotCurve->setZ( zValue + 100.0 );
                 highlightPlotAxes( plotCurve->xAxis(), plotCurve->yAxis() );

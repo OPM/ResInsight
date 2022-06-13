@@ -216,7 +216,7 @@ private:
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( RiuPlotAxis axis );
 
-    static int hightlightItemWidthAdjustment();
+    static int highlightItemWidthAdjustment();
 
 private:
     struct CurveProperties
