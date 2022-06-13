@@ -126,6 +126,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultAddress.h
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultAddressCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -251,6 +252,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultAddress.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultAddressCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseTools.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)

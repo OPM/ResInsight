@@ -68,8 +68,6 @@ void RicAdd3dWellLogCurveFeature::onActionTriggered( bool isChecked )
 
     RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
 
-    RimProject::current()->updateConnectedEditors();
-
     Riu3DMainWindowTools::selectAsCurrentItem( rim3dWellLogExtractionCurve );
     Riu3DMainWindowTools::setExpanded( selectedWellPath );
 

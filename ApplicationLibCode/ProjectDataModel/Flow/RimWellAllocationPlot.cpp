@@ -30,11 +30,11 @@
 #include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
-#include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
@@ -43,11 +43,11 @@
 #include "RimWellAllocationPlotLegend.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-
-#include "RimWellLogFile.h"
 #include "RimWellPlotTools.h"
+
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellAllocationPlot.h"
@@ -732,17 +732,10 @@ QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( cons
     }
     else if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> cases;
-            proj->descendantsIncludingThisOfType( cases );
-
-            for ( RimEclipseResultCase* c : cases )
-            {
-                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
         }
     }
     else if ( fieldNeedingOptions == &m_flowDiagSolution )

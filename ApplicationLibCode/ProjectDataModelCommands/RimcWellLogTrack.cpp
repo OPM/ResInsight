@@ -106,8 +106,6 @@ RimWellLogExtractionCurve*
     wellLogTrack->updateConnectedEditors();
     wellLogTrack->setShowWindow( true );
 
-    RiaApplication::instance()->project()->updateConnectedEditors();
-
     RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>( wellLogTrack->parentField() );
     if ( wellLogPlot ) wellLogPlot->loadDataAndUpdate();
 

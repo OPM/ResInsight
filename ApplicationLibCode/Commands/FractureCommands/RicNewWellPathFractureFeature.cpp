@@ -101,7 +101,7 @@ RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( gsl::not_null<R
     if ( project )
     {
         project->reloadCompletionTypeResultsInAllViews();
-        project->updateAllRequiredEditors();
+        fractureCollection->updateAllRequiredEditors();
     }
 
     Riu3DMainWindowTools::selectAsCurrentItem( fracture );

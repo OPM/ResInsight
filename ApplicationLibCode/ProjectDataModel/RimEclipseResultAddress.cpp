@@ -19,7 +19,7 @@
 #include "RimEclipseResultAddress.h"
 
 #include "RimEclipseCase.h"
-#include "RimProject.h"
+#include "RimEclipseCaseTools.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipseResultAddress, "EclipseResultAddress" );
 
@@ -104,16 +104,10 @@ QList<caf::PdmOptionItemInfo> RimEclipseResultAddress::calculateValueOptions( co
 
     if ( fieldNeedingOptions == &m_eclipseCase )
     {
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        auto cases = RimEclipseCaseTools::eclipseCases();
+        for ( auto* c : cases )
         {
-            std::vector<RimEclipseCase*> cases;
-            proj->descendantsIncludingThisOfType( cases );
-            for ( auto* c : cases )
-            {
-                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
         }
     }
 

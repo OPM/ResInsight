@@ -101,7 +101,7 @@ void RicNewSimWellFractureFeature::onActionTriggered( bool isChecked )
     if ( eclipseCase )
     {
         proj->reloadCompletionTypeResultsForEclipseCase( eclipseCase );
-        proj->updateConnectedEditors();
+        eclipseWell->simwellFractureCollection()->updateConnectedEditors();
     }
     Riu3DMainWindowTools::selectAsCurrentItem( fracture );
 }

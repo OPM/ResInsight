@@ -104,8 +104,6 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
     }
     plot->updateLayout();
 
-    RimProject::current()->updateConnectedEditors();
-
     RiuPlotMainWindowTools::showPlotMainWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );
     RiuPlotMainWindowTools::setExpanded( plotTrack );

@@ -18,12 +18,10 @@
 
 #include "RiaSimWellBranchTools.h"
 
-#include "RiaApplication.h"
-
 #include "RigEclipseCaseData.h"
 
 #include "RimEclipseCase.h"
-#include "RimProject.h"
+#include "RimEclipseCaseTools.h"
 #include "RimWellPlotTools.h"
 
 #include "cafPdmUiOrdering.h"
@@ -34,12 +32,7 @@
 std::vector<const RigWellPath*> RiaSimWellBranchTools::simulationWellBranches( const QString& simWellName,
                                                                                bool useAutoDetectionOfBranches )
 {
-    RiaApplication* app  = RiaApplication::instance();
-    RimProject*     proj = app->project();
-
-    // Find first case containing the specified simulation well
-    std::vector<RimEclipseCase*> simCases;
-    proj->descendantsIncludingThisOfType( simCases );
+    std::vector<RimEclipseCase*> simCases = RimEclipseCaseTools::eclipseCases();
 
     auto caseItr = std::find_if( simCases.begin(), simCases.end(), [&simWellName]( const RimEclipseCase* eclCase ) {
         const auto& eclData = eclCase->eclipseCaseData();

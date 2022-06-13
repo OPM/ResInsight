@@ -56,7 +56,6 @@ void RicAdd3dWellLogFileCurveFeature::onActionTriggered( bool isChecked )
     rim3dWellLogFileCurve->setDefaultFileCurveDataInfo();
 
     RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
-    RimProject::current()->updateConnectedEditors();
 
     Riu3DMainWindowTools::selectAsCurrentItem( rim3dWellLogFileCurve );
     Riu3DMainWindowTools::setExpanded( selectedWellPath );

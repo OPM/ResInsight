@@ -17,10 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellDistributionPlotCollection.h"
+
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
 #include "RimPlot.h"
-#include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellDistributionPlot.h"
 
@@ -41,10 +42,6 @@
 #include <QGridLayout>
 #include <QTextBrowser>
 #include <QWidget>
-
-//#include "cvfBase.h"
-//#include "cvfTrace.h"
-//#include "cvfDebugTimer.h"
 
 //==================================================================================================
 //
@@ -258,16 +255,10 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* ownerProj = nullptr;
-        firstAncestorOrThisOfType( ownerProj );
-        if ( ownerProj )
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> caseArr;
-            ownerProj->descendantsIncludingThisOfType( caseArr );
-            for ( RimEclipseResultCase* c : caseArr )
-            {
-                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, true, c->uiIconProvider() ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, true, c->uiIconProvider() ) );
         }
     }
 
