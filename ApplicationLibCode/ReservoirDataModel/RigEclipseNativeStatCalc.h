@@ -35,6 +35,9 @@ class RigEclipseNativeStatCalc : public RigStatisticsCalculator
 public:
     RigEclipseNativeStatCalc( RigCaseCellResultsData* cellResultsData, const RigEclipseResultAddress& eclipseResultAddress );
 
+    bool   hasPreciseP10p90() const override;
+    void   p10p90CellScalarValues( double& min, double& max ) override;
+    void   p10p90CellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
     void   minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
     void   posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;
     void   valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount ) override;

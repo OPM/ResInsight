@@ -82,6 +82,7 @@ private:
             m_isClosestToZeroCalculated      = false;
             m_p10                            = HUGE_VAL;
             m_p90                            = HUGE_VAL;
+            m_isp10p90Calculated             = false;
             m_valueSum                       = 0.0;
             m_isValueSumCalculated           = false;
             m_volumeWeightedMean             = HUGE_VAL;
@@ -101,6 +102,7 @@ private:
 
         double m_p10;
         double m_p90;
+        bool   m_isp10p90Calculated;
 
         double m_valueSum;
         bool   m_isValueSumCalculated;

@@ -310,7 +310,23 @@ void RigStatisticsDataCache::mobileVolumeWeightedMean( double& mean )
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::p10p90CellScalarValues( double& p10, double& p90 )
 {
-    computeHistogramStatisticsIfNeeded();
+    if ( !m_statsAllTimesteps.m_isp10p90Calculated )
+    {
+        if ( m_statisticsCalculator->hasPreciseP10p90() )
+        {
+            // Prefer precise p10/p90 calculation where available
+            m_statisticsCalculator->p10p90CellScalarValues( p10, p90 );
+
+            m_statsAllTimesteps.m_p10 = p10;
+            m_statsAllTimesteps.m_p90 = p90;
+        }
+        else
+        {
+            computeHistogramStatisticsIfNeeded();
+        }
+
+        m_statsAllTimesteps.m_isp10p90Calculated = true;
+    }
 
     p10 = m_statsAllTimesteps.m_p10;
     p90 = m_statsAllTimesteps.m_p90;
@@ -321,7 +337,28 @@ void RigStatisticsDataCache::p10p90CellScalarValues( double& p10, double& p90 )
 //--------------------------------------------------------------------------------------------------
 void RigStatisticsDataCache::p10p90CellScalarValues( size_t timeStepIndex, double& p10, double& p90 )
 {
-    computeHistogramStatisticsIfNeeded( timeStepIndex );
+    if ( timeStepIndex >= m_statsPrTs.size() )
+    {
+        m_statsPrTs.resize( timeStepIndex + 1 );
+    }
+
+    if ( !m_statsPrTs[timeStepIndex].m_isp10p90Calculated )
+    {
+        if ( m_statisticsCalculator->hasPreciseP10p90() )
+        {
+            // Prefer precise p10/p90 calculation where available
+            m_statisticsCalculator->p10p90CellScalarValues( timeStepIndex, p10, p90 );
+
+            m_statsPrTs[timeStepIndex].m_p10 = p10;
+            m_statsPrTs[timeStepIndex].m_p90 = p90;
+        }
+        else
+        {
+            computeHistogramStatisticsIfNeeded( timeStepIndex );
+        }
+
+        m_statsPrTs[timeStepIndex].m_isp10p90Calculated = true;
+    }
 
     p10 = m_statsPrTs[timeStepIndex].m_p10;
     p90 = m_statsPrTs[timeStepIndex].m_p90;
