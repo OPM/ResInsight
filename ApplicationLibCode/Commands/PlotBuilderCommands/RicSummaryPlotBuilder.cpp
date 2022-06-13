@@ -126,6 +126,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::createPlots() const
             {
                 std::set<RifEclipseSummaryAddress> addresses;
                 addresses.insert( group.begin(), group.end() );
+                if ( addresses.empty() ) continue;
 
                 for ( auto summaryCase : m_summaryCases )
                 {
@@ -184,6 +185,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::createPlots() const
             {
                 std::set<RifEclipseSummaryAddress> addresses;
                 addresses.insert( group.begin(), group.end() );
+                if ( addresses.empty() ) continue;
 
                 if ( !m_summaryCases.empty() )
                 {
