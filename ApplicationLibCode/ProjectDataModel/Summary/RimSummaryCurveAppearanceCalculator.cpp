@@ -368,7 +368,7 @@ void RimSummaryCurveAppearanceCalculator::assignColorByPhase( RimSummaryCurve* c
 cvf::Color3f RimSummaryCurveAppearanceCalculator::assignColorByPhase( const RifEclipseSummaryAddress& address )
 {
     char        secondChar = 0;
-    std::string vectorName    = address.vectorName();
+    std::string vectorName = address.vectorName();
 
     if ( vectorName.size() > 1 )
     {
