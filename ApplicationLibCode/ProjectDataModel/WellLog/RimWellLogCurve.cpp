@@ -151,6 +151,33 @@ void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>& pro
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setPropertyAndDepthsAndErrors( const std::vector<double>& propertyValues,
+                                                     const std::vector<double>& depthValues,
+                                                     const std::vector<double>& errorValues )
+{
+    bool useLogarithmicScale = false;
+
+    if ( isVerticalCurve() )
+    {
+        this->setSamplesFromXYErrorValues( propertyValues,
+                                           depthValues,
+                                           errorValues,
+                                           useLogarithmicScale,
+                                           RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
+    }
+    else
+    {
+        this->setSamplesFromXYErrorValues( depthValues,
+                                           propertyValues,
+                                           errorValues,
+                                           useLogarithmicScale,
+                                           RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues,
                                                             const std::vector<double>& depthValues )
 {
@@ -263,14 +290,6 @@ void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&          
 
         m_plotCurve->setLineSegmentStartStopIndices( curveIntervals );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::PhaseType RimWellLogCurve::resultPhase() const
-{
-    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
 }
 
 //--------------------------------------------------------------------------------------------------

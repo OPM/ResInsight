@@ -573,15 +573,10 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             auto propertyValues = this->curveData()->propertyValues();
             auto depthValues    = this->curveData()->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
-            bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
             {
-                this->setSamplesFromXYErrorValues( propertyValues,
-                                                   depthValues,
-                                                   errors,
-                                                   useLogarithmicScale,
-                                                   RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
+                setPropertyAndDepthsAndErrors( propertyValues, depthValues, errors );
             }
             else
             {
@@ -620,22 +615,25 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_plotCurve->setPerPointLabels( perPointLabels );
 
-            auto xValues = this->curveData()->propertyValuesByIntervals();
-            auto yValues =
+            auto propertyValues = this->curveData()->propertyValuesByIntervals();
+            auto depthValues =
                 this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH, displayUnit );
             bool useLogarithmicScale = false;
 
             if ( !errors.empty() )
             {
-                this->setSamplesFromXYErrorValues( xValues,
-                                                   yValues,
-                                                   errors,
-                                                   useLogarithmicScale,
-                                                   RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
+                setPropertyAndDepthsAndErrors( propertyValues, depthValues, errors );
             }
             else
             {
-                m_plotCurve->setSamplesFromXValuesAndYValues( xValues, yValues, useLogarithmicScale );
+                if ( isVerticalCurve() )
+                {
+                    m_plotCurve->setSamplesFromXValuesAndYValues( propertyValues, depthValues, useLogarithmicScale );
+                }
+                else
+                {
+                    m_plotCurve->setSamplesFromXValuesAndYValues( depthValues, propertyValues, useLogarithmicScale );
+                }
             }
         }
 
@@ -1144,7 +1142,7 @@ bool RimWellLogRftCurve::deriveMeasuredDepthValuesFromWellPath( const std::vecto
     RimProject*  proj     = RimProject::current();
     RimWellPath* wellPath = proj->wellPathByName( m_wellName );
 
-    if ( wellPath )
+    if ( wellPath && wellPath->wellPathGeometry() )
     {
         const std::vector<double>& mdValuesOfWellPath  = wellPath->wellPathGeometry()->measuredDepths();
         const std::vector<double>& tvdValuesOfWellPath = wellPath->wellPathGeometry()->trueVerticalDepths();
