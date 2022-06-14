@@ -401,6 +401,17 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
     {
         std::tie( minValue, maxValue ) = adjustXRange( minValue, maxValue, m_minorTickInterval() );
     }
+    else
+    {
+        auto range = std::fabs( maxValue - minValue );
+        maxValue += 0.1 * range;
+
+        auto candidateMinValue = minValue - 0.1 * range;
+        if ( std::signbit( minValue ) == std::signbit( candidateMinValue ) )
+        {
+            minValue = candidateMinValue;
+        }
+    }
 
     m_availablePropertyValueRangeMin = minValue;
     m_availablePropertyValueRangeMax = maxValue;
