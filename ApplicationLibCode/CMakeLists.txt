@@ -59,6 +59,12 @@ if(Qt5Core_FOUND)
   endif(Qt5Charts_FOUND)
 endif(Qt5Core_FOUND)
 
+find_package(qtadvanceddocking CONFIG REQUIRED)
+find_path(QTADVANCEDDOCKING_INCLUDE_DIR DockManager.h)
+include_directories(${QTADVANCEDDOCKING_INCLUDE_DIR})
+message("Qt Advanced Docking include: ${QTADVANCEDDOCKING_INCLUDE_DIR}")
+
+
 # NB: The generated file is written to Cmake binary folder to avoid source tree
 # pollution This folder is added to include_directories
 configure_file(
@@ -413,6 +419,7 @@ set(LINK_LIBRARIES
     ${APP_FWK_LIBRARIES}
     ${VIZ_FWK_LIBRARIES}
     ${RI_LIBRARIES}
+    ads::qtadvanceddocking
 )
 
 # According to ivarun this is needed on OpenSuse, and Fedora. See:

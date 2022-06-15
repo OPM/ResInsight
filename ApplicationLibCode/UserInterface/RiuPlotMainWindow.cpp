@@ -65,6 +65,8 @@
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 
+#include "DockAreaWidget.h"
+
 #include <QCloseEvent>
 #include <QDockWidget>
 #include <QLayout>
@@ -84,11 +86,19 @@ RiuPlotMainWindow::RiuPlotMainWindow()
 {
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
-    setCentralWidget( m_mdiArea );
+    // setCentralWidget( m_mdiArea );
+
+    m_dockManager = new ads::CDockManager( this );
+
+    ads::CDockWidget* widget = new ads::CDockWidget( "Main", this );
+    widget->setWidget( m_mdiArea );
+
+    m_dockManager->setCentralWidget( widget );
 
     createMenus();
     createToolBars();
-    createDockPanels();
+    // createDockPanels();
+    createDockPanelsNew();
 
     setAcceptDrops( true );
 
@@ -613,6 +623,187 @@ void RiuPlotMainWindow::createDockPanels()
 
     QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
     for ( QDockWidget* dock : dockWidgets )
+    {
+        connect( dock->toggleViewAction(), SIGNAL( triggered() ), SLOT( slotDockWidgetToggleViewActionTriggered() ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::createDockPanelsNew()
+{
+    const int                  nTreeViews        = 4;
+    const std::vector<QString> treeViewTitles    = { "Plots", "Data Sources", "Templates", "Scripts" };
+    const std::vector<QString> treeViewConfigs   = { "PlotWindow.Plots",
+                                                   "PlotWindow.DataSources",
+                                                   "PlotWindow.Templates",
+                                                   "PlotWindow.Scripts" };
+    const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::plotMainWindowPlotsTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowDataSourceTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowTemplateTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowScriptsTreeName() };
+
+    const std::vector<ads::DockWidgetArea> defaultDockWidgetArea{ ads::DockWidgetArea::LeftDockWidgetArea,
+                                                                  ads::DockWidgetArea::RightDockWidgetArea,
+                                                                  ads::DockWidgetArea::LeftDockWidgetArea,
+                                                                  ads::DockWidgetArea::LeftDockWidgetArea };
+
+    createTreeViews( nTreeViews );
+
+    std::vector<ads::CDockWidget*> rightWidgets;
+    std::vector<ads::CDockWidget*> leftWidgets;
+    std::vector<ads::CDockWidget*> bottomWidgets;
+
+    // the project trees
+    for ( int i = 0; i < nTreeViews; i++ )
+    {
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( treeViewTitles[i], this );
+        dockWidget->setObjectName( treeViewDockNames[i] );
+        // dockWidget->setAllowedAreas( Qt::AllDockWidgetAreas );
+
+        caf::PdmUiTreeView* projectTree = projectTreeView( i );
+        projectTree->enableSelectionManagerUpdating( true );
+
+        projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+
+        dockWidget->setWidget( projectTree );
+
+        projectTree->treeView()->setHeaderHidden( true );
+        projectTree->treeView()->setSelectionMode( QAbstractItemView::ExtendedSelection );
+
+        // Drag and drop configuration
+        projectTree->treeView()->setDragEnabled( true );
+        projectTree->treeView()->viewport()->setAcceptDrops( true );
+        projectTree->treeView()->setDropIndicatorShown( true );
+        projectTree->treeView()->setDragDropMode( QAbstractItemView::DragDrop );
+
+        // Install event filter used to handle key press events
+        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this, projectTree );
+        projectTree->treeView()->installEventFilter( treeViewEventFilter );
+
+        // m_dockManager->addDockWidgetTab( defaultDockWidgetArea[i], dockWidget );
+
+        if ( defaultDockWidgetArea[i] == Qt::LeftDockWidgetArea ) leftWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == Qt::RightDockWidgetArea ) rightWidgets.push_back( dockWidget );
+
+        connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
+        connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
+
+        projectTree->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
+        connect( projectTree->treeView(),
+                 SIGNAL( customContextMenuRequested( const QPoint& ) ),
+                 SLOT( customMenuRequested( const QPoint& ) ) );
+
+        projectTree->setUiConfigurationName( treeViewConfigs[i] );
+    }
+
+    // the plot manager
+    {
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Plot Manager", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::summaryPlotManagerName() );
+
+        m_summaryPlotManagerView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
+
+        auto plotManager = std::make_unique<RimSummaryPlotManager>();
+        m_summaryPlotManagerView->showProperties( plotManager.get() );
+        m_summaryPlotManagerView->installEventFilter( plotManager.get() );
+        m_summaryPlotManager = std::move( plotManager );
+
+        dockWidget->setWidget( m_summaryPlotManagerView.get() );
+        // m_dockManager->addDockWidgetTab( ads::DockWidgetArea::RightDockWidgetArea, dockWidget );
+
+        rightWidgets.push_back( dockWidget );
+
+        dockWidget->hide();
+    }
+
+    // the log message view
+    {
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Messages", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
+        m_messagePanel = new RiuMessagePanel( dockWidget );
+        dockWidget->setWidget( m_messagePanel );
+        bottomWidgets.push_back( dockWidget );
+        // m_dockManager->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget );
+        dockWidget->hide();
+    }
+
+    // the undo stack
+    if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
+    {
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Undo Stack", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowUndoStackName() );
+        // dockWidget->setAllowedAreas( ads::DockWidgetArea::LeftDockWidgetArea |
+        // ads::DockWidgetArea::RightDockWidgetArea );
+
+        dockWidget->setWidget( m_undoView );
+        // m_dockManager->addDockWidgetTab( ads::DockWidgetArea::RightDockWidgetArea, dockWidget );
+        rightWidgets.push_back( dockWidget );
+
+        dockWidget->hide();
+    }
+
+    ads::CDockAreaWidget* leftArea   = nullptr;
+    ads::CDockAreaWidget* rightArea  = nullptr;
+    ads::CDockAreaWidget* bottomArea = nullptr;
+
+    for ( auto widget : leftWidgets )
+    {
+        if ( leftArea )
+        {
+            m_dockManager->addDockWidgetTabToArea( widget, leftArea );
+        }
+        else
+        {
+            leftArea = m_dockManager->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, widget );
+        }
+    }
+
+    for ( auto widget : rightWidgets )
+    {
+        if ( rightArea )
+        {
+            m_dockManager->addDockWidgetTabToArea( widget, rightArea );
+        }
+        else
+        {
+            rightArea = m_dockManager->addDockWidget( ads::DockWidgetArea::RightDockWidgetArea, widget );
+        }
+    }
+
+    for ( auto widget : bottomWidgets )
+    {
+        if ( bottomArea )
+        {
+            m_dockManager->addDockWidgetTabToArea( widget, bottomArea );
+        }
+        else
+        {
+            bottomArea = m_dockManager->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea,
+                                                       widget,
+                                                       m_dockManager->centralWidget()->dockAreaWidget() );
+        }
+    }
+
+    // the property editor
+    {
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Property Editor", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowPropertyEditorName() );
+        // dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
+
+        m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
+        dockWidget->setWidget( m_pdmUiPropertyView.get() );
+
+        m_dockManager->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, leftArea );
+    }
+
+    if ( leftArea ) leftArea->setCurrentIndex( 0 );
+    if ( rightArea ) rightArea->setCurrentIndex( 0 );
+    if ( bottomArea ) bottomArea->setCurrentIndex( 0 );
+
+    QList<ads::CDockWidget*> dockWidgets = findChildren<ads::CDockWidget*>();
+    for ( ads::CDockWidget* dock : dockWidgets )
     {
         connect( dock->toggleViewAction(), SIGNAL( triggered() ), SLOT( slotDockWidgetToggleViewActionTriggered() ) );
     }
