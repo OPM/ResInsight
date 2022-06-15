@@ -72,6 +72,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifElasticPropertiesReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStatisticsTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifThermalFractureReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathGeometryExporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelDeviationFrkExporter-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryDataReader-Test.cpp
