@@ -67,8 +67,9 @@ private:
             return;
         }
 
-        const RigActiveCellInfo* actCellInfo = m_caseData->activeCellInfo();
-        size_t                   cellCount   = actCellInfo->reservoirCellCount();
+        const RigActiveCellInfo* actCellInfo              = m_caseData->activeCellInfo();
+        size_t                   cellCount                = actCellInfo->reservoirCellCount();
+        bool                     isUsingGlobalActiveIndex = m_caseData->isUsingGlobalActiveIndex( m_resultAddress );
 
         CVF_TIGHT_ASSERT( cellCount == m_cellVisibilities->size() );
 
@@ -77,7 +78,7 @@ private:
             if ( !( *m_cellVisibilities )[cIdx] ) continue;
 
             size_t cellResultIndex = cIdx;
-            if ( m_caseData->isUsingGlobalActiveIndex( m_resultAddress ) )
+            if ( isUsingGlobalActiveIndex )
             {
                 cellResultIndex = actCellInfo->cellResultIndex( cIdx );
             }
