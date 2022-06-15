@@ -42,8 +42,9 @@ public:
     double fractureMD() const override;
     void   setMeasuredDepth( double mdValue );
 
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    void updateAzimuthBasedOnWellAzimuthAngle() override;
+    void       fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void       updateAzimuthBasedOnWellAzimuthAngle() override;
+    cvf::Vec3d computeFractureDirectionNormal() const;
 
     double wellAzimuthAtFracturePosition() const override;
 

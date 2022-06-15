@@ -38,6 +38,8 @@ for measured_depth in measured_depths:
     fracture = well_path.add_fracture(
         measured_depth=measured_depth,
         stim_plan_fracture_template=fracture_template,
+        align_dip=True,
+        eclipse_case=case,
     )
 
 # Update the orientation of the fracture

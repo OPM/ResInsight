@@ -137,6 +137,43 @@ double RimWellPathFracture::wellAzimuthAtFracturePosition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimWellPathFracture::computeFractureDirectionNormal() const
+{
+    RimWellPath* wellPath = nullptr;
+    this->firstAncestorOrThisOfType( wellPath );
+    if ( !wellPath ) return cvf::Vec3d::UNDEFINED;
+
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+
+    // Find the well path points closest to the anchor position
+    cvf::Vec3d p1;
+    cvf::Vec3d p2;
+    wellPathGeometry->twoClosestPoints( fracturePosition(), &p1, &p2 );
+
+    // Create a well direction based on the two points
+    cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
+
+    cvf::Vec3d fractureDirectionNormal = wellDirection;
+    if ( fractureTemplate()->orientationType() == RimFractureTemplate::ALONG_WELL_PATH )
+    {
+        cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
+        fractureDirectionNormal.transformVector( azimuthRotation );
+    }
+    else if ( fractureTemplate()->orientationType() == RimFractureTemplate::AZIMUTH )
+    {
+        // Azimuth angle of fracture is relative to north.
+        double     wellAzimuth = wellPathGeometry->wellPathAzimuthAngle( fracturePosition() );
+        cvf::Mat3d azimuthRotation =
+            cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuth - 90.0 ) );
+        fractureDirectionNormal.transformVector( azimuthRotation );
+    }
+
+    return fractureDirectionNormal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellPathFracture::loadDataAndUpdate()
 {
     updatePositionFromMeasuredDepth();

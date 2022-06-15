@@ -192,6 +192,10 @@ public:
 
     QString unitForProperty( RiaDefines::CurveProperty curveProperty ) const;
 
+    static cvf::Vec3d projectVectorIntoFracturePlane( const cvf::Vec3d& position,
+                                                      const cvf::Vec3d& fractureDirectionNormal,
+                                                      const cvf::Vec3d& direction );
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
@@ -208,9 +212,6 @@ private:
     void updatePerforationInterval();
 
     cvf::Vec3d computeFractureDirectionNormal( RimWellPath* wellPath, const cvf::Vec3d& position ) const;
-    cvf::Vec3d projectVectorIntoFracturePlane( const cvf::Vec3d& position,
-                                               const cvf::Vec3d& fractureDirectionNormal,
-                                               const cvf::Vec3d& direction ) const;
 
     RigEclipseCaseData* getEclipseCaseData() const;
 

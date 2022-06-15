@@ -26,6 +26,7 @@
 #include <QString>
 
 class RimStimPlanFractureTemplate;
+class RimEclipseCase;
 
 //==================================================================================================
 ///
@@ -44,6 +45,8 @@ public:
 private:
     caf::PdmField<double>                          m_md;
     caf::PdmPtrField<RimStimPlanFractureTemplate*> m_stimPlanFractureTemplate;
+    caf::PdmField<bool>                            m_alignDip;
+    caf::PdmPtrField<RimEclipseCase*>              m_eclipseCase;
 };
 
 //==================================================================================================

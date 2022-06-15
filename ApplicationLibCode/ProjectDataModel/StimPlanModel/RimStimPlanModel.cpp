@@ -747,7 +747,7 @@ cvf::Vec3d RimStimPlanModel::computeFractureDirectionNormal( RimWellPath* wellPa
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimStimPlanModel::projectVectorIntoFracturePlane( const cvf::Vec3d& position,
                                                              const cvf::Vec3d& fractureDirectionNormal,
-                                                             const cvf::Vec3d& direction ) const
+                                                             const cvf::Vec3d& direction )
 {
     // Create a fracture plane
     cvf::Plane fracturePlane;
