@@ -18,13 +18,20 @@
 
 #include "RimcWellPath.h"
 
+#include "RiaLogging.h"
+
+#include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimStimPlanModel.h"
 #include "RimTools.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 #include "RimWellPathFracture.h"
+
+#include "RigStimPlanModelTools.h"
 
 #include "FractureCommands/RicNewWellPathFractureFeature.h"
 
@@ -48,6 +55,7 @@ RimcWellPath_addFracture::RimcWellPath_addFracture( caf::PdmObjectHandle* self )
                                           "",
                                           "",
                                           "StimPlan Fracture Template" );
+    CAF_PDM_InitScriptableField( &m_alignDip, "AlignDip", true, "Align Dip" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,6 +68,41 @@ caf::PdmObjectHandle* RimcWellPath_addFracture::execute()
     RimWellPathFracture* wellPathFracture = RicNewWellPathFractureFeature::addFracture( wellPath, m_md() );
 
     if ( m_stimPlanFractureTemplate ) wellPathFracture->setFractureTemplate( m_stimPlanFractureTemplate() );
+
+    if ( m_alignDip )
+    {
+        double boundingBoxHorizontal = 50.0;
+        double boundingBoxVertical   = 100.0;
+
+        auto eclipseCases = RimEclipseCaseTools::eclipseCases();
+        if ( !eclipseCases.empty() && eclipseCases.front()->eclipseCaseData() )
+        {
+            RiaLogging::info( "Computing formation dip for fracture alignment" );
+
+            cvf::Vec3d anchorPosition = wellPathFracture->anchorPosition();
+            cvf::Vec3d direction = RigStimPlanModelTools::calculateTSTDirection( eclipseCases.front()->eclipseCaseData(),
+                                                                                 anchorPosition,
+                                                                                 boundingBoxHorizontal,
+                                                                                 boundingBoxVertical );
+            RiaLogging::info(
+                QString( "Direction: %1 %2 %3" ).arg( direction.x() ).arg( direction.y() ).arg( direction.z() ) );
+            cvf::Vec3d fractureDirectionNormal = wellPathFracture->computeFractureDirectionNormal();
+
+            cvf::Vec3d formationDirection =
+                RimStimPlanModel::projectVectorIntoFracturePlane( anchorPosition, fractureDirectionNormal, direction );
+            if ( !formationDirection.isUndefined() )
+            {
+                double formationDip = std::abs( RigStimPlanModelTools::calculateFormationDip( formationDirection ) - 90.0 );
+                RiaLogging::info( QString( "Computed formation dip: %1" ).arg( formationDip ) );
+
+                wellPathFracture->setDip( formationDip );
+            }
+        }
+        else
+        {
+            RiaLogging::error( "No eclipse case found. Fracture not aligned with formation dip." );
+        }
+    }
 
     return wellPathFracture;
 }

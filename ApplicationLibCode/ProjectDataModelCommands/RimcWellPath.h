@@ -44,6 +44,7 @@ public:
 private:
     caf::PdmField<double>                          m_md;
     caf::PdmPtrField<RimStimPlanFractureTemplate*> m_stimPlanFractureTemplate;
+    caf::PdmField<bool>                            m_alignDip;
 };
 
 //==================================================================================================
