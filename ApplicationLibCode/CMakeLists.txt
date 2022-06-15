@@ -64,7 +64,6 @@ find_path(QTADVANCEDDOCKING_INCLUDE_DIR DockManager.h)
 include_directories(${QTADVANCEDDOCKING_INCLUDE_DIR})
 message("Qt Advanced Docking include: ${QTADVANCEDDOCKING_INCLUDE_DIR}")
 
-
 # NB: The generated file is written to Cmake binary folder to avoid source tree
 # pollution This folder is added to include_directories
 configure_file(
