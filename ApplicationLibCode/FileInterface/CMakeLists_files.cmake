@@ -40,6 +40,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifThermalFractureReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.h
     ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.h
@@ -115,6 +116,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyTableReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifElementPropertyReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanXmlReader.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifThermalFractureReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSummaryCaseRestartSelector.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCaseRealizationParametersReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifFileParseTools.cpp

@@ -60,6 +60,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations.h
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.h
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.h
@@ -149,6 +150,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigWeightedMeanCalc.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellPathFormations.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigWellResultPoint.cpp
