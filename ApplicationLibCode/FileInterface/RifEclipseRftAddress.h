@@ -52,10 +52,17 @@ public:
     };
 
 public:
-    RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannel );
+    RifEclipseRftAddress( const QString&        wellName,
+                          const QDateTime&      timeStep,
+                          RftWellLogChannelType wellLogChannel,
+                          const QString&        segmentResultName,
+                          int                   segmentBranchNumber );
 
     static RifEclipseRftAddress
-        createSegmentResult( const QString& wellName, const QDateTime& dateTime, const QString& resultName );
+        createAddress( const QString& wellName, const QDateTime& timeStep, RftWellLogChannelType wellLogChannel );
+
+    static RifEclipseRftAddress
+        createSegmentAddress( const QString& wellName, const QDateTime& dateTime, const QString& resultName );
 
     QString segmentResultName() const;
 

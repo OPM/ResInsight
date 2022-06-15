@@ -308,9 +308,20 @@ RimObservedFmuRftData* RimWellLogRftCurve::observedFmuRftData() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
 {
-    m_timeStep           = address.timeStep();
-    m_wellName           = address.wellName();
-    m_wellLogChannelName = address.wellLogChannel();
+    m_timeStep = address.timeStep();
+    m_wellName = address.wellName();
+
+    if ( !address.segmentResultName().isEmpty() )
+    {
+        m_rftDataType       = RftDataType::RFT_SEGMENT_DATA;
+        m_segmentResultName = address.segmentResultName();
+        m_segmentBranchId   = QString::number( address.segmentBranchNumber() );
+    }
+    else
+    {
+        m_rftDataType        = RftDataType::RFT_DATA;
+        m_wellLogChannelName = address.wellLogChannel();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -318,7 +329,8 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
 //--------------------------------------------------------------------------------------------------
 RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
 {
-    return { m_wellName, m_timeStep, m_wellLogChannelName() };
+    auto segmentId = m_segmentBranchId().toInt();
+    return { m_wellName, m_timeStep, m_wellLogChannelName(), m_segmentResultName(), segmentId };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -801,7 +813,9 @@ std::vector<QString> RimWellLogRftCurve::perPointLabels() const
 {
     if ( m_observedFmuRftData() )
     {
-        RifEclipseRftAddress address( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        auto address = RifEclipseRftAddress::createAddress( m_wellName(),
+                                                            m_timeStep,
+                                                            RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
         return m_observedFmuRftData()->labels( address );
     }
     return {};
@@ -899,7 +913,8 @@ bool RimWellLogRftCurve::createWellPathIdxToRftFileIdxMapping()
         globCellIndicesToIndexInWell[intersections[idx].globCellIndex] = idx;
     }
 
-    RifEclipseRftAddress     depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+    RifEclipseRftAddress depthAddress =
+        RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
     std::vector<caf::VecIjk> rftIndices;
     if ( !rftReader() ) return false;
 
@@ -970,7 +985,7 @@ std::vector<double> RimWellLogRftCurve::xValues()
 
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        auto depthAddress = RifEclipseRftAddress::createSegmentResult( m_wellName(), m_timeStep, m_segmentResultName() );
+        auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(), m_timeStep, m_segmentResultName() );
         depthAddress.setSegmentBranchNumber( segmentBranchNumber() );
 
         reader->values( depthAddress, &values );
@@ -978,7 +993,7 @@ std::vector<double> RimWellLogRftCurve::xValues()
         return values;
     }
 
-    RifEclipseRftAddress address( m_wellName(), m_timeStep, m_wellLogChannelName() );
+    auto address = RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, m_wellLogChannelName() );
 
     reader->values( address, &values );
 
@@ -1012,9 +1027,10 @@ std::vector<double> RimWellLogRftCurve::errorValues()
 
     if ( reader && m_rftDataType() == RftDataType::RFT_DATA )
     {
-        RifEclipseRftAddress errorAddress( m_wellName(),
-                                           m_timeStep,
-                                           RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
+        RifEclipseRftAddress errorAddress =
+            RifEclipseRftAddress::createAddress( m_wellName(),
+                                                 m_timeStep,
+                                                 RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
         reader->values( errorAddress, &errorValues );
     }
 
@@ -1034,14 +1050,15 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
         auto depthAddress =
-            RifEclipseRftAddress::createSegmentResult( m_wellName(), m_timeStep, RiaDefines::segmentTvdDepthResultName() );
+            RifEclipseRftAddress::createSegmentAddress( m_wellName(), m_timeStep, RiaDefines::segmentTvdDepthResultName() );
         depthAddress.setSegmentBranchNumber( segmentBranchNumber() );
 
         reader->values( depthAddress, &values );
         return values;
     }
 
-    RifEclipseRftAddress depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+    auto depthAddress =
+        RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
     reader->values( depthAddress, &values );
 
     bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
@@ -1076,9 +1093,9 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
         RifReaderRftInterface* reader = rftReader();
         if ( reader )
         {
-            auto depthAddress = RifEclipseRftAddress::createSegmentResult( m_wellName(),
-                                                                           m_timeStep,
-                                                                           RiaDefines::segmentStartDepthResultName() );
+            auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(),
+                                                                            m_timeStep,
+                                                                            RiaDefines::segmentStartDepthResultName() );
             depthAddress.setSegmentBranchNumber( segmentBranchNumber() );
 
             reader->values( depthAddress, &values );
@@ -1093,7 +1110,8 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 
         if ( !reader ) return values;
 
-        RifEclipseRftAddress depthAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
+        RifEclipseRftAddress depthAddress =
+            RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
         reader->values( depthAddress, &values );
         return values;
     }
@@ -1169,8 +1187,14 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
             std::vector<double> tvdValuesOfObservedData;
             std::vector<double> mdValuesOfObservedData;
 
-            RifEclipseRftAddress tvdAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
-            RifEclipseRftAddress mdAddress( m_wellName(), m_timeStep, RifEclipseRftAddress::RftWellLogChannelType::MD );
+            RifEclipseRftAddress tvdAddress =
+                RifEclipseRftAddress::createAddress( m_wellName(),
+                                                     m_timeStep,
+                                                     RifEclipseRftAddress::RftWellLogChannelType::TVD );
+            RifEclipseRftAddress mdAddress =
+                RifEclipseRftAddress::createAddress( m_wellName(),
+                                                     m_timeStep,
+                                                     RifEclipseRftAddress::RftWellLogChannelType::MD );
 
             reader->values( tvdAddress, &tvdValuesOfObservedData );
             reader->values( mdAddress, &mdValuesOfObservedData );

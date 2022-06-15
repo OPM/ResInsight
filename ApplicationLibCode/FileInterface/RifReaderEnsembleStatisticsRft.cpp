@@ -67,7 +67,7 @@ std::set<RifEclipseRftAddress> RifReaderEnsembleStatisticsRft::eclipseRftAddress
             for ( auto channel : statChannels )
             {
                 statisticsAddresses.insert(
-                    RifEclipseRftAddress( regularAddress.wellName(), regularAddress.timeStep(), channel ) );
+                    RifEclipseRftAddress::createAddress( regularAddress.wellName(), regularAddress.timeStep(), channel ) );
             }
         }
     }
@@ -192,13 +192,19 @@ void RifReaderEnsembleStatisticsRft::calculateStatistics( const RifEclipseRftAdd
 {
     const QString&       wellName = rftAddress.wellName();
     const QDateTime&     timeStep = rftAddress.timeStep();
-    RifEclipseRftAddress depthAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
-    RifEclipseRftAddress pressAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+    RifEclipseRftAddress depthAddress =
+        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+    RifEclipseRftAddress pressAddress =
+        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
 
-    RifEclipseRftAddress p10Address( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10 );
-    RifEclipseRftAddress p50Address( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 );
-    RifEclipseRftAddress p90Address( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90 );
-    RifEclipseRftAddress meanAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN );
+    RifEclipseRftAddress p10Address =
+        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10 );
+    RifEclipseRftAddress p50Address =
+        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 );
+    RifEclipseRftAddress p90Address =
+        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90 );
+    RifEclipseRftAddress meanAddress =
+        RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN );
 
     RiaCurveMerger<double> curveMerger;
 

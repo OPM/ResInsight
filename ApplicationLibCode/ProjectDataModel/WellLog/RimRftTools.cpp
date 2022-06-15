@@ -153,7 +153,7 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIdOptions( RifReaderRftI
         std::vector<double> values;
 
         auto adr =
-            RifEclipseRftAddress::createSegmentResult( wellName, timeStep, RiaDefines::segmentBranchNumberResultName() );
+            RifEclipseRftAddress::createSegmentAddress( wellName, timeStep, RiaDefines::segmentBranchNumberResultName() );
 
         readerRft->values( adr, &values );
         for ( const auto& v : values )
