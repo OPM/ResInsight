@@ -95,6 +95,7 @@ public:
                                    size_t                  globalCellIndex ) const;
 
     cvf::Mat4d transformMatrix() const;
+    void       setDip( double dip );
     double     dip() const;
     double     tilt() const;
 
