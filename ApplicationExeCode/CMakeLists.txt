@@ -60,12 +60,10 @@ if(MSVC)
   add_definitions(-D_USE_MATH_DEFINES)
 endif()
 
-
 find_package(qtadvanceddocking CONFIG REQUIRED)
 find_path(QTADVANCEDDOCKING_INCLUDE_DIR DockManager.h)
 include_directories(${QTADVANCEDDOCKING_INCLUDE_DIR})
 message("Qt Advanced Docking include: ${QTADVANCEDDOCKING_INCLUDE_DIR}")
-
 
 # ##############################################################################
 # Defining all the source (and header) files
