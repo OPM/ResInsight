@@ -276,10 +276,10 @@ void RifReaderOpmRft::buildMetaData()
 
             auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
-            auto channelTypes = identifyChannelType( resultDataName );
-            if ( channelTypes != RifEclipseRftAddress::RftWellLogChannelType::NONE )
+            auto channelType = identifyChannelType( resultDataName );
+            if ( channelType != RifEclipseRftAddress::RftWellLogChannelType::NONE )
             {
-                auto adr = RifEclipseRftAddress( QString::fromStdString( wellName ), dt, channelTypes );
+                auto adr = RifEclipseRftAddress::createAddress( QString::fromStdString( wellName ), dt, channelType );
                 m_addresses.insert( adr );
             }
         }
@@ -310,16 +310,18 @@ void RifReaderOpmRft::buildMetaData()
             if ( static_cast<size_t>( resultValueCount ) != segmentCount ) continue;
 
             auto resultName = std::get<0>( resultNameAndSize );
-            auto adr        = RifEclipseRftAddress::createSegmentResult( QString::fromStdString( wellName ),
-                                                                  dt,
-                                                                  QString::fromStdString( resultName ) );
+            auto adr        = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
+                                                                   dt,
+                                                                   QString::fromStdString( resultName ),
+                                                                   -1 );
 
             m_addresses.insert( adr );
         }
 
-        auto adr = RifEclipseRftAddress::createSegmentResult( QString::fromStdString( wellName ),
-                                                              dt,
-                                                              RiaDefines::segmentNumberResultName() );
+        auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
+                                                               dt,
+                                                               RiaDefines::segmentNumberResultName(),
+                                                               -1 );
 
         m_addresses.insert( adr );
     }

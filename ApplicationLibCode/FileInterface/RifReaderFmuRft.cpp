@@ -195,14 +195,20 @@ std::set<RifEclipseRftAddress> RifReaderFmuRft::eclipseRftAddresses()
         {
             if ( observation.valid() )
             {
-                RifEclipseRftAddress tvdAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::TVD );
-                RifEclipseRftAddress mdAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::MD );
-                RifEclipseRftAddress pressureAddress( wellName,
-                                                      dateTime,
-                                                      RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
-                RifEclipseRftAddress pressureErrorAddress( wellName,
-                                                           dateTime,
-                                                           RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
+                RifEclipseRftAddress tvdAddress =
+                    RifEclipseRftAddress::createAddress( wellName,
+                                                         dateTime,
+                                                         RifEclipseRftAddress::RftWellLogChannelType::TVD );
+                RifEclipseRftAddress mdAddress =
+                    RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::MD );
+                RifEclipseRftAddress pressureAddress =
+                    RifEclipseRftAddress::createAddress( wellName,
+                                                         dateTime,
+                                                         RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+                RifEclipseRftAddress pressureErrorAddress =
+                    RifEclipseRftAddress::createAddress( wellName,
+                                                         dateTime,
+                                                         RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_ERROR );
                 allAddresses.insert( tvdAddress );
                 allAddresses.insert( mdAddress );
                 allAddresses.insert( pressureAddress );

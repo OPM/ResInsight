@@ -309,7 +309,7 @@ private:
                                                                 const RigGeoMechWellLogExtractor* extractor ) const;
 
     void connectCurveSignals( RimWellLogCurve* curve );
-    bool isEmptyVisibleXRange() const;
+    bool isEmptyVisiblePropertyRange() const;
 
 private:
     QString m_propertyValueAxisTitle;

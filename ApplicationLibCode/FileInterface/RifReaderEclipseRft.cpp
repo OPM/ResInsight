@@ -89,39 +89,47 @@ void RifReaderEclipseRft::open()
         QDateTime timeStep = RiaQDateTimeTools::createUtcDateTime();
         timeStep.setTime_t( timeStepTime_t );
 
-        RifEclipseRftAddress addressPressure( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+        RifEclipseRftAddress addressPressure =
+            RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
         m_eclipseRftAddresses.insert( addressPressure );
         m_rftAddressToLibeclNodeIdx[addressPressure] = i;
 
-        RifEclipseRftAddress addressDepth( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
+        RifEclipseRftAddress addressDepth =
+            RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
         m_eclipseRftAddresses.insert( addressDepth );
         m_rftAddressToLibeclNodeIdx[addressDepth] = i;
 
         if ( ecl_rft_node_is_RFT( node ) )
         {
-            RifEclipseRftAddress addressSwat( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SWAT );
+            RifEclipseRftAddress addressSwat =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SWAT );
             m_eclipseRftAddresses.insert( addressSwat );
             m_rftAddressToLibeclNodeIdx[addressSwat] = i;
 
-            RifEclipseRftAddress addressSoil( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SOIL );
+            RifEclipseRftAddress addressSoil =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SOIL );
             m_eclipseRftAddresses.insert( addressSoil );
             m_rftAddressToLibeclNodeIdx[addressSoil] = i;
 
-            RifEclipseRftAddress addressSgas( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SGAS );
+            RifEclipseRftAddress addressSgas =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SGAS );
             m_eclipseRftAddresses.insert( addressSgas );
             m_rftAddressToLibeclNodeIdx[addressSgas] = i;
         }
         else if ( ecl_rft_node_is_PLT( node ) )
         {
-            RifEclipseRftAddress addressWrat( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::WRAT );
+            RifEclipseRftAddress addressWrat =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::WRAT );
             m_eclipseRftAddresses.insert( addressWrat );
             m_rftAddressToLibeclNodeIdx[addressWrat] = i;
 
-            RifEclipseRftAddress addressOrat( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::ORAT );
+            RifEclipseRftAddress addressOrat =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::ORAT );
             m_eclipseRftAddresses.insert( addressOrat );
             m_rftAddressToLibeclNodeIdx[addressOrat] = i;
 
-            RifEclipseRftAddress addressGrat( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::GRAT );
+            RifEclipseRftAddress addressGrat =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::GRAT );
             m_eclipseRftAddresses.insert( addressGrat );
             m_rftAddressToLibeclNodeIdx[addressGrat] = i;
         }

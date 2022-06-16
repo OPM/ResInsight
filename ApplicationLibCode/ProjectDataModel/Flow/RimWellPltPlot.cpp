@@ -300,15 +300,18 @@ class RigRftResultPointCalculator : public RigResultPointCalculator
 public:
     RigRftResultPointCalculator( const QString& wellPathName, RimEclipseResultCase* eclCase, QDateTime m_timeStep )
     {
-        RifEclipseRftAddress gasRateAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                             m_timeStep,
-                                             RifEclipseRftAddress::RftWellLogChannelType::GRAT );
-        RifEclipseRftAddress oilRateAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                             m_timeStep,
-                                             RifEclipseRftAddress::RftWellLogChannelType::ORAT );
-        RifEclipseRftAddress watRateAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                             m_timeStep,
-                                             RifEclipseRftAddress::RftWellLogChannelType::WRAT );
+        RifEclipseRftAddress gasRateAddress =
+            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                 m_timeStep,
+                                                 RifEclipseRftAddress::RftWellLogChannelType::GRAT );
+        RifEclipseRftAddress oilRateAddress =
+            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                 m_timeStep,
+                                                 RifEclipseRftAddress::RftWellLogChannelType::ORAT );
+        RifEclipseRftAddress watRateAddress =
+            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                 m_timeStep,
+                                                 RifEclipseRftAddress::RftWellLogChannelType::WRAT );
 
         std::vector<caf::VecIjk> rftIndices;
         eclCase->rftReader()->cellIndices( gasRateAddress, &rftIndices );

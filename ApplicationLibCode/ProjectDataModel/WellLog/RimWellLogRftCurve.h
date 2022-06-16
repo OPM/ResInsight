@@ -76,7 +76,7 @@ public:
     void      setTimeStep( const QDateTime& dateTime );
     QDateTime timeStep() const;
 
-    void setSegmentBranchId( const QString& branchId );
+    void setSegmentBranchId( int branchId );
 
     void                  setEclipseResultCase( RimEclipseResultCase* eclipseResultCase );
     RimEclipseResultCase* eclipseResultCase() const;
@@ -130,7 +130,7 @@ private:
     bool deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues,
                                               std::vector<double>&       derivedMDValues );
 
-    int segmentBranchNumber() const;
+    int segmentBranchId() const;
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
@@ -145,7 +145,7 @@ private:
     caf::PdmField<caf::AppEnum<RimWellLogRftCurve::RftDataType>> m_rftDataType;
 
     caf::PdmField<QString> m_segmentResultName;
-    caf::PdmField<QString> m_segmentBranchId;
+    caf::PdmField<int>     m_segmentBranchId;
 
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;

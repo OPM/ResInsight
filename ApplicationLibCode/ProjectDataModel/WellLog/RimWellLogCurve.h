@@ -45,6 +45,30 @@ public:
     bool propertyValueRangeInData( double* minimumValue, double* maximumValue ) const;
     bool depthValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
+    const RigWellLogCurveData* curveData() const;
+
+    void updateCurveAppearance() override;
+
+    virtual QString wellName() const             = 0;
+    virtual QString wellLogChannelUiName() const = 0;
+    virtual QString wellLogChannelName() const;
+    virtual QString wellLogChannelUnits() const = 0;
+    virtual QString wellDate() const { return ""; };
+
+    static QString wellLogCurveIconName();
+
+    void setOverrideCurveData( const std::vector<double>&               propertyValues,
+                               const std::vector<double>&               depthValues,
+                               const RiaCurveDataTools::CurveIntervals& curveIntervals );
+
+protected:
+    void updateZoomInParentPlot() override;
+    void updateLegendsInPlot() override;
+    void setOverrideCurveDataPropertyValueRange( double minimumValue, double maximumValue );
+    void calculateCurveDataPropertyValueRange();
+
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
     void setPropertyValuesAndDepths( const std::vector<double>& propertyValues,
                                      const std::vector<double>& depths,
                                      RiaDefines::DepthTypeEnum  depthType,
@@ -63,6 +87,9 @@ public:
                                         bool                       useLogarithmicScale,
                                         const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
 
+    void setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues,
+                                               const std::vector<double>& depthValues );
+
     void setPropertyValuesAndDepths( const std::vector<double>&                                      propertyValues,
                                      const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
                                      double                                                          rkbDiff,
@@ -71,33 +98,9 @@ public:
                                      bool           useLogarithmicScale,
                                      const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
 
-    void setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues,
-                                               const std::vector<double>& depthValues );
-
-    const RigWellLogCurveData* curveData() const;
-
-    void updateCurveAppearance() override;
-
-    virtual QString wellName() const             = 0;
-    virtual QString wellLogChannelUiName() const = 0;
-    virtual QString wellLogChannelName() const;
-    virtual QString wellLogChannelUnits() const = 0;
-    virtual QString wellDate() const { return ""; };
-
-    static QString wellLogCurveIconName();
-
-    void setOverrideCurveData( const std::vector<double>&               propertyValues,
-                               const std::vector<double>&               depthValues,
-                               const RiaCurveDataTools::CurveIntervals& curveIntervals );
-
-    virtual RiaDefines::PhaseType resultPhase() const;
-
-protected:
-    void updateZoomInParentPlot() override;
-    void updateLegendsInPlot() override;
-    void setOverrideCurveDataPropertyValueRange( double minimumValue, double maximumValue );
-    void calculateCurveDataPropertyValueRange();
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void setPropertyAndDepthsAndErrors( const std::vector<double>& propertyValues,
+                                        const std::vector<double>& depthValues,
+                                        const std::vector<double>& errorValues );
 
     bool        isVerticalCurve() const;
     RiuPlotAxis depthAxis() const;

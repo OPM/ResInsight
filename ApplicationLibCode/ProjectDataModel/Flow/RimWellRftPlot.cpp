@@ -499,9 +499,10 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             auto rftCase = curveDefToAdd.address().eclCase();
             curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( rftCase ) );
 
-            RifEclipseRftAddress address( simWellName,
-                                          curveDefToAdd.timeStep(),
-                                          RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+            RifEclipseRftAddress address =
+                RifEclipseRftAddress::createAddress( simWellName,
+                                                     curveDefToAdd.timeStep(),
+                                                     RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder( 1 );
             curve->setSimWellBranchData( m_branchDetection, m_branchIndex );
@@ -515,9 +516,10 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
             auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData();
             curve->setObservedFmuRftData( observedFmuRftData );
-            RifEclipseRftAddress address( m_wellPathNameOrSimWellName,
-                                          curveDefToAdd.timeStep(),
-                                          RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+            RifEclipseRftAddress address =
+                RifEclipseRftAddress::createAddress( m_wellPathNameOrSimWellName,
+                                                     curveDefToAdd.timeStep(),
+                                                     RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder(
                 RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED ) );
@@ -532,9 +534,10 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setEnsemble( curveDefToAdd.address().ensemble() );
             curve->setObservedFmuRftData(
                 this->findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
-            RifEclipseRftAddress address( m_wellPathNameOrSimWellName,
-                                          curveDefToAdd.timeStep(),
-                                          RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+            RifEclipseRftAddress address =
+                RifEclipseRftAddress::createAddress( m_wellPathNameOrSimWellName,
+                                                     curveDefToAdd.timeStep(),
+                                                     RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder( 1 );
             applyCurveAppearance( curve );

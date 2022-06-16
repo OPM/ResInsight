@@ -146,21 +146,21 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIdOptions( RifReaderRftI
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options.push_front( caf::PdmOptionItemInfo( RiaDefines::allBranches(), RiaDefines::allBranches() ) );
+    options.push_front( caf::PdmOptionItemInfo( RiaDefines::allBranches(), -1 ) );
 
     if ( readerRft )
     {
         std::vector<double> values;
 
         auto adr =
-            RifEclipseRftAddress::createSegmentResult( wellName, timeStep, RiaDefines::segmentBranchNumberResultName() );
+            RifEclipseRftAddress::createSegmentAddress( wellName, timeStep, RiaDefines::segmentBranchNumberResultName(), -1 );
 
         readerRft->values( adr, &values );
         for ( const auto& v : values )
         {
             int  intValue = v;
             auto txt      = QString::number( intValue );
-            options.push_back( caf::PdmOptionItemInfo( txt, txt ) );
+            options.push_back( caf::PdmOptionItemInfo( txt, intValue ) );
         }
     }
 

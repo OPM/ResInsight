@@ -401,6 +401,17 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
     {
         std::tie( minValue, maxValue ) = adjustXRange( minValue, maxValue, m_minorTickInterval() );
     }
+    else
+    {
+        auto range = std::fabs( maxValue - minValue );
+        maxValue += 0.1 * range;
+
+        auto candidateMinValue = minValue - 0.1 * range;
+        if ( std::signbit( minValue ) == std::signbit( candidateMinValue ) )
+        {
+            minValue = candidateMinValue;
+        }
+    }
 
     m_availablePropertyValueRangeMin = minValue;
     m_availablePropertyValueRangeMax = maxValue;
@@ -573,7 +584,7 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
     }
     else if ( changedField == &m_visiblePropertyValueRangeMin || changedField == &m_visiblePropertyValueRangeMax )
     {
-        bool emptyRange = isEmptyVisibleXRange();
+        bool emptyRange = isEmptyVisiblePropertyRange();
         m_explicitTickIntervals.uiCapability()->setUiReadOnly( emptyRange );
         m_propertyValueAxisGridVisibility.uiCapability()->setUiReadOnly( emptyRange );
 
@@ -775,7 +786,7 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
 {
     if ( !m_plotWidget ) return;
 
-    bool emptyRange = isEmptyVisibleXRange();
+    bool emptyRange = isEmptyVisiblePropertyRange();
     if ( emptyRange )
     {
         m_plotWidget->enableGridLines( valueAxis(), false, false );
@@ -1227,7 +1238,7 @@ void RimWellLogTrack::visibleDepthRange( double* minDepth, double* maxDepth )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogTrack::isEmptyVisibleXRange() const
+bool RimWellLogTrack::isEmptyVisiblePropertyRange() const
 {
     return std::abs( m_visiblePropertyValueRangeMax() - m_visiblePropertyValueRangeMin ) <
            1.0e-6 * std::max( 1.0, std::max( m_visiblePropertyValueRangeMax(), m_visiblePropertyValueRangeMin() ) );
@@ -1304,9 +1315,11 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     m_majorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
     m_minorTickInterval.uiCapability()->setUiHidden( !m_explicitTickIntervals() );
 
-    bool emptyRange = isEmptyVisibleXRange();
+    bool emptyRange = isEmptyVisiblePropertyRange();
     m_explicitTickIntervals.uiCapability()->setUiReadOnly( emptyRange );
     m_propertyValueAxisGridVisibility.uiCapability()->setUiReadOnly( emptyRange );
+
+    updateDepthZoom();
 
     updateLegend();
 }
@@ -1404,7 +1417,7 @@ void RimWellLogTrack::setAutoScaleDepthValuesEnabled( bool enabled )
 void RimWellLogTrack::setAutoScalePropertyValuesIfNecessary()
 {
     // Avoid resetting if visible range has set to empty by user
-    bool emptyRange = isEmptyVisibleXRange();
+    bool emptyRange = isEmptyVisiblePropertyRange();
     if ( !m_isAutoScalePropertyValuesEnabled && emptyRange ) return;
 
     const double eps = 1.0e-8;
@@ -2332,7 +2345,7 @@ void RimWellLogTrack::uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrder
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering )
 {
-    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "X Axis Settings" );
+    caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Property Axis Settings" );
     gridGroup->add( &m_isLogarithmicScaleEnabled );
     gridGroup->add( &m_visiblePropertyValueRangeMin );
     gridGroup->add( &m_visiblePropertyValueRangeMax );
