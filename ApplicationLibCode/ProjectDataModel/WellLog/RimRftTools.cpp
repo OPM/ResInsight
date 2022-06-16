@@ -146,7 +146,7 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIdOptions( RifReaderRftI
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options.push_front( caf::PdmOptionItemInfo( RiaDefines::allBranches(), RiaDefines::allBranches() ) );
+    options.push_front( caf::PdmOptionItemInfo( RiaDefines::allBranches(), -1 ) );
 
     if ( readerRft )
     {
@@ -160,7 +160,7 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIdOptions( RifReaderRftI
         {
             int  intValue = v;
             auto txt      = QString::number( intValue );
-            options.push_back( caf::PdmOptionItemInfo( txt, txt ) );
+            options.push_back( caf::PdmOptionItemInfo( txt, intValue ) );
         }
     }
 

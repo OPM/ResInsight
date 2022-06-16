@@ -173,7 +173,7 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitFieldNoDefault( &m_rftDataType, "RftDataType", "Data Type" );
 
     CAF_PDM_InitField( &m_segmentResultName, "SegmentResultName", RiaResultNames::undefinedResultName(), "Segment Result Name" );
-    CAF_PDM_InitField( &m_segmentBranchId, "SegmentBranchId", RiaResultNames::undefinedResultName(), "Segment Branch" );
+    CAF_PDM_InitField( &m_segmentBranchId, "SegmentBranchId", -1, "Segment Branch" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -234,7 +234,7 @@ QDateTime RimWellLogRftCurve::timeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogRftCurve::setSegmentBranchId( const QString& branchId )
+void RimWellLogRftCurve::setSegmentBranchId( int branchId )
 {
     m_segmentBranchId = branchId;
 }
@@ -315,7 +315,7 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
     {
         m_rftDataType       = RftDataType::RFT_SEGMENT_DATA;
         m_segmentResultName = address.segmentResultName();
-        m_segmentBranchId   = QString::number( address.segmentBranchNumber() );
+        m_segmentBranchId   = address.segmentBranchNumber();
     }
     else
     {
@@ -329,7 +329,7 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
 //--------------------------------------------------------------------------------------------------
 RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
 {
-    auto segmentId = m_segmentBranchId().toInt();
+    auto segmentId = m_segmentBranchId();
     return { m_wellName, m_timeStep, m_wellLogChannelName(), m_segmentResultName(), segmentId };
 }
 
@@ -465,7 +465,7 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back( m_segmentResultName );
 
-        QString branchText = "Branch " + m_segmentBranchId();
+        QString branchText = QString( "Branch %1" ).arg( m_segmentBranchId() );
         name.push_back( branchText );
     }
 
@@ -986,7 +986,7 @@ std::vector<double> RimWellLogRftCurve::xValues()
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
         auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(), m_timeStep, m_segmentResultName() );
-        depthAddress.setSegmentBranchNumber( segmentBranchNumber() );
+        depthAddress.setSegmentBranchNumber( segmentBranchId() );
 
         reader->values( depthAddress, &values );
 
@@ -1051,7 +1051,7 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
     {
         auto depthAddress =
             RifEclipseRftAddress::createSegmentAddress( m_wellName(), m_timeStep, RiaDefines::segmentTvdDepthResultName() );
-        depthAddress.setSegmentBranchNumber( segmentBranchNumber() );
+        depthAddress.setSegmentBranchNumber( segmentBranchId() );
 
         reader->values( depthAddress, &values );
         return values;
@@ -1096,7 +1096,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
             auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(),
                                                                             m_timeStep,
                                                                             RiaDefines::segmentStartDepthResultName() );
-            depthAddress.setSegmentBranchNumber( segmentBranchNumber() );
+            depthAddress.setSegmentBranchNumber( segmentBranchId() );
 
             reader->values( depthAddress, &values );
         }
@@ -1215,14 +1215,7 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimWellLogRftCurve::segmentBranchNumber() const
+int RimWellLogRftCurve::segmentBranchId() const
 {
-    if ( m_segmentBranchId() != RiaDefines::allBranches() )
-    {
-        QString text     = m_segmentBranchId();
-        auto    intValue = text.toInt();
-        return intValue;
-    }
-
-    return -1;
+    return m_segmentBranchId();
 }

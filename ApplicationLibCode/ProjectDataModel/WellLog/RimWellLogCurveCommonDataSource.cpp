@@ -359,11 +359,11 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
             m_uniqueCases.insert( rftCurve->eclipseResultCase() );
 
             auto adr = rftCurve->rftAddress();
-            if ( !adr.segmentResultName().isEmpty() )
+            if ( !adr.segmentResultName().isEmpty() && adr.segmentResultName() != "None" )
             {
                 m_uniqueRftWellNames.insert( adr.wellName() );
                 m_uniqueRftTimeSteps.insert( adr.timeStep() );
-                m_uniqueRftBranchIds.insert( QString::number( adr.segmentBranchNumber() ) );
+                m_uniqueRftBranchIds.insert( adr.segmentBranchNumber() );
             }
         }
     }
@@ -757,6 +757,7 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
     if ( m_uniqueRftWellNames.size() == 1u ) fieldsToDisplay.push_back( &m_rftWellName );
     if ( m_uniqueTimeSteps.size() == 1u ) fieldsToDisplay.push_back( &m_timeStep );
     if ( m_uniqueRftTimeSteps.size() == 1u ) fieldsToDisplay.push_back( &m_rftTimeStep );
+    if ( m_uniqueRftBranchIds.size() == 1u ) fieldsToDisplay.push_back( &m_rftSegmentBranchId );
 
     return fieldsToDisplay;
 }

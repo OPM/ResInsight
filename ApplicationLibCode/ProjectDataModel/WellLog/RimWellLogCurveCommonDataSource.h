@@ -117,7 +117,7 @@ private:
 
     caf::PdmField<QDateTime> m_rftTimeStep;
     caf::PdmField<QString>   m_rftWellName;
-    caf::PdmField<QString>   m_rftSegmentBranchId;
+    caf::PdmField<int>       m_rftSegmentBranchId;
 
     std::set<RimCase*>                 m_uniqueCases;
     std::set<int>                      m_uniqueTrajectoryTypes;
@@ -131,5 +131,5 @@ private:
 
     std::set<QDateTime> m_uniqueRftTimeSteps;
     std::set<QString>   m_uniqueRftWellNames;
-    std::set<QString>   m_uniqueRftBranchIds;
+    std::set<int>       m_uniqueRftBranchIds;
 };
