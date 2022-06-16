@@ -156,6 +156,9 @@ std::set<QDateTime>
     RifReaderOpmRft::availableTimeSteps( const QString&                                     wellName,
                                          const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
+    if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
+        return m_rftSegmentTimeSteps;
+
     std::set<QDateTime> timeSteps;
 
     for ( const auto& address : m_addresses )
@@ -300,6 +303,8 @@ void RifReaderOpmRft::buildMetaData()
         int d = std::get<2>( reportDate );
 
         auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
+
+        m_rftSegmentTimeSteps.insert( dt );
 
         auto segmentCount = segmentData.topology().size();
 

@@ -308,8 +308,9 @@ RimObservedFmuRftData* RimWellLogRftCurve::observedFmuRftData() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
 {
-    m_timeStep = address.timeStep();
-    m_wellName = address.wellName();
+    m_timeStep           = address.timeStep();
+    m_wellName           = address.wellName();
+    m_wellLogChannelName = address.wellLogChannel();
 
     if ( address.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
     {
@@ -319,8 +320,7 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
     }
     else
     {
-        m_rftDataType        = RftDataType::RFT_DATA;
-        m_wellLogChannelName = address.wellLogChannel();
+        m_rftDataType = RftDataType::RFT_DATA;
     }
 }
 
@@ -736,7 +736,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        options = RimRftTools::timeStepOptions( reader, m_wellName, m_wellLogChannelName() );
+        if ( m_rftDataType == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )
+            options = RimRftTools::segmentTimeStepOptions( reader, m_wellName );
+        else
+            options = RimRftTools::timeStepOptions( reader, m_wellName, m_wellLogChannelName() );
     }
     else if ( fieldNeedingOptions == &m_branchIndex )
     {

@@ -77,4 +77,5 @@ private:
     std::set<QString>              m_wellNames;
 
     std::map<RftSegmentKey, RifRftSegment> m_rftWellDateSegments;
+    std::set<QDateTime>                    m_rftSegmentTimeSteps;
 };
