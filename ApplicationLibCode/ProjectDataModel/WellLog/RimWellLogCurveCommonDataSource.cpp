@@ -932,7 +932,7 @@ QList<caf::PdmOptionItemInfo>
     else if ( fieldNeedingOptions == &m_rftTimeStep )
     {
         auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( m_case() );
-        if ( eclipseCase && eclipseCase->rftReader() )
+        if ( eclipseCase && eclipseCase->rftReader() && !m_uniqueRftWellNames.empty() )
         {
             options = RimRftTools::segmentTimeStepOptions( eclipseCase->rftReader(), *( m_uniqueRftWellNames.begin() ) );
         }
