@@ -53,10 +53,9 @@ RifEclipseRftAddress RifEclipseRftAddress::createAddress( const QString&        
 //--------------------------------------------------------------------------------------------------
 RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString&   wellName,
                                                                  const QDateTime& dateTime,
-                                                                 const QString&   resultName )
+                                                                 const QString&   resultName,
+                                                                 int              segmentBranchNumber )
 {
-    auto segmentBranchNumber = -1;
-
     auto adr = RifEclipseRftAddress( wellName,
                                      dateTime,
                                      RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES,
@@ -69,25 +68,9 @@ RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifEclipseRftAddress::setSegmentResultName( const QString& resultName )
-{
-    m_segmentResultName = resultName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RifEclipseRftAddress::segmentResultName() const
 {
     return m_segmentResultName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RifEclipseRftAddress::setSegmentBranchNumber( int branchNumber )
-{
-    m_segmentBranchNumber = branchNumber;
 }
 
 //--------------------------------------------------------------------------------------------------

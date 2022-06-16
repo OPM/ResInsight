@@ -359,7 +359,8 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
             m_uniqueCases.insert( rftCurve->eclipseResultCase() );
 
             auto adr = rftCurve->rftAddress();
-            if ( !adr.segmentResultName().isEmpty() && adr.segmentResultName() != "None" )
+            if ( adr.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES &&
+                 adr.segmentResultName() != "None" )
             {
                 m_uniqueRftWellNames.insert( adr.wellName() );
                 m_uniqueRftTimeSteps.insert( adr.timeStep() );

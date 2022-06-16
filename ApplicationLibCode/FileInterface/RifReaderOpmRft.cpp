@@ -312,14 +312,16 @@ void RifReaderOpmRft::buildMetaData()
             auto resultName = std::get<0>( resultNameAndSize );
             auto adr        = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
                                                                    dt,
-                                                                   QString::fromStdString( resultName ) );
+                                                                   QString::fromStdString( resultName ),
+                                                                   -1 );
 
             m_addresses.insert( adr );
         }
 
         auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
                                                                dt,
-                                                               RiaDefines::segmentNumberResultName() );
+                                                               RiaDefines::segmentNumberResultName(),
+                                                               -1 );
 
         m_addresses.insert( adr );
     }

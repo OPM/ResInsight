@@ -52,22 +52,16 @@ public:
     };
 
 public:
-    RifEclipseRftAddress( const QString&        wellName,
-                          const QDateTime&      timeStep,
-                          RftWellLogChannelType wellLogChannel,
-                          const QString&        segmentResultName,
-                          int                   segmentBranchNumber );
-
     static RifEclipseRftAddress
         createAddress( const QString& wellName, const QDateTime& timeStep, RftWellLogChannelType wellLogChannel );
 
-    static RifEclipseRftAddress
-        createSegmentAddress( const QString& wellName, const QDateTime& dateTime, const QString& resultName );
+    static RifEclipseRftAddress createSegmentAddress( const QString&   wellName,
+                                                      const QDateTime& dateTime,
+                                                      const QString&   resultName,
+                                                      int              segmentBranchNumber );
 
     QString segmentResultName() const;
-
-    void setSegmentBranchNumber( int branchNumber );
-    int  segmentBranchNumber() const;
+    int     segmentBranchNumber() const;
 
     const QString&               wellName() const;
     QDateTime                    timeStep() const;
@@ -77,7 +71,11 @@ public:
     static std::set<RftWellLogChannelType> pltPlotChannelTypes();
 
 private:
-    void setSegmentResultName( const QString& resultName );
+    RifEclipseRftAddress( const QString&        wellName,
+                          const QDateTime&      timeStep,
+                          RftWellLogChannelType wellLogChannel,
+                          const QString&        segmentResultName,
+                          int                   segmentBranchNumber );
 
 private:
     QString               m_wellName;

@@ -311,7 +311,7 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
     m_timeStep = address.timeStep();
     m_wellName = address.wellName();
 
-    if ( !address.segmentResultName().isEmpty() )
+    if ( address.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
     {
         m_rftDataType       = RftDataType::RFT_SEGMENT_DATA;
         m_segmentResultName = address.segmentResultName();
@@ -329,8 +329,12 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
 //--------------------------------------------------------------------------------------------------
 RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
 {
-    auto segmentId = m_segmentBranchId();
-    return { m_wellName, m_timeStep, m_wellLogChannelName(), m_segmentResultName(), segmentId };
+    if ( m_rftDataType == RftDataType::RFT_SEGMENT_DATA )
+    {
+        return RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, m_segmentResultName(), m_segmentBranchId() );
+    }
+
+    return RifEclipseRftAddress::createAddress( m_wellName, m_timeStep, m_wellLogChannelName() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -985,8 +989,8 @@ std::vector<double> RimWellLogRftCurve::xValues()
 
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(), m_timeStep, m_segmentResultName() );
-        depthAddress.setSegmentBranchNumber( segmentBranchId() );
+        auto depthAddress =
+            RifEclipseRftAddress::createSegmentAddress( m_wellName(), m_timeStep, m_segmentResultName(), segmentBranchId() );
 
         reader->values( depthAddress, &values );
 
@@ -1049,9 +1053,10 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
 
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        auto depthAddress =
-            RifEclipseRftAddress::createSegmentAddress( m_wellName(), m_timeStep, RiaDefines::segmentTvdDepthResultName() );
-        depthAddress.setSegmentBranchNumber( segmentBranchId() );
+        auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(),
+                                                                        m_timeStep,
+                                                                        RiaDefines::segmentTvdDepthResultName(),
+                                                                        segmentBranchId() );
 
         reader->values( depthAddress, &values );
         return values;
@@ -1095,8 +1100,8 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
         {
             auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(),
                                                                             m_timeStep,
-                                                                            RiaDefines::segmentStartDepthResultName() );
-            depthAddress.setSegmentBranchNumber( segmentBranchId() );
+                                                                            RiaDefines::segmentStartDepthResultName(),
+                                                                            segmentBranchId() );
 
             reader->values( depthAddress, &values );
         }
