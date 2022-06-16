@@ -1104,6 +1104,12 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
                                                                             segmentBranchId() );
 
             reader->values( depthAddress, &values );
+
+            // Special handling of first segment
+            if ( values.size() > 2 && values.front() < 0.001 )
+            {
+                values[0] = values[1];
+            }
         }
         return values;
     }
