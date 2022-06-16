@@ -745,7 +745,12 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
     {
         fieldsToDisplay.push_back( &m_simWellName );
     }
-    fieldsToDisplay.push_back( &m_timeStep );
+
+    if ( m_uniqueTimeSteps.size() == 1u ) fieldsToDisplay.push_back( &m_timeStep );
+
+    if ( m_uniqueRftTimeSteps.size() == 1u ) fieldsToDisplay.push_back( &m_rftTimeStep );
+    if ( m_uniqueRftWellNames.size() == 1u ) fieldsToDisplay.push_back( &m_rftWellName );
+
     return fieldsToDisplay;
 }
 
