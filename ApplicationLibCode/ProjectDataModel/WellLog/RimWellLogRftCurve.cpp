@@ -24,6 +24,7 @@
 #include "RiaResultNames.h"
 #include "RiaRftDefines.h"
 #include "RiaSimWellBranchTools.h"
+#include "RiaSummaryTools.h"
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"
@@ -676,6 +677,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_eclipseResultCase );
+    curveDataGroup->add( &m_summaryCase );
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
     curveDataGroup->add( &m_rftDataType );
@@ -725,6 +727,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
         RimTools::caseOptionItems( &options );
 
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
+    else if ( fieldNeedingOptions == &m_summaryCase )
+    {
+        options = RiaSummaryTools::optionsForSummaryCases( RimProject::current()->allSummaryCases() );
     }
     else if ( fieldNeedingOptions == &m_wellName )
     {

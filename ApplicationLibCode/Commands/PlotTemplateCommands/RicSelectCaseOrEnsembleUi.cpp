@@ -18,6 +18,8 @@
 
 #include "RicSelectCaseOrEnsembleUi.h"
 
+#include "RiaSummaryTools.h"
+
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -78,14 +80,7 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_selectedSummaryCase )
     {
-        RimProject* proj = RimProject::current();
-
-        std::vector<RimSummaryCase*> cases = proj->allSummaryCases();
-
-        for ( RimSummaryCase* rimCase : cases )
-        {
-            options.push_back( caf::PdmOptionItemInfo( rimCase->displayCaseName(), rimCase ) );
-        }
+        options = RiaSummaryTools::optionsForAllSummaryCases();
     }
     else if ( fieldNeedingOptions == &m_selectedEnsemble )
     {

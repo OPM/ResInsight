@@ -23,7 +23,7 @@
 #include "cvfObject.h"
 
 class RifReaderRftInterface;
-class RifReaderEclipseRft;
+class RifReaderOpmRft;
 class RifReaderEclipseSummary;
 class RiaThreadSafeLogger;
 class RifOpmCommonEclipseSummary;
@@ -61,8 +61,6 @@ public:
                                                                        bool                 includeRestartFiles,
                                                                        RiaThreadSafeLogger* threadSafeLogger );
 
-    static RifReaderEclipseRft* findRftDataAndCreateReader( const QString& headerFileName );
-
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
@@ -73,10 +71,12 @@ private:
     QString        additionalSummaryDataFilePath() const;
     static QString createAdditionalSummaryFileName();
 
+    static RifReaderOpmRft* findRftDataAndCreateReader( const QString& headerFileName );
+
 private:
     cvf::ref<RifSummaryReaderInterface> m_fileSummaryReader;
     cvf::ref<RifMultipleSummaryReaders> m_multiSummaryReader;
-    cvf::ref<RifReaderEclipseRft>       m_summaryEclipseRftReader;
+    cvf::ref<RifReaderOpmRft>           m_summaryEclipseRftReader;
     caf::PdmField<bool>                 m_includeRestartFiles;
 
     caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;

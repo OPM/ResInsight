@@ -484,10 +484,7 @@ QList<caf::PdmOptionItemInfo> RimSummaryCurve::calculateValueOptions( const caf:
 
         cases.push_back( proj->calculationCollection->calculationSummaryCase() );
 
-        for ( RimSummaryCase* rimCase : cases )
-        {
-            options.push_back( caf::PdmOptionItemInfo( rimCase->displayCaseName(), rimCase ) );
-        }
+        options = RiaSummaryTools::optionsForSummaryCases( cases );
 
         if ( options.size() > 0 )
         {
