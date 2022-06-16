@@ -69,6 +69,11 @@ namespace ssihub
 class Interface;
 }
 
+namespace ads
+{
+class CDockWidget;
+};
+
 //==================================================================================================
 //
 //
@@ -139,6 +144,7 @@ private:
     void createMenus();
     void createToolBars();
     void createDockPanels();
+    void createDockPanelsOld();
 
     void restoreTreeViewState();
 
@@ -269,5 +275,5 @@ private:
 
     QToolBar* m_holoLensToolBar;
 
-    std::vector<QPointer<QDockWidget>> m_additionalProjectViews;
+    std::vector<QPointer<ads::CDockWidget>> m_additionalProjectViews;
 };

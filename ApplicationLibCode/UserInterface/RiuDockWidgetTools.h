@@ -22,11 +22,15 @@
 #include <QString>
 #include <QVariant>
 
-class QDockWidget;
 class QObject;
 class QAction;
 
 class Rim3dView;
+
+namespace ads
+{
+class CDockWidget;
+};
 
 //==================================================================================================
 //
@@ -74,7 +78,7 @@ public:
     static void setDockWidgetVisibility( const QObject* parent, const QString& dockWidgetName, bool isVisible );
     static void applyDockWidgetVisibilities( const QObject* parent, const QMap<QString, QVariant>& visibilityMap );
 
-    static QDockWidget* findDockWidget( const QObject* parent, const QString& dockWidgetName );
+    static ads::CDockWidget* findDockWidget( const QObject* parent, const QString& dockWidgetName );
 
 private:
     static QMap<QString, QVariant> widgetVisibilitiesForEclipse();

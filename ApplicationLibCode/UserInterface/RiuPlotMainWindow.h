@@ -23,8 +23,6 @@
 
 #include "cafPdmPointer.h"
 
-#include "DockManager.h"
-
 #include <QPointer>
 
 #include <memory>
@@ -109,7 +107,6 @@ private:
     void createMenus();
     void createToolBars();
     void createDockPanels();
-    void createDockPanelsNew();
 
     void restoreTreeViewState();
 
@@ -129,8 +126,6 @@ private slots:
     void customMenuRequested( const QPoint& pos );
 
 private:
-    ads::CDockManager* m_dockManager;
-
     QByteArray m_initialDockAndToolbarLayout; // Initial dock window and toolbar layout, used to reset GUI
 
     RiuMdiArea*                    m_mdiArea;

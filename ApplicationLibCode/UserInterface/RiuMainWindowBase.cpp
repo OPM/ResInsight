@@ -35,8 +35,9 @@
 #include "cafPdmUiTreeView.h"
 #include "cafQTreeViewStateSerializer.h"
 
+#include "DockWidget.h"
+
 #include <QAction>
-#include <QDockWidget>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 #include <QSettings>
@@ -53,6 +54,8 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_blockSubWindowActivation( false )
     , m_blockSubWindowProjectTreeSelection( false )
 {
+    m_dockManager = new ads::CDockManager( this );
+
     setDockNestingEnabled( true );
 
     if ( RiaPreferences::current()->useUndoRedo() && RiaApplication::enableDevelopmentFeatures() )
@@ -226,9 +229,9 @@ void RiuMainWindowBase::showWindow()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::hideAllDockWidgets()
 {
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
+    QList<ads::CDockWidget*> dockWidgets = findChildren<ads::CDockWidget*>();
 
-    for ( QDockWidget* dock : dockWidgets )
+    for ( auto dock : dockWidgets )
     {
         if ( dock )
         {
@@ -258,7 +261,7 @@ void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool 
     if ( tv )
     {
         tv->selectAsCurrentItem( object );
-        QDockWidget* dw = dynamic_cast<QDockWidget*>( tv->parentWidget() );
+        ads::CDockWidget* dw = dynamic_cast<ads::CDockWidget*>( tv->parentWidget() );
         if ( dw )
         {
             dw->show();
@@ -405,7 +408,7 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 {
     if ( !sender() ) return;
 
-    auto dockWidget = dynamic_cast<QDockWidget*>( sender()->parent() );
+    auto dockWidget = dynamic_cast<ads::CDockWidget*>( sender()->parent() );
     if ( dockWidget )
     {
         if ( dockWidget->isVisible() )
@@ -584,4 +587,27 @@ void RiuMainWindowBase::restoreTreeViewStates( QString treeStateString, QString 
             tv->treeView()->setCurrentIndex( mi );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ads::CDockAreaWidget* RiuMainWindowBase::addTabbedWidgets( std::vector<ads::CDockWidget*> widgets,
+                                                           ads::DockWidgetArea            whereToDock,
+                                                           ads::CDockAreaWidget*          dockInside )
+{
+    ads::CDockAreaWidget* areaToDockIn = nullptr;
+
+    for ( auto widget : widgets )
+    {
+        if ( areaToDockIn )
+        {
+            m_dockManager->addDockWidgetTabToArea( widget, areaToDockIn );
+        }
+        else
+        {
+            areaToDockIn = m_dockManager->addDockWidget( whereToDock, widget, dockInside );
+        }
+    }
+    return areaToDockIn;
 }

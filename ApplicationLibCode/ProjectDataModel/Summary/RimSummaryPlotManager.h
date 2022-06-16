@@ -61,7 +61,7 @@ private:
 
     void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
-    // Override eventFilter to be able to track key events from QDockWidget
+    // Override eventFilter to be able to track key events from QWidget
     bool eventFilter( QObject* obj, QEvent* event ) override;
 
     void updateCurveCandidates();

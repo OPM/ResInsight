@@ -22,6 +22,8 @@
 
 #include "cafPdmUiDragDropInterface.h"
 
+#include "DockManager.h"
+
 #include <memory>
 #include <vector>
 
@@ -47,8 +49,8 @@ class RiuMainWindowBase : public QMainWindow
     Q_OBJECT
 
 public:
-	RiuMainWindowBase();
-	~RiuMainWindowBase() override;
+    RiuMainWindowBase();
+    ~RiuMainWindowBase() override;
 
     virtual QString mainWindowName() = 0;
 
@@ -103,6 +105,10 @@ protected:
 
     void restoreTreeViewStates( QString treeStateString, QString treeIndexString );
 
+    ads::CDockAreaWidget* addTabbedWidgets( std::vector<ads::CDockWidget*> widgets,
+                                            ads::DockWidgetArea            whereToDock,
+                                            ads::CDockAreaWidget*          dockInside = nullptr );
+
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotRefreshHelpActions();
@@ -118,6 +124,8 @@ protected:
     QAction*   m_undoAction;
     QAction*   m_redoAction;
     QUndoView* m_undoView;
+
+    ads::CDockManager* m_dockManager;
 
 private:
     QString registryFolderName();

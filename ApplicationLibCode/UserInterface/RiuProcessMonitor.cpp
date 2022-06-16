@@ -25,7 +25,6 @@
 
 #include "cafUiProcess.h"
 
-#include <QDockWidget>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QPlainTextEdit>
@@ -35,7 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuProcessMonitor::RiuProcessMonitor( QDockWidget* pParent )
+RiuProcessMonitor::RiuProcessMonitor( QWidget* pParent )
     : QWidget( pParent )
 {
     m_monitoredProcess = nullptr;

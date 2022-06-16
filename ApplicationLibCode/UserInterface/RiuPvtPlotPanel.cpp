@@ -41,10 +41,10 @@
 #include "qwt_text.h"
 
 #include <QComboBox>
-#include <QDockWidget>
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QVBoxLayout>
+#include <QWidget>
 
 //==================================================================================================
 //
@@ -511,7 +511,7 @@ void RiuPvtPlotWidget::slotPickerActivated( bool on )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPvtPlotPanel::RiuPvtPlotPanel( QDockWidget* parent )
+RiuPvtPlotPanel::RiuPvtPlotPanel( QWidget* parent )
     : QWidget( parent )
     , m_unitSystem( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
     , m_plotUpdater( new RiuPvtPlotUpdater( this ) )

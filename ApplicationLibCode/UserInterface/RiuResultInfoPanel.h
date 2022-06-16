@@ -20,7 +20,6 @@
 
 #include <QWidget>
 
-class QDockWidget;
 class QTextEdit;
 
 //==================================================================================================
@@ -33,7 +32,7 @@ class RiuResultInfoPanel : public QWidget
     Q_OBJECT
 
 public:
-    explicit RiuResultInfoPanel( QDockWidget* parent );
+    explicit RiuResultInfoPanel( QWidget* parent );
 
     void setInfo( const QString& info );
 

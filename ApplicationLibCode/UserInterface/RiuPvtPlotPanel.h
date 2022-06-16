@@ -32,7 +32,6 @@ class RiuPvtPlotUpdater;
 class RiuPvtQwtPicker;
 class RiuPvtPlotPanel;
 
-class QDockWidget;
 class QComboBox;
 class QLabel;
 
@@ -121,7 +120,7 @@ public:
     };
 
 public:
-    RiuPvtPlotPanel( QDockWidget* parent );
+    RiuPvtPlotPanel( QWidget* parent );
     ~RiuPvtPlotPanel() override;
 
     void               setPlotData( RiaDefines::EclipseUnitSystem                            unitSystem,

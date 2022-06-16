@@ -18,7 +18,6 @@
 
 #include "RiuResultInfoPanel.h"
 
-#include <QDockWidget>
 #include <QTextEdit>
 #include <QVBoxLayout>
 #include <QWidget>
@@ -35,7 +34,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuResultInfoPanel::RiuResultInfoPanel( QDockWidget* parent )
+RiuResultInfoPanel::RiuResultInfoPanel( QWidget* parent )
     : QWidget( parent )
 {
     m_textEdit = new QTextEdit( this );

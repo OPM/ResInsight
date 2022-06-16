@@ -25,7 +25,8 @@
 
 #include "cvfAssert.h"
 
-#include <QDockWidget>
+#include "DockWidget.h"
+
 #include <QSettings>
 
 //--------------------------------------------------------------------------------------------------
@@ -243,11 +244,11 @@ QMap<QString, QVariant> RiuDockWidgetTools::widgetVisibilitiesForGeoMech()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QDockWidget* RiuDockWidgetTools::findDockWidget( const QObject* parent, const QString& dockWidgetName )
+ads::CDockWidget* RiuDockWidgetTools::findDockWidget( const QObject* parent, const QString& dockWidgetName )
 {
-    QList<QDockWidget*> dockWidgets = parent->findChildren<QDockWidget*>();
+    QList<ads::CDockWidget*> dockWidgets = parent->findChildren<ads::CDockWidget*>();
 
-    for ( QDockWidget* dock : dockWidgets )
+    for ( auto dock : dockWidgets )
     {
         if ( dock->objectName() == dockWidgetName )
         {
@@ -303,7 +304,7 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForGeoMech()
 //--------------------------------------------------------------------------------------------------
 void RiuDockWidgetTools::setDockWidgetVisibility( const QObject* parent, const QString& dockWidgetName, bool isVisible )
 {
-    QDockWidget* dockWidget = findDockWidget( parent, dockWidgetName );
+    ads::CDockWidget* dockWidget = findDockWidget( parent, dockWidgetName );
     if ( dockWidget )
     {
         dockWidget->setVisible( isVisible );
@@ -317,9 +318,9 @@ QVariant RiuDockWidgetTools::dockWidgetsVisibility( const QObject* parent )
 {
     QMap<QString, QVariant> widgetVisibility;
 
-    QList<QDockWidget*> dockWidgets = parent->findChildren<QDockWidget*>();
+    QList<ads::CDockWidget*> dockWidgets = parent->findChildren<ads::CDockWidget*>();
 
-    for ( QDockWidget* dock : dockWidgets )
+    for ( auto dock : dockWidgets )
     {
         if ( dock )
         {
@@ -356,10 +357,10 @@ void RiuDockWidgetTools::workaroundForQwtDockWidgets()
 
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
 
-    QList<QDockWidget*> dockWidgets = mainWindow->findChildren<QDockWidget*>();
+    QList<ads::CDockWidget*> dockWidgets = mainWindow->findChildren<ads::CDockWidget*>();
     dockWidgets.removeAll( nullptr );
 
-    for ( QDockWidget* dock : dockWidgets )
+    for ( auto dock : dockWidgets )
     {
         dock->setVisible( false );
     }
@@ -393,9 +394,9 @@ void RiuDockWidgetTools::workaroundForQwtDockWidgets()
 void RiuDockWidgetTools::applyDockWidgetVisibilities( const QObject*                 parent,
                                                       const QMap<QString, QVariant>& widgetVisibilities )
 {
-    QList<QDockWidget*> dockWidgets = parent->findChildren<QDockWidget*>();
+    QList<ads::CDockWidget*> dockWidgets = parent->findChildren<ads::CDockWidget*>();
 
-    for ( QDockWidget* dock : dockWidgets )
+    for ( auto dock : dockWidgets )
     {
         if ( dock )
         {
