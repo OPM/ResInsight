@@ -195,16 +195,6 @@ QString RimStimPlanFractureTemplate::fileName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                                  const QString& oldProjectPath )
-{
-    // m_stimPlanFileName = RimTools::relocateFile( m_stimPlanFileName(), newProjectPath, oldProjectPath, nullptr,
-    // nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimStimPlanFractureTemplate::setDefaultsBasedOnXMLfile()
 {
     if ( m_stimPlanFractureDefinitionData.isNull() ) return;
