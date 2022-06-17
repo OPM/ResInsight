@@ -299,3 +299,26 @@ RimSummaryCaseCollection* RiaSummaryTools::ensembleById( int ensembleId )
 
     return nullptr;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForAllSummaryCases()
+{
+    return optionsForSummaryCases( RimProject::current()->allSummaryCases() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    for ( RimSummaryCase* c : cases )
+    {
+        options.push_back( caf::PdmOptionItemInfo( c->displayCaseName(), c, false, c->uiIconProvider() ) );
+    }
+
+    return options;
+}

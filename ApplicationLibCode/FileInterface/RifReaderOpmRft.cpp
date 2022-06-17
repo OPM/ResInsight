@@ -91,7 +91,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         }
         else if ( rftAddress.segmentResultName() == RiaDefines::segmentBranchNumberResultName() )
         {
-            auto branchNumbers = segment.branchIds();
+            auto branchNumbers = segment.tubingBranchIds();
             for ( const auto& branchNumber : branchNumbers )
             {
                 values->push_back( branchNumber );
@@ -156,6 +156,9 @@ std::set<QDateTime>
     RifReaderOpmRft::availableTimeSteps( const QString&                                     wellName,
                                          const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
+    if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
+        return m_rftSegmentTimeSteps;
+
     std::set<QDateTime> timeSteps;
 
     for ( const auto& address : m_addresses )
@@ -301,6 +304,8 @@ void RifReaderOpmRft::buildMetaData()
 
         auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
+        m_rftSegmentTimeSteps.insert( dt );
+
         auto segmentCount = segmentData.topology().size();
 
         for ( const auto& resultNameAndSize : resultNameAndSizes )
@@ -394,9 +399,10 @@ void RifReaderOpmRft::buildSegmentData()
                 }
             }
 
-            auto wellDateKey = std::make_pair( wellName, date );
-
+            auto wellDateKey                   = std::make_pair( wellName, date );
             m_rftWellDateSegments[wellDateKey] = segment;
+
+            buildSegmentBranchTypes( wellDateKey );
         }
     }
 }
@@ -442,6 +448,69 @@ void RifReaderOpmRft::importWellNames()
     for ( const auto& w : names )
     {
         m_wellNames.insert( QString::fromStdString( w ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
+{
+    auto           wellName   = segmentKey.first;
+    auto           date       = segmentKey.second;
+    RifRftSegment& segmentRef = m_rftWellDateSegments[segmentKey];
+
+    int y = std::get<0>( date );
+    int m = std::get<1>( date );
+    int d = std::get<2>( date );
+
+    auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
+
+    std::vector<double> seglenstValues;
+    std::vector<double> seglenenValues;
+    {
+        auto resultName =
+            RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ), dt, "SEGLENST", -1 );
+
+        values( resultName, &seglenstValues );
+
+        if ( seglenstValues.size() > 2 )
+        {
+            seglenstValues[0] = seglenstValues[1];
+        }
+    }
+    {
+        auto resultName =
+            RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ), dt, "SEGLENEN", -1 );
+
+        values( resultName, &seglenenValues );
+    }
+
+    if ( !seglenenValues.empty() && !seglenstValues.empty() )
+    {
+        auto branchIds = segmentRef.branchIds();
+        for ( auto id : branchIds )
+        {
+            double minimumMD = std::numeric_limits<double>::max();
+            double maximumMD = std::numeric_limits<double>::min();
+
+            auto indices = segmentRef.indicesForBranchNumber( id );
+            for ( auto i : indices )
+            {
+                minimumMD = std::min( minimumMD, seglenstValues[i] );
+                maximumMD = std::max( maximumMD, seglenenValues[i] );
+            }
+
+            double length = maximumMD - minimumMD;
+
+            segmentRef.setBranchLength( id, length );
+
+            const double              tubingThreshold = 1.0;
+            RiaDefines::RftBranchType branchType      = RiaDefines::RftBranchType::RFT_UNKNOWN;
+            if ( length > tubingThreshold ) branchType = RiaDefines::RftBranchType::RFT_TUBING;
+
+            segmentRef.setBranchType( id, branchType );
+        }
     }
 }
 

@@ -29,6 +29,7 @@
 #include "RifProjectSummaryDataWriter.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderEclipseSummary.h"
+#include "RifReaderOpmRft.h"
 #include "RifSummaryReaderMultipleFiles.h"
 
 #include "RimProject.h"
@@ -185,7 +186,7 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& headerFileName )
+RifReaderOpmRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& headerFileName )
 {
     QFileInfo fileInfo( headerFileName );
     QString   folder = fileInfo.absolutePath();
@@ -195,8 +196,7 @@ RifReaderEclipseRft* RimFileSummaryCase::findRftDataAndCreateReader( const QStri
 
     if ( rftFileInfo.exists() )
     {
-        std::unique_ptr<RifReaderEclipseRft> rftReader( new RifReaderEclipseRft( rftFileInfo.filePath() ) );
-        return rftReader.release();
+        return new RifReaderOpmRft( rftFileInfo.filePath() );
     }
 
     return nullptr;
@@ -211,7 +211,7 @@ void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field
 {
     if ( field == &m_additionalSummaryFilePath )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
         {
             myAttr->m_selectSaveFileName = true;

@@ -63,6 +63,7 @@ private:
     void segmentDataDebugLog() const;
     bool isOpen() const;
     void importWellNames();
+    void buildSegmentBranchTypes( const RftSegmentKey& segmentKey );
 
     std::vector<int> importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const;
 
@@ -77,4 +78,5 @@ private:
     std::set<QString>              m_wellNames;
 
     std::map<RftSegmentKey, RifRftSegment> m_rftWellDateSegments;
+    std::set<QDateTime>                    m_rftSegmentTimeSteps;
 };

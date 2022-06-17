@@ -298,6 +298,8 @@ private:
 
     std::pair<double, double> adjustXRange( double minValue, double maxValue, double tickInterval );
 
+    std::pair<double, double> extendMinMaxRange( double minValue, double maxValue, double factor );
+
     void updateWellPathAttributesCollection();
 
     RimDepthTrackPlot* parentWellLogPlot() const;
@@ -324,6 +326,7 @@ private:
 
     caf::PdmField<bool>                         m_isAutoScalePropertyValuesEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
+    caf::PdmField<bool>                         m_invertPropertyValueAxis;
     caf::PdmField<RimWellLogPlot::AxisGridEnum> m_propertyValueAxisGridVisibility;
 
     caf::PdmField<bool>   m_explicitTickIntervals;
@@ -373,5 +376,4 @@ private:
     double m_availablePropertyValueRangeMax;
     double m_availableDepthRangeMin;
     double m_availableDepthRangeMax;
-
 };

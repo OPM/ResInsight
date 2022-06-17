@@ -113,6 +113,27 @@ std::vector<Opm::EclIO::EclFile::EclEntry> RifRftSegment::resultNameAndSize() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<int> RifRftSegment::tubingBranchIds() const
+{
+    std::vector<int> filteredBranchIds;
+
+    for ( auto branchId : branchIds() )
+    {
+        if ( m_branchType.count( branchId ) )
+        {
+            if ( m_branchType.at( branchId ) == RiaDefines::RftBranchType::RFT_TUBING )
+            {
+                filteredBranchIds.push_back( branchId );
+            }
+        }
+    }
+
+    return filteredBranchIds;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<int> RifRftSegment::branchIds() const
 {
     std::unordered_set<int> s;
@@ -126,6 +147,22 @@ std::vector<int> RifRftSegment::branchIds() const
     std::sort( v.begin(), v.end() );
 
     return v;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifRftSegment::setBranchLength( int branchId, double length )
+{
+    m_branchLength[branchId] = length;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifRftSegment::setBranchType( int branchId, RiaDefines::RftBranchType branchType )
+{
+    m_branchType[branchId] = branchType;
 }
 
 //--------------------------------------------------------------------------------------------------

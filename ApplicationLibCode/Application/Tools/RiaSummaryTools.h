@@ -40,7 +40,8 @@ class QStringList;
 namespace caf
 {
 class PdmObject;
-}
+class PdmOptionItemInfo;
+} // namespace caf
 
 //==================================================================================================
 //
@@ -75,4 +76,7 @@ public:
 
     static RimSummaryCase*           summaryCaseById( int caseId );
     static RimSummaryCaseCollection* ensembleById( int ensembleId );
+
+    static QList<caf::PdmOptionItemInfo> optionsForAllSummaryCases();
+    static QList<caf::PdmOptionItemInfo> optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases );
 };

@@ -24,6 +24,7 @@
 #include "RiaResultNames.h"
 #include "RiaRftDefines.h"
 #include "RiaSimWellBranchTools.h"
+#include "RiaSummaryTools.h"
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"
@@ -308,8 +309,9 @@ RimObservedFmuRftData* RimWellLogRftCurve::observedFmuRftData() const
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
 {
-    m_timeStep = address.timeStep();
-    m_wellName = address.wellName();
+    m_timeStep           = address.timeStep();
+    m_wellName           = address.wellName();
+    m_wellLogChannelName = address.wellLogChannel();
 
     if ( address.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
     {
@@ -319,8 +321,7 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
     }
     else
     {
-        m_rftDataType        = RftDataType::RFT_DATA;
-        m_wellLogChannelName = address.wellLogChannel();
+        m_rftDataType = RftDataType::RFT_DATA;
     }
 }
 
@@ -508,7 +509,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( values.empty() || values.size() != tvDepthVector.size() )
         {
-            this->detach();
+            this->detach( true );
             return;
         }
 
@@ -676,6 +677,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_eclipseResultCase );
+    curveDataGroup->add( &m_summaryCase );
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
     curveDataGroup->add( &m_rftDataType );
@@ -726,6 +728,11 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
 
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
+    else if ( fieldNeedingOptions == &m_summaryCase )
+    {
+        options = RiaSummaryTools::optionsForSummaryCases( RimProject::current()->allSummaryCases() );
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
     else if ( fieldNeedingOptions == &m_wellName )
     {
         options = RimRftTools::wellNameOptions( reader );
@@ -736,7 +743,10 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        options = RimRftTools::timeStepOptions( reader, m_wellName, m_wellLogChannelName() );
+        if ( m_rftDataType == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )
+            options = RimRftTools::segmentTimeStepOptions( reader, m_wellName );
+        else
+            options = RimRftTools::timeStepOptions( reader, m_wellName, m_wellLogChannelName() );
     }
     else if ( fieldNeedingOptions == &m_branchIndex )
     {
@@ -1104,6 +1114,12 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
                                                                             segmentBranchId() );
 
             reader->values( depthAddress, &values );
+
+            // Special handling of first segment
+            if ( values.size() > 2 && values.front() < 0.001 )
+            {
+                values[0] = values[1];
+            }
         }
         return values;
     }
