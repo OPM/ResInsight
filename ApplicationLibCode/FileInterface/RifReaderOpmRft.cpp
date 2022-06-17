@@ -503,7 +503,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 
             double length = maximumMD - minimumMD;
 
-            segmentRef.setBranchLenght( id, length );
+            segmentRef.setBranchLength( id, length );
 
             const double              tubingThreshold = 1.0;
             RiaDefines::RftBranchType branchType      = RiaDefines::RftBranchType::RFT_UNKNOWN;

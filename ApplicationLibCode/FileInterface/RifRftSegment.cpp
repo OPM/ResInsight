@@ -152,7 +152,7 @@ std::vector<int> RifRftSegment::branchIds() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifRftSegment::setBranchLenght( int branchId, double length )
+void RifRftSegment::setBranchLength( int branchId, double length )
 {
     m_branchLength[branchId] = length;
 }

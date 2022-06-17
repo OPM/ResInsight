@@ -56,7 +56,7 @@ public:
     std::vector<int> tubingBranchIds() const;
     std::vector<int> branchIds() const;
 
-    void setBranchLenght( int branchId, double length );
+    void setBranchLength( int branchId, double length );
     void setBranchType( int branchId, RiaDefines::RftBranchType branchType );
 
     std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
