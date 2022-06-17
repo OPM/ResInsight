@@ -509,7 +509,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         if ( values.empty() || values.size() != tvDepthVector.size() )
         {
-            this->detach();
+            this->detach( true );
             return;
         }
 
