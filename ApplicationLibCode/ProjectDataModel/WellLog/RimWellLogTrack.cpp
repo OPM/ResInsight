@@ -89,6 +89,7 @@
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
+#include "cafPdmUiDoubleValueEditor.h"
 #include "cafPdmUiSliderEditor.h"
 #include "cafSelectionManager.h"
 
@@ -191,7 +192,10 @@ RimWellLogTrack::RimWellLogTrack()
     reorderability->orderChanged.connect( this, &RimWellLogTrack::curveDataChanged );
 
     CAF_PDM_InitField( &m_visiblePropertyValueRangeMin, "VisibleXRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min" );
+    m_visiblePropertyValueRangeMin.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_visiblePropertyValueRangeMax, "VisibleXRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max" );
+    m_visiblePropertyValueRangeMax.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
+
     CAF_PDM_InitField( &m_visibleDepthRangeMin, "VisibleYRangeMin", RI_LOGPLOTTRACK_MINX_DEFAULT, "Min" );
     CAF_PDM_InitField( &m_visibleDepthRangeMax, "VisibleYRangeMax", RI_LOGPLOTTRACK_MAXX_DEFAULT, "Max" );
     m_visibleDepthRangeMin.uiCapability()->setUiHidden( true );
@@ -203,6 +207,7 @@ RimWellLogTrack::RimWellLogTrack()
     m_isAutoScalePropertyValuesEnabled.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScaleX", false, "Logarithmic Scale" );
+    CAF_PDM_InitField( &m_invertPropertyValueAxis, "InvertPropertyValueAxis", false, "Invert Axis Range" );
 
     CAF_PDM_InitFieldNoDefault( &m_propertyValueAxisGridVisibility, "ShowXGridLines", "Show Grid Lines" );
 
@@ -403,14 +408,11 @@ void RimWellLogTrack::calculatePropertyValueZoomRange()
     }
     else
     {
-        auto range = std::fabs( maxValue - minValue );
-        maxValue += 0.1 * range;
+        double adjustmentFactor         = 0.1;
+        auto [adjustedMin, adjustedMax] = extendMinMaxRange( minValue, maxValue, adjustmentFactor );
 
-        auto candidateMinValue = minValue - 0.1 * range;
-        if ( std::signbit( minValue ) == std::signbit( candidateMinValue ) )
-        {
-            minValue = candidateMinValue;
-        }
+        minValue = adjustedMin;
+        maxValue = adjustedMax;
     }
 
     m_availablePropertyValueRangeMin = minValue;
@@ -465,8 +467,11 @@ void RimWellLogTrack::calculateDepthZoomRange()
         }
     }
 
-    m_availableDepthRangeMin = minDepth;
-    m_availableDepthRangeMax = maxDepth;
+    double adjustmentFactor         = 0.02;
+    auto [adjustedMin, adjustedMax] = extendMinMaxRange( minDepth, maxDepth, adjustmentFactor );
+
+    m_availableDepthRangeMin = adjustedMin;
+    m_availableDepthRangeMax = adjustedMax;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -509,7 +514,18 @@ void RimWellLogTrack::updatePropertyValueZoom()
         componentRangeMax *= 1.5;
     }
 
-    m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), componentRangeMin, componentRangeMax );
+    RimDepthTrackPlot* wellLogPlot;
+    this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+
+    // Attribute components use the opposite axis to the property values
+    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    {
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), componentRangeMin, componentRangeMax );
+    }
+    else if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    {
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultRight(), componentRangeMin, componentRangeMax );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -578,7 +594,8 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
     }
     else if ( changedField == &m_propertyValueAxisGridVisibility || changedField == &m_majorTickInterval ||
-              changedField == &m_minorTickInterval || changedField == &m_minAndMaxTicksOnly )
+              changedField == &m_minorTickInterval || changedField == &m_minAndMaxTicksOnly ||
+              changedField == &m_invertPropertyValueAxis )
     {
         updatePropertyValueAxisAndGridTickIntervals();
     }
@@ -796,6 +813,11 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
     else
     {
         m_plotWidget->setAxisLabelsAndTicksEnabled( valueAxis(), true, true );
+
+        auto rangeBoundaryA = m_visiblePropertyValueRangeMin();
+        auto rangeBoundaryB = m_visiblePropertyValueRangeMax();
+        if ( m_invertPropertyValueAxis() ) std::swap( rangeBoundaryA, rangeBoundaryB );
+
         if ( m_minAndMaxTicksOnly )
         {
             auto roundToDigits = []( double value, int numberOfDigits, bool useFloor ) {
@@ -813,16 +835,16 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
                 return std::ceil( value * factor ) / factor;
             };
 
-            auto div = QwtScaleDiv( m_visiblePropertyValueRangeMin(), m_visiblePropertyValueRangeMax() );
+            auto div = QwtScaleDiv( rangeBoundaryA, rangeBoundaryB );
 
             QList<double> majorTicks;
 
-            auto min = roundToDigits( m_visiblePropertyValueRangeMin(), 2, false );
-            auto max = roundToDigits( m_visiblePropertyValueRangeMax(), 2, true );
+            auto min = roundToDigits( rangeBoundaryA, 2, false );
+            auto max = roundToDigits( rangeBoundaryB, 2, true );
             if ( min == max )
             {
-                min = roundToDigits( m_visiblePropertyValueRangeMin(), 3, false );
-                max = roundToDigits( m_visiblePropertyValueRangeMax(), 3, true );
+                min = roundToDigits( rangeBoundaryA, 3, false );
+                max = roundToDigits( rangeBoundaryB, 3, true );
             }
 
             majorTicks.push_back( min );
@@ -846,15 +868,15 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
             m_plotWidget->setMajorAndMinorTickIntervals( valueAxis(),
                                                          m_majorTickInterval(),
                                                          m_minorTickInterval(),
-                                                         m_visiblePropertyValueRangeMin(),
-                                                         m_visiblePropertyValueRangeMax() );
+                                                         rangeBoundaryA,
+                                                         rangeBoundaryB );
         }
         else
         {
             int majorTickIntervals = 5;
             int minorTickIntervals = 10;
             m_plotWidget->setAutoTickIntervalCounts( valueAxis(), majorTickIntervals, minorTickIntervals );
-            m_plotWidget->setAxisRange( valueAxis(), m_visiblePropertyValueRangeMin, m_visiblePropertyValueRangeMax );
+            m_plotWidget->setAxisRange( valueAxis(), rangeBoundaryA, rangeBoundaryB );
         }
 
         m_plotWidget->enableGridLines( valueAxis(),
@@ -1318,8 +1340,6 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     bool emptyRange = isEmptyVisiblePropertyRange();
     m_explicitTickIntervals.uiCapability()->setUiReadOnly( emptyRange );
     m_propertyValueAxisGridVisibility.uiCapability()->setUiReadOnly( emptyRange );
-
-    updateDepthZoom();
 
     updateLegend();
 }
@@ -2101,6 +2121,27 @@ std::pair<double, double> RimWellLogTrack::adjustXRange( double minValue, double
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimWellLogTrack::extendMinMaxRange( double minValue, double maxValue, double factor )
+{
+    auto modifiedMin = minValue;
+    auto modifiedMax = maxValue;
+
+    auto range = std::fabs( maxValue - minValue );
+    modifiedMax += factor * range;
+
+    auto candidateMinValue = minValue - factor * range;
+    if ( std::signbit( minValue ) == std::signbit( candidateMinValue ) )
+    {
+        // Leave minimum unchanged if the changes causes change of sign to make sure that zero is located properly
+        modifiedMin = candidateMinValue;
+    }
+
+    return { modifiedMin, modifiedMax };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::updateWellPathAttributesCollection()
 {
     m_wellPathAttributeCollection = nullptr;
@@ -2349,6 +2390,7 @@ void RimWellLogTrack::uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering
     gridGroup->add( &m_isLogarithmicScaleEnabled );
     gridGroup->add( &m_visiblePropertyValueRangeMin );
     gridGroup->add( &m_visiblePropertyValueRangeMax );
+    gridGroup->add( &m_invertPropertyValueAxis );
     gridGroup->add( &m_propertyValueAxisGridVisibility );
     gridGroup->add( &m_minAndMaxTicksOnly );
 
