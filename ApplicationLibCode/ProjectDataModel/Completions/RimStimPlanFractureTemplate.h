@@ -95,8 +95,6 @@ public:
 
     QString mapUiResultNameToFileResultName( const QString& uiResultName ) const;
 
-    bool showStimPlanMesh() const;
-
     void convertToUnitSystem( RiaDefines::EclipseUnitSystem neededUnit ) override;
 
     double formationDip() const;

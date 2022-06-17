@@ -99,6 +99,7 @@ RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 
     CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "" );
     m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_showStimPlanMesh_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     m_readError = false;
 
@@ -780,14 +781,6 @@ QString RimStimPlanFractureTemplate::mapUiResultNameToFileResultName( const QStr
     }
 
     return fileResultName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimStimPlanFractureTemplate::showStimPlanMesh() const
-{
-    return m_showStimPlanMesh_OBSOLETE();
 }
 
 //--------------------------------------------------------------------------------------------------
