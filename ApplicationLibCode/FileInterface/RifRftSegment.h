@@ -22,6 +22,7 @@
 #include <tuple>
 #include <vector>
 
+#include "RiaRftDefines.h"
 #include "opm/io/eclipse/EclFile.hpp"
 
 class RifRftSegmentData
@@ -52,11 +53,18 @@ public:
     void addResultNameAndSize( const Opm::EclIO::EclFile::EclEntry& resultNameAndSize );
     std::vector<Opm::EclIO::EclFile::EclEntry> resultNameAndSize() const;
 
+    std::vector<int> tubingBranchIds() const;
     std::vector<int> branchIds() const;
+
+    void setBranchLenght( int branchId, double length );
+    void setBranchType( int branchId, RiaDefines::RftBranchType branchType );
 
     std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
 
 private:
     std::vector<RifRftSegmentData>             m_topology;
     std::vector<Opm::EclIO::EclFile::EclEntry> m_resultNameAndSize;
+
+    std::map<int, double>                    m_branchLength;
+    std::map<int, RiaDefines::RftBranchType> m_branchType;
 };

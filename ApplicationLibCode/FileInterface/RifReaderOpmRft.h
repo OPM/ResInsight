@@ -63,6 +63,7 @@ private:
     void segmentDataDebugLog() const;
     bool isOpen() const;
     void importWellNames();
+    void buildSegmentBranchTypes( const RftSegmentKey& segmentKey );
 
     std::vector<int> importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const;
 
