@@ -145,7 +145,7 @@ std::vector<RimStimPlanFractureTemplate*>
 
         fractureDef->setFileName( fileName );
         fractureDef->loadDataAndUpdate();
-        fractureDef->setDefaultsBasedOnXMLfile();
+        fractureDef->setDefaultsBasedOnFile();
         fractureDef->setDefaultWellDiameterFromUnit();
         newFractures.push_back( fractureDef );
     }
