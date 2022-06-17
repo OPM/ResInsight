@@ -1008,13 +1008,10 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
 
         const std::vector<double>& allDepths = curveMerger.allXValues();
         curveDepths                          = allDepths;
-        for ( size_t depthIdx = 0; depthIdx < allDepths.size(); depthIdx++ )
+        for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); ++curveIdx )
         {
-            for ( size_t curveIdx = 0; curveIdx < curveMerger.curveCount(); ++curveIdx )
-            {
-                const std::vector<double>& curveValues = curveMerger.lookupYValuesForAllXValues( curveIdx );
-                curvesPlotXValues.push_back( curveValues );
-            }
+            const std::vector<double>& curveValues = curveMerger.lookupYValuesForAllXValues( curveIdx );
+            curvesPlotXValues.push_back( curveValues );
         }
     }
 
