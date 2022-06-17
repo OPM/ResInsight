@@ -299,12 +299,6 @@ void RimFractureTemplateCollection::updateFilePathsFromProjectPath( const QStrin
 {
     for ( RimFractureTemplate* f : m_fractureDefinitions() )
     {
-        RimStimPlanFractureTemplate* stimPlanFracture = dynamic_cast<RimStimPlanFractureTemplate*>( f );
-        if ( stimPlanFracture )
-        {
-            stimPlanFracture->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
-
         RimEllipseFractureTemplate* ellipseFracture = dynamic_cast<RimEllipseFractureTemplate*>( f );
         if ( ellipseFracture )
         {

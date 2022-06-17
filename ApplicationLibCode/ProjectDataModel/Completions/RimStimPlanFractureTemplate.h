@@ -61,8 +61,6 @@ public:
     void    setFileName( const QString& fileName );
     QString fileName();
 
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
-
     std::pair<double, double> wellPathDepthAtFractureRange() const override;
     QString                   wellPathDepthAtFractureUiName() const override;
 
