@@ -1338,6 +1338,8 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     m_explicitTickIntervals.uiCapability()->setUiReadOnly( emptyRange );
     m_propertyValueAxisGridVisibility.uiCapability()->setUiReadOnly( emptyRange );
 
+    updateDepthZoom();
+
     updateLegend();
 }
 
