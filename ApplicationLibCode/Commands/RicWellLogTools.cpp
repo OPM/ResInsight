@@ -29,6 +29,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimSummaryCase.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
@@ -376,6 +377,23 @@ RimWellLogRftCurve*
         {
             auto wellName = *( wellNames.begin() );
             curve->setDefaultAddress( wellName );
+        }
+    }
+    else
+    {
+        auto sumCases = RimProject::current()->allSummaryCases();
+
+        for ( auto sc : sumCases )
+        {
+            if ( sc->rftReader() )
+            {
+                auto rftReader = sc->rftReader();
+
+                curve->setSummaryCase( sc );
+
+                auto addresses = rftReader->eclipseRftAddresses();
+                if ( !addresses.empty() ) curve->setRftAddress( *addresses.begin() );
+            }
         }
     }
 

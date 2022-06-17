@@ -317,7 +317,7 @@ QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForSummaryCases( const std
 
     for ( RimSummaryCase* c : cases )
     {
-        options.push_back( caf::PdmOptionItemInfo( c->displayCaseName(), c ) );
+        options.push_back( caf::PdmOptionItemInfo( c->displayCaseName(), c, false, c->uiIconProvider() ) );
     }
 
     return options;

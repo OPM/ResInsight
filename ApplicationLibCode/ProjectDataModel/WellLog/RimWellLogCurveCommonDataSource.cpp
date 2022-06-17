@@ -18,6 +18,9 @@
 
 #include "RimWellLogCurveCommonDataSource.h"
 
+#include "RiaSimWellBranchTools.h"
+#include "RiaSummaryTools.h"
+
 #include "RimCase.h"
 #include "RimDataSourceSteppingTools.h"
 #include "RimEclipseCase.h"
@@ -26,6 +29,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRftTools.h"
+#include "RimSummaryCase.h"
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogExtractionCurve.h"
@@ -38,8 +42,6 @@
 #include "RimWellMeasurementCurve.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
-
-#include "RiaSimWellBranchTools.h"
 
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
@@ -75,9 +77,10 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
     CAF_PDM_InitObject( "Change Data Source" );
 
     CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "SummaryCase", "Summary Case" );
     CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path" );
 
     CAF_PDM_InitFieldNoDefault( &m_simWellName, "SimulationWellName", "Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_branchDetection,
@@ -125,9 +128,25 @@ RimCase* RimWellLogCurveCommonDataSource::caseToApply() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::setSummaryCaseToApply( RimSummaryCase* val )
+{
+    m_summaryCase = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurveCommonDataSource::setCaseToApply( RimCase* val )
 {
     m_case = val;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimWellLogCurveCommonDataSource::summaryCaseToApply() const
+{
+    return m_summaryCase();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,6 +283,7 @@ void RimWellLogCurveCommonDataSource::setTimeStepToApply( int val )
 void RimWellLogCurveCommonDataSource::resetDefaultOptions()
 {
     setCaseToApply( nullptr );
+    setSummaryCaseToApply( nullptr );
     setTrajectoryTypeToApply( -1 );
     setWellPathToApply( nullptr );
     setBranchIndexToApply( -1 );
@@ -274,6 +294,7 @@ void RimWellLogCurveCommonDataSource::resetDefaultOptions()
     setWbsSmoothingThreshold( -1.0 );
 
     m_uniqueCases.clear();
+    m_uniqueSummaryCases.clear();
     m_uniqueTrajectoryTypes.clear();
     m_uniqueWellPaths.clear();
     m_uniqueWellNames.clear();
@@ -355,8 +376,9 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
         }
         else if ( rftCurve )
         {
+            if ( rftCurve->summaryCase() ) m_uniqueSummaryCases.insert( rftCurve->summaryCase() );
+            if ( rftCurve->eclipseResultCase() ) m_uniqueCases.insert( rftCurve->eclipseResultCase() );
             m_uniqueWellNames.insert( rftCurve->wellName() );
-            m_uniqueCases.insert( rftCurve->eclipseResultCase() );
 
             auto adr = rftCurve->rftAddress();
             if ( adr.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES &&
@@ -397,6 +419,11 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
     if ( m_uniqueCases.size() == 1u )
     {
         setCaseToApply( *m_uniqueCases.begin() );
+    }
+
+    if ( m_uniqueSummaryCases.size() == 1u )
+    {
+        setSummaryCaseToApply( *m_uniqueSummaryCases.begin() );
     }
 
     if ( m_uniqueTrajectoryTypes.size() == 1u )
@@ -745,14 +772,18 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
     analyseCurvesAndTracks();
 
     std::vector<caf::PdmFieldHandle*> fieldsToDisplay;
-    fieldsToDisplay.push_back( &m_case );
-    if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH )
+
+    if ( !m_uniqueCases.empty() )
     {
-        fieldsToDisplay.push_back( &m_wellPath );
-    }
-    else if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL )
-    {
-        fieldsToDisplay.push_back( &m_simWellName );
+        fieldsToDisplay.push_back( &m_case );
+        if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::WELL_PATH )
+        {
+            fieldsToDisplay.push_back( &m_wellPath );
+        }
+        else if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL )
+        {
+            fieldsToDisplay.push_back( &m_simWellName );
+        }
     }
 
     if ( m_uniqueRftWellNames.size() == 1u ) fieldsToDisplay.push_back( &m_rftWellName );
@@ -829,17 +860,11 @@ QList<caf::PdmOptionItemInfo>
             RimTools::caseOptionItems( &options );
         }
 
-        if ( caseToApply() == nullptr )
-        {
-            if ( !m_uniqueCases.empty() )
-            {
-                options.push_front( caf::PdmOptionItemInfo( "Mixed Cases", nullptr ) );
-            }
-            else
-            {
-                options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
-            }
-        }
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
+    if ( fieldNeedingOptions == &m_summaryCase )
+    {
+        options = RiaSummaryTools::optionsForAllSummaryCases();
     }
     else if ( fieldNeedingOptions == &m_trajectoryType )
     {
@@ -880,17 +905,20 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_timeStep )
     {
-        RimTools::timeStepsForCase( m_case, &options );
-
-        if ( timeStepToApply() == -1 )
+        if ( m_case() )
         {
-            if ( !m_uniqueTimeSteps.empty() )
+            RimTools::timeStepsForCase( m_case, &options );
+
+            if ( timeStepToApply() == -1 )
             {
-                options.push_front( caf::PdmOptionItemInfo( "Mixed Time Steps", -1 ) );
-            }
-            else
-            {
-                options.push_front( caf::PdmOptionItemInfo( "No Time Steps", -1 ) );
+                if ( !m_uniqueTimeSteps.empty() )
+                {
+                    options.push_front( caf::PdmOptionItemInfo( "Mixed Time Steps", -1 ) );
+                }
+                else
+                {
+                    options.push_front( caf::PdmOptionItemInfo( "No Time Steps", -1 ) );
+                }
             }
         }
     }
@@ -945,27 +973,16 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_rftTimeStep )
     {
-        auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( m_case() );
-        if ( eclipseCase && eclipseCase->rftReader() && !m_uniqueRftWellNames.empty() )
-        {
-            options = RimRftTools::segmentTimeStepOptions( eclipseCase->rftReader(), *( m_uniqueRftWellNames.begin() ) );
-        }
+        if ( !m_uniqueRftWellNames.empty() )
+            options = RimRftTools::segmentTimeStepOptions( rftReader(), *( m_uniqueRftWellNames.begin() ) );
     }
     else if ( fieldNeedingOptions == &m_rftWellName )
     {
-        auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( m_case() );
-        if ( eclipseCase && eclipseCase->rftReader() )
-        {
-            options = RimRftTools::wellNameOptions( eclipseCase->rftReader() );
-        }
+        options = RimRftTools::wellNameOptions( rftReader() );
     }
     else if ( fieldNeedingOptions == &m_rftSegmentBranchId )
     {
-        auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( m_case() );
-        if ( eclipseCase && eclipseCase->rftReader() )
-        {
-            options = RimRftTools::segmentBranchIdOptions( eclipseCase->rftReader(), m_rftWellName(), m_rftTimeStep() );
-        }
+        options = RimRftTools::segmentBranchIdOptions( rftReader(), m_rftWellName(), m_rftTimeStep() );
     }
 
     return options;
@@ -979,7 +996,8 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
     analyseCurvesAndTracks();
 
     caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Data Source" );
-    group->add( &m_case );
+    if ( m_case() ) group->add( &m_case );
+    if ( m_summaryCase() ) group->add( &m_summaryCase );
 
     auto* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
     if ( eclipseCase )
@@ -1006,12 +1024,13 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
                 }
             }
         }
+
+        group->add( &m_timeStep );
     }
     else
     {
-        group->add( &m_wellPath );
+        if ( m_wellPath() ) group->add( &m_wellPath );
     }
-    group->add( &m_timeStep );
 
     if ( uiConfigName == smoothingUiOrderinglabel() )
     {
@@ -1037,7 +1056,7 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
     if ( myAttr )
     {
         if ( field == &m_case || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep ||
-             field == &m_rftTimeStep || field == &m_rftSegmentBranchId )
+             field == &m_rftTimeStep || field == &m_rftSegmentBranchId || field == &m_rftWellName )
         {
             myAttr->showPreviousAndNextButtons = true;
             myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
@@ -1090,4 +1109,17 @@ void RimWellLogCurveCommonDataSource::modifyCurrentIndex( caf::PdmValueField* fi
 {
     QList<caf::PdmOptionItemInfo> options = calculateValueOptions( field );
     RimDataSourceSteppingTools::modifyCurrentIndex( field, options, indexOffset );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderRftInterface* RimWellLogCurveCommonDataSource::rftReader()
+{
+    auto eclipseCase = dynamic_cast<RimEclipseResultCase*>( m_case() );
+    if ( eclipseCase && eclipseCase->rftReader() ) return eclipseCase->rftReader();
+
+    if ( m_summaryCase() && m_summaryCase()->rftReader() ) return m_summaryCase->rftReader();
+
+    return nullptr;
 }
