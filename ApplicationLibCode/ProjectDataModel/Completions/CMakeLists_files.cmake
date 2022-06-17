@@ -21,6 +21,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimValveTemplate.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFracture.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMeshFractureTemplate.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.h
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.h
@@ -56,6 +57,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimValveTemplate.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFracture.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSimWellFractureCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMeshFractureTemplate.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanFractureTemplate.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFracture.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimWellPathFractureCollection.cpp
