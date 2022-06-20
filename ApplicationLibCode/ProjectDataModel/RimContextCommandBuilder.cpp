@@ -954,6 +954,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
+            menuBuilder << "RicNewThermalFractureTemplateFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicConvertAllFractureTemplatesToMetricFeature";
             menuBuilder << "RicConvertAllFractureTemplatesToFieldFeature";
@@ -965,6 +966,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
+            menuBuilder << "RicNewThermalFractureTemplateFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
         }
@@ -975,6 +977,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewEllipseFractureTemplateFeature";
             menuBuilder << "RicNewStimPlanFractureTemplateFeature";
+            menuBuilder << "RicNewThermalFractureTemplateFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicConvertFractureTemplateUnitFeature";
         }
