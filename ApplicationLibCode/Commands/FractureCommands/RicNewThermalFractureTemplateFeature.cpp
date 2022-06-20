@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-2018 Statoil ASA
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -17,65 +16,65 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewStimPlanFractureTemplateFeature.h"
+#include "RicNewThermalFractureTemplateFeature.h"
 
 #include "RicMeshFractureTemplateHelper.h"
 
-#include "RimStimPlanFractureTemplate.h"
+#include "RimThermalFractureTemplate.h"
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT( RicNewStimPlanFractureTemplateFeature, "RicNewStimPlanFractureTemplateFeature" );
+CAF_CMD_SOURCE_INIT( RicNewThermalFractureTemplateFeature, "RicNewThermalFractureTemplateFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewStimPlanFractureTemplateFeature::createNewTemplateForFractureAndUpdate( RimFracture* fracture )
+void RicNewThermalFractureTemplateFeature::createNewTemplateForFractureAndUpdate( RimFracture* fracture )
 {
-    RicMeshFractureTemplateHelper<RimStimPlanFractureTemplate>::createNewTemplateForFractureAndUpdate( fracture,
-                                                                                                       title(),
-                                                                                                       lastUsedDialogFallback(),
-                                                                                                       fileFilter(),
-                                                                                                       defaultTemplateName() );
+    RicMeshFractureTemplateHelper<RimThermalFractureTemplate>::createNewTemplateForFractureAndUpdate( fracture,
+                                                                                                      title(),
+                                                                                                      lastUsedDialogFallback(),
+                                                                                                      fileFilter(),
+                                                                                                      defaultTemplateName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewStimPlanFractureTemplateFeature::selectFractureTemplateAndUpdate( RimFractureTemplate* fractureTemplate )
+void RicNewThermalFractureTemplateFeature::selectFractureTemplateAndUpdate( RimFractureTemplate* fractureTemplate )
 {
-    RicMeshFractureTemplateHelper<RimStimPlanFractureTemplate>::selectFractureTemplateAndUpdate( fractureTemplate );
+    RicMeshFractureTemplateHelper<RimThermalFractureTemplate>::selectFractureTemplateAndUpdate( fractureTemplate );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimStimPlanFractureTemplate*> RicNewStimPlanFractureTemplateFeature::createNewTemplates()
+std::vector<RimThermalFractureTemplate*> RicNewThermalFractureTemplateFeature::createNewTemplates()
 {
-    return RicMeshFractureTemplateHelper<RimStimPlanFractureTemplate>::createNewTemplates( title(),
-                                                                                           lastUsedDialogFallback(),
-                                                                                           fileFilter(),
-                                                                                           defaultTemplateName() );
+    return RicMeshFractureTemplateHelper<RimThermalFractureTemplate>::createNewTemplates( title(),
+                                                                                          lastUsedDialogFallback(),
+                                                                                          fileFilter(),
+                                                                                          defaultTemplateName() );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimStimPlanFractureTemplate*>
-    RicNewStimPlanFractureTemplateFeature::createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
-                                                                        bool reuseExistingTemplatesWithMatchingNames )
+std::vector<RimThermalFractureTemplate*>
+    RicNewThermalFractureTemplateFeature::createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
+                                                                       bool reuseExistingTemplatesWithMatchingNames )
 {
-    return RicMeshFractureTemplateHelper<RimStimPlanFractureTemplate>::createNewTemplatesFromFiles( fileNames,
-                                                                                                    defaultTemplateName(),
-                                                                                                    reuseExistingTemplatesWithMatchingNames );
+    return RicMeshFractureTemplateHelper<RimThermalFractureTemplate>::createNewTemplatesFromFiles( fileNames,
+                                                                                                   defaultTemplateName(),
+                                                                                                   reuseExistingTemplatesWithMatchingNames );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewStimPlanFractureTemplateFeature::onActionTriggered( bool isChecked )
+void RicNewThermalFractureTemplateFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimStimPlanFractureTemplate*> newFractures = createNewTemplates();
+    std::vector<RimThermalFractureTemplate*> newFractures = createNewTemplates();
     if ( !newFractures.empty() )
     {
         selectFractureTemplateAndUpdate( newFractures.back() );
@@ -85,16 +84,16 @@ void RicNewStimPlanFractureTemplateFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewStimPlanFractureTemplateFeature::setupActionLook( QAction* actionToSetup )
+void RicNewThermalFractureTemplateFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setIcon( QIcon( ":/FractureTemplate16x16.png" ) );
-    actionToSetup->setText( "New StimPlan Fracture Template" );
+    actionToSetup->setText( "New Thermal Fracture Template" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewStimPlanFractureTemplateFeature::isCommandEnabled()
+bool RicNewThermalFractureTemplateFeature::isCommandEnabled()
 {
     return true;
 }
@@ -102,31 +101,31 @@ bool RicNewStimPlanFractureTemplateFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicNewStimPlanFractureTemplateFeature::fileFilter()
+QString RicNewThermalFractureTemplateFeature::fileFilter()
 {
-    return "StimPlan XML File (*.xml);;All files(*.*)";
+    return "Reveal Open-Server Files (*.csv);;All files (*.*)";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicNewStimPlanFractureTemplateFeature::title()
+QString RicNewThermalFractureTemplateFeature::title()
 {
-    return "Open StimPlan XML File";
+    return "Open Thermal Fracture File";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicNewStimPlanFractureTemplateFeature::lastUsedDialogFallback()
+QString RicNewThermalFractureTemplateFeature::lastUsedDialogFallback()
 {
-    return "STIMPLAN_XML_DIR";
+    return "REVEAL_CSV_DIR";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RicNewStimPlanFractureTemplateFeature::defaultTemplateName()
+QString RicNewThermalFractureTemplateFeature::defaultTemplateName()
 {
-    return "StimPlan Fracture Template";
+    return "Thermal Fracture Template";
 }

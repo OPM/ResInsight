@@ -9,6 +9,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureAtPosFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanFractureTemplateFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewThermalFractureTemplateFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureAtPosFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelFeature.h
@@ -33,6 +34,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureAtPosFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewSimWellFractureFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanFractureTemplateFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewThermalFractureTemplateFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureAtPosFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellPathFractureFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewStimPlanModelFeature.cpp

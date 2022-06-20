@@ -1,7 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2017-2018 Statoil ASA
-//  Copyright (C) 2018-     Equinor ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -25,25 +24,25 @@
 
 class RimFracture;
 class RimFractureTemplate;
-class RimStimPlanFractureTemplate;
+class RimThermalFractureTemplate;
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewStimPlanFractureTemplateFeature : public caf::CmdFeature
+class RicNewThermalFractureTemplateFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
     static void createNewTemplateForFractureAndUpdate( RimFracture* fracture );
     static void selectFractureTemplateAndUpdate( RimFractureTemplate* fractureTemplate );
-    static std::vector<RimStimPlanFractureTemplate*>
+    static std::vector<RimThermalFractureTemplate*>
         createNewTemplatesFromFiles( const std::vector<QString>& fileNames,
                                      bool                        reuseExistingTemplatesWithMatchingNames = false );
 
 protected:
-    static std::vector<RimStimPlanFractureTemplate*> createNewTemplates();
-    void                                             onActionTriggered( bool isChecked ) override;
-    void                                             setupActionLook( QAction* actionToSetup ) override;
-    bool                                             isCommandEnabled() override;
+    static std::vector<RimThermalFractureTemplate*> createNewTemplates();
+    void                                            onActionTriggered( bool isChecked ) override;
+    void                                            setupActionLook( QAction* actionToSetup ) override;
+    bool                                            isCommandEnabled() override;
 
     static QString fileFilter();
     static QString title();
