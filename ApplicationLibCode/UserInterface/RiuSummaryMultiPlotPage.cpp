@@ -103,7 +103,8 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
             auto summaryPlot = dynamic_cast<RimSummaryPlot*>( plotWidget->plotDefinition() );
             if ( summaryPlot ) m_summaryMultiPlot->setLayoutInfo( summaryPlot, row, col );
 
-            subTitles[visibleIndex]->setVisible( m_showSubTitles );
+            bool isSubTitleVisible = m_showSubTitles && !subTitles[visibleIndex]->text().isEmpty();
+            subTitles[visibleIndex]->setVisible( isSubTitleVisible );
             QFont subTitleFont = subTitles[visibleIndex]->font();
             subTitleFont.setPixelSize( m_subTitleFontPixelSize );
             subTitles[visibleIndex]->setFont( subTitleFont );
