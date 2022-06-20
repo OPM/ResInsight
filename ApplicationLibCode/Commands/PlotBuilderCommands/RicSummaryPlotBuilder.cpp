@@ -471,6 +471,44 @@ RimSummaryMultiPlot*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSummaryPlot* plot )
+{
+    RimProject* project        = RimProject::current();
+    auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+
+    auto* summaryMultiPlot = new RimSummaryMultiPlot();
+    summaryMultiPlot->setColumnCount( RiaDefines::ColumnCount::COLUMNS_1 );
+    summaryMultiPlot->setRowCount( RiaDefines::RowCount::ROWS_1 );
+    summaryMultiPlot->setAsPlotMdiWindow();
+
+    if ( !plot->autoPlotTitle() )
+    {
+        // Move settings from the single summary plot to the multi plot, and disable auto titles
+        summaryMultiPlot->setAutoPlotTitle( false );
+        summaryMultiPlot->setAutoSubPlotTitle( false );
+        summaryMultiPlot->setMultiPlotTitleVisible( true );
+        summaryMultiPlot->setMultiPlotTitle( plot->description() );
+
+        plot->setPlotTitleVisible( false );
+        plot->setDescription( "" );
+    }
+
+    plotCollection->addSummaryMultiPlot( summaryMultiPlot );
+
+    appendPlotsToSummaryMultiPlot( summaryMultiPlot, { plot } );
+
+    plotCollection->updateAllRequiredEditors();
+    summaryMultiPlot->loadDataAndUpdate();
+    summaryMultiPlot->updateAllRequiredEditors();
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+
+    return summaryMultiPlot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots )
 {
     RimProject* project        = RimProject::current();

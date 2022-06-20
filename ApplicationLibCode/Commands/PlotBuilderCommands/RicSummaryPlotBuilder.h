@@ -79,6 +79,7 @@ public:
         createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
                                                 const std::vector<RimSummaryCaseCollection*>& ensembles );
 
+    static RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSummaryPlot* plot );
     static RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlot( RimSummaryPlot* plot );
     static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots );
     static RimSummaryMultiPlot* createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects );
