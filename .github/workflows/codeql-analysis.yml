@@ -110,11 +110,11 @@ jobs:
     #   echo "Run, Build Application using script"
     #   ./location_of_script_within_repo/buildscript.sh
     
-    - name: Create compile commands and run clang-tidy
+    - name: Build ResInsight
       run: |
-      mkdir build
-      cd build
-      cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }} ..
+        mkdir build
+        cd build
+        cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }} ..
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
