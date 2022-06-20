@@ -102,6 +102,7 @@ jobs:
         mkdir build
         cd build
         cmake -DCMAKE_TOOLCHAIN_FILE=${{ matrix.config.cmake-toolchain }} ..
+        make -j8
 
     - name: Perform CodeQL Analysis
       uses: github/codeql-action/analyze@v2
