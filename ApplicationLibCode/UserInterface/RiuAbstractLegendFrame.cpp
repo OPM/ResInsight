@@ -37,6 +37,7 @@ RiuAbstractLegendFrame::RiuAbstractLegendFrame( QWidget* parent, const QString& 
     , m_title( title )
 {
     setSizePolicy( QSizePolicy::Preferred, QSizePolicy::Maximum );
+    updateFontSize();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +70,7 @@ QSize RiuAbstractLegendFrame::sizeHint() const
     preferredWidth = std::max( preferredWidth, titleWidth );
     preferredWidth = std::min( preferredWidth, 200 );
 
-    return QSize( preferredWidth, preferredHeight );
+    return { preferredWidth, preferredHeight };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,11 +82,21 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     layoutInfo( &layout );
 
     QFontMetrics fontMetrics( this->font() );
-    QRect titleRect = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft | Qt::TextWordWrap, m_title );
 
-    int preferredContentHeight = titleRect.height() + 2 * layout.lineSpacing + 1.0 * layout.lineSpacing;
-    int preferredHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
-    int titleWidth             = titleRect.width() + layout.margins.left() + layout.margins.right();
+    int preferredHeight = 0;
+    int titleWidth      = 0;
+
+    QStringList tokens = m_title.split( "\n" );
+    for ( const auto& s : tokens )
+    {
+        QRect titleRect              = fontMetrics.boundingRect( QRect( 0, 0, 200, 200 ), Qt::AlignLeft, s );
+        int   preferredContentHeight = titleRect.height() + 2 * layout.lineSpacing + 1.0 * layout.lineSpacing;
+        int   candidateHeight        = preferredContentHeight + layout.margins.top() + layout.margins.bottom();
+        int   candidateTitleWidth    = titleRect.width() + layout.margins.left() + layout.margins.right();
+
+        preferredHeight = std::max( preferredHeight, candidateHeight );
+        titleWidth      = std::max( titleWidth, candidateTitleWidth );
+    }
 
     int firstTextWidth   = fontMetrics.boundingRect( label( 0 ) ).width();
     int lastTextWidth    = fontMetrics.boundingRect( label( labelCount() - 1 ) ).width();
@@ -97,7 +108,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
     preferredWidth = std::max( preferredWidth, titleWidth );
     preferredWidth = std::min( preferredWidth, 400 );
 
-    return QSize( preferredWidth, preferredHeight );
+    return { preferredWidth, preferredHeight };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -105,9 +116,7 @@ QSize RiuAbstractLegendFrame::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRect )
 {
-    QFont font = this->font();
-    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() ) );
-    this->setFont( font );
+    updateFontSize();
 
     QColor textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
 
@@ -135,7 +144,7 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
     }
 
     std::vector<std::pair<QRect, QString>> visibleTickLabels = visibleLabels( layout );
-    for ( auto tickLabel : visibleTickLabels )
+    for ( const auto& tickLabel : visibleTickLabels )
     {
         painter->save();
         painter->translate( tickLabel.first.topLeft() );
@@ -154,8 +163,6 @@ void RiuAbstractLegendFrame::renderTo( QPainter* painter, const QRect& targetRec
         renderRect( painter, layout, i );
     }
     painter->drawRect( layout.colorBarRect );
-    // painter->drawLine( QPointF( layout.tickMidX, layout.tickYPixelPos->get( i ) ),
-    //         QPointF( layout.tickMidX, layout.tickYPixelPos->get( i + 1 ) ) );
 
     painter->restore();
 }
@@ -187,7 +194,7 @@ std::vector<std::pair<QRect, QString>> RiuAbstractLegendFrame::visibleLabels( co
 
         QString valueString = label( i );
         lastRect            = rect;
-        visibleTickLabels.push_back( { rect, valueString } );
+        visibleTickLabels.emplace_back( rect, valueString );
     }
     return visibleTickLabels;
 }
