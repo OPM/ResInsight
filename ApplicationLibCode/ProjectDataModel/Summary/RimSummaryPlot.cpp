@@ -626,6 +626,22 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisType, const RimSummaryPlot& sourceSummaryPlot )
+{
+    for ( auto ap : sourceSummaryPlot.plotAxes() )
+    {
+        if ( ap->plotAxisType().axis() != plotAxisType ) continue;
+
+        QString data = ap->writeObjectToXmlString();
+
+        axisPropertiesForPlotAxis( ap->plotAxisType() )
+            ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& summaryPlot )
 {
     for ( auto apToCopy : summaryPlot.plotAxes() )

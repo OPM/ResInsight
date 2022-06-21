@@ -25,8 +25,10 @@
 #include "RiaPreferences.h"
 
 #include "RimPlotAxisAnnotation.h"
+#include "RimSummaryMultiPlot.h"
 
 #include "cafPdmUiSliderEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cvfVector2.h"
 
@@ -680,6 +682,28 @@ void RimPlotAxisProperties::updateOverriddenLabelAndReadOnlyState()
 caf::FontTools::FontSize RimPlotAxisProperties::plotFontSize() const
 {
     return RiaPreferences::current()->defaultPlotFontSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
+    firstAncestorOfType( summaryMultiPlot );
+
+    if ( summaryMultiPlot && summaryMultiPlot->isSubPlotAxesLinked() )
+    {
+        auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+        if ( treeItemAttribute )
+        {
+            treeItemAttribute->tags.clear();
+            auto tag  = caf::PdmUiTreeViewItemAttribute::Tag::create();
+            tag->icon = caf::IconProvider( ":/chain.png" );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

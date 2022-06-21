@@ -91,8 +91,5 @@ protected:
     bool isAppearanceOverridden() const;
 
 private:
-    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
-
-private:
     caf::PdmField<bool> m_isAppearanceOverridden;
 };

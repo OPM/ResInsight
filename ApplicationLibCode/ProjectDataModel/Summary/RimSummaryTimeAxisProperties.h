@@ -126,6 +126,9 @@ protected:
     caf::FontTools::FontSize plotFontSize() const;
 
 private:
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
     caf::PdmField<caf::AppEnum<TimeModeType>> m_timeMode;
     caf::PdmField<caf::AppEnum<TimeUnitType>> m_timeUnit;
 
