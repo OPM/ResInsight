@@ -65,8 +65,8 @@ public:
     void setLayoutInfo( RimSummaryPlot* summaryPlot, int row, int col );
     void clearLayoutInfo();
 
-    void setAutoTitlePlot( bool enable );
-    void setAutoTitleGraphs( bool enable );
+    void setAutoPlotTitle( bool enable );
+    void setAutoSubPlotTitle( bool enable );
 
     std::vector<RimSummaryDataSourceStepping::Axis> availableAxes() const override;
     std::vector<RimSummaryCurve*>     curvesForStepping( RimSummaryDataSourceStepping::Axis axis ) const override;
@@ -145,8 +145,8 @@ private:
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
 
 private:
-    caf::PdmField<bool> m_autoPlotTitles;
-    caf::PdmField<bool> m_autoPlotTitlesOnSubPlots;
+    caf::PdmField<bool> m_autoPlotTitle;
+    caf::PdmField<bool> m_autoSubPlotTitle;
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
     caf::PdmField<bool> m_linkSubPlotAxes;

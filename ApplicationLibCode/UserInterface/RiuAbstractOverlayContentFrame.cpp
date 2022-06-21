@@ -44,6 +44,16 @@ RiuAbstractOverlayContentFrame::~RiuAbstractOverlayContentFrame()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuAbstractOverlayContentFrame::updateFontSize()
+{
+    QFont font = this->font();
+    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() ) );
+    this->setFont( font );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuTextOverlayContentFrame::RiuTextOverlayContentFrame( QWidget* parent /*= nullptr */ )
     : RiuAbstractOverlayContentFrame( parent )
 {
@@ -52,9 +62,7 @@ RiuTextOverlayContentFrame::RiuTextOverlayContentFrame( QWidget* parent /*= null
     m_textLabel = new QLabel;
     layout->addWidget( m_textLabel );
 
-    QFont font = m_textLabel->font();
-    caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() );
-    m_textLabel->setFont( font );
+    updateLabelFont();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,6 +78,8 @@ void RiuTextOverlayContentFrame::setText( const QString& text )
 //--------------------------------------------------------------------------------------------------
 void RiuTextOverlayContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
 {
+    updateLabelFont();
+
     painter->save();
     painter->translate( targetRect.topLeft() + QPoint( this->contentsMargins().left(), this->contentsMargins().top() ) );
     painter->setFont( m_textLabel->font() );
@@ -80,4 +90,14 @@ void RiuTextOverlayContentFrame::renderTo( QPainter* painter, const QRect& targe
     td.drawContents( painter );
 
     painter->restore();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuTextOverlayContentFrame::updateLabelFont()
+{
+    QFont font = m_textLabel->font();
+    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() ) );
+    m_textLabel->setFont( font );
 }

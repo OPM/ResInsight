@@ -109,8 +109,8 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     CAF_PDM_InitObject( "Multi Summary Plot", ":/SummaryPlotLight16x16.png" );
     this->setDeletable( true );
 
-    CAF_PDM_InitField( &m_autoPlotTitles, "AutoPlotTitles", true, "Auto Plot Titles" );
-    CAF_PDM_InitField( &m_autoPlotTitlesOnSubPlots, "AutoPlotTitlesSubPlots", true, "Auto Plot Titles Sub Plots" );
+    CAF_PDM_InitField( &m_autoPlotTitle, "AutoPlotTitle", true, "Auto Plot Title" );
+    CAF_PDM_InitField( &m_autoSubPlotTitle, "AutoSubPlotTitle", true, "Auto Sub Plot Title" );
 
     CAF_PDM_InitField( &m_createPlotDuplicate, "DuplicatePlot", false, "", "", "Duplicate Plot" );
     m_createPlotDuplicate.xmlCapability()->disableIO();
@@ -396,14 +396,14 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
     titlesGroup->setCollapsedByDefault( true );
-    titlesGroup->add( &m_autoPlotTitles );
+    titlesGroup->add( &m_autoPlotTitle );
     titlesGroup->add( &m_showPlotWindowTitle );
     titlesGroup->add( &m_plotWindowTitle );
     titlesGroup->add( &m_titleFontSize );
 
     auto subPlotSettingsGroup = uiOrdering.addNewGroup( "Sub Plot Settings" );
     subPlotSettingsGroup->setCollapsedByDefault( true );
-    subPlotSettingsGroup->add( &m_autoPlotTitlesOnSubPlots );
+    subPlotSettingsGroup->add( &m_autoSubPlotTitle );
     subPlotSettingsGroup->add( &m_showIndividualPlotTitles );
     subPlotSettingsGroup->add( &m_subTitleFontSize );
 
@@ -423,7 +423,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
 {
-    if ( changedField == &m_autoPlotTitles || changedField == &m_autoPlotTitlesOnSubPlots )
+    if ( changedField == &m_autoPlotTitle || changedField == &m_autoSubPlotTitle )
     {
         onLoadDataAndUpdate();
         updateLayout();
@@ -501,7 +501,7 @@ void RimSummaryMultiPlot::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::updatePlotWindowTitle()
 {
-    if ( m_autoPlotTitles )
+    if ( m_autoPlotTitle )
     {
         populateNameHelper( m_nameHelper.get() );
 
@@ -525,7 +525,7 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
         setMultiPlotTitle( title );
     }
 
-    if ( m_autoPlotTitlesOnSubPlots )
+    if ( m_autoSubPlotTitle )
     {
         for ( auto plot : summaryPlots() )
         {
@@ -556,17 +556,17 @@ const RimSummaryNameHelper* RimSummaryMultiPlot::nameHelper() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::setAutoTitlePlot( bool enable )
+void RimSummaryMultiPlot::setAutoPlotTitle( bool enable )
 {
-    m_autoPlotTitles = enable;
+    m_autoPlotTitle = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::setAutoTitleGraphs( bool enable )
+void RimSummaryMultiPlot::setAutoSubPlotTitle( bool enable )
 {
-    m_autoPlotTitlesOnSubPlots = enable;
+    m_autoSubPlotTitle = enable;
 }
 
 //--------------------------------------------------------------------------------------------------

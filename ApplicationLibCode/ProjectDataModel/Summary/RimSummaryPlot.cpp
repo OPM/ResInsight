@@ -938,8 +938,10 @@ void RimSummaryPlot::updateZoomForAxis( RiuPlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
 {
+    auto curves = visibleSummaryCurvesForAxis( plotAxis );
+    if ( curves.empty() ) return false;
+
     size_t waterCutCurveCount = 0;
-    auto   curves             = visibleSummaryCurvesForAxis( plotAxis );
     for ( auto c : curves )
     {
         auto quantityName = c->summaryAddressY().vectorName();

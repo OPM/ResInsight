@@ -169,7 +169,7 @@ void RimMainPlotCollection::initAfterRead()
     {
         m_summaryPlotCollection_OBSOLETE()->removePlot( singlePlot );
 
-        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( singlePlot );
+        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( singlePlot );
     }
 }
 
