@@ -143,6 +143,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_appendPrevCurve.uiCapability()->setUiIconFromResourceString( ":/AppendPrevCurve.png" );
 
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
+    CAF_PDM_InitField( &m_linkTimeAxis, "LinkTimeAxis", true, "Link Time Axis" );
     CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Adjust Appearance" );
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Control" );
@@ -381,6 +382,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     auto axesGroup = uiOrdering.addNewGroup( "Axes" );
     axesGroup->add( &m_axisRangeAggregation );
     axesGroup->add( &m_linkSubPlotAxes );
+    axesGroup->add( &m_linkTimeAxis );
     axesGroup->add( &m_autoAdjustAppearance );
 
     m_linkSubPlotAxes.uiCapability()->setUiReadOnly( m_autoAdjustAppearance() );
@@ -428,7 +430,16 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         onLoadDataAndUpdate();
         updateLayout();
     }
-    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation )
+    else if ( changedField == &m_linkTimeAxis )
+    {
+        auto plots = summaryPlots();
+        if ( !plots.empty() )
+        {
+            syncTimeAxisRanges( plots.front() );
+        }
+    }
+    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation ||
+              changedField == &m_linkTimeAxis )
     {
         syncAxisRanges();
 
@@ -847,6 +858,24 @@ void RimSummaryMultiPlot::syncAxisRanges()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::syncTimeAxisRanges( RimSummaryPlot* summaryPlot )
+{
+    if ( m_linkTimeAxis )
+    {
+        for ( auto plot : summaryPlots() )
+        {
+            if ( plot != summaryPlot )
+            {
+                plot->copyAxisPropertiesFromOther( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, *summaryPlot );
+                plot->updateAll();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::computeAggregatedAxisRange()
 {
     auto readValues = []( RimSummaryCase* summaryCase, RifEclipseSummaryAddress addr ) {
@@ -1229,6 +1258,14 @@ bool RimSummaryMultiPlot::isSubPlotAxesLinked() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::isTimeAxisLinked() const
+{
+    return m_linkTimeAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<int, int> RimSummaryMultiPlot::gridLayoutInfoForSubPlot( RimSummaryPlot* summaryPlot ) const
 {
     auto it = m_gridLayoutInfo.find( summaryPlot );
@@ -1251,6 +1288,8 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
 {
+    syncTimeAxisRanges( summaryPlot );
+
     if ( !m_linkSubPlotAxes() )
     {
         syncAxisRanges();

@@ -18,10 +18,7 @@
 
 #include "RimPlotAxisPropertiesInterface.h"
 
-#include "RimSummaryMultiPlot.h"
-
 #include "cafAppEnum.h"
-#include "cafPdmUiTreeAttributes.h"
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotAxisPropertiesInterface,
                                   "PlotAxisPropertiesInterface",
@@ -119,26 +116,4 @@ int RimPlotAxisPropertiesInterface::tickmarkCountFromEnum( LegendTickmarkCount c
 bool RimPlotAxisPropertiesInterface::isAppearanceOverridden() const
 {
     return m_isAppearanceOverridden();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotAxisPropertiesInterface::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
-{
-    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
-    firstAncestorOfType( summaryMultiPlot );
-
-    if ( summaryMultiPlot && summaryMultiPlot->isSubPlotAxesLinked() )
-    {
-        auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
-        if ( treeItemAttribute )
-        {
-            treeItemAttribute->tags.clear();
-            auto tag  = caf::PdmUiTreeViewItemAttribute::Tag::create();
-            tag->icon = caf::IconProvider( ":/chain.png" );
-
-            treeItemAttribute->tags.push_back( std::move( tag ) );
-        }
-    }
 }

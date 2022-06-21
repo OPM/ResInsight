@@ -84,6 +84,7 @@ public:
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar() override;
 
     void syncAxisRanges();
+    void syncTimeAxisRanges( RimSummaryPlot* summaryPlot );
 
     void handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
 
@@ -96,6 +97,7 @@ public:
 
     void setSubPlotAxesLinked( bool enable );
     bool isSubPlotAxesLinked() const;
+    bool isTimeAxisLinked() const;
 
     std::pair<int, int> gridLayoutInfoForSubPlot( RimSummaryPlot* summaryPlot ) const;
 
@@ -150,6 +152,7 @@ private:
     caf::PdmField<bool> m_disableWheelZoom;
     caf::PdmField<bool> m_createPlotDuplicate;
     caf::PdmField<bool> m_linkSubPlotAxes;
+    caf::PdmField<bool> m_linkTimeAxis;
     caf::PdmField<bool> m_autoAdjustAppearance;
 
     caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
