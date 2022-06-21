@@ -795,7 +795,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
     }
 
     // Reset zoom to make sure the complete range for min/max is available
-    RimMultiPlot::zoomAll();
+    RimMultiPlot::zoomAllYAxes();
 
     if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
     {
@@ -804,7 +804,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         // gather current min/max values for each category (axis label)
         for ( auto plot : summaryPlots() )
         {
-            for ( auto axis : plot->plotAxes() )
+            for ( auto axis : plot->plotYAxes() )
             {
                 double minVal = axis->visibleRangeMin();
                 double maxVal = axis->visibleRangeMax();
@@ -826,7 +826,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         // set all plots to use the global min/max values for each category
         for ( auto plot : summaryPlots() )
         {
-            for ( auto axis : plot->plotAxes() )
+            for ( auto axis : plot->plotYAxes() )
             {
                 auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
@@ -975,7 +975,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
     {
         std::map<RiuPlotAxis, std::pair<double, double>> axisRanges;
 
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotYAxes() )
         {
             for ( auto curve : plot->summaryCurves() )
             {
@@ -1042,7 +1042,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         }
 
         // set all plots to use the global min/max values for each category
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotYAxes() )
         {
             auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
             if ( RiaDefines::isVertical( axis->plotAxisType().axis() ) && !std::isinf( minVal ) && !std::isinf( maxVal ) )
@@ -1170,7 +1170,7 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
         else
             timeAxisProp->setMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
 
-        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotAxes() )
+        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotYAxes() )
         {
             auto axisProp = dynamic_cast<RimPlotAxisProperties*>( axisInterface );
 

@@ -101,6 +101,7 @@ public:
     bool showPlotTitles() const;
 
     void zoomAll() override;
+    void zoomAllYAxes();
 
     QString asciiDataForPlotExport() const;
 
