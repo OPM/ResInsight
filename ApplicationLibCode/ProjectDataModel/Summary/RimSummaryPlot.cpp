@@ -1211,6 +1211,8 @@ void RimSummaryPlot::zoomAll()
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
     updateZoomInParentPlot();
+
+    axisChanged.send( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1696,8 +1698,6 @@ void RimSummaryPlot::updateZoomFromParentPlot()
 
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
     {
-        if ( !axisProperties->isAutoZoom() ) continue;
-
         auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
         if ( axisProperties->isAxisInverted() ) std::swap( axisMin, axisMax );
 
@@ -2303,6 +2303,8 @@ void RimSummaryPlot::onPlotZoomed()
     setAutoScaleXEnabled( false );
     setAutoScaleYEnabled( false );
     updateZoomFromParentPlot();
+
+    axisChanged.send( this );
 }
 
 //--------------------------------------------------------------------------------------------------
