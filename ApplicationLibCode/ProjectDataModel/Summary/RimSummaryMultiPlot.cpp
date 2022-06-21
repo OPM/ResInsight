@@ -143,6 +143,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_appendPrevCurve.uiCapability()->setUiIconFromResourceString( ":/AppendPrevCurve.png" );
 
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
+    CAF_PDM_InitField( &m_linkTimeAxis, "LinkTimeAxis", true, "Link Time Axis" );
     CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Adjust Appearance" );
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Control" );
@@ -381,6 +382,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     auto axesGroup = uiOrdering.addNewGroup( "Axes" );
     axesGroup->add( &m_axisRangeAggregation );
     axesGroup->add( &m_linkSubPlotAxes );
+    axesGroup->add( &m_linkTimeAxis );
     axesGroup->add( &m_autoAdjustAppearance );
 
     m_linkSubPlotAxes.uiCapability()->setUiReadOnly( m_autoAdjustAppearance() );
@@ -428,7 +430,16 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         onLoadDataAndUpdate();
         updateLayout();
     }
-    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation )
+    else if ( changedField == &m_linkTimeAxis )
+    {
+        auto plots = summaryPlots();
+        if ( !plots.empty() )
+        {
+            syncTimeAxisRanges( plots.front() );
+        }
+    }
+    else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation ||
+              changedField == &m_linkTimeAxis )
     {
         syncAxisRanges();
 
@@ -795,7 +806,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
     }
 
     // Reset zoom to make sure the complete range for min/max is available
-    RimMultiPlot::zoomAll();
+    RimMultiPlot::zoomAllYAxes();
 
     if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
     {
@@ -804,7 +815,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         // gather current min/max values for each category (axis label)
         for ( auto plot : summaryPlots() )
         {
-            for ( auto axis : plot->plotAxes() )
+            for ( auto axis : plot->plotYAxes() )
             {
                 double minVal = axis->visibleRangeMin();
                 double maxVal = axis->visibleRangeMax();
@@ -826,7 +837,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         // set all plots to use the global min/max values for each category
         for ( auto plot : summaryPlots() )
         {
-            for ( auto axis : plot->plotAxes() )
+            for ( auto axis : plot->plotYAxes() )
             {
                 auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
@@ -841,6 +852,24 @@ void RimSummaryMultiPlot::syncAxisRanges()
     else
     {
         computeAggregatedAxisRange();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::syncTimeAxisRanges( RimSummaryPlot* summaryPlot )
+{
+    if ( m_linkTimeAxis )
+    {
+        for ( auto plot : summaryPlots() )
+        {
+            if ( plot != summaryPlot )
+            {
+                plot->copyAxisPropertiesFromOther( RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM, *summaryPlot );
+                plot->updateAll();
+            }
+        }
     }
 }
 
@@ -975,7 +1004,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
     {
         std::map<RiuPlotAxis, std::pair<double, double>> axisRanges;
 
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotYAxes() )
         {
             for ( auto curve : plot->summaryCurves() )
             {
@@ -1042,7 +1071,7 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
         }
 
         // set all plots to use the global min/max values for each category
-        for ( auto axis : plot->plotAxes() )
+        for ( auto axis : plot->plotYAxes() )
         {
             auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
             if ( RiaDefines::isVertical( axis->plotAxisType().axis() ) && !std::isinf( minVal ) && !std::isinf( maxVal ) )
@@ -1170,7 +1199,7 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
         else
             timeAxisProp->setMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
 
-        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotAxes() )
+        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotYAxes() )
         {
             auto axisProp = dynamic_cast<RimPlotAxisProperties*>( axisInterface );
 
@@ -1229,6 +1258,14 @@ bool RimSummaryMultiPlot::isSubPlotAxesLinked() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimSummaryMultiPlot::isTimeAxisLinked() const
+{
+    return m_linkTimeAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::pair<int, int> RimSummaryMultiPlot::gridLayoutInfoForSubPlot( RimSummaryPlot* summaryPlot ) const
 {
     auto it = m_gridLayoutInfo.find( summaryPlot );
@@ -1251,6 +1288,8 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot )
 {
+    syncTimeAxisRanges( summaryPlot );
+
     if ( !m_linkSubPlotAxes() )
     {
         syncAxisRanges();

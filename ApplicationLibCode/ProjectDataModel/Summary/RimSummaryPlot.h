@@ -150,6 +150,7 @@ public:
     void                        updateCurveNames();
 
     void copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
+    void copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisType, const RimSummaryPlot& sourceSummaryPlot );
     void copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& sourceSummaryPlot );
 
     void updateAll();
@@ -196,6 +197,7 @@ public:
     std::vector<RimSummaryCurve*>     allCurves( RimSummaryDataSourceStepping::Axis axis ) const override;
 
     std::vector<RimPlotAxisPropertiesInterface*> plotAxes() const;
+    std::vector<RimPlotAxisPropertiesInterface*> plotYAxes() const;
 
     RimPlotAxisPropertiesInterface* axisPropertiesForPlotAxis( RiuPlotAxis plotAxis ) const;
 

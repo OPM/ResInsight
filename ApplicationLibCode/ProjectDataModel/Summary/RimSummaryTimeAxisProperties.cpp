@@ -24,12 +24,14 @@
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiDateEditor.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiTimeEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 
 #include "cvfAssert.h"
 
@@ -161,6 +163,28 @@ int RimSummaryTimeAxisProperties::valuesFontSize() const
 caf::FontTools::FontSize RimSummaryTimeAxisProperties::plotFontSize() const
 {
     return RiaPreferences::current()->defaultPlotFontSize();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute )
+{
+    RimSummaryMultiPlot* summaryMultiPlot = nullptr;
+    firstAncestorOfType( summaryMultiPlot );
+
+    if ( summaryMultiPlot && summaryMultiPlot->isTimeAxisLinked() )
+    {
+        auto* treeItemAttribute = dynamic_cast<caf::PdmUiTreeViewItemAttribute*>( attribute );
+        if ( treeItemAttribute )
+        {
+            treeItemAttribute->tags.clear();
+            auto tag  = caf::PdmUiTreeViewItemAttribute::Tag::create();
+            tag->icon = caf::IconProvider( ":/chain.png" );
+
+            treeItemAttribute->tags.push_back( std::move( tag ) );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

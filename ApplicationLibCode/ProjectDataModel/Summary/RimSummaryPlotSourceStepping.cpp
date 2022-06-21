@@ -516,7 +516,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             summaryMultiPlot->updatePlots();
             summaryMultiPlot->updatePlotWindowTitle();
-            summaryMultiPlot->zoomAll();
+            summaryMultiPlot->zoomAllYAxes();
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateMultiPlotToolBar();
         }

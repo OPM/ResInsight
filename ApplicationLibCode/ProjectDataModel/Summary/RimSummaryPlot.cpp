@@ -626,6 +626,22 @@ void RimSummaryPlot::copyAxisPropertiesFromOther( const RimSummaryPlot& sourceSu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::copyAxisPropertiesFromOther( RiaDefines::PlotAxis plotAxisType, const RimSummaryPlot& sourceSummaryPlot )
+{
+    for ( auto ap : sourceSummaryPlot.plotAxes() )
+    {
+        if ( ap->plotAxisType().axis() != plotAxisType ) continue;
+
+        QString data = ap->writeObjectToXmlString();
+
+        axisPropertiesForPlotAxis( ap->plotAxisType() )
+            ->readObjectFromXmlString( data, caf::PdmDefaultObjectFactory::instance() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::copyMatchingAxisPropertiesFromOther( const RimSummaryPlot& summaryPlot )
 {
     for ( auto apToCopy : summaryPlot.plotAxes() )
@@ -769,14 +785,17 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
         cvf::Color3f curveColor;
         if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
         {
-            auto basePhaseColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( curveSet->summaryAddress() );
-
-            curveColor = RiaColorTools::blendCvfColors( basePhaseColor, cvf::Color3f::WHITE, 1, 3 );
+            curveColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( curveSet->summaryAddress() );
         }
         else
         {
             curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ );
         }
+
+        int weightBaseColor = 10;
+        int weightWhite     = 25;
+
+        curveColor = RiaColorTools::blendCvfColors( curveColor, cvf::Color3f::WHITE, weightBaseColor, weightWhite );
 
         curveSet->setColor( curveColor );
     }
@@ -1192,6 +1211,8 @@ void RimSummaryPlot::zoomAll()
     setAutoScaleXEnabled( true );
     setAutoScaleYEnabled( true );
     updateZoomInParentPlot();
+
+    axisChanged.send( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2282,6 +2303,8 @@ void RimSummaryPlot::onPlotZoomed()
     setAutoScaleXEnabled( false );
     setAutoScaleYEnabled( false );
     updateZoomFromParentPlot();
+
+    axisChanged.send( this );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2750,6 +2773,20 @@ std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxes() const
     for ( const auto& ap : m_axisProperties )
     {
         axisProps.push_back( ap );
+    }
+
+    return axisProps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotYAxes() const
+{
+    std::vector<RimPlotAxisPropertiesInterface*> axisProps;
+    for ( const auto& ap : m_axisProperties )
+    {
+        if ( RiaDefines::isVertical( ap->plotAxisType().axis() ) ) axisProps.push_back( ap );
     }
 
     return axisProps;
