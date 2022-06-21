@@ -104,6 +104,14 @@ RiaPreferencesSystem* RiaPreferencesSystem::current()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiaPreferencesSystem::setAppendClassNameToUiText( bool enable )
+{
+    m_appendClassNameToUiText = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RiaPreferencesSystem::appendClassNameToUiText() const
 {
     return RiaApplication::enableDevelopmentFeatures() && m_appendClassNameToUiText();

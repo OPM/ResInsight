@@ -42,6 +42,7 @@ public:
 
     static RiaPreferencesSystem* current();
 
+    void    setAppendClassNameToUiText( bool enable );
     bool    appendClassNameToUiText() const;
     bool    appendFieldKeywordToToolTipText() const;
     bool    showViewIdInProjectTree() const;
