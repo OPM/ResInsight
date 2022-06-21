@@ -20,6 +20,8 @@
 
 #include "RiaRegressionTestRunner.h"
 
+#include "cafPdmUiPropertyViewDialog.h"
+
 #include <QAction>
 #include <QDir>
 
@@ -46,5 +48,51 @@ void RicLaunchRegressionTestsFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicLaunchRegressionTestsFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Launch Regression Tests" );
+    actionToSetup->setText( "Regression Tests" );
+}
+
+CAF_CMD_SOURCE_INIT( RicLaunchRegressionTestDialogFeature, "RicLaunchRegressionTestDialogFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicLaunchRegressionTestDialogFeature::showRegressionTestDialog()
+{
+    RiaRegressionTest regTestConfig;
+    regTestConfig.readSettingsFromApplicationStore();
+
+    caf::PdmUiPropertyViewDialog regressionTestDialog( nullptr, &regTestConfig, "Regression Test", "" );
+    regressionTestDialog.resize( QSize( 600, 350 ) );
+
+    if ( regressionTestDialog.exec() == QDialog::Accepted )
+    {
+        // Write preferences using QSettings and apply them to the application
+        regTestConfig.writeSettingsToApplicationStore();
+
+        RiaRegressionTestRunner::instance()->executeRegressionTests();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicLaunchRegressionTestDialogFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicLaunchRegressionTestDialogFeature::onActionTriggered( bool isChecked )
+{
+    RicLaunchRegressionTestDialogFeature::showRegressionTestDialog();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicLaunchRegressionTestDialogFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "Reg Test Dialog" );
 }

@@ -74,6 +74,7 @@
 #include "cafSelectionManager.h"
 #include "cafUtils.h"
 
+#include "ApplicationCommands/RicLaunchRegressionTestsFeature.h"
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "MeasurementCommands/RicToggleMeasurementModeFeature.h"
 #include "SummaryPlotCommands/RicEditSummaryPlotFeature.h"
@@ -707,6 +708,8 @@ void RiuMainWindow::createToolBars()
         toolbar->setObjectName( toolbar->windowTitle() );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchUnitTestsFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestsFeature" ) );
+        toolbar->addAction( cmdFeatureMgr->action( "RicLaunchRegressionTestDialogFeature" ) );
+        toolbar->addAction( cmdFeatureMgr->action( "RicShowClassNamesFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicRunCommandFileFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicExecuteLastUsedScriptFeature" ) );
         toolbar->addAction( cmdFeatureMgr->action( "RicExportCompletionsForVisibleWellPathsFeature" ) );
@@ -1944,19 +1947,7 @@ void RiuMainWindow::slotCreateCommandObject()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindow::slotShowRegressionTestDialog()
 {
-    RiaRegressionTest regTestConfig;
-    regTestConfig.readSettingsFromApplicationStore();
-
-    caf::PdmUiPropertyViewDialog regressionTestDialog( this, &regTestConfig, "Regression Test", "" );
-    regressionTestDialog.resize( QSize( 600, 350 ) );
-
-    if ( regressionTestDialog.exec() == QDialog::Accepted )
-    {
-        // Write preferences using QSettings and apply them to the application
-        regTestConfig.writeSettingsToApplicationStore();
-
-        RiaRegressionTestRunner::instance()->executeRegressionTests();
-    }
+    RicLaunchRegressionTestDialogFeature::showRegressionTestDialog();
 }
 
 //--------------------------------------------------------------------------------------------------
