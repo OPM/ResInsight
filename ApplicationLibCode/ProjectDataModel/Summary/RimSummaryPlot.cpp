@@ -1677,6 +1677,8 @@ void RimSummaryPlot::updateZoomFromParentPlot()
 
     for ( RimPlotAxisPropertiesInterface* axisProperties : m_axisProperties )
     {
+        if ( !axisProperties->isAutoZoom() ) continue;
+
         auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
         if ( axisProperties->isAxisInverted() ) std::swap( axisMin, axisMax );
 
@@ -2750,6 +2752,20 @@ std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxes() const
     for ( const auto& ap : m_axisProperties )
     {
         axisProps.push_back( ap );
+    }
+
+    return axisProps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotYAxes() const
+{
+    std::vector<RimPlotAxisPropertiesInterface*> axisProps;
+    for ( const auto& ap : m_axisProperties )
+    {
+        if ( RiaDefines::isVertical( ap->plotAxisType().axis() ) ) axisProps.push_back( ap );
     }
 
     return axisProps;
