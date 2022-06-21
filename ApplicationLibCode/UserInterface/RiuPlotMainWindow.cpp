@@ -551,7 +551,7 @@ void RiuPlotMainWindow::createDockPanels()
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
-        addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
+        splitDockWidget( rightTabbedWidgets.front(), dockWidget, Qt::Vertical );
         dockWidget->hide();
     }
 
