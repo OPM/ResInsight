@@ -769,14 +769,17 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
         cvf::Color3f curveColor;
         if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
         {
-            auto basePhaseColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( curveSet->summaryAddress() );
-
-            curveColor = RiaColorTools::blendCvfColors( basePhaseColor, cvf::Color3f::WHITE, 1, 3 );
+            curveColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( curveSet->summaryAddress() );
         }
         else
         {
             curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ );
         }
+
+        int weightBaseColor = 10;
+        int weightWhite     = 25;
+
+        curveColor = RiaColorTools::blendCvfColors( curveColor, cvf::Color3f::WHITE, weightBaseColor, weightWhite );
 
         curveSet->setColor( curveColor );
     }
