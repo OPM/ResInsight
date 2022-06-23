@@ -95,12 +95,11 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
                 summaryMultiPlot->addPlot( duplicatedPlot );
 
                 duplicatedPlot->resolveReferencesRecursively();
+                duplicatedPlot->loadDataAndUpdate();
             }
         }
         info.incrementProgress();
     }
-
-    summaryMultiPlot->loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
