@@ -302,8 +302,7 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        // TODO: attach without replotting
-        curve->attach( plot );
+        curve->setParentPlotNoReplot( plot );
     }
 
     if ( !m_plotCurveForLegendText )
@@ -1708,7 +1707,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 addCurve( curve );
 
                 curve->setLeftOrRightAxisY( axisY() );
-                curve->updateCurveVisibility();
 
                 newSummaryCurves.push_back( curve );
             }

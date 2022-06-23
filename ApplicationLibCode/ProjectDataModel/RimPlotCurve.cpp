@@ -1005,6 +1005,9 @@ void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
 void RimPlotCurve::setParentPlotAndReplot( RiuPlotWidget* plotWidget )
 {
     CAF_ASSERT( plotWidget );
+
+    if ( m_parentPlot == plotWidget ) return;
+
     setParentPlotNoReplot( plotWidget );
     plotWidget->replot();
 }
@@ -1035,7 +1038,7 @@ void RimPlotCurve::detach( bool deletePlotCurve )
         }
     }
 
-    replotParentPlot();
+    m_parentPlot->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
