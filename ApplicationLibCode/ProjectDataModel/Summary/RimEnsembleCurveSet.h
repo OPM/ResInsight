@@ -265,4 +265,6 @@ private:
 
     bool m_disableStatisticCurves;
     bool m_isCurveSetFiltered;
+
+    bool m_allowPlotUpdate;
 };
