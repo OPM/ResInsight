@@ -869,11 +869,28 @@ void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
                         timeHistoryQuantities.insert( c->quantityName() );
                     }
 
+                    std::vector<RiaSummaryCurveDefinition> curveDefs;
+                    for ( auto summaryCurve : summaryCurves() )
+                    {
+                        if ( summaryCurve->axisY() != riuPlotAxis ) continue;
+
+                        curveDefs.push_back( summaryCurve->curveDefinitionY() );
+                    }
+
+                    for ( auto curveSet : ensembleCurveSetCollection()->curveSets() )
+                    {
+                        if ( curveSet->axisY() != riuPlotAxis ) continue;
+
+                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddress() );
+                        curveDefs.push_back( def );
+                    }
+
                     RimSummaryPlotAxisFormatter calc( axisProperties,
-                                                      visibleSummaryCurvesForAxis( riuPlotAxis ),
                                                       {},
+                                                      curveDefs,
                                                       visibleAsciiDataCurvesForAxis( riuPlotAxis ),
                                                       timeHistoryQuantities );
+
                     calc.applyAxisPropertiesToPlot( plotWidget() );
                 }
             }
