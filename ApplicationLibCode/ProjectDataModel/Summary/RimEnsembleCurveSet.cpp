@@ -314,11 +314,11 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::detachPlotCurves( bool deletePlotCurve )
+void RimEnsembleCurveSet::deletePlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->detach( deletePlotCurve );
+        curve->deletePlotCurve();
     }
 
     if ( m_plotCurveForLegendText )
@@ -1360,7 +1360,7 @@ void RimEnsembleCurveSet::updateFilterLegend()
                 plot->plotWidget()->removeOverlayFrame( m_filterOverlayFrame );
             }
         }
-        plot->plotWidget()->scheduleReplot();
+        plot->scheduleReplotIfVisible();
     }
 }
 
@@ -1422,7 +1422,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             }
         }
     }
-    plot->plotWidget()->scheduleReplot();
+    plot->scheduleReplotIfVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1611,7 +1611,7 @@ void RimEnsembleCurveSet::updateCurveColors()
                 plot->plotWidget()->removeOverlayFrame( m_legendOverlayFrame );
             }
         }
-        plot->plotWidget()->scheduleReplot();
+        plot->scheduleReplotIfVisible();
     }
 }
 
@@ -1731,7 +1731,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
         if ( plot->plotWidget() )
         {
             if ( plot->legendsVisible() ) plot->plotWidget()->updateLegend();
-            plot->plotWidget()->scheduleReplot();
+            plot->scheduleReplotIfVisible();
             plot->updateAxes();
             plot->updatePlotInfoLabel();
         }

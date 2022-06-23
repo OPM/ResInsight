@@ -206,6 +206,7 @@ public:
     std::vector<RimPlotCurve*> visibleCurvesForLegend() override;
 
     RimSummaryPlotSourceStepping* sourceStepper();
+    void                          scheduleReplotIfVisible();
 
 public:
     // RimViewWindow overrides
