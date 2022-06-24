@@ -523,9 +523,12 @@ std::vector<int>
     try
     {
         // THe hasArray method can throw, so we must use a try/catch block here
-        if ( m_opm_rft->hasArray( propertyName, wellName, date ) )
+        if ( m_opm_rft->hasRft( wellName, date ) )
         {
-            return m_opm_rft->getRft<int>( propertyName, wellName, date );
+            if ( m_opm_rft->hasArray( propertyName, wellName, date ) )
+            {
+                return m_opm_rft->getRft<int>( propertyName, wellName, date );
+            }
         }
     }
     catch ( ... )
