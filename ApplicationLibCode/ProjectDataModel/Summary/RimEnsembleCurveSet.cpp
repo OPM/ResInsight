@@ -87,7 +87,6 @@ CAF_PDM_SOURCE_INIT( RimEnsembleCurveSet, "RimEnsembleCurveSet" );
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet::RimEnsembleCurveSet()
     : filterChanged( this )
-    , m_allowPlotUpdate( true )
 
 {
     CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
