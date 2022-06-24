@@ -1158,6 +1158,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimEclipseCase*>( firstUiItem ) )
         {
+            menuBuilder << "RicShowGridCalculatorFeature";
             menuBuilder << "RicAddEclipseInputPropertyFeature";
             menuBuilder << "RicReloadCaseFeature";
             menuBuilder << "RicReplaceCaseFeature";
