@@ -797,12 +797,21 @@ QList<caf::PdmOptionItemInfo> RimMultiPlot::calculateValueOptions( const caf::Pd
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlot::onLoadDataAndUpdate()
 {
+    // PERFORMANCE NOTE
+    // Creation and update of the legend widgets is expensive. Disable display of legends during construction  of the
+    // multi plot and creation of widgets. The legends will be made visible due to redraw operations always scheduled
+    // after this method.
+    bool originalShowState = m_showPlotLegends();
+    m_showPlotLegends      = false;
+
     updateMdiWindowVisibility();
     updatePlotWindowTitle();
     applyPlotWindowTitleToWidgets();
     updatePlots();
     updateLayout();
     RiuPlotMainWindowTools::refreshToolbars();
+
+    m_showPlotLegends = originalShowState;
 }
 
 //--------------------------------------------------------------------------------------------------
