@@ -302,8 +302,7 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        // TODO: attach without replotting
-        curve->attach( plot );
+        curve->setParentPlotNoReplot( plot );
     }
 
     if ( !m_plotCurveForLegendText )
@@ -315,11 +314,11 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::detachPlotCurves( bool deletePlotCurve )
+void RimEnsembleCurveSet::deletePlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->detach( deletePlotCurve );
+        curve->deletePlotCurve();
     }
 
     if ( m_plotCurveForLegendText )
@@ -1361,7 +1360,7 @@ void RimEnsembleCurveSet::updateFilterLegend()
                 plot->plotWidget()->removeOverlayFrame( m_filterOverlayFrame );
             }
         }
-        plot->plotWidget()->scheduleReplot();
+        plot->scheduleReplotIfVisible();
     }
 }
 
@@ -1423,7 +1422,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             }
         }
     }
-    plot->plotWidget()->scheduleReplot();
+    plot->scheduleReplotIfVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1612,7 +1611,7 @@ void RimEnsembleCurveSet::updateCurveColors()
                 plot->plotWidget()->removeOverlayFrame( m_legendOverlayFrame );
             }
         }
-        plot->plotWidget()->scheduleReplot();
+        plot->scheduleReplotIfVisible();
     }
 }
 
@@ -1708,7 +1707,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 addCurve( curve );
 
                 curve->setLeftOrRightAxisY( axisY() );
-                curve->updateCurveVisibility();
 
                 newSummaryCurves.push_back( curve );
             }
@@ -1733,7 +1731,7 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
         if ( plot->plotWidget() )
         {
             if ( plot->legendsVisible() ) plot->plotWidget()->updateLegend();
-            plot->plotWidget()->scheduleReplot();
+            plot->scheduleReplotIfVisible();
             plot->updateAxes();
             plot->updatePlotInfoLabel();
         }

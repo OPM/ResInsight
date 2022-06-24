@@ -520,9 +520,14 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 std::vector<int>
     RifReaderOpmRft::importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const
 {
+    // PERFORMANCE NOTE
+    // Use method hasRft() that do not throw exception if RFT data is not available. Using this method and avoid
+    // try/catch and exceptions is way faster.
+    if ( !m_opm_rft->hasRft( wellName, date ) ) return {};
+
     try
     {
-        // THe hasArray method can throw, so we must use a try/catch block here
+        // The hasArray method can throw, so we must use a try/catch block here
         if ( m_opm_rft->hasArray( propertyName, wellName, date ) )
         {
             return m_opm_rft->getRft<int>( propertyName, wellName, date );

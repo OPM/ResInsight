@@ -107,8 +107,9 @@ protected:
 
     void updateLegendsInPlot() override;
 
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void initAfterRead() override;
+    void   defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void   initAfterRead() override;
+    double computeCurveZValue() override;
 
 private:
     RifSummaryReaderInterface* valuesSummaryReaderX() const;

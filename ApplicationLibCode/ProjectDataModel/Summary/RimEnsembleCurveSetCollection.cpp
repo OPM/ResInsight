@@ -117,7 +117,7 @@ void RimEnsembleCurveSetCollection::detachPlotCurves()
 {
     for ( const auto& curveSet : m_curveSets )
     {
-        curveSet->detachPlotCurves();
+        curveSet->deletePlotCurves();
     }
 }
 

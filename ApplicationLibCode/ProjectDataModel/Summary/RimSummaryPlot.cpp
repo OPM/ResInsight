@@ -237,12 +237,6 @@ void RimSummaryPlot::updateAxes()
         updateTimeAxis( timeAxisProperties() );
     }
 
-    if ( plotWidget() )
-    {
-        plotWidget()->updateAxes();
-        plotWidget()->scheduleReplot();
-    }
-
     updateZoomInParentPlot();
 }
 
@@ -584,7 +578,7 @@ void RimSummaryPlot::updatePlotTitle()
         QString plotTitle = description();
         plotWidget()->setPlotTitle( plotTitle );
         plotWidget()->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
-        plotWidget()->scheduleReplot();
+        scheduleReplotIfVisible();
     }
 }
 
@@ -869,11 +863,28 @@ void RimSummaryPlot::updateAxis( RiaDefines::PlotAxis plotAxis )
                         timeHistoryQuantities.insert( c->quantityName() );
                     }
 
+                    std::vector<RiaSummaryCurveDefinition> curveDefs;
+                    for ( auto summaryCurve : summaryCurves() )
+                    {
+                        if ( summaryCurve->axisY() != riuPlotAxis ) continue;
+
+                        curveDefs.push_back( summaryCurve->curveDefinitionY() );
+                    }
+
+                    for ( auto curveSet : ensembleCurveSetCollection()->curveSets() )
+                    {
+                        if ( curveSet->axisY() != riuPlotAxis ) continue;
+
+                        RiaSummaryCurveDefinition def( curveSet->summaryCaseCollection(), curveSet->summaryAddress() );
+                        curveDefs.push_back( def );
+                    }
+
                     RimSummaryPlotAxisFormatter calc( axisProperties,
-                                                      visibleSummaryCurvesForAxis( riuPlotAxis ),
                                                       {},
+                                                      curveDefs,
                                                       visibleAsciiDataCurvesForAxis( riuPlotAxis ),
                                                       timeHistoryQuantities );
+
                     calc.applyAxisPropertiesToPlot( plotWidget() );
                 }
             }
@@ -969,6 +980,14 @@ bool RimSummaryPlot::isOnlyWaterCutCurvesVisible( RiuPlotAxis plotAxis )
     }
 
     return ( waterCutCurveCount == curves.size() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::scheduleReplotIfVisible()
+{
+    if ( showWindow() && plotWidget() ) plotWidget()->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1465,7 +1484,7 @@ void RimSummaryPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         for ( auto& curveSet : this->ensembleCurveSetCollection()->curveSets() )
         {
-            curveSet->detachPlotCurves( true );
+            curveSet->deletePlotCurves();
         }
 
         // Destroy viewer
@@ -1498,7 +1517,7 @@ void RimSummaryPlot::updateStackedCurveData()
     if ( plotWidget() && anyStackedCurvesPresent )
     {
         reattachAllCurves();
-        plotWidget()->scheduleReplot();
+        scheduleReplotIfVisible();
     }
 }
 
@@ -1686,7 +1705,7 @@ void RimSummaryPlot::updateZoomInParentPlot()
     plotWidget()->updateAxes();
     updateZoomFromParentPlot();
     plotWidget()->updateZoomDependentCurveProperties();
-    plotWidget()->scheduleReplot();
+    scheduleReplotIfVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1775,10 +1794,7 @@ void RimSummaryPlot::curveVisibilityChanged( const caf::SignalEmitter* emitter, 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::curveAppearanceChanged( const caf::SignalEmitter* emitter )
 {
-    if ( plotWidget() )
-    {
-        plotWidget()->scheduleReplot();
-    }
+    scheduleReplotIfVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2651,7 +2667,7 @@ bool RimSummaryPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
     updateStackedCurveData();
-    if ( plotWidget() ) plotWidget()->scheduleReplot();
+    scheduleReplotIfVisible();
 
     updateAllRequiredEditors();
 }
@@ -2923,7 +2939,7 @@ void RimSummaryPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childAr
 
             plotWidget()->pruneAxes( usedPlotAxis );
             updateAxes();
-            plotWidget()->scheduleReplot();
+            scheduleReplotIfVisible();
         }
     }
 }

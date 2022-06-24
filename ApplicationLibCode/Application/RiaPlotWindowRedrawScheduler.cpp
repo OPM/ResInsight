@@ -107,12 +107,10 @@ void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
 void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
 {
     std::map<QPointer<RiuMultiPlotBook>, RiaDefines::MultiPlotPageUpdateType> plotBooksToUpdate;
-    std::set<QPointer<RiuPlotWidget>>                                         plotWidgetsToReplot;
     std::map<QPointer<RiuMultiPlotPage>, RiaDefines::MultiPlotPageUpdateType> pagesToUpdate;
 
     pagesToUpdate.swap( m_plotPagesToUpdate );
     plotBooksToUpdate.swap( m_plotBooksToUpdate );
-    plotWidgetsToReplot.swap( m_plotWidgetsToReplot );
 
     for ( auto& [plotBook, updateType] : plotBooksToUpdate )
     {
@@ -134,6 +132,12 @@ void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
 
         page->performUpdate( updateType );
     }
+
+    // PERFORMANCE NOTE
+    // As the book and page updates can trigger widget updates, make sure to get the list of widgets to replot after
+    // these updates
+    std::set<QPointer<RiuPlotWidget>> plotWidgetsToReplot;
+    plotWidgetsToReplot.swap( m_plotWidgetsToReplot );
 
     for ( const QPointer<RiuPlotWidget>& plot : plotWidgetsToReplot )
     {

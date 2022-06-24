@@ -721,6 +721,14 @@ void RimPlotCurve::setSamplesFromTimeTAndYValues( const std::vector<time_t>& dat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimPlotCurve::computeCurveZValue()
+{
+    return 1.0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   xValues,
                                                 const std::vector<double>&   yValues,
                                                 const std::vector<double>&   errorValues,
@@ -996,6 +1004,12 @@ void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
     }
 
     m_plotCurve = m_parentPlot->createPlotCurve( this, "", RiaColorTools::toQColor( m_curveAppearance->color() ) );
+
+    // PERFORMANCE NOTE
+    // When the z-value of a curve is changed, several update calls are made to the plot. Make sure that the default
+    // z-value is correct to avoid these calls.
+    m_plotCurve->setZ( computeCurveZValue() );
+
     m_plotCurve->attachToPlot( plotWidget );
 }
 
@@ -1005,6 +1019,9 @@ void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
 void RimPlotCurve::setParentPlotAndReplot( RiuPlotWidget* plotWidget )
 {
     CAF_ASSERT( plotWidget );
+
+    if ( m_parentPlot == plotWidget ) return;
+
     setParentPlotNoReplot( plotWidget );
     plotWidget->replot();
 }
@@ -1035,7 +1052,7 @@ void RimPlotCurve::detach( bool deletePlotCurve )
         }
     }
 
-    replotParentPlot();
+    m_parentPlot->scheduleReplot();
 }
 
 //--------------------------------------------------------------------------------------------------

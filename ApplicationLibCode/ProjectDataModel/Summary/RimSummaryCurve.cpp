@@ -789,6 +789,44 @@ void RimSummaryCurve::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimSummaryCurve::computeCurveZValue()
+{
+    auto sumAddr = summaryAddressY();
+    auto sumCase = summaryCaseY();
+
+    double zOrder = 0.0;
+
+    if ( sumCase && sumAddr.isValid() )
+    {
+        if ( sumCase->isObservedData() )
+        {
+            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED );
+        }
+        else if ( sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
+        {
+            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE );
+        }
+        else if ( sumCase->ensemble() )
+        {
+            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE );
+        }
+        else
+        {
+            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_NON_OBSERVED );
+        }
+    }
+
+    if ( m_isTopZWithinCategory )
+    {
+        zOrder += 1.0;
+    }
+
+    return zOrder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                              QString                    uiConfigName,
                                              caf::PdmUiEditorAttribute* attribute )
@@ -894,37 +932,9 @@ void RimSummaryCurve::setResampling( RiaDefines::DateTimePeriodEnum resampling )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::setZIndexFromCurveInfo()
 {
-    auto sumAddr = summaryAddressY();
-    auto sumCase = summaryCaseY();
+    auto zValue = computeCurveZValue();
 
-    double zOrder = 0.0;
-
-    if ( sumCase && sumAddr.isValid() )
-    {
-        if ( sumCase->isObservedData() )
-        {
-            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED );
-        }
-        else if ( sumAddr.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS )
-        {
-            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE );
-        }
-        else if ( sumCase->ensemble() )
-        {
-            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_CURVE );
-        }
-        else
-        {
-            zOrder = RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_NON_OBSERVED );
-        }
-    }
-
-    if ( m_isTopZWithinCategory )
-    {
-        zOrder += 1.0;
-    }
-
-    setZOrder( zOrder );
+    setZOrder( zValue );
 }
 
 //--------------------------------------------------------------------------------------------------

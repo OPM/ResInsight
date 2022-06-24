@@ -157,6 +157,8 @@ protected:
                                         const std::vector<double>& yValues,
                                         bool                       useLogarithmicScale );
 
+    virtual double computeCurveZValue();
+
 protected:
     // Overridden PDM methods
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
