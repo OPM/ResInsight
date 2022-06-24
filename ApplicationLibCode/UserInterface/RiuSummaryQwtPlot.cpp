@@ -108,7 +108,7 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget->qwtPlot() );
     RiuQwtPlotTools::setDefaultAxes( m_plotWidget->qwtPlot() );
 
-    m_plotWidget->setInternalLegendVisible( true );
+    m_plotWidget->setInternalLegendVisible( false );
 
     m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
 }
