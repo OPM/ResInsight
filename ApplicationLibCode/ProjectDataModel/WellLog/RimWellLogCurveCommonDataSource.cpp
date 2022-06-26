@@ -601,7 +601,6 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 RimWellLogPlot* parentPlot = nullptr;
                 extractionCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
                 plots.insert( parentPlot );
-                curve->updateConnectedEditors();
             }
         }
         else if ( measurementCurve )
@@ -621,6 +620,8 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
             rftCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
             plots.insert( parentPlot );
         }
+
+        curve->updateConnectedEditors();
     }
 
     for ( RimWellLogTrack* track : tracks )

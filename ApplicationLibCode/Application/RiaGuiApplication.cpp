@@ -100,6 +100,7 @@
 #include "RiuMdiMaximizeWindowGuard.h"
 #include "RiuMessagePanel.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuProcessMonitor.h"
 #include "RiuRecentFileActionProvider.h"
 #include "RiuViewer.h"
@@ -1275,6 +1276,8 @@ void RiaGuiApplication::onProjectOpened()
     setWindowCaptionFromAppState();
 
     m_maximizeWindowGuard.reset();
+
+    RiuPlotMainWindowTools::refreshToolbars();
 
     processEvents();
 }
