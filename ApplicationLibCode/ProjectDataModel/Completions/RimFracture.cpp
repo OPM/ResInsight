@@ -658,12 +658,11 @@ QList<caf::PdmOptionItemInfo> RimFracture::calculateValueOptions( const caf::Pdm
         if ( fractureTemplate() )
         {
             RimFractureTemplate* fracTemplate = fractureTemplate();
-            if ( dynamic_cast<RimStimPlanFractureTemplate*>( fracTemplate ) )
+            if ( dynamic_cast<RimMeshFractureTemplate*>( fracTemplate ) )
             {
-                RimStimPlanFractureTemplate* fracTemplateStimPlan =
-                    dynamic_cast<RimStimPlanFractureTemplate*>( fracTemplate );
-                std::vector<double> timeValues = fracTemplateStimPlan->timeSteps();
-                int                 index      = 0;
+                RimMeshFractureTemplate* fracTemplateStimPlan = dynamic_cast<RimMeshFractureTemplate*>( fracTemplate );
+                std::vector<double>      timeValues           = fracTemplateStimPlan->timeSteps();
+                int                      index                = 0;
                 for ( double value : timeValues )
                 {
                     options.push_back( caf::PdmOptionItemInfo( QString::number( value ), index ) );
@@ -750,7 +749,7 @@ void RimFracture::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& ui
         }
 
         RimFractureTemplate* fracTemplate = fractureTemplate();
-        if ( dynamic_cast<RimStimPlanFractureTemplate*>( fracTemplate ) )
+        if ( dynamic_cast<RimMeshFractureTemplate*>( fracTemplate ) )
         {
             m_stimPlanTimeIndexToPlot.uiCapability()->setUiHidden( false );
 

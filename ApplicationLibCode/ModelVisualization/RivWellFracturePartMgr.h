@@ -44,7 +44,7 @@ class DisplayCoordTransform;
 
 class RimFracture;
 class RimFractureTemplate;
-class RimStimPlanFractureTemplate;
+class RimMeshFractureTemplate;
 class RimEclipseView;
 class RigFractureCell;
 
@@ -79,11 +79,10 @@ private:
     void appendFracturePerforationLengthParts( const RimEclipseView& activeView, cvf::ModelBasicList* model );
 
     cvf::ref<cvf::Part>        createStimPlanMeshPart( const RimEclipseView& activeView );
-    cvf::ref<cvf::DrawableGeo> createStimPlanMeshDrawable( RimStimPlanFractureTemplate* stimPlanFracTemplate,
-                                                           const RimEclipseView&        activeView );
+    cvf::ref<cvf::DrawableGeo> createStimPlanMeshDrawable( RimMeshFractureTemplate* stimPlanFracTemplate,
+                                                           const RimEclipseView&    activeView );
 
-    void createVisibleFracturePolygons( RimStimPlanFractureTemplate* stimPlanFracTemplate,
-                                        const RimEclipseView&        activeView );
+    void createVisibleFracturePolygons( RimMeshFractureTemplate* stimPlanFracTemplate, const RimEclipseView& activeView );
 
     std::vector<cvf::Vec3d> fractureBorderPolygon();
 
