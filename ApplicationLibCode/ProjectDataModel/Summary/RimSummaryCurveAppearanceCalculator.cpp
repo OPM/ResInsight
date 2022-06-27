@@ -19,6 +19,7 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaSummaryCurveDefinition.h"
 
@@ -385,6 +386,29 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::assignColorByPhase( const RifE
     if ( secondChar == 'V' ) return cycledBrownColor( 0 );
 
     return cycledNoneRGBBrColor( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( const RifEclipseSummaryAddress& address,
+                                                                                     int colorIndex )
+{
+    bool usePhaseColor = RiaPreferencesSummary::current()->colorCurvesByPhase();
+
+    cvf::Color3f curveColor;
+    if ( usePhaseColor )
+    {
+        curveColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( address );
+    }
+    else
+    {
+        curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex );
+    }
+
+    float scalingFactor = 0.25;
+    curveColor          = RiaColorTools::makeLighter( curveColor, scalingFactor );
+    return curveColor;
 }
 
 //--------------------------------------------------------------------------------------------------

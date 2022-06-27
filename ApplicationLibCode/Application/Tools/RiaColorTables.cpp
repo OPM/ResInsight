@@ -685,6 +685,16 @@ cvf::Color3f RiaColorTables::phaseColor( RiaDefines::PhaseType phase )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTables::historyCurveContrastColor()
+{
+    auto unsignedColor = cvf::Color3ub( 248, 0, 170 ); // Magenta
+
+    return cvf::Color3f( unsignedColor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<cvf::Color3ub> RiaColorTables::categoryColors()
 {
     // Based on http://stackoverflow.com/questions/470690/how-to-automatically-generate-n-distinct-colors

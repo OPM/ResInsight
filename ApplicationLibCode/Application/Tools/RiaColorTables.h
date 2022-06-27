@@ -81,6 +81,8 @@ public:
     static std::map<RiaDefines::PhaseType, caf::ColorTable> phaseColors();
     static cvf::Color3f                                     phaseColor( RiaDefines::PhaseType phase );
 
+    static cvf::Color3f historyCurveContrastColor();
+
 private:
     static std::vector<cvf::Color3ub> categoryColors();
     static std::vector<cvf::Color3ub> contrastCategoryColors();

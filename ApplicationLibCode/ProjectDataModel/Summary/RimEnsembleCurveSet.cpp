@@ -1702,7 +1702,14 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 curve->setSummaryCaseY( sumCase );
                 curve->setSummaryAddressYAndApplyInterpolation( addr->address() );
                 curve->setResampling( m_resampling() );
-                curve->setLineThickness( 1 );
+
+                int lineThickness = 1;
+                if ( addr->address().isHistoryVector() )
+                {
+                    lineThickness = 2;
+                    curve->setCurveAppearanceFromCaseType();
+                }
+                curve->setLineThickness( lineThickness );
 
                 addCurve( curve );
 

@@ -21,6 +21,7 @@
 #include "PlotTemplateCommands/RicSummaryPlotTemplateTools.h"
 
 #include "RiaApplication.h"
+#include "RiaColorTables.h"
 #include "RiaPreferences.h"
 
 #include "PlotTemplates/RimPlotTemplateFileItem.h"
@@ -174,11 +175,13 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_curveColorByPhase, "curveColorByPhase", true, "Curve Color By Phase" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_curveColorByPhase );
 
-    CAF_PDM_InitField( &m_appendHistoryVectorForDragDrop,
-                       "appendHistoryVectorForDragDrop",
-                       false,
-                       "Append History Vector for Drag/Drop" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendHistoryVectorForDragDrop );
+    CAF_PDM_InitField( &m_appendHistoryVectors, "appendHistoryVectorForDragDrop", false, "Append History Vectors" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendHistoryVectors );
+
+    CAF_PDM_InitField( &m_historyCurveContrastColor,
+                       "historyCurveContrastColor",
+                       RiaColorTables::historyCurveContrastColor(),
+                       "History Curve Contrast Color" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -278,8 +281,10 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
     }
 
     uiOrdering.add( &m_defaultSummaryHistoryCurveStyle );
+
     uiOrdering.add( &m_curveColorByPhase );
-    uiOrdering.add( &m_appendHistoryVectorForDragDrop );
+    uiOrdering.add( &m_appendHistoryVectors );
+    uiOrdering.add( &m_historyCurveContrastColor, false );
 
     uiOrdering.add( &m_showSummaryTimeAsLongString );
 
@@ -356,9 +361,9 @@ bool RiaPreferencesSummary::colorCurvesByPhase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferencesSummary::appendHistoryVectorForDragDrop() const
+bool RiaPreferencesSummary::appendHistoryVectors() const
 {
-    return m_appendHistoryVectorForDragDrop();
+    return m_appendHistoryVectors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -520,6 +525,14 @@ RiaDefines::ColumnCount RiaPreferencesSummary::defaultMultiPlotColumnCount() con
 RiaDefines::RowCount RiaPreferencesSummary::defaultMultiPlotRowCount() const
 {
     return m_defaultRowsPerPage();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaPreferencesSummary::historyCurveContrastColor() const
+{
+    return m_historyCurveContrastColor();
 }
 
 //--------------------------------------------------------------------------------------------------
