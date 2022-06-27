@@ -789,8 +789,8 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
                         }
                     }
 
-                    RimStimPlanFractureTemplate* stimPlanTempl =
-                        fracture ? dynamic_cast<RimStimPlanFractureTemplate*>( fracture->fractureTemplate() ) : nullptr;
+                    RimMeshFractureTemplate* stimPlanTempl =
+                        fracture ? dynamic_cast<RimMeshFractureTemplate*>( fracture->fractureTemplate() ) : nullptr;
                     RimEllipseFractureTemplate* ellipseTempl =
                         fracture ? dynamic_cast<RimEllipseFractureTemplate*>( fracture->fractureTemplate() ) : nullptr;
                     if ( stimPlanTempl || ellipseTempl )

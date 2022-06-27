@@ -125,3 +125,46 @@ double RigThermalFractureDefinition::getPropertyValue( int propertyIndex, int no
 {
     return m_results[propertyIndex].getValue( nodeIndex, timeStepIndex );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RigThermalFractureDefinition::getPropertyIndex( const QString& name ) const
+{
+    for ( size_t i = 0; i < m_results.size(); i++ )
+        if ( name == m_results[i].name() ) return static_cast<int>( i );
+
+    return -1;
+};
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d> RigThermalFractureDefinition::relativeCoordinates( int timeStepIndex ) const
+{
+    std::vector<cvf::Vec3d> relCoords;
+
+    int xIndex = getPropertyIndex( "XCoord" );
+    int yIndex = getPropertyIndex( "YCoord" );
+    int zIndex = getPropertyIndex( "ZCoord" );
+    if ( xIndex == -1 || yIndex == -1 || zIndex == -1 )
+    {
+        return relCoords;
+    }
+
+    // The first node is the center node
+    int        centerNodeIndex = 0;
+    cvf::Vec3d centerNode( getPropertyValue( xIndex, centerNodeIndex, timeStepIndex ),
+                           getPropertyValue( yIndex, centerNodeIndex, timeStepIndex ),
+                           getPropertyValue( zIndex, centerNodeIndex, timeStepIndex ) );
+
+    for ( size_t nodeIndex = 0; nodeIndex < numNodes(); nodeIndex++ )
+    {
+        cvf::Vec3d nodePos( getPropertyValue( xIndex, static_cast<int>( nodeIndex ), timeStepIndex ),
+                            getPropertyValue( yIndex, static_cast<int>( nodeIndex ), timeStepIndex ),
+                            getPropertyValue( zIndex, static_cast<int>( nodeIndex ), timeStepIndex ) );
+        relCoords.push_back( nodePos - centerNode );
+    }
+
+    return relCoords;
+}

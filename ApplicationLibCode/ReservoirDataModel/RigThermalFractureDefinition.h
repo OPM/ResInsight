@@ -20,6 +20,8 @@
 
 #include "RiaDefines.h"
 
+#include "cvfVector3.h"
+
 #include <QString>
 
 #include <vector>
@@ -36,8 +38,8 @@ public:
     {
     }
 
-    QString name() { return m_name; }
-    QString unit() { return m_unit; }
+    QString name() const { return m_name; }
+    QString unit() const { return m_unit; }
 
     void appendValue( int nodeIndex, int timeStepIndex, double value )
     {
@@ -84,6 +86,10 @@ public:
     void appendPropertyValue( int propertyIndex, int nodeIndex, int timeStepIndex, double value );
 
     double getPropertyValue( int propertyIndex, int nodeIndex, int timeStepIndex ) const;
+
+    int getPropertyIndex( const QString& name ) const;
+
+    std::vector<cvf::Vec3d> relativeCoordinates( int timeStepIndex ) const;
 
 private:
     QString m_name;
