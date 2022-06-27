@@ -810,7 +810,7 @@ void RivWellPathPartMgr::buildWellPathParts( const caf::DisplayCoordTransform* d
 
             double cellRadius  = 15.0;
             auto   eclipseView = dynamic_cast<RimEclipseView*>( m_rimView.p() );
-            if ( eclipseView )
+            if ( eclipseView && eclipseView->mainGrid() )
             {
                 double characteristicCellSize = eclipseView->mainGrid()->characteristicIJCellSize();
                 cellRadius                    = sphereRadiusFactor * characteristicCellSize;
