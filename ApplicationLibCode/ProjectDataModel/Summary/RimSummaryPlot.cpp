@@ -776,20 +776,12 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
     {
         if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
 
-        cvf::Color3f curveColor;
-        if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
-        {
-            curveColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( curveSet->summaryAddress() );
-        }
-        else
-        {
-            curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ );
-        }
+        cvf::Color3f curveColor =
+            RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
+                                                                                    colorIndex++ );
 
-        int weightBaseColor = 10;
-        int weightWhite     = 25;
-
-        curveColor = RiaColorTools::blendCvfColors( curveColor, cvf::Color3f::WHITE, weightBaseColor, weightWhite );
+        auto adr = curveSet->summaryAddress();
+        if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
 
         curveSet->setColor( curveColor );
     }
@@ -1991,17 +1983,6 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryCaseD
     {
         const auto addr = curve->summaryAddressY();
         dataVectorMap[addr].insert( curve->summaryCaseY() );
-
-        if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectorForDragDrop() )
-        {
-            auto historyAddr = addr;
-            historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
-
-            if ( summaryCase->summaryReader() && summaryCase->summaryReader()->hasAddress( historyAddr ) )
-            {
-                dataVectorMap[historyAddr].insert( curve->summaryCaseY() );
-            }
-        }
     }
 
     for ( const auto& [addr, cases] : dataVectorMap )
@@ -2083,7 +2064,7 @@ std::pair<int, std::vector<RimSummaryCurve*>>
         {
             newCurveDefsWithObjectNames[newCurveDef].insert( objectIdentifierString );
             const auto& addr = curveDef.summaryAddress();
-            if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectorForDragDrop() )
+            if ( !addr.isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectors() )
             {
                 auto historyAddr = addr;
                 historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
@@ -2133,7 +2114,7 @@ std::pair<int, std::vector<RimSummaryCurve*>> RimSummaryPlot::handleSummaryAddre
 
     std::vector<RifEclipseSummaryAddress> newCurveAddresses;
     newCurveAddresses.push_back( summaryAddr->address() );
-    if ( !summaryAddr->address().isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectorForDragDrop() )
+    if ( !summaryAddr->address().isHistoryVector() && RiaPreferencesSummary::current()->appendHistoryVectors() )
     {
         auto historyAddr = summaryAddr->address();
         historyAddr.setVectorName( summaryAddr->address().vectorName() + RifReaderEclipseSummary::historyIdentifier() );
@@ -2294,18 +2275,15 @@ void RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSummaryAddress& addre
     curveSet->setSummaryCaseCollection( ensemble );
     curveSet->setSummaryAddress( address );
 
-    cvf::Color3f curveColor;
-    if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
-    {
-        auto basePhaseColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( curveSet->summaryAddress() );
+    cvf::Color3f curveColor =
+        RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
+                                                                                static_cast<int>(
+                                                                                    ensembleCurveSetCollection()
+                                                                                        ->curveSetCount() ) );
 
-        curveColor = RiaColorTools::blendCvfColors( basePhaseColor, cvf::Color3f::WHITE, 1, 3 );
-    }
-    else
-    {
-        curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(
-            ensembleCurveSetCollection()->curveSetCount() );
-    }
+    auto adr = curveSet->summaryAddress();
+    if ( adr.isHistoryVector() ) curveColor = RiaPreferencesSummary::current()->historyCurveContrastColor();
+
     curveSet->setColor( curveColor );
 
     ensembleCurveSetCollection()->addCurveSet( curveSet );

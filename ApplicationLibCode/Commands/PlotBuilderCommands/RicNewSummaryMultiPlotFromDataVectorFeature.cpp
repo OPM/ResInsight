@@ -18,13 +18,16 @@
 
 #include "RicNewSummaryMultiPlotFromDataVectorFeature.h"
 
+#include "RiaPreferencesSummary.h"
 #include "RiaSummaryTools.h"
+
 #include "RimSummaryAddress.h"
 #include "RimSummaryPlot.h"
 
 #include "RicSummaryPlotBuilder.h"
 
 #include "RifEclipseSummaryAddress.h"
+#include "RifReaderEclipseSummary.h"
 
 #include "cafSelectionManagerTools.h"
 #include "cvfAssert.h"
@@ -94,6 +97,21 @@ void RicNewSummaryMultiPlotFromDataVectorFeature::onActionTriggered( bool isChec
         for ( auto id : caseIds )
         {
             selectedCases.push_back( RiaSummaryTools::summaryCaseById( id ) );
+        }
+    }
+
+    if ( RiaPreferencesSummary::current()->appendHistoryVectors() )
+    {
+        auto sourceAddresses = eclipseAddresses;
+
+        for ( const auto& addr : sourceAddresses )
+        {
+            if ( !addr.isHistoryVector() )
+            {
+                auto historyAddr = addr;
+                historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
+                eclipseAddresses.insert( historyAddr );
+            }
         }
     }
 
