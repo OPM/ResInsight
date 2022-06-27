@@ -217,7 +217,10 @@ QList<caf::PdmOptionItemInfo>
     if ( !dataSourceSteppingObject()->curveSets().empty() )
     {
         auto first = dataSourceSteppingObject()->curveSets().front();
-        analyzer   = first->summaryCaseCollection()->addressAnalyzer();
+        if ( first->summaryCaseCollection() )
+        {
+            analyzer = first->summaryCaseCollection()->addressAnalyzer();
+        }
     }
 
     if ( !analyzer )
