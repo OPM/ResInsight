@@ -31,6 +31,14 @@
 class RigThermalFractureDefinition;
 class RigFractureGrid;
 
+class MinMaxAccumulator;
+class PosNegAccumulator;
+
+namespace cvf
+{
+class BoundingBox;
+};
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -47,6 +55,7 @@ public:
                             size_t                                              timeStepIndex );
 
     static void createFractureTriangleGeometry( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                int                                                 activeTimeStepIndex,
                                                 double                                              xScaleFactor,
                                                 double                                              yScaleFactor,
                                                 double                   wellPathIntersectionAtFractureDepth,
@@ -66,4 +75,16 @@ public:
                             double                                              yScaleFactor,
                             double                                              wellPathIntersectionAtFractureDepth,
                             RiaDefines::EclipseUnitSystem                       requiredUnitSet );
+
+    static void appendDataToResultStatistics( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                              const QString&                                      resultName,
+                                              const QString&                                      unit,
+                                              MinMaxAccumulator&                                  minMaxAccumulator,
+                                              PosNegAccumulator&                                  posNegAccumulator );
+
+private:
+    static std::pair<std::vector<double>, std::vector<double>>
+        generateUniformMesh( const cvf::BoundingBox& bb, int numSamplesX, int numSamplesY );
+
+    static double linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples );
 };

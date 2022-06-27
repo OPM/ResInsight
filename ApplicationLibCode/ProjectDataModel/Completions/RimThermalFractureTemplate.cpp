@@ -163,6 +163,8 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
         // {
         //     setUnitSystem( m_fractureDefinitionData->unitSet() );
         // }
+        // TODO: handle other units
+        setUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
 
         if ( !m_userDefinedWellPathDepthAtFracture )
         {
@@ -200,6 +202,8 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
 QStringList RimThermalFractureTemplate::conductivityResultNames() const
 {
     QStringList resultNames;
+    if ( !m_fractureDefinitionData ) return resultNames;
+
     for ( auto [name, unit] : m_fractureDefinitionData->getPropertyNamesUnits() )
     {
         resultNames.append( name );
@@ -616,10 +620,12 @@ void RimThermalFractureTemplate::appendDataToResultStatistics( const QString&   
 {
     if ( m_fractureDefinitionData )
     {
-        // QString fileResultName = mapUiResultNameToFileResultName( uiResultName );
-
-        // m_fractureDefinitionData->appendDataToResultStatistics( fileResultName, unit, minMaxAccumulator,
-        // posNegAccumulator );
+        QString fileResultName = mapUiResultNameToFileResultName( uiResultName );
+        RigThermalFractureResultUtil::appendDataToResultStatistics( m_fractureDefinitionData,
+                                                                    fileResultName,
+                                                                    unit,
+                                                                    minMaxAccumulator,
+                                                                    posNegAccumulator );
     }
 }
 
@@ -633,6 +639,7 @@ void RimThermalFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec3
     if ( m_fractureDefinitionData )
     {
         RigThermalFractureResultUtil::createFractureTriangleGeometry( m_fractureDefinitionData,
+                                                                      m_activeTimeStepIndex,
                                                                       m_halfLengthScaleFactor(),
                                                                       m_heightScaleFactor(),
                                                                       wellPathDepthAtFracture,

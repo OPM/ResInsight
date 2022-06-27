@@ -34,10 +34,10 @@
 #include "RimFractureContainment.h"
 #include "RimFractureContainmentTools.h"
 #include "RimFractureTemplate.h"
+#include "RimMeshFractureTemplate.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimStimPlanColors.h"
-#include "RimStimPlanFractureTemplate.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -93,9 +93,9 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
 
     double characteristicCellSize = eclView.ownerCase()->characteristicCellSize();
 
-    cvf::Collection<cvf::Part>   parts;
-    RimStimPlanFractureTemplate* stimPlanFracTemplate =
-        dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    cvf::Collection<cvf::Part> parts;
+    RimMeshFractureTemplate*   stimPlanFracTemplate =
+        dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
 
     if ( stimPlanFracTemplate )
     {
@@ -228,7 +228,7 @@ const QString RivWellFracturePartMgr::resultInfoText( const RimEclipseView& acti
     if ( m_rimFracture.isNull() ) return text;
 
     auto* ellipseFractureTemplate = dynamic_cast<RimEllipseFractureTemplate*>( m_rimFracture->fractureTemplate() );
-    auto* stimPlanTemplate        = dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    auto* stimPlanTemplate        = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
 
     if ( ellipseFractureTemplate )
     {
@@ -285,7 +285,7 @@ const RigFractureCell* RivWellFracturePartMgr::getFractureCellAtDomainCoord( cvf
     cvf::Mat4d toFractureXf  = m_rimFracture->transformMatrix().getInverted();
     cvf::Vec3d fractureCoord = domainCoord.getTransformedPoint( toFractureXf );
 
-    auto* stimPlanTempl = dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    auto* stimPlanTempl = dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
     if ( !stimPlanTempl ) return nullptr;
 
     const RigFractureGrid* grid = m_rimFracture->fractureGrid();
@@ -403,8 +403,8 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createEllipseSurfacePart( const RimE
 cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfacePart( const RimEclipseView& activeView )
 {
     CVF_ASSERT( m_rimFracture );
-    RimStimPlanFractureTemplate* stimPlanFracTemplate =
-        dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    RimMeshFractureTemplate* stimPlanFracTemplate =
+        dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
     CVF_ASSERT( stimPlanFracTemplate );
 
     auto displayCoordTransform = activeView.displayCoordTransform();
@@ -542,8 +542,8 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createSingleColorSurfacePart( const 
 cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePart( const RimEclipseView& activeView )
 {
     CVF_ASSERT( m_rimFracture );
-    RimStimPlanFractureTemplate* stimPlanFracTemplate =
-        dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    RimMeshFractureTemplate* stimPlanFracTemplate =
+        dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
     CVF_ASSERT( stimPlanFracTemplate );
 
     if ( !m_rimFracture->fractureGrid() ) return nullptr;
@@ -1002,8 +1002,8 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanMeshPart( const RimEcl
 {
     if ( !m_rimFracture->fractureTemplate() ) return nullptr;
 
-    RimStimPlanFractureTemplate* stimPlanFracTemplate =
-        dynamic_cast<RimStimPlanFractureTemplate*>( m_rimFracture->fractureTemplate() );
+    RimMeshFractureTemplate* stimPlanFracTemplate =
+        dynamic_cast<RimMeshFractureTemplate*>( m_rimFracture->fractureTemplate() );
     if ( !stimPlanFracTemplate ) return nullptr;
 
     cvf::ref<cvf::DrawableGeo> stimPlanMeshGeo = createStimPlanMeshDrawable( stimPlanFracTemplate, activeView );
@@ -1030,8 +1030,8 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanMeshPart( const RimEcl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RivWellFracturePartMgr::createVisibleFracturePolygons( RimStimPlanFractureTemplate* stimPlanFracTemplate,
-                                                            const RimEclipseView&        activeView )
+void RivWellFracturePartMgr::createVisibleFracturePolygons( RimMeshFractureTemplate* stimPlanFracTemplate,
+                                                            const RimEclipseView&    activeView )
 {
     if ( !m_rimFracture->fractureGrid() ) return;
 
@@ -1060,9 +1060,8 @@ void RivWellFracturePartMgr::createVisibleFracturePolygons( RimStimPlanFractureT
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::ref<cvf::DrawableGeo>
-    RivWellFracturePartMgr::createStimPlanMeshDrawable( RimStimPlanFractureTemplate* stimPlanFracTemplate,
-                                                        const RimEclipseView&        activeView )
+cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable( RimMeshFractureTemplate* stimPlanFracTemplate,
+                                                                               const RimEclipseView& activeView )
 {
     if ( !m_rimFracture->fractureGrid() ) return nullptr;
 
