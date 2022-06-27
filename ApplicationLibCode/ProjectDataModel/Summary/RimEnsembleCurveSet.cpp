@@ -308,6 +308,7 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
     if ( !m_plotCurveForLegendText )
     {
         m_plotCurveForLegendText = plot->createPlotCurve( nullptr, "", Qt::black );
+        m_plotCurveForLegendText->setVisibleInLegend( true );
     }
 }
 
@@ -339,14 +340,14 @@ void RimEnsembleCurveSet::reattachPlotCurves()
         curve->reattach();
     }
 
-    if ( m_plotCurveForLegendText )
-    {
-        m_plotCurveForLegendText->detach();
+    // if ( m_plotCurveForLegendText )
+    //{
+    //    m_plotCurveForLegendText->detach();
 
-        RimSummaryPlot* plot = nullptr;
-        firstAncestorOrThisOfType( plot );
-        if ( plot && plot->plotWidget() ) m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
-    }
+    //    RimSummaryPlot* plot = nullptr;
+    //    firstAncestorOrThisOfType( plot );
+    //    if ( plot && plot->plotWidget() ) m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
+    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -629,9 +630,9 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         {
             // Need to detach the legend since the plot type might change from Qwt to QtCharts.
             // The plot curve for legend text needs to be recreated when curves are shown next time.
-            m_plotCurveForLegendText->detach();
-            delete m_plotCurveForLegendText;
-            m_plotCurveForLegendText = nullptr;
+            // m_plotCurveForLegendText->detach();
+            // delete m_plotCurveForLegendText;
+            // m_plotCurveForLegendText = nullptr;
         }
 
         loadDataAndUpdate( true );
