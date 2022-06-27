@@ -61,8 +61,7 @@ public:
     void setupCurveLook( RimSummaryCurve* curve );
 
     static cvf::Color3f assignColorByPhase( const RifEclipseSummaryAddress& address );
-
-    void assignColorByPhase( RimSummaryCurve* curve, int colorIndex );
+    static cvf::Color3f computeTintedCurveColorForAddress( const RifEclipseSummaryAddress& address, int colorIndex );
 
     static cvf::Color3f                        cycledPaletteColor( int colorIndex );
     static cvf::Color3f                        cycledNoneRGBBrColor( int colorIndex );
@@ -84,6 +83,7 @@ private:
     float                                 gradient( size_t totalCount, int index );
 
     cvf::Color3f gradeColor( const cvf::Color3f& color, float factor );
+    void         assignColorByPhase( RimSummaryCurve* curve, int colorIndex );
 
     static std::set<std::string> getAllSummaryCaseNames();
     static std::set<std::string> getAllSummaryWellNames();

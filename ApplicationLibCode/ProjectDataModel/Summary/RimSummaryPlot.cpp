@@ -776,20 +776,9 @@ void RimSummaryPlot::applyDefaultCurveAppearances()
     {
         if ( curveSet->colorMode() != RimEnsembleCurveSet::ColorMode::SINGLE_COLOR ) continue;
 
-        cvf::Color3f curveColor;
-        if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
-        {
-            curveColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( curveSet->summaryAddress() );
-        }
-        else
-        {
-            curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex++ );
-        }
-
-        int weightBaseColor = 10;
-        int weightWhite     = 25;
-
-        curveColor = RiaColorTools::blendCvfColors( curveColor, cvf::Color3f::WHITE, weightBaseColor, weightWhite );
+        cvf::Color3f curveColor =
+            RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
+                                                                                    colorIndex++ );
 
         curveSet->setColor( curveColor );
     }
@@ -2294,18 +2283,10 @@ void RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSummaryAddress& addre
     curveSet->setSummaryCaseCollection( ensemble );
     curveSet->setSummaryAddress( address );
 
-    cvf::Color3f curveColor;
-    if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
-    {
-        auto basePhaseColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( curveSet->summaryAddress() );
+    cvf::Color3f curveColor =
+        RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( curveSet->summaryAddress(),
+                                                                                ensembleCurveSetCollection()->curveSetCount() );
 
-        curveColor = RiaColorTools::blendCvfColors( basePhaseColor, cvf::Color3f::WHITE, 1, 3 );
-    }
-    else
-    {
-        curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f(
-            ensembleCurveSetCollection()->curveSetCount() );
-    }
     curveSet->setColor( curveColor );
 
     ensembleCurveSetCollection()->addCurveSet( curveSet );

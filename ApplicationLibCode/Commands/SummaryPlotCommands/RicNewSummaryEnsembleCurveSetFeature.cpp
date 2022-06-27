@@ -34,6 +34,7 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
@@ -80,7 +81,9 @@ std::vector<RimEnsembleCurveSet*>
 
                 // Use same counting as RicNewSummaryCurveFeature::onActionTriggered
                 auto colorIndex = plot->singleColorCurveCount();
-                curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex ) );
+
+                curveSet->setColor(
+                    RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( addr, static_cast<int>(colorIndex))) );
                 curveSet->legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend(
                     RimEnsembleCurveSetColorManager::cycledEnsembleColorRange( static_cast<int>( colorIndex ) ) ) );
 

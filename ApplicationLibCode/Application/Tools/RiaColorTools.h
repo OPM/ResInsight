@@ -49,6 +49,8 @@ public:
                   blendCvfColors( const cvf::Color3f& color1, const cvf::Color3f& color2, int weight1 = 1, int weight2 = 1 );
     static QColor blendQColors( const QColor& color1, const QColor& color2, int weight1 = 1, int weight2 = 1 );
 
+    static cvf::Color3f makeLighter( const cvf::Color3f& color1, float normalizedScalingFactor );
+
     // Factor > 1 increases saturation, a factor < 1 decreases saturation
     static QColor modifySaturation( const QColor& color, double factor );
 
