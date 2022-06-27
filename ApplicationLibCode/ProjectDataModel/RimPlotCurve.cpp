@@ -1020,8 +1020,6 @@ void RimPlotCurve::setParentPlotAndReplot( RiuPlotWidget* plotWidget )
 {
     CAF_ASSERT( plotWidget );
 
-    if ( m_parentPlot == plotWidget ) return;
-
     setParentPlotNoReplot( plotWidget );
     plotWidget->replot();
 }

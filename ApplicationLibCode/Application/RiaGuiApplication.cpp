@@ -100,6 +100,7 @@
 #include "RiuMdiMaximizeWindowGuard.h"
 #include "RiuMessagePanel.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuProcessMonitor.h"
 #include "RiuRecentFileActionProvider.h"
 #include "RiuViewer.h"
@@ -1277,6 +1278,9 @@ void RiaGuiApplication::onProjectOpened()
     m_maximizeWindowGuard.reset();
 
     processEvents();
+
+    // Make sure to process events before this function to avoid strange Qt crash
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
