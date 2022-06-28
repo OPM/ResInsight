@@ -2309,8 +2309,6 @@ void RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSummaryAddress& addre
     curveSet->setColor( curveColor );
 
     ensembleCurveSetCollection()->addCurveSet( curveSet );
-
-    // TODO - trigger legend update in multiplot
 }
 
 //--------------------------------------------------------------------------------------------------
