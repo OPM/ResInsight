@@ -175,13 +175,19 @@ RiaPreferencesSummary::RiaPreferencesSummary()
     CAF_PDM_InitField( &m_curveColorByPhase, "curveColorByPhase", true, "Curve Color By Phase" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_curveColorByPhase );
 
-    CAF_PDM_InitField( &m_appendHistoryVectors, "appendHistoryVectorForDragDrop", false, "Append History Vectors" );
+    CAF_PDM_InitField( &m_appendHistoryVectors,
+                       "appendHistoryVectorForDragDrop",
+                       false,
+                       "Append History Vectors",
+                       "",
+                       "When a simulated summary vector is inserted into a plot, also include the corresponding "
+                       "history vector" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendHistoryVectors );
 
     CAF_PDM_InitField( &m_historyCurveContrastColor,
                        "historyCurveContrastColor",
                        RiaColorTables::historyCurveContrastColor(),
-                       "History Curve Contrast Color" );
+                       "History Curve Color" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -280,12 +286,13 @@ void RiaPreferencesSummary::appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOr
             break;
     }
 
-    uiOrdering.add( &m_defaultSummaryHistoryCurveStyle );
+    auto historyCurveGroup = uiOrdering.addNewGroup( "History Vectors" );
+
+    historyCurveGroup->add( &m_defaultSummaryHistoryCurveStyle );
+    historyCurveGroup->add( &m_historyCurveContrastColor );
+    historyCurveGroup->add( &m_appendHistoryVectors );
 
     uiOrdering.add( &m_curveColorByPhase );
-    uiOrdering.add( &m_appendHistoryVectors );
-    uiOrdering.add( &m_historyCurveContrastColor, false );
-
     uiOrdering.add( &m_showSummaryTimeAsLongString );
 
     auto multiGroup = uiOrdering.addNewGroup( "Multi Plot Defaults" );
