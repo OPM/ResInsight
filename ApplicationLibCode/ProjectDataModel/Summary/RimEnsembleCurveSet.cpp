@@ -304,12 +304,6 @@ void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
     {
         curve->setParentPlotNoReplot( plot );
     }
-
-    if ( !m_plotCurveForLegendText )
-    {
-        m_plotCurveForLegendText = plot->createPlotCurve( nullptr, "", Qt::black );
-        m_plotCurveForLegendText->setVisibleInLegend( true );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -339,15 +333,6 @@ void RimEnsembleCurveSet::reattachPlotCurves()
     {
         curve->reattach();
     }
-
-    // if ( m_plotCurveForLegendText )
-    //{
-    //    m_plotCurveForLegendText->detach();
-
-    //    RimSummaryPlot* plot = nullptr;
-    //    firstAncestorOrThisOfType( plot );
-    //    if ( plot && plot->plotWidget() ) m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
-    //}
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -626,15 +611,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
     if ( changedField == &m_showCurves )
     {
-        if ( !m_showCurves() && m_plotCurveForLegendText )
-        {
-            // Need to detach the legend since the plot type might change from Qwt to QtCharts.
-            // The plot curve for legend text needs to be recreated when curves are shown next time.
-            // m_plotCurveForLegendText->detach();
-            // delete m_plotCurveForLegendText;
-            // m_plotCurveForLegendText = nullptr;
-        }
-
         loadDataAndUpdate( true );
 
         updateConnectedEditors();
@@ -1724,9 +1700,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 newSummaryCurves[i]->updatePlotAxis();
                 newSummaryCurves[i]->setShowInLegend( false );
             }
-
-            if ( plot->plotWidget() && m_plotCurveForLegendText )
-                m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
         }
 
         if ( plot->plotWidget() )
@@ -1735,6 +1708,14 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             plot->scheduleReplotIfVisible();
             plot->updateAxes();
             plot->updatePlotInfoLabel();
+
+            if ( !m_plotCurveForLegendText )
+            {
+                m_plotCurveForLegendText = plot->plotWidget()->createPlotCurve( nullptr, "", Qt::black );
+            }
+            m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
+            m_plotCurveForLegendText->setVisibleInLegend( true );
+            updateEnsembleLegendItem();
         }
     }
     updateCurveColors();
@@ -2038,8 +2019,8 @@ QString RimEnsembleCurveSet::createAutoName() const
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    QString curveSetName = m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(),
-                                                                  plot->activePlotTitleHelperAllCurves() );
+    QString curveSetName =
+        m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), plot->plotTitleHelper() );
     if ( curveSetName.isEmpty() )
     {
         curveSetName = m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), nullptr );
