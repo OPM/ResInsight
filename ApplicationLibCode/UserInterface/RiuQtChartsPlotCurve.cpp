@@ -167,6 +167,20 @@ void RiuQtChartsPlotCurve::setBrush( const QBrush& brush )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQtChartsPlotCurve::setColor( const QColor& color )
+{
+    QPen curvePen = lineSeries()->pen();
+    curvePen.setColor( color );
+    lineSeries()->setPen( curvePen );
+
+    curvePen = areaSeries()->pen();
+    curvePen.setColor( color );
+    areaSeries()->setPen( curvePen );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQtChartsPlotCurve::attachToPlot( RiuPlotWidget* plotWidget )
 {
     m_plotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );

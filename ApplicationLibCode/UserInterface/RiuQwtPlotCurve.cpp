@@ -266,6 +266,16 @@ void RiuQwtPlotCurve::setBrush( const QBrush& brush )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtPlotCurve::setColor( const QColor& color )
+{
+    QPen curvePen = pen();
+    curvePen.setColor( color );
+    setPen( curvePen );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QwtGraphic RiuQwtPlotCurve::legendIcon( int index, const QSizeF& size ) const
 {
     QwtGraphic icon = QwtPlotCurve::legendIcon( index, size );

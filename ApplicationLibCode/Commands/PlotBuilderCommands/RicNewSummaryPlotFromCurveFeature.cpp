@@ -49,6 +49,8 @@ void RicNewSummaryPlotFromCurveFeature::onActionTriggered( bool isChecked )
         auto curveCopy =
             dynamic_cast<RimSummaryCurve*>( curve->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
+        curveCopy->setShowInLegend( true );
+
         RimSummaryPlot* plot = RicSummaryPlotBuilder::createPlot( { curveCopy } );
 
         std::vector<RimSummaryPlot*> plots = { plot };
