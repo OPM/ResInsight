@@ -77,7 +77,8 @@ public:
 
     static RimSummaryMultiPlot*
         createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
-                                                const std::vector<RimSummaryCaseCollection*>& ensembles );
+                                                const std::vector<RimSummaryCaseCollection*>& ensembles,
+                                                bool skipCreationOfPlotBasedOnPreferences = true );
 
     static RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSummaryPlot* plot );
     static RimSummaryMultiPlot* createAndAppendSingleSummaryMultiPlot( RimSummaryPlot* plot );

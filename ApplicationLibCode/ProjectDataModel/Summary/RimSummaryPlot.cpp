@@ -564,7 +564,8 @@ void RimSummaryPlot::updatePlotTitle()
         RimMultiPlot* plotWindow = nullptr;
         firstAncestorOrThisOfType( plotWindow );
 
-        auto index = plotWindow->plotIndex( this );
+        size_t index = 0;
+        if ( plotWindow ) index = plotWindow->plotIndex( this );
 
         QString title      = QString( "Sub Plot %1" ).arg( index + 1 );
         m_fallbackPlotName = title;
