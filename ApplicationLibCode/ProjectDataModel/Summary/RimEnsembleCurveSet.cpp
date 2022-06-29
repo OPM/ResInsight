@@ -1566,6 +1566,11 @@ void RimEnsembleCurveSet::updateCurveColors()
         curvesToColor[i]->updateCurveAppearance();
     }
 
+    if ( m_plotCurveForLegendText )
+    {
+        m_plotCurveForLegendText->setColor( RiaColorTools::toQColor( m_color ) );
+    }
+
     RimSummaryPlot* plot;
     firstAncestorOrThisOfType( plot );
     if ( plot && plot->plotWidget() )
@@ -1711,7 +1716,8 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
 
             if ( !m_plotCurveForLegendText )
             {
-                m_plotCurveForLegendText = plot->plotWidget()->createPlotCurve( nullptr, "", Qt::black );
+                m_plotCurveForLegendText =
+                    plot->plotWidget()->createPlotCurve( nullptr, "", RiaColorTools::toQColor( m_color ) );
             }
             m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
             updateEnsembleLegendItem();

@@ -94,6 +94,7 @@ public:
                                 const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) = 0;
 
     virtual void setBrush( const QBrush& brush ) = 0;
+    virtual void setColor( const QColor& color ) = 0;
 
     void            setBlackAndWhiteLegendIcon( bool blackAndWhite );
     virtual void    setVisibleInLegend( bool isVisibleInLegend ) = 0;

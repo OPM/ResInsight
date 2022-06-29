@@ -45,6 +45,7 @@ public:
                         const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) override;
 
     void setBrush( const QBrush& brush ) override;
+    void setColor( const QColor& color ) override;
 
     void    setLegendIconSize( const QSize& iconSize ) override;
     QSize   legendIconSize() const override;
