@@ -148,9 +148,11 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
         {
             cvf::ref<RigResultAccessor> sourceResultAccessor =
                 RigResultAccessorFactory::createFromResultAddress( sourceCase, gridIdx, porosityModel, fIdx, nativeAddress );
+            if ( sourceResultAccessor.isNull() ) continue;
 
             cvf::ref<RigResultModifier> resultModifier =
                 RigResultModifierFactory::createResultModifier( sourceCase, gridIdx, porosityModel, fIdx, address );
+            if ( resultModifier.isNull() ) continue;
 
             size_t baseFrameIdx = fIdx;
             if ( address.isDeltaTimeStepActive() )
@@ -160,6 +162,7 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
 
             cvf::ref<RigResultAccessor> baseResultAccessor =
                 RigResultAccessorFactory::createFromResultAddress( baseCase, gridIdx, porosityModel, baseFrameIdx, nativeAddress );
+            if ( baseResultAccessor.isNull() ) continue;
 
             for ( size_t localGridCellIdx = 0; localGridCellIdx < grid->cellCount(); localGridCellIdx++ )
             {
