@@ -521,6 +521,21 @@ std::vector<double> RimStimPlanFractureTemplate::timeSteps()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<QString> RimStimPlanFractureTemplate::timeStepsStrings()
+{
+    std::vector<QString> steps;
+    std::vector<double>  timeStepsAsDouble = timeSteps();
+    for ( auto d : timeStepsAsDouble )
+    {
+        steps.push_back( QString::number( d ) );
+    }
+
+    return steps;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<std::pair<QString, QString>> RimStimPlanFractureTemplate::uiResultNamesWithUnit() const
 {
     std::vector<std::pair<QString, QString>> propertyNamesAndUnits;
