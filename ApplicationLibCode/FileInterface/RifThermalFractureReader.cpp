@@ -97,8 +97,15 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
 
             // Second is the timestamp
             QString   dateString = values[1];
-            QString   dateFormat = "DD.MMMM.yy hh:mm:ss";
+            QString   dateFormat = "dd.MM.yyyy hh:mm:ss";
             QDateTime dateTime   = QDateTime::fromString( dateString, dateFormat );
+            // Sometimes the datetime field is missing time
+            if ( !dateTime.isValid() )
+            {
+                QString dateFormat = "dd.MM.yyyy";
+                dateTime           = QDateTime::fromString( dateString, dateFormat );
+            }
+
             def->addTimeStep( dateTime.toSecsSinceEpoch() );
 
             //

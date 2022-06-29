@@ -53,8 +53,9 @@ public:
     QString wellPathDepthAtFractureUiName() const override;
 
     // Result Access
-    virtual std::vector<double> timeSteps()                     = 0;
-    virtual QStringList         conductivityResultNames() const = 0;
+    virtual std::vector<double>  timeSteps()                     = 0;
+    virtual std::vector<QString> timeStepsStrings()              = 0;
+    virtual QStringList          conductivityResultNames() const = 0;
     virtual std::vector<std::vector<double>>
         resultValues( const QString& uiResultName, const QString& unitName, size_t timeStepIndex ) const = 0;
     virtual std::vector<double>
