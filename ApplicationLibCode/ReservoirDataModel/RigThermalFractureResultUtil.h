@@ -20,6 +20,7 @@
 
 #include "RiaDefines.h"
 
+#include "cvfMatrix4.h"
 #include "cvfObject.h"
 #include "cvfVector3.h"
 
@@ -37,7 +38,7 @@ class PosNegAccumulator;
 namespace cvf
 {
 class BoundingBox;
-};
+}; // namespace cvf
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -87,4 +88,10 @@ private:
         generateUniformMesh( const cvf::BoundingBox& bb, int numSamplesX, int numSamplesY );
 
     static double linearSampling( double minValue, double maxValue, int numSamples, std::vector<double>& samples );
+
+    static cvf::Mat4d rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 );
+
+    static std::vector<cvf::Vec3d>
+        getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                size_t                                              timeStepIndex );
 };

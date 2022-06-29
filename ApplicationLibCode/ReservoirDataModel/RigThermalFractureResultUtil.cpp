@@ -30,8 +30,8 @@
 
 #include <cmath>
 
-int numSamplesX = 40;
-int numSamplesY = 40;
+int numSamplesX = 60;
+int numSamplesY = 60;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -58,13 +58,14 @@ std::vector<std::vector<double>>
 {
     int propertyIndex = fractureDefinition->getPropertyIndex( resultName );
 
-    std::vector<cvf::Vec3d> relativePos = fractureDefinition->relativeCoordinates( timeStepIndex );
-    CAF_ASSERT( relativePos.size() == fractureDefinition->numNodes() );
+    std::vector<cvf::Vec3d> relativePos = getRelativeCoordinates( fractureDefinition, timeStepIndex );
 
     // Create bounding box
     cvf::BoundingBox boundingBox;
     for ( auto p : relativePos )
         boundingBox.add( p );
+
+    boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh
     auto [xCoordsAtNodes, yCoordsAtNodes] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
@@ -82,30 +83,43 @@ std::vector<std::vector<double>>
     // Fill with invalid value
     for ( int i = 0; i < numSamplesY; i++ )
     {
-        std::vector<double> junk( numSamplesX, HUGE_VAL );
+        std::vector<double> junk( numSamplesX, std::numeric_limits<double>::infinity() );
         vec.push_back( junk );
     }
 
     // Loop through each polygon and check if point is inside.
-    for ( int i = 0; i < static_cast<int>( xCoords.size() ) - 1; i++ )
+    for ( size_t nodeIndex = 0; nodeIndex < fractureDefinition->numNodes(); nodeIndex++ )
     {
-        for ( int j = 0; j < static_cast<int>( depthCoords.size() ) - 1; j++ )
-        {
-            std::vector<cvf::Vec3d> cellPolygon;
-            cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j], 0.0 ) );
-            cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j], 0.0 ) );
-            cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j + 1], 0.0 ) );
-            cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j + 1], 0.0 ) );
+        bool placed = false;
 
-            for ( size_t nodeIndex = 0; nodeIndex < fractureDefinition->numNodes(); nodeIndex++ )
+        for ( int i = 0; i < static_cast<int>( xCoords.size() ) - 1; i++ )
+        {
+            for ( int j = 0; j < static_cast<int>( depthCoords.size() ) - 1; j++ )
             {
+                std::vector<cvf::Vec3d> cellPolygon;
+                cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j], 0.0 ) );
+                cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j], 0.0 ) );
+                cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j + 1], 0.0 ) );
+                cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j + 1], 0.0 ) );
+                // First and last polygon must match
+                cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j], 0.0 ) );
+
                 if ( RigCellGeometryTools::pointInsidePolygon2D( relativePos[nodeIndex], cellPolygon ) )
                 {
                     double value = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex );
-
-                    vec[j][i] = value;
+                    vec[j][i]    = value;
+                    placed       = true;
                 }
             }
+        }
+
+        if ( !placed )
+        {
+            RiaLogging::error( QString( "Unable to place point: %1 [%2 %3 %4]" )
+                                   .arg( nodeIndex )
+                                   .arg( relativePos[nodeIndex].x() )
+                                   .arg( relativePos[nodeIndex].y() )
+                                   .arg( relativePos[nodeIndex].z() ) );
         }
     }
 
@@ -125,12 +139,14 @@ void RigThermalFractureResultUtil::createFractureTriangleGeometry(
     std::vector<cvf::uint>*                             triangleIndices )
 {
     // Convert to coordinates relative to center node
-    std::vector<cvf::Vec3d> points = fractureDefinition->relativeCoordinates( activeTimeStepIndex );
+    std::vector<cvf::Vec3d> points = getRelativeCoordinates( fractureDefinition, activeTimeStepIndex );
 
     // Create bounding box
     cvf::BoundingBox boundingBox;
     for ( auto p : points )
         boundingBox.add( p );
+
+    boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh
     auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
@@ -222,7 +238,7 @@ cvf::cref<RigFractureGrid>
                                                       RiaDefines::EclipseUnitSystem requiredUnitSet )
 {
     // Convert to coordinates relative to center node
-    std::vector<cvf::Vec3d> points = fractureDefinition->relativeCoordinates( activeTimeStepIndex );
+    std::vector<cvf::Vec3d> points = getRelativeCoordinates( fractureDefinition, activeTimeStepIndex );
 
     QString conductivityUnitTextOnFile;
 
@@ -254,6 +270,8 @@ cvf::cref<RigFractureGrid>
     cvf::BoundingBox boundingBox;
     for ( auto p : points )
         boundingBox.add( p );
+
+    boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh
     auto [xCoordsAtNodes, yCoordsAtNodes] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
@@ -384,4 +402,48 @@ void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr
             posNegAccumulator.addValue( value );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+/// Taken from OverlayNavigationCube::computeNewUpVector
+/// Consider move to geometry util class
+//--------------------------------------------------------------------------------------------------
+cvf::Mat4d RigThermalFractureResultUtil::rotationMatrixBetweenVectors( const cvf::Vec3d& v1, const cvf::Vec3d& v2 )
+{
+    using namespace cvf;
+
+    Vec3d rotAxis = v1 ^ v2;
+    rotAxis.normalize();
+
+    // Guard acos against out-of-domain input
+    const double dotProduct = Math::clamp( v1 * v2, -1.0, 1.0 );
+    const double angle      = Math::acos( dotProduct );
+    Mat4d        rotMat     = Mat4d::fromRotation( rotAxis, angle );
+    return rotMat;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<cvf::Vec3d>
+    RigThermalFractureResultUtil::getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                          size_t timeStepIndex )
+{
+    std::vector<cvf::Vec3d> relativePos = fractureDefinition->relativeCoordinates( timeStepIndex );
+    CAF_ASSERT( relativePos.size() == fractureDefinition->numNodes() );
+
+    cvf::Plane plane;
+    plane.setFromPoints( relativePos[0], relativePos[1], relativePos[2] );
+
+    cvf::Vec3d planeNormal = plane.normal().getNormalized();
+    RiaLogging::info(
+        QString( "Plane normal: [%1 %2 %3]" ).arg( planeNormal.x() ).arg( planeNormal.y() ).arg( planeNormal.z() ) );
+    auto rotMat = rotationMatrixBetweenVectors( planeNormal, cvf::Vec3d::Z_AXIS.getNormalized() );
+
+    for ( auto& r : relativePos )
+    {
+        r.transformVector( rotMat );
+    }
+
+    return relativePos;
 }
