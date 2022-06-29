@@ -1714,7 +1714,6 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 m_plotCurveForLegendText = plot->plotWidget()->createPlotCurve( nullptr, "", Qt::black );
             }
             m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
-            m_plotCurveForLegendText->setVisibleInLegend( true );
             updateEnsembleLegendItem();
         }
     }
