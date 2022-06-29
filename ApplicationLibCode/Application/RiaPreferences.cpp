@@ -210,7 +210,7 @@ RiaPreferences::RiaPreferences()
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 
-    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", true, "Enable Undo/Redo for Property Editor changes" );
+    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", false, "Enable Undo/Redo for Property Editor changes" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useUndoRedo );
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)" );

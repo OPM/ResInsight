@@ -22,6 +22,8 @@
 #include "RiaSummaryTools.h"
 
 #include "RimSummaryAddress.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryPlot.h"
 
 #include "RicSummaryPlotBuilder.h"
@@ -85,18 +87,32 @@ void RicNewSummaryMultiPlotFromDataVectorFeature::onActionTriggered( bool isChec
         isEnsemble = isEnsemble || adr->isEnsemble();
     }
 
+    std::set<RifEclipseSummaryAddress> availableAddresses;
+
     if ( isEnsemble )
     {
         for ( auto id : ensembleIds )
         {
-            selectedEnsembles.push_back( RiaSummaryTools::ensembleById( id ) );
+            auto ensemble = RiaSummaryTools::ensembleById( id );
+            if ( ensemble )
+            {
+                selectedEnsembles.push_back( ensemble );
+
+                if ( availableAddresses.empty() ) availableAddresses = ensemble->ensembleSummaryAddresses();
+            }
         }
     }
     else
     {
         for ( auto id : caseIds )
         {
-            selectedCases.push_back( RiaSummaryTools::summaryCaseById( id ) );
+            auto summaryCase = RiaSummaryTools::summaryCaseById( id );
+            if ( summaryCase )
+            {
+                selectedCases.push_back( summaryCase );
+                if ( availableAddresses.empty() && summaryCase->summaryReader() )
+                    availableAddresses = summaryCase->summaryReader()->allResultAddresses();
+            }
         }
     }
 
@@ -110,7 +126,8 @@ void RicNewSummaryMultiPlotFromDataVectorFeature::onActionTriggered( bool isChec
             {
                 auto historyAddr = addr;
                 historyAddr.setVectorName( addr.vectorName() + RifReaderEclipseSummary::historyIdentifier() );
-                eclipseAddresses.insert( historyAddr );
+
+                if ( availableAddresses.count( historyAddr ) > 0 ) eclipseAddresses.insert( historyAddr );
             }
         }
     }
