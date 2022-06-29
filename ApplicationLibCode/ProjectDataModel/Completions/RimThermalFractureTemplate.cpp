@@ -47,6 +47,7 @@
 #include "cvfMath.h"
 #include "cvfVector3.h"
 
+#include <QDateTime>
 #include <QFileInfo>
 
 #include <algorithm>
@@ -497,6 +498,23 @@ std::vector<double> RimThermalFractureTemplate::timeSteps()
     }
 
     return std::vector<double>();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<QString> RimThermalFractureTemplate::timeStepsStrings()
+{
+    std::vector<QString> steps;
+    std::vector<double>  timeStepsAsDouble = timeSteps();
+    for ( auto d : timeStepsAsDouble )
+    {
+        QDateTime dateTime;
+        dateTime.setSecsSinceEpoch( d );
+        steps.push_back( dateTime.toString() );
+    }
+
+    return steps;
 }
 
 //--------------------------------------------------------------------------------------------------

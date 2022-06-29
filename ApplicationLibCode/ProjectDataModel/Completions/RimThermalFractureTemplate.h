@@ -56,7 +56,7 @@ public:
                                    double                   wellPathDepthAtFracture ) const override;
 
     // Result Access
-
+    std::vector<QString>                     timeStepsStrings() override;
     std::vector<double>                      timeSteps() override;
     std::vector<std::pair<QString, QString>> uiResultNamesWithUnit() const override;
     std::vector<std::vector<double>>

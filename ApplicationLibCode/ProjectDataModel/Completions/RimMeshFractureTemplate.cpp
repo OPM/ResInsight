@@ -204,11 +204,11 @@ QList<caf::PdmOptionItemInfo> RimMeshFractureTemplate::calculateValueOptions( co
     }
     else if ( fieldNeedingOptions == &m_activeTimeStepIndex )
     {
-        std::vector<double> timeValues = timeSteps();
-        int                 index      = 0;
-        for ( double value : timeValues )
+        std::vector<QString> timeValues = timeStepsStrings();
+        int                  index      = 0;
+        for ( QString value : timeValues )
         {
-            options.push_back( caf::PdmOptionItemInfo( QString::number( value ), index ) );
+            options.push_back( caf::PdmOptionItemInfo( value, index ) );
             index++;
         }
     }
