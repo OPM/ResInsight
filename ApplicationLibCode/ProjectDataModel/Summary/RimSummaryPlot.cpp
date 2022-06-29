@@ -2361,6 +2361,11 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
                 useQtCharts = true;
         }
 
+        // Disable all use of QtCharts for now. If a plot was created using QtCharts during the period this flag was
+        // active, the use of QtCharts was stored in the project file or template file. Set flag to false to force use
+        // of Qwt
+        useQtCharts = false;
+
         if ( useQtCharts )
         {
             m_summaryPlot = std::make_unique<RiuSummaryQtChartsPlot>( this, mainWindowParent );
