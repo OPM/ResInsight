@@ -564,7 +564,8 @@ void RimSummaryPlot::updatePlotTitle()
         RimMultiPlot* plotWindow = nullptr;
         firstAncestorOrThisOfType( plotWindow );
 
-        auto index = plotWindow->plotIndex( this );
+        size_t index = 0;
+        if ( plotWindow ) index = plotWindow->plotIndex( this );
 
         QString title      = QString( "Sub Plot %1" ).arg( index + 1 );
         m_fallbackPlotName = title;
@@ -2360,6 +2361,11 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
             else if ( regTestRunner->overridePlotEngine() == RiaRegressionTest::PlotEngine::USER_QTCHARTS )
                 useQtCharts = true;
         }
+
+        // Disable all use of QtCharts for now. If a plot was created using QtCharts during the period this flag was
+        // active, the use of QtCharts was stored in the project file or template file. Set flag to false to force use
+        // of Qwt
+        useQtCharts = false;
 
         if ( useQtCharts )
         {

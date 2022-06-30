@@ -410,11 +410,14 @@ void RicSummaryPlotBuilder::appendPlotsToMultiPlot( RimMultiPlot* multiPlot, con
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot*
     RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( const std::vector<RimSummaryCase*>&           cases,
-                                                                   const std::vector<RimSummaryCaseCollection*>& ensembles )
+                                                                   const std::vector<RimSummaryCaseCollection*>& ensembles,
+                                                                   bool skipCreationOfPlotBasedOnPreferences )
 {
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
-    if ( prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::NONE ) return nullptr;
+    if ( skipCreationOfPlotBasedOnPreferences &&
+         prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::NONE )
+        return nullptr;
 
     if ( prefs->defaultSummaryPlotType() == RiaPreferencesSummary::DefaultSummaryPlotType::PLOT_TEMPLATES )
     {
@@ -424,10 +427,17 @@ RimSummaryMultiPlot*
         {
             plotToSelect = RicSummaryPlotTemplateTools::create( filename, cases, ensembles );
         }
-        return plotToSelect;
+
+        if ( plotToSelect ) return plotToSelect;
+
+        if ( skipCreationOfPlotBasedOnPreferences )
+        {
+            return plotToSelect;
+        }
     }
 
-    if ( prefs->defaultSummaryCurvesTextFilter().trimmed().isEmpty() ) return nullptr;
+    if ( skipCreationOfPlotBasedOnPreferences && prefs->defaultSummaryCurvesTextFilter().trimmed().isEmpty() )
+        return nullptr;
 
     RimProject* project        = RimProject::current();
     auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();

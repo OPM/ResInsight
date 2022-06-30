@@ -1162,7 +1162,13 @@ void RimSummaryMultiPlot::summaryPlotItemInfos( QList<caf::PdmOptionItemInfo>* o
 {
     for ( RimSummaryPlot* plot : summaryPlots() )
     {
-        QString displayName = plot->description();
+        QString displayName;
+
+        if ( plot && plot->userDescriptionField() && plot->userDescriptionField() )
+        {
+            displayName = plot->userDescriptionField()->uiCapability()->uiValue().toString();
+        }
+
         optionInfos->push_back( caf::PdmOptionItemInfo( displayName, plot, false, plot->uiCapability()->uiIconProvider() ) );
     }
 }
@@ -1216,8 +1222,6 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
             {
                 // Disable sub plot linking to be able to configure individually
                 setSubPlotAxesLinked( false );
-
-                axisProp->setShowDescription( false );
 
                 auto [row, col] = gridLayoutInfoForSubPlot( p );
                 if ( col == 0 )

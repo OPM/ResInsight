@@ -50,6 +50,8 @@
 #include "RiuSummaryVectorSelectionUi.h"
 #include "RiuTools.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 
@@ -263,7 +265,7 @@ QList<caf::PdmOptionItemInfo> RicSummaryPlotEditorUi::calculateValueOptions( con
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    if ( m_targetPlot && ( fieldNeedingOptions == &m_targetPlot ) )
+    if ( fieldNeedingOptions == &m_targetPlot )
     {
         // Create New Plot item
         QString displayName = "( New Plot )";
@@ -844,6 +846,12 @@ void RicSummaryPlotEditorUi::createNewPlot()
     RimProject* proj = RimProject::current();
 
     RimSummaryPlot* newSummaryPlot = nullptr;
+
+    if ( !m_plotContainer )
+    {
+        std::vector<RimSummaryPlot*> plots;
+        m_plotContainer = RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( plots );
+    }
 
     if ( m_plotContainer )
     {

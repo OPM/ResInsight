@@ -62,6 +62,8 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
 {
     CAF_PDM_InitObject( "Summary Curves Modifier" );
 
+    setNotifyAllFieldsInMultiFieldChangedEvents( true );
+
     CAF_PDM_InitFieldNoDefault( &m_stepDimension, "StepDimension", "Step Dimension" );
 
     CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveCase", "Case" );

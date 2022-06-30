@@ -561,6 +561,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimSummaryMultiPlotCollection*>( firstUiItem ) )
         {
             menuBuilder << "RicNewSummaryMultiPlotFeature";
+            menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "Separator";
             menuBuilder << "RicPasteSummaryPlotFeature";
             menuBuilder << "RicPasteAsciiDataToSummaryPlotFeature";
@@ -774,6 +775,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
             menuBuilder << "RicNewDerivedEnsembleFeature";
+            menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicConvertGroupToEnsembleFeature";
@@ -781,6 +783,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) )
         {
+            menuBuilder << "RicShowDataSourcesForRealization";
+            menuBuilder.addSeparator();
+
             menuBuilder.subMenuStart( "Import" );
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
@@ -789,6 +794,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder.subMenuEnd();
             menuBuilder.addSeparator();
             menuBuilder << "RicNewSummaryMultiPlotFeature";
+            menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
             menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
             menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
@@ -1092,6 +1098,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicNewDerivedEnsembleFeature";
+        menuBuilder << "RicOpenSummaryPlotEditorFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";
@@ -1110,7 +1117,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicReloadSummaryCaseFeature";
         menuBuilder << "RicReplaceSummaryCaseFeature";
         menuBuilder << "RicCreateSummaryCaseCollectionFeature";
-        menuBuilder << "RicShowDataSourcesForRealization";
         menuBuilder << "Separator";
         menuBuilder << "RicCutReferencesToClipboardFeature";
 

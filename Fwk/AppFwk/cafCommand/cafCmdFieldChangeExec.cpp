@@ -89,11 +89,32 @@ void CmdFieldChangeExec::redo()
         PdmFieldHandle* field = PdmReferenceHelper::fieldFromReference( m_commandData->m_rootObject, fieldTextPath );
         if ( !field ) continue;
 
+        bool             objectFlag     = false;
+        PdmObjectHandle* obj            = field->ownerObject();
+        auto             uiObjectHandle = uiObj( obj );
+        if ( uiObjectHandle )
+        {
+            objectFlag = uiObjectHandle->notifyAllFieldsInMultiFieldChangedEvents();
+
+            // Make sure that uiOrdering has been called on all objects, as some object do some state initialization.
+            // This is relevant for data source stepping objects. This operation could be made into a virtual function.
+            caf::PdmUiOrdering ordering;
+            uiObjectHandle->uiOrdering( "", ordering );
+        }
+
         PdmUiFieldHandle*  uiFieldHandle  = field->uiCapability();
         PdmXmlFieldHandle* xmlFieldHandle = field->xmlCapability();
         if ( uiFieldHandle && xmlFieldHandle )
         {
-            bool isLastField = ( i == m_commandData->m_pathToFields.size() - 1 );
+            // In multi field update operations, a single fieldChanged() notification is sufficient for many use cases
+            // where properties like color/size are modified. For control operations like changing the data source
+            // for multiple sub objects, we need to issue fieldChanged() for all modified fields. This behaviour can be
+            // forced both on object level and field level
+
+            bool isLastField                  = ( i == m_commandData->m_pathToFields.size() - 1 );
+            bool sendFieldChangedNotification = isLastField;
+            if ( objectFlag ) sendFieldChangedNotification = true;
+            if ( uiFieldHandle->notifyAllFieldsInMultiFieldChangedEvents() ) sendFieldChangedNotification = true;
 
             if ( m_commandData->m_undoFieldValueSerialized[i].isEmpty() )
             {
@@ -107,7 +128,7 @@ void CmdFieldChangeExec::redo()
                 // The ui value might be an index into the option entry cache, so we need to set the value
                 // and be aware of the option entries, and then serialize the actual field value we ended up with.
 
-                uiFieldHandle->setValueFromUiEditor( m_commandData->m_newUiValue, isLastField );
+                uiFieldHandle->setValueFromUiEditor( m_commandData->m_newUiValue, sendFieldChangedNotification );
 
                 if ( m_commandData->m_redoFieldValueSerialized.isEmpty() )
                 {
@@ -126,7 +147,7 @@ void CmdFieldChangeExec::redo()
                 QVariant newFieldData = uiFieldHandle->toUiBasedQVariant();
 
                 // New data is present in field, notify data changed
-                if ( isLastField )
+                if ( sendFieldChangedNotification )
                 {
                     uiFieldHandle->notifyFieldChanged( oldFieldData, newFieldData );
                     if ( m_notificationCenter )

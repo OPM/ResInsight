@@ -20,6 +20,7 @@
 
 #include "RicSummaryPlotBuilder.h"
 
+#include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryMultiPlot.h"
@@ -60,22 +61,30 @@ void RicNewSummaryMultiPlotFeature::onActionTriggered( bool isChecked )
     std::vector<caf::PdmUiItem*> selectedUiItems;
     caf::SelectionManager::instance()->selectedItems( selectedUiItems );
 
-    RimSummaryMultiPlotCollection* coll = selectedCollection( selectedUiItems );
-    if ( coll )
-    {
-        std::vector<caf::PdmObjectHandle*> objects = {};
-        RimSummaryMultiPlot* multiPlot             = RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
-
-        return;
-    }
-
     std::vector<RimSummaryCase*>           selectedIndividualSummaryCases;
     std::vector<RimSummaryCaseCollection*> selectedEnsembles;
 
-    if ( selectedCases( &selectedIndividualSummaryCases, &selectedEnsembles ) )
+    RimSummaryMultiPlotCollection* coll = selectedCollection( selectedUiItems );
+    if ( coll )
     {
-        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( selectedIndividualSummaryCases, selectedEnsembles );
+        auto ensembles = RimProject::current()->summaryGroups();
+        if ( !ensembles.empty() )
+            selectedEnsembles.push_back( ensembles.front() );
+        else
+        {
+            auto summaryCases = RimProject::current()->allSummaryCases();
+            if ( !summaryCases.empty() ) selectedIndividualSummaryCases.push_back( summaryCases.front() );
+        }
     }
+    else
+    {
+        selectedCases( &selectedIndividualSummaryCases, &selectedEnsembles );
+    }
+
+    bool skipCreationOfPlotBasedOnPreferences = false;
+    RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( selectedIndividualSummaryCases,
+                                                                   selectedEnsembles,
+                                                                   skipCreationOfPlotBasedOnPreferences );
 }
 
 //--------------------------------------------------------------------------------------------------
