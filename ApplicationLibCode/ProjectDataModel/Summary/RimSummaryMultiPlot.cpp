@@ -1223,8 +1223,6 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
                 // Disable sub plot linking to be able to configure individually
                 setSubPlotAxesLinked( false );
 
-                axisProp->setShowDescription( false );
-
                 auto [row, col] = gridLayoutInfoForSubPlot( p );
                 if ( col == 0 )
                     axisProp->setShowUnitText( true );
