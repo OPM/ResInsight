@@ -20,7 +20,9 @@
 
 #include "RiaLogging.h"
 
+#include "RiaWeightedMeanCalculator.h"
 #include "RigCellGeometryTools.h"
+#include "RigConvexHull.h"
 #include "RigFractureGrid.h"
 #include "RigStatisticsMath.h"
 #include "RigThermalFractureDefinition.h"
@@ -87,39 +89,26 @@ std::vector<std::vector<double>>
         vec.push_back( junk );
     }
 
-    // Loop through each polygon and check if point is inside.
-    for ( size_t nodeIndex = 0; nodeIndex < fractureDefinition->numNodes(); nodeIndex++ )
+    // Find the boundary of the fracture (i.e. convex hull around the points)
+    std::vector<cvf::Vec3d> fractureBoundary = RigConvexHull::compute2d( relativePos );
+    fractureBoundary.push_back( fractureBoundary.front() );
+
+    for ( int i = 0; i < static_cast<int>( xCoords.size() ) - 1; i++ )
     {
-        bool placed = false;
-
-        for ( int i = 0; i < static_cast<int>( xCoords.size() ) - 1; i++ )
+        for ( int j = 0; j < static_cast<int>( depthCoords.size() ) - 1; j++ )
         {
-            for ( int j = 0; j < static_cast<int>( depthCoords.size() ) - 1; j++ )
+            cvf::BoundingBox bb;
+            bb.add( cvf::Vec3d( xCoords[i], depthCoords[j], 0.0 ) );
+            bb.add( cvf::Vec3d( xCoords[i + 1], depthCoords[j], 0.0 ) );
+            bb.add( cvf::Vec3d( xCoords[i + 1], depthCoords[j + 1], 0.0 ) );
+            bb.add( cvf::Vec3d( xCoords[i], depthCoords[j + 1], 0.0 ) );
+
+            if ( RigCellGeometryTools::pointInsidePolygon2D( bb.center(), fractureBoundary ) )
             {
-                std::vector<cvf::Vec3d> cellPolygon;
-                cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j], 0.0 ) );
-                cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j], 0.0 ) );
-                cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j + 1], 0.0 ) );
-                cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j + 1], 0.0 ) );
-                // First and last polygon must match
-                cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j], 0.0 ) );
-
-                if ( RigCellGeometryTools::pointInsidePolygon2D( relativePos[nodeIndex], cellPolygon ) )
-                {
-                    double value = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex );
-                    vec[j][i]    = value;
-                    placed       = true;
-                }
+                double value =
+                    interpolateProperty( bb.center(), relativePos, fractureDefinition, propertyIndex, timeStepIndex );
+                vec[j][i] = value;
             }
-        }
-
-        if ( !placed )
-        {
-            RiaLogging::error( QString( "Unable to place point: %1 [%2 %3 %4]" )
-                                   .arg( nodeIndex )
-                                   .arg( relativePos[nodeIndex].x() )
-                                   .arg( relativePos[nodeIndex].y() )
-                                   .arg( relativePos[nodeIndex].z() ) );
         }
     }
 
@@ -443,7 +432,44 @@ std::vector<cvf::Vec3d>
     for ( auto& r : relativePos )
     {
         r.transformVector( rotMat );
+        r.z() = 0.0;
     }
 
     return relativePos;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&                                   position,
+                                                          const std::vector<cvf::Vec3d>&                      points,
+                                                          std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                          int    propertyIndex,
+                                                          size_t timeStepIndex )
+{
+    // Compute the distance to the other points
+    std::vector<std::pair<double, int>> distances;
+
+    int index = 0;
+    for ( auto p : points )
+    {
+        double distance = position.pointDistance( p );
+        distances.push_back( std::make_pair( distance, index ) );
+        index++;
+    }
+
+    // Sort by distance
+    std::sort( distances.begin(), distances.end() );
+
+    // Create distance-weighthed mean of first few points
+    size_t                            numPoints = 3;
+    RiaWeightedMeanCalculator<double> calc;
+    for ( size_t i = 0; i < numPoints; i++ )
+    {
+        auto [distance, nodeIndex] = distances[i];
+        double value               = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex );
+        calc.addValueAndWeight( value, distance );
+    }
+
+    return calc.weightedMean();
 }
