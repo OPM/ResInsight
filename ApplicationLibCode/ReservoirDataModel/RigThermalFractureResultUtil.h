@@ -94,4 +94,10 @@ private:
     static std::vector<cvf::Vec3d>
         getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                 size_t                                              timeStepIndex );
+
+    static double interpolateProperty( const cvf::Vec3d&                                   position,
+                                       const std::vector<cvf::Vec3d>&                      points,
+                                       std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                       int                                                 propertyIndex,
+                                       size_t                                              timeStepIndex );
 };
