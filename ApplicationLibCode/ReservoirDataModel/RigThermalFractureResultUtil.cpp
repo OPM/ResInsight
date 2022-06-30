@@ -381,10 +381,10 @@ void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr
 {
     int propertyIndex = fractureDefinition->getPropertyIndex( resultName );
 
-    size_t maxTs = fractureDefinition->timeSteps().size();
-    for ( size_t ts = 0; ts < maxTs; ts++ )
+    int maxTs = static_cast<int>( fractureDefinition->timeSteps().size() );
+    for ( int ts = 0; ts < maxTs; ts++ )
     {
-        for ( size_t nodeIndex = 0; nodeIndex < fractureDefinition->numNodes(); nodeIndex++ )
+        for ( int nodeIndex = 0; nodeIndex < static_cast<int>( fractureDefinition->numNodes() ); nodeIndex++ )
         {
             double value = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, ts );
             minMaxAccumulator.addValue( value );
@@ -418,7 +418,7 @@ std::vector<cvf::Vec3d>
     RigThermalFractureResultUtil::getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                                           size_t timeStepIndex )
 {
-    std::vector<cvf::Vec3d> relativePos = fractureDefinition->relativeCoordinates( timeStepIndex );
+    std::vector<cvf::Vec3d> relativePos = fractureDefinition->relativeCoordinates( static_cast<int>( timeStepIndex ) );
     CAF_ASSERT( relativePos.size() == fractureDefinition->numNodes() );
 
     cvf::Plane plane;
@@ -467,7 +467,7 @@ double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&     
     for ( size_t i = 0; i < numPoints; i++ )
     {
         auto [distance, nodeIndex] = distances[i];
-        double value               = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex );
+        double value = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, static_cast<int>( timeStepIndex ) );
         calc.addValueAndWeight( value, distance );
     }
 
