@@ -93,10 +93,10 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
                     adrMod.setAddress( modifiedAdr );
                 }
                 summaryMultiPlot->addPlot( duplicatedPlot );
-
                 duplicatedPlot->resolveReferencesRecursively();
-                duplicatedPlot->loadDataAndUpdate();
             }
+
+            duplicatedPlot->loadDataAndUpdate();
         }
         info.incrementProgress();
     }
