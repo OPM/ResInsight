@@ -783,6 +783,9 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimSummaryCase*>( firstUiItem ) )
         {
+            menuBuilder << "RicShowDataSourcesForRealization";
+            menuBuilder.addSeparator();
+
             menuBuilder.subMenuStart( "Import" );
             menuBuilder << "RicImportSummaryCaseFeature";
             menuBuilder << "RicImportSummaryCasesFeature";
@@ -1114,7 +1117,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicReloadSummaryCaseFeature";
         menuBuilder << "RicReplaceSummaryCaseFeature";
         menuBuilder << "RicCreateSummaryCaseCollectionFeature";
-        menuBuilder << "RicShowDataSourcesForRealization";
         menuBuilder << "Separator";
         menuBuilder << "RicCutReferencesToClipboardFeature";
 
