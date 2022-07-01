@@ -1098,7 +1098,6 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         menuBuilder << "RicNewSummaryMultiPlotFeature";
         menuBuilder << "RicNewDerivedEnsembleFeature";
-        menuBuilder << "RicOpenSummaryPlotEditorFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";
         menuBuilder << "RicNewDerivedSummaryFeature";
