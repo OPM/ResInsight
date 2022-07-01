@@ -50,12 +50,12 @@ CAF_PDM_SOURCE_INIT( RimEllipseFractureTemplate, "RimEllipseFractureTemplate" );
 //--------------------------------------------------------------------------------------------------
 RimEllipseFractureTemplate::RimEllipseFractureTemplate()
 {
-    CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitObject( "Fracture Template", ":/FractureTemplate16x16.png" );
 
-    CAF_PDM_InitField( &m_halfLength, "HalfLength", 0.0, "Half Length X<sub>f</sub>", "", "", "" );
-    CAF_PDM_InitField( &m_height, "Height", 0.0, "Height", "", "", "" );
-    CAF_PDM_InitField( &m_width, "Width", 0.0, "Width", "", "", "" );
-    CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability [mD]", "", "", "" );
+    CAF_PDM_InitField( &m_halfLength, "HalfLength", 0.0, "Half Length X<sub>f</sub>" );
+    CAF_PDM_InitField( &m_height, "Height", 0.0, "Height" );
+    CAF_PDM_InitField( &m_width, "Width", 0.0, "Width" );
+    CAF_PDM_InitField( &m_permeability, "Permeability", 0.0, "Permeability [mD]" );
 
     setDeletable( true );
 }
@@ -260,7 +260,7 @@ WellFractureIntersectionData
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEllipseFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimEllipseFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

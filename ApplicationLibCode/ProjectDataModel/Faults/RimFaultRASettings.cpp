@@ -53,46 +53,41 @@ CAF_PDM_SOURCE_INIT( RimFaultRASettings, "RimFaultRASettings" );
 //--------------------------------------------------------------------------------------------------
 RimFaultRASettings::RimFaultRASettings()
 {
-    CAF_PDM_InitObject( "Reactivation Assessment Settings", ":/fault_react_24x24.png", "", "" );
+    CAF_PDM_InitObject( "Reactivation Assessment Settings", ":/fault_react_24x24.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseCase, "EclipseCase", "Eclipse Case" );
     m_eclipseCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeomechCase", "GeoMech Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeomechCase", "GeoMech Case" );
     m_geomechCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseFRAGeneratedCase, "EclipseFRACase", "Eclipse FRA Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseFRAGeneratedCase, "EclipseFRACase", "Eclipse FRA Case" );
     m_eclipseFRAGeneratedCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDir", "Working Directory", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDir", "Working Directory" );
     m_baseDir.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_elasticTableFilename, "ElasticTableFilename", QString( "" ), "Elastic Table", "", "", "" );
+    CAF_PDM_InitField( &m_elasticTableFilename, "ElasticTableFilename", QString( "" ), "Elastic Table" );
     m_elasticTableFilename.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_elasticTableFilename.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_startTimestepEclipse, "StartTimeStepEclipse", 0, "Start Time Step" );
     m_startTimestepEclipse.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_endTimestepEclipse, "EndTimeStepEclipse", 0, "End Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_endTimestepEclipse, "EndTimeStepEclipse", 0, "End Time Step" );
     m_endTimestepEclipse.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_startTimestepGeoMech, "StartTimeStepGeoMech", 0, "Start Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_startTimestepGeoMech, "StartTimeStepGeoMech", 0, "Start Time Step" );
     m_startTimestepGeoMech.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_startTimestepGeoMech.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitField( &m_endTimestepGeoMech, "EndTimeStepGeoMech", 0, "End Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_endTimestepGeoMech, "EndTimeStepGeoMech", 0, "End Time Step" );
     m_endTimestepGeoMech.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_endTimestepGeoMech.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_basicParameters, "BasicParameters", "Basic Processing Parameters", ":/Bullet.png", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_advancedParameters,
-                                "AdvancedParameters",
-                                "Advanced Processing Parameters",
-                                ":/Bullet.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_basicParameters, "BasicParameters", "Basic Processing Parameters", ":/Bullet.png" );
+    CAF_PDM_InitFieldNoDefault( &m_advancedParameters, "AdvancedParameters", "Advanced Processing Parameters", ":/Bullet.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_basicParametersRI, "BasicParametersRI", "Basic ResInsight Parameters", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_advancedParametersRI, "AdvancedParametersRI", "Advanced ResInsight Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_basicParametersRI, "BasicParametersRI", "Basic ResInsight Parameters" );
+    CAF_PDM_InitFieldNoDefault( &m_advancedParametersRI, "AdvancedParametersRI", "Advanced ResInsight Parameters" );
 
     setupResInsightParameters();
 }
@@ -107,8 +102,7 @@ RimFaultRASettings::~RimFaultRASettings()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimFaultRASettings::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimFaultRASettings::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -276,7 +270,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
     RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechFRADefaultBasicXML() );
     if ( !basicreader.parseFile( errorText ) ) return;
 
-    m_basicParameters.clear();
+    m_basicParameters.deleteChildren();
     for ( auto group : basicreader.parameterGroups() )
     {
         m_basicParameters.push_back( group );
@@ -287,7 +281,7 @@ void RimFaultRASettings::initFromPreprocSettings( RimFaultRAPreprocSettings* pre
         RifParameterXmlReader advreader( RiaPreferencesGeoMech::current()->geomechFRADefaultAdvXML() );
         if ( !advreader.parseFile( errorText ) ) return;
 
-        m_advancedParameters.clear();
+        m_advancedParameters.deleteChildren();
         for ( auto group : advreader.parameterGroups() )
         {
             m_advancedParameters.push_back( group );
@@ -412,7 +406,7 @@ std::list<RimGenericParameter*> RimFaultRASettings::basicParameters( int faultID
         retlist.push_back( p );
     }
 
-    for ( auto& group : m_basicParameters.childObjects() )
+    for ( auto& group : m_basicParameters.children() )
     {
         for ( auto& p : group->parameters() )
         {
@@ -443,7 +437,7 @@ std::list<RimGenericParameter*> RimFaultRASettings::advancedParameters( int faul
         retlist.push_back( p );
     }
 
-    for ( auto& group : m_advancedParameters.childObjects() )
+    for ( auto& group : m_advancedParameters.children() )
     {
         for ( auto& p : group->parameters() )
         {
@@ -617,13 +611,13 @@ RimGenericParameter* RimFaultRASettings::getInputParameter( QString name ) const
 {
     RimGenericParameter* retval = nullptr;
 
-    for ( auto group : m_basicParameters.childObjects() )
+    for ( auto group : m_basicParameters.children() )
     {
         retval = group->parameter( name );
         if ( retval != nullptr ) return retval;
     }
 
-    for ( auto group : m_advancedParameters.childObjects() )
+    for ( auto group : m_advancedParameters.children() )
     {
         retval = group->parameter( name );
         if ( retval != nullptr ) return retval;

@@ -18,6 +18,8 @@
 
 #include "RicShowMainWindowFeature.h"
 
+#include "RiaGuiApplication.h"
+
 #include "RiuMainWindow.h"
 
 #include <QAction>
@@ -31,19 +33,27 @@ void RicShowMainWindowFeature::showMainWindow()
 {
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
 
-    if ( mainWnd->isMinimized() )
+    if ( mainWnd )
     {
-        mainWnd->showNormal();
-        mainWnd->update();
+        if ( mainWnd->isMinimized() )
+        {
+            mainWnd->showNormal();
+            mainWnd->update();
+        }
+        else
+        {
+            mainWnd->show();
+        }
+
+        mainWnd->raise();
+
+        mainWnd->restoreDockWidgetVisibilities();
     }
     else
     {
-        mainWnd->show();
+        RiaGuiApplication* app = RiaGuiApplication::instance();
+        app->getOrCreateAndShowMainWindow();
     }
-
-    mainWnd->raise();
-
-    mainWnd->restoreDockWidgetVisibilities();
 }
 
 //--------------------------------------------------------------------------------------------------

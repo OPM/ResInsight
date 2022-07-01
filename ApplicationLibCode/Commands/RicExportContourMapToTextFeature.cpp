@@ -50,11 +50,11 @@ RICF_SOURCE_INIT( RicExportContourMapToTextFeature, "RicExportContourMapToTextFe
 
 RicExportContourMapToTextFeature::RicExportContourMapToTextFeature()
 {
-    CAF_PDM_InitScriptableFieldNoDefault( &m_exportFileName, "exportFileName", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_undefinedValueLabel, "undefinedValueLabel", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_excludeUndefinedValues, "excludeUndefinedValues", "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View Id", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_exportFileName, "exportFileName", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_exportLocalCoordinates, "exportLocalCoordinates", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_undefinedValueLabel, "undefinedValueLabel", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_excludeUndefinedValues, "excludeUndefinedValues", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "View Id" );
 }
 
 //--------------------------------------------------------------------------------------------------

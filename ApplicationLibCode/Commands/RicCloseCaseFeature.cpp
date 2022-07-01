@@ -86,7 +86,7 @@ void RicCloseCaseFeature::onActionTriggered( bool isChecked )
             {
                 deleteEclipseCase( eclipseCase );
             }
-            RiuMainWindow::instance()->cleanupGuiCaseClose();
+            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->cleanupGuiCaseClose();
         }
     }
 
@@ -96,7 +96,7 @@ void RicCloseCaseFeature::onActionTriggered( bool isChecked )
         {
             deleteGeoMechCase( geoMechCase );
         }
-        RiuMainWindow::instance()->cleanupGuiCaseClose();
+        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->cleanupGuiCaseClose();
     }
 }
 
@@ -152,7 +152,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
             RimIdenticalGridCaseGroup* caseGroup = caseCollection->parentCaseGroup();
             CVF_ASSERT( caseGroup );
 
-            caseGroup->statisticsCaseCollection()->reservoirs.removeChildObject( eclipseCase );
+            caseGroup->statisticsCaseCollection()->reservoirs.removeChild( eclipseCase );
             caseGroup->updateConnectedEditors();
         }
         else
@@ -165,7 +165,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
                 if ( caseGroup->caseCollection()->reservoirs.size() == 1 )
                 {
                     std::vector<caf::PdmObjectHandle*> children;
-                    caseGroup->statisticsCaseCollection()->reservoirs.childObjects( &children );
+                    caseGroup->statisticsCaseCollection()->reservoirs.children( &children );
 
                     for ( size_t i = children.size(); i-- > 0; )
                     {
@@ -213,7 +213,7 @@ void RicCloseCaseFeature::deleteEclipseCase( RimEclipseCase* eclipseCase )
 
         if ( cases.empty() )
         {
-            project->multiSnapshotDefinitions.deleteAllChildObjects();
+            project->multiSnapshotDefinitions.deleteChildren();
         }
         else
         {

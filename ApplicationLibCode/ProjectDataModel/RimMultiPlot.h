@@ -18,7 +18,10 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include "RimAbstractPlotCollection.h"
+#include "RimPlot.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotWindow.h"
 
@@ -43,17 +46,8 @@ class RimMultiPlot : public RimPlotWindow, public RimTypedPlotCollection<RimPlot
     CAF_PDM_HEADER_INIT;
 
 public:
-    using ColumnCount     = RiuMultiPlotBook::ColumnCount;
-    using ColumnCountEnum = caf::AppEnum<ColumnCount>;
-
-    enum RowCount
-    {
-        ROWS_1 = 1,
-        ROWS_2 = 2,
-        ROWS_3 = 3,
-        ROWS_4 = 4,
-    };
-    using RowCountEnum = caf::AppEnum<RowCount>;
+    using ColumnCountEnum = caf::AppEnum<RiaDefines::ColumnCount>;
+    using RowCountEnum    = caf::AppEnum<RiaDefines::RowCount>;
 
 public:
     RimMultiPlot();
@@ -64,6 +58,7 @@ public:
     QWidget* viewWidget() override;
 
     QString description() const override;
+    QString projectFileVersionString() const;
 
     bool    isMultiPlotTitleVisible() const;
     void    setMultiPlotTitleVisible( bool visible );
@@ -73,6 +68,16 @@ public:
     void insertPlot( RimPlot* plot, size_t index ) override;
     void removePlot( RimPlot* plot ) override;
     void movePlotsToThis( const std::vector<RimPlot*>& plots, int insertAtPosition );
+
+    virtual void startBatchAddOperation();
+    virtual void endBatchAddOperation();
+
+    virtual void removePlotNoUpdate( RimPlot* plot );
+    virtual void updateAfterPlotRemove();
+
+    void         deleteAllPlots() override;
+    void         updatePlots();
+    virtual void updatePlotWindowTitle();
 
     size_t plotCount() const override;
     size_t plotIndex( const RimPlot* plot ) const;
@@ -85,14 +90,18 @@ public:
     void setAutoScaleXEnabled( bool enabled );
     void setAutoScaleYEnabled( bool enabled );
 
-    int                  columnCount() const override;
-    int                  rowsPerPage() const;
-    caf::PdmFieldHandle* columnCountField();
-    caf::PdmFieldHandle* rowsPerPageField();
-    caf::PdmFieldHandle* pagePreviewField();
-    bool                 showPlotTitles() const;
+    void setColumnCount( RiaDefines::ColumnCount columnCount );
+    void setRowCount( RiaDefines::RowCount rowCount );
+    void setTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
+
+    int columnCount() const override;
+    int rowsPerPage() const;
+
+    void setShowPlotTitles( bool enable );
+    bool showPlotTitles() const;
 
     void zoomAll() override;
+    void zoomAllYAxes();
 
     QString asciiDataForPlotExport() const;
 
@@ -101,6 +110,11 @@ public:
     int subTitleFontSize() const;
     int axisTitleFontSize() const;
     int axisValueFontSize() const;
+
+    virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+    virtual std::vector<caf::PdmFieldHandle*> fieldsToShowInLayoutToolbar();
+
+    bool isValid() const;
 
 protected:
     QImage snapshotWindowContent() override;
@@ -117,28 +131,33 @@ protected:
                                 caf::PdmUiEditorAttribute* attribute ) override;
     void uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
-    void                          onLoadDataAndUpdate() override;
-    void                          initAfterRead() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    void onLoadDataAndUpdate() override;
+    void initAfterRead() override;
 
     void applyPlotWindowTitleToWidgets();
-    void updatePlots();
     void updateZoom();
     void recreatePlotWidgets();
 
+    void onPlotAdditionOrRemoval();
+
+    bool isMouseCursorInsidePlot();
+
 private:
     void cleanupBeforeClose();
+    void setupBeforeSave() override;
     void doUpdateLayout() override;
     void updateSubPlotNames();
-    void updatePlotWindowTitle();
     void doRenderWindowContent( QPaintDevice* paintDevice ) override;
-    void onPlotAdditionOrRemoval();
     void onPlotsReordered( const caf::SignalEmitter* emitter );
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
+    static void setTickmarkCount( RimPlot* plot, RimPlotAxisPropertiesInterface::LegendTickmarkCountEnum tickmarkCount );
+
 protected:
+    caf::PdmField<QString>                          m_projectFileVersionString;
     caf::PdmField<bool>                             m_showPlotWindowTitle;
     caf::PdmField<QString>                          m_plotWindowTitle;
     caf::PdmField<ColumnCountEnum>                  m_columnCount;
@@ -154,6 +173,10 @@ protected:
     friend class RiuMultiPlotBook;
     QPointer<RiuMultiPlotBook> m_viewer;
 
+    bool m_delayPlotUpdatesDuringBatchAdd;
+
 private:
     caf::PdmChildArrayField<RimPlot*> m_plots;
+
+    bool m_isValid;
 };

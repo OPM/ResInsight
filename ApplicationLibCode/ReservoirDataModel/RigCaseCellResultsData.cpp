@@ -21,6 +21,7 @@
 #include "RigCaseCellResultsData.h"
 
 #include "RiaApplication.h"
+#include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
@@ -42,6 +43,7 @@
 
 #include "RifReaderEclipseOutput.h"
 
+#include "cafAssert.h"
 #include "cafProgressInfo.h"
 #include "cvfGeometryTools.h"
 
@@ -910,18 +912,37 @@ void RigCaseCellResultsData::eraseAllSourSimData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RigCaseCellResultsData::setRemovedTagOnGeneratedResult( const RigEclipseResultAddress& resultAddress )
+{
+    CAF_ASSERT( resultAddress.resultCatType() == RiaDefines::ResultCatType::GENERATED );
+
+    for ( auto& it : m_resultInfos )
+    {
+        if ( it.resultType() == RiaDefines::ResultCatType::GENERATED && it.resultName() == resultAddress.resultName() )
+        {
+            it.setResultType( RiaDefines::ResultCatType::REMOVED );
+            return;
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigCaseCellResultsData::createPlaceholderResultEntries()
 {
     // SOIL
     {
-        if ( !hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) ) )
+        if ( !hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) ) )
         {
-            if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ) ) ||
-                 hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) ) )
+            if ( hasResultEntry(
+                     RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ) ) ||
+                 hasResultEntry(
+                     RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) ) )
             {
                 size_t soilIndex =
                     findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                            "SOIL" ),
+                                                                            RiaResultNames::soil() ),
                                                    false );
                 this->setMustBeCalculated( soilIndex );
             }
@@ -931,7 +952,7 @@ void RigCaseCellResultsData::createPlaceholderResultEntries()
     // Oil Volume
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
-        if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) ) )
+        if ( hasResultEntry( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) ) )
         {
             findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                     RiaResultNames::riOilVolumeResultName() ),
@@ -1348,14 +1369,16 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResult( const RigEclipseResu
         return scalarResultIndex;
     }
 
-    if ( resultName == "SOIL" )
+    if ( resultName == RiaResultNames::soil() )
     {
         if ( this->mustBeCalculated( scalarResultIndex ) )
         {
             // Trigger loading of SWAT, SGAS to establish time step count if no data has been loaded from file at
             // this point
-            findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ) );
-            findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ) );
+            findOrLoadKnownScalarResult(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() ) );
+            findOrLoadKnownScalarResult(
+                RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() ) );
 
             m_cellScalarResults[scalarResultIndex].resize( this->maxTimeStepCount() );
             for ( size_t timeStepIdx = 0; timeStepIdx < this->maxTimeStepCount(); timeStepIdx++ )
@@ -1548,7 +1571,7 @@ size_t RigCaseCellResultsData::findOrLoadKnownScalarResultForTimeStep( const Rig
     QString                   resultName = resVarAddr.resultName();
 
     // Special handling for SOIL
-    if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultName.toUpper() == "SOIL" )
+    if ( type == RiaDefines::ResultCatType::DYNAMIC_NATIVE && resultName.toUpper() == RiaResultNames::soil() )
     {
         size_t soilScalarResultIndex = this->findScalarResultIndexFromAddress( resVarAddr );
 
@@ -1648,15 +1671,17 @@ void RigCaseCellResultsData::computeSOILForTimeStep( size_t timeStepIndex )
     // Compute SGAS based on SWAT if the simulation contains no oil
     testAndComputeSgasForTimeStep( timeStepIndex );
 
-    RigEclipseResultAddress SWATAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" );
-    RigEclipseResultAddress SGASAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" );
+    RigEclipseResultAddress SWATAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
+    RigEclipseResultAddress SGASAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
     RigEclipseResultAddress SSOLAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SSOL" );
 
     size_t scalarIndexSWAT =
-        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ),
+        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                         RiaResultNames::swat() ),
                                                 timeStepIndex );
     size_t scalarIndexSGAS =
-        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ),
+        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                         RiaResultNames::sgas() ),
                                                 timeStepIndex );
     size_t scalarIndexSSOL =
         findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SSOL" ),
@@ -1694,7 +1719,7 @@ void RigCaseCellResultsData::computeSOILForTimeStep( size_t timeStepIndex )
     }
 
     // Make sure memory is allocated for the new SOIL results
-    RigEclipseResultAddress SOILAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" );
+    RigEclipseResultAddress SOILAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
     size_t                  soilResultScalarIndex = this->findScalarResultIndexFromAddress( SOILAddr );
     m_cellScalarResults[soilResultScalarIndex].resize( soilTimeStepCount );
 
@@ -1768,7 +1793,8 @@ void RigCaseCellResultsData::computeSOILForTimeStep( size_t timeStepIndex )
 void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex )
 {
     size_t scalarIndexSWAT =
-        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" ),
+        findOrLoadKnownScalarResultForTimeStep( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                         RiaResultNames::swat() ),
                                                 timeStepIndex );
     if ( scalarIndexSWAT == cvf::UNDEFINED_SIZE_T )
     {
@@ -1784,7 +1810,8 @@ void RigCaseCellResultsData::testAndComputeSgasForTimeStep( size_t timeStepIndex
     // Simulation type is gas and water. No SGAS is present, compute SGAS based on SWAT
 
     size_t scalarIndexSGAS =
-        this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" ),
+        this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                      RiaResultNames::sgas() ),
                                              false );
     if ( m_cellScalarResults[scalarIndexSGAS].size() > timeStepIndex )
     {
@@ -2930,8 +2957,8 @@ void RigCaseCellResultsData::computeOilVolumes()
                                              false );
     const std::vector<double>& cellVolumeResults = m_cellScalarResults[cellVolIdx][0];
 
-    size_t soilIdx =
-        this->findOrLoadKnownScalarResult( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" ) );
+    size_t soilIdx = this->findOrLoadKnownScalarResult(
+        RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() ) );
     size_t oilVolIdx =
         this->findOrCreateScalarResultIndex( RigEclipseResultAddress( RiaDefines::ResultCatType::DYNAMIC_NATIVE,
                                                                       RiaResultNames::riOilVolumeResultName() ),

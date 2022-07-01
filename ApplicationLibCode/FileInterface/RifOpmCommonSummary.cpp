@@ -19,6 +19,7 @@
 #include "RifOpmCommonSummary.h"
 
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
@@ -156,22 +157,22 @@ bool RifOpmCommonEclipseSummary::values( const RifEclipseSummaryAddress& resultA
 //--------------------------------------------------------------------------------------------------
 std::string RifOpmCommonEclipseSummary::unitName( const RifEclipseSummaryAddress& resultAddress ) const
 {
-    auto it = m_summaryAddressToKeywordMap.find( resultAddress );
+    std::string nameString;
+    auto        it = m_summaryAddressToKeywordMap.find( resultAddress );
     if ( it != m_summaryAddressToKeywordMap.end() )
     {
         auto keyword = it->second;
         if ( m_enhancedReader )
         {
-            return m_enhancedReader->get_unit( keyword );
+            nameString = m_enhancedReader->get_unit( keyword );
         }
-
-        if ( m_standardReader )
+        else if ( m_standardReader )
         {
-            return m_standardReader->get_unit( keyword );
+            nameString = m_standardReader->get_unit( keyword );
         }
     }
 
-    return {};
+    return RiaStdStringTools::trimString( nameString );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -291,7 +292,7 @@ RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode(
             return RifEclipseSummaryAddress::wellAddress( summaryNode.keyword, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Group:
-            return RifEclipseSummaryAddress::wellGroupAddress( summaryNode.keyword, summaryNode.wgname );
+            return RifEclipseSummaryAddress::groupAddress( summaryNode.keyword, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Field:
             return RifEclipseSummaryAddress::fieldAddress( summaryNode.keyword );
@@ -327,7 +328,7 @@ RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode(
             // The vector "GPR" is defined as Node
             // The behavior in libecl is to use the category Group
             // https://github.com/OPM/ResInsight/issues/7838
-            return RifEclipseSummaryAddress::wellGroupAddress( summaryNode.keyword, summaryNode.wgname );
+            return RifEclipseSummaryAddress::groupAddress( summaryNode.keyword, summaryNode.wgname );
             break;
         case Opm::EclIO::SummaryNode::Category::Network:
             return RifEclipseSummaryAddress::networkAddress( summaryNode.keyword );
@@ -394,32 +395,49 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
 
     std::vector<std::string> invalidKeywords;
 
-    for ( const auto& keyword : keywords )
+#pragma omp parallel
     {
-        auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
-        if ( !eclAdr.isValid() )
-        {
-            invalidKeywords.push_back( keyword );
+        std::set<RifEclipseSummaryAddress>              threadAddresses;
+        std::map<RifEclipseSummaryAddress, std::string> threadAddressToNodeIndexMap;
+        std::vector<std::string>                        threadInvalidKeywords;
 
-            // If a category is not found, use the MISC category
-            eclAdr = RifEclipseSummaryAddress::miscAddress( keyword );
+#pragma omp for
+        for ( int index = 0; index < (int)keywords.size(); index++ )
+        {
+            auto keyword = keywords[index];
+
+            auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+            if ( !eclAdr.isValid() )
+            {
+                threadInvalidKeywords.push_back( keyword );
+
+                // If a category is not found, use the MISC category
+                eclAdr = RifEclipseSummaryAddress::miscAddress( keyword );
+            }
+
+            if ( eclAdr.isValid() )
+            {
+                threadAddresses.insert( eclAdr );
+                threadAddressToNodeIndexMap[eclAdr] = keyword;
+            }
         }
 
-        if ( eclAdr.isValid() )
+#pragma omp critical
         {
-            addresses.insert( eclAdr );
-            addressToNodeIndexMap[eclAdr] = keyword;
+            addresses.insert( threadAddresses.begin(), threadAddresses.end() );
+            addressToNodeIndexMap.insert( threadAddressToNodeIndexMap.begin(), threadAddressToNodeIndexMap.end() );
+            invalidKeywords.insert( invalidKeywords.end(), threadInvalidKeywords.begin(), threadInvalidKeywords.end() );
         }
+
+        // DEBUG code
+        // Used to print keywords not being categorized correctly
+        /*
+            for ( const auto& kw : invalidKeywords )
+            {
+                RiaLogging::warning( QString::fromStdString( kw ) );
+            }
+        */
     }
-
-    // DEBUG code
-    // Used to print keywords not being categorized correctly
-    /*
-        for ( const auto& kw : invalidKeywords )
-        {
-            RiaLogging::warning( QString::fromStdString( kw ) );
-        }
-    */
 
     return { addresses, addressToNodeIndexMap };
 }

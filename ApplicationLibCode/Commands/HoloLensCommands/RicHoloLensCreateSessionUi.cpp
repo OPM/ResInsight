@@ -35,12 +35,12 @@ CAF_PDM_SOURCE_INIT( RicHoloLensCreateSessionUi, "RicHoloLensCreateSessionUi" );
 //--------------------------------------------------------------------------------------------------
 RicHoloLensCreateSessionUi::RicHoloLensCreateSessionUi()
 {
-    CAF_PDM_InitObject( "HoloLens Create Session", "", "", "" );
+    CAF_PDM_InitObject( "HoloLens Create Session" );
 
-    CAF_PDM_InitField( &m_sessionName, "SessionName", QString( "DummySessionName" ), "Session Name", "", "", "" );
-    CAF_PDM_InitField( &m_sessionPinCode, "SessionPinCode", QString( "1234" ), "Session Pin Code", "", "", "" );
+    CAF_PDM_InitField( &m_sessionName, "SessionName", QString( "DummySessionName" ), "Session Name" );
+    CAF_PDM_InitField( &m_sessionPinCode, "SessionPinCode", QString( "1234" ), "Session Pin Code" );
 
-    CAF_PDM_InitFieldNoDefault( &m_serverSettings, "ServerSettings", "Server Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_serverSettings, "ServerSettings", "Server Settings" );
     m_serverSettings = new RicHoloLensServerSettings;
 
     caf::PdmSettings::readFieldsFromApplicationStore( m_serverSettings );

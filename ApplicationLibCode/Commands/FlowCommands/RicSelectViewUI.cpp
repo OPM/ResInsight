@@ -28,11 +28,11 @@ CAF_PDM_SOURCE_INIT( RicSelectViewUI, "RicSelectViewUI" );
 //--------------------------------------------------------------------------------------------------
 RicSelectViewUI::RicSelectViewUI()
 {
-    CAF_PDM_InitObject( "RicSelectViewUI", "", "", "" );
+    CAF_PDM_InitObject( "RicSelectViewUI" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedView, "MasterView", "Select view", "", "", "" );
-    CAF_PDM_InitField( &m_createNewView, "CreateNewView", true, "Create New View", "", "", "" );
-    CAF_PDM_InitField( &m_newViewName, "NewViewName", QString( "ShowContributingWells" ), "New View Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedView, "MasterView", "Select view" );
+    CAF_PDM_InitField( &m_createNewView, "CreateNewView", true, "Create New View" );
+    CAF_PDM_InitField( &m_newViewName, "NewViewName", QString( "ShowContributingWells" ), "New View Name" );
 
     m_currentView = nullptr;
     m_currentCase = nullptr;
@@ -93,8 +93,7 @@ QString RicSelectViewUI::newViewName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicSelectViewUI::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                      bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RicSelectViewUI::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

@@ -9,6 +9,8 @@
 #include <set>
 #include <vector>
 
+class QMimeData;
+
 namespace caf
 {
 class PdmObjectCapability;
@@ -105,6 +107,11 @@ public:
                                  std::vector<caf::PdmObjectHandle*>& referringObjects );
 
     virtual void onChildAdded( caf::PdmFieldHandle* containerForNewObject ){};
+    virtual void onChildrenUpdated( PdmChildArrayFieldHandle*           childArray,
+                                    std::vector<caf::PdmObjectHandle*>& updatedObjects ){};
+
+    virtual void
+        handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ){};
 
 protected:
     void addField( PdmFieldHandle* field, const QString& keyword );
@@ -260,7 +267,7 @@ void PdmObjectHandle::descendantsOfType( std::vector<T*>& descendants ) const
     for ( auto f : m_fields )
     {
         std::vector<PdmObjectHandle*> childObjects;
-        f->childObjects( &childObjects );
+        f->children( &childObjects );
 
         for ( auto childObject : childObjects )
         {

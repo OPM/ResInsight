@@ -70,6 +70,7 @@ class RimValveTemplateCollection;
 class RimValveTemplate;
 class RimCompletionTemplateCollection;
 class RimPlotTemplateFolderItem;
+class RimGridCalculationCollection;
 
 namespace caf
 {
@@ -99,19 +100,20 @@ public:
     caf::PdmChildField<RimMainPlotCollection*>           mainPlotCollection;
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
+    caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
     caf::PdmChildArrayField<RimCommandObject*>           commandObjects;
 
     caf::PdmChildArrayField<RimAdvancedSnapshotExportDefinition*> multiSnapshotDefinitions;
 
-    caf::PdmField<QString> mainWindowTreeViewState;
-    caf::PdmField<QString> mainWindowCurrentModelIndexPath;
+    caf::PdmField<QString> mainWindowTreeViewStates;
+    caf::PdmField<QString> mainWindowCurrentModelIndexPaths;
 
-    caf::PdmField<QString> plotWindowTreeViewState;
-    caf::PdmField<QString> plotWindowCurrentModelIndexPath;
+    caf::PdmField<QString> plotWindowTreeViewStates;
+    caf::PdmField<QString> plotWindowCurrentModelIndexPaths;
 
     bool writeProjectFile();
 
-    void setScriptDirectories( const QString& scriptDirectories );
+    void setScriptDirectories( const QString& scriptDirectories, int maxFolderDepth );
     void setPlotTemplateFolders( const QStringList& plotTemplateFolders );
 
     QString projectFileVersionString() const;
@@ -124,7 +126,6 @@ public:
     void assignIdToCaseGroup( RimIdenticalGridCaseGroup* caseGroup );
     void assignViewIdToView( Rim3dView* view );
     void assignPlotIdToPlotWindow( RimPlotWindow* plotWindow );
-    void assignCalculationIdToCalculation( RimSummaryCalculation* calculation );
     void assignCaseIdToSummaryCase( RimSummaryCase* summaryCase );
     void assignIdToEnsemble( RimSummaryCaseCollection* summaryCaseCollection );
 
@@ -188,7 +189,7 @@ public:
     caf::AppEnum<RiaDefines::EclipseUnitSystem> commonUnitSystemForAllCases() const;
     RimMeasurement*                             measurement() const;
 
-    RimPlotTemplateFolderItem* rootPlotTemlateItem() const;
+    RimPlotTemplateFolderItem* rootPlotTemplateItem() const;
 
     std::vector<caf::FilePath*> allFilePaths() const;
 
@@ -211,7 +212,7 @@ private:
     caf::PdmField<QString> m_projectFileVersionString;
 
     caf::PdmChildField<RimDialogData*>             m_dialogData;
-    caf::PdmChildField<RimPlotTemplateFolderItem*> m_plotTemplateFolderItem;
+    caf::PdmChildField<RimPlotTemplateFolderItem*> m_plotTemplateTopFolder;
 
     caf::PdmField<bool> m_show3DWindow;
     caf::PdmField<bool> m_showPlotWindow;
@@ -223,7 +224,6 @@ private:
     int m_nextValidCaseGroupId;
     int m_nextValidViewId;
     int m_nextValidPlotId;
-    int m_nextValidCalculationId;
     int m_nextValidSummaryCaseId;
     int m_nextValidEnsembleId;
 
@@ -261,7 +261,7 @@ void RimProject::fieldContentsByType( const caf::PdmObjectHandle* object, std::v
             }
         }
 
-        field->childObjects( &children );
+        field->children( &children );
     }
 
     for ( const auto& child : children )

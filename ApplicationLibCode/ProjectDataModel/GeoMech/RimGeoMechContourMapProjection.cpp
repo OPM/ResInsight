@@ -34,6 +34,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechPropertyFilterCollection.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RivFemElmVisibilityCalculator.h"
 
@@ -59,16 +60,13 @@ CAF_PDM_SOURCE_INIT( RimGeoMechContourMapProjection, "RimGeoMechContourMapProjec
 RimGeoMechContourMapProjection::RimGeoMechContourMapProjection()
     : m_kLayers( 0u )
 {
-    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png", "", "" );
-    CAF_PDM_InitField( &m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions", "", "", "" );
-    CAF_PDM_InitField( &m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically", "", "", "" );
+    CAF_PDM_InitObject( "RimContourMapProjection", ":/2DMapProjection16x16.png" );
+    CAF_PDM_InitField( &m_limitToPorePressureRegions, "LimitToPorRegion", true, "Limit to Pore Pressure regions" );
+    CAF_PDM_InitField( &m_applyPPRegionLimitVertically, "VerticalLimit", false, "Apply Limit Vertically" );
     CAF_PDM_InitField( &m_paddingAroundPorePressureRegion,
                        "PaddingAroundPorRegion",
                        0.0,
-                       "Horizontal Padding around PP regions",
-                       "",
-                       "",
-                       "" );
+                       "Horizontal Padding around PP regions" );
     m_paddingAroundPorePressureRegion.uiCapability()->setUiEditorTypeName(
         caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     setName( "Map Projection" );
@@ -617,8 +615,7 @@ void RimGeoMechContourMapProjection::fieldChangedByUi( const caf::PdmFieldHandle
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimGeoMechContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                           bool*                      useOptionsOnly )
+    RimGeoMechContourMapProjection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

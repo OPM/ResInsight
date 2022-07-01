@@ -39,9 +39,9 @@ CAF_PDM_SOURCE_INIT( RimPltPlotCollection, "WellPltPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimPltPlotCollection::RimPltPlotCollection()
 {
-    CAF_PDM_InitObject( "PLT Plots", ":/WellAllocPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "PLT Plots", ":/WellAllocPlots16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_pltPlots, "PltPlots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pltPlots, "PltPlots", "" );
     m_pltPlots.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -50,7 +50,7 @@ RimPltPlotCollection::RimPltPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimPltPlotCollection::~RimPltPlotCollection()
 {
-    m_pltPlots.deleteAllChildObjects();
+    m_pltPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ void RimPltPlotCollection::addPlot( gsl::not_null<RimWellPltPlot*> newPlot )
 //--------------------------------------------------------------------------------------------------
 void RimPltPlotCollection::removePlot( gsl::not_null<RimWellPltPlot*> plot )
 {
-    m_pltPlots.removeChildObject( plot );
+    m_pltPlots.removeChild( plot );
     updateAllRequiredEditors();
 }
 
@@ -255,5 +255,5 @@ void RimPltPlotCollection::removePlot( gsl::not_null<RimWellPltPlot*> plot )
 //--------------------------------------------------------------------------------------------------
 void RimPltPlotCollection::deleteAllPlots()
 {
-    m_pltPlots.deleteAllChildObjects();
+    m_pltPlots.deleteChildren();
 }

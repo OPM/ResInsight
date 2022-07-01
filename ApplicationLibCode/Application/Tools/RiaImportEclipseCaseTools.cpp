@@ -20,8 +20,8 @@
 
 #include "ApplicationCommands/RicShowMainWindowFeature.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewSummaryCurveFeature.h"
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "RiaApplication.h"
@@ -52,9 +52,7 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveCollection.h"
-#include "RimSummaryCurveFilter.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimWellLogRftCurve.h"
 
 #include "Riu3DMainWindowTools.h"
@@ -197,10 +195,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
             if ( !newSumCases.empty() )
             {
-                RimSummaryPlotCollection* summaryPlotColl = project->mainPlotCollection()->summaryPlotCollection();
-
-                RicSummaryPlotFeatureImpl::ensureAtLeastOnePlot( summaryPlotColl, newSumCases.front() );
-
+                RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { newSumCases.front() }, {} );
                 RiuPlotMainWindowTools::setExpanded( newSumCases.front() );
             }
         }
@@ -372,7 +367,7 @@ int RiaImportEclipseCaseTools::openEclipseCaseShowTimeStepFilterImpl( const QStr
 
         if ( RiaGuiApplication::isRunning() )
         {
-            RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
+            if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( riv->cellResult() );
         }
     }
     else
@@ -484,7 +479,8 @@ bool RiaImportEclipseCaseTools::addEclipseCases( const QStringList&          fil
 
     if ( RiaGuiApplication::isRunning() && gridCaseGroup && !gridCaseGroup->statisticsCaseCollection()->reservoirs.empty() )
     {
-        RiuMainWindow::instance()->selectAsCurrentItem( gridCaseGroup->statisticsCaseCollection()->reservoirs[0] );
+        if ( RiuMainWindow::instance() )
+            RiuMainWindow::instance()->selectAsCurrentItem( gridCaseGroup->statisticsCaseCollection()->reservoirs[0] );
     }
 
     return true;

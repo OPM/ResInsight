@@ -18,6 +18,7 @@
 
 #include "RimVfpPlot.h"
 
+#include "RiaDefines.h"
 #include "RimVfpDefines.h"
 #include "RimVfpTableExtractor.h"
 
@@ -25,17 +26,14 @@
 #include "RiaEclipseUnitTools.h"
 
 #include "RiuContextMenuLauncher.h"
-#include "RiuQwtPlotTools.h"
+#include "RiuPlotCurve.h"
+#include "RiuPlotWidget.h"
+#include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtPlotWidget.h"
 
+#include "RiuQwtSymbol.h"
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafPdmUiComboBoxEditor.h"
-
-#include "qwt_legend.h"
-#include "qwt_legend_label.h"
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_symbol.h"
 
 #include <QFileInfo>
 
@@ -88,63 +86,57 @@ CAF_PDM_SOURCE_INIT( RimVfpPlot, "VfpPlot" );
 RimVfpPlot::RimVfpPlot()
 {
     // TODO: add icon
-    CAF_PDM_InitObject( "VFP Plot", ":/VfpPlot.svg", "", "" );
+    CAF_PDM_InitObject( "VFP Plot", ":/VfpPlot.svg" );
 
-    CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString( "VFP Plot" ), "Plot Title", "", "", "" );
+    CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString( "VFP Plot" ), "Plot Title" );
     m_plotTitle.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "FilePath", "File Path" );
 
     caf::AppEnum<RimVfpDefines::TableType> defaultTableType = RimVfpDefines::TableType::INJECTION;
-    CAF_PDM_InitField( &m_tableType, "TableType", defaultTableType, "Table Type", "", "", "" );
+    CAF_PDM_InitField( &m_tableType, "TableType", defaultTableType, "Table Type" );
     m_tableType.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_tableNumber, "TableNumber", -1, "Table Number", "", "", "" );
+    CAF_PDM_InitField( &m_tableNumber, "TableNumber", -1, "Table Number" );
     m_tableNumber.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_referenceDepth, "ReferenceDepth", 0.0, "Reference Depth", "", "", "" );
+    CAF_PDM_InitField( &m_referenceDepth, "ReferenceDepth", 0.0, "Reference Depth" );
     m_referenceDepth.uiCapability()->setUiReadOnly( true );
 
     caf::AppEnum<RimVfpDefines::FlowingPhaseType> defaultFlowingPhase = RimVfpDefines::FlowingPhaseType::WATER;
-    CAF_PDM_InitField( &m_flowingPhase, "FlowingPhase", defaultFlowingPhase, "Flowing Phase", "", "", "" );
+    CAF_PDM_InitField( &m_flowingPhase, "FlowingPhase", defaultFlowingPhase, "Flowing Phase" );
     m_flowingPhase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_flowingWaterFraction, "FlowingWaterFraction", "Flowing Water Fraction", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_flowingWaterFraction, "FlowingWaterFraction", "Flowing Water Fraction" );
     m_flowingWaterFraction.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_flowingGasFraction, "FlowingGasFraction", "Flowing Gas Fraction", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_flowingGasFraction, "FlowingGasFraction", "Flowing Gas Fraction" );
     m_flowingGasFraction.uiCapability()->setUiReadOnly( true );
 
     caf::AppEnum<RimVfpDefines::InterpolatedVariableType> defaultInterpolatedVariable =
         RimVfpDefines::InterpolatedVariableType::BHP;
-    CAF_PDM_InitField( &m_interpolatedVariable,
-                       "InterpolatedVariable",
-                       defaultInterpolatedVariable,
-                       "Interpolated Variable",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_interpolatedVariable, "InterpolatedVariable", defaultInterpolatedVariable, "Interpolated Variable" );
 
     caf::AppEnum<RimVfpDefines::ProductionVariableType> defaultPrimaryVariable =
         RimVfpDefines::ProductionVariableType::LIQUID_FLOW_RATE;
-    CAF_PDM_InitField( &m_primaryVariable, "PrimaryVariable", defaultPrimaryVariable, "Primary Variable", "", "", "" );
+    CAF_PDM_InitField( &m_primaryVariable, "PrimaryVariable", defaultPrimaryVariable, "Primary Variable" );
 
     caf::AppEnum<RimVfpDefines::ProductionVariableType> defaultFamilyVariable = RimVfpDefines::ProductionVariableType::THP;
-    CAF_PDM_InitField( &m_familyVariable, "FamilyVariable", defaultFamilyVariable, "Family Variable", "", "", "" );
+    CAF_PDM_InitField( &m_familyVariable, "FamilyVariable", defaultFamilyVariable, "Family Variable" );
 
-    CAF_PDM_InitField( &m_liquidFlowRateIdx, "LiquidFlowRateIdx", 0, "Liquid Flow Rate", "", "", "" );
+    CAF_PDM_InitField( &m_liquidFlowRateIdx, "LiquidFlowRateIdx", 0, "Liquid Flow Rate" );
     m_liquidFlowRateIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_thpIdx, "THPIdx", 0, "THP", "", "", "" );
+    CAF_PDM_InitField( &m_thpIdx, "THPIdx", 0, "THP" );
     m_thpIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_articifialLiftQuantityIdx, "ArtificialLiftQuantityIdx", 0, "Artificial Lift Quantity", "", "", "" );
+    CAF_PDM_InitField( &m_articifialLiftQuantityIdx, "ArtificialLiftQuantityIdx", 0, "Artificial Lift Quantity" );
     m_articifialLiftQuantityIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_waterCutIdx, "WaterCutIdx", 0, "Water Cut", "", "", "" );
+    CAF_PDM_InitField( &m_waterCutIdx, "WaterCutIdx", 0, "Water Cut" );
     m_waterCutIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratio", "", "", "" );
+    CAF_PDM_InitField( &m_gasLiquidRatioIdx, "GasLiquidRatioIdx", 0, "Gas Liquid Ratio" );
     m_gasLiquidRatioIdx.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     m_showWindow      = true;
@@ -175,7 +167,7 @@ void RimVfpPlot::setFileName( const QString& filename )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimVfpPlot::viewer()
+RiuPlotWidget* RimVfpPlot::plotWidget()
 {
     return m_plotWidget;
 }
@@ -220,27 +212,12 @@ void RimVfpPlot::updateLegend()
 
     if ( doShowLegend )
     {
-        QwtLegend* legend = new QwtLegend( m_plotWidget );
-        m_plotWidget->insertLegend( legend, QwtPlot::BottomLegend );
+        m_plotWidget->insertLegend( RiuPlotWidget::Legend::BOTTOM );
     }
     else
     {
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->clearLegend();
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updateZoomInQwt()
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::updateZoomFromQwt()
-{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -337,21 +314,6 @@ void RimVfpPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimVfpPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* /*curve*/ ) const
-{
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimVfpPlot::onAxisSelected( int /*axis*/, bool /*toggle*/ )
-{
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RimVfpPlot::description() const
 {
     return uiName();
@@ -398,7 +360,7 @@ void RimVfpPlot::doRemoveFromCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
+RiuPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // It seems we risk being called multiple times
     if ( m_plotWidget )
@@ -407,13 +369,10 @@ RiuQwtPlotWidget* RimVfpPlot::doCreatePlotViewWidget( QWidget* mainWindowParent 
     }
 
     {
-        auto plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
+        RiuPlotWidget* plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
         // Remove event filter to disable unwanted highlighting on left click in plot.
-        plotWidget->removeEventFilter( plotWidget );
-        plotWidget->canvas()->removeEventFilter( plotWidget );
-
-        RiuQwtPlotTools::setCommonPlotBehaviour( plotWidget );
+        plotWidget->removeEventFilter();
 
         caf::CmdFeatureMenuBuilder menuBuilder;
         menuBuilder << "RicShowPlotDataFeature";
@@ -460,7 +419,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
         return;
     }
 
-    m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    m_plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
 
     updateLegend();
 
@@ -506,8 +465,8 @@ void RimVfpPlot::onLoadDataAndUpdate()
                                             m_primaryVariable(),
                                             m_familyVariable() ) );
 
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
+        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
     }
 
     m_plotWidget->scheduleReplot();
@@ -516,7 +475,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const Opm::VFPInjTable& table )
+void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget* plotWidget, const Opm::VFPInjTable& table )
 {
     VfpPlotData plotData;
     populatePlotData( table, m_interpolatedVariable(), plotData );
@@ -576,7 +535,7 @@ void RimVfpPlot::populatePlotData( const Opm::VFPInjTable&                 table
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                     plotWidget,
+void RimVfpPlot::populatePlotWidgetWithCurveData( RiuPlotWidget*                        plotWidget,
                                                   const Opm::VFPProdTable&              table,
                                                   RimVfpDefines::ProductionVariableType primaryVariable,
                                                   RimVfpDefines::ProductionVariableType familyVariable )
@@ -589,25 +548,35 @@ void RimVfpPlot::populatePlotWidgetWithCurveData( RiuQwtPlotWidget*             
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimVfpPlot::populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, const VfpPlotData& plotData )
+void RimVfpPlot::populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData )
 {
-    plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
-    plotWidget->setAxisScale( QwtPlot::xBottom, 0, 1 );
-    plotWidget->setAxisScale( QwtPlot::yLeft, 0, 1 );
-    plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
-    plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
-    plotWidget->setAxisTitleText( QwtPlot::xBottom, plotData.xAxisTitle() );
-    plotWidget->setAxisTitleText( QwtPlot::yLeft, plotData.yAxisTitle() );
+    plotWidget->detachItems( RiuPlotWidget::PlotItemType::CURVE );
+    plotWidget->setAxisScale( RiuPlotAxis::defaultBottom(), 0, 1 );
+    plotWidget->setAxisScale( RiuPlotAxis::defaultLeft(), 0, 1 );
+    plotWidget->setAxisAutoScale( RiuPlotAxis::defaultBottom(), true );
+    plotWidget->setAxisAutoScale( RiuPlotAxis::defaultLeft(), true );
+    plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), plotData.xAxisTitle() );
+    plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), plotData.yAxisTitle() );
 
     for ( auto idx = 0u; idx < plotData.size(); idx++ )
     {
         QColor        qtClr = RiaColorTables::summaryCurveDefaultPaletteColors().cycledQColor( idx );
-        QwtPlotCurve* curve = createPlotCurve( plotData.curveTitle( idx ), qtClr );
-        curve->setSamples( plotData.xData( idx ).data(),
-                           plotData.yData( idx ).data(),
-                           static_cast<int>( plotData.curveSize( idx ) ) );
-        curve->attach( plotWidget );
-        curve->show();
+        RiuPlotCurve* curve = m_plotWidget->createPlotCurve( nullptr, plotData.curveTitle( idx ), qtClr );
+
+        curve->setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID,
+                              RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_POINT_TO_POINT,
+                              2,
+                              qtClr );
+
+        RiuPlotCurveSymbol* symbol = curve->createSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
+        symbol->setColor( qtClr );
+        symbol->setSize( 6, 6 );
+        curve->setSymbol( symbol );
+
+        bool useLogarithmicScale = false;
+        curve->setSamplesFromXValuesAndYValues( plotData.xData( idx ), plotData.yData( idx ), useLogarithmicScale );
+        curve->attachToPlot( plotWidget );
+        curve->showInPlot();
     }
 }
 
@@ -691,27 +660,6 @@ void RimVfpPlot::populatePlotData( const Opm::VFPProdTable&                table
 
         plotData.appendCurve( familyTitle, primaryAxisValues, yVals );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QwtPlotCurve* RimVfpPlot::createPlotCurve( const QString title, const QColor& color )
-{
-    QwtPlotCurve* curve = new QwtPlotCurve;
-    curve->setTitle( title );
-    curve->setPen( QPen( color, 2 ) );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowLine, true );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
-    curve->setLegendAttribute( QwtPlotCurve::LegendShowBrush, true );
-    curve->setRenderHint( QwtPlotItem::RenderAntialiased, true );
-
-    QwtSymbol* symbol = new QwtSymbol( QwtSymbol::Ellipse );
-    symbol->setSize( 6 );
-    symbol->setColor( color );
-    curve->setSymbol( symbol );
-
-    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -896,10 +844,9 @@ void RimVfpPlot::setFixedVariableUiEditability( caf::PdmField<int>&             
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimVfpPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_liquidFlowRateIdx )
     {
@@ -1042,7 +989,7 @@ void RimVfpPlot::updatePlotTitle( const QString& plotTitle )
 
     if ( m_plotWidget )
     {
-        m_plotWidget->setTitle( plotTitle );
+        m_plotWidget->setPlotTitle( plotTitle );
     }
 }
 

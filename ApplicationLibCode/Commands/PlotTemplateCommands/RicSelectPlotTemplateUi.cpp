@@ -27,7 +27,6 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmUiTreeSelectionEditor.h"
 
@@ -37,12 +36,28 @@ CAF_PDM_SOURCE_INIT( RicSelectPlotTemplateUi, "RicSelectPlotTemplateUi" );
 ///
 //--------------------------------------------------------------------------------------------------
 RicSelectPlotTemplateUi::RicSelectPlotTemplateUi()
+    : m_useMultiSelect( false )
 {
-    CAF_PDM_InitObject( "RicSelectPlotTemplateUi", "", "", "" );
+    CAF_PDM_InitObject( "RicSelectPlotTemplateUi" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedPlotTemplates, "SelectedPlotTemplates", "Plot Templates", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedPlotTemplates, "SelectedPlotTemplates", "Plot Templates" );
     m_selectedPlotTemplates.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedPlotTemplates.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSelectPlotTemplateUi::setMultiSelectMode( bool multiSelect )
+{
+    m_useMultiSelect = multiSelect;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSelectPlotTemplateUi::setInitialSelection( std::vector<QString> selectedTemplates )
+{
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,14 +81,13 @@ std::vector<RimPlotTemplateFileItem*> RicSelectPlotTemplateUi::selectedPlotTempl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicSelectPlotTemplateUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RicSelectPlotTemplateUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_selectedPlotTemplates )
     {
-        auto plotTemplateRoot = RimProject::current()->rootPlotTemlateItem();
+        auto plotTemplateRoot = RimProject::current()->rootPlotTemplateItem();
 
         RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplates( options, plotTemplateRoot );
     }
@@ -93,7 +107,7 @@ void RicSelectPlotTemplateUi::defineEditorAttribute( const caf::PdmFieldHandle* 
         auto a = dynamic_cast<caf::PdmUiTreeSelectionEditorAttribute*>( attribute );
         if ( a )
         {
-            a->singleSelectionMode = true;
+            a->singleSelectionMode = !m_useMultiSelect;
         }
     }
 }

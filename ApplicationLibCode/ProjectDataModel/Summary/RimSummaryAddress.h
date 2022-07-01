@@ -44,26 +44,46 @@ public:
     RimSummaryAddress();
     ~RimSummaryAddress() override;
 
-    void                     setAddress( const RifEclipseSummaryAddress& addr );
-    RifEclipseSummaryAddress address();
+    static RimSummaryAddress*
+        wrapFileReaderAddress( const RifEclipseSummaryAddress& addr, int caseId = -1, int ensembleId = -1 );
 
-    void ensureIdIsAssigned();
+    void                     setAddress( const RifEclipseSummaryAddress& addr );
+    RifEclipseSummaryAddress address() const;
+
+    void setCaseId( int caseId );
+    int  caseId() const;
+
+    void setEnsembleId( int ensembleId );
+    int  ensembleId() const;
+    bool isEnsemble() const;
+
+    QString quantityName() const;
+
+    void ensureCalculationIdIsAssigned();
 
     RiaDefines::PhaseType addressPhaseType() const;
 
+    QString keywordForCategory( RifEclipseSummaryAddress::SummaryVarCategory category ) const;
+
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
 private:
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>> m_category;
-    caf::PdmField<QString>                                                    m_quantityName;
-    caf::PdmField<int>                                                        m_regionNumber;
-    caf::PdmField<int>                                                        m_regionNumber2;
-    caf::PdmField<QString>                                                    m_wellGroupName;
-    caf::PdmField<QString>                                                    m_wellName;
-    caf::PdmField<int>                                                        m_wellSegmentNumber;
-    caf::PdmField<QString>                                                    m_lgrName;
-    caf::PdmField<int>                                                        m_cellI;
-    caf::PdmField<int>                                                        m_cellJ;
-    caf::PdmField<int>                                                        m_cellK;
-    caf::PdmField<int>                                                        m_aquiferNumber;
-    caf::PdmField<bool>                                                       m_isErrorResult;
-    caf::PdmField<int>                                                        m_calculationId;
+
+    caf::PdmField<QString> m_vectorName;
+    caf::PdmField<int>     m_regionNumber;
+    caf::PdmField<int>     m_regionNumber2;
+    caf::PdmField<QString> m_groupName;
+    caf::PdmField<QString> m_wellName;
+    caf::PdmField<int>     m_wellSegmentNumber;
+    caf::PdmField<QString> m_lgrName;
+    caf::PdmField<int>     m_cellI;
+    caf::PdmField<int>     m_cellJ;
+    caf::PdmField<int>     m_cellK;
+    caf::PdmField<int>     m_aquiferNumber;
+    caf::PdmField<bool>    m_isErrorResult;
+    caf::PdmField<int>     m_calculationId;
+    caf::PdmField<int>     m_caseId;
+    caf::PdmField<int>     m_ensembleId;
 };

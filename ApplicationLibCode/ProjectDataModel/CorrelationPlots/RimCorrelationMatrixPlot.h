@@ -22,11 +22,11 @@
 
 #include "cafAppEnum.h"
 
-#include <QDateTime>
-
 class RimRegularLegendConfig;
 class RimSummaryAddress;
+
 class RiuGroupedBarChartBuilder;
+class RiuPlotItem;
 
 //==================================================================================================
 ///
@@ -66,8 +66,7 @@ private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void onLoadDataAndUpdate() override;
 
@@ -79,7 +78,7 @@ private:
     void createMatrix();
     void updatePlotTitle() override;
     void updateLegend() override;
-    void onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex ) override;
+    void onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex ) override;
 
 private:
     caf::PdmField<bool>                 m_showAbsoluteValues;

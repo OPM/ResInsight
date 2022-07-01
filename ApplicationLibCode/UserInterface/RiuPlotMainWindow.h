@@ -22,7 +22,6 @@
 #include "RiuMdiArea.h"
 
 #include "cafPdmPointer.h"
-#include "cafPdmUiDragDropInterface.h"
 
 #include <QPointer>
 
@@ -59,6 +58,8 @@ public:
     RiuPlotMainWindow();
     ~RiuPlotMainWindow() override;
 
+    static RiuPlotMainWindow* instance();
+
     QString mainWindowName() override;
 
     void initializeGuiNewProjectLoaded();
@@ -86,17 +87,19 @@ public:
 
     void updateWellLogPlotToolBar();
     void updateMultiPlotToolBar();
-    void updateSummaryPlotToolBar( bool forceUpdateUi = false );
-    void setFocusToLineEditInSummaryToolBar();
 
-    RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog();
-    RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog();
+    RicSummaryPlotEditorDialog*      summaryCurveCreatorDialog( bool createIfNotPresent );
+    RicSummaryCurveCalculatorDialog* summaryCurveCalculatorDialog( bool createIfNotPresent );
 
     RiuMessagePanel* messagePanel();
+
+    void showAndSetKeyboardFocusToSummaryPlotManager();
 
 protected:
     void closeEvent( QCloseEvent* event ) override;
     void keyPressEvent( QKeyEvent* ) override;
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
 
 private:
     void setPdmRoot( caf::PdmObject* pdmRoot );
@@ -131,15 +134,16 @@ private:
 
     QMenu* m_windowMenu;
 
-    caf::PdmUiToolBarEditor*                     m_wellLogPlotToolBarEditor;
-    caf::PdmUiToolBarEditor*                     m_multiPlotToolBarEditor;
-    caf::PdmUiToolBarEditor*                     m_summaryPlotToolBarEditor;
-    std::unique_ptr<caf::PdmUiDragDropInterface> m_dragDropInterface;
+    std::unique_ptr<caf::PdmUiToolBarEditor> m_wellLogPlotToolBarEditor;
+    std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotToolBarEditor;
+    std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotLayoutToolBarEditor;
 
-    caf::PdmUiPropertyView* m_pdmUiPropertyView;
+    std::unique_ptr<caf::PdmUiPropertyView> m_pdmUiPropertyView;
+    std::unique_ptr<caf::PdmUiPropertyView> m_summaryPlotManagerView;
 
-    QPointer<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
-    QPointer<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
+    std::unique_ptr<RicSummaryPlotEditorDialog>      m_summaryCurveCreatorDialog;
+    std::unique_ptr<RicSummaryCurveCalculatorDialog> m_summaryCurveCalculatorDialog;
+    std::unique_ptr<caf::PdmObject>                  m_summaryPlotManager;
 
     std::vector<QWidget*> m_temporaryWidgets;
 };

@@ -71,6 +71,7 @@ public:
         , m_isReadOnly( -1 )
         , m_labelAlignment( LEFT )
         , m_isCustomContextMenuEnabled( -1 )
+        , m_notifyAllFieldsInMultiFieldChangedEvents( -1 )
     {
     }
 
@@ -105,6 +106,7 @@ private:
     int     m_isReadOnly; ///< UiItem should be insensitive, or read only. -1 means not set.
     LabelPosType m_labelAlignment;
     int          m_isCustomContextMenuEnabled;
+    int          m_notifyAllFieldsInMultiFieldChangedEvents;
 };
 
 //==================================================================================================
@@ -248,8 +250,9 @@ public:
     PdmUiItem( const PdmUiItem& ) = delete;
     PdmUiItem& operator=( const PdmUiItem& ) = delete;
 
-    const QString uiName( const QString& uiConfigName = "" ) const;
-    void          setUiName( const QString& uiName, const QString& uiConfigName = "" );
+    const QString  uiName( const QString& uiConfigName = "" ) const;
+    void           setUiName( const QString& uiName, const QString& uiConfigName = "" );
+    static QString uiConfigNameForStaticData();
 
     std::unique_ptr<QIcon> uiIcon( const QString& uiConfigName = "" ) const;
     const IconProvider     uiIconProvider( const QString& uiConfigName = "" ) const;
@@ -276,6 +279,9 @@ public:
 
     bool isUiReadOnly( const QString& uiConfigName = "" ) const;
     void setUiReadOnly( bool isReadOnly, const QString& uiConfigName = "" );
+
+    bool notifyAllFieldsInMultiFieldChangedEvents( const QString& uiConfigName = "" ) const;
+    void setNotifyAllFieldsInMultiFieldChangedEvents( bool enable, const QString& uiConfigName = "" );
 
     PdmUiItemInfo::LabelPosType uiLabelPosition( const QString& uiConfigName = "" ) const;
     void setUiLabelPosition( PdmUiItemInfo::LabelPosType alignment, const QString& uiConfigName = "" );

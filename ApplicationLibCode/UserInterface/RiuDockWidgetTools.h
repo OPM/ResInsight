@@ -46,8 +46,17 @@ public:
     static QString messagesName();
     static QString mohrsCirclePlotName();
     static QString undoStackName();
+    static QString summaryPlotManagerName();
 
-    static QString plotMainWindowProjectTreeName();
+    static QString mainWindowProjectTreeName();
+    static QString mainWindowDataSourceTreeName();
+    static QString mainWindowScriptsTreeName();
+
+    static QString plotMainWindowDataSourceTreeName();
+    static QString plotMainWindowPlotsTreeName();
+    static QString plotMainWindowTemplateTreeName();
+    static QString plotMainWindowScriptsTreeName();
+
     static QString plotMainWindowPropertyEditorName();
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
@@ -65,9 +74,9 @@ public:
     static void setDockWidgetVisibility( const QObject* parent, const QString& dockWidgetName, bool isVisible );
     static void applyDockWidgetVisibilities( const QObject* parent, const QMap<QString, QVariant>& visibilityMap );
 
+    static QDockWidget* findDockWidget( const QObject* parent, const QString& dockWidgetName );
+
 private:
     static QMap<QString, QVariant> widgetVisibilitiesForEclipse();
     static QMap<QString, QVariant> widgetVisibilitiesForGeoMech();
-
-    static QDockWidget* findDockWidget( const QObject* parent, const QString& dockWidgetName );
 };

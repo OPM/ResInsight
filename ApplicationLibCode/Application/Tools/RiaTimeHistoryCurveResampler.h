@@ -19,11 +19,9 @@
 #pragma once
 
 #include "RiaCurveDataTools.h"
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 #include <QDateTime>
-
-using QDT = RiaQDateTimeTools;
 
 //==================================================================================================
 ///
@@ -35,22 +33,21 @@ public:
 
     void setCurveData( const std::vector<double>& values, const std::vector<time_t>& timeSteps );
 
-    void resampleAndComputePeriodEndValues( RiaQDateTimeTools::DateTimePeriod period );
-    void resampleAndComputeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod period );
+    void resampleAndComputePeriodEndValues( RiaDefines::DateTimePeriod period );
+    void resampleAndComputeWeightedMeanValues( RiaDefines::DateTimePeriod period );
 
     const std::vector<time_t>& resampledTimeSteps() const;
     const std::vector<double>& resampledValues() const;
 
-    static std::vector<time_t>
-        timeStepsFromTimeRange( RiaQDateTimeTools::DateTimePeriod period, time_t minTime, time_t maxTime );
+    static std::vector<time_t> timeStepsFromTimeRange( RiaDefines::DateTimePeriod period, time_t minTime, time_t maxTime );
 
 private:
-    void computeWeightedMeanValues( RiaQDateTimeTools::DateTimePeriod period );
-    void computePeriodEndValues( RiaQDateTimeTools::DateTimePeriod period );
+    void computeWeightedMeanValues( RiaDefines::DateTimePeriod period );
+    void computePeriodEndValues( RiaDefines::DateTimePeriod period );
 
     void             clearData();
-    void             computeResampledTimeSteps( RiaQDateTimeTools::DateTimePeriod period );
-    static QDateTime firstResampledTimeStep( const QDateTime& firstTimestep, RiaQDateTimeTools::DateTimePeriod period );
+    void             computeResampledTimeSteps( RiaDefines::DateTimePeriod period );
+    static QDateTime firstResampledTimeStep( const QDateTime& firstTimestep, RiaDefines::DateTimePeriod period );
     inline double    interpolatedValue( time_t t, time_t t1, double v1, time_t t2, double v2 );
 
 private:

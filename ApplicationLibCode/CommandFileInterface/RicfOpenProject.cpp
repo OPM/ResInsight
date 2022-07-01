@@ -35,7 +35,7 @@ CAF_PDM_SOURCE_INIT( RicfOpenProject, "openProject" );
 //--------------------------------------------------------------------------------------------------
 RicfOpenProject::RicfOpenProject()
 {
-    CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path" );
 }
 
 //--------------------------------------------------------------------------------------------------

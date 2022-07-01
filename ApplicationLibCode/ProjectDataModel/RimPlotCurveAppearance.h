@@ -20,8 +20,8 @@
 #include "RiaCurveDataTools.h"
 #include "RiaDefines.h"
 
+#include "RiuPlotCurveSymbol.h"
 #include "RiuQwtPlotCurveDefines.h"
-#include "RiuQwtSymbol.h"
 
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
@@ -42,8 +42,8 @@ public:
 public:
     typedef caf::AppEnum<RiuQwtPlotCurveDefines::CurveInterpolationEnum> CurveInterpolation;
     typedef caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>          LineStyle;
-    typedef caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>                  PointSymbol;
-    typedef caf::AppEnum<RiuQwtSymbol::LabelPosition>                    LabelPosition;
+    typedef caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>            PointSymbol;
+    typedef caf::AppEnum<RiuPlotCurveSymbol::LabelPosition>              LabelPosition;
     typedef caf::AppEnum<Qt::BrushStyle>                                 FillStyle;
 
 public:
@@ -59,8 +59,8 @@ public:
     void setLineThickness( int thickness );
     int  lineThickness() const;
 
-    void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
-    RiuQwtSymbol::PointSymbolEnum symbol() const;
+    void                                setSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle );
+    RiuPlotCurveSymbol::PointSymbolEnum symbol() const;
 
     void setSymbolSize( int sizeInPixels );
     int  symbolSize() const;
@@ -74,8 +74,8 @@ public:
     void    setSymbolLabel( const QString& label );
     QString symbolLabel() const;
 
-    void                        setSymbolLabelPosition( RiuQwtSymbol::LabelPosition labelPosition );
-    RiuQwtSymbol::LabelPosition symbolLabelPosition() const;
+    void                              setSymbolLabelPosition( RiuPlotCurveSymbol::LabelPosition labelPosition );
+    RiuPlotCurveSymbol::LabelPosition symbolLabelPosition() const;
 
     void           resetAppearance();
     Qt::BrushStyle fillStyle() const;
@@ -83,6 +83,8 @@ public:
 
     void         setFillColor( const cvf::Color3f& fillColor );
     cvf::Color3f fillColor() const;
+
+    float curveFittingTolerance() const;
 
     void                                           setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
     RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolation() const;
@@ -96,8 +98,7 @@ public:
 protected:
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
 
 protected:
@@ -108,6 +109,8 @@ protected:
     caf::PdmField<cvf::Color3f> m_curveColor;
     caf::PdmField<int>          m_curveThickness;
     caf::PdmField<float>        m_symbolSkipPixelDistance;
+
+    caf::PdmField<float> m_curveFittingTolerance;
 
     caf::PdmField<PointSymbol>        m_pointSymbol;
     caf::PdmField<LineStyle>          m_lineStyle;

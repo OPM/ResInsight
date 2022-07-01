@@ -563,19 +563,19 @@ void RigFlowDiagSolverInterface::assignPhaseCorrecedPORV( RigFlowDiagResultAddre
         case RigFlowDiagResultAddress::PHASE_OIL:
             phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                             "SOIL",
+                                                             RiaResultNames::soil(),
                                                              timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_GAS:
             phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                             "SGAS",
+                                                             RiaResultNames::sgas(),
                                                              timeStepIdx );
             break;
         case RigFlowDiagResultAddress::PHASE_WAT:
             phaseSaturation = eclipseCaseData->resultValues( RiaDefines::PorosityModelType::MATRIX_MODEL,
                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                             "SWAT",
+                                                             RiaResultNames::swat(),
                                                              timeStepIdx );
             break;
         default:
@@ -607,7 +607,7 @@ void RigFlowDiagSolverInterface::reportRelPermCurveError( const QString& message
 {
     if ( m_relpermCurveErrorCount == 0 )
     {
-        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "RelPerm curve problems: \n" + message );
+        RiaLogging::warning( "RelPerm curve problems: \n" + message );
     }
     m_relpermCurveErrorCount++;
 }
@@ -619,7 +619,7 @@ void RigFlowDiagSolverInterface::reportPvtCurveError( const QString& message )
 {
     if ( m_pvtCurveErrorCount == 0 )
     {
-        RiaLogging::errorInMessageBox( nullptr, "ResInsight", "PVT curve problems: \n" + message );
+        RiaLogging::warning( "PVT curve problems: \n" + message );
     }
     m_pvtCurveErrorCount++;
 }

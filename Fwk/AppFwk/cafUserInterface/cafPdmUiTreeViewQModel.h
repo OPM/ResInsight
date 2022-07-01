@@ -60,9 +60,10 @@ class PdmUiTreeViewQModel : public QAbstractItemModel
 
 public:
     explicit PdmUiTreeViewQModel( PdmUiTreeViewEditor* treeViewEditor );
+    virtual ~PdmUiTreeViewQModel();
 
     void setPdmItemRoot( PdmUiItem* rootItem );
-    void updateSubTree( PdmUiItem* subTreeRoot );
+    void updateSubTree( PdmUiItem* subTreeRoot, bool notifyEditors );
 
     void setColumnHeaders( const QStringList& columnHeaders );
     void setUiConfigName( const QString& uiConfigName ) { m_uiConfigName = uiConfigName; }
@@ -80,7 +81,8 @@ public:
 private:
     void updateSubTreeRecursive( const QModelIndex& uiSubTreeRootModelIdx,
                                  PdmUiTreeOrdering* uiModelSubTreeRoot,
-                                 PdmUiTreeOrdering* updatedPdmSubTreeRoot );
+                                 PdmUiTreeOrdering* updatedPdmSubTreeRoot,
+                                 bool               notifyEditors );
 
     PdmUiTreeOrdering* treeItemFromIndex( const QModelIndex& index ) const;
     QModelIndex        findModelIndexRecursive( const QModelIndex& currentIndex, const PdmUiItem* object ) const;

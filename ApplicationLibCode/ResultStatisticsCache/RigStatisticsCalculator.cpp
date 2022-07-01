@@ -19,6 +19,7 @@
 
 #include "RigStatisticsCalculator.h"
 
+#include <cassert>
 #include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
@@ -134,4 +135,28 @@ void RigStatisticsCalculator::posNegClosestToZero( const std::vector<double>& va
             neg = values[i];
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RigStatisticsCalculator::hasPreciseP10p90() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsCalculator::p10p90CellScalarValues( double& p10, double& p90 )
+{
+    assert( false && "Precise p10/p90 not available" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigStatisticsCalculator::p10p90CellScalarValues( size_t timeStepIndex, double& p10, double& p90 )
+{
+    assert( false && "Precise p10/p90 not available" );
 }

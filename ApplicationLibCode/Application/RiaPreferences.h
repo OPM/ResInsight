@@ -21,9 +21,9 @@
 
 #pragma once
 
+#include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
 #include "RiaFontCache.h"
-#include "RiaQDateTimeTools.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildField.h"
@@ -52,9 +52,6 @@ class RiaPreferences : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    using DateFormatComponents = RiaQDateTimeTools::DateFormatComponents;
-    using TimeFormatComponents = RiaQDateTimeTools::TimeFormatComponents;
-
     using FontSizeEnum        = RiaFontCache::FontSizeEnum;
     using PageSizeEnum        = caf::AppEnum<QPageSize::PageSizeId>;
     using PageOrientationEnum = caf::AppEnum<QPageLayout::Orientation>;
@@ -75,15 +72,19 @@ public:
 
     const QString& dateFormat() const;
     const QString& timeFormat() const;
-    QString dateTimeFormat( DateFormatComponents dateComponents = DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
-                            TimeFormatComponents timeComponents = TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) const;
+    QString        dateTimeFormat(
+               RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
+               RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND ) const;
 
-    bool        searchPlotTemplateFoldersRecursively() const;
+    int maxScriptFoldersDepth() const;
+    int maxPlotTemplateFoldersDepth() const;
+
     QStringList plotTemplateFolders() const;
     void        appendPlotTemplateFolders( const QString& folder );
-    QString     defaultPlotTemplateAbsolutePath() const;
-    void        setDefaultPlotTemplatePath( const QString& templatePath );
+    QString     lastUsedPlotTemplateAbsolutePath() const;
+    void        setLastUsedPlotTemplatePath( const QString& templatePath );
     bool        openExportedPdfInViewer() const;
+    bool        useQtChartsAsDefaultPlotType() const;
 
     RiaDefines::ThemeEnum guiTheme() const;
 
@@ -148,21 +149,19 @@ protected:
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
 private:
     static QString tabNameGeneral();
-    static QString tabNameEclipseGrid();
-    static QString tabNameEclipseSummary();
+    static QString tabNameGrid();
+    static QString tabNameSummary();
     static QString tabNameGeomech();
     static QString tabNamePlotting();
     static QString tabNameScripting();
-    static QString tabNameExport();
     static QString tabNameSystem();
-    static QString tabNameImport();
+    static QString tabNameImportExport();
 
     static double defaultMarginSize( QPageSize::PageSizeId pageSizeId );
 
@@ -176,6 +175,8 @@ private:
 
     caf::PdmField<caf::AppEnum<RiaDefines::ThemeEnum>> m_guiTheme;
 
+    caf::PdmField<int> m_maxScriptFoldersDepth;
+
     caf::PdmField<PageSizeEnum>        m_pageSize;
     caf::PdmField<PageOrientationEnum> m_pageOrientation;
     caf::PdmField<double>              m_pageLeftMargin;
@@ -185,8 +186,9 @@ private:
     caf::PdmField<bool>                m_openExportedPdfInViewer;
 
     caf::PdmField<QString>       m_plotTemplateFolders;
-    caf::PdmField<bool>          m_searchPlotTemplateFoldersRecursively;
-    caf::PdmField<caf::FilePath> m_defaultPlotTemplate;
+    caf::PdmField<int>           m_maxPlotTemplateFoldersDepth;
+    caf::PdmField<caf::FilePath> m_lastUsedPlotTemplate;
+    caf::PdmField<bool>          m_useQtChartsPlotByDefault;
 
     // Script paths
     caf::PdmField<QString> m_octaveExecutable;

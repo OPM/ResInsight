@@ -114,7 +114,7 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
 
         for ( auto fieldHandle : fieldsToUpdate )
         {
-            fieldHandle->uiCapability()->setValueFromUiEditor( newUiValue );
+            fieldHandle->uiCapability()->setValueFromUiEditor( newUiValue, true );
         }
     }
 }
@@ -164,7 +164,8 @@ std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( PdmFi
     if ( items.size() < 2 ) return {};
 
     const auto                   fieldKeyword     = editorField->keyword();
-    const auto&                  fieldOwnerTypeId = typeid( *editorField->ownerObject() );
+    auto                         ownerObject      = editorField->ownerObject();
+    const auto&                  fieldOwnerTypeId = typeid( *ownerObject );
     std::vector<PdmFieldHandle*> additionalFieldsToUpdate;
 
     for ( auto& item : items )
@@ -197,7 +198,7 @@ std::vector<PdmFieldHandle*> PdmUiCommandSystemProxy::fieldsFromSelection( PdmFi
                 for ( auto field : childFields )
                 {
                     std::vector<PdmObjectHandle*> childObjects;
-                    field->childObjects( &childObjects );
+                    field->children( &childObjects );
                     for ( auto childObj : childObjects )
                     {
                         auto childFieldHandle = childObj->findField( fieldKeyword );

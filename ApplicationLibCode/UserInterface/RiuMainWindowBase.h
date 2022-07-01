@@ -20,6 +20,11 @@
 
 #include <QMainWindow>
 
+#include "cafPdmUiDragDropInterface.h"
+
+#include <memory>
+#include <vector>
+
 class QMdiArea;
 struct RimMdiWindowGeometry;
 
@@ -42,7 +47,8 @@ class RiuMainWindowBase : public QMainWindow
     Q_OBJECT
 
 public:
-    RiuMainWindowBase();
+	RiuMainWindowBase();
+	~RiuMainWindowBase() override;
 
     virtual QString mainWindowName() = 0;
 
@@ -65,8 +71,11 @@ public:
 
     void hideAllDockWidgets();
 
-    caf::PdmUiTreeView* projectTreeView() { return m_projectTreeView; }
-    void                setExpanded( const caf::PdmUiItem* uiItem, bool expanded = true );
+    std::vector<caf::PdmUiTreeView*> projectTreeViews();
+    caf::PdmUiTreeView*              projectTreeView( int treeId );
+    caf::PdmUiTreeView*              getTreeViewWithItem( const caf::PdmUiItem* item );
+
+    void setExpanded( const caf::PdmUiItem* uiItem, bool expanded = true );
 
     void selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange = true );
     void toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange = true );
@@ -85,11 +94,14 @@ public:
     bool isBlockingViewSelectionOnSubWindowActivated() const;
 
 protected:
+    void createTreeViews( int numberOfTrees );
     void removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer );
     void initializeSubWindow( QMdiArea*      mdiArea,
                               QMdiSubWindow* mdiSubWindow,
                               const QPoint&  subWindowPos,
                               const QSize&   subWindowSize );
+
+    void restoreTreeViewStates( QString treeStateString, QString treeIndexString );
 
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
@@ -100,8 +112,7 @@ protected slots:
     void slotRefreshUndoRedoActions();
 
 protected:
-    caf::PdmUiTreeView* m_projectTreeView;
-    bool                m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
+    bool m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
                                                // whether to select the corresponding active view or not
 
     QAction*   m_undoAction;
@@ -112,6 +123,9 @@ private:
     QString registryFolderName();
 
 private:
+    std::vector<caf::PdmUiTreeView*>                          m_projectTreeViews;
+    std::vector<std::unique_ptr<caf::PdmUiDragDropInterface>> m_dragDropInterfaces;
+
     bool m_showFirstVisibleWindowMaximized;
     bool m_blockSubWindowActivation;
     bool m_blockSubWindowProjectTreeSelection;

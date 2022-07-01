@@ -29,9 +29,7 @@
 #include "RimSummaryPlot.h"
 #include "RimSummaryPlotSourceStepping.h"
 
-#include "RiuQwtPlotCurve.h"
-
-#include "qwt_plot.h"
+#include "RiuPlotCurve.h"
 
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollection" );
 
@@ -40,18 +38,18 @@ CAF_PDM_SOURCE_INIT( RimEnsembleCurveSetCollection, "RimEnsembleCurveSetCollecti
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 {
-    CAF_PDM_InitObject( "Ensemble Curve Sets", ":/EnsembleCurveSets16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Curve Sets", ":/EnsembleCurveSets16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
     m_curveSets.uiCapability()->setUiTreeHidden( true );
     m_curveSets.uiCapability()->setUiTreeChildrenHidden( false );
 
-    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
+    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::Y_AXIS );
+    m_ySourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
@@ -62,7 +60,7 @@ RimEnsembleCurveSetCollection::RimEnsembleCurveSetCollection()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSetCollection::~RimEnsembleCurveSetCollection()
 {
-    m_curveSets.deleteAllChildObjects();
+    m_curveSets.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,12 +92,9 @@ void RimEnsembleCurveSetCollection::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
+void RimEnsembleCurveSetCollection::setParentPlotAndReplot( RiuPlotWidget* plot )
 {
-    for ( RimEnsembleCurveSet* curveSet : m_curveSets )
-    {
-        curveSet->setParentQwtPlotNoReplot( plot );
-    }
+    setParentPlotNoReplot( plot );
 
     if ( plot ) plot->replot();
 }
@@ -107,35 +102,46 @@ void RimEnsembleCurveSetCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::detachQwtCurves()
+void RimEnsembleCurveSetCollection::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
-    for ( const auto& curveSet : m_curveSets )
+    for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
-        curveSet->detachQwtCurves();
+        curveSet->setParentPlotNoReplot( plot );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSetCollection::reattachQwtCurves()
+void RimEnsembleCurveSetCollection::detachPlotCurves()
 {
     for ( const auto& curveSet : m_curveSets )
     {
-        curveSet->reattachQwtCurves();
+        curveSet->deletePlotCurves();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RimEnsembleCurveSetCollection::findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+void RimEnsembleCurveSetCollection::reattachPlotCurves()
+{
+    for ( const auto& curveSet : m_curveSets )
+    {
+        curveSet->reattachPlotCurves();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RimEnsembleCurveSetCollection::findRimCurveFromPlotCurve( const RiuPlotCurve* curve ) const
 {
     for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
         for ( RimSummaryCurve* rimCurve : curveSet->curves() )
         {
-            if ( rimCurve->qwtPlotCurve() == qwtCurve )
+            if ( rimCurve->isSameCurve( curve ) )
             {
                 return rimCurve;
             }
@@ -148,13 +154,13 @@ RimSummaryCurve* RimEnsembleCurveSetCollection::findRimCurveFromQwtCurve( const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findRimCurveSetFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+RimEnsembleCurveSet* RimEnsembleCurveSetCollection::findCurveSetFromPlotCurve( const RiuPlotCurve* curve ) const
 {
     for ( RimEnsembleCurveSet* curveSet : m_curveSets )
     {
         for ( RimSummaryCurve* rimCurve : curveSet->curves() )
         {
-            if ( rimCurve->qwtPlotCurve() == qwtCurve )
+            if ( rimCurve->isSameCurve( curve ) )
             {
                 return curveSet;
             }
@@ -190,7 +196,7 @@ void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsemb
 {
     for ( const auto curveSet : curveSets )
     {
-        m_curveSets.removeChildObject( curveSet );
+        m_curveSets.removeChild( curveSet );
         delete curveSet;
     }
 }
@@ -200,7 +206,7 @@ void RimEnsembleCurveSetCollection::deleteCurveSets( const std::vector<RimEnsemb
 //--------------------------------------------------------------------------------------------------
 std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSets() const
 {
-    return m_curveSets.childObjects();
+    return m_curveSets.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -254,21 +260,21 @@ std::vector<RimEnsembleCurveSet*> RimEnsembleCurveSetCollection::curveSetsForSou
         {
             // Add corresponding history/summary curve with or without H
 
-            std::string quantity = m_curveSetForSourceStepping->summaryAddress().quantityName();
+            std::string vectorName = m_curveSetForSourceStepping->summaryAddress().vectorName();
 
             std::string candidateName;
-            if ( m_curveSetForSourceStepping->summaryAddress().isHistoryQuantity() )
+            if ( m_curveSetForSourceStepping->summaryAddress().isHistoryVector() )
             {
-                candidateName = quantity.substr( 0, quantity.size() - 1 );
+                candidateName = vectorName.substr( 0, vectorName.size() - 1 );
             }
             else
             {
-                candidateName = quantity + "H";
+                candidateName = vectorName + "H";
             }
 
             for ( const auto& c : curveSets() )
             {
-                if ( c->summaryAddress().quantityName() == candidateName )
+                if ( c->summaryAddress().vectorName() == candidateName )
                 {
                     steppingCurveSets.push_back( c );
                 }
@@ -296,7 +302,7 @@ RimSummaryPlotSourceStepping* RimEnsembleCurveSetCollection::sourceSteppingObjec
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::deleteAllCurveSets()
 {
-    m_curveSets.deleteAllChildObjects();
+    m_curveSets.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -309,10 +315,6 @@ void RimEnsembleCurveSetCollection::fieldChangedByUi( const caf::PdmFieldHandle*
     if ( changedField == &m_showCurves )
     {
         loadDataAndUpdate( true );
-
-        RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
-        summaryPlot->updateConnectedEditors();
     }
 }
 
@@ -321,9 +323,6 @@ void RimEnsembleCurveSetCollection::fieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSetCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    auto group = uiOrdering.addNewGroup( "Data Source" );
-
-    m_ySourceStepping()->uiOrdering( uiConfigName, *group );
 }
 
 //--------------------------------------------------------------------------------------------------

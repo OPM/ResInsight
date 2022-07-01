@@ -18,6 +18,7 @@
 #pragma once
 
 #include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
@@ -92,8 +93,7 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     void setupResInsightParameters();
@@ -113,6 +113,6 @@ private:
 
     caf::PdmChildArrayField<RimParameterGroup*> m_basicParameters;
     caf::PdmChildArrayField<RimParameterGroup*> m_advancedParameters;
-    caf::PdmPtrField<RimParameterGroup*>        m_basicParametersRI;
-    caf::PdmPtrField<RimParameterGroup*>        m_advancedParametersRI;
+    caf::PdmChildField<RimParameterGroup*>      m_basicParametersRI;
+    caf::PdmChildField<RimParameterGroup*>      m_advancedParametersRI;
 };

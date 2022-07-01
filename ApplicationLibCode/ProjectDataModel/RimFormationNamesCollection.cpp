@@ -29,9 +29,9 @@ CAF_PDM_SOURCE_INIT( RimFormationNamesCollection, "FormationNamesCollectionObjec
 //--------------------------------------------------------------------------------------------------
 RimFormationNamesCollection::RimFormationNamesCollection()
 {
-    CAF_PDM_InitObject( "Formations", ":/FormationCollection16x16.png", "", "" );
+    CAF_PDM_InitObject( "Formations", ":/FormationCollection16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_formationNamesList, "FormationNamesList", "Formations", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_formationNamesList, "FormationNamesList", "Formations" );
     m_formationNamesList.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
@@ -42,7 +42,7 @@ RimFormationNamesCollection::RimFormationNamesCollection()
 //--------------------------------------------------------------------------------------------------
 RimFormationNamesCollection::~RimFormationNamesCollection()
 {
-    m_formationNamesList.deleteAllChildObjects();
+    m_formationNamesList.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ std::vector<RimFormationNames*> RimFormationNamesCollection::importFiles( const 
         RiaLogging::errorInMessageBox( nullptr, "Import Formation Names", totalErrorMessage );
     }
 
-    return m_formationNamesList.childObjects();
+    return m_formationNamesList.children();
 }
 
 //--------------------------------------------------------------------------------------------------

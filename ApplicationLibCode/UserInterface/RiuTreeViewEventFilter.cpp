@@ -44,8 +44,9 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuTreeViewEventFilter::RiuTreeViewEventFilter( QObject* parent )
+RiuTreeViewEventFilter::RiuTreeViewEventFilter( QObject* parent, caf::PdmUiTreeView* treeView )
     : QObject( parent )
+    , m_projectTreeView( treeView )
 {
 }
 
@@ -141,14 +142,7 @@ bool RiuTreeViewEventFilter::eventFilter( QObject* obj, QEvent* event )
 
         // Do not toggle state if currently editing a name in the tree view
         bool toggleStateForSelection = true;
-        if ( RiuMainWindow::instance()->projectTreeView() &&
-             RiuMainWindow::instance()->projectTreeView()->isTreeItemEditWidgetActive() )
-        {
-            toggleStateForSelection = false;
-        }
-        else if ( RiaGuiApplication::instance()->mainPlotWindow() &&
-                  RiaGuiApplication::instance()->mainPlotWindow()->projectTreeView() &&
-                  RiaGuiApplication::instance()->mainPlotWindow()->projectTreeView()->isTreeItemEditWidgetActive() )
+        if ( m_projectTreeView && m_projectTreeView->isTreeItemEditWidgetActive() )
         {
             toggleStateForSelection = false;
         }

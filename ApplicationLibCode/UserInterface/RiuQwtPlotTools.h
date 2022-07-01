@@ -17,10 +17,18 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
+#include "RiaPlotDefines.h"
+
+#include <qwt_axis_id.h>
 #include <qwt_date.h>
 #include <qwt_plot.h>
 #include <qwt_plot_shapeitem.h>
+
+class RiuQwtPlotLegend;
+class RimPlotCurve;
+
+class RiuPlotAxis;
 
 class RiuQwtPlotTools
 {
@@ -28,17 +36,17 @@ public:
     static void setCommonPlotBehaviour( QwtPlot* plot );
     static void setDefaultAxes( QwtPlot* plot );
     static void enableDateBasedBottomXAxis(
-        QwtPlot*                                plot,
-        const QString&                          dateFormat,
-        const QString&                          timeFormat,
-        RiaQDateTimeTools::DateFormatComponents dateComponents = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED,
-        RiaQDateTimeTools::TimeFormatComponents timeComponents = RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
+        QwtPlot*                         plot,
+        const QString&                   dateFormat,
+        const QString&                   timeFormat,
+        RiaDefines::DateFormatComponents dateComponents = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED,
+        RiaDefines::TimeFormatComponents timeComponents = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED );
 
-    static QString dateTimeFormatForInterval( QwtDate::IntervalType                   interval,
-                                              const QString&                          dateFormat,
-                                              const QString&                          timeFormat,
-                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                              RiaQDateTimeTools::TimeFormatComponents timeComponents );
+    static QString dateTimeFormatForInterval( QwtDate::IntervalType            interval,
+                                              const QString&                   dateFormat,
+                                              const QString&                   timeFormat,
+                                              RiaDefines::DateFormatComponents dateComponents,
+                                              RiaDefines::TimeFormatComponents timeComponents );
 
     static QwtPlotShapeItem* createBoxShape( const QString& label,
                                              double         startX,
@@ -56,6 +64,12 @@ public:
                                                double         endY,
                                                QColor         color,
                                                Qt::BrushStyle brushStyle = Qt::SolidPattern );
+
+    static void                 updateLegendData( RiuQwtPlotLegend* legend, const std::vector<RimPlotCurve*>& curves );
+    static QList<QwtLegendData> createLegendData( const std::vector<RimPlotCurve*>& curves );
+    static QwtAxis::Position    toQwtPlotAxisEnum( RiaDefines::PlotAxis riaPlotAxis );
+
+    static RiaDefines::PlotAxis fromQwtPlotAxis( QwtAxis::Position );
 };
 
 //--------------------------------------------------------------------------------------------------
@@ -79,7 +93,7 @@ PlotShapeItemType* RiuQwtPlotTools::createBoxShapeT( const QString& label,
     polygon.push_back( QPointF( startX, endY ) );
     polygon.push_back( QPointF( startX, startY ) );
     columnShape->setPolygon( polygon );
-    columnShape->setXAxis( QwtPlot::xBottom );
+    columnShape->setXAxis( QwtAxis::XBottom );
     columnShape->setBrush( QBrush( color, brushStyle ) );
     columnShape->setLegendMode( QwtPlotShapeItem::LegendShape );
     columnShape->setLegendIconSize( QSize( 16, 16 ) );

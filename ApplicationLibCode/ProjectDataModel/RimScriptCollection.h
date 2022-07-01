@@ -43,23 +43,17 @@ public:
     RimScriptCollection();
     ~RimScriptCollection() override;
 
-public: // Pdm Fields
+public:
     caf::PdmField<QString>                  directory;
     caf::PdmChildArrayField<RimCalcScript*> calcScripts;
 
     caf::PdmChildArrayField<RimScriptCollection*> subDirectories;
 
-public: // Methods
-    void readContentFromDisc();
-
-    // Overrides from PdmObject
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+public:
+    void readContentFromDisc( int folderLevelsLeft );
 
 protected:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
-
-private:
-    caf::PdmField<bool> m_searchSubFolders;
 };

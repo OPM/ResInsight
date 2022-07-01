@@ -22,13 +22,13 @@
 #include "RiaDefines.h"
 #include "RimPlotAxisPropertiesInterface.h"
 
+#include "RiuPlotAxis.h"
+
 #include "cafAppEnum.h"
 #include "cafFontTools.h"
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-
-#include "qwt_plot.h"
 
 #include <QString>
 
@@ -38,7 +38,7 @@ class RimPlotAxisAnnotation;
 ///
 ///
 //==================================================================================================
-class RimPlotAxisProperties : public caf::PdmObject, public RimPlotAxisPropertiesInterface
+class RimPlotAxisProperties : public RimPlotAxisPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -51,50 +51,74 @@ public:
     };
 
 public:
-    caf::Signal<>     settingsChanged;
-    caf::Signal<bool> logarithmicChanged;
+    caf::Signal<bool>                                             logarithmicChanged;
+    caf::Signal<RimPlotAxisProperties*, RiuPlotAxis, RiuPlotAxis> axisPositionChanged;
 
 public:
     RimPlotAxisProperties();
 
-    void                  setEnableTitleTextSettings( bool enable );
-    void                  enableRangeSettings( bool enable );
-    void                  setNameAndAxis( const QString& name, QwtPlot::Axis axis );
+    void setAlwaysRequired( bool enable );
+
+    void setEnableTitleTextSettings( bool enable );
+    void enableRangeSettings( bool enable );
+    void setNameForUnusedAxis();
+    void setNameAndAxis( const QString& objectName, const QString& axistTitle, RiaDefines::PlotAxis axis, int axisIndex = 0 );
     AxisTitlePositionType titlePosition() const override;
+
+    QString customTitle() const;
 
     int titleFontSize() const override;
     int valuesFontSize() const override;
 
-    QwtPlot::Axis        qwtPlotAxisType() const;
-    QString              name() const;
-    RiaDefines::PlotAxis plotAxisType() const override;
-    bool                 useAutoTitle() const;
-    bool                 showDescription() const;
-    bool                 showAcronym() const;
-    bool                 showUnitText() const;
-    bool                 isAutoZoom() const;
-    void                 setAutoZoom( bool enableAutoZoom );
-    bool                 isAxisInverted() const;
-    void                 setAxisInverted( bool inverted );
+    const QString objectName() const override;
+    const QString axisTitleText() const override;
+
+    RiuPlotAxis plotAxisType() const override;
+    bool        useAutoTitle() const;
+
+    void setShowDescription( bool enable );
+    bool showDescription() const;
+
+    void setShowAcronym( bool enable );
+    bool showAcronym() const;
+
+    void setShowUnitText( bool enable );
+    bool showUnitText() const;
+
+    bool isAutoZoom() const override;
+    void setAutoZoom( bool enableAutoZoom ) override;
+    bool isAxisInverted() const override;
+    void setAxisInverted( bool inverted );
+    bool showNumbers() const;
+    void setShowNumbers( bool enable );
+
+    NumberFormatType numberFormat() const;
+    int              decimalCount() const;
+    double           scaleFactor() const;
+
+    void setVisible( bool visible );
+    void computeAndSetScaleFactor();
+
+    bool isDeletable() const override;
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
     void                                removeAllAnnotations() override;
 
-    caf::PdmField<QString> customTitle;
+    bool isLogarithmicScaleEnabled() const override;
+    bool isActive() const override;
 
-    caf::PdmField<double> visibleRangeMin;
-    caf::PdmField<double> visibleRangeMax;
-
-    caf::PdmField<caf::AppEnum<NumberFormatType>> numberFormat;
-    caf::PdmField<int>                            numberOfDecimals;
-    caf::PdmField<double>                         scaleFactor;
-    caf::PdmField<bool>                           isLogarithmicScaleEnabled;
-
-    bool isActive() const;
-
-    void setInvertedAxis( bool enable );
     void showAnnotationObjectsInProjectTree();
+
+    double visibleRangeMin() const override;
+    double visibleRangeMax() const override;
+
+    void setMinMaxOverridden( bool isOverridden );
+    void setVisibleRangeMin( double value ) override;
+    void setVisibleRangeMax( double value ) override;
+
+    LegendTickmarkCount majorTickmarkCount() const override;
+    void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
 
 protected:
     void                 initAfterRead() override;
@@ -103,15 +127,18 @@ protected:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     void                     updateOptionSensitivity();
+    void                     updateOverriddenLabelAndReadOnlyState();
     caf::FontTools::FontSize plotFontSize() const;
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     caf::PdmField<bool> m_isActive;
+
+    caf::PdmField<bool> m_isMinMaxOverridden;
 
     caf::PdmField<bool> isAutoTitle;
     caf::PdmField<bool> m_displayShortName;
@@ -119,36 +146,32 @@ private:
     caf::PdmField<bool> m_displayUnitText;
     caf::PdmField<bool> m_isAutoZoom;
     caf::PdmField<bool> m_isAxisInverted;
+    caf::PdmField<bool> m_showNumbers;
 
-    caf::PdmField<QString> m_name;
-    QwtPlot::Axis          m_axis;
+    caf::PdmField<double> m_visibleRangeMin;
+    caf::PdmField<double> m_visibleRangeMax;
+
+    caf::PdmField<QString> m_objectName;
+    caf::PdmField<QString> m_axisTitle;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+    caf::PdmField<int>                                m_plotAxisIndex;
+    caf::PdmField<LegendTickmarkCountEnum>            m_majorTickmarkCount;
+
+    caf::PdmField<QString> m_customTitle;
+
+    caf::PdmField<caf::AppEnum<NumberFormatType>> m_numberFormat;
+    caf::PdmField<int>                            m_numberOfDecimals;
+    caf::PdmField<double>                         m_scaleFactor;
+
+    caf::PdmField<bool> m_isLogarithmicScaleEnabled;
 
     bool m_enableTitleTextSettings;
     bool m_isRangeSettingsEnabled;
+    bool m_isAlwaysRequired;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_titleFontSize;
     caf::PdmField<caf::AppEnum<AxisTitlePositionType>> m_titlePositionEnum;
     caf::PdmField<caf::FontTools::RelativeSizeEnum>    m_valuesFontSize;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>    m_annotations;
-};
-
-class QwtPlotCurve;
-
-//==================================================================================================
-///
-///
-//==================================================================================================
-class RimPlotAxisLogRangeCalculator
-{
-public:
-    RimPlotAxisLogRangeCalculator( QwtPlot::Axis axis, const std::vector<const QwtPlotCurve*>& qwtCurves );
-
-    void computeAxisRange( double* minPositive, double* max ) const;
-
-private:
-    bool curveValueRange( const QwtPlotCurve* qwtCurve, double* minPositive, double* max ) const;
-
-private:
-    QwtPlot::Axis                          m_axis;
-    const std::vector<const QwtPlotCurve*> m_curves;
 };

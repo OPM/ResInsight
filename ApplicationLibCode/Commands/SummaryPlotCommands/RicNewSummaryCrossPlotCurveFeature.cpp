@@ -28,7 +28,6 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -78,7 +77,7 @@ void RicNewSummaryCrossPlotCurveFeature::onActionTriggered( bool isChecked )
         RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem( newCurve );
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 }
 

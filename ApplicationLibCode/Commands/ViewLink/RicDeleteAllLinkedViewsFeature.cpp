@@ -42,7 +42,7 @@ public:
         {
             // Remove the view linker object from the view linker collection
             // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
-            proj->viewLinkerCollection->viewLinker.removeChildObject( viewLinker );
+            proj->viewLinkerCollection->viewLinker.removeChild( viewLinker );
 
             viewLinker->applyCellFilterCollectionByUserChoice();
 

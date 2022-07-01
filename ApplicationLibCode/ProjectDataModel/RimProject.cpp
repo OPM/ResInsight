@@ -25,6 +25,7 @@
 #include "RiaFilePathTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaProjectFileVersionTools.h"
+#include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
 
 #include "RicfCommandObject.h"
@@ -54,6 +55,7 @@
 #include "RimFractureTemplateCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechModels.h"
+#include "RimGridCalculationCollection.h"
 #include "RimGridCrossPlotCollection.h"
 #include "RimGridSummaryCase.h"
 #include "RimGridView.h"
@@ -76,7 +78,7 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
-#include "RimSummaryPlotCollection.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSurfaceCollection.h"
 #include "RimTools.h"
 #include "RimUserDefinedPolylinesAnnotation.h"
@@ -123,89 +125,85 @@ CAF_PDM_SOURCE_INIT( RimProject, "ResInsightProject" );
 RimProject::RimProject( void )
     : m_nextValidCaseId( 0 )
     , m_nextValidCaseGroupId( 0 )
-    , m_nextValidViewId( 1 )
-    , m_nextValidPlotId( 1 )
-    , m_nextValidCalculationId( 1 )
+    , m_nextValidViewId( -1 )
+    , m_nextValidPlotId( -1 )
     , m_nextValidSummaryCaseId( 1 )
     , m_nextValidEnsembleId( 1 )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Project", "", "", "", "Project", "The ResInsight Project" );
 
-    CAF_PDM_InitField( &m_projectFileVersionString, "ProjectFileVersionString", QString( STRPRODUCTVER ), "", "", "", "" );
+    CAF_PDM_InitField( &m_projectFileVersionString, "ProjectFileVersionString", QString( STRPRODUCTVER ), "" );
     m_projectFileVersionString.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_globalPathList, "ReferencedExternalFiles", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_globalPathList, "ReferencedExternalFiles", "" );
     m_globalPathList.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &oilFields, "OilFields", "Oil Fields" );
     oilFields.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &colorLegendCollection, "ColorLegendCollection", "Color Legend Collection" );
     colorLegendCollection = new RimColorLegendCollection();
     colorLegendCollection->createStandardColorLegends();
 
-    CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &scriptCollection, "ScriptCollection", "Octave Scripts", ":/octave.png" );
     scriptCollection.uiCapability()->setUiTreeHidden( true );
     scriptCollection.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &wellPathImport, "WellPathImport", "WellPathImport", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &wellPathImport, "WellPathImport", "WellPathImport" );
     wellPathImport = new RimWellPathImport();
     wellPathImport.uiCapability()->setUiTreeHidden( true );
     wellPathImport.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &mainPlotCollection, "MainPlotCollection", "Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &mainPlotCollection, "MainPlotCollection", "Plots" );
     mainPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &viewLinkerCollection,
-                                "LinkedViews",
-                                "Linked Views (field in RimProject",
-                                ":/LinkView16x16.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
     viewLinkerCollection.uiCapability()->setUiTreeHidden( true );
     viewLinkerCollection = new RimViewLinkerCollection;
 
-    CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &calculationCollection, "CalculationCollection", "Calculation Collection" );
     calculationCollection = new RimSummaryCalculationCollection;
 
-    CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects", "", "", "" );
-    // wellPathImport.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &gridCalculationCollection, "GridCalculationCollection", "Grid Calculation Collection" );
+    gridCalculationCollection = new RimGridCalculationCollection;
 
-    CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &commandObjects, "CommandObjects", "Command Objects" );
 
-    CAF_PDM_InitFieldNoDefault( &mainWindowTreeViewState, "TreeViewState", "", "", "", "" );
-    mainWindowTreeViewState.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &mainWindowCurrentModelIndexPath, "TreeViewCurrentModelIndexPath", "", "", "", "" );
-    mainWindowCurrentModelIndexPath.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &multiSnapshotDefinitions, "MultiSnapshotDefinitions", "Multi Snapshot Definitions" );
 
-    CAF_PDM_InitFieldNoDefault( &plotWindowTreeViewState, "PlotWindowTreeViewState", "", "", "", "" );
-    plotWindowTreeViewState.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &plotWindowCurrentModelIndexPath, "PlotWindowTreeViewCurrentModelIndexPath", "", "", "", "" );
-    plotWindowCurrentModelIndexPath.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &mainWindowTreeViewStates, "TreeViewStates", "" );
+    mainWindowTreeViewStates.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &mainWindowCurrentModelIndexPaths, "TreeViewCurrentModelIndexPaths", "" );
+    mainWindowCurrentModelIndexPaths.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_show3DWindow, "show3DWindow", true, "Show 3D Window", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &plotWindowTreeViewStates, "PlotWindowTreeViewStates", "" );
+    plotWindowTreeViewStates.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitFieldNoDefault( &plotWindowCurrentModelIndexPaths, "PlotWindowTreeViewCurrentModelIndexPaths", "" );
+    plotWindowCurrentModelIndexPaths.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_show3DWindow, "show3DWindow", true, "Show 3D Window" );
     m_show3DWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_showPlotWindow, "showPlotWindow", false, "Show Plot Window", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotWindow, "showPlotWindow", false, "Show Plot Window" );
     m_showPlotWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_subWindowsTiled3DWindow, "tiled3DWindow", false, "Tile 3D Window", "", "", "" );
+    CAF_PDM_InitField( &m_subWindowsTiled3DWindow, "tiled3DWindow", false, "Tile 3D Window" );
     m_subWindowsTiled3DWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_subWindowsTiledPlotWindow, "tiledPlotWindow", false, "Tile Plot Window", "", "", "" );
+    CAF_PDM_InitField( &m_subWindowsTiledPlotWindow, "tiledPlotWindow", false, "Tile Plot Window" );
     m_subWindowsTiledPlotWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_dialogData, "DialogData", "DialogData", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dialogData, "DialogData", "DialogData" );
     m_dialogData = new RimDialogData();
     m_dialogData.uiCapability()->setUiTreeHidden( true );
     m_dialogData.uiCapability()->setUiTreeChildrenHidden( true );
 
     // Obsolete fields. The content is moved to OilFields and friends
-    CAF_PDM_InitFieldNoDefault( &casesObsolete, "Reservoirs", "", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &casesObsolete );
+    CAF_PDM_InitFieldNoDefault( &casesObsolete, "Reservoirs", "" );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &casesObsolete );
 
-    CAF_PDM_InitFieldNoDefault( &caseGroupsObsolete, "CaseGroups", "", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &caseGroupsObsolete );
+    CAF_PDM_InitFieldNoDefault( &caseGroupsObsolete, "CaseGroups", "" );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &caseGroupsObsolete );
 
     // Initialization
 
@@ -216,9 +214,9 @@ RimProject::RimProject( void )
 
     mainPlotCollection = new RimMainPlotCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolderItem, "PlotTemplateCollection", "Plot Templates", "", "", "" );
-    m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
-    m_plotTemplateFolderItem.xmlCapability()->disableIO();
+    CAF_PDM_InitFieldNoDefault( &m_plotTemplateTopFolder, "PlotTemplateCollection", "Plot Templates" );
+    m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
+    m_plotTemplateTopFolder.xmlCapability()->disableIO();
 
     // For now, create a default first oilfield that contains the rest of the project
     oilFields.push_back( new RimOilField );
@@ -251,21 +249,22 @@ void RimProject::close()
         mainPlotCollection()->deleteAllContainedObjects();
     }
 
-    oilFields.deleteAllChildObjects();
+    oilFields.deleteChildren();
     oilFields.push_back( new RimOilField );
 
-    casesObsolete.deleteAllChildObjects();
-    caseGroupsObsolete.deleteAllChildObjects();
+    casesObsolete.deleteChildren();
+    caseGroupsObsolete.deleteChildren();
 
-    wellPathImport->regions().deleteAllChildObjects();
+    wellPathImport->regions().deleteChildren();
 
-    commandObjects.deleteAllChildObjects();
+    commandObjects.deleteChildren();
 
-    multiSnapshotDefinitions.deleteAllChildObjects();
+    multiSnapshotDefinitions.deleteChildren();
 
     m_dialogData->clearProjectSpecificData();
 
     calculationCollection->deleteAllContainedObjects();
+    gridCalculationCollection->deleteAllContainedObjects();
     colorLegendCollection->deleteCustomColorLegends();
 
     delete viewLinkerCollection->viewLinker();
@@ -273,16 +272,15 @@ void RimProject::close()
 
     fileName = "";
 
-    mainWindowCurrentModelIndexPath = "";
-    mainWindowTreeViewState         = "";
-    plotWindowCurrentModelIndexPath = "";
-    plotWindowTreeViewState         = "";
+    mainWindowCurrentModelIndexPaths = "";
+    mainWindowTreeViewStates         = "";
+    plotWindowCurrentModelIndexPaths = "";
+    plotWindowTreeViewStates         = "";
 
     m_nextValidCaseId        = 0;
     m_nextValidCaseGroupId   = 0;
-    m_nextValidViewId        = 1;
-    m_nextValidPlotId        = 1;
-    m_nextValidCalculationId = 1;
+    m_nextValidViewId        = -1;
+    m_nextValidPlotId        = -1;
     m_nextValidSummaryCaseId = 1;
     m_nextValidEnsembleId    = 1;
 }
@@ -310,14 +308,13 @@ void RimProject::initAfterRead()
         if ( analysisModels )
         {
             analysisModels->caseGroups.push_back( sourceCaseGroup );
-            // printf("Moved m_project->caseGroupsObsolete[%i] to first oil fields analysis models\n", cgIdx);
             movedOneRimIdenticalGridCaseGroup = true; // moved at least one so assume the others will be moved too...
         }
     }
 
     if ( movedOneRimIdenticalGridCaseGroup )
     {
-        caseGroupsObsolete.clear();
+        caseGroupsObsolete.clearWithoutDelete();
     }
 
     bool movedOneRimCase = false;
@@ -328,21 +325,13 @@ void RimProject::initAfterRead()
             RimEclipseCase* sourceCase = casesObsolete[cIdx];
             casesObsolete.set( cIdx, nullptr );
             analysisModels->cases.push_back( sourceCase );
-            // printf("Moved m_project->casesObsolete[%i] to first oil fields analysis models\n", cIdx);
             movedOneRimCase = true; // moved at least one so assume the others will be moved too...
         }
     }
 
     if ( movedOneRimCase )
     {
-        casesObsolete.clear();
-    }
-
-    if ( casesObsolete().size() > 0 || caseGroupsObsolete.size() > 0 )
-    {
-        // printf("RimProject::initAfterRead: Was not able to move all cases (%i left) or caseGroups (%i left) from
-        // Project to analysisModels",
-        //  casesObsolete().size(), caseGroupsObsolete.size());
+        casesObsolete.clearWithoutDelete();
     }
 
     // Set project pointer to each well path
@@ -364,8 +353,8 @@ void RimProject::setupBeforeSave()
 
         if ( guiApp )
         {
-            m_show3DWindow   = guiApp->mainWindow()->isVisible();
-            m_showPlotWindow = guiApp->mainPlotWindow() && guiApp->mainPlotWindow()->isVisible();
+            m_show3DWindow   = guiApp->isMain3dWindowVisible();
+            m_showPlotWindow = guiApp->isMainPlotWindowVisible();
         }
     }
 
@@ -387,10 +376,10 @@ bool RimProject::writeProjectFile()
 //--------------------------------------------------------------------------------------------------
 /// Support list of multiple script paths divided by ';'
 //--------------------------------------------------------------------------------------------------
-void RimProject::setScriptDirectories( const QString& scriptDirectories )
+void RimProject::setScriptDirectories( const QString& scriptDirectories, int maxFolderDepth )
 {
-    scriptCollection->calcScripts().deleteAllChildObjects();
-    scriptCollection->subDirectories().deleteAllChildObjects();
+    scriptCollection->calcScripts().deleteChildren();
+    scriptCollection->subDirectories().deleteChildren();
 
     QStringList pathList = scriptDirectories.split( ';' );
     foreach ( QString path, pathList )
@@ -402,7 +391,7 @@ void RimProject::setScriptDirectories( const QString& scriptDirectories )
             sharedScriptLocation->directory           = path;
             sharedScriptLocation->setUiName( dir.dirName() );
 
-            sharedScriptLocation->readContentFromDisc();
+            sharedScriptLocation->readContentFromDisc( maxFolderDepth );
 
             scriptCollection->subDirectories.push_back( sharedScriptLocation );
         }
@@ -414,12 +403,12 @@ void RimProject::setScriptDirectories( const QString& scriptDirectories )
 //--------------------------------------------------------------------------------------------------
 void RimProject::setPlotTemplateFolders( const QStringList& plotTemplateFolders )
 {
-    if ( !m_plotTemplateFolderItem() )
+    if ( !m_plotTemplateTopFolder() )
     {
-        m_plotTemplateFolderItem = new RimPlotTemplateFolderItem();
+        m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
     }
 
-    m_plotTemplateFolderItem->createRootFolderItemsFromFolderPaths( plotTemplateFolders );
+    m_plotTemplateTopFolder->createRootFolderItemsFromFolderPaths( plotTemplateFolders );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -468,20 +457,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         filePath->setPath( newFilePath );
     }
 
-    // Loop over all cases and update file path
-
-    std::vector<RimCase*> cases;
-    allCases( cases );
-    for ( size_t i = 0; i < cases.size(); i++ )
-    {
-        cases[i]->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-
-    for ( RimSummaryCase* summaryCase : allSummaryCases() )
-    {
-        summaryCase->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
-
     // Update path to well path file cache
     for ( RimOilField* oilField : oilFields )
     {
@@ -493,10 +468,6 @@ void RimProject::setProjectFileNameAndUpdateDependencies( const QString& project
         if ( oilField->formationNamesCollection() != nullptr )
         {
             oilField->formationNamesCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-        }
-        if ( oilField->summaryCaseMainCollection() != nullptr )
-        {
-            oilField->summaryCaseMainCollection()->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
         }
 
         CVF_ASSERT( oilField->fractureDefinitionCollection() );
@@ -608,12 +579,15 @@ void RimProject::assignViewIdToView( Rim3dView* view )
 {
     if ( view )
     {
-        std::vector<Rim3dView*> views;
-        this->descendantsIncludingThisOfType( views );
-
-        for ( Rim3dView* existingView : views )
+        if ( m_nextValidViewId < 0 )
         {
-            m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
+            std::vector<Rim3dView*> views;
+            this->descendantsIncludingThisOfType( views );
+
+            for ( Rim3dView* existingView : views )
+            {
+                m_nextValidViewId = std::max( m_nextValidViewId, existingView->id() + 1 );
+            }
         }
 
         view->setId( m_nextValidViewId++ );
@@ -627,31 +601,18 @@ void RimProject::assignPlotIdToPlotWindow( RimPlotWindow* plotWindow )
 {
     if ( plotWindow )
     {
-        std::vector<RimPlotWindow*> plotWindows;
-        this->descendantsIncludingThisOfType( plotWindows );
-
-        for ( RimPlotWindow* existingPlotWindow : plotWindows )
+        if ( m_nextValidPlotId < 0 )
         {
-            m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
+            std::vector<RimPlotWindow*> plotWindows;
+            this->descendantsIncludingThisOfType( plotWindows );
+
+            for ( RimPlotWindow* existingPlotWindow : plotWindows )
+            {
+                m_nextValidPlotId = std::max( m_nextValidPlotId, existingPlotWindow->id() + 1 );
+            }
         }
 
         plotWindow->setId( m_nextValidPlotId++ );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::assignCalculationIdToCalculation( RimSummaryCalculation* calculation )
-{
-    if ( calculation )
-    {
-        for ( RimSummaryCalculation* existingCalculation : calculationCollection->calculations() )
-        {
-            m_nextValidCalculationId = std::max( m_nextValidCalculationId, existingCalculation->id() + 1 );
-        }
-
-        calculation->setId( m_nextValidCalculationId++ );
     }
 }
 
@@ -720,10 +681,13 @@ std::vector<RimSummaryCase*> RimProject::allSummaryCases() const
         if ( sumCaseMainColl )
         {
             std::vector<RimSummaryCase*> allSummaryCases = sumCaseMainColl->allSummaryCases();
-            sumCases.insert( sumCases.end(), allSummaryCases.begin(), allSummaryCases.end() );
+            if ( !allSummaryCases.empty() )
+            {
+                sumCases.insert( sumCases.end(), allSummaryCases.begin(), allSummaryCases.end() );
+            }
         }
 
-        auto observedDataColl = oilField->observedDataCollection();
+        auto& observedDataColl = oilField->observedDataCollection();
         if ( observedDataColl != nullptr && observedDataColl->allObservedSummaryData().size() > 0 )
         {
             auto observedData = observedDataColl->allObservedSummaryData();
@@ -1031,10 +995,10 @@ void RimProject::setSubWindowsTiledInPlotWindow( bool tiled )
 //--------------------------------------------------------------------------------------------------
 void RimProject::reloadCompletionTypeResultsInAllViews()
 {
+    RiaCompletionTypeCalculationScheduler::instance()->clearCompletionTypeResultsInAllCases();
     scheduleCreateDisplayModelAndRedrawAllViews();
-    RiaCompletionTypeCalculationScheduler::instance()->scheduleRecalculateCompletionTypeAndRedrawAllViews();
 
-    this->mainPlotCollection()->updatePlotsWithCompletions();
+    mainPlotCollection()->scheduleUpdatePlotsWithCompletions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1362,9 +1326,9 @@ RimMeasurement* RimProject::measurement() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimPlotTemplateFolderItem* RimProject::rootPlotTemlateItem() const
+RimPlotTemplateFolderItem* RimProject::rootPlotTemplateItem() const
 {
-    return m_plotTemplateFolderItem;
+    return m_plotTemplateTopFolder;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1398,102 +1362,79 @@ void RimProject::reloadCompletionTypeResultsForEclipseCase( RimEclipseCase* ecli
 //--------------------------------------------------------------------------------------------------
 void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
-    if ( uiConfigName == "PlotWindow" )
+    if ( uiConfigName == "PlotWindow.Plots" )
     {
-        {
-            auto itemCollection = uiTreeOrdering.add( "Cases and Data", ":/Folder.png" );
-
-            RimOilField* oilField = activeOilField();
-            if ( oilField )
-            {
-                if ( oilField->summaryCaseMainCollection() )
-                {
-                    itemCollection->add( oilField->summaryCaseMainCollection() );
-                }
-                if ( oilField->observedDataCollection() )
-                {
-                    itemCollection->add( oilField->observedDataCollection() );
-                }
-                if ( oilField->ensembleWellLogsCollection() )
-                {
-                    itemCollection->add( oilField->ensembleWellLogsCollection() );
-                }
-            }
-        }
-
         if ( mainPlotCollection )
         {
-            auto itemCollection = uiTreeOrdering.add( "Plots", ":/Folder.png" );
-            if ( mainPlotCollection->summaryPlotCollection() )
+            if ( mainPlotCollection->summaryMultiPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->summaryPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->summaryMultiPlotCollection() );
             }
 
             if ( mainPlotCollection->analysisPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->analysisPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->analysisPlotCollection() );
             }
 
             if ( mainPlotCollection->correlationPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->correlationPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->correlationPlotCollection() );
             }
 
             if ( mainPlotCollection->summaryCrossPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->summaryCrossPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->summaryCrossPlotCollection() );
             }
 
             if ( mainPlotCollection->wellLogPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->wellLogPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->wellLogPlotCollection() );
             }
 
             if ( mainPlotCollection->rftPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->rftPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->rftPlotCollection() );
             }
 
             if ( mainPlotCollection->pltPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->pltPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->pltPlotCollection() );
             }
 
             if ( mainPlotCollection->flowPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->flowPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->flowPlotCollection() );
             }
 
             if ( mainPlotCollection->gridCrossPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->gridCrossPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->gridCrossPlotCollection() );
             }
 
             if ( mainPlotCollection->saturationPressurePlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->saturationPressurePlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->saturationPressurePlotCollection() );
             }
 
-            if ( mainPlotCollection->multiPlotCollection() &&
-                 !mainPlotCollection->multiPlotCollection()->multiPlots().empty() )
+            if ( mainPlotCollection->multiPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->multiPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->multiPlotCollection() );
             }
 
             if ( mainPlotCollection->stimPlanModelPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->stimPlanModelPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->stimPlanModelPlotCollection() );
             }
 
             if ( mainPlotCollection->vfpPlotCollection() )
             {
-                itemCollection->add( mainPlotCollection->vfpPlotCollection() );
+                uiTreeOrdering.add( mainPlotCollection->vfpPlotCollection() );
             }
 #ifdef USE_QTCHARTS
             if ( mainPlotCollection->gridStatisticsPlotCollection() ||
                  mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
             {
-                auto statisticsItemCollection = itemCollection->add( "Statistics Plots", ":/Folder.png" );
+                auto statisticsItemCollection = uiTreeOrdering.add( "Statistics Plots", ":/Folder.png" );
                 if ( mainPlotCollection->gridStatisticsPlotCollection() )
                     statisticsItemCollection->add( mainPlotCollection->gridStatisticsPlotCollection() );
 
@@ -1502,16 +1443,46 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
             }
 #endif
         }
-
+    }
+    else if ( uiConfigName == "PlotWindow.DataSources" )
+    {
+        RimOilField* oilField = activeOilField();
+        if ( oilField )
+        {
+            if ( oilField->summaryCaseMainCollection() )
+            {
+                uiTreeOrdering.add( oilField->summaryCaseMainCollection() );
+            }
+            if ( oilField->observedDataCollection() )
+            {
+                uiTreeOrdering.add( oilField->observedDataCollection() );
+            }
+            if ( oilField->ensembleWellLogsCollection() )
+            {
+                uiTreeOrdering.add( oilField->ensembleWellLogsCollection() );
+            }
+        }
+    }
+    else if ( uiConfigName == "PlotWindow.Scripts" || uiConfigName == "MainWindow.Scripts" )
+    {
         uiTreeOrdering.add( scriptCollection() );
+    }
+    else if ( uiConfigName == "PlotWindow.Templates" )
+    {
+        uiTreeOrdering.add( m_plotTemplateTopFolder );
+    }
+    else if ( uiConfigName == "MainWindow.DataSources" )
+    {
+        RimOilField* oilField = activeOilField();
+        if ( oilField )
+        {
+            if ( oilField->analysisModels() ) uiTreeOrdering.add( oilField->analysisModels() );
+        }
     }
     else
     {
-        if ( viewLinkerCollection()->viewLinker() )
-        {
-            // Use object instead of field to avoid duplicate entries in the tree view
-            uiTreeOrdering.add( viewLinkerCollection() );
-        }
+        // Use object instead of field to avoid duplicate entries in the tree view
+        uiTreeOrdering.add( viewLinkerCollection() );
 
         RimOilField* oilField = activeOilField();
         if ( oilField )
@@ -1527,7 +1498,6 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
         }
 
         uiTreeOrdering.add( colorLegendCollection() );
-        uiTreeOrdering.add( scriptCollection() );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
@@ -1543,7 +1513,7 @@ public:
     GlobalPathListMapper( const QString& globalPathListTable )
     {
         m_maxUsedIdNumber     = 0;
-        QStringList pathPairs = globalPathListTable.split( ";", QString::SkipEmptyParts );
+        QStringList pathPairs = RiaTextStringTools::splitSkipEmptyParts( globalPathListTable, ";" );
 
         for ( const QString& pathIdPathPair : pathPairs )
         {

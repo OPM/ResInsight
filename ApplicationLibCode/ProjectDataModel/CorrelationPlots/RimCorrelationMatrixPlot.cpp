@@ -25,6 +25,7 @@
 #include "RiaSummaryCurveDefinition.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuQwtLinearScaleEngine.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
 
@@ -153,22 +154,19 @@ RimCorrelationMatrixPlot::RimCorrelationMatrixPlot()
     : RimAbstractCorrelationPlot()
     , matrixCellSelected( this )
 {
-    CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationMatrixPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Correlation Plot", ":/CorrelationMatrixPlot16x16.png" );
 
-    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_sortByValues, "CorrelationSorting", "Sort Matrix by Values", "", "", "" );
-    CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values" );
+    CAF_PDM_InitFieldNoDefault( &m_sortByValues, "CorrelationSorting", "Sort Matrix by Values" );
+    CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values" );
     CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
                        "ExcludeParamsWithoutVariation",
                        true,
-                       "Exclude Parameters Without Variation",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
+                       "Exclude Parameters Without Variation" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
@@ -341,11 +339,9 @@ void RimCorrelationMatrixPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimCorrelationMatrixPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimCorrelationMatrixPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options =
-        RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_selectedParametersList )
     {
@@ -368,18 +364,18 @@ void RimCorrelationMatrixPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_selectedVarsUiField = selectedQuantitiesText();
+    m_selectedVarsUiField = selectedVectorNamesText();
 
     if ( m_plotWidget )
     {
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotItem );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotBarChart );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotItem );
 
         updateLegend();
         createMatrix();
 
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
 
         this->updateAxes();
         this->updatePlotTitle();
@@ -402,14 +398,18 @@ void RimCorrelationMatrixPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisScaleDraw( QwtPlot::yLeft, new TextScaleDraw( m_resultLabels ) );
-    m_plotWidget->setAxisScaleEngine( QwtPlot::yLeft, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Result Vector" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
-    m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::yLeft, true, false );
-    m_plotWidget->setAxisRange( QwtPlot::yLeft, 0.0, (double)m_resultLabels.size() + 1 );
-    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::yLeft,
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::YLeft, new TextScaleDraw( m_resultLabels ) );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::YLeft, new RiuQwtLinearScaleEngine );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Result Vector" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter );
+    m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(), true, false );
+    m_plotWidget->setAxisRange( RiuPlotAxis::defaultLeft(), 0.0, (double)m_resultLabels.size() + 1 );
+    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis::defaultLeft(),
                                                          1.0,
                                                          0.0,
                                                          0.5,
@@ -419,19 +419,18 @@ void RimCorrelationMatrixPlot::updateAxes()
 
     auto scaleDraw = new TextScaleDraw( m_paramLabels );
     scaleDraw->setLabelRotation( 30.0 );
-    m_plotWidget->setAxisScaleDraw( QwtPlot::xBottom, scaleDraw );
-
-    m_plotWidget->setAxisScaleEngine( QwtPlot::xBottom, new RiuQwtLinearScaleEngine );
-    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Ensemble Parameter" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom,
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, scaleDraw );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new RiuQwtLinearScaleEngine );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Ensemble Parameter" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
                                             axisTitleFontSize(),
                                             axisValueFontSize(),
                                             false,
                                             Qt::AlignCenter | Qt::AlignTop );
-    m_plotWidget->setAxisLabelsAndTicksEnabled( QwtPlot::xBottom, true, false );
-    m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, (double)m_paramLabels.size() + 1 );
-    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( QwtPlot::xBottom,
+    m_plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultBottom(), true, false );
+    m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), 0.0, (double)m_paramLabels.size() + 1 );
+    m_plotWidget->setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis::defaultBottom(),
                                                          1.0,
                                                          0.0,
                                                          0.5,
@@ -439,7 +438,7 @@ void RimCorrelationMatrixPlot::updateAxes()
                                                          0.0,
                                                          (double)m_paramLabels.size() );
 
-    m_plotWidget->setAxisLabelAlignment( QwtPlot::xBottom, Qt::AlignRight );
+    m_plotWidget->qwtPlot()->setAxisLabelAlignment( QwtAxis::XBottom, Qt::AlignRight );
 }
 
 template <typename KeyType, typename ValueType>
@@ -639,8 +638,8 @@ void RimCorrelationMatrixPlot::createMatrix()
             marker->setLabel( textLabel );
             marker->setXValue( colIdx + 0.5 );
             marker->setYValue( rowIdx + 0.5 );
-            rectangle->attach( m_plotWidget );
-            marker->attach( m_plotWidget );
+            rectangle->attach( m_plotWidget->qwtPlot() );
+            marker->attach( m_plotWidget->qwtPlot() );
 
             m_paramLabels[colIdx] = correlationMatrixRows[rowIdx].m_values[colIdx];
         }
@@ -685,9 +684,12 @@ void RimCorrelationMatrixPlot::updateLegend()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationMatrixPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
+void RimCorrelationMatrixPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
 {
-    CorrelationMatrixShapeItem* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( plotItem );
+    RiuQwtPlotItem* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !qwtPlotItem ) return;
+
+    CorrelationMatrixShapeItem* matrixItem = dynamic_cast<CorrelationMatrixShapeItem*>( qwtPlotItem->qwtPlotItem() );
     if ( matrixItem )
     {
         matrixCellSelected.send( std::make_pair( matrixItem->parameter, matrixItem->curveDef ) );

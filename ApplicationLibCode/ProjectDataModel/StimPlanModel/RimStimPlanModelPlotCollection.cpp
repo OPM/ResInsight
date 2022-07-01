@@ -30,9 +30,9 @@ CAF_PDM_SOURCE_INIT( RimStimPlanModelPlotCollection, "StimPlanModelPlotCollectio
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelPlotCollection::RimStimPlanModelPlotCollection()
 {
-    CAF_PDM_InitScriptableObject( "StimPlan Model Plots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "StimPlan Model Plots", ":/WellLogPlots16x16.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelPlots, "StimPlanModelPlots", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModelPlots, "StimPlanModelPlots", "" );
     m_stimPlanModelPlots.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -41,7 +41,7 @@ RimStimPlanModelPlotCollection::RimStimPlanModelPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelPlotCollection::~RimStimPlanModelPlotCollection()
 {
-    m_stimPlanModelPlots.deleteAllChildObjects();
+    m_stimPlanModelPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,7 +76,7 @@ void RimStimPlanModelPlotCollection::addStimPlanModelPlot( RimStimPlanModelPlot*
 //--------------------------------------------------------------------------------------------------
 std::vector<RimStimPlanModelPlot*> RimStimPlanModelPlotCollection::stimPlanModelPlots() const
 {
-    return m_stimPlanModelPlots.childObjects();
+    return m_stimPlanModelPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,5 +84,5 @@ std::vector<RimStimPlanModelPlot*> RimStimPlanModelPlotCollection::stimPlanModel
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelPlotCollection::deleteAllPlots()
 {
-    m_stimPlanModelPlots.deleteAllChildObjects();
+    m_stimPlanModelPlots.deleteChildren();
 }

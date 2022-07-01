@@ -25,6 +25,11 @@
 
 #include <QProcess>
 
+// Disable deprecation warning for QProcess::start()
+#ifdef _MSC_VER
+#pragma warning( disable : 4996 )
+#endif
+
 CAF_PDM_SOURCE_INIT( RimProcess, "RimProcess" );
 
 int RimProcess::m_nextProcessId = 1;
@@ -37,15 +42,15 @@ RimProcess::RimProcess()
     int defId = m_nextProcessId++;
     m_monitor = new RimProcessMonitor( defId );
 
-    CAF_PDM_InitObject( "ResInsight Process", ":/Erase.png", "", "" );
+    CAF_PDM_InitObject( "ResInsight Process", ":/Erase.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_command, "Command", "Command", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_command, "Command", "Command" );
     m_command.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_description, "Description", "Description" );
     m_description.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_id, "ID", defId, "ID", "", "", "" );
+    CAF_PDM_InitField( &m_id, "ID", defId, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
 }
 

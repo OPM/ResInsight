@@ -31,7 +31,7 @@ RICF_SOURCE_INIT( RicSaveProjectFeature, "RicSaveProjectFeature", "saveProject" 
 //--------------------------------------------------------------------------------------------------
 RicSaveProjectFeature::RicSaveProjectFeature()
 {
-    CAF_PDM_InitFieldNoDefault( &m_filePath, "filePath", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filePath, "filePath", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

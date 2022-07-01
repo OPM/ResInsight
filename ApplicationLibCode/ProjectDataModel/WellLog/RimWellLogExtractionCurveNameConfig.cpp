@@ -31,13 +31,13 @@ CAF_PDM_SOURCE_INIT( RimWellLogExtractionCurveNameConfig, "RimWellLogExtractionC
 RimWellLogExtractionCurveNameConfig::RimWellLogExtractionCurveNameConfig()
     : RimNameConfig( "Log Extraction" )
 {
-    CAF_PDM_InitObject( "Well Log Extraction Curve Name Generator", "", "", "" );
+    CAF_PDM_InitObject( "Well Log Extraction Curve Name Generator" );
 
-    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", true, "Add Case Name", "", "", "" );
-    CAF_PDM_InitField( &m_addProperty, "AddProperty", true, "Add Property Type", "", "", "" );
-    CAF_PDM_InitField( &m_addWellName, "AddWellName", true, "Add Well Name", "", "", "" );
-    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_addDate, "AddDate", true, "Add Date", "", "", "" );
+    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", true, "Add Case Name" );
+    CAF_PDM_InitField( &m_addProperty, "AddProperty", true, "Add Property Type" );
+    CAF_PDM_InitField( &m_addWellName, "AddWellName", true, "Add Well Name" );
+    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", true, "Add Time Step" );
+    CAF_PDM_InitField( &m_addDate, "AddDate", true, "Add Date" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -30,19 +30,19 @@ CAF_PDM_SOURCE_INIT( RimFractureExportSettings, "RimFractureExportSettings" );
 //--------------------------------------------------------------------------------------------------
 RimFractureExportSettings::RimFractureExportSettings()
 {
-    CAF_PDM_InitObject( "RimFractureExportSettings", "", "", "" );
+    CAF_PDM_InitObject( "RimFractureExportSettings" );
 
-    CAF_PDM_InitFieldNoDefault( &fileName, "Filename", "Export Filename", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &fileName, "Filename", "Export Filename" );
     fileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &caseToApply, "CaseToApply", "Case to Apply", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &caseToApply, "CaseToApply", "Case to Apply" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimFractureExportSettings::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimFractureExportSettings::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

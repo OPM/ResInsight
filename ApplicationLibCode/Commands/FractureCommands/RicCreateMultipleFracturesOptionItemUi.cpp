@@ -31,10 +31,10 @@ CAF_PDM_SOURCE_INIT( RicCreateMultipleFracturesOptionItemUi, "RiuMultipleFractio
 //--------------------------------------------------------------------------------------------------
 RicCreateMultipleFracturesOptionItemUi::RicCreateMultipleFracturesOptionItemUi()
 {
-    CAF_PDM_InitField( &m_topKOneBased, "TopKLayer", 1, "Top K Layer", "", "", "" );
-    CAF_PDM_InitField( &m_baseKOneBased, "BaseKLayer", 1, "Base K Layer", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_fractureTemplate, "Template", "Template", "", "", "" );
-    CAF_PDM_InitField( &m_minSpacing, "MinSpacing", 300.0, "Spacing", "", "", "" );
+    CAF_PDM_InitField( &m_topKOneBased, "TopKLayer", 1, "Top K Layer" );
+    CAF_PDM_InitField( &m_baseKOneBased, "BaseKLayer", 1, "Base K Layer" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureTemplate, "Template", "Template" );
+    CAF_PDM_InitField( &m_minSpacing, "MinSpacing", 300.0, "Spacing" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -125,8 +125,7 @@ void RicCreateMultipleFracturesOptionItemUi::fieldChangedByUi( const caf::PdmFie
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicCreateMultipleFracturesOptionItemUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                   bool*                      useOptionsOnly )
+    RicCreateMultipleFracturesOptionItemUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

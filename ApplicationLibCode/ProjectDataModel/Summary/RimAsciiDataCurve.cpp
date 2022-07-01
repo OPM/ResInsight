@@ -22,7 +22,6 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimSummaryTimeAxisProperties.h"
 
@@ -42,12 +41,12 @@ CAF_PDM_SOURCE_INIT( RimAsciiDataCurve, "AsciiDataCurve" );
 //--------------------------------------------------------------------------------------------------
 RimAsciiDataCurve::RimAsciiDataCurve()
 {
-    CAF_PDM_InitObject( "ASCII Data Curve", ":/SummaryCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "ASCII Data Curve", ":/SummaryCurve16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeSteps, "TimeSteps", "Time Steps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_values, "Values", "Values", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_title, "Title", "Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis" );
+    CAF_PDM_InitFieldNoDefault( &m_timeSteps, "TimeSteps", "Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_values, "Values", "Values" );
+    CAF_PDM_InitFieldNoDefault( &m_title, "Title", "Title" );
 
     setSymbolSkipDistance( 10.0f );
     setLineThickness( 2 );
@@ -97,9 +96,9 @@ void RimAsciiDataCurve::setYAxis( RiaDefines::PlotAxis plotAxis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimAsciiDataCurve::yAxis() const
+RiuPlotAxis RimAsciiDataCurve::yAxis() const
 {
-    return m_plotAxis();
+    return RiuPlotAxis( m_plotAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -118,7 +117,7 @@ void RimAsciiDataCurve::updateZoomInParentPlot()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
 
-    plot->updateZoomInQwt();
+    plot->updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,13 +134,13 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType( plot );
-        bool isLogCurve = plot->isLogarithmicScaleEnabled( this->yAxis() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( this->yAxis() );
 
         if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
         {
             if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, useLogarithmicScale );
             }
             else
             {
@@ -157,17 +156,17 @@ void RimAsciiDataCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     }
                 }
 
-                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( times, values, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( times, values, useLogarithmicScale );
             }
         }
         else
         {
-            m_qwtPlotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+            m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), useLogarithmicScale );
         }
 
         updateZoomInParentPlot();
 
-        if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+        if ( m_parentPlot ) m_parentPlot->replot();
     }
 
     updateQwtPlotAxis();
@@ -198,17 +197,7 @@ void RimAsciiDataCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 void RimAsciiDataCurve::updateQwtPlotAxis()
 {
-    if ( m_qwtPlotCurve )
-    {
-        if ( this->yAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
-        }
-        else
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yRight );
-        }
-    }
+    if ( m_plotCurve ) updateAxisInPlot( this->yAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

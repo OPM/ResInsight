@@ -41,13 +41,32 @@ geometry.update()  # Commit updates back to ResInsight
 coord = [0, 0, 0]
 geometry.append_well_target(coord)
 
-# Append new well targets relative the the reference point
+# Append well target with fixed azimuth
 coord = [2229.10, -833.74, -74.70]
-target = geometry.append_well_target(coord)
+target = geometry.append_well_target(
+    coord, use_fixed_azimuth=True, fixed_azimuth_value=45.1
+)
+
+# Append well target with fixed inclination
+coord = [3403.15, -1938.61, -80.93]
+target = geometry.append_well_target(
+    coord, use_fixed_inclination=True, fixed_inclination_value=115.2
+)
 
 coord = [4577.21, -3043.47, -87.15]
 target = geometry.append_well_target(coord)
 geometry.update()
+
+# Read out estimated dogleg and azimuth/inclination for well targets
+for w in geometry.well_path_targets():
+    print(
+        "DL1:{}   DL2:{}   Azi: {}   Incl: {}".format(
+            w.estimated_dogleg1,
+            w.estimated_dogleg2,
+            w.estimated_azimuth,
+            w.estimated_inclination,
+        )
+    )
 
 # Add a curve intersection based on the modeled well path
 well_path_intersection = intersection_coll.add_new_object(rips.CurveIntersection)

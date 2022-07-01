@@ -18,29 +18,27 @@
 #include "RiuMultiPlotBook.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 
 #include "RimContextCommandBuilder.h"
 #include "RimMultiPlot.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimWellLogTrack.h"
 
+#include "RiuDragDrop.h"
 #include "RiuMainWindow.h"
 #include "RiuMultiPlotPage.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotObjectPicker.h"
-#include "RiuQwtPlotLegend.h"
-#include "RiuQwtPlotWidget.h"
+#include "RiuPlotWidget.h"
+#include "RiuSummaryMultiPlotPage.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafSelectionManager.h"
 
 #include "cvfAssert.h"
-
-#include "qwt_legend.h"
-#include "qwt_plot_layout.h"
-#include "qwt_plot_renderer.h"
-#include "qwt_scale_draw.h"
 
 #include <QDebug>
 #include <QFocusEvent>
@@ -49,6 +47,7 @@
 #include <QMdiSubWindow>
 #include <QMenu>
 #include <QPagedPaintDevice>
+#include <QPainter>
 #include <QScrollArea>
 #include <QScrollBar>
 #include <QTimer>
@@ -86,7 +85,7 @@ protected:
         for ( auto page : pages )
         {
             fullSize.setWidth( std::max( fullSize.width(), page->minimumSizeHint().width() ) );
-            fullSize.setHeight( fullSize.height() + 8 + page->minimumSizeHint().height() );
+            fullSize.setHeight( fullSize.height() + m_margins + page->minimumSizeHint().height() );
         }
         return fullSize;
     }
@@ -105,6 +104,10 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
     , m_titleVisible( true )
     , m_subTitlesVisible( true )
     , m_previewMode( true )
+    , m_currentPageIndex( 0 )
+    , m_goToPageAfterUpdate( false )
+    , m_pageTimerId( -1 )
+    , m_pageToGoTo( 0 )
 {
     const int spacing = 8;
 
@@ -125,11 +128,15 @@ RiuMultiPlotBook::RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* paren
     m_scrollArea->setVisible( true );
     m_book->setVisible( true );
 
+    m_scrollArea->viewport()->installEventFilter( this );
+    m_scrollArea->verticalScrollBar()->installEventFilter( this );
+
     setAutoFillBackground( true );
 
     this->setSizePolicy( QSizePolicy::Preferred, QSizePolicy::MinimumExpanding );
 
     setFocusPolicy( Qt::StrongFocus );
+    setAcceptDrops( true );
 
     QSize pageSize = m_plotDefinition->pageLayout().fullRectPixels( RiaGuiApplication::applicationResolution() ).size();
     applyPagePreviewBookSize( pageSize.width() );
@@ -156,7 +163,7 @@ RimViewWindow* RiuMultiPlotBook::ownerViewWindow() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::addPlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotBook::addPlot( RiuPlotWidget* plotWidget )
 {
     // Push the plot to the back of the list
     insertPlot( plotWidget, m_plotWidgets.size() );
@@ -165,16 +172,27 @@ void RiuMultiPlotBook::addPlot( RiuQwtPlotWidget* plotWidget )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::insertPlot( RiuQwtPlotWidget* plotWidget, size_t index )
+void RiuMultiPlotBook::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 {
     m_plotWidgets.insert( static_cast<int>( index ), plotWidget );
+    m_goToPageAfterUpdate = true;
+    m_pageToGoTo          = -2;
     scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::removePlot( RiuQwtPlotWidget* plotWidget )
+void RiuMultiPlotBook::removePlot( RiuPlotWidget* plotWidget )
+{
+    removePlotNoUpdate( plotWidget );
+    scheduleUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::removePlotNoUpdate( RiuPlotWidget* plotWidget )
 {
     if ( !plotWidget ) return;
 
@@ -182,8 +200,6 @@ void RiuMultiPlotBook::removePlot( RiuQwtPlotWidget* plotWidget )
     CVF_ASSERT( plotWidgetIdx >= 0 );
 
     m_plotWidgets.removeAt( plotWidgetIdx );
-
-    scheduleUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,19 +218,6 @@ void RiuMultiPlotBook::removeAllPlots()
 void RiuMultiPlotBook::setPlotTitle( const QString& plotTitle )
 {
     m_plotTitle = plotTitle;
-    for ( int i = 0; i < m_pages.size(); ++i )
-    {
-        int pageIndex = i + 1;
-        int pageCount = (int)m_pages.size();
-        if ( pageCount > pageIndex )
-        {
-            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( i + 1 ).arg( m_pages.size() ) );
-        }
-        else
-        {
-            m_pages[i]->setPlotTitle( QString( "%1" ).arg( m_plotTitle ) );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,6 +242,18 @@ void RiuMultiPlotBook::setSubTitlesVisible( bool visible )
     {
         page->setSubTitlesVisible( visible );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::scheduleTitleUpdate()
+{
+    for ( auto page : m_pages )
+    {
+        page->scheduleUpdate( RiaDefines::MultiPlotPageUpdateType::TITLE );
+    }
+    scheduleUpdate( RiaDefines::MultiPlotPageUpdateType::TITLE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +292,7 @@ void RiuMultiPlotBook::setAxisFontSizes( int axisTitleFontSize, int axisValueFon
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RiuMultiPlotBook::indexOfPlotWidget( RiuQwtPlotWidget* plotWidget )
+int RiuMultiPlotBook::indexOfPlotWidget( RiuPlotWidget* plotWidget )
 {
     return m_plotWidgets.indexOf( plotWidget );
 }
@@ -306,9 +321,9 @@ void RiuMultiPlotBook::setPagePreviewModeEnabled( bool previewMode )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::scheduleUpdate()
+void RiuMultiPlotBook::scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate )
 {
-    RiaPlotWindowRedrawScheduler::instance()->scheduleMultiPlotWindowUpdate( this );
+    RiaPlotWindowRedrawScheduler::instance()->scheduleMultiPlotBookUpdate( this, whatToUpdate );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,7 +331,7 @@ void RiuMultiPlotBook::scheduleUpdate()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::scheduleReplotOfAllPlots()
 {
-    for ( RiuQwtPlotWidget* plotWidget : visiblePlotWidgets() )
+    for ( RiuPlotWidget* plotWidget : visiblePlotWidgets() )
     {
         plotWidget->scheduleReplot();
     }
@@ -327,23 +342,31 @@ void RiuMultiPlotBook::scheduleReplotOfAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::renderTo( QPaintDevice* paintDevice )
 {
-    int    resolution = paintDevice->logicalDpiX();
-    double scaling    = resolution / static_cast<double>( RiaGuiApplication::applicationResolution() );
+    auto scaling = RiaDefines::scalingFactor( paintDevice );
 
-    bool     firstPage = true;
     QPainter painter( paintDevice );
-    for ( RiuMultiPlotPage* page : m_pages )
+
+    auto pagedDevice = dynamic_cast<QPagedPaintDevice*>( paintDevice );
+    if ( pagedDevice )
     {
-        if ( !firstPage )
+        bool firstPage = true;
+        for ( RiuMultiPlotPage* page : m_pages )
         {
-            QPagedPaintDevice* pagedDevice = dynamic_cast<QPagedPaintDevice*>( paintDevice );
-            if ( pagedDevice )
+            if ( !firstPage )
             {
                 pagedDevice->newPage();
             }
+            page->renderTo( &painter, scaling );
+            firstPage = false;
         }
-        page->renderTo( &painter, scaling );
-        firstPage = false;
+    }
+    else
+    {
+        if ( m_currentPageIndex < m_pages.size() )
+        {
+            auto page = m_pages[m_currentPageIndex];
+            page->renderTo( &painter, scaling );
+        }
     }
 }
 
@@ -373,8 +396,10 @@ void RiuMultiPlotBook::contextMenuEvent( QContextMenuEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuMultiPlotBook::showEvent( QShowEvent* event )
 {
+    m_goToPageAfterUpdate = true;
     QWidget::showEvent( event );
-    performUpdate();
+
+    performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
     if ( m_previewMode )
     {
         applyPagePreviewBookSize( width() );
@@ -383,6 +408,15 @@ void RiuMultiPlotBook::showEvent( QShowEvent* event )
     {
         applyBookSize( width(), height() );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::hideEvent( QHideEvent* event )
+{
+    m_pageToGoTo = m_currentPageIndex;
+    QWidget::hideEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -455,21 +489,76 @@ bool RiuMultiPlotBook::showYAxis( int row, int column ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMultiPlotBook::performUpdate()
+void RiuMultiPlotBook::performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate )
 {
+    if ( !m_plotDefinition || !m_plotDefinition->isValid() || !m_plotDefinition->showWindow() ) return;
+
     applyLook();
-    deleteAllPages();
-    createPages();
+    if ( ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::PLOT ) == RiaDefines::MultiPlotPageUpdateType::PLOT ) ||
+         m_pages.size() == 0 )
+    {
+        deleteAllPages();
+        createPages();
+    }
+    else if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::TITLE ) == RiaDefines::MultiPlotPageUpdateType::TITLE )
+    {
+        updatePageTitles();
+    }
+
     updateGeometry();
+
+    RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
+    if ( multiPlot ) multiPlot->checkAndApplyAutoAppearance();
+
+    // use a timer to trigger a viewer page change, if needed
+    if ( m_goToPageAfterUpdate )
+    {
+        m_pageTimerId         = startTimer( 50 );
+        m_goToPageAfterUpdate = false;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<QPointer<RiuQwtPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
+void RiuMultiPlotBook::updatePageTitles()
 {
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets;
-    for ( QPointer<RiuQwtPlotWidget> plotWidget : m_plotWidgets )
+    if ( m_pages.isEmpty() ) return;
+
+    if ( m_pages.size() > 1 )
+    {
+        for ( int i = 0; i < m_pages.size(); ++i )
+        {
+            int pageNumber = i + 1;
+            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( m_pages.size() ) );
+        }
+    }
+    else
+    {
+        m_pages[0]->setPlotTitle( QString( "%1" ).arg( m_plotTitle ) );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::timerEvent( QTimerEvent* event )
+{
+    if ( event->timerId() == m_pageTimerId )
+    {
+        killTimer( m_pageTimerId );
+        changeCurrentPage( m_pageToGoTo );
+        RiaGuiApplication::instance()->mainPlotWindow()->raise();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<QPointer<RiuPlotWidget>> RiuMultiPlotBook::visiblePlotWidgets() const
+{
+    QList<QPointer<RiuPlotWidget>> plotWidgets;
+    for ( QPointer<RiuPlotWidget> plotWidget : m_plotWidgets )
     {
         CAF_ASSERT( plotWidget );
         if ( plotWidget->isChecked() )
@@ -501,8 +590,8 @@ void RiuMultiPlotBook::createPages()
 {
     CAF_ASSERT( m_plotDefinition );
 
-    QList<QPointer<RiuQwtPlotWidget>> plotWidgets       = this->visiblePlotWidgets();
-    auto                              rowAndColumnCount = this->rowAndColumnCount( plotWidgets.size() );
+    QList<QPointer<RiuPlotWidget>> plotWidgets = this->visiblePlotWidgets();
+    auto [rowCount, columnCount]               = this->rowAndColumnCount( plotWidgets.size() );
 
     int rowsPerPage = m_plotDefinition->rowsPerPage();
     int row         = 0;
@@ -514,9 +603,9 @@ void RiuMultiPlotBook::createPages()
     for ( int visibleIndex = 0; visibleIndex < plotWidgets.size(); ++visibleIndex )
     {
         int expectedColSpan = static_cast<int>( plotWidgets[visibleIndex]->colSpan() );
-        int colSpan         = std::min( expectedColSpan, rowAndColumnCount.second );
+        int colSpan         = std::min( expectedColSpan, columnCount );
 
-        std::tie( row, column ) = page->findAvailableRowAndColumn( row, column, colSpan, rowAndColumnCount.second );
+        std::tie( row, column ) = page->findAvailableRowAndColumn( row, column, colSpan, columnCount );
         if ( row >= rowsPerPage )
         {
             page   = createPage();
@@ -525,20 +614,15 @@ void RiuMultiPlotBook::createPages()
         }
         CAF_ASSERT( plotWidgets[visibleIndex] );
         page->addPlot( plotWidgets[visibleIndex] );
-        page->performUpdate();
+        page->performUpdate( RiaDefines::MultiPlotPageUpdateType::ALL );
     }
 
     // Set page numbers in title when there's more than one page
-    if ( m_pages.size() > 1 )
-    {
-        for ( int i = 0; i < m_pages.size(); ++i )
-        {
-            int pageNumber = i + 1;
-            m_pages[i]->setPlotTitle( QString( "%1 %2/%3" ).arg( m_plotTitle ).arg( pageNumber ).arg( m_pages.size() ) );
-        }
-    }
-    m_book->adjustSize();
+    updatePageTitles();
+
+    adjustBookFrame();
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -554,7 +638,22 @@ RiuMultiPlotPage* RiuMultiPlotBook::createPage()
 {
     RiuMultiPlotPage* page = new RiuMultiPlotPage( m_plotDefinition, this );
 
-    // Reapply plot settings
+    applyPageSettings( page );
+
+    m_pages.push_back( page );
+    m_bookLayout->addWidget( page );
+
+    page->setVisible( true );
+    return page;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::applyPageSettings( RiuMultiPlotPage* page )
+{
+    if ( !page ) return;
+
     page->setPlotTitle( m_plotTitle );
     page->setTitleFontSizes( m_plotDefinition->titleFontSize(), m_plotDefinition->subTitleFontSize() );
     page->setLegendFontSize( m_plotDefinition->legendFontSize() );
@@ -562,12 +661,6 @@ RiuMultiPlotPage* RiuMultiPlotBook::createPage()
     page->setTitleVisible( m_titleVisible );
     page->setSubTitlesVisible( m_subTitlesVisible );
     page->setPagePreviewModeEnabled( m_previewMode );
-
-    m_pages.push_back( page );
-    m_bookLayout->addWidget( page );
-
-    page->setVisible( true );
-    return page;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -590,4 +683,112 @@ void RiuMultiPlotBook::applyLook()
         m_book->setBackgroundRole( QPalette::Window );
         m_book->setPalette( newPalette );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::changeCurrentPage( int pageNumber )
+{
+    if ( pageNumber < -1 ) pageNumber = m_pages.size() - 1;
+    m_currentPageIndex = pageNumber;
+    if ( m_currentPageIndex >= m_pages.size() ) m_currentPageIndex = m_pages.size() - 1;
+    if ( m_currentPageIndex < 0 ) m_currentPageIndex = 0;
+    if ( !m_pages.isEmpty() ) m_scrollArea->ensureWidgetVisible( m_pages[m_currentPageIndex] );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::scrollToPlot( RiuPlotWidget* plotWidget )
+{
+    int pageNum = 0;
+
+    for ( auto& page : m_pages )
+    {
+        if ( page->indexOfPlotWidget( plotWidget ) >= 0 )
+        {
+            changeCurrentPage( pageNum );
+            return;
+        }
+        pageNum++;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::goToNextPage()
+{
+    changeCurrentPage( m_currentPageIndex + 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::goToPrevPage()
+{
+    changeCurrentPage( m_currentPageIndex - 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::goToLastPage()
+{
+    changeCurrentPage( m_pages.size() - 1 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::keepCurrentPageAfterUpdate()
+{
+    m_goToPageAfterUpdate = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::dragEnterEvent( QDragEnterEvent* event )
+{
+    event->acceptProposedAction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::dropEvent( QDropEvent* event )
+{
+    std::vector<caf::PdmObjectHandle*> objects;
+
+    if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
+    {
+        RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
+        if ( multiPlot )
+        {
+            multiPlot->handleDroppedObjects( objects );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuMultiPlotBook::eventFilter( QObject* obj, QEvent* event )
+{
+    if ( event->type() == QEvent::Wheel )
+    {
+        event->accept();
+        return true;
+    }
+    return QWidget::eventFilter( obj, event );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotBook::adjustBookFrame()
+{
+    m_book->adjustSize();
 }

@@ -22,6 +22,7 @@
 #include "RiaQDateTimeTools.h"
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotWidget.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -40,7 +41,9 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include "qwt_plot.h"
 #include "qwt_plot_barchart.h"
+#include "qwt_text.h"
 
 #include <limits>
 #include <map>
@@ -55,21 +58,18 @@ RimCorrelationPlot::RimCorrelationPlot()
     : RimAbstractCorrelationPlot()
     , tornadoItemSelected( this )
 {
-    CAF_PDM_InitObject( "Correlation Tornado Plot", ":/CorrelationTornadoPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Correlation Tornado Plot", ":/CorrelationTornadoPlot16x16.png" );
 
-    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values", "", "", "" );
-    CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values", "", "", "" );
+    CAF_PDM_InitField( &m_showAbsoluteValues, "CorrelationAbsValues", false, "Show Absolute Values" );
+    CAF_PDM_InitField( &m_sortByAbsoluteValues, "CorrelationAbsSorting", true, "Sort by Absolute Values" );
     CAF_PDM_InitField( &m_excludeParametersWithoutVariation,
                        "ExcludeParamsWithoutVariation",
                        true,
-                       "Exclude Parameters Without Variation",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations", "", "", "" );
-    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns", "", "", "" );
+                       "Exclude Parameters Without Variation" );
+    CAF_PDM_InitField( &m_showOnlyTopNCorrelations, "ShowOnlyTopNCorrelations", true, "Show Only Top Correlations" );
+    CAF_PDM_InitField( &m_topNFilterCount, "TopNFilterCount", 20, "Number rows/columns" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedParametersList, "SelectedParameters", "Select Parameters" );
     m_selectedParametersList.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_selectedParametersList.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
@@ -147,11 +147,9 @@ void RimCorrelationPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options =
-        RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimAbstractCorrelationPlot::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_selectedParametersList )
     {
@@ -175,23 +173,23 @@ void RimCorrelationPlot::onLoadDataAndUpdate()
 {
     updateMdiWindowVisibility();
 
-    m_selectedVarsUiField = selectedQuantitiesText();
+    m_selectedVarsUiField = selectedVectorNamesText();
 
     if ( m_plotWidget && m_analyserOfSelectedCurveDefs )
     {
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotBarChart );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
 
         RiuGroupedBarChartBuilder chartBuilder;
 
         addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget,
+        chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(),
                                         Qt::Horizontal,
                                         m_showOnlyTopNCorrelations() ? m_topNFilterCount() : -1 );
         chartBuilder.setLabelFontSize( labelFontSize() );
 
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
         m_plotWidget->updateLegend();
 
         this->updateAxes();
@@ -207,22 +205,30 @@ void RimCorrelationPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Parameter" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::yLeft, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Parameter" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultLeft(),
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter );
 
-    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisFontsAndAlignment( QwtPlot::xBottom, axisTitleFontSize(), axisValueFontSize(), false, Qt::AlignCenter );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisFontsAndAlignment( RiuPlotAxis::defaultBottom(),
+                                            axisTitleFontSize(),
+                                            axisValueFontSize(),
+                                            false,
+                                            Qt::AlignCenter );
     if ( m_showAbsoluteValues )
     {
-        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient ABS" );
-        m_plotWidget->setAxisRange( QwtPlot::xBottom, 0.0, 1.0 );
+        m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient ABS" );
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), 0.0, 1.0 );
     }
     else
     {
-        m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "Pearson Correlation Coefficient" );
-        m_plotWidget->setAxisRange( QwtPlot::xBottom, -1.0, 1.0 );
+        m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "Pearson Correlation Coefficient" );
+        m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), -1.0, 1.0 );
     }
 }
 
@@ -276,9 +282,12 @@ void RimCorrelationPlot::updatePlotTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCorrelationPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int sampleIndex )
+void RimCorrelationPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int sampleIndex )
 {
-    QwtPlotBarChart* barChart = dynamic_cast<QwtPlotBarChart*>( plotItem );
+    RiuQwtPlotItem* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+    if ( !qwtPlotItem ) return;
+
+    QwtPlotBarChart* barChart = dynamic_cast<QwtPlotBarChart*>( qwtPlotItem->qwtPlotItem() );
     if ( barChart && !curveDefinitions().empty() )
     {
         auto curveDef = curveDefinitions().front();

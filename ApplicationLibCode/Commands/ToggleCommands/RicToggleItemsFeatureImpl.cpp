@@ -67,10 +67,9 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsAvailable()
     }
     else
     {
-        for ( size_t i = 0; i < selectedItems.size(); ++i )
+        for ( auto& selectedItem : selectedItems )
         {
-            caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItems[i] );
-
+            auto* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItem );
             if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
             {
                 return true;
@@ -100,55 +99,26 @@ bool RicToggleItemsFeatureImpl::isToggleCommandsForSubItems()
 //--------------------------------------------------------------------------------------------------
 void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggleType state )
 {
-    std::vector<caf::PdmUiItem*> selectedItems;
-    caf::SelectionManager::instance()->selectedItems( selectedItems );
-    if ( state != TOGGLE && selectedItems.size() == 1 )
+    auto fields = findToggleFieldsFromSelection( state );
+    if ( fields.empty() ) return;
+
+    auto lastField = fields.back();
+    for ( auto field : fields )
     {
-        // If only one item is selected, loop over its children, and toggle them instead of the
-        // selected item directly
+        bool value = !( field->v() );
 
-        // We need to get the children through the tree view, because that is where the actually shown children is
+        if ( state == TOGGLE_ON )
+            value = true;
+        else if ( state == TOGGLE_OFF )
+            value = false;
 
-        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
-
-        if ( !treeItem ) return;
-
-        for ( int cIdx = 0; cIdx < treeItem->childCount(); ++cIdx )
+        if ( field == lastField )
         {
-            caf::PdmUiTreeOrdering* child = treeItem->child( cIdx );
-            if ( !child ) continue;
-            if ( !child->isRepresentingObject() ) continue;
-
-            caf::PdmObjectHandle*   childObj            = child->object();
-            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
-
-            if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() )
-            {
-                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
-
-                if ( state == TOGGLE_ON ) field->setValueWithFieldChanged( true );
-                if ( state == TOGGLE_OFF ) field->setValueWithFieldChanged( false );
-                if ( state == TOGGLE_SUBITEMS ) field->setValueWithFieldChanged( !( field->v() ) );
-            }
+            field->setValueWithFieldChanged( value );
         }
-    }
-    else
-    {
-        for ( size_t i = 0; i < selectedItems.size(); ++i )
+        else
         {
-            caf::PdmUiObjectHandle* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItems[i] );
-
-            if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
-            {
-                caf::PdmField<bool>* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandle->objectToggleField() );
-
-                if ( state == TOGGLE_ON ) field->setValueWithFieldChanged( true );
-                if ( state == TOGGLE_OFF ) field->setValueWithFieldChanged( false );
-                if ( state == TOGGLE_SUBITEMS || state == TOGGLE )
-                {
-                    field->setValueWithFieldChanged( !( field->v() ) );
-                }
-            }
+            field->setValue( value );
         }
     }
 }
@@ -158,31 +128,28 @@ void RicToggleItemsFeatureImpl::setObjectToggleStateForSelection( SelectionToggl
 //--------------------------------------------------------------------------------------------------
 caf::PdmUiTreeView* RicToggleItemsFeatureImpl::findTreeView( const caf::PdmUiItem* uiItem )
 {
-    {
-        RiaFeatureCommandContext* context = RiaFeatureCommandContext::instance();
+    RiaFeatureCommandContext* context = RiaFeatureCommandContext::instance();
 
-        caf::PdmUiTreeView* customActiveTreeView = dynamic_cast<caf::PdmUiTreeView*>( context->object() );
-        if ( customActiveTreeView )
-        {
-            return customActiveTreeView;
-        }
+    auto* customActiveTreeView = dynamic_cast<caf::PdmUiTreeView*>( context->object() );
+    if ( customActiveTreeView )
+    {
+        return customActiveTreeView;
     }
 
+    auto* main3dWindow = RiaGuiApplication::instance()->mainWindow();
+    if ( main3dWindow )
     {
-        QModelIndex modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex( uiItem );
-        if ( modIndex.isValid() )
-        {
-            return RiuMainWindow::instance()->projectTreeView();
-        }
+        auto activeTree = main3dWindow->getTreeViewWithItem( uiItem );
+        if ( activeTree ) return activeTree;
     }
 
-    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+    auto* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     if ( mainPlotWindow )
     {
-        QModelIndex modIndex = mainPlotWindow->projectTreeView()->findModelIndex( uiItem );
-        if ( modIndex.isValid() )
+        auto activeTree = mainPlotWindow->getTreeViewWithItem( uiItem );
+        if ( activeTree )
         {
-            return mainPlotWindow->projectTreeView();
+            return activeTree;
         }
     }
 
@@ -199,8 +166,66 @@ caf::PdmUiTreeOrdering* RicToggleItemsFeatureImpl::findTreeItemFromSelectedUiIte
     if ( pdmUiTreeView )
     {
         QModelIndex modIndex = pdmUiTreeView->findModelIndex( uiItem );
-        return static_cast<caf::PdmUiTreeOrdering*>( modIndex.internalPointer() );
+        return pdmUiTreeView->uiTreeOrderingFromModelIndex( modIndex );
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmField<bool>*> RicToggleItemsFeatureImpl::findToggleFieldsFromSelection( SelectionToggleType state )
+{
+    std::vector<caf::PdmField<bool>*> fields;
+
+    std::vector<caf::PdmUiItem*> selectedItems;
+    caf::SelectionManager::instance()->selectedItems( selectedItems );
+    if ( state != TOGGLE && selectedItems.size() == 1 )
+    {
+        // If only one item is selected, loop over its children, and toggle them instead of the
+        // selected item directly
+
+        // We need to get the children through the tree view, because that is where the actually shown children is
+
+        caf::PdmUiTreeOrdering* treeItem = findTreeItemFromSelectedUiItem( selectedItems[0] );
+
+        if ( !treeItem ) return {};
+
+        for ( int cIdx = 0; cIdx < treeItem->childCount(); ++cIdx )
+        {
+            caf::PdmUiTreeOrdering* child = treeItem->child( cIdx );
+            if ( !child ) continue;
+            if ( !child->isRepresentingObject() ) continue;
+
+            caf::PdmObjectHandle*   childObj            = child->object();
+            caf::PdmUiObjectHandle* uiObjectHandleChild = uiObj( childObj );
+
+            if ( uiObjectHandleChild && uiObjectHandleChild->objectToggleField() )
+            {
+                auto* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandleChild->objectToggleField() );
+                if ( !field ) continue;
+
+                if ( state == SelectionToggleType::TOGGLE_ON && field->value() ) continue;
+                if ( state == SelectionToggleType::TOGGLE_OFF && !field->value() ) continue;
+
+                fields.emplace_back( field );
+            }
+        }
+    }
+    else
+    {
+        for ( auto& selectedItem : selectedItems )
+        {
+            auto* uiObjectHandle = dynamic_cast<caf::PdmUiObjectHandle*>( selectedItem );
+            if ( uiObjectHandle && uiObjectHandle->objectToggleField() )
+            {
+                auto* field = dynamic_cast<caf::PdmField<bool>*>( uiObjectHandle->objectToggleField() );
+
+                fields.emplace_back( field );
+            }
+        }
+    }
+
+    return fields;
 }

@@ -31,13 +31,13 @@ CAF_PDM_SOURCE_INIT( RimWellLogPlotNameConfig, "RimWellLogPlotNameConfig" );
 RimWellLogPlotNameConfig::RimWellLogPlotNameConfig()
     : RimNameConfig( "Well Log Plot" )
 {
-    CAF_PDM_InitObject( "Well Log Plot Name Generator", "", "", "" );
+    CAF_PDM_InitObject( "Well Log Plot Name Generator" );
 
-    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", false, "Show Case Name", "", "", "" );
-    CAF_PDM_InitField( &m_addWellName, "AddWellName", false, "Show Well Name", "", "", "" );
-    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", false, "Show Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_addAirGap, "AddAirGap", false, "Show Air Gap", "", "", "" );
-    CAF_PDM_InitField( &m_addWaterDepth, "AddWaterDepth", false, "Show Water Depth", "", "", "" );
+    CAF_PDM_InitField( &m_addCaseName, "AddCaseName", false, "Show Case Name" );
+    CAF_PDM_InitField( &m_addWellName, "AddWellName", false, "Show Well Name" );
+    CAF_PDM_InitField( &m_addTimestep, "AddTimeStep", false, "Show Time Step" );
+    CAF_PDM_InitField( &m_addAirGap, "AddAirGap", false, "Show Air Gap" );
+    CAF_PDM_InitField( &m_addWaterDepth, "AddWaterDepth", false, "Show Water Depth" );
 }
 
 //--------------------------------------------------------------------------------------------------

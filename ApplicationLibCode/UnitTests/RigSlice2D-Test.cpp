@@ -16,9 +16,9 @@ TEST( RigSlice2DTest, GetAndSet )
 
     for ( size_t y = 0; y < ny; y++ )
         for ( size_t x = 0; x < nx; x++ )
-            slice.setValue( x, y, x * y );
+            slice.setValue( x, y, static_cast<double>( x * y ) );
 
     for ( size_t y = 0; y < ny; y++ )
         for ( size_t x = 0; x < nx; x++ )
-            EXPECT_EQ( x * y, slice.getValue( x, y ) );
+            EXPECT_EQ( static_cast<double>( x * y ), slice.getValue( x, y ) );
 }

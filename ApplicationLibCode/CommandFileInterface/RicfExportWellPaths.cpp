@@ -45,8 +45,8 @@ CAF_PDM_SOURCE_INIT( RicfExportWellPaths, "exportWellPaths" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellPaths::RicfExportWellPaths()
 {
-    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_mdStepSize, "mdStepSize", 5.0, "MD Step Size", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPathNames, "wellPathNames", std::vector<QString>(), "Well Path Names" );
+    CAF_PDM_InitScriptableField( &m_mdStepSize, "mdStepSize", 5.0, "MD Step Size" );
 }
 
 //--------------------------------------------------------------------------------------------------

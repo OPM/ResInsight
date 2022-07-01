@@ -37,14 +37,14 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementCollection, "WellMeasurements" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementCollection::RimWellMeasurementCollection()
 {
-    CAF_PDM_InitObject( "Well Measurements", ":/WellMeasurement16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well Measurements", ":/WellMeasurement16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_measurements, "Measurements", "Well Measurements", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_measurements, "Measurements", "Well Measurements" );
     m_measurements.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_measurements.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_measurements.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_importedFiles, "ImportedFiles", "Imported Files", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_importedFiles, "ImportedFiles", "Imported Files" );
     m_importedFiles.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -89,7 +89,7 @@ void RimWellMeasurementCollection::deleteAllEmptyCurves()
 
     for ( auto curve : measurementCurves )
     {
-        if ( curve->curveData()->xValues().empty() )
+        if ( curve->curveData()->propertyValues().empty() )
         {
             RimWellLogTrack* track = nullptr;
             curve->firstAncestorOrThisOfTypeAsserted( track );
@@ -129,7 +129,7 @@ bool RimWellMeasurementCollection::isEmpty() const
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::insertMeasurement( RimWellMeasurement* insertBefore, RimWellMeasurement* measurement )
 {
-    size_t index = m_measurements.index( insertBefore );
+    size_t index = m_measurements.indexOf( insertBefore );
     if ( index < m_measurements.size() )
         m_measurements.insert( index, measurement );
     else
@@ -154,7 +154,7 @@ void RimWellMeasurementCollection::appendMeasurement( RimWellMeasurement* measur
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measurementToDelete )
 {
-    m_measurements.removeChildObject( measurementToDelete );
+    m_measurements.removeChild( measurementToDelete );
     delete measurementToDelete;
 
     this->updateAllCurves();
@@ -165,7 +165,7 @@ void RimWellMeasurementCollection::deleteMeasurement( RimWellMeasurement* measur
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::deleteAllMeasurements()
 {
-    m_measurements.deleteAllChildObjects();
+    m_measurements.deleteChildren();
     this->updateAllCurves();
 }
 
@@ -243,7 +243,7 @@ void RimWellMeasurementCollection::addFilePath( const QString& filePath )
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::removeFilePath( RimWellMeasurementFilePath* measurementFilePath )
 {
-    m_importedFiles.removeChildObject( measurementFilePath );
+    m_importedFiles.removeChild( measurementFilePath );
     delete measurementFilePath;
 }
 
@@ -265,7 +265,7 @@ void RimWellMeasurementCollection::removeMeasurementsForFilePath( RimWellMeasure
     // Remove then remove them without invalidating the iterator
     for ( unsigned int i = 0; i < measurementsToRemove.size(); i++ )
     {
-        m_measurements.removeChildObject( measurementsToRemove[i] );
+        m_measurements.removeChild( measurementsToRemove[i] );
         delete measurementsToRemove[i];
     }
 

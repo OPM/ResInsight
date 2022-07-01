@@ -20,6 +20,7 @@
 
 #include "RiaFieldHandleTools.h"
 #include "RiaLogging.h"
+#include "RiaPreferencesSummary.h"
 
 #include "cafPdmField.h"
 #include "cafPdmUiFilePathEditor.h"
@@ -35,7 +36,7 @@ RimPlotTemplateFileItem::RimPlotTemplateFileItem()
 {
     CAF_PDM_InitObject( "PlotTemplateFileItem", ":/SummaryTemplate16x16.png", "Plot Template", "" );
 
-    CAF_PDM_InitField( &m_absoluteFileName, "AbsolutePath", QString(), "Location", "", "", "" );
+    CAF_PDM_InitField( &m_absoluteFileName, "AbsolutePath", QString(), "Location" );
     m_absoluteFileName.uiCapability()->setUiReadOnly( true );
 }
 
@@ -55,6 +56,9 @@ void RimPlotTemplateFileItem::setFilePath( const QString& filePath )
     this->uiCapability()->setUiName( fi.baseName() );
 
     m_absoluteFileName = filePath;
+
+    if ( isEnsembleTemplate() )
+        this->uiCapability()->setUiIcon( caf::IconProvider( ":/SummaryEnsembleTemplate16x16.png" ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,4 +67,40 @@ void RimPlotTemplateFileItem::setFilePath( const QString& filePath )
 QString RimPlotTemplateFileItem::absoluteFilePath() const
 {
     return m_absoluteFileName();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotTemplateFileItem::isEnsembleTemplate() const
+{
+    return m_absoluteFileName().toLower().endsWith( ".erpt" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotTemplateFileItem::updateIconState()
+{
+    caf::IconProvider iconProvider = this->uiIconProvider();
+    if ( !iconProvider.valid() ) return;
+
+    if ( isDefaultTemplate() )
+    {
+        iconProvider.setOverlayResourceString( ":/CheckOverlay16x16.png" );
+    }
+    else
+    {
+        iconProvider.setOverlayResourceString( "" );
+    }
+
+    this->setUiIcon( iconProvider );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotTemplateFileItem::isDefaultTemplate() const
+{
+    return RiaPreferencesSummary::current()->isDefaultSummaryPlotTemplate( absoluteFilePath() );
 }

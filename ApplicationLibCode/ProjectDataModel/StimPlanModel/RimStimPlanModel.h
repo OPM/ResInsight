@@ -192,10 +192,13 @@ public:
 
     QString unitForProperty( RiaDefines::CurveProperty curveProperty ) const;
 
+    static cvf::Vec3d projectVectorIntoFracturePlane( const cvf::Vec3d& position,
+                                                      const cvf::Vec3d& fractureDirectionNormal,
+                                                      const cvf::Vec3d& direction );
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
@@ -207,6 +210,8 @@ private:
     void updateDistanceToBarrierAndDip();
     void updateThicknessDirectionWellPathName();
     void updatePerforationInterval();
+
+    cvf::Vec3d computeFractureDirectionNormal( RimWellPath* wellPath, const cvf::Vec3d& position ) const;
 
     RigEclipseCaseData* getEclipseCaseData() const;
 
@@ -242,6 +247,7 @@ protected:
     caf::PdmField<cvf::Vec3d>                   m_anchorPosition;
     caf::PdmProxyValueField<cvf::Vec3d>         m_anchorPositionForUi;
     caf::PdmField<cvf::Vec3d>                   m_thicknessDirection;
+    caf::PdmField<cvf::Vec3d>                   m_originalThicknessDirection;
     caf::PdmField<double>                       m_boundingBoxVertical;
     caf::PdmField<double>                       m_boundingBoxHorizontal;
     caf::PdmPtrField<RimModeledWellPath*>       m_thicknessDirectionWellPath;

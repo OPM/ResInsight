@@ -99,6 +99,8 @@ void RivWellFracturePartMgr::appendGeometryPartsToModel( cvf::ModelBasicList* mo
 
     if ( stimPlanFracTemplate )
     {
+        createVisibleFracturePolygons( stimPlanFracTemplate, eclView );
+
         if ( eclView.fractureColors()->stimPlanResultColorType() == RimStimPlanColors::SINGLE_ELEMENT_COLOR )
         {
             auto part = createStimPlanElementColorSurfacePart( eclView );
@@ -1028,6 +1030,36 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanMeshPart( const RimEcl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RivWellFracturePartMgr::createVisibleFracturePolygons( RimStimPlanFractureTemplate* stimPlanFracTemplate,
+                                                            const RimEclipseView&        activeView )
+{
+    if ( !m_rimFracture->fractureGrid() ) return;
+
+    std::vector<RigFractureCell> stimPlanCells = m_rimFracture->fractureGrid()->fractureCells();
+
+    QString resultNameFromColors = activeView.fractureColors()->uiResultName();
+    QString resultUnitFromColors = activeView.fractureColors()->unit();
+
+    std::vector<double> prCellResults =
+        stimPlanFracTemplate->fractureGridResults( resultNameFromColors,
+                                                   resultUnitFromColors,
+                                                   stimPlanFracTemplate->activeTimeStepIndex() );
+
+    m_visibleFracturePolygons.clear();
+    for ( size_t cIdx = 0; cIdx < stimPlanCells.size(); ++cIdx )
+    {
+        if ( prCellResults[cIdx] > 1e-7 )
+        {
+            const RigFractureCell&  stimPlanCell        = stimPlanCells[cIdx];
+            std::vector<cvf::Vec3d> stimPlanCellPolygon = stimPlanCell.getPolygon();
+            m_visibleFracturePolygons.push_back( stimPlanCellPolygon );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 cvf::ref<cvf::DrawableGeo>
     RivWellFracturePartMgr::createStimPlanMeshDrawable( RimStimPlanFractureTemplate* stimPlanFracTemplate,
                                                         const RimEclipseView&        activeView )
@@ -1048,7 +1080,6 @@ cvf::ref<cvf::DrawableGeo>
                                                    resultUnitFromColors,
                                                    stimPlanFracTemplate->activeTimeStepIndex() );
 
-    m_visibleFracturePolygons.clear();
     for ( size_t cIdx = 0; cIdx < stimPlanCells.size(); ++cIdx )
     {
         if ( prCellResults[cIdx] > 1e-7 )
@@ -1059,7 +1090,6 @@ cvf::ref<cvf::DrawableGeo>
             {
                 stimPlanMeshVertices.push_back( static_cast<cvf::Vec3f>( cellCorner ) );
             }
-            m_visibleFracturePolygons.push_back( stimPlanCellPolygon );
         }
     }
 

@@ -28,6 +28,7 @@
 
 #include "cvfObject.h"
 
+#include <QDateTime>
 #include <map>
 
 class RifReaderRftInterface;
@@ -47,10 +48,18 @@ class RimWellLogRftCurve : public RimWellLogCurve
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum DerivedMDSource
+    enum class RftDataType
+    {
+        RFT_DATA,
+        RFT_SEGMENT_DATA
+    };
+
+private:
+    enum class DerivedMDSource
     {
         NO_SOURCE,
         WELL_PATH,
+        SEGMENT,
         OBSERVED_DATA
     };
 
@@ -58,9 +67,16 @@ public:
     RimWellLogRftCurve();
     ~RimWellLogRftCurve() override;
 
+    void    setWellName( const QString& wellName );
     QString wellName() const override;
+
     QString wellLogChannelUiName() const override;
     QString wellLogChannelUnits() const override;
+
+    void      setTimeStep( const QDateTime& dateTime );
+    QDateTime timeStep() const;
+
+    void setSegmentBranchId( int branchId );
 
     void                  setEclipseResultCase( RimEclipseResultCase* eclipseResultCase );
     RimEclipseResultCase* eclipseResultCase() const;
@@ -78,19 +94,18 @@ public:
     RifEclipseRftAddress rftAddress() const;
 
     void setDefaultAddress( QString wellName );
-    void updateWellChannelNameAndTimeStep();
 
     void setSimWellBranchData( bool branchDetection, int branchIndex );
 
 protected:
     // Overrides from RimWellLogPlotCurve
-    QString createCurveAutoName() override;
-    void    onLoadDataAndUpdate( bool updateParentPlot ) override;
+    QString               createCurveAutoName() override;
+    void                  onLoadDataAndUpdate( bool updateParentPlot ) override;
+    RiaDefines::PhaseType phaseType() const override;
 
     // Pdm overrrides
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     std::vector<QString> perPointLabels() const;
@@ -103,6 +118,7 @@ private:
     bool                createWellPathIdxToRftFileIdxMapping();
     size_t              rftFileIndex( size_t wellPathIndex );
     std::vector<size_t> sortedIndicesInRftFile();
+    void                updateWellChannelNameAndTimeStep();
 
     std::vector<double> xValues();
     std::vector<double> errorValues();
@@ -114,6 +130,8 @@ private:
     bool deriveMeasuredDepthFromObservedData( const std::vector<double>& tvDepthValues,
                                               std::vector<double>&       derivedMDValues );
 
+    int segmentBranchId() const;
+
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
@@ -123,6 +141,11 @@ private:
     caf::PdmField<QString>                      m_wellName;
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;
+
+    caf::PdmField<caf::AppEnum<RimWellLogRftCurve::RftDataType>> m_rftDataType;
+
+    caf::PdmField<QString> m_segmentResultName;
+    caf::PdmField<int>     m_segmentBranchId;
 
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;

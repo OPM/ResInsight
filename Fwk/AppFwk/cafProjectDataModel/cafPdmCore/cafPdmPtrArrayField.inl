@@ -24,7 +24,7 @@ PdmPtrArrayField<DataType*>::~PdmPtrArrayField()
 template <typename DataType>
 void PdmPtrArrayField<DataType*>::setValue( const std::vector<PdmPointer<DataType>>& fieldValue )
 {
-    this->clear();
+    this->clearWithoutDelete();
     this->insert( 0, fieldValue );
 }
 
@@ -43,7 +43,7 @@ const std::vector<PdmPointer<DataType>>& PdmPtrArrayField<DataType*>::value() co
 template <typename DataType>
 void PdmPtrArrayField<DataType*>::setValue( const std::vector<DataType*>& fieldValue )
 {
-    this->clear();
+    this->clearWithoutDelete();
     for ( DataType* rawPtr : fieldValue )
     {
         this->push_back( PdmPointer<DataType>( rawPtr ) );
@@ -141,10 +141,27 @@ size_t PdmPtrArrayField<DataType*>::count( const DataType* pointer ) const
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+template <typename DataType>
+size_t PdmPtrArrayField<DataType*>::indexOf( const PdmObjectHandle* obj ) const
+{
+    for ( size_t i = 0; i < m_pointers.size(); ++i )
+    {
+        if ( obj == m_pointers[i].rawPtr() )
+        {
+            return i;
+        }
+    }
+
+    return ( size_t )( -1 ); // Undefined size_t > m_pointers.size();
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Empty the container without deleting the objects pointed to.
 //--------------------------------------------------------------------------------------------------
 template <typename DataType>
-void PdmPtrArrayField<DataType*>::clear()
+void PdmPtrArrayField<DataType*>::clearWithoutDelete()
 {
     CAF_ASSERT( isInitializedByInitFieldMacro() );
 
@@ -168,23 +185,6 @@ void PdmPtrArrayField<DataType*>::erase( size_t index )
     }
 
     m_pointers.erase( m_pointers.begin() + index );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Get the index of the given object pointer
-//--------------------------------------------------------------------------------------------------
-template <typename DataType>
-size_t PdmPtrArrayField<DataType*>::index( DataType* pointer )
-{
-    for ( size_t i = 0; i < m_pointers.size(); ++i )
-    {
-        if ( pointer == m_pointers[i].p() )
-        {
-            return i;
-        }
-    }
-
-    return ( size_t )( -1 ); // Undefined size_t > m_pointers.size();
 }
 
 //--------------------------------------------------------------------------------------------------

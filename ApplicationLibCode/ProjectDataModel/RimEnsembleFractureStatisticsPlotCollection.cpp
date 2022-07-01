@@ -30,9 +30,9 @@ CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatisticsPlotCollection, "EnsembleFract
 //--------------------------------------------------------------------------------------------------
 RimEnsembleFractureStatisticsPlotCollection::RimEnsembleFractureStatisticsPlotCollection()
 {
-    CAF_PDM_InitObject( "Ensemble Fracture Statistics Plots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Fracture Statistics Plots", ":/WellLogPlots16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlots, "EnsembleFractureStatisticsPlots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlots, "EnsembleFractureStatisticsPlots", "" );
     m_ensembleFractureStatisticsPlots.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -69,7 +69,7 @@ void RimEnsembleFractureStatisticsPlotCollection::addEnsembleFractureStatisticsP
 std::vector<RimEnsembleFractureStatisticsPlot*>
     RimEnsembleFractureStatisticsPlotCollection::ensembleFractureStatisticsPlots() const
 {
-    return m_ensembleFractureStatisticsPlots.childObjects();
+    return m_ensembleFractureStatisticsPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,5 +77,5 @@ std::vector<RimEnsembleFractureStatisticsPlot*>
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatisticsPlotCollection::deleteAllPlots()
 {
-    m_ensembleFractureStatisticsPlots.deleteAllChildObjects();
+    m_ensembleFractureStatisticsPlots.deleteChildren();
 }

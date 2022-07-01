@@ -53,7 +53,7 @@ QVerticalScrollArea::QVerticalScrollArea( QWidget* parent )
     : QScrollArea( parent )
 {
     setWidgetResizable( true );
-    setHorizontalScrollBarPolicy( Qt::ScrollBarAlwaysOff );
+    setHorizontalScrollBarPolicy( Qt::ScrollBarAsNeeded );
     setVerticalScrollBarPolicy( Qt::ScrollBarAsNeeded );
 }
 
@@ -65,6 +65,7 @@ QSize QVerticalScrollArea::sizeHint() const
     QSize widgetSize = widget()->sizeHint();
     QSize scrollSize = QScrollArea::sizeHint();
     scrollSize.setWidth( widgetSize.width() + verticalScrollBar()->width() );
+
     return scrollSize;
 }
 
@@ -73,9 +74,9 @@ QSize QVerticalScrollArea::sizeHint() const
 //--------------------------------------------------------------------------------------------------
 QSize QVerticalScrollArea::minimumSizeHint() const
 {
-    QSize widgetSize = widget()->minimumSizeHint();
     QSize scrollSize = QScrollArea::minimumSizeHint();
-    scrollSize.setWidth( widgetSize.width() + verticalScrollBar()->width() );
+    scrollSize.setWidth( 10 );
+
     return scrollSize;
 }
 

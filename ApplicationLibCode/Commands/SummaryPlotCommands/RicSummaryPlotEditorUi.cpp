@@ -23,7 +23,6 @@
 #include "RiaGuiApplication.h"
 #include "RiaSummaryCurveDefinition.h"
 
-#include "RicSelectSummaryPlotUI.h"
 #include "RiuSummaryCurveDefinitionKeywords.h"
 
 #include "RimDerivedEnsembleCaseCollection.h"
@@ -42,14 +41,16 @@
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionUi.h"
 #include "RiuTools.h"
+
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
@@ -83,34 +84,35 @@ std::vector<T> toVector( const std::set<T>& set );
 ///
 //--------------------------------------------------------------------------------------------------
 RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
+    : m_plotContainer( nullptr )
 {
-    CAF_PDM_InitFieldNoDefault( &m_targetPlot, "TargetPlot", "Target Plot", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targetPlot, "TargetPlot", "Target Plot" );
 
-    CAF_PDM_InitField( &m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto", "", "", "" );
-    CAF_PDM_InitField( &m_appearanceApplyButton, "AppearanceApplyButton", false, "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_caseAppearanceType, "CaseAppearanceType", "Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_variableAppearanceType, "VariableAppearanceType", "Vector", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellAppearanceType, "WellAppearanceType", "Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_groupAppearanceType, "GroupAppearanceType", "Group", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoAppearanceAssignment, "UseAutoAppearanceAssignment", true, "Auto" );
+    CAF_PDM_InitField( &m_appearanceApplyButton, "AppearanceApplyButton", false, "" );
+    CAF_PDM_InitFieldNoDefault( &m_caseAppearanceType, "CaseAppearanceType", "Case" );
+    CAF_PDM_InitFieldNoDefault( &m_variableAppearanceType, "VariableAppearanceType", "Vector" );
+    CAF_PDM_InitFieldNoDefault( &m_wellAppearanceType, "WellAppearanceType", "Well" );
+    CAF_PDM_InitFieldNoDefault( &m_groupAppearanceType, "GroupAppearanceType", "Group" );
+    CAF_PDM_InitFieldNoDefault( &m_regionAppearanceType, "RegionAppearanceType", "Region" );
 
-    m_previewPlot.reset( new RimSummaryPlot() );
+    m_previewPlot = std::make_unique<RimSummaryPlot>();
 
-    CAF_PDM_InitFieldNoDefault( &m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_useAutoPlotTitleProxy, "UseAutoPlotTitle", "Auto Plot Title" );
     m_useAutoPlotTitleProxy.registerGetMethod( this, &RicSummaryPlotEditorUi::proxyPlotAutoTitle );
     m_useAutoPlotTitleProxy.registerSetMethod( this, &RicSummaryPlotEditorUi::proxyEnablePlotAutoTitle );
 
-    CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_applyButtonField, "ApplySelection", "" );
     m_applyButtonField = false;
     m_applyButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_applyButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_closeButtonField, "Close", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_closeButtonField, "Close", "" );
     m_closeButtonField = false;
     m_closeButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_closeButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_okButtonField, "OK", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_okButtonField, "OK", "" );
     m_okButtonField = false;
     m_okButtonField.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_okButtonField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -119,12 +121,12 @@ RicSummaryPlotEditorUi::RicSummaryPlotEditorUi()
     m_appearanceApplyButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_appearanceApplyButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LEFT );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveNameConfig, "SummaryCurveNameConfig", "SummaryCurveNameConfig" );
     m_curveNameConfig = new RimSummaryCurveAutoName();
     m_curveNameConfig.uiCapability()->setUiTreeHidden( true );
     m_curveNameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
-    m_summaryCurveSelectionEditor.reset( new RiuSummaryVectorSelectionWidgetCreator() );
+    m_summaryCurveSelectionEditor = std::make_unique<RiuSummaryVectorSelectionWidgetCreator>();
 
     m_summaryCurveSelectionEditor->summaryAddressSelection()->setFieldChangedHandler(
         [this]() { this->selectionEditorFieldChanged(); } );
@@ -162,6 +164,7 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*             
 
     if ( m_targetPlot )
     {
+        targetPlot->firstAncestorOfType( m_plotContainer );
         populateCurveCreator( *m_targetPlot );
         syncPreviewCurvesFromUiSelection();
         setInitialCurveVisibility( targetPlot );
@@ -172,6 +175,7 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*             
         setDefaultCurveSelection( defaultSources );
         m_previewPlot->enableAutoPlotTitle( true );
         syncPreviewCurvesFromUiSelection();
+        m_plotContainer = nullptr;
     }
 
     caf::PdmUiItem::updateConnectedEditors();
@@ -234,7 +238,7 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
         field->setValueWithFieldChanged( true );
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
     else if ( changedField == &m_useAutoAppearanceAssignment && m_useAutoAppearanceAssignment )
     {
@@ -257,24 +261,19 @@ void RicSummaryPlotEditorUi::fieldChangedByUi( const caf::PdmFieldHandle* change
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicSummaryPlotEditorUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RicSummaryPlotEditorUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_targetPlot )
     {
-        RimProject* proj = RimProject::current();
-
-        RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-
         // Create New Plot item
         QString displayName = "( New Plot )";
         options.push_back( caf::PdmOptionItemInfo( displayName, nullptr ) );
 
-        if ( summaryPlotColl )
+        if ( m_plotContainer )
         {
-            summaryPlotColl->summaryPlotItemInfos( &options );
+            m_plotContainer->summaryPlotItemInfos( &options );
         }
     }
 
@@ -340,6 +339,13 @@ void RicSummaryPlotEditorUi::syncPreviewCurvesFromUiSelection()
 {
     std::vector<RiaSummaryCurveDefinition> allCurveDefinitionsVector =
         m_summaryCurveSelectionEditor->summaryAddressSelection()->allCurveDefinitionsFromSelection();
+
+    auto curveSetDefs = m_summaryCurveSelectionEditor->summaryAddressSelection()->allCurveSetDefinitionsFromSelections();
+    for ( const auto& curveSet : curveSetDefs )
+    {
+        allCurveDefinitionsVector.emplace_back( curveSet.ensemble(), curveSet.summaryAddress() );
+    }
+
     std::set<RiaSummaryCurveDefinition> allCurveDefinitions =
         std::set<RiaSummaryCurveDefinition>( allCurveDefinitionsVector.begin(), allCurveDefinitionsVector.end() );
 
@@ -463,18 +469,7 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
     std::map<RimSummaryCurve*, std::pair<bool, bool>> stashedErrorBarsAndLegendVisibility;
     for ( const auto& curveDef : curveDefsToAdd )
     {
-        RimSummaryCase*  currentCase = curveDef.summaryCase();
-        RimSummaryCurve* curve       = new RimSummaryCurve();
-        if ( speedCheatsRequired )
-        {
-            stashedErrorBarsAndLegendVisibility[curve] = std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
-            curve->setErrorBarsVisible( false );
-            curve->setShowInLegend( false );
-        }
-        curve->setSummaryCaseY( currentCase );
-        curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress() );
-        curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
-        if ( currentCase->isObservedData() ) curve->setSymbolSkipDistance( 0 );
+        RimSummaryCase* currentCase = curveDef.summaryCase();
 
         if ( curveDef.isEnsembleCurve() )
         {
@@ -524,10 +519,22 @@ void RicSummaryPlotEditorUi::updatePreviewCurvesFromCurveDefinitions(
                     }
                 }
             }
-            curveSet->addCurve( curve );
         }
         else
         {
+            RimSummaryCurve* curve = new RimSummaryCurve();
+            if ( speedCheatsRequired )
+            {
+                stashedErrorBarsAndLegendVisibility[curve] =
+                    std::make_pair( curve->errorBarsVisible(), curve->showInLegend() );
+                curve->setErrorBarsVisible( false );
+                curve->setShowInLegend( false );
+            }
+            curve->setSummaryCaseY( currentCase );
+            curve->setSummaryAddressYAndApplyInterpolation( curveDef.summaryAddress() );
+            curve->applyCurveAutoNameSettings( *m_curveNameConfig() );
+            if ( currentCase && currentCase->isObservedData() ) curve->setSymbolSkipDistance( 0 );
+
             m_previewPlot->addCurveNoUpdate( curve );
             curveLookCalc.setupCurveLook( curve );
         }
@@ -627,10 +634,7 @@ void RicSummaryPlotEditorUi::populateCurveCreator( const RimSummaryPlot& sourceS
         previewCurveSetColl->addCurveSet( newCurveSet );
 
         RimSummaryCaseCollection* ensemble = curveSet->summaryCaseCollection();
-        for ( const auto& curve : curveSet->curves() )
-        {
-            curveDefs.push_back( curve->curveDefinitionY() );
-        }
+        curveDefs.emplace_back( ensemble, curveSet->summaryAddress() );
     }
 
     m_previewPlot->copyAxisPropertiesFromOther( sourceSummaryPlot );
@@ -688,7 +692,7 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
             copyEnsembleCurveAndAddToCurveSet( editedCurve, editedCurveSet );
         }
 
-        newCurveSet->setParentQwtPlotNoReplot( m_targetPlot->viewer() );
+        newCurveSet->setParentPlotNoReplot( m_targetPlot->plotWidget() );
     }
 
     m_targetPlot->enableAutoPlotTitle( m_useAutoPlotTitleProxy() );
@@ -713,7 +717,8 @@ void RicSummaryPlotEditorUi::copyCurveAndAddToPlot( const RimSummaryCurve* curve
         curveCopy->setCurveVisibility( true );
     }
 
-    plot->addCurveNoUpdate( curveCopy );
+    plot->addCurveNoUpdate( curveCopy, false );
+    curveCopy->setLeftOrRightAxisY( curve->axisY() );
 
     // The curve creator is not a descendant of the project, and need to be set manually
     curveCopy->setSummaryCaseY( curve->summaryCaseY() );
@@ -840,52 +845,35 @@ void RicSummaryPlotEditorUi::createNewPlot()
 {
     RimProject* proj = RimProject::current();
 
-    RimSummaryPlotCollection* summaryPlotColl = proj->mainPlotCollection()->summaryPlotCollection();
-    if ( summaryPlotColl )
+    RimSummaryPlot* newSummaryPlot = nullptr;
+
+    if ( !m_plotContainer )
     {
-        RimSummaryPlot* newSummaryPlot = nullptr;
-        if ( m_useAutoPlotTitleProxy() )
-        {
-            newSummaryPlot = summaryPlotColl->createSummaryPlotWithAutoTitle();
-        }
-        else
-        {
-            QString candidatePlotName;
-            if ( m_previewPlot )
-            {
-                candidatePlotName = m_previewPlot->generatedPlotTitleFromAllCurves();
-            }
+        std::vector<RimSummaryPlot*> plots;
+        m_plotContainer = RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( plots );
+    }
 
-            {
-                bool ok           = false;
-                candidatePlotName = QInputDialog::getText( nullptr,
-                                                           "New Summary Plot Name",
-                                                           "New Summary Plot Name",
-                                                           QLineEdit::Normal,
-                                                           candidatePlotName,
-                                                           &ok,
-                                                           RiuTools::defaultDialogFlags() );
-                if ( !ok )
-                {
-                    return;
-                }
+    if ( m_plotContainer )
+    {
+        newSummaryPlot = new RimSummaryPlot();
+        newSummaryPlot->setAsPlotMdiWindow();
+        newSummaryPlot->enableAutoPlotTitle( true );
+        m_plotContainer->addPlot( newSummaryPlot );
+    }
 
-                newSummaryPlot = summaryPlotColl->createNamedSummaryPlot( candidatePlotName );
-            }
+    if ( newSummaryPlot )
+    {
+        newSummaryPlot->loadDataAndUpdate();
+
+        if ( m_plotContainer )
+        {
+            m_plotContainer->updateConnectedEditors();
         }
 
-        if ( newSummaryPlot )
-        {
-            newSummaryPlot->loadDataAndUpdate();
+        m_targetPlot = newSummaryPlot;
 
-            summaryPlotColl->updateConnectedEditors();
-
-            m_targetPlot = newSummaryPlot;
-            updateTargetPlot();
-
-            RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-            mainPlotWindow->updateSummaryPlotToolBar();
-        }
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 }
 
@@ -900,7 +888,7 @@ void RicSummaryPlotEditorUi::updateCurveNames()
         curve->updateCurveNameNoLegendUpdate();
     }
 
-    if ( m_previewPlot && m_previewPlot->viewer() ) m_previewPlot->viewer()->updateLegend();
+    if ( m_previewPlot && m_previewPlot->plotWidget() ) m_previewPlot->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------

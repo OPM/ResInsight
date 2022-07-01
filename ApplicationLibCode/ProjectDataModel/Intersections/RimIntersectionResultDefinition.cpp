@@ -42,36 +42,36 @@ CAF_PDM_SOURCE_INIT( RimIntersectionResultDefinition, "IntersectionResultDefinit
 //--------------------------------------------------------------------------------------------------
 RimIntersectionResultDefinition::RimIntersectionResultDefinition()
 {
-    CAF_PDM_InitObject( "Intersection Result Definition", ":/CellResult.png", "", "" );
+    CAF_PDM_InitObject( "Intersection Result Definition", ":/CellResult.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
-    CAF_PDM_InitFieldNoDefault( &m_autoName, "IntersectionResultDefinitionDescription", "Description", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_autoName, "IntersectionResultDefinitionDescription", "Description" );
     m_autoName.registerGetMethod( this, &RimIntersectionResultDefinition::autoName );
     m_autoName.uiCapability()->setUiHidden( true );
     m_autoName.uiCapability()->setUiReadOnly( true );
     m_autoName.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDef", "EclipseResultDef", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDef", "EclipseResultDef" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_eclipseResultDefinition = new RimEclipseResultDefinition;
 
-    CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "GeoMechResultDef", "GeoMechResultDef", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "GeoMechResultDef", "GeoMechResultDef" );
     m_geomResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_geomResultDefinition = new RimGeoMechResultDefinition;
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "Legend" );
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_legendConfig = new RimRegularLegendConfig;
 
-    CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendConfig", "Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendConfig", "Legend" );
     m_ternaryLegendConfig.uiCapability()->setUiTreeHidden( true );
     m_ternaryLegendConfig.uiCapability()->setUiTreeChildrenHidden( false );
     m_ternaryLegendConfig = new RimTernaryLegendConfig;
@@ -390,9 +390,26 @@ void RimIntersectionResultDefinition::update2dIntersectionViews()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimIntersectionResultDefinition::setDefaultEclipseLegendConfig()
+{
+    bool useDiscreteLogLevels = false;
+    bool isCategoryResult     = m_eclipseResultDefinition->hasCategoryResult();
+
+    auto eclResultDef = this->eclipseResultDefinition();
+    eclResultDef->updateRangesForExplicitLegends( this->regularLegendConfig(),
+                                                  this->ternaryLegendConfig(),
+                                                  this->timeStep() );
+
+    m_legendConfig->setDefaultConfigForResultName( m_eclipseResultDefinition->resultVariable(),
+                                                   useDiscreteLogLevels,
+                                                   isCategoryResult );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimIntersectionResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                            bool*                      useOptionsOnly )
+    RimIntersectionResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

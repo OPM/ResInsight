@@ -21,12 +21,15 @@
 
 #include "RimIntersection.h"
 
+#include "RimIntersectionEnums.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrArrayField.h"
 
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
+class RimEclipseView;
 class RimIntersectionResultDefinition;
 class RimSimWellInView;
 class RimSimWellInViewCollection;
@@ -74,6 +77,13 @@ public:
 
     QString name() const override;
     void    setName( const QString& newName );
+
+    double                    upperFilterDepth( double sceneRadius ) const;
+    double                    lowerFilterDepth( double sceneRadius ) const;
+    RimIntersectionFilterEnum depthFilterType() const;
+
+    void setDepthOverride( bool collectionOverride );
+    void setDepthOverrideParameters( double upperThreshold, double lowerThreshold, RimIntersectionFilterEnum filterType );
 
     RimExtrudedCurveIntersection::CrossSectionEnum    type() const;
     RimExtrudedCurveIntersection::CrossSectionDirEnum direction() const;
@@ -126,8 +136,7 @@ protected:
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
 
@@ -151,8 +160,19 @@ private:
     std::vector<cvf::Vec3d> pointsXYD() const;
     void                    setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD );
 
+    RimEclipseView* eclipseView() const;
+
 private:
     caf::PdmField<QString> m_name;
+
+    caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_depthFilterType;
+    caf::PdmField<double>                                  m_depthUpperThreshold;
+    caf::PdmField<double>                                  m_depthLowerThreshold;
+
+    caf::PdmField<bool>                                    m_depthThresholdOverridden;
+    caf::PdmField<double>                                  m_collectionUpperThreshold;
+    caf::PdmField<double>                                  m_collectionLowerThreshold;
+    caf::PdmField<caf::AppEnum<RimIntersectionFilterEnum>> m_collectionDepthFilterType;
 
     caf::PdmField<caf::AppEnum<CrossSectionEnum>>    m_type;
     caf::PdmField<caf::AppEnum<CrossSectionDirEnum>> m_direction;

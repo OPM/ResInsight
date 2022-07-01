@@ -143,6 +143,7 @@ bool RiaArgumentParser::parseArguments( cvf::ProgramOptions* progOpt )
     progOpt->registerOption( "generate", "[<outputFile>]", "Generate code or documentation", cvf::ProgramOptions::SINGLE_VALUE );
     progOpt->registerOption( "ignoreArgs", "", "System command. Ignore all arguments. Mostly for testing purposes" );
     progOpt->registerOption( "version", "", "Display the application version string" );
+    progOpt->registerOption( "openplotwindow", "", "Open the 2D plot window. By default, the 3D window is displayed." );
 
     progOpt->setOptionPrefix( cvf::ProgramOptions::DOUBLE_DASH );
 

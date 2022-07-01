@@ -20,10 +20,6 @@
 
 #include "cafCmdFeature.h"
 
-class RimSummaryPlotCollection;
-class RimSummaryCase;
-class RimSummaryPlot;
-
 //==================================================================================================
 ///
 //==================================================================================================
@@ -36,7 +32,6 @@ public:
     static bool showWarningDialogWithQuestion();
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

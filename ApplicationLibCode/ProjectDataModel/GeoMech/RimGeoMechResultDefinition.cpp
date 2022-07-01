@@ -76,46 +76,37 @@ CAF_PDM_SOURCE_INIT( RimGeoMechResultDefinition, "GeoMechResultDefinition" );
 //--------------------------------------------------------------------------------------------------
 RimGeoMechResultDefinition::RimGeoMechResultDefinition( void )
 {
-    CAF_PDM_InitObject( "Color Result", ":/CellResult.png", "", "" );
+    CAF_PDM_InitObject( "Color Result", ":/CellResult.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultPositionType, "ResultPositionType", "Result Position", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultPositionType, "ResultPositionType", "Result Position" );
     m_resultPositionType.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_resultFieldName, "ResultFieldName", QString( "" ), "Field Name", "", "", "" );
+    CAF_PDM_InitField( &m_resultFieldName, "ResultFieldName", QString( "" ), "Field Name" );
     m_resultFieldName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_resultComponentName, "ResultComponentName", QString( "" ), "Component", "", "", "" );
+    CAF_PDM_InitField( &m_resultComponentName, "ResultComponentName", QString( "" ), "Component" );
     m_resultComponentName.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_timeLapseBaseTimestep,
                        "TimeLapseBaseTimeStep",
                        RigFemResultAddress::noTimeLapseValue(),
-                       "Base Time Step",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_referenceTimeStep, "ReferenceTimeStep", 0, "Reference Time Step", "", "", "" );
+                       "Base Time Step" );
+    CAF_PDM_InitField( &m_referenceTimeStep, "ReferenceTimeStep", 0, "Reference Time Step" );
 
-    CAF_PDM_InitField( &m_compactionRefLayer, "CompactionRefLayer", 0, "Compaction Ref Layer", "", "", "" );
+    CAF_PDM_InitField( &m_compactionRefLayer, "CompactionRefLayer", 0, "Compaction Ref Layer" );
     m_compactionRefLayer.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultPositionTypeUiField, "ResultPositionTypeUi", "Result Position" );
     m_resultPositionTypeUiField.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_resultVariableUiField, "ResultVariableUI", QString( "" ), "Value", "", "", "" );
+    CAF_PDM_InitField( &m_resultVariableUiField, "ResultVariableUI", QString( "" ), "Value" );
     m_resultVariableUiField.xmlCapability()->disableIO();
 
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitField( &m_normalizeByHydrostaticPressure,
-                       "NormalizeByHSP",
-                       false,
-                       "Normalize by Hydrostatic Pressure",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", 0.0, "Air Gap", "", "", "" );
+    CAF_PDM_InitField( &m_normalizeByHydrostaticPressure, "NormalizeByHSP", false, "Normalize by Hydrostatic Pressure" );
+    CAF_PDM_InitField( &m_normalizationAirGap, "NormalizationAirGap", 0.0, "Air Gap" );
     m_normalizationAirGap.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_compactionRefLayerUiField,
@@ -214,10 +205,9 @@ void RimGeoMechResultDefinition::defineUiOrdering( QString uiConfigName, caf::Pd
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimGeoMechResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
 
     if ( m_geomCase )
     {

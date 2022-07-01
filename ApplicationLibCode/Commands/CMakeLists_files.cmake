@@ -29,7 +29,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Ric3dViewPickEventHandler.h
     ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.h
     ${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.h
-    # General delete of any object in a child array field
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExecData.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemFeature.h
@@ -61,7 +60,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportStimPlanModelToFileFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicStackSelectedCurvesFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.h
@@ -79,6 +77,14 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionBandFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionCurveFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowGridCalculatorFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorDialog.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorUi.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -111,7 +117,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/Ric3dViewPickEventHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicContourMapPickEventHandler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicVec3dPickEventHandler.cpp
-    # General delete of any object in a child array field
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExec.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemExecData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteItemFeature.cpp
@@ -143,7 +148,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteTemporaryLgrsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportContourMapToTextUi.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewMultiPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportStimPlanModelToFileFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicStackSelectedCurvesFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicUnstackSelectedCurvesFeature.cpp
@@ -161,9 +165,17 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleWellLogUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionBandFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateSurfaceIntersectionCurveFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowGridCalculatorFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorDialog.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.cpp
 )
 
-if(Qt5Charts_FOUND)
+if(RESINSIGHT_USE_QT_CHARTS)
   list(
     APPEND SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateEnsembleFractureStatisticsPlotFeature.h
@@ -187,6 +199,9 @@ list(
   ${CMAKE_CURRENT_LIST_DIR}/RicRecursiveFileSearchDialog.h
   ${CMAKE_CURRENT_LIST_DIR}/RicSummaryCaseRestartDialog.h
   ${CMAKE_CURRENT_LIST_DIR}/RicResampleDialog.h
+  ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorDialog.h
+  ${CMAKE_CURRENT_LIST_DIR}/RicGridCalculatorDialog.h
+  ${CMAKE_CURRENT_LIST_DIR}/RicCalculatorWidgetCreator.h
 )
 
 source_group(

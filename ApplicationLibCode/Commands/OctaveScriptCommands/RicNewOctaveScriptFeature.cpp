@@ -45,17 +45,9 @@ CAF_CMD_SOURCE_INIT( RicNewOctaveScriptFeature, "RicNewOctaveScriptFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewOctaveScriptFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*>       calcScripts           = RicScriptFeatureImpl::selectedScripts();
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
-    if ( calcScripts.size() == 1u && calcScripts.front()->scriptType() == RimCalcScript::OCTAVE )
-    {
-        return true;
-    }
-    else if ( calcScriptCollections.size() == 1u && !calcScriptCollections.front()->directory().isEmpty() )
-    {
-        return true;
-    }
-    return false;
+    if ( calcScriptCollections.empty() ) return false;
+    return !calcScriptCollections.front()->directory().isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------

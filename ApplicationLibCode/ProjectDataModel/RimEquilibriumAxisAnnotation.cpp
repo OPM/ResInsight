@@ -52,12 +52,12 @@ CAF_PDM_SOURCE_INIT( RimEquilibriumAxisAnnotation, "RimEquilibriumAxisAnnotation
 RimEquilibriumAxisAnnotation::RimEquilibriumAxisAnnotation()
     : RimPlotAxisAnnotation()
 {
-    CAF_PDM_InitObject( "Equilibrium Annotation", ":/LeftAxis16x16.png", "", "" );
+    CAF_PDM_InitObject( "Equilibrium Annotation", ":/LeftAxis16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_annotationType, "AnnotationType", "AnnotationType", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_annotationType, "AnnotationType", "AnnotationType" );
 
-    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "Associated3DCase", "Eclipse Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_equilNum, "m_equilNum", "equil Num", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "Associated3DCase", "Eclipse Case" );
+    CAF_PDM_InitFieldNoDefault( &m_equilNum, "m_equilNum", "equil Num" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -112,8 +112,7 @@ QColor RimEquilibriumAxisAnnotation::color() const
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEquilibriumAxisAnnotation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RimEquilibriumAxisAnnotation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

@@ -28,9 +28,9 @@ CAF_PDM_SOURCE_INIT( RimPlotCellFilterCollection, "RimPlotCellFilterCollection" 
 //--------------------------------------------------------------------------------------------------
 RimPlotCellFilterCollection::RimPlotCellFilterCollection()
 {
-    CAF_PDM_InitObject( "Plot Cell Filters", "", "", "" );
+    CAF_PDM_InitObject( "Plot Cell Filters" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Cell Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Cell Filters" );
     m_cellFilters.uiCapability()->setUiTreeHidden( true );
 
     setName( "Filter Collection" );

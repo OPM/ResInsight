@@ -84,8 +84,6 @@ public:
     RimGeoMechView* createAndAddReservoirView();
     RimGeoMechView* createCopyAndAddView( const RimGeoMechView* sourceView );
 
-    void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override;
-
     std::vector<QDateTime> timeStepDates() const override;
     QStringList            timeStepStrings() const override;
     QString                timeStepName( int frameIdx ) const override;
@@ -133,8 +131,7 @@ private:
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void updateFormationNamesData() override;
 

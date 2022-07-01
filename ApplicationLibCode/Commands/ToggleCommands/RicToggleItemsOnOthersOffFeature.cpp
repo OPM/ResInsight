@@ -62,7 +62,9 @@ void RicToggleItemsOnOthersOffFeature::onActionTriggered( bool isChecked )
 
         if ( field )
         {
-            field->setValueWithFieldChanged( false );
+            // Avoid calling setValueWithFieldChanged() here, as this potentially can trigger heavy computations. Assume
+            // that the update logic is sufficient when setting the selected objects.
+            field->setValue( false );
         }
     }
 
@@ -120,7 +122,7 @@ std::vector<caf::PdmObjectHandle*> RicToggleItemsOnOthersOffFeature::childObject
     std::vector<caf::PdmObjectHandle*> children;
     if ( parent )
     {
-        parent->childObjects( &children );
+        parent->children( &children );
     }
     return children;
 }

@@ -32,6 +32,7 @@ class RiuQwtPlotWidget;
 
 class QwtPlotCurve;
 class QKeyEvent;
+class QWheelEvent;
 class QPaintDevice;
 
 //==================================================================================================
@@ -75,13 +76,16 @@ public:
     void        renderWindowContent( QPaintDevice* painter );
     QPageLayout pageLayout() const;
 
+    virtual bool handleGlobalKeyEvent( QKeyEvent* keyEvent );
+    virtual bool handleGlobalWheelEvent( QWheelEvent* wheelEvent );
+
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+
     void updateWindowVisibility();
 
 private:

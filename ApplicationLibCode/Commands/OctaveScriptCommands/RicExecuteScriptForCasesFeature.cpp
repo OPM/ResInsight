@@ -59,8 +59,7 @@ void RicExecuteScriptForCasesFeature::onActionTriggered( bool isChecked )
 {
     QString scriptAbsolutePath = userData().toString();
 
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    mainWindow->showProcessMonitorDockPanel();
+    if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->showProcessMonitorDockPanel();
 
     RiaApplication* app = RiaApplication::instance();
 

@@ -20,6 +20,8 @@
 
 #include "RiaGuiApplication.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RifEclipseSummaryAddress.h"
 #include "RifSummaryReaderInterface.h"
 
@@ -37,8 +39,8 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -80,8 +82,6 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
         project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
     if ( !sumCaseColl ) return;
 
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-
     std::vector<RimSimWellInView*> collection;
     caf::SelectionManager::instance()->objectsByType( &collection );
 
@@ -100,7 +100,9 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
         }
 
         description += well->name();
-        RimSummaryPlot* plot = summaryPlotColl->createNamedSummaryPlot( description );
+        RimSummaryPlot* plot = new RimSummaryPlot();
+        plot->setUiName( description );
+        RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
 
         if ( RimSimWellInViewTools::isInjector( well ) )
         {
@@ -210,7 +212,7 @@ void RicPlotProductionRateFeature::onActionTriggered( bool isChecked )
             }
         }
 
-        summaryPlotColl->updateConnectedEditors();
+        multiPlot->updateConnectedEditors();
         plot->loadDataAndUpdate();
 
         summaryPlotToSelect = plot;
@@ -278,7 +280,7 @@ RimSummaryCurve* RicPlotProductionRateFeature::addSummaryCurve( RimSummaryPlot* 
     newCurve->setSummaryCaseY( gridSummaryCase );
     newCurve->setSummaryAddressYAndApplyInterpolation( addr );
     newCurve->setColor( color );
-    newCurve->setLeftOrRightAxisY( plotAxis );
+    newCurve->setLeftOrRightAxisY( RiuPlotAxis( plotAxis ) );
     newCurve->loadDataAndUpdate( true );
 
     return newCurve;

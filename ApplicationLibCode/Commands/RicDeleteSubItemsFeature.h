@@ -32,12 +32,13 @@ class RicDeleteSubItemsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static bool hasDeletableSubItems( caf::PdmUiItem* uiItem );
+    static void deleteSubItems( bool onlyDeleteUnchecked );
+    static bool canCommandBeEnabled();
+
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    static bool hasDeletableSubItems( caf::PdmUiItem* uiItem );
 };

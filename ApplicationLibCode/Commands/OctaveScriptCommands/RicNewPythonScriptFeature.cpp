@@ -21,6 +21,7 @@
 
 #include "RiaApplication.h"
 #include "RiaLogging.h"
+#include "RiaPreferences.h"
 
 #include "RicRefreshScriptsFeature.h"
 #include "RicScriptFeatureImpl.h"
@@ -45,17 +46,9 @@ CAF_CMD_SOURCE_INIT( RicNewPythonScriptFeature, "RicNewPythonScriptFeature" );
 //--------------------------------------------------------------------------------------------------
 bool RicNewPythonScriptFeature::isCommandEnabled()
 {
-    std::vector<RimCalcScript*>       calcScripts           = RicScriptFeatureImpl::selectedScripts();
     std::vector<RimScriptCollection*> calcScriptCollections = RicScriptFeatureImpl::selectedScriptCollections();
-    if ( calcScripts.size() == 1u && calcScripts.front()->scriptType() == RimCalcScript::PYTHON )
-    {
-        return true;
-    }
-    else if ( calcScriptCollections.size() == 1u && !calcScriptCollections.front()->directory().isEmpty() )
-    {
-        return true;
-    }
-    return false;
+    if ( calcScriptCollections.empty() ) return false;
+    return !calcScriptCollections.front()->directory().isEmpty();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,7 +117,7 @@ void RicNewPythonScriptFeature::onActionTriggered( bool isChecked )
                       "resinsight.version_string())\n";
         }
 
-        scriptColl->readContentFromDisc();
+        scriptColl->readContentFromDisc( RiaPreferences::current()->maxScriptFoldersDepth() );
         scriptColl->updateConnectedEditors();
 
         if ( calcScript )

@@ -72,39 +72,34 @@ CAF_PDM_SOURCE_INIT( RimStimPlanFractureTemplate, "StimPlanFractureTemplate", "R
 //--------------------------------------------------------------------------------------------------
 RimStimPlanFractureTemplate::RimStimPlanFractureTemplate()
 {
-    CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name" );
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_userDefinedWellPathDepthAtFracture,
                        "UserDefinedWellPathDepthAtFracture",
                        false,
-                       "User-Defined Well/Fracture Intersection Depth",
-                       "",
-                       "",
-                       "" );
+                       "User-Defined Well/Fracture Intersection Depth" );
 
-    CAF_PDM_InitField( &m_borderPolygonResultName, "BorderPolygonResultName", QString( "" ), "Parameter", "", "", "" );
+    CAF_PDM_InitField( &m_borderPolygonResultName, "BorderPolygonResultName", QString( "" ), "Parameter" );
     m_borderPolygonResultName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_activeTimeStepIndex, "ActiveTimeStepIndex", 0, "Active TimeStep Index", "", "", "" );
+    CAF_PDM_InitField( &m_activeTimeStepIndex, "ActiveTimeStepIndex", 0, "Active TimeStep Index" );
     CAF_PDM_InitField( &m_conductivityResultNameOnFile,
                        "ConductivityResultName",
                        QString( "" ),
-                       "Active Conductivity Result Name",
-                       "",
-                       "",
-                       "" );
+                       "Active Conductivity Result Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_propertiesTable, "PropertiesTable", "Properties Table" );
     m_propertiesTable.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_propertiesTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_propertiesTable.uiCapability()->setUiReadOnly( true );
     m_propertiesTable.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "", "", "", "" );
+    CAF_PDM_InitField( &m_showStimPlanMesh_OBSOLETE, "ShowStimPlanMesh", true, "" );
     m_showStimPlanMesh_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_showStimPlanMesh_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     m_readError = false;
 
@@ -196,16 +191,6 @@ void RimStimPlanFractureTemplate::setFileName( const QString& fileName )
 QString RimStimPlanFractureTemplate::fileName()
 {
     return m_stimPlanFileName().path();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimStimPlanFractureTemplate::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                                  const QString& oldProjectPath )
-{
-    // m_stimPlanFileName = RimTools::relocateFile( m_stimPlanFileName(), newProjectPath, oldProjectPath, nullptr,
-    // nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -340,7 +325,7 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimStimPlanFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimStimPlanFractureTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -796,14 +781,6 @@ QString RimStimPlanFractureTemplate::mapUiResultNameToFileResultName( const QStr
     }
 
     return fileResultName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimStimPlanFractureTemplate::showStimPlanMesh() const
-{
-    return m_showStimPlanMesh_OBSOLETE();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -22,6 +22,7 @@
 #include "RiaApplication.h"
 #include "RiaColorTables.h"
 #include "RiaPreferences.h"
+#include "RiaResultNames.h"
 
 #include "RimEclipseView.h"
 #include "RimIntersectionCollection.h"
@@ -44,8 +45,8 @@ CAF_PDM_SOURCE_INIT( RimTernaryLegendConfig, "RimTernaryLegendConfig" );
 //--------------------------------------------------------------------------------------------------
 RimTernaryLegendConfig::RimTernaryLegendConfig()
 {
-    CAF_PDM_InitObject( "Ternary Color Legend", ":/Legend.png", "", "" );
-    CAF_PDM_InitField( &m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend", "", "", "" );
+    CAF_PDM_InitObject( "Ternary Color Legend", ":/Legend.png" );
+    CAF_PDM_InitField( &m_showLegend, "ShowTernaryLegend", true, "Show Ternary Legend" );
     m_showLegend.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &precision,
                        "Precision",
@@ -62,19 +63,19 @@ RimTernaryLegendConfig::RimTernaryLegendConfig()
                        "Switches between automatic and user defined range on the legend",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &applyLocalMinMax, "m_applyLocalMinMax", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &applyLocalMinMax, "m_applyLocalMinMax", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &applyLocalMinMax );
     applyLocalMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault( &applyGlobalMinMax, "m_applyGlobalMinMax", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &applyGlobalMinMax, "m_applyGlobalMinMax", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &applyGlobalMinMax );
     applyGlobalMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault( &applyFullRangeMinMax, "m_applyFullRangeMinMax", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &applyFullRangeMinMax, "m_applyFullRangeMinMax", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &applyFullRangeMinMax );
     applyFullRangeMinMax = false;
 
-    CAF_PDM_InitFieldNoDefault( &ternaryRangeSummary, "ternaryRangeSummary", "Range summary", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &ternaryRangeSummary, "ternaryRangeSummary", "Range summary" );
     ternaryRangeSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     ternaryRangeSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
@@ -301,19 +302,19 @@ void RimTernaryLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     {
         caf::PdmUiOrdering* ternaryGroupContainer = uiOrdering.addNewGroup( "Ternary " );
         {
-            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( "SGAS" );
+            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( RiaResultNames::sgas() );
             ternaryGroup->add( &userDefinedMinValueSgas );
             ternaryGroup->add( &userDefinedMaxValueSgas );
         }
 
         {
-            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( "SWAT" );
+            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( RiaResultNames::swat() );
             ternaryGroup->add( &userDefinedMinValueSwat );
             ternaryGroup->add( &userDefinedMaxValueSwat );
         }
 
         {
-            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( "SOIL" );
+            caf::PdmUiOrdering* ternaryGroup = ternaryGroupContainer->addNewGroup( RiaResultNames::soil() );
             ternaryGroup->add( &userDefinedMinValueSoil );
             ternaryGroup->add( &userDefinedMaxValueSoil );
         }

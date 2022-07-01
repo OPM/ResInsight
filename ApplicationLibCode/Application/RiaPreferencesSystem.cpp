@@ -46,62 +46,51 @@ CAF_PDM_SOURCE_INIT( RiaPreferencesSystem, "RiaPreferencesSystem" );
 //--------------------------------------------------------------------------------------------------
 RiaPreferencesSystem::RiaPreferencesSystem()
 {
-    CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders", "", "", "" );
+    CAF_PDM_InitField( &m_useShaders, "useShaders", true, "Use Shaders" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useShaders );
-    CAF_PDM_InitField( &m_showHud, "showHud", false, "Show 3D Information", "", "", "" );
+    CAF_PDM_InitField( &m_showHud, "showHud", false, "Show 3D Information" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showHud );
-    CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names", "", "", "" );
+    CAF_PDM_InitField( &m_appendClassNameToUiText, "appendClassNameToUiText", false, "Show Class Names" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendClassNameToUiText );
 
     CAF_PDM_InitField( &m_appendFieldKeywordToToolTipText,
                        "appendFieldKeywordToToolTipText",
                        false,
-                       "Show Field Keyword in ToolTip",
-                       "",
-                       "",
-                       "" );
+                       "Show Field Keyword in ToolTip" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_appendFieldKeywordToToolTipText );
 
-    CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree", "", "", "" );
+    CAF_PDM_InitField( &m_showViewIdInProjectTree, "showViewIdInTree", false, "Show View Id in Project Tree" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showViewIdInProjectTree );
 
-    CAF_PDM_InitField( &m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar", "", "", "" );
+    CAF_PDM_InitField( &m_showTestToolbar, "showTestToolbar", false, "Enable Test Toolbar" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showTestToolbar );
 
     CAF_PDM_InitField( &m_includeFractureDebugInfoFile,
                        "includeFractureDebugInfoFile",
                        false,
-                       "Include Fracture Debug Info for Completion Export",
-                       "",
-                       "",
-                       "" );
+                       "Include Fracture Debug Info for Completion Export" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_includeFractureDebugInfoFile );
 
-    CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_holoLensExportFolder, "holoLensExportFolder", "HoloLens Export Folder" );
     m_holoLensExportFolder.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_holoLensExportFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showProjectChangedDialog,
-                       "showProjectChangedDialog",
-                       true,
-                       "Show 'Project has changed' dialog",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_showProjectChangedDialog, "showProjectChangedDialog", true, "Show 'Project has changed' dialog" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProjectChangedDialog );
 
-    CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar", "", "", "" );
+    CAF_PDM_InitField( &m_showProgressBar, "showProgressBar", true, "Show Progress Bar" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showProgressBar );
 
-    CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)", "", "", "" );
+    CAF_PDM_InitField( &m_showPdfExportDialog, "showPdfExportDialog", true, "Show PDF Export Dialog" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showPdfExportDialog );
+
+    CAF_PDM_InitField( &m_gtestFilter, "gtestFilter", QString(), "Unit Test Filter (gtest)" );
+    CAF_PDM_InitField( &m_exportScalingFactor, "exportScalingFactor", -1.0, "Export Scaling Factor (<0 disable)" );
 
     CAF_PDM_InitField( &m_eclipseReaderMode,
                        "eclipseReaderMode",
                        EclipseTextFileReaderModeType( RiaPreferencesSystem::EclipseTextFileReaderMode::FILE ),
-                       "Eclipse Text File Import mode (GRDECL)",
-                       "",
-                       "",
-                       "" );
+                       "Eclipse Text File Import mode (GRDECL)" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +99,14 @@ RiaPreferencesSystem::RiaPreferencesSystem()
 RiaPreferencesSystem* RiaPreferencesSystem::current()
 {
     return RiaApplication::instance()->preferences()->systemPreferences();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaPreferencesSystem::setAppendClassNameToUiText( bool enable )
+{
+    m_appendClassNameToUiText = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -213,6 +210,22 @@ bool RiaPreferencesSystem::showProgressBar() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaPreferencesSystem::showPdfExportDialog() const
+{
+    return m_showPdfExportDialog();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RiaPreferencesSystem::exportPdfScalingFactor() const
+{
+    return m_exportScalingFactor();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaPreferencesSystem::EclipseTextFileReaderMode RiaPreferencesSystem::eclipseTextFileReaderMode() const
 {
     return m_eclipseReaderMode();
@@ -242,16 +255,17 @@ void RiaPreferencesSystem::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     uiOrdering.add( &m_includeFractureDebugInfoFile );
     uiOrdering.add( &m_holoLensExportFolder );
     uiOrdering.add( &m_showProgressBar );
+
+    uiOrdering.add( &m_showPdfExportDialog );
+    uiOrdering.add( &m_exportScalingFactor );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RiaPreferencesSystem::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RiaPreferencesSystem::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
 
     return options;
 }

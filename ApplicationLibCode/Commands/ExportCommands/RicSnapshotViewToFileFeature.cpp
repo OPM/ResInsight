@@ -51,7 +51,7 @@ CAF_CMD_SOURCE_INIT( RicSnapshotViewToFileFeature, "RicSnapshotViewToFileFeature
 //--------------------------------------------------------------------------------------------------
 void RicSnapshotViewToFileFeature::saveSnapshotAs( const QString& fileName, RimViewWindow* viewWindow )
 {
-    RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
+    auto* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
     if ( plotWindow && fileName.endsWith( ".pdf" ) )
     {
         savePlotPdfReportAs( fileName, plotWindow );
@@ -88,46 +88,35 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
 {
     if ( !plot || !plot->viewWidget() ) return;
 
+    auto viewWidget = plot->viewWidget();
+
     RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
     QCoreApplication::processEvents();
     QFile pdfFile( fileName );
     if ( pdfFile.open( QIODevice::WriteOnly ) )
     {
-        int resolution  = RiaGuiApplication::applicationResolution();
-        int pageWidth   = plot->pageLayout().fullRectPixels( resolution ).width();
-        int widgetWidth = plot->viewWidget()->width();
-        int deltaWidth  = widgetWidth - pageWidth;
+        int resolution = RiaGuiApplication::applicationResolution();
 
-        while ( std::abs( deltaWidth ) > 1 )
-        {
-            int newResolution = resolution + deltaWidth / std::abs( deltaWidth );
-            pageWidth         = plot->pageLayout().fullRectPixels( resolution ).width();
-            int newDeltaWidth = widgetWidth - pageWidth;
-            if ( std::abs( newDeltaWidth ) > std::abs( deltaWidth ) ) break;
-
-            resolution = newResolution;
-            deltaWidth = newDeltaWidth;
-        }
         QPdfWriter pdfPrinter( fileName );
         pdfPrinter.setPageLayout( plot->pageLayout() );
         pdfPrinter.setCreator( QCoreApplication::applicationName() );
         pdfPrinter.setResolution( resolution );
-        QRect widgetRect = plot->viewWidget()->contentsRect();
+        QRect widgetRect = viewWidget->contentsRect();
 
-        RimMultiPlot* multiPlot = dynamic_cast<RimMultiPlot*>( plot );
+        auto* multiPlot = dynamic_cast<RimMultiPlot*>( plot );
         if ( multiPlot && multiPlot->previewModeEnabled() )
         {
             QRect pageRect = pdfPrinter.pageLayout().fullRectPixels( resolution );
-            plot->viewWidget()->resize( pageRect.size() );
+            viewWidget->resize( pageRect.size() );
             plot->renderWindowContent( &pdfPrinter );
-            plot->viewWidget()->resize( widgetRect.size() );
+            viewWidget->resize( widgetRect.size() );
         }
         else
         {
             QRect pageRect = pdfPrinter.pageLayout().paintRectPixels( resolution );
-            plot->viewWidget()->resize( pageRect.size() );
+            viewWidget->resize( pageRect.size() );
             plot->renderWindowContent( &pdfPrinter );
-            plot->viewWidget()->resize( widgetRect.size() );
+            viewWidget->resize( widgetRect.size() );
         }
     }
     else
@@ -142,7 +131,7 @@ void RicSnapshotViewToFileFeature::savePlotPdfReportAs( const QString& fileName,
 void RicSnapshotViewToFileFeature::saveViewWindowToFile( RimViewWindow* viewWindow,
                                                          const QString& defaultFileBaseName /*= "image" */ )
 {
-    RimPlotWindow* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
+    auto* plotWindow = dynamic_cast<RimPlotWindow*>( viewWindow );
 
     QString fileName = generateSaveFileName( defaultFileBaseName, plotWindow != nullptr );
     if ( !fileName.isEmpty() )

@@ -28,7 +28,7 @@ CAF_PDM_SOURCE_INIT( RimCalculatedSummaryCase, "CalculatedSummaryCase" );
 //--------------------------------------------------------------------------------------------------
 RimCalculatedSummaryCase::RimCalculatedSummaryCase()
 {
-    CAF_PDM_InitObject( "Calculated", ":/SummaryCase.svg", "", "" );
+    CAF_PDM_InitObject( "Calculated", ":/SummaryCase.svg" );
 
     m_calculatedCurveReader = nullptr;
     m_displayName           = "Calculated";
@@ -73,14 +73,6 @@ RifSummaryReaderInterface* RimCalculatedSummaryCase::summaryReader()
     if ( !m_calculatedCurveReader ) createSummaryReaderInterface();
 
     return m_calculatedCurveReader.get();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCalculatedSummaryCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // Nothing to do here
 }
 
 //--------------------------------------------------------------------------------------------------

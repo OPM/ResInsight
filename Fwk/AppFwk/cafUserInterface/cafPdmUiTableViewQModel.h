@@ -100,6 +100,16 @@ public:
     bool isRepresentingBoolean( const QModelIndex& index ) const;
 
     void createPersistentPushButtonWidgets( QTableView* tableView );
+    void enableDropTarget( bool enable );
+
+protected:
+    bool dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& parent ) override;
+    Qt::DropActions supportedDropActions() const override;
+    bool            canDropMimeData( const QMimeData*   data,
+                                     Qt::DropAction     action,
+                                     int                row,
+                                     int                column,
+                                     const QModelIndex& parent ) const override;
 
 private:
     int               getFieldIndex( PdmFieldHandle* field ) const;
@@ -117,6 +127,7 @@ private:
     PdmPointer<PdmObjectHandle> m_ownerObject;
     PdmChildArrayFieldHandle*   m_pdmList;
     QString                     m_currentConfigName;
+    bool                        m_dropTargetEnabled;
 
     std::map<QString, PdmUiFieldEditorHandle*> m_fieldEditors;
     std::vector<int>                           m_modelColumnIndexToFieldIndex;

@@ -19,9 +19,12 @@
 #include "RicPasteSummaryPlotFeature.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 
+#include "RimMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
+
+#include "RiuPlotMainWindowTools.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
@@ -39,26 +42,18 @@ CAF_CMD_SOURCE_INIT( RicPasteSummaryPlotFeature, "RicPasteSummaryPlotFeature" );
 //--------------------------------------------------------------------------------------------------
 void RicPasteSummaryPlotFeature::copyPlotAndAddToCollection( RimSummaryPlot* sourcePlot )
 {
-    RimSummaryPlotCollection* plotColl = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryPlotCollection*>();
-
-    if ( plotColl )
+    auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot*>();
+    if ( multiPlot )
     {
-        RimSummaryPlot* newSummaryPlot = dynamic_cast<RimSummaryPlot*>(
-            sourcePlot->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-        CVF_ASSERT( newSummaryPlot );
+        auto plots = RicSummaryPlotBuilder::duplicatePlots( { sourcePlot } );
+        RicSummaryPlotBuilder::appendPlotsToMultiPlot( multiPlot, plots );
 
-        plotColl->addPlot( newSummaryPlot );
+        multiPlot->loadDataAndUpdate();
 
-        // Resolve references after object has been inserted into the data model
-        newSummaryPlot->resolveReferencesRecursively();
-        newSummaryPlot->initAfterReadRecursively();
+        // No main window has focus after paste operation, set focus to main plot window
+        RiuPlotMainWindowTools::showPlotMainWindow();
 
-        QString nameOfCopy = QString( "Copy of " ) + newSummaryPlot->description();
-        newSummaryPlot->setDescription( nameOfCopy );
-
-        plotColl->updateConnectedEditors();
-
-        newSummaryPlot->loadDataAndUpdate();
+        return;
     }
 }
 
@@ -72,12 +67,8 @@ bool RicPasteSummaryPlotFeature::isCommandEnabled()
 
     if ( !destinationObject ) return false;
 
-    RimSummaryPlotCollection* plotColl = nullptr;
-    destinationObject->firstAncestorOrThisOfType( plotColl );
-    if ( !plotColl )
-    {
-        return false;
-    }
+    auto multiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimMultiPlot*>();
+    if ( !multiPlot ) return false;
 
     return RicPasteSummaryPlotFeature::summaryPlots().size() > 0;
 }

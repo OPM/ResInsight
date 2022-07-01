@@ -41,9 +41,9 @@ RimGeoMechPartCollection::RimGeoMechPartCollection()
     , m_currentScaleFactor( 1.0 )
     , m_noDisplacements()
 {
-    CAF_PDM_InitScriptableObject( "Parts", ":/GeoMechCase24x24.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Parts", ":/GeoMechCase24x24.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_parts, "Parts", "Parts", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_parts, "Parts", "Parts" );
     m_parts.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( false );
@@ -69,7 +69,7 @@ void RimGeoMechPartCollection::syncWithCase( RimGeoMechCase* geoCase )
 
         if ( count != (int)m_parts.size() )
         {
-            m_parts.clear();
+            m_parts.deleteChildren();
 
             for ( int i = 0; i < count; i++ )
             {
@@ -91,7 +91,7 @@ void RimGeoMechPartCollection::syncWithCase( RimGeoMechCase* geoCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGeoMechPart*> RimGeoMechPartCollection::parts() const
 {
-    return m_parts.childObjects();
+    return m_parts.children();
 }
 
 //--------------------------------------------------------------------------------------------------

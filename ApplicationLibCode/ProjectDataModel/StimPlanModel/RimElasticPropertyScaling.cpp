@@ -40,13 +40,13 @@ CAF_PDM_SOURCE_INIT( RimElasticPropertyScaling, "ElasticPropertyScaling" );
 RimElasticPropertyScaling::RimElasticPropertyScaling()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "ElasticPropertyScaling", "", "", "" );
+    CAF_PDM_InitScriptableObject( "ElasticPropertyScaling" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_formation, "Formation", "Formation", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_formation, "Formation", "Formation" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_facies, "Facies", "Facies" );
     caf::AppEnum<RiaDefines::CurveProperty> defaultProperty = RiaDefines::CurveProperty::YOUNGS_MODULUS;
-    CAF_PDM_InitScriptableField( &m_property, "Property", defaultProperty, "Property", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_scale, "Scale", 1.0, "Scale", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_property, "Property", defaultProperty, "Property" );
+    CAF_PDM_InitScriptableField( &m_scale, "Scale", 1.0, "Scale" );
 
     nameField()->uiCapability()->setUiReadOnly( true );
 
@@ -65,7 +65,7 @@ RimElasticPropertyScaling::~RimElasticPropertyScaling()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimElasticPropertyScaling::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimElasticPropertyScaling::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_formation )
@@ -95,8 +95,6 @@ QList<caf::PdmOptionItemInfo>
                 caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveProperty>::uiText( property ), property ) );
         }
     }
-
-    if ( useOptionsOnly ) *useOptionsOnly = true;
 
     return options;
 }

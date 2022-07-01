@@ -23,11 +23,10 @@
 
 #include "RicSummaryPlotTemplateTools.h"
 
-#include "RimSummaryCase.h"
+#include "RimSummaryMultiPlot.h"
 
 #include "RiuPlotMainWindow.h"
-
-#include "cafSelectionManager.h"
+#include "RiuPlotMainWindowTools.h"
 
 #include <QAction>
 #include <QFile>
@@ -40,10 +39,7 @@ CAF_CMD_SOURCE_INIT( RicCreatePlotFromTemplateByShortcutFeature, "RicCreatePlotF
 //--------------------------------------------------------------------------------------------------
 bool RicCreatePlotFromTemplateByShortcutFeature::isCommandEnabled()
 {
-    bool anySummaryCases           = !RicSummaryPlotTemplateTools::selectedSummaryCases().empty();
-    bool anySummaryCaseCollections = !RicSummaryPlotTemplateTools::selectedSummaryCaseCollections().empty();
-
-    return ( anySummaryCases || anySummaryCaseCollections );
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,7 +47,7 @@ bool RicCreatePlotFromTemplateByShortcutFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isChecked )
 {
-    QString fileName = RiaPreferences::current()->defaultPlotTemplateAbsolutePath();
+    QString fileName = RiaPreferences::current()->lastUsedPlotTemplateAbsolutePath();
 
     if ( !QFile::exists( fileName ) )
     {
@@ -70,11 +66,9 @@ void RicCreatePlotFromTemplateByShortcutFeature::onActionTriggered( bool isCheck
         fileName = fileNameSelectedInUi;
     }
 
-    auto sumCases           = RicSummaryPlotTemplateTools::selectedSummaryCases();
-    auto sumCaseCollections = RicSummaryPlotTemplateTools::selectedSummaryCaseCollections();
+    auto newSummaryPlot = RicSummaryPlotTemplateTools::create( fileName );
 
-    RimSummaryPlot* newSummaryPlot = RicSummaryPlotTemplateTools::createPlotFromTemplateFile( fileName );
-    RicSummaryPlotTemplateTools::appendSummaryPlotToPlotCollection( newSummaryPlot, sumCases, sumCaseCollections );
+    RiuPlotMainWindowTools::selectAsCurrentItem( newSummaryPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

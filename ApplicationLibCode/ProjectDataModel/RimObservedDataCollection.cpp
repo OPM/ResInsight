@@ -48,10 +48,10 @@ CAF_PDM_SOURCE_INIT( RimObservedDataCollection, "ObservedDataCollection" );
 //--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::RimObservedDataCollection()
 {
-    CAF_PDM_InitObject( "Observed Data", ":/Folder.png", "", "" );
+    CAF_PDM_InitObject( "Observed Data", ":/Folder.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_observedDataArray, "ObservedDataArray", "" );
+    CAF_PDM_InitFieldNoDefault( &m_observedFmuRftArray, "ObservedFmuRftDataArray", "" );
     m_observedDataArray.uiCapability()->setUiTreeHidden( true );
     m_observedFmuRftArray.uiCapability()->setUiTreeHidden( true );
 }
@@ -61,8 +61,8 @@ RimObservedDataCollection::RimObservedDataCollection()
 //--------------------------------------------------------------------------------------------------
 RimObservedDataCollection::~RimObservedDataCollection()
 {
-    m_observedDataArray.deleteAllChildObjects();
-    m_observedFmuRftArray.deleteAllChildObjects();
+    m_observedDataArray.deleteChildren();
+    m_observedFmuRftArray.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ RimObservedDataCollection::~RimObservedDataCollection()
 //--------------------------------------------------------------------------------------------------
 void RimObservedDataCollection::removeObservedSummaryData( RimObservedSummaryData* observedData )
 {
-    m_observedDataArray.removeChildObject( observedData );
+    m_observedDataArray.removeChild( observedData );
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 }
 
@@ -79,7 +79,7 @@ void RimObservedDataCollection::removeObservedSummaryData( RimObservedSummaryDat
 //--------------------------------------------------------------------------------------------------
 void RimObservedDataCollection::removeObservedFmuRftData( RimObservedFmuRftData* observedFmuRftData )
 {
-    m_observedFmuRftArray.removeChildObject( observedFmuRftData );
+    m_observedFmuRftArray.removeChild( observedFmuRftData );
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 }
 
@@ -88,7 +88,7 @@ void RimObservedDataCollection::removeObservedFmuRftData( RimObservedFmuRftData*
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSummaryData() const
 {
-    return m_observedDataArray.childObjects();
+    return m_observedDataArray.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,7 +96,7 @@ std::vector<RimObservedSummaryData*> RimObservedDataCollection::allObservedSumma
 //--------------------------------------------------------------------------------------------------
 std::vector<RimObservedFmuRftData*> RimObservedDataCollection::allObservedFmuRftData() const
 {
-    return m_observedFmuRftArray.childObjects();
+    return m_observedFmuRftArray.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,7 +128,7 @@ void updateNewObservedDataCreated( caf::PdmObject* object )
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 
     RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-    if ( mpw ) mpw->updateSummaryPlotToolBar();
+    if ( mpw ) mpw->updateMultiPlotToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------

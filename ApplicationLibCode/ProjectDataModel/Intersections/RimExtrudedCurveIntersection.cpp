@@ -22,6 +22,7 @@
 #include "RiaVec3Tools.h"
 
 #include "RigEclipseCaseData.h"
+#include "RigMainGrid.h"
 #include "RigWellPath.h"
 
 #include "Rim2dIntersectionView.h"
@@ -46,6 +47,7 @@
 #include "RimWellPath.h"
 
 #include "RiuViewer.h"
+
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
 #include "cafCmdFeature.h"
@@ -214,13 +216,13 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     m_userPolylineXydForUi.registerSetMethod( this, &RimExtrudedCurveIntersection::setPointsFromXYD );
     m_userPolylineXydForUi.registerGetMethod( this, &RimExtrudedCurveIntersection::pointsXYD );
 
-    CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth", "", "", "" );
+    CAF_PDM_InitField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth" );
     m_azimuthAngle.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_dipAngle, "DipAngle", 90.0, "Dip", "", "", "" );
+    CAF_PDM_InitField( &m_dipAngle, "DipAngle", 90.0, "Dip" );
     m_dipAngle.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_customExtrusionPoints, "CustomExtrusionPoints", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_customExtrusionPoints, "CustomExtrusionPoints", "" );
     CAF_PDM_InitFieldNoDefault( &m_twoAzimuthPoints,
                                 "TwoAzimuthPoints",
                                 "Points",
@@ -228,36 +230,51 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
                                 "Pick two points to define a line.\nUse Ctrl-C for copy and Ctrl-V for paste",
                                 "" );
 
-    CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch", "", "", "" );
-    CAF_PDM_InitField( &m_extentLength, "ExtentLength", 200.0, "Extent Length", "", "", "" );
-    CAF_PDM_InitField( &m_lengthUp, "lengthUp", 1000.0, "Length Up", "", "", "" );
-    CAF_PDM_InitField( &m_lengthDown, "lengthDown", 1000.0, "Length Down", "", "", "" );
+    CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch" );
+    CAF_PDM_InitField( &m_extentLength, "ExtentLength", 200.0, "Extent Length" );
+    CAF_PDM_InitField( &m_lengthUp, "lengthUp", 1000.0, "Length Up" );
+    CAF_PDM_InitField( &m_lengthDown, "lengthDown", 1000.0, "Length Down" );
 
-    CAF_PDM_InitFieldNoDefault( &m_inputPolylineFromViewerEnabled, "m_activateUiAppendPointsCommand", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_inputPolylineFromViewerEnabled, "m_activateUiAppendPointsCommand", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputPolylineFromViewerEnabled );
     m_inputPolylineFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_inputExtrusionPointsFromViewerEnabled,
-                                "inputExtrusionPointsFromViewerEnabled",
-                                "",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_inputExtrusionPointsFromViewerEnabled, "inputExtrusionPointsFromViewerEnabled", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputExtrusionPointsFromViewerEnabled );
     m_inputExtrusionPointsFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_inputTwoAzimuthPointsFromViewerEnabled,
-                                "inputTwoAzimuthPointsFromViewerEnabled",
-                                "",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_inputTwoAzimuthPointsFromViewerEnabled, "inputTwoAzimuthPointsFromViewerEnabled", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_inputTwoAzimuthPointsFromViewerEnabled );
     m_inputTwoAzimuthPointsFromViewerEnabled = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceIntersections, "SurfaceIntersections", "Surface Intersections" );
     m_surfaceIntersections = new RimSurfaceIntersectionCollection;
     m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
+
+    CAF_PDM_InitField( &m_depthUpperThreshold, "UpperThreshold", 2000.0, "Upper Threshold" );
+    m_depthUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_depthLowerThreshold, "LowerThreshold", 3000.0, "Lower Threshold" );
+    m_depthLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_depthFilterType, "DepthFilter", "Depth Filter" );
+
+    CAF_PDM_InitFieldNoDefault( &m_collectionUpperThreshold, "CollectionUpperThreshold", "Collection Upper Threshold" );
+    m_collectionUpperThreshold.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_collectionLowerThreshold, "CollectionLowerThreshold", "Collection Lower Threshold" );
+    m_collectionLowerThreshold.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitField( &m_depthThresholdOverridden,
+                       "ThresholdOverridden",
+                       false,
+                       "Depth Filter is Controlled by Intersection Collection" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_depthThresholdOverridden );
+
+    CAF_PDM_InitFieldNoDefault( &m_collectionDepthFilterType,
+                                "CollectionDepthFilterType",
+                                "Collection Controlled Filter Type" );
+    m_collectionDepthFilterType.uiCapability()->setUiHidden( true );
 
     setDeletable( true );
 }
@@ -296,6 +313,104 @@ void RimExtrudedCurveIntersection::setName( const QString& newName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimExtrudedCurveIntersection::upperFilterDepth( double sceneRadius ) const
+{
+    if ( m_depthThresholdOverridden )
+    {
+        switch ( m_collectionDepthFilterType() )
+        {
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+                return m_collectionUpperThreshold;
+
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+            default:
+                return -sceneRadius;
+        }
+    }
+
+    switch ( m_depthFilterType() )
+    {
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+            return m_depthUpperThreshold;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+        default:
+            return -sceneRadius;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimIntersectionFilterEnum RimExtrudedCurveIntersection::depthFilterType() const
+{
+    if ( m_depthThresholdOverridden )
+    {
+        return m_collectionDepthFilterType();
+    }
+    return m_depthFilterType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RimExtrudedCurveIntersection::lowerFilterDepth( double sceneRadius ) const
+{
+    if ( m_depthThresholdOverridden )
+    {
+        switch ( m_collectionDepthFilterType() )
+        {
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+                return m_collectionLowerThreshold;
+
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+            default:
+                return sceneRadius;
+        }
+    }
+
+    switch ( m_depthFilterType() )
+    {
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+            return m_depthLowerThreshold;
+
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+        case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+        default:
+            return sceneRadius;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::setDepthOverride( bool collectionOverride )
+{
+    m_depthThresholdOverridden = collectionOverride;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimExtrudedCurveIntersection::setDepthOverrideParameters( double                    upperThreshold,
+                                                               double                    lowerThreshold,
+                                                               RimIntersectionFilterEnum filterType )
+{
+    m_collectionUpperThreshold  = upperThreshold;
+    m_collectionLowerThreshold  = lowerThreshold;
+    m_collectionDepthFilterType = filterType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                                      const QVariant&            oldValue,
                                                      const QVariant&            newValue )
@@ -304,7 +419,9 @@ void RimExtrudedCurveIntersection::fieldChangedByUi( const caf::PdmFieldHandle* 
          changedField == &m_wellPath || changedField == &m_simulationWell || changedField == &m_branchIndex ||
          changedField == &m_extentLength || changedField == &m_lengthUp || changedField == &m_lengthDown ||
          changedField == &m_showInactiveCells || changedField == &m_useSeparateDataSource ||
-         changedField == &m_separateDataSource )
+         changedField == &m_separateDataSource || changedField == &m_depthUpperThreshold ||
+         changedField == &m_depthLowerThreshold || changedField == &m_depthThresholdOverridden ||
+         changedField == &m_depthFilterType )
     {
         rebuildGeometryAndScheduleCreateDisplayModel();
     }
@@ -411,6 +528,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
     }
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup( "Options" );
+    optionsGroup->setCollapsedByDefault( true );
 
     if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {
@@ -440,6 +558,43 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
         m_extentLength.uiCapability()->setUiReadOnly( false );
     }
 
+    if ( eclipseView() )
+    {
+        auto filterGroup = uiOrdering.addNewGroup( "Depth Filter" );
+        if ( m_depthThresholdOverridden() )
+        {
+            filterGroup->add( &m_depthThresholdOverridden );
+        }
+        else
+        {
+            filterGroup->add( &m_depthFilterType );
+
+            switch ( m_depthFilterType() )
+            {
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+                    m_depthUpperThreshold.uiCapability()->setUiName( "Depth" );
+                    filterGroup->add( &m_depthUpperThreshold );
+                    break;
+
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+                    m_depthUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
+                    filterGroup->add( &m_depthUpperThreshold );
+                    m_depthLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
+                    filterGroup->add( &m_depthLowerThreshold );
+                    break;
+
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+                    m_depthLowerThreshold.uiCapability()->setUiName( "Depth" );
+                    filterGroup->add( &m_depthLowerThreshold );
+                    break;
+
+                case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+                default:
+                    break;
+            }
+        }
+    }
+
     this->defineSeparateDataSourceUi( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
@@ -449,8 +604,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RimExtrudedCurveIntersection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -497,7 +651,7 @@ QList<caf::PdmOptionItemInfo>
     }
     else
     {
-        options = RimIntersection::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+        options = RimIntersection::calculateValueOptions( fieldNeedingOptions );
     }
 
     return options;
@@ -525,12 +679,11 @@ void RimExtrudedCurveIntersection::defineUiTreeOrdering( caf::PdmUiTreeOrdering&
 //--------------------------------------------------------------------------------------------------
 RimSimWellInViewCollection* RimExtrudedCurveIntersection::simulationWellCollection() const
 {
-    RimEclipseView* eclipseView = nullptr;
-    firstAncestorOrThisOfType( eclipseView );
+    RimEclipseView* eclView = eclipseView();
 
-    if ( eclipseView )
+    if ( eclView )
     {
-        return eclipseView->wellCollection();
+        return eclView->wellCollection();
     }
 
     return nullptr;
@@ -822,11 +975,9 @@ void RimExtrudedCurveIntersection::setPushButtonText( bool buttonEnable, caf::Pd
 //--------------------------------------------------------------------------------------------------
 void RimExtrudedCurveIntersection::setBaseColor( bool enable, caf::PdmUiListEditorAttribute* attribute )
 {
-    // if ( attribute && enable )
     if ( attribute )
     {
         attribute->m_qssState = enable ? "ExternalInput" : QString();
-        // attribute->m_baseColor.setRgb( 255, 220, 255 );
     }
 }
 
@@ -851,6 +1002,18 @@ void RimExtrudedCurveIntersection::defineEditorAttribute( const caf::PdmFieldHan
             doubleSliderAttrib->m_minimum         = 0;
             doubleSliderAttrib->m_maximum         = 180;
             doubleSliderAttrib->m_sliderTickCount = 180;
+        }
+        else if ( ( field == &m_depthUpperThreshold ) || ( field == &m_depthLowerThreshold ) )
+        {
+            RimEclipseView* eclView = eclipseView();
+
+            if ( eclView )
+            {
+                const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
+
+                doubleSliderAttrib->m_minimum = -1.0 * bb.max().z();
+                doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
+            }
         }
     }
     else if ( field == &m_inputPolylineFromViewerEnabled )
@@ -1167,4 +1330,14 @@ std::vector<cvf::Vec3d> RimExtrudedCurveIntersection::pointsXYD() const
 void RimExtrudedCurveIntersection::setPointsFromXYD( const std::vector<cvf::Vec3d>& pointsXYD )
 {
     m_userPolylineXyz = RiaVec3Tools::invertZSign( pointsXYD );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimExtrudedCurveIntersection::eclipseView() const
+{
+    RimEclipseView* eclipseView = nullptr;
+    firstAncestorOrThisOfType( eclipseView );
+    return eclipseView;
 }

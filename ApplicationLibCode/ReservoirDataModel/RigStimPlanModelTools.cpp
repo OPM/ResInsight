@@ -88,10 +88,6 @@ cvf::Vec3d RigStimPlanModelTools::calculateTSTDirection( RigEclipseCaseData* ecl
         direction *= -1.0;
     }
 
-    // Calculate an adjusted TST direction to improve the zone thickness in the well log plot.
-    // Using average of TST and TVD (default direction) in 3D.
-    direction = ( direction + defaultDirection ) / 2.0;
-
     return direction;
 }
 
@@ -104,6 +100,9 @@ double RigStimPlanModelTools::calculateFormationDip( const cvf::Vec3d& direction
     return cvf::Math::toDegrees( cvf::GeometryTools::getAngle( direction, -cvf::Vec3d::Z_AXIS ) );
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::tuple<const RigFault*, double, cvf::Vec3d, double>
     RigStimPlanModelTools::findClosestFaultBarrier( RigEclipseCaseData* eclipseCaseData,
                                                     const cvf::Vec3d&   position,
@@ -260,4 +259,36 @@ bool RigStimPlanModelTools::findThicknessTargetPoints( RigEclipseCaseData* eclip
 QString RigStimPlanModelTools::vecToString( const cvf::Vec3d& vec )
 {
     return QString( "[%1, %2, %3]" ).arg( vec.x() ).arg( vec.y() ).arg( vec.z() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigStimPlanModelTools::calculatePerforationLength( const cvf::Vec3d& direction, double perforationLength )
+{
+    // Deviation from vertical. Since well path is tending downwards we compare with negative z.
+    double inclination = cvf::GeometryTools::getAngle( direction, -cvf::Vec3d::Z_AXIS );
+
+    // Keep inclination in 0-90 degrees range
+    if ( inclination > cvf::PI_D / 2.0 )
+    {
+        inclination = cvf::PI_D - inclination;
+    }
+
+    double correctedPerforationLength = perforationLength * std::cos( inclination );
+
+    RiaLogging::info(
+        QString( "Perforation length correction: original length: %1 inclination: %2 corrected length: %3" )
+            .arg( perforationLength )
+            .arg( cvf::Math::toDegrees( inclination ) )
+            .arg( correctedPerforationLength ) );
+
+    // Handle well inclination close to 90 dgr to ensure visual perforation interval in StimPlan model plot
+    if ( std::fabs( cvf::Math::toDegrees( inclination ) - 90.0 ) < 0.1 )
+    {
+        double minimumPerforationInterval = 0.5;
+        return std::max( minimumPerforationInterval, correctedPerforationLength );
+    }
+
+    return correctedPerforationLength;
 }

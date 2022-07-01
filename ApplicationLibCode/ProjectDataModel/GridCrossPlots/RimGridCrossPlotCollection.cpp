@@ -27,9 +27,9 @@ CAF_PDM_SOURCE_INIT( RimGridCrossPlotCollection, "RimGridCrossPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotCollection::RimGridCrossPlotCollection()
 {
-    CAF_PDM_InitObject( "Grid Cross Plots", ":/SummaryXPlotsLight16x16.png", "", "" );
+    CAF_PDM_InitObject( "Grid Cross Plots", ":/SummaryXPlotsLight16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridCrossPlots, "GridCrossPlots", "Grid Cross Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridCrossPlots, "GridCrossPlots", "Grid Cross Plots" );
     m_gridCrossPlots.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -45,7 +45,7 @@ RimGridCrossPlotCollection::~RimGridCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlot*> RimGridCrossPlotCollection::plots() const
 {
-    return m_gridCrossPlots.childObjects();
+    return m_gridCrossPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -82,6 +82,6 @@ void RimGridCrossPlotCollection::insertPlot( RimGridCrossPlot* plot, size_t inde
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlotCollection::removePlot( RimGridCrossPlot* plot )
 {
-    m_gridCrossPlots.removeChildObject( plot );
+    m_gridCrossPlots.removeChild( plot );
     updateAllRequiredEditors();
 }

@@ -30,12 +30,12 @@ CAF_PDM_SOURCE_INIT( RimIntersectionResultsDefinitionCollection, "RimIntersectio
 //--------------------------------------------------------------------------------------------------
 RimIntersectionResultsDefinitionCollection::RimIntersectionResultsDefinitionCollection()
 {
-    CAF_PDM_InitObject( "Intersection Results", ":/CrossSections16x16.png", "", "" );
+    CAF_PDM_InitObject( "Intersection Results", ":/CrossSections16x16.png" );
 
-    CAF_PDM_InitField( &m_isActive, "isActive", false, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "isActive", false, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionResultsDefs, "IntersectionResultDefinitions", "Data Sources", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionResultsDefs, "IntersectionResultDefinitions", "Data Sources" );
     m_intersectionResultsDefs.uiCapability()->setUiTreeHidden( true );
 
     m_intersectionResultsDefs.push_back( new RimIntersectionResultDefinition ); // Add the default result definition
@@ -61,7 +61,7 @@ bool RimIntersectionResultsDefinitionCollection::isActive() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimIntersectionResultDefinition*> RimIntersectionResultsDefinitionCollection::intersectionResultsDefinitions() const
 {
-    return m_intersectionResultsDefs.childObjects();
+    return m_intersectionResultsDefs.children();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -52,14 +52,13 @@ std::vector<QString> RicExportToLasFileFeature::exportToLasFiles( const QString&
                                                                   bool                  convertCurveUnits )
 {
     std::vector<RimWellLogCurve*> allCurves;
-    std::vector<RimPlot*>         plots = plotWindow->visiblePlots();
+    auto                          plots = plotWindow->visiblePlots();
 
-    for ( RimPlot* plot : plots )
+    for ( auto plot : plots )
     {
-        RimWellLogTrack* track = dynamic_cast<RimWellLogTrack*>( plot );
-        if ( track )
+        if ( plot )
         {
-            std::vector<RimWellLogCurve*> curves = track->visibleCurves();
+            std::vector<RimWellLogCurve*> curves = plot->visibleCurves();
             allCurves.insert( allCurves.end(), curves.begin(), curves.end() );
         }
     }

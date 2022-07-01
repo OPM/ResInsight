@@ -41,7 +41,7 @@ class RimPlotAxisProperties;
 class RimSummaryAddress;
 
 // Filter of type :
-// Only [Cases/SummaryItem/Case by ensemble param] where the [Quantity]
+// Only [Cases/SummaryItem/Case by ensemble param] where the [Vector]
 // is [within range/top N/min N]
 // considering the [Plot Source/Last/First/Last with History/all] timestep(s) [range/1,2..]
 
@@ -113,8 +113,7 @@ private:
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
     caf::PdmFieldHandle*          objectToggleField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     RigEnsembleParameter selectedEnsembleParameter() const;
 
@@ -122,9 +121,7 @@ private:
 
     caf::PdmField<caf::AppEnum<FilterTarget>> m_filterTarget;
 
-    // Quantity
-
-    // Complete address or quantity name only
+    // Complete address or vector name only
     caf::PdmChildField<RimSummaryAddress*>  m_filterAddress;
     caf::PdmField<QString>                  m_filterEnsembleParameter;
     caf::PdmField<RifEclipseSummaryAddress> m_filterQuantityUiField;

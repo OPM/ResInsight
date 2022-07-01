@@ -20,9 +20,6 @@
 
 #include "RiaColorTables.h"
 
-#include "Riu3dSelectionManager.h"
-#include "RiuQwtPlotTools.h"
-
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartGrid.h"
@@ -37,12 +34,15 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 
+#include "Riu3dSelectionManager.h"
+#include "RiuQwtPlotTools.h"
+
 #include "cvfAssert.h"
 
 #include <QPainterPath>
+#include <QPen>
 #include <QTimer>
 #include <QWidget>
-#include <qevent.h>
 
 #include "qwt_legend.h"
 #include "qwt_plot_curve.h"
@@ -70,13 +70,11 @@ RiuMohrsCirclePlot::RiuMohrsCirclePlot( QWidget* parent )
 {
     RiuQwtPlotTools::setCommonPlotBehaviour( this );
 
-    enableAxis( QwtPlot::xBottom, true );
-    enableAxis( QwtPlot::yLeft, true );
-    enableAxis( QwtPlot::xTop, false );
-    enableAxis( QwtPlot::yRight, false );
+    setAxesCount( QwtAxis::XBottom, 1 );
+    setAxesCount( QwtAxis::YLeft, 1 );
 
-    setAxisTitle( QwtPlot::xBottom, "Effective Normal Stress" );
-    setAxisTitle( QwtPlot::yLeft, "Shear Stress" );
+    setAxisTitle( QwtAxis::XBottom, "Effective Normal Stress" );
+    setAxisTitle( QwtAxis::YLeft, "Shear Stress" );
 
     applyFontSizes( false );
 
@@ -459,7 +457,7 @@ void RiuMohrsCirclePlot::updateTransparentCurvesOnPrincipals()
         qVectorPoints.push_back( QPointF( mohrCircleInfo.principals[2], 0 ) );
 
         transparentCurve->setSamples( qVectorPoints );
-        transparentCurve->setYAxis( QwtPlot::yLeft );
+        transparentCurve->setYAxis( QwtAxis::YLeft );
         transparentCurve->setStyle( QwtPlotCurve::NoCurve );
         transparentCurve->setLegendAttribute( QwtPlotCurve::LegendNoAttribute );
 
@@ -715,8 +713,8 @@ void RiuMohrsCirclePlot::setAxesScaleAndReplot()
         yMaxDisplayed = heightToKeepAspectRatio;
     }
 
-    this->setAxisScale( QwtPlot::yLeft, 0, yMaxDisplayed );
-    this->setAxisScale( QwtPlot::xBottom, xMin, xMaxDisplayed );
+    this->setAxisScale( QwtAxis::YLeft, 0, yMaxDisplayed );
+    this->setAxisScale( QwtAxis::XBottom, xMin, xMaxDisplayed );
 
     this->replot();
 }

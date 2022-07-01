@@ -19,6 +19,8 @@
 
 #include "RiuFemTimeHistoryResultAccessor.h"
 
+#include "RiaNumberFormat.h"
+
 #include "RigFemClosestResultIndexCalculator.h"
 #include "RigFemPart.h"
 #include "RigFemPartCollection.h"
@@ -26,6 +28,7 @@
 #include "RigFemPartResultsCollection.h"
 #include "RigFemTypes.h"
 #include "RigGeoMechCaseData.h"
+
 #include "RiuGeoMechXfTensorResultAccessor.h"
 
 #include <cmath> // Needed for HUGE_VAL on Linux
@@ -101,11 +104,12 @@ QString RiuFemTimeHistoryResultAccessor::geometrySelectionText() const
             cvf::Vec3d domainCoord = m_intersectionPointInDomain;
             text += QString( ", ijk[%1, %2, %3] " ).arg( i ).arg( j ).arg( k );
 
-            QString formattedText;
-            formattedText.sprintf( "Intersection point : [E: %.2f, N: %.2f, Depth: %.2f]",
-                                   domainCoord.x(),
-                                   domainCoord.y(),
-                                   -domainCoord.z() );
+            auto xTxt = RiaNumberFormat::valueToText( domainCoord.x(), RiaNumberFormat::NumberFormatType::FIXED, 2 );
+            auto yTxt = RiaNumberFormat::valueToText( domainCoord.y(), RiaNumberFormat::NumberFormatType::FIXED, 2 );
+            auto zTxt = RiaNumberFormat::valueToText( -domainCoord.z(), RiaNumberFormat::NumberFormatType::FIXED, 2 );
+
+            QString formattedText =
+                QString( "Intersection point : [E: %1, N: %2, Depth: %3]" ).arg( xTxt ).arg( yTxt ).arg( zTxt );
 
             text += formattedText;
         }

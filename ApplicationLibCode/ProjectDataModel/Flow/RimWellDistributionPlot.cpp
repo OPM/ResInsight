@@ -17,9 +17,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellDistributionPlot.h"
+
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
-#include "RimProject.h"
 #include "RimTools.h"
 
 #include "RigEclipseCaseData.h"
@@ -38,10 +39,6 @@
 #include <QTextBrowser>
 #include <QWidget>
 
-//#include "cvfBase.h"
-//#include "cvfTrace.h"
-//#include "cvfDebugTimer.h"
-
 #include <array>
 
 //==================================================================================================
@@ -59,22 +56,19 @@ RimWellDistributionPlot::RimWellDistributionPlot( RiaDefines::PhaseType phase )
 {
     // cvf::Trace::show("RimWellDistributionPlot::RimWellDistributionPlot()");
 
-    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", "", "", "" );
+    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
-    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well", "", "", "" );
-    CAF_PDM_InitField( &m_phase, "Phase", caf::AppEnum<RiaDefines::PhaseType>( phase ), "Phase", "", "", "" );
-    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
+    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step" );
+    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
+    CAF_PDM_InitField( &m_phase, "Phase", caf::AppEnum<RiaDefines::PhaseType>( phase ), "Phase" );
+    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
     CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
                        "SmallContributionsRelativeThreshold",
                        0.005,
-                       "Relative Threshold [0, 1]",
-                       "",
-                       "",
-                       "" );
+                       "Relative Threshold [0, 1]" );
 
-    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
+    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
     m_showWindow      = false;
     m_showPlotLegends = true;
@@ -122,7 +116,7 @@ RiaDefines::PhaseType RimWellDistributionPlot::phase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimWellDistributionPlot::viewer()
+RiuPlotWidget* RimWellDistributionPlot::plotWidget()
 {
     return m_plotWidget;
 }
@@ -173,28 +167,28 @@ void RimWellDistributionPlot::updateLegend()
     if ( doShowLegend )
     {
         QwtLegend* legend = new QwtLegend( m_plotWidget );
-        m_plotWidget->insertLegend( legend, QwtPlot::BottomLegend );
+        m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::BottomLegend );
     }
     else
     {
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::updateZoomInQwt()
+void RimWellDistributionPlot::updateZoomInParentPlot()
 {
-    // cvf::Trace::show("RimWellDistributionPlot::updateZoomInQwt()");
+    // cvf::Trace::show("RimWellDistributionPlot::updateZoomInParentPlot()");
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::updateZoomFromQwt()
+void RimWellDistributionPlot::updateZoomFromParentPlot()
 {
-    // cvf::Trace::show("RimWellDistributionPlot::updateZoomFromQwt()");
+    // cvf::Trace::show("RimWellDistributionPlot::updateZoomFromParentPlot()");
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,7 +219,7 @@ void RimWellDistributionPlot::detachAllCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-caf::PdmObject* RimWellDistributionPlot::findPdmObjectFromQwtCurve( const QwtPlotCurve* /*curve*/ ) const
+caf::PdmObject* RimWellDistributionPlot::findPdmObjectFromPlotCurve( const RiuPlotCurve* /*curve*/ ) const
 {
     // cvf::Trace::show("RimWellDistributionPlot::findPdmObjectFromQwtCurve()");
     return nullptr;
@@ -234,7 +228,7 @@ caf::PdmObject* RimWellDistributionPlot::findPdmObjectFromQwtCurve( const QwtPlo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellDistributionPlot::onAxisSelected( int /*axis*/, bool /*toggle*/ )
+void RimWellDistributionPlot::onAxisSelected( RiuPlotAxis /*axis*/, bool /*toggle*/ )
 {
     // cvf::Trace::show("RimWellDistributionPlot::onAxisSelected()");
 }
@@ -285,7 +279,7 @@ void RimWellDistributionPlot::zoomAll()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
+RiuPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* mainWindowParent )
 {
     // cvf::Trace::show("RimWellDistributionPlot::createViewWidget()");
 
@@ -297,7 +291,7 @@ RiuQwtPlotWidget* RimWellDistributionPlot::doCreatePlotViewWidget( QWidget* main
 
     m_plotWidget = new RiuQwtPlotWidget( this, mainWindowParent );
 
-    m_plotWidget->setAutoReplot( false );
+    m_plotWidget->qwtPlot()->setAutoReplot( false );
 
     updateLegend();
     onLoadDataAndUpdate();
@@ -342,7 +336,7 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
         return;
     }
 
-    m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
 
     updateLegend();
 
@@ -377,12 +371,12 @@ void RimWellDistributionPlot::onLoadDataAndUpdate()
 
     const QString plotTitleStr =
         QString( "%1 Distribution: %2, %3" ).arg( phaseString ).arg( m_wellName ).arg( timeStepName );
-    m_plotWidget->setTitle( plotTitleStr );
+    m_plotWidget->setPlotTitle( plotTitleStr );
 
-    m_plotWidget->setAxisTitleText( QwtPlot::xBottom, "TOF [years]" );
-    m_plotWidget->setAxisTitleText( QwtPlot::yLeft, "Reservoir Volume [m3]" );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, true );
-    m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, true );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultBottom(), "TOF [years]" );
+    m_plotWidget->setAxisTitleText( RiuPlotAxis::defaultLeft(), "Reservoir Volume [m3]" );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), true );
+    m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), true );
 
     m_plotWidget->scheduleReplot();
 }
@@ -400,11 +394,11 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
     // Currently select this value so that the grid appears on top of the curves
     const double baseCurveZValue = 9.5;
 
-    plotWidget->detachItems( QwtPlotItem::Rtti_PlotCurve );
-    plotWidget->setAxisScale( QwtPlot::xBottom, 0, 1 );
-    plotWidget->setAxisScale( QwtPlot::yLeft, 0, 1 );
-    plotWidget->setAxisAutoScale( QwtPlot::xBottom, true );
-    plotWidget->setAxisAutoScale( QwtPlot::yLeft, true );
+    plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotCurve );
+    plotWidget->setAxisScale( RiuPlotAxis::defaultBottom(), 0, 1 );
+    plotWidget->setAxisScale( RiuPlotAxis::defaultLeft(), 0, 1 );
+    plotWidget->setAxisAutoScale( RiuPlotAxis::defaultBottom(), true );
+    plotWidget->setAxisAutoScale( RiuPlotAxis::defaultLeft(), true );
 
     const std::vector<double>& tofValuesDays = calculator.sortedUniqueTofValues();
     if ( tofValuesDays.size() == 0 )
@@ -452,7 +446,7 @@ void RimWellDistributionPlot::populatePlotWidgetWithCurveData( const RigTofWellD
         curve->setBrush( qtClr );
         curve->setZ( baseCurveZValue - i * 0.0001 );
         curve->setSamples( tofValuesYears.data(), yVals.data(), static_cast<int>( tofValuesYears.size() ) );
-        curve->attach( plotWidget );
+        curve->attach( plotWidget->qwtPlot() );
     }
 }
 
@@ -477,23 +471,16 @@ void RimWellDistributionPlot::defineUiOrdering( QString uiConfigName, caf::PdmUi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellDistributionPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellDistributionPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* ownerProj = nullptr;
-        firstAncestorOrThisOfType( ownerProj );
-        if ( ownerProj )
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> caseArr;
-            ownerProj->descendantsIncludingThisOfType( caseArr );
-            for ( RimEclipseResultCase* c : caseArr )
-            {
-                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, true, c->uiIconProvider() ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, true, c->uiIconProvider() ) );
         }
     }
 

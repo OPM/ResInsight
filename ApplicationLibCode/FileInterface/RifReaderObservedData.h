@@ -54,7 +54,7 @@ public:
     RiaDefines::EclipseUnitSystem unitSystem() const override;
 
 private:
-    RifEclipseSummaryAddress address( const QString&                               quantity,
+    RifEclipseSummaryAddress address( const QString&                               vectorName,
                                       const QString&                               identifierName,
                                       RifEclipseSummaryAddress::SummaryVarCategory summaryCategory );
 

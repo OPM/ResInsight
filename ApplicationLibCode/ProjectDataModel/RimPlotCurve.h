@@ -22,8 +22,9 @@
 #include "RimPlotCurveAppearance.h"
 
 #include "RiaCurveDataTools.h"
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 
+#include "RiuPlotAxis.h"
 #include "RiuQwtPlotCurveDefines.h"
 #include "RiuQwtSymbol.h"
 
@@ -35,10 +36,8 @@
 #include <QPointer>
 #include <Qt>
 
-class QwtPlot;
-class QwtPlotCurve;
-class QwtPlotIntervalCurve;
-class RiuQwtPlotCurve;
+class RiuPlotCurve;
+class RiuPlotWidget;
 
 //==================================================================================================
 ///
@@ -60,33 +59,24 @@ public:
 
     void loadDataAndUpdate( bool updateParentPlot );
 
-    virtual bool xValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
-    virtual bool yValueRangeInQwt( double* minimumValue, double* maximumValue ) const;
-
-    void          setParentQwtPlotAndReplot( QwtPlot* plot );
-    void          setParentQwtPlotNoReplot( QwtPlot* plot );
-    void          detachQwtCurve();
-    void          reattachQwtCurve();
-    QwtPlotCurve* qwtPlotCurve() const;
-
-    void                          setColor( const cvf::Color3f& color );
-    cvf::Color3f                  color() const;
-    void                          setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
-    void                          setSymbol( RiuQwtSymbol::PointSymbolEnum symbolStyle );
-    void                          setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
-    RiuQwtSymbol::PointSymbolEnum symbol();
-    int                           symbolSize() const;
-    cvf::Color3f                  symbolEdgeColor() const;
-    void                          setSymbolEdgeColor( const cvf::Color3f& edgeColor );
-    void                          setSymbolSkipDistance( float distance );
-    void                          setSymbolLabel( const QString& label );
-    void                          setSymbolLabelPosition( RiuQwtSymbol::LabelPosition labelPosition );
-    void                          setSymbolSize( int sizeInPixels );
-    void                          setLineThickness( int thickness );
-    void                          resetAppearance();
-    Qt::BrushStyle                fillStyle() const;
-    void                          setFillStyle( Qt::BrushStyle brushStyle );
-    void                          setFillColor( const cvf::Color3f& fillColor );
+    void                                setColor( const cvf::Color3f& color );
+    cvf::Color3f                        color() const;
+    void                                setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum lineStyle );
+    void                                setSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle );
+    void                                setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum );
+    RiuPlotCurveSymbol::PointSymbolEnum symbol();
+    int                                 symbolSize() const;
+    cvf::Color3f                        symbolEdgeColor() const;
+    void                                setSymbolEdgeColor( const cvf::Color3f& edgeColor );
+    void                                setSymbolSkipDistance( float distance );
+    void                                setSymbolLabel( const QString& label );
+    void                                setSymbolLabelPosition( RiuPlotCurveSymbol::LabelPosition labelPosition );
+    void                                setSymbolSize( int sizeInPixels );
+    void                                setLineThickness( int thickness );
+    void                                resetAppearance();
+    Qt::BrushStyle                      fillStyle() const;
+    void                                setFillStyle( Qt::BrushStyle brushStyle );
+    void                                setFillColor( const cvf::Color3f& fillColor );
 
     bool isCurveVisible() const;
     void setCurveVisibility( bool visible );
@@ -95,31 +85,48 @@ public:
     void updateCurveNameAndUpdatePlotLegendAndTitle();
     void updateCurveNameNoLegendUpdate();
 
-    QString         curveName() const { return m_curveName; }
-    virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const
-    {
-        return m_curveName;
-    }
+    QString         curveName() const;
+    virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
+
     void    setCustomName( const QString& customName );
     QString legendEntryText() const;
     void    setLegendEntryText( const QString& legendEntryText );
 
-    void updateCurveVisibility();
-    void updateLegendEntryVisibilityAndPlotLegend();
-    void updateLegendEntryVisibilityNoPlotUpdate();
+    virtual void updateCurveVisibility();
+    void         updateLegendEntryVisibilityAndPlotLegend();
+    void         updateLegendEntryVisibilityNoPlotUpdate();
+    virtual void replotParentPlot();
 
     bool showInLegend() const;
     bool errorBarsVisible() const;
 
-    void setShowInLegend( bool show );
-    void setZOrder( double z );
-    void setErrorBarsVisible( bool isVisible );
+    void         setShowInLegend( bool show );
+    virtual void setZOrder( double z );
+    void         setErrorBarsVisible( bool isVisible );
 
     virtual void updateCurveAppearance();
     bool         isCrossPlotCurve() const;
-    void         updateUiIconFromPlotSymbol();
+    virtual void updateUiIconFromPlotSymbol();
+    virtual bool hasParentPlot() const;
 
     void updateCurveAppearanceForFilesOlderThan_2021_06();
+
+    virtual bool xValueRange( double* minimumValue, double* maximumValue ) const;
+    virtual bool yValueRange( double* minimumValue, double* maximumValue ) const;
+
+    virtual void setTitle( const QString& title );
+
+    int                       dataSize() const;
+    std::pair<double, double> sample( int index ) const;
+
+    void setParentPlotNoReplot( RiuPlotWidget* );
+    void setParentPlotAndReplot( RiuPlotWidget* );
+
+    void attach( RiuPlotWidget* );
+    void detach( bool deletePlotCurve = false );
+    void reattach();
+    bool isSameCurve( const RiuPlotCurve* plotCurve ) const;
+    void deletePlotCurve();
 
 protected:
     virtual QString createCurveAutoName()                        = 0;
@@ -135,18 +142,22 @@ protected:
     void setSamplesFromXYErrorValues( const std::vector<double>& xValues,
                                       const std::vector<double>& yValues,
                                       const std::vector<double>& errorValues,
-                                      bool                       keepOnlyPositiveValues,
+                                      bool                       useLogarithmicScale,
                                       RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
+
     void setSamplesFromXYValues( const std::vector<double>& xValues,
                                  const std::vector<double>& yValues,
-                                 bool                       keepOnlyPositiveValues );
+                                 bool                       useLogarithmicScale );
+
     void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
                                         const std::vector<double>&    yValues,
-                                        bool                          keepOnlyPositiveValues );
+                                        bool                          useLogarithmicScale );
 
     void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
                                         const std::vector<double>& yValues,
-                                        bool                       keepOnlyPositiveValues );
+                                        bool                       useLogarithmicScale );
+
+    virtual double computeCurveZValue();
 
 protected:
     // Overridden PDM methods
@@ -156,20 +167,16 @@ protected:
     void                 appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
     void                 curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
-    virtual void onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
+    void         onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
 
-private:
-    bool canCurveBeAttached() const;
-    void attachCurveAndErrorBars();
-    void checkAndApplyDefaultFillColor();
+    bool         canCurveBeAttached() const;
+    virtual void clearErrorBars();
+    void         checkAndApplyDefaultFillColor();
+
+    virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
 
 protected:
-    QPointer<QwtPlot> m_parentQwtPlot;
-
-    RiuQwtPlotCurve*      m_qwtPlotCurve;
-    QwtPlotIntervalCurve* m_qwtCurveErrorBars;
-
     caf::PdmField<bool>    m_showCurve;
     caf::PdmField<QString> m_curveName;
     caf::PdmField<QString> m_customCurveName;
@@ -179,6 +186,9 @@ protected:
     caf::PdmField<bool>    m_isUsingAutoName;
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
+
+    QPointer<RiuPlotWidget> m_parentPlot;
+    RiuPlotCurve*           m_plotCurve;
 
     caf::PdmField<QString>                                    m_symbolLabel_OBSOLETE;
     caf::PdmField<int>                                        m_symbolSize_OBSOLETE;

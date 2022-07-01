@@ -43,6 +43,7 @@ public:
 
     bool hasFractures() const;
     void addFracture( RimWellPathFracture* fracture );
+    void removeFracture( RimWellPathFracture* fracture );
     void deleteFractures();
 
     std::vector<RimWellPathFracture*> allFractures() const;

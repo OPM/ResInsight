@@ -20,6 +20,7 @@
 #include "RimWellLogCurve.h"
 
 #include "RiaCurveDataTools.h"
+#include "RiaPlotDefines.h"
 #include "RigWellLogCurveData.h"
 
 #include "RimDepthTrackPlot.h"
@@ -44,15 +45,12 @@ CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimWellLogCurve, "WellLogPlotCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurve::RimWellLogCurve()
 {
-    CAF_PDM_InitObject( "WellLogCurve", ":/WellLogCurve16x16.png", "", "" );
-
-    m_qwtPlotCurve->setXAxis( QwtPlot::xTop );
-    m_qwtCurveErrorBars->setXAxis( QwtPlot::xTop );
-    m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
+    CAF_PDM_InitObject( "WellLogCurve", ":/WellLogCurve16x16.png" );
 
     m_curveData = new RigWellLogCurveData;
 
-    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+    m_curveDataPropertyValueRange =
+        std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
 
     setDeletable( true );
 }
@@ -75,7 +73,7 @@ void RimWellLogCurve::setDepthUnit( RiaDefines::DepthUnitType depthUnit )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogCurve::xValueRangeInData( double* minimumValue, double* maximumValue ) const
+bool RimWellLogCurve::propertyValueRangeInData( double* minimumValue, double* maximumValue ) const
 {
     CAF_ASSERT( minimumValue && maximumValue );
 
@@ -84,14 +82,14 @@ bool RimWellLogCurve::xValueRangeInData( double* minimumValue, double* maximumVa
         return false;
     }
 
-    if ( m_curveDataXRange.first == -std::numeric_limits<double>::infinity() ||
-         m_curveDataXRange.second == std::numeric_limits<double>::infinity() )
+    if ( m_curveDataPropertyValueRange.first == -std::numeric_limits<double>::infinity() ||
+         m_curveDataPropertyValueRange.second == std::numeric_limits<double>::infinity() )
     {
         return false;
     }
 
-    *minimumValue = m_curveDataXRange.first;
-    *maximumValue = m_curveDataXRange.second;
+    *minimumValue = m_curveDataPropertyValueRange.first;
+    *maximumValue = m_curveDataPropertyValueRange.second;
 
     return true;
 }
@@ -99,7 +97,7 @@ bool RimWellLogCurve::xValueRangeInData( double* minimumValue, double* maximumVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimWellLogCurve::yValueRangeInData( double* minimumValue, double* maximumValue ) const
+bool RimWellLogCurve::depthValueRangeInData( double* minimumValue, double* maximumValue ) const
 {
     CAF_ASSERT( minimumValue && maximumValue );
 
@@ -119,50 +117,99 @@ bool RimWellLogCurve::yValueRangeInData( double* minimumValue, double* maximumVa
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::setValuesAndDepths( const std::vector<double>& xValues,
-                                          const std::vector<double>& depths,
-                                          RiaDefines::DepthTypeEnum  depthType,
-                                          double                     rkbDiff,
-                                          RiaDefines::DepthUnitType  depthUnit,
-                                          bool                       isExtractionCurve,
-                                          const QString&             xUnits )
+void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>& propertyValues,
+                                                  const std::vector<double>& depths,
+                                                  RiaDefines::DepthTypeEnum  depthType,
+                                                  double                     rkbDiff,
+                                                  RiaDefines::DepthUnitType  depthUnit,
+                                                  bool                       isExtractionCurve,
+                                                  bool                       useLogarithmicScale,
+                                                  const QString&             propertyUnit )
 {
-    m_curveData->setValuesAndDepths( xValues, depths, depthType, rkbDiff, depthUnit, isExtractionCurve );
-    m_curveData->setXUnits( xUnits );
-    calculateCurveDataXRange();
+    m_curveData->setValuesAndDepths( propertyValues, depths, depthType, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale );
+    m_curveData->setPropertyValueUnit( propertyUnit );
+    calculateCurveDataPropertyValueRange();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::setValuesAndDepths( const std::vector<double>&                                      xValues,
-                                          const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
-                                          double                                                          rkbDiff,
-                                          RiaDefines::DepthUnitType                                       depthUnit,
-                                          bool           isExtractionCurve,
-                                          const QString& xUnits )
+void RimWellLogCurve::setPropertyValuesAndDepths( const std::vector<double>& propertyValues,
+                                                  const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
+                                                  double                    rkbDiff,
+                                                  RiaDefines::DepthUnitType depthUnit,
+                                                  bool                      isExtractionCurve,
+                                                  bool                      useLogarithmicScale,
+
+                                                  const QString& propertyUnit )
 {
-    m_curveData->setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve );
-    m_curveData->setXUnits( xUnits );
-    calculateCurveDataXRange();
+    m_curveData->setValuesAndDepths( propertyValues, depths, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale );
+    m_curveData->setPropertyValueUnit( propertyUnit );
+    calculateCurveDataPropertyValueRange();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::setValuesWithMdAndTVD( const std::vector<double>& xValues,
-                                             const std::vector<double>& measuredDepths,
-                                             const std::vector<double>& tvdMSL,
-                                             double                     rkbDiff,
-                                             RiaDefines::DepthUnitType  depthUnit,
-                                             bool                       isExtractionCurve,
-                                             const QString&             xUnits )
+void RimWellLogCurve::setPropertyAndDepthsAndErrors( const std::vector<double>& propertyValues,
+                                                     const std::vector<double>& depthValues,
+                                                     const std::vector<double>& errorValues )
+{
+    bool useLogarithmicScale = false;
+
+    if ( isVerticalCurve() )
+    {
+        this->setSamplesFromXYErrorValues( propertyValues,
+                                           depthValues,
+                                           errorValues,
+                                           useLogarithmicScale,
+                                           RiaCurveDataTools::ErrorAxis::ERROR_ALONG_X_AXIS );
+    }
+    else
+    {
+        this->setSamplesFromXYErrorValues( depthValues,
+                                           propertyValues,
+                                           errorValues,
+                                           useLogarithmicScale,
+                                           RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues,
+                                                            const std::vector<double>& depthValues )
+{
+    if ( !m_plotCurve ) return;
+
+    if ( isVerticalCurve() )
+    {
+        m_plotCurve->setSamplesValues( propertyValues, depthValues );
+    }
+    else
+    {
+        m_plotCurve->setSamplesValues( depthValues, propertyValues );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurve::setPropertyValuesWithMdAndTVD( const std::vector<double>& propertyValues,
+                                                     const std::vector<double>& measuredDepths,
+                                                     const std::vector<double>& tvdMSL,
+                                                     double                     rkbDiff,
+                                                     RiaDefines::DepthUnitType  depthUnit,
+                                                     bool                       isExtractionCurve,
+                                                     bool                       useLogarithmicScale,
+                                                     const QString&             propertyUnit )
 {
     std::map<RiaDefines::DepthTypeEnum, std::vector<double>> depths = { { RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
                                                                           measuredDepths },
                                                                         { RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH,
                                                                           tvdMSL } };
-    setValuesAndDepths( xValues, depths, rkbDiff, depthUnit, isExtractionCurve, xUnits );
+    setPropertyValuesAndDepths( propertyValues, depths, rkbDiff, depthUnit, isExtractionCurve, useLogarithmicScale, propertyUnit );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,11 +226,35 @@ const RigWellLogCurveData* RimWellLogCurve::curveData() const
 void RimWellLogCurve::updateCurveAppearance()
 {
     RimPlotCurve::updateCurveAppearance();
+
+    RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
+
+    RimDepthTrackPlot* wellLogPlot = nullptr;
+    firstAncestorOrThisOfType( wellLogPlot );
+    if ( wellLogPlot ) orientation = wellLogPlot->depthOrientation();
+
+    if ( m_plotCurve )
+    {
+        m_plotCurve->setXAxis( RiuPlotAxis::defaultTop() );
+        m_plotCurve->setYAxis( RiuPlotAxis::defaultLeft() );
+    }
+
     if ( fillStyle() != Qt::BrushStyle::NoBrush )
     {
-        m_qwtPlotCurve->setOrientation( Qt::Horizontal );
-        m_qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
-        m_qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+        RiuQwtPlotCurve* qwtPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( m_plotCurve );
+        if ( qwtPlotCurve )
+        {
+            if ( orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            {
+                qwtPlotCurve->setOrientation( Qt::Horizontal );
+                qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
+            }
+            else
+            {
+                qwtPlotCurve->setOrientation( Qt::Vertical );
+                qwtPlotCurve->setBaseline( 0.0 );
+            }
+        }
     }
 }
 
@@ -206,25 +277,19 @@ QString RimWellLogCurve::wellLogCurveIconName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&               xValues,
+void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&               propertyValues,
                                             const std::vector<double>&               depthValues,
                                             const RiaCurveDataTools::CurveIntervals& curveIntervals )
 {
-    auto minmax_it = std::minmax_element( xValues.begin(), xValues.end() );
-    this->setOverrideCurveDataXRange( *( minmax_it.first ), *( minmax_it.second ) );
-    if ( m_qwtPlotCurve )
-    {
-        m_qwtPlotCurve->setSamples( xValues.data(), depthValues.data(), static_cast<int>( depthValues.size() ) );
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( curveIntervals );
-    }
-}
+    auto minmax_it = std::minmax_element( propertyValues.begin(), propertyValues.end() );
+    this->setOverrideCurveDataPropertyValueRange( *( minmax_it.first ), *( minmax_it.second ) );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiaDefines::PhaseType RimWellLogCurve::resultPhase() const
-{
-    return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+    if ( m_plotCurve )
+    {
+        setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
+
+        m_plotCurve->setLineSegmentStartStopIndices( curveIntervals );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,7 +304,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
 
     if ( wellLogTrack )
     {
-        wellLogTrack->setAutoScaleXIfNecessary();
+        wellLogTrack->setAutoScalePropertyValuesIfNecessary();
 
         RimDepthTrackPlot* wellLogPlot;
         wellLogTrack->firstAncestorOrThisOfType( wellLogPlot );
@@ -268,7 +333,7 @@ void RimWellLogCurve::updateZoomInParentPlot()
             }
             if ( updateDepthZoom )
             {
-                wellLogPlot->setAutoScaleDepthEnabled( true );
+                wellLogPlot->setAutoScaleDepthValuesEnabled( true );
             }
             wellLogPlot->updateZoom();
         }
@@ -291,24 +356,25 @@ void RimWellLogCurve::updateLegendsInPlot()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::setOverrideCurveDataXRange( double minimumValue, double maximumValue )
+void RimWellLogCurve::setOverrideCurveDataPropertyValueRange( double minimumValue, double maximumValue )
 {
-    m_curveDataXRange = std::make_pair( minimumValue, maximumValue );
+    m_curveDataPropertyValueRange = std::make_pair( minimumValue, maximumValue );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurve::calculateCurveDataXRange()
+void RimWellLogCurve::calculateCurveDataPropertyValueRange()
 {
     // Invalidate range first
-    m_curveDataXRange = std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
-    for ( double xValue : m_curveData->xValues() )
+    m_curveDataPropertyValueRange =
+        std::make_pair( std::numeric_limits<double>::infinity(), -std::numeric_limits<double>::infinity() );
+    for ( double xValue : m_curveData->propertyValues() )
     {
         if ( RiaCurveDataTools::isValidValue( xValue, false ) )
         {
-            m_curveDataXRange.first  = std::min( m_curveDataXRange.first, xValue );
-            m_curveDataXRange.second = std::max( m_curveDataXRange.second, xValue );
+            m_curveDataPropertyValueRange.first  = std::min( m_curveDataPropertyValueRange.first, xValue );
+            m_curveDataPropertyValueRange.second = std::max( m_curveDataPropertyValueRange.second, xValue );
         }
     }
 }
@@ -322,13 +388,52 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 {
     RimStackablePlotCurve::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &m_showCurve && m_showCurve() )
+    if ( changedField == &m_showCurve )
     {
-        updateZoomInParentPlot();
+        if ( m_isStacked() || m_showCurve() )
+        {
+            updateZoomInParentPlot();
+        }
     }
 
     if ( changedField == &m_isStacked )
     {
         loadDataAndUpdate( true );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogCurve::isVerticalCurve() const
+{
+    RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
+
+    RimDepthTrackPlot* depthTrackPlot = nullptr;
+    firstAncestorOrThisOfType( depthTrackPlot );
+    if ( depthTrackPlot ) orientation = depthTrackPlot->depthOrientation();
+
+    return orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimWellLogCurve::depthAxis() const
+{
+    RimDepthTrackPlot* depthTrackPlot;
+    this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+
+    return depthTrackPlot->depthAxis();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimWellLogCurve::valueAxis() const
+{
+    RimDepthTrackPlot* depthTrackPlot;
+    this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+
+    return depthTrackPlot->valueAxis();
 }

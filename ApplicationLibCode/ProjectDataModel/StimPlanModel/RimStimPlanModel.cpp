@@ -134,137 +134,120 @@ void caf::AppEnum<RimStimPlanModel::BurdenStrategy>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModel::RimStimPlanModel()
 {
-    CAF_PDM_InitScriptableObject( "StimPlanModel", "", "", "" );
+    CAF_PDM_InitScriptableObject( "StimPlanModel" );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "StimPlan Model Template", "", "", "" );
-    CAF_PDM_InitField( &m_editStimPlanModelTemplate, "EditModelTemplate", false, "Edit", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplate, "StimPlanModelTemplate", "StimPlan Model Template" );
+    CAF_PDM_InitField( &m_editStimPlanModelTemplate, "EditModelTemplate", false, "Edit" );
     m_editStimPlanModelTemplate.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editStimPlanModelTemplate.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Dynamic Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_eclipseCase, "EclipseCase", "Dynamic Case" );
     m_eclipseCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
     m_timeStep.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
                                           "InitialPressureEclipseCase",
-                                          "Initial Pressure Case",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Initial Pressure Case" );
     m_initialPressureEclipseCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
     m_staticEclipseCase.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_MD, "MeasuredDepth", 0.0, "Measured Depth" );
     m_MD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionOffsetTop, "ExtractionOffsetTop", -1.0, "Top Offset", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionOffsetTop, "ExtractionOffsetTop", -1.0, "Top Offset" );
     m_extractionOffsetTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionOffsetBottom, "ExtractionOffsetBottom", -1.0, "Bottom Offset", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionOffsetBottom, "ExtractionOffsetBottom", -1.0, "Bottom Offset" );
     m_extractionOffsetBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionDepthTop, "ExtractionDepthTop", -1.0, "Depth" );
     m_extractionDepthTop.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_extractionDepthTop.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Depth", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_extractionDepthBottom, "ExtractionDepthBottom", -1.0, "Depth" );
     m_extractionDepthBottom.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_extractionDepthBottom.uiCapability()->setUiReadOnly( true );
 
     CAF_PDM_InitScriptableField( &m_extractionType,
                                  "ExtractionType",
                                  caf::AppEnum<ExtractionType>( ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS ),
-                                 "Extraction Type",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Extraction Type" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_anchorPosition, "AnchorPosition", "Anchor Position" );
     m_anchorPosition.uiCapability()->setUiReadOnly( true );
     m_anchorPosition.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_anchorPositionForUi, "AnchorPositionForUi", "Anchor Position", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_anchorPositionForUi, "AnchorPositionForUi", "Anchor Position" );
     m_anchorPositionForUi.registerGetMethod( this, &RimStimPlanModel::anchorPositionForUi );
     m_anchorPositionForUi.uiCapability()->setUiReadOnly( true );
     m_anchorPositionForUi.xmlCapability()->disableIO();
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirection, "ThicknessDirection", "Thickness Direction" );
     m_thicknessDirection.uiCapability()->setUiReadOnly( true );
     m_thicknessDirection.xmlCapability()->disableIO();
 
+    CAF_PDM_InitScriptableFieldNoDefault( &m_originalThicknessDirection,
+                                          "OriginalThicknessDirection",
+                                          "Original Thickness Direction" );
+    m_originalThicknessDirection.uiCapability()->setUiReadOnly( true );
+    m_originalThicknessDirection.xmlCapability()->disableIO();
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_thicknessDirectionWellPath,
                                           "ThicknessDirectionWellPath",
-                                          "Thickness Direction Well Path",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Thickness Direction Well Path" );
 
-    CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_boundingBoxHorizontal, "BoundingBoxHorizontal", 50.0, "Bounding Box Horizontal" );
+    CAF_PDM_InitScriptableField( &m_boundingBoxVertical, "BoundingBoxVertical", 100.0, "Bounding Box Vertical" );
 
-    CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_useDetailedFluidLoss, "UseDetailedFluidLoss", true, "Use Detailed Fluid Loss" );
 
     CAF_PDM_InitScriptableField( &m_relativePermeabilityFactorDefault,
                                  "RelativePermeabilityFactor",
                                  0.5,
-                                 "Relative Permeability Factor",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_poroElasticConstantDefault, "PoroElasticConstant", 0.0, "Poro-Elastic Constant", "", "", "" );
+                                 "Relative Permeability Factor" );
+    CAF_PDM_InitScriptableField( &m_poroElasticConstantDefault, "PoroElasticConstant", 0.0, "Poro-Elastic Constant" );
     CAF_PDM_InitScriptableField( &m_thermalExpansionCoeffientDefault,
                                  "ThermalExpansionCoefficient",
                                  0.0,
-                                 "Thermal Expansion Coefficient [1/C]",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Thermal Expansion Coefficient [1/C]" );
 
-    CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 10.0, "Perforation Length [m]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_perforationLength, "PerforationLength", 10.0, "Perforation Length [m]" );
     CAF_PDM_InitScriptableField( &m_fractureOrientation,
                                  "FractureOrientation",
                                  caf::AppEnum<FractureOrientation>( FractureOrientation::ALONG_WELL_PATH ),
-                                 "Fracture Orientation",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle", "", "", "" );
+                                 "Fracture Orientation" );
+    CAF_PDM_InitScriptableField( &m_azimuthAngle, "AzimuthAngle", 0.0, "Azimuth Angle" );
 
-    CAF_PDM_InitScriptableField( &m_formationDip, "FormationDip", 0.0, "Formation Dip", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_formationDip, "FormationDip", 0.0, "Formation Dip" );
     m_formationDip.uiCapability()->setUiReadOnly( true );
     m_formationDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_autoComputeBarrier, "AutoComputeBarrier", true, "Auto Compute Barrier", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_hasBarrier, "Barrier", true, "Barrier", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_distanceToBarrier, "DistanceToBarrier", 0.0, "Distance To Barrier [m]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_autoComputeBarrier, "AutoComputeBarrier", true, "Auto Compute Barrier" );
+    CAF_PDM_InitScriptableField( &m_hasBarrier, "Barrier", true, "Barrier" );
+    CAF_PDM_InitScriptableField( &m_distanceToBarrier, "DistanceToBarrier", 0.0, "Distance To Barrier [m]" );
     m_distanceToBarrier.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_distanceToBarrier.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_barrierDip, "BarrierDip", 0.0, "Barrier Dip", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_barrierDip, "BarrierDip", 0.0, "Barrier Dip" );
     m_barrierDip.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_barrierDip.uiCapability()->setUiReadOnly( true );
-    CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 2, "Well Penetration Layer", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_wellPenetrationLayer, "WellPenetrationLayer", 2, "Well Penetration Layer" );
 
-    CAF_PDM_InitScriptableField( &m_showOnlyBarrierFault, "ShowOnlyBarrierFault", false, "Show Only Barrier Fault", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_showAllFaults, "ShowAllFaults", false, "Show All Faults", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showOnlyBarrierFault, "ShowOnlyBarrierFault", false, "Show Only Barrier Fault" );
+    CAF_PDM_InitScriptableField( &m_showAllFaults, "ShowAllFaults", false, "Show All Faults" );
     m_showAllFaults.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_showAllFaults.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_barrierFaultName, "BarrierFaultName", QString( "" ), "Barrier Fault" );
     m_barrierFaultName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation,
-                                          "BarrierTextAnnotation",
-                                          "Barrier Text Annotation",
-                                          "",
-                                          "",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_barrierTextAnnotation, "BarrierTextAnnotation", "Barrier Text Annotation" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_perforationInterval, "PerforationInterval", "Perforation Interval" );
 
     m_calculator = std::shared_ptr<RimStimPlanModelCalculator>( new RimStimPlanModelCalculator );
     m_calculator->setStimPlanModel( this );
@@ -416,8 +399,7 @@ void RimStimPlanModel::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimStimPlanModel::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                       bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimStimPlanModel::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -560,18 +542,26 @@ void RimStimPlanModel::updatePositionFromMeasuredDepth()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::updateThicknessDirection()
 {
-    // True vertical thickness: just point straight up
-    cvf::Vec3d direction( 0.0, 0.0, -1.0 );
+    cvf::Vec3d defaultDirection( 0.0, 0.0, -1.0 );
 
     if ( m_extractionType() == ExtractionType::TRUE_STRATIGRAPHIC_THICKNESS )
     {
-        direction = RigStimPlanModelTools::calculateTSTDirection( getEclipseCaseData(),
-                                                                  m_anchorPosition(),
-                                                                  m_boundingBoxHorizontal,
-                                                                  m_boundingBoxVertical );
-    }
+        cvf::Vec3d direction = RigStimPlanModelTools::calculateTSTDirection( getEclipseCaseData(),
+                                                                             m_anchorPosition(),
+                                                                             m_boundingBoxHorizontal,
+                                                                             m_boundingBoxVertical );
 
-    m_thicknessDirection = direction;
+        // Calculate an adjusted TST direction to improve the zone thickness in the well log plot.
+        // Using average of TST and TVD (default direction) in 3D.
+        m_thicknessDirection         = ( direction + defaultDirection ) / 2.0;
+        m_originalThicknessDirection = direction;
+    }
+    else
+    {
+        // True vertical thickness: just point straight up
+        m_thicknessDirection         = defaultDirection;
+        m_originalThicknessDirection = defaultDirection;
+    }
 
     if ( m_thicknessDirectionWellPath )
     {
@@ -665,65 +655,22 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
     RiaLogging::info( "Computing distance to barrier." );
     RiaLogging::info( QString( "Anchor position: %1" ).arg( RigStimPlanModelTools::vecToString( position ) ) );
 
-    RigWellPath* wellPathGeometry = wellPath()->wellPathGeometry();
-
-    // Find the well path points closest to the anchor position
-    cvf::Vec3d p1;
-    cvf::Vec3d p2;
-    wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
-    RiaLogging::info( QString( "Closest points on well path: %1 %2" )
-                          .arg( RigStimPlanModelTools::vecToString( p1 ) )
-                          .arg( RigStimPlanModelTools::vecToString( p2 ) ) );
-
-    // Create a well direction based on the two points
-    cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
-    RiaLogging::info( QString( "Well direction: %1" ).arg( RigStimPlanModelTools::vecToString( wellDirection ) ) );
-
-    cvf::Vec3d fractureDirectionNormal = wellDirection;
-    if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
-    {
-        cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
-        fractureDirectionNormal.transformVector( azimuthRotation );
-    }
-    else if ( m_fractureOrientation == FractureOrientation::AZIMUTH )
-    {
-        // Azimuth angle of fracture is relative to north.
-        double     wellAzimuth = wellPathGeometry->wellPathAzimuthAngle( position );
-        cvf::Mat3d azimuthRotation =
-            cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuthAngle() - 90.0 ) );
-        fractureDirectionNormal.transformVector( azimuthRotation );
-    }
-
-    // Create a fracture plane
-    cvf::Plane fracturePlane;
-    if ( !fracturePlane.setFromPointAndNormal( position, fractureDirectionNormal ) )
-    {
-        RiaLogging::error( "Unable to create fracture plane" );
-        return;
-    }
-
-    // The direction to the barrier must be in the fracture plane.
-    // Project the TST onto the fracture plane.
-    cvf::Vec3d tstInPlane;
-    if ( !fracturePlane.projectVector( thicknessDirection(), &tstInPlane ) )
-    {
-        RiaLogging::error( "Unable to project thickess vector into fracture plane" );
-        return;
-    }
-    RiaLogging::info(
-        QString( "Thickness direction: %1" ).arg( RigStimPlanModelTools::vecToString( thicknessDirection() ) ) );
-    RiaLogging::info(
-        QString( "Thickness direction in fracture plane: %1" ).arg( RigStimPlanModelTools::vecToString( tstInPlane ) ) );
-
-    // The direction to the barrier is normal to the TST project into the fracture plane
-    cvf::Vec3d directionToBarrier = ( tstInPlane ^ fractureDirectionNormal ).getNormalized();
-    RiaLogging::info(
-        QString( "Direction to barrier: %1" ).arg( RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
+    cvf::Vec3d fractureDirectionNormal = computeFractureDirectionNormal( wellPath(), position );
 
     // Update formation dip. The direction for the barrier search follows the
     // inclination of the formation, and is in effect the formation dip in the
     // fracture plane. -90 to convert from horizontal to vertical.
-    m_formationDip = std::abs( RigStimPlanModelTools::calculateFormationDip( directionToBarrier ) - 90.0 );
+    cvf::Vec3d formationDirection =
+        projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_originalThicknessDirection );
+    if ( formationDirection.isUndefined() ) return;
+    m_formationDip = std::abs( RigStimPlanModelTools::calculateFormationDip( formationDirection ) - 90.0 );
+
+    cvf::Vec3d directionToBarrier =
+        projectVectorIntoFracturePlane( position, fractureDirectionNormal, m_thicknessDirection );
+    if ( directionToBarrier.isUndefined() ) return;
+
+    RiaLogging::info(
+        QString( "Direction to barrier: %1" ).arg( RigStimPlanModelTools::vecToString( directionToBarrier ) ) );
 
     auto [foundFault, shortestDistance, barrierPosition, barrierDip] =
         RigStimPlanModelTools::findClosestFaultBarrier( eclipseCaseData, position, directionToBarrier );
@@ -754,6 +701,73 @@ void RimStimPlanModel::updateDistanceToBarrierAndDip()
         m_distanceToBarrier = 0.0;
         m_barrierFaultName  = "";
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimStimPlanModel::computeFractureDirectionNormal( RimWellPath* wellPath, const cvf::Vec3d& position ) const
+{
+    CAF_ASSERT( wellPath );
+    RigWellPath* wellPathGeometry = wellPath->wellPathGeometry();
+    CAF_ASSERT( wellPathGeometry );
+
+    // Find the well path points closest to the anchor position
+    cvf::Vec3d p1;
+    cvf::Vec3d p2;
+    wellPathGeometry->twoClosestPoints( position, &p1, &p2 );
+    RiaLogging::info( QString( "Closest points on well path: %1 %2" )
+                          .arg( RigStimPlanModelTools::vecToString( p1 ) )
+                          .arg( RigStimPlanModelTools::vecToString( p2 ) ) );
+
+    // Create a well direction based on the two points
+    cvf::Vec3d wellDirection = ( p2 - p1 ).getNormalized();
+    RiaLogging::info( QString( "Well direction: %1" ).arg( RigStimPlanModelTools::vecToString( wellDirection ) ) );
+
+    cvf::Vec3d fractureDirectionNormal = wellDirection;
+    if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
+    {
+        cvf::Mat3d azimuthRotation = cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( 90.0 ) );
+        fractureDirectionNormal.transformVector( azimuthRotation );
+    }
+    else if ( m_fractureOrientation == FractureOrientation::AZIMUTH )
+    {
+        // Azimuth angle of fracture is relative to north.
+        double     wellAzimuth = wellPathGeometry->wellPathAzimuthAngle( position );
+        cvf::Mat3d azimuthRotation =
+            cvf::Mat3d::fromRotation( cvf::Vec3d::Z_AXIS, cvf::Math::toRadians( wellAzimuth - m_azimuthAngle() - 90.0 ) );
+        fractureDirectionNormal.transformVector( azimuthRotation );
+    }
+
+    return fractureDirectionNormal;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RimStimPlanModel::projectVectorIntoFracturePlane( const cvf::Vec3d& position,
+                                                             const cvf::Vec3d& fractureDirectionNormal,
+                                                             const cvf::Vec3d& direction )
+{
+    // Create a fracture plane
+    cvf::Plane fracturePlane;
+    if ( !fracturePlane.setFromPointAndNormal( position, fractureDirectionNormal ) )
+    {
+        RiaLogging::error( "Unable to create fracture plane" );
+        return cvf::Vec3d::UNDEFINED;
+    }
+
+    // Project the direction onto the fracture plane.
+    cvf::Vec3d tstInPlane;
+    if ( !fracturePlane.projectVector( direction, &tstInPlane ) )
+    {
+        RiaLogging::error( "Unable to project thickess vector into fracture plane" );
+        return cvf::Vec3d::UNDEFINED;
+    }
+
+    // The direction to the barrier is normal to the TST project into the fracture plane
+    cvf::Vec3d directionInPlane = ( tstInPlane ^ fractureDirectionNormal ).getNormalized();
+    return directionInPlane;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -818,8 +832,20 @@ void RimStimPlanModel::updatePerforationInterval()
             m_thicknessDirectionWellPath->perforationIntervalCollection()->appendPerforation( m_perforationInterval );
         }
 
+        double halfPerforationLength = m_perforationLength() * 0.5;
+        if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
+        {
+            // Adjust perforation interval for longitudinal fractures to correct TVD depth
+            CAF_ASSERT( wellPath() );
+            CAF_ASSERT( wellPath()->wellPathGeometry() );
+
+            cvf::Vec3d wellPathTangent = wellPath()->wellPathGeometry()->tangentAlongWellPath( m_MD() );
+            halfPerforationLength =
+                RigStimPlanModelTools::calculatePerforationLength( wellPathTangent, m_perforationLength() ) * 0.5;
+        }
+
         double closestMd = m_thicknessDirectionWellPath->wellPathGeometry()->closestMeasuredDepth( m_anchorPosition );
-        m_perforationInterval->setStartAndEndMD( closestMd - perforationLength(), closestMd + perforationLength() );
+        m_perforationInterval->setStartAndEndMD( closestMd - halfPerforationLength, closestMd + halfPerforationLength );
         m_perforationInterval->updateConnectedEditors();
         updateViewsAndPlots();
     }
@@ -884,6 +910,8 @@ void RimStimPlanModel::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     asymmetricGroup->add( &m_showAllFaults, { false, 1, 0 } );
 
     asymmetricGroup->add( &m_wellPenetrationLayer );
+
+    uiOrdering.skipRemainingFields();
 }
 
 //--------------------------------------------------------------------------------------------------

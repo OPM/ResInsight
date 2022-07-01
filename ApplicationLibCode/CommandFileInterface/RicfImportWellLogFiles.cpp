@@ -35,8 +35,8 @@ CAF_PDM_SOURCE_INIT( RicfImportWellLogFilesResult, "importWellLogFilesResult" );
 //--------------------------------------------------------------------------------------------------
 RicfImportWellLogFilesResult::RicfImportWellLogFilesResult()
 {
-    CAF_PDM_InitObject( "well_log_files_result", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &wellPathNames, "wellPathNames", "", "", "", "" );
+    CAF_PDM_InitObject( "well_log_files_result" );
+    CAF_PDM_InitFieldNoDefault( &wellPathNames, "wellPathNames", "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfImportWellLogFiles, "importWellLogFiles" );
@@ -46,8 +46,8 @@ CAF_PDM_SOURCE_INIT( RicfImportWellLogFiles, "importWellLogFiles" );
 //--------------------------------------------------------------------------------------------------
 RicfImportWellLogFiles::RicfImportWellLogFiles()
 {
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogFileFolder, "wellLogFolder", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogFilePaths, "wellLogFiles", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogFileFolder, "wellLogFolder", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogFilePaths, "wellLogFiles", "" );
 }
 
 caf::PdmScriptResponse RicfImportWellLogFiles::execute()

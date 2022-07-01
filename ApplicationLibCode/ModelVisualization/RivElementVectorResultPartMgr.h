@@ -54,11 +54,16 @@ public:
 private:
     struct ElementVectorResultVisualization
     {
-        ElementVectorResultVisualization( cvf::Vec3d faceCenter, cvf::Vec3d faceNormal, double result, double approximateCellLength )
+        ElementVectorResultVisualization( cvf::Vec3d faceCenter,
+                                          cvf::Vec3d faceNormal,
+                                          double     result,
+                                          double     approximateCellLength,
+                                          bool       centerArrow )
             : faceCenter( faceCenter )
             , faceNormal( faceNormal )
             , result( result )
             , approximateCellLength( approximateCellLength )
+            , centerArrow( centerArrow )
         {
         }
 
@@ -66,6 +71,7 @@ private:
         cvf::Vec3f faceNormal;
         double     result;
         double     approximateCellLength;
+        bool       centerArrow;
     };
 
 private:

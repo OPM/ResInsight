@@ -164,7 +164,7 @@ void RicLinkVisibleViewsFeature::linkViews( std::vector<RimGridView*>& linkableV
     viewLinker->updateUiNameAndIcon();
 
     proj->viewLinkerCollection.uiCapability()->updateConnectedEditors();
-    proj->updateConnectedEditors();
+    proj->viewLinkerCollection->updateConnectedEditors();
 
     Riu3DMainWindowTools::setExpanded( proj->viewLinkerCollection() );
 }

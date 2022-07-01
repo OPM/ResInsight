@@ -52,12 +52,12 @@ CAF_PDM_SOURCE_INIT( RimEclipseInputProperty, "RimInputProperty" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseInputProperty::RimEclipseInputProperty()
 {
-    CAF_PDM_InitObject( "Input Property", ":/EclipseInput48x48.png", "", "" );
+    CAF_PDM_InitObject( "Input Property", ":/EclipseInput48x48.png" );
 
-    CAF_PDM_InitField( &resultName, "ResultName", QString(), "Result Name", "", "", "" );
-    CAF_PDM_InitField( &eclipseKeyword, "EclipseKeyword", QString(), "Eclipse Keyword", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &fileName, "FileName", "Filename", "", "", "" );
-    CAF_PDM_InitField( &resolvedState, "ResolvedState", (ResolveStateEnum)UNKNOWN, "Data State", "", "", "" );
+    CAF_PDM_InitField( &resultName, "ResultName", QString(), "Result Name" );
+    CAF_PDM_InitField( &eclipseKeyword, "EclipseKeyword", QString(), "Eclipse Keyword" );
+    CAF_PDM_InitFieldNoDefault( &fileName, "FileName", "Filename" );
+    CAF_PDM_InitField( &resolvedState, "ResolvedState", (ResolveStateEnum)UNKNOWN, "Data State" );
 
     resolvedState.uiCapability()->setUiReadOnly( true );
     resolvedState.xmlCapability()->disableIO();

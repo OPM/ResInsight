@@ -20,7 +20,7 @@
 
 #include "cafCmdFeature.h"
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RimFlowDiagSolution.h"
 
 class RimGridSummaryCase;
@@ -36,7 +36,6 @@ class RicPlotProductionRateFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

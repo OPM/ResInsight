@@ -42,9 +42,9 @@ CAF_PDM_SOURCE_INIT( RimEnsembleSurface, "EnsembleSurface" );
 //--------------------------------------------------------------------------------------------------
 RimEnsembleSurface::RimEnsembleSurface()
 {
-    CAF_PDM_InitScriptableObject( "Ensemble Surface", ":/ReservoirSurfaces16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Ensemble Surface", ":/ReservoirSurfaces16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set" );
 
     std::vector<RigSurfaceStatisticsCalculator::StatisticsType> statisticsTypes =
         { RigSurfaceStatisticsCalculator::StatisticsType::MIN,
@@ -229,8 +229,7 @@ const RigSurface* RimEnsembleSurface::statisticsSurface() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEnsembleSurface::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimEnsembleSurface::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

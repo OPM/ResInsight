@@ -18,14 +18,20 @@
 
 #pragma once
 
-#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
+
+#include "RiuPlotAxis.h"
 
 #include "cafAppEnum.h"
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
 
 class RimPlotAxisAnnotation;
 
-class RimPlotAxisPropertiesInterface
+class RimPlotAxisPropertiesInterface : public caf::PdmObject
 {
+    CAF_PDM_HEADER_INIT;
+
 public:
     enum AxisTitlePositionType
     {
@@ -35,19 +41,55 @@ public:
 
     enum class LegendTickmarkCount
     {
+        TICKMARK_VERY_FEW,
         TICKMARK_FEW,
         TICKMARK_DEFAULT,
         TICKMARK_MANY,
     };
     using LegendTickmarkCountEnum = caf::AppEnum<LegendTickmarkCount>;
 
+    caf::Signal<> settingsChanged;
+
+public:
+    RimPlotAxisPropertiesInterface();
+
     virtual std::vector<RimPlotAxisAnnotation*> annotations() const                                   = 0;
     virtual void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) = 0;
     virtual void                                removeAllAnnotations()                                = 0;
-    virtual RiaDefines::PlotAxis                plotAxisType() const                                  = 0;
+    virtual RiuPlotAxis                         plotAxisType() const                                  = 0;
+
+    virtual double visibleRangeMin() const = 0;
+    virtual double visibleRangeMax() const = 0;
+
+    virtual void setVisibleRangeMin( double value ) = 0;
+    virtual void setVisibleRangeMax( double value ) = 0;
+
+    virtual bool isAutoZoom() const                 = 0;
+    virtual void setAutoZoom( bool enableAutoZoom ) = 0;
+
+    virtual bool isActive() const = 0;
+
+    virtual const QString objectName() const    = 0;
+    virtual const QString axisTitleText() const = 0;
+
+    virtual bool isAxisInverted() const;
+
+    virtual bool isLogarithmicScaleEnabled() const;
+
+    virtual LegendTickmarkCount majorTickmarkCount() const                         = 0;
+    virtual void                setMajorTickmarkCount( LegendTickmarkCount count ) = 0;
+    void                        setAppearanceOverridden( bool isOverridden );
+
+    static int tickmarkCountFromEnum( LegendTickmarkCount count );
 
 public:
     virtual AxisTitlePositionType titlePosition() const  = 0;
     virtual int                   titleFontSize() const  = 0;
     virtual int                   valuesFontSize() const = 0;
+
+protected:
+    bool isAppearanceOverridden() const;
+
+private:
+    caf::PdmField<bool> m_isAppearanceOverridden;
 };

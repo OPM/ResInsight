@@ -36,7 +36,6 @@ public:
     static void deleteSummaryCases( std::vector<RimSummaryCase*>& cases );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

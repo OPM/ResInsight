@@ -26,14 +26,19 @@
 #include "RiaRegressionTestRunner.h"
 #include "RiaSummaryTools.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RimEnsembleCurveSetCollection.h"
+#include "RimMainPlotCollection.h"
 #include "RimMultiPlot.h"
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurveCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimSummaryPlotFilterTextCurveSetEditor.h"
+#include "RimSummaryPlotManager.h"
 #include "RimViewWindow.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurveCommonDataSource.h"
@@ -58,7 +63,6 @@
 #include "cafPdmUiPropertyView.h"
 #include "cafPdmUiToolBarEditor.h"
 #include "cafPdmUiTreeView.h"
-#include "cafQTreeViewStateSerializer.h"
 #include "cafSelectionManager.h"
 
 #include <QCloseEvent>
@@ -78,7 +82,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     : m_activePlotViewWindow( nullptr )
     , m_windowMenu( nullptr )
 {
-    m_mdiArea = new RiuMdiArea;
+    m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
     setCentralWidget( m_mdiArea );
 
@@ -86,10 +90,10 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     createToolBars();
     createDockPanels();
 
+    setAcceptDrops( true );
+
     // Store the layout so we can offer reset option
     m_initialDockAndToolbarLayout = saveState( 0 );
-
-    m_dragDropInterface = std::unique_ptr<caf::PdmUiDragDropInterface>( new RiuDragDrop() );
 
     if ( m_undoView )
     {
@@ -105,6 +109,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow::~RiuPlotMainWindow()
 {
+    m_summaryPlotManagerView->showProperties( nullptr );
     setPdmRoot( nullptr );
 }
 
@@ -114,6 +119,18 @@ RiuPlotMainWindow::~RiuPlotMainWindow()
 QString RiuPlotMainWindow::mainWindowName()
 {
     return "RiuPlotMainWindow";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotMainWindow* RiuPlotMainWindow::instance()
+{
+    if ( RiaGuiApplication::isRunning() )
+    {
+        return RiaGuiApplication::instance()->mainPlotWindow();
+    }
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,6 +146,16 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         m_pdmUiPropertyView->currentObject()->uiCapability()->updateConnectedEditors();
     }
 
+    auto sumPlotManager = dynamic_cast<RimSummaryPlotManager*>( m_summaryPlotManager.get() );
+    if ( sumPlotManager )
+    {
+        auto* obj = RiaSummaryTools::summaryCaseMainCollection();
+        obj->dataSourceHasChanged.connect( sumPlotManager, &RimSummaryPlotManager::onSummaryDataSourceHasChanged );
+
+        sumPlotManager->resetDataSourceSelection();
+        sumPlotManager->updateConnectedEditors();
+    }
+
     {
         auto* obj = RiaSummaryTools::summaryCaseMainCollection();
         if ( obj )
@@ -138,7 +165,7 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
     }
 
     {
-        auto* obj = RiaSummaryTools::summaryPlotCollection();
+        auto* obj = RiaSummaryTools::summaryMultiPlotCollection();
         if ( obj )
         {
             setExpanded( obj );
@@ -181,8 +208,8 @@ void RiuPlotMainWindow::cleanupGuiBeforeProjectClose()
     cleanUpTemporaryWidgets();
 
     m_wellLogPlotToolBarEditor->clear();
-    m_summaryPlotToolBarEditor->clear();
     m_multiPlotToolBarEditor->clear();
+    m_multiPlotLayoutToolBarEditor->clear();
 
     setWindowTitle( "Plots - ResInsight" );
 }
@@ -340,6 +367,8 @@ void RiuPlotMainWindow::createMenus()
     helpMenu->addSeparator();
     helpMenu->addAction( cmdFeatureMgr->action( "RicHelpOpenUsersGuideFeature" ) );
     helpMenu->addAction( cmdFeatureMgr->action( "RicSearchHelpFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicSearchIssuesHelpFeature" ) );
+    helpMenu->addAction( cmdFeatureMgr->action( "RicCreateNewIssueHelpFeature" ) );
 
     connect( helpMenu, SIGNAL( aboutToShow() ), SLOT( slotRefreshHelpActions() ) );
 }
@@ -409,14 +438,14 @@ void RiuPlotMainWindow::createToolBars()
         }
     }
 
-    m_wellLogPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Well Log Plot", this );
+    m_wellLogPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Well Log Plot", this );
     m_wellLogPlotToolBarEditor->hide();
 
-    m_summaryPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Summary Plot", this );
-    m_summaryPlotToolBarEditor->hide();
-
-    m_multiPlotToolBarEditor = new caf::PdmUiToolBarEditor( "Multi Plot", this );
+    m_multiPlotToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Multi Plot", this );
     m_multiPlotToolBarEditor->hide();
+
+    m_multiPlotLayoutToolBarEditor = std::make_unique<caf::PdmUiToolBarEditor>( "Multi Plot Layout", this );
+    m_multiPlotLayoutToolBarEditor->hide();
 
     if ( RiaPreferences::current()->useUndoRedo() )
     {
@@ -443,40 +472,67 @@ void RiuPlotMainWindow::refreshToolbars()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::createDockPanels()
 {
+    const int                  nTreeViews        = 4;
+    const std::vector<QString> treeViewTitles    = { "Plots", "Data Sources", "Templates", "Scripts" };
+    const std::vector<QString> treeViewConfigs   = { "PlotWindow.Plots",
+                                                   "PlotWindow.DataSources",
+                                                   "PlotWindow.Templates",
+                                                   "PlotWindow.Scripts" };
+    const std::vector<QString> treeViewDockNames = { RiuDockWidgetTools::plotMainWindowPlotsTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowDataSourceTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowTemplateTreeName(),
+                                                     RiuDockWidgetTools::plotMainWindowScriptsTreeName() };
+
+    const std::vector<Qt::DockWidgetArea> defaultDockWidgetArea{ Qt::LeftDockWidgetArea,
+                                                                 Qt::RightDockWidgetArea,
+                                                                 Qt::LeftDockWidgetArea,
+                                                                 Qt::LeftDockWidgetArea };
+
+    createTreeViews( nTreeViews );
+
+    std::vector<QDockWidget*> rightTabbedWidgets;
+    std::vector<QDockWidget*> leftTabbedWidgets;
+
+    for ( int i = 0; i < nTreeViews; i++ )
     {
-        QDockWidget* dockWidget = new QDockWidget( "Plot Project Tree", this );
-        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowProjectTreeName() );
+        QDockWidget* dockWidget = new QDockWidget( treeViewTitles[i], this );
+        dockWidget->setObjectName( treeViewDockNames[i] );
         dockWidget->setAllowedAreas( Qt::AllDockWidgetAreas );
 
-        m_projectTreeView = new caf::PdmUiTreeView( this );
-        m_projectTreeView->enableSelectionManagerUpdating( true );
+        caf::PdmUiTreeView* projectTree = projectTreeView( i );
+        projectTree->enableSelectionManagerUpdating( true );
 
-        m_projectTreeView->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
 
-        dockWidget->setWidget( m_projectTreeView );
+        dockWidget->setWidget( projectTree );
 
-        m_projectTreeView->treeView()->setHeaderHidden( true );
-        m_projectTreeView->treeView()->setSelectionMode( QAbstractItemView::ExtendedSelection );
+        projectTree->treeView()->setHeaderHidden( true );
+        projectTree->treeView()->setSelectionMode( QAbstractItemView::ExtendedSelection );
 
         // Drag and drop configuration
-        m_projectTreeView->treeView()->setDragEnabled( true );
-        m_projectTreeView->treeView()->viewport()->setAcceptDrops( true );
-        m_projectTreeView->treeView()->setDropIndicatorShown( true );
-        m_projectTreeView->treeView()->setDragDropMode( QAbstractItemView::DragDrop );
+        projectTree->treeView()->setDragEnabled( true );
+        projectTree->treeView()->viewport()->setAcceptDrops( true );
+        projectTree->treeView()->setDropIndicatorShown( true );
+        projectTree->treeView()->setDragDropMode( QAbstractItemView::DragDrop );
 
         // Install event filter used to handle key press events
-        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this );
-        m_projectTreeView->treeView()->installEventFilter( treeViewEventFilter );
+        RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this, projectTree );
+        projectTree->treeView()->installEventFilter( treeViewEventFilter );
 
-        addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
+        addDockWidget( defaultDockWidgetArea[i], dockWidget );
 
-        connect( m_projectTreeView, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
-        m_projectTreeView->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
-        connect( m_projectTreeView->treeView(),
+        if ( defaultDockWidgetArea[i] == Qt::LeftDockWidgetArea ) leftTabbedWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == Qt::RightDockWidgetArea ) rightTabbedWidgets.push_back( dockWidget );
+
+        connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
+        connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
+
+        projectTree->treeView()->setContextMenuPolicy( Qt::CustomContextMenu );
+        connect( projectTree->treeView(),
                  SIGNAL( customContextMenuRequested( const QPoint& ) ),
                  SLOT( customMenuRequested( const QPoint& ) ) );
 
-        m_projectTreeView->setUiConfigurationName( "PlotWindow" );
+        projectTree->setUiConfigurationName( treeViewConfigs[i] );
     }
 
     {
@@ -484,8 +540,8 @@ void RiuPlotMainWindow::createDockPanels()
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowPropertyEditorName() );
         dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
 
-        m_pdmUiPropertyView = new caf::PdmUiPropertyView( dockWidget );
-        dockWidget->setWidget( m_pdmUiPropertyView );
+        m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
+        dockWidget->setWidget( m_pdmUiPropertyView.get() );
 
         addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
     }
@@ -495,7 +551,26 @@ void RiuPlotMainWindow::createDockPanels()
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
-        addDockWidget( Qt::BottomDockWidgetArea, dockWidget );
+        splitDockWidget( rightTabbedWidgets.front(), dockWidget, Qt::Vertical );
+        dockWidget->hide();
+    }
+
+    {
+        QDockWidget* dockWidget = new QDockWidget( "Plot Manager", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::summaryPlotManagerName() );
+
+        m_summaryPlotManagerView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
+
+        auto plotManager = std::make_unique<RimSummaryPlotManager>();
+        m_summaryPlotManagerView->showProperties( plotManager.get() );
+        m_summaryPlotManagerView->installEventFilter( plotManager.get() );
+        m_summaryPlotManager = std::move( plotManager );
+
+        dockWidget->setWidget( m_summaryPlotManagerView.get() );
+        addDockWidget( Qt::RightDockWidgetArea, dockWidget );
+
+        rightTabbedWidgets.push_back( dockWidget );
+
         dockWidget->hide();
     }
 
@@ -507,8 +582,30 @@ void RiuPlotMainWindow::createDockPanels()
 
         dockWidget->setWidget( m_undoView );
         addDockWidget( Qt::RightDockWidgetArea, dockWidget );
+        rightTabbedWidgets.push_back( dockWidget );
 
         dockWidget->hide();
+    }
+
+    {
+        QDockWidget* topDock = nullptr;
+        for ( auto d : leftTabbedWidgets )
+        {
+            if ( !topDock )
+                topDock = d;
+            else
+                tabifyDockWidget( topDock, d );
+        }
+    }
+    {
+        QDockWidget* topDock = nullptr;
+        for ( auto d : rightTabbedWidgets )
+        {
+            if ( !topDock )
+                topDock = d;
+            else
+                tabifyDockWidget( topDock, d );
+        }
     }
 
     setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
@@ -634,17 +731,31 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
     RimMultiPlot* plotWindow = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
     if ( plotWindow )
     {
-        std::vector<caf::PdmFieldHandle*> toolBarFields = { plotWindow->pagePreviewField(),
-                                                            plotWindow->columnCountField(),
-                                                            plotWindow->rowsPerPageField() };
-        m_multiPlotToolBarEditor->setFields( toolBarFields );
-        m_multiPlotToolBarEditor->updateUi();
-        m_multiPlotToolBarEditor->show();
+        std::vector<caf::PdmFieldHandle*> toolBarFields = plotWindow->fieldsToShowInToolbar();
+
+        if ( toolBarFields.empty() )
+        {
+            m_multiPlotToolBarEditor->clear();
+            m_multiPlotToolBarEditor->hide();
+        }
+        else
+        {
+            m_multiPlotToolBarEditor->setFields( toolBarFields );
+            m_multiPlotToolBarEditor->updateUi();
+            m_multiPlotToolBarEditor->show();
+        }
+
+        std::vector<caf::PdmFieldHandle*> layoutFields = plotWindow->fieldsToShowInLayoutToolbar();
+        m_multiPlotLayoutToolBarEditor->setFields( layoutFields );
+        m_multiPlotLayoutToolBarEditor->updateUi();
+        m_multiPlotLayoutToolBarEditor->show();
     }
     else
     {
         m_multiPlotToolBarEditor->clear();
         m_multiPlotToolBarEditor->hide();
+        m_multiPlotLayoutToolBarEditor->clear();
+        m_multiPlotLayoutToolBarEditor->hide();
     }
     refreshToolbars();
 }
@@ -652,77 +763,27 @@ void RiuPlotMainWindow::updateMultiPlotToolBar()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::updateSummaryPlotToolBar( bool forceUpdateUi )
+RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog( bool createIfNotPresent )
 {
-    RimSummaryPlot* summaryPlot = dynamic_cast<RimSummaryPlot*>( m_activePlotViewWindow.p() );
-    RimMultiPlot*   multiPlot   = dynamic_cast<RimMultiPlot*>( m_activePlotViewWindow.p() );
-    if ( multiPlot )
+    if ( !m_summaryCurveCreatorDialog && createIfNotPresent )
     {
-        summaryPlot = caf::SelectionManager::instance()->selectedItemOfType<RimSummaryPlot>();
+        m_summaryCurveCreatorDialog = std::make_unique<RicSummaryPlotEditorDialog>( this );
     }
 
-    if ( summaryPlot )
-    {
-        std::vector<caf::PdmFieldHandle*> toolBarFields = summaryPlot->fieldsToShowInToolbar();
-
-        QString keyword;
-
-        if ( !m_summaryPlotToolBarEditor->isEditorDataValid( toolBarFields ) )
-        {
-            keyword = m_summaryPlotToolBarEditor->keywordForFocusWidget();
-
-            m_summaryPlotToolBarEditor->setFields( toolBarFields );
-        }
-
-        m_summaryPlotToolBarEditor->updateUi( caf::PdmUiToolBarEditor::uiEditorConfigName() );
-        m_summaryPlotToolBarEditor->show();
-        m_summaryPlotToolBarEditor->setFocusWidgetFromKeyword( keyword );
-    }
-    else
-    {
-        m_summaryPlotToolBarEditor->clear();
-        m_summaryPlotToolBarEditor->hide();
-    }
-
-    refreshToolbars();
+    return m_summaryCurveCreatorDialog.get();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::setFocusToLineEditInSummaryToolBar()
+RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog( bool createIfNotPresent )
 {
-    if ( m_summaryPlotToolBarEditor )
+    if ( !m_summaryCurveCalculatorDialog && createIfNotPresent )
     {
-        m_summaryPlotToolBarEditor->setFocusWidgetFromKeyword(
-            RimSummaryPlotFilterTextCurveSetEditor::curveFilterFieldKeyword() );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicSummaryPlotEditorDialog* RiuPlotMainWindow::summaryCurveCreatorDialog()
-{
-    if ( m_summaryCurveCreatorDialog.isNull() )
-    {
-        m_summaryCurveCreatorDialog = new RicSummaryPlotEditorDialog( this );
+        m_summaryCurveCalculatorDialog = std::make_unique<RicSummaryCurveCalculatorDialog>( this );
     }
 
-    return m_summaryCurveCreatorDialog;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog()
-{
-    if ( m_summaryCurveCalculatorDialog.isNull() )
-    {
-        m_summaryCurveCalculatorDialog = new RicSummaryCurveCalculatorDialog( this );
-    }
-
-    return m_summaryCurveCalculatorDialog;
+    return m_summaryCurveCalculatorDialog.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -731,6 +792,24 @@ RicSummaryCurveCalculatorDialog* RiuPlotMainWindow::summaryCurveCalculatorDialog
 RiuMessagePanel* RiuPlotMainWindow::messagePanel()
 {
     return m_messagePanel;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
+{
+    auto dockWidget = RiuDockWidgetTools::findDockWidget( this, RiuDockWidgetTools::summaryPlotManagerName() );
+    if ( dockWidget )
+    {
+        dockWidget->setVisible( true );
+
+        auto sumPlotManager = dynamic_cast<RimSummaryPlotManager*>( m_summaryPlotManager.get() );
+        if ( sumPlotManager )
+        {
+            sumPlotManager->setFocusToFilterText();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -767,13 +846,14 @@ void RiuPlotMainWindow::initializeViewer( QMdiSubWindow* subWindow, QWidget* vie
 }
 
 //--------------------------------------------------------------------------------------------------
-/// This method needs to handle memory deallocation !!!
+///
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::setPdmRoot( caf::PdmObject* pdmRoot )
 {
-    m_projectTreeView->setPdmItem( pdmRoot );
-    // For debug only : m_projectTreeView->treeView()->expandAll();
-    m_projectTreeView->setDragDropInterface( m_dragDropInterface.get() );
+    for ( auto tv : projectTreeViews() )
+    {
+        tv->setPdmItem( pdmRoot );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -790,33 +870,36 @@ void RiuPlotMainWindow::slotSubWindowActivated( QMdiSubWindow* subWindow )
 
     if ( !isBlockingViewSelectionOnSubWindowActivated() )
     {
-        std::vector<caf::PdmUiItem*> currentSelection;
-        m_projectTreeView->selectedUiItems( currentSelection );
-        bool childSelected = false;
-        for ( caf::PdmUiItem* uiItem : currentSelection )
+        caf::PdmUiTreeView* projectTree = getTreeViewWithItem( activatedView );
+        if ( projectTree )
         {
-            caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( uiItem );
-            if ( pdmObject )
+            std::vector<caf::PdmUiItem*> currentSelection;
+            projectTree->selectedUiItems( currentSelection );
+            bool childSelected = false;
+            for ( caf::PdmUiItem* uiItem : currentSelection )
             {
-                std::vector<RimViewWindow*> ancestralViews;
-                pdmObject->allAncestorsOrThisOfType( ancestralViews );
-                for ( auto ancestralView : ancestralViews )
+                caf::PdmObject* pdmObject = dynamic_cast<caf::PdmObject*>( uiItem );
+                if ( pdmObject )
                 {
-                    if ( ancestralView == activatedView )
+                    std::vector<RimViewWindow*> ancestralViews;
+                    pdmObject->allAncestorsOrThisOfType( ancestralViews );
+                    for ( auto ancestralView : ancestralViews )
                     {
-                        childSelected = true;
+                        if ( ancestralView == activatedView )
+                        {
+                            childSelected = true;
+                        }
                     }
                 }
             }
-        }
-        if ( !childSelected )
-        {
-            selectAsCurrentItem( activatedView );
+            if ( !childSelected )
+            {
+                selectAsCurrentItem( activatedView );
+            }
         }
     }
 
     updateWellLogPlotToolBar();
-    updateSummaryPlotToolBar();
     updateMultiPlotToolBar();
 }
 
@@ -865,8 +948,11 @@ void RiuPlotMainWindow::slotBuildWindowActions()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::selectedObjectsChanged()
 {
+    caf::PdmUiTreeView* projectTree = dynamic_cast<caf::PdmUiTreeView*>( sender() );
+    if ( !projectTree ) return;
+
     std::vector<caf::PdmUiItem*> uiItems;
-    m_projectTreeView->selectedUiItems( uiItems );
+    projectTree->selectedUiItems( uiItems );
 
     caf::PdmObjectHandle* firstSelectedObject = nullptr;
     if ( !uiItems.empty() )
@@ -917,18 +1003,25 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 
             if ( firstSelectedObject )
             {
-                RimSummaryPlot* summaryPlot = nullptr;
-                firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
-                if ( summaryPlot )
+                RimSummaryMultiPlot* multiSummaryPlot = nullptr;
+                firstSelectedObject->firstAncestorOrThisOfType( multiSummaryPlot );
+                if ( multiSummaryPlot )
                 {
-                    updateSummaryPlotToolBar();
+                    updateMultiPlotToolBar();
+
+                    RimSummaryPlot* summaryPlot = nullptr;
+                    firstSelectedObject->firstAncestorOrThisOfType( summaryPlot );
+                    if ( summaryPlot )
+                    {
+                        multiSummaryPlot->makeSureIsVisible( summaryPlot );
+                    }
                 }
             }
 
             // The only way to get to this code is by selection change initiated from the project tree view
             // As we are activating an MDI-window, the focus is given to this MDI-window
             // Set focus back to the tree view to be able to continue keyboard tree view navigation
-            m_projectTreeView->treeView()->setFocus();
+            projectTree->treeView()->setFocus();
         }
     }
 }
@@ -938,24 +1031,8 @@ void RiuPlotMainWindow::selectedObjectsChanged()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::restoreTreeViewState()
 {
-    if ( m_projectTreeView )
-    {
-        QString stateString = RimProject::current()->plotWindowTreeViewState;
-        if ( !stateString.isEmpty() )
-        {
-            m_projectTreeView->treeView()->collapseAll();
-            caf::QTreeViewStateSerializer::applyTreeViewStateFromString( m_projectTreeView->treeView(), stateString );
-        }
-
-        QString currentIndexString = RimProject::current()->plotWindowCurrentModelIndexPath;
-        if ( !currentIndexString.isEmpty() )
-        {
-            QModelIndex mi =
-                caf::QTreeViewStateSerializer::getModelIndexFromString( m_projectTreeView->treeView()->model(),
-                                                                        currentIndexString );
-            m_projectTreeView->treeView()->setCurrentIndex( mi );
-        }
-    }
+    restoreTreeViewStates( RimProject::current()->plotWindowTreeViewStates(),
+                           RimProject::current()->plotWindowCurrentModelIndexPaths() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1078,4 +1155,27 @@ bool RiuPlotMainWindow::subWindowsAreTiled() const
 bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 {
     return m_mdiArea->subWindowList().size() > 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::dragEnterEvent( QDragEnterEvent* event )
+{
+    QPoint curpos = m_mdiArea->mapFromGlobal( QCursor::pos() );
+
+    if ( m_mdiArea->rect().contains( curpos ) ) event->acceptProposedAction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::dropEvent( QDropEvent* event )
+{
+    std::vector<caf::PdmObjectHandle*> objects;
+
+    if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
+    {
+        RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
+    }
 }

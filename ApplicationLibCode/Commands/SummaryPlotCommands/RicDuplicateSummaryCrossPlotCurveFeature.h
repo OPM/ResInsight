@@ -34,7 +34,6 @@ class RicDuplicateSummaryCrossPlotCurveFeature : public RicDuplicateSummaryCurve
     CAF_CMD_HEADER_INIT;
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void setupActionLook( QAction* actionToSetup ) override;
 };

@@ -74,9 +74,15 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculationCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculationVariable.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculationCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculationVariable.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.h
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.h
     ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.h
@@ -93,6 +99,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisLogRangeCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.h
@@ -117,6 +124,9 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionBand.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionCurve.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultAddress.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultAddressCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseTools.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -195,9 +205,15 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimEclipseGeometrySelectionItem.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimDialogData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimTimeStepFilter.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculationCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimUserDefinedCalculationVariable.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculation.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCalculationVariable.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculationCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimGridCalculationVariable.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanLegendConfig.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimStimPlanColors.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimVirtualPerforationResults.cpp
@@ -213,6 +229,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisPropertiesInterface.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisProperties.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisAnnotation.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimPlotAxisLogRangeCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedDataCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObservedFmuRftData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimMultiPlotCollection.cpp
@@ -233,9 +250,12 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionBand.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionCurve.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSurfaceIntersectionCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultAddress.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseResultAddressCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEclipseCaseTools.cpp
 )
 
-if(Qt5Charts_FOUND)
+if(RESINSIGHT_USE_QT_CHARTS)
   list(
     APPEND
     SOURCE_GROUP_HEADER_FILES

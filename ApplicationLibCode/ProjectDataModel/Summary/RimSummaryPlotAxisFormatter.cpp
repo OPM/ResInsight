@@ -19,6 +19,7 @@
 #include "RimSummaryPlotAxisFormatter.h"
 
 #include "RiaDefines.h"
+#include "RiaNumberFormat.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RifSummaryReaderInterface.h"
@@ -29,13 +30,16 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 
+#include "RiuQtChartsPlotWidget.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuSummaryQuantityNameInfoProvider.h"
 #include "RiuSummaryQwtPlot.h"
 
 #include "qwt_date_scale_engine.h"
+#include "qwt_plot.h"
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
-#include "qwt_scale_engine.h"
+#include "qwt_text.h"
 
 #include <cmath>
 #include <set>
@@ -111,12 +115,13 @@ RimSummaryPlotAxisFormatter::RimSummaryPlotAxisFormatter( RimPlotAxisProperties*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* qwtPlot )
+void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuPlotWidget* plotWidget )
 {
-    if ( !qwtPlot ) return;
+    if ( !plotWidget ) return;
 
+    RiuPlotAxis axis = m_axisProperties->plotAxisType();
     {
-        QString axisTitle = m_axisProperties->customTitle;
+        QString axisTitle = m_axisProperties->customTitle();
         if ( m_axisProperties->useAutoTitle() ) axisTitle = autoAxisTitle();
 
         Qt::AlignmentFlag titleAlignment = Qt::AlignCenter;
@@ -124,51 +129,77 @@ void RimSummaryPlotAxisFormatter::applyAxisPropertiesToPlot( RiuQwtPlotWidget* q
         {
             titleAlignment = Qt::AlignRight;
         }
-        qwtPlot->setAxisTitleText( m_axisProperties->qwtPlotAxisType(), axisTitle );
-        qwtPlot->setAxisFontsAndAlignment( m_axisProperties->qwtPlotAxisType(),
-                                           m_axisProperties->titleFontSize(),
-                                           m_axisProperties->valuesFontSize(),
-                                           true,
-                                           titleAlignment );
-        qwtPlot->setAxisTitleEnabled( m_axisProperties->qwtPlotAxisType(), true );
+
+        QString objectName = createAxisObjectName();
+        m_axisProperties->setNameAndAxis( objectName, axisTitle, axis.axis(), axis.index() );
+        plotWidget->setAxisTitleText( axis, axisTitle );
+
+        bool titleBold = false;
+        plotWidget->setAxisFontsAndAlignment( axis,
+                                              m_axisProperties->titleFontSize(),
+                                              m_axisProperties->valuesFontSize(),
+                                              titleBold,
+                                              titleAlignment );
+        plotWidget->setAxisTitleEnabled( axis, true );
     }
 
+    auto qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
+    if ( qwtPlotWidget )
     {
-        if ( m_axisProperties->numberFormat == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
+        auto qwtAxisId = qwtPlotWidget->toQwtPlotAxis( axis );
+
+        if ( m_axisProperties->numberFormat() == RimPlotAxisProperties::NUMBER_FORMAT_AUTO &&
              m_axisProperties->scaleFactor() == 1.0 )
         {
             // Default to Qwt's own scale draw to avoid changing too much for default values
-            qwtPlot->setAxisScaleDraw( m_axisProperties->qwtPlotAxisType(), new QwtScaleDraw );
+            qwtPlotWidget->qwtPlot()->setAxisScaleDraw( qwtAxisId, new QwtScaleDraw );
         }
         else
         {
-            qwtPlot->setAxisScaleDraw( m_axisProperties->qwtPlotAxisType(),
-                                       new SummaryScaleDraw( m_axisProperties->scaleFactor(),
-                                                             m_axisProperties->numberOfDecimals(),
-                                                             m_axisProperties->numberFormat() ) );
+            qwtPlotWidget->qwtPlot()->setAxisScaleDraw( qwtAxisId,
+                                                        new SummaryScaleDraw( m_axisProperties->scaleFactor(),
+                                                                              m_axisProperties->decimalCount(),
+                                                                              m_axisProperties->numberFormat() ) );
         }
     }
 
+#ifdef USE_QTCHARTS
+    auto qtChartsPlotWidget = dynamic_cast<RiuQtChartsPlotWidget*>( plotWidget );
+    if ( qtChartsPlotWidget )
     {
-        if ( m_axisProperties->isLogarithmicScaleEnabled )
+        auto mapToRiaNumberFormatType = []( RimPlotAxisProperties::NumberFormatType formatType ) {
+            if ( formatType == RimPlotAxisProperties::NumberFormatType::NUMBER_FORMAT_DECIMAL )
+                return RiaNumberFormat::NumberFormatType::FIXED;
+
+            if ( formatType == RimPlotAxisProperties::NumberFormatType::NUMBER_FORMAT_SCIENTIFIC )
+                return RiaNumberFormat::NumberFormatType::SCIENTIFIC;
+
+            return RiaNumberFormat::NumberFormatType::AUTO;
+        };
+
+        auto    formatType = mapToRiaNumberFormatType( m_axisProperties->numberFormat() );
+        QString format     = RiaNumberFormat::sprintfFormat( formatType, m_axisProperties->decimalCount() );
+        qtChartsPlotWidget->setAxisFormat( axis, format );
+    }
+#endif
+
+    {
+        if ( m_axisProperties->isLogarithmicScaleEnabled() )
         {
-            QwtLogScaleEngine* currentScaleEngine =
-                dynamic_cast<QwtLogScaleEngine*>( qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
-            if ( !currentScaleEngine )
+            bool isLogScale = plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC;
+            if ( !isLogScale )
             {
-                qwtPlot->setAxisScaleEngine( m_axisProperties->qwtPlotAxisType(), new QwtLogScaleEngine );
-                qwtPlot->setAxisMaxMinor( m_axisProperties->qwtPlotAxisType(), 5 );
+                plotWidget->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LOGARITHMIC );
+                plotWidget->setAxisMaxMinor( axis, 5 );
             }
         }
         else
         {
-            QwtLinearScaleEngine* currentScaleEngine =
-                dynamic_cast<QwtLinearScaleEngine*>( qwtPlot->axisScaleEngine( m_axisProperties->qwtPlotAxisType() ) );
-            QwtDateScaleEngine* dateScaleEngine = dynamic_cast<QwtDateScaleEngine*>( currentScaleEngine );
-            if ( !currentScaleEngine || dateScaleEngine )
+            bool isLinearScale = plotWidget->axisScaleType( axis ) == RiuQwtPlotWidget::AxisScaleType::LINEAR;
+            if ( !isLinearScale )
             {
-                qwtPlot->setAxisScaleEngine( m_axisProperties->qwtPlotAxisType(), new QwtLinearScaleEngine );
-                qwtPlot->setAxisMaxMinor( m_axisProperties->qwtPlotAxisType(), 3 );
+                plotWidget->setAxisScaleType( axis, RiuQwtPlotWidget::AxisScaleType::LINEAR );
+                plotWidget->setAxisMaxMinor( axis, 3 );
             }
         }
     }
@@ -181,56 +212,52 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 {
     std::map<std::string, std::set<std::string>> unitToQuantityNameMap;
 
-    // clang-format off
-    auto addToUnitToQuantityMap =[&]( const std::string& unitText, 
-                                      const RifEclipseSummaryAddress& sumAddress ) 
-    {
-        // remove any stats prefix from the quantity name
-        size_t cutPos = sumAddress.quantityName().find(':');
-        if (cutPos == std::string::npos) cutPos = -1;
+    auto addToUnitToQuantityMap = [&]( const std::string& unitText, const RifEclipseSummaryAddress& sumAddress ) {
+        size_t cutPos = sumAddress.vectorName().find( ':' );
+        if ( cutPos == std::string::npos ) cutPos = -1;
 
-        std::string        quantityNameForDisplay;
-        const std::string& quantityName = sumAddress.quantityName().substr(cutPos+1);
+        std::string        titleText;
+        const std::string& quantityName = sumAddress.vectorName().substr( cutPos + 1 );
 
         if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
         {
-            quantityNameForDisplay = shortCalculationName( quantityName );
+            titleText = shortCalculationName( quantityName );
         }
         else
         {
             if ( m_axisProperties->showDescription() )
             {
-                quantityNameForDisplay =
-                    RiuSummaryQuantityNameInfoProvider::instance()->longNameFromQuantityName( quantityName );
+                auto candidateName = quantityName;
+
+                if ( sumAddress.isHistoryVector() ) candidateName = quantityName.substr( 0, quantityName.size() - 1 );
+
+                titleText = RiuSummaryQuantityNameInfoProvider::instance()->longNameFromVectorName( candidateName );
             }
 
             if ( m_axisProperties->showAcronym() )
             {
-                if ( !quantityNameForDisplay.empty() )
+                if ( !titleText.empty() )
                 {
-                    quantityNameForDisplay += " (";
-                    quantityNameForDisplay += quantityName;
-                    quantityNameForDisplay += ")";
+                    titleText += " (";
+                    titleText += quantityName;
+                    titleText += ")";
                 }
-            }
-
-            if ( quantityNameForDisplay.empty() )
-            {
-                quantityNameForDisplay = quantityName;
+                else
+                {
+                    titleText += quantityName;
+                }
             }
         }
 
-        unitToQuantityNameMap[unitText].insert( quantityNameForDisplay );
+        unitToQuantityNameMap[unitText].insert( titleText );
     };
-
-    // clang-format on
 
     for ( RimSummaryCurve* rimCurve : m_summaryCurves )
     {
         RifEclipseSummaryAddress sumAddress;
         std::string              unitText;
 
-        if ( m_axisProperties->plotAxisType() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        if ( m_axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
         {
             sumAddress = rimCurve->summaryAddressX();
             unitText   = rimCurve->unitNameX();
@@ -250,8 +277,8 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
 
     for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
     {
-        RifEclipseSummaryAddress sumAddress = curveDef.summaryAddress();
-        std::string              unitText;
+        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
+        std::string                     unitText;
         if ( curveDef.summaryCase() && curveDef.summaryCase()->summaryReader() )
         {
             unitText = curveDef.summaryCase()->summaryReader()->unitName( sumAddress );
@@ -259,7 +286,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         else if ( curveDef.ensemble() )
         {
             std::vector<RimSummaryCase*> sumCases = curveDef.ensemble()->allSummaryCases();
-            if ( sumCases.size() && sumCases[0] && sumCases[0]->summaryReader() )
+            if ( !sumCases.empty() && sumCases[0] && sumCases[0]->summaryReader() )
             {
                 unitText = sumCases[0]->summaryReader()->unitName( sumAddress );
             }
@@ -277,7 +304,7 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
         scaleFactorText = QString( " x 10<sup>%1</sup> " ).arg( QString::number( exponent ) );
     }
 
-    for ( auto unitIt : unitToQuantityNameMap )
+    for ( const auto& unitIt : unitToQuantityNameMap )
     {
         for ( const auto& quantIt : unitIt.second )
         {
@@ -309,6 +336,86 @@ QString RimSummaryPlotAxisFormatter::autoAxisTitle() const
     }
 
     return assembledYAxisText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryPlotAxisFormatter::createAxisObjectName() const
+{
+    std::set<std::string> vectorNames;
+
+    auto addVectorNames = [&]( const RifEclipseSummaryAddress& sumAddress ) {
+        size_t cutPos = sumAddress.vectorName().find( ':' );
+        if ( cutPos == std::string::npos ) cutPos = -1;
+
+        std::string        name;
+        const std::string& quantityName = sumAddress.vectorName().substr( cutPos + 1 );
+
+        if ( sumAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
+        {
+            name = shortCalculationName( quantityName );
+        }
+        else
+        {
+            name = quantityName;
+        }
+        vectorNames.insert( name );
+    };
+
+    for ( RimSummaryCurve* rimCurve : m_summaryCurves )
+    {
+        RifEclipseSummaryAddress sumAddress;
+
+        if ( m_axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        {
+            sumAddress = rimCurve->summaryAddressX();
+        }
+        else if ( rimCurve->axisY() == this->m_axisProperties->plotAxisType() )
+        {
+            sumAddress = rimCurve->summaryAddressY();
+        }
+        else
+        {
+            continue;
+        }
+
+        addVectorNames( sumAddress );
+    }
+
+    for ( const RiaSummaryCurveDefinition& curveDef : m_curveDefinitions )
+    {
+        const RifEclipseSummaryAddress& sumAddress = curveDef.summaryAddress();
+
+        addVectorNames( sumAddress );
+    }
+
+    QString assembledAxisObjectName;
+
+    for ( const auto& vectorName : vectorNames )
+    {
+        assembledAxisObjectName += QString::fromStdString( vectorName ) + " ";
+    }
+
+    if ( !m_timeHistoryCurveQuantities.empty() )
+    {
+        if ( !assembledAxisObjectName.isEmpty() )
+        {
+            assembledAxisObjectName += " : ";
+        }
+
+        for ( const auto& timeQuantity : m_timeHistoryCurveQuantities )
+        {
+            assembledAxisObjectName += timeQuantity + " ";
+        }
+    }
+
+    const int    maxChars = 100;
+    QFont        font;
+    QFontMetrics fm( font );
+    assembledAxisObjectName = fm.elidedText( assembledAxisObjectName, Qt::ElideRight, maxChars );
+
+    return assembledAxisObjectName;
 }
 
 //--------------------------------------------------------------------------------------------------

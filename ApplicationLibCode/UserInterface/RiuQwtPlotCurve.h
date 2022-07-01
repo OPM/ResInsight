@@ -19,67 +19,70 @@
 
 #pragma once
 
+#include "RiuPlotCurve.h"
 #include "RiuQwtPlotCurveDefines.h"
 
 #include "qwt_plot_curve.h"
-#include "qwt_plot_intervalcurve.h"
-#include "qwt_symbol.h"
+
+class QwtPlotIntervalCurve;
+class RiuQwtPlotWidget;
 
 //==================================================================================================
 //
-// If infinite data is present in the curve data, Qwt is not able to draw a nice curve.
-// This class assumes that inf data is removed, and segments to be draw are indicated by start/stop indices into curve
-// data.
-//
-// Single values in the curve are drawn using a CrossX symbol
-//
-//  Here you can see the curve segments visualized. Curve segments are drawn between vector indices.
-//
-//  0 - 1
-//  5 - 7
-//  9 -10
-//
-//                 *                    *
-//                *                   *   *
-//  Curve        *                   *     *       -----        X
-//
-//  Values     1.0|2.0|inf|inf|inf|1.0|2.0|1.0|inf|1.0|1.0|inf|1.0|inf
-//  Vec index   0 | 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9 | 10| 11| 12| 13
 //==================================================================================================
-class RiuQwtPlotCurve : public QwtPlotCurve
+class RiuQwtPlotCurve : public RiuPlotCurve, public QwtPlotCurve
 {
 public:
-    explicit RiuQwtPlotCurve( const QString& title = QString() );
+    explicit RiuQwtPlotCurve( RimPlotCurve* ownerRimCurve = nullptr, const QString& title = QString() );
     ~RiuQwtPlotCurve() override;
 
-    void setSamplesFromXValuesAndYValues( const std::vector<double>& xValues,
-                                          const std::vector<double>& yValues,
-                                          bool                       keepOnlyPositiveValues );
-
-    void setSamplesFromDatesAndYValues( const std::vector<QDateTime>& dateTimes,
-                                        const std::vector<double>&    yValues,
-                                        bool                          keepOnlyPositiveValues );
-
-    void setSamplesFromTimeTAndYValues( const std::vector<time_t>& dateTimes,
-                                        const std::vector<double>& yValues,
-                                        bool                       keepOnlyPositiveValues );
-
-    void setLineSegmentStartStopIndices( const std::vector<std::pair<size_t, size_t>>& lineSegmentStartStopIndices );
-
-    void setSymbolSkipPixelDistance( float distance );
-    void setPerPointLabels( const std::vector<QString>& labels );
+    void setTitle( const QString& title ) override;
 
     void setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum          lineStyle,
                         RiuQwtPlotCurveDefines::CurveInterpolationEnum interpolationType,
                         int                                            curveThickness,
                         const QColor&                                  curveColor,
-                        const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) );
+                        const QBrush&                                  fillBrush = QBrush( Qt::NoBrush ) ) override;
 
-    void       setBlackAndWhiteLegendIcon( bool blackAndWhite );
+    void setBrush( const QBrush& brush ) override;
+    void setColor( const QColor& color ) override;
+
+    void    setLegendIconSize( const QSize& iconSize ) override;
+    QSize   legendIconSize() const override;
+    QPixmap legendIcon( const QSizeF& size ) const override;
+
     QwtGraphic legendIcon( int index, const QSizeF& size ) const override;
+    void       setVisibleInLegend( bool isVisibleInLegend ) override;
 
-    static std::vector<double> fromQDateTime( const std::vector<QDateTime>& dateTimes );
-    static std::vector<double> fromTime_t( const std::vector<time_t>& timeSteps );
+    void attachToPlot( RiuPlotWidget* plotWidget ) override;
+    void detach() override;
+    void showInPlot() override;
+
+    void setZ( int z ) override;
+
+    void updateErrorBarsAppearance( bool showErrorBars, const QColor& curveColor ) override;
+    void clearErrorBars() override;
+
+    int                       numSamples() const override;
+    std::pair<double, double> sample( int index ) const override;
+
+    std::pair<double, double> xDataRange() const override;
+    std::pair<double, double> yDataRange() const override;
+
+    void setSamplesFromXYErrorValues(
+        const std::vector<double>&   xValues,
+        const std::vector<double>&   yValues,
+        const std::vector<double>&   errorValues,
+        bool                         useLogarithmicScale,
+        RiaCurveDataTools::ErrorAxis errorAxis = RiaCurveDataTools::ErrorAxis::ERROR_ALONG_Y_AXIS ) override;
+
+    void setXAxis( RiuPlotAxis axis ) override;
+    void setYAxis( RiuPlotAxis axis ) override;
+
+    void                setSymbol( RiuPlotCurveSymbol* symbol ) override;
+    RiuPlotCurveSymbol* createSymbol( RiuPlotCurveSymbol::PointSymbolEnum symbol ) const override;
+
+    void setCurveFittingTolerance( double tolerance ) override;
 
 protected:
     void drawCurve( QPainter*          p,
@@ -98,16 +101,10 @@ protected:
                       int                from,
                       int                to ) const override;
 
-private:
-    void computeValidIntervalsAndSetCurveData( const std::vector<double>& xValues,
-                                               const std::vector<double>& yValues,
-                                               bool                       keepOnlyPositiveValues );
+    void setSamplesInPlot( const std::vector<double>&, const std::vector<double>& ) override;
 
-private:
-    float m_symbolSkipPixelDistance;
-    bool  m_blackAndWhiteLegendIcon;
+    QwtPlotIntervalCurve* m_qwtCurveErrorBars;
+    bool                  m_showErrorBars;
 
-    std::vector<QString> m_perPointLabels;
-
-    std::vector<std::pair<size_t, size_t>> m_polyLineStartStopIndices;
+    QPointer<RiuQwtPlotWidget> m_plotWidget;
 };

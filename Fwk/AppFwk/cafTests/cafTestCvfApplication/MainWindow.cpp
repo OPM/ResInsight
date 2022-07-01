@@ -282,7 +282,7 @@ void MainWindow::slotRemove()
 
             // Ordering is important
 
-            field->removeChildObject(obj);
+            field->removeChild(obj);
 
             // Delete object
             delete obj;

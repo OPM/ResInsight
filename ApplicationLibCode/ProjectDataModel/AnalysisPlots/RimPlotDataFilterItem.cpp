@@ -83,39 +83,39 @@ RimPlotDataFilterItem::RimPlotDataFilterItem()
     , m_upperLimit( std::numeric_limits<double>::infinity() )
     , filterChanged( this )
 {
-    CAF_PDM_InitObject( "Plot Data Filter", ":/AnalysisPlotFilter16x16.png", "", "" );
+    CAF_PDM_InitObject( "Plot Data Filter", ":/AnalysisPlotFilter16x16.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterTarget, "FilterTarget", "Use only the", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterTarget, "FilterTarget", "Use only the" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterAddress, "FilterAddressField", "Filter Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterAddress, "FilterAddressField", "Filter Address" );
     m_filterAddress.uiCapability()->setUiTreeHidden( true );
     m_filterAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_filterAddress = new RimSummaryAddress();
 
-    CAF_PDM_InitField( &m_filterEnsembleParameter, "QuantityText", QString( "" ), "where", "", "", "" );
+    CAF_PDM_InitField( &m_filterEnsembleParameter, "QuantityText", QString( "" ), "where" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterQuantityUiField, "SelectedVariableDisplayVar", "where", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterQuantityUiField, "SelectedVariableDisplayVar", "where" );
     m_filterQuantityUiField.xmlCapability()->disableIO();
     m_filterQuantityUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_filterQuantitySelectButton, "SelectAddress", false, "...", "", "", "" );
+    CAF_PDM_InitField( &m_filterQuantitySelectButton, "SelectAddress", false, "..." );
     caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_filterQuantitySelectButton );
 
-    CAF_PDM_InitFieldNoDefault( &m_filterOperation, "FilterOperation", "is", "", "", "" );
-    CAF_PDM_InitField( &m_topBottomN, "MinTopN", 20, "N", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filterOperation, "FilterOperation", "is" );
+    CAF_PDM_InitField( &m_topBottomN, "MinTopN", 20, "N" );
     m_topBottomN.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitField( &m_max, "Max", m_upperLimit, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_max, "Max", m_upperLimit, "Max" );
     m_max.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_min, "Min", m_lowerLimit, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_min, "Min", m_lowerLimit, "Min" );
     m_min.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleParameterValueCategories, "EnsembleParameterValueCategories", "one of", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_consideredTimestepsType, "ConsideredTimestepsType", "at the", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_explicitlySelectedTimeSteps, "ExplicitlySelectedTimeSteps", "TimeSteps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleParameterValueCategories, "EnsembleParameterValueCategories", "one of" );
+    CAF_PDM_InitFieldNoDefault( &m_consideredTimestepsType, "ConsideredTimestepsType", "at the" );
+    CAF_PDM_InitFieldNoDefault( &m_explicitlySelectedTimeSteps, "ExplicitlySelectedTimeSteps", "TimeSteps" );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_explicitlySelectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
@@ -269,8 +269,7 @@ void RimPlotDataFilterItem::fieldChangedByUi( const caf::PdmFieldHandle* changed
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimPlotDataFilterItem::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimPlotDataFilterItem::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     RimAnalysisPlot*              parentPlot;
@@ -365,7 +364,7 @@ void RimPlotDataFilterItem::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
         eParm = selectedEnsembleParameter();
     }
 
-    if ( m_filterTarget() == ENSEMBLE_CASE && eParm.isText() ) // Ensemble Quantity is a category value
+    if ( m_filterTarget() == ENSEMBLE_CASE && eParm.isText() ) // Ensemble vector is a category value
     {
         uiOrdering.add( &m_ensembleParameterValueCategories );
     }

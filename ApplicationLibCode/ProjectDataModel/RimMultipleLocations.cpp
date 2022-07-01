@@ -42,27 +42,24 @@ void AppEnum<RimMultipleLocations::LocationType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimMultipleLocations::RimMultipleLocations()
 {
-    CAF_PDM_InitObject( "RimMultipleLocations", ":/FishBoneGroup16x16.png", "", "" );
+    CAF_PDM_InitObject( "RimMultipleLocations", ":/FishBoneGroup16x16.png" );
 
     CAF_PDM_InitField( &m_locationType,
                        "LocationMode",
                        caf::AppEnum<LocationType>( LocationType::COUNT ),
-                       "Location Defined By",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_rangeStart, "RangeStart", 100.0, "Start MD", "", "", "" );
+                       "Location Defined By" );
+    CAF_PDM_InitField( &m_rangeStart, "RangeStart", 100.0, "Start MD" );
     m_rangeStart.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_rangeEnd, "RangeEnd", 250.0, "End MD", "", "", "" );
+    CAF_PDM_InitField( &m_rangeEnd, "RangeEnd", 250.0, "End MD" );
     m_rangeEnd.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_rangeSpacing, "Spacing", "Spacing", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rangeSpacing, "Spacing", "Spacing" );
     m_rangeSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_rangeCount, "RangeValveCount", 10, "Number of Items", "", "", "" );
+    CAF_PDM_InitField( &m_rangeCount, "RangeValveCount", 10, "Number of Items" );
 
-    CAF_PDM_InitFieldNoDefault( &m_locations, "Locations", "Measured Depths", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_locations, "Locations", "Measured Depths" );
     m_locations.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 }
 

@@ -63,14 +63,14 @@ CAF_PDM_SOURCE_INIT( RimAnnotationLineAppearance, "RimAnnotationLineAppearance" 
 RimAnnotationLineAppearance::RimAnnotationLineAppearance()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "AnnotationLineAppearance", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "AnnotationLineAppearance", ":/WellCollection.png" );
 
-    CAF_PDM_InitField( &m_lineFieldsHidden, "LineFieldsHidden", false, "Line Fields Hidden", "", "", "" );
-    CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3f::BLACK ), "Line Color", "", "", "" );
-    CAF_PDM_InitField( &m_thickness, "Thickness", 2, "Line Thickness", "", "", "" );
+    CAF_PDM_InitField( &m_lineFieldsHidden, "LineFieldsHidden", false, "Line Fields Hidden" );
+    CAF_PDM_InitField( &m_color, "Color", cvf::Color3f( cvf::Color3f::BLACK ), "Line Color" );
+    CAF_PDM_InitField( &m_thickness, "Thickness", 2, "Line Thickness" );
 
     // Stippling not yet supported. Needs new stuff in VizFwk
-    CAF_PDM_InitField( &m_style, "Style", LineStyle(), "Style", "", "", "" );
+    CAF_PDM_InitField( &m_style, "Style", LineStyle(), "Style" );
     m_style.uiCapability()->setUiHidden( true );
     m_style.xmlCapability()->disableIO();
 
@@ -170,11 +170,11 @@ CAF_PDM_SOURCE_INIT( RimPolylineAppearance, "RimPolylineAppearance" );
 //--------------------------------------------------------------------------------------------------
 RimPolylineAppearance::RimPolylineAppearance()
 {
-    CAF_PDM_InitObject( "PolylineAppearance", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "PolylineAppearance", ":/WellCollection.png" );
 
-    CAF_PDM_InitField( &m_sphereFieldsHidden, "SphereFieldsHidden", false, "Sphere Fields Hidden", "", "", "" );
-    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::BLACK ), "Sphere Color", "", "", "" );
-    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.1, "Sphere Radius Factor", "", "", "" );
+    CAF_PDM_InitField( &m_sphereFieldsHidden, "SphereFieldsHidden", false, "Sphere Fields Hidden" );
+    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::BLACK ), "Sphere Color" );
+    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.1, "Sphere Radius Factor" );
 
     m_sphereFieldsHidden.uiCapability()->setUiHidden( true );
 }

@@ -24,7 +24,7 @@
 
 class QwtPlotMarker;
 class QwtPlotCurve;
-class IPlotCurveInfoTextProvider;
+class RiuPlotCurveInfoTextProvider;
 
 //--------------------------------------------------------------------------------------------------
 /// Class to add mouse over-tracking of curve points with text marker
@@ -32,9 +32,9 @@ class IPlotCurveInfoTextProvider;
 class RiuQwtCurvePointTracker : public QwtPlotPicker
 {
 public:
-    explicit RiuQwtCurvePointTracker( QwtPlot*                    plot,
-                                      bool                        isMainAxisHorizontal,
-                                      IPlotCurveInfoTextProvider* curveInfoTextProvider = nullptr );
+    explicit RiuQwtCurvePointTracker( QwtPlot*                      plot,
+                                      bool                          isMainAxisHorizontal,
+                                      RiuPlotCurveInfoTextProvider* curveInfoTextProvider = nullptr );
     ~RiuQwtCurvePointTracker() override;
 
 protected:
@@ -42,27 +42,16 @@ protected:
     void removeMarkerOnFocusLeave();
 
     QwtText trackerText( const QPoint& pos ) const override;
-    QPointF closestCurvePoint( const QPoint&  cursorPosition,
-                               QString*       curveInfoText,
-                               QString*       valueAxisValueString,
-                               QString*       mainAxisValueString,
-                               QwtPlot::Axis* relatedXAxis,
-                               QwtPlot::Axis* relatedYAxis ) const;
-    void    updateClosestCurvePointMarker( const QPointF& closestPoint,
-                                           QwtPlot::Axis  relatedXAxis,
-                                           QwtPlot::Axis  relatedYAxis ) const;
+    QPointF closestCurvePoint( const QPoint& cursorPosition,
+                               QString*      curveInfoText,
+                               QString*      valueAxisValueString,
+                               QString*      mainAxisValueString,
+                               QwtAxisId*    relatedXAxis,
+                               QwtAxisId*    relatedYAxis ) const;
+    void updateClosestCurvePointMarker( const QPointF& closestPoint, QwtAxisId relatedXAxis, QwtAxisId relatedYAxis ) const;
 
-    QPointer<QwtPlot>           m_plot;
-    QwtPlotMarker*              m_plotMarker;
-    bool                        m_isMainAxisHorizontal;
-    IPlotCurveInfoTextProvider* m_curveInfoTextProvider;
-};
-
-//--------------------------------------------------------------------------------------------------
-/// Interface for retrieving curve info text
-//--------------------------------------------------------------------------------------------------
-class IPlotCurveInfoTextProvider
-{
-public:
-    virtual QString curveInfoText( QwtPlotCurve* curve ) = 0;
+    QPointer<QwtPlot>             m_plot;
+    QwtPlotMarker*                m_plotMarker;
+    bool                          m_isMainAxisHorizontal;
+    RiuPlotCurveInfoTextProvider* m_curveInfoTextProvider;
 };

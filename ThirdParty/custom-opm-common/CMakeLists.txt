@@ -1,8 +1,5 @@
 cmake_minimum_required (VERSION 2.8)
 
-# -DBOOST_FILESYSTEM_VERSION=3 -DBOOST_TEST_DYN_LINK -DHAVE_CASE_SENSITIVE_FILESYSTEM=1 -DHAVE_REGEX=1 -DOPM_PARSER_DECK_API=1 -Wall -std=c++11 -fopenmp -Wall -g   -O0 -DDEBUG  -ggdb3
- 
- 
 # Languages and global compiler settings
 if(CMAKE_VERSION VERSION_LESS 3.8)
   message(WARNING "CMake version does not support c++17, guessing -std=c++17")
@@ -13,11 +10,18 @@ else()
   set(CMAKE_CXX_EXTENSIONS OFF)
 endif()
 
-
  if(MSVC)
-  add_definitions( "/wd4996 /wd4244 /wd4267" )
+  add_definitions( "/wd4996 /wd4244 /wd4267 /wd4101 /wd4477" )
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /MP /permissive-")
 endif(MSVC)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-unused-parameter -Wno-switch -Wno-sign-compare -Wno-deprecated-copy -Wno-missing-field-initializers")
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-sign-compare -Wno-missing-field-initializers -Wno-deprecated-copy")
+endif()
 
 project (custom-opm-common)
 
@@ -84,6 +88,7 @@ add_library(${PROJECT_NAME}
     opm-common/src/opm/io/eclipse/ESmry.cpp
     opm-common/src/opm/io/eclipse/ExtESmry.cpp
     opm-common/src/opm/io/eclipse/EInit.cpp
+    opm-common/src/opm/io/eclipse/ERft.cpp
 
     # Required for use of static function RstConnection::inverse_peaceman
     opm-common/src/opm/io/eclipse/rst/connection.cpp
@@ -111,12 +116,12 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
     endforeach(fileToExclude)
 endif()
 
-
 find_path(BOOST_SPIRIT_INCLUDE_DIRS "boost/spirit.hpp" HINTS ${Boost_INCLUDE_DIRS})
 
 target_link_libraries(custom-opm-common 
   ${ADDITIONAL_LINK_LIBRARIES}
 )
+
 target_include_directories(custom-opm-common 
   PUBLIC
     ${CMAKE_CURRENT_SOURCE_DIR}/opm-common

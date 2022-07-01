@@ -30,12 +30,15 @@
 #include "RimSummaryCalculation.h"
 #include "RimSummaryCalculationCollection.h"
 #include "RimSummaryCalculationVariable.h"
+#include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmObject.h"
 
@@ -44,11 +47,11 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotCollection* RiaSummaryTools::summaryPlotCollection()
+RimSummaryMultiPlotCollection* RiaSummaryTools::summaryMultiPlotCollection()
 {
     RimProject* project = RimProject::current();
 
-    return project->mainPlotCollection()->summaryPlotCollection();
+    return project->mainPlotCollection()->summaryMultiPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,18 +80,21 @@ RimSummaryCaseMainCollection* RiaSummaryTools::summaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 void RiaSummaryTools::notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName )
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
 
-    for ( RimSummaryPlot* plot : summaryPlotColl->plots() )
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
     {
-        for ( RimSummaryCurve* curve : plot->summaryCurves() )
+        for ( RimSummaryPlot* plot : multiPlot->summaryPlots() )
         {
-            RifEclipseSummaryAddress adr = curve->summaryAddressY();
-            if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && adr.id() == calculationId )
+            for ( RimSummaryCurve* curve : plot->summaryCurves() )
             {
-                RifEclipseSummaryAddress updatedAdr =
-                    RifEclipseSummaryAddress::calculatedAddress( currentCurveName.toStdString(), calculationId );
-                curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                RifEclipseSummaryAddress adr = curve->summaryAddressY();
+                if ( adr.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED && adr.id() == calculationId )
+                {
+                    RifEclipseSummaryAddress updatedAdr =
+                        RifEclipseSummaryAddress::calculatedAddress( currentCurveName.toStdString(), calculationId );
+                    curve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                }
             }
         }
     }
@@ -117,9 +123,9 @@ RimSummaryPlot* RiaSummaryTools::parentSummaryPlot( caf::PdmObject* object )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotCollection* RiaSummaryTools::parentSummaryPlotCollection( caf::PdmObject* object )
+RimSummaryMultiPlotCollection* RiaSummaryTools::parentSummaryPlotCollection( caf::PdmObject* object )
 {
-    RimSummaryPlotCollection* summaryPlotColl = nullptr;
+    RimSummaryMultiPlotCollection* summaryPlotColl = nullptr;
 
     if ( object )
     {
@@ -127,6 +133,21 @@ RimSummaryPlotCollection* RiaSummaryTools::parentSummaryPlotCollection( caf::Pdm
     }
 
     return summaryPlotColl;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryMultiPlot* RiaSummaryTools::parentSummaryMultiPlot( caf::PdmObject* object )
+{
+    RimSummaryMultiPlot* multiPlot = nullptr;
+
+    if ( object )
+    {
+        object->firstAncestorOrThisOfType( multiPlot );
+    }
+
+    return multiPlot;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,13 +226,17 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
     RimSummaryCalculationCollection* calculationColl = proj->calculationCollection();
     if ( !calculationColl ) return;
 
-    RimSummaryCalculation* calculation = calculationColl->findCalculationById( id );
+    RimUserDefinedCalculation* calculation = calculationColl->findCalculationById( id );
     if ( !calculation ) return;
 
-    for ( RimSummaryCalculationVariable* v : calculation->allVariables() )
+    for ( RimUserDefinedCalculationVariable* v : calculation->allVariables() )
     {
-        cases.push_back( v->summaryCase() );
-        addresses.push_back( v->summaryAddress()->address() );
+        RimSummaryCalculationVariable* scv = dynamic_cast<RimSummaryCalculationVariable*>( v );
+        if ( scv )
+        {
+            cases.push_back( scv->summaryCase() );
+            addresses.push_back( scv->summaryAddress()->address() );
+        }
     }
 }
 
@@ -219,10 +244,10 @@ void RiaSummaryTools::getSummaryCasesAndAddressesForCalculation( int            
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<time_t>, std::vector<double>>
-    RiaSummaryTools::resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
-                                               const std::vector<time_t>&        timeSteps,
-                                               std::vector<double>&              values,
-                                               RiaQDateTimeTools::DateTimePeriod period )
+    RiaSummaryTools::resampledValuesForPeriod( const RifEclipseSummaryAddress& address,
+                                               const std::vector<time_t>&      timeSteps,
+                                               std::vector<double>&            values,
+                                               RiaDefines::DateTimePeriod      period )
 {
     RiaTimeHistoryCurveResampler resampler;
     resampler.setCurveData( values, timeSteps );
@@ -237,4 +262,63 @@ std::pair<std::vector<time_t>, std::vector<double>>
     }
 
     return { resampler.resampledTimeSteps(), resampler.resampledValues() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RiaSummaryTools::summaryCaseById( int caseId )
+{
+    auto summaryCases = RimProject::current()->allSummaryCases();
+
+    for ( auto summaryCase : summaryCases )
+    {
+        if ( summaryCase->caseId() == caseId )
+        {
+            return summaryCase;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCaseCollection* RiaSummaryTools::ensembleById( int ensembleId )
+{
+    auto ensembles = RimProject::current()->summaryGroups();
+
+    for ( auto ensemble : ensembles )
+    {
+        if ( ensemble->ensembleId() == ensembleId )
+        {
+            return ensemble;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForAllSummaryCases()
+{
+    return optionsForSummaryCases( RimProject::current()->allSummaryCases() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RiaSummaryTools::optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    for ( RimSummaryCase* c : cases )
+    {
+        options.push_back( caf::PdmOptionItemInfo( c->displayCaseName(), c, false, c->uiIconProvider() ) );
+    }
+
+    return options;
 }

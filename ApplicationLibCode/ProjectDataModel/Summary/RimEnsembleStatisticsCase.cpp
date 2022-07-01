@@ -161,10 +161,7 @@ void RimEnsembleStatisticsCase::calculate( const std::vector<RimSummaryCase*> su
             if ( !includeIncompleteCurves && timeSteps.size() != values.size() ) continue;
 
             auto [resampledTimeSteps, resampledValues] =
-                RiaSummaryTools::resampledValuesForPeriod( inputAddress,
-                                                           timeSteps,
-                                                           values,
-                                                           RiaQDateTimeTools::DateTimePeriod::DAY );
+                RiaSummaryTools::resampledValuesForPeriod( inputAddress, timeSteps, values, RiaDefines::DateTimePeriod::DAY );
 
             if ( allTimeSteps.empty() ) allTimeSteps = resampledTimeSteps;
             caseAndTimeStepValues.push_back( resampledValues );
@@ -253,7 +250,7 @@ std::vector<RimSummaryCase*> RimEnsembleStatisticsCase::validSummaryCases( const
         }
     }
 
-    for ( const auto [sumCase, lastTimeStep] : times )
+    for ( const auto& [sumCase, lastTimeStep] : times )
     {
         // Previous versions tested on identical first time step, this test is now removed. For large simulations with
         // numerical issues the first time step can be slightly different

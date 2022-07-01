@@ -58,15 +58,15 @@ RimEclipseCellColors::RimEclipseCellColors()
                                                     "CellColors",
                                                     "Eclipse Cell Colors class" );
 
-    CAF_PDM_InitFieldNoDefault( &obsoleteField_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &obsoleteField_legendConfig, "LegendDefinition", "Color Legend" );
     this->obsoleteField_legendConfig.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfigData, "ResultVarLegendDefinitionList", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfigData, "ResultVarLegendDefinitionList", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend" );
     this->m_ternaryLegendConfig = new RimTernaryLegendConfig();
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfigPtrField, "LegendDefinitionPtrField", "Color Legend PtrField", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfigPtrField, "LegendDefinitionPtrField", "Color Legend PtrField" );
 
     // Make sure we have a created legend for the default/undefined result variable
     changeLegendConfig( this->resultVariable() );
@@ -81,7 +81,7 @@ RimEclipseCellColors::~RimEclipseCellColors()
 {
     CVF_ASSERT( obsoleteField_legendConfig() == nullptr );
 
-    m_legendConfigData.deleteAllChildObjects();
+    m_legendConfigData.deleteChildren();
 
     delete m_ternaryLegendConfig();
 }
@@ -153,16 +153,13 @@ void RimEclipseCellColors::changeLegendConfig( QString resultVarNameOfNewLegend 
                                                         this->m_useDiscreteLogLevels,
                                                         this->hasCategoryResult() );
 
+                newLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
+
                 m_legendConfigData.push_back( newLegend );
 
                 this->m_legendConfigPtrField = newLegend;
             }
         }
-    }
-
-    for ( auto legendConfig : m_legendConfigData )
-    {
-        legendConfig->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
     }
 }
 
@@ -181,43 +178,10 @@ RimRegularLegendConfig* RimEclipseCellColors::createLegendForResult( const QStri
                                                                      bool           useDiscreteLogLevels,
                                                                      bool           isCategoryResult )
 {
-    bool useLog = RiaResultNames::isLogarithmicResult( resultName );
+    auto* newLegend               = new RimRegularLegendConfig;
+    newLegend->resultVariableName = resultName;
 
-    RimRegularLegendConfig::ColorRangesType colorRangeType = RimRegularLegendConfig::ColorRangesType::UNDEFINED;
-    if ( isCategoryResult )
-    {
-        colorRangeType = RimRegularLegendConfig::ColorRangesType::CATEGORY;
-    }
-    else if ( resultName == "SWAT" )
-    {
-        colorRangeType = RimRegularLegendConfig::ColorRangesType::OPPOSITE_NORMAL;
-    }
-
-    RimRegularLegendConfig* newLegend = new RimRegularLegendConfig;
-    newLegend->resultVariableName     = resultName;
-
-    if ( useLog )
-    {
-        if ( useDiscreteLogLevels )
-            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_DISCRETE );
-        else
-            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS );
-
-        newLegend->setTickNumberFormat( RiaNumberFormat::NumberFormatType::AUTO );
-        newLegend->setRangeMode( RimLegendConfig::RangeModeType::USER_DEFINED );
-        newLegend->resetUserDefinedValues();
-    }
-
-    if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
-    {
-        RimColorLegend* colorLegend = RimRegularLegendConfig::mapToColorLegend( colorRangeType );
-        if ( isCategoryResult )
-        {
-            newLegend->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
-        }
-
-        newLegend->setColorLegend( colorLegend );
-    }
+    newLegend->setDefaultConfigForResultName( resultName, useDiscreteLogLevels, isCategoryResult );
 
     return newLegend;
 }
@@ -242,7 +206,9 @@ void RimEclipseCellColors::initAfterRead()
         // set to nullptr before pushing into container
         obsoleteField_legendConfig = nullptr;
 
+        obsoleteLegend->changed.connect( this, &RimEclipseCellColors::onLegendConfigChanged );
         m_legendConfigData.push_back( obsoleteLegend );
+
         m_legendConfigPtrField = obsoleteLegend;
     }
 

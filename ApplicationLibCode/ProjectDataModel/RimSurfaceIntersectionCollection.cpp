@@ -29,10 +29,10 @@ CAF_PDM_SOURCE_INIT( RimSurfaceIntersectionCollection, "RimSurfaceIntersectionCo
 RimSurfaceIntersectionCollection::RimSurfaceIntersectionCollection()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "SurfaceIntersectionCollection_msj", "", "", "" );
+    CAF_PDM_InitObject( "SurfaceIntersectionCollection_msj" );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionBands, "IntersectionBands", "Intersection Bands", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_intersectionCurves, "IntersectionCurves", "Intersection Curves", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionBands, "IntersectionBands", "Intersection Bands" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionCurves, "IntersectionCurves", "Intersection Curves" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,7 +64,7 @@ RimSurfaceIntersectionBand* RimSurfaceIntersectionCollection::addIntersectionBan
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurfaceIntersectionCurve*> RimSurfaceIntersectionCollection::surfaceIntersectionCurves() const
 {
-    return m_intersectionCurves.childObjects();
+    return m_intersectionCurves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ std::vector<RimSurfaceIntersectionCurve*> RimSurfaceIntersectionCollection::surf
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurfaceIntersectionBand*> RimSurfaceIntersectionCollection::surfaceIntersectionBands() const
 {
-    return m_intersectionBands.childObjects();
+    return m_intersectionBands.children();
 }
 
 //--------------------------------------------------------------------------------------------------

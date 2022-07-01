@@ -19,15 +19,15 @@
 #include "RicPasteAsciiDataToSummaryPlotFeature.h"
 
 #include "OperationsUsingObjReferences/RicPasteFeatureImpl.h"
-#include "RicNewSummaryPlotFeature.h"
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
 #include "RiaLogging.h"
 
 #include "RimAsciiDataCurve.h"
 #include "RimSummaryCurveAppearanceCalculator.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmDocument.h"
@@ -56,9 +56,9 @@ bool RicPasteAsciiDataToSummaryPlotFeature::isCommandEnabled()
 
     if ( !destinationObject ) return false;
 
-    RimSummaryPlotCollection* summaryPlotCollection = nullptr;
-    destinationObject->firstAncestorOrThisOfType( summaryPlotCollection );
-    if ( !summaryPlotCollection )
+    RimSummaryMultiPlot* multiPlot = nullptr;
+    destinationObject->firstAncestorOrThisOfType( multiPlot );
+    if ( !multiPlot )
     {
         return false;
     }
@@ -80,7 +80,7 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
 
     RicPasteAsciiDataToSummaryPlotFeatureUi pasteOptions;
     caf::PdmSettings::readFieldsFromApplicationStore( &pasteOptions, pasteOptions.contextString() );
-    if ( !summaryPlot ) pasteOptions.createNewPlot();
+    if ( !summaryPlot ) pasteOptions.setCreateNewPlot();
     pasteOptions.setUiModePasteText( text );
 
     caf::PdmUiPropertyViewDialog propertyDialog( nullptr, &pasteOptions, "Set Paste Options", "" );
@@ -92,14 +92,10 @@ void RicPasteAsciiDataToSummaryPlotFeature::onActionTriggered( bool isChecked )
     {
         if ( !summaryPlot )
         {
-            RimSummaryPlotCollection* summaryPlotCollection = nullptr;
-            destinationObject->firstAncestorOrThisOfType( summaryPlotCollection );
-            if ( !summaryPlotCollection )
-            {
-                return;
-            }
-            summaryPlot = createSummaryPlotAndAddToPlotCollection( summaryPlotCollection );
-            summaryPlotCollection->updateConnectedEditors();
+            summaryPlot = new RimSummaryPlot();
+            summaryPlot->enableAutoPlotTitle( true );
+
+            RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( summaryPlot );
         }
 
         caf::PdmSettings::writeFieldsToApplicationStore( &pasteOptions, pasteOptions.contextString() );
@@ -249,15 +245,4 @@ RicPasteAsciiDataToSummaryPlotFeature::CurveType
         return CURVE_GAS;
     }
     return CURVE_UNKNOWN;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimSummaryPlot*
-    RicPasteAsciiDataToSummaryPlotFeature::createSummaryPlotAndAddToPlotCollection( RimSummaryPlotCollection* plotCollection )
-{
-    QString name = QString( "Summary Plot %1" ).arg( plotCollection->plots().size() + 1 );
-
-    return plotCollection->createNamedSummaryPlot( name );
 }

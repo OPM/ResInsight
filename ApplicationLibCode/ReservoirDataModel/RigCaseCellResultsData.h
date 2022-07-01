@@ -120,6 +120,7 @@ public:
     void clearAllResults();
     void freeAllocatedResultsData();
     void eraseAllSourSimData();
+    void setRemovedTagOnGeneratedResult( const RigEclipseResultAddress& resultAddress );
 
     QStringList                          resultNames( RiaDefines::ResultCatType type ) const;
     std::vector<RigEclipseResultAddress> existingResults() const;

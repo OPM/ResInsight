@@ -32,12 +32,9 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
-
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include <QAction>
 #include <QInputDialog>
@@ -74,8 +71,7 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
     if ( mainPlotWindow && !cases.empty() )
     {
         mainPlotWindow->selectAsCurrentItem( cases.back() );
-
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 
     std::vector<RimCase*> allCases;
@@ -83,7 +79,7 @@ void RicImportSummaryGroupFeature::onActionTriggered( bool isChecked )
 
     if ( allCases.size() == 0 )
     {
-        RiuMainWindow::instance()->close();
+        RiuMainWindow::closeIfOpen();
     }
 }
 

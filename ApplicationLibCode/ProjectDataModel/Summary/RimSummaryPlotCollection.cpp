@@ -37,9 +37,9 @@ CAF_PDM_SOURCE_INIT( RimSummaryPlotCollection, "SummaryPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotCollection::RimSummaryPlotCollection()
 {
-    CAF_PDM_InitScriptableObject( "Summary Plots", ":/SummaryPlotsLight16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Single Summary Plots", ":/SummaryPlotsLight16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryPlots, "SummaryPlots", "Summary Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryPlots, "SummaryPlots", "Single Summary Plots" );
     m_summaryPlots.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_summaryPlots );
 }
@@ -112,7 +112,7 @@ void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*   
 {
     updateSummaryNameHasChanged();
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    mainPlotWindow->updateSummaryPlotToolBar();
+    mainPlotWindow->updateMultiPlotToolBar();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ void RimSummaryPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*   
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RimSummaryPlotCollection::plots() const
 {
-    return m_summaryPlots.childObjects();
+    return m_summaryPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,6 +144,6 @@ void RimSummaryPlotCollection::insertPlot( RimSummaryPlot* summaryPlot, size_t i
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlotCollection::removePlot( RimSummaryPlot* summaryPlot )
 {
-    m_summaryPlots.removeChildObject( summaryPlot );
+    m_summaryPlots.removeChild( summaryPlot );
     updateAllRequiredEditors();
 }

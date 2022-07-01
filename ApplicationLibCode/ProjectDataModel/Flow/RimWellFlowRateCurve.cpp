@@ -46,7 +46,7 @@ CAF_PDM_SOURCE_INIT( RimWellFlowRateCurve, "WellFlowRateCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellFlowRateCurve::RimWellFlowRateCurve()
 {
-    CAF_PDM_InitObject( "Flow Rate Curve", "", "", "" );
+    CAF_PDM_InitObject( "Flow Rate Curve" );
     m_groupId     = 0;
     m_doFillCurve = true;
 }
@@ -161,7 +161,7 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    m_qwtPlotCurve->setTitle( createCurveAutoName() );
+    m_plotCurve->setTitle( createCurveAutoName() );
 
     if ( updateParentPlot )
     {
@@ -172,7 +172,7 @@ void RimWellFlowRateCurve::onLoadDataAndUpdate( bool updateParentPlot )
         updateZoomInParentPlot();
     }
 
-    if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+    if ( hasParentPlot() ) m_parentPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,9 +195,11 @@ void RimWellFlowRateCurve::updateCurveAppearance()
         }
     }
 
-    if ( isUsingConnectionNumberDepthType() )
+    QwtPlotCurve* qwtPlotCurve = dynamic_cast<QwtPlotCurve*>( m_plotCurve );
+    if ( isUsingConnectionNumberDepthType() && qwtPlotCurve )
     {
-        m_qwtPlotCurve->setStyle( QwtPlotCurve::Steps );
+        // Steps style only for Qwt.
+        qwtPlotCurve->setStyle( QwtPlotCurve::Steps );
     }
 
     if ( m_doFillCurve || isLastCurveInGroup ) // Fill the last curve in group with a transparent color to "tie" the
@@ -222,14 +224,19 @@ void RimWellFlowRateCurve::updateCurveAppearance()
         gradient.setColorAt( 0.6, fillColor );
         gradient.setColorAt( 0.8, fillColor.darker( 110 ) );
         gradient.setColorAt( 1, fillColor );
-        m_qwtPlotCurve->setBrush( gradient );
+        m_plotCurve->setBrush( gradient );
 
-        QPen curvePen = m_qwtPlotCurve->pen();
-        curvePen.setColor( lineColor );
-        m_qwtPlotCurve->setPen( curvePen );
-        m_qwtPlotCurve->setOrientation( Qt::Horizontal );
-        m_qwtPlotCurve->setBaseline( 0.0 );
-        m_qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+        if ( qwtPlotCurve )
+        {
+            // Baseline and orientation only available for Qwt.
+            QPen curvePen = qwtPlotCurve->pen();
+            curvePen.setColor( lineColor );
+            qwtPlotCurve->setPen( curvePen );
+            qwtPlotCurve->setOrientation( Qt::Horizontal );
+            qwtPlotCurve->setBaseline( 0.0 );
+
+            qwtPlotCurve->setCurveAttribute( QwtPlotCurve::Inverted, true );
+        }
     }
 }
 
@@ -293,7 +300,14 @@ void RimWellFlowRateCurve::setFlowValuesPrDepthValue( const QString&            
                                                       const std::vector<double>& depthValues,
                                                       const std::vector<double>& flowRates )
 {
-    this->setValuesAndDepths( flowRates, depthValues, depthType, 0.0, RiaDefines::DepthUnitType::UNIT_NONE, false );
+    bool useLogarithmicScale = false;
+    this->setPropertyValuesAndDepths( flowRates,
+                                      depthValues,
+                                      depthType,
+                                      0.0,
+                                      RiaDefines::DepthUnitType::UNIT_NONE,
+                                      false,
+                                      useLogarithmicScale );
 
     m_curveAutoName = curveName;
 }

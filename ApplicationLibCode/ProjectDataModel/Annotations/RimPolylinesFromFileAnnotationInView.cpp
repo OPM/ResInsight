@@ -26,7 +26,7 @@ CAF_PDM_SOURCE_INIT( RimPolylinesFromFileAnnotationInView, "RimPolylinesFromFile
 //--------------------------------------------------------------------------------------------------
 RimPolylinesFromFileAnnotationInView::RimPolylinesFromFileAnnotationInView()
 {
-    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -35,5 +35,5 @@ RimPolylinesFromFileAnnotationInView::RimPolylinesFromFileAnnotationInView()
 RimPolylinesFromFileAnnotationInView::RimPolylinesFromFileAnnotationInView( RimPolylinesFromFileAnnotation* sourceAnnotation )
     : RimPolylinesAnnotationInView( sourceAnnotation )
 {
-    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png" );
 }

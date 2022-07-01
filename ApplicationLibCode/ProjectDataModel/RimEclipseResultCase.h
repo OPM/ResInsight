@@ -25,9 +25,11 @@
 #include "RimEclipseCase.h"
 
 #include "cafFilePath.h"
-#include <cafPdmProxyValueField.h>
+#include "cafPdmProxyValueField.h"
 
+class RifReaderRftInterface;
 class RifReaderEclipseRft;
+class RifReaderOpmRft;
 class RifReaderInterface;
 class RigFlowDiagSolverInterface;
 class RigMainGrid;
@@ -63,15 +65,13 @@ public:
 
     caf::AppEnum<RiaDefines::EclipseUnitSystem> unitSystem();
 
-    // Overrides from RimCase
     QString locationOnDisc() const override;
-    void    updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) override;
 
     RimFlowDiagSolution*              defaultFlowDiagSolution();
     std::vector<RimFlowDiagSolution*> flowDiagSolutions();
     RigFlowDiagSolverInterface*       flowDiagSolverInterface();
 
-    RifReaderEclipseRft* rftReader();
+    RifReaderRftInterface* rftReader();
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -81,6 +81,7 @@ protected:
 
 private:
     void loadAndUpdateSourSimData();
+    void ensureRftDataIsImported();
 
 private:
     cvf::ref<RifReaderInterface> createMockModel( QString modelName );
@@ -90,6 +91,7 @@ private:
     cvf::ref<RigFlowDiagSolverInterface> m_flowDagSolverInterface;
 
     cvf::ref<RifReaderEclipseRft> m_readerEclipseRft;
+    cvf::ref<RifReaderOpmRft>     m_readerOpmRft;
 
     // Fields:
     caf::PdmProxyValueField<caf::AppEnum<RiaDefines::EclipseUnitSystem>> m_unitSystem;
@@ -98,4 +100,6 @@ private:
 
     bool m_gridAndWellDataIsReadFromFile;
     bool m_activeCellInfoIsReadFromFile;
+    bool m_useOpmRftReader;
+    bool m_rftDataIsReadFromFile;
 };

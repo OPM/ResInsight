@@ -40,8 +40,7 @@ public:
     int             selectedTimeStep() const;
 
 protected:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     caf::PdmPtrField<RimEclipseCase*> m_caseToApply;

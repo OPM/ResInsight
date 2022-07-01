@@ -9,14 +9,14 @@ CAF_PDM_SOURCE_INIT( RicExportContourMapToTextUi, "RicExportContourMapToTextUi" 
 //--------------------------------------------------------------------------------------------------
 RicExportContourMapToTextUi::RicExportContourMapToTextUi()
 {
-    CAF_PDM_InitObject( "Export Contour Map to Text", "", "", "" );
+    CAF_PDM_InitObject( "Export Contour Map to Text" );
 
-    CAF_PDM_InitField( &m_exportFileName, "ExportFileName", QString(), "Export File Name", "", "", "" );
+    CAF_PDM_InitField( &m_exportFileName, "ExportFileName", QString(), "Export File Name" );
     m_exportFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_exportLocalCoordinates, "ExportLocalCoordinates", false, "Export Local Coordinates", "", "", "" );
-    CAF_PDM_InitField( &m_undefinedValueLabel, "UndefinedValueLabel", QString( "NaN" ), "Undefined Value Label", "", "", "" );
-    CAF_PDM_InitField( &m_excludeUndefinedValues, "ExcludeUndefinedValues", false, "Exclude Undefined Values", "", "", "" );
+    CAF_PDM_InitField( &m_exportLocalCoordinates, "ExportLocalCoordinates", false, "Export Local Coordinates" );
+    CAF_PDM_InitField( &m_undefinedValueLabel, "UndefinedValueLabel", QString( "NaN" ), "Undefined Value Label" );
+    CAF_PDM_InitField( &m_excludeUndefinedValues, "ExcludeUndefinedValues", false, "Exclude Undefined Values" );
 }
 
 //--------------------------------------------------------------------------------------------------

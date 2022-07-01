@@ -34,14 +34,14 @@ CAF_PDM_SOURCE_INIT( RimPressureTable, "PressureTable" );
 RimPressureTable::RimPressureTable()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "Pressure Table", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Pressure Table" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTableItems, "Items", "Pressure Table Items", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTableItems, "Items", "Pressure Table Items" );
     m_pressureTableItems.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_pressureTableItems.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_pressureTableItems.uiCapability()->setCustomContextMenuEnabled( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDate, "PressureDate", "Pressure Date", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureDate, "PressureDate", "Pressure Date" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,7 +56,7 @@ RimPressureTable::~RimPressureTable()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPressureTableItem*> RimPressureTable::items() const
 {
-    std::vector<RimPressureTableItem*> pressureTableItems = m_pressureTableItems.childObjects();
+    std::vector<RimPressureTableItem*> pressureTableItems = m_pressureTableItems.children();
 
     // Sort by depth
     std::sort( pressureTableItems.begin(), pressureTableItems.end(), []( auto const& a, auto const& b ) {
@@ -71,7 +71,7 @@ std::vector<RimPressureTableItem*> RimPressureTable::items() const
 //--------------------------------------------------------------------------------------------------
 void RimPressureTable::insertItem( RimPressureTableItem* insertBefore, RimPressureTableItem* item )
 {
-    size_t index = m_pressureTableItems.index( insertBefore );
+    size_t index = m_pressureTableItems.indexOf( insertBefore );
     item->changed.connect( this, &RimPressureTable::onTableChanged );
     if ( index < m_pressureTableItems.size() )
         m_pressureTableItems.insert( index, item );
@@ -86,7 +86,7 @@ void RimPressureTable::insertItem( RimPressureTableItem* insertBefore, RimPressu
 //--------------------------------------------------------------------------------------------------
 void RimPressureTable::deleteItem( RimPressureTableItem* itemToDelete )
 {
-    m_pressureTableItems.removeChildObject( itemToDelete );
+    m_pressureTableItems.removeChild( itemToDelete );
     delete itemToDelete;
     onTableChanged();
 }
@@ -96,7 +96,7 @@ void RimPressureTable::deleteItem( RimPressureTableItem* itemToDelete )
 //--------------------------------------------------------------------------------------------------
 void RimPressureTable::deleteAllItems()
 {
-    m_pressureTableItems.deleteAllChildObjects();
+    m_pressureTableItems.deleteChildren();
     onTableChanged();
 }
 

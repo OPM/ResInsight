@@ -49,8 +49,8 @@ CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotDataResult, "exportWellLogPlotDataResu
 //--------------------------------------------------------------------------------------------------
 RicfExportWellLogPlotDataResult::RicfExportWellLogPlotDataResult()
 {
-    CAF_PDM_InitObject( "export_well_data_result", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &this->exportedFiles, "exportedFiles", "", "", "", "" );
+    CAF_PDM_InitObject( "export_well_data_result" );
+    CAF_PDM_InitFieldNoDefault( &this->exportedFiles, "exportedFiles", "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotData, "exportWellLogPlotData" );
@@ -60,14 +60,14 @@ CAF_PDM_SOURCE_INIT( RicfExportWellLogPlotData, "exportWellLogPlotData" );
 //--------------------------------------------------------------------------------------------------
 RicfExportWellLogPlotData::RicfExportWellLogPlotData()
 {
-    CAF_PDM_InitScriptableFieldNoDefault( &m_format, "exportFormat", "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_folder, "exportFolder", QString(), "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_filePrefix, "filePrefix", QString(), "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_exportTvdRkb, "exportTvdRkb", false, "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_capitalizeFileNames, "capitalizeFileNames", false, "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_resampleInterval, "resampleInterval", 0.0, "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_convertCurveUnits, "convertCurveUnits", false, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_format, "exportFormat", "" );
+    CAF_PDM_InitScriptableField( &m_viewId, "viewId", -1, "" );
+    CAF_PDM_InitScriptableField( &m_folder, "exportFolder", QString(), "" );
+    CAF_PDM_InitScriptableField( &m_filePrefix, "filePrefix", QString(), "" );
+    CAF_PDM_InitScriptableField( &m_exportTvdRkb, "exportTvdRkb", false, "" );
+    CAF_PDM_InitScriptableField( &m_capitalizeFileNames, "capitalizeFileNames", false, "" );
+    CAF_PDM_InitScriptableField( &m_resampleInterval, "resampleInterval", 0.0, "" );
+    CAF_PDM_InitScriptableField( &m_convertCurveUnits, "convertCurveUnits", false, "" );
 }
 
 //--------------------------------------------------------------------------------------------------

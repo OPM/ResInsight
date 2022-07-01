@@ -85,17 +85,17 @@ const QString RiuCreateMultipleFractionsUi::REPLACE_FRACTURES_BUTTON_TEXT = "Rep
 //--------------------------------------------------------------------------------------------------
 RiuCreateMultipleFractionsUi::RiuCreateMultipleFractionsUi()
 {
-    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "SourceCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourceCase, "SourceCase", "Case" );
 
-    CAF_PDM_InitField( &m_minDistanceFromWellTd, "MinDistanceFromWellTd", 10.0, "Min Distance From Well TD", "", "", "" );
-    CAF_PDM_InitField( &m_maxFracturesPerWell, "MaxFracturesPerWell", 10, "Max Fractures Per Well", "", "", "" );
+    CAF_PDM_InitField( &m_minDistanceFromWellTd, "MinDistanceFromWellTd", 10.0, "Min Distance From Well TD" );
+    CAF_PDM_InitField( &m_maxFracturesPerWell, "MaxFracturesPerWell", 10, "Max Fractures Per Well" );
 
-    CAF_PDM_InitFieldNoDefault( &m_options, "Options", "Options", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_options, "Options", "Options" );
     m_options.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_options.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_options.uiCapability()->setCustomContextMenuEnabled( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureCreationSummary, "FractureCreationSummary", "Generated Fractures", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureCreationSummary, "FractureCreationSummary", "Generated Fractures" );
     m_fractureCreationSummary.registerGetMethod( this, &RiuCreateMultipleFractionsUi::summaryText );
     m_fractureCreationSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_fractureCreationSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
@@ -127,7 +127,7 @@ void RiuCreateMultipleFractionsUi::setValues( RimEclipseCase* eclipseCase,
 void RiuCreateMultipleFractionsUi::resetValues()
 {
     m_sourceCase = nullptr;
-    m_options.deleteAllChildObjects();
+    m_options.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,7 +135,7 @@ void RiuCreateMultipleFractionsUi::resetValues()
 //--------------------------------------------------------------------------------------------------
 std::vector<RicCreateMultipleFracturesOptionItemUi*> RiuCreateMultipleFractionsUi::options() const
 {
-    return m_options.childObjects();
+    return m_options.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -144,7 +144,7 @@ std::vector<RicCreateMultipleFracturesOptionItemUi*> RiuCreateMultipleFractionsU
 void RiuCreateMultipleFractionsUi::insertOptionItem( RicCreateMultipleFracturesOptionItemUi* insertAfterThisObject,
                                                      RicCreateMultipleFracturesOptionItemUi* objectToInsert )
 {
-    size_t index = m_options.index( insertAfterThisObject );
+    size_t index = m_options.indexOf( insertAfterThisObject );
     if ( index < m_options.size() - 1 )
     {
         m_options.insert( index + 1, objectToInsert );
@@ -160,7 +160,7 @@ void RiuCreateMultipleFractionsUi::insertOptionItem( RicCreateMultipleFracturesO
 //--------------------------------------------------------------------------------------------------
 void RiuCreateMultipleFractionsUi::deleteOptionItem( RicCreateMultipleFracturesOptionItemUi* optionsItem )
 {
-    m_options.removeChildObject( optionsItem );
+    m_options.removeChild( optionsItem );
     delete optionsItem;
 }
 
@@ -169,7 +169,7 @@ void RiuCreateMultipleFractionsUi::deleteOptionItem( RicCreateMultipleFracturesO
 //--------------------------------------------------------------------------------------------------
 void RiuCreateMultipleFractionsUi::clearOptions()
 {
-    m_options.deleteAllChildObjects();
+    m_options.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -192,8 +192,7 @@ void RiuCreateMultipleFractionsUi::clearWellPaths()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RiuCreateMultipleFractionsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RiuCreateMultipleFractionsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

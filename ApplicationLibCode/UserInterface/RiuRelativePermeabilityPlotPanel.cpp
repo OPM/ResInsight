@@ -18,17 +18,20 @@
 
 #include "RiuRelativePermeabilityPlotPanel.h"
 
-#include "RiuDockedQwtPlot.h"
-#include "RiuGuiTheme.h"
-#include "RiuQwtPlotCurve.h"
-#include "RiuQwtPlotTools.h"
-#include "RiuRelativePermeabilityPlotUpdater.h"
-#include "RiuTextDialog.h"
+#include "RigFlowDiagSolverInterface.h"
 
 #include "RiaCurveDataTools.h"
 #include "RiaEclipseUnitTools.h"
-
-#include "RigFlowDiagSolverInterface.h"
+#include "RiaPlotDefines.h"
+#include "RiaResultNames.h"
+#include "RiuDockedQwtPlot.h"
+#include "RiuGuiTheme.h"
+#include "RiuPlotCurveSymbol.h"
+#include "RiuQwtPlotCurve.h"
+#include "RiuQwtPlotTools.h"
+#include "RiuQwtSymbol.h"
+#include "RiuRelativePermeabilityPlotUpdater.h"
+#include "RiuTextDialog.h"
 
 #include "cvfAssert.h"
 #include "cvfTrace.h"
@@ -38,7 +41,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_plot_marker.h"
 #include "qwt_scale_engine.h"
-#include "qwt_symbol.h"
+#include "qwt_text.h"
 
 #include <QButtonGroup>
 #include <QCheckBox>
@@ -175,13 +178,11 @@ void RiuRelativePermeabilityPlotPanel::setPlotDefaults( QwtPlot* plot )
         plot->setTitle( plotTitle );
     }
 
-    plot->enableAxis( QwtPlot::xBottom, true );
-    plot->enableAxis( QwtPlot::yLeft, true );
-    plot->enableAxis( QwtPlot::xTop, false );
-    plot->enableAxis( QwtPlot::yRight, false );
+    plot->setAxesCount( QwtAxis::XBottom, 1 );
+    plot->setAxesCount( QwtAxis::YLeft, 1 );
 
-    plot->setAxisMaxMinor( QwtPlot::xBottom, 2 );
-    plot->setAxisMaxMinor( QwtPlot::yLeft, 3 );
+    plot->setAxisMaxMinor( QwtAxis::XBottom, 2 );
+    plot->setAxisMaxMinor( QwtAxis::YLeft, 3 );
 
     QwtLegend* legend = new QwtLegend( plot );
     plot->insertLegend( legend, QwtPlot::BottomLegend );
@@ -303,8 +304,8 @@ void RiuRelativePermeabilityPlotPanel::addTransparentCurve( QwtPlot*            
     curveLeftAxis->setSamples( pointsOnLeftAxis );
     curveRightAxis->setSamples( pointsOnRightAxis );
 
-    curveLeftAxis->setYAxis( QwtPlot::yLeft );
-    curveRightAxis->setYAxis( QwtPlot::yRight );
+    curveLeftAxis->setYAxis( QwtAxis::YLeft );
+    curveRightAxis->setYAxis( QwtAxis::YRight );
 
     curveLeftAxis->setStyle( QwtPlotCurve::NoCurve );
     curveRightAxis->setStyle( QwtPlotCurve::NoCurve );
@@ -362,11 +363,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
             plotOnWhichYAxis = RIGHT_YAXIS;
         }
 
-        // QwtPlotCurve* qwtCurve = new QwtPlotCurve(curve.name.c_str());
-        RiuQwtPlotCurve* qwtCurve = new RiuQwtPlotCurve( curve.name.c_str() );
+        RiuQwtPlotCurve* qwtCurve = new RiuQwtPlotCurve( nullptr, curve.name.c_str() );
 
         CVF_ASSERT( curve.saturationVals.size() == curve.yVals.size() );
-        // qwtCurve->setSamples(curve.xVals.data(), curve.yVals.data(), static_cast<int>(curve.xVals.size()));
         const bool includePositiveValuesOnly = ( logScaleLeftAxis && plotOnWhichYAxis == LEFT_YAXIS );
         qwtCurve->setSamplesFromXValuesAndYValues( curve.saturationVals, curve.yVals, includePositiveValuesOnly );
 
@@ -402,7 +401,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         const QPen curvePen( QBrush(), 1, penStyle );
         qwtCurve->setPen( curvePen );
 
-        QwtSymbol* curveSymbol = new QwtSymbol( QwtSymbol::Ellipse );
+        RiuQwtSymbol* curveSymbol = new RiuQwtSymbol( RiuPlotCurveSymbol::SYMBOL_ELLIPSE );
         curveSymbol->setSize( 6, 6 );
         curveSymbol->setBrush( Qt::NoBrush );
         qwtCurve->setSymbol( curveSymbol );
@@ -415,7 +414,7 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
 
         if ( plotOnWhichYAxis == RIGHT_YAXIS )
         {
-            qwtCurve->setYAxis( QwtPlot::yRight );
+            qwtCurve->setYAxis( RiuPlotAxis::defaultRight() );
             shouldEnableRightYAxis = true;
         }
 
@@ -459,60 +458,63 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
         }
     }
 
-    plot->enableAxis( QwtPlot::yRight, shouldEnableRightYAxis );
+    if ( shouldEnableRightYAxis )
+        plot->setAxesCount( QwtAxis::YRight, 1 );
+    else
+        plot->setAxesCount( QwtAxis::YRight, 0 );
 
     addTransparentCurve( plot, points, axes, logScaleLeftAxis );
 
     // Add vertical marker lines to indicate cell SWAT and/or SGAS saturations
     if ( swat != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( swat, "SWAT", waterColor, plot, myPlotMarkers );
+        addVerticalSaturationMarkerLine( swat, RiaResultNames::swat(), waterColor, plot, myPlotMarkers );
     }
     if ( sgas != HUGE_VAL )
     {
-        addVerticalSaturationMarkerLine( sgas, "SGAS", gasColor, plot, myPlotMarkers );
+        addVerticalSaturationMarkerLine( sgas, RiaResultNames::sgas(), gasColor, plot, myPlotMarkers );
     }
 
     if ( logScaleLeftAxis )
     {
-        if ( !dynamic_cast<QwtLogScaleEngine*>( plot->axisScaleEngine( QwtPlot::yLeft ) ) )
+        if ( !dynamic_cast<QwtLogScaleEngine*>( plot->axisScaleEngine( QwtAxis::YLeft ) ) )
         {
-            plot->setAxisScaleEngine( QwtPlot::yLeft, new QwtLogScaleEngine );
+            plot->setAxisScaleEngine( QwtAxis::YLeft, new QwtLogScaleEngine );
         }
     }
     else
     {
-        if ( !dynamic_cast<QwtLinearScaleEngine*>( plot->axisScaleEngine( QwtPlot::yLeft ) ) )
+        if ( !dynamic_cast<QwtLinearScaleEngine*>( plot->axisScaleEngine( QwtAxis::YLeft ) ) )
         {
-            plot->setAxisScaleEngine( QwtPlot::yLeft, new QwtLinearScaleEngine );
+            plot->setAxisScaleEngine( QwtAxis::YLeft, new QwtLinearScaleEngine );
         }
     }
 
     if ( fixedXAxis )
     {
-        plot->setAxisScale( QwtPlot::xBottom, 0.0, 1.0 );
-        plot->setAxisAutoScale( QwtPlot::xBottom, false );
+        plot->setAxisScale( QwtAxis::XBottom, 0.0, 1.0 );
+        plot->setAxisAutoScale( QwtAxis::XBottom, false );
     }
     else
     {
-        plot->setAxisAutoScale( QwtPlot::xBottom, true );
+        plot->setAxisAutoScale( QwtAxis::XBottom, true );
     }
 
     if ( fixedLeftYAxis )
     {
         if ( logScaleLeftAxis )
         {
-            plot->setAxisScale( QwtPlot::yLeft, 1.0e-6, 1.0 );
+            plot->setAxisScale( QwtAxis::YLeft, 1.0e-6, 1.0 );
         }
         else
         {
-            plot->setAxisScale( QwtPlot::yLeft, 0.0, 1.0 );
+            plot->setAxisScale( QwtAxis::YLeft, 0.0, 1.0 );
         }
-        plot->setAxisAutoScale( QwtPlot::yLeft, false );
+        plot->setAxisAutoScale( QwtAxis::YLeft, false );
     }
     else
     {
-        plot->setAxisAutoScale( QwtPlot::yLeft, true );
+        plot->setAxisAutoScale( QwtAxis::YLeft, true );
     }
 
     QString titleStr = "Relative Permeability";
@@ -522,9 +524,9 @@ void RiuRelativePermeabilityPlotPanel::plotCurvesInQwt( RiaDefines::EclipseUnitS
     }
     plot->setTitle( titleStr );
 
-    plot->setAxisTitle( QwtPlot::xBottom, determineXAxisTitleFromCurveCollection( curveArr ) );
-    plot->setAxisTitle( QwtPlot::yLeft, "Kr" );
-    plot->setAxisTitle( QwtPlot::yRight, QString( "Pc [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
+    plot->setAxisTitle( QwtAxis::XBottom, determineXAxisTitleFromCurveCollection( curveArr ) );
+    plot->setAxisTitle( QwtAxis::YLeft, "Kr" );
+    plot->setAxisTitle( QwtAxis::YRight, QString( "Pc [%1]" ).arg( RiaEclipseUnitTools::unitStringPressure( unitSystem ) ) );
     plot->replot();
 }
 
@@ -625,7 +627,7 @@ void RiuRelativePermeabilityPlotPanel::addCurveConstSaturationIntersectionMarker
 
         if ( whichYAxis == RIGHT_YAXIS )
         {
-            pointMarker->setYAxis( QwtPlot::yRight );
+            pointMarker->setYAxis( QwtAxis::YRight );
         }
 
         myPlotMarkers->push_back( pointMarker );

@@ -37,9 +37,9 @@ CAF_PDM_SOURCE_INIT( RicfCreateGridCaseGroupResult, "createGridCaseGroupResult" 
 RicfCreateGridCaseGroupResult::RicfCreateGridCaseGroupResult( int            caseGroupId /*= -1*/,
                                                               const QString& caseGroupName /*= ""*/ )
 {
-    CAF_PDM_InitObject( "case_group_result", "", "", "" );
-    CAF_PDM_InitField( &this->caseGroupId, "groupId", caseGroupId, "", "", "", "" );
-    CAF_PDM_InitField( &this->caseGroupName, "groupName", caseGroupName, "", "", "", "" );
+    CAF_PDM_InitObject( "case_group_result" );
+    CAF_PDM_InitField( &this->caseGroupId, "groupId", caseGroupId, "" );
+    CAF_PDM_InitField( &this->caseGroupName, "groupName", caseGroupName, "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfCreateGridCaseGroup, "createGridCaseGroup" );
@@ -49,7 +49,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateGridCaseGroup, "createGridCaseGroup" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateGridCaseGroup::RicfCreateGridCaseGroup()
 {
-    CAF_PDM_InitScriptableFieldNoDefault( &m_casePaths, "casePaths", "List of Paths to Case Files", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_casePaths, "casePaths", "List of Paths to Case Files" );
 }
 
 //--------------------------------------------------------------------------------------------------

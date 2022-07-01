@@ -46,6 +46,10 @@ public:
 
     virtual void uniqueValues( size_t timeStepIndex, std::set<int>& values ) = 0;
 
+    virtual bool hasPreciseP10p90() const;
+    virtual void p10p90CellScalarValues( double& p10, double& p90 );
+    virtual void p10p90CellScalarValues( size_t timeStepIndex, double& p10, double& p90 );
+
     virtual size_t timeStepCount() = 0;
 
     void         mobileVolumeWeightedMean( double& mean );

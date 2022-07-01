@@ -19,6 +19,7 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
+#include "cafSignal.h"
 
 #include <functional>
 #include <vector>
@@ -36,6 +37,9 @@ class RifSummaryCaseFileResultInfo;
 class RimSummaryCaseMainCollection : public caf::PdmObject
 {
     CAF_PDM_HEADER_INIT;
+
+public:
+    caf::Signal<> dataSourceHasChanged;
 
 public:
     RimSummaryCaseMainCollection();
@@ -58,7 +62,8 @@ public:
 
     void addCases( const std::vector<RimSummaryCase*> cases );
     void addCase( RimSummaryCase* summaryCase );
-    void removeCase( RimSummaryCase* summaryCase );
+    void removeCase( RimSummaryCase* summaryCase, bool notifyChange = true );
+    void removeCases( std::vector<RimSummaryCase*>& cases );
 
     RimSummaryCaseCollection* addCaseCollection( std::vector<RimSummaryCase*>               summaryCases,
                                                  const QString&                             coolectionName,
@@ -69,8 +74,6 @@ public:
     void loadAllSummaryCaseData();
 
     QString uniqueShortNameForCase( RimSummaryCase* summaryCase );
-
-    void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath );
 
     void updateAutoShortName();
     void onProjectBeingSaved();

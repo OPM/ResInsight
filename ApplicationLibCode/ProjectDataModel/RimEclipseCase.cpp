@@ -21,7 +21,9 @@
 #include "RimEclipseCase.h"
 
 #include "RiaColorTables.h"
+#include "RiaDefines.h"
 #include "RiaFieldHandleTools.h"
+#include "RiaLogging.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 
@@ -50,6 +52,8 @@
 #include "RimEclipseInputPropertyCollection.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
+#include "RimEclipseResultAddress.h"
+#include "RimEclipseResultAddressCollection.h"
 #include "RimEclipseStatisticsCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
@@ -99,25 +103,30 @@ RimEclipseCase::RimEclipseCase()
                                                            "All Eclipse Views in the case" );
     reservoirViews.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_matrixModelResults, "MatrixModelResults", "" );
     m_matrixModelResults.uiCapability()->setUiTreeHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureModelResults, "FractureModelResults", "" );
     m_fractureModelResults.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis", "", "", "" );
-    CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis", "", "", "" );
+    CAF_PDM_InitField( &m_flipXAxis, "FlipXAxis", false, "Flip X Axis" );
+    CAF_PDM_InitField( &m_flipYAxis, "FlipYAxis", false, "Flip Y Axis" );
 
-    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults_OBSOLETE, "CachedFileNamesContainingFaults", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_filesContainingFaults_OBSOLETE, "CachedFileNamesContainingFaults", "" );
     m_filesContainingFaults_OBSOLETE.uiCapability()->setUiHidden( true );
     m_filesContainingFaults_OBSOLETE.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
     m_contourMapCollection = new RimEclipseContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_inputPropertyCollection, "InputPropertyCollection", "" );
     m_inputPropertyCollection = new RimEclipseInputPropertyCollection;
     m_inputPropertyCollection->parentField()->uiCapability()->setUiTreeHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_resultAddressCollections, "ResultAddressCollections", "Result Addresses" );
+    m_resultAddressCollections.uiCapability()->setUiHidden( true );
+    m_resultAddressCollections.uiCapability()->setUiTreeHidden( true );
+    m_resultAddressCollections.xmlCapability()->disableIO();
 
     // Init
 
@@ -137,7 +146,7 @@ RimEclipseCase::RimEclipseCase()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase::~RimEclipseCase()
 {
-    reservoirViews.deleteAllChildObjects();
+    reservoirViews.deleteChildren();
 
     delete m_matrixModelResults();
     delete m_fractureModelResults();
@@ -298,7 +307,7 @@ RimEclipseView* RimEclipseCase::createAndAddReservoirView()
         auto prefs = RiaPreferences::current();
         if ( prefs->loadAndShowSoil )
         {
-            rimEclipseView->cellResult()->setResultVariable( "SOIL" );
+            rimEclipseView->cellResult()->setResultVariable( RiaResultNames::soil() );
         }
 
         rimEclipseView->faultCollection()->showFaultCollection = prefs->enableFaultsByDefault();
@@ -559,25 +568,65 @@ void RimEclipseCase::updateFormationNamesData()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
+void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    std::vector<PdmObjectHandle*> children;
-    reservoirViews.childObjects( &children );
-
-    for ( auto child : children )
-        uiTreeOrdering.add( child );
-
-    if ( !m_2dIntersectionViewCollection->views().empty() )
+    if ( uiConfigName == "MainWindow.ProjectTree" )
     {
-        uiTreeOrdering.add( &m_2dIntersectionViewCollection );
+        std::vector<PdmObjectHandle*> children;
+        reservoirViews.children( &children );
+
+        for ( auto child : children )
+            uiTreeOrdering.add( child );
+
+        if ( !m_2dIntersectionViewCollection->views().empty() )
+        {
+            uiTreeOrdering.add( &m_2dIntersectionViewCollection );
+        }
+
+        if ( !m_contourMapCollection->views().empty() )
+        {
+            uiTreeOrdering.add( &m_contourMapCollection );
+        }
     }
-
-    if ( !m_contourMapCollection->views().empty() )
+    else if ( uiConfigName == "MainWindow.DataSources" )
     {
-        uiTreeOrdering.add( &m_contourMapCollection );
+        if ( m_resultAddressCollections.empty() ) buildChildNodes();
+        uiTreeOrdering.add( &m_resultAddressCollections );
     }
 
     uiTreeOrdering.skipRemainingChildren( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::buildChildNodes()
+{
+    m_resultAddressCollections.deleteChildren();
+
+    std::vector<RiaDefines::ResultCatType> resultTypes = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                           RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                           RiaDefines::ResultCatType::INPUT_PROPERTY,
+                                                           RiaDefines::ResultCatType::GENERATED };
+    for ( auto resultType : resultTypes )
+    {
+        auto resultAddressCollection = new RimEclipseResultAddressCollection;
+        resultAddressCollection->setResultType( resultType );
+        QString name = caf::AppEnum<RiaDefines::ResultCatType>::uiText( resultType );
+        resultAddressCollection->setName( name );
+
+        auto cellResultData = results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        if ( cellResultData )
+        {
+            QStringList resultNames = cellResultData->resultNames( resultType );
+            for ( auto resultName : resultNames )
+            {
+                resultAddressCollection->addAddress( resultName, resultType, this );
+            }
+        }
+
+        m_resultAddressCollections.push_back( resultAddressCollection );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

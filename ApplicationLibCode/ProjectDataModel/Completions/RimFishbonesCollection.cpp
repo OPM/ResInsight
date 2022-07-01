@@ -40,17 +40,17 @@ CAF_PDM_SOURCE_INIT( RimFishbonesCollection, "FishbonesCollection" );
 //--------------------------------------------------------------------------------------------------
 RimFishbonesCollection::RimFishbonesCollection()
 {
-    CAF_PDM_InitObject( "Fishbones", ":/FishBones16x16.png", "", "" );
+    CAF_PDM_InitObject( "Fishbones", ":/FishBones16x16.png" );
 
     nameField()->uiCapability()->setUiHidden( true );
     this->setName( "Fishbones" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fishbones, "FishbonesSubs", "fishbonesSubs" );
     m_fishbones.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD", "", "", "" );
-    CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter", "", "", "" );
-    CAF_PDM_InitField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]", "", "", "" );
+    CAF_PDM_InitField( &m_startMD, "StartMD", HUGE_VAL, "Start MD" );
+    CAF_PDM_InitField( &m_mainBoreDiameter, "MainBoreDiameter", 0.216, "Main Bore Diameter" );
+    CAF_PDM_InitField( &m_skinFactor, "MainBoreSkinFactor", 0., "Main Bore Skin Factor [0..1]" );
     manuallyModifiedStartMD = false;
 }
 
@@ -155,7 +155,7 @@ std::vector<RimFishbones*> RimFishbonesCollection::activeFishbonesSubs() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimFishbones*> RimFishbonesCollection::allFishbonesSubs() const
 {
-    return m_fishbones.childObjects();
+    return m_fishbones.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,7 +228,7 @@ double RimFishbonesCollection::endMD() const
     double endMD = m_startMD;
     if ( !m_fishbones.empty() )
     {
-        auto lastFishbone = m_fishbones.childObjects().back();
+        auto lastFishbone = m_fishbones.children().back();
         CVF_ASSERT( lastFishbone );
         endMD = lastFishbone->endMD();
     }

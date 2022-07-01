@@ -71,10 +71,12 @@ public:
 
     void setDefaultSelection( const std::vector<SummarySource*>& defaultCases );
 
+    static QList<caf::PdmOptionItemInfo>
+        optionsForSummaryDataSource( bool hideSummaryCases, bool hideEnsembles, bool showIndividualEnsembleCases );
+
 private:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
@@ -115,12 +117,8 @@ private:
     void appendOptionItemsForSubCategoriesAndVectors( QList<caf::PdmOptionItemInfo>& options,
                                                       SummaryIdentifierAndField*     identifierAndField ) const;
 
-    void handleAddedSource( SummarySource* sourceAdded );
-    void handleRemovedSource( SummarySource* sourceRemoved );
-
 private:
     caf::PdmPtrArrayField<SummarySource*> m_selectedSources;
-    std::vector<SummarySource*>           m_previouslySelectedSources;
 
     caf::PdmField<std::vector<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>> m_selectedSummaryCategories;
     caf::PdmField<caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>>              m_currentSummaryCategory;

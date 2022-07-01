@@ -42,8 +42,8 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafProgressInfo.h"
 
@@ -94,11 +94,12 @@ void addCaseRealizationParametersIfFound( RimSummaryCase& sumCase, const QString
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
+    : dataSourceHasChanged( this )
 {
-    CAF_PDM_InitObject( "Summary Cases", ":/SummaryCases16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Cases", ":/SummaryCases16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_caseCollections, "SummaryCaseCollections", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
+    CAF_PDM_InitFieldNoDefault( &m_caseCollections, "SummaryCaseCollections", "" );
 
     m_cases.uiCapability()->setUiTreeHidden( true );
     m_caseCollections.uiCapability()->setUiTreeHidden( true );
@@ -109,8 +110,8 @@ RimSummaryCaseMainCollection::RimSummaryCaseMainCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseMainCollection::~RimSummaryCaseMainCollection()
 {
-    m_cases.deleteAllChildObjectsAsync();
-    m_caseCollections.deleteAllChildObjectsAsync();
+    m_cases.deleteChildrenAsync();
+    m_caseCollections.deleteChildrenAsync();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -222,8 +223,10 @@ void RimSummaryCaseMainCollection::addCases( const std::vector<RimSummaryCase*> 
 {
     for ( RimSummaryCase* sumCase : cases )
     {
-        addCase( sumCase );
+        m_cases.push_back( sumCase );
+        sumCase->nameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
     }
+    dataSourceHasChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -233,12 +236,14 @@ void RimSummaryCaseMainCollection::addCase( RimSummaryCase* summaryCase )
 {
     m_cases.push_back( summaryCase );
     summaryCase->nameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
+
+    dataSourceHasChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
+void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase, bool notifyChange )
 {
     std::vector<RimDerivedEnsembleCaseCollection*> derivedEnsembles;
 
@@ -255,11 +260,11 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
         }
     }
 
-    m_cases.removeChildObject( summaryCase );
+    m_cases.removeChild( summaryCase );
 
     for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
     {
-        summaryCaseCollection->removeCase( summaryCase );
+        summaryCaseCollection->removeCase( summaryCase, notifyChange );
     }
 
     // Update derived ensemble cases (if any)
@@ -267,6 +272,26 @@ void RimSummaryCaseMainCollection::removeCase( RimSummaryCase* summaryCase )
     {
         derEnsemble->createDerivedEnsembleCases();
     }
+
+    if ( notifyChange ) dataSourceHasChanged.send();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseMainCollection::removeCases( std::vector<RimSummaryCase*>& cases )
+{
+    for ( auto sumCase : cases )
+    {
+        removeCase( sumCase, false );
+    }
+
+    for ( RimSummaryCaseCollection* summaryCaseCollection : m_caseCollections )
+    {
+        summaryCaseCollection->updateReferringCurveSets();
+    }
+
+    dataSourceHasChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -298,7 +323,7 @@ RimSummaryCaseCollection*
         }
         else
         {
-            m_cases.removeChildObject( summaryCase );
+            m_cases.removeChild( summaryCase );
         }
 
         summaryCaseCollection->addCase( summaryCase );
@@ -313,6 +338,8 @@ RimSummaryCaseCollection*
     summaryCaseCollection->caseNameChanged.connect( this, &RimSummaryCaseMainCollection::onCaseNameChanged );
     m_caseCollections.push_back( summaryCaseCollection );
 
+    dataSourceHasChanged.send();
+
     return summaryCaseCollection;
 }
 
@@ -321,7 +348,9 @@ RimSummaryCaseCollection*
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::removeCaseCollection( RimSummaryCaseCollection* caseCollection )
 {
-    m_caseCollections.removeChildObject( caseCollection );
+    m_caseCollections.removeChild( caseCollection );
+
+    dataSourceHasChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -346,7 +375,15 @@ size_t RimSummaryCaseMainCollection::summaryCaseCount() const
 std::vector<RimSummaryCase*> RimSummaryCaseMainCollection::allSummaryCases() const
 {
     std::vector<RimSummaryCase*> cases;
-    this->descendantsIncludingThisOfType( cases );
+
+    if ( !m_cases.empty() ) cases.insert( cases.end(), m_cases.begin(), m_cases.end() );
+
+    for ( auto& coll : m_caseCollections )
+    {
+        auto collCases = coll->allSummaryCases();
+        if ( collCases.empty() ) continue;
+        cases.insert( cases.end(), collCases.begin(), collCases.end() );
+    }
 
     return cases;
 }
@@ -572,7 +609,7 @@ RimSummaryCaseCollection* RimSummaryCaseMainCollection::defaultAllocator()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseMainCollection::onCaseNameChanged( const SignalEmitter* emitter )
 {
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
     summaryPlotColl->updateSummaryNameHasChanged();
 }
 
@@ -709,18 +746,6 @@ QString RimSummaryCaseMainCollection::uniqueShortNameForCase( RimSummaryCase* su
     }
 
     return shortName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCaseMainCollection::updateFilePathsFromProjectPath( const QString& newProjectPath,
-                                                                   const QString& oldProjectPath )
-{
-    for ( auto summaryCase : m_cases )
-    {
-        summaryCase->updateFilePathsFromProjectPath( newProjectPath, oldProjectPath );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

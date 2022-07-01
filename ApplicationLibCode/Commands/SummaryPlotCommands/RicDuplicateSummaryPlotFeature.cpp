@@ -22,8 +22,8 @@
 
 #include "RicPasteSummaryPlotFeature.h"
 
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafSelectionManagerTools.h"
 #include "cvfAssert.h"
@@ -37,15 +37,15 @@ CAF_CMD_SOURCE_INIT( RicDuplicateSummaryPlotFeature, "RicDuplicateSummaryPlotFea
 //--------------------------------------------------------------------------------------------------
 bool RicDuplicateSummaryPlotFeature::isCommandEnabled()
 {
-    RimSummaryPlotCollection* sumPlotColl = nullptr;
+    RimSummaryMultiPlot* multiPlot = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {
-        sumPlotColl = RiaSummaryTools::parentSummaryPlotCollection( selObj );
+        multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
     }
 
-    if ( sumPlotColl ) return true;
+    if ( multiPlot ) return true;
 
     return false;
 }

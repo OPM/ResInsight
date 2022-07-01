@@ -43,9 +43,9 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementInViewCollection, "WellMeasurementsInView
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementInViewCollection::RimWellMeasurementInViewCollection()
 {
-    CAF_PDM_InitObject( "Well Measurements", ":/WellMeasurement16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well Measurements", ":/WellMeasurement16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_measurementsInView, "MeasurementKinds", "Measurement Kinds", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_measurementsInView, "MeasurementKinds", "Measurement Kinds" );
     m_measurementsInView.uiCapability()->setUiTreeHidden( true );
 
     m_isChecked = false;

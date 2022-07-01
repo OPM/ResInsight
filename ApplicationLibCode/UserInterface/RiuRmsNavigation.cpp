@@ -18,7 +18,10 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiuRmsNavigation.h"
+
+#include "caf.h"
 #include "cafViewer.h"
+
 #include "cvfCamera.h"
 #include "cvfHitItemCollection.h"
 #include "cvfManipulatorTrackball.h"
@@ -57,7 +60,7 @@ bool RiuRmsNavigation::handleInputEvent( QInputEvent* inputEvent )
             int translatedMousePosX, translatedMousePosY;
             cvfEventPos( me->x(), me->y(), &translatedMousePosX, &translatedMousePosY );
 
-            if ( me->button() == Qt::MidButton && isRotationEnabled() )
+            if ( me->button() == Qt::MiddleButton && isRotationEnabled() )
             {
                 this->pickAndSetPointOfInterest( me->x(), me->y() );
 
@@ -100,7 +103,7 @@ bool RiuRmsNavigation::handleInputEvent( QInputEvent* inputEvent )
             if ( m_isNavigating )
             {
                 QMouseEvent* me = static_cast<QMouseEvent*>( inputEvent );
-                if ( me->button() == Qt::RightButton || me->button() == Qt::MidButton )
+                if ( me->button() == Qt::RightButton || me->button() == Qt::MiddleButton )
                 {
                     m_trackball->endNavigation();
 
@@ -157,18 +160,19 @@ bool RiuRmsNavigation::handleInputEvent( QInputEvent* inputEvent )
         {
             if ( inputEvent->modifiers() == Qt::NoModifier )
             {
-                QWheelEvent* we = static_cast<QWheelEvent*>( inputEvent );
+                QWheelEvent* we       = static_cast<QWheelEvent*>( inputEvent );
+                auto         position = caf::position( we );
 
-                updatePointOfInterestDuringZoomIfNecessary( we->x(), we->y() );
+                updatePointOfInterestDuringZoomIfNecessary( position.x(), position.y() );
 
                 if ( m_isRotCenterInitialized )
                 {
                     int translatedMousePosX, translatedMousePosY;
-                    cvfEventPos( we->x(), we->y(), &translatedMousePosX, &translatedMousePosY );
+                    cvfEventPos( position.x(), position.y(), &translatedMousePosX, &translatedMousePosY );
 
                     cvf::ref<cvf::Ray> ray = createZoomRay( translatedMousePosX, translatedMousePosY );
 
-                    zoomAlongRay( ray.p(), -we->delta() );
+                    zoomAlongRay( ray.p(), -we->angleDelta().y() );
                 }
                 isEventHandled = true;
             }

@@ -36,7 +36,7 @@ public:
         CAF_PDM_InitFieldNoDefault( &m_simpleObjPtrField, "SimpleObjPtrField", "SimpleObjPtrField", "", "Tooltip", "WhatsThis" );
     }
 
-    ~DemoPdmObject() { m_simpleObjPtrField.deleteAllChildObjects(); }
+    ~DemoPdmObject() { m_simpleObjPtrField.deleteChildren(); }
 
     caf::PdmChildArrayField<caf::PdmObjectHandle*> m_simpleObjPtrField;
 };
@@ -66,7 +66,7 @@ TEST( PdmUiTreeViewModelTest, DeleteOneItemAndVerifyTreeOrdering )
     mi = treeView.findModelIndex( obj1 );
     EXPECT_TRUE( mi.isValid() );
 
-    demoObj->m_simpleObjPtrField.removeChildObject( obj1 );
+    demoObj->m_simpleObjPtrField.removeChild( obj1 );
     demoObj->m_simpleObjPtrField().uiCapability()->updateConnectedEditors();
 
     mi = treeView.findModelIndex( obj1 );
@@ -125,7 +125,7 @@ TEST( PdmUiTreeViewModelTest, ChangeOrderingAndVerifyTreeOrdering )
     mi = treeView.findModelIndex( obj4 );
     EXPECT_EQ( 3, mi.row() );
 
-    demoObj->m_simpleObjPtrField.clear();
+    demoObj->m_simpleObjPtrField.clearWithoutDelete();
     demoObj->m_simpleObjPtrField.push_back( obj1 );
     demoObj->m_simpleObjPtrField.push_back( obj4 );
     demoObj->m_simpleObjPtrField.push_back( obj3 );
@@ -166,7 +166,7 @@ TEST( PdmUiTreeViewModelTest, ChangeDeepInTreeNotifyRootAndVerifyTreeOrdering )
     mi = treeView.findModelIndex( obj4 );
     EXPECT_EQ( 3, mi.row() );
 
-    demoObj->m_simpleObjPtrField.removeChildObject( obj4 );
+    demoObj->m_simpleObjPtrField.removeChild( obj4 );
 
     root->m_simpleObjPtrField().uiCapability()->updateConnectedEditors();
 

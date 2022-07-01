@@ -22,6 +22,7 @@
 #include "RiaDefines.h"
 #include "RimAbstractPlotCollection.h"
 #include "RimEnsembleWellLogStatistics.h"
+#include "RimPlot.h"
 #include "RimPlotWindow.h"
 #include "RimWellLogPlotNameConfig.h"
 
@@ -41,6 +42,8 @@ class RimWellLogCurveCommonDataSource;
 class RiuWellLogPlot;
 class RimPlot;
 class RimEnsembleCurveSet;
+class RiuPlotAxis;
+class RimWellLogTrack;
 
 class QKeyEvent;
 
@@ -64,6 +67,12 @@ public:
     typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
     using DepthTypeEnum = RiaDefines::DepthTypeEnum;
 
+    enum class DepthOrientation
+    {
+        HORIZONTAL,
+        VERTICAL
+    };
+
 public:
     RimDepthTrackPlot();
     ~RimDepthTrackPlot() override;
@@ -75,13 +84,15 @@ public:
     QString  description() const override;
 
     size_t   plotCount() const override;
-    size_t   plotIndex( const RimPlot* plot ) const;
+    size_t   plotIndex( const RimWellLogTrack* plot ) const;
     RimPlot* plotByIndex( size_t index ) const;
 
-    std::vector<RimPlot*> plots() const override;
-    std::vector<RimPlot*> visiblePlots() const;
-    void                  insertPlot( RimPlot* plot, size_t index ) final;
-    void                  removePlot( RimPlot* plot ) final;
+    int columnCount() const override;
+
+    std::vector<RimPlot*>         plots() const override;
+    std::vector<RimWellLogTrack*> visiblePlots() const;
+    void                          insertPlot( RimPlot* plot, size_t index ) final;
+    void                          removePlot( RimPlot* plot ) final;
 
     DepthTypeEnum depthType() const;
     void          setDepthType( DepthTypeEnum depthType );
@@ -93,8 +104,12 @@ public:
     void               enableDepthAxisGridLines( AxisGridVisibility gridVisibility );
     AxisGridVisibility depthAxisGridLinesEnabled() const;
 
-    void setAutoScaleXEnabled( bool enabled );
-    void setAutoScaleDepthEnabled( bool enabled );
+    RimDepthTrackPlot::DepthOrientation depthOrientation() const;
+    RiuPlotAxis                         depthAxis() const;
+    RiuPlotAxis                         valueAxis() const;
+
+    void setAutoScalePropertyValuesEnabled( bool enabled );
+    void setAutoScaleDepthValuesEnabled( bool enabled );
 
     void zoomAll() override;
     void updateZoom();
@@ -142,8 +157,7 @@ protected:
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void                 initAfterRead() override;
     void                 defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -177,10 +191,12 @@ protected:
     caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisValueFontSize;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
-    caf::PdmChildArrayField<RimPlot*>             m_plots;
+    caf::PdmChildArrayField<RimWellLogTrack*>     m_plots;
 
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
+
+    caf::PdmField<caf::AppEnum<DepthOrientation>> m_depthOrientation;
 
     QPointer<RiuWellLogPlot>            m_viewer;
     std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;

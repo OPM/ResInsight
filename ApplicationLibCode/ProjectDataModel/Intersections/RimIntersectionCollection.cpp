@@ -19,11 +19,14 @@
 
 #include "RimIntersectionCollection.h"
 
+#include "RigMainGrid.h"
+
 #include "Rim2dIntersectionView.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "Rim3dView.h"
 #include "RimBoxIntersection.h"
 #include "RimCase.h"
+#include "RimEclipseView.h"
 #include "RimExtrudedCurveIntersection.h"
 #include "RimGridView.h"
 #include "RimIntersectionResultDefinition.h"
@@ -50,14 +53,25 @@ RimIntersectionCollection::RimIntersectionCollection()
 {
     CAF_PDM_InitScriptableObject( "Intersections", ":/CrossSections16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersections, "CrossSections", "Intersections", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersections, "CrossSections", "Intersections" );
     m_intersections.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionBoxes, "IntersectionBoxes", "IntersectionBoxes" );
     m_intersectionBoxes.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_depthUpperThreshold, "UpperDepthThreshold", "Upper Threshold" );
+    m_depthUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitFieldNoDefault( &m_depthLowerThreshold, "LowerDepthThreshold", "Lower Threshold" );
+    m_depthLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_depthThresholdOverridden, "DepthFilterOverride", false, "Override Intersection Depth Filters" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_depthThresholdOverridden );
+
+    CAF_PDM_InitFieldNoDefault( &m_depthFilterType, "CollectionDepthFilterType", "Depth Filter Type" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -65,8 +79,8 @@ RimIntersectionCollection::RimIntersectionCollection()
 //--------------------------------------------------------------------------------------------------
 RimIntersectionCollection::~RimIntersectionCollection()
 {
-    m_intersections.deleteAllChildObjects();
-    m_intersectionBoxes.deleteAllChildObjects();
+    m_intersections.deleteChildren();
+    m_intersectionBoxes.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -240,7 +254,7 @@ void RimIntersectionCollection::rebuildGeometry()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersections() const
 {
-    return m_intersections.childObjects();
+    return m_intersections.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -248,7 +262,7 @@ std::vector<RimExtrudedCurveIntersection*> RimIntersectionCollection::intersecti
 //--------------------------------------------------------------------------------------------------
 std::vector<RimBoxIntersection*> RimIntersectionCollection::intersectionBoxes() const
 {
-    return m_intersectionBoxes.childObjects();
+    return m_intersectionBoxes.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -270,17 +284,15 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveInt
 {
     m_intersections.push_back( intersection );
 
+    intersection->setDepthOverride( m_depthThresholdOverridden );
+    intersection->setDepthOverrideParameters( m_depthUpperThreshold, m_depthLowerThreshold, m_depthFilterType() );
+
     syncronize2dIntersectionViews();
 
     updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( intersection, allowActiveViewChange );
 
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfType( rimView );
-    if ( rimView )
-    {
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
+    rebuild3dView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -288,6 +300,8 @@ void RimIntersectionCollection::appendIntersectionAndUpdate( RimExtrudedCurveInt
 //--------------------------------------------------------------------------------------------------
 void RimIntersectionCollection::appendIntersectionNoUpdate( RimExtrudedCurveIntersection* intersection )
 {
+    intersection->setDepthOverride( m_depthThresholdOverridden );
+    intersection->setDepthOverrideParameters( m_depthUpperThreshold, m_depthLowerThreshold, m_depthFilterType() );
     m_intersections.push_back( intersection );
 }
 
@@ -325,12 +339,7 @@ void RimIntersectionCollection::appendIntersectionBoxAndUpdate( RimBoxIntersecti
     updateConnectedEditors();
     Riu3DMainWindowTools::selectAsCurrentItem( intersectionBox, false );
 
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfType( rimView );
-    if ( rimView )
-    {
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
+    rebuild3dView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,16 +357,41 @@ void RimIntersectionCollection::fieldChangedByUi( const caf::PdmFieldHandle* cha
                                                   const QVariant&            oldValue,
                                                   const QVariant&            newValue )
 {
+    bool rebuildView = false;
+
     if ( changedField == &isActive )
     {
         updateUiIconFromToggleField();
-
-        Rim3dView* rimView = nullptr;
-        firstAncestorOrThisOfType( rimView );
-        if ( rimView )
+        rebuildView = true;
+    }
+    if ( changedField == &m_depthThresholdOverridden )
+    {
+        for ( RimExtrudedCurveIntersection* cs : m_intersections )
         {
-            rimView->scheduleCreateDisplayModelAndRedraw();
+            cs->setDepthOverride( m_depthThresholdOverridden );
+            if ( m_depthThresholdOverridden() )
+            {
+                cs->setDepthOverrideParameters( m_depthUpperThreshold, m_depthLowerThreshold, m_depthFilterType() );
+            }
+            cs->rebuildGeometryAndScheduleCreateDisplayModel();
         }
+        rebuildView = true;
+    }
+
+    if ( ( changedField == &m_depthUpperThreshold ) || ( changedField == &m_depthLowerThreshold ) ||
+         ( changedField == &m_depthFilterType ) )
+    {
+        for ( RimExtrudedCurveIntersection* cs : m_intersections )
+        {
+            cs->setDepthOverrideParameters( m_depthUpperThreshold, m_depthLowerThreshold, m_depthFilterType() );
+            cs->rebuildGeometryAndScheduleCreateDisplayModel();
+        }
+        rebuildView = true;
+    }
+
+    if ( rebuildView )
+    {
+        rebuild3dView();
     }
 }
 
@@ -368,13 +402,7 @@ void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*  
                                                 std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
     syncronize2dIntersectionViews();
-
-    Rim3dView* rimView = nullptr;
-    firstAncestorOrThisOfType( rimView );
-    if ( rimView )
-    {
-        rimView->scheduleCreateDisplayModelAndRedraw();
-    }
+    rebuild3dView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -383,6 +411,7 @@ void RimIntersectionCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*  
 void RimIntersectionCollection::onChildAdded( caf::PdmFieldHandle* containerForNewObject )
 {
     syncronize2dIntersectionViews();
+    rebuild3dView();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,5 +441,97 @@ void RimIntersectionCollection::updateIntersectionBoxGeometry()
     for ( RimBoxIntersection* intersectionBox : m_intersectionBoxes )
     {
         intersectionBox->updateBoxManipulatorGeometry();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    if ( eclipseView() )
+    {
+        caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Depth Filter - Curve Intersections" );
+
+        m_depthFilterType.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
+        m_depthUpperThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
+        m_depthLowerThreshold.uiCapability()->setUiReadOnly( !m_depthThresholdOverridden() );
+
+        filterGroup->add( &m_depthThresholdOverridden );
+        filterGroup->add( &m_depthFilterType );
+
+        switch ( m_depthFilterType() )
+        {
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
+                m_depthUpperThreshold.uiCapability()->setUiName( "Depth" );
+                filterGroup->add( &m_depthUpperThreshold );
+                break;
+
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
+                m_depthUpperThreshold.uiCapability()->setUiName( "Upper Depth" );
+                filterGroup->add( &m_depthUpperThreshold );
+                m_depthLowerThreshold.uiCapability()->setUiName( "Lower Depth" );
+                filterGroup->add( &m_depthLowerThreshold );
+                break;
+
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
+                m_depthLowerThreshold.uiCapability()->setUiName( "Depth" );
+                filterGroup->add( &m_depthLowerThreshold );
+                break;
+
+            case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
+            default:
+                break;
+        }
+    }
+
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                                       QString                    uiConfigName,
+                                                       caf::PdmUiEditorAttribute* attribute )
+{
+    auto* doubleSliderAttrib = dynamic_cast<caf::PdmUiDoubleSliderEditorAttribute*>( attribute );
+    if ( doubleSliderAttrib )
+    {
+        if ( ( field == &m_depthUpperThreshold ) || ( field == &m_depthLowerThreshold ) )
+        {
+            RimEclipseView* eclView = eclipseView();
+
+            if ( eclView )
+            {
+                const cvf::BoundingBox bb = eclView->mainGrid()->boundingBox();
+
+                doubleSliderAttrib->m_minimum = -1.0 * bb.max().z();
+                doubleSliderAttrib->m_maximum = -1.0 * bb.min().z();
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimEclipseView* RimIntersectionCollection::eclipseView() const
+{
+    RimEclipseView* eclipseView = nullptr;
+    firstAncestorOrThisOfType( eclipseView );
+    return eclipseView;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimIntersectionCollection::rebuild3dView() const
+{
+    Rim3dView* rimView = nullptr;
+    firstAncestorOrThisOfType( rimView );
+    if ( rimView )
+    {
+        rimView->scheduleCreateDisplayModelAndRedraw();
     }
 }

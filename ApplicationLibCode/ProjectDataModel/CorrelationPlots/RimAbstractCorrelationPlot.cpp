@@ -42,6 +42,8 @@
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiToolButtonEditor.h"
 
+#include "qwt_plot.h"
+
 CAF_PDM_ABSTRACT_SOURCE_INIT( RimAbstractCorrelationPlot, "AbstractCorrelationPlot" );
 
 //--------------------------------------------------------------------------------------------------
@@ -50,43 +52,43 @@ CAF_PDM_ABSTRACT_SOURCE_INIT( RimAbstractCorrelationPlot, "AbstractCorrelationPl
 RimAbstractCorrelationPlot::RimAbstractCorrelationPlot()
     : m_selectMultipleVectors( false )
 {
-    CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Abstract Correlation Plot", ":/CorrelationPlot16x16.png" );
     this->setDeletable( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "SelectedVariableDisplayVar", "Vector" );
     m_selectedVarsUiField.xmlCapability()->disableIO();
     m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
     m_selectedVarsUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_dataSources, "AnalysisPlotData", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dataSources, "AnalysisPlotData", "" );
     m_dataSources.uiCapability()->setUiTreeChildrenHidden( true );
     m_dataSources.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pushButtonSelectSummaryAddress, "SelectAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_pushButtonSelectSummaryAddress );
     m_pushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_pushButtonSelectSummaryAddress = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_useAutoPlotTitle, "AutoTitle", true, "Automatic Plot Title", "", "", "" );
-    CAF_PDM_InitField( &m_description, "PlotTitle", QString( "Correlation Plot" ), "Custom Plot Title", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoPlotTitle, "AutoTitle", true, "Automatic Plot Title" );
+    CAF_PDM_InitField( &m_description, "PlotTitle", QString( "Correlation Plot" ), "Custom Plot Title" );
 
-    CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_labelFontSize, "LabelFontSize", "Label Font Size" );
     m_labelFontSize = caf::FontTools::RelativeSize::XSmall;
 
-    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
     m_axisValueFontSize = caf::FontTools::RelativeSize::XSmall;
 
     m_legendFontSize = caf::FontTools::RelativeSize::XSmall;
 
-    CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Ensemble Filter", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "  Ensemble Filter", "", "", "" );
-    CAF_PDM_InitField( &m_editCaseFilter, "EditCaseFilter", false, "Edit", "", "", "" );
+    CAF_PDM_InitField( &m_useCaseFilter, "UseCaseFilter", false, "Use Ensemble Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_curveSetForFiltering, "CurveSetForFiltering", "  Ensemble Filter" );
+    CAF_PDM_InitField( &m_editCaseFilter, "EditCaseFilter", false, "Edit" );
     m_editCaseFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editCaseFilter.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 }
@@ -103,7 +105,7 @@ RimAbstractCorrelationPlot::~RimAbstractCorrelationPlot()
 //--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    m_dataSources.deleteAllChildObjects();
+    m_dataSources.deleteChildren();
     for ( auto curveDef : curveDefinitions )
     {
         auto dataEntry = new RimAnalysisPlotDataEntry();
@@ -153,7 +155,7 @@ void RimAbstractCorrelationPlot::fieldChangedByUi( const caf::PdmFieldHandle* ch
             if ( !curveSelection.empty() )
             {
                 std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
-                m_dataSources.deleteAllChildObjects();
+                m_dataSources.deleteChildren();
                 for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
                 {
                     auto plotEntry = new RimAnalysisPlotDataEntry();
@@ -251,9 +253,9 @@ caf::PdmFieldHandle* RimAbstractCorrelationPlot::userDescriptionField()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimAbstractCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimAbstractCorrelationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_timeStep )
     {
@@ -273,11 +275,12 @@ QList<caf::PdmOptionItemInfo>
         std::vector<int> filteredTimeStepIndices =
             RimTimeStepFilter::filteredTimeStepIndices( allDateTimes, 0, (int)allDateTimes.size() - 1, m_timeStepFilter(), 1 );
 
-        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString dateFormatString =
+            RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
         QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
         bool showTime = m_timeStepFilter == RimTimeStepFilter::TS_ALL || RimTimeStepFilter::TS_INTERVAL_DAYS;
@@ -557,7 +560,7 @@ QString RimAbstractCorrelationPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
+RiuPlotWidget* RimAbstractCorrelationPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
     if ( !m_plotWidget )
     {
@@ -579,9 +582,17 @@ RiuQwtPlotWidget* RimAbstractCorrelationPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimAbstractCorrelationPlot::plotWidget()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAbstractCorrelationPlot::detachAllCurves()
 {
-    if ( m_plotWidget ) m_plotWidget->detachItems();
+    if ( m_plotWidget ) m_plotWidget->qwtPlot()->detachItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,11 +608,12 @@ QDateTime RimAbstractCorrelationPlot::timeStep() const
 //--------------------------------------------------------------------------------------------------
 QString RimAbstractCorrelationPlot::timeStepString() const
 {
-    QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                    RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+    QString dateFormatString =
+        RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                             RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
     QString timeFormatString =
         RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                             RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                             RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
 
     return timeStep().toString( dateFormatString ) + " " + timeStep().toString( timeFormatString );
 }
@@ -661,7 +673,7 @@ void RimAbstractCorrelationPlot::updateLegend()
 {
     if ( m_plotWidget )
     {
-        m_plotWidget->insertLegend( nullptr );
+        m_plotWidget->qwtPlot()->insertLegend( nullptr );
     }
 }
 
@@ -695,10 +707,10 @@ time_t RimAbstractCorrelationPlot::timeDiff( time_t lhs, time_t rhs )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimAbstractCorrelationPlot::selectedQuantitiesText()
+QString RimAbstractCorrelationPlot::selectedVectorNamesText()
 {
     QString vectorNames;
-    for ( const std::string& quantityName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )
+    for ( const std::string& quantityName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
     {
         vectorNames += QString::fromStdString( quantityName ) + ", ";
     }
@@ -746,7 +758,7 @@ void RimAbstractCorrelationPlot::appendDataSourceFields( QString uiConfigName, c
 {
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Summary Vector" );
 
-    m_selectedVarsUiField = selectedQuantitiesText();
+    m_selectedVarsUiField = selectedVectorNamesText();
 
     curveDataGroup->add( &m_selectedVarsUiField );
     curveDataGroup->add( &m_pushButtonSelectSummaryAddress, { false, 1, 0 } );

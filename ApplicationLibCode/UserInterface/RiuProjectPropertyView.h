@@ -33,7 +33,7 @@ class PdmObjectHandle;
 class RiuProjectAndPropertyView : public QWidget
 {
 public:
-    RiuProjectAndPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    RiuProjectAndPropertyView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
 
     void setPdmItem( caf::PdmUiItem* object );
     void showProperties( caf::PdmObjectHandle* object );

@@ -44,15 +44,15 @@ CAF_PDM_SOURCE_INIT( RimUserDefinedPolylinesAnnotation, "UserDefinedPolylinesAnn
 RimUserDefinedPolylinesAnnotation::RimUserDefinedPolylinesAnnotation()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
 {
-    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png" );
 
-    CAF_PDM_InitField( &m_name, "Name", QString( "User Defined Polyline" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_name, "Name", QString( "User Defined Polyline" ), "Name" );
 
-    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
     m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     // m_targets.uiCapability()->setUiTreeHidden(true);
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
@@ -95,7 +95,7 @@ cvf::ref<RigPolyLinesData> RimUserDefinedPolylinesAnnotation::polyLinesData()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimUserDefinedPolylinesAnnotation::activeTargets() const
 {
-    return m_targets.childObjects();
+    return m_targets.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -113,7 +113,7 @@ void RimUserDefinedPolylinesAnnotation::appendTarget( const cvf::Vec3d& defaultP
 {
     RimPolylineTarget* target = nullptr;
 
-    auto targets = m_targets.childObjects();
+    auto targets = m_targets.children();
     if ( targets.empty() )
     {
         target = new RimPolylineTarget();
@@ -137,7 +137,7 @@ void RimUserDefinedPolylinesAnnotation::appendTarget( const cvf::Vec3d& defaultP
 void RimUserDefinedPolylinesAnnotation::insertTarget( const RimPolylineTarget* targetToInsertBefore,
                                                       RimPolylineTarget*       targetToInsert )
 {
-    size_t index = m_targets.index( targetToInsertBefore );
+    size_t index = m_targets.indexOf( targetToInsertBefore );
     if ( index < m_targets.size() )
         m_targets.insert( index, targetToInsert );
     else
@@ -149,7 +149,7 @@ void RimUserDefinedPolylinesAnnotation::insertTarget( const RimPolylineTarget* t
 //--------------------------------------------------------------------------------------------------
 void RimUserDefinedPolylinesAnnotation::deleteTarget( RimPolylineTarget* targetToDelete )
 {
-    m_targets.removeChildObject( targetToDelete );
+    m_targets.removeChild( targetToDelete );
     delete targetToDelete;
 }
 

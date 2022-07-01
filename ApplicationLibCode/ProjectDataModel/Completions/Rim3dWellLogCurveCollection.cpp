@@ -32,16 +32,16 @@ CAF_PDM_SOURCE_INIT( Rim3dWellLogCurveCollection, "Rim3dWellLogCurveCollection" 
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 {
-    CAF_PDM_InitObject( "3D Track", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "3D Track", ":/WellLogCurve16x16.png" );
 
-    CAF_PDM_InitField( &m_showPlot, "Show3dWellLogCurves", true, "Show 3d Well Log Curves", "", "", "" );
+    CAF_PDM_InitField( &m_showPlot, "Show3dWellLogCurves", true, "Show 3d Well Log Curves" );
     m_showPlot.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_planeWidthScaling, "PlaneWidthScaling", 1.0f, "Width Scaling", "", "", "" );
+    CAF_PDM_InitField( &m_planeWidthScaling, "PlaneWidthScaling", 1.0f, "Width Scaling" );
     m_planeWidthScaling.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_showGrid, "Show3dWellLogGrid", true, "Show Grid", "", "", "" );
-    CAF_PDM_InitField( &m_showBackground, "Show3dWellLogBackground", false, "Show Background", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "ArrayOf3dWellLogCurves", "", "", "", "" );
+    CAF_PDM_InitField( &m_showGrid, "Show3dWellLogGrid", true, "Show Grid" );
+    CAF_PDM_InitField( &m_showBackground, "Show3dWellLogBackground", false, "Show Background" );
+    CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "ArrayOf3dWellLogCurves", "" );
     m_3dWellLogCurves.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -50,7 +50,7 @@ Rim3dWellLogCurveCollection::Rim3dWellLogCurveCollection()
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogCurveCollection::~Rim3dWellLogCurveCollection()
 {
-    m_3dWellLogCurves.deleteAllChildObjects();
+    m_3dWellLogCurves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -80,7 +80,7 @@ void Rim3dWellLogCurveCollection::add3dWellLogCurve( Rim3dWellLogCurve* curve )
 //--------------------------------------------------------------------------------------------------
 void Rim3dWellLogCurveCollection::remove3dWellLogCurve( Rim3dWellLogCurve* curve )
 {
-    m_3dWellLogCurves.removeChildObject( curve );
+    m_3dWellLogCurves.removeChild( curve );
 }
 
 //--------------------------------------------------------------------------------------------------

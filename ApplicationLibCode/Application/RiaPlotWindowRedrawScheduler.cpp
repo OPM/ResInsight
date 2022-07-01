@@ -19,7 +19,7 @@
 
 #include "RiuMultiPlotBook.h"
 #include "RiuMultiPlotPage.h"
-#include "RiuQwtPlotWidget.h"
+#include "RiuPlotWidget.h"
 
 #include <QCoreApplication>
 #include <QDebug>
@@ -41,9 +41,17 @@ RiaPlotWindowRedrawScheduler* RiaPlotWindowRedrawScheduler::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::scheduleMultiPlotWindowUpdate( RiuMultiPlotBook* plotWindow )
+void RiaPlotWindowRedrawScheduler::scheduleMultiPlotBookUpdate( RiuMultiPlotBook*                   plotBook,
+                                                                RiaDefines::MultiPlotPageUpdateType updateType )
 {
-    m_plotWindowsToUpdate.push_back( plotWindow );
+    if ( m_plotBooksToUpdate.count( plotBook ) == 0 )
+    {
+        m_plotBooksToUpdate[plotBook] = updateType;
+    }
+    else
+    {
+        m_plotBooksToUpdate[plotBook] = m_plotBooksToUpdate[plotBook] | updateType;
+    }
 
     startTimer( 0 );
 }
@@ -51,9 +59,17 @@ void RiaPlotWindowRedrawScheduler::scheduleMultiPlotWindowUpdate( RiuMultiPlotBo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::scheduleMultiPlotPageUpdate( RiuMultiPlotPage* plotPage )
+void RiaPlotWindowRedrawScheduler::scheduleMultiPlotPageUpdate( RiuMultiPlotPage*                   plotPage,
+                                                                RiaDefines::MultiPlotPageUpdateType updateType )
 {
-    m_plotPagesToUpdate.push_back( plotPage );
+    if ( m_plotPagesToUpdate.count( plotPage ) == 0 )
+    {
+        m_plotPagesToUpdate[plotPage] = updateType;
+    }
+    else
+    {
+        m_plotPagesToUpdate[plotPage] = m_plotPagesToUpdate[plotPage] | updateType;
+    }
 
     startTimer( 0 );
 }
@@ -61,9 +77,9 @@ void RiaPlotWindowRedrawScheduler::scheduleMultiPlotPageUpdate( RiuMultiPlotPage
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPlotWindowRedrawScheduler::schedulePlotWidgetReplot( RiuQwtPlotWidget* plotWidget )
+void RiaPlotWindowRedrawScheduler::schedulePlotWidgetReplot( RiuPlotWidget* plotWidget )
 {
-    m_plotWidgetsToReplot.push_back( plotWidget );
+    m_plotWidgetsToReplot.insert( plotWidget );
 
     startTimer( 0 );
 }
@@ -82,7 +98,7 @@ void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
     }
     m_plotWidgetsToReplot.clear();
     m_plotPagesToUpdate.clear();
-    m_plotWindowsToUpdate.clear();
+    m_plotBooksToUpdate.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -90,49 +106,44 @@ void RiaPlotWindowRedrawScheduler::clearAllScheduledUpdates()
 //--------------------------------------------------------------------------------------------------
 void RiaPlotWindowRedrawScheduler::performScheduledUpdatesAndReplots()
 {
-    std::vector<QPointer<RiuMultiPlotBook>> plotWindowsToUpdate;
-    std::vector<QPointer<RiuMultiPlotPage>> plotPagesToUpdate;
-    std::vector<QPointer<RiuQwtPlotWidget>> plotWidgetsToReplot;
+    std::map<QPointer<RiuMultiPlotBook>, RiaDefines::MultiPlotPageUpdateType> plotBooksToUpdate;
+    std::map<QPointer<RiuMultiPlotPage>, RiaDefines::MultiPlotPageUpdateType> pagesToUpdate;
 
-    plotWindowsToUpdate.swap( m_plotWindowsToUpdate );
-    plotPagesToUpdate.swap( m_plotPagesToUpdate );
+    pagesToUpdate.swap( m_plotPagesToUpdate );
+    plotBooksToUpdate.swap( m_plotBooksToUpdate );
+
+    for ( auto& [plotBook, updateType] : plotBooksToUpdate )
+    {
+        if ( plotBook.isNull() ) continue;
+
+        if ( ( updateType & RiaDefines::MultiPlotPageUpdateType::PLOT ) == RiaDefines::MultiPlotPageUpdateType::PLOT )
+        {
+            for ( RiuMultiPlotPage* page : plotBook->pages() )
+            {
+                if ( pagesToUpdate.count( page ) > 0 ) pagesToUpdate.erase( page );
+            }
+        }
+        plotBook->performUpdate( updateType );
+    }
+
+    for ( auto& [page, updateType] : pagesToUpdate )
+    {
+        if ( page.isNull() ) continue;
+
+        page->performUpdate( updateType );
+    }
+
+    // PERFORMANCE NOTE
+    // As the book and page updates can trigger widget updates, make sure to get the list of widgets to replot after
+    // these updates
+    std::set<QPointer<RiuPlotWidget>> plotWidgetsToReplot;
     plotWidgetsToReplot.swap( m_plotWidgetsToReplot );
 
-    std::set<QPointer<RiuQwtPlotWidget>> updatedPlots;
-    std::set<QPointer<RiuMultiPlotBook>> updatedPlotWindows;
-    std::set<QPointer<RiuMultiPlotPage>> updatedPlotPages;
-
-    for ( QPointer<RiuMultiPlotBook> plotWindow : plotWindowsToUpdate )
+    for ( const QPointer<RiuPlotWidget>& plot : plotWidgetsToReplot )
     {
-        if ( !plotWindow.isNull() && !updatedPlotWindows.count( plotWindow ) )
-        {
-            for ( RiuMultiPlotPage* page : plotWindow->pages() )
-            {
-                plotPagesToUpdate.erase( std::remove( plotPagesToUpdate.begin(), plotPagesToUpdate.end(), page ),
-                                         plotPagesToUpdate.end() );
-            }
-
-            plotWindow->performUpdate();
-            updatedPlotWindows.insert( plotWindow );
-        }
-    }
-
-    for ( QPointer<RiuMultiPlotPage> plotPage : plotPagesToUpdate )
-    {
-        if ( !plotPage.isNull() && !updatedPlotPages.count( plotPage ) )
-        {
-            plotPage->performUpdate();
-            updatedPlotPages.insert( plotPage );
-        }
-    }
-
-    //  Perform update and replot. Make sure we handle legend update
-    for ( QPointer<RiuQwtPlotWidget> plot : plotWidgetsToReplot )
-    {
-        if ( !plot.isNull() && !updatedPlots.count( plot ) )
+        if ( !plot.isNull() )
         {
             plot->replot();
-            updatedPlots.insert( plot );
         }
     }
 }

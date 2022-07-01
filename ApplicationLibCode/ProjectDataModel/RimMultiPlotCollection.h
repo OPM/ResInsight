@@ -41,8 +41,8 @@ public:
     size_t plotCount() const override;
 
     std::vector<RimMultiPlot*> multiPlots() const;
-    RimMultiPlot*              createMultiPlot();
-    void                       addMultiPlot( RimMultiPlot* plot );
+
+    void addMultiPlot( RimMultiPlot* plot );
 
 private:
     caf::PdmChildArrayField<RimMultiPlot*> m_multiPlots;

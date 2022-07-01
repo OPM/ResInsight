@@ -46,18 +46,18 @@ bool RicNewSimWellIntersectionFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSimWellIntersectionFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimSimWellInView*> collection;
-    caf::SelectionManager::instance()->objectsByType( &collection );
-    CVF_ASSERT( collection.size() == 1 );
+    std::vector<RimSimWellInView*> simWells;
+    caf::SelectionManager::instance()->objectsByType( &simWells );
 
-    RimSimWellInView* simWell = collection[0];
+    for ( auto simWell : simWells )
+    {
+        RimEclipseView* eclView = nullptr;
+        simWell->firstAncestorOrThisOfType( eclView );
+        CVF_ASSERT( eclView );
 
-    RimEclipseView* eclView = nullptr;
-    simWell->firstAncestorOrThisOfType( eclView );
-    CVF_ASSERT( eclView );
-
-    RicNewSimWellIntersectionCmd* cmd = new RicNewSimWellIntersectionCmd( eclView->intersectionCollection(), simWell );
-    caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
+        auto* cmd = new RicNewSimWellIntersectionCmd( eclView->intersectionCollection(), simWell );
+        caf::CmdExecCommandManager::instance()->processExecuteCommand( cmd );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void RicNewSimWellIntersectionCmd::redo()
     CVF_ASSERT( m_intersectionCollection );
     CVF_ASSERT( m_simWell );
 
-    RimExtrudedCurveIntersection* intersection = new RimExtrudedCurveIntersection();
+    auto* intersection = new RimExtrudedCurveIntersection();
     intersection->setName( m_simWell->name );
     intersection->configureForSimulationWell( m_simWell );
 

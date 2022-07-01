@@ -79,6 +79,8 @@ RiuSelectionChangedHandler::~RiuSelectionChangedHandler()
 //--------------------------------------------------------------------------------------------------
 void RiuSelectionChangedHandler::handleSelectionDeleted() const
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
 
     RiuRelativePermeabilityPlotUpdater* relPermPlotUpdater =
@@ -101,6 +103,8 @@ void RiuSelectionChangedHandler::handleSelectionDeleted() const
 //--------------------------------------------------------------------------------------------------
 void RiuSelectionChangedHandler::handleItemAppended( const RiuSelectionItem* item ) const
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     addCurveFromSelectionItem( item );
 
     RiuRelativePermeabilityPlotUpdater* relPermUpdater =
@@ -123,6 +127,8 @@ void RiuSelectionChangedHandler::handleItemAppended( const RiuSelectionItem* ite
 //--------------------------------------------------------------------------------------------------
 void RiuSelectionChangedHandler::handleSetSelectedItem( const RiuSelectionItem* item ) const
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     RiuMainWindow::instance()->resultPlot()->deleteAllCurves();
 
     RiuMohrsCirclePlot* mohrsCirclePlot = RiuMainWindow::instance()->mohrsCirclePlot();

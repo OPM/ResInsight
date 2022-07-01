@@ -165,6 +165,9 @@ set(PROJECT_FILES
     cafStyleSheetTools.cpp
     cafPdmUiTabbedPropertyViewDialog.h
     cafPdmUiTabbedPropertyViewDialog.cpp
+    cafPdmUiTreeViewItemDelegate.h
+    cafPdmUiTreeViewItemDelegate.cpp
+    cafPdmUiTreeAttributes.h
 )
 
 add_library(

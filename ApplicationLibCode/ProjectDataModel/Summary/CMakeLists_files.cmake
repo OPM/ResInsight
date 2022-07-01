@@ -6,11 +6,10 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesData.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAutoName.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveFilter.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryFilter.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.h
@@ -38,6 +37,16 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunction.h
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlot.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryDataSourceStepping.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryNameHelper.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleSummaryPlotNameHelper.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlotCollection.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotControls.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveInfoTextProvider.h
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressModifier.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -48,11 +57,10 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseMainCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurve.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurvesData.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAppearanceCalculator.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveAutoName.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotAxisFormatter.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryFilter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCurveCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotCollection.cpp
@@ -80,13 +88,25 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotFilterTextCurveSetEditor.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunction.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimObjectiveFunctionTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlot.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryDataSourceStepping.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryNameHelper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimMultipleSummaryPlotNameHelper.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryMultiPlotCollection.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotControls.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimEnsembleCurveInfoTextProvider.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RimSummaryAddressModifier.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
 
 list(APPEND CODE_SOURCE_FILES ${SOURCE_GROUP_SOURCE_FILES})
 
-list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h)
+list(APPEND QT_MOC_HEADERS ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlot.h
+     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryPlotManager.h
+)
 
 source_group(
   "ProjectDataModel\\Summary"

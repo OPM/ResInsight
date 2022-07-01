@@ -26,6 +26,7 @@
 #include "RiaPreferencesGeoMech.h"
 #include "RiaPreferencesSummary.h"
 #include "RiaPreferencesSystem.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaValidRegExpValidator.h"
 
 #include "RifReaderSettings.h"
@@ -81,10 +82,7 @@ RiaPreferences::RiaPreferences()
     CAF_PDM_InitField( &m_navigationPolicy,
                        "navigationPolicy",
                        caf::AppEnum<RiaDefines::RINavigationPolicy>( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS ),
-                       "Navigation Mode",
-                       "",
-                       "",
-                       "" );
+                       "Navigation Mode" );
 
     CAF_PDM_InitField( &enableGrpcServer,
                        "enableGrpcServer",
@@ -93,9 +91,9 @@ RiaPreferences::RiaPreferences()
                        "",
                        "Remote Procedure Call Scripting Engine",
                        "" );
-    CAF_PDM_InitField( &defaultGrpcPortNumber, "defaultGrpcPort", 50051, "Default Python Script Server Port", "", "", "" );
+    CAF_PDM_InitField( &defaultGrpcPortNumber, "defaultGrpcPort", 50051, "Default Python Script Server Port" );
 
-    CAF_PDM_InitFieldNoDefault( &scriptDirectories, "scriptDirectory", "Shared Script Folder(s)", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &scriptDirectories, "scriptDirectory", "Shared Script Folder(s)" );
     scriptDirectories.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     // TODO: This only currently works for installed ResInsight.
@@ -112,45 +110,35 @@ RiaPreferences::RiaPreferences()
     }
 #endif
 
-    CAF_PDM_InitField( &scriptEditorExecutable, "scriptEditorExecutable", defaultTextEditor, "Script Editor", "", "", "" );
+    CAF_PDM_InitField( &scriptEditorExecutable, "scriptEditorExecutable", defaultTextEditor, "Script Editor" );
     scriptEditorExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_octaveExecutable, "octaveExecutable", QString( "octave" ), "Octave Executable Location", "", "", "" );
+    CAF_PDM_InitField( &m_maxScriptFoldersDepth, "MaxScriptFoldersDepth", 2, "Maximum Scripts Folder Search Depth" );
+
+    CAF_PDM_InitField( &m_octaveExecutable, "octaveExecutable", QString( "octave" ), "Octave Executable Location" );
     m_octaveExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_octaveExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     CAF_PDM_InitField( &octaveShowHeaderInfoWhenExecutingScripts,
                        "octaveShowHeaderInfoWhenExecutingScripts",
                        false,
-                       "Show Text Header When Executing Scripts",
-                       "",
-                       "",
-                       "" );
+                       "Show Text Header When Executing Scripts" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &octaveShowHeaderInfoWhenExecutingScripts );
 
-    CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location", "", "", "" );
+    CAF_PDM_InitField( &m_pythonExecutable, "pythonExecutable", QString( "python" ), "Python Executable Location" );
     m_pythonExecutable.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
     m_pythonExecutable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
-    CAF_PDM_InitField( &showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info", "", "", "" );
+    CAF_PDM_InitField( &showPythonDebugInfo, "pythonDebugInfo", false, "Show Python Debug Info" );
 
-    CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address", "", "", "" );
+    CAF_PDM_InitField( &ssihubAddress, "ssihubAddress", QString( "http://" ), "SSIHUB Address" );
     ssihubAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines", "", "", "" );
-    CAF_PDM_InitField( &defaultGridLineColors,
-                       "defaultGridLineColors",
-                       RiaColorTables::defaultGridLineColor(),
-                       "Mesh Color",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultMeshModeType, "defaultMeshModeType", "Show Grid Lines" );
+    CAF_PDM_InitField( &defaultGridLineColors, "defaultGridLineColors", RiaColorTables::defaultGridLineColor(), "Mesh Color" );
     CAF_PDM_InitField( &defaultFaultGridLineColors,
                        "defaultFaultGridLineColors",
                        RiaColorTables::defaultFaultLineColor(),
-                       "Mesh Color Along Faults",
-                       "",
-                       "",
-                       "" );
+                       "Mesh Color Along Faults" );
     CAF_PDM_InitField( &defaultWellLabelColor,
                        "defaultWellLableColor",
                        RiaColorTables::defaultWellLabelColor(),
@@ -167,26 +155,26 @@ RiaPreferences::RiaPreferences()
                        "The viewer background color for new views",
                        "" );
 
-    CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor", "", "", "" );
+    CAF_PDM_InitField( &m_defaultScaleFactorZ, "defaultScaleFactorZ", 5, "Default Z Scale Factor" );
 
-    CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &defaultSceneFontSize, "defaultSceneFontSizePt", "Viewer Font Size" );
+    CAF_PDM_InitFieldNoDefault( &defaultAnnotationFontSize, "defaultAnnotationFontSizePt", "Annotation Font Size" );
+    CAF_PDM_InitFieldNoDefault( &defaultWellLabelFontSize, "defaultWellLabelFontSizePt", "Well Label Font Size" );
+    CAF_PDM_InitFieldNoDefault( &defaultPlotFontSize, "defaultPlotFontSizePt", "Plot Font Size" );
 
-    CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends", "", "", "" );
+    CAF_PDM_InitField( &m_showLegendBackground, "showLegendBackground", true, "Show Box around Legends" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showLegendBackground );
 
-    CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default", "", "", "" );
+    CAF_PDM_InitField( &m_enableFaultsByDefault, "enableFaultsByDefault", true, "Enable Faults By Default" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_enableFaultsByDefault );
 
-    CAF_PDM_InitField( &m_showInfoBox, "showInfoBox", true, "Show Info Box in New Projects", "", "", "" );
+    CAF_PDM_InitField( &m_showInfoBox, "showInfoBox", true, "Show Info Box in New Projects" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showInfoBox );
 
-    CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects", "", "", "" );
+    CAF_PDM_InitField( &m_showGridBox, "showGridBox", true, "Show Grid Box in New Projects" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showGridBox );
 
-    CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &lastUsedProjectFileName, "lastUsedProjectFileName", "Last Used Project File" );
     lastUsedProjectFileName.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &autocomputeDepthRelatedProperties,
@@ -198,61 +186,54 @@ RiaPreferences::RiaPreferences()
                        "" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &autocomputeDepthRelatedProperties );
 
-    CAF_PDM_InitField( &loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL", "", "", "" );
+    CAF_PDM_InitField( &loadAndShowSoil, "loadAndShowSoil", true, "Load and Show SOIL" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &loadAndShowSoil );
 
     CAF_PDM_InitField( &holoLensDisableCertificateVerification,
                        "holoLensDisableCertificateVerification",
                        false,
-                       "Disable SSL Certificate Verification (HoloLens)",
-                       "",
-                       "",
-                       "" );
+                       "Disable SSL Certificate Verification (HoloLens)" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &holoLensDisableCertificateVerification );
 
     CAF_PDM_InitField( &csvTextExportFieldSeparator,
                        "csvTextExportFieldSeparator",
                        QString( "," ),
-                       "CSV Text Export Field Separator",
-                       "",
-                       "",
-                       "" );
+                       "CSV Text Export Field Separator" );
 
-    CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_readerSettings, "readerSettings", "Reader Settings" );
     m_readerSettings = new RifReaderSettings;
-    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "dateFormat", "Date Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "dateFormat", "Date Format" );
     m_dateFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_dateFormat = RiaQDateTimeTools::supportedDateFormats().front();
 
-    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "timeFormat", "Time Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "timeFormat", "Time Format" );
     m_timeFormat.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
     m_timeFormat = RiaQDateTimeTools::supportedTimeFormats().front();
 
-    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", true, "Enable Undo/Redo for Property Editor changes", "", "", "" );
+    CAF_PDM_InitField( &m_useUndoRedo, "useUndoRedo", false, "Enable Undo/Redo for Property Editor changes" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useUndoRedo );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotTemplateFolders, "plotTemplateFolders", "Plot Template Folder(s)" );
     m_plotTemplateFolders.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
-    CAF_PDM_InitField( &m_searchPlotTemplateFoldersRecursively,
-                       "SearchPlotTemplateFoldersRecursively",
-                       true,
-                       "Search Plot Templates Recursively",
-                       "",
-                       "",
-                       "" );
-    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_searchPlotTemplateFoldersRecursively );
+    CAF_PDM_InitField( &m_maxPlotTemplateFoldersDepth,
+                       "MaxPlotTemplateFoldersDepth",
+                       2,
+                       "Maximum Plot Template Folder Search Depth" );
 
-    CAF_PDM_InitFieldNoDefault( &m_defaultPlotTemplate, "defaultPlotTemplate", "Default Plot Template", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_lastUsedPlotTemplate, "defaultPlotTemplate", "Default Plot Template" );
 
-    CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation", "", "", "" );
-    CAF_PDM_InitField( &m_pageLeftMargin, "pageLeftMargin", defaultMarginSize( m_pageSize() ), "Left Margin", "", "", "" );
-    CAF_PDM_InitField( &m_pageTopMargin, "pageTopMargin", defaultMarginSize( m_pageSize() ), "Top Margin", "", "", "" );
-    CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin", "", "", "" );
-    CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pageSize, "pageSize", "Page Size" );
+    CAF_PDM_InitFieldNoDefault( &m_pageOrientation, "pageOrientation", "Page Orientation" );
+    CAF_PDM_InitField( &m_pageLeftMargin, "pageLeftMargin", defaultMarginSize( m_pageSize() ), "Left Margin" );
+    CAF_PDM_InitField( &m_pageTopMargin, "pageTopMargin", defaultMarginSize( m_pageSize() ), "Top Margin" );
+    CAF_PDM_InitField( &m_pageRightMargin, "pageRightMargin", defaultMarginSize( m_pageSize() ), "Right Margin" );
+    CAF_PDM_InitField( &m_pageBottomMargin, "pageBottomMargin", defaultMarginSize( m_pageSize() ), "Bottom Margin" );
 
-    CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer", "", "", "" );
+    CAF_PDM_InitField( &m_openExportedPdfInViewer, "openExportedPdfInViewer", false, "Open Exported PDF in Viewer" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_openExportedPdfInViewer );
+
+    CAF_PDM_InitField( &m_useQtChartsPlotByDefault, "useQtChartsPlotByDefault", false, "Use QtChart as Default Plot Type" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useQtChartsPlotByDefault );
 
     CAF_PDM_InitField( &m_surfaceImportResamplingDistance,
                        "SurfaceImportResamplingDistance",
@@ -272,15 +253,15 @@ RiaPreferences::RiaPreferences()
                        "" );
     m_multiLateralWellPattern.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_guiTheme, "guiTheme", "GUI theme" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryPreferences, "summaryPreferences", "summaryPreferences" );
     m_summaryPreferences = new RiaPreferencesSummary;
 
-    CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geoMechPreferences, "geoMechPreferences", "geoMechPreferences" );
     m_geoMechPreferences = new RiaPreferencesGeoMech;
 
-    CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_systemPreferences, "systemPreferences", "systemPreferences" );
     m_systemPreferences = new RiaPreferencesSystem;
 }
 
@@ -308,6 +289,7 @@ void RiaPreferences::defineEditorAttribute( const caf::PdmFieldHandle* field,
                                             caf::PdmUiEditorAttribute* attribute )
 {
     m_readerSettings->defineEditorAttribute( field, uiConfigName, attribute );
+    m_summaryPreferences->defineEditorAttribute( field, uiConfigName, attribute );
 
     {
         caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
@@ -376,7 +358,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         otherGroup->add( &holoLensDisableCertificateVerification );
         otherGroup->add( &m_useUndoRedo );
     }
-    else if ( uiConfigName == RiaPreferences::tabNameEclipseGrid() )
+    else if ( uiConfigName == RiaPreferences::tabNameGrid() )
     {
         caf::PdmUiGroup* newCaseBehaviourGroup = uiOrdering.addNewGroup( "Behavior When Loading Data" );
         newCaseBehaviourGroup->add( &autocomputeDepthRelatedProperties );
@@ -384,7 +366,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 
         m_readerSettings->uiOrdering( uiConfigName, *newCaseBehaviourGroup );
     }
-    else if ( uiConfigName == RiaPreferences::tabNameEclipseSummary() )
+    else if ( uiConfigName == RiaPreferences::tabNameSummary() )
     {
         m_summaryPreferences->appendRestartFileGroup( uiOrdering );
 
@@ -396,22 +378,29 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     else if ( uiConfigName == RiaPreferences::tabNamePlotting() )
     {
-        uiOrdering.add( &m_dateFormat );
-        uiOrdering.add( &m_timeFormat );
+        caf::PdmUiGroup* summaryGrp = uiOrdering.addNewGroup( "Summary Plots" );
 
-        summaryPreferences()->appendItemsToPlottingGroup( uiOrdering );
+        summaryPreferences()->appendItemsToPlottingGroup( *summaryGrp );
 
-        caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Plot Templates" );
+        caf::PdmUiGroup* group = summaryGrp->addNewGroup( "Plot Templates" );
         group->add( &m_plotTemplateFolders );
-        group->add( &m_searchPlotTemplateFoldersRecursively );
+        group->add( &m_maxPlotTemplateFoldersDepth );
 
-        caf::PdmUiGroup* pageSetup = uiOrdering.addNewGroup( "Page Setup" );
+        caf::PdmUiGroup* generalGrp = uiOrdering.addNewGroup( "General" );
+
+        generalGrp->add( &m_dateFormat );
+        generalGrp->add( &m_timeFormat );
+
+        caf::PdmUiGroup* pageSetup = generalGrp->addNewGroup( "Page Setup" );
         pageSetup->add( &m_pageSize );
         pageSetup->add( &m_pageOrientation, false );
         pageSetup->add( &m_pageLeftMargin );
         pageSetup->add( &m_pageRightMargin, false );
         pageSetup->add( &m_pageTopMargin );
         pageSetup->add( &m_pageBottomMargin, false );
+
+        generalGrp->add( &m_useQtChartsPlotByDefault );
+        m_useQtChartsPlotByDefault.uiCapability()->setUiHidden( true );
 
         QString unitLabel = " [mm]";
         if ( QPageSize( m_pageSize() ).definitionUnits() == QPageSize::Inch )
@@ -439,6 +428,7 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 #endif
         caf::PdmUiGroup* scriptGroup = uiOrdering.addNewGroup( "Script files" );
         scriptGroup->add( &scriptDirectories );
+        scriptGroup->add( &m_maxScriptFoldersDepth );
         scriptGroup->add( &scriptEditorExecutable );
     }
 #ifdef USE_ODB_API
@@ -447,15 +437,15 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         m_geoMechPreferences()->appendItems( uiOrdering );
     }
 #endif
-    else if ( uiConfigName == RiaPreferences::tabNameExport() )
+    else if ( uiConfigName == RiaPreferences::tabNameImportExport() )
     {
-        uiOrdering.add( &csvTextExportFieldSeparator );
-        uiOrdering.add( &m_openExportedPdfInViewer );
-    }
-    else if ( uiConfigName == RiaPreferences::tabNameImport() )
-    {
-        uiOrdering.add( &m_surfaceImportResamplingDistance );
-        uiOrdering.add( &m_multiLateralWellPattern );
+        caf::PdmUiGroup* importGroup = uiOrdering.addNewGroup( "Import" );
+        importGroup->add( &m_surfaceImportResamplingDistance );
+        importGroup->add( &m_multiLateralWellPattern );
+
+        caf::PdmUiGroup* exportGroup = uiOrdering.addNewGroup( "Export" );
+        exportGroup->add( &csvTextExportFieldSeparator );
+        exportGroup->add( &m_openExportedPdfInViewer );
     }
     else if ( RiaApplication::enableDevelopmentFeatures() && uiConfigName == RiaPreferences::tabNameSystem() )
     {
@@ -468,11 +458,9 @@ void RiaPreferences::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
 
     if ( fieldNeedingOptions == &m_dateFormat )
     {
@@ -480,7 +468,8 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
         {
             QDate   exampleDate = QDate( 2019, 8, 16 );
             QString fullDateFormat =
-                RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                     RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
             QString uiText = QString( "%1 (%2)" ).arg( fullDateFormat ).arg( exampleDate.toString( fullDateFormat ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( dateFormat ) ) );
@@ -493,7 +482,7 @@ QList<caf::PdmOptionItemInfo> RiaPreferences::calculateValueOptions( const caf::
             QTime   exampleTime = QTime( 15, 48, 22 );
             QString timeFormatString =
                 RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                     RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                                                     RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             QString uiText = QString( "%1 (%2)" ).arg( timeFormatString ).arg( exampleTime.toString( timeFormatString ) );
             uiText.replace( "AP", "AM/PM" );
             options.push_back( caf::PdmOptionItemInfo( uiText, QVariant::fromValue( timeFormat ) ) );
@@ -524,10 +513,13 @@ void RiaPreferences::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         m_pageTopMargin    = defaultMarginSize( m_pageSize() );
         m_pageBottomMargin = defaultMarginSize( m_pageSize() );
     }
-
-    if ( changedField == &m_guiTheme )
+    else if ( changedField == &m_guiTheme )
     {
         RiuGuiTheme::updateGuiTheme( m_guiTheme() );
+    }
+    else
+    {
+        m_summaryPreferences->fieldChangedByUi( changedField, oldValue, newValue );
     }
 }
 //--------------------------------------------------------------------------------------------------
@@ -541,17 +533,17 @@ QString RiaPreferences::tabNameGeneral()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameEclipseGrid()
+QString RiaPreferences::tabNameGrid()
 {
-    return "Eclipse Grid";
+    return "Grid";
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameEclipseSummary()
+QString RiaPreferences::tabNameSummary()
 {
-    return "Eclipse Summary";
+    return "Summary";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -581,14 +573,6 @@ QString RiaPreferences::tabNameScripting()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameExport()
-{
-    return "Export";
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QString RiaPreferences::tabNameSystem()
 {
     return "System";
@@ -597,9 +581,9 @@ QString RiaPreferences::tabNameSystem()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::tabNameImport()
+QString RiaPreferences::tabNameImportExport()
 {
-    return "Import";
+    return "Import/Export";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -626,15 +610,14 @@ QStringList RiaPreferences::tabNames()
     QStringList names;
 
     names << tabNameGeneral();
-    names << tabNameEclipseGrid();
-    names << tabNameEclipseSummary();
+    names << tabNameGrid();
+    names << tabNameSummary();
     names << tabNamePlotting();
     names << tabNameScripting();
 #ifdef USE_ODB_API
     names << tabNameGeomech();
 #endif
-    names << tabNameExport();
-    names << tabNameImport();
+    names << tabNameImportExport();
 
     if ( RiaApplication::enableDevelopmentFeatures() )
     {
@@ -679,7 +662,8 @@ const QString& RiaPreferences::timeFormat() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::dateTimeFormat( DateFormatComponents dateComponents, TimeFormatComponents timeComponents ) const
+QString RiaPreferences::dateTimeFormat( RiaDefines::DateFormatComponents dateComponents,
+                                        RiaDefines::TimeFormatComponents timeComponents ) const
 {
     return QString( "%1 %2" )
         .arg( RiaQDateTimeTools::dateFormatString( m_dateFormat(), dateComponents ) )
@@ -689,9 +673,17 @@ QString RiaPreferences::dateTimeFormat( DateFormatComponents dateComponents, Tim
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiaPreferences::searchPlotTemplateFoldersRecursively() const
+int RiaPreferences::maxScriptFoldersDepth() const
 {
-    return m_searchPlotTemplateFoldersRecursively();
+    return m_maxScriptFoldersDepth();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaPreferences::maxPlotTemplateFoldersDepth() const
+{
+    return m_maxPlotTemplateFoldersDepth();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -732,17 +724,17 @@ void RiaPreferences::appendPlotTemplateFolders( const QString& folder )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaPreferences::defaultPlotTemplateAbsolutePath() const
+QString RiaPreferences::lastUsedPlotTemplateAbsolutePath() const
 {
-    return m_defaultPlotTemplate().path();
+    return m_lastUsedPlotTemplate().path();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
+void RiaPreferences::setLastUsedPlotTemplatePath( const QString& templatePath )
 {
-    m_defaultPlotTemplate = templatePath;
+    m_lastUsedPlotTemplate = templatePath;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -751,6 +743,14 @@ void RiaPreferences::setDefaultPlotTemplatePath( const QString& templatePath )
 bool RiaPreferences::openExportedPdfInViewer() const
 {
     return m_openExportedPdfInViewer;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiaPreferences::useQtChartsAsDefaultPlotType() const
+{
+    return m_useQtChartsPlotByDefault;
 }
 
 //--------------------------------------------------------------------------------------------------

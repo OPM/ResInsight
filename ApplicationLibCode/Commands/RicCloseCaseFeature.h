@@ -40,7 +40,6 @@ public:
     static bool userConfirmedGridCaseGroupChange( const std::vector<RimEclipseCase*>& casesToBeDeleted );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

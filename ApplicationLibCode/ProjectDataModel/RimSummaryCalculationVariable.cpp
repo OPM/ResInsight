@@ -20,6 +20,7 @@
 
 #include "RiaApplication.h"
 #include "RiaSummaryCurveDefinition.h"
+#include "RiaSummaryTools.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
 
@@ -29,6 +30,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
 
+#include "RiuDragDrop.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
 #include "cafPdmUiPushButtonEditor.h"
@@ -41,40 +43,16 @@ CAF_PDM_SOURCE_INIT( RimSummaryCalculationVariable, "RimSummaryCalculationVariab
 //--------------------------------------------------------------------------------------------------
 RimSummaryCalculationVariable::RimSummaryCalculationVariable()
 {
-    CAF_PDM_InitObject( "RimSummaryCalculationVariable", ":/octave.png", "", "" );
+    CAF_PDM_InitObject( "RimSummaryCalculationVariable", ":/octave.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "VariableName", "Variable Name", "", "", "" );
-    m_name.uiCapability()->setUiReadOnly( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_button, "PushButton", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_button, "PushButton", "" );
     m_button.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_button.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryAddressUi, "SummaryAddressUi", "Summary Address", "", "", "" );
-    m_summaryAddressUi.registerGetMethod( this, &RimSummaryCalculationVariable::summaryAddressDisplayString );
-    m_summaryAddressUi.xmlCapability()->disableIO();
-    m_summaryAddressUi.uiCapability()->setUiReadOnly( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Summary Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "SummaryCase", "Summary Case" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryAddress, "SummaryAddress", "Summary Address" );
 
     m_summaryAddress = new RimSummaryAddress;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryCalculationVariable::name() const
-{
-    return m_name;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryCalculationVariable::setName( const QString& name )
-{
-    m_name = name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -129,7 +107,7 @@ void RimSummaryCalculationVariable::fieldChangedByUi( const caf::PdmFieldHandle*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCalculationVariable::summaryAddressDisplayString() const
+QString RimSummaryCalculationVariable::displayString() const
 {
     QString caseName;
     if ( m_case() ) caseName = m_case()->displayCaseName();
@@ -156,10 +134,37 @@ RimSummaryAddress* RimSummaryCalculationVariable::summaryAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationVariable::setSummaryAddress( const RimSummaryAddress& address )
+{
+    m_summaryAddress()->setAddress( address.address() );
+
+    auto summaryCase = RiaSummaryTools::summaryCaseById( address.caseId() );
+
+    if ( summaryCase ) m_case = summaryCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCalculationVariable::handleDroppedMimeData( const QMimeData*     data,
+                                                           Qt::DropAction       action,
+                                                           caf::PdmFieldHandle* destinationField )
+{
+    auto objects = RiuDragDrop::convertToObjects( data );
+    if ( !objects.empty() )
+    {
+        auto address = dynamic_cast<RimSummaryAddress*>( objects.front() );
+        if ( address ) setSummaryAddress( *address );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCalculationVariable::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_name );
-    uiOrdering.add( &m_summaryAddressUi );
+    uiOrdering.add( &m_addressUi );
     uiOrdering.add( &m_button );
 
     uiOrdering.skipRemainingFields();

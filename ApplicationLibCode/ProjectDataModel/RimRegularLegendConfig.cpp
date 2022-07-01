@@ -145,8 +145,8 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     , m_isAllTimeStepsRangeDisabled( false )
     , m_resetUserDefinedValues( false )
 {
-    CAF_PDM_InitObject( "Color Legend", ":/Legend.png", "", "" );
-    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend", "", "", "" );
+    CAF_PDM_InitObject( "Color Legend", ":/Legend.png" );
+    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Show Legend" );
     m_showLegend.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_numLevels, "NumberOfLevels", 8, "Number of Levels", "", "A hint on how many tick marks you whish.", "" );
     CAF_PDM_InitField( &m_precision,
@@ -160,29 +160,20 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     CAF_PDM_InitField( &m_tickNumberFormat,
                        "TickNumberFormat",
                        caf::AppEnum<RiaNumberFormat::NumberFormatType>( RiaNumberFormat::NumberFormatType::FIXED ),
-                       "Number format",
-                       "",
-                       "",
-                       "" );
+                       "Number format" );
 
-    CAF_PDM_InitField( &m_colorRangeMode_OBSOLETE,
-                       "ColorRangeMode",
-                       ColorRangeEnum( ColorRangesType::UNDEFINED ),
-                       "Colors",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_colorRangeMode_OBSOLETE, "ColorRangeMode", ColorRangeEnum( ColorRangesType::UNDEFINED ), "Colors" );
     m_colorRangeMode_OBSOLETE.uiCapability()->setUiHidden( true );
     m_colorRangeMode_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_colorLegend, "ColorLegend", "Colors" );
     m_colorLegend = mapToColorLegend( ColorRangeEnum( ColorRangesType::NORMAL ) );
-    CAF_PDM_InitField( &m_selectColorLegendButton, "selectColorLegendButton", false, "Edit", "", "", "" );
+    CAF_PDM_InitField( &m_selectColorLegendButton, "selectColorLegendButton", false, "Edit" );
     m_selectColorLegendButton.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_selectColorLegendButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectColorLegendButton.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_mappingMode, "MappingMode", MappingEnum( MappingType::LINEAR_CONTINUOUS ), "Mapping", "", "", "" );
+    CAF_PDM_InitField( &m_mappingMode, "MappingMode", MappingEnum( MappingType::LINEAR_CONTINUOUS ), "Mapping" );
     CAF_PDM_InitField( &m_rangeMode,
                        "RangeType",
                        RangeModeEnum( RangeModeType::AUTOMATIC_ALLTIMESTEPS ),
@@ -199,9 +190,9 @@ RimRegularLegendConfig::RimRegularLegendConfig()
                        "Min value of the legend (if mapping is logarithmic only positive values are valid)",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_categoryColorMode, "CategoryColorMode", "Category Mode", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_categoryColorMode, "CategoryColorMode", "Category Mode" );
 
-    CAF_PDM_InitField( &resultVariableName, "ResultVariableUsage", QString( "" ), "", "", "", "" );
+    CAF_PDM_InitField( &resultVariableName, "ResultVariableUsage", QString( "" ), "" );
     resultVariableName.uiCapability()->setUiHidden( true );
 
     m_linDiscreteScalarMapper = new cvf::ScalarMapperDiscreteLinear;
@@ -217,9 +208,11 @@ RimRegularLegendConfig::RimRegularLegendConfig()
     m_scalarMapperLegend    = new caf::OverlayScalarMapperLegend( standardFont );
     m_categoryLegend        = new caf::CategoryLegend( standardFont, m_categoryMapper.p() );
 
-    CAF_PDM_InitField( &m_resetUserDefinedValuesButton, "ResetDefaultValues", false, "Reset Default Values", "", "", "" );
+    CAF_PDM_InitField( &m_resetUserDefinedValuesButton, "ResetDefaultValues", false, "Reset Default Values" );
     m_resetUserDefinedValuesButton.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_resetUserDefinedValuesButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+
+    CAF_PDM_InitField( &m_centerLegendAroundZero, "CenterLegendAroundZero", false, "Center Legend Around Zero" );
 
     updateFieldVisibility();
     updateLegend();
@@ -411,25 +404,7 @@ void RimRegularLegendConfig::updateLegend()
 
     if ( m_resetUserDefinedValues && m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
     {
-        if ( m_mappingMode() == MappingType::LOG10_CONTINUOUS || m_mappingMode() == MappingType::LOG10_DISCRETE )
-        {
-            double exponentMax = computeTenExponentCeil( m_globalAutoMax );
-            double exponentMin = computeTenExponentFloor( m_globalAutoPosClosestToZero );
-
-            m_userDefinedMaxValue = pow( 10, exponentMax );
-            m_userDefinedMinValue = pow( 10, exponentMin );
-
-            int numLevels = exponentMax - exponentMin;
-            if ( numLevels > 0 )
-            {
-                m_numLevels = numLevels;
-            }
-        }
-        else if ( m_mappingMode() == MappingType::LINEAR_CONTINUOUS || m_mappingMode() == MappingType::LINEAR_DISCRETE )
-        {
-            m_userDefinedMaxValue = m_globalAutoMax;
-            m_userDefinedMinValue = m_globalAutoMin;
-        }
+        updateTickCountAndUserDefinedRange();
 
         m_resetUserDefinedValues = false;
     }
@@ -463,6 +438,13 @@ void RimRegularLegendConfig::updateLegend()
 
         posClosestToZero = m_globalAutoPosClosestToZero;
         negClosestToZero = m_globalAutoNegClosestToZero;
+    }
+
+    if ( m_centerLegendAroundZero )
+    {
+        auto maxValue = std::max( std::abs( adjustedMax ), std::abs( adjustedMin ) );
+        adjustedMax   = maxValue;
+        adjustedMin   = -maxValue;
     }
 
     m_linDiscreteScalarMapper->setRange( adjustedMin, adjustedMax );
@@ -620,6 +602,14 @@ void RimRegularLegendConfig::setTickNumberFormat( RiaNumberFormat::NumberFormatT
 void RimRegularLegendConfig::resetUserDefinedValues()
 {
     m_resetUserDefinedValues = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setCenterLegendAroundZero( bool enable )
+{
+    m_centerLegendAroundZero = enable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -869,6 +859,36 @@ void RimRegularLegendConfig::configureCategoryMapper()
             cvf::Color3ubArray legendColors = m_colorLegend()->colorArray();
 
             m_categoryMapper->setInterpolateColors( legendColors );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::updateTickCountAndUserDefinedRange()
+{
+    if ( m_globalAutoMax != cvf::UNDEFINED_DOUBLE )
+    {
+        if ( m_mappingMode() == MappingType::LOG10_CONTINUOUS || m_mappingMode() == MappingType::LOG10_DISCRETE )
+        {
+            double exponentMax = computeTenExponentCeil( m_globalAutoMax );
+            double exponentMin = computeTenExponentFloor( m_globalAutoPosClosestToZero );
+
+            m_userDefinedMaxValue = pow( 10, exponentMax );
+            m_userDefinedMinValue = pow( 10, exponentMin );
+
+            int numLevels = exponentMax - exponentMin;
+            if ( numLevels > 0 )
+            {
+                m_numLevels = numLevels;
+            }
+        }
+        else if ( m_mappingMode() == MappingType::LINEAR_CONTINUOUS || m_mappingMode() == MappingType::LINEAR_DISCRETE )
+        {
+            m_userDefinedMaxValue = m_globalAutoMax;
+            m_userDefinedMinValue = m_globalAutoMin;
+            m_numLevels           = 8;
         }
     }
 }
@@ -1201,6 +1221,67 @@ QString RimRegularLegendConfig::valueToText( double value ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRegularLegendConfig::setDefaultConfigForResultName( const QString& resultName,
+                                                            bool           useDiscreteLogLevels,
+                                                            bool           isCategoryResult )
+{
+    bool useLog = RiaResultNames::isLogarithmicResult( resultName );
+
+    RimRegularLegendConfig::MappingType mappingType  = MappingType::LINEAR_CONTINUOUS;
+    RimLegendConfig::RangeModeType      rangeType    = RimLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS;
+    RiaNumberFormat::NumberFormatType   numberFormat = RiaNumberFormat::NumberFormatType::FIXED;
+
+    if ( useLog )
+    {
+        if ( useDiscreteLogLevels )
+            mappingType = RimRegularLegendConfig::MappingType::LOG10_DISCRETE;
+        else
+            mappingType = RimRegularLegendConfig::MappingType::LOG10_CONTINUOUS;
+
+        numberFormat = RiaNumberFormat::NumberFormatType::AUTO;
+        rangeType    = RimLegendConfig::RangeModeType::USER_DEFINED;
+    }
+
+    bool                                    centerLegendAroundZero = false;
+    RimRegularLegendConfig::ColorRangesType colorRangeType         = RimRegularLegendConfig::ColorRangesType::UNDEFINED;
+
+    if ( isCategoryResult )
+    {
+        colorRangeType = RimRegularLegendConfig::ColorRangesType::CATEGORY;
+        mappingType    = RimRegularLegendConfig::MappingType::CATEGORY_INTEGER;
+    }
+    else if ( resultName == RiaResultNames::swat() )
+    {
+        colorRangeType = RimRegularLegendConfig::ColorRangesType::OPPOSITE_NORMAL;
+    }
+    else if ( RiaResultNames::isFlowResultWithBothPosAndNegValues( resultName ) )
+    {
+        colorRangeType         = RimRegularLegendConfig::ColorRangesType::BLUE_WHITE_RED;
+        centerLegendAroundZero = true;
+    }
+    else if ( resultName != RiaResultNames::undefinedResultName() )
+    {
+        colorRangeType = RimRegularLegendConfig::ColorRangesType::NORMAL;
+    }
+
+    resetUserDefinedValues();
+    setRangeMode( rangeType );
+    setMappingMode( mappingType );
+    setCenterLegendAroundZero( centerLegendAroundZero );
+    setTickNumberFormat( numberFormat );
+    updateTickCountAndUserDefinedRange();
+
+    if ( colorRangeType != RimRegularLegendConfig::ColorRangesType::UNDEFINED )
+    {
+        RimColorLegend* colorLegend = RimRegularLegendConfig::mapToColorLegend( colorRangeType );
+
+        setColorLegend( colorLegend );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     if ( uiConfigName == "NumLevelsOnly" )
@@ -1235,6 +1316,8 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         mappingGr->add( &m_userDefinedMaxValue );
         mappingGr->add( &m_userDefinedMinValue );
         mappingGr->add( &m_categoryColorMode );
+        mappingGr->add( &m_centerLegendAroundZero );
+
         uiOrdering.add( &m_resetUserDefinedValuesButton );
     }
 
@@ -1244,8 +1327,7 @@ void RimRegularLegendConfig::defineUiOrdering( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimRegularLegendConfig::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimRegularLegendConfig::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     bool hasStimPlanParent         = false;
     bool hasEnsembleCurveSetParent = false;

@@ -34,17 +34,12 @@ CAF_PDM_SOURCE_INIT( RimColorLegendCollection, "ColorLegendCollection" );
 //--------------------------------------------------------------------------------------------------
 RimColorLegendCollection::RimColorLegendCollection()
 {
-    CAF_PDM_InitObject( "Color Legends", ":/Legend.png", "", "" );
+    CAF_PDM_InitObject( "Color Legends", ":/Legend.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_standardColorLegends,
-                                "StandardColorLegends",
-                                "Standard Color Legends",
-                                ":/Legend.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_standardColorLegends, "StandardColorLegends", "Standard Color Legends", ":/Legend.png" );
     m_standardColorLegends.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_customColorLegends, "CustomColorLegends", "Custom Color Legends", ":/Legend.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_customColorLegends, "CustomColorLegends", "Custom Color Legends", ":/Legend.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -81,7 +76,7 @@ bool RimColorLegendCollection::isStandardColorLegend( RimColorLegend* legend )
 //--------------------------------------------------------------------------------------------------
 void RimColorLegendCollection::deleteCustomColorLegends()
 {
-    m_customColorLegends.deleteAllChildObjects();
+    m_customColorLegends.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -143,13 +138,13 @@ std::vector<RimColorLegend*> RimColorLegendCollection::allColorLegends() const
 {
     std::vector<RimColorLegend*> allLegends;
 
-    auto standardLegends = m_standardColorLegends.childObjects();
+    auto standardLegends = m_standardColorLegends.children();
     for ( auto l : standardLegends )
     {
         allLegends.push_back( l );
     }
 
-    auto customLegends = m_customColorLegends.childObjects();
+    auto customLegends = m_customColorLegends.children();
     for ( auto l : customLegends )
     {
         allLegends.push_back( l );

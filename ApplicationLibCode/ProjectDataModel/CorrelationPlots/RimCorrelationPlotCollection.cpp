@@ -34,10 +34,10 @@ CAF_PDM_SOURCE_INIT( RimCorrelationPlotCollection, "CorrelationPlotCollection" )
 //--------------------------------------------------------------------------------------------------
 RimCorrelationPlotCollection::RimCorrelationPlotCollection()
 {
-    CAF_PDM_InitObject( "Ensemble Correlation Plots", ":/CorrelationPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Correlation Plots", ":/CorrelationPlots16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_correlationPlots, "CorrelationPlots", "Correlation Plots", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_correlationReports, "CorrelationReports", "Correlation Reports", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_correlationPlots, "CorrelationPlots", "Correlation Plots" );
+    CAF_PDM_InitFieldNoDefault( &m_correlationReports, "CorrelationReports", "Correlation Reports" );
 
     m_correlationPlots.uiCapability()->setUiTreeHidden( true );
     m_correlationReports.uiCapability()->setUiTreeHidden( true );
@@ -193,7 +193,7 @@ void RimCorrelationPlotCollection::insertPlot( RimAbstractCorrelationPlot* plot,
 //--------------------------------------------------------------------------------------------------
 void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* plot )
 {
-    m_correlationPlots.removeChildObject( plot );
+    m_correlationPlots.removeChild( plot );
     updateAllRequiredEditors();
 }
 
@@ -202,7 +202,7 @@ void RimCorrelationPlotCollection::removePlot( RimAbstractCorrelationPlot* plot 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimAbstractCorrelationPlot*> RimCorrelationPlotCollection::plots() const
 {
-    return m_correlationPlots.childObjects();
+    return m_correlationPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -218,7 +218,7 @@ size_t RimCorrelationPlotCollection::plotCount() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCorrelationReportPlot*> RimCorrelationPlotCollection::reports() const
 {
-    return m_correlationReports.childObjects();
+    return m_correlationReports.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -227,7 +227,7 @@ std::vector<RimCorrelationReportPlot*> RimCorrelationPlotCollection::reports() c
 void RimCorrelationPlotCollection::deleteAllPlots()
 {
     RimTypedPlotCollection<RimAbstractCorrelationPlot>::deleteAllPlots();
-    m_correlationReports.deleteAllChildObjects();
+    m_correlationReports.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

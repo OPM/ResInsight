@@ -17,8 +17,8 @@ public:
     // Gui generalized interface
 public:
     QVariant                 uiValue() const override;
-    void                     setValueFromUiEditor( const QVariant& uiValue ) override;
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override;
+    void                     setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged ) override;
+    QList<PdmOptionItemInfo> valueOptions() const override;
 
     QVariant toUiBasedQVariant() const override;
 
@@ -48,8 +48,8 @@ public:
     // Gui generalized interface
 public:
     QVariant                 uiValue() const override { return QVariant(); }
-    void                     setValueFromUiEditor( const QVariant& uiValue ) override {}
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override { return QList<PdmOptionItemInfo>(); }
+    void                     setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged ) override {}
+    QList<PdmOptionItemInfo> valueOptions() const override { return QList<PdmOptionItemInfo>(); }
 
     QVariant toUiBasedQVariant() const override { return QVariant(); }
 };
@@ -71,8 +71,8 @@ public:
     // Gui generalized interface
 public:
     QVariant                 uiValue() const override { return QVariant(); }
-    void                     setValueFromUiEditor( const QVariant& uiValue ) override {}
-    QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly ) const override { return QList<PdmOptionItemInfo>(); }
+    void                     setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged ) override {}
+    QList<PdmOptionItemInfo> valueOptions() const override { return QList<PdmOptionItemInfo>(); }
 
     QVariant toUiBasedQVariant() const override { return QVariant(); }
 };

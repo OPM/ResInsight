@@ -50,11 +50,12 @@ public:
 
     // Reimplementation of PdmPointersFieldHandle methods
 
-    virtual size_t           size() const { return m_pointers.size(); }
-    virtual bool             empty() const { return m_pointers.empty(); }
-    virtual void             clear();
-    virtual void             insertAt( int indexAfter, PdmObjectHandle* obj );
-    virtual PdmObjectHandle* at( size_t index );
+    size_t           size() const override { return m_pointers.size(); }
+    bool             empty() const override { return m_pointers.empty(); }
+    void             clearWithoutDelete() override;
+    void             insertAt( int indexAfter, PdmObjectHandle* obj ) override;
+    PdmObjectHandle* at( size_t index ) override;
+    size_t           indexOf( const PdmObjectHandle* obj ) const override;
 
     // std::vector-like access
 
@@ -66,9 +67,8 @@ public:
     void   insert( size_t indexAfter, const std::vector<PdmPointer<DataType>>& objects );
     size_t count( const DataType* pointer ) const;
 
-    void   erase( size_t index );
-    size_t index( DataType* pointer );
-    void   removePtr( PdmObjectHandle* object );
+    void erase( size_t index ) override;
+    void removePtr( PdmObjectHandle* object );
 
     typename std::vector<PdmPointer<DataType>>::iterator begin() { return m_pointers.begin(); };
     typename std::vector<PdmPointer<DataType>>::iterator end() { return m_pointers.end(); };
@@ -79,7 +79,7 @@ public:
     std::vector<DataType*> ptrReferencedObjects() const;
 
     // Child objects
-    virtual void ptrReferencedObjects( std::vector<PdmObjectHandle*>* );
+    void ptrReferencedObjects( std::vector<PdmObjectHandle*>* ) override;
 
 private: // To be disabled
     PDM_DISABLE_COPY_AND_ASSIGN( PdmPtrArrayField );

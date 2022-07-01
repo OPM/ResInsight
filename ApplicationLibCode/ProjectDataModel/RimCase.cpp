@@ -49,24 +49,24 @@ RimCase::RimCase()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
 
-    CAF_PDM_InitScriptableField( &caseUserDescription, "Name", QString(), "Case Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &caseUserDescription, "Name", QString(), "Case Name" );
     caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting" );
 
-    CAF_PDM_InitScriptableField( &caseId, "Id", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &caseId, "Id", -1, "Case ID" );
     caseId.registerKeywordAlias( "CaseId" );
     caseId.uiCapability()->setUiReadOnly( true );
     caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name" );
     m_caseFileName.registerKeywordAlias( "CaseFileName" );
     m_caseFileName.registerKeywordAlias( "GridFileName" );
 
     m_caseFileName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_activeFormationNames, "DefaultFormationNames", "Formation Names File" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Time Step Filter" );
     m_timeStepFilter.uiCapability()->setUiTreeHidden( true );
     m_timeStepFilter.uiCapability()->setUiTreeChildrenHidden( true );
     m_timeStepFilter = new RimTimeStepFilter;
@@ -74,9 +74,7 @@ RimCase::RimCase()
     CAF_PDM_InitFieldNoDefault( &m_2dIntersectionViewCollection,
                                 "IntersectionViewCollection",
                                 "2D Intersection Views",
-                                ":/CrossSections16x16.png",
-                                "",
-                                "" );
+                                ":/CrossSections16x16.png" );
     m_2dIntersectionViewCollection.uiCapability()->setUiTreeHidden( true );
     m_2dIntersectionViewCollection = new Rim2dIntersectionViewCollection();
 }
@@ -208,8 +206,7 @@ void RimCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                              bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

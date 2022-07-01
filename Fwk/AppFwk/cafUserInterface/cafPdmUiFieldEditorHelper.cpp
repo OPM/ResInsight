@@ -60,7 +60,8 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForFi
     else
     {
         // Find the default field editor
-        QString fieldTypeName = qStringTypeName( *( field->fieldHandle() ) );
+        auto    fieldHandle   = field->fieldHandle();
+        QString fieldTypeName = qStringTypeName( *fieldHandle );
 
         if ( fieldTypeName.indexOf( "PdmPtrField" ) != -1 )
         {
@@ -74,10 +75,7 @@ caf::PdmUiFieldEditorHandle* caf::PdmUiFieldEditorHelper::createFieldEditorForFi
         {
             // Handle a single value field with valueOptions: Make a combobox
 
-            bool                     useOptionsOnly = true;
-            QList<PdmOptionItemInfo> options        = field->valueOptions( &useOptionsOnly );
-            CAF_ASSERT( useOptionsOnly ); // Not supported
-
+            QList<PdmOptionItemInfo> options = field->valueOptions();
             if ( !options.empty() )
             {
                 fieldTypeName = caf::PdmUiComboBoxEditor::uiEditorTypeName();

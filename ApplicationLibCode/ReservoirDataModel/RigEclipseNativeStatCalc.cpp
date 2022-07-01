@@ -49,6 +49,39 @@ void RigEclipseNativeStatCalc::minMaxCellScalarValues( size_t timeStepIndex, dou
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RigEclipseNativeStatCalc::hasPreciseP10p90() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigEclipseNativeStatCalc::p10p90CellScalarValues( double& p10, double& p90 )
+{
+    PercentilAccumulator acc;
+
+    for ( size_t timeStepIndex = 0; timeStepIndex < timeStepCount(); timeStepIndex++ )
+    {
+        traverseCells( acc, timeStepIndex );
+    }
+
+    acc.computep10p90( p10, p90 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigEclipseNativeStatCalc::p10p90CellScalarValues( size_t timeStepIndex, double& p10, double& p90 )
+{
+    PercentilAccumulator acc;
+    traverseCells( acc, timeStepIndex );
+    acc.computep10p90( p10, p90 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigEclipseNativeStatCalc::posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg )
 {
     PosNegAccumulator acc( pos, neg );

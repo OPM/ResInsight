@@ -19,8 +19,6 @@
 
 #include "RiuDragDrop.h"
 
-#include "RiaGuiApplication.h"
-
 #include "OperationsUsingObjReferences/RicPasteEclipseCasesFeature.h"
 #include "RicCloseCaseFeature.h"
 #include "WellLogCommands/RicNewWellLogFileCurveFeature.h"
@@ -28,11 +26,15 @@
 
 #include "RimCaseCollection.h"
 #include "RimEclipseCase.h"
+#include "RimEclipseResultAddress.h"
 #include "RimEclipseResultCase.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMimeData.h"
 #include "RimMultiPlot.h"
 #include "RimPlot.h"
+#include "RimProject.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -46,6 +48,7 @@
 #include "RimWellLogFileChannel.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
+
 #include "RiuMainWindow.h"
 
 #include "RicWellLogTools.h"
@@ -55,6 +58,8 @@
 #include "cafSelectionManager.h"
 
 #include <QAbstractItemModel>
+#include <QDropEvent>
+#include <QGraphicsSceneEvent>
 #include <QModelIndex>
 
 //--------------------------------------------------------------------------------------------------
@@ -171,9 +176,10 @@ private:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuDragDrop::RiuDragDrop()
+RiuDragDrop::RiuDragDrop( caf::PdmUiTreeView* treeView )
+    : m_projectTreeView( treeView )
+    , m_proposedDropAction( Qt::MoveAction )
 {
-    m_proposedDropAction = Qt::MoveAction;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,6 +187,26 @@ RiuDragDrop::RiuDragDrop()
 //--------------------------------------------------------------------------------------------------
 RiuDragDrop::~RiuDragDrop()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmObjectHandle*> RiuDragDrop::draggedObjectsFromTreeView( caf::PdmUiTreeView* dragSource,
+                                                                            const QMimeData*    data )
+{
+    const MimeDataWithIndexes* myMimeData = qobject_cast<const MimeDataWithIndexes*>( data );
+    if ( myMimeData )
+    {
+        caf::PdmObjectGroup draggedObjects;
+        QModelIndexList     indices = myMimeData->indexes();
+
+        objectGroupFromModelIndexes( dragSource, &draggedObjects, indices );
+
+        return draggedObjects.objects;
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,12 +238,11 @@ Qt::DropActions RiuDragDrop::supportedDropActions() const
 //--------------------------------------------------------------------------------------------------
 Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 {
-    Qt::ItemFlags itemflags = nullptr;
+    Qt::ItemFlags itemflags;
 
-    if ( index.isValid() && RiaGuiApplication::activeMainWindow() )
+    if ( index.isValid() )
     {
-        caf::PdmUiTreeView* uiTreeView = RiaGuiApplication::activeMainWindow()->projectTreeView();
-        caf::PdmUiItem*     uiItem     = uiTreeView->uiItemFromModelIndex( index );
+        caf::PdmUiItem* uiItem = m_projectTreeView->uiItemFromModelIndex( index );
 
         caf::PdmObject* pdmObj = dynamic_cast<caf::PdmObject*>( uiItem );
         if ( pdmObj )
@@ -232,8 +257,25 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
              dynamic_cast<RimSummaryCase*>( uiItem ) || dynamic_cast<RimSummaryCurve*>( uiItem ) ||
              dynamic_cast<RimSurface*>( uiItem ) )
         {
-            // TODO: Remember to handle reservoir holding the main grid
             itemflags |= Qt::ItemIsDragEnabled;
+        }
+        else
+        {
+            auto sumAdrColl = dynamic_cast<RimSummaryAddressCollection*>( uiItem );
+            if ( sumAdrColl && sumAdrColl->canBeDragged() )
+            {
+                itemflags |= Qt::ItemIsDragEnabled;
+            }
+            auto sumAdr = dynamic_cast<RimSummaryAddress*>( uiItem );
+            if ( sumAdr )
+            {
+                itemflags |= Qt::ItemIsDragEnabled;
+            }
+            auto eclipseResultAdr = dynamic_cast<RimEclipseResultAddress*>( uiItem );
+            if ( eclipseResultAdr )
+            {
+                itemflags |= Qt::ItemIsDragEnabled;
+            }
         }
 
         if ( m_dragItems.empty() ) return itemflags;
@@ -339,8 +381,7 @@ Qt::ItemFlags RiuDragDrop::flags( const QModelIndex& index ) const
 //--------------------------------------------------------------------------------------------------
 bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, int row, int column, const QModelIndex& dropTargetIndex )
 {
-    CVF_ASSERT( RiaGuiApplication::activeMainWindow() );
-    caf::PdmUiTreeView*   uiTreeView       = RiaGuiApplication::activeMainWindow()->projectTreeView();
+    caf::PdmUiTreeView*   uiTreeView       = m_projectTreeView;
     caf::PdmUiItem*       dropTargetUiItem = uiTreeView->uiItemFromModelIndex( dropTargetIndex );
     caf::PdmObjectHandle* dropTarget       = dynamic_cast<caf::PdmObjectHandle*>( dropTargetUiItem );
 
@@ -351,7 +392,7 @@ bool RiuDragDrop::dropMimeData( const QMimeData* data, Qt::DropAction action, in
         if ( myMimeData && dropTargetIndex.isValid() )
         {
             QModelIndexList indices = myMimeData->indexes();
-            objectGroupFromModelIndexes( &draggedObjects, indices );
+            objectGroupFromModelIndexes( uiTreeView, &draggedObjects, indices );
         }
         else
         {
@@ -655,12 +696,13 @@ bool RiuDragDrop::handleSummaryCaseMainCollectionDrop( Qt::DropAction           
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDragDrop::objectGroupFromModelIndexes( caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes )
+void RiuDragDrop::objectGroupFromModelIndexes( caf::PdmUiTreeView*    uiTreeView,
+                                               caf::PdmObjectGroup*   objectGroup,
+                                               const QModelIndexList& indexes )
 {
     CVF_ASSERT( objectGroup );
 
     objectGroup->objects.clear();
-    caf::PdmUiTreeView* uiTreeView = RiuMainWindow::instance()->projectTreeView();
 
     for ( int i = 0; i < indexes.size(); i++ )
     {
@@ -727,4 +769,83 @@ bool RiuDragDrop::handleSurfaceCollectionDrop( Qt::DropAction        action,
     targetCollection->updateConnectedEditors();
 
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuDragDrop::handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObjectHandle*>& droppedObjects )
+{
+    if ( !event ) return false;
+
+    const MimeDataWithIndexes* mimeData = nullptr;
+    Qt::KeyboardModifiers      keyModifiers;
+
+    bool bResult = false;
+
+    if ( event->type() == QEvent::Drop )
+    {
+        // These drop events come from Qwt
+        auto dropEvent = static_cast<QDropEvent*>( event );
+        if ( dropEvent )
+        {
+            mimeData     = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+            keyModifiers = dropEvent->keyboardModifiers();
+
+            dropEvent->acceptProposedAction();
+            dropEvent->accept();
+            bResult = true;
+        }
+    }
+    else if ( event->type() == QEvent::GraphicsSceneDrop )
+    {
+        // These drop events come from QtChart
+        auto dropEvent = static_cast<QGraphicsSceneDragDropEvent*>( event );
+        if ( dropEvent )
+        {
+            mimeData = qobject_cast<const MimeDataWithIndexes*>( dropEvent->mimeData() );
+
+            dropEvent->acceptProposedAction();
+            dropEvent->accept();
+            bResult = true;
+        }
+    }
+
+    if ( mimeData )
+    {
+        auto objects = convertToObjects( mimeData );
+        droppedObjects.insert( droppedObjects.end(), objects.begin(), objects.end() );
+
+        bResult = true;
+    }
+
+    return bResult;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmObjectHandle*> RiuDragDrop::convertToObjects( const QMimeData* mimeData )
+{
+    std::vector<caf::PdmObjectHandle*> droppedObjects;
+    if ( mimeData )
+    {
+        QString mimeType = caf::PdmUiDragDropInterface::mimeTypeForObjectReferenceList();
+
+        QByteArray data = mimeData->data( mimeType );
+        if ( data.isEmpty() ) return {};
+
+        QStringList objectReferences;
+        QDataStream in( &data, QIODevice::ReadOnly );
+        in >> objectReferences;
+
+        auto proj = RimProject::current();
+        for ( const auto& objRef : objectReferences )
+        {
+            auto obj = caf::PdmReferenceHelper::objectFromReference( proj, objRef );
+            if ( obj ) droppedObjects.push_back( obj );
+        }
+    }
+
+    return droppedObjects;
 }

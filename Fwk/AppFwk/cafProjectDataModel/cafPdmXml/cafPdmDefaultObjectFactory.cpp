@@ -1,10 +1,62 @@
 #include "cafPdmDefaultObjectFactory.h"
 
+#include <set>
+
 namespace caf
 {
 //--------------------------------------------------------------------------------------------------
 ///  PdmObjectFactory implementations
 //--------------------------------------------------------------------------------------------------
+
+PdmDefaultObjectFactory* PdmDefaultObjectFactory::sm_singleton = nullptr;
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmDefaultObjectFactory::~PdmDefaultObjectFactory()
+{
+    // Each keyword alias is connected to the one creator object, so it is not possible to traverse the map directly and
+    // delete the creator objects. Create a set of unique creator objects.
+    std::set<PdmObjectCreatorBase*> uniqueObjects;
+
+    for ( const auto& f : m_factoryMap )
+    {
+        uniqueObjects.insert( f.second );
+    }
+
+    for ( auto obj : uniqueObjects )
+    {
+        if ( obj ) delete obj;
+    }
+
+    m_factoryMap.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmDefaultObjectFactory* PdmDefaultObjectFactory::instance()
+{
+    createSingleton();
+    return sm_singleton;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmDefaultObjectFactory::createSingleton()
+{
+    if ( !sm_singleton ) sm_singleton = new PdmDefaultObjectFactory;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmDefaultObjectFactory::deleteSingleton()
+{
+    if ( sm_singleton ) delete sm_singleton;
+    sm_singleton = nullptr;
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -17,10 +69,8 @@ PdmObjectHandle* PdmDefaultObjectFactory::create( const QString& classNameKeywor
     {
         return entryIt->second->create();
     }
-    else
-    {
-        return nullptr;
-    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -36,15 +86,6 @@ std::vector<QString> PdmDefaultObjectFactory::classKeywords() const
     }
 
     return names;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-PdmDefaultObjectFactory* PdmDefaultObjectFactory::instance()
-{
-    static PdmDefaultObjectFactory* fact = new PdmDefaultObjectFactory;
-    return fact;
 }
 
 } // End of namespace caf

@@ -64,34 +64,31 @@ const QDateTime RimWellLogFile::DEFAULT_DATE_TIME = RiaQDateTimeTools::createUtc
 //--------------------------------------------------------------------------------------------------
 RimWellLogFile::RimWellLogFile()
 {
-    CAF_PDM_InitObject( "Well LAS File Info", ":/LasFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well LAS File Info", ":/LasFile16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "" );
     m_wellName.uiCapability()->setUiReadOnly( true );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_wellName );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellName );
 
-    CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_date, "Date", "Date" );
     m_date.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "Filename", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fileName, "FileName", "Filename" );
     m_fileName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
     m_name.uiCapability()->setUiReadOnly( true );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_name );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelNames, "WellLogFileChannels", "", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannelNames );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelNames, "WellLogFileChannels", "" );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_wellLogChannelNames );
 
     CAF_PDM_InitField( &m_wellFlowCondition,
                        "WellFlowCondition",
                        caf::AppEnum<RimWellLogFile::WellFlowCondition>( RimWellLogFile::WELL_FLOW_COND_STANDARD ),
-                       "Well Flow Rates",
-                       "",
-                       "",
-                       "" );
+                       "Well Flow Rates" );
 
-    CAF_PDM_InitField( &m_invalidDateMessage, "InvalidDateMessage", QString( "Invalid or no date" ), "", "", "", "" );
+    CAF_PDM_InitField( &m_invalidDateMessage, "InvalidDateMessage", QString( "Invalid or no date" ), "" );
     m_invalidDateMessage.uiCapability()->setUiReadOnly( true );
     m_invalidDateMessage.xmlCapability()->disableIO();
 
@@ -104,7 +101,7 @@ RimWellLogFile::RimWellLogFile()
 //--------------------------------------------------------------------------------------------------
 RimWellLogFile::~RimWellLogFile()
 {
-    m_wellLogChannelNames.deleteAllChildObjects();
+    m_wellLogChannelNames.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -175,7 +172,7 @@ bool RimWellLogFile::readFile( QString* errorMessage )
         m_date = DEFAULT_DATE_TIME;
     }
 
-    m_wellLogChannelNames.deleteAllChildObjects();
+    m_wellLogChannelNames.deleteChildren();
 
     QStringList wellLogNames = m_wellLogDataFile->wellLogChannelNames();
     for ( int logIdx = 0; logIdx < wellLogNames.size(); logIdx++ )

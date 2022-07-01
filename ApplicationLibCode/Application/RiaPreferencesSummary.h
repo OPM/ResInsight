@@ -19,8 +19,18 @@
 #pragma once
 
 #include "cafAppEnum.h"
+#include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
+
+#include "RiaDefines.h"
+
+// Include to make Pdm work for cvf::Color
+#include "cafPdmFieldCvfColor.h"
+
+#include <QString>
+
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -54,6 +64,17 @@ public:
     };
     using SummaryHistoryCurveStyleModeType = caf::AppEnum<SummaryHistoryCurveStyleMode>;
 
+    enum class DefaultSummaryPlotType
+    {
+        NONE,
+        DATA_VECTORS,
+        PLOT_TEMPLATES
+    };
+    using DefaultSummaryPlotEnum = caf::AppEnum<DefaultSummaryPlotType>;
+
+    using ColumnCountEnum = caf::AppEnum<RiaDefines::ColumnCount>;
+    using RowCountEnum    = caf::AppEnum<RiaDefines::RowCount>;
+
 public:
     RiaPreferencesSummary();
 
@@ -66,6 +87,12 @@ public:
     bool createH5SummaryDataFiles() const;
     int  createH5SummaryDataThreadCount() const;
 
+    DefaultSummaryPlotType defaultSummaryPlotType() const;
+    std::vector<QString>   defaultSummaryPlotTemplates( bool returnEnsembleTemplates ) const;
+    bool                   isDefaultSummaryPlotTemplate( QString filename ) const;
+    void                   addToDefaultPlotTemplates( QString filename );
+    void                   removeFromDefaultPlotTemplates( QString filename );
+
     void appendRestartFileGroup( caf::PdmUiOrdering& uiOrdering ) const;
     void appendItemsToPlottingGroup( caf::PdmUiOrdering& uiOrdering ) const;
 
@@ -77,15 +104,30 @@ public:
     SummaryRestartFilesImportMode gridImportMode() const;
     SummaryRestartFilesImportMode summaryEnsembleImportMode() const;
     QString                       defaultSummaryCurvesTextFilter() const;
+    bool                          colorCurvesByPhase() const;
+    bool                          appendHistoryVectors() const;
 
     SummaryHistoryCurveStyleMode defaultSummaryHistoryCurveStyle() const;
 
+    RiaDefines::ColumnCount defaultMultiPlotColumnCount() const;
+    RiaDefines::RowCount    defaultMultiPlotRowCount() const;
+
+    cvf::Color3f historyCurveContrastColor() const;
+
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
+    caf::PdmField<DefaultSummaryPlotEnum> m_defaultSummaryPlot;
+    caf::PdmField<bool>                   m_selectDefaultTemplates;
+    caf::PdmField<std::vector<QString>>   m_selectedDefaultTemplates;
+
     caf::PdmField<bool>                              m_summaryRestartFilesShowImportDialog;
     caf::PdmField<SummaryRestartFilesImportModeType> m_summaryImportMode;
     caf::PdmField<SummaryRestartFilesImportModeType> m_gridImportMode;
@@ -93,6 +135,8 @@ private:
 
     caf::PdmField<QString>                          m_defaultSummaryCurvesTextFilter;
     caf::PdmField<SummaryHistoryCurveStyleModeType> m_defaultSummaryHistoryCurveStyle;
+    caf::PdmField<bool>                             m_curveColorByPhase;
+    caf::PdmField<bool>                             m_appendHistoryVectors;
 
     caf::PdmField<bool> m_showSummaryTimeAsLongString;
     caf::PdmField<bool> m_useMultipleThreadsWhenLoadingSummaryCases;
@@ -104,4 +148,9 @@ private:
     caf::PdmField<int>  m_createH5SummaryFileThreadCount;
 
     caf::PdmField<SummaryReaderModeType> m_summaryReader;
+
+    caf::PdmField<ColumnCountEnum> m_defaultColumnCount;
+    caf::PdmField<RowCountEnum>    m_defaultRowsPerPage;
+
+    caf::PdmField<cvf::Color3f> m_historyCurveContrastColor;
 };

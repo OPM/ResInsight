@@ -42,14 +42,9 @@ RiaSummaryCurveDefinition::RiaSummaryCurveDefinition( RimSummaryCase*           
                                                       bool                            isEnsembleCurve )
     : m_summaryCase( summaryCase )
     , m_summaryAddress( summaryAddress )
+    , m_ensemble( nullptr )
     , m_isEnsembleCurve( isEnsembleCurve )
 {
-    if ( summaryCase )
-    {
-        RimSummaryCaseCollection* ensemble = nullptr;
-        summaryCase->firstAncestorOfType( ensemble );
-        m_ensemble = ensemble;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -94,6 +89,14 @@ const RifEclipseSummaryAddress& RiaSummaryCurveDefinition::summaryAddress() cons
 bool RiaSummaryCurveDefinition::isEnsembleCurve() const
 {
     return m_isEnsembleCurve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaSummaryCurveDefinition::setSummaryAddress( const RifEclipseSummaryAddress& address )
+{
+    m_summaryAddress = address;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,7 +229,7 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
 {
     m_singleSummaryCases.clear();
     m_ensembles.clear();
-    m_quantityNames.clear();
+    m_vectorNames.clear();
     m_summaryAdresses.clear();
 
     for ( const auto& curveDef : curveDefs )
@@ -252,7 +255,7 @@ void RiaSummaryCurveDefinitionAnalyser::setCurveDefinitions( const std::vector<R
         {
             const RifEclipseSummaryAddress& address = curveDef.summaryAddress();
 
-            m_quantityNames.insert( address.quantityName() );
+            m_vectorNames.insert( address.vectorName() );
             m_summaryAdresses.insert( address );
         }
     }

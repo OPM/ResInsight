@@ -54,6 +54,8 @@
 
 #include <QValidator>
 
+#include <limits>
+
 namespace caf
 {
 template <>
@@ -120,41 +122,41 @@ RimPolygonFilter::RimPolygonFilter()
     : m_pickTargetsEventHandler( new RicPolylineTargetsPickEventHandler( this ) )
     , m_intervalTool( true )
 {
-    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png", "", "" );
+    CAF_PDM_InitObject( "Polyline Filter", ":/CellFilter_Polygon.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical Filter", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polyFilterMode, "PolygonFilterType", "Vertical Filter" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polyIncludeType, "PolyIncludeType", "Cells to include" );
 
-    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_enablePicking, "EnablePicking", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_enablePicking );
     m_enablePicking.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_targets, "Targets", "Targets" );
     m_targets.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_targets.uiCapability()->setUiTreeChildrenHidden( true );
     m_targets.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_targets.uiCapability()->setCustomContextMenuEnabled( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_srcCase, "Case", "Case" );
     m_srcCase.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines", "", "", "" );
-    CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres", "", "", "" );
+    CAF_PDM_InitField( &m_showLines, "ShowLines", true, "Show Lines" );
+    CAF_PDM_InitField( &m_showSpheres, "ShowSpheres", false, "Show Spheres" );
 
-    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness", "", "", "" );
-    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor", "", "", "" );
+    CAF_PDM_InitField( &m_lineThickness, "LineThickness", 3, "Line Thickness" );
+    CAF_PDM_InitField( &m_sphereRadiusFactor, "SphereRadiusFactor", 0.15, "Sphere Radius Factor" );
 
-    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color", "", "", "" );
-    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color", "", "", "" );
+    CAF_PDM_InitField( &m_lineColor, "LineColor", cvf::Color3f( cvf::Color3f::WHITE ), "Line Color" );
+    CAF_PDM_InitField( &m_sphereColor, "SphereColor", cvf::Color3f( cvf::Color3f::WHITE ), "Sphere Color" );
 
-    CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter", "", "", "" );
+    CAF_PDM_InitField( &m_enableFiltering, "EnableFiltering", false, "Enable Filter" );
 
-    CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter", "", "", "" );
+    CAF_PDM_InitField( &m_enableKFilter, "EnableKFilter", false, "Enable K Range Filter" );
     CAF_PDM_InitFieldNoDefault( &m_kFilterStr, "KRangeFilter", "K Range Filter", "", "Example: 2,4,10-20,31", "" );
 
-    CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth", "", "", "" );
-    CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane", "", "", "" );
+    CAF_PDM_InitField( &m_polygonPlaneDepth, "PolygonPlaneDepth", 0.0, "Polygon Plane Depth" );
+    CAF_PDM_InitField( &m_lockPolygonToPlane, "LockPolygon", false, "Lock Polygon to Plane" );
 
     m_polygonPlaneDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_polygonPlaneDepth.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
@@ -255,7 +257,7 @@ QString RimPolygonFilter::fullName() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 {
-    return m_targets.childObjects();
+    return m_targets.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,7 +265,7 @@ std::vector<RimPolylineTarget*> RimPolygonFilter::activeTargets() const
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::insertTarget( const RimPolylineTarget* targetToInsertBefore, RimPolylineTarget* targetToInsert )
 {
-    size_t index = m_targets.index( targetToInsertBefore );
+    size_t index = m_targets.indexOf( targetToInsertBefore );
     if ( index < m_targets.size() )
         m_targets.insert( index, targetToInsert );
     else
@@ -277,7 +279,7 @@ void RimPolygonFilter::insertTarget( const RimPolylineTarget* targetToInsertBefo
 //--------------------------------------------------------------------------------------------------
 void RimPolygonFilter::deleteTarget( RimPolylineTarget* targetToDelete )
 {
-    m_targets.removeChildObject( targetToDelete );
+    m_targets.removeChild( targetToDelete );
     delete targetToDelete;
 }
 
@@ -900,6 +902,45 @@ int RimPolygonFilter::findEclipseKLayer( const std::vector<cvf::Vec3d>& points, 
             mainGrid->ijkFromCellIndexUnguarded( cIdx, &ni, &nj, &nk );
             if ( mainGrid->isCellValid( ni, nj, nk ) ) return static_cast<int>( nk );
         }
+    }
+
+    auto findKLayerBelowPoint = []( const cvf::Vec3d& point, RigMainGrid* mainGrid ) {
+        // Create a bounding box (ie a ray) from the point down to minimum of grid
+        cvf::Vec3d lowestPoint( point.x(), point.y(), mainGrid->boundingBox().min().z() );
+
+        cvf::BoundingBox rayBBox;
+        rayBBox.add( point );
+        rayBBox.add( lowestPoint );
+
+        // Find the cells intersecting the ray
+        std::vector<size_t> allCellIndices;
+        mainGrid->findIntersectingCells( rayBBox, &allCellIndices );
+
+        // Get the minimum K layer index
+        int  minK    = std::numeric_limits<int>::max();
+        bool anyHits = false;
+        for ( size_t cIdx : allCellIndices )
+        {
+            if ( cIdx != cvf::UNDEFINED_SIZE_T )
+            {
+                size_t ni, nj, nk;
+                mainGrid->ijkFromCellIndexUnguarded( cIdx, &ni, &nj, &nk );
+                if ( mainGrid->isCellValid( ni, nj, nk ) )
+                {
+                    anyHits = true;
+                    minK    = std::min( minK, static_cast<int>( nk ) );
+                }
+            }
+        }
+
+        return anyHits ? minK : -1;
+    };
+
+    // shoot a ray down from each point to try to find a valid hit there
+    for ( size_t p = 0; p < points.size() - 1; p++ )
+    {
+        int k = findKLayerBelowPoint( points[p], data->mainGrid() );
+        if ( k != -1 ) return k;
     }
 
     // loop over all sub-grids to find one with a cell hit in case main grid search failed

@@ -22,16 +22,12 @@
 #include <set>
 #include <vector>
 
-#include <qwt_plot.h>
-
 class RimAsciiDataCurve;
 class RimSummaryCurve;
 class RimPlotAxisProperties;
 class RiaSummaryCurveDefinition;
 
-class RiuQwtPlotWidget;
-
-class QwtPlotCurve;
+class RiuPlotWidget;
 
 class RimSummaryPlotAxisFormatter
 {
@@ -42,10 +38,11 @@ public:
                                  const std::vector<RimAsciiDataCurve*>&        asciiCurves,
                                  const std::set<QString>&                      timeHistoryCurveQuantities );
 
-    void applyAxisPropertiesToPlot( RiuQwtPlotWidget* qwtPlot );
+    void applyAxisPropertiesToPlot( RiuPlotWidget* qwtPlot );
 
 private:
     QString autoAxisTitle() const;
+    QString createAxisObjectName() const;
 
     static std::string shortCalculationName( const std::string& calculationName );
 

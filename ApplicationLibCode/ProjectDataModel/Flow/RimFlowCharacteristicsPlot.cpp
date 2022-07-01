@@ -26,6 +26,7 @@
 #include "RigEclipseCaseData.h"
 #include "RigFlowDiagResults.h"
 
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipsePropertyFilter.h"
 #include "RimEclipsePropertyFilterCollection.h"
@@ -33,7 +34,6 @@
 #include "RimEclipseView.h"
 #include "RimFaultInViewCollection.h"
 #include "RimFlowDiagSolution.h"
-#include "RimProject.h"
 
 #include "RicEclipsePropertyFilterFeatureImpl.h"
 #include "RicSelectOrCreateViewFeatureImpl.h"
@@ -68,17 +68,17 @@ CAF_PDM_SOURCE_INIT( RimFlowCharacteristicsPlot, "FlowCharacteristicsPlot" );
 //--------------------------------------------------------------------------------------------------
 RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
 {
-    CAF_PDM_InitObject( "Flow Characteristics", ":/FlowCharPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Flow Characteristics", ":/FlowCharPlot16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "FlowCase", "Case", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "FlowCase", "Case" );
+    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Flow Diag Solution" );
     m_flowDiagSolution.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeStepSelectionType, "TimeSelectionType", "Time Steps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepSelectionType, "TimeSelectionType", "Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "SelectedTimeSteps", "" );
     m_selectedTimeSteps.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeStepsUi, "SelectedTimeStepsUi", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_applyTimeSteps, "ApplyTimeSteps", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeStepsUi, "SelectedTimeStepsUi", "" );
+    CAF_PDM_InitFieldNoDefault( &m_applyTimeSteps, "ApplyTimeSteps", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_applyTimeSteps );
 
     CAF_PDM_InitField( &m_maxPvFraction,
@@ -90,19 +90,19 @@ RimFlowCharacteristicsPlot::RimFlowCharacteristicsPlot()
                        "Volume.",
                        "" );
 
-    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Legend", "", "", "" );
+    CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Legend" );
 
     // Region group
-    CAF_PDM_InitFieldNoDefault( &m_cellFilter, "CellFilter", "Cell Filter", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "CellFilterView", "View", "", "", "" );
-    CAF_PDM_InitField( &m_tracerFilter, "TracerFilter", QString(), "Tracer Filter", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTracerNames, "SelectedTracerNames", " ", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilter, "CellFilter", "Cell Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "CellFilterView", "View" );
+    CAF_PDM_InitField( &m_tracerFilter, "TracerFilter", QString(), "Tracer Filter" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTracerNames, "SelectedTracerNames", " " );
     m_selectedTracerNames.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
-    CAF_PDM_InitFieldNoDefault( &m_showRegion, "ShowRegion", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_showRegion, "ShowRegion", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_showRegion );
 
-    CAF_PDM_InitField( &m_minCommunication, "MinCommunication", 0.0, "Min Communication", "", "", "" );
-    CAF_PDM_InitField( &m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]", "", "", "" );
+    CAF_PDM_InitField( &m_minCommunication, "MinCommunication", 0.0, "Min Communication" );
+    CAF_PDM_InitField( &m_maxTof, "MaxTof", 146000, "Max Time of Flight [days]" );
 
     this->m_showWindow = false;
     setAsPlotMdiWindow();
@@ -262,24 +262,18 @@ void RimFlowCharacteristicsPlot::updateFonts()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimFlowCharacteristicsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimFlowCharacteristicsPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
     if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> cases;
-            proj->descendantsIncludingThisOfType( cases );
-            for ( RimEclipseResultCase* c : cases )
+            if ( c->defaultFlowDiagSolution() )
             {
-                if ( c->defaultFlowDiagSolution() )
-                {
-                    options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
-                }
+                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
             }
         }
     }
@@ -399,29 +393,23 @@ QList<caf::PdmOptionItemInfo>
 void RimFlowCharacteristicsPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     {
-        // Ensure a case is selected if one is available
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        RimEclipseResultCase* defaultCase = nullptr;
+
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> cases;
-            proj->descendantsIncludingThisOfType( cases );
-            RimEclipseResultCase* defaultCase = nullptr;
-            for ( RimEclipseResultCase* c : cases )
+            if ( c->defaultFlowDiagSolution() )
             {
-                if ( c->defaultFlowDiagSolution() )
-                {
-                    if ( !defaultCase ) defaultCase = c; // Select first
-                }
+                if ( !defaultCase ) defaultCase = c; // Select first
             }
-            if ( !m_case() && defaultCase )
+        }
+        if ( !m_case() && defaultCase )
+        {
+            m_case             = defaultCase;
+            m_flowDiagSolution = m_case->defaultFlowDiagSolution();
+            if ( !m_case()->reservoirViews.empty() )
             {
-                m_case             = defaultCase;
-                m_flowDiagSolution = m_case->defaultFlowDiagSolution();
-                if ( !m_case()->reservoirViews.empty() )
-                {
-                    m_cellFilterView = m_case()->reservoirViews()[0];
-                }
+                m_cellFilterView = m_case()->reservoirViews()[0];
             }
         }
     }

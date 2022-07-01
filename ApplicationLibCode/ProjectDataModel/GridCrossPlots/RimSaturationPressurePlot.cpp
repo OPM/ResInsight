@@ -40,7 +40,7 @@ CAF_PDM_SOURCE_INIT( RimSaturationPressurePlot, "RimSaturationPressurePlot" );
 //--------------------------------------------------------------------------------------------------
 RimSaturationPressurePlot::RimSaturationPressurePlot()
 {
-    CAF_PDM_InitObject( "Saturation Pressure Plot", ":/SummaryXPlotLight16x16.png", "", "" );
+    CAF_PDM_InitObject( "Saturation Pressure Plot", ":/SummaryXPlotLight16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -169,7 +169,7 @@ void RimSaturationPressurePlot::assignCaseAndEquilibriumRegion( RiaDefines::Poro
     }
 
     RimPlotAxisProperties* yAxisProps = yAxisProperties();
-    yAxisProps->setInvertedAxis( true );
+    yAxisProps->setAxisInverted( true );
 
     {
         RimEquilibriumAxisAnnotation* annotation = new RimEquilibriumAxisAnnotation;

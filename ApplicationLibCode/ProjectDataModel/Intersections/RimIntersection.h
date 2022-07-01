@@ -52,8 +52,7 @@ protected:
     virtual RimIntersectionResultsDefinitionCollection* findSeparateResultsCollection();
 
     caf::PdmFieldHandle*          objectToggleField() final;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineSeparateDataSourceUi( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void updateDefaultSeparateDataSource();

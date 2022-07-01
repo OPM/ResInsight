@@ -44,7 +44,7 @@ QVariant PdmUiFieldHandle::uiValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> PdmUiFieldHandle::valueOptions( bool* useOptionsOnly ) const
+QList<caf::PdmOptionItemInfo> PdmUiFieldHandle::valueOptions() const
 {
     return QList<PdmOptionItemInfo>();
 }
@@ -124,7 +124,7 @@ void PdmUiFieldHandle::setAutoAddingOptionFromValue( bool isAddingValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldHandle::setValueFromUiEditor( const QVariant& uiValue )
+void PdmUiFieldHandle::setValueFromUiEditor( const QVariant& uiValue, bool notifyFieldChanged )
 {
 }
 

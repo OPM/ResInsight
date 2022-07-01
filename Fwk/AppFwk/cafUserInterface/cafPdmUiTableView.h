@@ -59,7 +59,7 @@ class PdmUiTableView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiTableView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    PdmUiTableView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~PdmUiTableView() override;
 
     void setChildArrayField( PdmChildArrayFieldHandle* childArrayField );

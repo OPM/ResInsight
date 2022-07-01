@@ -145,7 +145,7 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateLineSegementTransfo
 //--------------------------------------------------------------------------------------------------
 void RivExtrudedCurveIntersectionGeometryGenerator::calculateTransformedPolyline()
 {
-    CVF_ASSERT( m_lineSegmentTransforms.size() == m_polylines.size() );
+    if ( m_lineSegmentTransforms.size() != m_polylines.size() ) return;
 
     for ( size_t lineIdx = 0; lineIdx < m_polylines.size(); ++lineIdx )
     {
@@ -291,6 +291,30 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
     calculateLineSegementTransforms();
     calculateTransformedPolyline();
 
+    const double gridRadius = gridBBox.radius();
+
+    // set up our horizontal cut planes
+    const double topDepth    = -1.0 * m_intersection->upperFilterDepth( gridRadius );
+    const double bottomDepth = -1.0 * m_intersection->lowerFilterDepth( gridRadius );
+
+    std::array<cvf::Vec3d, 8> corners;
+    gridBBox.cornerVertices( corners.data() );
+
+    cvf::Vec3d p1_low( corners[0].x(), corners[0].y(), bottomDepth );
+    cvf::Vec3d p2_low( corners[1].x(), corners[1].y(), bottomDepth );
+    cvf::Vec3d p3_low( corners[2].x(), corners[2].y(), bottomDepth );
+
+    cvf::Plane lowPlane;
+    lowPlane.setFromPoints( p1_low, p2_low, p3_low );
+
+    cvf::Vec3d p1_high( p1_low.x(), p1_low.y(), topDepth );
+    cvf::Vec3d p2_high( p2_low.x(), p2_low.y(), topDepth );
+    cvf::Vec3d p3_high( p3_low.x(), p3_low.y(), topDepth );
+
+    cvf::Plane highPlane;
+    highPlane.setFromPoints( p1_high, p2_high, p3_high );
+    highPlane.flip();
+
     for ( size_t pLineIdx = 0; pLineIdx < m_polylines.size(); ++pLineIdx )
     {
         const std::vector<cvf::Vec3d>& polyLine = m_polylines[pLineIdx];
@@ -346,6 +370,9 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                 sectionBBox.add( p2 + maxHeightVec );
                 sectionBBox.add( p2 - maxHeightVec );
             }
+
+            sectionBBox.cutBelow( bottomDepth );
+            sectionBBox.cutAbove( topDepth );
 
             std::vector<size_t> columnCellCandidates;
             m_hexGrid->findIntersectingCells( sectionBBox, &columnCellCandidates );
@@ -412,15 +439,31 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                     }
                 }
 
-                std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
-                std::vector<int>                                   cellFaceForEachClippedTriangleEdge;
+                std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes_stage1;
+                std::vector<int>                                   cellFaceForEachClippedTriangleEdge_stage1;
 
                 caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes( hexPlaneCutTriangleVxes,
                                                                                       cellFaceForEachTriangleEdge,
                                                                                       p1Plane,
                                                                                       p2Plane,
+                                                                                      &clippedTriangleVxes_stage1,
+                                                                                      &cellFaceForEachClippedTriangleEdge_stage1 );
+
+                for ( caf::HexGridIntersectionTools::ClipVx& clvx : clippedTriangleVxes_stage1 )
+                    if ( !clvx.isVxIdsNative ) clvx.derivedVxLevel = 0;
+
+                std::vector<caf::HexGridIntersectionTools::ClipVx> clippedTriangleVxes;
+                std::vector<int>                                   cellFaceForEachClippedTriangleEdge;
+
+                caf::HexGridIntersectionTools::clipTrianglesBetweenTwoParallelPlanes( clippedTriangleVxes_stage1,
+                                                                                      cellFaceForEachClippedTriangleEdge_stage1,
+                                                                                      lowPlane,
+                                                                                      highPlane,
                                                                                       &clippedTriangleVxes,
                                                                                       &cellFaceForEachClippedTriangleEdge );
+
+                for ( caf::HexGridIntersectionTools::ClipVx& clvx : clippedTriangleVxes )
+                    if ( !clvx.isVxIdsNative && clvx.derivedVxLevel == -1 ) clvx.derivedVxLevel = 1;
 
                 size_t clippedTriangleCount = clippedTriangleVxes.size() / 3;
 
@@ -429,7 +472,6 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                     uint triVxIdx = tIdx * 3;
 
                     // Accumulate triangle vertices
-
                     cvf::Vec3d point0( clippedTriangleVxes[triVxIdx + 0].vx );
                     cvf::Vec3d point1( clippedTriangleVxes[triVxIdx + 1].vx );
                     cvf::Vec3d point2( clippedTriangleVxes[triVxIdx + 2].vx );
@@ -452,13 +494,11 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                     triangleVertices.emplace_back( point2 );
 
                     // Accumulate mesh lines
-
                     meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 0, globalCellIdx, point0, point1 );
                     meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 1, globalCellIdx, point1, point2 );
                     meshAcc.accumulateMeshLines( cellFaceForEachClippedTriangleEdge, triVxIdx + 2, globalCellIdx, point2, point0 );
 
                     // Mapping to cell index
-
                     m_triangleToCellIdxMap.push_back( globalCellIdx );
 
                     // Interpolation from nodes
@@ -473,16 +513,100 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
                         }
                         else
                         {
-                            caf::HexGridIntersectionTools::ClipVx cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
-                            caf::HexGridIntersectionTools::ClipVx cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
+                            caf::HexGridIntersectionTools::ClipVx cvx1;
+                            caf::HexGridIntersectionTools::ClipVx cvx2;
 
-                            m_triVxToCellCornerWeights.emplace_back( cvx1.clippedEdgeVx1Id,
-                                                                     cvx1.clippedEdgeVx2Id,
-                                                                     cvx1.normDistFromEdgeVx1,
-                                                                     cvx2.clippedEdgeVx1Id,
-                                                                     cvx2.clippedEdgeVx2Id,
-                                                                     cvx2.normDistFromEdgeVx1,
-                                                                     cvx.normDistFromEdgeVx1 );
+                            if ( cvx.derivedVxLevel == 0 )
+                            {
+                                cvx1 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx1Id];
+                                cvx2 = hexPlaneCutTriangleVxes[cvx.clippedEdgeVx2Id];
+                            }
+                            else if ( cvx.derivedVxLevel == 1 )
+                            {
+                                cvx1 = clippedTriangleVxes_stage1[cvx.clippedEdgeVx1Id];
+                                cvx2 = clippedTriangleVxes_stage1[cvx.clippedEdgeVx2Id];
+                            }
+                            else
+                            {
+                                CVF_ASSERT( false );
+                            }
+
+                            if ( cvx1.isVxIdsNative && cvx2.isVxIdsNative )
+                            {
+                                m_triVxToCellCornerWeights.emplace_back( cvx1.clippedEdgeVx1Id,
+                                                                         cvx1.clippedEdgeVx2Id,
+                                                                         cvx1.normDistFromEdgeVx1,
+                                                                         cvx2.clippedEdgeVx1Id,
+                                                                         cvx2.clippedEdgeVx2Id,
+                                                                         cvx2.normDistFromEdgeVx1,
+                                                                         cvx.normDistFromEdgeVx1 );
+                            }
+                            else
+                            {
+                                caf::HexGridIntersectionTools::ClipVx cvx11;
+                                caf::HexGridIntersectionTools::ClipVx cvx12;
+                                caf::HexGridIntersectionTools::ClipVx cvx21;
+                                caf::HexGridIntersectionTools::ClipVx cvx22;
+
+                                if ( cvx1.isVxIdsNative )
+                                {
+                                    cvx11 = cvx1;
+                                    cvx12 = cvx1;
+                                }
+                                else if ( cvx1.derivedVxLevel == 0 )
+                                {
+                                    cvx11 = hexPlaneCutTriangleVxes[cvx1.clippedEdgeVx1Id];
+                                    cvx12 = hexPlaneCutTriangleVxes[cvx1.clippedEdgeVx2Id];
+                                }
+                                else if ( cvx2.derivedVxLevel == 1 )
+                                {
+                                    cvx11 = clippedTriangleVxes_stage1[cvx1.clippedEdgeVx1Id];
+                                    cvx12 = clippedTriangleVxes_stage1[cvx1.clippedEdgeVx2Id];
+                                }
+                                else
+                                {
+                                    CVF_ASSERT( false );
+                                }
+
+                                if ( cvx2.isVxIdsNative )
+                                {
+                                    cvx21 = cvx2;
+                                    cvx22 = cvx2;
+                                }
+                                else if ( cvx2.derivedVxLevel == 0 )
+                                {
+                                    cvx21 = hexPlaneCutTriangleVxes[cvx2.clippedEdgeVx1Id];
+                                    cvx22 = hexPlaneCutTriangleVxes[cvx2.clippedEdgeVx2Id];
+                                }
+                                else if ( cvx2.derivedVxLevel == 1 )
+                                {
+                                    cvx21 = clippedTriangleVxes_stage1[cvx2.clippedEdgeVx1Id];
+                                    cvx22 = clippedTriangleVxes_stage1[cvx2.clippedEdgeVx2Id];
+                                }
+                                else
+                                {
+                                    CVF_ASSERT( false );
+                                }
+
+                                CVF_TIGHT_ASSERT( cvx11.isVxIdsNative && cvx12.isVxIdsNative && cvx21.isVxIdsNative &&
+                                                  cvx22.isVxIdsNative );
+
+                                m_triVxToCellCornerWeights.emplace_back( cvx11.clippedEdgeVx1Id,
+                                                                         cvx11.clippedEdgeVx2Id,
+                                                                         cvx11.normDistFromEdgeVx1,
+                                                                         cvx12.clippedEdgeVx1Id,
+                                                                         cvx12.clippedEdgeVx2Id,
+                                                                         cvx2.normDistFromEdgeVx1,
+                                                                         cvx21.clippedEdgeVx1Id,
+                                                                         cvx21.clippedEdgeVx2Id,
+                                                                         cvx21.normDistFromEdgeVx1,
+                                                                         cvx22.clippedEdgeVx1Id,
+                                                                         cvx22.clippedEdgeVx2Id,
+                                                                         cvx22.normDistFromEdgeVx1,
+                                                                         cvx1.normDistFromEdgeVx1,
+                                                                         cvx2.normDistFromEdgeVx1,
+                                                                         cvx.normDistFromEdgeVx1 );
+                            }
                         }
                     }
                 }

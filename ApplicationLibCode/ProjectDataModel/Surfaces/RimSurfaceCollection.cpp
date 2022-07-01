@@ -49,17 +49,17 @@ CAF_PDM_SOURCE_INIT( RimSurfaceCollection, "SurfaceCollection" );
 //--------------------------------------------------------------------------------------------------
 RimSurfaceCollection::RimSurfaceCollection()
 {
-    CAF_PDM_InitScriptableObject( "Surfaces", ":/ReservoirSurfaces16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surfaces", ":/ReservoirSurfaces16x16.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "SurfaceUserDecription", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_collectionName, "SurfaceUserDecription", "Name" );
     m_collectionName = "Surfaces";
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_subCollections, "SubCollections", "Surfaces", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_subCollections, "SubCollections", "Surfaces" );
     m_subCollections.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_subCollections );
     reorderability->orderChanged.connect( this, &RimSurfaceCollection::orderChanged );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_surfaces, "SurfacesField", "Surfaces" );
     m_surfaces.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
@@ -269,7 +269,7 @@ RimSurface* RimSurfaceCollection::addGridCaseSurface( RimCase* sourceCase, int o
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 {
-    return m_surfaces.childObjects();
+    return m_surfaces.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,7 +277,7 @@ std::vector<RimSurface*> RimSurfaceCollection::surfaces() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSurfaceCollection*> RimSurfaceCollection::subCollections() const
 {
-    return m_subCollections.childObjects();
+    return m_subCollections.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -392,7 +392,7 @@ void RimSurfaceCollection::orderChanged( const caf::SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceCollection::removeSurface( RimSurface* surface )
 {
-    m_surfaces.removeChildObject( surface );
+    m_surfaces.removeChild( surface );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,7 +466,7 @@ RimSurface* RimSurfaceCollection::addSurfacesAtIndex( int position, std::vector<
         }
 
         // reset the surface collection and use the new order
-        m_surfaces.clear();
+        m_surfaces.clearWithoutDelete();
         for ( auto surf : orderedSurfs )
         {
             m_surfaces.push_back( surf );
@@ -513,7 +513,7 @@ void RimSurfaceCollection::deleteSubCollection( const QString& name )
     auto coll = getSubCollection( name );
     if ( coll )
     {
-        auto index = m_subCollections.index( coll );
+        auto index = m_subCollections.indexOf( coll );
         m_subCollections.erase( index );
     }
 }

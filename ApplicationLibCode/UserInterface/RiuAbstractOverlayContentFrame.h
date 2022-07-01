@@ -31,6 +31,9 @@ public:
     ~RiuAbstractOverlayContentFrame() override;
 
     virtual void renderTo( QPainter* painter, const QRect& targetRect ) = 0;
+
+protected:
+    void updateFontSize();
 };
 
 class RiuTextOverlayContentFrame : public RiuAbstractOverlayContentFrame
@@ -41,6 +44,9 @@ public:
 
     void setText( const QString& text );
     void renderTo( QPainter* painter, const QRect& targetRect ) override;
+
+private:
+    void updateLabelFont();
 
 private:
     QPointer<QLabel> m_textLabel;

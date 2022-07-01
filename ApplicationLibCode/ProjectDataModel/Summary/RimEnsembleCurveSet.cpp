@@ -21,8 +21,9 @@
 #include "RiaColorTools.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaResultNames.h"
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTimeTTools.h"
 
@@ -41,6 +42,7 @@
 #include "RimEnsembleStatisticsCase.h"
 #include "RimObjectiveFunction.h"
 #include "RimObjectiveFunctionTools.h"
+#include "RimPlotAxisPropertiesInterface.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryAddress.h"
@@ -48,15 +50,14 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
 #include "RimSummaryCurveAutoName.h"
-#include "RimSummaryFilter.h"
 #include "RimSummaryPlot.h"
 #include "RimTimeStepFilter.h"
 
 #include "RiuAbstractLegendFrame.h"
 #include "RiuDraggableOverlayFrame.h"
+#include "RiuPlotCurve.h"
+#include "RiuPlotCurveSymbol.h"
 #include "RiuPlotMainWindow.h"
-#include "RiuQwtPlotCurve.h"
-#include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 #include "RiuTextContentFrame.h"
 
@@ -71,23 +72,13 @@
 #include "cafPdmUiTreeSelectionEditor.h"
 #include "cafTitledOverlayFrame.h"
 
-#include "cvfScalarMapper.h"
-
-#include "qwt_plot_curve.h"
-#include "qwt_symbol.h"
-
 #include <algorithm>
-
-//--------------------------------------------------------------------------------------------------
-/// Internal constants
-//--------------------------------------------------------------------------------------------------
-#define DOUBLE_INF std::numeric_limits<double>::infinity()
 
 //--------------------------------------------------------------------------------------------------
 /// Internal functions
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address );
-int                           statisticsCurveSymbolSize( RiuQwtSymbol::PointSymbolEnum symbol );
+RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address );
+int                                 statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol );
 
 CAF_PDM_SOURCE_INIT( RimEnsembleCurveSet, "RimEnsembleCurveSet" );
 
@@ -98,131 +89,123 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
     : filterChanged( this )
 
 {
-    CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Curve Set", ":/EnsembleCurveSet16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "EnsembleCurveSet", "Ensemble Curve Set", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curves, "EnsembleCurveSet", "Ensemble Curve Set" );
     m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
 
-    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
+    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
 
     // Y Values
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCaseCollection, "SummaryGroup", "Ensemble", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryCaseCollection, "SummaryGroup", "Ensemble" );
     m_yValuesSummaryCaseCollection.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryCaseCollection.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddressUiField, "SelectedVariableDisplayVar", "Vector" );
     m_yValuesSummaryAddressUiField.xmlCapability()->disableIO();
     m_yValuesSummaryAddressUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryAddress, "SummaryAddress", "Summary Address" );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeHidden( true );
     m_yValuesSummaryAddress.uiCapability()->setUiTreeChildrenHidden( true );
     m_yValuesSummaryAddress = new RimSummaryAddress;
 
-    CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yPushButtonSelectSummaryAddress, "SelectAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_yPushButtonSelectSummaryAddress );
     m_yPushButtonSelectSummaryAddress.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_yPushButtonSelectSummaryAddress = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resampling, "Resampling", "Resampling" );
 
-    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode", "", "", "" );
+    CAF_PDM_InitField( &m_colorMode, "ColorMode", caf::AppEnum<ColorMode>( ColorMode::SINGLE_COLOR ), "Coloring Mode" );
 
-    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color", "", "", "" );
+    CAF_PDM_InitField( &m_color, "Color", RiaColorTools::textColor3f(), "Color" );
 
-    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter", "", "", "" );
+    CAF_PDM_InitField( &m_ensembleParameter, "EnsembleParameter", QString( "" ), "Ensemble Parameter" );
     m_ensembleParameter.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddressesUiField, "SelectedObjectiveSummaryVar", "Vector" );
     m_objectiveValuesSummaryAddressesUiField.xmlCapability()->disableIO();
     m_objectiveValuesSummaryAddressesUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiLineEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSummaryAddresses, "ObjectiveSummaryAddress", "Summary Address" );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeHidden( true );
     m_objectiveValuesSummaryAddresses.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton,
-                                "SelectObjectiveSummaryAddress",
-                                "",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveValuesSelectSummaryAddressPushButton, "SelectObjectiveSummaryAddress", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_objectiveValuesSelectSummaryAddressPushButton );
     m_objectiveValuesSelectSummaryAddressPushButton.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_objectiveValuesSelectSummaryAddressPushButton = false;
 
-    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunction, "CustomObjectiveFunction", "Objective Function" );
     m_customObjectiveFunction.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Text Box in Plot", "", "", "" );
+    CAF_PDM_InitField( &m_showObjectiveFunctionFormula, "ShowObjectiveFunctionFormula", true, "Show Text Box in Plot" );
 
-    CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_minDateRange, "MinDateRange", "From" );
     m_minDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_minTimeStep, "MinTimeStep", "" );
     m_minTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_maxDateRange, "MaxDateRange", "To" );
     m_maxDateRange.uiCapability()->setUiEditorTypeName( caf::PdmUiDateEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_maxTimeStep, "MaxTimeStep", "" );
     m_maxTimeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
     // Time Step Selection
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotAxis, "PlotAxis", "Axis", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxis_OBSOLETE, "PlotAxis", "Axis" );
+    m_plotAxis_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotAxisProperties, "Axis", "Axis" );
+
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendConfig", "" );
     m_legendConfig = new RimRegularLegendConfig();
     m_legendConfig->setColorLegend(
         RimRegularLegendConfig::mapToColorLegend( RimEnsembleCurveSetColorManager::DEFAULT_ENSEMBLE_COLOR_RANGE ) );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveFilters, "CurveFilters", "Curve Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curveFilters, "CurveFilters", "Curve Filters" );
     m_curveFilters = new RimEnsembleCurveFilterCollection();
     m_curveFilters->setUiTreeHidden( true );
     m_curveFilters->uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunctions,
-                                "CustomObjectiveFunctions",
-                                "Custom Objective Functions",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_customObjectiveFunctions, "CustomObjectiveFunctions", "Custom Objective Functions" );
     m_customObjectiveFunctions = new RimCustomObjectiveFunctionCollection();
     m_customObjectiveFunctions->objectiveFunctionChanged.connect( this,
                                                                   &RimEnsembleCurveSet::onCustomObjectiveFunctionChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_objectiveFunction, "ObjectiveFunction", "Objective Function" );
     m_objectiveFunction = new RimObjectiveFunction();
     m_objectiveFunction.uiCapability()->setUiTreeHidden( true );
     m_objectiveFunction->changed.connect( this, &RimEnsembleCurveSet::onObjectiveFunctionChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_statistics, "Statistics", "Statistics" );
     m_statistics = new RimEnsembleStatistics( this );
     m_statistics.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_userDefinedName, "UserDefinedName", QString( "Ensemble Curve Set" ), "Curve Set Name", "", "", "" );
+    CAF_PDM_InitField( &m_userDefinedName, "UserDefinedName", QString( "Ensemble Curve Set" ), "Curve Set Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_autoGeneratedName, "AutoGeneratedName", "Curve Set Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_autoGeneratedName, "AutoGeneratedName", "Curve Set Name" );
     m_autoGeneratedName.registerGetMethod( this, &RimEnsembleCurveSet::createAutoName );
     m_autoGeneratedName.uiCapability()->setUiReadOnly( true );
     m_autoGeneratedName.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_summaryAddressNameTools, "SummaryAddressNameTools", "SummaryAddressNameTools", "", "", "" );
+    CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryAddressNameTools, "SummaryAddressNameTools", "SummaryAddressNameTools" );
     m_summaryAddressNameTools.uiCapability()->setUiTreeHidden( true );
     m_summaryAddressNameTools.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_summaryAddressNameTools = new RimSummaryCurveAutoName;
 
-    m_qwtPlotCurveForLegendText = new QwtPlotCurve;
-    m_qwtPlotCurveForLegendText->setLegendAttribute( QwtPlotCurve::LegendShowSymbol, true );
+    m_plotCurveForLegendText = nullptr;
 
     m_ensembleStatCase.reset( new RimEnsembleStatisticsCase( this ) );
     m_ensembleStatCase->createSummaryReaderInterface();
@@ -230,14 +213,6 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 
     m_disableStatisticCurves = false;
     m_isCurveSetFiltered     = false;
-
-    // Obsolete fields
-
-    CAF_PDM_InitFieldNoDefault( &m_yValuesSummaryFilter_OBSOLETE, "VarListFilter", "Filter", "", "", "" );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeChildrenHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.uiCapability()->setUiTreeHidden( true );
-    m_yValuesSummaryFilter_OBSOLETE.xmlCapability()->setIOWritable( false );
-    m_yValuesSummaryFilter_OBSOLETE = new RimSummaryFilter_OBSOLETE;
 
     setDeletable( true );
 }
@@ -247,16 +222,16 @@ RimEnsembleCurveSet::RimEnsembleCurveSet()
 //--------------------------------------------------------------------------------------------------
 RimEnsembleCurveSet::~RimEnsembleCurveSet()
 {
-    m_curves.deleteAllChildObjects();
+    m_curves.deleteChildren();
 
     RimSummaryPlot* parentPlot;
     firstAncestorOrThisOfType( parentPlot );
-    if ( parentPlot && parentPlot->viewer() )
+    if ( parentPlot && parentPlot->plotWidget() )
     {
-        m_qwtPlotCurveForLegendText->detach();
+        if ( m_plotCurveForLegendText ) m_plotCurveForLegendText->detach();
         if ( m_legendOverlayFrame )
         {
-            parentPlot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+            parentPlot->plotWidget()->removeOverlayFrame( m_legendOverlayFrame );
         }
     }
     if ( m_legendOverlayFrame )
@@ -275,7 +250,7 @@ RimEnsembleCurveSet::~RimEnsembleCurveSet()
         delete m_objectiveFunctionOverlayFrame;
     }
 
-    delete m_qwtPlotCurveForLegendText;
+    delete m_plotCurveForLegendText;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -323,44 +298,40 @@ void RimEnsembleCurveSet::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::setParentQwtPlotNoReplot( QwtPlot* plot )
+void RimEnsembleCurveSet::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->setParentQwtPlotNoReplot( plot );
+        curve->setParentPlotNoReplot( plot );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::detachQwtCurves()
+void RimEnsembleCurveSet::deletePlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->detachQwtCurve();
+        curve->deletePlotCurve();
     }
 
-    m_qwtPlotCurveForLegendText->detach();
+    if ( m_plotCurveForLegendText )
+    {
+        m_plotCurveForLegendText->detach();
+        delete m_plotCurveForLegendText;
+        m_plotCurveForLegendText = nullptr;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::reattachQwtCurves()
+void RimEnsembleCurveSet::reattachPlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->reattachQwtCurve();
-    }
-
-    m_qwtPlotCurveForLegendText->detach();
-
-    RimSummaryPlot* plot = nullptr;
-    firstAncestorOrThisOfType( plot );
-    if ( plot )
-    {
-        m_qwtPlotCurveForLegendText->attach( plot->viewer() );
+        curve->reattach();
     }
 }
 
@@ -373,7 +344,7 @@ void RimEnsembleCurveSet::addCurve( RimSummaryCurve* curve )
     {
         RimSummaryPlot* plot;
         firstAncestorOrThisOfType( plot );
-        if ( plot ) curve->setParentQwtPlotNoReplot( plot->viewer() );
+        if ( plot && plot->plotWidget() ) curve->setParentPlotNoReplot( plot->plotWidget() );
 
         curve->setColor( m_color );
         m_curves.push_back( curve );
@@ -387,7 +358,7 @@ void RimEnsembleCurveSet::deleteCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
-        m_curves.removeChildObject( curve );
+        m_curves.removeChild( curve );
         delete curve;
     }
 }
@@ -401,6 +372,8 @@ void RimEnsembleCurveSet::setSummaryAddress( RifEclipseSummaryAddress address )
     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
     summaryAddress->setAddress( address );
     m_objectiveValuesSummaryAddresses.push_back( summaryAddress );
+
+    m_statistics->setShowStatisticsCurves( !address.isHistoryVector() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -416,7 +389,7 @@ RifEclipseSummaryAddress RimEnsembleCurveSet::summaryAddress() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimEnsembleCurveSet::curves() const
 {
-    return m_curves.childObjects();
+    return m_curves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -642,10 +615,6 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 
         updateConnectedEditors();
 
-        RimSummaryPlot* summaryPlot = nullptr;
-        this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
-        summaryPlot->updateConnectedEditors();
-
         updateTextInPlot = true;
     }
     else if ( changedField == &m_yValuesSummaryAddressUiField )
@@ -749,20 +718,21 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_minDateRange || changedField == &m_maxDateRange )
     {
-        m_minTimeStep = RiaTimeTTools::fromQDateTime( QDateTime( m_minDateRange() ) );
-        m_maxTimeStep = RiaTimeTTools::fromQDateTime( QDateTime( m_maxDateRange() ) );
+        m_minTimeStep = RiaTimeTTools::fromQDateTime( RiaQDateTimeTools::createDateTime( m_minDateRange() ) );
+        m_maxTimeStep = RiaTimeTTools::fromQDateTime( RiaQDateTimeTools::createDateTime( m_maxDateRange() ) );
         updateCurveColors();
         updateTimeAnnotations();
     }
-    else if ( changedField == &m_plotAxis )
+    else if ( changedField == &m_plotAxisProperties )
     {
         for ( RimSummaryCurve* curve : curves() )
         {
-            curve->setLeftOrRightAxisY( m_plotAxis() );
+            curve->setLeftOrRightAxisY( axisY() );
         }
 
-        updateQwtPlotAxis();
+        updatePlotAxis();
         plot->updateAxes();
+        plot->updateAll();
 
         updateTextInPlot = true;
     }
@@ -803,7 +773,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                 plot->updateConnectedEditors();
 
                 RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-                mainPlotWindow->updateSummaryPlotToolBar();
+                mainPlotWindow->updateMultiPlotToolBar();
             }
         }
 
@@ -816,7 +786,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         RimSummaryCaseCollection* candidateEnsemble = m_yValuesSummaryCaseCollection();
 
         std::vector<RifEclipseSummaryAddress> candidateAddresses;
-        for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+        for ( auto address : m_objectiveValuesSummaryAddresses().children() )
         {
             candidateAddresses.push_back( address->address() );
         }
@@ -828,7 +798,7 @@ void RimEnsembleCurveSet::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
             auto curveSelection = dlg.curveSelection();
             if ( !curveSelection.empty() )
             {
-                m_objectiveValuesSummaryAddresses.clear();
+                m_objectiveValuesSummaryAddresses.deleteChildren();
                 for ( auto address : curveSelection )
                 {
                     RimSummaryAddress* summaryAddress = new RimSummaryAddress();
@@ -879,7 +849,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_yValuesSummaryAddressUiField );
         curveDataGroup->add( &m_yPushButtonSelectSummaryAddress, { false, 1, 0 } );
         curveDataGroup->add( &m_resampling );
-        curveDataGroup->add( &m_plotAxis );
+        curveDataGroup->add( &m_plotAxisProperties );
     }
 
     appendColorGroup( uiOrdering );
@@ -1101,8 +1071,7 @@ void RimEnsembleCurveSet::defineEditorAttribute( const caf::PdmFieldHandle* fiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                          bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -1184,11 +1153,12 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
                                        filteredTimeStepIndices.end() );
 
-        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString dateFormatString =
+            RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
         QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
         bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL ||
@@ -1220,6 +1190,16 @@ QList<caf::PdmOptionItemInfo> RimEnsembleCurveSet::calculateValueOptions( const 
         {
             QString name = objFunc->title();
             options.push_back( caf::PdmOptionItemInfo( name, objFunc ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_plotAxisProperties )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfTypeAsserted( plot );
+
+        for ( auto axis : plot->plotAxes() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( axis->objectName(), axis ) );
         }
     }
 
@@ -1338,26 +1318,26 @@ void RimEnsembleCurveSet::updateFilterLegend()
 {
     RimSummaryPlot* plot;
     firstAncestorOrThisOfType( plot );
-    if ( plot && plot->viewer() )
+    if ( plot && plot->plotWidget() )
     {
         if ( m_curveFilters()->isActive() && m_curveFilters()->countActiveFilters() > 0 )
         {
             if ( !m_filterOverlayFrame )
             {
                 m_filterOverlayFrame =
-                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
+                    new RiuDraggableOverlayFrame( plot->plotWidget(), plot->plotWidget()->overlayMargins() );
             }
             m_filterOverlayFrame->setContentFrame( m_curveFilters()->makeFilterDescriptionFrame() );
-            plot->viewer()->addOverlayFrame( m_filterOverlayFrame );
+            plot->plotWidget()->addOverlayFrame( m_filterOverlayFrame );
         }
         else
         {
             if ( m_filterOverlayFrame )
             {
-                plot->viewer()->removeOverlayFrame( m_filterOverlayFrame );
+                plot->plotWidget()->removeOverlayFrame( m_filterOverlayFrame );
             }
         }
-        plot->viewer()->scheduleReplot();
+        plot->scheduleReplotIfVisible();
     }
 }
 
@@ -1368,7 +1348,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
 {
     RimSummaryPlot* plot;
     firstAncestorOrThisOfType( plot );
-    if ( plot && plot->viewer() )
+    if ( plot && plot->plotWidget() )
     {
         if ( ( m_colorMode == ColorMode::BY_OBJECTIVE_FUNCTION || m_colorMode == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION ) &&
              m_showObjectiveFunctionFormula() )
@@ -1376,14 +1356,14 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             if ( !m_objectiveFunctionOverlayFrame )
             {
                 m_objectiveFunctionOverlayFrame =
-                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
+                    new RiuDraggableOverlayFrame( plot->plotWidget(), plot->plotWidget()->overlayMargins() );
             }
             QString title;
             QString description;
             if ( m_colorMode() == ColorMode::BY_OBJECTIVE_FUNCTION )
             {
                 std::vector<RifEclipseSummaryAddress> addresses;
-                for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+                for ( auto address : m_objectiveValuesSummaryAddresses().children() )
                 {
                     addresses.push_back( address->address() );
                 }
@@ -1396,7 +1376,7 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             else if ( m_colorMode() == ColorMode::BY_CUSTOM_OBJECTIVE_FUNCTION && m_customObjectiveFunction() )
             {
                 std::vector<RifEclipseSummaryAddress> addresses;
-                for ( auto address : m_objectiveValuesSummaryAddresses().childObjects() )
+                for ( auto address : m_objectiveValuesSummaryAddresses().children() )
                 {
                     addresses.push_back( address->address() );
                 }
@@ -1408,18 +1388,18 @@ void RimEnsembleCurveSet::updateObjectiveFunctionLegend()
             {
                 m_objectiveFunctionOverlayFrame->setContentFrame( new RiuTextContentFrame( nullptr, title, description ) );
                 m_objectiveFunctionOverlayFrame->setMaximumWidth( 10000 );
-                plot->viewer()->addOverlayFrame( m_objectiveFunctionOverlayFrame );
+                plot->plotWidget()->addOverlayFrame( m_objectiveFunctionOverlayFrame );
             }
         }
         else
         {
             if ( m_objectiveFunctionOverlayFrame )
             {
-                plot->viewer()->removeOverlayFrame( m_objectiveFunctionOverlayFrame );
+                plot->plotWidget()->removeOverlayFrame( m_objectiveFunctionOverlayFrame );
             }
         }
     }
-    plot->viewer()->scheduleReplot();
+    plot->scheduleReplotIfVisible();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1586,29 +1566,34 @@ void RimEnsembleCurveSet::updateCurveColors()
         curvesToColor[i]->updateCurveAppearance();
     }
 
+    if ( m_plotCurveForLegendText )
+    {
+        m_plotCurveForLegendText->setColor( RiaColorTools::toQColor( m_color ) );
+    }
+
     RimSummaryPlot* plot;
     firstAncestorOrThisOfType( plot );
-    if ( plot && plot->viewer() )
+    if ( plot && plot->plotWidget() )
     {
         if ( m_yValuesSummaryCaseCollection() && isCurvesVisible() && m_colorMode != ColorMode::SINGLE_COLOR &&
              m_legendConfig->showLegend() )
         {
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame =
-                    new RiuDraggableOverlayFrame( plot->viewer()->canvas(), plot->viewer()->overlayMargins() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( plot->plotWidget()->getParentForOverlay(),
+                                                                     plot->plotWidget()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( m_legendConfig->makeLegendFrame() );
-            plot->viewer()->addOverlayFrame( m_legendOverlayFrame );
+            plot->plotWidget()->addOverlayFrame( m_legendOverlayFrame );
         }
         else
         {
             if ( m_legendOverlayFrame )
             {
-                plot->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+                plot->plotWidget()->removeOverlayFrame( m_legendOverlayFrame );
             }
         }
-        plot->viewer()->scheduleReplot();
+        plot->scheduleReplotIfVisible();
     }
 }
 
@@ -1661,11 +1646,11 @@ void RimEnsembleCurveSet::updateAddressesUiField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEnsembleCurveSet::updateQwtPlotAxis()
+void RimEnsembleCurveSet::updatePlotAxis()
 {
     for ( RimSummaryCurve* curve : curves() )
     {
-        curve->updateQwtPlotAxis();
+        curve->updatePlotAxis();
     }
 }
 
@@ -1679,10 +1664,12 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
     CVF_ASSERT( plot );
 
     deleteEnsembleCurves();
-    m_qwtPlotCurveForLegendText->detach();
+    if ( m_plotCurveForLegendText ) m_plotCurveForLegendText->detach();
     deleteStatisticsCurves();
 
     if ( m_statistics->hideEnsembleCurves() ) return;
+
+    setLeftOrRightAxisY( axisY() );
 
     RimSummaryAddress* addr = m_yValuesSummaryAddress();
     if ( plot && addr->address().category() != RifEclipseSummaryAddress::SUMMARY_INVALID )
@@ -1696,12 +1683,19 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
                 RimSummaryCurve* curve = new RimSummaryCurve();
                 curve->setSummaryCaseY( sumCase );
                 curve->setSummaryAddressYAndApplyInterpolation( addr->address() );
-                curve->setLeftOrRightAxisY( m_plotAxis() );
                 curve->setResampling( m_resampling() );
+
+                int lineThickness = 1;
+                if ( addr->address().isHistoryVector() )
+                {
+                    lineThickness = 2;
+                    curve->setCurveAppearanceFromCaseType();
+                }
+                curve->setLineThickness( lineThickness );
 
                 addCurve( curve );
 
-                curve->updateCurveVisibility();
+                curve->setLeftOrRightAxisY( axisY() );
 
                 newSummaryCurves.push_back( curve );
             }
@@ -1715,22 +1709,25 @@ void RimEnsembleCurveSet::updateEnsembleCurves( const std::vector<RimSummaryCase
             for ( int i = 0; i < (int)newSummaryCurves.size(); ++i )
             {
                 newSummaryCurves[i]->loadDataAndUpdate( false );
-                newSummaryCurves[i]->updateQwtPlotAxis();
-                if ( newSummaryCurves[i]->qwtPlotCurve() )
-                {
-                    newSummaryCurves[i]->qwtPlotCurve()->setItemAttribute( QwtPlotItem::Legend, false );
-                }
+                newSummaryCurves[i]->updatePlotAxis();
+                newSummaryCurves[i]->setShowInLegend( false );
             }
-
-            if ( plot->viewer() ) m_qwtPlotCurveForLegendText->attach( plot->viewer() );
         }
 
-        if ( plot->viewer() )
+        if ( plot->plotWidget() )
         {
-            if ( plot->legendsVisible() ) plot->viewer()->updateLegend();
-            plot->viewer()->scheduleReplot();
+            if ( plot->legendsVisible() ) plot->plotWidget()->updateLegend();
+            plot->scheduleReplotIfVisible();
             plot->updateAxes();
             plot->updatePlotInfoLabel();
+
+            if ( !m_plotCurveForLegendText )
+            {
+                m_plotCurveForLegendText =
+                    plot->plotWidget()->createPlotCurve( nullptr, "", RiaColorTools::toQColor( m_color ) );
+            }
+            m_plotCurveForLegendText->attachToPlot( plot->plotWidget() );
+            updateEnsembleLegendItem();
         }
     }
     updateCurveColors();
@@ -1774,48 +1771,49 @@ void RimEnsembleCurveSet::updateStatisticsCurves( const std::vector<RimSummaryCa
 
         if ( m_statistics->showP10Curve() && m_ensembleStatCase->hasP10Data() )
             addresses.push_back(
-                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddress.quantityName() ) );
+                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P10_QUANTITY_NAME, dataAddress.vectorName() ) );
         if ( m_statistics->showP50Curve() && m_ensembleStatCase->hasP50Data() )
             addresses.push_back(
-                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.quantityName() ) );
+                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P50_QUANTITY_NAME, dataAddress.vectorName() ) );
         if ( m_statistics->showP90Curve() && m_ensembleStatCase->hasP90Data() )
             addresses.push_back(
-                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.quantityName() ) );
+                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_P90_QUANTITY_NAME, dataAddress.vectorName() ) );
         if ( m_statistics->showMeanCurve() && m_ensembleStatCase->hasMeanData() )
             addresses.push_back(
-                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.quantityName() ) );
+                SAddr::ensembleStatisticsAddress( ENSEMBLE_STAT_MEAN_QUANTITY_NAME, dataAddress.vectorName() ) );
     }
 
     deleteStatisticsCurves();
-    for ( auto address : addresses )
-    {
-        auto curve = new RimSummaryCurve();
-        curve->setParentQwtPlotNoReplot( plot->viewer() );
-        m_curves.push_back( curve );
-        curve->setColor( m_statistics->color() );
-        curve->setResampling( m_resampling() );
 
-        auto symbol = statisticsCurveSymbolFromAddress( address );
-        curve->setSymbol( symbol );
-        curve->setSymbolSize( statisticsCurveSymbolSize( symbol ) );
-        curve->setSymbolSkipDistance( 150 );
-        if ( m_statistics->showCurveLabels() )
+    if ( plot->plotWidget() )
+    {
+        for ( auto address : addresses )
         {
-            curve->setSymbolLabel( QString::fromStdString( address.ensembleStatisticsQuantityName() ) );
+            auto curve = new RimSummaryCurve();
+            curve->setParentPlotNoReplot( plot->plotWidget() );
+            m_curves.push_back( curve );
+            curve->setColor( m_statistics->color() );
+            curve->setResampling( m_resampling() );
+
+            auto symbol = statisticsCurveSymbolFromAddress( address );
+            curve->setSymbol( symbol );
+            curve->setSymbolSize( statisticsCurveSymbolSize( symbol ) );
+            curve->setSymbolSkipDistance( 150 );
+            if ( m_statistics->showCurveLabels() )
+            {
+                curve->setSymbolLabel( QString::fromStdString( address.ensembleStatisticsVectorName() ) );
+            }
+            curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
+            curve->setSummaryCaseY( m_ensembleStatCase.get() );
+            curve->setSummaryAddressYAndApplyInterpolation( address );
+            curve->setLeftOrRightAxisY( axisY() );
+
+            curve->updateCurveVisibility();
+            curve->loadDataAndUpdate( false );
+            curve->updatePlotAxis();
         }
-        curve->setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID );
-        curve->setSummaryCaseY( m_ensembleStatCase.get() );
-        curve->setSummaryAddressYAndApplyInterpolation( address );
-        curve->setLeftOrRightAxisY( m_plotAxis() );
 
-        curve->updateCurveVisibility();
-        curve->loadDataAndUpdate( false );
-        curve->updateQwtPlotAxis();
-    }
-
-    if ( plot->viewer() )
-    {
-        plot->viewer()->updateLegend();
+        plot->plotWidget()->updateLegend();
         plot->updateAxes();
     }
 }
@@ -1862,7 +1860,7 @@ void RimEnsembleCurveSet::updateAllTextInPlot()
 
     RimSummaryPlot* summaryPlot = nullptr;
     this->firstAncestorOrThisOfTypeAsserted( summaryPlot );
-    if ( summaryPlot->viewer() )
+    if ( summaryPlot->plotWidget() )
     {
         summaryPlot->updatePlotTitle();
     }
@@ -1967,16 +1965,16 @@ bool RimEnsembleCurveSet::hasMeanData() const
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleCurveSet::updateEnsembleLegendItem()
 {
-    m_qwtPlotCurveForLegendText->setTitle( name() );
+    if ( !m_plotCurveForLegendText ) return;
+
+    m_plotCurveForLegendText->setTitle( name() );
 
     {
-        QwtSymbol* symbol = nullptr;
+        RiuPlotCurveSymbol* symbol = m_plotCurveForLegendText->createSymbol( RiuPlotCurveSymbol::SYMBOL_CROSS );
 
         if ( m_colorMode == ColorMode::SINGLE_COLOR )
         {
-            symbol = new QwtSymbol( QwtSymbol::HLine );
-
-            QColor curveColor( m_color.value().rByte(), m_color.value().gByte(), m_color.value().bByte() );
+            QColor curveColor = RiaColorTools::toQColor( m_color );
             QPen   curvePen( curveColor );
             curvePen.setWidth( 2 );
 
@@ -1986,17 +1984,25 @@ void RimEnsembleCurveSet::updateEnsembleLegendItem()
         else if ( m_colorMode == ColorMode::BY_ENSEMBLE_PARAM )
         {
             QPixmap p = QPixmap( ":/Legend.png" );
-
-            symbol = new QwtSymbol;
             symbol->setPixmap( p );
             symbol->setSize( 8, 8 );
         }
 
-        m_qwtPlotCurveForLegendText->setSymbol( symbol );
+        m_plotCurveForLegendText->setSymbol( symbol );
     }
 
     bool showLegendItem = isCurvesVisible();
-    m_qwtPlotCurveForLegendText->setItemAttribute( QwtPlotItem::Legend, showLegendItem );
+    m_plotCurveForLegendText->setVisibleInLegend( showLegendItem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimEnsembleCurveSet::ensembleId() const
+{
+    if ( m_yValuesSummaryCaseCollection() != nullptr ) return m_yValuesSummaryCaseCollection()->ensembleId();
+
+    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -2025,8 +2031,8 @@ QString RimEnsembleCurveSet::createAutoName() const
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    QString curveSetName = m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(),
-                                                                  plot->activePlotTitleHelperAllCurves() );
+    QString curveSetName =
+        m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), plot->plotTitleHelper() );
     if ( curveSetName.isEmpty() )
     {
         curveSetName = m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), nullptr );
@@ -2062,23 +2068,65 @@ void RimEnsembleCurveSet::updateLegendMappingMode()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address )
+RiuPlotCurveSymbol::PointSymbolEnum statisticsCurveSymbolFromAddress( const RifEclipseSummaryAddress& address )
 {
-    auto qName = QString::fromStdString( address.quantityName() );
+    auto qName = QString::fromStdString( address.vectorName() );
 
-    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuQwtSymbol::SYMBOL_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE;
-    if ( qName.contains( ENSEMBLE_STAT_P50_QUANTITY_NAME ) ) return RiuQwtSymbol::SYMBOL_DIAMOND;
-    return RiuQwtSymbol::SYMBOL_ELLIPSE;
+    if ( qName.contains( ENSEMBLE_STAT_P10_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
+    if ( qName.contains( ENSEMBLE_STAT_P90_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+    if ( qName.contains( ENSEMBLE_STAT_P50_QUANTITY_NAME ) ) return RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+    return RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int statisticsCurveSymbolSize( RiuQwtSymbol::PointSymbolEnum symbol )
+int statisticsCurveSymbolSize( RiuPlotCurveSymbol::PointSymbolEnum symbol )
 {
-    if ( symbol == RiuQwtSymbol::SYMBOL_DIAMOND ) return 8;
-    if ( symbol == RiuQwtSymbol::SYMBOL_TRIANGLE ) return 7;
-    if ( symbol == RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE ) return 7;
+    if ( symbol == RiuPlotCurveSymbol::SYMBOL_DIAMOND ) return 8;
+    if ( symbol == RiuPlotCurveSymbol::SYMBOL_TRIANGLE ) return 7;
+    if ( symbol == RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE ) return 7;
     return 6;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimEnsembleCurveSet::axisY() const
+{
+    if ( m_plotAxisProperties )
+        return m_plotAxisProperties->plotAxisType();
+    else
+        return RiuPlotAxis::defaultLeft();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::setLeftOrRightAxisY( RiuPlotAxis plotAxis )
+{
+    RimSummaryPlot* plot = nullptr;
+    firstAncestorOrThisOfTypeAsserted( plot );
+    m_plotAxisProperties = plot->axisPropertiesForPlotAxis( plotAxis );
+
+    for ( RimSummaryCurve* curve : curves() )
+    {
+        curve->setLeftOrRightAxisY( axisY() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEnsembleCurveSet::initAfterRead()
+{
+    if ( m_plotAxisProperties.value() == nullptr )
+    {
+        RimSummaryPlot* plot = nullptr;
+        firstAncestorOrThisOfType( plot );
+        if ( plot )
+        {
+            m_plotAxisProperties = plot->axisPropertiesForPlotAxis( RiuPlotAxis( m_plotAxis_OBSOLETE() ) );
+        }
+    }
 }

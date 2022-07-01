@@ -40,20 +40,20 @@ CAF_PDM_SOURCE_INIT( RicCellRangeUi, "RicCellRangeUi" );
 //--------------------------------------------------------------------------------------------------
 RicCellRangeUi::RicCellRangeUi()
 {
-    CAF_PDM_InitObject( "Cell Range", "", "", "" );
+    CAF_PDM_InitObject( "Cell Range" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
     m_case.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_gridIndex, "GridIndex", 0, "Grid", "", "", "" );
+    CAF_PDM_InitField( &m_gridIndex, "GridIndex", 0, "Grid" );
 
-    CAF_PDM_InitField( &m_startIndexI, "StartIndexI", 1, "Start Index I", "", "", "" );
-    CAF_PDM_InitField( &m_startIndexJ, "StartIndexJ", 1, "Start Index J", "", "", "" );
-    CAF_PDM_InitField( &m_startIndexK, "StartIndexK", 1, "Start Index K", "", "", "" );
+    CAF_PDM_InitField( &m_startIndexI, "StartIndexI", 1, "Start Index I" );
+    CAF_PDM_InitField( &m_startIndexJ, "StartIndexJ", 1, "Start Index J" );
+    CAF_PDM_InitField( &m_startIndexK, "StartIndexK", 1, "Start Index K" );
 
-    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 1, "Cell Count I", "", "", "" );
-    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 1, "Cell Count J", "", "", "" );
-    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 1, "Cell Count K", "", "", "" );
+    CAF_PDM_InitField( &m_cellCountI, "CellCountI", 1, "Cell Count I" );
+    CAF_PDM_InitField( &m_cellCountJ, "CellCountJ", 1, "Cell Count J" );
+    CAF_PDM_InitField( &m_cellCountK, "CellCountK", 1, "Cell Count K" );
 
     m_startIndexI.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
     m_startIndexJ.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
@@ -139,12 +139,9 @@ void RicCellRangeUi::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RicCellRangeUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RicCellRangeUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-
-    if ( useOptionsOnly ) ( *useOptionsOnly ) = true;
 
     if ( &m_gridIndex == fieldNeedingOptions )
     {

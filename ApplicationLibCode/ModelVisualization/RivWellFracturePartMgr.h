@@ -82,6 +82,9 @@ private:
     cvf::ref<cvf::DrawableGeo> createStimPlanMeshDrawable( RimStimPlanFractureTemplate* stimPlanFracTemplate,
                                                            const RimEclipseView&        activeView );
 
+    void createVisibleFracturePolygons( RimStimPlanFractureTemplate* stimPlanFracTemplate,
+                                        const RimEclipseView&        activeView );
+
     std::vector<cvf::Vec3d> fractureBorderPolygon();
 
     static cvf::ref<cvf::Part> createScalarMapperPart( cvf::DrawableGeo*        drawableGeo,

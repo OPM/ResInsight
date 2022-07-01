@@ -19,6 +19,8 @@
 
 #include "RiuInterfaceToViewWindow.h"
 
+#include "RiaDefines.h"
+
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
 
@@ -34,7 +36,7 @@
 class RiaPlotWindowRedrawScheduler;
 class RimPlotWindow;
 class RiuQwtPlotLegend;
-class RiuQwtPlotWidget;
+class RiuPlotWidget;
 
 class QFocusEvent;
 class QLabel;
@@ -54,27 +56,17 @@ class RiuMultiPlotPage : public QWidget, public caf::SelectionChangedReceiver, p
     Q_OBJECT
 
 public:
-    enum class ColumnCount
-    {
-        COLUMNS_1         = 1,
-        COLUMNS_2         = 2,
-        COLUMNS_3         = 3,
-        COLUMNS_4         = 4,
-        COLUMNS_UNLIMITED = 1000,
-    };
-
-public:
     RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* parent = nullptr );
     ~RiuMultiPlotPage() override;
 
     RimViewWindow* ownerViewWindow() const override;
     RimPlotWindow* ownerPlotDefinition();
 
-    void addPlot( RiuQwtPlotWidget* plotWidget );
-    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
-    void removePlot( RiuQwtPlotWidget* plotWidget );
+    void addPlot( RiuPlotWidget* plotWidget );
+    void insertPlot( RiuPlotWidget* plotWidget, size_t index );
+    void removePlot( RiuPlotWidget* plotWidget );
     void removeAllPlots();
-    int  indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
+    int  indexOfPlotWidget( RiuPlotWidget* plotWidget );
 
     void setPlotTitle( const QString& plotTitle );
     void setTitleVisible( bool visible );
@@ -86,8 +78,8 @@ public:
     bool previewModeEnabled() const;
     void setPagePreviewModeEnabled( bool previewMode );
 
-    void         scheduleUpdate();
-    void         scheduleReplotOfAllPlots();
+    void scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate = RiaDefines::MultiPlotPageUpdateType::ALL );
+    void scheduleReplotOfAllPlots();
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
     void         updateSubTitles();
 
@@ -97,6 +89,11 @@ public:
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
     int   heightForWidth( int width ) const override;
+
+    std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
+
+public slots:
+    virtual void performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate );
 
 protected:
     void    contextMenuEvent( QContextMenuEvent* ) override;
@@ -112,25 +109,25 @@ protected:
 
     virtual bool showYAxis( int row, int column ) const;
 
-    void reinsertPlotWidgets();
-    int  alignCanvasTops();
+    virtual void reinsertPlotWidgets();
+    virtual void refreshLegends();
+
+    void updateTitleFont();
+
+    int alignCanvasTops();
 
     void clearGridLayout();
 
-    QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
+    QList<QPointer<RiuPlotWidget>>    visiblePlotWidgets() const;
     QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
     QList<QPointer<QLabel>>           subTitlesForVisiblePlots() const;
 
-    std::pair<int, int> findAvailableRowAndColumn( int startRow, int startColumn, int columnSpan, int columnCount ) const;
-
     void applyLook();
+
 private slots:
-    virtual void performUpdate();
-    void         onLegendUpdated();
+    void onLegendUpdated();
 
 protected:
-    friend class RiuMultiPlotBook;
-
     QPointer<QVBoxLayout>             m_layout;
     QPointer<QHBoxLayout>             m_plotLayout;
     QPointer<QFrame>                  m_plotWidgetFrame;
@@ -138,7 +135,7 @@ protected:
     QPointer<QLabel>                  m_plotTitle;
     QList<QPointer<QLabel>>           m_subTitles;
     QList<QPointer<RiuQwtPlotLegend>> m_legends;
-    QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
+    QList<QPointer<RiuPlotWidget>>    m_plotWidgets;
     caf::PdmPointer<RimPlotWindow>    m_plotDefinition;
 
     int m_titleFontPixelSize;
@@ -149,6 +146,8 @@ protected:
 
     bool m_previewMode;
     bool m_showSubTitles;
+
+    std::map<RiuQwtPlotLegend*, int> m_childCountForAdjustSizeOperation;
 
 private:
     friend class RiaPlotWindowRedrawScheduler;

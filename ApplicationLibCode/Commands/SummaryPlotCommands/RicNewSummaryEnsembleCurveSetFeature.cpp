@@ -21,8 +21,9 @@
 #include "RiaColorTables.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSummary.h"
-
 #include "RiaSummaryTools.h"
+#include "RiaTextStringTools.h"
+
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
 #include "RimEnsembleCurveSet.h"
@@ -33,11 +34,14 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveAppearanceCalculator.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "WellLogCommands/RicWellLogPlotCurveFeatureImpl.h"
 
 #include "cafSelectionManager.h"
@@ -62,7 +66,7 @@ std::vector<RimEnsembleCurveSet*>
     RiaPreferencesSummary* prefs = RiaPreferencesSummary::current();
 
     QString     curvesTextFilter = prefs->defaultSummaryCurvesTextFilter();
-    QStringList curveFilters     = curvesTextFilter.split( ";", QString::SkipEmptyParts );
+    QStringList curveFilters     = RiaTextStringTools::splitSkipEmptyParts( curvesTextFilter, ";" );
 
     std::set<RifEclipseSummaryAddress> addrs = ensemble->ensembleSummaryAddresses();
 
@@ -77,7 +81,10 @@ std::vector<RimEnsembleCurveSet*>
 
                 // Use same counting as RicNewSummaryCurveFeature::onActionTriggered
                 auto colorIndex = plot->singleColorCurveCount();
-                curveSet->setColor( RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex ) );
+
+                curveSet->setColor(
+                    RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( addr,
+                                                                                            static_cast<int>( colorIndex ) ) );
                 curveSet->legendConfig()->setColorLegend( RimRegularLegendConfig::mapToColorLegend(
                     RimEnsembleCurveSetColorManager::cycledEnsembleColorRange( static_cast<int>( colorIndex ) ) ) );
 
@@ -108,8 +115,9 @@ RimSummaryPlot*
 
     if ( prefs->defaultSummaryCurvesTextFilter().isEmpty() ) return nullptr;
 
-    RimSummaryPlotCollection* summaryPlotCollection = proj->mainPlotCollection->summaryPlotCollection();
-    RimSummaryPlot*           plot                  = summaryPlotCollection->createSummaryPlotWithAutoTitle();
+    RimSummaryPlot* plot = new RimSummaryPlot();
+    plot->enableAutoPlotTitle( true );
+    RimSummaryMultiPlot* multiPlot = RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( plot );
 
     RimEnsembleCurveSet* firstCurveSetCreated = nullptr;
     for ( RimSummaryCaseCollection* ensemble : ensembles )
@@ -120,13 +128,13 @@ RimSummaryPlot*
     }
 
     plot->loadDataAndUpdate();
-    summaryPlotCollection->updateConnectedEditors();
+    multiPlot->updateConnectedEditors();
 
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if ( mainPlotWindow )
     {
         mainPlotWindow->selectAsCurrentItem( firstCurveSetCreated );
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
     return plot;
 }
@@ -172,14 +180,14 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
             if ( !curveSets.empty() ) firstCurveSet = curveSets.front();
         }
         plot->loadDataAndUpdate();
-        plot->updateConnectedEditors();
+        plot->ensembleCurveSetCollection()->updateAllRequiredEditors();
 
         RiaGuiApplication* app            = RiaGuiApplication::instance();
         RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
         if ( mainPlotWindow && firstCurveSet )
         {
             mainPlotWindow->selectAsCurrentItem( firstCurveSet );
-            mainPlotWindow->updateSummaryPlotToolBar();
+            mainPlotWindow->updateMultiPlotToolBar();
         }
     }
 }

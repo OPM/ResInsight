@@ -32,14 +32,9 @@ CAF_PDM_SOURCE_INIT( RimElasticPropertyScalingCollection, "ElasticPropertyScalin
 RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "Elastic Property Scalings", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Elastic Property Scalings" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertyScalings,
-                                          "ElasticPropertyScalings",
-                                          "Elastic Property Scalings",
-                                          "",
-                                          "",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticPropertyScalings, "ElasticPropertyScalings", "Elastic Property Scalings" );
     m_elasticPropertyScalings.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -48,7 +43,7 @@ RimElasticPropertyScalingCollection::RimElasticPropertyScalingCollection()
 //--------------------------------------------------------------------------------------------------
 RimElasticPropertyScalingCollection::~RimElasticPropertyScalingCollection()
 {
-    m_elasticPropertyScalings.deleteAllChildObjects();
+    m_elasticPropertyScalings.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

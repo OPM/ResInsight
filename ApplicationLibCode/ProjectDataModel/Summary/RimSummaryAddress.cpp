@@ -35,7 +35,7 @@ void caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>::setUp()
     addItem( RifEclipseSummaryAddress::SUMMARY_MISC, "SUMMARY_MISC", "Misc" );
     addItem( RifEclipseSummaryAddress::SUMMARY_REGION, "SUMMARY_REGION", "Region" );
     addItem( RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION, "SUMMARY_REGION_2_REGION", "Region-Region" );
-    addItem( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP, "SUMMARY_WELL_GROUP", "Group" );
+    addItem( RifEclipseSummaryAddress::SUMMARY_GROUP, "SUMMARY_WELL_GROUP", "Group" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL, "SUMMARY_WELL", "Well" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION, "SUMMARY_WELL_COMPLETION", "Completion" );
     addItem( RifEclipseSummaryAddress::SUMMARY_WELL_COMPLETION_LGR, "SUMMARY_WELL_COMPLETION_LGR", "Lgr-Completion" );
@@ -58,20 +58,25 @@ CAF_PDM_SOURCE_INIT( RimSummaryAddress, "SummaryAddress" );
 //--------------------------------------------------------------------------------------------------
 RimSummaryAddress::RimSummaryAddress()
 {
-    CAF_PDM_InitFieldNoDefault( &m_category, "SummaryVarType", "Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_quantityName, "SummaryQuantityName", "Quantity", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_regionNumber2, "SummaryRegion2", "Region2", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellGroupName, "SummaryWellGroup", "Group", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellName, "SummaryWell", "Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumber, "SummaryWellSegment", "Well Segment", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_lgrName, "SummaryLgr", "Grid", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellI, "SummaryCellI", "I", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellJ, "SummaryCellJ", "J", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_cellK, "SummaryCellK", "K", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_aquiferNumber, "SummaryAquifer", "Aquifer", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id", "", "", "" );
+    CAF_PDM_InitObject( "SummaryAddress", ":/DataVector.png", "", "" );
+
+    CAF_PDM_InitFieldNoDefault( &m_category, "SummaryVarType", "Type" );
+    CAF_PDM_InitFieldNoDefault( &m_vectorName, "SummaryQuantityName", "Vector" );
+    CAF_PDM_InitFieldNoDefault( &m_regionNumber, "SummaryRegion", "Region" );
+    CAF_PDM_InitFieldNoDefault( &m_regionNumber2, "SummaryRegion2", "Region2" );
+    CAF_PDM_InitFieldNoDefault( &m_groupName, "SummaryWellGroup", "Group" );
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "SummaryWell", "Well" );
+    CAF_PDM_InitFieldNoDefault( &m_wellSegmentNumber, "SummaryWellSegment", "Well Segment" );
+    CAF_PDM_InitFieldNoDefault( &m_lgrName, "SummaryLgr", "Grid" );
+    CAF_PDM_InitFieldNoDefault( &m_cellI, "SummaryCellI", "I" );
+    CAF_PDM_InitFieldNoDefault( &m_cellJ, "SummaryCellJ", "J" );
+    CAF_PDM_InitFieldNoDefault( &m_cellK, "SummaryCellK", "K" );
+    CAF_PDM_InitFieldNoDefault( &m_aquiferNumber, "SummaryAquifer", "Aquifer" );
+    CAF_PDM_InitFieldNoDefault( &m_isErrorResult, "IsErrorResult", "Is Error Result" );
+    CAF_PDM_InitFieldNoDefault( &m_calculationId, "CalculationId", "Calculation Id" );
+
+    CAF_PDM_InitField( &m_caseId, "CaseId", -1, "CaseId" );
+    CAF_PDM_InitField( &m_ensembleId, "EnsembleId", -1, "EnsembleId" );
 
     m_category          = RifEclipseSummaryAddress::SUMMARY_INVALID;
     m_regionNumber      = -1;
@@ -95,13 +100,27 @@ RimSummaryAddress::~RimSummaryAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryAddress* RimSummaryAddress::wrapFileReaderAddress( const RifEclipseSummaryAddress& addr,
+                                                             int                             caseId /* = -1 */,
+                                                             int                             ensembleId /* = -1 */ )
+{
+    RimSummaryAddress* newAddress = new RimSummaryAddress();
+    newAddress->setAddress( addr );
+    newAddress->setCaseId( caseId );
+    newAddress->setEnsembleId( ensembleId );
+    return newAddress;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
 {
     m_category          = addr.category();
-    m_quantityName      = addr.quantityName().c_str();
+    m_vectorName        = addr.vectorName().c_str();
     m_regionNumber      = addr.regionNumber();
     m_regionNumber2     = addr.regionNumber2();
-    m_wellGroupName     = addr.wellGroupName().c_str();
+    m_groupName         = addr.groupName().c_str();
     m_wellName          = addr.wellName().c_str();
     m_wellSegmentNumber = addr.wellSegmentNumber();
     m_lgrName           = addr.lgrName().c_str();
@@ -112,18 +131,20 @@ void RimSummaryAddress::setAddress( const RifEclipseSummaryAddress& addr )
     m_cellJ         = addr.cellJ();
     m_cellK         = addr.cellK();
     m_calculationId = addr.id();
+
+    setUiName( m_vectorName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RimSummaryAddress::address()
+RifEclipseSummaryAddress RimSummaryAddress::address() const
 {
     return RifEclipseSummaryAddress( m_category(),
-                                     m_quantityName().toStdString(),
+                                     m_vectorName().toStdString(),
                                      m_regionNumber(),
                                      m_regionNumber2(),
-                                     m_wellGroupName().toStdString(),
+                                     m_groupName().toStdString(),
                                      m_wellName().toStdString(),
                                      m_wellSegmentNumber(),
                                      m_lgrName().toStdString(),
@@ -138,17 +159,17 @@ RifEclipseSummaryAddress RimSummaryAddress::address()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryAddress::ensureIdIsAssigned()
+void RimSummaryAddress::ensureCalculationIdIsAssigned()
 {
     if ( m_category == RifEclipseSummaryAddress::SUMMARY_CALCULATED && m_calculationId == -1 )
     {
         RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
-        for ( const RimSummaryCalculation* c : calcColl->calculations() )
+        for ( const RimUserDefinedCalculation* c : calcColl->calculations() )
         {
             QString description = c->description();
 
-            if ( description == m_quantityName )
+            if ( description == m_vectorName )
             {
                 m_calculationId = c->id();
             }
@@ -162,17 +183,87 @@ void RimSummaryAddress::ensureIdIsAssigned()
 //--------------------------------------------------------------------------------------------------
 RiaDefines::PhaseType RimSummaryAddress::addressPhaseType() const
 {
-    if ( QRegularExpression( "^.OP" ).match( m_quantityName ).hasMatch() )
+    if ( QRegularExpression( "^.OP" ).match( m_vectorName ).hasMatch() )
     {
         return RiaDefines::PhaseType::OIL_PHASE;
     }
-    else if ( QRegularExpression( "^.GP" ).match( m_quantityName ).hasMatch() )
+    else if ( QRegularExpression( "^.GP" ).match( m_vectorName ).hasMatch() )
     {
         return RiaDefines::PhaseType::GAS_PHASE;
     }
-    else if ( QRegularExpression( "^.WP" ).match( m_quantityName ).hasMatch() )
+    else if ( QRegularExpression( "^.WP" ).match( m_vectorName ).hasMatch() )
     {
         return RiaDefines::PhaseType::WATER_PHASE;
     }
     return RiaDefines::PhaseType::PHASE_NOT_APPLICABLE;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryAddress::keywordForCategory( RifEclipseSummaryAddress::SummaryVarCategory category ) const
+{
+    // Return the keyword text for supported field replacement in plot templates
+
+    if ( category == RifEclipseSummaryAddress::SUMMARY_WELL ) return m_wellName.keyword();
+    if ( category == RifEclipseSummaryAddress::SUMMARY_GROUP ) return m_groupName.keyword();
+    if ( category == RifEclipseSummaryAddress::SUMMARY_REGION ) return m_regionNumber.keyword();
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::setCaseId( int caseId )
+{
+    m_caseId = caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryAddress::caseId() const
+{
+    return m_caseId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimSummaryAddress::quantityName() const
+{
+    return m_vectorName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryAddress::setEnsembleId( int ensembleId )
+{
+    m_ensembleId = ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimSummaryAddress::ensembleId() const
+{
+    return m_ensembleId;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryAddress::isEnsemble() const
+{
+    return m_ensembleId >= 0;
 }

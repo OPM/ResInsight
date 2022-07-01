@@ -33,9 +33,10 @@ public:
     // Reload grid data, but not summary
     static void reloadAllEclipseGridData( RimEclipseCase* eclipseCase );
 
+    static void updateAll3dViews( RimEclipseCase* eclipseCase );
+
 private:
     static void reloadAllEclipseData( RimEclipseCase* eclipseCase, bool reloadSummaryData );
     static void clearAllGridData( RigEclipseCaseData* eclipseCaseData );
-    static void updateAll3dViews( RimEclipseCase* eclipseCase );
     static void updateAllPlots();
 };

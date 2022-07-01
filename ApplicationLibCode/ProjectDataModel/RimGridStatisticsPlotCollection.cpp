@@ -30,9 +30,9 @@ CAF_PDM_SOURCE_INIT( RimGridStatisticsPlotCollection, "GridStatisticsPlotCollect
 //--------------------------------------------------------------------------------------------------
 RimGridStatisticsPlotCollection::RimGridStatisticsPlotCollection()
 {
-    CAF_PDM_InitObject( "Grid Statistics Plots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "Grid Statistics Plots", ":/WellLogPlots16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlots, "GridStatisticsPlots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlots, "GridStatisticsPlots", "" );
     m_gridStatisticsPlots.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -68,7 +68,7 @@ void RimGridStatisticsPlotCollection::addGridStatisticsPlot( RimGridStatisticsPl
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridStatisticsPlot*> RimGridStatisticsPlotCollection::gridStatisticsPlots() const
 {
-    return m_gridStatisticsPlots.childObjects();
+    return m_gridStatisticsPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,5 +76,5 @@ std::vector<RimGridStatisticsPlot*> RimGridStatisticsPlotCollection::gridStatist
 //--------------------------------------------------------------------------------------------------
 void RimGridStatisticsPlotCollection::deleteAllPlots()
 {
-    m_gridStatisticsPlots.deleteAllChildObjects();
+    m_gridStatisticsPlots.deleteChildren();
 }

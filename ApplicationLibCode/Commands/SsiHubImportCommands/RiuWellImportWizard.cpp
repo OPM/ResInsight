@@ -32,6 +32,7 @@
 #include "cafPdmObjectGroup.h"
 #include "cafPdmUiListView.h"
 #include "cafPdmUiPropertyView.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeView.h"
 #include "cafPdmUiTreeViewEditor.h"
 #include "cafUtils.h"
@@ -727,7 +728,7 @@ void RiuWellImportWizard::parseWellsResponse( RimOilFieldEntry* oilFieldEntry )
 
     for ( size_t i = 0; i < wellsToRemove.size(); i++ )
     {
-        oilFieldEntry->wells.removeChildObject( wellsToRemove[i] );
+        oilFieldEntry->wells.removeChild( wellsToRemove[i] );
 
         delete wellsToRemove[i];
     }
@@ -901,7 +902,7 @@ void WellSelectionPage::buildWellTreeView()
     }
 
     // Delete all temporary pdm object groups
-    m_regionsWithVisibleWells->objects.deleteAllChildObjects();
+    m_regionsWithVisibleWells->objects.deleteChildren();
 
     for ( size_t rIdx = 0; rIdx < m_wellPathImportObject->regions.size(); rIdx++ )
     {
@@ -981,7 +982,7 @@ void WellSelectionPage::selectedWellPathEntries( std::vector<DownloadEntity>& do
     for ( size_t i = 0; i < childFields.size(); i++ )
     {
         std::vector<caf::PdmObjectHandle*> childObjects;
-        childFields[i]->childObjects( &childObjects );
+        childFields[i]->children( &childObjects );
 
         for ( size_t j = 0; j < childObjects.size(); j++ )
         {
@@ -1116,7 +1117,7 @@ void WellSummaryPage::initializePage()
 //--------------------------------------------------------------------------------------------------
 void WellSummaryPage::updateSummaryPage()
 {
-    m_objectGroup->objects.clear();
+    m_objectGroup->objects.deleteChildren();
 
     m_textEdit->setText( "Summary of imported wells\n\n" );
 
@@ -1198,9 +1199,9 @@ CAF_PDM_SOURCE_INIT( SummaryPageDownloadEntity, "SummaryPageDownloadEntity" );
 //--------------------------------------------------------------------------------------------------
 SummaryPageDownloadEntity::SummaryPageDownloadEntity()
 {
-    CAF_PDM_InitObject( "SummaryPageDownloadEntity", "", "", "" );
+    CAF_PDM_InitObject( "SummaryPageDownloadEntity" );
 
-    CAF_PDM_InitFieldNoDefault( &name, "Name", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &requestUrl, "RequestUrl", "", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &responseFilename, "ResponseFilename", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &name, "Name", "" );
+    CAF_PDM_InitFieldNoDefault( &requestUrl, "RequestUrl", "" );
+    CAF_PDM_InitFieldNoDefault( &responseFilename, "ResponseFilename", "" );
 }

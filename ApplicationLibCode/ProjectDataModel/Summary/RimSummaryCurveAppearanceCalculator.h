@@ -17,13 +17,15 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiuPlotCurveSymbol.h"
 #include "RiuQwtPlotCurveDefines.h"
-#include "RiuQwtSymbol.h"
 
 #include "cvfColor3.h"
 
 #include <map>
 #include <set>
+#include <unordered_map>
+#include <vector>
 
 class RimSummaryCurve;
 class RimSummaryCase;
@@ -34,6 +36,7 @@ class RimSummaryCurveAppearanceCalculator
 {
 public:
     explicit RimSummaryCurveAppearanceCalculator( const std::set<RiaSummaryCurveDefinition>& curveDefinitions );
+    explicit RimSummaryCurveAppearanceCalculator( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     enum CurveAppearanceType
     {
         NONE,
@@ -57,15 +60,19 @@ public:
 
     void setupCurveLook( RimSummaryCurve* curve );
 
-    static cvf::Color3f                  cycledPaletteColor( int colorIndex );
-    static cvf::Color3f                  cycledNoneRGBBrColor( int colorIndex );
-    static cvf::Color3f                  cycledGreenColor( int colorIndex );
-    static cvf::Color3f                  cycledBlueColor( int colorIndex );
-    static cvf::Color3f                  cycledRedColor( int colorIndex );
-    static cvf::Color3f                  cycledBrownColor( int colorIndex );
-    static RiuQwtSymbol::PointSymbolEnum cycledSymbol( int index );
+    static cvf::Color3f assignColorByPhase( const RifEclipseSummaryAddress& address );
+    static cvf::Color3f computeTintedCurveColorForAddress( const RifEclipseSummaryAddress& address, int colorIndex );
+
+    static cvf::Color3f                        cycledPaletteColor( int colorIndex );
+    static cvf::Color3f                        cycledNoneRGBBrColor( int colorIndex );
+    static cvf::Color3f                        cycledGreenColor( int colorIndex );
+    static cvf::Color3f                        cycledBlueColor( int colorIndex );
+    static cvf::Color3f                        cycledRedColor( int colorIndex );
+    static cvf::Color3f                        cycledBrownColor( int colorIndex );
+    static RiuPlotCurveSymbol::PointSymbolEnum cycledSymbol( int index );
 
 private:
+    void init( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions );
     void setOneCurveAppearance( CurveAppearanceType appeaType, size_t totalCount, int appeaIdx, RimSummaryCurve* curve );
     void                          updateApperanceIndices();
     std::map<std::string, size_t> mapNameToAppearanceIndex( CurveAppearanceType&         appearance,
@@ -76,6 +83,7 @@ private:
     float                                 gradient( size_t totalCount, int index );
 
     cvf::Color3f gradeColor( const cvf::Color3f& color, float factor );
+    void         assignColorByPhase( RimSummaryCurve* curve, int colorIndex );
 
     static std::set<std::string> getAllSummaryCaseNames();
     static std::set<std::string> getAllSummaryWellNames();
@@ -91,11 +99,11 @@ private:
     CurveAppearanceType m_groupAppearanceType;
     CurveAppearanceType m_regionAppearanceType;
 
-    std::map<RimSummaryCase*, int> m_caseToAppearanceIdxMap;
-    std::map<std::string, int>     m_varToAppearanceIdxMap;
-    std::map<std::string, int>     m_welToAppearanceIdxMap;
-    std::map<std::string, int>     m_grpToAppearanceIdxMap;
-    std::map<int, int>             m_regToAppearanceIdxMap;
+    std::map<RimSummaryCase*, int>       m_caseToAppearanceIdxMap;
+    std::unordered_map<std::string, int> m_varToAppearanceIdxMap;
+    std::unordered_map<std::string, int> m_welToAppearanceIdxMap;
+    std::unordered_map<std::string, int> m_grpToAppearanceIdxMap;
+    std::unordered_map<int, int>         m_regToAppearanceIdxMap;
 
     std::map<char, std::map<std::string, int>> m_secondCharToVarToAppearanceIdxMap;
 

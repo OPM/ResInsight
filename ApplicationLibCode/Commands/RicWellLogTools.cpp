@@ -29,6 +29,7 @@
 #include "RimEclipseResultCase.h"
 #include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimSummaryCase.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogFile.h"
@@ -108,7 +109,11 @@ bool RicWellLogTools::hasRftDataForWell( const QString& wellName )
         {
             if ( resultCase->rftReader() )
             {
-                return resultCase->rftReader()->wellHasRftData( wellName );
+                auto wellNames = resultCase->rftReader()->wellNames();
+                for ( const auto& w : wellNames )
+                {
+                    if ( w == wellName ) return true;
+                }
             }
         }
     }
@@ -321,7 +326,6 @@ ExtractionCurveType* RicWellLogTools::addExtractionCurve( RimWellLogTrack*      
     plotTrack->updateConnectedEditors();
     plot->updateConnectedEditors();
 
-    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -364,6 +368,34 @@ RimWellLogRftCurve*
         plotTrack->setFormationCase( resultCase );
         plotTrack->setFormationSimWellName( simWell->name() );
     }
+    else if ( resultCase )
+    {
+        curve->setEclipseResultCase( resultCase );
+
+        auto wellNames = resultCase->rftReader()->wellNames();
+        if ( !wellNames.empty() )
+        {
+            auto wellName = *( wellNames.begin() );
+            curve->setDefaultAddress( wellName );
+        }
+    }
+    else
+    {
+        auto sumCases = RimProject::current()->allSummaryCases();
+
+        for ( auto sc : sumCases )
+        {
+            if ( sc->rftReader() )
+            {
+                auto rftReader = sc->rftReader();
+
+                curve->setSummaryCase( sc );
+
+                auto addresses = rftReader->eclipseRftAddresses();
+                if ( !addresses.empty() ) curve->setRftAddress( *addresses.begin() );
+            }
+        }
+    }
 
     cvf::Color3f curveColor = RicWellLogPlotCurveFeatureImpl::curveColorFromTable( plotTrack->curveCount() );
     curve->setColor( curveColor );
@@ -372,7 +404,6 @@ RimWellLogRftCurve*
     plotTrack->setFormationTrajectoryType( RimWellLogTrack::SIMULATION_WELL );
     plotTrack->updateConnectedEditors();
 
-    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -401,7 +432,6 @@ RimWellLogFileCurve* RicWellLogTools::addFileCurve( RimWellLogTrack* plotTrack, 
 
     plotTrack->updateConnectedEditors();
 
-    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 
@@ -474,7 +504,6 @@ RimWellMeasurementCurve* RicWellLogTools::addWellMeasurementCurve( RimWellLogTra
     plotTrack->addCurve( curve );
     plotTrack->updateConnectedEditors();
 
-    RimProject::current()->updateConnectedEditors();
     RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( curve );
 

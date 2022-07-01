@@ -24,8 +24,8 @@
 #include "cafPdmPointer.h"
 #include "cafPdmPtrField.h"
 
+#include "RiaDateTimeDefines.h"
 #include "RiaDefines.h"
-#include "RiaQDateTimeTools.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
 #include "RimStackablePlotCurve.h"
@@ -35,11 +35,10 @@
 
 class RifSummaryReaderInterface;
 class RimSummaryCase;
-class RimSummaryFilter_OBSOLETE;
-class RiuQwtPlotCurve;
 class RimSummaryCurveAutoName;
 class RimSummaryAddress;
 class RiaSummaryCurveDefinition;
+class RimPlotAxisPropertiesInterface;
 
 //==================================================================================================
 ///
@@ -64,12 +63,12 @@ public:
     void setSummaryCaseY( RimSummaryCase* sumCase );
     void setSummaryAddressYAndApplyInterpolation( const RifEclipseSummaryAddress& address );
     void setSummaryAddressY( const RifEclipseSummaryAddress& address );
-    void setResampling( RiaQDateTimeTools::DateTimePeriodEnum resampling );
+    void setResampling( RiaDefines::DateTimePeriodEnum resampling );
 
     RifEclipseSummaryAddress   errorSummaryAddressY() const;
     std::vector<double>        errorValuesY() const;
-    void                       setLeftOrRightAxisY( RiaDefines::PlotAxis plotAxis );
-    RiaDefines::PlotAxis       axisY() const;
+    void                       setLeftOrRightAxisY( RiuPlotAxis plotAxis );
+    RiuPlotAxis                axisY() const;
     const std::vector<time_t>& timeStepsY() const;
     double                     yValueAtTimeT( time_t time ) const;
     void setOverrideCurveDataY( const std::vector<time_t>& xValues, const std::vector<double>& yValues );
@@ -88,11 +87,12 @@ public:
     bool isEnsembleCurve() const;
     void setIsEnsembleCurve( bool isEnsembleCurve );
 
-    void updateQwtPlotAxis();
+    void updatePlotAxis();
     void applyCurveAutoNameSettings( const RimSummaryCurveAutoName& autoNameSettings );
 
     QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const override;
     void    setCurveAppearanceFromCaseType();
+    void    setDefaultCurveAppearance();
 
     void setAsTopZWithinCategory( bool enable );
     void setZIndexFromCurveInfo();
@@ -107,8 +107,9 @@ protected:
 
     void updateLegendsInPlot() override;
 
-    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
-    void initAfterRead() override;
+    void   defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+    void   initAfterRead() override;
+    double computeCurveZValue() override;
 
 private:
     RifSummaryReaderInterface* valuesSummaryReaderX() const;
@@ -119,8 +120,7 @@ private:
 
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
@@ -135,7 +135,7 @@ private:
     caf::PdmField<RifEclipseSummaryAddress> m_yValuesSummaryAddressUiField;
     caf::PdmField<bool>                     m_yPushButtonSelectSummaryAddress;
 
-    caf::PdmField<RiaQDateTimeTools::DateTimePeriodEnum> m_resampling;
+    caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     // X values
     caf::PdmPtrField<RimSummaryCase*>       m_xValuesSummaryCase;
@@ -146,10 +146,7 @@ private:
     caf::PdmField<caf::Tristate> m_isEnsembleCurve;
 
     caf::PdmChildField<RimSummaryCurveAutoName*>      m_curveNameConfig;
-    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
+    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
     caf::PdmField<bool>                               m_isTopZWithinCategory;
-
-    // Obsolete fields
-    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_yValuesSummaryFilter_OBSOLETE;
-    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_xValuesSummaryFilter_OBSOLETE;
 };

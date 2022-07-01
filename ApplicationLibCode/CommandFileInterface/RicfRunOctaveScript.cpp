@@ -37,8 +37,8 @@ CAF_PDM_SOURCE_INIT( RicfRunOctaveScript, "runOctaveScript" );
 //--------------------------------------------------------------------------------------------------
 RicfRunOctaveScript::RicfRunOctaveScript()
 {
-    CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_path, "path", QString(), "Path" );
+    CAF_PDM_InitScriptableField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs" );
 }
 
 //--------------------------------------------------------------------------------------------------

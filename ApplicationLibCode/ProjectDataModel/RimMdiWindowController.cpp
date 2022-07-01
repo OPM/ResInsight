@@ -32,12 +32,12 @@ CAF_PDM_XML_SOURCE_INIT( RimMdiWindowController, "MdiWindowController" );
 //--------------------------------------------------------------------------------------------------
 RimMdiWindowController::RimMdiWindowController()
 {
-    CAF_PDM_InitField( &m_mainWindowID, "MainWindowID", -1, "", "", "", "" );
-    CAF_PDM_InitField( &m_x, "xPos", -1, "", "", "", "" );
-    CAF_PDM_InitField( &m_y, "yPos", -1, "", "", "", "" );
-    CAF_PDM_InitField( &m_width, "Width", -1, "", "", "", "" );
-    CAF_PDM_InitField( &m_height, "Height", -1, "", "", "", "" );
-    CAF_PDM_InitField( &m_isMaximized, "IsMaximized", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_mainWindowID, "MainWindowID", -1, "" );
+    CAF_PDM_InitField( &m_x, "xPos", -1, "" );
+    CAF_PDM_InitField( &m_y, "yPos", -1, "" );
+    CAF_PDM_InitField( &m_width, "Width", -1, "" );
+    CAF_PDM_InitField( &m_height, "Height", -1, "" );
+    CAF_PDM_InitField( &m_isMaximized, "IsMaximized", false, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -100,6 +100,7 @@ void RimMdiWindowController::removeWindowFromMDI()
     if ( mainWin && viewWidget() )
     {
         mainWin->removeViewer( viewWidget() );
+        viewPdmObject()->deleteViewWidget();
     }
 }
 

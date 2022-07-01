@@ -38,7 +38,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateSaturationPressurePlots, "createSaturationPressur
 //--------------------------------------------------------------------------------------------------
 RicfCreateSaturationPressurePlots::RicfCreateSaturationPressurePlots()
 {
-    CAF_PDM_InitScriptableField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseIds, "caseIds", std::vector<int>(), "Case IDs" );
 }
 
 //--------------------------------------------------------------------------------------------------

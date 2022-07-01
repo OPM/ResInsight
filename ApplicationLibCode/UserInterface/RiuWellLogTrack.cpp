@@ -19,14 +19,20 @@
 
 #include "RiuWellLogTrack.h"
 
+#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuGuiTheme.h"
+#include "RiuPlotCurve.h"
+#include "RiuPlotCurveInfoTextProvider.h"
 #include "RiuQwtCurvePointTracker.h"
-#include "RiuRimQwtPlotCurve.h"
+#include "RiuQwtPlotTools.h"
 
+#include "qwt_plot.h"
+#include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
 #include "qwt_scale_widget.h"
@@ -36,8 +42,9 @@
 class RiuWellLogCurvePointTracker : public RiuQwtCurvePointTracker
 {
 public:
-    RiuWellLogCurvePointTracker( QwtPlot* plot, IPlotCurveInfoTextProvider* curveInfoTextProvider )
+    RiuWellLogCurvePointTracker( QwtPlot* plot, RiuPlotCurveInfoTextProvider* curveInfoTextProvider, RimWellLogTrack* track )
         : RiuQwtCurvePointTracker( plot, false, curveInfoTextProvider )
+        , m_wellLogTrack( track )
     {
     }
 
@@ -51,8 +58,8 @@ protected:
 
         if ( m_plot )
         {
-            QwtPlot::Axis relatedYAxis = QwtPlot::yLeft;
-            QwtPlot::Axis relatedXAxis = QwtPlot::xTop;
+            QwtAxisId relatedYAxis( QwtAxis::YLeft, 0 );
+            QwtAxisId relatedXAxis( QwtAxis::XTop, 0 );
 
             QString curveInfoText;
             QString depthAxisValueString;
@@ -61,7 +68,19 @@ protected:
                 closestCurvePoint( pos, &curveInfoText, &xAxisValueString, &depthAxisValueString, &relatedXAxis, &relatedYAxis );
             if ( !closestPoint.isNull() )
             {
-                QString str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
+                QString str;
+
+                RimWellLogPlot* wlp = nullptr;
+                m_wellLogTrack->firstAncestorOfType( wlp );
+
+                if ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+                {
+                    str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
+                }
+                else
+                {
+                    str = QString( "%1\nDepth: %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
+                }
 
                 if ( !curveInfoText.isEmpty() )
                 {
@@ -79,21 +98,23 @@ protected:
 
         return txt;
     }
+
+private:
+    caf::PdmPointer<RimWellLogTrack> m_wellLogTrack;
 };
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class WellLogCurveInfoTextProvider : public IPlotCurveInfoTextProvider
+class WellLogCurveInfoTextProvider : public RiuPlotCurveInfoTextProvider
 {
 public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QString curveInfoText( QwtPlotCurve* curve ) override
+    QString curveInfoText( RiuPlotCurve* riuCurve ) const override
     {
-        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>( curve );
-        RimWellLogCurve*    wlCurve  = nullptr;
+        RimWellLogCurve* wlCurve = nullptr;
         if ( riuCurve )
         {
             wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
@@ -114,12 +135,12 @@ static WellLogCurveInfoTextProvider wellLogCurveInfoTextProvider;
 RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nullptr */ )
     : RiuQwtPlotWidget( track, parent )
 {
-    setAxisEnabled( QwtPlot::yLeft, true );
-    setAxisEnabled( QwtPlot::yRight, false );
-    setAxisEnabled( QwtPlot::xTop, true );
-    setAxisEnabled( QwtPlot::xBottom, false );
+    setAxisEnabled( QwtAxis::YLeft, true );
+    setAxisEnabled( QwtAxis::YRight, false );
+    setAxisEnabled( QwtAxis::XTop, true );
+    setAxisEnabled( QwtAxis::XBottom, true );
 
-    new RiuWellLogCurvePointTracker( this, &wellLogCurveInfoTextProvider );
+    new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -132,22 +153,19 @@ RiuWellLogTrack::~RiuWellLogTrack()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellLogTrack::setAxisEnabled( QwtPlot::Axis axis, bool enabled )
+void RiuWellLogTrack::setAxisEnabled( QwtAxis::Position axis, bool enabled )
 {
+    RiuPlotAxis plotAxis = RiuPlotAxis( RiuQwtPlotTools::fromQwtPlotAxis( axis ) );
+    RiuQwtPlotWidget::enableAxis( plotAxis, enabled );
+
     if ( enabled )
     {
-        enableAxis( axis, true );
-
         // Align the canvas with the actual min and max values of the curves
-        axisScaleEngine( axis )->setAttribute( QwtScaleEngine::Floating, true );
-        setAxisScale( axis, 0.0, 100.0 );
-        axisScaleDraw( axis )->setMinimumExtent( axisExtent( axis ) );
+        qwtPlot()->axisScaleEngine( axis )->setAttribute( QwtScaleEngine::Floating, true );
+        setAxisScale( plotAxis, 0.0, 100.0 );
+        qwtPlot()->axisScaleDraw( axis )->setMinimumExtent( axisExtent( plotAxis ) );
 
-        axisWidget( axis )->setMargin( 0 );
-        setAxisTitleEnabled( axis, true );
-    }
-    else
-    {
-        enableAxis( axis, false );
+        qwtPlot()->axisWidget( axis )->setMargin( 0 );
+        setAxisTitleEnabled( plotAxis, true );
     }
 }

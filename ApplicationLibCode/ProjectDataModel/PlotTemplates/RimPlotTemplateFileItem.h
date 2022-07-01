@@ -36,6 +36,12 @@ public:
     void    setFilePath( const QString& filePath );
     QString absoluteFilePath() const;
 
+    bool isEnsembleTemplate() const;
+
+    bool isDefaultTemplate() const;
+
+    void updateIconState();
+
 private:
     caf::PdmField<QString> m_absoluteFileName;
 };

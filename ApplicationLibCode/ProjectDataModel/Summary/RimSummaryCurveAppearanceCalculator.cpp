@@ -19,6 +19,8 @@
 #include "RimSummaryCurveAppearanceCalculator.h"
 
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
+#include "RiaPreferencesSummary.h"
 #include "RiaSummaryCurveDefinition.h"
 
 #include "RiuQwtPlotCurve.h"
@@ -65,96 +67,25 @@ bool isExcplicitHandled( char secondChar )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator(
+    const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
+{
+    init( curveDefinitions );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimSummaryCurveAppearanceCalculator::RimSummaryCurveAppearanceCalculator( const std::set<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    m_allSummaryCaseNames = getAllSummaryCaseNames();
-    m_allSummaryWellNames = getAllSummaryWellNames();
+    std::vector<RiaSummaryCurveDefinition> curveDefVector;
 
-    for ( const RiaSummaryCurveDefinition& curveDef : curveDefinitions )
+    for ( auto c : curveDefinitions )
     {
-        if ( curveDef.summaryCase() ) m_caseToAppearanceIdxMap[curveDef.summaryCase()] = -1;
-        if ( !curveDef.summaryAddress().wellName().empty() )
-            m_welToAppearanceIdxMap[curveDef.summaryAddress().wellName()] = -1;
-        if ( !curveDef.summaryAddress().wellGroupName().empty() )
-            m_grpToAppearanceIdxMap[curveDef.summaryAddress().wellGroupName()] = -1;
-        if ( !( curveDef.summaryAddress().regionNumber() == -1 ) )
-            m_regToAppearanceIdxMap[curveDef.summaryAddress().regionNumber()] = -1;
-
-        if ( !curveDef.summaryAddress().quantityName().empty() )
-        {
-            std::string varname = curveDef.summaryAddress().quantityName();
-
-            if ( curveDef.summaryAddress().isHistoryQuantity() )
-            {
-                varname = varname.substr( 0, varname.size() - 1 );
-            }
-
-            m_varToAppearanceIdxMap[varname] = -1;
-
-            // Indexes for sub color ranges
-            char secondChar = 0;
-            if ( varname.size() > 1 )
-            {
-                secondChar = varname[1];
-                if ( !isExcplicitHandled( secondChar ) )
-                {
-                    secondChar = 0; // Consider all others as one group for coloring
-                }
-            }
-            m_secondCharToVarToAppearanceIdxMap[secondChar][varname] = -1;
-        }
+        curveDefVector.emplace_back( c );
     }
 
-    // Select the default appearance type for each data "dimension"
-    m_caseAppearanceType   = NONE;
-    m_varAppearanceType    = NONE;
-    m_wellAppearanceType   = NONE;
-    m_groupAppearanceType  = NONE;
-    m_regionAppearanceType = NONE;
-
-    std::set<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> unusedAppearTypes;
-    unusedAppearTypes.insert( COLOR );
-    unusedAppearTypes.insert( GRADIENT );
-    unusedAppearTypes.insert( LINE_STYLE );
-    unusedAppearTypes.insert( SYMBOL );
-    unusedAppearTypes.insert( LINE_THICKNESS );
-    m_currentCurveGradient = 0.0f;
-
-    m_dimensionCount = 0;
-    if ( m_varToAppearanceIdxMap.size() > 1 )
-    {
-        m_varAppearanceType = *( unusedAppearTypes.begin() );
-        unusedAppearTypes.erase( unusedAppearTypes.begin() );
-        m_dimensionCount++;
-    }
-    if ( m_caseToAppearanceIdxMap.size() > 1 )
-    {
-        m_caseAppearanceType = *( unusedAppearTypes.begin() );
-        unusedAppearTypes.erase( unusedAppearTypes.begin() );
-        m_dimensionCount++;
-    }
-    if ( m_welToAppearanceIdxMap.size() > 1 )
-    {
-        m_wellAppearanceType = *( unusedAppearTypes.begin() );
-        unusedAppearTypes.erase( unusedAppearTypes.begin() );
-        m_dimensionCount++;
-    }
-    if ( m_grpToAppearanceIdxMap.size() > 1 )
-    {
-        m_groupAppearanceType = *( unusedAppearTypes.begin() );
-        unusedAppearTypes.erase( unusedAppearTypes.begin() );
-        m_dimensionCount++;
-    }
-    if ( m_regToAppearanceIdxMap.size() > 1 )
-    {
-        m_regionAppearanceType = *( unusedAppearTypes.begin() );
-        unusedAppearTypes.erase( unusedAppearTypes.begin() );
-        m_dimensionCount++;
-    }
-
-    if ( m_dimensionCount == 0 ) m_varAppearanceType = COLOR; // basically one curve
-
-    updateApperanceIndices();
+    init( curveDefVector );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -245,8 +176,8 @@ std::map<std::string, size_t>
     }
     else if ( appearance == CurveAppearanceType::SYMBOL )
     {
-        numOptions = caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is not
-                                                                              // counted see cycledSymbol()
+        numOptions = caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::size() - 1; // -1 since the No symbol option is
+                                                                                    // not counted see cycledSymbol()
     }
     else if ( appearance == CurveAppearanceType::LINE_STYLE )
     {
@@ -347,15 +278,21 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
     m_currentCurveBaseColor = cvf::Color3f( 0.5f, 0.5f, 0.5f );
     m_currentCurveGradient  = 0.0f;
 
+    std::string quantityName = curve->summaryAddressY().vectorName();
+    if ( curve->summaryAddressY().isHistoryVector() )
+    {
+        quantityName = quantityName.substr( 0, quantityName.size() - 1 );
+    }
+
+    int varAppearanceIdx  = m_varToAppearanceIdxMap[quantityName];
     int caseAppearanceIdx = m_caseToAppearanceIdxMap[curve->summaryCaseY()];
-    int varAppearanceIdx  = m_varToAppearanceIdxMap[curve->summaryAddressY().quantityName()];
     int welAppearanceIdx  = m_welToAppearanceIdxMap[curve->summaryAddressY().wellName()];
-    int grpAppearanceIdx  = m_grpToAppearanceIdxMap[curve->summaryAddressY().wellGroupName()];
+    int grpAppearanceIdx  = m_grpToAppearanceIdxMap[curve->summaryAddressY().groupName()];
     int regAppearanceIdx  = m_regToAppearanceIdxMap[curve->summaryAddressY().regionNumber()];
 
     // Remove index for curves without value at the specific dimension
     if ( curve->summaryAddressY().wellName().empty() ) welAppearanceIdx = -1;
-    if ( curve->summaryAddressY().wellGroupName().empty() ) grpAppearanceIdx = -1;
+    if ( curve->summaryAddressY().groupName().empty() ) grpAppearanceIdx = -1;
     if ( curve->summaryAddressY().regionNumber() < 0 ) regAppearanceIdx = -1;
 
     setOneCurveAppearance( m_caseAppearanceType, m_allSummaryCaseNames.size(), caseAppearanceIdx, curve );
@@ -363,52 +300,15 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
     setOneCurveAppearance( m_groupAppearanceType, m_grpToAppearanceIdxMap.size(), grpAppearanceIdx, curve );
     setOneCurveAppearance( m_regionAppearanceType, m_regToAppearanceIdxMap.size(), regAppearanceIdx, curve );
 
-    if ( m_varAppearanceType == COLOR && m_secondCharToVarToAppearanceIdxMap.size() > 1 )
+    bool assignByPhase = false;
+    if ( RiaPreferencesSummary::current()->colorCurvesByPhase() )
     {
-        int         subColorIndex = -1;
-        char        secondChar    = 0;
-        std::string varname       = curve->summaryAddressY().quantityName();
+        assignByPhase = ( m_varAppearanceType == COLOR );
+    }
 
-        if ( curve->summaryAddressY().isHistoryQuantity() )
-        {
-            varname = varname.substr( 0, varname.size() - 1 );
-        }
-
-        if ( varname.size() > 1 )
-        {
-            secondChar = varname[1];
-            if ( !isExcplicitHandled( secondChar ) )
-            {
-                secondChar = 0; // Consider all others as one group for coloring
-            }
-        }
-
-        subColorIndex = m_secondCharToVarToAppearanceIdxMap[secondChar][varname];
-
-        if ( secondChar == 'W' )
-        {
-            // Pick blue
-            m_currentCurveBaseColor = cycledBlueColor( subColorIndex );
-        }
-        else if ( secondChar == 'O' )
-        {
-            // Pick Green
-            m_currentCurveBaseColor = cycledGreenColor( subColorIndex );
-        }
-        else if ( secondChar == 'G' )
-        {
-            // Pick Red
-            m_currentCurveBaseColor = cycledRedColor( subColorIndex );
-        }
-        else if ( secondChar == 'V' )
-        {
-            // Pick Brown
-            m_currentCurveBaseColor = cycledBrownColor( subColorIndex );
-        }
-        else
-        {
-            m_currentCurveBaseColor = cycledNoneRGBBrColor( subColorIndex );
-        }
+    if ( assignByPhase )
+    {
+        assignColorByPhase( curve, varAppearanceIdx );
     }
     else
     {
@@ -418,6 +318,192 @@ void RimSummaryCurveAppearanceCalculator::setupCurveLook( RimSummaryCurve* curve
     curve->setColor( gradeColor( m_currentCurveBaseColor, m_currentCurveGradient ) );
 
     curve->setCurveAppearanceFromCaseType();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveAppearanceCalculator::assignColorByPhase( RimSummaryCurve* curve, int colorIndex )
+{
+    char        secondChar = 0;
+    std::string varname    = curve->summaryAddressY().vectorName();
+
+    if ( varname.size() > 1 )
+    {
+        secondChar = varname[1];
+        if ( !isExcplicitHandled( secondChar ) )
+        {
+            secondChar = 0; // Consider all others as one group for coloring
+        }
+    }
+
+    if ( secondChar == 'W' )
+    {
+        // Pick blue
+        m_currentCurveBaseColor = cycledBlueColor( colorIndex );
+    }
+    else if ( secondChar == 'O' )
+    {
+        // Pick Green
+        m_currentCurveBaseColor = cycledGreenColor( colorIndex );
+    }
+    else if ( secondChar == 'G' )
+    {
+        // Pick Red
+        m_currentCurveBaseColor = cycledRedColor( colorIndex );
+    }
+    else if ( secondChar == 'V' )
+    {
+        // Pick Brown
+        m_currentCurveBaseColor = cycledBrownColor( colorIndex );
+    }
+    else
+    {
+        m_currentCurveBaseColor = cycledNoneRGBBrColor( colorIndex );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::assignColorByPhase( const RifEclipseSummaryAddress& address )
+{
+    char        secondChar = 0;
+    std::string vectorName = address.vectorName();
+
+    if ( vectorName.size() > 1 )
+    {
+        secondChar = vectorName[1];
+        if ( !isExcplicitHandled( secondChar ) )
+        {
+            secondChar = 0; // Consider all others as one group for coloring
+        }
+    }
+
+    if ( secondChar == 'W' ) return cycledBlueColor( 0 );
+    if ( secondChar == 'O' ) return cycledGreenColor( 0 );
+    if ( secondChar == 'G' ) return cycledRedColor( 0 );
+    if ( secondChar == 'V' ) return cycledBrownColor( 0 );
+
+    return cycledNoneRGBBrColor( 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddress( const RifEclipseSummaryAddress& address,
+                                                                                     int colorIndex )
+{
+    bool usePhaseColor = RiaPreferencesSummary::current()->colorCurvesByPhase();
+
+    cvf::Color3f curveColor;
+    if ( usePhaseColor )
+    {
+        curveColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( address );
+    }
+    else
+    {
+        curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex );
+    }
+
+    float scalingFactor = 0.25;
+    curveColor          = RiaColorTools::makeLighter( curveColor, scalingFactor );
+    return curveColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveAppearanceCalculator::init( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
+{
+    m_allSummaryCaseNames = getAllSummaryCaseNames();
+    m_allSummaryWellNames = getAllSummaryWellNames();
+
+    for ( const RiaSummaryCurveDefinition& curveDef : curveDefinitions )
+    {
+        if ( curveDef.summaryCase() ) m_caseToAppearanceIdxMap[curveDef.summaryCase()] = -1;
+        if ( !curveDef.summaryAddress().wellName().empty() )
+            m_welToAppearanceIdxMap[curveDef.summaryAddress().wellName()] = -1;
+        if ( !curveDef.summaryAddress().groupName().empty() )
+            m_grpToAppearanceIdxMap[curveDef.summaryAddress().groupName()] = -1;
+        if ( !( curveDef.summaryAddress().regionNumber() == -1 ) )
+            m_regToAppearanceIdxMap[curveDef.summaryAddress().regionNumber()] = -1;
+
+        if ( !curveDef.summaryAddress().vectorName().empty() )
+        {
+            std::string varname = curveDef.summaryAddress().vectorName();
+
+            if ( curveDef.summaryAddress().isHistoryVector() )
+            {
+                varname = varname.substr( 0, varname.size() - 1 );
+            }
+
+            m_varToAppearanceIdxMap[varname] = -1;
+
+            // Indexes for sub color ranges
+            char secondChar = 0;
+            if ( varname.size() > 1 )
+            {
+                secondChar = varname[1];
+                if ( !isExcplicitHandled( secondChar ) )
+                {
+                    secondChar = 0; // Consider all others as one group for coloring
+                }
+            }
+            m_secondCharToVarToAppearanceIdxMap[secondChar][varname] = -1;
+        }
+    }
+
+    // Select the default appearance type for each data "dimension"
+    m_caseAppearanceType   = NONE;
+    m_varAppearanceType    = NONE;
+    m_wellAppearanceType   = NONE;
+    m_groupAppearanceType  = NONE;
+    m_regionAppearanceType = NONE;
+
+    std::set<RimSummaryCurveAppearanceCalculator::CurveAppearanceType> unusedAppearTypes;
+    unusedAppearTypes.insert( COLOR );
+    unusedAppearTypes.insert( GRADIENT );
+    unusedAppearTypes.insert( LINE_STYLE );
+    unusedAppearTypes.insert( SYMBOL );
+    unusedAppearTypes.insert( LINE_THICKNESS );
+    m_currentCurveGradient = 0.0f;
+
+    m_dimensionCount = 0;
+    if ( m_varToAppearanceIdxMap.size() > 1 )
+    {
+        m_varAppearanceType = *( unusedAppearTypes.begin() );
+        unusedAppearTypes.erase( unusedAppearTypes.begin() );
+        m_dimensionCount++;
+    }
+    if ( m_caseToAppearanceIdxMap.size() > 1 )
+    {
+        m_caseAppearanceType = *( unusedAppearTypes.begin() );
+        unusedAppearTypes.erase( unusedAppearTypes.begin() );
+        m_dimensionCount++;
+    }
+    if ( m_welToAppearanceIdxMap.size() > 1 )
+    {
+        m_wellAppearanceType = *( unusedAppearTypes.begin() );
+        unusedAppearTypes.erase( unusedAppearTypes.begin() );
+        m_dimensionCount++;
+    }
+    if ( m_grpToAppearanceIdxMap.size() > 1 )
+    {
+        m_groupAppearanceType = *( unusedAppearTypes.begin() );
+        unusedAppearTypes.erase( unusedAppearTypes.begin() );
+        m_dimensionCount++;
+    }
+    if ( m_regToAppearanceIdxMap.size() > 1 )
+    {
+        m_regionAppearanceType = *( unusedAppearTypes.begin() );
+        unusedAppearTypes.erase( unusedAppearTypes.begin() );
+        m_dimensionCount++;
+    }
+
+    if ( m_dimensionCount == 0 ) m_varAppearanceType = COLOR; // basically one curve
+
+    updateApperanceIndices();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -524,12 +610,12 @@ RiuQwtPlotCurveDefines::LineStyleEnum RimSummaryCurveAppearanceCalculator::cycle
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol( int index )
+RiuPlotCurveSymbol::PointSymbolEnum RimSummaryCurveAppearanceCalculator::cycledSymbol( int index )
 {
-    if ( index < 0 ) return RiuQwtSymbol::SYMBOL_NONE;
+    if ( index < 0 ) return RiuPlotCurveSymbol::SYMBOL_NONE;
 
-    return caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::fromIndex(
-        1 + ( index % ( caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>::size() - 1 ) ) );
+    return caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::fromIndex(
+        1 + ( index % ( caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>::size() - 1 ) ) );
 }
 
 //--------------------------------------------------------------------------------------------------

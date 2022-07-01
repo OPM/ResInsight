@@ -21,6 +21,7 @@
 #include "RiaFeatureCommandContext.h"
 #include "RiaGuiApplication.h"
 #include "RiaPreferencesSummary.h"
+#include "RiaQDateTimeTools.h"
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
@@ -64,8 +65,8 @@ public:
     {
         auto allTabs = tabs();
         CVF_ASSERT( tabIndex < (int)allTabs.size() );
-        RiaQDateTimeTools::DateTimePeriod timePeriod = allTabs[tabIndex];
-        if ( timePeriod == RiaQDateTimeTools::DateTimePeriod::NONE )
+        RiaDefines::DateTimePeriod timePeriod = allTabs[tabIndex];
+        if ( timePeriod == RiaDefines::DateTimePeriod::NONE )
         {
             return "No Resampling";
         }
@@ -79,7 +80,7 @@ public:
     {
         CVF_ASSERT( m_summaryPlot.notNull() && "Need to check that provider is valid" );
 
-        RiaQDateTimeTools::DateTimePeriod timePeriod = indexToPeriod( tabIndex );
+        RiaDefines::DateTimePeriod timePeriod = indexToPeriod( tabIndex );
 
         if ( m_summaryPlot->containsResamplableCurves() )
         {
@@ -89,27 +90,25 @@ public:
         }
         else
         {
-            return m_summaryPlot->asciiDataForSummaryPlotExport( RiaQDateTimeTools::DateTimePeriod::NONE, true );
+            return m_summaryPlot->asciiDataForSummaryPlotExport( RiaDefines::DateTimePeriod::NONE, true );
         }
     }
 
     int tabCount() const override { return (int)tabs().size(); }
 
 private:
-    static RiaQDateTimeTools::DateTimePeriod indexToPeriod( int tabIndex )
+    static RiaDefines::DateTimePeriod indexToPeriod( int tabIndex )
     {
         auto allTabs = tabs();
         CVF_ASSERT( tabIndex < (int)allTabs.size() );
-        RiaQDateTimeTools::DateTimePeriod timePeriod = allTabs[tabIndex];
+        RiaDefines::DateTimePeriod timePeriod = allTabs[tabIndex];
         return timePeriod;
     }
 
-    static std::vector<RiaQDateTimeTools::DateTimePeriod> tabs()
+    static std::vector<RiaDefines::DateTimePeriod> tabs()
     {
-        std::vector<RiaQDateTimeTools::DateTimePeriod> dateTimePeriods = RiaQDateTimeTools::dateTimePeriods();
-        dateTimePeriods.erase( std::remove( dateTimePeriods.begin(),
-                                            dateTimePeriods.end(),
-                                            RiaQDateTimeTools::DateTimePeriod::DECADE ),
+        std::vector<RiaDefines::DateTimePeriod> dateTimePeriods = RiaQDateTimeTools::dateTimePeriods();
+        dateTimePeriods.erase( std::remove( dateTimePeriods.begin(), dateTimePeriods.end(), RiaDefines::DateTimePeriod::DECADE ),
                                dateTimePeriods.end() );
         return dateTimePeriods;
     }

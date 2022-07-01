@@ -25,14 +25,13 @@
 #include "RiuPlotAnnotationTool.h"
 
 #include "RimPlot.h"
-#include "RimRegularLegendConfig.h"
+
+#include "RiuPlotAxis.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
-
-#include "qwt_plot.h"
 
 #include <QPointer>
 
@@ -58,8 +57,6 @@ class RigWellLogExtractor;
 class RimEclipseResultDefinition;
 class RimColorLegend;
 class RimEnsembleWellLogCurveSet;
-
-class QwtPlotCurve;
 
 struct CurveSamplingPointData
 {
@@ -98,7 +95,8 @@ public:
     ~RimWellLogTrack() override;
 
     QWidget*          viewWidget() override;
-    RiuQwtPlotWidget* viewer() override;
+    RiuQwtPlotWidget* viewer();
+    RiuPlotWidget*    plotWidget() override;
     QImage            snapshotWindowContent() override;
     void              zoomAll() override;
 
@@ -113,8 +111,8 @@ public:
     size_t curveIndex( RimWellLogCurve* curve );
     size_t curveCount() { return m_curves.size(); }
 
-    void    setXAxisTitle( const QString& text );
-    QString yAxisTitle() const;
+    void    setPropertyValueAxisTitle( const QString& text );
+    QString depthAxisTitle() const;
 
     void           setFormationWellPath( RimWellPath* wellPath );
     RimWellPath*   formationWellPath() const;
@@ -141,21 +139,24 @@ public:
                                                          bool           useBranchDetection );
     void setAndUpdateSimWellFormationNamesData( RimCase* rimCase, const QString& simWellName );
 
-    void setAutoScaleXEnabled( bool enabled ) override;
-    void setAutoScaleYEnabled( bool enabled ) override;
-    void setAutoScaleXIfNecessary();
+    [[deprecated( "Use setAutoScalePropertyValuesEnabled() instead." )]] void setAutoScaleXEnabled( bool enabled ) override;
+    [[deprecated( "Use setAutoScaleDepthValuesEnabled() instead." )]] void setAutoScaleYEnabled( bool enabled ) override;
 
-    void availableXAxisRange( double* minX, double* maxX );
+    void setAutoScalePropertyValuesEnabled( bool enabled );
+    void setAutoScaleDepthValuesEnabled( bool enabled );
+    void setAutoScalePropertyValuesIfNecessary();
+
+    void availablePropertyValueRange( double* minX, double* maxX );
     void availableDepthRange( double* minimumDepth, double* maximumDepth );
 
-    void visibleXAxisRange( double* minX, double* maxX );
+    void visiblePropertyValueRange( double* minX, double* maxX );
     void visibleDepthRange( double* minimumDepth, double* maximumDepth );
 
-    void setVisibleXRange( double minValue, double maxValue );
-    void setVisibleYRange( double minValue, double maxValue );
+    void setVisiblePropertyValueRange( double minValue, double maxValue );
+    void setVisibleDepthRange( double minValue, double maxValue );
 
-    void updateZoomInQwt() override;
-    void updateZoomFromQwt() override;
+    void updateZoomInParentPlot() override;
+    void updateZoomFromParentPlot() override;
 
     void updateParentPlotZoom();
 
@@ -163,7 +164,7 @@ public:
 
     void setTickIntervals( double majorTickInterval, double minorTickInterval );
     void setMinAndMaxTicksOnly( bool enable );
-    void setXAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
+    void setPropertyValueAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
 
     void setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType );
     void setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay annotationDisplay );
@@ -189,7 +190,7 @@ public:
 
     RimWellPath* wellPathAttributeSource() const;
 
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
+    caf::PdmObject* findPdmObjectFromPlotCurve( const RiuPlotCurve* curve ) const override;
 
     void setLogarithmicScale( bool enable );
     bool isLogarithmicScale() const;
@@ -203,13 +204,13 @@ public:
     void uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering );
 
     void setFormationsForCaseWithSimWellOnly( bool caseWithSimWellOnly );
-    void updateXAxisAndGridTickIntervals();
+    void updatePropertyValueAxisAndGridTickIntervals();
 
     void updateLegend() override;
 
     QString asciiDataForPlotExport() const override;
 
-    void onAxisSelected( int axis, bool toggle ) override;
+    void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
@@ -240,17 +241,22 @@ protected:
     // RimViewWindow overrides
     void deleteViewWidget() override;
     void onLoadDataAndUpdate() override;
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                            std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
 
     void cleanupBeforeClose();
     void detachAllPlotItems();
-    void calculateXZoomRange();
-    void calculateYZoomRange();
+    void calculatePropertyValueZoomRange();
+    void calculateDepthZoomRange();
 
-    void updateXZoom();
-    void updateYZoom();
+    void updatePropertyValueZoom();
+    void updateDepthZoom();
+
+    RiuPlotAxis depthAxis() const;
+    RiuPlotAxis valueAxis() const;
 
     int axisFontSize() const;
 
@@ -260,8 +266,7 @@ private:
     void curveAppearanceChanged( const caf::SignalEmitter* emitter );
     void curveStackingChanged( const caf::SignalEmitter* emitter, bool stacked );
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void initAfterRead() override;
@@ -271,7 +276,7 @@ private:
 
     caf::PdmFieldHandle* userDescriptionField() override;
 
-    void computeAndSetXRangeMinForLogarithmicScale();
+    void computeAndSetPropertyValueRangeMinForLogarithmicScale();
 
     static void simWellOptionItems( QList<caf::PdmOptionItemInfo>* options, RimCase* eclCase );
 
@@ -293,6 +298,8 @@ private:
 
     std::pair<double, double> adjustXRange( double minValue, double maxValue, double tickInterval );
 
+    std::pair<double, double> extendMinMaxRange( double minValue, double maxValue, double factor );
+
     void updateWellPathAttributesCollection();
 
     RimDepthTrackPlot* parentWellLogPlot() const;
@@ -304,22 +311,23 @@ private:
                                                                 const RigGeoMechWellLogExtractor* extractor ) const;
 
     void connectCurveSignals( RimWellLogCurve* curve );
-    bool isEmptyVisibleXRange() const;
+    bool isEmptyVisiblePropertyRange() const;
 
 private:
-    QString m_xAxisTitle;
+    QString m_propertyValueAxisTitle;
 
     caf::PdmField<QString> m_description;
 
     caf::PdmChildArrayField<RimWellLogCurve*> m_curves;
-    caf::PdmField<double>                     m_visibleXRangeMin;
-    caf::PdmField<double>                     m_visibleXRangeMax;
+    caf::PdmField<double>                     m_visiblePropertyValueRangeMin;
+    caf::PdmField<double>                     m_visiblePropertyValueRangeMax;
     caf::PdmField<double>                     m_visibleDepthRangeMin;
     caf::PdmField<double>                     m_visibleDepthRangeMax;
 
-    caf::PdmField<bool>                         m_isAutoScaleXEnabled;
+    caf::PdmField<bool>                         m_isAutoScalePropertyValuesEnabled;
     caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
-    caf::PdmField<RimWellLogPlot::AxisGridEnum> m_xAxisGridVisibility;
+    caf::PdmField<bool>                         m_invertPropertyValueAxis;
+    caf::PdmField<RimWellLogPlot::AxisGridEnum> m_propertyValueAxisGridVisibility;
 
     caf::PdmField<bool>   m_explicitTickIntervals;
     caf::PdmField<bool>   m_minAndMaxTicksOnly;
@@ -364,8 +372,8 @@ private:
     QPointer<RiuWellLogTrack>              m_plotWidget;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 
-    double m_availableXRangeMin;
-    double m_availableXRangeMax;
+    double m_availablePropertyValueRangeMin;
+    double m_availablePropertyValueRangeMax;
     double m_availableDepthRangeMin;
     double m_availableDepthRangeMax;
 };

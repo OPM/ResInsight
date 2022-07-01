@@ -61,6 +61,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimPlotCurve.h"
 #include "RimProject.h"
+#include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
@@ -108,105 +109,87 @@ RimEclipseResultDefinition::RimEclipseResultDefinition( caf::PdmUiItemInfo::Labe
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Result Definition", "", "", "", "EclipseResult", "An eclipse result definition" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Type" );
     m_resultType.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_porosityModel, "PorosityModelType", "Porosity", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_porosityModel, "PorosityModelType", "Porosity" );
     m_porosityModel.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableField( &m_resultVariable,
-                                 "ResultVariable",
-                                 RiaResultNames::undefinedResultName(),
-                                 "Variable",
-                                 "",
-                                 "",
-                                 "" );
+    CAF_PDM_InitScriptableField( &m_resultVariable, "ResultVariable", RiaResultNames::undefinedResultName(), "Variable" );
     m_resultVariable.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_flowSolution, "FlowDiagSolution", "Solution", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_flowSolution, "FlowDiagSolution", "Solution" );
     m_flowSolution.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &m_timeLapseBaseTimestep,
                        "TimeLapseBaseTimeStep",
                        RigEclipseResultAddress::noTimeLapseValue(),
-                       "Base Time Step",
-                       "",
-                       "",
-                       "" );
+                       "Base Time Step" );
 
-    CAF_PDM_InitFieldNoDefault( &m_differenceCase, "DifferenceCase", "Difference Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_differenceCase, "DifferenceCase", "Difference Case" );
 
-    CAF_PDM_InitField( &m_divideByCellFaceArea, "DivideByCellFaceArea", false, "Divide By Area", "", "", "" );
+    CAF_PDM_InitField( &m_divideByCellFaceArea, "DivideByCellFaceArea", false, "Divide By Area" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInjectorTracers, "SelectedInjectorTracers", "Injector Tracers" );
     m_selectedInjectorTracers.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedProducerTracers, "SelectedProducerTracers", "Producer Tracers" );
     m_selectedProducerTracers.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedSouringTracers, "SelectedSouringTracers", "Tracers", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedSouringTracers, "SelectedSouringTracers", "Tracers" );
     m_selectedSouringTracers.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_phaseSelection, "PhaseSelection", "Phases", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_flowTracerSelectionMode, "FlowTracerSelectionMode", "Tracers" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_phaseSelection, "PhaseSelection", "Phases" );
     m_phaseSelection.uiCapability()->setUiLabelPosition( m_labelPosition );
 
     CAF_PDM_InitScriptableField( &m_showOnlyVisibleCategoriesInLegend,
                                  "ShowOnlyVisibleCategoriesInLegend",
                                  true,
-                                 "Show Only Visible Categories In Legend",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Show Only Visible Categories In Legend" );
 
     // Ui only fields
 
-    CAF_PDM_InitFieldNoDefault( &m_resultTypeUiField, "MResultType", "Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultTypeUiField, "MResultType", "Type" );
     m_resultTypeUiField.xmlCapability()->disableIO();
     m_resultTypeUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
 
-    CAF_PDM_InitFieldNoDefault( &m_porosityModelUiField, "MPorosityModelType", "Porosity", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_porosityModelUiField, "MPorosityModelType", "Porosity" );
     m_porosityModelUiField.xmlCapability()->disableIO();
     m_porosityModelUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
 
-    CAF_PDM_InitField( &m_resultVariableUiField,
-                       "MResultVariable",
-                       RiaResultNames::undefinedResultName(),
-                       "Result Property",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_resultVariableUiField, "MResultVariable", RiaResultNames::undefinedResultName(), "Result Property" );
     m_resultVariableUiField.xmlCapability()->disableIO();
     m_resultVariableUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_resultVariableUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
 
-    CAF_PDM_InitFieldNoDefault( &m_inputPropertyFileName, "InputPropertyFileName", "File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_inputPropertyFileName, "InputPropertyFileName", "File Name" );
     m_inputPropertyFileName.xmlCapability()->disableIO();
     m_inputPropertyFileName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_flowSolutionUiField, "MFlowDiagSolution", "Solution", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_flowSolutionUiField, "MFlowDiagSolution", "Solution" );
     m_flowSolutionUiField.xmlCapability()->disableIO();
     m_flowSolutionUiField.uiCapability()->setUiHidden( true ); // For now since there are only one to choose from
 
-    CAF_PDM_InitField( &m_syncInjectorToProducerSelection, "MSyncSelectedInjProd", false, "Add Communicators ->", "", "", "" );
+    CAF_PDM_InitField( &m_syncInjectorToProducerSelection, "MSyncSelectedInjProd", false, "Add Communicators ->" );
     m_syncInjectorToProducerSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_syncProducerToInjectorSelection, "MSyncSelectedProdInj", false, "<- Add Communicators", "", "", "" );
+    CAF_PDM_InitField( &m_syncProducerToInjectorSelection, "MSyncSelectedProdInj", false, "<- Add Communicators" );
     m_syncProducerToInjectorSelection.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedInjectorTracersUiField, "MSelectedInjectorTracers", "Injector Tracers" );
     m_selectedInjectorTracersUiField.xmlCapability()->disableIO();
     m_selectedInjectorTracersUiField.uiCapability()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedInjectorTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedProducerTracersUiField, "MSelectedProducerTracers", "Producer Tracers" );
     m_selectedProducerTracersUiField.xmlCapability()->disableIO();
     m_selectedProducerTracersUiField.uiCapability()->setUiEditorTypeName(
         caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedProducerTracersUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSouringTracersUiField, "MSelectedSouringTracers", "Tracers" );
     m_selectedSouringTracersUiField.xmlCapability()->disableIO();
     m_selectedSouringTracersUiField.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
     m_selectedSouringTracersUiField.uiCapability()->setUiLabelPosition( m_labelPosition );
@@ -496,6 +479,7 @@ void RimEclipseResultDefinition::updateAnyFieldHasChanged()
     this->firstAncestorOrThisOfType( intersectResDef );
     if ( intersectResDef )
     {
+        intersectResDef->setDefaultEclipseLegendConfig();
         intersectResDef->updateConnectedEditors();
     }
 
@@ -670,7 +654,7 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimEclipseResultDefinition::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -875,8 +859,6 @@ QList<caf::PdmOptionItemInfo>
             }
         }
     }
-
-    ( *useOptionsOnly ) = true;
 
     return options;
 }
@@ -1835,11 +1817,11 @@ QList<caf::PdmOptionItemInfo>
             if ( ternaryEnabled )
             {
                 bool hasAtLeastOneTernaryComponent = false;
-                if ( cellCenterResultNames.contains( "SOIL" ) )
+                if ( cellCenterResultNames.contains( RiaResultNames::soil() ) )
                     hasAtLeastOneTernaryComponent = true;
-                else if ( cellCenterResultNames.contains( "SGAS" ) )
+                else if ( cellCenterResultNames.contains( RiaResultNames::sgas() ) )
                     hasAtLeastOneTernaryComponent = true;
-                else if ( cellCenterResultNames.contains( "SWAT" ) )
+                else if ( cellCenterResultNames.contains( RiaResultNames::swat() ) )
                     hasAtLeastOneTernaryComponent = true;
 
                 if ( resultCatType == RiaDefines::ResultCatType::DYNAMIC_NATIVE && hasAtLeastOneTernaryComponent )
@@ -2226,7 +2208,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
         {
             RigCaseCellResultsData* gridCellResults = this->currentGridCellResults();
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SOIL" );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::soil() );
 
                 if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
                 {
@@ -2247,7 +2229,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
             }
 
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SGAS" );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::sgas() );
 
                 if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
                 {
@@ -2268,7 +2250,7 @@ void RimEclipseResultDefinition::updateRangesForExplicitLegends( RimRegularLegen
             }
 
             {
-                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, "SWAT" );
+                RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::DYNAMIC_NATIVE, RiaResultNames::swat() );
 
                 if ( gridCellResults->ensureKnownResultLoaded( resAddr ) )
                 {

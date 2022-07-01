@@ -17,10 +17,11 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RimWellDistributionPlotCollection.h"
+
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseResultCase.h"
 #include "RimFlowDiagSolution.h"
 #include "RimPlot.h"
-#include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellDistributionPlot.h"
 
@@ -30,7 +31,9 @@
 #include "RiaColorTools.h"
 
 #include "RiuMultiPlotPage.h"
+#include "RiuPlotWidget.h"
 #include "RiuQwtPlotTools.h"
+#include "RiuQwtPlotWidget.h"
 
 #include "qwt_legend.h"
 #include "qwt_plot.h"
@@ -39,10 +42,6 @@
 #include <QGridLayout>
 #include <QTextBrowser>
 #include <QWidget>
-
-//#include "cvfBase.h"
-//#include "cvfTrace.h"
-//#include "cvfDebugTimer.h"
 
 //==================================================================================================
 //
@@ -59,37 +58,28 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 {
     // cvf::Trace::show("RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()");
 
-    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", ":/CumulativePhaseDist16x16.png", "", "" );
+    CAF_PDM_InitObject( "Cumulative Phase Distribution Plot", ":/CumulativePhaseDist16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
-    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well", "", "", "" );
-    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
+    CAF_PDM_InitField( &m_timeStepIndex, "TimeStepIndex", -1, "Time Step" );
+    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
+    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
     CAF_PDM_InitField( &m_smallContributionsRelativeThreshold,
                        "SmallContributionsRelativeThreshold",
                        0.005,
-                       "Relative Threshold [0, 1]",
-                       "",
-                       "",
-                       "" );
+                       "Relative Threshold [0, 1]" );
 
-    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]", "", "", "" );
+    CAF_PDM_InitField( &m_maximumTof, "MaximumTOF", 20.0, "Maximum Time of Flight [0, 200]" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Plots", "" );
     m_plots.uiCapability()->setUiTreeHidden( true );
     m_plots.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Show Oil", "", "", "" );
-    CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas", "", "", "" );
-    CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water", "", "", "" );
+    CAF_PDM_InitField( &m_showOil, "ShowOil", true, "Show Oil" );
+    CAF_PDM_InitField( &m_showGas, "ShowGas", true, "Show Gas" );
+    CAF_PDM_InitField( &m_showWater, "ShowWater", true, "Show Water" );
 
-    CAF_PDM_InitField( &m_plotWindowTitle,
-                       "PlotDescription",
-                       QString( "Cumulative Phase Distribution Plots" ),
-                       "Name",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "Cumulative Phase Distribution Plots" ), "Name" );
 
     m_showWindow = false;
 
@@ -106,7 +96,7 @@ RimWellDistributionPlotCollection::RimWellDistributionPlotCollection()
 RimWellDistributionPlotCollection::~RimWellDistributionPlotCollection()
 {
     removeMdiWindowFromMdiArea();
-    m_plots.deleteAllChildObjects();
+    m_plots.deleteChildren();
 
     cleanupBeforeClose();
 }
@@ -226,7 +216,7 @@ void RimWellDistributionPlotCollection::addPlot( RimPlot* plot )
         if ( m_viewer )
         {
             plot->createPlotWidget();
-            m_viewer->insertPlot( plot->viewer(), index );
+            m_viewer->insertPlot( plot->plotWidget(), index );
         }
         plot->setShowWindow( true );
         plot->setLegendsVisible( false );
@@ -259,23 +249,16 @@ void RimWellDistributionPlotCollection::defineUiOrdering( QString uiConfigName, 
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimWellDistributionPlotCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                              bool*                      useOptionsOnly )
+    RimWellDistributionPlotCollection::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* ownerProj = nullptr;
-        firstAncestorOrThisOfType( ownerProj );
-        if ( ownerProj )
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> caseArr;
-            ownerProj->descendantsIncludingThisOfType( caseArr );
-            for ( RimEclipseResultCase* c : caseArr )
-            {
-                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, true, c->uiIconProvider() ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, true, c->uiIconProvider() ) );
         }
     }
 
@@ -382,7 +365,7 @@ void RimWellDistributionPlotCollection::updatePlots()
         for ( RimPlot* plot : m_plots() )
         {
             plot->loadDataAndUpdate();
-            plot->updateZoomInQwt();
+            plot->updateZoomInParentPlot();
         }
     }
 }
@@ -392,7 +375,7 @@ void RimWellDistributionPlotCollection::updatePlots()
 //--------------------------------------------------------------------------------------------------
 void RimWellDistributionPlotCollection::cleanupBeforeClose()
 {
-    auto plotVector = m_plots.childObjects();
+    auto plotVector = m_plots.children();
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->detachAllCurves();
@@ -416,7 +399,7 @@ void RimWellDistributionPlotCollection::recreatePlotWidgets()
     for ( auto plot : m_plots() )
     {
         plot->createPlotWidget();
-        m_viewer->addPlot( plot->viewer() );
+        m_viewer->addPlot( plot->plotWidget() );
     }
 }
 

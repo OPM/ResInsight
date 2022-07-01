@@ -30,9 +30,9 @@ CAF_PDM_SOURCE_INIT( RimCaseCollection, "RimCaseCollection" );
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection::RimCaseCollection()
 {
-    CAF_PDM_InitObject( "Derived Statistics", "", "", "" );
+    CAF_PDM_InitObject( "Derived Statistics" );
 
-    CAF_PDM_InitFieldNoDefault( &reservoirs, "Reservoirs", "Reservoirs ChildArrayField", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &reservoirs, "Reservoirs", "Reservoirs ChildArrayField" );
     reservoirs.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -41,7 +41,7 @@ RimCaseCollection::RimCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimCaseCollection::~RimCaseCollection()
 {
-    reservoirs.deleteAllChildObjects();
+    reservoirs.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

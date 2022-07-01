@@ -44,15 +44,15 @@ caf::PdmFieldHandle* RimSurfaceIntersectionBand::userDescriptionField()
 RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
     : objectChanged( this )
 {
-    CAF_PDM_InitObject( "SurfaceIntersectionBand", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitObject( "SurfaceIntersectionBand", ":/ReservoirSurface16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_lineAppearance, "LineAppearance", "Line Appearance" );
     m_lineAppearance = new RimAnnotationLineAppearance;
     m_lineAppearance->objectChanged.connect( this, &RimSurfaceIntersectionBand::onObjectChanged );
     uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_bandColor, "BandColor", cvf::Color3f( cvf::Color3f::BLACK ), "Band Color", "", "", "" );
-    CAF_PDM_InitField( &m_bandOpacity, "BandOpacity", 0.8, "Band Opacity", "", "", "" );
+    CAF_PDM_InitField( &m_bandColor, "BandColor", cvf::Color3f( cvf::Color3f::BLACK ), "Band Color" );
+    CAF_PDM_InitField( &m_bandOpacity, "BandOpacity", 0.8, "Band Opacity" );
     m_bandOpacity.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_bandPolygonOffsetUnit,
@@ -64,10 +64,10 @@ RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
                        "" );
     m_bandPolygonOffsetUnit.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaces, "Surfaces", "Band Surfaces", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaces, "Surfaces", "Band Surfaces" );
     m_surfaces.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name" );
     m_nameProxy.registerGetMethod( this, &RimSurfaceIntersectionBand::objectName );
     m_nameProxy.uiCapability()->setUiHidden( true );
 
@@ -79,7 +79,7 @@ RimSurfaceIntersectionBand::RimSurfaceIntersectionBand()
 //--------------------------------------------------------------------------------------------------
 void RimSurfaceIntersectionBand::setSurfaces( RimSurface* surface1, RimSurface* surface2 )
 {
-    m_surfaces.clear();
+    m_surfaces.clearWithoutDelete();
 
     m_surfaces.push_back( surface1 );
     m_surfaces.push_back( surface2 );
@@ -197,7 +197,7 @@ void RimSurfaceIntersectionBand::fieldChangedByUi( const caf::PdmFieldHandle* ch
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimSurfaceIntersectionBand::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimSurfaceIntersectionBand::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

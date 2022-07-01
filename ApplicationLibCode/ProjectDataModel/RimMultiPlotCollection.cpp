@@ -29,9 +29,9 @@ CAF_PDM_SOURCE_INIT( RimMultiPlotCollection, "RimMultiPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimMultiPlotCollection::RimMultiPlotCollection()
 {
-    CAF_PDM_InitObject( "Multi Plots", ":/MultiPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Multi Plots", ":/MultiPlot16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_multiPlots, "MultiPlots", "Plots Reports", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_multiPlots, "MultiPlots", "Plots Reports" );
     m_multiPlots.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_multiPlots );
 }
@@ -48,7 +48,7 @@ RimMultiPlotCollection::~RimMultiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotCollection::deleteAllPlots()
 {
-    m_multiPlots.deleteAllChildObjects();
+    m_multiPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -56,19 +56,7 @@ void RimMultiPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimMultiPlot*> RimMultiPlotCollection::multiPlots() const
 {
-    return m_multiPlots.childObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimMultiPlot* RimMultiPlotCollection::createMultiPlot()
-{
-    RimMultiPlot* plot = new RimMultiPlot();
-    plot->setAsPlotMdiWindow();
-
-    addMultiPlot( plot );
-    return plot;
+    return m_multiPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -84,7 +72,7 @@ void RimMultiPlotCollection::addMultiPlot( RimMultiPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RimMultiPlotCollection::loadDataAndUpdateAllPlots()
 {
-    for ( const auto& p : m_multiPlots.childObjects() )
+    for ( const auto& p : m_multiPlots.children() )
         p->loadDataAndUpdate();
 }
 

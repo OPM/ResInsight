@@ -25,7 +25,6 @@
 #include <QStringList>
 
 class QDir;
-class RiaRegressionTest;
 
 //==================================================================================================
 //
@@ -35,11 +34,16 @@ class RiaRegressionTestRunner
 public:
     static RiaRegressionTestRunner* instance();
 
+    static void createSingleton();
+    static void deleteSingleton();
+
     void executeRegressionTests( const QString& regressionTestPath, const QStringList& testFilter );
     void executeRegressionTests();
 
     bool isRunningRegressionTests() const;
     bool useOpenMPForGeometryCreation() const;
+
+    RiaRegressionTest::PlotEngine overridePlotEngine() const;
 
     static void updateRegressionTest( const QString& testRootPath );
 
@@ -72,4 +76,6 @@ private:
     bool              m_appendAllTestsAfterLastItemInFilter;
     bool              m_runningRegressionTests;
     RiaRegressionTest m_regressionTestSettings;
+
+    static RiaRegressionTestRunner* sm_singleton;
 };

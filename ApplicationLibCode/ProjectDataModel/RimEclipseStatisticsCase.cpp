@@ -65,52 +65,34 @@ CAF_PDM_SOURCE_INIT( RimEclipseStatisticsCase, "RimStatisticalCalculation" );
 RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     : RimEclipseCase()
 {
-    CAF_PDM_InitObject( "Case Group Statistics", ":/Histogram16x16.png", "", "" );
+    CAF_PDM_InitObject( "Case Group Statistics", ":/Histogram16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_calculateEditCommand, "m_editingAllowed", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_calculateEditCommand, "m_editingAllowed", "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_calculateEditCommand );
     m_calculateEditCommand = false;
 
-    CAF_PDM_InitField( &m_selectionSummary, "SelectionSummary", QString( "" ), "Summary of Calculation Setup", "", "", "" );
+    CAF_PDM_InitField( &m_selectionSummary, "SelectionSummary", QString( "" ), "Summary of Calculation Setup" );
     m_selectionSummary.xmlCapability()->disableIO();
     m_selectionSummary.uiCapability()->setUiReadOnly( true );
     m_selectionSummary.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_selectionSummary.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_resultType, "ResultType", "Result Type" );
     m_resultType.xmlCapability()->setIOWritable( false );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_porosityModel, "PorosityModel", "Porosity Model", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_porosityModel, "PorosityModel", "Porosity Model" );
     m_porosityModel.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedDynamicProperties, "DynamicPropertiesToCalculate", "Dyn Prop", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedStaticProperties, "StaticPropertiesToCalculate", "Stat Prop", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedDynamicProperties, "DynamicPropertiesToCalculate", "Dyn Prop" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedStaticProperties, "StaticPropertiesToCalculate", "Stat Prop" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedGeneratedProperties, "GeneratedPropertiesToCalculate", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedInputProperties, "InputPropertiesToCalculate", "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureDynamicProperties,
-                                          "FractureDynamicPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
-                                          "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureStaticProperties,
-                                          "FractureStaticPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureDynamicProperties, "FractureDynamicPropertiesToCalculate", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureStaticProperties, "FractureStaticPropertiesToCalculate", "" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureGeneratedProperties,
                                           "FractureGeneratedPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
                                           "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureInputProperties,
-                                          "FractureInputPropertiesToCalculate",
-                                          "",
-                                          "",
-                                          "",
-                                          "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_selectedFractureInputProperties, "FractureInputPropertiesToCalculate", "" );
 
     m_selectedDynamicProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedStaticProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -122,28 +104,22 @@ RimEclipseStatisticsCase::RimEclipseStatisticsCase()
     m_selectedFractureGeneratedProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedFractureInputProperties.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableField( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_calculatePercentiles, "CalculatePercentiles", true, "Calculate Percentiles" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_percentileCalculationType, "PercentileCalculationType", "Method" );
 
-    CAF_PDM_InitScriptableField( &m_lowPercentile, "LowPercentile", 10.0, "Low", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_midPercentile, "MidPercentile", 50.0, "Mid", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_highPercentile, "HighPercentile", 90.0, "High", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_lowPercentile, "LowPercentile", 10.0, "Low" );
+    CAF_PDM_InitScriptableField( &m_midPercentile, "MidPercentile", 50.0, "Mid" );
+    CAF_PDM_InitScriptableField( &m_highPercentile, "HighPercentile", 90.0, "High" );
 
     CAF_PDM_InitScriptableField( &m_wellDataSourceCase,
                                  "WellDataSourceCase",
                                  RiaResultNames::undefinedResultName(),
-                                 "Well Data Source Case",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Well Data Source Case" );
 
     CAF_PDM_InitScriptableField( &m_useZeroAsInactiveCellValue,
                                  "UseZeroAsInactiveCellValue",
                                  false,
-                                 "Use Zero as Inactive Cell Value",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Use Zero as Inactive Cell Value" );
 
     m_populateSelectionAfterLoadingGrid = false;
 
@@ -463,11 +439,9 @@ QList<caf::PdmOptionItemInfo> toOptionList( const QStringList& varList )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimEclipseStatisticsCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimEclipseStatisticsCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    if ( useOptionsOnly ) *useOptionsOnly = true;
 
     RimIdenticalGridCaseGroup* idgcg = caseGroup();
     if ( !( caseGroup() && caseGroup()->mainCase() && caseGroup()->mainCase()->eclipseCaseData() ) )
@@ -539,7 +513,7 @@ QList<caf::PdmOptionItemInfo>
         return toOptionList( sourceCaseNames );
     }
 
-    if ( !options.size() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    if ( !options.size() ) options = RimEclipseCase::calculateValueOptions( fieldNeedingOptions );
 
     return options;
 }
@@ -582,7 +556,7 @@ void RimEclipseStatisticsCase::fieldChangedByUi( const caf::PdmFieldHandle* chan
             RimEclipseView* reservoirView = reservoirViews()[i];
             CVF_ASSERT( reservoirView );
 
-            reservoirView->wellCollection()->wells.deleteAllChildObjects();
+            reservoirView->wellCollection()->wells.deleteChildren();
             reservoirView->updateDisplayModelForWellResults();
             reservoirView->wellCollection()->updateConnectedEditors();
 
@@ -845,7 +819,8 @@ void RimEclipseStatisticsCase::populateResultSelection()
     {
         QStringList varList = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL )
                                   ->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-        if ( varList.contains( "SOIL" ) ) m_selectedDynamicProperties.v().push_back( "SOIL" );
+        if ( varList.contains( RiaResultNames::soil() ) )
+            m_selectedDynamicProperties.v().push_back( RiaResultNames::soil() );
         if ( varList.contains( "PRESSURE" ) ) m_selectedDynamicProperties.v().push_back( "PRESSURE" );
     }
 
@@ -861,7 +836,8 @@ void RimEclipseStatisticsCase::populateResultSelection()
     {
         QStringList varList = caseData->results( RiaDefines::PorosityModelType::FRACTURE_MODEL )
                                   ->resultNames( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-        if ( varList.contains( "SOIL" ) ) m_selectedFractureDynamicProperties.v().push_back( "SOIL" );
+        if ( varList.contains( RiaResultNames::soil() ) )
+            m_selectedFractureDynamicProperties.v().push_back( RiaResultNames::soil() );
         if ( varList.contains( "PRESSURE" ) ) m_selectedFractureDynamicProperties.v().push_back( "PRESSURE" );
     }
 

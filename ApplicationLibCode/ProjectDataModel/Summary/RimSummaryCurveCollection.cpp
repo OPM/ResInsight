@@ -34,6 +34,7 @@
 
 #include "cafPdmFieldReorderCapability.h"
 #include "cafPdmUiPushButtonEditor.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
 #include "qwt_plot.h"
@@ -48,38 +49,38 @@ CAF_PDM_SOURCE_INIT( RimSummaryCurveCollection, "RimSummaryCurveCollection" );
 RimSummaryCurveCollection::RimSummaryCurveCollection()
     : curvesChanged( this )
 {
-    CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Curves", ":/SummaryCurveFilter16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_curves, "CollectionCurves", "Collection Curves" );
     m_curves.uiCapability()->setUiTreeHidden( true );
     m_curves.uiCapability()->setUiTreeChildrenHidden( false );
     caf::PdmFieldReorderCapability::addToFieldWithCallback( &m_curves, this, &RimSummaryCurveCollection::onCurvesReordered );
 
-    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves", "", "", "" );
+    CAF_PDM_InitField( &m_showCurves, "IsActive", true, "Show Curves" );
     m_showCurves.uiCapability()->setUiHidden( true );
     m_showCurves.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_editPlot, "EditPlot", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_editPlot, "EditPlot", false, "" );
     m_editPlot.xmlCapability()->disableIO();
     m_editPlot.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ySourceStepping, "YSourceStepping", "" );
     m_ySourceStepping = new RimSummaryPlotSourceStepping;
-    m_ySourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::Y_AXIS );
+    m_ySourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
     m_ySourceStepping.uiCapability()->setUiTreeHidden( true );
     m_ySourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_ySourceStepping.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_xSourceStepping, "XSourceStepping", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xSourceStepping, "XSourceStepping", "" );
     m_xSourceStepping = new RimSummaryPlotSourceStepping;
-    m_xSourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::X_AXIS );
+    m_xSourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::X_AXIS );
     m_xSourceStepping.uiCapability()->setUiTreeHidden( true );
     m_xSourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_xSourceStepping.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_unionSourceStepping, "UnionSourceStepping", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_unionSourceStepping, "UnionSourceStepping", "" );
     m_unionSourceStepping = new RimSummaryPlotSourceStepping;
-    m_unionSourceStepping->setSourceSteppingType( RimSummaryPlotSourceStepping::UNION_X_Y_AXIS );
+    m_unionSourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
     m_unionSourceStepping.uiCapability()->setUiTreeHidden( true );
     m_unionSourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
     m_unionSourceStepping.xmlCapability()->disableIO();
@@ -90,7 +91,7 @@ RimSummaryCurveCollection::RimSummaryCurveCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCurveCollection::~RimSummaryCurveCollection()
 {
-    m_curves.deleteAllChildObjects();
+    m_curves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +110,7 @@ void RimSummaryCurveCollection::loadDataAndUpdate( bool updateParentPlot )
     for ( RimSummaryCurve* curve : m_curves )
     {
         curve->loadDataAndUpdate( false );
-        curve->updateQwtPlotAxis();
+        curve->updatePlotAxis();
     }
 
     if ( updateParentPlot )
@@ -123,12 +124,28 @@ void RimSummaryCurveCollection::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
+void RimSummaryCurveCollection::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                                                   std::vector<caf::PdmObjectHandle*>& updatedObjects )
 {
-    for ( RimSummaryCurve* curve : m_curves )
+    if ( childArray == &m_curves )
     {
-        curve->setParentQwtPlotNoReplot( plot );
+        for ( RimSummaryCurve* curve : m_curves )
+        {
+            curve->updateCurveAppearance();
+        }
+
+        RimSummaryPlot* parentPlot;
+        firstAncestorOrThisOfTypeAsserted( parentPlot );
+        parentPlot->plotWidget()->scheduleReplot();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCurveCollection::setParentPlotAndReplot( RiuPlotWidget* plot )
+{
+    setParentPlotNoReplot( plot );
 
     if ( plot ) plot->replot();
 }
@@ -136,33 +153,44 @@ void RimSummaryCurveCollection::setParentQwtPlotAndReplot( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::detachQwtCurves()
+void RimSummaryCurveCollection::setParentPlotNoReplot( RiuPlotWidget* plot )
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->detachQwtCurve();
+        curve->setParentPlotNoReplot( plot );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::reattachQwtCurves()
+void RimSummaryCurveCollection::detachPlotCurves()
 {
     for ( RimSummaryCurve* curve : m_curves )
     {
-        curve->reattachQwtCurve();
+        curve->detach();
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const
+void RimSummaryCurveCollection::reattachPlotCurves()
+{
+    for ( RimSummaryCurve* curve : m_curves )
+    {
+        if ( curve->isCurveVisible() ) curve->reattach();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCurve* RimSummaryCurveCollection::findRimCurveFromPlotCurve( const RiuPlotCurve* curve ) const
 {
     for ( RimSummaryCurve* rimCurve : m_curves )
     {
-        if ( rimCurve->qwtPlotCurve() == qwtCurve )
+        if ( rimCurve->isSameCurve( curve ) )
         {
             return rimCurve;
         }
@@ -216,7 +244,7 @@ void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 {
     if ( curve )
     {
-        m_curves.removeChildObject( curve );
+        m_curves.removeChild( curve );
     }
 }
 
@@ -225,14 +253,14 @@ void RimSummaryCurveCollection::removeCurve( RimSummaryCurve* curve )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*> RimSummaryCurveCollection::curves() const
 {
-    return m_curves.childObjects();
+    return m_curves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCurve*>
-    RimSummaryCurveCollection::curvesForSourceStepping( RimSummaryPlotSourceStepping::SourceSteppingType steppingType ) const
+    RimSummaryCurveCollection::curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const
 {
     std::vector<RimSummaryCurve*> stepCurves;
 
@@ -245,41 +273,41 @@ std::vector<RimSummaryCurve*>
 
             const std::string historyIdentifier = "H";
 
-            std::string quantity;
+            std::string vectorName;
 
-            if ( steppingType == RimSummaryPlotSourceStepping::X_AXIS )
+            if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
             {
-                quantity = m_curveForSourceStepping->summaryAddressX().quantityName();
+                vectorName = m_curveForSourceStepping->summaryAddressX().vectorName();
             }
-            else if ( steppingType == RimSummaryPlotSourceStepping::Y_AXIS )
+            else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
             {
-                quantity = m_curveForSourceStepping->summaryAddressY().quantityName();
+                vectorName = m_curveForSourceStepping->summaryAddressY().vectorName();
             }
 
             std::string candidateName;
-            if ( RiaStdStringTools::endsWith( quantity, historyIdentifier ) )
+            if ( RiaStdStringTools::endsWith( vectorName, historyIdentifier ) )
             {
-                candidateName = quantity.substr( 0, quantity.size() - 1 );
+                candidateName = vectorName.substr( 0, vectorName.size() - 1 );
             }
             else
             {
-                candidateName = quantity + historyIdentifier;
+                candidateName = vectorName + historyIdentifier;
             }
 
             for ( const auto& c : curves() )
             {
-                if ( steppingType == RimSummaryPlotSourceStepping::X_AXIS )
+                if ( steppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
                 {
                     if ( c->summaryCaseX() == m_curveForSourceStepping->summaryCaseX() &&
-                         c->summaryAddressX().quantityName() == candidateName )
+                         c->summaryAddressX().vectorName() == candidateName )
                     {
                         stepCurves.push_back( c );
                     }
                 }
-                else if ( steppingType == RimSummaryPlotSourceStepping::Y_AXIS )
+                else if ( steppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
                 {
                     if ( c->summaryCaseY() == m_curveForSourceStepping->summaryCaseY() &&
-                         c->summaryAddressY().quantityName() == candidateName )
+                         c->summaryAddressY().vectorName() == candidateName )
                     {
                         stepCurves.push_back( c );
                     }
@@ -314,7 +342,7 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase( RimSummaryCase* 
     }
     for ( RimSummaryCurve* summaryCurve : summaryCurvesToDelete )
     {
-        m_curves.removeChildObject( summaryCurve );
+        m_curves.removeChild( summaryCurve );
         delete summaryCurve;
     }
 }
@@ -324,7 +352,7 @@ void RimSummaryCurveCollection::deleteCurvesAssosiatedWithCase( RimSummaryCase* 
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::deleteAllCurves()
 {
-    m_curves.deleteAllChildObjects();
+    m_curves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -342,7 +370,7 @@ void RimSummaryCurveCollection::updateCaseNameHasChanged()
     firstAncestorOrThisOfTypeAsserted( parentPlot );
 
     parentPlot->updatePlotTitle();
-    if ( parentPlot->viewer() ) parentPlot->viewer()->updateLegend();
+    if ( parentPlot->plotWidget() ) parentPlot->plotWidget()->updateLegend();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -411,17 +439,17 @@ RimSummaryCurve* RimSummaryCurveCollection::curveForSourceStepping() const
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping*
-    RimSummaryCurveCollection::sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const
+    RimSummaryCurveCollection::sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const
 {
-    if ( sourceSteppingType == RimSummaryPlotSourceStepping::X_AXIS )
+    if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::X_AXIS )
     {
         return m_xSourceStepping();
     }
-    else if ( sourceSteppingType == RimSummaryPlotSourceStepping::Y_AXIS )
+    else if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::Y_AXIS )
     {
         return m_ySourceStepping();
     }
-    if ( sourceSteppingType == RimSummaryPlotSourceStepping::UNION_X_Y_AXIS )
+    if ( sourceSteppingType == RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS )
     {
         return m_unionSourceStepping();
     }
@@ -491,35 +519,6 @@ void RimSummaryCurveCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*  
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimSummaryCrossPlot* parentCrossPlot;
-    firstAncestorOrThisOfType( parentCrossPlot );
-
-    if ( parentCrossPlot )
-    {
-        {
-            auto group = uiOrdering.addNewGroup( "Y Source Stepping" );
-
-            m_ySourceStepping()->uiOrdering( uiConfigName, *group );
-        }
-
-        {
-            auto group = uiOrdering.addNewGroup( "X Source Stepping" );
-
-            m_xSourceStepping()->uiOrdering( uiConfigName, *group );
-        }
-
-        {
-            auto group = uiOrdering.addNewGroup( "XY Union Source Stepping" );
-
-            m_unionSourceStepping()->uiOrdering( uiConfigName, *group );
-        }
-    }
-    else
-    {
-        auto group = uiOrdering.addNewGroup( "Data Source" );
-
-        m_ySourceStepping()->uiOrdering( uiConfigName, *group );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

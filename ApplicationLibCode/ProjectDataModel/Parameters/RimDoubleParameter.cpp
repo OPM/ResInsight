@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimDoubleParameter, "DoubleParameter" );
 //--------------------------------------------------------------------------------------------------
 RimDoubleParameter::RimDoubleParameter()
 {
-    CAF_PDM_InitField( &m_value, "Value", 0.0, "Value", "", "", "" );
+    CAF_PDM_InitField( &m_value, "Value", 0.0, "Value" );
 }
 
 //--------------------------------------------------------------------------------------------------

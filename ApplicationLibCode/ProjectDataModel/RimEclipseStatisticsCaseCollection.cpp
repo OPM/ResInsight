@@ -31,9 +31,9 @@ CAF_PDM_SOURCE_INIT( RimEclipseStatisticsCaseCollection, "RimStatisticalCollecti
 RimEclipseStatisticsCaseCollection::RimEclipseStatisticsCaseCollection()
     : PdmObject()
 {
-    CAF_PDM_InitObject( "Derived Statistics", "", "", "" );
+    CAF_PDM_InitObject( "Derived Statistics" );
 
-    CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "" );
     cases.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -42,7 +42,7 @@ RimEclipseStatisticsCaseCollection::RimEclipseStatisticsCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimEclipseStatisticsCaseCollection::~RimEclipseStatisticsCaseCollection()
 {
-    cases.deleteAllChildObjects();
+    cases.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

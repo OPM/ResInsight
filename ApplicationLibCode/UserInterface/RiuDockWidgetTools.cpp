@@ -103,9 +103,65 @@ QString RiuDockWidgetTools::undoStackName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::plotMainWindowProjectTreeName()
+QString RiuDockWidgetTools::summaryPlotManagerName()
 {
-    return "plotMainWindow_dockProjectTree";
+    return "dockSummaryPlotManager";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::mainWindowProjectTreeName()
+{
+    return "mainWindow_dockProjectTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::mainWindowDataSourceTreeName()
+{
+    return "mainWindow_dockDataSourceTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::mainWindowScriptsTreeName()
+{
+    return "mainWindow_dockScriptsTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowDataSourceTreeName()
+{
+    return "plotMainWindow_dockDataSourceTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowPlotsTreeName()
+{
+    return "plotMainWindow_dockPlotsTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowTemplateTreeName()
+{
+    return "plotMainWindow_dockTemplatesTree";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiuDockWidgetTools::plotMainWindowScriptsTreeName()
+{
+    return "plotMainWindow_dockScriptsTree";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,6 +277,8 @@ QAction* RiuDockWidgetTools::toggleActionForWidget( const QObject* parent, const
 //--------------------------------------------------------------------------------------------------
 void RiuDockWidgetTools::setVisibleDockingWindowsForEclipse()
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     RiuMainWindow* mainWindow         = RiuMainWindow::instance();
     auto           widgetVisibilities = widgetVisibilitiesForEclipse();
 
@@ -232,6 +290,8 @@ void RiuDockWidgetTools::setVisibleDockingWindowsForEclipse()
 //--------------------------------------------------------------------------------------------------
 void RiuDockWidgetTools::setVisibleDockingWindowsForGeoMech()
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     RiuMainWindow* mainWindow         = RiuMainWindow::instance();
     auto           widgetVisibilities = widgetVisibilitiesForGeoMech();
 
@@ -292,6 +352,8 @@ QVariant RiuDockWidgetTools::defaultDockWidgetVisibilities()
 //--------------------------------------------------------------------------------------------------
 void RiuDockWidgetTools::workaroundForQwtDockWidgets()
 {
+    if ( !RiuMainWindow::instance() ) return;
+
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
 
     QList<QDockWidget*> dockWidgets = mainWindow->findChildren<QDockWidget*>();

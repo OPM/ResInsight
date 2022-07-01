@@ -20,12 +20,7 @@
 
 #include "RiuDockedQwtPlot.h"
 
-#include "qwt_plot.h"
-#include "qwt_plot_curve.h"
-#include "qwt_plot_item.h"
-
 #include "cafTensor3.h"
-
 #include "cvfColor3.h"
 
 #include <array>
@@ -38,6 +33,7 @@ class RiuSelectionItem;
 class RimGeoMechCase;
 class RimGeoMechResultDefinition;
 class RiuGeoMechSelectionItem;
+class QwtPlotCurve;
 
 //==================================================================================================
 //

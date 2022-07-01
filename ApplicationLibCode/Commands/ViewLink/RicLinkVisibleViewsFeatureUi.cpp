@@ -34,9 +34,9 @@ CAF_PDM_SOURCE_INIT( RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi
 //--------------------------------------------------------------------------------------------------
 RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi( void )
 {
-    CAF_PDM_InitObject( "Link Visible Views Feature UI", ":/LinkView16x16.png", "", "" );
+    CAF_PDM_InitObject( "Link Visible Views Feature UI", ":/LinkView.svg" );
 
-    CAF_PDM_InitFieldNoDefault( &m_masterView, "MasterView", "Primary View", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_masterView, "MasterView", "Primary View" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -96,8 +96,7 @@ std::vector<RimGridView*> RicLinkVisibleViewsFeatureUi::masterViewCandidates() c
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicLinkVisibleViewsFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly )
+    RicLinkVisibleViewsFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

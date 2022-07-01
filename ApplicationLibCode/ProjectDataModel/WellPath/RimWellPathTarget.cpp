@@ -23,6 +23,7 @@
 #include "RigWellPath.h"
 
 #include "RimModeledWellPath.h"
+#include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathGeometryDef.h"
 
@@ -51,10 +52,6 @@ void caf::AppEnum<RimWellPathTarget::TargetTypeEnum>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellPathTarget::RimWellPathTarget()
     : moved( this )
-    , m_targetType( TargetTypeEnum::POINT )
-    , m_targetPointXYD( cvf::Vec3d::ZERO )
-    , m_azimuth( 0.0 )
-    , m_inclination( 0.0 )
     , m_isFullUpdateEnabled( true )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Well Target",
@@ -64,28 +61,41 @@ RimWellPathTarget::RimWellPathTarget()
                                                     "WellPathTarget",
                                                     "Class containing the Well Target definition" );
 
-    CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "", "", "", "" );
-    CAF_PDM_InitField( &m_isLocked, "IsLocked", false, "", "", "", "" );
-    m_isLocked.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_isEnabled, "IsEnabled", true, "" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_targetPointXYD, "TargetPoint", "Relative Coord", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_targetPointForDisplay, "TargetPointForDisplay", "UTM Coord", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_targetPointXYD, "TargetPoint", "Relative Coord" );
+    CAF_PDM_InitFieldNoDefault( &m_targetPointForDisplay, "TargetPointForDisplay", "UTM Coord" );
     m_targetPointForDisplay.registerGetMethod( this, &RimWellPathTarget::targetPointForDisplayXYD );
     m_targetPointForDisplay.registerSetMethod( this, &RimWellPathTarget::setTargetPointFromDisplayCoord );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_targetMeasuredDepth, "TargetMeasuredDepth", "MD", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_targetMeasuredDepth, "TargetMeasuredDepth", "MD" );
     m_targetMeasuredDepth.registerGetMethod( this, &RimWellPathTarget::measuredDepth );
 
     CAF_PDM_InitScriptableField( &m_dogleg1, "Dogleg1", 3.0, "DL in", "", "[deg/30m]", "" );
     CAF_PDM_InitScriptableField( &m_dogleg2, "Dogleg2", 3.0, "DL out", "", "[deg/30m]", "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_targetType, "TargetType", "Type", "", "", "" );
-    m_targetType.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitScriptableField( &m_useFixedAzimuth, "UseFixedAzimuth", false, "Azi" );
+    CAF_PDM_InitScriptableField( &m_azimuthDeg, "Azimuth", 0.0, "Azi(deg)" );
 
-    CAF_PDM_InitField( &m_hasTangentConstraintUiField, "HasTangentConstraint", false, "Dir", "", "", "" );
-    m_hasTangentConstraintUiField.xmlCapability()->disableIO();
-    CAF_PDM_InitScriptableField( &m_azimuth, "Azimuth", 0.0, "Azi(deg)", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_inclination, "Inclination", 0.0, "Inc(deg)", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_useFixedInclination, "UseFixedInclination", false, "Inc" );
+    CAF_PDM_InitScriptableField( &m_inclinationDeg, "Inclination", 0.0, "Inc(deg)" );
+
+    CAF_PDM_InitScriptableField( &m_estimatedDogleg1, "EstimatedDogleg1", 0.0, "Est DL in", "", "[deg/30m]", "" );
+    m_estimatedDogleg1.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitScriptableField( &m_estimatedDogleg2, "EstimatedDogleg2", 0.0, "Est DL out", "", "[deg/30m]", "" );
+    m_estimatedDogleg2.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitScriptableField( &m_estimatedAzimuthDeg, "EstimatedAzimuth", 0.0, "Est Azi(deg)" );
+    m_estimatedAzimuthDeg.uiCapability()->setUiReadOnly( true );
+    CAF_PDM_InitScriptableField( &m_estimatedInclinationDeg, "EstimatedInclination", 0.0, "Est Inc(deg)" );
+    m_estimatedInclinationDeg.uiCapability()->setUiReadOnly( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_targetType_OBSOLETE, "TargetType", "Type" );
+    m_targetType_OBSOLETE.uiCapability()->setUiHidden( true );
+    m_targetType_OBSOLETE.xmlCapability()->setIOWritable( false );
+
+    CAF_PDM_InitField( &m_hasTangentConstraintUiField_OBSOLETE, "HasTangentConstraint", false, "Dir" );
+    m_hasTangentConstraintUiField_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_hasTangentConstraintUiField_OBSOLETE.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,10 +134,12 @@ void RimWellPathTarget::setPointXYZ( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::setAsPointTargetXYD( const cvf::Vec3d& point )
 {
-    m_targetType     = TargetTypeEnum::POINT;
     m_targetPointXYD = point;
-    m_azimuth        = 0.0;
-    m_inclination    = 0.0;
+
+    m_useFixedAzimuth     = false;
+    m_useFixedInclination = false;
+    m_azimuthDeg          = 0.0;
+    m_inclinationDeg      = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -135,10 +147,12 @@ void RimWellPathTarget::setAsPointTargetXYD( const cvf::Vec3d& point )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::setAsPointTargetXYZ( const cvf::Vec3d& point )
 {
-    m_targetType     = TargetTypeEnum::POINT;
     m_targetPointXYD = cvf::Vec3d( point.x(), point.y(), -point.z() );
-    m_azimuth        = 0.0;
-    m_inclination    = 0.0;
+
+    m_useFixedAzimuth     = false;
+    m_useFixedInclination = false;
+    m_azimuthDeg          = 0.0;
+    m_inclinationDeg      = 0.0;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -153,24 +167,46 @@ void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuth, double inclination )
+void RimWellPathTarget::setAsPointXYZAndTangentTarget( const cvf::Vec3d& point, double azimuthRadians, double inclinationRadians )
 {
-    m_targetType     = TargetTypeEnum::POINT_AND_TANGENT;
+    m_targetType_OBSOLETE = TargetTypeEnum::POINT_AND_TANGENT;
+
     m_targetPointXYD = cvf::Vec3d( point.x(), point.y(), -point.z() );
-    m_azimuth        = cvf::Math::toDegrees( azimuth );
-    m_inclination    = cvf::Math::toDegrees( inclination );
+
+    m_useFixedAzimuth     = true;
+    m_useFixedInclination = true;
+    m_azimuthDeg          = cvf::Math::toDegrees( azimuthRadians );
+    m_inclinationDeg      = cvf::Math::toDegrees( inclinationRadians );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::setDerivedTangent( double azimuth, double inclination )
+void RimWellPathTarget::setFixedAzimuth( double fixedAzimuthDeg )
 {
-    if ( m_targetType == TargetTypeEnum::POINT )
-    {
-        m_azimuth     = cvf::Math::toDegrees( azimuth );
-        m_inclination = cvf::Math::toDegrees( inclination );
-    }
+    m_useFixedAzimuth = true;
+    m_azimuthDeg      = fixedAzimuthDeg;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::setFixedInclination( double fixedInclinationDeg )
+{
+    m_useFixedInclination = true;
+    m_inclinationDeg      = fixedInclinationDeg;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::setDerivedTangent( double azimuthRadians, double inclinationRadians )
+{
+    m_estimatedAzimuthDeg     = cvf::Math::toDegrees( azimuthRadians );
+    m_estimatedInclinationDeg = cvf::Math::toDegrees( inclinationRadians );
+
+    if ( !m_useFixedAzimuth ) m_azimuthDeg = cvf::Math::toDegrees( azimuthRadians );
+    if ( !m_useFixedInclination ) m_inclinationDeg = cvf::Math::toDegrees( inclinationRadians );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -190,22 +226,15 @@ RiaLineArcWellPathCalculator::WellTarget RimWellPathTarget::wellTargetData()
 {
     RiaLineArcWellPathCalculator::WellTarget targetData;
 
-    targetData.targetPointXYZ       = targetPointXYZ();
-    targetData.isTangentConstrained = ( targetType() == TargetTypeEnum::POINT_AND_TANGENT );
-    targetData.azimuth              = azimuth();
-    targetData.inclination          = inclination();
-    targetData.radius1              = radius1();
-    targetData.radius2              = radius2();
+    targetData.targetPointXYZ           = targetPointXYZ();
+    targetData.isAzimuthConstrained     = m_useFixedAzimuth();
+    targetData.isInclinationConstrained = m_useFixedInclination();
+    targetData.azimuthRadians           = azimuthRadians();
+    targetData.inclinationRadians       = inclinationRadians();
+    targetData.radius1                  = radius1();
+    targetData.radius2                  = radius2();
 
     return targetData;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimWellPathTarget::TargetTypeEnum RimWellPathTarget::targetType() const
-{
-    return m_targetType();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -221,11 +250,11 @@ cvf::Vec3d RimWellPathTarget::targetPointXYZ() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathTarget::azimuth() const
+double RimWellPathTarget::azimuthRadians() const
 {
-    if ( m_targetType() == TargetTypeEnum::POINT_AND_TANGENT )
+    if ( m_useFixedAzimuth() )
     {
-        return cvf::Math::toRadians( m_azimuth );
+        return cvf::Math::toRadians( m_azimuthDeg );
     }
 
     return std::numeric_limits<double>::infinity();
@@ -234,11 +263,11 @@ double RimWellPathTarget::azimuth() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimWellPathTarget::inclination() const
+double RimWellPathTarget::inclinationRadians() const
 {
-    if ( m_targetType() == TargetTypeEnum::POINT_AND_TANGENT )
+    if ( m_useFixedInclination() )
     {
-        return cvf::Math::toRadians( m_inclination );
+        return cvf::Math::toRadians( m_inclinationDeg );
     }
 
     return std::numeric_limits<double>::infinity();
@@ -249,8 +278,8 @@ double RimWellPathTarget::inclination() const
 //--------------------------------------------------------------------------------------------------
 cvf::Vec3d RimWellPathTarget::tangent() const
 {
-    double aziRad = cvf::Math::toRadians( m_azimuth );
-    double incRad = cvf::Math::toRadians( m_inclination );
+    double aziRad = cvf::Math::toRadians( m_azimuthDeg );
+    double incRad = cvf::Math::toRadians( m_inclinationDeg );
 
     return RiaOffshoreSphericalCoords::unitVectorFromAziInc( aziRad, incRad );
 }
@@ -294,21 +323,23 @@ double doglegFromRadius( double radius )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::flagRadius1AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius )
+void RimWellPathTarget::setRadius1Data( bool isEditable, bool isIncorrect, double actualRadius )
 {
+    double estimatedDogLeg = doglegFromRadius( actualRadius );
+    m_estimatedDogleg1     = estimatedDogLeg;
+
     if ( isIncorrect )
     {
         if ( actualRadius < radius1() )
         {
             m_dogleg1.uiCapability()->setUiContentTextColor( Qt::red );
-            m_dogleg1.uiCapability()->setUiToolTip( "Actual Dogleg: " + QString::number( doglegFromRadius( actualRadius ) ) +
+            m_dogleg1.uiCapability()->setUiToolTip( "Actual Dogleg: " + QString::number( estimatedDogLeg ) +
                                                     "\nThe dogleg constraint is not satisfied!" );
         }
         else
         {
             m_dogleg1.uiCapability()->setUiContentTextColor( Qt::darkGreen );
-            m_dogleg1.uiCapability()->setUiToolTip( "Actual Dogleg: " +
-                                                    QString::number( doglegFromRadius( actualRadius ) ) );
+            m_dogleg1.uiCapability()->setUiToolTip( "Actual Dogleg: " + QString::number( estimatedDogLeg ) );
         }
     }
     else
@@ -323,21 +354,23 @@ void RimWellPathTarget::flagRadius1AsIncorrect( bool isEditable, bool isIncorrec
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathTarget::flagRadius2AsIncorrect( bool isEditable, bool isIncorrect, double actualRadius )
+void RimWellPathTarget::setRadius2Data( bool isEditable, bool isIncorrect, double actualRadius )
 {
+    double estimatedDogLeg = doglegFromRadius( actualRadius );
+    m_estimatedDogleg2     = estimatedDogLeg;
+
     if ( isIncorrect )
     {
         if ( actualRadius < radius2() )
         {
             m_dogleg2.uiCapability()->setUiContentTextColor( Qt::red );
-            m_dogleg2.uiCapability()->setUiToolTip( "Actual Dogleg: " + QString::number( doglegFromRadius( actualRadius ) ) +
+            m_dogleg2.uiCapability()->setUiToolTip( "Actual Dogleg: " + QString::number( estimatedDogLeg ) +
                                                     "\nThe dogleg constraint is not satisfied!" );
         }
         else
         {
             m_dogleg2.uiCapability()->setUiContentTextColor( Qt::darkGreen );
-            m_dogleg2.uiCapability()->setUiToolTip( "Actual Dogleg: " +
-                                                    QString::number( doglegFromRadius( actualRadius ) ) );
+            m_dogleg2.uiCapability()->setUiToolTip( "Actual Dogleg: " + QString::number( estimatedDogLeg ) );
         }
     }
     else
@@ -354,7 +387,7 @@ void RimWellPathTarget::flagRadius2AsIncorrect( bool isEditable, bool isIncorrec
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmFieldHandle*> RimWellPathTarget::fieldsFor3dManipulator()
 {
-    return { &m_targetType, &m_targetPointXYD, &m_azimuth, &m_inclination };
+    return { &m_targetPointXYD, &m_azimuthDeg, &m_inclinationDeg };
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -371,6 +404,21 @@ void RimWellPathTarget::onMoved()
 void RimWellPathTarget::enableFullUpdate( bool enable )
 {
     m_isFullUpdateEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathTarget::initAfterRead()
+{
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.10.2" ) )
+    {
+        if ( m_targetType_OBSOLETE() == RimWellPathTarget::TargetTypeEnum::POINT_AND_TANGENT )
+        {
+            m_useFixedAzimuth     = true;
+            m_useFixedInclination = true;
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -476,39 +524,10 @@ RimWellPathGeometryDef* RimWellPathTarget::geometryDefinition() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellPathTarget::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
-{
-    QList<caf::PdmOptionItemInfo> options;
-    if ( fieldNeedingOptions == &m_targetType )
-    {
-        options.push_back(
-            caf::PdmOptionItemInfo( "o->",
-                                    RimWellPathTarget::TargetTypeEnum::POINT_AND_TANGENT ) ); //, false,
-                                                                                              // QIcon(":/WellTargetPointTangent16x16.png")
-                                                                                              //));
-        options.push_back(
-            caf::PdmOptionItemInfo( "o", RimWellPathTarget::TargetTypeEnum::POINT ) ); //, false,
-                                                                                       // QIcon(":/WellTargetPoint16x16.png")));
-    }
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
                                           const QVariant&            oldValue,
                                           const QVariant&            newValue )
 {
-    if ( changedField == &m_hasTangentConstraintUiField )
-    {
-        if ( m_hasTangentConstraintUiField )
-            m_targetType = TargetTypeEnum::POINT_AND_TANGENT;
-        else
-            m_targetType = TargetTypeEnum::POINT;
-    }
-
     moved.send( m_isFullUpdateEnabled );
 }
 
@@ -517,39 +536,20 @@ void RimWellPathTarget::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 void RimWellPathTarget::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    m_hasTangentConstraintUiField = ( m_targetType == TargetTypeEnum::POINT_AND_TANGENT );
-
-    if ( m_isEnabled() && !m_isLocked() )
+    if ( m_isEnabled() )
     {
-        m_hasTangentConstraintUiField.uiCapability()->setUiReadOnly( false );
-        m_targetType.uiCapability()->setUiReadOnly( false );
         m_targetPointXYD.uiCapability()->setUiReadOnly( false );
 
-        if ( m_targetType == TargetTypeEnum::POINT )
-        {
-            m_azimuth.uiCapability()->setUiReadOnly( true );
-            m_inclination.uiCapability()->setUiReadOnly( true );
-        }
-        else
-        {
-            m_azimuth.uiCapability()->setUiReadOnly( false );
-            m_inclination.uiCapability()->setUiReadOnly( false );
-        }
+        m_azimuthDeg.uiCapability()->setUiReadOnly( !m_useFixedAzimuth() );
+        m_inclinationDeg.uiCapability()->setUiReadOnly( !m_useFixedInclination() );
     }
     else
     {
         m_dogleg1.uiCapability()->setUiReadOnly( true );
-        m_targetType.uiCapability()->setUiReadOnly( true );
         m_targetPointXYD.uiCapability()->setUiReadOnly( true );
-        m_azimuth.uiCapability()->setUiReadOnly( true );
-        m_inclination.uiCapability()->setUiReadOnly( true );
+        m_azimuthDeg.uiCapability()->setUiReadOnly( true );
+        m_inclinationDeg.uiCapability()->setUiReadOnly( true );
         m_dogleg2.uiCapability()->setUiReadOnly( true );
-        m_hasTangentConstraintUiField.uiCapability()->setUiReadOnly( true );
-    }
-
-    if ( m_isLocked )
-    {
-        m_isEnabled.uiCapability()->setUiReadOnly( true );
     }
 
     {

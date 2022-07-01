@@ -18,12 +18,16 @@
 
 #include "RimAnalysisPlot.h"
 
+#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
 #include "RiaSummaryCurveDefinition.h"
 #include "RiaTextStringTools.h"
 
 #include "RiuGroupedBarChartBuilder.h"
 #include "RiuPlotMainWindowTools.h"
+#include "RiuQwtPlotTools.h"
 #include "RiuSummaryQwtPlot.h"
 #include "RiuSummaryVectorSelectionDialog.h"
 
@@ -53,6 +57,7 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeSelectionEditor.h"
 
+#include <cmath>
 #include <limits>
 #include <map>
 
@@ -63,7 +68,7 @@ void caf::AppEnum<RimAnalysisPlot::SortGroupType>::setUp()
 {
     addItem( RimAnalysisPlot::NONE, "NONE", "None" );
     addItem( RimAnalysisPlot::SUMMARY_ITEM, "SUMMARY_ITEM", "Summary Item" );
-    addItem( RimAnalysisPlot::QUANTITY, "QUANTITY", "Quantity" );
+    addItem( RimAnalysisPlot::VECTOR, "VECTOR", "Vector" );
     addItem( RimAnalysisPlot::CASE, "CASE", "Case" );
     addItem( RimAnalysisPlot::ENSEMBLE, "ENSEMBLE", "Ensemble" );
     addItem( RimAnalysisPlot::VALUE, "VALUE", "Value" );
@@ -91,78 +96,78 @@ CAF_PDM_SOURCE_INIT( RimAnalysisPlot, "AnalysisPlot" );
 RimAnalysisPlot::RimAnalysisPlot()
     : RimPlot()
 {
-    CAF_PDM_InitObject( "Analysis Plot", ":/AnalysisPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Analysis Plot", ":/AnalysisPlot16x16.png" );
 
     // Variable selection
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Vectors", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedVarsUiField, "selectedVarsUiField", "Selected Vectors" );
     m_selectedVarsUiField.xmlCapability()->disableIO();
     m_selectedVarsUiField.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedVarsUiField.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "...", "", "", "" );
+    CAF_PDM_InitField( &m_selectVariablesButtonField, "BrowseButton", false, "..." );
     caf::PdmUiActionPushButtonEditor::configureEditorForField( &m_selectVariablesButtonField );
 
-    CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_analysisPlotDataSelection, "AnalysisPlotData", "" );
     m_analysisPlotDataSelection.uiCapability()->setUiTreeChildrenHidden( true );
     m_analysisPlotDataSelection.uiCapability()->setUiTreeHidden( true );
 
     // Time Step Selection
-    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepFilter, "TimeStepFilter", "Available Time Steps" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Select Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
 
     // Options
 
-    CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_referenceCase, "ReferenceCase", "Reference Case" );
 
-    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto", "", "", "" );
+    CAF_PDM_InitField( &m_useAutoPlotTitle, "IsUsingAutoName", true, "Auto" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useAutoPlotTitle );
 
-    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Analysis Plot" ), "Title", "", "", "" );
+    CAF_PDM_InitField( &m_description, "PlotDescription", QString( "Analysis Plot" ), "Title" );
     m_description.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_barOrientation, "BarOrientation", "Bar Orientation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_barOrientation, "BarOrientation", "Bar Orientation" );
 
     // Grouping
 
-    CAF_PDM_InitFieldNoDefault( &m_majorGroupType, "MajorGroupType", "Major Grouping", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_mediumGroupType, "MediumGroupType", "Medium Grouping", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_minorGroupType, "MinorGroupType", "Minor Grouping", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_majorGroupType, "MajorGroupType", "Major Grouping" );
+    CAF_PDM_InitFieldNoDefault( &m_mediumGroupType, "MediumGroupType", "Medium Grouping" );
+    CAF_PDM_InitFieldNoDefault( &m_minorGroupType, "MinorGroupType", "Minor Grouping" );
 
-    CAF_PDM_InitFieldNoDefault( &m_valueSortOperation, "ValueSortOperation", "Sort by Value", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valueSortOperation, "ValueSortOperation", "Sort by Value" );
 
-    CAF_PDM_InitFieldNoDefault( &m_sortGroupForColors, "groupForColors", "Coloring Using", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sortGroupForColors, "groupForColors", "Coloring Using" );
     m_sortGroupForColors = RimAnalysisPlot::CASE;
     m_showPlotLegends    = false;
 
-    CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top", "", "", "" );
+    CAF_PDM_InitField( &m_useTopBarsFilter, "UseTopBarsFilter", false, "Show Only Top" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useTopBarsFilter );
 
-    CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count", "", "", "" );
+    CAF_PDM_InitField( &m_maxBarCount, "MaxBarCount", 20, "Bar Count" );
     m_maxBarCount.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     // Bar text
 
-    CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Activate Bar Labels", "", "", "" );
+    CAF_PDM_InitField( &m_useBarText, "UseBarText", true, "Activate Bar Labels" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_useBarText );
 
-    CAF_PDM_InitField( &m_useCaseInBarText, "UseCaseInBarText", true, "Case Name", "", "", "" );
-    CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", false, "Ensemble", "", "", "" );
-    CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", false, "Summary Item", "", "", "" );
-    CAF_PDM_InitField( &m_useTimeStepInBarText, "UseTimeStepInBarText", false, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_useQuantityInBarText, "UseQuantityInBarText", false, "Quantity", "", "", "" );
+    CAF_PDM_InitField( &m_useCaseInBarText, "UseCaseInBarText", true, "Case Name" );
+    CAF_PDM_InitField( &m_useEnsembleInBarText, "UseEnsembleInBarText", false, "Ensemble" );
+    CAF_PDM_InitField( &m_useSummaryItemInBarText, "UseSummaryItemInBarText", false, "Summary Item" );
+    CAF_PDM_InitField( &m_useTimeStepInBarText, "UseTimeStepInBarText", false, "Time Step" );
+    CAF_PDM_InitField( &m_useVectorNameInBarText, "UseQuantityInBarText", false, "Vector" );
 
-    CAF_PDM_InitFieldNoDefault( &m_barTextFontSize, "BarTextFontSize", "Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_barTextFontSize, "BarTextFontSize", "Font Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valueAxisProperties, "ValueAxisProperties", "ValueAxisProperties" );
     m_valueAxisProperties.uiCapability()->setUiTreeHidden( true );
     m_valueAxisProperties = new RimPlotAxisProperties;
-    m_valueAxisProperties->setNameAndAxis( "Value-Axis", QwtPlot::yLeft );
+    m_valueAxisProperties->setNameAndAxis( "Value-Axis", "Value-Axis", RiuQwtPlotTools::fromQwtPlotAxis( QwtAxis::YLeft ) );
     m_valueAxisProperties->enableRangeSettings( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotDataFilterCollection, "PlotDataFilterCollection", "PlotDataFilterCollection" );
     m_plotDataFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotDataFilterCollection = new RimPlotDataFilterCollection;
 
@@ -201,7 +206,7 @@ RimPlotDataFilterCollection* RimAnalysisPlot::plotDataFilterCollection() const
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::setCurveDefinitions( const std::vector<RiaSummaryCurveDefinition>& curveDefinitions )
 {
-    m_analysisPlotDataSelection.deleteAllChildObjects();
+    m_analysisPlotDataSelection.deleteChildren();
     for ( auto curveDef : curveDefinitions )
     {
         auto dataEntry = new RimAnalysisPlotDataEntry();
@@ -386,7 +391,7 @@ void RimAnalysisPlot::maxMinValueFromAddress( const RifEclipseSummaryAddress&   
                 {
                     RifEclipseSummaryAddress historyAddr = address;
 
-                    if ( !historyAddr.isHistoryQuantity() ) historyAddr.setQuantityName( address.quantityName() + "H" );
+                    if ( !historyAddr.isHistoryVector() ) historyAddr.setVectorName( address.vectorName() + "H" );
 
                     const std::vector<time_t>& historyTimesteps = reader->timeSteps( historyAddr );
                     if ( historyTimesteps.size() )
@@ -458,7 +463,7 @@ void RimAnalysisPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         {
             std::vector<RiaSummaryCurveDefinition> summaryVectorDefinitions = dlg.curveSelection();
 
-            m_analysisPlotDataSelection.deleteAllChildObjects();
+            m_analysisPlotDataSelection.deleteChildren();
             for ( const RiaSummaryCurveDefinition& vectorDef : summaryVectorDefinitions )
             {
                 auto dataEntry = new RimAnalysisPlotDataEntry();
@@ -493,9 +498,9 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     QString vectorNames;
     if ( getOrCreateSelectedCurveDefAnalyser() )
     {
-        for ( const std::string& quantityName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )
+        for ( const std::string& vectorName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
         {
-            vectorNames += QString::fromStdString( quantityName ) + ", ";
+            vectorNames += QString::fromStdString( vectorName ) + ", ";
         }
 
         if ( !vectorNames.isEmpty() )
@@ -541,14 +546,14 @@ void RimAnalysisPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     caf::PdmUiGroup* barLabelGrp = uiOrdering.addNewGroup( "Bar Labels" );
     barLabelGrp->add( &m_useBarText );
     barLabelGrp->add( &m_barTextFontSize );
-    barLabelGrp->add( &m_useQuantityInBarText );
+    barLabelGrp->add( &m_useVectorNameInBarText );
     barLabelGrp->add( &m_useSummaryItemInBarText );
     barLabelGrp->add( &m_useCaseInBarText );
     barLabelGrp->add( &m_useEnsembleInBarText );
     barLabelGrp->add( &m_useTimeStepInBarText );
 
     m_barTextFontSize.uiCapability()->setUiReadOnly( !m_useBarText );
-    m_useQuantityInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
+    m_useVectorNameInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
     m_useSummaryItemInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
     m_useCaseInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
     m_useEnsembleInBarText.uiCapability()->setUiReadOnly( !m_useBarText );
@@ -568,10 +573,9 @@ caf::PdmFieldHandle* RimAnalysisPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                      bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlot::calculateValueOptions( fieldNeedingOptions );
 
     if ( !options.isEmpty() ) return options;
 
@@ -608,11 +612,12 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
         filteredTimeStepIndices.erase( std::unique( filteredTimeStepIndices.begin(), filteredTimeStepIndices.end() ),
                                        filteredTimeStepIndices.end() );
 
-        QString dateFormatString = RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
-                                                                        RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+        QString dateFormatString =
+            RiaQDateTimeTools::dateFormatString( RiaPreferences::current()->dateFormat(),
+                                                 RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         QString timeFormatString =
             RiaQDateTimeTools::timeFormatString( RiaPreferences::current()->timeFormat(),
-                                                 RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                                 RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
         QString dateTimeFormatString = QString( "%1 %2" ).arg( dateFormatString ).arg( timeFormatString );
 
         bool showTime = m_timeStepFilter() == RimTimeStepFilter::TS_ALL ||
@@ -665,7 +670,7 @@ QList<caf::PdmOptionItemInfo> RimAnalysisPlot::calculateValueOptions( const caf:
                 QString( "%1 (%2)" ).arg( SortGroupAppEnum::uiText( SUMMARY_ITEM ) ).arg( exampleString );
             options.push_back( caf::PdmOptionItemInfo( summaryItemText, SUMMARY_ITEM ) );
         }
-        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( QUANTITY ), QUANTITY ) );
+        options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( VECTOR ), VECTOR ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( CASE ), CASE ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( ENSEMBLE ), ENSEMBLE ) );
         options.push_back( caf::PdmOptionItemInfo( SortGroupAppEnum::uiText( TIME_STEP ), TIME_STEP ) );
@@ -772,26 +777,26 @@ void RimAnalysisPlot::onLoadDataAndUpdate()
 
     if ( m_plotWidget )
     {
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotBarChart );
-        m_plotWidget->detachItems( QwtPlotItem::Rtti_PlotScale );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotBarChart );
+        m_plotWidget->qwtPlot()->detachItems( QwtPlotItem::Rtti_PlotScale );
 
         RiuGroupedBarChartBuilder chartBuilder;
         chartBuilder.setLabelFontSize( barTextFontSize() );
         // buildTestPlot( chartBuilder );
         addDataToChartBuilder( chartBuilder );
 
-        chartBuilder.addBarChartToPlot( m_plotWidget,
+        chartBuilder.addBarChartToPlot( m_plotWidget->qwtPlot(),
                                         m_barOrientation == BARS_HORIZONTAL ? Qt::Horizontal : Qt::Vertical,
                                         m_useTopBarsFilter() ? m_maxBarCount : -1 );
 
-        if ( m_showPlotLegends && m_plotWidget->legend() == nullptr )
+        if ( m_showPlotLegends && m_plotWidget->qwtPlot()->legend() == nullptr )
         {
             QwtLegend* legend = new QwtLegend( m_plotWidget );
-            m_plotWidget->insertLegend( legend, QwtPlot::RightLegend );
+            m_plotWidget->qwtPlot()->insertLegend( legend, QwtPlot::RightLegend );
         }
         else if ( !m_showPlotLegends )
         {
-            m_plotWidget->insertLegend( nullptr );
+            m_plotWidget->qwtPlot()->insertLegend( nullptr );
         }
 
         m_plotWidget->setLegendFontSize( legendFontSize() );
@@ -829,7 +834,7 @@ QString RimAnalysisPlot::description() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
+RiuPlotWidget* RimAnalysisPlot::doCreatePlotViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
     if ( !m_plotWidget )
     {
@@ -850,9 +855,17 @@ RiuQwtPlotWidget* RimAnalysisPlot::viewer()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RimAnalysisPlot::plotWidget()
+{
+    return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimAnalysisPlot::detachAllCurves()
 {
-    if ( m_plotWidget ) m_plotWidget->detachItems();
+    if ( m_plotWidget ) m_plotWidget->qwtPlot()->detachItems();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -862,41 +875,41 @@ void RimAnalysisPlot::updateAxes()
 {
     if ( !m_plotWidget ) return;
 
-    QwtPlot::Axis qwtAxis = QwtPlot::yLeft;
+    RiuPlotAxis axis = RiuPlotAxis::defaultLeft();
     if ( m_barOrientation == BARS_HORIZONTAL )
     {
-        qwtAxis = QwtPlot::xBottom;
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::yLeft, false );
+        axis = RiuPlotAxis::defaultBottom();
+        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), false );
     }
     else
     {
-        m_plotWidget->setAxisTitleEnabled( QwtPlot::xBottom, false );
+        m_plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultBottom(), false );
     }
 
     RimPlotAxisProperties* valAxisProperties = m_valueAxisProperties();
     if ( valAxisProperties->isActive() )
     {
-        m_plotWidget->enableAxis( qwtAxis, true );
-        m_valueAxisProperties->setNameAndAxis( "Value-Axis", qwtAxis );
+        m_plotWidget->enableAxis( axis, true );
+        m_valueAxisProperties->setNameAndAxis( "Value-Axis", "Value-Axis", axis.axis() );
 
         RimSummaryPlotAxisFormatter calc( valAxisProperties, {}, curveDefinitions(), {}, {} );
         calc.applyAxisPropertiesToPlot( m_plotWidget );
     }
     else
     {
-        m_plotWidget->enableAxis( qwtAxis, false );
+        m_plotWidget->enableAxis( axis, false );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
+void RimAnalysisPlot::onAxisSelected( RiuPlotAxis axis, bool toggle )
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
 
     caf::PdmObject* itemToSelect = nullptr;
-    if ( axis == QwtPlot::yLeft )
+    if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
     {
         if ( m_barOrientation == BARS_VERTICAL )
         {
@@ -907,7 +920,7 @@ void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
             itemToSelect = this;
         }
     }
-    else if ( axis == QwtPlot::xBottom )
+    else if ( axis.axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
         if ( m_barOrientation == BARS_HORIZONTAL )
         {
@@ -919,14 +932,7 @@ void RimAnalysisPlot::onAxisSelected( int axis, bool toggle )
         }
     }
 
-    if ( toggle )
-    {
-        RiuPlotMainWindowTools::toggleItemInSelection( itemToSelect );
-    }
-    else
-    {
-        RiuPlotMainWindowTools::selectAsCurrentItem( itemToSelect );
-    }
+    RiuPlotMainWindowTools::selectOrToggleObject( itemToSelect, toggle );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -977,11 +983,11 @@ QString RimAnalysisPlot::assignGroupingText( RimAnalysisPlot::SortGroupType  sor
             }
         }
         break;
-        case RimAnalysisPlot::QUANTITY:
+        case RimAnalysisPlot::VECTOR:
         {
             RifEclipseSummaryAddress addr = dataEntry.summaryAddress();
 
-            groupingText = QString::fromStdString( addr.quantityName() );
+            groupingText = QString::fromStdString( addr.vectorName() );
         }
         break;
         case RimAnalysisPlot::TIME_STEP:
@@ -1042,7 +1048,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
 
             RifEclipseSummaryAddress address = curveDef.summaryAddress();
 
-            address.setQuantityName( "" ); // Quantity name set to "" in order to store only unique summary items
+            address.setVectorName( "" ); // Vector name set to "" in order to store only unique summary items
             filteredSummaryItems.insert( address );
         }
     }
@@ -1062,7 +1068,7 @@ std::vector<RiaSummaryCurveDefinition> RimAnalysisPlot::filteredCurveDefs()
     {
         RimSummaryCase*          sumCase = curveDefCandidate.summaryCase();
         RifEclipseSummaryAddress addr    = curveDefCandidate.summaryAddress();
-        addr.setQuantityName( "" );
+        addr.setVectorName( "" );
 
         if ( filteredSumCases.count( sumCase ) && filteredSummaryItems.count( addr ) )
         {
@@ -1216,8 +1222,8 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
                         {
                             RifEclipseSummaryAddress historyAddr = addrToFilterValue;
 
-                            if ( !historyAddr.isHistoryQuantity() )
-                                historyAddr.setQuantityName( addrToFilterValue.quantityName() + "H" );
+                            if ( !historyAddr.isHistoryVector() )
+                                historyAddr.setVectorName( addrToFilterValue.vectorName() + "H" );
 
                             const std::vector<time_t>& historyTimesteps = reader->timeSteps( historyAddr );
                             if ( historyTimesteps.size() )
@@ -1300,13 +1306,13 @@ void RimAnalysisPlot::applyFilter( const RimPlotDataFilterItem*        filter,
             {
                 RifEclipseSummaryAddress addrToFilterValue = filter->summaryAddress();
 
-                quantityName = addrToFilterValue.quantityName();
+                quantityName = addrToFilterValue.vectorName();
             }
 
             for ( auto sumItem : *filteredSummaryItems )
             {
                 RifEclipseSummaryAddress addrToFilterValue = sumItem;
-                addrToFilterValue.setQuantityName( quantityName );
+                addrToFilterValue.setVectorName( quantityName );
 
                 if ( filter->filterOperation() == RimPlotDataFilterItem::RANGE )
                 {
@@ -1527,9 +1533,9 @@ void RimAnalysisPlot::addDataToChartBuilder( RiuGroupedBarChartBuilder& chartBui
             if ( m_useBarText() )
             {
                 QStringList barTextComponents;
-                if ( m_useQuantityInBarText )
+                if ( m_useVectorNameInBarText )
                 {
-                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().quantityName() );
+                    barTextComponents += QString::fromStdString( curveDef.summaryAddress().vectorName() );
                 }
 
                 if ( m_useSummaryItemInBarText )
@@ -1611,7 +1617,7 @@ void RimAnalysisPlot::updatePlotTitle()
                 QString::fromStdString( getOrCreateSelectedCurveDefAnalyser()->m_summaryAdresses.begin()->itemUiText() );
         }
 
-        for ( std::string quantName : getOrCreateSelectedCurveDefAnalyser()->m_quantityNames )
+        for ( std::string quantName : getOrCreateSelectedCurveDefAnalyser()->m_vectorNames )
         {
             if ( !autoTitle.isEmpty() ) autoTitle += separator;
             autoTitle += QString::fromStdString( quantName );
@@ -1634,8 +1640,8 @@ void RimAnalysisPlot::updatePlotTitle()
             if ( !autoTitle.isEmpty() ) autoTitle += " @ ";
 
             QString formatString =
-                RiaPreferences::current()->dateTimeFormat( RiaQDateTimeTools::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
-                                                           RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_NONE );
+                RiaPreferences::current()->dateTimeFormat( RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY,
+                                                           RiaDefines::TimeFormatComponents::TIME_FORMAT_NONE );
             autoTitle += m_selectedTimeSteps()[0].toString( formatString );
         }
 
@@ -1788,7 +1794,7 @@ void RimAnalysisPlot::onCaseRemoved( const SignalEmitter* emitter, RimSummaryCas
     {
         if ( existingEntry->summaryCase() == summaryCase )
         {
-            m_analysisPlotDataSelection.removeChildObject( existingEntry );
+            m_analysisPlotDataSelection.removeChild( existingEntry );
             delete existingEntry;
             break;
         }

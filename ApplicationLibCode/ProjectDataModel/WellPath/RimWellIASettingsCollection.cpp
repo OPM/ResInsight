@@ -38,9 +38,9 @@ CAF_PDM_SOURCE_INIT( RimWellIASettingsCollection, "RimWellIASettingsCollection" 
 //--------------------------------------------------------------------------------------------------
 RimWellIASettingsCollection::RimWellIASettingsCollection()
 {
-    CAF_PDM_InitObject( "Integrity Analysis Models", ":/WellIntAnalysis.png", "", "" );
+    CAF_PDM_InitObject( "Integrity Analysis Models", ":/WellIntAnalysis.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellIASettings, "WellIASettings", "Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellIASettings, "WellIASettings", "Settings" );
     m_wellIASettings.uiCapability()->setUiHidden( true );
     m_wellIASettings.uiCapability()->setUiTreeHidden( true );
 
@@ -89,7 +89,7 @@ RimWellIASettings* RimWellIASettingsCollection::startWellIntegrationAnalysis( QS
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellIASettings*> RimWellIASettingsCollection::settings() const
 {
-    return m_wellIASettings.childObjects();
+    return m_wellIASettings.children();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -69,10 +69,7 @@ public:
     }
 
     /// Methods to get a list of options for a field, specialized for AppEnum
-    static QList<PdmOptionItemInfo> valueOptions( bool* useOptionsOnly, const cvf::Vec3d& )
-    {
-        return QList<PdmOptionItemInfo>();
-    }
+    static QList<PdmOptionItemInfo> valueOptions( const cvf::Vec3d& ) { return QList<PdmOptionItemInfo>(); }
 
     /// Methods to retrieve the possible PdmObject pointed to by a field
     static void childObjects( const PdmDataValueField<cvf::Vec3d>&, std::vector<PdmObjectHandle*>* ) {}

@@ -36,6 +36,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimPlot.h"
+#include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
@@ -74,6 +75,14 @@ void RimDepthTrackPlot::AxisGridEnum::setUp()
     setDefault( RimDepthTrackPlot::AXIS_GRID_MAJOR );
 }
 
+template <>
+void caf::AppEnum<RimDepthTrackPlot::DepthOrientation>::setUp()
+{
+    addItem( RimDepthTrackPlot::DepthOrientation::HORIZONTAL, "HORIZONTAL", "Horizontal" );
+    addItem( RimDepthTrackPlot::DepthOrientation::VERTICAL, "VERTICAL", "Vertical" );
+    setDefault( RimDepthTrackPlot::DepthOrientation::VERTICAL );
+}
+
 } // End namespace caf
 
 CAF_PDM_SOURCE_INIT( RimDepthTrackPlot, "DepthTrackPlot" );
@@ -96,40 +105,42 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     m_commonDataSource.xmlCapability()->disableIO();
     m_commonDataSource = new RimWellLogCurveCommonDataSource;
 
-    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
     caf::AppEnum<RimDepthTrackPlot::DepthTypeEnum> depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
-    CAF_PDM_InitScriptableField( &m_depthType, "DepthType", depthType, "Type", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_depthType, "DepthType", depthType, "Type" );
 
     caf::AppEnum<RiaDefines::DepthUnitType> depthUnit = RiaDefines::DepthUnitType::UNIT_METER;
-    CAF_PDM_InitScriptableField( &m_depthUnit, "DepthUnit", depthUnit, "Unit", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_depthUnit, "DepthUnit", depthUnit, "Unit" );
 
-    CAF_PDM_InitScriptableField( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_minVisibleDepth, "MinimumDepth", 0.0, "Min" );
+    CAF_PDM_InitScriptableField( &m_maxVisibleDepth, "MaximumDepth", 1000.0, "Max" );
     m_minVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     m_maxVisibleDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_depthAxisGridVisibility, "ShowDepthGridLines", "Show Grid Lines" );
+    CAF_PDM_InitScriptableField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale" );
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_nameConfig = new RimWellLogPlotNameConfig();
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSet, "FilterEnsembleCurveSet", "Filter by Ensemble Curve Set" );
+    CAF_PDM_InitFieldNoDefault( &m_depthEqualization, "DepthEqualization", "Depth Equalization" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plots, "Tracks", "" );
     m_plots.uiCapability()->setUiTreeHidden( true );
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );
+
+    CAF_PDM_InitFieldNoDefault( &m_depthOrientation, "DepthOrientation", "Orientation" );
 
     m_availableDepthUnits = { RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET };
     m_availableDepthTypes = { RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
@@ -154,7 +165,7 @@ RimDepthTrackPlot::~RimDepthTrackPlot()
     delete m_nameConfig;
 
     removeMdiWindowFromMdiArea();
-    m_plots.deleteAllChildObjects();
+    m_plots.deleteChildren();
 
     cleanupBeforeClose();
 }
@@ -167,9 +178,9 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     RimPlotWindow::operator=( std::move( rhs ) );
 
     // Move all tracks
-    std::vector<RimPlot*> plots = rhs.m_plots.childObjects();
-    rhs.m_plots.clear();
-    for ( RimPlot* plot : plots )
+    auto plots = rhs.m_plots.children();
+    rhs.m_plots.clearWithoutDelete();
+    for ( auto plot : plots )
     {
         m_plots.push_back( plot );
     }
@@ -179,7 +190,7 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     // They had their own description at top level which we don't want to overwrite.
 
     auto dataSource = rhs.m_commonDataSource();
-    rhs.m_commonDataSource.removeChildObject( dataSource );
+    rhs.m_commonDataSource.removeChild( dataSource );
     m_commonDataSource        = dataSource;
     m_commonDataSourceEnabled = rhs.m_commonDataSourceEnabled;
 
@@ -234,9 +245,9 @@ size_t RimDepthTrackPlot::plotCount() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-size_t RimDepthTrackPlot::plotIndex( const RimPlot* plot ) const
+size_t RimDepthTrackPlot::plotIndex( const RimWellLogTrack* plot ) const
 {
-    return m_plots.index( plot );
+    return m_plots.indexOf( plot );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,16 +268,23 @@ RimPlot* RimDepthTrackPlot::plotByIndex( size_t index ) const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimPlot*> RimDepthTrackPlot::plots() const
 {
-    return m_plots.childObjects();
+    std::vector<RimPlot*> baseClassPlots;
+
+    for ( auto p : m_plots.children() )
+    {
+        baseClassPlots.push_back( p );
+    }
+
+    return baseClassPlots;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlot*> RimDepthTrackPlot::visiblePlots() const
+std::vector<RimWellLogTrack*> RimDepthTrackPlot::visiblePlots() const
 {
-    std::vector<RimPlot*> allVisiblePlots;
-    for ( RimPlot* plot : m_plots() )
+    std::vector<RimWellLogTrack*> allVisiblePlots;
+    for ( auto plot : m_plots() )
     {
         if ( plot->showWindow() )
         {
@@ -274,6 +292,17 @@ std::vector<RimPlot*> RimDepthTrackPlot::visiblePlots() const
         }
     }
     return allVisiblePlots;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimDepthTrackPlot::columnCount() const
+{
+    if ( depthOrientation() == DepthOrientation::VERTICAL )
+        return RimPlotWindow::columnCount();
+    else
+        return 1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -293,8 +322,8 @@ void RimDepthTrackPlot::updateZoom()
 
     for ( RimPlot* plot : plots() )
     {
-        static_cast<RimWellLogTrack*>( plot )->setVisibleYRange( m_minVisibleDepth(), m_maxVisibleDepth() );
-        plot->updateZoomInQwt();
+        static_cast<RimWellLogTrack*>( plot )->setVisibleDepthRange( m_minVisibleDepth(), m_maxVisibleDepth() );
+        plot->updateZoomInParentPlot();
     }
 
     if ( m_viewer )
@@ -334,7 +363,7 @@ void RimDepthTrackPlot::setDepthAxisRange( double minimumDepth, double maximumDe
     m_minVisibleDepth.uiCapability()->updateConnectedEditors();
     m_maxVisibleDepth.uiCapability()->updateConnectedEditors();
 
-    setAutoScaleDepthEnabled( false );
+    setAutoScaleDepthValuesEnabled( false );
     updateZoom();
 }
 
@@ -588,7 +617,7 @@ void RimDepthTrackPlot::recreatePlotWidgets()
     for ( size_t tIdx = 0; tIdx < plotVector.size(); ++tIdx )
     {
         plotVector[tIdx]->createPlotWidget();
-        m_viewer->addPlot( plotVector[tIdx]->viewer() );
+        m_viewer->addPlot( plotVector[tIdx]->plotWidget() );
     }
 }
 
@@ -648,7 +677,7 @@ RimWellLogCurveCommonDataSource* RimDepthTrackPlot::commonDataSource() const
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::updateCommonDataSource()
 {
-    m_commonDataSource->updateDefaultOptions();
+    m_commonDataSource->analyseCurvesAndTracks();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -829,6 +858,10 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         m_isAutoScaleDepthEnabled = true;
         onLoadDataAndUpdate();
     }
+    else if ( changedField == &m_depthOrientation )
+    {
+        onLoadDataAndUpdate();
+    }
     else if ( changedField == &m_subTitleFontSize || changedField == &m_axisTitleFontSize ||
               changedField == &m_axisValueFontSize )
     {
@@ -883,6 +916,7 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     plotLayoutGroup->add( &m_subTitleFontSize );
     plotLayoutGroup->add( &m_axisTitleFontSize );
     plotLayoutGroup->add( &m_axisValueFontSize );
+    plotLayoutGroup->add( &m_depthOrientation );
 
     std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
     descendantsOfType( ensembleWellLogCurveSets );
@@ -906,10 +940,9 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimPlotWindow::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_depthType )
     {
@@ -942,7 +975,6 @@ QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const ca
         RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( &options );
     }
 
-    ( *useOptionsOnly ) = true;
     return options;
 }
 
@@ -1022,16 +1054,19 @@ caf::PdmFieldHandle* RimDepthTrackPlot::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::insertPlot( RimPlot* plot, size_t index )
 {
-    if ( plot )
+    auto wellLogTrack = dynamic_cast<RimWellLogTrack*>( plot );
+    CVF_ASSERT( wellLogTrack && "Only type RimWellLogTrack is supported in RimDepthTrackPlot" );
+
+    if ( wellLogTrack )
     {
-        m_plots.insert( index, plot );
+        m_plots.insert( index, wellLogTrack );
 
         if ( m_viewer )
         {
-            plot->createPlotWidget();
-            m_viewer->insertPlot( plot->viewer(), index );
+            wellLogTrack->createPlotWidget();
+            m_viewer->insertPlot( wellLogTrack->plotWidget(), index );
         }
-        plot->setShowWindow( true );
+        wellLogTrack->setShowWindow( true );
         onPlotAdditionOrRemoval();
     }
 }
@@ -1045,9 +1080,9 @@ void RimDepthTrackPlot::removePlot( RimPlot* plot )
     {
         if ( m_viewer )
         {
-            m_viewer->removePlot( plot->viewer() );
+            m_viewer->removePlot( plot->plotWidget() );
         }
-        m_plots.removeChildObject( plot );
+        m_plots.removeChild( plot );
 
         onPlotAdditionOrRemoval();
     }
@@ -1144,18 +1179,48 @@ RimDepthTrackPlot::AxisGridVisibility RimDepthTrackPlot::depthAxisGridLinesEnabl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setAutoScaleXEnabled( bool enabled )
+RimDepthTrackPlot::DepthOrientation RimDepthTrackPlot::depthOrientation() const
 {
-    for ( RimPlot* plot : plots() )
+    return m_depthOrientation();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimDepthTrackPlot::depthAxis() const
+{
+    if ( m_depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        return RiuPlotAxis::defaultLeft();
+    else
+        return RiuPlotAxis::defaultBottom();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimDepthTrackPlot::valueAxis() const
+{
+    if ( m_depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        return RiuPlotAxis::defaultTop();
+    else
+        return RiuPlotAxis::defaultLeft();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::setAutoScalePropertyValuesEnabled( bool enabled )
+{
+    for ( auto plot : m_plots.children() )
     {
-        plot->setAutoScaleXEnabled( enabled );
+        plot->setAutoScalePropertyValuesEnabled( enabled );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setAutoScaleDepthEnabled( bool enabled )
+void RimDepthTrackPlot::setAutoScaleDepthValuesEnabled( bool enabled )
 {
     m_isAutoScaleDepthEnabled = enabled;
     m_isAutoScaleDepthEnabled.uiCapability()->updateConnectedEditors();
@@ -1166,8 +1231,8 @@ void RimDepthTrackPlot::setAutoScaleDepthEnabled( bool enabled )
 //--------------------------------------------------------------------------------------------------
 void RimDepthTrackPlot::zoomAll()
 {
-    setAutoScaleXEnabled( true );
-    setAutoScaleDepthEnabled( true );
+    setAutoScalePropertyValuesEnabled( true );
+    setAutoScaleDepthValuesEnabled( true );
     updateZoom();
 }
 

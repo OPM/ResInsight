@@ -34,6 +34,7 @@
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGridCrossQwtPlot.h"
+#include "RiuPlotWidget.h"
 #include "RiuScalarMapperLegendFrame.h"
 
 #include "RimCase.h"
@@ -62,6 +63,8 @@
 #include "cvfScalarMapper.h"
 #include "cvfqtUtils.h"
 
+#include "qwt_plot.h"
+
 #include <QString>
 
 CAF_PDM_SOURCE_INIT( RimGridCrossPlotDataSet, "GridCrossPlotCurveSet" );
@@ -84,31 +87,31 @@ void RimGridCrossPlotDataSet::CurveGroupingEnum::setUp()
 //--------------------------------------------------------------------------------------------------
 RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
 {
-    CAF_PDM_InitObject( "Cross Plot Data Set", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Cross Plot Data Set", ":/WellLogCurve16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "Case", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", -1, "Time Step" );
     m_timeStep.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
 
-    CAF_PDM_InitFieldNoDefault( &m_grouping, "Grouping", "Group Data by", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_grouping, "Grouping", "Group Data by" );
 
-    CAF_PDM_InitFieldNoDefault( &m_xAxisProperty, "XAxisProperty", "X-Axis Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_xAxisProperty, "XAxisProperty", "X-Axis Property" );
     m_xAxisProperty = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
     m_xAxisProperty.uiCapability()->setUiTreeHidden( true );
     m_xAxisProperty.uiCapability()->setUiTreeChildrenHidden( true );
     m_xAxisProperty->setTernaryEnabled( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_yAxisProperty, "YAxisProperty", "Y-Axis Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_yAxisProperty, "YAxisProperty", "Y-Axis Property" );
     m_yAxisProperty = new RimEclipseResultDefinition( caf::PdmUiItemInfo::TOP );
     m_yAxisProperty.uiCapability()->setUiTreeHidden( true );
     m_yAxisProperty.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_yAxisProperty->setTernaryEnabled( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_groupingProperty, "GroupingProperty", "Data Grouping Property", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_groupingProperty, "GroupingProperty", "Data Grouping Property" );
     m_groupingProperty = new RimEclipseCellColors;
     m_groupingProperty->useDiscreteLogLevels( true );
     m_groupingProperty.uiCapability()->setUiTreeHidden( true );
@@ -116,18 +119,18 @@ RimGridCrossPlotDataSet::RimGridCrossPlotDataSet()
     m_groupingProperty->legendConfig()->setMappingMode( RimRegularLegendConfig::MappingType::CATEGORY_INTEGER );
     m_groupingProperty->setTernaryEnabled( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "Name" );
     m_nameConfig = new RimGridCrossPlotDataSetNameConfig();
     m_nameConfig.uiCapability()->setUiTreeHidden( true );
     m_nameConfig.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_crossPlotCurves, "CrossPlotCurves", "Curves", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_crossPlotCurves, "CrossPlotCurves", "Curves" );
     m_crossPlotCurves.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_useCustomColor, "UseCustomColor", false, "Use Custom Color", "", "", "" );
-    CAF_PDM_InitField( &m_customColor, "CustomColor", cvf::Color3f( cvf::Color3f::BLACK ), "Custom Color", "", "", "" );
+    CAF_PDM_InitField( &m_useCustomColor, "UseCustomColor", false, "Use Custom Color" );
+    CAF_PDM_InitField( &m_customColor, "CustomColor", cvf::Color3f( cvf::Color3f::BLACK ), "Custom Color" );
 
-    CAF_PDM_InitFieldNoDefault( &m_plotCellFilterCollection, "PlotCellFilterCollection", "Cell Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_plotCellFilterCollection, "PlotCellFilterCollection", "Cell Filters" );
     m_plotCellFilterCollection.uiCapability()->setUiTreeHidden( true );
     m_plotCellFilterCollection.uiCapability()->setUiTreeChildrenHidden( true );
     m_plotCellFilterCollection = new RimPlotCellFilterCollection;
@@ -162,18 +165,29 @@ void RimGridCrossPlotDataSet::setCellFilterView( RimGridView* cellFilterView )
         RigEclipseResultAddress resAddr = eclipseView->cellResult()->eclipseResultAddress();
         if ( resAddr.isValid() )
         {
+            m_grouping = NO_GROUPING;
+
+            RimEclipseCase* eclipseCase = eclipseView->eclipseCase();
+            if ( eclipseCase )
+            {
+                m_case = eclipseCase;
+                m_xAxisProperty->setEclipseCase( eclipseCase );
+                m_yAxisProperty->setEclipseCase( eclipseCase );
+                m_groupingProperty->setEclipseCase( eclipseCase );
+
+                if ( eclipseCase->activeFormationNames() )
+                {
+                    m_grouping = GROUP_BY_FORMATION;
+                    m_groupingProperty->legendConfig()->setColorLegend(
+                        RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
+                }
+            }
+
             m_xAxisProperty->setResultType( resAddr.resultCatType() );
             m_xAxisProperty->setResultVariable( resAddr.resultName() );
             m_yAxisProperty->setResultType( RiaDefines::ResultCatType::STATIC_NATIVE );
             m_yAxisProperty->setResultVariable( "DEPTH" );
             m_timeStep = eclipseView->currentTimeStep();
-            m_grouping = NO_GROUPING;
-            if ( eclipseView->eclipseCase() && eclipseView->eclipseCase()->activeFormationNames() )
-            {
-                m_grouping = GROUP_BY_FORMATION;
-                m_groupingProperty->legendConfig()->setColorLegend(
-                    RimRegularLegendConfig::mapToColorLegend( RimRegularLegendConfig::ColorRangesType::CATEGORY ) );
-            }
 
             RimGridCrossPlot* parentPlot = nullptr;
             firstAncestorOrThisOfType( parentPlot );
@@ -196,11 +210,11 @@ void RimGridCrossPlotDataSet::loadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCrossPlotDataSet::setParentQwtPlotNoReplot( QwtPlot* parent )
+void RimGridCrossPlotDataSet::setParentPlotNoReplot( RiuPlotWidget* parent )
 {
     for ( auto& curve : m_crossPlotCurves() )
     {
-        curve->setParentQwtPlotNoReplot( m_isChecked() ? parent : nullptr );
+        curve->setParentPlotNoReplot( m_isChecked() ? parent : nullptr );
     }
 }
 
@@ -341,7 +355,7 @@ void RimGridCrossPlotDataSet::detachAllCurves()
 {
     for ( auto curve : m_crossPlotCurves() )
     {
-        curve->detachQwtCurve();
+        curve->detach();
     }
 }
 
@@ -369,7 +383,7 @@ RimRegularLegendConfig* RimGridCrossPlotDataSet::legendConfig() const
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridCrossPlotCurve*> RimGridCrossPlotDataSet::curves() const
 {
-    return m_crossPlotCurves.childObjects();
+    return m_crossPlotCurves.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -652,8 +666,9 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves( const RigEclipseCro
     {
         CVF_ASSERT( m_crossPlotCurves.size() == 1u );
         RimGridCrossPlotCurve* curve = m_crossPlotCurves[0];
-        curve->setSamples( result.xValues, result.yValues );
         curve->setGroupingInformation( indexInPlot(), 0 );
+        curve->updateCurveVisibility();
+        curve->setSamples( result.xValues, result.yValues );
         curve->updateCurveAppearance();
         curve->updateUiIconFromPlotSymbol();
     }
@@ -665,8 +680,9 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves( const RigEclipseCro
         for ( ; curveIt != m_crossPlotCurves.end() && groupIt != m_groupedResults.rend(); ++curveIt, ++groupIt )
         {
             RimGridCrossPlotCurve* curve = *curveIt;
-            curve->setSamples( groupIt->second.xValues, groupIt->second.yValues );
             curve->setGroupingInformation( indexInPlot(), groupIt->first );
+            curve->updateCurveVisibility();
+            curve->setSamples( groupIt->second.xValues, groupIt->second.yValues );
             curve->updateCurveAppearance();
             curve->updateUiIconFromPlotSymbol();
         }
@@ -679,7 +695,7 @@ void RimGridCrossPlotDataSet::fillCurveDataInExistingCurves( const RigEclipseCro
 void RimGridCrossPlotDataSet::destroyCurves()
 {
     detachAllCurves();
-    m_crossPlotCurves.deleteAllChildObjects();
+    m_crossPlotCurves.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -941,8 +957,7 @@ void RimGridCrossPlotDataSet::childFieldChangedByUi( const caf::PdmFieldHandle* 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimGridCrossPlotDataSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimGridCrossPlotDataSet::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -966,7 +981,7 @@ QList<caf::PdmOptionItemInfo>
         if ( eclipseCase )
         {
             options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
-            for ( RimEclipseView* view : eclipseCase->reservoirViews.childObjects() )
+            for ( RimEclipseView* view : eclipseCase->reservoirViews.children() )
             {
                 CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
                 options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
@@ -1009,7 +1024,7 @@ void RimGridCrossPlotDataSet::updateLegendRange()
 
     RimGridCrossPlot* parent;
     this->firstAncestorOrThisOfTypeAsserted( parent );
-    if ( parent->viewer() )
+    if ( parent->plotWidget() )
     {
         if ( groupingEnabled() && m_case() && isChecked() && legendConfig()->showLegend() )
         {
@@ -1050,17 +1065,17 @@ void RimGridCrossPlotDataSet::updateLegendRange()
             }
             if ( !m_legendOverlayFrame )
             {
-                m_legendOverlayFrame =
-                    new RiuDraggableOverlayFrame( parent->viewer()->canvas(), parent->viewer()->overlayMargins() );
+                m_legendOverlayFrame = new RiuDraggableOverlayFrame( parent->plotWidget()->getParentForOverlay(),
+                                                                     parent->plotWidget()->overlayMargins() );
             }
             m_legendOverlayFrame->setContentFrame( legendConfig()->makeLegendFrame() );
-            parent->viewer()->addOverlayFrame( m_legendOverlayFrame );
+            parent->plotWidget()->addOverlayFrame( m_legendOverlayFrame );
         }
         else
         {
             if ( m_legendOverlayFrame )
             {
-                parent->viewer()->removeOverlayFrame( m_legendOverlayFrame );
+                parent->plotWidget()->removeOverlayFrame( m_legendOverlayFrame );
             }
         }
     }
@@ -1118,8 +1133,8 @@ void RimGridCrossPlotDataSet::swapAxisProperties( bool updatePlot )
     RimEclipseResultDefinition* xAxisProperties = m_xAxisProperty();
     RimEclipseResultDefinition* yAxisProperties = m_yAxisProperty();
 
-    m_xAxisProperty.removeChildObject( xAxisProperties );
-    m_yAxisProperty.removeChildObject( yAxisProperties );
+    m_xAxisProperty.removeChild( xAxisProperties );
+    m_yAxisProperty.removeChild( yAxisProperties );
     m_yAxisProperty = xAxisProperties;
     m_xAxisProperty = yAxisProperties;
 
@@ -1422,12 +1437,12 @@ CAF_PDM_SOURCE_INIT( RimGridCrossPlotDataSetNameConfig, "RimGridCrossPlotCurveSe
 RimGridCrossPlotDataSetNameConfig::RimGridCrossPlotDataSetNameConfig()
     : RimNameConfig( "" )
 {
-    CAF_PDM_InitObject( "Cross Plot Data Set NameGenerator", "", "", "" );
+    CAF_PDM_InitObject( "Cross Plot Data Set NameGenerator" );
 
-    CAF_PDM_InitField( &addCaseName, "AddCaseName", true, "Add Case Name", "", "", "" );
-    CAF_PDM_InitField( &addAxisVariables, "AddAxisVariables", true, "Add Axis Variables", "", "", "" );
-    CAF_PDM_InitField( &addTimestep, "AddTimeStep", true, "Add Time Step", "", "", "" );
-    CAF_PDM_InitField( &addGrouping, "AddGrouping", true, "Add Data Group", "", "", "" );
+    CAF_PDM_InitField( &addCaseName, "AddCaseName", true, "Add Case Name" );
+    CAF_PDM_InitField( &addAxisVariables, "AddAxisVariables", true, "Add Axis Variables" );
+    CAF_PDM_InitField( &addTimestep, "AddTimeStep", true, "Add Time Step" );
+    CAF_PDM_InitField( &addGrouping, "AddGrouping", true, "Add Data Group" );
 }
 
 //--------------------------------------------------------------------------------------------------

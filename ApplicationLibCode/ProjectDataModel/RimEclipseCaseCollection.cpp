@@ -41,12 +41,12 @@ CAF_PDM_SOURCE_INIT( RimEclipseCaseCollection, "ResInsightAnalysisModels" );
 //--------------------------------------------------------------------------------------------------
 RimEclipseCaseCollection::RimEclipseCaseCollection( void )
 {
-    CAF_PDM_InitObject( "Grid Models", ":/Cases16x16.png", "", "" );
+    CAF_PDM_InitObject( "Grid Models", ":/Cases16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &cases, "Reservoirs", "" );
     cases.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &caseGroups, "CaseGroups", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &caseGroups, "CaseGroups", "" );
     caseGroups.uiCapability()->setUiTreeHidden( true );
 
     m_gridCollection = new RigGridManager;
@@ -67,8 +67,8 @@ void RimEclipseCaseCollection::close()
 {
     m_gridCollection->clear();
 
-    cases.deleteAllChildObjects();
-    caseGroups.deleteAllChildObjects();
+    cases.deleteChildren();
+    caseGroups.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ void RimEclipseCaseCollection::removeCaseFromAllGroups( RimEclipseCase* reservoi
         cg->removeCase( reservoir );
     }
 
-    cases().removeChildObject( reservoir );
+    cases().removeChild( reservoir );
 }
 
 //--------------------------------------------------------------------------------------------------

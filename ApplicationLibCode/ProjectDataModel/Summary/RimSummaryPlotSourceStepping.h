@@ -18,8 +18,7 @@
 
 #pragma once
 
-#include "RiaSummaryCurveAnalyzer.h"
-#include "RifEclipseSummaryAddress.h"
+#include "RimSummaryDataSourceStepping.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -28,12 +27,17 @@
 
 #include <QString>
 
+#include <map>
 #include <set>
 
 class RimSummaryCase;
 class RimSummaryCurve;
 class RifSummaryReaderInterface;
 class RimSummaryCaseCollection;
+class RifEclipseSummaryAddress;
+class RiaSummaryAddressAnalyzer;
+class RimSummaryPlot;
+class RimPlot;
 
 //==================================================================================================
 ///
@@ -43,34 +47,33 @@ class RimSummaryPlotSourceStepping : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum SourceSteppingType
-    {
-        Y_AXIS,
-        X_AXIS,
-        UNION_X_Y_AXIS
-    };
-
-public:
     RimSummaryPlotSourceStepping();
 
-    void setSourceSteppingType( SourceSteppingType sourceSteppingType );
+    void setSourceSteppingType( RimSummaryDataSourceStepping::Axis sourceSteppingType );
+    void setSourceSteppingObject( caf::PdmObject* sourceObject );
 
-    void applyNextCase();
-    void applyPrevCase();
-
-    void applyNextQuantity();
-    void applyPrevQuantity();
-
-    void applyNextOtherIdentifier();
-    void applyPrevOtherIdentifier();
+    void applyNextStep();
+    void applyPrevStep();
 
     std::vector<caf::PdmFieldHandle*> fieldsToShowInToolbar();
+
+    RifEclipseSummaryAddress  stepAddress( RifEclipseSummaryAddress addr, int direction );
+    RimSummaryCase*           stepCase( int direction );
+    RimSummaryCaseCollection* stepEnsemble( int direction );
+
+    void syncWithStepper( RimSummaryPlotSourceStepping* other );
+
+    RimSummaryDataSourceStepping::SourceSteppingDimension stepDimension() const;
+    void setStepDimension( RimSummaryDataSourceStepping::SourceSteppingDimension dimension );
+
+    void updateStepIndex( int direction );
+
+    std::vector<RimPlot*> plotsMatchingStepSettings( std::vector<RimSummaryPlot*> plots );
 
 private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
@@ -85,35 +88,37 @@ private:
 
     std::set<RifEclipseSummaryAddress>  addressesForCurvesInPlot() const;
     std::set<RimSummaryCase*>           summaryCasesCurveCollection() const;
-    std::vector<caf::PdmFieldHandle*>   computeVisibleFieldsAndSetFieldVisibility();
     std::set<RimSummaryCaseCollection*> ensembleCollection() const;
+
+    std::vector<caf::PdmFieldHandle*> activeFieldsForDataSourceStepping();
+    std::vector<caf::PdmFieldHandle*> toolbarFieldsForDataSourceStepping();
 
     bool isXAxisStepping() const;
     bool isYAxisStepping() const;
 
-    RiaSummaryCurveAnalyzer* analyzerForReader( RifSummaryReaderInterface* reader );
-
-    void modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset );
-
-    static bool updateAddressIfMatching( const QVariant&                              oldValue,
-                                         const QVariant&                              newValue,
-                                         RifEclipseSummaryAddress::SummaryVarCategory category,
-                                         RifEclipseSummaryAddress*                    adr );
-
-    static bool updateHistoryAndSummaryQuantityIfMatching( const QVariant&           oldValue,
-                                                           const QVariant&           newValue,
-                                                           RifEclipseSummaryAddress* adr );
+    void modifyCurrentIndex( caf::PdmValueField* valueField, int indexOffset, bool notifyChange = true );
 
     std::vector<RimSummaryCase*> summaryCasesForSourceStepping();
 
+    RimSummaryDataSourceStepping* dataSourceSteppingObject() const;
+
+    std::map<QString, QString> optionsForQuantity( std::set<RifEclipseSummaryAddress> addresses );
+    std::map<QString, QString> optionsForQuantity( RiaSummaryAddressAnalyzer* analyzser );
+
 private:
+    caf::PdmPointer<caf::PdmObject> m_objectForSourceStepping;
+
+    caf::PdmField<QString> m_indexLabel;
+
+    caf::PdmField<caf::AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>> m_stepDimension;
+
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;
     caf::PdmPtrField<RimSummaryCaseCollection*> m_ensemble;
 
     caf::PdmField<QString> m_wellName;
-    caf::PdmField<QString> m_wellGroupName;
+    caf::PdmField<QString> m_groupName;
     caf::PdmField<int>     m_region;
-    caf::PdmField<QString> m_quantity;
+    caf::PdmField<QString> m_vectorName;
     caf::PdmField<QString> m_placeholderForLabel;
 
     caf::PdmField<QString> m_cellBlock;
@@ -124,7 +129,5 @@ private:
 
     caf::PdmField<bool> m_includeEnsembleCasesForCaseStepping;
 
-    SourceSteppingType m_sourceSteppingType;
-
-    std::pair<RifSummaryReaderInterface*, RiaSummaryCurveAnalyzer> m_curveAnalyzerForReader;
+    RimSummaryDataSourceStepping::Axis m_sourceSteppingType;
 };

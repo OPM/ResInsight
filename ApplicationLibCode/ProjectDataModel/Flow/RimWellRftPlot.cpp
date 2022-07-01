@@ -82,20 +82,20 @@ const char RimWellRftPlot::PLOT_NAME_QFORMAT_STRING[] = "RFT: %1";
 RimWellRftPlot::RimWellRftPlot()
     : RimWellLogPlot()
 {
-    CAF_PDM_InitObject( "RFT Plot", ":/RFTPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "RFT Plot", ":/RFTPlot16x16.png" );
 
-    CAF_PDM_InitField( &m_showStatisticsCurves, "ShowStatisticsCurves", true, "Show Statistics Curves", "", "", "" );
-    CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves", "", "", "" );
-    CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error", "", "", "" );
+    CAF_PDM_InitField( &m_showStatisticsCurves, "ShowStatisticsCurves", true, "Show Statistics Curves" );
+    CAF_PDM_InitField( &m_showEnsembleCurves, "ShowEnsembleCurves", true, "Show Ensemble Curves" );
+    CAF_PDM_InitField( &m_showErrorInObservedData, "ShowErrorObserved", true, "Show Observed Data Error" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "Well Log" );
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
     m_depthType = RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathNameOrSimWellName, "WellName", "Well Name", "", "", "" );
-    CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathNameOrSimWellName, "WellName", "Well Name" );
+    CAF_PDM_InitField( &m_branchIndex, "BranchIndex", 0, "Branch Index" );
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
                        true,
@@ -104,24 +104,24 @@ RimWellRftPlot::RimWellRftPlot()
                        "Compute branches based on how simulation well cells are organized",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "Sources", "Sources", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "Sources", "Sources" );
     m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedSources.xmlCapability()->disableIO();
     m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.xmlCapability()->disableIO();
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Well Path Collection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathCollection, "WellPathCollection", "Well Path Collection" );
     m_wellPathCollection.uiCapability()->setUiHidden( true );
     m_wellPathCollection.xmlCapability()->disableIO();
     m_wellPathCollection = RimProject::current()->activeOilField()->wellPathCollection();
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleCurveSets, "EnsembleCurveSets", "Ensemble Curve Sets" );
 
     // TODO: may want to support TRUE_VERTICAL_DEPTH_RKB in the future
     // It was developed for regular well log plots and requires some more work for RFT plots.
@@ -156,7 +156,7 @@ void RimWellRftPlot::applyCurveAppearance( RimWellLogCurve* curve )
     RiaRftPltCurveDefinition              curveDef  = RimWellPlotTools::curveDefFromCurve( curve );
     RiuQwtPlotCurveDefines::LineStyleEnum lineStyle = RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_SOLID;
 
-    RiuQwtSymbol::PointSymbolEnum currentSymbol = RiuQwtSymbol::SYMBOL_NONE;
+    RiuPlotCurveSymbol::PointSymbolEnum currentSymbol = RiuPlotCurveSymbol::SYMBOL_NONE;
     if ( curveDef.address().sourceType() != RifDataSourceForRftPlt::ENSEMBLE_RFT )
     {
         currentSymbol = m_timeStepSymbols[curveDef.timeStep()];
@@ -327,8 +327,7 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
     m_selectedSources.v().clear();
     m_selectedTimeSteps.v().clear();
 
-    bool dummy             = false;
-    auto dataSourceOptions = calculateValueOptions( &m_selectedSources, &dummy );
+    auto dataSourceOptions = calculateValueOptions( &m_selectedSources );
     for ( const auto& dataSourceOption : dataSourceOptions )
     {
         if ( dataSourceOption.level() == 1 )
@@ -343,7 +342,7 @@ void RimWellRftPlot::updateEditorsFromPreviousSelection()
 
     // This has to happen after the m_selectedSources is filled
     // because the available time steps is dependent on the selected sources.
-    auto timeStepOptions = calculateValueOptions( &m_selectedTimeSteps, &dummy );
+    auto timeStepOptions = calculateValueOptions( &m_selectedTimeSteps );
     for ( const auto& timeStepOption : timeStepOptions )
     {
         QDateTime timeStep = timeStepOption.value().toDateTime();
@@ -500,7 +499,10 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             auto rftCase = curveDefToAdd.address().eclCase();
             curve->setEclipseResultCase( dynamic_cast<RimEclipseResultCase*>( rftCase ) );
 
-            RifEclipseRftAddress address( simWellName, curveDefToAdd.timeStep(), RifEclipseRftAddress::PRESSURE );
+            RifEclipseRftAddress address =
+                RifEclipseRftAddress::createAddress( simWellName,
+                                                     curveDefToAdd.timeStep(),
+                                                     RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder( 1 );
             curve->setSimWellBranchData( m_branchDetection, m_branchIndex );
@@ -514,9 +516,10 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
 
             auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData();
             curve->setObservedFmuRftData( observedFmuRftData );
-            RifEclipseRftAddress address( m_wellPathNameOrSimWellName,
-                                          curveDefToAdd.timeStep(),
-                                          RifEclipseRftAddress::PRESSURE );
+            RifEclipseRftAddress address =
+                RifEclipseRftAddress::createAddress( m_wellPathNameOrSimWellName,
+                                                     curveDefToAdd.timeStep(),
+                                                     RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder(
                 RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_SINGLE_CURVE_OBSERVED ) );
@@ -531,9 +534,10 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
             curve->setEnsemble( curveDefToAdd.address().ensemble() );
             curve->setObservedFmuRftData(
                 this->findObservedFmuData( m_wellPathNameOrSimWellName, curveDefToAdd.timeStep() ) );
-            RifEclipseRftAddress address( m_wellPathNameOrSimWellName,
-                                          curveDefToAdd.timeStep(),
-                                          RifEclipseRftAddress::PRESSURE );
+            RifEclipseRftAddress address =
+                RifEclipseRftAddress::createAddress( m_wellPathNameOrSimWellName,
+                                                     curveDefToAdd.timeStep(),
+                                                     RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
             curve->setRftAddress( address );
             curve->setZOrder( 1 );
             applyCurveAppearance( curve );
@@ -551,7 +555,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                                                                       curveDefToAdd.timeStep() );
             for ( const auto& rftAddress : rftAddresses )
             {
-                if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::PRESSURE_P50 )
+                if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50 )
                 {
                     // Default statistics curves are P10, P50, P90 and mean
                     // It is not common to use P50 for ensemble RFT, so skip display of P50 to avoid confusion with mean
@@ -560,7 +564,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     continue;
                 }
 
-                if ( rftAddress.wellLogChannel() != RifEclipseRftAddress::TVD )
+                if ( rftAddress.wellLogChannel() != RifEclipseRftAddress::RftWellLogChannelType::TVD )
                 {
                     auto curve = new RimWellLogRftCurve();
                     plotTrack->addCurve( curve );
@@ -571,8 +575,8 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
                     curve->setZOrder(
                         RiuQwtPlotCurveDefines::zDepthForIndex( RiuQwtPlotCurveDefines::ZIndex::Z_ENSEMBLE_STAT_CURVE ) );
                     applyCurveAppearance( curve );
-                    auto                        symbol   = statisticsCurveSymbolFromAddress( rftAddress );
-                    RiuQwtSymbol::LabelPosition labelPos = statisticsLabelPosFromAddress( rftAddress );
+                    auto                              symbol   = statisticsCurveSymbolFromAddress( rftAddress );
+                    RiuPlotCurveSymbol::LabelPosition labelPos = statisticsLabelPosFromAddress( rftAddress );
                     curve->setSymbol( symbol );
                     curve->setSymbolLabelPosition( labelPos );
                     curve->setSymbolSize( curve->symbolSize() + 3 );
@@ -741,10 +745,9 @@ void RimWellRftPlot::deleteCurvesAssosicatedWithObservedData( const RimObservedF
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellRftPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions );
 
     const QString simWellName = associatedSimWellName();
 
@@ -974,6 +977,7 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             plotLayoutGroup->setCollapsedByDefault( true );
             RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
             RimWellLogPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+            plotLayoutGroup->add( &m_depthOrientation );
         }
     }
 
@@ -1159,39 +1163,39 @@ void RimWellRftPlot::assignWellPathToExtractionCurves()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RimWellRftPlot::statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address )
+RiuPlotCurveSymbol::PointSymbolEnum RimWellRftPlot::statisticsCurveSymbolFromAddress( const RifEclipseRftAddress& address )
 {
     switch ( address.wellLogChannel() )
     {
-        case RifEclipseRftAddress::PRESSURE_P10:
-            return RiuQwtSymbol::SYMBOL_TRIANGLE;
-        case RifEclipseRftAddress::PRESSURE_P50:
-            return RiuQwtSymbol::SYMBOL_DOWN_TRIANGLE;
-        case RifEclipseRftAddress::PRESSURE_P90:
-            return RiuQwtSymbol::SYMBOL_LEFT_TRIANGLE;
-        case RifEclipseRftAddress::PRESSURE_MEAN:
-            return RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE;
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10:
+            return RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50:
+            return RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90:
+            return RiuPlotCurveSymbol::SYMBOL_LEFT_TRIANGLE;
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN:
+            return RiuPlotCurveSymbol::SYMBOL_RIGHT_TRIANGLE;
     }
-    return RiuQwtSymbol::SYMBOL_RIGHT_TRIANGLE;
+    return RiuPlotCurveSymbol::SYMBOL_RIGHT_TRIANGLE;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::LabelPosition RimWellRftPlot::statisticsLabelPosFromAddress( const RifEclipseRftAddress& address )
+RiuPlotCurveSymbol::LabelPosition RimWellRftPlot::statisticsLabelPosFromAddress( const RifEclipseRftAddress& address )
 {
     switch ( address.wellLogChannel() )
     {
-        case RifEclipseRftAddress::PRESSURE_P10:
-            return RiuQwtSymbol::LabelLeftOfSymbol;
-        case RifEclipseRftAddress::PRESSURE_P50:
-            return RiuQwtSymbol::LabelAboveSymbol;
-        case RifEclipseRftAddress::PRESSURE_P90:
-            return RiuQwtSymbol::LabelRightOfSymbol;
-        case RifEclipseRftAddress::PRESSURE_MEAN:
-            return RiuQwtSymbol::LabelBelowSymbol;
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P10:
+            return RiuPlotCurveSymbol::LabelLeftOfSymbol;
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P50:
+            return RiuPlotCurveSymbol::LabelAboveSymbol;
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_P90:
+            return RiuPlotCurveSymbol::LabelRightOfSymbol;
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE_MEAN:
+            return RiuPlotCurveSymbol::LabelBelowSymbol;
     }
-    return RiuQwtSymbol::LabelAboveSymbol;
+    return RiuPlotCurveSymbol::LabelAboveSymbol;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1217,10 +1221,10 @@ cvf::Color3f RimWellRftPlot::findCurveColor( RimWellLogCurve* curve )
 
         if ( m_showStatisticsCurves )
         {
-            if ( plotByIndex( 0 ) && plotByIndex( 0 )->viewer() )
+            if ( plotByIndex( 0 ) && plotByIndex( 0 )->plotWidget() )
             {
                 cvf::Color3f backgroundColor =
-                    RiaColorTools::fromQColorTo3f( plotByIndex( 0 )->viewer()->canvasBackground().color() );
+                    RiaColorTools::fromQColorTo3f( plotByIndex( 0 )->plotWidget()->backgroundColor() );
                 curveColor = RiaColorTools::blendCvfColors( backgroundColor, curveColor, 1, 2 );
             }
         }
@@ -1272,7 +1276,7 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
             {
                 if ( !m_ensembleLegendFrames[curveSet] )
                 {
-                    auto m = new RiuDraggableOverlayFrame( viewer->canvas(), viewer->overlayMargins() );
+                    auto m = new RiuDraggableOverlayFrame( viewer->getParentForOverlay(), viewer->overlayMargins() );
                     m->setContentFrame( curveSet->legendConfig()->makeLegendFrame() );
 
                     m_ensembleLegendFrames[curveSet] = m;
@@ -1286,12 +1290,12 @@ void RimWellRftPlot::defineCurveColorsAndSymbols( const std::set<RiaRftPltCurveD
     std::vector<cvf::Color3f> colorTable;
     RiaColorTables::summaryCurveDefaultPaletteColors().color3fArray().toStdVector( &colorTable );
 
-    std::vector<RiuQwtSymbol::PointSymbolEnum> symbolTable = { RiuQwtSymbol::SYMBOL_ELLIPSE,
-                                                               RiuQwtSymbol::SYMBOL_RECT,
-                                                               RiuQwtSymbol::SYMBOL_DIAMOND,
-                                                               RiuQwtSymbol::SYMBOL_CROSS,
-                                                               RiuQwtSymbol::SYMBOL_XCROSS,
-                                                               RiuQwtSymbol::SYMBOL_STAR1 };
+    std::vector<RiuPlotCurveSymbol::PointSymbolEnum> symbolTable = { RiuPlotCurveSymbol::SYMBOL_ELLIPSE,
+                                                                     RiuPlotCurveSymbol::SYMBOL_RECT,
+                                                                     RiuPlotCurveSymbol::SYMBOL_DIAMOND,
+                                                                     RiuPlotCurveSymbol::SYMBOL_CROSS,
+                                                                     RiuPlotCurveSymbol::SYMBOL_XCROSS,
+                                                                     RiuPlotCurveSymbol::SYMBOL_STAR1 };
 
     // Add new curves
     for ( const RiaRftPltCurveDefinition& curveDefToAdd : allCurveDefs )
@@ -1359,7 +1363,7 @@ void RimWellRftPlot::createEnsembleCurveSets()
 
     for ( RimWellRftEnsembleCurveSet* curveSet : curveSetsToDelete )
     {
-        m_ensembleCurveSets.removeChildObject( curveSet );
+        m_ensembleCurveSets.removeChild( curveSet );
         delete curveSet;
     }
 

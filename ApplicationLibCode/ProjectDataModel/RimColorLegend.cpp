@@ -34,11 +34,11 @@ CAF_PDM_SOURCE_INIT( RimColorLegend, "ColorLegend" );
 //--------------------------------------------------------------------------------------------------
 RimColorLegend::RimColorLegend()
 {
-    CAF_PDM_InitObject( "ColorLegend", ":/Legend.png", "", "" );
+    CAF_PDM_InitObject( "ColorLegend", ":/Legend.png" );
 
-    CAF_PDM_InitField( &m_colorLegendName, "ColorLegendName", QString( "" ), "Color Legend Name", "", "", "" );
+    CAF_PDM_InitField( &m_colorLegendName, "ColorLegendName", QString( "" ), "Color Legend Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_colorLegendItems, "ColorLegendItems", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_colorLegendItems, "ColorLegendItems", "" );
     m_colorLegendItems.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
@@ -104,7 +104,7 @@ void RimColorLegend::appendColorLegendItem( RimColorLegendItem* colorLegendItem 
 //--------------------------------------------------------------------------------------------------
 std::vector<RimColorLegendItem*> RimColorLegend::colorLegendItems() const
 {
-    return m_colorLegendItems.childObjects();
+    return m_colorLegendItems.children();
 }
 
 //--------------------------------------------------------------------------------------------------

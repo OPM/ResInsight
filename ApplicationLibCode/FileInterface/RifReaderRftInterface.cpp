@@ -34,3 +34,10 @@ std::set<RifEclipseRftAddress> RifReaderRftInterface::eclipseRftAddresses( const
     }
     return matchingAddresses;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderRftInterface::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
+{
+}

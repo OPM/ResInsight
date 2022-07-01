@@ -204,3 +204,33 @@ TEST( RifEclipseTextFileReader, ValueMultiplier )
     EXPECT_FLOAT_EQ( 0.5f, firstKeyword.values[2] );
     EXPECT_FLOAT_EQ( 12345.12f, firstKeyword.values[3] );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifEclipseTextFileReader, KeywordsWithoutValue )
+{
+    std::string fileContent = "NOECHO\n"
+                              "SWAT\n"
+                              "1.0 2.0 3.0\n"
+                              "/\n"
+                              "SOIL\n"
+                              "6.0 7.0 8.0 9.0\n"
+                              "/\n";
+
+    auto keywordDataItems = RifEclipseTextFileReader::parseStringData( fileContent );
+
+    EXPECT_EQ( 3u, keywordDataItems.size() );
+
+    auto noEchoKeyword = keywordDataItems[0];
+    EXPECT_EQ( 0u, noEchoKeyword.values.size() );
+
+    auto swatKeyword = keywordDataItems[1];
+    EXPECT_EQ( 3u, swatKeyword.values.size() );
+
+    auto soilKeyword = keywordDataItems[2];
+    EXPECT_EQ( 4u, soilKeyword.values.size() );
+
+    EXPECT_FLOAT_EQ( 1.0f, swatKeyword.values[0] );
+    EXPECT_FLOAT_EQ( 6.0f, soilKeyword.values[0] );
+}

@@ -38,6 +38,7 @@
 #include <QApplication>
 #include <QLinearGradient>
 #include <QPainter>
+#include <QPixmapCache>
 
 using namespace caf;
 
@@ -201,9 +202,16 @@ std::unique_ptr<QIcon> IconProvider::icon( const QSize& size ) const
 
     if ( !m_iconResourceString.isEmpty() )
     {
-        QIcon resourceStringIcon( m_iconResourceString );
-        if ( !resourceStringIcon.isNull() )
+        QPixmap pm;
+        if ( !QPixmapCache::find( m_iconResourceString, &pm ) )
         {
+            pm.load( m_iconResourceString );
+            QPixmapCache::insert( m_iconResourceString, pm );
+        }
+
+        if ( !pm.isNull() )
+        {
+            QIcon    resourceStringIcon( pm );
             QPixmap  iconPixmap = resourceStringIcon.pixmap( size, m_active ? QIcon::Normal : QIcon::Disabled );
             QPainter painter( &pixmap );
             painter.drawPixmap( 0, 0, iconPixmap );

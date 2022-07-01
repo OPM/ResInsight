@@ -29,20 +29,19 @@ CAF_PDM_SOURCE_INIT( RicCaseAndFileExportSettingsUi, "RicCaseAndFileExportSettin
 //--------------------------------------------------------------------------------------------------
 RicCaseAndFileExportSettingsUi::RicCaseAndFileExportSettingsUi()
 {
-    CAF_PDM_InitObject( "RimCaseAndFileExportSettings", "", "", "" );
+    CAF_PDM_InitObject( "RimCaseAndFileExportSettings" );
 
-    CAF_PDM_InitFieldNoDefault( &folder, "Folder", "Export Folder", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &folder, "Folder", "Export Folder" );
     folder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &caseToApply, "CaseToApply", "Case to Apply", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &caseToApply, "CaseToApply", "Case to Apply" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicCaseAndFileExportSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                           bool*                      useOptionsOnly )
+    RicCaseAndFileExportSettingsUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

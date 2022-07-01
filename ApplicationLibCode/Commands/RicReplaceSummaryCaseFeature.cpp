@@ -36,8 +36,9 @@
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmObject.h"
 #include "cafSelectionManager.h"
@@ -53,7 +54,7 @@ void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase
 {
     RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
 
-    for ( RimSummaryCalculation* summaryCalculation : calcColl->calculations() )
+    for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
     {
         bool needsUpdate =
             RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( summaryCalculation, sourceSummaryCase );
@@ -61,7 +62,7 @@ void RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( RimSummaryCase
         {
             summaryCalculation->parseExpression();
             summaryCalculation->calculate();
-            summaryCalculation->updateDependentCurvesAndPlots();
+            summaryCalculation->updateDependentObjects();
         }
     }
 }
@@ -92,6 +93,8 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     summaryCase->updateAutoShortName();
     summaryCase->createSummaryReaderInterface();
     summaryCase->createRftReaderInterface();
+    summaryCase->refreshMetaData();
+
     RiaLogging::info( QString( "Replaced summary data for %1" ).arg( oldSummaryHeaderFilename ) );
 
     RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );
@@ -99,7 +102,7 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
     // Find and update all changed calculations
     std::set<int>                    ids;
     RimSummaryCalculationCollection* calcColl = RimProject::current()->calculationCollection();
-    for ( RimSummaryCalculation* summaryCalculation : calcColl->calculations() )
+    for ( RimUserDefinedCalculation* summaryCalculation : calcColl->calculations() )
     {
         bool needsUpdate = checkIfCalculationNeedsUpdate( summaryCalculation, summaryCase );
         if ( needsUpdate )
@@ -108,31 +111,34 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    RimSummaryPlotCollection* summaryPlotColl = RiaSummaryTools::summaryPlotCollection();
-    for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
+    RimSummaryMultiPlotCollection* summaryPlotColl = RiaSummaryTools::summaryMultiPlotCollection();
+    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
     {
-        // Update summary curves on calculated data
-        std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
-        for ( RimSummaryCurve* summaryCurve : summaryCurves )
+        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
         {
-            RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
-            if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
-                 ids.find( summaryAddressY.id() ) != ids.end() )
+            // Update summary curves on calculated data
+            std::vector<RimSummaryCurve*> summaryCurves = summaryPlot->summaryCurves();
+            for ( RimSummaryCurve* summaryCurve : summaryCurves )
             {
-                if ( calcColl )
+                RifEclipseSummaryAddress summaryAddressY = summaryCurve->summaryAddressY();
+                if ( summaryAddressY.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED &&
+                     ids.find( summaryAddressY.id() ) != ids.end() )
                 {
-                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressY.id() );
-                    QString                description = calculation->description();
+                    if ( calcColl )
+                    {
+                        RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressY.id() );
+                        QString                    description = calculation->description();
 
-                    RifEclipseSummaryAddress updatedAdr =
-                        RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
-                    summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
-                    summaryCurve->loadDataAndUpdate( true );
+                        RifEclipseSummaryAddress updatedAdr =
+                            RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
+                        summaryCurve->setSummaryAddressYAndApplyInterpolation( updatedAdr );
+                        summaryCurve->loadDataAndUpdate( true );
+                    }
                 }
             }
-        }
 
-        summaryPlot->loadDataAndUpdate();
+            summaryPlot->loadDataAndUpdate();
+        }
     }
 
     RimSummaryCrossPlotCollection* summaryCrossPlotColl = RiaSummaryTools::summaryCrossPlotCollection();
@@ -148,8 +154,8 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
             {
                 if ( calcColl )
                 {
-                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
-                    QString                description = calculation->description();
+                    RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
+                    QString                    description = calculation->description();
 
                     RifEclipseSummaryAddress updatedAdr =
                         RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
@@ -164,8 +170,8 @@ void RicReplaceSummaryCaseFeature::onActionTriggered( bool isChecked )
             {
                 if ( calcColl )
                 {
-                    RimSummaryCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
-                    QString                description = calculation->description();
+                    RimUserDefinedCalculation* calculation = calcColl->findCalculationById( summaryAddressX.id() );
+                    QString                    description = calculation->description();
 
                     RifEclipseSummaryAddress updatedAdr =
                         RifEclipseSummaryAddress::calculatedAddress( description.toStdString(), calculation->id() );
@@ -191,13 +197,14 @@ void RicReplaceSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( const RimSummaryCalculation* summaryCalculation,
-                                                                  const RimSummaryCase*        summaryCase )
+bool RicReplaceSummaryCaseFeature::checkIfCalculationNeedsUpdate( const RimUserDefinedCalculation* summaryCalculation,
+                                                                  const RimSummaryCase*            summaryCase )
 {
-    std::vector<RimSummaryCalculationVariable*> variables = summaryCalculation->allVariables();
-    for ( RimSummaryCalculationVariable* variable : variables )
+    std::vector<RimUserDefinedCalculationVariable*> variables = summaryCalculation->allVariables();
+    for ( RimUserDefinedCalculationVariable* variable : variables )
     {
-        if ( variable->summaryCase() == summaryCase )
+        RimSummaryCalculationVariable* summaryVariable = dynamic_cast<RimSummaryCalculationVariable*>( variable );
+        if ( summaryVariable->summaryCase() == summaryCase )
         {
             return true;
         }

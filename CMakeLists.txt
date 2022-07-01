@@ -226,12 +226,25 @@ else()
         COMPILE_FLAGS
         "/wd4244 /wd4267 /wd4013 /wd4190 /wd4018 /wd4477 /wd4098 /wd4293 /wd4305 /wd4020 /wd4028 /wd4715 /wd4245 /wd4804 /wd4100 /wd4456 /wd4458 /wd4090 /wd4297 /wd4701 /wd4101 /wd4702 /wd4457"
     )
+  elseif(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set_target_properties(
+      ecl
+      PROPERTIES
+        COMPILE_FLAGS
+        "-Wno-deprecated -Wno-deprecated-declarations -Wno-sign-compare"
+    )
   else()
     set_target_properties(
       ecl
-      PROPERTIES COMPILE_FLAGS
-                 "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered"
+      PROPERTIES
+        COMPILE_FLAGS
+        "-Wno-deprecated -Wno-deprecated-declarations -Wno-clobbered -Wno-int-in-bool-context"
     )
+
+    target_compile_options(
+      ecl PRIVATE $<$<COMPILE_LANGUAGE:CXX>:-Wno-class-memaccess>
+    )
+
   endif()
 
   list(APPEND THIRD_PARTY_LIBRARIES ecl)
@@ -251,7 +264,7 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 # ##############################################################################
 # Go through required git submodules #
 # ##############################################################################
-list(APPEND THIRD_PARTY_SUBMODULES qwt)
+list(APPEND THIRD_PARTY_SUBMODULES fast_float qwt)
 
 # ##############################################################################
 # Init GIT submodules if they haven't already #
@@ -385,8 +398,10 @@ list(APPEND THIRD_PARTY_LIBRARIES NRLib)
 # ##############################################################################
 # Qt
 # ##############################################################################
+set(RI_QT_MINIMUM_VERSION 5.12)
+
 find_package(
-  Qt5
+  Qt5 ${RI_QT_MINIMUM_VERSION}
   COMPONENTS Core
              Gui
              OpenGL
@@ -394,23 +409,40 @@ find_package(
              Script
              ScriptTools
              Widgets
-  OPTIONAL_COMPONENTS Charts
 )
-if(Qt5Charts_FOUND)
-  message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
-  add_definitions(-DUSE_QTCHARTS)
-else()
-  message(STATUS "QtCharts missing.")
-endif()
 
 # Open GL
 find_package(OpenGL)
+
+# ##############################################################################
+# QtCharts
+# ##############################################################################
+option(RESINSIGHT_USE_QT_CHARTS "Enable QtCharts in the code" ON)
+if(RESINSIGHT_USE_QT_CHARTS)
+  find_package(Qt5 OPTIONAL_COMPONENTS Charts)
+
+  if(Qt5Charts_FOUND)
+    message(STATUS "QtCharts found: ${Qt5Charts_LIBRARIES}")
+    add_definitions(-DUSE_QTCHARTS)
+  else()
+    message(STATUS "QtCharts not found.")
+    set(RESINSIGHT_USE_QT_CHARTS OFF)
+  endif()
+endif()
 
 # ##############################################################################
 # Qwt
 # ##############################################################################
 
 add_subdirectory(ThirdParty/qwt)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(qwt PRIVATE -Wno-deprecated-copy)
+elseif(MSVC)
+  target_compile_options(qwt PRIVATE /wd4996 /wd4005)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(qwt PRIVATE -Wno-deprecated)
+endif()
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : qwt")
@@ -428,6 +460,11 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 
 add_subdirectory(ThirdParty/nightcharts)
+if(MSVC)
+  target_compile_options(nightcharts PRIVATE /wd4996)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(nightcharts PRIVATE -Wno-deprecated)
+endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
@@ -437,6 +474,10 @@ list(APPEND THIRD_PARTY_LIBRARIES nightcharts)
 
 add_subdirectory(ThirdParty/expressionparser)
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(expressionparser PUBLIC -Wno-overloaded-virtual)
+endif()
+
 list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 
 # ##############################################################################
@@ -444,6 +485,10 @@ list(APPEND THIRD_PARTY_LIBRARIES expressionparser)
 # ##############################################################################
 
 add_subdirectory(ThirdParty/clipper)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(clipper PUBLIC -Wno-deprecated-copy)
+endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES clipper)
 
@@ -500,6 +545,17 @@ list(
   LibCore
 )
 
+if(MSVC)
+  target_compile_options(LibGuiQt PRIVATE /wd4996)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(
+    LibRender PRIVATE -Wno-undefined-var-template -Wno-invalid-source-encoding
+                      -Wno-null-pointer-arithmetic
+  )
+endif()
+
 set_property(TARGET ${VIZ_FWK_LIBRARIES} PROPERTY FOLDER "VizFwk")
 
 # ##############################################################################
@@ -517,8 +573,10 @@ add_subdirectory(Fwk/AppFwk/cafProjectDataModel)
 add_subdirectory(Fwk/AppFwk/cafCommand)
 add_subdirectory(Fwk/AppFwk/cafUserInterface)
 add_subdirectory(Fwk/AppFwk/cafPdmCvf)
+
 add_subdirectory(Fwk/AppFwk/CommonCode)
 add_subdirectory(Fwk/AppFwk/cafVizExtensions)
+
 option(CAF_CVF_SCRIPTING "" ON)
 add_subdirectory(Fwk/AppFwk/cafPdmScripting)
 set_property(TARGET cafPdmScripting PROPERTY FOLDER "AppFwk")
@@ -528,6 +586,32 @@ set_property(TARGET cafCommandFeatures PROPERTY FOLDER "AppFwk")
 
 add_subdirectory(Fwk/AppFwk/cafTensor)
 add_subdirectory(Fwk/AppFwk/cafHexInterpolator)
+
+if(MSVC)
+  target_compile_options(cafViewer PRIVATE /wd4996)
+  target_compile_options(cafPdmCore PRIVATE /wd4996)
+  target_compile_options(cafPdmCore PRIVATE /wd4996)
+  target_compile_options(cafPdmXml PRIVATE /wd4996)
+  target_compile_options(cafUserInterface PRIVATE /wd4996)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(cafCommandFeatures PRIVATE -Wno-deprecated-copy)
+endif()
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(
+    CommonCode PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+  )
+  target_compile_options(
+    cafCommandFeatures PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+  )
+  target_compile_options(
+    cafVizExtensions PRIVATE -Wno-deprecated-copy -Wno-undefined-var-template
+                             -Wno-invalid-source-encoding
+  )
+  target_compile_options(cafUserInterface PRIVATE -Wno-null-pointer-arithmetic)
+endif()
 
 list(
   APPEND
@@ -569,6 +653,9 @@ if(RESINSIGHT_INCLUDE_APPFWK_TESTS)
 
   add_subdirectory(Fwk/AppFwk/cafPdmScripting/cafPdmScripting_UnitTests)
   set_property(TARGET cafPdmScripting_UnitTests PROPERTY FOLDER "AppFwkTests")
+
+  add_subdirectory(Fwk/AppFwk/cafUserInterface/cafUserInterface_UnitTests)
+  set_property(TARGET cafUserInterface_UnitTests PROPERTY FOLDER "AppFwkTests")
 
   # Executables
   add_subdirectory(Fwk/AppFwk/cafTests/cafTestApplication)

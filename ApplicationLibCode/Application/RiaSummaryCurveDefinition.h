@@ -46,6 +46,7 @@ public:
     const RifEclipseSummaryAddress& summaryAddress() const;
     RimSummaryCaseCollection*       ensemble() const;
     bool                            isEnsembleCurve() const;
+    void                            setSummaryAddress( const RifEclipseSummaryAddress& address );
 
     bool operator<( const RiaSummaryCurveDefinition& other ) const;
 
@@ -74,5 +75,5 @@ public:
     std::set<RimSummaryCaseCollection*> m_ensembles; // All the ensembles referenced by the summary cases
 
     std::set<RifEclipseSummaryAddress> m_summaryAdresses;
-    std::set<std::string>              m_quantityNames; // Quantity names from the addresses
+    std::set<std::string>              m_vectorNames;
 };

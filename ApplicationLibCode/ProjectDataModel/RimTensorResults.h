@@ -18,13 +18,14 @@
 
 #pragma once
 
+#include "RimLegendConfig.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
 #include "RigFemResultPosEnum.h"
 #include "RimFemResultObserver.h"
-#include "RimRegularLegendConfig.h"
 
 #include <QList>
 
@@ -84,8 +85,7 @@ private:
     std::vector<std::string>      getResultMetaDataForUIFieldSetting();
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     caf::PdmFieldHandle*          objectToggleField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          initAfterRead() override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -110,7 +110,7 @@ private:
 
     caf::PdmField<caf::AppEnum<TensorColors>> m_vectorColor;
 
-    caf::PdmField<caf::AppEnum<ScaleMethod>>             m_scaleMethod;
-    caf::PdmField<float>                                 m_sizeScale;
-    caf::PdmField<RimRegularLegendConfig::RangeModeEnum> m_rangeMode;
+    caf::PdmField<caf::AppEnum<ScaleMethod>>      m_scaleMethod;
+    caf::PdmField<float>                          m_sizeScale;
+    caf::PdmField<RimLegendConfig::RangeModeEnum> m_rangeMode;
 };

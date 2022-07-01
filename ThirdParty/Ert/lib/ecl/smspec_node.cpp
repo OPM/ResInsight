@@ -57,11 +57,26 @@
    ecl_smspec_identify_special_var() and ecl_smspec_identify_var_type().
 */
 
-static const char* special_vars[] = {"NEWTON",
-                                     "NAIMFRAC",
+static const char* special_vars[] = {"NAIMFRAC",
+                                     "NBAKFL",
+                                     "NBYTOT",
+                                     "NCPRLINS",
+                                     "NEWTFL",
+                                     "NEWTON",
+                                     "NLINEARP",
                                      "NLINEARS",
-                                     "NLINSMIN",
+                                     "NLINEARS",
                                      "NLINSMAX",
+                                     "NLINSMIN",
+                                     "NLRESMAX",
+                                     "NLRESSUM",
+                                     "NMESSAGE",
+                                     "NNUMFL",
+                                     "NNUMST",
+                                     "NTS",
+                                     "NTSECL",
+                                     "NTSMCL",
+                                     "NTSPCL",
                                      "ELAPSED",
                                      "MAXDPR",
                                      "MAXDSO",
@@ -592,6 +607,10 @@ void smspec_node::set_gen_keys( const char* key_join_string_) {
     // KEYWORD
     gen_key1 = keyword;
     break;
+  case(ECL_SMSPEC_NETWORK_VAR):
+    // KEYWORD
+    gen_key1 = keyword;
+    break;
   case(ECL_SMSPEC_GROUP_VAR):
     // KEYWORD:WGNAME
     gen_key1 = smspec_alloc_group_key( key_join_string_ , keyword , wgname);
@@ -717,6 +736,9 @@ ecl_smspec_var_type smspec_node::valid_type(const char * keyword, const char * w
 
     return var_type;
   }
+
+  if (var_type == ECL_SMSPEC_NETWORK_VAR)
+    return var_type;
 
   return ECL_SMSPEC_INVALID_VAR;
 }
@@ -907,6 +929,8 @@ smspec_node::smspec_node(int param_index,
   case(ECL_SMSPEC_AQUIFER_VAR):
     set_num( grid_dims , num );
     break;
+  case(ECL_SMSPEC_NETWORK_VAR):
+    break;
   default:
     throw std::invalid_argument("Should not be here ... ");
     break;
@@ -940,6 +964,8 @@ smspec_node::smspec_node( int param_index_,
 
   switch (this->var_type) {
   case(ECL_SMSPEC_LOCAL_WELL_VAR):
+    break;
+  case(ECL_SMSPEC_NETWORK_VAR):
     break;
   case(ECL_SMSPEC_LOCAL_BLOCK_VAR):
     set_lgr_ijk( lgr_i, lgr_j , lgr_k );

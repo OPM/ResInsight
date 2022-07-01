@@ -42,6 +42,7 @@ public:
 
     static RiaPreferencesSystem* current();
 
+    void    setAppendClassNameToUiText( bool enable );
     bool    appendClassNameToUiText() const;
     bool    appendFieldKeywordToToolTipText() const;
     bool    showViewIdInProjectTree() const;
@@ -53,13 +54,14 @@ public:
     bool    show3dInformation() const;
     QString gtestFilter() const;
     bool    showProgressBar() const;
+    bool    showPdfExportDialog() const;
+    double  exportPdfScalingFactor() const;
 
     EclipseTextFileReaderMode eclipseTextFileReaderMode() const;
 
 protected:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                          QString                    uiConfigName,
                                                          caf::PdmUiEditorAttribute* attribute ) override;
@@ -76,6 +78,9 @@ private:
     caf::PdmField<bool>    m_showTestToolbar;
     caf::PdmField<bool>    m_includeFractureDebugInfoFile;
     caf::PdmField<QString> m_holoLensExportFolder;
+
+    caf::PdmField<bool>   m_showPdfExportDialog;
+    caf::PdmField<double> m_exportScalingFactor;
 
     caf::PdmField<bool>    m_showProgressBar;
     caf::PdmField<QString> m_gtestFilter;

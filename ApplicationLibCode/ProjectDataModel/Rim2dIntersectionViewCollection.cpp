@@ -29,14 +29,9 @@ CAF_PDM_SOURCE_INIT( Rim2dIntersectionViewCollection, "Intersection2dViewCollect
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionViewCollection::Rim2dIntersectionViewCollection()
 {
-    CAF_PDM_InitObject( "2D Intersection Views", ":/CrossSection16x16.png", "", "" );
+    CAF_PDM_InitObject( "2D Intersection Views", ":/CrossSection16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersectionViews,
-                                "IntersectionViews",
-                                "Intersection Views",
-                                ":/CrossSection16x16.png",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersectionViews, "IntersectionViews", "Intersection Views", ":/CrossSection16x16.png" );
     m_intersectionViews.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -52,7 +47,7 @@ Rim2dIntersectionViewCollection::~Rim2dIntersectionViewCollection()
 //--------------------------------------------------------------------------------------------------
 std::vector<Rim2dIntersectionView*> Rim2dIntersectionViewCollection::views()
 {
-    return m_intersectionViews.childObjects();
+    return m_intersectionViews.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -78,7 +73,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
 
     // Clean up the container by removing nullptr's
 
-    m_intersectionViews.removeChildObject( nullptr );
+    m_intersectionViews.removeChild( nullptr );
 
     // Build map from intersection to view
 
@@ -89,7 +84,7 @@ void Rim2dIntersectionViewCollection::syncFromExistingIntersections( bool doUpda
         intersectionToViewMap[iv->intersection()] = iv;
     }
 
-    m_intersectionViews.clear(); // Not deleting the views. The are managed by the map
+    m_intersectionViews.clearWithoutDelete(); // Not deleting the views. The are managed by the map
 
     // Insert the old views in correct order, and create new views as we go
 

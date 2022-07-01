@@ -29,10 +29,10 @@ CAF_PDM_SOURCE_INIT( RicSaturationPressureUi, "RicSaturationPressureUi" );
 //--------------------------------------------------------------------------------------------------
 RicSaturationPressureUi::RicSaturationPressureUi()
 {
-    CAF_PDM_InitObject( "RicSaturationPressureUi", "", "", "" );
+    CAF_PDM_InitObject( "RicSaturationPressureUi" );
 
-    CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Case to Apply", "", "", "" );
-    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_caseToApply, "CaseToApply", "Case to Apply" );
+    CAF_PDM_InitField( &m_timeStep, "TimeStep", 0, "Time Step" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -62,8 +62,7 @@ int RicSaturationPressureUi::selectedTimeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RicSaturationPressureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RicSaturationPressureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

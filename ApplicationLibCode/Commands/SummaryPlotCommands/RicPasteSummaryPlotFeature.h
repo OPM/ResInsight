@@ -36,7 +36,6 @@ public:
     static void copyPlotAndAddToCollection( RimSummaryPlot* sourcePlot );
 
 protected:
-    // Overrides
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;

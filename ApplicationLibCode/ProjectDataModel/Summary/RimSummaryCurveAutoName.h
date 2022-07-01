@@ -22,7 +22,7 @@
 #include "cafPdmObject.h"
 
 class RifEclipseSummaryAddress;
-class RimSummaryPlotNameHelper;
+class RimSummaryNameHelper;
 
 class RimSummaryCurveAutoName : public caf::PdmObject
 {
@@ -31,8 +31,8 @@ class RimSummaryCurveAutoName : public caf::PdmObject
 public:
     RimSummaryCurveAutoName();
 
-    QString curveNameY( const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper ) const;
-    QString curveNameX( const RifEclipseSummaryAddress& summaryAddress, const RimSummaryPlotNameHelper* nameHelper ) const;
+    QString curveNameY( const RifEclipseSummaryAddress& summaryAddress, const RimSummaryNameHelper* nameHelper ) const;
+    QString curveNameX( const RifEclipseSummaryAddress& summaryAddress, const RimSummaryNameHelper* nameHelper ) const;
 
     void applySettings( const RimSummaryCurveAutoName& other );
 
@@ -44,22 +44,23 @@ private:
 
     void appendAddressDetails( std::string&                    text,
                                const RifEclipseSummaryAddress& summaryAddress,
-                               const RimSummaryPlotNameHelper* nameHelper ) const;
+                               const RimSummaryNameHelper*     nameHelper ) const;
     void appendWellName( std::string&                    text,
                          const RifEclipseSummaryAddress& summaryAddress,
-                         const RimSummaryPlotNameHelper* nameHelper ) const;
+                         const RimSummaryNameHelper*     nameHelper ) const;
     void appendLgrName( std::string& text, const RifEclipseSummaryAddress& summaryAddress ) const;
 
     QString buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
-                            const RimSummaryPlotNameHelper* nameHelper,
+                            const RimSummaryNameHelper*     nameHelper,
                             const std::string&              unitText,
                             const std::string&              caseName ) const;
 
 private:
     caf::PdmField<bool> m_vectorName;
+    caf::PdmField<bool> m_longVectorName;
     caf::PdmField<bool> m_unit;
     caf::PdmField<bool> m_regionNumber;
-    caf::PdmField<bool> m_wellGroupName;
+    caf::PdmField<bool> m_groupName;
     caf::PdmField<bool> m_wellName;
     caf::PdmField<bool> m_wellSegmentNumber;
     caf::PdmField<bool> m_lgrName;

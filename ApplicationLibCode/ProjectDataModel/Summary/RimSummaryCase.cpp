@@ -24,12 +24,17 @@
 #include "RicfCommandObject.h"
 #include "RifSummaryReaderInterface.h"
 
+#include "RifEclipseSummaryAddress.h"
+
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
+#include "RimSummaryAddress.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCaseCollection.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmUiCheckBoxEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include "cvfAssert.h"
 
@@ -47,20 +52,28 @@ RimSummaryCase::RimSummaryCase()
 {
     CAF_PDM_InitScriptableObject( "Summary Case", ":/SummaryCase.svg", "", "The Base Class for all Summary Cases" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayName, "ShortName", "Display Name" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting" );
 
-    CAF_PDM_InitScriptableField( &m_useAutoShortName_OBSOLETE, "AutoShortyName", false, "Use Auto Display Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_showSubNodesInTree, "ShowSubNodesInTree", false, "Show Summary Data Sub-Tree" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showSubNodesInTree );
+
+    CAF_PDM_InitScriptableField( &m_useAutoShortName_OBSOLETE, "AutoShortyName", false, "Use Auto Display Name" );
     m_useAutoShortName_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_useAutoShortName_OBSOLETE.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_summaryHeaderFilename, "SummaryHeaderFilename", "Summary Header File" );
     m_summaryHeaderFilename.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableField( &m_caseId, "Id", -1, "Case ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "Id", -1, "Case ID" );
     m_caseId.registerKeywordAlias( "CaseId" );
     m_caseId.uiCapability()->setUiReadOnly( true );
     m_caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_dataVectorFolders, "DataVectorFolders", "Data Folders" );
+    m_dataVectorFolders = new RimSummaryAddressCollection();
+    m_dataVectorFolders.uiCapability()->setUiHidden( true );
+    m_dataVectorFolders.xmlCapability()->disableIO();
 
     m_isObservedData = false;
 }
@@ -97,6 +110,23 @@ void RimSummaryCase::setSummaryHeaderFileName( const QString& fileName )
 bool RimSummaryCase::isObservedData() const
 {
     return m_isObservedData;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimSummaryCase::showRealizationDataSources() const
+{
+    return m_showSubNodesInTree();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::setShowRealizationDataSource( bool enable )
+{
+    m_showSubNodesInTree = enable;
+    updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -172,6 +202,10 @@ void RimSummaryCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateTreeItemName();
         nameChanged.send();
     }
+    else if ( changedField == &m_showSubNodesInTree )
+    {
+        updateConnectedEditors();
+    }
 
     updateOptionSensitivity();
 }
@@ -203,8 +237,44 @@ QString RimSummaryCase::errorMessagesFromReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCase::buildChildNodes()
+{
+    m_dataVectorFolders->deleteChildren();
+
+    RifSummaryReaderInterface* reader = summaryReader();
+    if ( !reader ) return;
+
+    m_dataVectorFolders->updateFolderStructure( reader->allResultAddresses(), m_caseId );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_displayName );
+    uiOrdering.add( &m_displayNameOption );
+    uiOrdering.add( &m_summaryHeaderFilename );
+    uiOrdering.add( &m_caseId );
+
+    if ( ensemble() ) uiOrdering.add( &m_showSubNodesInTree );
+
+    uiOrdering.skipRemainingFields( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
+    if ( !ensemble() || m_showSubNodesInTree() )
+    {
+        if ( m_dataVectorFolders->isEmpty() ) buildChildNodes();
+        m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
+    }
+
+    uiTreeOrdering.skipRemainingChildren( true );
+
     updateTreeItemName();
 }
 
@@ -274,58 +344,6 @@ void RimSummaryCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RimSummaryCase::uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase )
-{
-    CAF_ASSERT( summaryCase && summaryCase->ensemble() );
-
-    QString ensembleCaseName = summaryCase->caseName();
-
-    auto ensemble = summaryCase->ensemble();
-
-    std::vector<RimSummaryCase*> summaryCases = ensemble->allSummaryCases();
-
-    QRegularExpression trimRe( "^[^a-zA-Z0-9]+" );
-
-    QStringList summaryFilePaths;
-    summaryFilePaths.push_back( summaryCase->summaryHeaderFilename() );
-
-    for ( auto otherSummaryCase : summaryCases )
-    {
-        if ( otherSummaryCase != summaryCase )
-        {
-            summaryFilePaths.push_back( otherSummaryCase->summaryHeaderFilename() );
-        }
-    }
-
-    return RiaEnsembleNameTools::uniqueShortName( summaryCase->summaryHeaderFilename(), summaryFilePaths, ensembleCaseName );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimSummaryCase::uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase )
-{
-    std::set<QString> allAutoShortNames;
-
-    std::vector<RimSummaryCase*> allCases;
-    RimProject::current()->descendantsOfType( allCases );
-
-    for ( RimSummaryCase* sumCase : allCases )
-    {
-        if ( sumCase && sumCase != summaryCase )
-        {
-            allAutoShortNames.insert( sumCase->displayCaseName() );
-        }
-    }
-
-    return RimCaseDisplayNameTools::uniqueShortName( summaryCase->caseName(),
-                                                     allAutoShortNames,
-                                                     RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryCase::updateAutoShortName()
 {
     if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME )
@@ -336,11 +354,11 @@ void RimSummaryCase::updateAutoShortName()
     {
         if ( ensemble() )
         {
-            m_displayName = RimSummaryCase::uniqueShortNameForEnsembleCase( this );
+            m_displayName = RiaEnsembleNameTools::uniqueShortNameForEnsembleCase( this );
         }
         else
         {
-            m_displayName = RimSummaryCase::uniqueShortNameForSummaryCase( this );
+            m_displayName = RiaEnsembleNameTools::uniqueShortNameForSummaryCase( this );
         }
     }
     updateTreeItemName();
@@ -360,4 +378,13 @@ void RimSummaryCase::setCaseId( int caseId )
 int RimSummaryCase::caseId() const
 {
     return m_caseId();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::refreshMetaData()
+{
+    buildChildNodes();
+    updateConnectedEditors();
 }

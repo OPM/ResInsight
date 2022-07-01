@@ -18,8 +18,10 @@
 
 #pragma once
 
-#include "cafPdmField.h"
-#include "cafPdmObject.h"
+#include "RifEclipseSummaryAddress.h"
+
+#include "cafPdmUiItem.h"
+#include "cafPdmValueField.h"
 
 //==================================================================================================
 ///
@@ -29,5 +31,18 @@ class RimDataSourceSteppingTools
 public:
     static void modifyCurrentIndex( caf::PdmValueField*                  valueField,
                                     const QList<caf::PdmOptionItemInfo>& options,
-                                    int                                  indexOffset );
+                                    int                                  indexOffset,
+                                    bool                                 notifyChange = true );
+
+    static bool updateAddressIfMatching( const QVariant&                              oldValue,
+                                         const QVariant&                              newValue,
+                                         RifEclipseSummaryAddress::SummaryVarCategory category,
+                                         RifEclipseSummaryAddress*                    adr );
+
+    static bool updateHistoryAndSummaryQuantityIfMatching( const QVariant&           oldValue,
+                                                           const QVariant&           newValue,
+                                                           RifEclipseSummaryAddress* adr );
+
+    static bool
+        updateQuantityIfMatching( const QVariant& oldValue, const QVariant& newValue, RifEclipseSummaryAddress* adr );
 };

@@ -27,6 +27,7 @@ public:
 
 public:
     RimStackablePlotCurve();
+    ~RimStackablePlotCurve() override;
 
     virtual RiaDefines::PhaseType phaseType() const;
     void                          assignStackColor( size_t index, size_t count );

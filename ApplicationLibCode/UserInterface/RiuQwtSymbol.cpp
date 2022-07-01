@@ -22,7 +22,9 @@
 #include "RiaColorTools.h"
 #include "RiaFontCache.h"
 
+#include "RiuPlotCurveSymbol.h"
 #include "cvfAssert.h"
+#include "qwt_symbol.h"
 
 #include <QPainter>
 #include <QPainterPath>
@@ -31,10 +33,8 @@
 /// Internal class to support labels on symbols
 //--------------------------------------------------------------------------------------------------
 RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, LabelPosition labelPosition, int labelFontSizePt )
-    : QwtSymbol( QwtSymbol::NoSymbol )
-    , m_globalLabel( label )
-    , m_labelPosition( labelPosition )
-    , m_labelFontSizePx( caf::FontTools::pointSizeToPixelSize( labelFontSizePt ) )
+    : RiuPlotCurveSymbol( riuStyle, label, labelPosition, labelFontSizePt )
+    , QwtSymbol( QwtSymbol::NoSymbol )
 {
     QwtSymbol::Style style = QwtSymbol::NoSymbol;
 
@@ -135,6 +135,30 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuQwtSymbol::setSize( int width, int height )
+{
+    QwtSymbol::setSize( width, height );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtSymbol::setColor( const QColor& color )
+{
+    QwtSymbol::setColor( color );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtSymbol::setPen( const QPen& pen )
+{
+    QwtSymbol::setPen( pen );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuQwtSymbol::renderSymbols( QPainter* painter, const QPointF* points, int numPoints ) const
 {
     QwtSymbol::renderSymbols( painter, points, numPoints );
@@ -170,104 +194,15 @@ void RiuQwtSymbol::renderSymbolLabel( QPainter* painter, const QPointF& position
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuQwtSymbol::globalLabel() const
+void RiuQwtSymbol::setPixmap( const QPixmap& pixmap )
 {
-    return m_globalLabel;
+    QwtSymbol::setPixmap( pixmap );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtSymbol::setGlobalLabel( const QString& label )
+QRect RiuQwtSymbol::boundingRect() const
 {
-    m_globalLabel = label;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtSymbol::setLabelPosition( LabelPosition labelPosition )
-{
-    m_labelPosition = labelPosition;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle( int indexLevel1, int indexLevel2 )
-{
-    std::vector<std::vector<PointSymbolEnum>> categorisedStyles = {
-        { SYMBOL_ELLIPSE, SYMBOL_RECT, SYMBOL_DIAMOND },
-        { SYMBOL_DOWN_TRIANGLE, SYMBOL_UP_TRIANGLE },
-        { SYMBOL_LEFT_TRIANGLE, SYMBOL_RIGHT_TRIANGLE },
-        { SYMBOL_CROSS, SYMBOL_XCROSS },
-        { SYMBOL_STAR1, SYMBOL_STAR2 },
-    };
-
-    int level1Category = indexLevel1 % int( categorisedStyles.size() );
-    int level2Category = indexLevel2 % int( categorisedStyles[level1Category].size() );
-
-    return categorisedStyles[level1Category][level2Category];
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RiuQwtSymbol::cycledSymbolStyle( int indexLevel )
-{
-    std::vector<PointSymbolEnum> contrastingSymbols = { SYMBOL_ELLIPSE,
-                                                        SYMBOL_CROSS,
-                                                        SYMBOL_RECT,
-                                                        SYMBOL_DOWN_TRIANGLE,
-                                                        SYMBOL_UP_TRIANGLE,
-                                                        SYMBOL_LEFT_TRIANGLE,
-                                                        SYMBOL_RIGHT_TRIANGLE,
-                                                        SYMBOL_STAR2,
-                                                        SYMBOL_DIAMOND,
-                                                        SYMBOL_STAR1 };
-
-    return contrastingSymbols[indexLevel % (int)contrastingSymbols.size()];
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Is this a symbol with an interior and a border? If false, it is just lines.
-//--------------------------------------------------------------------------------------------------
-bool RiuQwtSymbol::isFilledSymbol( PointSymbolEnum symbol )
-{
-    return symbol != SYMBOL_NONE && symbol != SYMBOL_CROSS && symbol != SYMBOL_XCROSS && symbol != SYMBOL_STAR1;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QRect RiuQwtSymbol::labelBoundingRect( const QPainter* painter, const QRect& symbolRect, const QString& label ) const
-{
-    CVF_ASSERT( painter );
-
-    QPoint symbolPosition = symbolRect.topLeft();
-
-    int symbolWidth  = symbolRect.width();
-    int symbolHeight = symbolRect.height();
-
-    int labelWidth  = painter->fontMetrics().width( label );
-    int labelHeight = painter->fontMetrics().height();
-
-    QPoint labelPosition;
-    if ( m_labelPosition == LabelAboveSymbol )
-    {
-        labelPosition = QPoint( symbolPosition.x() - labelWidth / 2, symbolPosition.y() - 5 );
-    }
-    else if ( m_labelPosition == LabelBelowSymbol )
-    {
-        labelPosition = QPoint( symbolPosition.x() - labelWidth / 2, symbolPosition.y() + symbolHeight + 5 );
-    }
-    else if ( m_labelPosition == LabelLeftOfSymbol )
-    {
-        labelPosition = QPoint( symbolPosition.x() - labelWidth - symbolWidth, symbolPosition.y() );
-    }
-    else if ( m_labelPosition == LabelRightOfSymbol )
-    {
-        labelPosition = QPoint( symbolPosition.x() + symbolWidth + 3, symbolPosition.y() );
-    }
-    return QRect( labelPosition.x(), labelPosition.y(), labelWidth, labelHeight );
+    return QwtSymbol::boundingRect();
 }

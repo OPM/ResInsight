@@ -32,7 +32,7 @@ CAF_PDM_SOURCE_INIT( RimIntegerParameter, "IntegerParameter" );
 //--------------------------------------------------------------------------------------------------
 RimIntegerParameter::RimIntegerParameter()
 {
-    CAF_PDM_InitField( &m_value, "Value", 0, "Value", "", "", "" );
+    CAF_PDM_InitField( &m_value, "Value", 0, "Value" );
 }
 
 //--------------------------------------------------------------------------------------------------

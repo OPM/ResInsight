@@ -50,12 +50,12 @@ CAF_PDM_SOURCE_INIT( RimWellMeasurementCurve, "WellMeasurementCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellMeasurementCurve::RimWellMeasurementCurve()
 {
-    CAF_PDM_InitObject( "Well Measurement Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
+    CAF_PDM_InitObject( "Well Measurement Curve", RimWellLogCurve::wellLogCurveIconName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_measurementKind, "CurveMeasurementKind", "Measurement Kind", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_measurementKind, "CurveMeasurementKind", "Measurement Kind" );
     m_measurementKind.uiCapability()->setUiTreeChildrenHidden( true );
 
     m_wellPath = nullptr;
@@ -116,27 +116,31 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
                         -rigWellPath->interpolatedPointAlongWellPath( measuredDepthValue ).z() );
                 }
 
-                this->setValuesWithMdAndTVD( values,
-                                             measuredDepthValues,
-                                             trueVerticalDepthValues,
-                                             m_wellPath->wellPathGeometry()->rkbDiff(),
-                                             RiaDefines::DepthUnitType::UNIT_METER,
-                                             false );
+                bool useLogarithmicScale = false;
+                this->setPropertyValuesWithMdAndTVD( values,
+                                                     measuredDepthValues,
+                                                     trueVerticalDepthValues,
+                                                     m_wellPath->wellPathGeometry()->rkbDiff(),
+                                                     RiaDefines::DepthUnitType::UNIT_METER,
+                                                     false,
+                                                     useLogarithmicScale );
             }
             else
             {
-                this->setValuesAndDepths( values,
-                                          measuredDepthValues,
-                                          RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                          0.0,
-                                          RiaDefines::DepthUnitType::UNIT_METER,
-                                          false );
+                bool useLogarithmicScale = false;
+                this->setPropertyValuesAndDepths( values,
+                                                  measuredDepthValues,
+                                                  RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                                  0.0,
+                                                  RiaDefines::DepthUnitType::UNIT_METER,
+                                                  false,
+                                                  useLogarithmicScale );
             }
         }
 
         if ( m_isUsingAutoName )
         {
-            m_qwtPlotCurve->setTitle( createCurveAutoName() );
+            m_plotCurve->setTitle( createCurveAutoName() );
         }
 
         setSymbol( getSymbolForMeasurementKind( m_measurementKind() ) );
@@ -156,10 +160,11 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
-                                    this->curveData()->depthPlotValues( depthType, displayUnit ).data(),
-                                    static_cast<int>( this->curveData()->xPlotValues().size() ) );
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+        bool useLogarithmicScale = false;
+        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->propertyValuesByIntervals(),
+                                                      this->curveData()->depthValuesByIntervals( depthType, displayUnit ),
+                                                      useLogarithmicScale );
+        m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
     }
 
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
@@ -169,9 +174,9 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
         updateZoomInParentPlot();
     }
 
-    if ( m_parentQwtPlot )
+    if ( m_parentPlot )
     {
-        m_parentQwtPlot->replot();
+        m_parentPlot->replot();
     }
 }
 
@@ -205,7 +210,7 @@ void RimWellMeasurementCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
         this->loadDataAndUpdate( true );
     }
 
-    if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+    if ( m_parentPlot ) m_parentPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,6 +230,8 @@ void RimWellMeasurementCurve::defineUiOrdering( QString uiConfigName, caf::PdmUi
     caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -238,12 +245,11 @@ void RimWellMeasurementCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellMeasurementCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellMeasurementCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
     if ( options.size() > 0 ) return options;
 
     if ( fieldNeedingOptions == &m_wellPath )
@@ -350,25 +356,25 @@ void RimWellMeasurementCurve::setMeasurementKind( const QString& measurementKind
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuQwtSymbol::PointSymbolEnum RimWellMeasurementCurve::getSymbolForMeasurementKind( const QString& measurementKind )
+RiuPlotCurveSymbol::PointSymbolEnum RimWellMeasurementCurve::getSymbolForMeasurementKind( const QString& measurementKind )
 {
-    std::map<QString, RiuQwtSymbol::PointSymbolEnum> symbolTable;
-    symbolTable["XLOT"] = RiuQwtSymbol::SYMBOL_RECT;
-    symbolTable["LOT"]  = RiuQwtSymbol::SYMBOL_TRIANGLE;
-    symbolTable["FIT"]  = RiuQwtSymbol::SYMBOL_DIAMOND;
-    symbolTable["MCF"]  = RiuQwtSymbol::SYMBOL_ELLIPSE;
-    symbolTable["MNF"]  = RiuQwtSymbol::SYMBOL_ELLIPSE;
-    symbolTable["TH"]   = RiuQwtSymbol::SYMBOL_STAR1;
-    symbolTable["LE"]   = RiuQwtSymbol::SYMBOL_STAR2;
-    symbolTable["BA"]   = RiuQwtSymbol::SYMBOL_STAR1;
-    symbolTable["CORE"] = RiuQwtSymbol::SYMBOL_RECT;
-    symbolTable["PPG"]  = RiuQwtSymbol::SYMBOL_RECT;
+    std::map<QString, RiuPlotCurveSymbol::PointSymbolEnum> symbolTable;
+    symbolTable["XLOT"] = RiuPlotCurveSymbol::SYMBOL_RECT;
+    symbolTable["LOT"]  = RiuPlotCurveSymbol::SYMBOL_TRIANGLE;
+    symbolTable["FIT"]  = RiuPlotCurveSymbol::SYMBOL_DIAMOND;
+    symbolTable["MCF"]  = RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
+    symbolTable["MNF"]  = RiuPlotCurveSymbol::SYMBOL_ELLIPSE;
+    symbolTable["TH"]   = RiuPlotCurveSymbol::SYMBOL_STAR1;
+    symbolTable["LE"]   = RiuPlotCurveSymbol::SYMBOL_STAR2;
+    symbolTable["BA"]   = RiuPlotCurveSymbol::SYMBOL_STAR1;
+    symbolTable["CORE"] = RiuPlotCurveSymbol::SYMBOL_RECT;
+    symbolTable["PPG"]  = RiuPlotCurveSymbol::SYMBOL_RECT;
 
     auto it = symbolTable.find( measurementKind );
     if ( it != symbolTable.end() )
         return it->second;
     else
-        return RiuQwtSymbol::SYMBOL_CROSS;
+        return RiuPlotCurveSymbol::SYMBOL_CROSS;
 }
 
 //--------------------------------------------------------------------------------------------------

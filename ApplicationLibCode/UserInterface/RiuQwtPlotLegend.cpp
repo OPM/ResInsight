@@ -18,6 +18,7 @@
 #include "RiuQwtPlotLegend.h"
 
 #include "qwt_dyngrid_layout.h"
+#include "qwt_legend_label.h"
 
 #include <QDebug>
 #include <QResizeEvent>
@@ -108,4 +109,29 @@ void RiuQwtPlotLegend::updateLegend( const QVariant& variant, const QList<QwtLeg
 {
     QwtLegend::updateLegend( variant, legendItems );
     emit legendUpdated();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotLegend::updateLegend( const QList<QwtLegendData>& legendData )
+{
+    // Delete all existing widgets
+    deleteAll();
+
+    // Create legend widgets based on legendData
+    updateLegend( QVariant(), legendData );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotLegend::deleteAll()
+{
+    auto widgets = contentsWidget()->findChildren<QwtLegendLabel*>();
+    for ( auto w : widgets )
+    {
+        w->hide();
+        w->deleteLater();
+    }
 }

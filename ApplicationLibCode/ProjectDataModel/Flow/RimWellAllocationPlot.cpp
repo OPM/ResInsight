@@ -30,11 +30,11 @@
 #include "RigWellResultPoint.h"
 
 #include "RimEclipseCase.h"
+#include "RimEclipseCaseTools.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseResultCase.h"
 #include "RimEclipseView.h"
 #include "RimFlowDiagSolution.h"
-#include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimTofAccumulatedPhaseFractionsPlot.h"
@@ -43,11 +43,11 @@
 #include "RimWellAllocationPlotLegend.h"
 #include "RimWellFlowRateCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
+#include "RimWellLogFile.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
-
-#include "RimWellLogFile.h"
 #include "RimWellPlotTools.h"
+
 #include "RiuPlotMainWindow.h"
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellAllocationPlot.h"
@@ -74,12 +74,12 @@ void AppEnum<RimWellAllocationPlot::FlowType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellAllocationPlot::RimWellAllocationPlot()
 {
-    CAF_PDM_InitObject( "Well Allocation Plot", ":/WellAllocPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well Allocation Plot", ":/WellAllocPlot16x16.png" );
 
-    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Flow Diagnostics Plot" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_userName, "PlotDescription", QString( "Flow Diagnostics Plot" ), "Name" );
     m_userName.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title" );
 
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
@@ -89,16 +89,16 @@ RimWellAllocationPlot::RimWellAllocationPlot()
                        "Compute branches based on how simulation well cells are organized",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_timeStep, "PlotTimeStep", 0, "Time Step", "", "", "" );
-    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Plot Type", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_flowType, "FlowType", "Flow Type", "", "", "" );
-    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions", "", "", "" );
-    CAF_PDM_InitField( &m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "PlotTimeStep", 0, "Time Step" );
+    CAF_PDM_InitField( &m_wellName, "WellName", QString( "None" ), "Well" );
+    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolution, "FlowDiagSolution", "Plot Type" );
+    CAF_PDM_InitFieldNoDefault( &m_flowType, "FlowType", "Flow Type" );
+    CAF_PDM_InitField( &m_groupSmallContributions, "GroupSmallContributions", true, "Group Small Contributions" );
+    CAF_PDM_InitField( &m_smallContributionsThreshold, "SmallContributionsThreshold", 0.005, "Threshold" );
+    CAF_PDM_InitFieldNoDefault( &m_accumulatedWellFlowPlot, "AccumulatedWellFlowPlot", "Accumulated Well Flow" );
     m_accumulatedWellFlowPlot.uiCapability()->setUiTreeHidden( true );
     m_accumulatedWellFlowPlot = new RimWellLogPlot;
     m_accumulatedWellFlowPlot->setDepthUnit( RiaDefines::DepthUnitType::UNIT_NONE );
@@ -106,20 +106,17 @@ RimWellAllocationPlot::RimWellAllocationPlot()
     m_accumulatedWellFlowPlot->setLegendsVisible( false );
     m_accumulatedWellFlowPlot->uiCapability()->setUiIconFromResourceString( ":/WellFlowPlot16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_totalWellAllocationPlot, "TotalWellFlowPlot", "Total Well Flow" );
     m_totalWellAllocationPlot.uiCapability()->setUiTreeHidden( true );
     m_totalWellAllocationPlot = new RimTotalWellAllocationPlot;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellAllocationPlotLegend, "WellAllocLegend", "Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellAllocationPlotLegend, "WellAllocLegend", "Legend" );
     m_wellAllocationPlotLegend.uiCapability()->setUiTreeHidden( true );
     m_wellAllocationPlotLegend = new RimWellAllocationPlotLegend;
 
     CAF_PDM_InitFieldNoDefault( &m_tofAccumulatedPhaseFractionsPlot,
                                 "TofAccumulatedPhaseFractionsPlot",
-                                "TOF Accumulated Phase Fractions",
-                                "",
-                                "",
-                                "" );
+                                "TOF Accumulated Phase Fractions" );
     m_tofAccumulatedPhaseFractionsPlot.uiCapability()->setUiTreeHidden( true );
     m_tofAccumulatedPhaseFractionsPlot = new RimTofAccumulatedPhaseFractionsPlot;
 
@@ -484,7 +481,7 @@ void RimWellAllocationPlot::updateWellFlowPlotXAxisTitle( RimWellLogTrack* plotT
                                                                      : RimWellLogFile::WELL_FLOW_COND_STANDARD;
 
     QString axisTitle = RimWellPlotTools::flowPlotAxisTitle( condition, unitSet );
-    plotTrack->setXAxisTitle( axisTitle );
+    plotTrack->setPropertyValueAxisTitle( axisTitle );
 
 #if 0
     if (m_flowDiagSolution) 
@@ -705,8 +702,7 @@ RimWellAllocationPlot::FlowType RimWellAllocationPlot::flowType()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimWellAllocationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellAllocationPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -736,17 +732,10 @@ QList<caf::PdmOptionItemInfo>
     }
     else if ( fieldNeedingOptions == &m_case )
     {
-        RimProject* proj = nullptr;
-        this->firstAncestorOrThisOfType( proj );
-        if ( proj )
+        auto resultCases = RimEclipseCaseTools::eclipseResultCases();
+        for ( RimEclipseResultCase* c : resultCases )
         {
-            std::vector<RimEclipseResultCase*> cases;
-            proj->descendantsIncludingThisOfType( cases );
-
-            for ( RimEclipseResultCase* c : cases )
-            {
-                options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
-            }
+            options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
         }
     }
     else if ( fieldNeedingOptions == &m_flowDiagSolution )
@@ -953,6 +942,9 @@ void RimWellAllocationPlot::onLoadDataAndUpdate()
     {
         return;
     }
+
+    // Other plot functions depend on a valid plot widget, early reject to avoid a lot of testing on valid widget
+    if ( !m_wellAllocationPlotWidget ) return;
 
     updateFromWell();
     m_accumulatedWellFlowPlot->loadDataAndUpdate();

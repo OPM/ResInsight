@@ -18,11 +18,13 @@
 
 #pragma once
 
+#include "RimSummaryCalculation.h"
+#include "RimUserDefinedCalculationCollection.h"
+
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
 
-class RimSummaryCalculation;
 class RimSummaryCase;
 class RimCalculatedSummaryCase;
 
@@ -30,28 +32,22 @@ class RimCalculatedSummaryCase;
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculationCollection : public caf::PdmObject
+class RimSummaryCalculationCollection : public RimUserDefinedCalculationCollection
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimSummaryCalculationCollection();
 
-    RimSummaryCalculation*              addCalculation();
-    RimSummaryCalculation*              addCalculationCopy( const RimSummaryCalculation* sourceCalculation );
-    void                                deleteCalculation( RimSummaryCalculation* calculation );
-    std::vector<RimSummaryCalculation*> calculations() const;
-    RimSummaryCalculation*              findCalculationById( int id ) const;
-
     RimSummaryCase* calculationSummaryCase();
 
-    void deleteAllContainedObjects();
-    void rebuildCaseMetaData();
+    void rebuildCaseMetaData() override;
+
+    RimSummaryCalculation* createCalculation() const override;
 
 private:
     void initAfterRead() override;
 
 private:
-    caf::PdmChildArrayField<RimSummaryCalculation*> m_calculations;
-    caf::PdmChildField<RimCalculatedSummaryCase*>   m_calcuationSummaryCase;
+    caf::PdmChildField<RimCalculatedSummaryCase*> m_calcuationSummaryCase;
 };

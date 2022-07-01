@@ -28,9 +28,9 @@ CAF_PDM_SOURCE_INIT( RimSimWellFractureCollection, "SimWellFractureCollection" )
 //--------------------------------------------------------------------------------------------------
 RimSimWellFractureCollection::RimSimWellFractureCollection( void )
 {
-    CAF_PDM_InitObject( "Fractures", ":/FractureLayout16x16.png", "", "" );
+    CAF_PDM_InitObject( "Fractures", ":/FractureLayout16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &simwellFractures, "Fractures", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &simwellFractures, "Fractures", "" );
     simwellFractures.uiCapability()->setUiTreeHidden( true );
 
     setDeletable( true );
@@ -41,7 +41,7 @@ RimSimWellFractureCollection::RimSimWellFractureCollection( void )
 //--------------------------------------------------------------------------------------------------
 RimSimWellFractureCollection::~RimSimWellFractureCollection()
 {
-    simwellFractures.deleteAllChildObjects();
+    simwellFractures.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -49,7 +49,7 @@ RimSimWellFractureCollection::~RimSimWellFractureCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSimWellFractureCollection::deleteFractures()
 {
-    simwellFractures.deleteAllChildObjects();
+    simwellFractures.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

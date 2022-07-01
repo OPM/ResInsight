@@ -89,39 +89,47 @@ void RifReaderEclipseRft::open()
         QDateTime timeStep = RiaQDateTimeTools::createUtcDateTime();
         timeStep.setTime_t( timeStepTime_t );
 
-        RifEclipseRftAddress addressPressure( wellName, timeStep, RifEclipseRftAddress::PRESSURE );
+        RifEclipseRftAddress addressPressure =
+            RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
         m_eclipseRftAddresses.insert( addressPressure );
         m_rftAddressToLibeclNodeIdx[addressPressure] = i;
 
-        RifEclipseRftAddress addressDepth( wellName, timeStep, RifEclipseRftAddress::TVD );
+        RifEclipseRftAddress addressDepth =
+            RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::TVD );
         m_eclipseRftAddresses.insert( addressDepth );
         m_rftAddressToLibeclNodeIdx[addressDepth] = i;
 
         if ( ecl_rft_node_is_RFT( node ) )
         {
-            RifEclipseRftAddress addressSwat( wellName, timeStep, RifEclipseRftAddress::SWAT );
+            RifEclipseRftAddress addressSwat =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SWAT );
             m_eclipseRftAddresses.insert( addressSwat );
             m_rftAddressToLibeclNodeIdx[addressSwat] = i;
 
-            RifEclipseRftAddress addressSoil( wellName, timeStep, RifEclipseRftAddress::SOIL );
+            RifEclipseRftAddress addressSoil =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SOIL );
             m_eclipseRftAddresses.insert( addressSoil );
             m_rftAddressToLibeclNodeIdx[addressSoil] = i;
 
-            RifEclipseRftAddress addressSgas( wellName, timeStep, RifEclipseRftAddress::SGAS );
+            RifEclipseRftAddress addressSgas =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::SGAS );
             m_eclipseRftAddresses.insert( addressSgas );
             m_rftAddressToLibeclNodeIdx[addressSgas] = i;
         }
         else if ( ecl_rft_node_is_PLT( node ) )
         {
-            RifEclipseRftAddress addressWrat( wellName, timeStep, RifEclipseRftAddress::WRAT );
+            RifEclipseRftAddress addressWrat =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::WRAT );
             m_eclipseRftAddresses.insert( addressWrat );
             m_rftAddressToLibeclNodeIdx[addressWrat] = i;
 
-            RifEclipseRftAddress addressOrat( wellName, timeStep, RifEclipseRftAddress::ORAT );
+            RifEclipseRftAddress addressOrat =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::ORAT );
             m_eclipseRftAddresses.insert( addressOrat );
             m_rftAddressToLibeclNodeIdx[addressOrat] = i;
 
-            RifEclipseRftAddress addressGrat( wellName, timeStep, RifEclipseRftAddress::GRAT );
+            RifEclipseRftAddress addressGrat =
+                RifEclipseRftAddress::createAddress( wellName, timeStep, RifEclipseRftAddress::RftWellLogChannelType::GRAT );
             m_eclipseRftAddresses.insert( addressGrat );
             m_rftAddressToLibeclNodeIdx[addressGrat] = i;
         }
@@ -166,7 +174,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
 
     switch ( wellLogChannelName )
     {
-        case RifEclipseRftAddress::TVD:
+        case RifEclipseRftAddress::RftWellLogChannelType::TVD:
         {
             for ( int i = 0; i < ecl_rft_node_get_size( node ); i++ )
             {
@@ -174,7 +182,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
             }
             break;
         }
-        case RifEclipseRftAddress::PRESSURE:
+        case RifEclipseRftAddress::RftWellLogChannelType::PRESSURE:
         {
             for ( int i = 0; i < ecl_rft_node_get_size( node ); i++ )
             {
@@ -182,7 +190,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
             }
             break;
         }
-        case RifEclipseRftAddress::SWAT:
+        case RifEclipseRftAddress::RftWellLogChannelType::SWAT:
         {
             for ( int i = 0; i < ecl_rft_node_get_size( node ); i++ )
             {
@@ -190,7 +198,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
             }
             break;
         }
-        case RifEclipseRftAddress::SOIL:
+        case RifEclipseRftAddress::RftWellLogChannelType::SOIL:
         {
             for ( int i = 0; i < ecl_rft_node_get_size( node ); i++ )
             {
@@ -198,7 +206,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
             }
             break;
         }
-        case RifEclipseRftAddress::SGAS:
+        case RifEclipseRftAddress::RftWellLogChannelType::SGAS:
         {
             for ( int i = 0; i < ecl_rft_node_get_size( node ); i++ )
             {
@@ -206,7 +214,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
             }
             break;
         }
-        case RifEclipseRftAddress::WRAT:
+        case RifEclipseRftAddress::RftWellLogChannelType::WRAT:
         {
             for ( int i = 0; i < ecl_rft_node_get_size( node ); i++ )
             {
@@ -214,7 +222,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
             }
             break;
         }
-        case RifEclipseRftAddress::ORAT:
+        case RifEclipseRftAddress::RftWellLogChannelType::ORAT:
         {
             for ( int i = 0; i < ecl_rft_node_get_size( node ); i++ )
             {
@@ -222,7 +230,7 @@ void RifReaderEclipseRft::values( const RifEclipseRftAddress& rftAddress, std::v
             }
             break;
         }
-        case RifEclipseRftAddress::GRAT:
+        case RifEclipseRftAddress::RftWellLogChannelType::GRAT:
         {
             for ( int i = 0; i < ecl_rft_node_get_size( node ); i++ )
             {
@@ -351,7 +359,7 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEclipseRft::avail
 
             if ( !pressureFound )
             {
-                if ( name == RifEclipseRftAddress::PRESSURE )
+                if ( name == RifEclipseRftAddress::RftWellLogChannelType::PRESSURE )
                 {
                     pressureFound = true;
                     if ( rftFound && pltFound ) break;
@@ -381,7 +389,7 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderEclipseRft::avail
 
     if ( pressureFound )
     {
-        wellLogChannelNames.insert( RifEclipseRftAddress::PRESSURE );
+        wellLogChannelNames.insert( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
     }
     if ( rftFound )
     {

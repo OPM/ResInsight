@@ -32,20 +32,17 @@ CAF_PDM_SOURCE_INIT( RicCreateEnsembleSurfaceUi, "RicCreateEnsembleSurfaceUi" );
 //--------------------------------------------------------------------------------------------------
 RicCreateEnsembleSurfaceUi::RicCreateEnsembleSurfaceUi()
 {
-    CAF_PDM_InitObject( "Export Multiple Surfaces", "", "", "" );
+    CAF_PDM_InitObject( "Export Multiple Surfaces" );
 
-    CAF_PDM_InitFieldNoDefault( &m_layers, "Layers", "Layers", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_layers, "Layers", "Layers" );
     CAF_PDM_InitField( &m_autoCreateEnsembleSurfaces,
                        "AutoCreateEnsembleSurfaces",
                        false,
-                       "Create Ensemble Surfaces From Exported Files",
-                       "",
-                       "",
-                       "" );
+                       "Create Ensemble Surfaces From Exported Files" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoCreateEnsembleSurfaces );
 
-    CAF_PDM_InitFieldNoDefault( &m_minLayer, "MinLayer", "MinLayer", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_maxLayer, "MaxLayer", "MaxLayer", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_minLayer, "MinLayer", "MinLayer" );
+    CAF_PDM_InitFieldNoDefault( &m_maxLayer, "MaxLayer", "MaxLayer" );
 
     m_tabNames << "Configuration";
 }
@@ -108,7 +105,7 @@ void RicCreateEnsembleSurfaceUi::defineUiOrdering( QString uiConfigName, caf::Pd
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicCreateEnsembleSurfaceUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RicCreateEnsembleSurfaceUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_layers )

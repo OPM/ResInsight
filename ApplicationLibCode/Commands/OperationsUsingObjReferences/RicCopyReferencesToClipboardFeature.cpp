@@ -30,7 +30,7 @@
 #include "RimGridCrossPlotDataSet.h"
 #include "RimMimeData.h"
 #include "RimModeledWellPath.h"
-#include "RimSummaryCurveFilter.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogPlot.h"
@@ -125,62 +125,36 @@ bool RicCopyReferencesToClipboardFeature::isAnyCopyableObjectSelected()
 //--------------------------------------------------------------------------------------------------
 bool RicCopyReferencesToClipboardFeature::isCopyOfObjectSupported( caf::PdmObject* pdmObject )
 {
+    // Copy support based on direct dynamic cast
+    if ( dynamic_cast<RimGeoMechView*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimEclipseView*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimEclipseCase*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimExtrudedCurveIntersection*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimBoxIntersection*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimSummaryPlot*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimFractureTemplate*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimEnsembleCurveSet*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimGridCrossPlotDataSet*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimModeledWellPath*>( pdmObject ) ) return true;
+    if ( dynamic_cast<RimSummaryMultiPlot*>( pdmObject ) ) return true;
+
+    // Copy support based combined logic
     RimWellAllocationPlot* wellAllocPlot = nullptr;
     RimWellRftPlot*        rftPlot       = nullptr;
     pdmObject->firstAncestorOrThisOfType( wellAllocPlot );
     pdmObject->firstAncestorOrThisOfType( rftPlot );
 
-    if ( dynamic_cast<RimGeoMechView*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimEclipseView*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimEclipseCase*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimExtrudedCurveIntersection*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimBoxIntersection*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimSummaryPlot*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimPlotCurve*>( pdmObject ) && !dynamic_cast<RimGridCrossPlotCurve*>( pdmObject ) )
+    if ( dynamic_cast<RimPlotCurve*>( pdmObject ) && !dynamic_cast<RimGridCrossPlotCurve*>( pdmObject ) )
     {
         if ( !rftPlot ) return true;
     }
-    else if ( dynamic_cast<RimWellLogTrack*>( pdmObject ) )
+    if ( dynamic_cast<RimWellLogTrack*>( pdmObject ) )
     {
         if ( !wellAllocPlot && !rftPlot ) return true;
     }
-    else if ( dynamic_cast<RimWellLogPlot*>( pdmObject ) )
+    if ( dynamic_cast<RimWellLogPlot*>( pdmObject ) )
     {
         if ( !wellAllocPlot && !rftPlot ) return true;
-    }
-    else if ( dynamic_cast<RimFractureTemplate*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimEnsembleCurveSet*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimGridCrossPlotDataSet*>( pdmObject ) )
-    {
-        return true;
-    }
-    else if ( dynamic_cast<RimModeledWellPath*>( pdmObject ) )
-    {
-        return true;
     }
 
     return false;

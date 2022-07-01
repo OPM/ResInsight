@@ -84,6 +84,10 @@ QwtPlot["PvtPlot"]::lineMarker["*"] {
     color: $textColor;
 }
 
+QLabel, RiuQwtPlotLegend {
+    background-color: transparent;
+}
+
 QwtPlot["PvtPlot"]::pointMarker["*"] {
     color: $textColor;
 }

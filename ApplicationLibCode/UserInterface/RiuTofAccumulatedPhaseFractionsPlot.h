@@ -22,7 +22,6 @@
 #include "cafPdmPointer.h"
 
 #include "qwt_plot.h"
-#include "qwt_plot_curve.h"
 
 #include <QList>
 #include <QPointer>
@@ -31,6 +30,7 @@
 #include "RiuInterfaceToViewWindow.h"
 
 class RimTofAccumulatedPhaseFractionsPlot;
+class QwtPlotCurve;
 
 //==================================================================================================
 //

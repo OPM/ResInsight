@@ -45,6 +45,7 @@
 #include "cafPdmUiTreeViewEditor.h"
 
 #include <QDragMoveEvent>
+#include <QMimeData>
 #include <QTreeView>
 
 namespace caf
@@ -61,6 +62,18 @@ PdmUiTreeViewQModel::PdmUiTreeViewQModel( PdmUiTreeViewEditor* treeViewEditor )
 }
 
 //--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+PdmUiTreeViewQModel::~PdmUiTreeViewQModel()
+{
+    if ( m_dragDropInterface )
+    {
+        delete m_dragDropInterface;
+        m_dragDropInterface = nullptr;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
 /// Will populate the tree with the contents of the Pdm data structure rooted at rootItem.
 /// Will not show the rootItem itself, only the children and downwards
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +82,8 @@ void PdmUiTreeViewQModel::setPdmItemRoot( PdmUiItem* rootItem )
     // Check if we are already watching this root
     if ( rootItem && m_treeOrderingRoot && m_treeOrderingRoot->activeItem() == rootItem )
     {
-        this->updateSubTree( rootItem );
+        bool notifyEditors = false;
+        this->updateSubTree( rootItem, notifyEditors );
         return;
     }
 
@@ -135,7 +149,7 @@ void PdmUiTreeViewQModel::emitDataChanged( const QModelIndex& index )
 //--------------------------------------------------------------------------------------------------
 /// Refreshes the UI-tree below the supplied root PdmUiItem
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewQModel::updateSubTree( PdmUiItem* pdmRoot )
+void PdmUiTreeViewQModel::updateSubTree( PdmUiItem* pdmRoot, bool notifyEditors )
 {
     // Build the new "Correct" Tree
 
@@ -180,7 +194,7 @@ void PdmUiTreeViewQModel::updateSubTree( PdmUiItem* pdmRoot )
     existingSubTreeRoot->debugDump( 0 );
 #endif
 
-    updateSubTreeRecursive( existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp );
+    updateSubTreeRecursive( existingSubTreeRootModIdx, existingSubTreeRoot, newTreeRootTmp, notifyEditors );
 
     delete newTreeRootTmp;
 
@@ -212,7 +226,8 @@ public:
 //--------------------------------------------------------------------------------------------------
 void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSubTreeRootModIdx,
                                                   PdmUiTreeOrdering* existingSubTreeRoot,
-                                                  PdmUiTreeOrdering* sourceSubTreeRoot )
+                                                  PdmUiTreeOrdering* sourceSubTreeRoot,
+                                                  bool               notifyEditors )
 {
     // Build map for source items
     std::map<caf::PdmUiItem*, int> sourceTreeMap;
@@ -283,14 +298,15 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
     if ( !anyChanges )
     {
         // Notify Qt that the toggle/name/icon etc might have been changed
-        emitDataChanged( existingSubTreeRootModIdx );
+        if ( notifyEditors ) emitDataChanged( existingSubTreeRootModIdx );
 
         // No changes to list of children at this level, call update on all children
         for ( int i = 0; i < existingSubTreeRoot->childCount(); ++i )
         {
             updateSubTreeRecursive( index( i, 0, existingSubTreeRootModIdx ),
                                     existingSubTreeRoot->child( i ),
-                                    sourceSubTreeRoot->child( i ) );
+                                    sourceSubTreeRoot->child( i ),
+                                    notifyEditors );
         }
     }
     else
@@ -298,7 +314,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
         std::vector<RecursiveUpdateData> recursiveUpdateData;
         std::vector<PdmUiTreeOrdering*>  newMergedOrdering;
 
-        emit layoutAboutToBeChanged();
+        if ( notifyEditors ) emit layoutAboutToBeChanged();
         {
             // Detect items to be moved from source to existing
             // Merge items from existing and source into newMergedOrdering using order in sourceSubTreeRoot
@@ -328,7 +344,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
                   it != indicesToRemoveFromSource.rend();
                   ++it )
             {
-                // Use the removeChildrenNoDelete() to remove the pointer from the list without deleting the pointer
+                // Use the removeChildNoDelete() to remove the pointer from the list without deleting the pointer
                 sourceSubTreeRoot->removeChildrenNoDelete( *it, 1 );
             }
 
@@ -347,7 +363,7 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
             }
         }
 
-        emit layoutChanged();
+        if ( notifyEditors ) emit layoutChanged();
 
         // Insert new items into existingSubTreeRoot
         for ( size_t i = 0; i < newMergedOrdering.size(); i++ )
@@ -367,7 +383,10 @@ void PdmUiTreeViewQModel::updateSubTreeRecursive( const QModelIndex& existingSub
             QModelIndex mi = index( recursiveUpdateData[i].m_row, 0, existingSubTreeRootModIdx );
             CAF_ASSERT( mi.isValid() );
 
-            updateSubTreeRecursive( mi, recursiveUpdateData[i].m_existingChild, recursiveUpdateData[i].m_sourceChild );
+            updateSubTreeRecursive( mi,
+                                    recursiveUpdateData[i].m_existingChild,
+                                    recursiveUpdateData[i].m_sourceChild,
+                                    notifyEditors );
         }
     }
 }
@@ -852,7 +871,35 @@ QMimeData* PdmUiTreeViewQModel::mimeData( const QModelIndexList& indexes ) const
 {
     if ( m_dragDropInterface )
     {
-        return m_dragDropInterface->mimeData( indexes );
+        QStringList objectPaths;
+
+        for ( const auto& i : indexes )
+        {
+            auto uiObjHandle = dynamic_cast<PdmUiObjectHandle*>( uiItemFromModelIndex( i ) );
+            if ( uiObjHandle && uiObjHandle->objectHandle() )
+            {
+                auto objHandle = uiObjHandle->objectHandle();
+
+                auto root = PdmReferenceHelper::findRoot( objHandle );
+                auto path = PdmReferenceHelper::referenceFromRootToObject( root, objHandle );
+
+                objectPaths.push_back( path );
+            }
+        }
+
+        auto mimeDataObject = m_dragDropInterface->mimeData( indexes );
+
+        QByteArray  data;
+        QDataStream dataStreamWrite( &data, QIODevice::WriteOnly );
+        dataStreamWrite << objectPaths;
+
+        QString mimeType = PdmUiDragDropInterface::mimeTypeForObjectReferenceList();
+
+        // The QModelIndexList is useful for drag and drop internally in one tree widget. If we
+        // drag from a tree into other widgets, it is useful to have the full path as text from root to object.
+        mimeDataObject->setData( mimeType, data );
+
+        return mimeDataObject;
     }
     else
     {

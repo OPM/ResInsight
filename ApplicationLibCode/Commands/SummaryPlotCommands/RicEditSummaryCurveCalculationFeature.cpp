@@ -55,7 +55,7 @@ bool RicEditSummaryCurveCalculationFeature::isCommandEnabled()
 void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
 {
     std::vector<RimSummaryCurve*> selectedCurves = caf::selectedObjectsByType<RimSummaryCurve*>();
-    RimSummaryCalculation*        calculation    = nullptr;
+    RimUserDefinedCalculation*    calculation    = nullptr;
 
     if ( selectedCurves.size() > 0 )
     {
@@ -70,7 +70,7 @@ void RicEditSummaryCurveCalculationFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog();
+    RicSummaryCurveCalculatorDialog* dialog = RicShowSummaryCurveCalculatorFeature::curveCalculatorDialog( true );
     dialog->setCalculationAndUpdateUi( calculation );
     dialog->show();
     dialog->raise();

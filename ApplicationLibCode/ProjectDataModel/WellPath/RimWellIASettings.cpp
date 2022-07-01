@@ -61,37 +61,37 @@ CAF_PDM_SOURCE_INIT( RimWellIASettings, "RimWellIASettings" );
 //--------------------------------------------------------------------------------------------------
 RimWellIASettings::RimWellIASettings()
 {
-    CAF_PDM_InitObject( "Integrity Analysis Model Settings", ":/WellIntAnalysis.png", "", "" );
+    CAF_PDM_InitObject( "Integrity Analysis Model Settings", ":/WellIntAnalysis.png" );
 
     setName( "Model" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeomechCase", "GeoMech Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geomechCase, "GeomechCase", "GeoMech Case" );
 
-    CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDir", "Working Directory", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_baseDir, "BaseDir", "Working Directory" );
     m_baseDir.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD", "", "", "" );
-    CAF_PDM_InitField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD", "", "", "" );
+    CAF_PDM_InitField( &m_startMD, "StartMeasuredDepth", 0.0, "Start MD" );
+    CAF_PDM_InitField( &m_endMD, "EndMeasuredDepth", 0.0, "End MD" );
     m_startMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
     m_endMD.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_bufferXY, "BufferXY", 5.0, "Model Size (XY)", "", "", "" );
+    CAF_PDM_InitField( &m_bufferXY, "BufferXY", 5.0, "Model Size (XY)" );
 
-    CAF_PDM_InitFieldNoDefault( &m_parameters, "ModelingParameters", "Modeling Parameters", ":/Bullet.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_parameters, "ModelingParameters", "Modeling Parameters", ":/Bullet.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_csvParameters, "TimeStepParameters", "Time Step Parameters", ":/Bullet.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_csvParameters, "TimeStepParameters", "Time Step Parameters", ":/Bullet.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimWellIASettings::fullName );
     m_nameProxy.uiCapability()->setUiReadOnly( true );
     m_nameProxy.uiCapability()->setUiHidden( true );
     m_nameProxy.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_showBox, "showBox", false, "Show model box", "", "", "" );
+    CAF_PDM_InitField( &m_showBox, "showBox", false, "Show model box" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geostaticDate, "startDate", "Start Date (geostatic):", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geostaticDate, "startDate", "Start Date (geostatic):" );
 
-    CAF_PDM_InitField( &m_boxValid, "boxValid", false, "Model box is valid", "", "", "" );
+    CAF_PDM_InitField( &m_boxValid, "boxValid", false, "Model box is valid" );
     m_boxValid.uiCapability()->setUiHidden( true );
 
     this->setDeletable( true );
@@ -116,7 +116,7 @@ bool RimWellIASettings::initSettings( QString& outErrmsg )
     RifParameterXmlReader basicreader( RiaPreferencesGeoMech::current()->geomechWIADefaultXML() );
     if ( !basicreader.parseFile( outErrmsg ) ) return false;
 
-    m_parameters.clear();
+    m_parameters.deleteChildren();
     for ( auto group : basicreader.parameterGroups() )
     {
         m_parameters.push_back( group );
@@ -153,8 +153,7 @@ void RimWellIASettings::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellIASettings::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellIASettings::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -526,7 +525,7 @@ void RimWellIASettings::addCsvGroup( QString name, QStringList timeSteps, double
 //--------------------------------------------------------------------------------------------------
 void RimWellIASettings::initCsvParameters()
 {
-    m_csvParameters.clear();
+    m_csvParameters.deleteChildren();
 
     QStringList timeSteps = m_geomechCase->timeStepStrings();
 

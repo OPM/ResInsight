@@ -30,9 +30,9 @@ CAF_PDM_SOURCE_INIT( RimFractureContainment, "FractureContainment" );
 //--------------------------------------------------------------------------------------------------
 RimFractureContainment::RimFractureContainment()
 {
-    CAF_PDM_InitObject( "Fracture Containment", "", "", "" );
+    CAF_PDM_InitObject( "Fracture Containment" );
 
-    CAF_PDM_InitField( &m_useContainment, "IsUsingFractureContainment", false, "Use Containment", "", "", "" );
+    CAF_PDM_InitField( &m_useContainment, "IsUsingFractureContainment", false, "Use Containment" );
     CAF_PDM_InitField( &m_topKLayer, "TopKLayer", 0, "  Top Layer", "", "Do not allow fracture to grow into this layer", "" );
     CAF_PDM_InitField( &m_baseKLayer, "BaseKLayer", 0, "  Base Layer", "", "Do not allow fracture to grow into this layer", "" );
 

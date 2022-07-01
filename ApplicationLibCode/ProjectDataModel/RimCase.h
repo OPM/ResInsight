@@ -67,8 +67,6 @@ public:
     std::vector<Rim3dView*>   views() const;
     std::vector<RimGridView*> gridViews() const;
 
-    virtual void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) = 0;
-
     virtual std::vector<QDateTime> timeStepDates() const              = 0;
     virtual QStringList            timeStepStrings() const            = 0;
     virtual QString                timeStepName( int frameIdx ) const = 0;
@@ -92,8 +90,7 @@ public:
     caf::Signal<> settingsChanged;
 
 protected:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     virtual std::vector<Rim3dView*> allSpecialViews() const = 0;

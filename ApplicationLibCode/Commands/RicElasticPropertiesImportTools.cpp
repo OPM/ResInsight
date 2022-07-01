@@ -166,7 +166,7 @@ std::vector<QString> RicElasticPropertiesImportTools::getFormationNames()
     RimOilField* oilField = project->activeOilField();
 
     RimFormationNamesCollection* formationNamesCollection = oilField->formationNamesCollection();
-    for ( RimFormationNames* formationNames : formationNamesCollection->formationNamesList().childObjects() )
+    for ( RimFormationNames* formationNames : formationNamesCollection->formationNamesList().children() )
     {
         if ( formationNames && formationNames->formationNamesData() )
         {

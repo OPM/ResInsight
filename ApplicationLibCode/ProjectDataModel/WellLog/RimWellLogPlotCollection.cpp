@@ -46,9 +46,9 @@ CAF_PDM_SOURCE_INIT( RimWellLogPlotCollection, "WellLogPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection::RimWellLogPlotCollection()
 {
-    CAF_PDM_InitScriptableObject( "Well Log Plots", ":/WellLogPlots16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Well Log Plots", ":/WellLogPlots16x16.png" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogPlots, "WellLogPlots", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellLogPlots, "WellLogPlots", "" );
     m_wellLogPlots.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -147,7 +147,7 @@ RigGeoMechWellLogExtractor* RimWellLogPlotCollection::findOrCreateExtractor( Rim
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellLogPlot*> RimWellLogPlotCollection::wellLogPlots() const
 {
-    return m_wellLogPlots.childObjects();
+    return m_wellLogPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -163,7 +163,7 @@ void RimWellLogPlotCollection::addWellLogPlot( gsl::not_null<RimWellLogPlot*> we
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::deleteAllPlots()
 {
-    m_wellLogPlots.deleteAllChildObjects();
+    m_wellLogPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ void RimWellLogPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlotCollection::removePlot( gsl::not_null<RimWellLogPlot*> plot )
 {
-    m_wellLogPlots.removeChildObject( plot );
+    m_wellLogPlots.removeChild( plot );
     updateAllRequiredEditors();
 }
 
@@ -251,15 +251,7 @@ void RimWellLogPlotCollection::removeExtractors( const RigGeoMechCaseData* caseD
 void RimWellLogPlotCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                                std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
-    // Make sure the plot collection disappears with the last plot
-    if ( m_wellLogPlots().empty() )
-    {
-        RimProject* project = RimProject::current();
-        if ( project )
-        {
-            project->updateConnectedEditors();
-        }
-    }
+    updateConnectedEditors();
 
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
     mainPlotWindow->updateWellLogPlotToolBar();

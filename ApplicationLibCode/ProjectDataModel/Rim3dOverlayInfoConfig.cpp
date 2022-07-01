@@ -29,14 +29,10 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
-// #include "RigEclipseMultiPropertyStatCalc.h"
-// #include "RigEclipseNativeVisibleCellsStatCalc.h"
-// #include "RigFemNativeVisibleCellsStatCalc.h"
 #include "RigFemPartCollection.h"
 #include "RigFemPartResultsCollection.h"
 #include "RigFemResultAddress.h"
 #include "RigFlowDiagResults.h"
-// #include "RigFlowDiagVisibleCellsStatCalc.h"
 #include "RigGeoMechCaseData.h"
 #include "RigMainGrid.h"
 
@@ -64,6 +60,8 @@
 
 #include "RiuViewer.h"
 
+#include "caf.h"
+
 #include <QLocale>
 
 CAF_PDM_SOURCE_INIT( Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig" );
@@ -76,26 +74,26 @@ CAF_PDM_SOURCE_INIT( Rim3dOverlayInfoConfig, "View3dOverlayInfoConfig" );
 //--------------------------------------------------------------------------------------------------
 Rim3dOverlayInfoConfig::Rim3dOverlayInfoConfig()
 {
-    CAF_PDM_InitObject( "Info Box", ":/InfoBox16x16.png", "", "" );
+    CAF_PDM_InitObject( "Info Box", ":/InfoBox16x16.png" );
 
-    CAF_PDM_InitField( &m_active, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_active, "Active", true, "Active" );
     m_active.uiCapability()->setUiHidden( true );
     m_active = RiaPreferences::current()->showInfoBox();
 
-    CAF_PDM_InitField( &m_showAnimProgress, "ShowAnimProgress", true, "Animation progress", "", "", "" );
-    CAF_PDM_InitField( &m_showCaseInfo, "ShowInfoText", true, "Case Info", "", "", "" );
-    CAF_PDM_InitField( &m_showResultInfo, "ShowResultInfo", true, "Result Info", "", "", "" );
-    CAF_PDM_InitField( &m_showHistogram, "ShowHistogram", true, "Histogram", "", "", "" );
-    CAF_PDM_InitField( &m_showVolumeWeightedMean, "ShowVolumeWeightedMean", true, "Mobile Volume Weighted Mean", "", "", "" );
-    CAF_PDM_InitField( &m_showVersionInfo, "ShowVersionInfo", true, "Version Info", "", "", "" );
+    CAF_PDM_InitField( &m_showAnimProgress, "ShowAnimProgress", true, "Animation progress" );
+    CAF_PDM_InitField( &m_showCaseInfo, "ShowInfoText", true, "Case Info" );
+    CAF_PDM_InitField( &m_showResultInfo, "ShowResultInfo", true, "Result Info" );
+    CAF_PDM_InitField( &m_showHistogram, "ShowHistogram", true, "Histogram" );
+    CAF_PDM_InitField( &m_showVolumeWeightedMean, "ShowVolumeWeightedMean", true, "Mobile Volume Weighted Mean" );
+    CAF_PDM_InitField( &m_showVersionInfo, "ShowVersionInfo", true, "Version Info" );
 
     caf::AppEnum<RimHistogramCalculator::StatisticsTimeRangeType> defaultTimeRange =
         RimHistogramCalculator::StatisticsTimeRangeType::CURRENT_TIMESTEP;
-    CAF_PDM_InitField( &m_statisticsTimeRange, "StatisticsTimeRange", defaultTimeRange, "Statistics Time Range", "", "", "" );
+    CAF_PDM_InitField( &m_statisticsTimeRange, "StatisticsTimeRange", defaultTimeRange, "Statistics Time Range" );
 
     caf::AppEnum<RimHistogramCalculator::StatisticsCellRangeType> defaultCellRange =
         RimHistogramCalculator::StatisticsCellRangeType::VISIBLE_CELLS;
-    CAF_PDM_InitField( &m_statisticsCellRange, "StatisticsCellRange", defaultCellRange, "Statistics Cell Range", "", "", "" );
+    CAF_PDM_InitField( &m_statisticsCellRange, "StatisticsCellRange", defaultCellRange, "Statistics Cell Range" );
 
     m_histogramCalculator.reset( new RimHistogramCalculator );
 }
@@ -289,7 +287,7 @@ QString Rim3dOverlayInfoConfig::caseInfoText( RimEclipseView* eclipseView )
     {
         QString caseName = eclipseView->eclipseCase()->caseUserDescription();
 
-        QLocale localeWithSpaceAsGroupSeparator( QLocale::Norwegian );
+        QLocale localeWithSpaceAsGroupSeparator( caf::norwegianLocale() );
 
         RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( eclipseView );
         if ( contourMap && contourMap->contourMapProjection() )

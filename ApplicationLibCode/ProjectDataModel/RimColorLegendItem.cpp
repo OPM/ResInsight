@@ -33,17 +33,17 @@ CAF_PDM_SOURCE_INIT( RimColorLegendItem, "ColorLegendItem" );
 //--------------------------------------------------------------------------------------------------
 RimColorLegendItem::RimColorLegendItem()
 {
-    CAF_PDM_InitObject( "ColorLegendItem", "", "", "" );
+    CAF_PDM_InitObject( "ColorLegendItem" );
 
-    CAF_PDM_InitFieldNoDefault( &m_color, "Color", "Color", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_color, "Color", "Color" );
     m_color = cvf::Color3f( cvf::Color3::ColorIdent::BLACK );
 
-    CAF_PDM_InitField( &m_categoryValue, "CategoryValue", 0, "Category Number", "", "", "" );
+    CAF_PDM_InitField( &m_categoryValue, "CategoryValue", 0, "Category Number" );
     m_categoryValue.uiCapability()->setUiEditorTypeName( caf::PdmUiSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_categoryName, "CategoryName", QString( "" ), "Category Name", "", "", "" );
+    CAF_PDM_InitField( &m_categoryName, "CategoryName", QString( "" ), "Category Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name Proxy" );
     m_nameProxy.registerGetMethod( this, &RimColorLegendItem::itemName );
     m_nameProxy.uiCapability()->setUiHidden( true );
     m_nameProxy.xmlCapability()->disableIO();

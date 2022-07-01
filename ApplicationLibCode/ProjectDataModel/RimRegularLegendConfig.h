@@ -127,6 +127,7 @@ public:
     MappingType     mappingMode() { return m_mappingMode(); }
     void            setTickNumberFormat( RiaNumberFormat::NumberFormatType numberFormat );
     void            resetUserDefinedValues();
+    void            setCenterLegendAroundZero( bool enable );
 
     void disableAllTimeStepsRange( bool doDisable );
 
@@ -169,6 +170,8 @@ public:
 
     QString valueToText( double value ) const;
 
+    void setDefaultConfigForResultName( const QString& resultName, bool useDiscreteLogLevels, bool isCategoryResult );
+
 private:
     void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void                 sendChangedSignal( const caf::PdmFieldHandle* changedField );
@@ -179,8 +182,7 @@ private:
                                                 caf::PdmUiEditorAttribute* attribute ) override;
 
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void   updateLegend();
     void   updateFieldVisibility();
@@ -188,6 +190,7 @@ private:
 
     void updateCategoryItems();
     void configureCategoryMapper();
+    void updateTickCountAndUserDefinedRange();
 
     friend class RimViewLinker;
 
@@ -231,6 +234,7 @@ private:
     caf::PdmField<caf::AppEnum<MappingType>>                       m_mappingMode;
     caf::PdmField<caf::AppEnum<CategoryColorModeType>>             m_categoryColorMode;
     caf::PdmField<bool>                                            m_resetUserDefinedValuesButton;
+    caf::PdmField<bool>                                            m_centerLegendAroundZero;
 
     caf::PdmPtrField<RimColorLegend*> m_colorLegend;
     caf::PdmField<bool>               m_selectColorLegendButton;

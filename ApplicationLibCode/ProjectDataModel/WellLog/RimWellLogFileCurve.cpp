@@ -52,14 +52,14 @@ CAF_PDM_SOURCE_INIT( RimWellLogFileCurve, "WellLogFileCurve" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogFileCurve::RimWellLogFileCurve()
 {
-    CAF_PDM_InitObject( "Well Log File Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
+    CAF_PDM_InitObject( "Well Log File Curve", RimWellLogCurve::wellLogCurveIconName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Path" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogChannelName, "CurveWellLogChannel", "Well Log Channel" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogFile, "WellLogFile", "Well Log File" );
 
     m_wellPath = nullptr;
 }
@@ -150,7 +150,15 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     validDepths.insert( std::make_pair( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB, tvdRkbValues ) );
                 }
 
-                this->setValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false );
+                bool             useLogarithmicScale = false;
+                RimWellLogTrack* track               = nullptr;
+                firstAncestorOfType( track );
+                if ( track )
+                {
+                    useLogarithmicScale = track->isLogarithmicScale();
+                }
+
+                this->setPropertyValuesAndDepths( values, validDepths, rkbDiff, wellLogFile->depthUnit(), false, useLogarithmicScale );
 
                 QString errMsg;
                 if ( wellLogPlot && !this->curveData()->availableDepthTypes().count( wellLogPlot->depthType() ) )
@@ -172,7 +180,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
             if ( m_isUsingAutoName )
             {
-                m_qwtPlotCurve->setTitle( createCurveAutoName() );
+                m_plotCurve->setTitle( createCurveAutoName() );
             }
         }
 
@@ -188,19 +196,18 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        m_qwtPlotCurve->setSamples( this->curveData()->xPlotValues().data(),
-                                    this->curveData()->depthPlotValues( depthType, displayUnit ).data(),
-                                    static_cast<int>( this->curveData()->xPlotValues().size() ) );
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+        m_plotCurve->setSamplesValues( this->curveData()->propertyValuesByIntervals(),
+                                       this->curveData()->depthValuesByIntervals( depthType, displayUnit ) );
+        m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
         if ( updateParentPlot )
         {
             updateZoomInParentPlot();
         }
 
-        if ( m_parentQwtPlot )
+        if ( m_parentPlot )
         {
-            m_parentQwtPlot->replot();
+            m_parentPlot->replot();
         }
     }
 }
@@ -315,7 +322,7 @@ void RimWellLogFileCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         this->loadDataAndUpdate( true );
     }
-    if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+    if ( m_parentPlot ) m_parentPlot->replot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -352,12 +359,11 @@ void RimWellLogFileCurve::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                          bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellLogFileCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
     if ( options.size() > 0 ) return options;
 
     if ( fieldNeedingOptions == &m_wellPath )

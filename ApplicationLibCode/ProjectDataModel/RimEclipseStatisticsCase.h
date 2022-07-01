@@ -71,7 +71,6 @@ public:
     };
 
     caf::PdmField<bool> m_calculateEditCommand;
-    void updateFilePathsFromProjectPath( const QString& projectPath, const QString& oldProjectPath ) override {}
 
     void populateResultSelectionAfterLoadingGrid();
 
@@ -88,8 +87,7 @@ private:
     void updatePercentileUiVisibility();
 
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void loadSimulationWellDataFromSourceCase();

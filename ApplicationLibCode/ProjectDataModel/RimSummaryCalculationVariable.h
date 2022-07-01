@@ -18,13 +18,15 @@
 
 #pragma once
 
+#include "RimUserDefinedCalculationVariable.h"
+
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
 #include "cafPdmPtrField.h"
 
 #include "RifEclipseSummaryAddressQMetaType.h"
-#include "cafPdmChildField.h"
 
 class RimSummaryCase;
 class RimSummaryAddress;
@@ -34,20 +36,21 @@ class RiuSummaryVectorSelectionDialog;
 ///
 ///
 //==================================================================================================
-class RimSummaryCalculationVariable : public caf::PdmObject
+class RimSummaryCalculationVariable : public RimUserDefinedCalculationVariable
 {
     CAF_PDM_HEADER_INIT;
 
 public:
     RimSummaryCalculationVariable();
 
-    QString name() const;
-    void    setName( const QString& name );
-
-    QString summaryAddressDisplayString() const;
+    QString displayString() const override;
 
     RimSummaryCase*    summaryCase();
     RimSummaryAddress* summaryAddress();
+
+    void setSummaryAddress( const RimSummaryAddress& address );
+
+    void handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) override;
 
 private:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -58,9 +61,6 @@ private:
     void writeDataToApplicationStore() const;
 
 private:
-    caf::PdmField<QString>           m_name;
-    caf::PdmProxyValueField<QString> m_summaryAddressUi;
-
     caf::PdmField<bool> m_button;
 
     caf::PdmPtrField<RimSummaryCase*>      m_case;

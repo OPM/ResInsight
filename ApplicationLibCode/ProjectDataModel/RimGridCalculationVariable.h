@@ -1,0 +1,87 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2022     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT ANY
+//  WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#pragma once
+
+#include "RimUserDefinedCalculationVariable.h"
+
+#include "RiaDefines.h"
+
+#include "cafPdmField.h"
+#include "cafPdmObject.h"
+#include "cafPdmPtrField.h"
+
+class RimEclipseCase;
+class RimEclipseResultAddress;
+class RimGridView;
+class RigCaseCellResultsData;
+
+//==================================================================================================
+///
+///
+//==================================================================================================
+class RimGridCalculationVariable : public RimUserDefinedCalculationVariable
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    enum class DefaultValueType
+    {
+        POSITIVE_INFINITY,
+        FROM_PROPERTY,
+        USER_DEFINED
+    };
+
+    RimGridCalculationVariable();
+
+    QString displayString() const override;
+
+    RimEclipseCase*           eclipseCase() const;
+    RiaDefines::ResultCatType resultCategoryType() const;
+    QString                   resultVariable() const;
+    int                       timeStep() const;
+    RimGridView*              cellFilterView() const;
+    double                    defaultValue() const;
+    DefaultValueType          defaultValueType() const;
+
+    using DefaultValueConfig = std::pair<RimGridCalculationVariable::DefaultValueType, double>;
+    DefaultValueConfig defaultValueConfiguration() const;
+
+    static int allTimeStepsValue();
+
+    void handleDroppedMimeData( const QMimeData* data, Qt::DropAction action, caf::PdmFieldHandle* destinationField ) override;
+
+    void setEclipseResultAddress( const RimEclipseResultAddress& address );
+
+private:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    RigCaseCellResultsData*       currentGridCellResults() const;
+    QStringList                   getResultNamesForResultType( RiaDefines::ResultCatType     resultCatType,
+                                                               const RigCaseCellResultsData* results );
+
+private:
+    caf::PdmPtrField<RimEclipseCase*>                      m_eclipseCase;
+    caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_resultType;
+    caf::PdmField<QString>                                 m_resultVariable;
+    caf::PdmField<int>                                     m_timeStep;
+    caf::PdmPtrField<RimGridView*>                         m_cellFilterView;
+    caf::PdmField<caf::AppEnum<DefaultValueType>>          m_defaultValueType;
+    caf::PdmField<double>                                  m_defaultValue;
+};

@@ -27,9 +27,9 @@ CAF_PDM_SOURCE_INIT( RimEnsembleFractureStatisticsCollection, "FractureGroupStat
 //--------------------------------------------------------------------------------------------------
 RimEnsembleFractureStatisticsCollection::RimEnsembleFractureStatisticsCollection()
 {
-    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplates16x16.png", "", "" );
+    CAF_PDM_InitObject( "Ensemble Fracture Statistics", ":/FractureTemplates16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatistics, "FractureGroupStatistics", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatistics, "FractureGroupStatistics", "" );
     m_fractureGroupStatistics.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -46,7 +46,7 @@ void RimEnsembleFractureStatisticsCollection::addFractureGroupStatistics( RimEns
 //--------------------------------------------------------------------------------------------------
 void RimEnsembleFractureStatisticsCollection::loadAndUpdateData()
 {
-    for ( auto f : m_fractureGroupStatistics.childObjects() )
+    for ( auto f : m_fractureGroupStatistics.children() )
     {
         f->loadAndUpdateData();
     }

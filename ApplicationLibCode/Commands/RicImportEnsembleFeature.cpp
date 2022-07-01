@@ -39,13 +39,12 @@
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 
 #include <QAction>
 #include <QDebug>
@@ -113,7 +112,6 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
 
     if ( cases.empty() ) return;
 
-    RicImportSummaryCasesFeature::addSummaryCases( cases );
     RimSummaryCaseCollection* ensemble =
         RicCreateSummaryCaseCollectionFeature::groupSummaryCases( cases, ensembleName, true );
 
@@ -124,7 +122,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
             summaryCase->updateAutoShortName();
         }
 
-        RicNewSummaryEnsembleCurveSetFeature::createPlotForCurveSetsAndUpdate( { ensemble } );
+        RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( {}, { ensemble } );
     }
 
     std::vector<RimCase*> allCases;
@@ -132,7 +130,7 @@ void RicImportEnsembleFeature::importSingleEnsemble( const QStringList&         
 
     if ( allCases.size() == 0 )
     {
-        RiuMainWindow::instance()->close();
+        RiuMainWindow::closeIfOpen();
     }
 }
 

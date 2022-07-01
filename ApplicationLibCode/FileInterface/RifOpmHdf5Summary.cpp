@@ -19,6 +19,7 @@
 #include "RifOpmHdf5Summary.h"
 
 #include "RiaLogging.h"
+#include "RiaStdStringTools.h"
 
 #include "RifHdf5SummaryReader.h"
 #include "RifOpmCommonSummary.h"
@@ -101,7 +102,7 @@ bool RifOpmHdf5Summary::values( const RifEclipseSummaryAddress& resultAddress, s
             auto   node  = m_eSmry->summaryNodeList()[index];
 
             int         smspecIndex = static_cast<int>( node.smspecKeywordIndex );
-            const auto& vectorName  = resultAddress.quantityName();
+            const auto& vectorName  = resultAddress.vectorName();
 
             *values = m_hdf5Reader->values( vectorName, smspecIndex );
 
@@ -125,10 +126,8 @@ std::string RifOpmHdf5Summary::unitName( const RifEclipseSummaryAddress& resultA
             auto index = it->second;
             auto node  = m_eSmry->summaryNodeList()[index];
 
-            if ( m_eSmry->hasKey( node.keyword ) )
-            {
-                return m_eSmry->get_unit( node );
-            }
+            auto stringFromFileReader = m_eSmry->get_unit( node );
+            return RiaStdStringTools::trimString( stringFromFileReader );
         }
     }
 

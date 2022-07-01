@@ -37,9 +37,9 @@ CAF_PDM_SOURCE_INIT( RimWellPathGroup, "WellPathGroup" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathGroup::RimWellPathGroup()
 {
-    CAF_PDM_InitObject( "Well Path Group", ":/WellPathGroup.svg", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name", "", "", "" );
+    CAF_PDM_InitObject( "Well Path Group", ":/WellPathGroup.svg" );
+    CAF_PDM_InitFieldNoDefault( &m_childWellPaths, "ChildWellPaths", "Child Well Paths" );
+    CAF_PDM_InitFieldNoDefault( &m_groupName, "GroupName", "Group Name" );
 
     CAF_PDM_InitField( &m_addValveAtConnection,
                        "AddValveAtConnection",
@@ -48,7 +48,7 @@ RimWellPathGroup::RimWellPathGroup()
                        "",
                        "Should an outlet valve be added to branches for MSW export?",
                        "" );
-    CAF_PDM_InitFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valve, "Valve", "Branch Outlet Valve" );
     m_valve = new RimWellPathValve;
 
     m_groupName.registerGetMethod( this, &RimWellPathGroup::createGroupName );
@@ -99,7 +99,7 @@ void RimWellPathGroup::addChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathGroup::childWellPaths() const
 {
-    return m_childWellPaths.childObjects();
+    return m_childWellPaths.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,7 +123,7 @@ bool RimWellPathGroup::hasChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 {
-    m_childWellPaths.removeChildObject( wellPath );
+    m_childWellPaths.removeChild( wellPath );
     RimWellPath::copyCompletionSettings( this, wellPath );
 
     if ( auto geometry = wellPath->wellPathGeometry(); geometry )
@@ -145,7 +145,7 @@ void RimWellPathGroup::removeChildWellPath( RimWellPath* wellPath )
 //--------------------------------------------------------------------------------------------------
 void RimWellPathGroup::removeAllChildWellPaths()
 {
-    auto childWellPaths = m_childWellPaths.childObjects();
+    auto childWellPaths = m_childWellPaths.children();
     for ( auto wellPath : childWellPaths )
     {
         removeChildWellPath( wellPath );
@@ -252,7 +252,7 @@ void RimWellPathGroup::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
 std::vector<const RigWellPath*> RimWellPathGroup::wellPathGeometries() const
 {
     std::vector<const RigWellPath*> allGeometries;
-    for ( const auto child : m_childWellPaths() )
+    for ( const auto& child : m_childWellPaths() )
     {
         if ( child->wellPathGeometry() )
         {
@@ -419,7 +419,7 @@ void RimWellPathGroup::makeMoreLevelsIfNecessary()
                 RimWellPathGroup* newGroup = new RimWellPathGroup;
                 for ( auto wellPath : wellPaths )
                 {
-                    m_childWellPaths().removeChildObject( wellPath );
+                    m_childWellPaths().removeChild( wellPath );
                     newGroup->addChildWellPath( wellPath );
                     newGroup->wellPathGeometry()->setUniqueStartAndEndIndex( childStartIndex,
                                                                              std::numeric_limits<size_t>::max() );

@@ -38,8 +38,8 @@ CAF_PDM_SOURCE_INIT( RicfSingleCaseReplace, "replaceCase" );
 //--------------------------------------------------------------------------------------------------
 RicfSingleCaseReplace::RicfSingleCaseReplace()
 {
-    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_newGridFile, "newGridFile", QString(), "New Grid File", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case ID" );
+    CAF_PDM_InitScriptableField( &m_newGridFile, "newGridFile", QString(), "New Grid File" );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -23,26 +23,19 @@
 
 #include "Commands/CorrelationPlotCommands/RicNewCorrelationPlotFeature.h"
 
-#include "RimEnsembleCurveSet.h"
-#include "RimEnsembleCurveSetCollection.h"
-#include "RimEnsembleStatisticsCase.h"
-#include "RimMainPlotCollection.h"
-#include "RimPlot.h"
+#include "RimEnsembleCurveInfoTextProvider.h"
 #include "RimPlotAxisAnnotation.h"
 #include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
-#include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
-#include "RimSummaryCaseCollection.h"
 #include "RimSummaryCurve.h"
-#include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotAnnotationTool.h"
+#include "RiuPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
 #include "RiuQwtPlotWheelZoomer.h"
-#include "RiuRimQwtPlotCurve.h"
+#include "RiuQwtPlotWidget.h"
 #include "RiuWidgetDragger.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -50,8 +43,6 @@
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
 #include "RiuQwtScalePicker.h"
-
-#include "RimProject.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
 #include "cafIconProvider.h"
@@ -77,51 +68,34 @@
 
 #include <limits>
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class EnsembleCurveInfoTextProvider : public IPlotCurveInfoTextProvider
-{
-public:
-    //--------------------------------------------------------------------------------------------------
-    ///
-    //--------------------------------------------------------------------------------------------------
-    QString curveInfoText( QwtPlotCurve* curve ) override
-    {
-        RiuRimQwtPlotCurve* riuCurve = dynamic_cast<RiuRimQwtPlotCurve*>( curve );
-        RimSummaryCurve*    sumCurve = nullptr;
-        if ( riuCurve )
-        {
-            sumCurve = dynamic_cast<RimSummaryCurve*>( riuCurve->ownerRimCurve() );
-        }
-
-        return sumCurve && sumCurve->summaryCaseY() ? sumCurve->summaryCaseY()->displayCaseName() : "";
-    }
-};
-static EnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
+static RimEnsembleCurveInfoTextProvider ensembleCurveInfoTextProvider;
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= nullptr*/ )
-    : RiuQwtPlotWidget( plot, parent )
+    : RiuSummaryPlot( plot )
 {
+    m_plotWidget = new RiuQwtPlotWidget( plot, parent );
+    m_plotWidget->setContextMenuPolicy( Qt::CustomContextMenu );
+    connect( m_plotWidget, SIGNAL( customContextMenuRequested( QPoint ) ), this, SLOT( showContextMenu( QPoint ) ) );
+
     // LeftButton for the zooming
-    m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
+    m_zoomerLeft = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis
-    m_zoomerRight = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerRight->setAxis( xTop, yRight );
+    m_zoomerRight = new RiuQwtPlotZoomer( m_plotWidget->qwtPlot()->canvas() );
+    m_zoomerRight->setAxes( QwtAxis::XTop, QwtAxis::YRight );
     m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerRight->initMousePattern( 1 );
 
     // MidButton for the panning
-    QwtPlotPanner* panner = new QwtPlotPanner( canvas() );
-    panner->setMouseButton( Qt::MidButton );
+    QwtPlotPanner* panner = new QwtPlotPanner( m_plotWidget->qwtPlot()->canvas() );
+    panner->setMouseButton( Qt::MiddleButton );
 
-    m_wheelZoomer = new RiuQwtPlotWheelZoomer( this );
+    m_wheelZoomer = new RiuQwtPlotWheelZoomer( m_plotWidget->qwtPlot() );
 
     connect( m_wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
     connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
@@ -129,12 +103,14 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
 
     setDefaults();
-    new RiuQwtCurvePointTracker( this, true, &ensembleCurveInfoTextProvider );
+    new RiuQwtCurvePointTracker( m_plotWidget->qwtPlot(), true, &ensembleCurveInfoTextProvider );
 
-    RiuQwtPlotTools::setCommonPlotBehaviour( this );
-    RiuQwtPlotTools::setDefaultAxes( this );
+    RiuQwtPlotTools::setCommonPlotBehaviour( m_plotWidget->qwtPlot() );
+    RiuQwtPlotTools::setDefaultAxes( m_plotWidget->qwtPlot() );
 
-    setInternalLegendVisible( true );
+    // PERFORMANCE NOTE
+    // Do not set internal legends visible, as this will cause a performance hit.
+    m_plotWidget->setInternalLegendVisible( false );
 
     m_annotationTool = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
 }
@@ -144,17 +120,19 @@ RiuSummaryQwtPlot::RiuSummaryQwtPlot( RimSummaryPlot* plot, QWidget* parent /*= 
 //--------------------------------------------------------------------------------------------------
 RiuSummaryQwtPlot::~RiuSummaryQwtPlot()
 {
+    delete m_plotWidget;
+    m_plotWidget = nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                          dateFormat,
-                                              const QString&                          timeFormat,
-                                              RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                              RiaQDateTimeTools::TimeFormatComponents timeComponents )
+void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                   dateFormat,
+                                              const QString&                   timeFormat,
+                                              RiaDefines::DateFormatComponents dateComponents,
+                                              RiaDefines::TimeFormatComponents timeComponents )
 {
-    RiuQwtPlotTools::enableDateBasedBottomXAxis( this, dateFormat, timeFormat, dateComponents, timeComponents );
+    RiuQwtPlotTools::enableDateBasedBottomXAxis( m_plotWidget->qwtPlot(), dateFormat, timeFormat, dateComponents, timeComponents );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -162,16 +140,8 @@ void RiuSummaryQwtPlot::useDateBasedTimeAxis( const QString&                    
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 {
-    setAxisScaleEngine( QwtPlot::xBottom, new QwtLinearScaleEngine() );
-    setAxisScaleDraw( QwtPlot::xBottom, new QwtScaleDraw() );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithmic )
-{
-    if ( m_wheelZoomer ) m_wheelZoomer->setAxisIsLogarithmic( axis, logarithmic );
+    m_plotWidget->qwtPlot()->setAxisScaleEngine( QwtAxis::XBottom, new QwtLinearScaleEngine() );
+    m_plotWidget->qwtPlot()->setAxisScaleDraw( QwtAxis::XBottom, new QwtScaleDraw() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -180,7 +150,7 @@ void RiuSummaryQwtPlot::setAxisIsLogarithmic( QwtPlot::Axis axis, bool logarithm
 void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
 {
     RiuPlotAnnotationTool::Orientation orientation = RiuPlotAnnotationTool::Orientation::HORIZONTAL;
-    if ( axisProperties->plotAxisType() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+    if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
         orientation = RiuPlotAnnotationTool::Orientation::VERTICAL;
     }
@@ -190,7 +160,7 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
     {
         if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
         {
-            m_annotationTool->attachAnnotationLine( this,
+            m_annotationTool->attachAnnotationLine( m_plotWidget->qwtPlot(),
                                                     annotation->color(),
                                                     annotation->name(),
                                                     annotation->value(),
@@ -198,170 +168,13 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
         }
         else if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::RANGE )
         {
-            m_annotationTool->attachAnnotationRange( this,
+            m_annotationTool->attachAnnotationRange( m_plotWidget->qwtPlot(),
                                                      annotation->color(),
                                                      annotation->name(),
                                                      annotation->rangeStart(),
                                                      annotation->rangeEnd(),
                                                      orientation );
         }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuSummaryQwtPlot::contextMenuEvent( QContextMenuEvent* event )
-{
-    QMenu                      menu;
-    caf::CmdFeatureMenuBuilder menuBuilder;
-
-    emit plotSelected( false );
-
-    menuBuilder << "RicShowPlotDataFeature";
-    menuBuilder << "RicSavePlotTemplateFeature";
-
-    QwtPlotItem* closestItem       = nullptr;
-    double       distanceFromClick = std::numeric_limits<double>::infinity();
-    int          closestCurvePoint = -1;
-    QPoint       globalPos         = event->globalPos();
-    QPoint       localPos          = this->canvas()->mapFromGlobal( globalPos );
-
-    findClosestPlotItem( localPos, &closestItem, &closestCurvePoint, &distanceFromClick );
-    if ( closestItem && closestCurvePoint >= 0 )
-    {
-        RiuRimQwtPlotCurve* plotCurve = dynamic_cast<RiuRimQwtPlotCurve*>( closestItem );
-        if ( plotCurve )
-        {
-            RimSummaryCurve* summaryCurve = dynamic_cast<RimSummaryCurve*>( plotCurve->ownerRimCurve() );
-            if ( summaryCurve && closestCurvePoint < (int)summaryCurve->timeStepsY().size() )
-            {
-                std::time_t timeStep = summaryCurve->timeStepsY()[closestCurvePoint];
-
-                RimSummaryCaseCollection* ensemble = nullptr;
-                QString                   clickedQuantityName;
-                QStringList               allQuantityNamesInPlot;
-
-                RimEnsembleCurveSet* clickedEnsembleCurveSet = nullptr;
-                summaryCurve->firstAncestorOrThisOfType( clickedEnsembleCurveSet );
-
-                bool curveClicked = distanceFromClick < 50;
-
-                if ( clickedEnsembleCurveSet )
-                {
-                    ensemble = clickedEnsembleCurveSet->summaryCaseCollection();
-                    if ( ensemble && ensemble->isEnsemble() )
-                    {
-                        clickedQuantityName = QString::fromStdString( clickedEnsembleCurveSet->summaryAddress().uiText() );
-                    }
-                }
-
-                {
-                    auto summaryCase = summaryCurve->summaryCaseY();
-                    if ( summaryCase )
-                    {
-                        int      summaryCaseId = summaryCase->caseId();
-                        QVariant summaryCaseIdVariant( summaryCaseId );
-                        auto     modelName = summaryCase->nativeCaseName();
-
-                        menuBuilder.addCmdFeatureWithUserData( "RicImportGridModelFromSummaryCurveFeature",
-                                                               QString( "Open Grid Model '%1'" ).arg( modelName ),
-                                                               summaryCaseIdVariant );
-                    }
-                }
-
-                if ( !curveClicked )
-                {
-                    RimSummaryPlot*                   summaryPlot = static_cast<RimSummaryPlot*>( plotDefinition() );
-                    std::vector<RimEnsembleCurveSet*> allCurveSetsInPlot;
-                    summaryPlot->descendantsOfType( allCurveSetsInPlot );
-                    for ( auto curveSet : allCurveSetsInPlot )
-                    {
-                        allQuantityNamesInPlot.push_back( QString::fromStdString( curveSet->summaryAddress().uiText() ) );
-                    }
-                }
-                else
-                {
-                    allQuantityNamesInPlot.push_back( clickedQuantityName );
-                }
-
-                if ( !clickedQuantityName.isEmpty() || !allQuantityNamesInPlot.isEmpty() )
-                {
-                    if ( ensemble && ensemble->isEnsemble() )
-                    {
-                        EnsemblePlotParams params( ensemble, allQuantityNamesInPlot, clickedQuantityName, timeStep );
-                        QVariant           variant = QVariant::fromValue( params );
-
-                        menuBuilder.addCmdFeatureWithUserData( "RicNewAnalysisPlotFeature", "New Analysis Plot", variant );
-
-                        QString subMenuName = "Create Correlation Plot";
-                        if ( curveClicked )
-                        {
-                            subMenuName = "Create Correlation Plot From Curve Point";
-                        }
-                        menuBuilder.subMenuStart( subMenuName, *caf::IconProvider( ":/CorrelationPlots16x16.png" ).icon() );
-
-                        {
-                            if ( curveClicked )
-                            {
-                                menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationPlotFeature",
-                                                                       "New Tornado Plot",
-                                                                       variant );
-                            }
-                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationMatrixPlotFeature",
-                                                                   "New Matrix Plot",
-                                                                   variant );
-                            menuBuilder.addCmdFeatureWithUserData( "RicNewCorrelationReportPlotFeature",
-                                                                   "New Report Plot",
-                                                                   variant );
-                            if ( curveClicked )
-                            {
-                                menuBuilder.subMenuStart( "Cross Plots",
-                                                          *caf::IconProvider( ":/CorrelationCrossPlot16x16.png" ).icon() );
-                                std::vector<std::pair<RigEnsembleParameter, double>> ensembleParameters =
-                                    ensemble->parameterCorrelations( clickedEnsembleCurveSet->summaryAddress(), timeStep );
-                                std::sort( ensembleParameters.begin(),
-                                           ensembleParameters.end(),
-                                           []( const std::pair<RigEnsembleParameter, double>& lhs,
-                                               const std::pair<RigEnsembleParameter, double>& rhs ) {
-                                               return std::fabs( lhs.second ) > std::fabs( rhs.second );
-                                           } );
-
-                                for ( const auto& param : ensembleParameters )
-                                {
-                                    if ( std::fabs( param.second ) >= 1.0e-6 )
-                                    {
-                                        params.ensembleParameter = param.first.name;
-                                        variant                  = QVariant::fromValue( params );
-                                        menuBuilder.addCmdFeatureWithUserData( "RicNewParameterResultCrossPlotFeature",
-                                                                               QString( "New Cross Plot Against %1 "
-                                                                                        "(Correlation: %2)" )
-                                                                                   .arg( param.first.name )
-                                                                                   .arg( param.second, 5, 'f', 2 ),
-                                                                               variant );
-                                    }
-                                }
-                                menuBuilder.subMenuEnd();
-                            }
-                        }
-                        menuBuilder.subMenuEnd();
-                    }
-                }
-            }
-        }
-    }
-
-    menuBuilder.appendToMenu( &menu );
-
-    if ( menu.actions().size() > 0 )
-    {
-        menu.exec( event->globalPos() );
-
-        // Parts of progress dialog GUI can be present after menu has closed related to
-        // RicImportGridModelFromSummaryCurveFeature. Make sure the plot is updated, and call processEvents() to make
-        // sure all GUI events are processed
-        update();
-        QApplication::processEvents();
     }
 }
 
@@ -398,5 +211,13 @@ void RiuSummaryQwtPlot::endZoomOperations()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::onZoomedSlot()
 {
-    emit plotZoomed();
+    emit m_plotWidget->plotZoomed();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotWidget* RiuSummaryQwtPlot::plotWidget() const
+{
+    return m_plotWidget;
 }

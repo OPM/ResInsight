@@ -27,10 +27,9 @@ CAF_PDM_SOURCE_INIT( RimSummaryCrossPlot, "SummaryCrossPlot" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlot::RimSummaryCrossPlot()
+    : RimSummaryPlot( true )
 {
-    CAF_PDM_InitObject( "Summary Cross Plot", ":/SummaryXPlotLight16x16.png", "", "" );
-
-    setAsCrossPlot();
+    CAF_PDM_InitObject( "Summary Cross Plot", ":/SummaryXPlotLight16x16.png" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -38,5 +37,5 @@ RimSummaryCrossPlot::RimSummaryCrossPlot()
 //--------------------------------------------------------------------------------------------------
 RimSummaryPlotSourceStepping* RimSummaryCrossPlot::sourceSteppingObjectForKeyEventHandling() const
 {
-    return summaryCurveCollection()->sourceSteppingObject( RimSummaryPlotSourceStepping::UNION_X_Y_AXIS );
+    return summaryCurveCollection()->sourceSteppingObject( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
 }

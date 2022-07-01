@@ -25,10 +25,12 @@
 
 #include "RimFlowCharacteristicsPlot.h"
 
+#include "RiuPlotCurveSymbol.h"
 #include "RiuQwtPlotCurve.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
+#include "RiuQwtSymbol.h"
 #include "RiuResultQwtPlot.h"
 
 #include "cvfColor3.h"
@@ -39,13 +41,15 @@
 #include "qwt_legend.h"
 #include "qwt_plot.h"
 #include "qwt_plot_zoomer.h"
-#include "qwt_symbol.h"
+#include "qwt_text.h"
 
 #include <QBoxLayout>
 #include <QContextMenuEvent>
 #include <QDateTime>
 #include <QLabel>
 #include <QMenu>
+
+#include <cmath> // Needed for HUGE_VAL on Linux
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -95,20 +99,20 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
                                                             caf::FontTools::RelativeSize::Small );
 
     {
-        QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtPlot::xBottom );
+        QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtAxis::XBottom );
         auto    font      = axisTitle.font();
         font.setPointSize( legendFontSize );
         axisTitle.setFont( font );
         axisTitle.setText( "Dimensionless Time" );
-        m_sweepEffPlot->setAxisTitle( QwtPlot::xBottom, axisTitle );
+        m_sweepEffPlot->setAxisTitle( QwtAxis::XBottom, axisTitle );
     }
     {
-        QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtPlot::yLeft );
+        QwtText axisTitle = m_sweepEffPlot->axisTitle( QwtAxis::YLeft );
         auto    font      = axisTitle.font();
         font.setPointSize( legendFontSize );
         axisTitle.setFont( font );
         axisTitle.setText( "Sweep Efficiency" );
-        m_sweepEffPlot->setAxisTitle( QwtPlot::yLeft, axisTitle );
+        m_sweepEffPlot->setAxisTitle( QwtAxis::YLeft, axisTitle );
     }
 
     RiuQwtPlotTools::setCommonPlotBehaviour( m_flowCapVsStorageCapPlot );
@@ -117,20 +121,20 @@ RiuFlowCharacteristicsPlot::RiuFlowCharacteristicsPlot( RimFlowCharacteristicsPl
     m_flowCapVsStorageCapPlot->setTitle( "Flow Capacity vs Storage Capacity" );
 
     {
-        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle( QwtPlot::xBottom );
+        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle( QwtAxis::XBottom );
         auto    font      = axisTitle.font();
         font.setPointSize( legendFontSize );
         axisTitle.setFont( font );
         axisTitle.setText( "Storage Capacity [C]" );
-        m_flowCapVsStorageCapPlot->setAxisTitle( QwtPlot::xBottom, axisTitle );
+        m_flowCapVsStorageCapPlot->setAxisTitle( QwtAxis::XBottom, axisTitle );
     }
     {
-        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle( QwtPlot::yLeft );
+        QwtText axisTitle = m_flowCapVsStorageCapPlot->axisTitle( QwtAxis::YLeft );
         auto    font      = axisTitle.font();
         font.setPointSize( legendFontSize );
         axisTitle.setFont( font );
         axisTitle.setText( "Flow Capacity [F]" );
-        m_flowCapVsStorageCapPlot->setAxisTitle( QwtPlot::yLeft, axisTitle );
+        m_flowCapVsStorageCapPlot->setAxisTitle( QwtAxis::YLeft, axisTitle );
     }
 }
 
@@ -194,9 +198,7 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( QwtPlot*         plot,
 {
     auto curve = createEmptyCurve( plot, curveName, color );
 
-    QwtSymbol::Style style  = QwtSymbol::Diamond;
-    QwtSymbol*       symbol = new QwtSymbol( style );
-
+    RiuPlotCurveSymbol* symbol = new RiuQwtSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_DIAMOND );
     symbol->setSize( 15, 15 );
     symbol->setColor( color );
 
@@ -221,7 +223,7 @@ void RiuFlowCharacteristicsPlot::addCurveWithLargeSymbol( QwtPlot*         plot,
 RiuQwtPlotCurve*
     RiuFlowCharacteristicsPlot::createEmptyCurve( QwtPlot* plot, const QString& curveName, const QColor& curveColor )
 {
-    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( curveName );
+    RiuQwtPlotCurve* plotCurve = new RiuQwtPlotCurve( nullptr, curveName );
 
     plotCurve->setTitle( curveName );
     plotCurve->setPen( QPen( curveColor ) );
@@ -240,7 +242,8 @@ void RiuFlowCharacteristicsPlot::addFlowCapStorageCapCurve( const QDateTime&    
 
     RiuQwtPlotCurve* plotCurve =
         createEmptyCurve( m_flowCapVsStorageCapPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
-    plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, false );
+    bool useLogarithmicScale = false;
+    plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, useLogarithmicScale );
     m_flowCapVsStorageCapPlot->replot();
 }
 
@@ -254,7 +257,8 @@ void RiuFlowCharacteristicsPlot::addSweepEfficiencyCurve( const QDateTime&      
     CVF_ASSERT( !m_dateToColorMap.empty() );
 
     RiuQwtPlotCurve* plotCurve = createEmptyCurve( m_sweepEffPlot, dateTime.toString(), m_dateToColorMap[dateTime] );
-    plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, false );
+    bool             useLogarithmicScale = false;
+    plotCurve->setSamplesFromXValuesAndYValues( xVals, yVals, useLogarithmicScale );
 
     m_sweepEffPlot->replot();
 }
@@ -278,8 +282,8 @@ void RiuFlowCharacteristicsPlot::removeAllCurves()
 //--------------------------------------------------------------------------------------------------
 void zoomAllInPlot( QwtPlot* plot )
 {
-    plot->setAxisAutoScale( QwtPlot::xBottom, true );
-    plot->setAxisAutoScale( QwtPlot::yLeft, true );
+    plot->setAxisAutoScale( QwtAxis::XBottom, true );
+    plot->setAxisAutoScale( QwtAxis::YLeft, true );
     plot->replot();
 }
 

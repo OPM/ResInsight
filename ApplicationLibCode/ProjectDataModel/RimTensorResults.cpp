@@ -22,6 +22,7 @@
 #include "RimGeoMechCase.h"
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
+#include "RimRegularLegendConfig.h"
 
 #include "RigFemPartResultsCollection.h"
 #include "RigGeoMechCaseData.h"
@@ -60,29 +61,29 @@ void AppEnum<RimTensorResults::ScaleMethod>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimTensorResults::RimTensorResults()
 {
-    CAF_PDM_InitObject( "Element Tensor Results", ":/CellResult.png", "", "" );
+    CAF_PDM_InitObject( "Element Tensor Results", ":/CellResult.png" );
 
-    CAF_PDM_InitFieldNoDefault( &arrowColorLegendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &arrowColorLegendConfig, "LegendDefinition", "Color Legend" );
     this->arrowColorLegendConfig = new RimRegularLegendConfig();
     arrowColorLegendConfig.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_resultFieldName, "ResultVariable", QString( "ST" ), "Value", "", "", "" );
+    CAF_PDM_InitField( &m_resultFieldName, "ResultVariable", QString( "ST" ), "Value" );
     m_resultFieldName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_resultFieldNameUiField, "ResultVariableUI", QString( "ST" ), "Value", "", "", "" );
+    CAF_PDM_InitField( &m_resultFieldNameUiField, "ResultVariableUI", QString( "ST" ), "Value" );
     m_resultFieldNameUiField.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_showTensors, "ShowTensors", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_showTensors, "ShowTensors", false, "" );
 
-    CAF_PDM_InitField( &m_principal1, "Principal1", true, "Principal 1", "", "", "" );
-    CAF_PDM_InitField( &m_principal2, "Principal2", true, "Principal 2", "", "", "" );
-    CAF_PDM_InitField( &m_principal3, "Principal3", true, "Principal 3", "", "", "" );
+    CAF_PDM_InitField( &m_principal1, "Principal1", true, "Principal 1" );
+    CAF_PDM_InitField( &m_principal2, "Principal2", true, "Principal 2" );
+    CAF_PDM_InitField( &m_principal3, "Principal3", true, "Principal 3" );
 
-    CAF_PDM_InitField( &m_threshold, "Threshold", 0.0f, "Threshold", "", "", "" );
+    CAF_PDM_InitField( &m_threshold, "Threshold", 0.0f, "Threshold" );
 
-    CAF_PDM_InitFieldNoDefault( &m_vectorColor, "VectorColor", "Color", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_scaleMethod, "ScaleMethod", "Scale Method", "", "", "" );
-    CAF_PDM_InitField( &m_sizeScale, "SizeScale", 1.0f, "Size Scale", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_vectorColor, "VectorColor", "Color" );
+    CAF_PDM_InitFieldNoDefault( &m_scaleMethod, "ScaleMethod", "Scale Method" );
+    CAF_PDM_InitField( &m_sizeScale, "SizeScale", 1.0f, "Size Scale" );
     CAF_PDM_InitField( &m_rangeMode,
                        "RangeType",
                        RimRegularLegendConfig::RangeModeEnum( RimRegularLegendConfig::RangeModeType::AUTOMATIC_ALLTIMESTEPS ),
@@ -289,11 +290,9 @@ caf::PdmFieldHandle* RimTensorResults::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                       bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimTensorResults::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
-    *useOptionsOnly = true;
 
     if ( fieldNeedingOptions == &m_resultFieldNameUiField )
     {

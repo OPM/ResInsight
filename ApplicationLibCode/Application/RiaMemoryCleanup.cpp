@@ -47,14 +47,14 @@ CAF_PDM_SOURCE_INIT( RiaMemoryCleanup, "RiaMemoryCleanup" );
 RiaMemoryCleanup::RiaMemoryCleanup()
 {
     // clang-format off
-    CAF_PDM_InitFieldNoDefault(&m_case, "DataCase", "Case", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_case, "DataCase", "Case");
     m_case = nullptr;
 
-    CAF_PDM_InitFieldNoDefault(&m_resultsToDelete, "ResultsToDelete", "Results In Memory", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_resultsToDelete, "ResultsToDelete", "Results In Memory");
     m_resultsToDelete.uiCapability()->setUiLabelPosition(caf::PdmUiItemInfo::TOP);
     m_resultsToDelete.uiCapability()->setUiEditorTypeName(caf::PdmUiTreeSelectionEditor::uiEditorTypeName());
 
-    CAF_PDM_InitFieldNoDefault(&m_performDelete, "ClearSelectedData", "", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_performDelete, "ClearSelectedData", "");
     caf::PdmUiPushButtonEditor::configureEditorForField(&m_performDelete);
     // clang-format on
 }
@@ -215,8 +215,7 @@ void RiaMemoryCleanup::fieldChangedByUi( const caf::PdmFieldHandle* changedField
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                       bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RiaMemoryCleanup::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_case )

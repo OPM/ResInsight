@@ -34,19 +34,19 @@ CAF_PDM_SOURCE_INIT( RimCompletionTemplateCollection, "CompletionTemplateCollect
 //--------------------------------------------------------------------------------------------------
 RimCompletionTemplateCollection::RimCompletionTemplateCollection()
 {
-    CAF_PDM_InitObject( "Completion Templates", ":/CompletionsSymbol16x16.png", "", "" );
+    CAF_PDM_InitObject( "Completion Templates", ":/CompletionsSymbol16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureTemplates, "FractureTemplates", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureTemplates, "FractureTemplates", "" );
     m_fractureTemplates = new RimFractureTemplateCollection;
     m_fractureTemplates->addDefaultEllipseTemplate();
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplates, "StimPlanModelTemplates", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelTemplates, "StimPlanModelTemplates", "" );
     m_stimPlanModelTemplates = new RimStimPlanModelTemplateCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_valveTemplates, "ValveTemplates", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_valveTemplates, "ValveTemplates", "" );
     m_valveTemplates = new RimValveTemplateCollection;
 
-    CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatisticsCollection, "FractureGroupStatisticsCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fractureGroupStatisticsCollection, "FractureGroupStatisticsCollection", "" );
     m_fractureGroupStatisticsCollection = new RimEnsembleFractureStatisticsCollection;
 }
 

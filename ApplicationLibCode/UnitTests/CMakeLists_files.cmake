@@ -60,7 +60,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimSummaryCaseCollection-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifActiveCellsReader-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifCsvDataTableFormatter-Test.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryCurveAnalyzer-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryAddressAnalyzer-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStdStringTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaInterpolationTools-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifWellMeasurementReader-Test.cpp
@@ -81,6 +81,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/StructGridInterface-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/opm-summary-Test.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseTextFileReader-Test.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryStringTools-Test.cpp
 )
 
 if(RESINSIGHT_ENABLE_GRPC)

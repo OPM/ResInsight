@@ -82,7 +82,7 @@ void RifCalculatedSummaryCurveReader::buildMetaData()
 {
     m_allResultAddresses.clear();
 
-    for ( RimSummaryCalculation* calc : m_calculationCollection->calculations() )
+    for ( RimUserDefinedCalculation* calc : m_calculationCollection->calculations() )
     {
         m_allResultAddresses.insert(
             RifEclipseSummaryAddress::calculatedAddress( calc->description().toStdString(), calc->id() ) );
@@ -97,7 +97,7 @@ RimSummaryCalculation*
 {
     if ( m_calculationCollection && resultAddress.category() == RifEclipseSummaryAddress::SUMMARY_CALCULATED )
     {
-        return m_calculationCollection->findCalculationById( resultAddress.id() );
+        return dynamic_cast<RimSummaryCalculation*>( m_calculationCollection->findCalculationById( resultAddress.id() ) );
     }
 
     return nullptr;

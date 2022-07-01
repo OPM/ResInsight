@@ -18,6 +18,8 @@
 
 #include "RiuTextContentFrame.h"
 
+#include "RiaTextStringTools.h"
+
 #include "RiaFontCache.h"
 #include "RiaPreferences.h"
 
@@ -28,8 +30,6 @@
 #include <QTextDocument>
 
 #include <cmath>
-
-//#include <mathml/qwt_mathml_text_engine.h>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -92,9 +92,7 @@ QSize RiuTextContentFrame::minimumSizeHint() const
 //--------------------------------------------------------------------------------------------------
 void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
 {
-    QFont font = this->font();
-    font.setPixelSize( caf::FontTools::pointSizeToPixelSize( RiaPreferences::current()->defaultPlotFontSize() ) );
-    this->setFont( font );
+    updateFontSize();
 
     QColor textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
 
@@ -126,18 +124,6 @@ void RiuTextContentFrame::renderTo( QPainter* painter, const QRect& targetRect )
         painter->translate( QPoint( layout.margins.left(), layout.margins.top() + layout.lineSpacing * 2 ) );
         painter->setPen( QPen( textColor ) );
 
-        /*
-        QwtMathMLTextEngine textEngine = QwtMathMLTextEngine();
-        textEngine.draw( painter,
-                         QRect( targetRect.left() + layout.margins.left(),
-                                targetRect.top() + layout.margins.top() + layout.lineSpacing * 2,
-                                targetRect.width() - layout.margins.left() - layout.margins.right(),
-                                targetRect.height() - layout.margins.top() - layout.margins.bottom() -
-                                    layout.margins.top() + layout.lineSpacing * 2 ),
-                         Qt::AlignLeft,
-                         m_text );
-
-        */
         QTextDocument td;
         td.setDocumentMargin( 0.0 );
         td.setDefaultFont( this->font() );
@@ -168,7 +154,7 @@ void RiuTextContentFrame::paintEvent( QPaintEvent* e )
 void RiuTextContentFrame::layoutInfo( LayoutInfo* layout ) const
 {
     QFontMetrics fontMetrics( this->font() );
-    QStringList  titleLines = m_text.split( "\n", QString::SkipEmptyParts );
+    QStringList  titleLines = RiaTextStringTools::splitSkipEmptyParts( m_text, "\n" );
 
     layout->charHeight        = fontMetrics.height();
     layout->charAscent        = fontMetrics.ascent();

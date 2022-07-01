@@ -31,9 +31,9 @@ CAF_PDM_SOURCE_INIT( RimSummaryCrossPlotCollection, "SummaryCrossPlotCollection"
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection::RimSummaryCrossPlotCollection()
 {
-    CAF_PDM_InitObject( "Summary Cross Plots", ":/SummaryXPlotsLight16x16.png", "", "" );
+    CAF_PDM_InitObject( "Summary Cross Plots", ":/SummaryXPlotsLight16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlots, "SummaryCrossPlots", "Summary Cross Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlots, "SummaryCrossPlots", "Summary Cross Plots" );
     m_summaryCrossPlots.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_summaryCrossPlots );
 }
@@ -50,7 +50,7 @@ RimSummaryCrossPlotCollection::~RimSummaryCrossPlotCollection()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCrossPlotCollection::deleteAllPlots()
 {
-    m_summaryCrossPlots.deleteAllChildObjects();
+    m_summaryCrossPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ void RimSummaryCrossPlotCollection::deleteAllPlots()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryPlot*> RimSummaryCrossPlotCollection::plots() const
 {
-    return m_summaryCrossPlots.childObjects();
+    return m_summaryCrossPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,7 +107,7 @@ void RimSummaryCrossPlotCollection::insertPlot( RimSummaryPlot* plot, size_t ind
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCrossPlotCollection::removePlot( RimSummaryPlot* plot )
 {
-    m_summaryCrossPlots.removeChildObject( plot );
+    m_summaryCrossPlots.removeChild( plot );
     updateAllRequiredEditors();
 }
 

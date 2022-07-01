@@ -26,12 +26,12 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
-class QwtPlot;
-class QwtPlotCurve;
 class RimSummaryCase;
 class RimSummaryCurve;
 class RimSummaryCrossPlot;
 class RimSummaryPlot;
+class RiuPlotWidget;
+class RiuPlotCurve;
 class QKeyEvent;
 
 //==================================================================================================
@@ -53,23 +53,22 @@ public:
     void             setCurveForSourceStepping( RimSummaryCurve* curve );
     RimSummaryCurve* curveForSourceStepping() const;
 
-    RimSummaryPlotSourceStepping*
-        sourceSteppingObject( RimSummaryPlotSourceStepping::SourceSteppingType sourceSteppingType ) const;
+    RimSummaryPlotSourceStepping* sourceSteppingObject( RimSummaryDataSourceStepping::Axis sourceSteppingType ) const;
 
     std::vector<RimSummaryCurve*> curves() const;
-    std::vector<RimSummaryCurve*>
-        curvesForSourceStepping( RimSummaryPlotSourceStepping::SourceSteppingType steppingType ) const;
+    std::vector<RimSummaryCurve*> curvesForSourceStepping( RimSummaryDataSourceStepping::Axis steppingType ) const;
 
     void setCurveAsTopZWithinCategory( RimSummaryCurve* curve );
 
     void loadDataAndUpdate( bool updateParentPlot );
 
 private:
-    void setParentQwtPlotAndReplot( QwtPlot* plot );
-    void detachQwtCurves();
-    void reattachQwtCurves();
+    void setParentPlotAndReplot( RiuPlotWidget* plot );
+    void setParentPlotNoReplot( RiuPlotWidget* plot );
+    void detachPlotCurves();
+    void reattachPlotCurves();
 
-    RimSummaryCurve* findRimCurveFromQwtCurve( const QwtPlotCurve* qwtCurve ) const;
+    RimSummaryCurve* findRimCurveFromPlotCurve( const RiuPlotCurve* curve ) const;
 
     void addCurve( RimSummaryCurve* curve );
     void insertCurve( RimSummaryCurve* curve, size_t index );
@@ -99,6 +98,9 @@ private:
     void onCurvesReordered( const SignalEmitter* emitter );
     void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                          std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+
+    void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
+                            std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
 private:
     friend class RimSummaryCrossPlot;

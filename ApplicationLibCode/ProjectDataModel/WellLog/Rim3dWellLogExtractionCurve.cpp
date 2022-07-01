@@ -64,27 +64,27 @@ CAF_PDM_SOURCE_INIT( Rim3dWellLogExtractionCurve, "Rim3dWellLogExtractionCurve" 
 //--------------------------------------------------------------------------------------------------
 Rim3dWellLogExtractionCurve::Rim3dWellLogExtractionCurve()
 {
-    CAF_PDM_InitObject( "3d Well Log Extraction Curve", ":/WellLogCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "3d Well Log Extraction Curve", ":/WellLogCurve16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
     m_case = nullptr;
 
-    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", -1, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", -1, "Time Step" );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_eclipseResultDefinition = new RimEclipseResultDefinition;
     m_eclipseResultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Result Type" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "CurveGeomechResult", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "CurveGeomechResult", "" );
     m_geomResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_geomResultDefinition = new RimGeoMechResultDefinition;
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameConfig, "NameConfig", "" );
     m_nameConfig = new RimWellLogExtractionCurveNameConfig();
 }
 
@@ -457,11 +457,11 @@ void Rim3dWellLogExtractionCurve::fieldChangedByUi( const caf::PdmFieldHandle* c
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    Rim3dWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    Rim3dWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = Rim3dWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = Rim3dWellLogCurve::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_case )
     {

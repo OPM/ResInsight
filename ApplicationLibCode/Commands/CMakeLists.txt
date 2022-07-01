@@ -41,6 +41,7 @@ set(COMMAND_REFERENCED_CMAKE_FILES
     WellPathCommands/CMakeLists_files.cmake
     PlotTemplateCommands/CMakeLists_files.cmake
     FractureCommands/CMakeLists_files.cmake
+    PlotBuilderCommands/CMakeLists_files.cmake
 )
 
 # Include source file lists from *.cmake files
@@ -66,6 +67,37 @@ target_include_directories(
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common
 )
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(
+    Commands
+    PRIVATE -Wall
+            -Wno-unused-parameter
+            -Wno-reorder
+            -Wno-parentheses
+            -Wno-switch
+            -Wno-delete-abstract-non-virtual-dtor
+            -Wno-undefined-var-template
+            -Wno-invalid-source-encoding
+            -Wno-enum-compare
+            -Wno-call-to-pure-virtual-from-ctor-dtor
+            -Wno-unused-variable
+            -Wno-unused-private-field
+            -Wno-unused-lambda-capture
+            -Wno-delete-non-abstract-non-virtual-dtor
+            -Wno-braced-scalar-init
+            -Wno-tautological-constant-out-of-range-compare
+            -Wno-undefined-var-template
+  )
+endif()
+
+if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
+  if(MSVC)
+    target_compile_options(Commands PRIVATE /WX)
+  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_compile_options(Commands PRIVATE -Werror)
+  endif()
+endif()
+
 if(MSVC)
   # The following warnings are supposed to be used in ResInsight, but
   # temporarily disabled to avoid too much noise warning C4245: 'return':
@@ -76,13 +108,7 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
-
-  if(Qt5Core_VERSION_STRING GREATER_EQUAL 5.10)
-    # Disable warning for deprecated functions in newer versions of Qt
-    # https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-3-c4996?view=msvc-160
-    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
-  endif()
+  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4573")
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only

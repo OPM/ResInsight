@@ -38,39 +38,39 @@ CAF_PDM_SOURCE_INIT( RimParameterGroup, "ParameterGroup" );
 //--------------------------------------------------------------------------------------------------
 RimParameterGroup::RimParameterGroup()
 {
-    CAF_PDM_InitObject( "Parameter Group", ":/Bullet.png", "", "" );
+    CAF_PDM_InitObject( "Parameter Group", ":/Bullet.png" );
     uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_parameters, "Parameters", "Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_parameters, "Parameters", "Parameters" );
     m_parameters.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_parameters.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_parameters.uiCapability()->setCustomContextMenuEnabled( true );
     m_parameters.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
     m_name.uiCapability()->setUiHidden( true );
     m_name.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_label, "Label", "Label", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_label, "Label", "Label" );
     m_label.uiCapability()->setUiHidden( true );
     m_label.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_comment, "Comment", "Comment", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_comment, "Comment", "Comment" );
     m_comment.uiCapability()->setUiHidden( true );
     m_comment.uiCapability()->setUiReadOnly( true );
     m_comment.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitFieldNoDefault( &m_showExpanded, "Expanded", "Expanded", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_showExpanded, "Expanded", "Expanded" );
     m_showExpanded.uiCapability()->setUiHidden( true );
     m_showExpanded.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_labelProxy, "LabelProxy", "Label Proxy", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_labelProxy, "LabelProxy", "Label Proxy" );
     m_labelProxy.registerGetMethod( this, &RimParameterGroup::labelOrName );
     m_labelProxy.uiCapability()->setUiReadOnly( true );
     m_labelProxy.uiCapability()->setUiHidden( true );
     m_labelProxy.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_lists, "ParameterLists", "Parameter Lists", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_lists, "ParameterLists", "Parameter Lists" );
     m_lists.uiCapability()->setUiHidden( true );
     m_lists.uiCapability()->setUiTreeHidden( true );
     m_lists.uiCapability()->setUiTreeChildrenHidden( true );
@@ -280,7 +280,7 @@ std::vector<RimGenericParameter*> RimParameterGroup::parameters() const
 {
     std::vector<RimGenericParameter*> retParams;
 
-    for ( const auto& p : m_parameters.childObjects() )
+    for ( const auto& p : m_parameters.children() )
     {
         if ( isListParameter( p->name() ) ) continue;
         retParams.push_back( p );
@@ -288,7 +288,7 @@ std::vector<RimGenericParameter*> RimParameterGroup::parameters() const
 
     for ( const auto& list : m_lists )
     {
-        retParams.push_back( list->getAsListParameter( m_parameters.childObjects() ) );
+        retParams.push_back( list->getAsListParameter( m_parameters.children() ) );
     }
 
     return retParams;
@@ -324,7 +324,7 @@ void RimParameterGroup::setParameterValue( QString name, QString value )
 //--------------------------------------------------------------------------------------------------
 RimGenericParameter* RimParameterGroup::parameter( QString name ) const
 {
-    for ( auto& p : m_parameters.childObjects() )
+    for ( auto& p : m_parameters.children() )
     {
         if ( p->name() == name )
         {

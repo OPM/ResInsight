@@ -38,8 +38,8 @@ CAF_PDM_SOURCE_INIT( RicfCreateStatisticsCaseResult, "createStatisticsCaseResult
 //--------------------------------------------------------------------------------------------------
 RicfCreateStatisticsCaseResult::RicfCreateStatisticsCaseResult( int caseId /*= -1*/ )
 {
-    CAF_PDM_InitObject( "statistics_case_result", "", "", "" );
-    CAF_PDM_InitField( &this->caseId, "caseId", caseId, "", "", "", "" );
+    CAF_PDM_InitObject( "statistics_case_result" );
+    CAF_PDM_InitField( &this->caseId, "caseId", caseId, "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfCreateStatisticsCase, "createStatisticsCase" );
@@ -49,7 +49,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateStatisticsCase, "createStatisticsCase" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateStatisticsCase::RicfCreateStatisticsCase()
 {
-    CAF_PDM_InitScriptableField( &m_caseGroupId, "caseGroupId", -1, "Case Group Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseGroupId, "caseGroupId", -1, "Case Group Id" );
 }
 
 //--------------------------------------------------------------------------------------------------

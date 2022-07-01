@@ -61,9 +61,9 @@ CAF_PDM_SOURCE_INIT( RimFaultInViewCollection, "Faults" );
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection::RimFaultInViewCollection()
 {
-    CAF_PDM_InitObject( "Faults", ":/draw_style_faults_24x24.png", "", "" );
+    CAF_PDM_InitObject( "Faults", ":/draw_style_faults_24x24.png" );
 
-    CAF_PDM_InitField( &showFaultCollection, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &showFaultCollection, "Active", true, "Active" );
     showFaultCollection.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitField( &showFaultFaces, "ShowFaultFaces", true, "Show Defined faces" );
@@ -75,7 +75,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     CAF_PDM_InitField( &m_showFaultsOutsideFilters, "ShowFaultsOutsideFilters", true, "Show Faults Outside Filters" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_showFaultsOutsideFilters );
 
-    CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Only Show Faces With Defined Cell Neighbor" );
+    CAF_PDM_InitField( &m_onlyShowWithNeighbor, "OnlyShowWithDefNeighbor", false, "Show Only Faces with Juxtaposition" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_onlyShowWithNeighbor );
 
     CAF_PDM_InitField( &faultResult,
@@ -88,7 +88,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showFaultLabel );
 
     cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
-    CAF_PDM_InitField( &faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color", "", "", "" );
+    CAF_PDM_InitField( &faultLabelColor, "FaultLabelColor", defWellLabelColor, "Label Color" );
 
     CAF_PDM_InitField( &showNNCs, "ShowNNCs", true, "Show NNCs" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &showNNCs );
@@ -99,14 +99,14 @@ RimFaultInViewCollection::RimFaultInViewCollection()
                        "Hide NNC Geometry if No NNC Result is Available" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &hideNncsWhenNoResultIsAvailable );
 
-    CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults" );
     faults.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_enableFaultRA, "EnableFaultRA", false, "Enable Fault RA", "", "", "" );
+    CAF_PDM_InitField( &m_enableFaultRA, "EnableFaultRA", false, "Enable Fault RA" );
     m_enableFaultRA.uiCapability()->setUiReadOnly( true );
     m_enableFaultRA.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings" );
     m_faultRASettings = new RimFaultRASettings();
     m_faultRASettings.uiCapability()->setUiHidden( true );
     m_faultRASettings.uiCapability()->setUiTreeHidden( true );
@@ -117,7 +117,7 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 //--------------------------------------------------------------------------------------------------
 RimFaultInViewCollection::~RimFaultInViewCollection()
 {
-    faults.deleteAllChildObjects();
+    faults.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ void RimFaultInViewCollection::syncronizeFaults()
         newFaults.push_back( rimFault );
     }
 
-    this->faults().clear();
+    this->faults().clearWithoutDelete();
     this->faults().insert( 0, newFaults );
 
     QString toolTip = QString( "Fault count (%1)" ).arg( newFaults.size() );

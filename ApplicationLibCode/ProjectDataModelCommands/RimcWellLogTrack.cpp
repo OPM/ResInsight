@@ -100,13 +100,11 @@ RimWellLogExtractionCurve*
 
     curve->updateConnectedEditors();
 
-    wellLogTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
+    wellLogTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     wellLogTrack->setShowRegionLabels( true );
-    wellLogTrack->setAutoScaleXEnabled( true );
+    wellLogTrack->setAutoScalePropertyValuesEnabled( true );
     wellLogTrack->updateConnectedEditors();
     wellLogTrack->setShowWindow( true );
-
-    RiaApplication::instance()->project()->updateConnectedEditors();
 
     RimWellLogPlot* wellLogPlot = dynamic_cast<RimWellLogPlot*>( wellLogTrack->parentField() );
     if ( wellLogPlot ) wellLogPlot->loadDataAndUpdate();

@@ -32,9 +32,9 @@ CAF_PDM_SOURCE_INIT( RimAnalysisPlotCollection, "AnalysisPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimAnalysisPlotCollection::RimAnalysisPlotCollection()
 {
-    CAF_PDM_InitObject( "Analysis Plots", ":/AnalysisPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "Analysis Plots", ":/AnalysisPlots16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_analysisPlots, "AnalysisPlots", "Analysis Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_analysisPlots, "AnalysisPlots", "Analysis Plots" );
     m_analysisPlots.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -123,7 +123,7 @@ void RimAnalysisPlotCollection::updateSummaryNameHasChanged()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimAnalysisPlot*> RimAnalysisPlotCollection::plots() const
 {
-    return m_analysisPlots.childObjects();
+    return m_analysisPlots.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,7 +209,7 @@ void RimAnalysisPlotCollection::applySummaryCaseCollectionAndFieldAddressToPlot(
             {
                 if ( address.category() == RifEclipseSummaryAddress::SUMMARY_FIELD )
                 {
-                    if ( quantityName.empty() || quantityName == address.quantityName() )
+                    if ( quantityName.empty() || quantityName == address.vectorName() )
                     {
                         for ( auto summaryCase : summaryCaseCollection->allSummaryCases() )
                         {
@@ -263,6 +263,6 @@ void RimAnalysisPlotCollection::insertPlot( RimAnalysisPlot* analysisPlot, size_
 //--------------------------------------------------------------------------------------------------
 void RimAnalysisPlotCollection::removePlot( RimAnalysisPlot* analysisPlot )
 {
-    m_analysisPlots.removeChildObject( analysisPlot );
+    m_analysisPlots.removeChild( analysisPlot );
     updateAllRequiredEditors();
 }

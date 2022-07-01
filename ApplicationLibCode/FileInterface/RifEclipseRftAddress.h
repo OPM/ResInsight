@@ -31,7 +31,7 @@
 class RifEclipseRftAddress
 {
 public:
-    enum RftWellLogChannelType
+    enum class RftWellLogChannelType
     {
         NONE,
         TVD,
@@ -47,35 +47,43 @@ public:
         PRESSURE_P50,
         PRESSURE_P90,
         PRESSURE_MEAN,
-        PRESSURE_ERROR
+        PRESSURE_ERROR,
+        SEGMENT_VALUES
     };
 
 public:
-    RifEclipseRftAddress( QString wellName, QDateTime timeStep, RftWellLogChannelType wellLogChannel );
+    static RifEclipseRftAddress
+        createAddress( const QString& wellName, const QDateTime& timeStep, RftWellLogChannelType wellLogChannel );
 
-    const QString&               wellName() const { return m_wellName; }
-    QDateTime                    timeStep() const { return m_timeStep; }
-    const RftWellLogChannelType& wellLogChannel() const { return m_wellLogChannel; }
+    static RifEclipseRftAddress createSegmentAddress( const QString&   wellName,
+                                                      const QDateTime& dateTime,
+                                                      const QString&   resultName,
+                                                      int              segmentBranchNumber );
 
-    static std::set<RftWellLogChannelType> rftPlotChannelTypes()
-    {
-        return {RifEclipseRftAddress::PRESSURE,
-                RifEclipseRftAddress::PRESSURE_ERROR,
-                RifEclipseRftAddress::PRESSURE_MEAN,
-                RifEclipseRftAddress::PRESSURE_P10,
-                RifEclipseRftAddress::PRESSURE_P50,
-                RifEclipseRftAddress::PRESSURE_P90};
-    }
+    QString segmentResultName() const;
+    int     segmentBranchNumber() const;
 
-    static std::set<RftWellLogChannelType> pltPlotChannelTypes()
-    {
-        return {RifEclipseRftAddress::ORAT, RifEclipseRftAddress::WRAT, RifEclipseRftAddress::GRAT};
-    }
+    const QString&               wellName() const;
+    QDateTime                    timeStep() const;
+    const RftWellLogChannelType& wellLogChannel() const;
+
+    static std::set<RftWellLogChannelType> rftPlotChannelTypes();
+    static std::set<RftWellLogChannelType> pltPlotChannelTypes();
+
+private:
+    RifEclipseRftAddress( const QString&        wellName,
+                          const QDateTime&      timeStep,
+                          RftWellLogChannelType wellLogChannel,
+                          const QString&        segmentResultName,
+                          int                   segmentBranchNumber );
 
 private:
     QString               m_wellName;
     QDateTime             m_timeStep;
     RftWellLogChannelType m_wellLogChannel;
+
+    QString m_segmentResultName;
+    int     m_segmentBranchNumber;
 };
 
 bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second );

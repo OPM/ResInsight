@@ -25,8 +25,9 @@
 #include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -54,24 +55,34 @@ void RicCloseSummaryCaseFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 void RicCloseSummaryCaseFeature::deleteSummaryCases( std::vector<RimSummaryCase*>& cases )
 {
-    RimSummaryPlotCollection*     summaryPlotColl           = RiaSummaryTools::summaryPlotCollection();
-    RimSummaryCaseMainCollection* summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
+    RimSummaryMultiPlotCollection* summaryPlotColl           = RiaSummaryTools::summaryMultiPlotCollection();
+    RimSummaryCaseMainCollection*  summaryCaseMainCollection = RiaSummaryTools::summaryCaseMainCollection();
+
+    std::set<RimSummaryMultiPlot*> plotsToUpdate;
 
     for ( RimSummaryCase* summaryCase : cases )
     {
-        for ( RimSummaryPlot* summaryPlot : summaryPlotColl->plots() )
+        for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
         {
-            summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
+            for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
+            {
+                summaryPlot->deleteCurvesAssosiatedWithCase( summaryCase );
+            }
+            plotsToUpdate.insert( multiPlot );
         }
-        summaryPlotColl->updateConnectedEditors();
+    }
 
-        summaryCaseMainCollection->removeCase( summaryCase );
+    summaryCaseMainCollection->removeCases( cases );
+
+    for ( auto plot : plotsToUpdate )
+    {
+        plot->updateConnectedEditors();
     }
 
     summaryCaseMainCollection->updateAllRequiredEditors();
 
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    mainPlotWindow->updateSummaryPlotToolBar();
+    mainPlotWindow->updateMultiPlotToolBar();
 
     caf::AsyncPdmObjectVectorDeleter<RimSummaryCase> summaryCaseDeleter( cases );
     CAF_ASSERT( cases.empty() ); // vector should be empty immediately.

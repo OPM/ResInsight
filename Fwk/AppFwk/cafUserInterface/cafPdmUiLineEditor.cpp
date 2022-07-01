@@ -141,13 +141,15 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             {
                 m_lineEdit->setPlaceholderText( leab.placeholderText );
             }
+
+            if ( leab.notifyWhenTextIsEdited )
+            {
+                connect( m_lineEdit, SIGNAL( textEdited( const QString& ) ), this, SLOT( slotEditingFinished() ) );
+            }
         }
 
-        bool fromMenuOnly = true;
-        m_optionCache     = uiField()->valueOptions( &fromMenuOnly );
-        CAF_ASSERT( fromMenuOnly ); // Not supported
-
-        if ( !m_optionCache.isEmpty() && fromMenuOnly == true )
+        m_optionCache = uiField()->valueOptions();
+        if ( !m_optionCache.isEmpty() )
         {
             if ( !m_completer )
             {
@@ -220,7 +222,10 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 displayString = displayStringAttrib.m_displayString;
             }
 
-            m_lineEdit->setText( displayString );
+            if ( displayString != m_lineEdit->text() )
+            {
+                m_lineEdit->setText( displayString );
+            }
         }
     }
 }

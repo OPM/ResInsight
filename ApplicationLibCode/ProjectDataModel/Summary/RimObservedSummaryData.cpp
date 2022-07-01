@@ -34,22 +34,19 @@ RimObservedSummaryData::RimObservedSummaryData()
 {
     m_isObservedData = true;
 
-    CAF_PDM_InitFieldNoDefault( &m_importedSummaryData, "ImportedSummaryData", "Imported Summary Data", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_importedSummaryData, "ImportedSummaryData", "Imported Summary Data" );
     m_importedSummaryData.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_importedSummaryData.uiCapability()->setUiReadOnly( true );
     m_importedSummaryData.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_useCustomIdentifier, "UseCustomIdentifier", false, "Use Custom Identifier", "", "", "" );
+    CAF_PDM_InitField( &m_useCustomIdentifier, "UseCustomIdentifier", false, "Use Custom Identifier" );
     m_useCustomIdentifier.uiCapability()->setUiHidden( true );
     CAF_PDM_InitField( &m_summaryCategory,
                        "SummaryType",
                        caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>( RifEclipseSummaryAddress::SUMMARY_WELL ),
-                       "Summary Type",
-                       "",
-                       "",
-                       "" );
+                       "Summary Type" );
     m_summaryCategory.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_identifierName, "IdentifierName", "Identifier Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_identifierName, "IdentifierName", "Identifier Name" );
     m_identifierName.uiCapability()->setUiHidden( true );
 }
 
@@ -61,15 +58,6 @@ QString RimObservedSummaryData::caseName() const
     QFileInfo caseFileName( this->summaryHeaderFilename() );
 
     return caseFileName.completeBaseName();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimObservedSummaryData::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // m_summaryHeaderFilename =
-    //    RimTools::relocateFile( m_summaryHeaderFilename(), newProjectPath, oldProjectPath, nullptr, nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -124,8 +112,7 @@ QString RimObservedSummaryData::customWellName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimObservedSummaryData::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimObservedSummaryData::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     if ( fieldNeedingOptions == &m_summaryCategory )
     {
@@ -134,13 +121,13 @@ QList<caf::PdmOptionItemInfo>
         using AddressAppEnum = caf::AppEnum<RifEclipseSummaryAddress::SummaryVarCategory>;
         options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddress::SUMMARY_WELL ),
                                                    RifEclipseSummaryAddress::SUMMARY_WELL ) );
-        options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ),
-                                                   RifEclipseSummaryAddress::SUMMARY_WELL_GROUP ) );
+        options.push_back( caf::PdmOptionItemInfo( AddressAppEnum::uiText( RifEclipseSummaryAddress::SUMMARY_GROUP ),
+                                                   RifEclipseSummaryAddress::SUMMARY_GROUP ) );
 
         return options;
     }
 
-    return RimSummaryCase::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    return RimSummaryCase::calculateValueOptions( fieldNeedingOptions );
 }
 
 //--------------------------------------------------------------------------------------------------

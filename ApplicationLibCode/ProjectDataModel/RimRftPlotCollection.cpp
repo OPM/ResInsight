@@ -39,9 +39,9 @@ CAF_PDM_SOURCE_INIT( RimRftPlotCollection, "WellRftPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimRftPlotCollection::RimRftPlotCollection()
 {
-    CAF_PDM_InitObject( "RFT Plots", ":/RFTPlots16x16.png", "", "" );
+    CAF_PDM_InitObject( "RFT Plots", ":/RFTPlots16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_rftPlots, "RftPlots", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rftPlots, "RftPlots", "" );
     m_rftPlots.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -50,7 +50,7 @@ RimRftPlotCollection::RimRftPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimRftPlotCollection::~RimRftPlotCollection()
 {
-    m_rftPlots.deleteAllChildObjects();
+    m_rftPlots.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -246,7 +246,7 @@ void RimRftPlotCollection::addPlot( gsl::not_null<RimWellRftPlot*> newPlot )
 //--------------------------------------------------------------------------------------------------
 void RimRftPlotCollection::removePlot( gsl::not_null<RimWellRftPlot*> plot )
 {
-    m_rftPlots.removeChildObject( plot );
+    m_rftPlots.removeChild( plot );
     updateAllRequiredEditors();
 }
 
@@ -255,5 +255,5 @@ void RimRftPlotCollection::removePlot( gsl::not_null<RimWellRftPlot*> plot )
 //--------------------------------------------------------------------------------------------------
 void RimRftPlotCollection::deleteAllPlots()
 {
-    m_rftPlots.deleteAllChildObjects();
+    m_rftPlots.deleteChildren();
 }

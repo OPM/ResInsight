@@ -22,12 +22,21 @@
 #include "cafPdmUiFilePathEditor.h"
 #include "cafPdmUiTextEditor.h"
 
+template <>
+void caf::AppEnum<RiaRegressionTest::PlotEngine>::setUp()
+{
+    addItem( RiaRegressionTest::PlotEngine::USE_QWT, "USE_QWT", "Use Qwt" );
+    addItem( RiaRegressionTest::PlotEngine::USER_QTCHARTS, "USER_QTCHARTS", "Use QtCharts" );
+    addItem( RiaRegressionTest::PlotEngine::NONE, "NONE", "None" );
+    setDefault( RiaRegressionTest::PlotEngine::NONE );
+}
+
 CAF_PDM_SOURCE_INIT( RiaRegressionTest, "RiaRegressionTest" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaRegressionTest::RiaRegressionTest( void )
+RiaRegressionTest::RiaRegressionTest()
 {
     CAF_PDM_InitFieldNoDefault( &folderContainingCompareTool,
                                 "workingFolder",
@@ -53,19 +62,13 @@ RiaRegressionTest::RiaRegressionTest( void )
                                 "" );
     folderContainingGitTool.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &regressionTestFolder, "regressionTestFolder", "Regression Test Folder", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &regressionTestFolder, "regressionTestFolder", "Regression Test Folder" );
     regressionTestFolder.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &showInteractiveDiffImages, "showInteractiveDiffImages", false, "Interactive Diff Images", "", "", "" );
-    CAF_PDM_InitField( &useOpenMPForGeometryCreation,
-                       "useOpenMPForGeometryCreation",
-                       true,
-                       "Use OpenMP For Geometry Creation",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &showInteractiveDiffImages, "showInteractiveDiffImages", false, "Interactive Diff Images" );
+    CAF_PDM_InitField( &useOpenMPForGeometryCreation, "useOpenMPForGeometryCreation", true, "Use OpenMP For Geometry Creation" );
 
-    CAF_PDM_InitField( &openReportInBrowser, "openReportInBrowser", false, "Open Generated Report in Browser", "", "", "" );
+    CAF_PDM_InitField( &openReportInBrowser, "openReportInBrowser", false, "Open Generated Report in Browser" );
 
     CAF_PDM_InitFieldNoDefault( &testFilter,
                                 "testFilter",
@@ -76,27 +79,16 @@ RiaRegressionTest::RiaRegressionTest( void )
                                 "" );
     testFilter.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &appendTestsAfterTestFilter,
-                       "appendTestsAfterTestFilter",
-                       false,
-                       "Append All Tests After Test Filter",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &appendTestsAfterTestFilter, "appendTestsAfterTestFilter", false, "Append All Tests After Test Filter" );
 
-    CAF_PDM_InitField( &invalidateExternalFilePaths,
-                       "invalidateExternalFilePaths",
-                       false,
-                       "Invalidate External File Paths",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &invalidateExternalFilePaths, "invalidateExternalFilePaths", false, "Invalidate External File Paths" );
+    CAF_PDM_InitFieldNoDefault( &overridePlotEngine, "forcePlotEngine", "Force Plot Engine" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaRegressionTest::~RiaRegressionTest( void )
+RiaRegressionTest::~RiaRegressionTest()
 {
 }
 
@@ -126,7 +118,7 @@ void RiaRegressionTest::defineEditorAttribute( const caf::PdmFieldHandle* field,
     if ( field == &folderContainingDiffTool || field == &folderContainingCompareTool ||
          field == &regressionTestFolder || field == &folderContainingGitTool )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
         {
             myAttr->m_selectDirectory = true;

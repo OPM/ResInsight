@@ -18,14 +18,14 @@
 
 #pragma once
 
+#include "RimLegendConfig.h"
+
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h" // Include to make Pdm work for cvf::Color
 #include "cafPdmObject.h"
 
 #include "RigEclipseResultAddress.h"
-
-#include "RimRegularLegendConfig.h"
 
 #include <QList>
 
@@ -112,6 +112,6 @@ private:
     caf::PdmField<caf::AppEnum<TensorColors>>                  m_vectorColor;
     caf::PdmField<cvf::Color3f>                                m_uniformVectorColor;
     caf::PdmField<double>                                      m_sizeScale;
-    caf::PdmField<RimRegularLegendConfig::RangeModeEnum>       m_rangeMode;
+    caf::PdmField<RimLegendConfig::RangeModeEnum>              m_rangeMode;
     caf::PdmChildField<RimRegularLegendConfig*>                m_legendConfig;
 };

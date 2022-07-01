@@ -27,7 +27,8 @@
 namespace caf
 {
 class PdmObjectHandle;
-}
+class PdmUiTreeView;
+} // namespace caf
 
 class RimMultiPlot;
 class RimIdenticalGridCaseGroup;
@@ -39,6 +40,7 @@ class RimSurfaceCollection;
 class RimWellLogPlot;
 class RimWellLogTrack;
 class RimWellLogCurve;
+class QEvent;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -46,8 +48,15 @@ class RimWellLogCurve;
 class RiuDragDrop : public caf::PdmUiDragDropInterface
 {
 public:
-    RiuDragDrop();
+    RiuDragDrop( caf::PdmUiTreeView* treeView );
     ~RiuDragDrop() override;
+
+    static std::vector<caf::PdmObjectHandle*> draggedObjectsFromTreeView( caf::PdmUiTreeView* dragSource,
+                                                                          const QMimeData*    data );
+
+    static bool handleGenericDropEvent( QEvent* event, std::vector<caf::PdmObjectHandle*>& droppedObjects );
+
+    static std::vector<caf::PdmObjectHandle*> convertToObjects( const QMimeData* mimeData );
 
 protected:
     Qt::DropActions supportedDropActions() const override;
@@ -96,10 +105,14 @@ private:
                                       caf::PdmObjectGroup&  objectGroup,
                                       RimSurfaceCollection* surfaceCollection );
 
-    static void objectGroupFromModelIndexes( caf::PdmObjectGroup* objectGroup, const QModelIndexList& indexes );
+    static void objectGroupFromModelIndexes( caf::PdmUiTreeView*    uiTreeView,
+                                             caf::PdmObjectGroup*   objectGroup,
+                                             const QModelIndexList& indexes );
     static std::vector<caf::PdmPointer<caf::PdmObjectHandle>> objectHandlesFromSelection();
 
 private:
     mutable std::vector<caf::PdmPointer<caf::PdmObjectHandle>> m_dragItems;
-    Qt::DropAction                                             m_proposedDropAction;
+
+    Qt::DropAction      m_proposedDropAction;
+    caf::PdmUiTreeView* m_projectTreeView;
 };

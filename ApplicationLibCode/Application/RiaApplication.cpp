@@ -31,6 +31,7 @@
 #include "RiaTextStringTools.h"
 #include "RiaVersionInfo.h"
 #include "RiaViewRedrawScheduler.h"
+#include "RiaWellNameComparer.h"
 
 #include "ExportCommands/RicSnapshotAllViewsToFileFeature.h"
 #include "HoloLensCommands/RicHoloLensSessionManager.h"
@@ -39,6 +40,7 @@
 #include "RicfCommandObject.h"
 
 #include "CommandRouter/RimCommandRouter.h"
+#include "PlotTemplates/RimPlotTemplateFolderItem.h"
 #include "Rim2dIntersectionViewCollection.h"
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationInViewCollection.h"
@@ -55,6 +57,7 @@
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechModels.h"
 #include "RimGeoMechView.h"
+#include "RimGridCalculationCollection.h"
 #include "RimIdenticalGridCaseGroup.h"
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
@@ -63,6 +66,7 @@
 #include "RimOilField.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
+#include "RimScriptCollection.h"
 #include "RimSimWellInViewCollection.h"
 #include "RimStimPlanColors.h"
 #include "RimStimPlanModel.h"
@@ -94,6 +98,7 @@
 #include "cafPdmSettings.h"
 #include "cafPdmUiModelChangeDetector.h"
 #include "cafProgressInfo.h"
+#include "cafSelectionManager.h"
 #include "cafUiProcess.h"
 #include "cafUtils.h"
 
@@ -161,6 +166,8 @@ RiaApplication::RiaApplication()
 RiaApplication::~RiaApplication()
 {
     RiaFontCache::clear();
+
+    caf::SelectionManager::instance()->setPdmRootObject( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -701,6 +708,14 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     // Execute command objects, and release the mutex when the queue is empty
     executeCommandObjects();
 
+    // Recalculate the results from grid property calculations.
+    // Has to be done late since the results are filtered by view cell visibility
+    for ( auto gridCalculation : m_project->gridCalculationCollection()->calculations() )
+    {
+        gridCalculation->calculate();
+        gridCalculation->updateDependentObjects();
+    }
+
     RiaLogging::info( QString( "Completed open of project file : '%1'" ).arg( projectFileName ) );
 
     return true;
@@ -781,6 +796,8 @@ void RiaApplication::closeProject()
 
     m_project->close();
     m_commandQueue.clear();
+
+    RiaWellNameComparer::clearCache();
 
     onProjectClosed();
 
@@ -1209,9 +1226,11 @@ void RiaApplication::applyPreferences()
 
     if ( this->project() )
     {
-        this->project()->setScriptDirectories( m_preferences->scriptDirectories() );
+        this->project()->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
         this->project()->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
-        this->project()->updateConnectedEditors();
+
+        project()->scriptCollection()->updateConnectedEditors();
+        project()->rootPlotTemplateItem()->updateConnectedEditors();
     }
 
     caf::ProgressInfoStatic::setEnabled( RiaPreferencesSystem::current()->showProgressBar() );
@@ -1494,8 +1513,10 @@ void RiaApplication::initialize()
 
     // Start with a project
     m_project = std::make_unique<RimProject>();
-    m_project->setScriptDirectories( m_preferences->scriptDirectories() );
+    m_project->setScriptDirectories( m_preferences->scriptDirectories(), m_preferences->maxScriptFoldersDepth() );
     m_project->setPlotTemplateFolders( m_preferences->plotTemplateFolders() );
+
+    caf::SelectionManager::instance()->setPdmRootObject( project() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1525,7 +1546,9 @@ void RiaApplication::resetProject()
     m_project.reset();
     m_preferences.reset();
 
-    initialize();
+    // Call RiaApplication::initialize() to recreate project and preferences. Do not call virtual method initialize(),
+    // as RiaGuiApplication::initialize() creates a new logger causing console text to disappear.
+    RiaApplication::initialize();
 }
 
 //--------------------------------------------------------------------------------------------------

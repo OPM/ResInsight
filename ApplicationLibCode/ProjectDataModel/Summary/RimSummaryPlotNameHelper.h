@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaSummaryCurveAnalyzer.h"
+#include "RimSummaryNameHelper.h"
 
 #include "RifEclipseSummaryAddress.h"
 
@@ -26,17 +26,19 @@
 
 #include <QString>
 
+#include <memory>
 #include <string>
 #include <vector>
 
 class RimSummaryCurve;
 class RimSummaryCase;
 class RimSummaryCaseCollection;
+class RiaSummaryAddressAnalyzer;
 
 //==================================================================================================
 //
 //==================================================================================================
-class RimSummaryPlotNameHelper
+class RimSummaryPlotNameHelper : public RimSummaryNameHelper
 {
 public:
     RimSummaryPlotNameHelper();
@@ -47,16 +49,26 @@ public:
     void setSummaryCases( const std::vector<RimSummaryCase*>& summaryCases );
     void setEnsembleCases( const std::vector<RimSummaryCaseCollection*>& ensembleCases );
 
-    QString plotTitle() const;
+    QString plotTitle() const override;
 
-    bool isPlotDisplayingSingleQuantity() const;
-    bool isWellNameInTitle() const;
-    bool isWellGroupNameInTitle() const;
-    bool isRegionInTitle() const;
-    bool isCaseInTitle() const;
-    bool isBlockInTitle() const;
-    bool isSegmentInTitle() const;
-    bool isCompletionInTitle() const;
+    bool isPlotDisplayingSingleVectorName() const override;
+    bool isWellNameInTitle() const override;
+    bool isGroupNameInTitle() const override;
+    bool isRegionInTitle() const override;
+    bool isCaseInTitle() const override;
+    bool isBlockInTitle() const override;
+    bool isSegmentInTitle() const override;
+    bool isCompletionInTitle() const override;
+
+    QString caseName() const override;
+
+    std::string titleVectorName() const override;
+    std::string titleWellName() const override;
+    std::string titleGroupName() const override;
+    std::string titleRegion() const override;
+    std::string titleBlock() const override;
+    std::string titleSegment() const override;
+    std::string titleCompletion() const override;
 
 private:
     void clearTitleSubStrings();
@@ -66,14 +78,14 @@ private:
     std::set<RimSummaryCaseCollection*> setOfEnsembleCases() const;
 
 private:
-    RiaSummaryCurveAnalyzer m_analyzer;
+    std::unique_ptr<RiaSummaryAddressAnalyzer> m_analyzer;
 
     std::vector<caf::PdmPointer<RimSummaryCase>>           m_summaryCases;
     std::vector<caf::PdmPointer<RimSummaryCaseCollection>> m_ensembleCases;
 
     std::string m_titleQuantity;
     std::string m_titleWellName;
-    std::string m_titleWellGroupName;
+    std::string m_titleGroupName;
     std::string m_titleRegion;
     std::string m_titleBlock;
     std::string m_titleSegment;

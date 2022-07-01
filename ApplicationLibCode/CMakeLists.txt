@@ -25,15 +25,11 @@ option(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS
        "Treat warnings as errors (stops build)" OFF
 )
 
-find_package(
-  Qt5
-  COMPONENTS Core
-  QUIET
-)
+find_package(Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core)
 
 if(Qt5Core_FOUND)
   find_package(
-    Qt5
+    Qt5 ${RI_QT_MINIMUM_VERSION}
     COMPONENTS Core
                Gui
                OpenGL
@@ -339,30 +335,42 @@ if(RESINSIGHT_ENABLE_PRECOMPILED_HEADERS)
   )
 endif()
 
-if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
-  set_target_properties(
-    ${PROJECT_NAME}
-    PROPERTIES
-      COMPILE_FLAGS
-      "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch"
+if(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(
+    ApplicationLibCode PRIVATE -Wall -Wno-unused-parameter -Wno-reorder
+                               -Wno-parentheses -Wno-switch
   )
-  # Treat warnings as errors if asked to do so
-  if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
-    set_target_properties(
-      ${PROJECT_NAME}
-      PROPERTIES
-        COMPILE_FLAGS
-        "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Werror"
-    )
-  endif()
+endif()
 
-  if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
-    set_target_properties(
-      ${PROJECT_NAME}
-      PROPERTIES
-        COMPILE_FLAGS
-        "-Wall -Wno-unused-parameter -Wno-reorder -Wno-parentheses -Wno-switch -Wno-delete-abstract-non-virtual-dtor -Wno-undefined-var-template -Wno-invalid-source-encoding -Wno-enum-compare -Wno-call-to-pure-virtual-from-ctor-dtor -Wno-unused-variable -Wno-unused-private-field -Wno-unused-lambda-capture -Wno-delete-non-abstract-non-virtual-dtor -Wno-braced-scalar-init -Wno-tautological-constant-out-of-range-compare"
-    )
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+
+  target_compile_options(
+    ApplicationLibCode
+    PRIVATE -Wall
+            -Wno-unused-parameter
+            -Wno-reorder
+            -Wno-parentheses
+            -Wno-switch
+            -Wno-delete-abstract-non-virtual-dtor
+            -Wno-undefined-var-template
+            -Wno-invalid-source-encoding
+            -Wno-enum-compare
+            -Wno-call-to-pure-virtual-from-ctor-dtor
+            -Wno-unused-variable
+            -Wno-unused-private-field
+            -Wno-unused-lambda-capture
+            -Wno-delete-non-abstract-non-virtual-dtor
+            -Wno-braced-scalar-init
+            -Wno-tautological-constant-out-of-range-compare
+            -Wno-undefined-var-template
+  )
+endif()
+
+if(RESINSIGHT_TREAT_WARNINGS_AS_ERRORS)
+  if(MSVC)
+    target_compile_options(ApplicationLibCode PRIVATE /WX)
+  elseif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_compile_options(ApplicationLibCode PRIVATE -Werror)
   endif()
 endif()
 
@@ -376,13 +384,7 @@ if(MSVC)
   # set_target_properties(${PROJECT_NAME} PROPERTIES COMPILE_FLAGS "/W3 /wd4190
   # /wd4100 /wd4127")
 
-  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005")
-
-  if(Qt5Core_VERSION_STRING GREATER_EQUAL 5.10)
-    # Disable warning for deprecated functions in newer versions of Qt
-    # https://docs.microsoft.com/en-us/cpp/error-messages/compiler-warnings/compiler-warning-level-3-c4996?view=msvc-160
-    set(BUILD_FLAGS_FOR_MSVC "${BUILD_FLAGS_FOR_MSVC} /wd4996")
-  endif()
+  set(BUILD_FLAGS_FOR_MSVC "/wd4190 /wd4100 /wd4127 /wd4245 /wd4005 /wd4251")
 
   if(CMAKE_CXX_COMPILER_VERSION LESS_EQUAL 19.14)
     # The following warning is generated over 800 times from a qwt header only

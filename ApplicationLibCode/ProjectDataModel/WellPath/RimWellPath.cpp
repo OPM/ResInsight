@@ -57,6 +57,7 @@
 #include "RiuMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cafPdmUiTreeViewEditor.h"
 #include "cafUtils.h"
@@ -78,68 +79,77 @@ const char RimWellPath::SIM_WELL_NONE_UI_TEXT[] = "None";
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellPath::isDeletable() const
+{
+    // Avoid framework functions, as delete is implemented in RicDeleteWellPathFeature
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellPath::RimWellPath()
     : nameChanged( this )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "WellPath", ":/Well.svg", "", "", "WellPath", "A ResInsight Well Path" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_name, "Name", "Name" );
     m_name.registerKeywordAlias( "WellPathName" );
     m_name.uiCapability()->setUiReadOnly( true );
     m_name.uiCapability()->setUiHidden( true );
     m_name.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_airGap, "AirGap", "Air Gap", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_airGap, "AirGap", "Air Gap" );
     m_airGap.registerGetMethod( this, &RimWellPath::airGap );
     m_airGap.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_datumElevation, "DatumElevation", "Datum Elevation", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_datumElevation, "DatumElevation", "Datum Elevation" );
     m_datumElevation.registerGetMethod( this, &RimWellPath::datumElevation );
     m_datumElevation.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System" );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitField( &m_simWellName, "SimWellName", QString( "" ), "Well", "", "", "" );
-    CAF_PDM_InitField( &m_branchIndex, "SimBranchIndex", 0, "Branch", "", "", "" );
+    CAF_PDM_InitField( &m_simWellName, "SimWellName", QString( "" ), "Well" );
+    CAF_PDM_InitField( &m_branchIndex, "SimBranchIndex", 0, "Branch" );
 
-    CAF_PDM_InitField( &m_showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Label", "", "", "" );
+    CAF_PDM_InitField( &m_showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Label" );
 
-    CAF_PDM_InitField( &m_showWellPath, "ShowWellPath", true, "Show Well Path", "", "", "" );
+    CAF_PDM_InitField( &m_showWellPath, "ShowWellPath", true, "Show Well Path" );
     m_showWellPath.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_wellPathRadiusScaleFactor, "WellPathRadiusScale", 1.0, "Well Path Radius Scale", "", "", "" );
-    CAF_PDM_InitField( &m_wellPathColor, "WellPathColor", cvf::Color3f( 0.999f, 0.333f, 0.999f ), "Well Path Color", "", "", "" );
+    CAF_PDM_InitField( &m_wellPathRadiusScaleFactor, "WellPathRadiusScale", 1.0, "Well Path Radius Scale" );
+    CAF_PDM_InitField( &m_wellPathColor, "WellPathColor", cvf::Color3f( 0.999f, 0.333f, 0.999f ), "Well Path Color" );
 
-    CAF_PDM_InitFieldNoDefault( &m_completions, "Completions", "Completions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_completions, "Completions", "Completions" );
     m_completions = new RimWellPathCompletions;
     m_completions.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_completionSettings, "CompletionSettings", "Completion Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_completionSettings, "CompletionSettings", "Completion Settings" );
     m_completionSettings = new RimWellPathCompletionSettings;
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogFiles, "WellLogFiles", "Well Log Files", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogFiles, "WellLogFiles", "Well Log Files" );
     m_wellLogFiles.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "CollectionOf3dWellLogCurves", "3D Track", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_3dWellLogCurves, "CollectionOf3dWellLogCurves", "3D Track" );
     m_3dWellLogCurves = new Rim3dWellLogCurveCollection;
     m_3dWellLogCurves.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitField( &m_formationKeyInFile, "WellPathFormationKeyInFile", QString( "" ), "Key in File", "", "", "" );
+    CAF_PDM_InitField( &m_formationKeyInFile, "WellPathFormationKeyInFile", QString( "" ), "Key in File" );
     m_formationKeyInFile.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathFormationFilePath, "WellPathFormationFilePath", "File Path", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathFormationFilePath, "WellPathFormationFilePath", "File Path" );
     m_wellPathFormationFilePath.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathAttributes, "WellPathAttributes", "Casing Design Rubbish" );
     m_wellPathAttributes = new RimWellPathAttributeCollection;
     m_wellPathAttributes->uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "well Path Tie-In", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathTieIn, "WellPathTieIn", "well Path Tie-In" );
     m_wellPathTieIn = new RimWellPathTieIn;
     m_wellPathTieIn->connectWellPaths( nullptr, this, 0.0 );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellIASettingsCollection, "WellIASettings", "Integrity Analysis Settings", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellIASettingsCollection, "WellIASettings", "Integrity Analysis Settings" );
     m_wellIASettingsCollection = new RimWellIASettingsCollection();
 
     this->setDeletable( true );
@@ -485,8 +495,7 @@ void RimWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                  bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellPath::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -921,7 +930,7 @@ void RimWellPath::detachWellLogFile( RimWellLogFile* logFileInfo )
     {
         if ( m_wellLogFiles[i] == pdmObject )
         {
-            m_wellLogFiles.removeChildObject( pdmObject );
+            m_wellLogFiles.removeChild( pdmObject );
             break;
         }
     }

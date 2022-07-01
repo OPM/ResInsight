@@ -73,15 +73,6 @@ void caf::AppEnum<RiaDefines::DepthTypeEnum>::setUp()
 }
 
 template <>
-void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
-{
-    addItem( RiaDefines::PlotAxis::PLOT_AXIS_LEFT, "PLOT_AXIS_LEFT", "Left" );
-    addItem( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT, "PLOT_AXIS_RIGHT", "Right" );
-
-    setDefault( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
-}
-
-template <>
 void caf::AppEnum<RiaDefines::PhaseType>::setUp()
 {
     addItem( RiaDefines::PhaseType::OIL_PHASE, "OIL_PHASE", "Oil" );
@@ -144,6 +135,26 @@ void AppEnum<RiaDefines::RINavigationPolicy>::setUp()
     addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_GEOQUEST, "NAVIGATION_POLICY_GEOQUEST", "GEOQUEST" );
     addItem( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS, "NAVIGATION_POLICY_RMS", "RMS" );
     setDefault( RiaDefines::RINavigationPolicy::NAVIGATION_POLICY_RMS );
+}
+
+template <>
+void caf::AppEnum<RiaDefines::ColumnCount>::setUp()
+{
+    addItem( RiaDefines::ColumnCount::COLUMNS_1, "1", "1 Column" );
+    addItem( RiaDefines::ColumnCount::COLUMNS_2, "2", "2 Columns" );
+    addItem( RiaDefines::ColumnCount::COLUMNS_3, "3", "3 Columns" );
+    addItem( RiaDefines::ColumnCount::COLUMNS_4, "4", "4 Columns" );
+    setDefault( RiaDefines::ColumnCount::COLUMNS_2 );
+}
+
+template <>
+void caf::AppEnum<RiaDefines::RowCount>::setUp()
+{
+    addItem( RiaDefines::RowCount::ROWS_1, "1", "1 Row" );
+    addItem( RiaDefines::RowCount::ROWS_2, "2", "2 Rows" );
+    addItem( RiaDefines::RowCount::ROWS_3, "3", "3 Rows" );
+    addItem( RiaDefines::RowCount::ROWS_4, "4", "4 Rows" );
+    setDefault( RiaDefines::RowCount::ROWS_2 );
 }
 
 } // namespace caf
@@ -246,30 +257,6 @@ RiaDefines::EclipseUnitSystem RiaDefines::fromDepthUnit( DepthUnitType depthUnit
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RiaDefines::minimumDefaultValuePlot()
-{
-    return -10.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RiaDefines::minimumDefaultLogValuePlot()
-{
-    return 1.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-double RiaDefines::maximumDefaultValuePlot()
-{
-    return 100.0;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RiaDefines::ImportFileType RiaDefines::obtainFileTypeFromFileName( const QString& fileName )
 {
     if ( fileName.endsWith( "EGRID", Qt::CaseInsensitive ) )
@@ -349,4 +336,12 @@ bool RiaDefines::isInjector( WellProductionType wellProductionType )
         return true;
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::stringListSeparator()
+{
+    return "|";
 }

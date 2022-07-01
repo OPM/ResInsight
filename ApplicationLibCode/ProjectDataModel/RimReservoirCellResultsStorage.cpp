@@ -51,11 +51,11 @@ CAF_PDM_SOURCE_INIT( RimReservoirCellResultsStorage, "ReservoirCellResultStorage
 RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
     : m_cellResults( nullptr )
 {
-    CAF_PDM_InitObject( "Cacher", "", "", "" );
+    CAF_PDM_InitObject( "Cacher" );
 
-    CAF_PDM_InitField( &m_resultCacheFileName, "ResultCacheFileName", QString(), "UiDummyname", "", "", "" );
+    CAF_PDM_InitField( &m_resultCacheFileName, "ResultCacheFileName", QString(), "UiDummyname" );
     m_resultCacheFileName.uiCapability()->setUiHidden( true );
-    CAF_PDM_InitFieldNoDefault( &m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultCacheMetaData, "ResultCacheEntries", "UiDummyname" );
     m_resultCacheMetaData.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -64,7 +64,7 @@ RimReservoirCellResultsStorage::RimReservoirCellResultsStorage()
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 {
-    m_resultCacheMetaData.deleteAllChildObjects();
+    m_resultCacheMetaData.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ RimReservoirCellResultsStorage::~RimReservoirCellResultsStorage()
 //--------------------------------------------------------------------------------------------------
 void RimReservoirCellResultsStorage::setupBeforeSave()
 {
-    m_resultCacheMetaData.deleteAllChildObjects();
+    m_resultCacheMetaData.deleteChildren();
     QString newValidCacheFileName = getValidCacheFileName();
 
     // Delete the storage file
@@ -317,19 +317,16 @@ CAF_PDM_SOURCE_INIT( RimReservoirCellResultsStorageEntryInfo, "ResultStorageEntr
 //--------------------------------------------------------------------------------------------------
 RimReservoirCellResultsStorageEntryInfo::RimReservoirCellResultsStorageEntryInfo()
 {
-    CAF_PDM_InitObject( "Cache Entry", "", "", "" );
+    CAF_PDM_InitObject( "Cache Entry" );
 
     CAF_PDM_InitField( &m_resultType,
                        "ResultType",
                        caf::AppEnum<RiaDefines::ResultCatType>( RiaDefines::ResultCatType::REMOVED ),
-                       "ResultType",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_resultName, "ResultName", QString(), "ResultName", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeStepDates, "TimeSteps", "TimeSteps", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_daysSinceSimulationStart, "DaysSinceSimulationStart", "DaysSinceSimulationStart", "", "", "" );
-    CAF_PDM_InitField( &m_filePosition, "FilePositionDataStart", qint64( -1 ), "FilePositionDataStart", "", "", "" );
+                       "ResultType" );
+    CAF_PDM_InitField( &m_resultName, "ResultName", QString(), "ResultName" );
+    CAF_PDM_InitFieldNoDefault( &m_timeStepDates, "TimeSteps", "TimeSteps" );
+    CAF_PDM_InitFieldNoDefault( &m_daysSinceSimulationStart, "DaysSinceSimulationStart", "DaysSinceSimulationStart" );
+    CAF_PDM_InitField( &m_filePosition, "FilePositionDataStart", qint64( -1 ), "FilePositionDataStart" );
 }
 
 //--------------------------------------------------------------------------------------------------

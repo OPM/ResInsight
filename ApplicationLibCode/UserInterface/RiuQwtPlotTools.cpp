@@ -17,20 +17,29 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuQwtPlotTools.h"
 
-#include "RiuGuiTheme.h"
-
 #include "RiaApplication.h"
+#include "RiaColorTools.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
+#include "RiuPlotAxis.h"
 
+#include "RimPlotCurve.h"
+
+#include "RiuGuiTheme.h"
+#include "RiuQtChartsPlotCurveSymbol.h"
+#include "RiuQwtPlotLegend.h"
+
+#include "qwt_axis.h"
 #include "qwt_date_scale_draw.h"
 #include "qwt_date_scale_engine.h"
+#include "qwt_graphic.h"
+#include "qwt_painter.h"
 #include "qwt_plot.h"
 #include "qwt_plot_grid.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_shapeitem.h"
 #include "qwt_scale_widget.h"
 
-#include <QRegExp>
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -61,18 +70,18 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
     // Axis number font
     int   axisFontSize = caf::FontTools::absolutePointSize( RiaPreferences::current()->defaultPlotFontSize(),
                                                           caf::FontTools::RelativeSize::Medium );
-    QFont axisFont     = plot->axisFont( QwtPlot::xBottom );
+    QFont axisFont     = plot->axisFont( QwtAxis::XBottom );
     axisFont.setPixelSize( caf::FontTools::pointSizeToPixelSize( axisFontSize ) );
 
-    plot->setAxisFont( QwtPlot::xBottom, axisFont );
-    plot->setAxisFont( QwtPlot::xTop, axisFont );
-    plot->setAxisFont( QwtPlot::yLeft, axisFont );
-    plot->setAxisFont( QwtPlot::yRight, axisFont );
+    plot->setAxisFont( QwtAxis::XBottom, axisFont );
+    plot->setAxisFont( QwtAxis::XTop, axisFont );
+    plot->setAxisFont( QwtAxis::YLeft, axisFont );
+    plot->setAxisFont( QwtAxis::YRight, axisFont );
 
     // Axis title font
-    std::vector<QwtPlot::Axis> axes = { QwtPlot::xBottom, QwtPlot::xTop, QwtPlot::yLeft, QwtPlot::yRight };
+    std::vector<QwtAxis::Position> axes = { QwtAxis::XBottom, QwtAxis::XTop, QwtAxis::YLeft, QwtAxis::YRight };
 
-    for ( QwtPlot::Axis axis : axes )
+    for ( QwtAxis::Position axis : axes )
     {
         QwtText axisTitle     = plot->axisTitle( axis );
         QFont   axisTitleFont = axisTitle.font();
@@ -109,28 +118,26 @@ void RiuQwtPlotTools::setCommonPlotBehaviour( QwtPlot* plot )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotTools::setDefaultAxes( QwtPlot* plot )
 {
-    plot->enableAxis( QwtPlot::xBottom, true );
-    plot->enableAxis( QwtPlot::yLeft, true );
-    plot->enableAxis( QwtPlot::xTop, false );
-    plot->enableAxis( QwtPlot::yRight, false );
+    plot->setAxesCount( QwtAxis::XBottom, 1 );
+    plot->setAxesCount( QwtAxis::YLeft, 1 );
 
-    plot->axisWidget( QwtPlot::xBottom )->setMargin( 0 );
-    plot->axisWidget( QwtPlot::yLeft )->setMargin( 0 );
-    plot->axisWidget( QwtPlot::xTop )->setMargin( 0 );
-    plot->axisWidget( QwtPlot::yRight )->setMargin( 0 );
+    plot->axisWidget( QwtAxis::XBottom )->setMargin( 0 );
+    plot->axisWidget( QwtAxis::YLeft )->setMargin( 0 );
+    plot->axisWidget( QwtAxis::XTop )->setMargin( 0 );
+    plot->axisWidget( QwtAxis::YRight )->setMargin( 0 );
 
-    plot->setAxisMaxMinor( QwtPlot::xBottom, 2 );
-    plot->setAxisMaxMinor( QwtPlot::yLeft, 3 );
+    plot->setAxisMaxMinor( QwtAxis::XBottom, 2 );
+    plot->setAxisMaxMinor( QwtAxis::YLeft, 3 );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                                plot,
-                                                  const QString&                          dateFormat,
-                                                  const QString&                          timeFormat,
-                                                  RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                                  RiaQDateTimeTools::TimeFormatComponents timeComponents )
+void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                         plot,
+                                                  const QString&                   dateFormat,
+                                                  const QString&                   timeFormat,
+                                                  RiaDefines::DateFormatComponents dateComponents,
+                                                  RiaDefines::TimeFormatComponents timeComponents )
 {
     QwtDateScaleDraw* scaleDraw = new QwtDateScaleDraw( Qt::UTC );
 
@@ -150,21 +157,21 @@ void RiuQwtPlotTools::enableDateBasedBottomXAxis( QwtPlot*                      
     }
 
     QwtDateScaleEngine* scaleEngine = new QwtDateScaleEngine( Qt::UTC );
-    plot->setAxisScaleEngine( QwtPlot::xBottom, scaleEngine );
-    plot->setAxisScaleDraw( QwtPlot::xBottom, scaleDraw );
+    plot->setAxisScaleEngine( QwtAxis::XBottom, scaleEngine );
+    plot->setAxisScaleDraw( QwtAxis::XBottom, scaleDraw );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType                   interval,
-                                                    const QString&                          dateFormat,
-                                                    const QString&                          timeFormat,
-                                                    RiaQDateTimeTools::DateFormatComponents dateComponents,
-                                                    RiaQDateTimeTools::TimeFormatComponents timeComponents )
+QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType            interval,
+                                                    const QString&                   dateFormat,
+                                                    const QString&                   timeFormat,
+                                                    RiaDefines::DateFormatComponents dateComponents,
+                                                    RiaDefines::TimeFormatComponents timeComponents )
 {
-    if ( dateComponents != RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED &&
-         timeComponents != RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
+    if ( dateComponents != RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED &&
+         timeComponents != RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED )
     {
         return RiaQDateTimeTools::timeFormatString( timeFormat, timeComponents ) + "\n" +
                RiaQDateTimeTools::dateFormatString( dateFormat, dateComponents );
@@ -175,44 +182,49 @@ QString RiuQwtPlotTools::dateTimeFormatForInterval( QwtDate::IntervalType       
         {
             case QwtDate::Millisecond:
                 return RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
+                                                            RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND_MILLISECOND );
             case QwtDate::Second:
                 return RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
+                                                            RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE_SECOND );
             case QwtDate::Minute:
             {
                 QString fullFormat =
                     RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
+                                                         RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR_MINUTE );
                 fullFormat += "\n";
                 fullFormat +=
-                    RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                    RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                         RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
                 return fullFormat;
             }
             case QwtDate::Hour:
             {
                 QString fullFormat =
-                    RiaQDateTimeTools::timeFormatString( timeFormat,
-                                                         RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_HOUR );
+                    RiaQDateTimeTools::timeFormatString( timeFormat, RiaDefines::TimeFormatComponents::TIME_FORMAT_HOUR );
                 if ( !fullFormat.endsWith( "AP" ) )
                 {
                     fullFormat += ":00";
                 }
                 fullFormat += "\n";
                 fullFormat +=
-                    RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                    RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                         RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
                 return fullFormat;
             }
             case QwtDate::Day:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                return RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
             case QwtDate::Week:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH );
+                return RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH );
             case QwtDate::Month:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH );
+                return RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH );
             case QwtDate::Year:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR );
+                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR );
             default:
-                return RiaQDateTimeTools::dateFormatString( dateFormat, RiaQDateTimeTools::DATE_FORMAT_YEAR_MONTH_DAY );
+                return RiaQDateTimeTools::dateFormatString( dateFormat,
+                                                            RiaDefines::DateFormatComponents::DATE_FORMAT_YEAR_MONTH_DAY );
         }
     }
 }
@@ -229,4 +241,106 @@ QwtPlotShapeItem* RiuQwtPlotTools::createBoxShape( const QString& label,
                                                    Qt::BrushStyle brushStyle )
 {
     return createBoxShapeT<QwtPlotShapeItem>( label, startX, endX, startY, endY, color, brushStyle );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QwtAxis::Position RiuQwtPlotTools::toQwtPlotAxisEnum( RiaDefines::PlotAxis riaPlotAxis )
+{
+    if ( riaPlotAxis == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
+        return QwtAxis::YLeft;
+    else if ( riaPlotAxis == RiaDefines::PlotAxis::PLOT_AXIS_RIGHT )
+        return QwtAxis::YRight;
+    else if ( riaPlotAxis == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
+        return QwtAxis::XBottom;
+    else if ( riaPlotAxis == RiaDefines::PlotAxis::PLOT_AXIS_TOP )
+        return QwtAxis::XTop;
+
+    return QwtAxis::YLeft;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::PlotAxis RiuQwtPlotTools::fromQwtPlotAxis( QwtAxis::Position axis )
+{
+    if ( axis == QwtAxis::YLeft )
+        return RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    else if ( axis == QwtAxis::YRight )
+        return RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
+    else if ( axis == QwtAxis::XBottom )
+        return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
+    else if ( axis == QwtAxis::XTop )
+        return RiaDefines::PlotAxis::PLOT_AXIS_TOP;
+
+    return RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotTools::updateLegendData( RiuQwtPlotLegend* legend, const std::vector<RimPlotCurve*>& curves )
+{
+    QList<QwtLegendData> legendDataList = createLegendData( curves );
+
+    legend->updateLegend( QVariant(), legendDataList );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlotCurve*>& curves )
+{
+    QList<QwtLegendData> legendDataList;
+
+    for ( auto c : curves )
+    {
+        QwtLegendData test;
+        test.setValue( QwtLegendData::Role::TitleRole, c->curveName() );
+
+        c->updateUiIconFromPlotSymbol();
+        auto icon = c->uiIcon();
+        auto size = icon->availableSizes().first();
+        // see QwtPlotCurve::legendIcon
+
+        QwtGraphic graphic;
+        {
+            graphic.setDefaultSize( size );
+            graphic.setRenderHint( QwtGraphic::RenderPensUnscaled, true );
+
+            QPainter painter( &graphic );
+            painter.setRenderHint( QPainter::Antialiasing );
+
+            {
+                QPen pn;
+                pn.setCapStyle( Qt::FlatCap );
+                pn.setColor( RiaColorTools::toQColor( c->color() ) );
+
+                painter.setPen( pn );
+
+                const double y = 0.5 * size.height();
+                QwtPainter::drawLine( &painter, 0.0, y, size.width(), y );
+            }
+
+            if ( c->symbol() != RiuQtChartsPlotCurveSymbol::SYMBOL_NONE )
+            {
+                RiuQtChartsPlotCurveSymbol symbol( c->symbol() );
+                symbol.setSize( size.height() / 2, size.height() / 2 );
+                symbol.setColor( RiaColorTools::toQColor( c->color() ) );
+
+                auto image = symbol.image();
+
+                QPoint p( size.width() / 4, size.height() / 4 );
+                painter.drawImage( p, image );
+            }
+        }
+
+        QVariant v = QVariant::fromValue( graphic );
+        test.setValue( QwtLegendData::Role::IconRole, v );
+
+        legendDataList.push_back( test );
+    }
+
+    return legendDataList;
 }

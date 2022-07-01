@@ -18,18 +18,20 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 #include <QString>
 
 #include <vector>
 
-class RimSummaryPlotCollection;
 class RimSummaryPlot;
+class RimSummaryMultiPlot;
+class RimSummaryMultiPlotCollection;
 class RimSummaryCrossPlot;
 class RimSummaryCrossPlotCollection;
 class RimSummaryCaseMainCollection;
 class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 class RifEclipseSummaryAddress;
 
@@ -38,7 +40,8 @@ class QStringList;
 namespace caf
 {
 class PdmObject;
-}
+class PdmOptionItemInfo;
+} // namespace caf
 
 //==================================================================================================
 //
@@ -46,14 +49,15 @@ class PdmObject;
 class RiaSummaryTools
 {
 public:
-    static RimSummaryPlotCollection*      summaryPlotCollection();
     static RimSummaryCrossPlotCollection* summaryCrossPlotCollection();
     static RimSummaryCaseMainCollection*  summaryCaseMainCollection();
+    static RimSummaryMultiPlotCollection* summaryMultiPlotCollection();
 
     static void notifyCalculatedCurveNameHasChanged( int calculationId, const QString& currentCurveName );
 
-    static RimSummaryPlot*           parentSummaryPlot( caf::PdmObject* object );
-    static RimSummaryPlotCollection* parentSummaryPlotCollection( caf::PdmObject* object );
+    static RimSummaryPlot*                parentSummaryPlot( caf::PdmObject* object );
+    static RimSummaryMultiPlot*           parentSummaryMultiPlot( caf::PdmObject* object );
+    static RimSummaryMultiPlotCollection* parentSummaryPlotCollection( caf::PdmObject* object );
 
     static RimSummaryCrossPlot*           parentCrossPlot( caf::PdmObject* object );
     static RimSummaryCrossPlotCollection* parentCrossPlotCollection( caf::PdmObject* object );
@@ -65,8 +69,14 @@ public:
                                                            std::vector<RifEclipseSummaryAddress>& addresses );
 
     static std::pair<std::vector<time_t>, std::vector<double>>
-        resampledValuesForPeriod( const RifEclipseSummaryAddress&   address,
-                                  const std::vector<time_t>&        timeSteps,
-                                  std::vector<double>&              values,
-                                  RiaQDateTimeTools::DateTimePeriod period );
+        resampledValuesForPeriod( const RifEclipseSummaryAddress& address,
+                                  const std::vector<time_t>&      timeSteps,
+                                  std::vector<double>&            values,
+                                  RiaDefines::DateTimePeriod      period );
+
+    static RimSummaryCase*           summaryCaseById( int caseId );
+    static RimSummaryCaseCollection* ensembleById( int ensembleId );
+
+    static QList<caf::PdmOptionItemInfo> optionsForAllSummaryCases();
+    static QList<caf::PdmOptionItemInfo> optionsForSummaryCases( const std::vector<RimSummaryCase*>& cases );
 };

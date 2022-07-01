@@ -4,6 +4,7 @@
 #include "MainWindow.h"
 
 #include "CustomObjectEditor.h"
+#include "LineEditAndPushButtons.h"
 #include "ManyGroups.h"
 #include "MenuItemProducer.h"
 #include "TamComboBox.h"
@@ -54,10 +55,9 @@ class DemoPdmObjectGroup : public caf::PdmDocument
 public:
     DemoPdmObjectGroup()
     {
-        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "", "", "", "")
+        CAF_PDM_InitFieldNoDefault(&objects, "PdmObjects", "MyRootObject", "", "", "");
 
-            objects.uiCapability()
-                ->setUiHidden(true);
+        objects.uiCapability()->setUiHidden(true);
     }
 
 public:
@@ -199,8 +199,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions) override
     {
         QList<caf::PdmOptionItemInfo> options;
 
@@ -750,8 +749,7 @@ public:
         }
     }
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions) override
     {
         QList<caf::PdmOptionItemInfo> options;
 
@@ -761,7 +759,7 @@ public:
             std::vector<caf::PdmObjectHandle*> objects;
             field = this->parentField();
 
-            field->childObjects(&objects);
+            field->children(&objects);
 
             for (size_t i = 0; i < objects.size(); ++i)
             {
@@ -793,8 +791,6 @@ public:
                                                          caf::AppEnum<TestEnumType>::fromIndex(i)));
             }
         }
-
-        if (useOptionsOnly) *useOptionsOnly = true;
 
         return options;
     }
@@ -942,8 +938,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     ///
     //--------------------------------------------------------------------------------------------------
-    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                        bool*                      useOptionsOnly) override
+    QList<caf::PdmOptionItemInfo> calculateValueOptions(const caf::PdmFieldHandle* fieldNeedingOptions) override
     {
         QList<caf::PdmOptionItemInfo> options;
         if (&m_multiSelectList == fieldNeedingOptions)
@@ -969,8 +964,6 @@ public:
                 }
             }
         }
-
-        if (useOptionsOnly) *useOptionsOnly = true;
 
         return options;
     }
@@ -1200,6 +1193,8 @@ void MainWindow::buildTestModel()
     SingleEditorPdmObject* singleEditorObj = new SingleEditorPdmObject;
     m_testRoot->objects.push_back(singleEditorObj);
 
+    m_testRoot->objects.push_back(new LineEditAndPushButtons);
+
     auto tamComboBox = new TamComboBox;
     m_testRoot->objects.push_back(tamComboBox);
 
@@ -1297,6 +1292,8 @@ MainWindow::~MainWindow()
     m_pdmUiPropertyView->showProperties(nullptr);
     m_pdmUiTableView->setChildArrayField(nullptr);
 
+    releaseTestData();
+
     delete m_pdmUiTreeView;
     delete m_pdmUiTreeView2;
     delete m_pdmUiPropertyView;
@@ -1311,7 +1308,7 @@ void MainWindow::releaseTestData()
 {
     if (m_testRoot)
     {
-        m_testRoot->objects.deleteAllChildObjects();
+        m_testRoot->objects.deleteChildren();
         delete m_testRoot;
     }
 }
@@ -1410,7 +1407,7 @@ void MainWindow::slotRemove()
 
             // Ordering is important
 
-            field->removeChildObject(obj);
+            field->removeChild(obj);
 
             // Delete object
             delete obj;

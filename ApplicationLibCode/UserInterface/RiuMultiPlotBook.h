@@ -17,7 +17,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
-#include "RiuInterfaceToViewWindow.h"
 #include "RiuMultiPlotPage.h"
 
 #include "cafPdmPointer.h"
@@ -35,7 +34,7 @@
 class RiaPlotWindowRedrawScheduler;
 class RimMultiPlot;
 class RiuMultiPlotPage;
-class RiuQwtPlotWidget;
+class RiuPlotWidget;
 
 class BookFrame;
 class QFocusEvent;
@@ -55,42 +54,50 @@ class RiuMultiPlotBook : public QWidget, public RiuInterfaceToViewWindow
     Q_OBJECT
 
 public:
-    using ColumnCount = RiuMultiPlotPage::ColumnCount;
-
-public:
     RiuMultiPlotBook( RimMultiPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuMultiPlotBook() override;
 
     RimViewWindow* ownerViewWindow() const override;
 
-    void addPlot( RiuQwtPlotWidget* plotWidget );
-    void insertPlot( RiuQwtPlotWidget* plotWidget, size_t index );
-    void removePlot( RiuQwtPlotWidget* plotWidget );
+    void addPlot( RiuPlotWidget* plotWidget );
+    void insertPlot( RiuPlotWidget* plotWidget, size_t index );
+    void removePlot( RiuPlotWidget* plotWidget );
+    void removePlotNoUpdate( RiuPlotWidget* plotWidget );
     void removeAllPlots();
 
     void setPlotTitle( const QString& plotTitle );
 
     void setTitleVisible( bool visible );
     void setSubTitlesVisible( bool visible );
+    void scheduleTitleUpdate();
 
     void setTitleFontSizes( int titleFontSize, int subTitleFontSize );
     void setLegendFontSize( int legendFontSize );
     void setAxisFontSizes( int axisTitleFontSize, int axisValueFontSize );
 
-    int indexOfPlotWidget( RiuQwtPlotWidget* plotWidget );
+    int indexOfPlotWidget( RiuPlotWidget* plotWidget );
 
     bool pagePreviewModeEnabled() const;
     void setPagePreviewModeEnabled( bool previewMode );
 
-    void scheduleUpdate();
+    void scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate = RiaDefines::MultiPlotPageUpdateType::ALL );
     void scheduleReplotOfAllPlots();
 
     void renderTo( QPaintDevice* painter );
+
+    void scrollToPlot( RiuPlotWidget* plotWidget );
+
+    void goToNextPage();
+    void goToPrevPage();
+    void goToLastPage();
+
+    void keepCurrentPageAfterUpdate();
 
 protected:
     void contextMenuEvent( QContextMenuEvent* ) override;
 
     void showEvent( QShowEvent* event ) override;
+    void hideEvent( QHideEvent* event ) override;
     void resizeEvent( QResizeEvent* event ) override;
 
     void applyPagePreviewBookSize( int frameWidth );
@@ -100,16 +107,33 @@ protected:
 
     virtual bool showYAxis( int row, int column ) const;
 
-    QList<QPointer<RiuQwtPlotWidget>> visiblePlotWidgets() const;
+    QList<QPointer<RiuPlotWidget>> visiblePlotWidgets() const;
+
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
+
+    void timerEvent( QTimerEvent* event ) override;
+
+    bool eventFilter( QObject* obj, QEvent* ev ) override;
+
+    virtual void createPages();
+
+    void adjustBookFrame();
+    void applyPageSettings( RiuMultiPlotPage* page );
+
+    const QList<QPointer<RiuMultiPlotPage>>& pages() const;
+
+    void updatePageTitles();
 
 private:
-    void                                     deleteAllPages();
-    void                                     createPages();
-    const QList<QPointer<RiuMultiPlotPage>>& pages() const;
-    RiuMultiPlotPage*                        createPage();
-    void                                     applyLook();
+    RiuMultiPlotPage* createPage();
+    void              deleteAllPages();
+    void              applyLook();
+
+    void changeCurrentPage( int pageNumber );
+
 private slots:
-    virtual void performUpdate();
+    virtual void performUpdate( RiaDefines::MultiPlotPageUpdateType updateType );
 
 protected:
     friend class RiaPlotWindowRedrawScheduler;
@@ -120,10 +144,15 @@ protected:
     QPointer<QVBoxLayout> m_bookLayout;
 
     QList<QPointer<RiuMultiPlotPage>> m_pages;
-    QList<QPointer<RiuQwtPlotWidget>> m_plotWidgets;
+    QList<QPointer<RiuPlotWidget>>    m_plotWidgets;
     caf::PdmPointer<RimMultiPlot>     m_plotDefinition;
     QString                           m_plotTitle;
     bool                              m_titleVisible;
     bool                              m_subTitlesVisible;
     bool                              m_previewMode;
+    int                               m_currentPageIndex;
+
+    bool m_goToPageAfterUpdate;
+    int  m_pageToGoTo;
+    int  m_pageTimerId;
 };

@@ -39,19 +39,19 @@ CAF_PDM_SOURCE_INIT( RimPlotCellPropertyFilter, "RimPlotCellPropertyFilter" );
 //--------------------------------------------------------------------------------------------------
 RimPlotCellPropertyFilter::RimPlotCellPropertyFilter()
 {
-    CAF_PDM_InitObject( "Plot Cell Property Filter", "", "", "" );
+    CAF_PDM_InitObject( "Plot Cell Property Filter" );
 
-    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_resultDefinition, "ResultDefinition", "Result Definition" );
 
     // Set to hidden to avoid this item to been displayed as a child item
     // Fields in this object are displayed using defineUiOrdering()
     m_resultDefinition.uiCapability()->setUiTreeHidden( true );
     m_resultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_lowerBound, "LowerBound", 0.0, "Min", "", "", "" );
+    CAF_PDM_InitField( &m_lowerBound, "LowerBound", 0.0, "Min" );
     m_lowerBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_upperBound, "UpperBound", 0.0, "Max", "", "", "" );
+    CAF_PDM_InitField( &m_upperBound, "UpperBound", 0.0, "Max" );
     m_upperBound.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 }
 

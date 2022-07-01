@@ -36,15 +36,15 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
 
 #include "cafProgressInfo.h"
@@ -84,11 +84,9 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     addSummaryCases( cases );
     if ( !cases.empty() )
     {
-        auto objectToSelect = RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases.front() );
-        if ( objectToSelect )
+        for ( auto sumcase : cases )
         {
-            RiuPlotMainWindowTools::setExpanded( objectToSelect );
-            RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+            RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { sumcase }, {} );
         }
     }
 
@@ -100,7 +98,7 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
     RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
     if ( mainPlotWindow && !cases.empty() )
     {
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 
     std::vector<RimCase*> allCases;
@@ -108,7 +106,7 @@ void RicImportSummaryCasesFeature::onActionTriggered( bool isChecked )
 
     if ( allCases.size() == 0 )
     {
-        RiuMainWindow::instance()->close();
+        RiuMainWindow::closeIfOpen();
     }
 }
 
@@ -137,18 +135,23 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
         addSummaryCases( *cases );
         if ( !cases->empty() && doCreateDefaultPlot )
         {
-            auto objectToSelect = RicSummaryPlotFeatureImpl::createDefaultSummaryPlot( cases->back() );
-            if ( objectToSelect )
+            RimSummaryMultiPlot* plotToSelect = nullptr;
+            for ( auto sumCase : *cases )
             {
-                RiuPlotMainWindowTools::setExpanded( objectToSelect );
-                RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+                plotToSelect = RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { sumCase }, {} );
+            }
+
+            if ( plotToSelect )
+            {
+                RiuPlotMainWindowTools::setExpanded( plotToSelect );
+                RiuPlotMainWindowTools::selectAsCurrentItem( plotToSelect );
             }
         }
 
         RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
         if ( mainPlotWindow && !cases->empty() )
         {
-            mainPlotWindow->updateSummaryPlotToolBar();
+            mainPlotWindow->updateMultiPlotToolBar();
 
             // Close main window if there are no eclipse cases imported
             std::vector<RimCase*> allCases;
@@ -156,7 +159,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
 
             if ( allCases.size() == 0 )
             {
-                RiuMainWindow::instance()->close();
+                RiuMainWindow::closeIfOpen();
             }
         }
         return true;

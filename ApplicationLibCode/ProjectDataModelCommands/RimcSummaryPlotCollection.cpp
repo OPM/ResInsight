@@ -20,8 +20,9 @@
 
 #include "SummaryPlotCommands/RicNewDefaultSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicNewSummaryEnsembleCurveSetFeature.h"
-#include "SummaryPlotCommands/RicNewSummaryPlotFeature.h"
 #include "SummaryPlotCommands/RicSummaryPlotFeatureImpl.h"
+
+#include "RiaTextStringTools.h"
 
 #include "RimSummaryCase.h"
 #include "RimSummaryPlot.h"
@@ -56,17 +57,16 @@ RimcSummaryPlotCollection_newSummaryPlot::RimcSummaryPlotCollection_newSummaryPl
 //--------------------------------------------------------------------------------------------------
 caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
 {
-    QStringList addressStrings = m_addressString().split( ";", QString::SkipEmptyParts );
+    QStringList addressStrings = RiaTextStringTools::splitSkipEmptyParts( m_addressString(), ";" );
 
     RimSummaryPlot* newPlot = nullptr;
     if ( m_ensemble )
     {
         if ( !addressStrings.empty() )
         {
-            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotFromAddresses( self<RimSummaryPlotCollection>(),
-                                                                                 std::vector<RimSummaryCase*>(),
-                                                                                 m_ensemble,
-                                                                                 addressStrings );
+            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForEnsemble( std::vector<RimSummaryCase*>(),
+                                                                               m_ensemble,
+                                                                               addressStrings );
         }
         else
         {
@@ -78,22 +78,17 @@ caf::PdmObjectHandle* RimcSummaryPlotCollection_newSummaryPlot::execute()
         std::vector<RimSummaryCase*> summaryCases = m_summaryCases.ptrReferencedObjects();
         if ( !addressStrings.empty() )
         {
-            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotFromAddresses( self<RimSummaryPlotCollection>(),
-                                                                                 summaryCases,
-                                                                                 nullptr,
-                                                                                 addressStrings );
+            newPlot = RicSummaryPlotFeatureImpl::createSummaryPlotForCases( summaryCases, addressStrings );
         }
         else
         {
-            newPlot = RicNewDefaultSummaryPlotFeature::createFromSummaryCases( self<RimSummaryPlotCollection>(),
-                                                                               summaryCases );
+            newPlot = RicNewDefaultSummaryPlotFeature::createFromSummaryCases( summaryCases );
         }
     }
 
     if ( newPlot )
     {
         newPlot->loadDataAndUpdate();
-        self<RimSummaryPlotCollection>()->updateAllRequiredEditors();
     }
 
     return newPlot;

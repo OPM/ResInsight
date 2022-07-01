@@ -107,6 +107,8 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
     RiuCreateMultipleFractionsUi* multipleFractionsUi = this->multipleFractionsUi();
     if ( !multipleFractionsUi ) return;
 
+    std::set<RimWellPathFractureCollection*> fractureCollectionToUpdate;
+
     auto items = multipleFractionsUi->locationsForNewFractures();
     for ( auto item : items )
     {
@@ -127,6 +129,7 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
 
             RimWellPathFracture* fracture = new RimWellPathFracture();
             fractureCollection->addFracture( fracture );
+            fractureCollectionToUpdate.insert( fractureCollection );
 
             fracture->setFractureUnit( item.wellPath->unitSystem() );
             fracture->setMeasuredDepth( item.measuredDepth );
@@ -145,7 +148,11 @@ void RicCreateMultipleFracturesFeature::slotAppendFractures()
     RiaApplication* app  = RiaApplication::instance();
     RimProject*     proj = app->project();
 
-    proj->updateConnectedEditors();
+    for ( auto coll : fractureCollectionToUpdate )
+    {
+        coll->updateConnectedEditors();
+    }
+
     proj->reloadCompletionTypeResultsInAllViews();
 }
 

@@ -769,7 +769,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
                         {
                             std::vector<caf::PdmUiItem*> uiItems;
-                            RiuMainWindow::instance()->projectTreeView()->selectedUiItems( uiItems );
+                            RiuMainWindow::instance()->projectTreeView( 0 )->selectedUiItems( uiItems );
 
                             if ( uiItems.size() == 1 )
                             {

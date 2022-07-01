@@ -37,6 +37,7 @@
 
 #include <QMainWindow>
 #include <QMdiSubWindow>
+#include <QModelIndex>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -47,49 +48,38 @@ void RiuMainWindowTools::collapseSiblings( const caf::PdmUiItem* sourceUiItem )
 
     if ( !RiaGuiApplication::isRunning() ) return;
 
+    caf::PdmUiTreeView* sourceTreeView = nullptr;
+
+    if ( RiuMainWindow::instance() )
     {
-        caf::PdmUiTreeView*     sourceTreeView         = nullptr;
-        caf::PdmUiTreeOrdering* sourceTreeOrderingItem = nullptr;
-
+        sourceTreeView = RiuMainWindow::instance()->getTreeViewWithItem( sourceUiItem );
+    }
+    if ( !sourceTreeView )
+    {
+        RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
+        if ( mpw )
         {
-            QModelIndex modIndex;
-
-            if ( RiuMainWindow::instance() )
-            {
-                modIndex = RiuMainWindow::instance()->projectTreeView()->findModelIndex( sourceUiItem );
-            }
-
-            if ( modIndex.isValid() )
-            {
-                sourceTreeView = RiuMainWindow::instance()->projectTreeView();
-            }
-            else
-            {
-                RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
-                if ( mpw )
-                {
-                    modIndex = mpw->projectTreeView()->findModelIndex( sourceUiItem );
-                    if ( modIndex.isValid() )
-                    {
-                        sourceTreeView = mpw->projectTreeView();
-                    }
-                }
-            }
-
-            if ( !modIndex.isValid() ) return;
-
-            sourceTreeOrderingItem = static_cast<caf::PdmUiTreeOrdering*>( modIndex.internalPointer() );
+            sourceTreeView = mpw->getTreeViewWithItem( sourceUiItem );
         }
+    }
 
-        if ( sourceTreeView && sourceTreeOrderingItem && sourceTreeOrderingItem->parent() )
+    if ( !sourceTreeView ) return;
+
+    caf::PdmUiTreeOrdering* sourceTreeOrderingItem = nullptr;
+    QModelIndex             modIndex               = sourceTreeView->findModelIndex( sourceUiItem );
+    if ( !modIndex.isValid() ) return;
+
+    sourceTreeOrderingItem = sourceTreeView->uiTreeOrderingFromModelIndex( modIndex );
+    if ( sourceTreeOrderingItem == nullptr ) return;
+
+    if ( sourceTreeOrderingItem && sourceTreeOrderingItem->parent() )
+    {
+        for ( int i = 0; i < sourceTreeOrderingItem->parent()->childCount(); i++ )
         {
-            for ( int i = 0; i < sourceTreeOrderingItem->parent()->childCount(); i++ )
+            auto siblingTreeOrderingItem = sourceTreeOrderingItem->parent()->child( i );
+            if ( siblingTreeOrderingItem != sourceTreeOrderingItem )
             {
-                auto siblingTreeOrderingItem = sourceTreeOrderingItem->parent()->child( i );
-                if ( siblingTreeOrderingItem != sourceTreeOrderingItem )
-                {
-                    sourceTreeView->setExpanded( siblingTreeOrderingItem->activeItem(), false );
-                }
+                sourceTreeView->setExpanded( siblingTreeOrderingItem->activeItem(), false );
             }
         }
     }

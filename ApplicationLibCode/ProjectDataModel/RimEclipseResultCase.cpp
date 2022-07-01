@@ -33,6 +33,7 @@
 #include "RifReaderEclipseOutput.h"
 #include "RifReaderEclipseRft.h"
 #include "RifReaderMockModel.h"
+#include "RifReaderOpmRft.h"
 #include "RifReaderSettings.h"
 
 #include "RigCaseCellResultsData.h"
@@ -68,15 +69,18 @@ CAF_PDM_SOURCE_INIT( RimEclipseResultCase, "EclipseCase" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase::RimEclipseResultCase()
-    : RimEclipseCase()
+    : m_gridAndWellDataIsReadFromFile( false )
+    , m_activeCellInfoIsReadFromFile( false )
+    , m_useOpmRftReader( true )
+    , m_rftDataIsReadFromFile( false )
 {
     CAF_PDM_InitScriptableObject( "Eclipse Case", ":/Case48x48.png", "", "The Regular Eclipse Results Case" );
 
-    CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_unitSystem, "UnitSystem", "Unit System" );
     m_unitSystem.registerGetMethod( RimProject::current(), &RimProject::commonUnitSystemForAllCases );
     m_unitSystem.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_flowDiagSolutions, "FlowDiagSolutions", "Flow Diagnostics Solutions" );
     m_flowDiagSolutions.uiCapability()->setUiTreeHidden( true );
     m_flowDiagSolutions.uiCapability()->setUiTreeChildrenHidden( true );
 
@@ -85,14 +89,11 @@ RimEclipseResultCase::RimEclipseResultCase()
     m_flipYAxis.xmlCapability()->setIOWritable( true );
     // flipYAxis.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault( &m_sourSimFileName, "SourSimFileName", "SourSim File Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_sourSimFileName, "SourSimFileName", "SourSim File Name" );
     m_sourSimFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 #ifndef USE_HDF5
     m_sourSimFileName.uiCapability()->setUiHidden( true );
 #endif
-
-    m_activeCellInfoIsReadFromFile  = false;
-    m_gridAndWellDataIsReadFromFile = false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -205,24 +206,16 @@ bool RimEclipseResultCase::importGridAndResultMetaData( bool showTimeStepFilter 
     m_gridAndWellDataIsReadFromFile = true;
     m_activeCellInfoIsReadFromFile  = true;
 
-    QFileInfo eclipseCaseFileInfo( gridFileName() );
-    QString   rftFileName = eclipseCaseFileInfo.path() + "/" + eclipseCaseFileInfo.completeBaseName() + ".RFT";
-    QFileInfo rftFileInfo( rftFileName );
+    ensureRftDataIsImported();
 
-    if ( rftFileInfo.exists() )
-    {
-        RiaLogging::info( QString( "RFT file found" ) );
-        m_readerEclipseRft = new RifReaderEclipseRft( rftFileInfo.filePath() );
-    }
-
-    if ( m_flowDiagSolutions.size() == 0 )
+    if ( m_flowDiagSolutions.empty() )
     {
         m_flowDiagSolutions.push_back( new RimFlowDiagSolution() );
     }
 
     if ( !m_sourSimFileName().path().isEmpty() )
     {
-        RifReaderEclipseOutput* outReader = dynamic_cast<RifReaderEclipseOutput*>( readerInterface.p() );
+        auto* outReader = dynamic_cast<RifReaderEclipseOutput*>( readerInterface.p() );
         outReader->setHdf5FileName( m_sourSimFileName().path() );
     }
 
@@ -336,18 +329,46 @@ void RimEclipseResultCase::loadAndUpdateSourSimData()
         // Deselect SourSimRL cell results
         for ( Rim3dView* view : views() )
         {
-            RimEclipseView* eclipseView = dynamic_cast<RimEclipseView*>( view );
+            auto* eclipseView = dynamic_cast<RimEclipseView*>( view );
             if ( eclipseView != nullptr )
             {
                 if ( eclipseView->cellResult()->resultType() == RiaDefines::ResultCatType::SOURSIMRL )
                 {
                     eclipseView->cellResult()->setResultType( RiaDefines::ResultCatType::DYNAMIC_NATIVE );
-                    eclipseView->cellResult()->setResultVariable( "SOIL" );
+                    eclipseView->cellResult()->setResultVariable( RiaResultNames::soil() );
                     eclipseView->loadDataAndUpdate();
                 }
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseResultCase::ensureRftDataIsImported()
+{
+    if ( m_rftDataIsReadFromFile ) return;
+
+    QFileInfo eclipseCaseFileInfo( gridFileName() );
+    QString   rftFileName = eclipseCaseFileInfo.path() + "/" + eclipseCaseFileInfo.completeBaseName() + ".RFT";
+    QFileInfo rftFileInfo( rftFileName );
+
+    if ( rftFileInfo.exists() )
+    {
+        RiaLogging::info( QString( "RFT file found" ) );
+
+        if ( m_useOpmRftReader )
+        {
+            m_readerOpmRft = new RifReaderOpmRft( rftFileInfo.filePath() );
+        }
+        else
+        {
+            m_readerEclipseRft = new RifReaderEclipseRft( rftFileInfo.filePath() );
+        }
+    }
+
+    m_rftDataIsReadFromFile = true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -466,8 +487,8 @@ cvf::ref<RifReaderInterface> RimEclipseResultCase::createMockModel( QString mode
 //--------------------------------------------------------------------------------------------------
 RimEclipseResultCase::~RimEclipseResultCase()
 {
-    reservoirViews.deleteAllChildObjects();
-    m_flowDiagSolutions.deleteAllChildObjects();
+    reservoirViews.deleteChildren();
+    m_flowDiagSolutions.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -490,38 +511,9 @@ void RimEclipseResultCase::readGridDimensions( std::vector<std::vector<int>>& gr
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseResultCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // bool                 foundFile = false;
-    // std::vector<QString> searchedPaths;
-
-    // Update filename and folder paths when opening project from a different file location
-    // caseFileName = RimTools::relocateFile( caseFileName(), newProjectPath, oldProjectPath, &foundFile,
-    // &searchedPaths );
-
-    // std::vector<QString>        relocatedFaultFiles;
-    // const std::vector<QString>& orgFilesContainingFaults = filesContainingFaults();
-    // for ( auto faultFileName : orgFilesContainingFaults )
-    // {
-    //     QString relocatedFaultFile =
-    //         RimTools::relocateFile( faultFileName, newProjectPath, oldProjectPath, &foundFile, &searchedPaths );
-    //     relocatedFaultFiles.push_back( relocatedFaultFile );
-    // }
-    //
-    // setFilesContainingFaults( relocatedFaultFiles );
-
-#if 0 // Output the search path for debugging
-    for (size_t i = 0; i < searchedPaths.size(); ++i)
-       qDebug() << searchedPaths[i];
-#endif
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimFlowDiagSolution* RimEclipseResultCase::defaultFlowDiagSolution()
 {
-    if ( m_flowDiagSolutions.size() > 0 )
+    if ( !m_flowDiagSolutions.empty() )
     {
         return m_flowDiagSolutions[0];
     }
@@ -554,8 +546,12 @@ RigFlowDiagSolverInterface* RimEclipseResultCase::flowDiagSolverInterface()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderEclipseRft* RimEclipseResultCase::rftReader()
+RifReaderRftInterface* RimEclipseResultCase::rftReader()
 {
+    ensureRftDataIsImported();
+
+    if ( m_useOpmRftReader ) return m_readerOpmRft.p();
+
     return m_readerEclipseRft.p();
 }
 
@@ -638,7 +634,7 @@ void RimEclipseResultCase::defineEditorAttribute( const caf::PdmFieldHandle* fie
 {
     if ( field == &m_sourSimFileName )
     {
-        caf::PdmUiFilePathEditorAttribute* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
         if ( myAttr )
         {
             myAttr->m_fileSelectionFilter = "SourSim (*.sourres)";

@@ -22,18 +22,19 @@
 #include "RifEclipseSummaryAddressQMetaType.h"
 #include "RifSummaryReaderInterface.h"
 
-#include "RiaDefines.h"
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
+#include "RiaPlotDefines.h"
 
 #include "RimEnsembleCurveSetColorManager.h"
 #include "RimEnsembleCurveSetInterface.h"
 #include "RimObjectiveFunction.h"
-#include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimTimeStepFilter.h"
 
 #include "RigEnsembleParameter.h"
+
+#include "RiuPlotAxis.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -45,13 +46,13 @@
 #include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
+#include <QDate>
 #include <QPointer>
 
 class RimSummaryCase;
 class RimSummaryCaseCollection;
 class RimSummaryCurve;
 class RimSummaryAddress;
-class RimSummaryFilter_OBSOLETE;
 class RimSummaryPlotSourceStepping;
 class RimSummaryCurveAutoName;
 class RimEnsembleCurveFilterCollection;
@@ -63,12 +64,14 @@ class RiuDraggableOverlayFrame;
 class RiaSummaryCurveDefinitionAnalyser;
 class RiaSummaryCurveDefinition;
 class RiuSummaryVectorSelectionDialog;
+class RiuPlotWidget;
+class RiuPlotCurve;
+class RimPlotAxisPropertiesInterface;
 
 class QwtPlot;
 class QwtPlotCurve;
 class QKeyEvent;
 class QFrame;
-class QDate;
 
 //==================================================================================================
 ///
@@ -94,9 +97,9 @@ public:
     void setColor( cvf::Color3f color );
 
     void loadDataAndUpdate( bool updateParentPlot );
-    void setParentQwtPlotNoReplot( QwtPlot* plot );
-    void detachQwtCurves();
-    void reattachQwtCurves();
+    void setParentPlotNoReplot( RiuPlotWidget* plot );
+    void deletePlotCurves();
+    void reattachPlotCurves();
 
     void addCurve( RimSummaryCurve* curve );
     void deleteCurve( RimSummaryCurve* curve );
@@ -104,6 +107,8 @@ public:
     void                          setSummaryAddress( RifEclipseSummaryAddress address );
     RifEclipseSummaryAddress      summaryAddress() const;
     std::vector<RimSummaryCurve*> curves() const;
+
+    int ensembleId() const;
 
     RimCustomObjectiveFunctionCollection* customObjectiveFunctionCollection();
 
@@ -164,6 +169,12 @@ public:
 
     std::vector<cvf::Color3f> generateColorsForCases( const std::vector<RimSummaryCase*>& summaryCases ) const;
 
+    RiuPlotAxis axisY() const;
+    void        setLeftOrRightAxisY( RiuPlotAxis plotAxis );
+
+protected:
+    void initAfterRead() override;
+
 private:
     void updateEnsembleCurves( const std::vector<RimSummaryCase*>& sumCases );
     void updateStatisticsCurves( const std::vector<RimSummaryCase*>& sumCases );
@@ -174,11 +185,10 @@ private:
                                                 QString                    uiConfigName,
                                                 caf::PdmUiEditorAttribute* attribute ) override;
 
-    QList<caf::PdmOptionItemInfo>          calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                  bool*                      useOptionsOnly ) override;
-    std::set<time_t>                       allAvailableTimeSteps();
-    std::set<RimSummaryCase*>              timestepDefiningSourceCases();
-    RiaSummaryCurveDefinitionAnalyser*     getOrCreateSelectedCurveDefAnalyser();
+    QList<caf::PdmOptionItemInfo>      calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    std::set<time_t>                   allAvailableTimeSteps();
+    std::set<RimSummaryCase*>          timestepDefiningSourceCases();
+    RiaSummaryCurveDefinitionAnalyser* getOrCreateSelectedCurveDefAnalyser();
     std::vector<RiaSummaryCurveDefinition> curveDefinitions() const;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
@@ -186,7 +196,7 @@ private:
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void updateQwtPlotAxis();
+    void updatePlotAxis();
 
     QString createAutoName() const;
 
@@ -207,11 +217,11 @@ private:
 
     caf::PdmPointer<RimSummaryCurve> m_currentSummaryCurve;
 
-    caf::PdmPtrField<RimSummaryCaseCollection*>          m_yValuesSummaryCaseCollection;
-    caf::PdmChildField<RimSummaryAddress*>               m_yValuesSummaryAddress;
-    caf::PdmField<RifEclipseSummaryAddress>              m_yValuesSummaryAddressUiField;
-    caf::PdmField<bool>                                  m_yPushButtonSelectSummaryAddress;
-    caf::PdmField<RiaQDateTimeTools::DateTimePeriodEnum> m_resampling;
+    caf::PdmPtrField<RimSummaryCaseCollection*>   m_yValuesSummaryCaseCollection;
+    caf::PdmChildField<RimSummaryAddress*>        m_yValuesSummaryAddress;
+    caf::PdmField<RifEclipseSummaryAddress>       m_yValuesSummaryAddressUiField;
+    caf::PdmField<bool>                           m_yPushButtonSelectSummaryAddress;
+    caf::PdmField<RiaDefines::DateTimePeriodEnum> m_resampling;
 
     caf::PdmField<ColorModeEnum> m_colorMode;
     caf::PdmField<cvf::Color3f>  m_color;
@@ -228,7 +238,8 @@ private:
     caf::PdmField<TimeStepFilterEnum>             m_timeStepFilter;
     caf::PdmField<std::vector<QDateTime>>         m_selectedTimeSteps;
 
-    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis;
+    caf::PdmField<caf::AppEnum<RiaDefines::PlotAxis>> m_plotAxis_OBSOLETE;
+    caf::PdmPtrField<RimPlotAxisPropertiesInterface*> m_plotAxisProperties;
 
     caf::PdmChildField<RimRegularLegendConfig*>           m_legendConfig;
     caf::PdmChildField<RimEnsembleCurveFilterCollection*> m_curveFilters;
@@ -243,7 +254,7 @@ private:
     caf::PdmProxyValueField<QString>             m_autoGeneratedName;
     caf::PdmChildField<RimSummaryCurveAutoName*> m_summaryAddressNameTools;
 
-    QwtPlotCurve*                      m_qwtPlotCurveForLegendText;
+    RiuPlotCurve*                      m_plotCurveForLegendText;
     QPointer<RiuDraggableOverlayFrame> m_legendOverlayFrame;
     QPointer<RiuDraggableOverlayFrame> m_filterOverlayFrame;
     QPointer<RiuDraggableOverlayFrame> m_objectiveFunctionOverlayFrame;
@@ -254,7 +265,4 @@ private:
 
     bool m_disableStatisticCurves;
     bool m_isCurveSetFiltered;
-
-    // Obsolete fields
-    caf::PdmChildField<RimSummaryFilter_OBSOLETE*> m_yValuesSummaryFilter_OBSOLETE;
 };

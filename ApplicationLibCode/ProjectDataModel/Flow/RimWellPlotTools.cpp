@@ -550,13 +550,16 @@ std::set<QDateTime> RimWellPlotTools::availableSimWellTimesteps( RimEclipseCase*
                                                                  const QString&  simWellName,
                                                                  bool            addFirstReportTimestep )
 {
+    if ( !eclCase || !eclCase->eclipseCaseData() ) return {};
+
     std::set<QDateTime> availebleTimeSteps;
 
-    if ( eclCase && eclCase->eclipseCaseData() )
+    const RigSimWellData* simWell = eclCase->eclipseCaseData()->findSimWellData( simWellName );
+
+    if ( simWell )
     {
         std::vector<QDateTime> allTimeSteps =
             eclCase->eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->timeStepDates();
-        const RigSimWellData* simWell = eclCase->eclipseCaseData()->findSimWellData( simWellName );
 
         for ( size_t tsIdx = 0; tsIdx < allTimeSteps.size(); ++tsIdx )
         {
@@ -950,7 +953,7 @@ std::map<QDateTime, std::set<RifDataSourceForRftPlt>> RimWellPlotTools::calculat
     const std::vector<RifDataSourceForRftPlt>&                   selSources,
     const std::set<RifEclipseRftAddress::RftWellLogChannelType>& interestingRFTResults )
 {
-    bool addFirstTimestep = ( interestingRFTResults.count( RifEclipseRftAddress::PRESSURE ) == 1 );
+    bool addFirstTimestep = ( interestingRFTResults.count( RifEclipseRftAddress::RftWellLogChannelType::PRESSURE ) == 1 );
 
     const QString simWellName = RimWellPlotTools::simWellName( wellPathNameOrSimWellName );
 

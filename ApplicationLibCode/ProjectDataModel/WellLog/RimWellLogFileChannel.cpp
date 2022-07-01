@@ -30,10 +30,10 @@ CAF_PDM_SOURCE_INIT( RimWellLogFileChannel, "WellLogFileChannel" );
 //--------------------------------------------------------------------------------------------------
 RimWellLogFileChannel::RimWellLogFileChannel()
 {
-    CAF_PDM_InitObject( "Well Log File Channel", "", "", "" );
+    CAF_PDM_InitObject( "Well Log File Channel" );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "", "", "", "" );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_name );
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "" );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_name );
 }
 
 //--------------------------------------------------------------------------------------------------

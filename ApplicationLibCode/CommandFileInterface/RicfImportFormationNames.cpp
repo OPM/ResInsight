@@ -34,8 +34,8 @@ CAF_PDM_SOURCE_INIT( RicfImportFormationNames, "importFormationNames" );
 //--------------------------------------------------------------------------------------------------
 RicfImportFormationNames::RicfImportFormationNames()
 {
-    CAF_PDM_InitScriptableFieldNoDefault( &m_formationFiles, "formationFiles", "", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_applyToCaseId, "applyToCaseId", -1, "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_formationFiles, "formationFiles", "" );
+    CAF_PDM_InitScriptableField( &m_applyToCaseId, "applyToCaseId", -1, "" );
 }
 
 //--------------------------------------------------------------------------------------------------

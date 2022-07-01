@@ -41,13 +41,16 @@ protected:
     void alignScrollbar( int offset );
 
 private:
-    RimDepthTrackPlot* wellLogPlotDefinition();
+    RimDepthTrackPlot* depthTrackPlot();
 
 private slots:
     void slotSetMinDepth( int value );
-    void performUpdate() override;
+    void performUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate ) override;
 
 private:
-    QPointer<QVBoxLayout> m_trackScrollBarLayout;
-    QScrollBar*           m_trackScrollBar;
+    QPointer<QVBoxLayout> m_verticalTrackScrollBarLayout;
+    QScrollBar*           m_verticalTrackScrollBar;
+
+    QPointer<QHBoxLayout> m_horizontalTrackScrollBarLayout;
+    QScrollBar*           m_horizontalTrackScrollBar;
 };

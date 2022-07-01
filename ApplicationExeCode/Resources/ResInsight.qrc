@@ -13,6 +13,7 @@
         <file>AnalysisPlotFilter16x16.png</file>
         <file>AppLogo48x48.png</file>
         <file>Axes16x16.png</file>
+        <file>AxesSync16x16.png</file>
         <file>BottomAxis16x16.png</file>
         <file>Bullet.png</file>
         <file>CascadeWindows.svg</file>
@@ -145,6 +146,7 @@
         <file>SummaryPlots16x16.png</file>
         <file>SummaryPlotsLight16x16.png</file>
         <file>SummaryTemplate16x16.png</file>
+        <file>SummaryEnsembleTemplate16x16.png</file>
         <file>SummaryXPlotLight16x16.png</file>
         <file>SummaryXPlotsLight16x16.png</file>
         <file>Swap.png</file>
@@ -240,6 +242,33 @@
         <file>ComboBoxDown.svg</file>
         <file>ComboBoxUp.svg</file>
         <file>WellIntAnalysis.png</file>
+        <file>DataVector.png</file>
+        <file>data-sources.svg</file>
+        <file>edit.svg</file>
+        <file>graph.svg</file>
+        <file>messages.svg</file>
+        <file>multiplot.svg</file>
+        <file>plot-manager.svg</file>
+        <file>plots.svg</file>
+        <file>property-editor.svg</file>
+        <file>scripts.svg</file>
+        <file>standard.svg</file>
+        <file>summary-plot.svg</file>
+        <file>undo-stack.svg</file>
+        <file>view.svg</file>
+        <file>view-snapshots.svg</file>
+        <file>well-log-plot.svg</file>
+        <file>window-management.svg</file>
+        <file>DisableZoom.png</file>
+        <file>AppendNext.svg</file>
+        <file>AppendPrev.svg</file>
+        <file>AppendNext.png</file>
+        <file>AppendPrev.png</file>
+        <file>AppendNextCurve.svg</file>
+        <file>AppendPrevCurve.svg</file>
+        <file>AppendNextCurve.png</file>
+        <file>AppendPrevCurve.png</file>
+        <file>CheckOverlay16x16.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>

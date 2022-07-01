@@ -18,6 +18,8 @@
 
 #include "RigEquil.h"
 
+#include "RiaTextStringTools.h"
+
 #include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
@@ -133,7 +135,7 @@ RigEquil RigEquil::parseString( const QString& keywordData )
     QString line( keywordData );
     line.replace( "\t", " " );
 
-    QStringList items = line.split( " ", QString::SkipEmptyParts );
+    QStringList items = RiaTextStringTools::splitSkipEmptyParts( line );
     if ( items.size() > 0 )
     {
         datumDepth = items.at( 0 ).toDouble();

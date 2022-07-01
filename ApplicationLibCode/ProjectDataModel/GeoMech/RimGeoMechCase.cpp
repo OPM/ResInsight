@@ -126,31 +126,26 @@ RimGeoMechCase::RimGeoMechCase( void )
                        "Used to calculate the SE:SFI result",
                        "" );
 
-    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNames, "ElementPropertyFileNames", "Element Property Files" );
 
-    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNameIndexUiSelection,
-                                "ElementPropertyFileNameIndexUiSelection",
-                                "",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_elementPropertyFileNameIndexUiSelection, "ElementPropertyFileNameIndexUiSelection", "" );
     m_elementPropertyFileNameIndexUiSelection.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_importElementPropertyFileCommand, "importElementPropertyFileCommad", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_importElementPropertyFileCommand, "importElementPropertyFileCommad", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_importElementPropertyFileCommand );
 
-    CAF_PDM_InitField( &m_closeElementPropertyFileCommand, "closeElementPropertyFileCommad", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_closeElementPropertyFileCommand, "closeElementPropertyFileCommad", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_closeElementPropertyFileCommand );
 
-    CAF_PDM_InitField( &m_reloadElementPropertyFileCommand, "reloadElementPropertyFileCommand", false, "", "", "", "" );
+    CAF_PDM_InitField( &m_reloadElementPropertyFileCommand, "reloadElementPropertyFileCommand", false, "" );
     caf::PdmUiPushButtonEditor::configureEditorForField( &m_reloadElementPropertyFileCommand );
 
     caf::AppEnum<BiotCoefficientType> defaultBiotCoefficientType = RimGeoMechCase::BiotCoefficientType::BIOT_NONE;
-    CAF_PDM_InitField( &m_biotCoefficientType, "BiotCoefficientType", defaultBiotCoefficientType, "Biot Coefficient", "", "", "" );
-    CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed Coefficient", "", "", "" );
+    CAF_PDM_InitField( &m_biotCoefficientType, "BiotCoefficientType", defaultBiotCoefficientType, "Biot Coefficient" );
+    CAF_PDM_InitField( &m_biotFixedCoefficient, "BiotFixedCoefficient", 1.0, "Fixed Coefficient" );
     m_biotFixedCoefficient.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_biotResultAddress, "BiotResultAddress", QString( "" ), "Value", "", "", "" );
+    CAF_PDM_InitField( &m_biotResultAddress, "BiotResultAddress", QString( "" ), "Value" );
     m_biotResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
     caf::AppEnum<InitialPermeabilityType> defaultInitialPermeabilityType =
@@ -158,38 +153,24 @@ RimGeoMechCase::RimGeoMechCase( void )
     CAF_PDM_InitField( &m_initialPermeabilityType,
                        "InitialPermeabilityType",
                        defaultInitialPermeabilityType,
-                       "Initial Permeability",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_initialPermeabilityFixed,
-                       "InitialPermeabilityFixed",
-                       1.0,
-                       "Fixed Initial Permeability [mD]",
-                       "",
-                       "",
-                       "" );
+                       "Initial Permeability" );
+    CAF_PDM_InitField( &m_initialPermeabilityFixed, "InitialPermeabilityFixed", 1.0, "Fixed Initial Permeability [mD]" );
     m_initialPermeabilityFixed.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_initialPermeabilityResultAddress, "InitialPermeabilityAddress", QString( "" ), "Value", "", "", "" );
+    CAF_PDM_InitField( &m_initialPermeabilityResultAddress, "InitialPermeabilityAddress", QString( "" ), "Value" );
     m_initialPermeabilityResultAddress.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_permeabilityExponent, "PermeabilityExponent", 1.0, "Permeability Exponent", "", "", "" );
+    CAF_PDM_InitField( &m_permeabilityExponent, "PermeabilityExponent", 1.0, "Permeability Exponent" );
     m_permeabilityExponent.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_waterDensityShearSlipIndicator, "WaterDensityShearSlipIndicator", 1.03, "Water Density", "", "", "" );
+    CAF_PDM_InitField( &m_waterDensityShearSlipIndicator, "WaterDensityShearSlipIndicator", 1.03, "Water Density" );
     m_waterDensityShearSlipIndicator.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_contourMapCollection, "ContourMaps", "2d Contour Maps" );
     m_contourMapCollection = new RimGeoMechContourMapViewCollection;
     m_contourMapCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_mudWeightWindowParameters,
-                                "MudWeightWindowParameters",
-                                "Mud Weight Window Parameters",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_mudWeightWindowParameters, "MudWeightWindowParameters", "Mud Weight Window Parameters" );
     m_mudWeightWindowParameters = new RimMudWeightWindowParameters;
     m_mudWeightWindowParameters.uiCapability()->setUiTreeHidden( true );
 
@@ -202,7 +183,7 @@ RimGeoMechCase::RimGeoMechCase( void )
 //--------------------------------------------------------------------------------------------------
 RimGeoMechCase::~RimGeoMechCase( void )
 {
-    geoMechViews.deleteAllChildObjects();
+    geoMechViews.deleteChildren();
 
     RimProject* project = RimProject::current();
     if ( project )
@@ -415,14 +396,6 @@ RimGeoMechCase::CaseOpenStatus RimGeoMechCase::openGeoMechCase( std::string* err
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGeoMechCase::updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath )
-{
-    // No longer in use. Filepaths are now of type caf::FilePath, and updated in RimProject on load.
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 {
     std::vector<Rim3dView*> views;
@@ -445,7 +418,7 @@ std::vector<Rim3dView*> RimGeoMechCase::allSpecialViews() const
 void RimGeoMechCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= ""*/ )
 {
     std::vector<PdmObjectHandle*> children;
-    geoMechViews.childObjects( &children );
+    geoMechViews.children( &children );
 
     for ( auto child : children )
         uiTreeOrdering.add( child );
@@ -1205,12 +1178,11 @@ void RimGeoMechCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimGeoMechCase::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = RimCase::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = RimCase::calculateValueOptions( fieldNeedingOptions );
 
     if ( fieldNeedingOptions == &m_elementPropertyFileNameIndexUiSelection )
     {

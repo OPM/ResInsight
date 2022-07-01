@@ -19,6 +19,10 @@
 
 #include "RimMainPlotCollection.h"
 
+#include "RiaPlotCollectionScheduler.h"
+
+#include "PlotBuilderCommands/RicSummaryPlotBuilder.h"
+
 #include "RimAbstractPlotCollection.h"
 #include "RimAnalysisPlotCollection.h"
 #include "RimCorrelationPlotCollection.h"
@@ -38,6 +42,7 @@
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCrossPlotCollection.h"
+#include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimVfpPlotCollection.h"
 #include "RimViewWindow.h"
@@ -65,71 +70,63 @@ CAF_PDM_SOURCE_INIT( RimMainPlotCollection, "MainPlotCollection" );
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection::RimMainPlotCollection()
 {
-    CAF_PDM_InitObject( "Plots", "", "", "" );
+    CAF_PDM_InitObject( "Plots" );
 
-    CAF_PDM_InitField( &m_show, "Show", true, "Show 2D Plot Window", "", "", "" );
+    CAF_PDM_InitField( &m_show, "Show", true, "Show 2D Plot Window" );
     m_show.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogPlotCollection, "WellLogPlotCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogPlotCollection, "WellLogPlotCollection", "" );
     m_wellLogPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_rftPlotCollection, "RftPlotCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rftPlotCollection, "RftPlotCollection", "" );
     m_rftPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_pltPlotCollection, "PltPlotCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_pltPlotCollection, "PltPlotCollection", "" );
     m_pltPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection, "SummaryPlotCollection", "Summary Plots", "", "", "" );
-    m_summaryPlotCollection.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_summaryMultiPlotCollection, "SummaryMultiPlotCollection", "Multi Summary Plots" );
+    m_summaryMultiPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_analysisPlotCollection, "AnalysisPlotCollection", "Analysis Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_analysisPlotCollection, "AnalysisPlotCollection", "Analysis Plots" );
     m_analysisPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_correlationPlotCollection, "CorrelationPlotCollection", "Correlation Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_correlationPlotCollection, "CorrelationPlotCollection", "Correlation Plots" );
     m_correlationPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCrossPlotCollection, "SummaryCrossPlotCollection", "Summary Cross Plots" );
     m_summaryCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_flowPlotCollection, "FlowPlotCollection", "Flow Diagnostics Plots" );
     m_flowPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridCrossPlotCollection, "Rim3dCrossPlotCollection", "3d Cross Plots" );
     m_gridCrossPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_saturationPressurePlotCollection,
                                 "RimSaturationPressurePlotCollection",
-                                "Saturation Pressure Plots",
-                                "",
-                                "",
-                                "" );
+                                "Saturation Pressure Plots" );
     m_saturationPressurePlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_multiPlotCollection, "RimMultiPlotCollection", "Multi Plots" );
     m_multiPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelPlotCollection, "StimPlanModelPlotCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanModelPlotCollection, "StimPlanModelPlotCollection", "" );
     m_stimPlanModelPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_vfpPlotCollection, "VfpPlotCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_vfpPlotCollection, "VfpPlotCollection", "" );
     m_vfpPlotCollection.uiCapability()->setUiTreeHidden( true );
 #ifdef USE_QTCHARTS
-    CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_gridStatisticsPlotCollection, "GridStatisticsPlotCollection", "" );
     m_gridStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection,
-                                "EnsembleFractureStatisticsPlotCollection",
-                                "",
-                                "",
-                                "",
-                                "" );
+    CAF_PDM_InitFieldNoDefault( &m_ensembleFractureStatisticsPlotCollection, "EnsembleFractureStatisticsPlotCollection", "" );
     m_ensembleFractureStatisticsPlotCollection.uiCapability()->setUiTreeHidden( true );
 #endif
 
     m_wellLogPlotCollection            = new RimWellLogPlotCollection();
     m_rftPlotCollection                = new RimRftPlotCollection();
     m_pltPlotCollection                = new RimPltPlotCollection();
-    m_summaryPlotCollection            = new RimSummaryPlotCollection();
+    m_summaryMultiPlotCollection       = new RimSummaryMultiPlotCollection();
     m_summaryCrossPlotCollection       = new RimSummaryCrossPlotCollection();
     m_flowPlotCollection               = new RimFlowPlotCollection();
     m_gridCrossPlotCollection          = new RimGridCrossPlotCollection;
@@ -143,6 +140,11 @@ RimMainPlotCollection::RimMainPlotCollection()
     m_gridStatisticsPlotCollection             = new RimGridStatisticsPlotCollection;
     m_ensembleFractureStatisticsPlotCollection = new RimEnsembleFractureStatisticsPlotCollection;
 #endif
+
+    CAF_PDM_InitFieldNoDefault( &m_summaryPlotCollection_OBSOLETE, "SummaryPlotCollection", "Summary Plots" );
+    m_summaryPlotCollection_OBSOLETE.uiCapability()->setUiTreeHidden( true );
+    m_summaryPlotCollection_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_summaryPlotCollection_OBSOLETE = new RimSummaryPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -150,6 +152,25 @@ RimMainPlotCollection::RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimMainPlotCollection::~RimMainPlotCollection()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::initAfterRead()
+{
+    std::vector<RimSummaryPlot*> plotsToMove;
+    for ( auto singlePlot : m_summaryPlotCollection_OBSOLETE()->plots() )
+    {
+        plotsToMove.push_back( singlePlot );
+    }
+
+    for ( auto singlePlot : plotsToMove )
+    {
+        m_summaryPlotCollection_OBSOLETE()->removePlot( singlePlot );
+
+        RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( singlePlot );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -196,9 +217,9 @@ RimPltPlotCollection* RimMainPlotCollection::pltPlotCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryPlotCollection* RimMainPlotCollection::summaryPlotCollection() const
+RimSummaryMultiPlotCollection* RimMainPlotCollection::summaryMultiPlotCollection() const
 {
-    return m_summaryPlotCollection();
+    return m_summaryMultiPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -321,10 +342,11 @@ void RimMainPlotCollection::updatePlotsWithFormations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimMainPlotCollection::updatePlotsWithCompletions()
+void RimMainPlotCollection::scheduleUpdatePlotsWithCompletions()
 {
     std::vector<RimPlotCollection*> plotCollections = plotCollectionsWithCompletions();
-    loadDataAndUpdatePlotCollections( plotCollections );
+
+    RiaPlotCollectionScheduler::instance()->schedulePlotCollectionUpdate( plotCollections );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -355,7 +377,7 @@ void RimMainPlotCollection::ensureCalculationIdsAreAssigned()
 
     for ( RimSummaryAddress* adr : allAddresses )
     {
-        adr->ensureIdIsAssigned();
+        adr->ensureCalculationIdIsAssigned();
     }
 }
 
@@ -410,7 +432,7 @@ std::vector<RimPlotCollection*> RimMainPlotCollection::allPlotCollections() cons
 {
     std::vector<RimPlotCollection*> plotCollections;
     plotCollections.push_back( wellLogPlotCollection() );
-    plotCollections.push_back( summaryPlotCollection() );
+    plotCollections.push_back( summaryMultiPlotCollection() );
     plotCollections.push_back( summaryCrossPlotCollection() );
     plotCollections.push_back( gridCrossPlotCollection() );
     plotCollections.push_back( analysisPlotCollection() );

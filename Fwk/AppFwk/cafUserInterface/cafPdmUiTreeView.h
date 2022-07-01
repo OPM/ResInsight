@@ -38,18 +38,23 @@
 #include <QString>
 #include <QWidget>
 
+#include "cafPdmUiDragDropInterface.h"
+
 class QVBoxLayout;
 class QTreeView;
 class QItemSelection;
 class QMenu;
 class QModelIndex;
+class QLineEdit;
+class QPushButton;
+class QSortFilterProxyModel;
 
 namespace caf
 {
 class PdmUiItem;
 class PdmUiTreeViewEditor;
-class PdmUiDragDropInterface;
 class PdmObjectHandle;
+class PdmUiTreeOrdering;
 
 //==================================================================================================
 ///
@@ -59,7 +64,7 @@ class PdmUiTreeView : public QWidget
 {
     Q_OBJECT
 public:
-    PdmUiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = nullptr );
+    PdmUiTreeView( QWidget* parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags() );
     ~PdmUiTreeView() override;
 
     void enableDefaultContextMenu( bool enable );
@@ -83,20 +88,33 @@ public:
     PdmUiItem*  uiItemFromModelIndex( const QModelIndex& index ) const;
     QModelIndex findModelIndex( const PdmUiItem* object ) const;
     void        updateSubTree( const QModelIndex& index );
-    void        setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
+
+    PdmUiTreeOrdering* uiTreeOrderingFromModelIndex( const QModelIndex& index ) const;
+
+    void setDragDropInterface( PdmUiDragDropInterface* dragDropInterface );
+
+    void storeTreeViewStateToString( QString& treeViewState ) const;
 
 signals:
     void selectionChanged();
     // Convenience signal for use with PdmUiPropertyView
     void selectedObjectChanged( caf::PdmObjectHandle* object ); // Signal/Slot system needs caf:: prefix in some cases
 
+public slots:
+    void treeVisibilityChanged( bool visible );
+
 private slots:
     void slotOnSelectionChanged();
+    void slotOnClearSearchBox();
+    void slotOnSearchTextChanged();
 
 private:
     PdmUiTreeViewEditor* m_treeViewEditor;
     QString              m_uiConfigName;
     QVBoxLayout*         m_layout;
+    QLineEdit*           m_searchBox;
+    QPushButton*         m_clearSearchButton;
+    QString              m_treeStateString;
 };
 
 } // End of namespace caf

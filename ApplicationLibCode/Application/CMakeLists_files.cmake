@@ -21,9 +21,14 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaStimPlanModelDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultNames.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumberFormat.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaRftDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -49,9 +54,14 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaFeatureCommandContext.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStringListSerializer.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNncDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaStimPlanModelDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaResultNames.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaNumberFormat.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaRftDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
@@ -63,8 +73,8 @@ set(QT_MOC_HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/RiaConsoleApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaGuiApplication.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaCompletionTypeCalculationScheduler.h
-    ${CMAKE_CURRENT_LIST_DIR}/RiaViewRedrawScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotWindowRedrawScheduler.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
 )
 
 source_group(

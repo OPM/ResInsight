@@ -51,6 +51,7 @@ class RimPlotCurveAppearance;
 class RigWellPathFormations;
 
 class RiuDraggableOverlayFrame;
+class RiuPlotWidget;
 
 class QwtPlot;
 class QwtPlotCurve;
@@ -80,9 +81,9 @@ public:
     void setColor( cvf::Color3f color );
 
     void loadDataAndUpdate( bool updateParentPlot );
-    void setParentQwtPlotNoReplot( QwtPlot* plot );
-    void detachQwtCurves();
-    void reattachQwtCurves();
+    void setParentPlotNoReplot( RiuPlotWidget* plot );
+    void detachPlotCurves();
+    void reattachPlotCurves();
 
     std::vector<RimWellLogCurve*> curves() const;
 
@@ -137,8 +138,7 @@ private:
     caf::PdmFieldHandle* objectToggleField() override;
     void                 initAfterRead() override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 

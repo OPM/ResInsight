@@ -19,27 +19,33 @@
 
 #pragma once
 
-#include "RiuInterfaceToViewWindow.h"
+#include "RiaDefines.h"
+#include "RiaPlotDefines.h"
+
+#include "RiuPlotWidget.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 
-#include "qwt_plot.h"
+#include "qwt_axis_id.h"
 
 #include <QPointer>
 
-#include <set>
-
 class RiaPlotWindowRedrawScheduler;
 class RimPlot;
-class RiuDraggableOverlayFrame;
+class RimPlotCurve;
 
+class RiuPlotCurve;
+class RiuPlotItem;
+
+class QwtPlot;
 class QwtLegend;
 class QwtPicker;
 class QwtPlotCurve;
 class QwtPlotGrid;
 class QwtPlotItem;
 class QwtPlotMarker;
+class QwtScaleWidget;
 
 class QEvent;
 class QLabel;
@@ -52,7 +58,7 @@ class QWheelEvent;
 //
 //
 //==================================================================================================
-class RiuQwtPlotWidget : public QwtPlot, public RiuInterfaceToViewWindow
+class RiuQwtPlotWidget : public RiuPlotWidget
 {
     Q_OBJECT
 
@@ -60,82 +66,118 @@ public:
     RiuQwtPlotWidget( RimPlot* plotDefinition, QWidget* parent = nullptr );
     ~RiuQwtPlotWidget() override;
 
-    RimPlot* plotDefinition();
-
-    bool isChecked() const;
-
-    int colSpan() const;
-    int rowSpan() const;
-
-    int  axisTitleFontSize( QwtPlot::Axis axis ) const;
-    int  axisValueFontSize( QwtPlot::Axis axis ) const;
-    void setAxisFontsAndAlignment( QwtPlot::Axis,
+    int  axisTitleFontSize( RiuPlotAxis axis ) const override;
+    int  axisValueFontSize( RiuPlotAxis axis ) const override;
+    void setAxisFontsAndAlignment( RiuPlotAxis,
                                    int  titleFontSize,
                                    int  valueFontSize,
                                    bool titleBold = false,
-                                   int  alignment = (int)Qt::AlignCenter );
+                                   int  alignment = (int)Qt::AlignCenter ) override;
     void setAxesFontsAndAlignment( int  titleFontSize,
                                    int  valueFontSize,
                                    bool titleBold = false,
-                                   int  alignment = (int)Qt::AlignCenter );
+                                   int  alignment = (int)Qt::AlignCenter ) override;
 
-    void setAxisTitleText( QwtPlot::Axis axis, const QString& title );
-    void setAxisTitleEnabled( QwtPlot::Axis axis, bool enable );
+    void enableAxis( RiuPlotAxis axis, bool isEnabled ) override;
+    void enableAxisNumberLabels( RiuPlotAxis axis, bool isEnabled ) override;
+    bool axisEnabled( RiuPlotAxis axis ) const override;
 
-    void           setPlotTitle( const QString& plotTitle );
+    void setAxisScale( RiuPlotAxis axis, double min, double max ) override;
+    void setAxisAutoScale( RiuPlotAxis axis, bool enable ) override;
+
+    void setAxisMaxMinor( RiuPlotAxis axis, int maxMinor ) override;
+    void setAxisMaxMajor( RiuPlotAxis axis, int maxMajor ) override;
+
+    RiuPlotWidget::AxisScaleType axisScaleType( RiuPlotAxis axis ) const override;
+    void setAxisScaleType( RiuPlotAxis axis, RiuPlotWidget::AxisScaleType axisScaleType ) override;
+
+    void setAxisTitleText( RiuPlotAxis axis, const QString& title ) override;
+    void setAxisTitleEnabled( RiuPlotAxis axis, bool enable ) override;
+
+    void        moveAxis( RiuPlotAxis oldAxis, RiuPlotAxis newAxis ) override;
+    void        pruneAxes( const std::set<RiuPlotAxis>& usedAxes ) override;
+    RiuPlotAxis createNextPlotAxis( RiaDefines::PlotAxis axis ) override;
+    bool        isMultiAxisSupported() const override;
+
+    void           setPlotTitle( const QString& plotTitle ) override;
     const QString& plotTitle() const;
     void           setPlotTitleEnabled( bool enabled );
     bool           plotTitleEnabled() const;
-    void           setPlotTitleFontSize( int titleFontSize );
+    void           setPlotTitleFontSize( int titleFontSize ) override;
 
-    void setLegendFontSize( int fontSize );
-    void setInternalLegendVisible( bool visible );
+    void setLegendFontSize( int fontSize ) override;
+    void setInternalLegendVisible( bool visible ) override;
+    void insertLegend( RiuPlotWidget::Legend ) override;
+    void clearLegend() override;
 
-    QwtInterval axisRange( QwtPlot::Axis axis ) const;
-    void        setAxisRange( QwtPlot::Axis axis, double min, double max );
+    std::pair<double, double> axisRange( RiuPlotAxis axis ) const override;
+    void                      setAxisRange( RiuPlotAxis axis, double min, double max ) override;
 
-    void setAxisInverted( QwtPlot::Axis axis );
-    void setAxisLabelsAndTicksEnabled( QwtPlot::Axis axis, bool enableLabels, bool enableTicks );
+    void setAxisInverted( RiuPlotAxis axis, bool isInverted ) override;
+    void setAxisLabelsAndTicksEnabled( RiuPlotAxis axis, bool enableLabels, bool enableTicks ) override;
 
-    void enableGridLines( QwtPlot::Axis axis, bool majorGridLines, bool minorGridLines );
+    void enableGridLines( RiuPlotAxis axis, bool majorGridLines, bool minorGridLines ) override;
 
-    void setMajorAndMinorTickIntervals( QwtPlot::Axis axis,
-                                        double        majorTickInterval,
-                                        double        minorTickInterval,
-                                        double        minValue,
-                                        double        maxValue );
-    void setMajorAndMinorTickIntervalsAndRange( QwtPlot::Axis axis,
-                                                double        majorTickInterval,
-                                                double        minorTickInterval,
-                                                double        minTickValue,
-                                                double        maxTickValue,
-                                                double        rangeMin,
-                                                double        rangeMax );
-    void setAutoTickIntervalCounts( QwtPlot::Axis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount );
-    double majorTickInterval( QwtPlot::Axis axis ) const;
-    double minorTickInterval( QwtPlot::Axis axis ) const;
+    void setMajorAndMinorTickIntervals( RiuPlotAxis axis,
+                                        double      majorTickInterval,
+                                        double      minorTickInterval,
+                                        double      minValue,
+                                        double      maxValue ) override;
+    void setMajorAndMinorTickIntervalsAndRange( RiuPlotAxis axis,
+                                                double      majorTickInterval,
+                                                double      minorTickInterval,
+                                                double      minTickValue,
+                                                double      maxTickValue,
+                                                double      rangeMin,
+                                                double      rangeMax ) override;
+    void setAutoTickIntervalCounts( RiuPlotAxis axis, int maxMajorTickIntervalCount, int maxMinorTickIntervalCount ) override;
+    double majorTickInterval( RiuPlotAxis axis ) const override;
+    double minorTickInterval( RiuPlotAxis axis ) const override;
 
-    int axisExtent( QwtPlot::Axis axis ) const;
+    int axisExtent( RiuPlotAxis axis ) const override;
 
-    bool   frameIsInFrontOfThis( const QRect& frameGeometry );
+    void ensureAxisIsCreated( RiuPlotAxis axis ) override;
+
     QPoint dragStartPosition() const;
 
     void scheduleReplot();
 
-    void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void updateLayout() override;
 
-    void renderTo( QPainter* painter, const QRect& targetRect, double scaling );
-    void renderTo( QPaintDevice* painter, const QRect& targetRect );
+    void renderTo( QPainter* painter, const QRect& targetRect, double scaling ) override;
+    void renderTo( QPaintDevice* painter, const QRect& targetRect ) override;
     int  overlayMargins() const;
 
     RimViewWindow* ownerViewWindow() const override;
 
+    QwtPlot* qwtPlot() const;
+
+    void removeEventFilter() override;
+
+    void updateLegend() override;
+    void updateAxes() override;
+
+    RiuPlotCurve* createPlotCurve( RimPlotCurve* ownerRimCurve, const QString& title, const QColor& color ) override;
+
+    void detachItems( RiuPlotWidget::PlotItemType plotItemType ) override;
+
+    void findClosestPlotItem( const QPoint& pos,
+                              QwtPlotItem** closestItem,
+                              int*          closestCurvePoint,
+                              double*       distanceFromClick ) const;
+
+    const QColor& backgroundColor() const override;
+
+    QWidget* getParentForOverlay() const override;
+
+    std::pair<RiuPlotCurve*, int> findClosestCurve( const QPoint& pos, double& distanceToClick ) const override;
+
+    QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
+
 signals:
     void plotSelected( bool toggleSelection );
-    void axisSelected( int axisId, bool toggleSelection );
-    void plotItemSelected( QwtPlotItem* plotItem, bool toggleSelection, int sampleIndex );
+    void axisSelected( RiuPlotAxis axisId, bool toggleSelection );
+    void plotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggleSelection, int sampleIndex );
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
     void plotZoomed();
@@ -148,7 +190,7 @@ protected:
     void keyPressEvent( QKeyEvent* event ) override;
 
     void applyPlotTitleToQwt();
-    void applyAxisTitleToQwt( QwtPlot::Axis axis );
+    void applyAxisTitleToQwt( RiuPlotAxis axis );
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -156,43 +198,38 @@ protected:
     virtual bool isZoomerActive() const;
     virtual void endZoomOperations();
 
-    void findClosestPlotItem( const QPoint& pos,
-                              QwtPlotItem** closestItem,
-                              int*          closestCurvePoint,
-                              double*       distanceFromClick ) const;
+    void setAxisScaleType( QwtAxisId axis, RiuQwtPlotWidget::AxisScaleType axisScaleType );
+    void setAxisScale( QwtAxisId axis, double min, double max );
+
+    RiuPlotAxis findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId ) const;
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
     static int defaultMinimumWidth();
     void       replot() override;
 
-    void highlightPlotItem( const QwtPlotItem* closestItem );
+    void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
+    void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
+    void highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems );
     void resetPlotItemHighlighting();
+    void resetPlotAxisHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
-    void recalculateAxisExtents( QwtPlot::Axis axis );
+    void recalculateAxisExtents( RiuPlotAxis axis );
 
-    void updateOverlayFrameLayout();
+    static int highlightItemWidthAdjustment();
 
 private:
-    caf::PdmPointer<RimPlot>         m_plotDefinition;
-    QPoint                           m_clickPosition;
-    std::map<QwtPlot::Axis, QString> m_axisTitles;
-    std::map<QwtPlot::Axis, bool>    m_axisTitlesEnabled;
-    const int                        m_overlayMargins;
-    QString                          m_plotTitle;
-    bool                             m_plotTitleEnabled;
-
-    QList<QPointer<RiuDraggableOverlayFrame>> m_overlayFrames;
-
-    struct CurveColors
+    struct CurveProperties
     {
         QColor lineColor;
         QColor symbolColor;
         QColor symbolLineColor;
+        int    lineWidth;
     };
 
-    std::map<QwtPlotCurve*, CurveColors> m_originalCurveColors;
-    std::map<QwtPlotCurve*, double>      m_originalZValues;
+    std::map<QwtPlotCurve*, CurveProperties> m_originalCurveProperties;
+    std::map<QwtPlotCurve*, double>          m_originalZValues;
+    std::map<RiuPlotAxis, QwtAxisId>         m_axisMapping;
 
-    friend class RiaPlotWindowRedrawScheduler;
+    QPointer<QwtPlot> m_plot;
 };

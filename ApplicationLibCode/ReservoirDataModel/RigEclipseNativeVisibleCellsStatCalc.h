@@ -36,6 +36,9 @@ public:
                                           const RigEclipseResultAddress& scalarResultIndex,
                                           const cvf::UByteArray*         cellVisibilities );
 
+    bool   hasPreciseP10p90() const override;
+    void   p10p90CellScalarValues( double& min, double& max ) override;
+    void   p10p90CellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
     void   minMaxCellScalarValues( size_t timeStepIndex, double& min, double& max ) override;
     void   posNegClosestToZero( size_t timeStepIndex, double& pos, double& neg ) override;
     void   valueSumAndSampleCount( size_t timeStepIndex, double& valueSum, size_t& sampleCount ) override;
@@ -64,8 +67,9 @@ private:
             return;
         }
 
-        const RigActiveCellInfo* actCellInfo = m_caseData->activeCellInfo();
-        size_t                   cellCount   = actCellInfo->reservoirCellCount();
+        const RigActiveCellInfo* actCellInfo              = m_caseData->activeCellInfo();
+        size_t                   cellCount                = actCellInfo->reservoirCellCount();
+        bool                     isUsingGlobalActiveIndex = m_caseData->isUsingGlobalActiveIndex( m_resultAddress );
 
         CVF_TIGHT_ASSERT( cellCount == m_cellVisibilities->size() );
 
@@ -74,7 +78,7 @@ private:
             if ( !( *m_cellVisibilities )[cIdx] ) continue;
 
             size_t cellResultIndex = cIdx;
-            if ( m_caseData->isUsingGlobalActiveIndex( m_resultAddress ) )
+            if ( isUsingGlobalActiveIndex )
             {
                 cellResultIndex = actCellInfo->cellResultIndex( cIdx );
             }

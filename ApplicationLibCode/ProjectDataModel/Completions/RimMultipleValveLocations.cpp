@@ -51,27 +51,21 @@ void AppEnum<RimMultipleValveLocations::LocationType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimMultipleValveLocations::RimMultipleValveLocations()
 {
-    CAF_PDM_InitObject( "RimMultipleValveLocations", ":/FishBoneGroup16x16.png", "", "" );
+    CAF_PDM_InitObject( "RimMultipleValveLocations", ":/FishBoneGroup16x16.png" );
 
-    CAF_PDM_InitField( &m_locationType,
-                       "LocationMode",
-                       caf::AppEnum<LocationType>( VALVE_COUNT ),
-                       "Location Defined By",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_rangeStart, "RangeStart", 100.0, "Start MD [m]", "", "", "" );
+    CAF_PDM_InitField( &m_locationType, "LocationMode", caf::AppEnum<LocationType>( VALVE_COUNT ), "Location Defined By" );
+    CAF_PDM_InitField( &m_rangeStart, "RangeStart", 100.0, "Start MD [m]" );
     m_rangeStart.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_rangeEnd, "RangeEnd", 250.0, "End MD [m]", "", "", "" );
+    CAF_PDM_InitField( &m_rangeEnd, "RangeEnd", 250.0, "End MD [m]" );
     m_rangeEnd.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_rangeValveSpacing, "ValveSpacing", "Spacing [m]", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rangeValveSpacing, "ValveSpacing", "Spacing [m]" );
     m_rangeValveSpacing.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_rangeValveCount, "RangeValveCount", 13, "Number of Valves", "", "", "" );
+    CAF_PDM_InitField( &m_rangeValveCount, "RangeValveCount", 13, "Number of Valves" );
 
-    CAF_PDM_InitFieldNoDefault( &m_locationOfValves, "LocationOfValves", "Measured Depths [m]", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_locationOfValves, "LocationOfValves", "Measured Depths [m]" );
     m_locationOfValves.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 }
 

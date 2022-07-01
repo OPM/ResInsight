@@ -59,7 +59,7 @@ void RicGeoMechPropertyFilterInsertExec::redo()
     RimGeoMechPropertyFilterCollection* propertyFilterCollection = m_propertyFilter->parentContainer();
     CVF_ASSERT( propertyFilterCollection );
 
-    size_t index = propertyFilterCollection->propertyFilters.index( m_propertyFilter );
+    size_t index = propertyFilterCollection->propertyFilters.indexOf( m_propertyFilter );
     CVF_ASSERT( index < propertyFilterCollection->propertyFilters.size() );
 
     RicGeoMechPropertyFilterFeatureImpl::insertPropertyFilter( propertyFilterCollection, index );

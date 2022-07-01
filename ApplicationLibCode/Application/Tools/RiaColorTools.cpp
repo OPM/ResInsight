@@ -187,6 +187,26 @@ QColor RiaColorTools::blendQColors( const QColor& color1, const QColor& color2, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RiaColorTools::makeLighter( const cvf::Color3f& color, float normalizedScalingFactor )
+{
+    auto qColor = toQColor( color );
+
+    double h = 0.0;
+    double s = 0.0;
+    double l = 0.0;
+    qColor.getHslF( &h, &s, &l );
+
+    l = l + ( 1.0 - l ) * normalizedScalingFactor;
+    l = std::min( 1.0, l );
+
+    qColor.setHslF( h, s, l );
+
+    return fromQColorTo3f( qColor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QColor RiaColorTools::modifySaturation( const QColor& color, double factor )
 {
     auto  colorSaturation( color );

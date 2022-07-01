@@ -29,6 +29,6 @@ CAF_PDM_SOURCE_INIT( RimcDataContainerString, "DataContainerString" );
 //--------------------------------------------------------------------------------------------------
 RimcDataContainerString::RimcDataContainerString()
 {
-    CAF_PDM_InitScriptableObject( "Data Container String", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_stringValues, "values", "String Values", "", "", "" );
+    CAF_PDM_InitScriptableObject( "Data Container String" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_stringValues, "values", "String Values" );
 }

@@ -23,8 +23,8 @@ CAF_PDM_SOURCE_INIT( RicfCreateViewResult, "createViewResult" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateViewResult::RicfCreateViewResult( int viewId /*= -1*/ )
 {
-    CAF_PDM_InitObject( "view_result", "", "", "" );
-    CAF_PDM_InitField( &this->viewId, "viewId", viewId, "", "", "", "" );
+    CAF_PDM_InitObject( "view_result" );
+    CAF_PDM_InitField( &this->viewId, "viewId", viewId, "" );
 }
 
 CAF_PDM_SOURCE_INIT( RicfCreateView, "createView" );
@@ -34,7 +34,7 @@ CAF_PDM_SOURCE_INIT( RicfCreateView, "createView" );
 //--------------------------------------------------------------------------------------------------
 RicfCreateView::RicfCreateView()
 {
-    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case Id", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_caseId, "caseId", -1, "Case Id" );
 }
 
 //--------------------------------------------------------------------------------------------------

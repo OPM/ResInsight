@@ -31,7 +31,7 @@ CAF_PDM_SOURCE_INIT( RimWellLogRftCurveNameConfig, "RimWellLogRftCurveNameConfig
 RimWellLogRftCurveNameConfig::RimWellLogRftCurveNameConfig()
     : RimNameConfig( "Rft Curve" )
 {
-    CAF_PDM_InitObject( "Well Log Rft Curve Name Generator", "", "", "" );
+    CAF_PDM_InitObject( "Well Log Rft Curve Name Generator" );
 }
 
 //--------------------------------------------------------------------------------------------------

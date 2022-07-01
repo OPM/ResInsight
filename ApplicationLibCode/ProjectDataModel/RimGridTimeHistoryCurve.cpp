@@ -52,31 +52,28 @@ CAF_PDM_SOURCE_INIT( RimGridTimeHistoryCurve, "GridTimeHistoryCurve" );
 //--------------------------------------------------------------------------------------------------
 RimGridTimeHistoryCurve::RimGridTimeHistoryCurve()
 {
-    CAF_PDM_InitObject( "Grid Time History Curve", ":/SummaryCurve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Grid Time History Curve", ":/SummaryCurve16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionText, "GeometrySelectionText", "Cell Reference", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionText, "GeometrySelectionText", "Cell Reference" );
     m_geometrySelectionText.registerGetMethod( this, &RimGridTimeHistoryCurve::geometrySelectionText );
     m_geometrySelectionText.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "EclipseResultDefinition", "Eclipse Result Definition" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result Definition", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geoMechResultDefinition, "GeoMechResultDefinition", "GeoMech Result Definition" );
     m_geoMechResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geoMechResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionItem, "GeometrySelectionItem", "Geometry Selection", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geometrySelectionItem, "GeometrySelectionItem", "Geometry Selection" );
     m_geometrySelectionItem.uiCapability()->setUiTreeHidden( true );
     m_geometrySelectionItem.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitField( &m_plotAxis,
                        "PlotAxis",
                        caf::AppEnum<RiaDefines::PlotAxis>( RiaDefines::PlotAxis::PLOT_AXIS_LEFT ),
-                       "Axis",
-                       "",
-                       "",
-                       "" );
+                       "Axis" );
 
     setDeletable( true );
 }
@@ -192,9 +189,9 @@ RigGridCellResultAddress RimGridTimeHistoryCurve::resultAddress()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiaDefines::PlotAxis RimGridTimeHistoryCurve::yAxis() const
+RiuPlotAxis RimGridTimeHistoryCurve::yAxis() const
 {
-    return m_plotAxis();
+    return RiuPlotAxis( m_plotAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -381,7 +378,7 @@ void RimGridTimeHistoryCurve::updateZoomInParentPlot()
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
 
-    plot->updateZoomInQwt();
+    plot->updateZoomInParentPlot();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -391,7 +388,7 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
-    if ( isCurveVisible() )
+    if ( isCurveVisible() && m_plotCurve )
     {
         std::vector<double> values;
 
@@ -411,18 +408,20 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
         RimSummaryPlot* plot = nullptr;
         firstAncestorOrThisOfType( plot );
-        bool isLogCurve = plot->isLogarithmicScaleEnabled( this->yAxis() );
+        bool useLogarithmicScale = plot->isLogarithmicScaleEnabled( yAxis() );
 
         if ( plot->timeAxisProperties()->timeMode() == RimSummaryTimeAxisProperties::DATE )
         {
             std::vector<time_t> dateTimes = timeStepValues();
             if ( dateTimes.size() > 0 && dateTimes.size() == values.size() )
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( dateTimes, values, useLogarithmicScale );
             }
             else
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(),
+                                                            std::vector<double>(),
+                                                            useLogarithmicScale );
             }
         }
         else
@@ -438,17 +437,19 @@ void RimGridTimeHistoryCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     times.push_back( timeScale * day );
                 }
 
-                m_qwtPlotCurve->setSamplesFromXValuesAndYValues( times, values, isLogCurve );
+                m_plotCurve->setSamplesFromXValuesAndYValues( times, values, useLogarithmicScale );
             }
             else
             {
-                m_qwtPlotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(), std::vector<double>(), isLogCurve );
+                m_plotCurve->setSamplesFromTimeTAndYValues( std::vector<time_t>(),
+                                                            std::vector<double>(),
+                                                            useLogarithmicScale );
             }
         }
 
         updateZoomInParentPlot();
 
-        if ( m_parentQwtPlot ) m_parentQwtPlot->replot();
+        if ( m_parentPlot ) m_parentPlot->replot();
 
         updateQwtPlotAxis();
         plot->updateAxes();
@@ -711,17 +712,7 @@ QString RimGridTimeHistoryCurve::geometrySelectionText() const
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::updateQwtPlotAxis()
 {
-    if ( m_qwtPlotCurve )
-    {
-        if ( this->yAxis() == RiaDefines::PlotAxis::PLOT_AXIS_LEFT )
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yLeft );
-        }
-        else
-        {
-            m_qwtPlotCurve->setYAxis( QwtPlot::yRight );
-        }
-    }
+    if ( m_plotCurve ) updateAxisInPlot( yAxis() );
 }
 
 //--------------------------------------------------------------------------------------------------

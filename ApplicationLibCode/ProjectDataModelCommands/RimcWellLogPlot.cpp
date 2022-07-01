@@ -70,20 +70,20 @@ RimWellLogTrack* RimcWellLogPlot_newWellLogTrack::createWellLogTrack( RimWellLog
     RimWellLogTrack* plotTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, title, wellLogPlot );
     if ( eclipseCase ) plotTrack->setFormationCase( eclipseCase );
     if ( wellPath ) plotTrack->setFormationWellPath( wellPath );
+
     plotTrack->setColSpan( RimPlot::TWO );
     plotTrack->setLegendsVisible( true );
     plotTrack->setPlotTitleVisible( true );
     plotTrack->setShowWindow( true );
-    plotTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
+    plotTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR );
     plotTrack->setShowRegionLabels( true );
-    plotTrack->setAutoScaleXEnabled( true );
+    plotTrack->setAutoScalePropertyValuesEnabled( true );
     plotTrack->updateConnectedEditors();
+
     wellLogPlot->setShowWindow( true );
     wellLogPlot->updateConnectedEditors();
-
-    RiaApplication::instance()->project()->updateConnectedEditors();
-
     wellLogPlot->loadDataAndUpdate();
+
     return plotTrack;
 }
 

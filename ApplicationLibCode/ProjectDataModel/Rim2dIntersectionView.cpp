@@ -63,27 +63,27 @@ const cvf::Mat4d Rim2dIntersectionView::sm_defaultViewMatrix =
 //--------------------------------------------------------------------------------------------------
 Rim2dIntersectionView::Rim2dIntersectionView( void )
 {
-    CAF_PDM_InitObject( "Intersection View", ":/CrossSection16x16.png", "", "" );
+    CAF_PDM_InitObject( "Intersection View", ":/CrossSection16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_intersection, "Intersection", "Intersection", ":/CrossSection16x16.png", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_intersection, "Intersection", "Intersection", ":/CrossSection16x16.png" );
     m_intersection.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend" );
     m_legendConfig.uiCapability()->setUiTreeHidden( true );
     m_legendConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_legendConfig.xmlCapability()->disableIO();
     m_legendConfig = new RimRegularLegendConfig();
 
-    CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_ternaryLegendConfig, "TernaryLegendDefinition", "Ternary Color Legend" );
     m_ternaryLegendConfig.uiCapability()->setUiTreeHidden( true );
     m_ternaryLegendConfig.uiCapability()->setUiTreeChildrenHidden( true );
     m_ternaryLegendConfig.xmlCapability()->disableIO();
     m_ternaryLegendConfig = new RimTernaryLegendConfig();
 
-    CAF_PDM_InitField( &m_showDefiningPoints, "ShowDefiningPoints", true, "Show Points", "", "", "" );
-    CAF_PDM_InitField( &m_showAxisLines, "ShowAxisLines", false, "Show Axis Lines", "", "", "" );
+    CAF_PDM_InitField( &m_showDefiningPoints, "ShowDefiningPoints", true, "Show Points" );
+    CAF_PDM_InitField( &m_showAxisLines, "ShowAxisLines", false, "Show Axis Lines" );
 
-    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_nameProxy, "NameProxy", "Name" );
     m_nameProxy.xmlCapability()->disableIO();
     m_nameProxy.registerGetMethod( this, &Rim2dIntersectionView::getName );
     m_nameProxy.registerSetMethod( this, &Rim2dIntersectionView::setName );
@@ -419,7 +419,7 @@ bool Rim2dIntersectionView::handleOverlayItemPicked( const cvf::OverlayItem* pic
 {
     if ( m_legendObjectToSelect )
     {
-        RiuMainWindow::instance()->selectAsCurrentItem( m_legendObjectToSelect );
+        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->selectAsCurrentItem( m_legendObjectToSelect );
 
         return true;
     }
@@ -430,8 +430,7 @@ bool Rim2dIntersectionView::handleOverlayItemPicked( const cvf::OverlayItem* pic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    Rim2dIntersectionView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> Rim2dIntersectionView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

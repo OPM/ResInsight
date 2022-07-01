@@ -61,8 +61,7 @@ public: // Virtual
     virtual void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) {}
 
     /// Method to re-implement to supply option values for a specific field
-    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                 bool*                      useOptionsOnly )
+    virtual QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
     {
         return QList<PdmOptionItemInfo>();
     }

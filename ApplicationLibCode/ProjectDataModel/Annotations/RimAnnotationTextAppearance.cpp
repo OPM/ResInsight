@@ -30,23 +30,17 @@ CAF_PDM_SOURCE_INIT( RimAnnotationTextAppearance, "RimAnnotationTextAppearance" 
 //--------------------------------------------------------------------------------------------------
 RimAnnotationTextAppearance::RimAnnotationTextAppearance()
 {
-    CAF_PDM_InitObject( "TextAnnotation", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "TextAnnotation", ":/WellCollection.png" );
 
     auto prefs                  = RiaPreferences::current();
     auto defaultBackgroundColor = prefs->defaultViewerBackgroundColor();
 
-    CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_fontSize, "FontSize", "Font Size" );
     m_fontSize = prefs->defaultAnnotationFontSize();
 
-    CAF_PDM_InitField( &m_fontColor, "FontColor", cvf::Color3f( cvf::Color3f::BLACK ), "Font Color", "", "", "" );
-    CAF_PDM_InitField( &m_backgroundColor, "BackgroundColor", defaultBackgroundColor, "Background Color", "", "", "" );
-    CAF_PDM_InitField( &m_anchorLineColor,
-                       "AnchorLineColor",
-                       cvf::Color3f( cvf::Color3f::BLACK ),
-                       "Anchor Line Color",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_fontColor, "FontColor", cvf::Color3f( cvf::Color3f::BLACK ), "Font Color" );
+    CAF_PDM_InitField( &m_backgroundColor, "BackgroundColor", defaultBackgroundColor, "Background Color" );
+    CAF_PDM_InitField( &m_anchorLineColor, "AnchorLineColor", cvf::Color3f( cvf::Color3f::BLACK ), "Anchor Line Color" );
 }
 
 //--------------------------------------------------------------------------------------------------

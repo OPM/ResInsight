@@ -29,7 +29,7 @@
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
 #include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
 
-class RiuQwtPlotWidget;
+class RiuPlotWidget;
 class VfpPlotData;
 
 //--------------------------------------------------------------------------------------------------
@@ -46,18 +46,15 @@ public:
     void setFileName( const QString& filename );
 
     // RimPlot implementations
-    RiuQwtPlotWidget* viewer() override;
-    void              setAutoScaleXEnabled( bool enabled ) override;
-    void              setAutoScaleYEnabled( bool enabled ) override;
-    void              updateAxes() override;
-    void              updateLegend() override;
-    void              updateZoomInQwt() override;
-    void              updateZoomFromQwt() override;
-    QString           asciiDataForPlotExport() const override;
-    void              reattachAllCurves() override;
-    void              detachAllCurves() override;
-    caf::PdmObject*   findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override;
-    void              onAxisSelected( int axis, bool toggle ) override;
+    RiuPlotWidget* plotWidget() override;
+
+    void    setAutoScaleXEnabled( bool enabled ) override;
+    void    setAutoScaleYEnabled( bool enabled ) override;
+    void    updateAxes() override;
+    void    updateLegend() override;
+    QString asciiDataForPlotExport() const override;
+    void    reattachAllCurves() override;
+    void    detachAllCurves() override;
 
     // RimPlotWindow implementations
     QString description() const override;
@@ -79,10 +76,10 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 private:
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
+    RiuPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent ) override;
 
-    void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget* plotWidget, const Opm::VFPInjTable& table );
-    void                populatePlotWidgetWithCurveData( RiuQwtPlotWidget*                     plotWidget,
+    void                populatePlotWidgetWithCurveData( RiuPlotWidget* plotWidget, const Opm::VFPInjTable& table );
+    void                populatePlotWidgetWithCurveData( RiuPlotWidget*                        plotWidget,
                                                          const Opm::VFPProdTable&              table,
                                                          RimVfpDefines::ProductionVariableType primaryVariable,
                                                          RimVfpDefines::ProductionVariableType familyVariable );
@@ -98,8 +95,7 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void calculateTableValueOptions( RimVfpDefines::ProductionVariableType variableType,
                                      QList<caf::PdmOptionItemInfo>&        options );
@@ -114,8 +110,7 @@ private:
                                       RimVfpDefines::ProductionVariableType   primaryVariable,
                                       RimVfpDefines::ProductionVariableType   familyVariable );
 
-    static QwtPlotCurve* createPlotCurve( const QString title, const QColor& color );
-    static double        convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
+    static double convertToDisplayUnit( double value, RimVfpDefines::ProductionVariableType variableType );
     static void convertToDisplayUnit( std::vector<double>& values, RimVfpDefines::ProductionVariableType variableType );
 
     static QString getDisplayUnit( RimVfpDefines::ProductionVariableType variableType );
@@ -137,7 +132,7 @@ private:
                            RimVfpDefines::InterpolatedVariableType interpolatedVariable,
                            VfpPlotData&                            plotData ) const;
 
-    void populatePlotWidgetWithPlotData( RiuQwtPlotWidget* plotWidget, const VfpPlotData& plotData );
+    void populatePlotWidgetWithPlotData( RiuPlotWidget* plotWidget, const VfpPlotData& plotData );
 
 private:
     caf::PdmField<QString>                                               m_plotTitle;
@@ -159,7 +154,7 @@ private:
     caf::PdmField<int> m_waterCutIdx;
     caf::PdmField<int> m_gasLiquidRatioIdx;
 
-    QPointer<RiuQwtPlotWidget>         m_plotWidget;
+    QPointer<RiuPlotWidget>            m_plotWidget;
     std::unique_ptr<Opm::VFPProdTable> m_prodTable;
     std::unique_ptr<Opm::VFPInjTable>  m_injectionTable;
 };

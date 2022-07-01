@@ -70,28 +70,28 @@ RimSimWellInView::RimSimWellInView()
                                                     "SimulationWell",
                                                     "An Eclipse Simulation Well" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &name, "Name", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &name, "Name", "Name" );
     name.registerKeywordAlias( "WellName" );
 
-    CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well ", "", "", "" );
+    CAF_PDM_InitField( &showWell, "ShowWell", true, "Show well " );
 
-    CAF_PDM_InitField( &showWellLabel, "ShowWellLabel", true, "Label", "", "", "" );
-    CAF_PDM_InitField( &showWellHead, "ShowWellHead", true, "Well Head", "", "", "" );
-    CAF_PDM_InitField( &showWellPipe, "ShowWellPipe", true, "Pipe", "", "", "" );
-    CAF_PDM_InitField( &showWellSpheres, "ShowWellSpheres", false, "Spheres", "", "", "" );
-    CAF_PDM_InitField( &showWellDisks, "ShowWellDisks", false, "Disks", "", "", "" );
+    CAF_PDM_InitField( &showWellLabel, "ShowWellLabel", true, "Label" );
+    CAF_PDM_InitField( &showWellHead, "ShowWellHead", true, "Well Head" );
+    CAF_PDM_InitField( &showWellPipe, "ShowWellPipe", true, "Pipe" );
+    CAF_PDM_InitField( &showWellSpheres, "ShowWellSpheres", false, "Spheres" );
+    CAF_PDM_InitField( &showWellDisks, "ShowWellDisks", false, "Disks" );
 
-    CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScaleFactor", 1.0, "Well Head Scale", "", "", "" );
-    CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 1.0, "Pipe Radius Scale", "", "", "" );
-    CAF_PDM_InitField( &wellPipeColor, "WellPipeColor", cvf::Color3f( 0.588f, 0.588f, 0.804f ), "Pipe Color", "", "", "" );
+    CAF_PDM_InitField( &wellHeadScaleFactor, "WellHeadScaleFactor", 1.0, "Well Head Scale" );
+    CAF_PDM_InitField( &pipeScaleFactor, "WellPipeRadiusScale", 1.0, "Pipe Radius Scale" );
+    CAF_PDM_InitField( &wellPipeColor, "WellPipeColor", cvf::Color3f( 0.588f, 0.588f, 0.804f ), "Pipe Color" );
 
     cvf::Color3f defaultWellDiskColor = cvf::Color3::OLIVE;
-    CAF_PDM_InitField( &wellDiskColor, "WellDiskColor", defaultWellDiskColor, "Disk Color", "", "", "" );
+    CAF_PDM_InitField( &wellDiskColor, "WellDiskColor", defaultWellDiskColor, "Disk Color" );
 
-    CAF_PDM_InitField( &showWellCells, "ShowWellCells", false, "Well Cells", "", "", "" );
-    CAF_PDM_InitField( &showWellCellFence, "ShowWellCellFence", false, "Well Cell Fence", "", "", "" );
+    CAF_PDM_InitField( &showWellCells, "ShowWellCells", false, "Well Cells" );
+    CAF_PDM_InitField( &showWellCellFence, "ShowWellCellFence", false, "Well Cell Fence" );
 
-    CAF_PDM_InitFieldNoDefault( &simwellFractureCollection, "FractureCollection", "Fractures", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &simwellFractureCollection, "FractureCollection", "Fractures" );
 
     name.uiCapability()->setUiHidden( true );
     name.uiCapability()->setUiReadOnly( true );

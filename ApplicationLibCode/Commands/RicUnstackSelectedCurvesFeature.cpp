@@ -36,7 +36,7 @@ RICF_SOURCE_INIT( RicUnstackSelectedCurvesFeature, "RicUnstackSelectedCurvesFeat
 //--------------------------------------------------------------------------------------------------
 RicUnstackSelectedCurvesFeature::RicUnstackSelectedCurvesFeature()
 {
-    CAF_PDM_InitScriptableFieldNoDefault( &m_curves, "curves", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_curves, "curves", "" );
 }
 
 //--------------------------------------------------------------------------------------------------

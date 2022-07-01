@@ -21,6 +21,8 @@
 #include "RimFaultRASettings.h"
 #include "RimGenericParameter.h"
 
+#include "caf.h"
+
 #include <QFile>
 #include <QXmlStreamReader>
 
@@ -56,15 +58,15 @@ bool RifFaultRAXmlWriter::writeParametersToXML( QString filename, std::list<RimG
     {
         QTextStream stream( &file );
 
-        stream << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" << endl;
-        stream << "<project type_id=\"0\">" << endl;
+        stream << "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>" << caf::endl;
+        stream << "<project type_id=\"0\">" << caf::endl;
 
         for ( auto& p : params )
         {
             QString tmpStr = QString( "<%1>%2</%1>" ).arg( p->name(), p->stringValue() );
-            stream << tmpStr << endl;
+            stream << tmpStr << caf::endl;
         }
-        stream << "</project>" << endl;
+        stream << "</project>" << caf::endl;
 
         bResult = true;
     }

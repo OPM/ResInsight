@@ -32,9 +32,9 @@ CAF_PDM_SOURCE_INIT( RimStimPlanModelCollection, "StimPlanModelCollection" );
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelCollection::RimStimPlanModelCollection( void )
 {
-    CAF_PDM_InitScriptableObject( "StimPlan Models", "", "", "" );
+    CAF_PDM_InitScriptableObject( "StimPlan Models" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModels, "StimPlanModels", "", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_stimPlanModels, "StimPlanModels", "" );
     m_stimPlanModels.uiCapability()->setUiTreeHidden( true );
 
     setName( "StimPlan Models" );
@@ -69,7 +69,7 @@ void RimStimPlanModelCollection::addStimPlanModel( RimStimPlanModel* fracture )
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModelCollection::deleteStimPlanModels()
 {
-    m_stimPlanModels.deleteAllChildObjects();
+    m_stimPlanModels.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void RimStimPlanModelCollection::deleteStimPlanModels()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimStimPlanModel*> RimStimPlanModelCollection::allStimPlanModels() const
 {
-    return m_stimPlanModels.childObjects();
+    return m_stimPlanModels.children();
 }
 
 //--------------------------------------------------------------------------------------------------

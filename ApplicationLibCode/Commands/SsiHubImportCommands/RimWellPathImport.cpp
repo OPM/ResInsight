@@ -25,6 +25,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "cafPdmUiTreeAttributes.h"
 #include "cafPdmUiTreeViewEditor.h"
 
 #include <QFileInfo>
@@ -49,20 +50,20 @@ CAF_PDM_SOURCE_INIT( RimWellPathImport, "RimWellPathImport" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathImport::RimWellPathImport()
 {
-    CAF_PDM_InitObject( "RimWellPathImport", "", "", "" );
+    CAF_PDM_InitObject( "RimWellPathImport" );
 
-    CAF_PDM_InitField( &wellTypeSurvey, "WellTypeSurvey", true, "Survey", "", "", "" );
-    CAF_PDM_InitField( &wellTypePlans, "WellTypePlans", true, "Plans", "", "", "" );
+    CAF_PDM_InitField( &wellTypeSurvey, "WellTypeSurvey", true, "Survey" );
+    CAF_PDM_InitField( &wellTypePlans, "WellTypePlans", true, "Plans" );
 
     caf::AppEnum<RimWellPathImport::UtmFilterEnum> defaultUtmMode = UTM_FILTER_OFF;
-    CAF_PDM_InitField( &utmFilterMode, "UtmMode", defaultUtmMode, "Utm Filter", "", "", "" );
+    CAF_PDM_InitField( &utmFilterMode, "UtmMode", defaultUtmMode, "Utm Filter" );
 
-    CAF_PDM_InitField( &north, "UtmNorth", 0.0, "North", "", "", "" );
-    CAF_PDM_InitField( &south, "UtmSouth", 0.0, "South", "", "", "" );
-    CAF_PDM_InitField( &east, "UtmEast", 0.0, "East", "", "", "" );
-    CAF_PDM_InitField( &west, "UtmWest", 0.0, "West", "", "", "" );
+    CAF_PDM_InitField( &north, "UtmNorth", 0.0, "North" );
+    CAF_PDM_InitField( &south, "UtmSouth", 0.0, "South" );
+    CAF_PDM_InitField( &east, "UtmEast", 0.0, "East" );
+    CAF_PDM_InitField( &west, "UtmWest", 0.0, "West" );
 
-    CAF_PDM_InitFieldNoDefault( &regions, "Regions", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &regions, "Regions", "" );
     regions.uiCapability()->setUiTreeHidden( true );
 }
 
@@ -98,7 +99,7 @@ void RimWellPathImport::updateRegions( const QStringList& regionStrings,
 
             for ( size_t i = 0; i < fieldsToRemove.size(); i++ )
             {
-                this->regions[regionIdx]->fields.removeChildObject( fieldsToRemove[i] );
+                this->regions[regionIdx]->fields.removeChild( fieldsToRemove[i] );
 
                 delete fieldsToRemove[i];
             }
@@ -107,7 +108,7 @@ void RimWellPathImport::updateRegions( const QStringList& regionStrings,
 
     for ( size_t i = 0; i < regionsToRemove.size(); i++ )
     {
-        this->regions.removeChildObject( regionsToRemove[i] );
+        this->regions.removeChild( regionsToRemove[i] );
 
         delete regionsToRemove[i];
     }
@@ -217,7 +218,7 @@ void RimWellPathImport::defineObjectEditorAttribute( QString uiConfigName, caf::
 //--------------------------------------------------------------------------------------------------
 RimWellPathImport::~RimWellPathImport()
 {
-    regions.deleteAllChildObjects();
+    regions.deleteChildren();
 }
 
 //--------------------------------------------------------------------------------------------------

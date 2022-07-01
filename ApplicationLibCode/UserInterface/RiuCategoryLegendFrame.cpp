@@ -1,5 +1,7 @@
 #include "RiuCategoryLegendFrame.h"
 
+#include "RiaTextStringTools.h"
+
 #include "cafCategoryLegend.h"
 
 #include "cvfqtUtils.h"
@@ -29,7 +31,7 @@ RiuCategoryLegendFrame::~RiuCategoryLegendFrame()
 void RiuCategoryLegendFrame::layoutInfo( LayoutInfo* layout ) const
 {
     QFontMetrics fontMetrics( this->font() );
-    QStringList  titleLines = m_title.split( "\n", QString::SkipEmptyParts );
+    QStringList  titleLines = RiaTextStringTools::splitSkipEmptyParts( m_title, "\n" );
 
     layout->charHeight        = fontMetrics.height();
     layout->charAscent        = fontMetrics.ascent();

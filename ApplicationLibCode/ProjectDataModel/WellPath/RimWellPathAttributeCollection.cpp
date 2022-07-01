@@ -32,9 +32,9 @@ CAF_PDM_SOURCE_INIT( RimWellPathAttributeCollection, "WellPathAttributes" );
 //--------------------------------------------------------------------------------------------------
 RimWellPathAttributeCollection::RimWellPathAttributeCollection()
 {
-    CAF_PDM_InitObject( "Casing Design", ":/CasingDesign16x16", "", "" );
+    CAF_PDM_InitObject( "Casing Design", ":/CasingDesign16x16" );
 
-    CAF_PDM_InitFieldNoDefault( &m_attributes, "Attributes", "Casing Design Attributes", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_attributes, "Attributes", "Casing Design Attributes" );
     m_attributes.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_attributes.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
     m_attributes.uiCapability()->setCustomContextMenuEnabled( true );
@@ -82,7 +82,7 @@ std::vector<RimWellPathAttribute*> RimWellPathAttributeCollection::attributes() 
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::insertAttribute( RimWellPathAttribute* insertBefore, RimWellPathAttribute* attribute )
 {
-    size_t index = m_attributes.index( insertBefore );
+    size_t index = m_attributes.indexOf( insertBefore );
     if ( index < m_attributes.size() )
         m_attributes.insert( index, attribute );
     else
@@ -96,7 +96,7 @@ void RimWellPathAttributeCollection::insertAttribute( RimWellPathAttribute* inse
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::deleteAttribute( RimWellPathAttribute* attributeToDelete )
 {
-    m_attributes.removeChildObject( attributeToDelete );
+    m_attributes.removeChild( attributeToDelete );
     delete attributeToDelete;
 
     this->updateAllReferringTracks();
@@ -107,7 +107,7 @@ void RimWellPathAttributeCollection::deleteAttribute( RimWellPathAttribute* attr
 //--------------------------------------------------------------------------------------------------
 void RimWellPathAttributeCollection::deleteAllAttributes()
 {
-    m_attributes.deleteAllChildObjects();
+    m_attributes.deleteChildren();
     this->updateAllReferringTracks();
 }
 

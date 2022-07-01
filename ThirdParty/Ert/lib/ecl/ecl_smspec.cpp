@@ -754,6 +754,8 @@ static void ecl_smspec_install_special_keys( ecl_smspec_type * ecl_smspec , cons
     break;
   case(ECL_SMSPEC_AQUIFER_VAR):
     break;
+  case(ECL_SMSPEC_NETWORK_VAR):
+    break;
   default:
     throw std::invalid_argument("Internal error - should not be here \n");
   }

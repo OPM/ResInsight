@@ -22,6 +22,9 @@
 #include "cafPdmObject.h"
 #include "cafPdmPtrArrayField.h"
 
+#include <QString>
+#include <vector>
+
 class RimPlotTemplateFileItem;
 class RimPlotTemplateFolderItem;
 
@@ -35,11 +38,13 @@ class RicSelectPlotTemplateUi : public caf::PdmObject
 public:
     RicSelectPlotTemplateUi();
 
+    void setMultiSelectMode( bool multiSelect );
+    void setInitialSelection( std::vector<QString> selectedTemplates );
+
     std::vector<RimPlotTemplateFileItem*> selectedPlotTemplates();
 
 private:
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
                                 QString                    uiConfigName,
@@ -47,4 +52,5 @@ private:
 
 private:
     caf::PdmPtrArrayField<RimPlotTemplateFileItem*> m_selectedPlotTemplates;
+    bool                                            m_useMultiSelect;
 };

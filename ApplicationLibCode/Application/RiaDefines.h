@@ -107,18 +107,6 @@ enum class DepthTypeEnum
     TRUE_VERTICAL_DEPTH_RKB
 };
 
-// Defines relate to plotting
-enum class PlotAxis
-{
-    PLOT_AXIS_LEFT,
-    PLOT_AXIS_RIGHT,
-    PLOT_AXIS_BOTTOM
-};
-
-double minimumDefaultValuePlot();
-double minimumDefaultLogValuePlot();
-double maximumDefaultValuePlot();
-
 enum class PhaseType
 {
     OIL_PHASE,
@@ -196,5 +184,45 @@ enum class WellProductionType : short
 };
 
 bool isInjector( WellProductionType wellProductionType );
+
+QString stringListSeparator();
+
+enum class ColumnCount
+{
+    COLUMNS_1         = 1,
+    COLUMNS_2         = 2,
+    COLUMNS_3         = 3,
+    COLUMNS_4         = 4,
+    COLUMNS_UNLIMITED = 1000,
+};
+
+enum class RowCount
+{
+    ROWS_1 = 1,
+    ROWS_2 = 2,
+    ROWS_3 = 3,
+    ROWS_4 = 4,
+};
+
+enum class MultiPlotPageUpdateType : uint32_t
+{
+    NONE   = 0b00000000,
+    LEGEND = 0b00000001,
+    PLOT   = 0b00000010,
+    TITLE  = 0b00000100,
+    ALL    = 0b00000111
+};
+
+constexpr enum MultiPlotPageUpdateType operator|( const enum MultiPlotPageUpdateType selfValue,
+                                                  const enum MultiPlotPageUpdateType inValue )
+{
+    return ( enum MultiPlotPageUpdateType )( uint32_t( selfValue ) | uint32_t( inValue ) );
+}
+
+constexpr enum MultiPlotPageUpdateType operator&( const enum MultiPlotPageUpdateType selfValue,
+                                                  const enum MultiPlotPageUpdateType inValue )
+{
+    return ( enum MultiPlotPageUpdateType )( uint32_t( selfValue ) & uint32_t( inValue ) );
+}
 
 }; // namespace RiaDefines

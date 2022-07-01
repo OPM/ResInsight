@@ -31,9 +31,9 @@ public:
     std::vector<QString> keywordAliases() const;
 
     // Child objects
-    bool         hasChildObjects();
-    virtual void childObjects( std::vector<PdmObjectHandle*>* ) {}
-    virtual void removeChildObject( PdmObjectHandle* ) {}
+    bool         hasChildren();
+    virtual void children( std::vector<PdmObjectHandle*>* ) {}
+    virtual void removeChild( PdmObjectHandle* ) {}
     void         setOwnerClass( const QString& ownerClass );
 
     // Ptr referenced objects

@@ -22,6 +22,7 @@
 
 #include "RiaArgumentParser.h"
 #include "RiaBaseDefs.h"
+#include "RiaDefines.h"
 #include "RiaFilePathTools.h"
 #include "RiaFontCache.h"
 #include "RiaImportEclipseCaseTools.h"
@@ -78,7 +79,6 @@
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 #include "RimTextAnnotation.h"
 #include "RimTextAnnotationInView.h"
 #include "RimViewLinker.h"
@@ -100,6 +100,7 @@
 #include "RiuMdiMaximizeWindowGuard.h"
 #include "RiuMessagePanel.h"
 #include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
 #include "RiuProcessMonitor.h"
 #include "RiuRecentFileActionProvider.h"
 #include "RiuViewer.h"
@@ -124,6 +125,7 @@
 #include <QDir>
 #include <QErrorMessage>
 #include <QGridLayout>
+#include <QKeyEvent>
 #include <QMdiSubWindow>
 #include <QMessageBox>
 #include <QProcessEnvironment>
@@ -188,8 +190,7 @@ RiaGuiApplication::RiaGuiApplication( int& argc, char** argv )
 //--------------------------------------------------------------------------------------------------
 RiaGuiApplication::~RiaGuiApplication()
 {
-    deleteMainPlotWindow();
-    deleteMainWindow();
+    m_mainWindow.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -294,39 +295,46 @@ bool RiaGuiApplication::saveProjectAs( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::storeTreeViewState()
 {
+    if ( m_mainWindow )
     {
-        if ( mainPlotWindow() && mainPlotWindow()->projectTreeView() )
+        QStringList treeStates;
+        QStringList treeIndexes;
+
+        for ( auto& tv : m_mainWindow->projectTreeViews() )
         {
-            caf::PdmUiTreeView* projectTreeView = mainPlotWindow()->projectTreeView();
-
             QString treeViewState;
-            caf::QTreeViewStateSerializer::storeTreeViewStateToString( projectTreeView->treeView(), treeViewState );
+            tv->storeTreeViewStateToString( treeViewState );
+            treeStates.append( treeViewState );
 
-            QModelIndex mi = projectTreeView->treeView()->currentIndex();
-
-            QString encodedModelIndexString;
+            QModelIndex mi = tv->treeView()->currentIndex();
+            QString     encodedModelIndexString;
             caf::QTreeViewStateSerializer::encodeStringFromModelIndex( mi, encodedModelIndexString );
-
-            project()->plotWindowTreeViewState         = treeViewState;
-            project()->plotWindowCurrentModelIndexPath = encodedModelIndexString;
+            treeIndexes.append( encodedModelIndexString );
         }
+
+        project()->mainWindowTreeViewStates         = treeStates.join( RiaDefines::stringListSeparator() );
+        project()->mainWindowCurrentModelIndexPaths = treeIndexes.join( RiaDefines::stringListSeparator() );
     }
 
+    if ( m_mainPlotWindow )
     {
-        caf::PdmUiTreeView* projectTreeView = m_mainWindow->projectTreeView();
-        if ( projectTreeView )
+        QStringList treeStates;
+        QStringList treeIndexes;
+
+        for ( auto& tv : mainPlotWindow()->projectTreeViews() )
         {
             QString treeViewState;
-            caf::QTreeViewStateSerializer::storeTreeViewStateToString( projectTreeView->treeView(), treeViewState );
+            tv->storeTreeViewStateToString( treeViewState );
+            treeStates.append( treeViewState );
 
-            QModelIndex mi = projectTreeView->treeView()->currentIndex();
-
-            QString encodedModelIndexString;
+            QModelIndex mi = tv->treeView()->currentIndex();
+            QString     encodedModelIndexString;
             caf::QTreeViewStateSerializer::encodeStringFromModelIndex( mi, encodedModelIndexString );
-
-            project()->mainWindowTreeViewState         = treeViewState;
-            project()->mainWindowCurrentModelIndexPath = encodedModelIndexString;
+            treeIndexes.append( encodedModelIndexString );
         }
+
+        project()->plotWindowTreeViewStates         = treeStates.join( RiaDefines::stringListSeparator() );
+        project()->plotWindowCurrentModelIndexPaths = treeIndexes.join( RiaDefines::stringListSeparator() );
     }
 }
 
@@ -562,6 +570,12 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
         RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( cvfqt::Utils::toQStringList( o.values() ) );
     }
 
+    if ( cvf::Option o = progOpt->option( "openplotwindow" ) )
+    {
+        if ( m_mainWindow ) m_mainWindow->hide();
+        getOrCreateAndShowMainPlotWindow();
+    }
+
     QString projectFileName;
 
     if ( progOpt->hasOption( "last" ) )
@@ -775,7 +789,7 @@ RiaApplication::ApplicationStatus RiaGuiApplication::handleArguments( gsl::not_n
             mainPlotWnd->loadWinGeoAndDockToolBarLayout();
         }
 
-        RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
+        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->loadWinGeoAndDockToolBarLayout();
 
         return ApplicationStatus::EXIT_COMPLETED;
     }
@@ -909,6 +923,7 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
     else
     {
         m_mainWindow->loadWinGeoAndDockToolBarLayout();
+        m_mainWindow->show();
     }
 
     return m_mainWindow;
@@ -933,7 +948,7 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateMainPlotWindow()
         m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
     }
-    return m_mainPlotWindow;
+    return m_mainPlotWindow.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -961,18 +976,6 @@ void RiaGuiApplication::createMainWindow()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::deleteMainWindow()
-{
-    if ( m_mainWindow )
-    {
-        delete m_mainWindow;
-        m_mainWindow = nullptr;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::createMainPlotWindow()
 {
     CVF_ASSERT( m_mainPlotWindow == nullptr );
@@ -982,24 +985,11 @@ void RiaGuiApplication::createMainPlotWindow()
         caf::CmdExecCommandManager::instance()->enableUndoCommandSystem( true );
     }
 
-    m_mainPlotWindow = new RiuPlotMainWindow;
+    m_mainPlotWindow = std::make_unique<RiuPlotMainWindow>();
     m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
     m_mainPlotWindow->hideAllDockWidgets();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiaGuiApplication::deleteMainPlotWindow()
-{
-    if ( m_mainPlotWindow )
-    {
-        m_mainPlotWindow->setParent( nullptr );
-        delete m_mainPlotWindow;
-        m_mainPlotWindow = nullptr;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1038,7 +1028,7 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
         m_mainPlotWindow->restoreDockWidgetVisibilities();
     }
 
-    return m_mainPlotWindow;
+    return m_mainPlotWindow.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1046,7 +1036,7 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow* RiaGuiApplication::mainPlotWindow()
 {
-    return m_mainPlotWindow;
+    return m_mainPlotWindow.get();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1057,7 +1047,7 @@ RiuMainWindowBase* RiaGuiApplication::mainWindowByID( int mainWindowID )
     if ( mainWindowID == 0 )
         return m_mainWindow;
     else if ( mainWindowID == 1 )
-        return m_mainPlotWindow;
+        return m_mainPlotWindow.get();
     else
         return nullptr;
 }
@@ -1152,7 +1142,7 @@ void RiaGuiApplication::clearAllSelections()
 void RiaGuiApplication::showFormattedTextInMessageBoxOrConsole( const QString& text )
 {
     // Create a message dialog with cut/paste friendly text
-    QDialog dlg( RiuMainWindow::instance() );
+    QDialog dlg;
     dlg.setModal( true );
 
     QGridLayout* layout = new QGridLayout;
@@ -1235,7 +1225,7 @@ void RiaGuiApplication::onProjectBeingOpened()
 void RiaGuiApplication::onProjectOpeningError( const QString& errMsg )
 {
     RiaLogging::errorInMessageBox( nullptr, "Error when opening project file", errMsg );
-    m_mainWindow->setPdmRoot( nullptr );
+    if ( m_mainWindow ) m_mainWindow->setPdmRoot( nullptr );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1245,11 +1235,11 @@ void RiaGuiApplication::onProjectOpened()
 {
     if ( m_project->show3DWindow() )
     {
-        m_mainWindow->show();
+        getOrCreateAndShowMainWindow();
     }
     else
     {
-        m_mainWindow->hide();
+        if ( m_mainWindow ) m_mainWindow->hide();
     }
 
     if ( m_project->showPlotWindow() )
@@ -1288,6 +1278,9 @@ void RiaGuiApplication::onProjectOpened()
     m_maximizeWindowGuard.reset();
 
     processEvents();
+
+    // Make sure to process events before this function to avoid strange Qt crash
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1303,12 +1296,8 @@ void RiaGuiApplication::onProjectBeingClosed()
 
     RiaGuiApplication::clearAllSelections();
 
-    m_mainWindow->cleanupGuiBeforeProjectClose();
-
-    if ( m_mainPlotWindow )
-    {
-        m_mainPlotWindow->cleanupGuiBeforeProjectClose();
-    }
+    if ( m_mainWindow ) m_mainWindow->cleanupGuiBeforeProjectClose();
+    if ( m_mainPlotWindow ) m_mainPlotWindow->cleanupGuiBeforeProjectClose();
 
     caf::EffectGenerator::clearEffectCache();
 }
@@ -1318,14 +1307,8 @@ void RiaGuiApplication::onProjectBeingClosed()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProjectClosed()
 {
-    if ( m_mainWindow )
-    {
-        m_mainWindow->initializeGuiNewProjectLoaded();
-    }
-    if ( m_mainPlotWindow )
-    {
-        m_mainPlotWindow->initializeGuiNewProjectLoaded();
-    }
+    if ( m_mainWindow ) m_mainWindow->initializeGuiNewProjectLoaded();
+    if ( m_mainPlotWindow ) m_mainPlotWindow->initializeGuiNewProjectLoaded();
 
     setWindowCaptionFromAppState();
 
@@ -1374,13 +1357,19 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
         caf::EffectGenerator::setRenderingMode( caf::EffectGenerator::FIXED_FUNCTION );
     }
 
-    if ( m_mainWindow && m_mainWindow->projectTreeView() )
+    if ( m_mainWindow )
     {
-        m_mainWindow->projectTreeView()->enableAppendOfClassNameToUiItemText(
-            RiaPreferencesSystem::current()->appendClassNameToUiText() );
-        if ( mainPlotWindow() )
-            mainPlotWindow()->projectTreeView()->enableAppendOfClassNameToUiItemText(
-                RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        for ( auto& tv : m_mainWindow->projectTreeViews() )
+        {
+            tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        }
+    }
+    if ( mainPlotWindow() )
+    {
+        for ( auto& tv : mainPlotWindow()->projectTreeViews() )
+        {
+            tv->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
+        }
     }
 
     for ( auto fontObject : defaultFontObjects )
@@ -1494,7 +1483,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
                     rim3dView->updateScaling();
                     if ( rim3dView == activeViewWindow() )
                     {
-                        RiuMainWindow::instance()->updateScaleValue();
+                        if ( RiuMainWindow::instance() ) RiuMainWindow::instance()->updateScaleValue();
                     }
                 }
 
@@ -1567,6 +1556,7 @@ int RiaGuiApplication::applicationResolution()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::startMonitoringWorkProgress( caf::UiProcess* uiProcess )
 {
+    CAF_ASSERT( m_mainWindow );
     m_mainWindow->processMonitor()->startMonitorWorkProcess( uiProcess );
 }
 
@@ -1575,6 +1565,7 @@ void RiaGuiApplication::startMonitoringWorkProgress( caf::UiProcess* uiProcess )
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::stopMonitoringWorkProgress()
 {
+    CAF_ASSERT( m_mainWindow );
     m_mainWindow->processMonitor()->stopMonitorWorkProcess();
 }
 
@@ -1583,6 +1574,8 @@ void RiaGuiApplication::stopMonitoringWorkProgress()
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::slotWorkerProcessFinished( int exitCode, QProcess::ExitStatus exitStatus )
 {
+    CAF_ASSERT( m_mainWindow );
+
     m_mainWindow->processMonitor()->stopMonitorWorkProcess();
 
     QProcessEnvironment processEnvironment = m_workerProcess->processEnvironment();
@@ -1688,13 +1681,35 @@ bool RiaGuiApplication::notify( QObject* receiver, QEvent* event )
                              "unstable and will probably crash soon." );
     }
 
-    bool done = true;
+    bool done = false;
     try
     {
-        done = QApplication::notify( receiver, event );
+        if ( event->type() == QEvent::KeyPress )
+        {
+            if ( activeWindow() != mainWindow() )
+            {
+                QKeyEvent*     keyEvent = static_cast<QKeyEvent*>( event );
+                RimPlotWindow* plot     = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
+                if ( plot ) done = plot->handleGlobalKeyEvent( keyEvent );
+            }
+        }
+        else if ( event->type() == QEvent::Wheel )
+        {
+            if ( activeWindow() != mainWindow() )
+            {
+                QWheelEvent*   wheelEvent = static_cast<QWheelEvent*>( event );
+                RimPlotWindow* plot       = dynamic_cast<RimPlotWindow*>( activePlotWindow() );
+                if ( plot ) done = plot->handleGlobalWheelEvent( wheelEvent );
+            }
+        }
+        if ( !done )
+        {
+            done = QApplication::notify( receiver, event );
+        }
     }
     catch ( const std::bad_alloc& )
     {
+        done = true;
         if ( memoryExhaustedBox ) memoryExhaustedBox->exec();
         std::cout << "ResInsight: Memory is Exhausted!\n ResInsight could not allocate the memory needed, and is now "
                      "unstable "

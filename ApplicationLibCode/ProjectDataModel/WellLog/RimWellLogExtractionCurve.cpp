@@ -94,14 +94,14 @@ void AppEnum<RimWellLogExtractionCurve::TrajectoryType>::setUp()
 //--------------------------------------------------------------------------------------------------
 RimWellLogExtractionCurve::RimWellLogExtractionCurve()
 {
-    CAF_PDM_InitScriptableObject( "Well Log Curve", RimWellLogCurve::wellLogCurveIconName(), "", "" );
+    CAF_PDM_InitScriptableObject( "Well Log Curve", RimWellLogCurve::wellLogCurveIconName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_trajectoryType, "TrajectoryType", "Trajectory Type" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPath, "CurveWellPath", "Well Name" );
     m_wellPath.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField( &m_simWellName, "SimulationWellName", QString( "" ), "Well Name", "", "", "" );
+    CAF_PDM_InitField( &m_simWellName, "SimulationWellName", QString( "" ), "Well Name" );
     CAF_PDM_InitField( &m_branchDetection,
                        "BranchDetection",
                        true,
@@ -109,31 +109,31 @@ RimWellLogExtractionCurve::RimWellLogExtractionCurve()
                        "",
                        "Compute branches based on how simulation well cells are organized",
                        "" );
-    CAF_PDM_InitField( &m_branchIndex, "Branch", 0, "Branch Index", "", "", "" );
+    CAF_PDM_InitField( &m_branchIndex, "Branch", 0, "Branch Index" );
 
-    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_case, "CurveCase", "Case" );
     m_case.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_eclipseResultDefinition, "CurveEclipseResult", "" );
     m_eclipseResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_eclipseResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_eclipseResultDefinition = new RimEclipseResultDefinition;
     m_eclipseResultDefinition->findField( "MResultType" )->uiCapability()->setUiName( "Result Type" );
 
-    CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "CurveGeomechResult", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_geomResultDefinition, "CurveGeomechResult", "" );
     m_geomResultDefinition.uiCapability()->setUiTreeHidden( true );
     m_geomResultDefinition.uiCapability()->setUiTreeChildrenHidden( true );
     m_geomResultDefinition = new RimGeoMechResultDefinition;
     m_geomResultDefinition->setAddWellPathDerivedResults( true );
 
-    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitField( &m_timeStep, "CurveTimeStep", 0, "Time Step" );
 
     // Add some space before name to indicate these belong to the Auto Name field
-    CAF_PDM_InitField( &m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name", "", "", "" );
-    CAF_PDM_InitField( &m_addPropertyToCurveName, "AddPropertyToCurveName", true, "   Property", "", "", "" );
-    CAF_PDM_InitField( &m_addWellNameToCurveName, "AddWellNameToCurveName", true, "   Well Name", "", "", "" );
-    CAF_PDM_InitField( &m_addTimestepToCurveName, "AddTimestepToCurveName", false, "   Timestep", "", "", "" );
-    CAF_PDM_InitField( &m_addDateToCurveName, "AddDateToCurveName", true, "   Date", "", "", "" );
+    CAF_PDM_InitField( &m_addCaseNameToCurveName, "AddCaseNameToCurveName", true, "   Case Name" );
+    CAF_PDM_InitField( &m_addPropertyToCurveName, "AddPropertyToCurveName", true, "   Property" );
+    CAF_PDM_InitField( &m_addWellNameToCurveName, "AddWellNameToCurveName", true, "   Well Name" );
+    CAF_PDM_InitField( &m_addTimestepToCurveName, "AddTimestepToCurveName", false, "   Timestep" );
+    CAF_PDM_InitField( &m_addDateToCurveName, "AddDateToCurveName", true, "   Date" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,50 +345,70 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
         bool isUsingPseudoLength = false;
         performDataExtraction( &isUsingPseudoLength );
 
-        RimDepthTrackPlot* wellLogPlot;
-        firstAncestorOrThisOfType( wellLogPlot );
-        if ( !wellLogPlot ) return;
-
-        RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
-        RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
-        if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
-             depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
+        if ( m_plotCurve )
         {
-            isUsingPseudoLength = false;
-        }
+            bool isUsingPseudoLength = false;
+            performDataExtraction( &isUsingPseudoLength );
 
-        std::vector<double> xPlotValues     = curveData()->xPlotValues();
-        std::vector<double> depthPlotValues = curveData()->depthPlotValues( depthType, displayUnit );
-        CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
-        m_qwtPlotCurve->setSamples( xPlotValues.data(), depthPlotValues.data(), static_cast<int>( xPlotValues.size() ) );
+            RimDepthTrackPlot* wellLogPlot;
+            firstAncestorOrThisOfType( wellLogPlot );
+            if ( !wellLogPlot ) return;
 
-        m_qwtPlotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
-
-        this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
-
-        if ( isUsingPseudoLength )
-        {
-            RimWellLogTrack* wellLogTrack;
-            firstAncestorOrThisOfType( wellLogTrack );
-            CVF_ASSERT( wellLogTrack );
-
-            RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
-            if ( viewer )
+            RiaDefines::DepthTypeEnum depthType   = wellLogPlot->depthType();
+            RiaDefines::DepthUnitType displayUnit = wellLogPlot->depthUnit();
+            if ( depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH ||
+                 depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB )
             {
-                viewer->setAxisTitleText( QwtPlot::yLeft, "PL/" + wellLogPlot->depthAxisTitle() );
+                isUsingPseudoLength = false;
             }
-        }
 
-        if ( updateParentPlot )
-        {
-            updateZoomInParentPlot();
-        }
+            bool useLogarithmicScale = false;
 
-        setLogScaleFromSelectedResult();
+            RimWellLogTrack* track = nullptr;
+            firstAncestorOfType( track );
+            if ( track )
+            {
+                useLogarithmicScale = track->isLogarithmicScale();
+            }
 
-        if ( m_parentQwtPlot )
-        {
-            m_parentQwtPlot->replot();
+            std::vector<double> xPlotValues     = curveData()->propertyValuesByIntervals();
+            std::vector<double> depthPlotValues = curveData()->depthValuesByIntervals( depthType, displayUnit );
+            CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
+
+            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+                m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, useLogarithmicScale );
+
+            else
+                m_plotCurve->setSamplesFromXValuesAndYValues( xPlotValues, depthPlotValues, useLogarithmicScale );
+
+            m_plotCurve->setLineSegmentStartStopIndices( curveData()->polylineStartStopIndices() );
+
+            this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+
+            if ( isUsingPseudoLength )
+            {
+                RimWellLogTrack* wellLogTrack;
+                firstAncestorOrThisOfType( wellLogTrack );
+                CVF_ASSERT( wellLogTrack );
+
+                RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
+                if ( viewer )
+                {
+                    viewer->setAxisTitleText( RiuPlotAxis::defaultLeft(), "PL/" + wellLogPlot->depthAxisTitle() );
+                }
+            }
+
+            if ( updateParentPlot )
+            {
+                updateZoomInParentPlot();
+            }
+
+            setLogScaleFromSelectedResult();
+
+            if ( m_parentPlot )
+            {
+                m_parentPlot->replot();
+            }
         }
     }
 }
@@ -525,25 +545,36 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 
     if ( !values.empty() && !measuredDepthValues.empty() )
     {
+        bool useLogarithmicScale = false;
+
+        RimWellLogTrack* track = nullptr;
+        firstAncestorOfType( track );
+        if ( track )
+        {
+            useLogarithmicScale = track->isLogarithmicScale();
+        }
+
         if ( tvDepthValues.empty() )
         {
-            this->setValuesAndDepths( values,
-                                      measuredDepthValues,
-                                      RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                      0.0,
-                                      depthUnit,
-                                      !performDataSmoothing,
-                                      xUnits );
+            this->setPropertyValuesAndDepths( values,
+                                              measuredDepthValues,
+                                              RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                              0.0,
+                                              depthUnit,
+                                              !performDataSmoothing,
+                                              useLogarithmicScale,
+                                              xUnits );
         }
         else
         {
-            this->setValuesWithMdAndTVD( values,
-                                         measuredDepthValues,
-                                         tvDepthValues,
-                                         rkbDiff,
-                                         depthUnit,
-                                         !performDataSmoothing,
-                                         xUnits );
+            this->setPropertyValuesWithMdAndTVD( values,
+                                                 measuredDepthValues,
+                                                 tvDepthValues,
+                                                 rkbDiff,
+                                                 depthUnit,
+                                                 !performDataSmoothing,
+                                                 useLogarithmicScale,
+                                                 xUnits );
         }
     }
 }
@@ -667,7 +698,8 @@ void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 {
     RimWellLogPlotCollection* wellLogCollection = nullptr;
 
-    // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when deleted.
+    // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when
+    // deleted.
 
     RimProject* proj = RimProject::current();
     if ( proj && proj->mainPlotCollection() ) wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
@@ -686,11 +718,11 @@ void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RimWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+    RimWellLogExtractionCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
     if ( options.size() > 0 ) return options;
 
     if ( fieldNeedingOptions == &m_wellPath )

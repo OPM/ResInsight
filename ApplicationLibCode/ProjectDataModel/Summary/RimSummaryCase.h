@@ -23,6 +23,8 @@
 #include "RimCaseDisplayNameTools.h"
 
 #include "cafFilePath.h"
+#include "cafPdmChildArrayField.h"
+#include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
@@ -31,6 +33,7 @@
 class RifReaderRftInterface;
 class RifSummaryReaderInterface;
 class RimSummaryCaseCollection;
+class RimSummaryAddressCollection;
 
 //==================================================================================================
 //
@@ -63,17 +66,20 @@ public:
     void updateAutoShortName();
     void updateOptionSensitivity();
 
+    void refreshMetaData();
+
     virtual void                       createSummaryReaderInterface() = 0;
     virtual void                       createRftReaderInterface() {}
     virtual RifSummaryReaderInterface* summaryReader() = 0;
     virtual RifReaderRftInterface*     rftReader();
     virtual QString                    errorMessagesFromReader();
 
-    virtual void updateFilePathsFromProjectPath( const QString& newProjectPath, const QString& oldProjectPath ) = 0;
-
     void setSummaryHeaderFileName( const QString& fileName );
 
     bool isObservedData() const;
+
+    bool showRealizationDataSources() const;
+    void setShowRealizationDataSource( bool enable );
 
     void setCaseRealizationParameters( const std::shared_ptr<RigCaseRealizationParameters>& crlParameters );
     std::shared_ptr<RigCaseRealizationParameters> caseRealizationParameters() const;
@@ -83,6 +89,7 @@ public:
     bool                                          operator<( const RimSummaryCase& rhs ) const;
 
 protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
     void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
     void updateTreeItemName();
@@ -92,13 +99,16 @@ protected:
     void initAfterRead() override;
 
 private:
-    static QString uniqueShortNameForEnsembleCase( RimSummaryCase* summaryCase );
-    static QString uniqueShortNameForSummaryCase( RimSummaryCase* summaryCase );
+    void buildChildNodes();
 
 protected:
     caf::PdmField<QString>         m_displayName;
     caf::PdmField<DisplayNameEnum> m_displayNameOption;
     caf::PdmField<caf::FilePath>   m_summaryHeaderFilename;
+
+    caf::PdmField<bool> m_showSubNodesInTree;
+
+    caf::PdmChildField<RimSummaryAddressCollection*> m_dataVectorFolders;
 
     bool               m_isObservedData;
     caf::PdmField<int> m_caseId;

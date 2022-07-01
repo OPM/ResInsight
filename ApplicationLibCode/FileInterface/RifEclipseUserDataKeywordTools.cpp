@@ -23,6 +23,8 @@
 
 #include "RifEclipseUserDataParserTools.h"
 
+#include "RiuSummaryQuantityNameInfoProvider.h"
+
 #include <QStringList>
 
 //--------------------------------------------------------------------------------------------------
@@ -164,7 +166,8 @@ bool RifEclipseUserDataKeywordTools::isYearX( const std::string& identifier )
 RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( const std::string quantityName,
                                                                              const std::vector<std::string>& columnHeaderText )
 {
-    RifEclipseSummaryAddress::SummaryVarCategory category = RifEclipseSummaryAddress::identifyCategory( quantityName );
+    RifEclipseSummaryAddress::SummaryVarCategory category =
+        RiuSummaryQuantityNameInfoProvider::instance()->identifyCategory( quantityName );
 
     if ( category == RifEclipseSummaryAddress::SUMMARY_INVALID )
     {
@@ -173,7 +176,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
 
     int         regionNumber      = -1;
     int         regionNumber2     = -1;
-    std::string wellGroupName     = "";
+    std::string groupName         = "";
     std::string wellName          = "";
     int         wellSegmentNumber = -1;
     std::string lgrName           = "";
@@ -210,11 +213,11 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
         }
         case RifEclipseSummaryAddress::SUMMARY_REGION_2_REGION:
             break;
-        case RifEclipseSummaryAddress::SUMMARY_WELL_GROUP:
+        case RifEclipseSummaryAddress::SUMMARY_GROUP:
         {
             if ( columnHeaderText.size() > 0 )
             {
-                wellGroupName = columnHeaderText[0];
+                groupName = columnHeaderText[0];
             }
             break;
         }
@@ -284,7 +287,7 @@ RifEclipseSummaryAddress RifEclipseUserDataKeywordTools::makeAndFillAddress( con
                                      quantityName,
                                      regionNumber,
                                      regionNumber2,
-                                     wellGroupName,
+                                     groupName,
                                      wellName,
                                      wellSegmentNumber,
                                      lgrName,
@@ -322,7 +325,7 @@ size_t RifEclipseUserDataKeywordTools::computeRequiredHeaderLineCount( const std
         }
     }
 
-    // Quantity and unit, scaling is optional
+    // Vector name and unit, scaling is optional
     return 1 + maxHeaderLinesFromKeywords;
 }
 

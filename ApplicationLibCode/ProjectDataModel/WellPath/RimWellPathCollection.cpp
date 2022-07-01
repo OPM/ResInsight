@@ -93,39 +93,36 @@ RimWellPathCollection::RimWellPathCollection()
                                                     "WellPathCollection",
                                                     "Collection of Well Paths" );
 
-    CAF_PDM_InitField( &isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &isActive, "Active", true, "Active" );
     isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Labels", "", "", "" );
+    CAF_PDM_InitField( &showWellPathLabel, "ShowWellPathLabel", true, "Show Well Path Labels" );
 
     cvf::Color3f defWellLabelColor = RiaPreferences::current()->defaultWellLabelColor();
-    CAF_PDM_InitField( &wellPathLabelColor, "WellPathLabelColor", defWellLabelColor, "Well label color", "", "", "" );
+    CAF_PDM_InitField( &wellPathLabelColor, "WellPathLabelColor", defWellLabelColor, "Well label color" );
 
     CAF_PDM_InitField( &wellPathVisibility,
                        "GlobalWellPathVisibility",
                        WellVisibilityEnum( ALL_ON ),
-                       "Global Well Path Visibility",
-                       "",
-                       "",
-                       "" );
+                       "Global Well Path Visibility" );
 
-    CAF_PDM_InitField( &wellPathRadiusScaleFactor, "WellPathRadiusScale", 0.1, "Well Path Radius Scale", "", "", "" );
-    CAF_PDM_InitField( &wellPathCrossSectionVertexCount, "WellPathVertexCount", 12, "Well Path Vertex Count", "", "", "" );
+    CAF_PDM_InitField( &wellPathRadiusScaleFactor, "WellPathRadiusScale", 0.1, "Well Path Radius Scale" );
+    CAF_PDM_InitField( &wellPathCrossSectionVertexCount, "WellPathVertexCount", 12, "Well Path Vertex Count" );
     wellPathCrossSectionVertexCount.xmlCapability()->disableIO();
     wellPathCrossSectionVertexCount.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &wellPathClip, "WellPathClip", true, "Clip Well Paths", "", "", "" );
-    CAF_PDM_InitField( &wellPathClipZDistance, "WellPathClipZDistance", 100, "Well Path Clipping Depth Distance", "", "", "" );
+    CAF_PDM_InitField( &wellPathClip, "WellPathClip", true, "Clip Well Paths" );
+    CAF_PDM_InitField( &wellPathClipZDistance, "WellPathClipZDistance", 100, "Well Path Clipping Depth Distance" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_wellPaths, "WellPaths", "Well Paths" );
     m_wellPaths.uiCapability()->setUiTreeHidden( true );
     m_wellPaths.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellMeasurements, "WellMeasurements", "Measurements" );
     m_wellMeasurements = new RimWellMeasurementCollection;
     m_wellMeasurements.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathNodes, "WellPathNodes", "Well Path Nodes", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathNodes, "WellPathNodes", "Well Path Nodes" );
     m_wellPathNodes.xmlCapability()->disableIO();
 
     m_wellPathImporter           = std::make_unique<RifWellPathImporter>();
@@ -297,7 +294,7 @@ void RimWellPathCollection::addWellPath( gsl::not_null<RimWellPath*> wellPath, b
 //--------------------------------------------------------------------------------------------------
 std::vector<RimWellPath*> RimWellPathCollection::allWellPaths() const
 {
-    return m_wellPaths.childObjects();
+    return m_wellPaths.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -575,8 +572,8 @@ RimWellPath* RimWellPathCollection::tryFindMatchingWellPath( const QString& well
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::deleteAllWellPaths()
 {
-    m_wellPaths.deleteAllChildObjects();
-    m_wellPathNodes.deleteAllChildObjects();
+    m_wellPaths.deleteChildren();
+    m_wellPathNodes.deleteChildren();
 
     m_wellPathImporter->clear();
     updateAllRequiredEditors();
@@ -587,7 +584,7 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
 {
-    m_wellPaths.removeChildObject( wellPath );
+    m_wellPaths.removeChild( wellPath );
     delete wellPath;
 }
 
@@ -792,9 +789,9 @@ caf::AppEnum<RiaDefines::EclipseUnitSystem> RimWellPathCollection::findUnitSyste
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::rebuildWellPathNodes()
 {
-    m_wellPathNodes.deleteAllChildObjects();
+    m_wellPathNodes.deleteChildren();
 
-    std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.childObjects() );
+    std::map<QString, std::vector<RimWellPath*>> rootWells = wellPathsForWellNameStem( m_wellPaths.children() );
     for ( auto [groupName, wellPathGroup] : rootWells )
     {
         if ( groupName == unGroupedText() )

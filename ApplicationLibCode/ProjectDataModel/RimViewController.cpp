@@ -62,31 +62,31 @@ RimViewController::RimViewController()
 {
     // clang-format off
 
-    CAF_PDM_InitObject("View Link", "", "", "");
+    CAF_PDM_InitObject("View Link");
 
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active", "", "", "");
+    CAF_PDM_InitField(&m_isActive, "Active", true, "Active");
     m_isActive.uiCapability()->setUiHidden(true);
 
     QString defaultName = "View Config: Empty view";
-    CAF_PDM_InitField(&m_name, "Name", defaultName, "Managed View Name", "", "", "");
+    CAF_PDM_InitField(&m_name, "Name", defaultName, "Managed View Name");
     m_name.uiCapability()->setUiHidden(true);
 
-    CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View", "", "", "");
+    CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View");
     m_managedView.uiCapability()->setUiTreeChildrenHidden(true);
 
-    CAF_PDM_InitField(&m_syncCamera,            "SyncCamera", true,             "Camera", "", "", "");
-    CAF_PDM_InitField(&m_showCursor,            "ShowCursor", true,             "   Show Cursor", "", "", "");
-    CAF_PDM_InitField(&m_syncTimeStep,          "SyncTimeStep", true,           "Time Step", "", "", "");
-    CAF_PDM_InitField(&m_syncCellResult,        "SyncCellResult", false,        "Cell Result", "", "", "");
-    CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Color Legend", "", "", "");
+    CAF_PDM_InitField(&m_syncCamera,            "SyncCamera", true,             "Camera");
+    CAF_PDM_InitField(&m_showCursor,            "ShowCursor", true,             "   Show Cursor");
+    CAF_PDM_InitField(&m_syncTimeStep,          "SyncTimeStep", true,           "Time Step");
+    CAF_PDM_InitField(&m_syncCellResult,        "SyncCellResult", false,        "Cell Result");
+    CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Color Legend");
     
-    CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells", "", "", "");
+    CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells");
     /// We do not support this. Consider to remove sometime
     m_syncVisibleCells.uiCapability()->setUiHidden(true);
     m_syncVisibleCells.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_syncCellFilters,    "SyncRangeFilters", false,   "Cell Filters", "", "", "");
-    CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters", "", "", "");
+    CAF_PDM_InitField(&m_syncCellFilters,    "SyncRangeFilters", false,   "Cell Filters");
+    CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters");
     // clang-format on
 
     setDeletable( true );
@@ -107,8 +107,7 @@ RimViewController::~RimViewController()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                        bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

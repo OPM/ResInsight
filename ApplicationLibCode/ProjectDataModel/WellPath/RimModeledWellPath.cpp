@@ -54,10 +54,7 @@ RimModeledWellPath::RimModeledWellPath()
     CAF_PDM_InitScriptableFieldWithScriptKeywordNoDefault( &m_geometryDefinition,
                                                            "WellPathGeometryDef",
                                                            "WellPathGeometry",
-                                                           "Trajectory",
-                                                           "",
-                                                           "",
-                                                           "" );
+                                                           "Trajectory" );
     m_geometryDefinition = new RimWellPathGeometryDef;
     m_geometryDefinition->changed.connect( this, &RimModeledWellPath::onGeometryDefinitionChanged );
 
@@ -222,8 +219,7 @@ void RimModeledWellPath::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimModeledWellPath::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                         bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimModeledWellPath::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

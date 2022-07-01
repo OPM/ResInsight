@@ -36,16 +36,16 @@ CAF_PDM_SOURCE_INIT( RimPlotAxisAnnotation, "RimPlotAxisAnnotation" );
 RimPlotAxisAnnotation::RimPlotAxisAnnotation()
 {
     m_annotationType = AnnotationType::LINE;
-    CAF_PDM_InitObject( "Plot Axis Annotation", ":/LeftAxis16x16.png", "", "" );
+    CAF_PDM_InitObject( "Plot Axis Annotation", ":/LeftAxis16x16.png" );
 
-    CAF_PDM_InitField( &m_isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_value, "Value", "Value", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_name, "Name", "Name" );
+    CAF_PDM_InitFieldNoDefault( &m_value, "Value", "Value" );
 
-    CAF_PDM_InitFieldNoDefault( &m_rangeStart, "RangeStart", "Range Start", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_rangeEnd, "RangeEnd", "Range End", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rangeStart, "RangeStart", "Range Start" );
+    CAF_PDM_InitFieldNoDefault( &m_rangeEnd, "RangeEnd", "Range End" );
 }
 
 //--------------------------------------------------------------------------------------------------

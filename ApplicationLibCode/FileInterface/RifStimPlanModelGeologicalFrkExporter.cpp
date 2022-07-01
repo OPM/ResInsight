@@ -29,6 +29,8 @@
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCalculator.h"
 
+#include "caf.h"
+
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
@@ -273,7 +275,7 @@ bool RifStimPlanModelGeologicalFrkExporter::writeToCsvFile( const QString&      
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelGeologicalFrkExporter::appendHeaderToStream( QTextStream& stream )
 {
-    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<geologic>" << endl;
+    stream << "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" << '\n' << "<geologic>" << caf::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -283,23 +285,23 @@ void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream&        
                                                             const QString&             label,
                                                             const std::vector<double>& values )
 {
-    stream << "<cNamedSet>" << endl
-           << "<name>" << endl
-           << label << endl
-           << "</name>" << endl
-           << "<dimCount>" << endl
-           << 1 << endl
-           << "</dimCount>" << endl
-           << "<sizes>" << endl
-           << values.size() << endl
-           << "</sizes>" << endl
-           << "<data>" << endl;
+    stream << "<cNamedSet>" << caf::endl
+           << "<name>" << caf::endl
+           << label << caf::endl
+           << "</name>" << caf::endl
+           << "<dimCount>" << caf::endl
+           << 1 << caf::endl
+           << "</dimCount>" << caf::endl
+           << "<sizes>" << caf::endl
+           << values.size() << caf::endl
+           << "</sizes>" << caf::endl
+           << "<data>" << caf::endl;
     for ( auto val : values )
     {
-        stream << val << endl;
+        stream << val << caf::endl;
     }
 
-    stream << "</data>" << '\n' << "</cNamedSet>" << endl;
+    stream << "</data>" << '\n' << "</cNamedSet>" << caf::endl;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -307,7 +309,7 @@ void RifStimPlanModelGeologicalFrkExporter::appendToStream( QTextStream&        
 //--------------------------------------------------------------------------------------------------
 void RifStimPlanModelGeologicalFrkExporter::appendFooterToStream( QTextStream& stream )
 {
-    stream << "</geologic>" << endl;
+    stream << "</geologic>" << caf::endl;
 }
 
 //--------------------------------------------------------------------------------------------------

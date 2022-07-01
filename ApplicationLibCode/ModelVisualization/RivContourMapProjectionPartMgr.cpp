@@ -10,6 +10,7 @@
 
 #include "RimContourMapProjection.h"
 #include "RimGridView.h"
+#include "RimRegularLegendConfig.h"
 
 #include "cafCategoryMapper.h"
 #include "cafEffectGenerator.h"

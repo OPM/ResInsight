@@ -133,7 +133,7 @@ resulting
             for (size_t i = 0; i < addresses.size(); i++)
             {
                 RifEclipseSummaryAddress adr(addresses[i].category(), addresses[i].simulationItemName(),
-addresses[i].quantityName()); myAddresses.push_back(adr);
+addresses[i].vectorName()); myAddresses.push_back(adr);
             }
 
             for (size_t i = 0; i < addresses.size(); i++)

@@ -53,29 +53,20 @@ RimObjectiveFunction::RimObjectiveFunction()
     : changed( this )
 
 {
-    CAF_PDM_InitObject( "Objective Function", "", "", "" );
+    CAF_PDM_InitObject( "Objective Function" );
 
-    CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_functionType, "FunctionType", "Function Type" );
 
     CAF_PDM_InitField( &m_normalizeByNumberOfObservations,
                        "NormalizeByNumberOfObservations",
                        true,
-                       "Normalize by Number of Observations",
-                       "",
-                       "",
-                       "" );
+                       "Normalize by Number of Observations" );
 
-    CAF_PDM_InitField( &m_normalizeByNumberOfVectors,
-                       "NormalizeByNumberOfVectors",
-                       true,
-                       "Normalize by Number of Vectors",
-                       "",
-                       "",
-                       "" );
+    CAF_PDM_InitField( &m_normalizeByNumberOfVectors, "NormalizeByNumberOfVectors", true, "Normalize by Number of Vectors" );
 
-    CAF_PDM_InitField( &m_errorEstimatePercentage, "ErrorEstimatePercentage", 100.0, "Error Estimate [0..100 %]", "", "", "" );
+    CAF_PDM_InitField( &m_errorEstimatePercentage, "ErrorEstimatePercentage", 100.0, "Error Estimate [0..100 %]" );
 
-    CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Term", "", "", "" );
+    CAF_PDM_InitField( &m_useSquaredError, "UseSquaredError", true, "Use Squared Error Term" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -117,20 +108,20 @@ double RimObjectiveFunction::value( RimSummaryCase*                             
 
         for ( auto vectorSummaryAddress : vectorSummaryAddresses )
         {
-            std::string s = vectorSummaryAddress.quantityName() + RifReaderEclipseSummary::differenceIdentifier();
-            if ( !vectorSummaryAddress.quantityName().empty() )
+            std::string s = vectorSummaryAddress.vectorName() + RifReaderEclipseSummary::differenceIdentifier();
+            if ( !vectorSummaryAddress.vectorName().empty() )
             {
-                if ( vectorSummaryAddress.quantityName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
+                if ( vectorSummaryAddress.vectorName().find( RifReaderEclipseSummary::differenceIdentifier() ) !=
                      std::string::npos )
                 {
-                    s = vectorSummaryAddress.quantityName();
+                    s = vectorSummaryAddress.vectorName();
                 }
                 RifEclipseSummaryAddress vectorSummaryAddressDiff = vectorSummaryAddress;
-                vectorSummaryAddressDiff.setQuantityName( s );
+                vectorSummaryAddressDiff.setVectorName( s );
 
                 RifEclipseSummaryAddress vectorSummaryAddressHistory = vectorSummaryAddress;
-                vectorSummaryAddressHistory.setQuantityName( vectorSummaryAddress.quantityName() +
-                                                             RifReaderEclipseSummary::historyIdentifier() );
+                vectorSummaryAddressHistory.setVectorName( vectorSummaryAddress.vectorName() +
+                                                           RifReaderEclipseSummary::historyIdentifier() );
 
                 if ( readerInterface->allResultAddresses().count( vectorSummaryAddressDiff ) )
                 {

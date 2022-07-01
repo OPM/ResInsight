@@ -98,32 +98,32 @@ const char RimWellPltPlot::PLOT_NAME_QFORMAT_STRING[] = "PLT: %1";
 RimWellPltPlot::RimWellPltPlot()
     : RimWellLogPlot()
 {
-    CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png", "", "" );
+    CAF_PDM_InitObject( "Well Allocation Plot", ":/WellFlowPlot16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellLogPlot_OBSOLETE, "WellLog", "WellLog" );
     m_wellLogPlot_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_wellLogPlot_OBSOLETE.xmlCapability()->setIOWritable( false );
 
-    CAF_PDM_InitFieldNoDefault( &m_wellPathName, "WellName", "Well Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_wellPathName, "WellName", "Well Name" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SourcesInternal", "Sources Internal", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSources, "SourcesInternal", "Sources Internal" );
     m_selectedSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedSources.uiCapability()->setAutoAddingOptionFromValue( false );
     m_selectedSources.xmlCapability()->disableIO();
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedSourcesForIo, "Sources", "Sources" );
     m_selectedSourcesForIo.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedTimeSteps, "TimeSteps", "Time Steps" );
     m_selectedTimeSteps.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_selectedTimeSteps.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_selectedTimeSteps.uiCapability()->setAutoAddingOptionFromValue( false );
 
-    CAF_PDM_InitField( &m_useStandardConditionCurves, "UseStandardConditionCurves", true, "Standard Volume", "", "", "" );
-    CAF_PDM_InitField( &m_useReservoirConditionCurves, "UseReservoirConditionCurves", true, "Reservoir Volume", "", "", "" );
+    CAF_PDM_InitField( &m_useStandardConditionCurves, "UseStandardConditionCurves", true, "Standard Volume" );
+    CAF_PDM_InitField( &m_useReservoirConditionCurves, "UseReservoirConditionCurves", true, "Reservoir Volume" );
 
-    CAF_PDM_InitFieldNoDefault( &m_phases, "Phases", "Phases", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_phases, "Phases", "Phases" );
     m_phases.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
     m_phases = std::vector<caf::AppEnum<FlowPhase>>( { FLOW_PHASE_OIL, FLOW_PHASE_GAS, FLOW_PHASE_WATER } );
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
@@ -188,7 +188,7 @@ void RimWellPltPlot::setPlotXAxisTitles( RimWellLogTrack* plotTrack )
     if ( m_useStandardConditionCurves )
         axisTitle += RimWellPlotTools::flowPlotAxisTitle( RimWellLogFile::WELL_FLOW_COND_STANDARD, unitSet );
 
-    plotTrack->setXAxisTitle( axisTitle );
+    plotTrack->setPropertyValueAxisTitle( axisTitle );
 
 #if 0
     QString unitText;
@@ -300,15 +300,18 @@ class RigRftResultPointCalculator : public RigResultPointCalculator
 public:
     RigRftResultPointCalculator( const QString& wellPathName, RimEclipseResultCase* eclCase, QDateTime m_timeStep )
     {
-        RifEclipseRftAddress gasRateAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                             m_timeStep,
-                                             RifEclipseRftAddress::GRAT );
-        RifEclipseRftAddress oilRateAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                             m_timeStep,
-                                             RifEclipseRftAddress::ORAT );
-        RifEclipseRftAddress watRateAddress( RimWellPlotTools::simWellName( wellPathName ),
-                                             m_timeStep,
-                                             RifEclipseRftAddress::WRAT );
+        RifEclipseRftAddress gasRateAddress =
+            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                 m_timeStep,
+                                                 RifEclipseRftAddress::RftWellLogChannelType::GRAT );
+        RifEclipseRftAddress oilRateAddress =
+            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                 m_timeStep,
+                                                 RifEclipseRftAddress::RftWellLogChannelType::ORAT );
+        RifEclipseRftAddress watRateAddress =
+            RifEclipseRftAddress::createAddress( RimWellPlotTools::simWellName( wellPathName ),
+                                                 m_timeStep,
+                                                 RifEclipseRftAddress::RftWellLogChannelType::WRAT );
 
         std::vector<caf::VecIjk> rftIndices;
         eclCase->rftReader()->cellIndices( gasRateAddress, &rftIndices );
@@ -685,7 +688,7 @@ void RimWellPltPlot::syncCurvesFromUiSelection()
         curveGroupId++;
     }
 
-    plotTrack->setAutoScaleXEnabled( true );
+    plotTrack->setAutoScalePropertyValuesEnabled( true );
     RimWellLogPlot::onLoadDataAndUpdate();
 }
 
@@ -709,7 +712,7 @@ void RimWellPltPlot::addStackedCurve( const QString&             curveName,
     if ( curveGroupId == 0 )
     {
         curve->setDoFillCurve( true );
-        curve->setSymbol( RiuQwtSymbol::SYMBOL_NONE );
+        curve->setSymbol( RiuPlotCurveSymbol::SYMBOL_NONE );
     }
     else
     {
@@ -761,10 +764,9 @@ const char* RimWellPltPlot::plotNameFormatString()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                     bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimWellPltPlot::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
-    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions, useOptionsOnly );
+    QList<caf::PdmOptionItemInfo> options = RimWellLogPlot::calculateValueOptions( fieldNeedingOptions );
 
     const QString simWellName = RimWellPlotTools::simWellName( m_wellPathName );
 
@@ -918,7 +920,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
         if ( plotTrack )
         {
-            plotTrack->setAutoScaleXEnabled( true );
+            plotTrack->setAutoScalePropertyValuesEnabled( true );
         }
         updateZoom();
     }
@@ -931,7 +933,7 @@ void RimWellPltPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
         if ( plotTrack )
         {
-            plotTrack->setAutoScaleXEnabled( true );
+            plotTrack->setAutoScalePropertyValuesEnabled( true );
         }
         updateZoom();
     }
@@ -1046,7 +1048,7 @@ void RimWellPltPlot::initAfterLoad()
 //--------------------------------------------------------------------------------------------------
 void RimWellPltPlot::syncSourcesIoFieldFromGuiField()
 {
-    m_selectedSourcesForIo.clear();
+    m_selectedSourcesForIo.deleteChildren();
 
     for ( const RifDataSourceForRftPlt& addr : m_selectedSources() )
     {

@@ -29,8 +29,8 @@
 #include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
 #include "RimSummaryCurve.h"
+#include "RimSummaryCurveCollection.h"
 #include "RimSummaryPlot.h"
-#include "RimSummaryPlotCollection.h"
 
 #include "RiuPlotMainWindow.h"
 
@@ -102,12 +102,12 @@ void RicNewSummaryCurveFeature::onActionTriggered( bool isChecked )
         newCurve->setSummaryCaseY( defaultCase );
 
         plot->loadDataAndUpdate();
-        plot->updateConnectedEditors();
+        plot->summaryCurveCollection()->updateAllRequiredEditors();
 
         app->getOrCreateAndShowMainPlotWindow()->selectAsCurrentItem( newCurve );
 
         RiuPlotMainWindow* mainPlotWindow = app->mainPlotWindow();
-        mainPlotWindow->updateSummaryPlotToolBar();
+        mainPlotWindow->updateMultiPlotToolBar();
     }
 }
 

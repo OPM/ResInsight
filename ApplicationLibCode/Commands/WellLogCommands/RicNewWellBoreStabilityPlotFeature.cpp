@@ -114,7 +114,7 @@ RimWellBoreStabilityPlot*
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
         plot->setDepthType( RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB );
-        plot->setAutoScaleDepthEnabled( true );
+        plot->setAutoScaleDepthValuesEnabled( true );
 
         RicNewWellLogPlotFeatureImpl::updateAfterCreation( plot );
     }
@@ -220,7 +220,7 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabil
     formationTrack->setFormationWellPath( wellPath );
     formationTrack->setFormationCase( geoMechCase );
     formationTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
-    formationTrack->setVisibleXRange( 0.0, 0.0 );
+    formationTrack->setVisiblePropertyValueRange( 0.0, 0.0 );
     formationTrack->setColSpan( RimPlot::ONE );
 }
 
@@ -242,8 +242,8 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
     casingShoeTrack->setShowBothSidesOfWell( false );
     casingShoeTrack->setAnnotationTransparency( 90 );
     casingShoeTrack->setWellPathAttributesSource( wellPath );
-    casingShoeTrack->setVisibleXRange( 0.0, 0.0 );
-    casingShoeTrack->setAutoScaleXEnabled( true );
+    casingShoeTrack->setVisiblePropertyValueRange( 0.0, 0.0 );
+    casingShoeTrack->setAutoScalePropertyValuesEnabled( true );
     casingShoeTrack->loadDataAndUpdate();
 }
 
@@ -258,10 +258,10 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
     RimWellLogTrack* paramCurvesTrack =
         RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "WBS Parameters", plot );
     paramCurvesTrack->setColSpan( RimPlot::TWO );
-    paramCurvesTrack->setVisibleXRange( 0.0, 2.0 );
-    paramCurvesTrack->setAutoScaleXEnabled( true );
+    paramCurvesTrack->setVisiblePropertyValueRange( 0.0, 2.0 );
+    paramCurvesTrack->setAutoScalePropertyValuesEnabled( true );
     paramCurvesTrack->setTickIntervals( 1.0, 0.2 );
-    paramCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    paramCurvesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     paramCurvesTrack->setFormationWellPath( wellPath );
     paramCurvesTrack->setFormationCase( geoMechCase );
     paramCurvesTrack->setShowRegionLabels( true );
@@ -290,7 +290,7 @@ void RicNewWellBoreStabilityPlotFeature::createParametersTrack( RimWellBoreStabi
         curve->setCustomName( param.name() );
         i++;
     }
-    paramCurvesTrack->setAutoScaleXEnabled( true );
+    paramCurvesTrack->setAutoScalePropertyValuesEnabled( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -305,11 +305,11 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
                                                                                                   "Stability Curves",
 
                                                                                                   plot );
-    stabilityCurvesTrack->setVisibleXRange( 0.0, 2.5 );
+    stabilityCurvesTrack->setVisiblePropertyValueRange( 0.0, 2.5 );
     stabilityCurvesTrack->setColSpan( RimPlot::THREE );
-    stabilityCurvesTrack->setAutoScaleXEnabled( true );
+    stabilityCurvesTrack->setAutoScalePropertyValuesEnabled( true );
     stabilityCurvesTrack->setTickIntervals( 1.0, 0.2 );
-    stabilityCurvesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    stabilityCurvesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     stabilityCurvesTrack->setFormationWellPath( wellPath );
     stabilityCurvesTrack->setFormationCase( geoMechCase );
     stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
@@ -368,7 +368,7 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
         }
     }
 
-    stabilityCurvesTrack->setAutoScaleXEnabled( true );
+    stabilityCurvesTrack->setAutoScalePropertyValuesEnabled( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -413,7 +413,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
         curve->loadDataAndUpdate( false );
 
         double actualMinValue = minValue, actualMaxValue = maxValue;
-        curve->xValueRangeInQwt( &actualMinValue, &actualMaxValue );
+        curve->xValueRange( &actualMinValue, &actualMaxValue );
         while ( maxValue < actualMaxValue )
         {
             maxValue += angleIncrement;
@@ -426,9 +426,9 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
         minValue = cvf::Math::clamp( minValue, 0.0, maxValue - 90.0 );
     }
     wellPathAnglesTrack->setColSpan( RimPlot::TWO );
-    wellPathAnglesTrack->setVisibleXRange( minValue, maxValue );
+    wellPathAnglesTrack->setVisiblePropertyValueRange( minValue, maxValue );
     wellPathAnglesTrack->setTickIntervals( 180.0, 45.0 );
-    wellPathAnglesTrack->setXAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
+    wellPathAnglesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     wellPathAnglesTrack->setFormationWellPath( wellPath );
     wellPathAnglesTrack->setFormationCase( geoMechCase );
     wellPathAnglesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );

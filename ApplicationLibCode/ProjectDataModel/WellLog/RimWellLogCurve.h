@@ -42,29 +42,8 @@ public:
 
     void setDepthUnit( RiaDefines::DepthUnitType depthUnit );
 
-    bool xValueRangeInData( double* minimumValue, double* maximumValue ) const;
-    bool yValueRangeInData( double* minimumValue, double* maximumValue ) const;
-
-    void setValuesAndDepths( const std::vector<double>& xValues,
-                             const std::vector<double>& depths,
-                             RiaDefines::DepthTypeEnum  depthType,
-                             double                     rkbDiff,
-                             RiaDefines::DepthUnitType  depthUnit,
-                             bool                       isExtractionCurve,
-                             const QString&             xUnits = RiaWellLogUnitTools<double>::noUnitString() );
-    void setValuesWithMdAndTVD( const std::vector<double>& xValues,
-                                const std::vector<double>& measuredDepths,
-                                const std::vector<double>& tvDepths,
-                                double                     rkbDiff,
-                                RiaDefines::DepthUnitType  depthUnit,
-                                bool                       isExtractionCurve,
-                                const QString&             xUnits = RiaWellLogUnitTools<double>::noUnitString() );
-    void setValuesAndDepths( const std::vector<double>&                                      xValues,
-                             const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
-                             double                                                          rkbDiff,
-                             RiaDefines::DepthUnitType                                       depthUnit,
-                             bool                                                            isExtractionCurve,
-                             const QString& xUnits = RiaWellLogUnitTools<double>::noUnitString() );
+    bool propertyValueRangeInData( double* minimumValue, double* maximumValue ) const;
+    bool depthValueRangeInData( double* minimumValue, double* maximumValue ) const;
 
     const RigWellLogCurveData* curveData() const;
 
@@ -78,20 +57,56 @@ public:
 
     static QString wellLogCurveIconName();
 
-    void setOverrideCurveData( const std::vector<double>&               xValues,
+    void setOverrideCurveData( const std::vector<double>&               propertyValues,
                                const std::vector<double>&               depthValues,
                                const RiaCurveDataTools::CurveIntervals& curveIntervals );
-
-    virtual RiaDefines::PhaseType resultPhase() const;
 
 protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;
-    void setOverrideCurveDataXRange( double minimumValue, double maximumValue );
-    void calculateCurveDataXRange();
+    void setOverrideCurveDataPropertyValueRange( double minimumValue, double maximumValue );
+    void calculateCurveDataPropertyValueRange();
+
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    void setPropertyValuesAndDepths( const std::vector<double>& propertyValues,
+                                     const std::vector<double>& depths,
+                                     RiaDefines::DepthTypeEnum  depthType,
+                                     double                     rkbDiff,
+                                     RiaDefines::DepthUnitType  depthUnit,
+                                     bool                       isExtractionCurve,
+                                     bool                       useLogarithmicScale,
+                                     const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
+
+    void setPropertyValuesWithMdAndTVD( const std::vector<double>& propertyValues,
+                                        const std::vector<double>& measuredDepths,
+                                        const std::vector<double>& tvDepths,
+                                        double                     rkbDiff,
+                                        RiaDefines::DepthUnitType  depthUnit,
+                                        bool                       isExtractionCurve,
+                                        bool                       useLogarithmicScale,
+                                        const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
+
+    void setPropertyAndDepthValuesToPlotCurve( const std::vector<double>& propertyValues,
+                                               const std::vector<double>& depthValues );
+
+    void setPropertyValuesAndDepths( const std::vector<double>&                                      propertyValues,
+                                     const std::map<RiaDefines::DepthTypeEnum, std::vector<double>>& depths,
+                                     double                                                          rkbDiff,
+                                     RiaDefines::DepthUnitType                                       depthUnit,
+                                     bool                                                            isExtractionCurve,
+                                     bool           useLogarithmicScale,
+                                     const QString& propertyUnit = RiaWellLogUnitTools<double>::noUnitString() );
+
+    void setPropertyAndDepthsAndErrors( const std::vector<double>& propertyValues,
+                                        const std::vector<double>& depthValues,
+                                        const std::vector<double>& errorValues );
+
+    bool        isVerticalCurve() const;
+    RiuPlotAxis depthAxis() const;
+    RiuPlotAxis valueAxis() const;
 
 private:
     cvf::ref<RigWellLogCurveData> m_curveData;
-    std::pair<double, double>     m_curveDataXRange;
+    std::pair<double, double>     m_curveDataPropertyValueRange;
 };

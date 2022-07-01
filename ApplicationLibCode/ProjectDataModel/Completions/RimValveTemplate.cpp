@@ -30,27 +30,24 @@ CAF_PDM_SOURCE_INIT( RimValveTemplate, "ValveTemplate" );
 //--------------------------------------------------------------------------------------------------
 RimValveTemplate::RimValveTemplate()
 {
-    CAF_PDM_InitObject( "Valve Template", ":/ICDValve16x16.png", "", "" );
+    CAF_PDM_InitObject( "Valve Template", ":/ICDValve16x16.png" );
 
     CAF_PDM_InitField( &m_valveTemplateUnit,
                        "UnitSystem",
                        caf::AppEnum<RiaDefines::EclipseUnitSystem>( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN ),
-                       "Units System",
-                       "",
-                       "",
-                       "" );
+                       "Units System" );
     m_valveTemplateUnit.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_type, "CompletionType", "Type", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_type, "CompletionType", "Type" );
     m_type = RiaDefines::WellPathComponentType::ICD;
-    CAF_PDM_InitField( &m_userLabel, "UserLabel", QString( "Template" ), "Name", "", "", "" );
+    CAF_PDM_InitField( &m_userLabel, "UserLabel", QString( "Template" ), "Name" );
 
     this->setName( fullLabel() );
 
-    CAF_PDM_InitField( &m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]", "", "", "" );
-    CAF_PDM_InitField( &m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient", "", "", "" );
+    CAF_PDM_InitField( &m_orificeDiameter, "OrificeDiameter", 8.0, "Orifice Diameter [mm]" );
+    CAF_PDM_InitField( &m_flowCoefficient, "FlowCoefficient", 0.7, "Flow Coefficient" );
 
-    CAF_PDM_InitFieldNoDefault( &m_aicdParameters, "AICDParameters", "AICD Parameters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_aicdParameters, "AICDParameters", "AICD Parameters" );
     m_aicdParameters = new RimWellPathAicdParameters;
     m_aicdParameters.uiCapability()->setUiTreeHidden( true );
     m_aicdParameters.uiCapability()->setUiTreeChildrenHidden( true );
@@ -172,8 +169,7 @@ void RimValveTemplate::setUserLabel( const QString& userLabel )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimValveTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                       bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimValveTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 

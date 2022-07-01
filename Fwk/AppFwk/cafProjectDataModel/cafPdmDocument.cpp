@@ -137,7 +137,7 @@ void PdmDocument::updateUiIconStateRecursively( PdmObjectHandle* object )
     size_t                        fIdx;
     for ( fIdx = 0; fIdx < fields.size(); ++fIdx )
     {
-        if ( fields[fIdx] ) fields[fIdx]->childObjects( &children );
+        if ( fields[fIdx] ) fields[fIdx]->children( &children );
     }
 
     size_t cIdx;

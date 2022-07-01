@@ -27,7 +27,7 @@ RiuQtChartView::RiuQtChartView( RimPlotWindow* plotWindow, QWidget* parent )
     : QtCharts::QChartView( parent )
     , m_plotWindow( plotWindow )
 {
-    CAF_ASSERT( m_plotWindow );
+    setMouseTracking( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -43,4 +43,64 @@ RiuQtChartView::~RiuQtChartView()
 RimViewWindow* RiuQtChartView::ownerViewWindow() const
 {
     return m_plotWindow;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartView::mousePressEvent( QMouseEvent* event )
+{
+    if ( event->button() == Qt::MiddleButton )
+    {
+        m_isPanning        = true;
+        m_panStartPosition = event->pos();
+        setCursor( Qt::ClosedHandCursor );
+        event->accept();
+    }
+    else
+    {
+        QtCharts::QChartView::mousePressEvent( event );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartView::mouseReleaseEvent( QMouseEvent* event )
+{
+    if ( event->button() == Qt::MiddleButton )
+    {
+        m_isPanning = false;
+        setCursor( Qt::ArrowCursor );
+        event->accept();
+    }
+    else
+    {
+        if ( event->button() == Qt::RightButton )
+        {
+            // Skip QtCharts::QChartView::mouseReleaseEvent() to avoid zoom on right mouse button
+            return QGraphicsView::mouseReleaseEvent( event );
+        }
+
+        QtCharts::QChartView::mouseReleaseEvent( event );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQtChartView::mouseMoveEvent( QMouseEvent* event )
+{
+    if ( event->buttons() & Qt::MiddleButton && m_isPanning )
+    {
+        QPoint  newPosition = event->pos();
+        QPointF delta       = mapToScene( newPosition ) - mapToScene( m_panStartPosition );
+        chart()->scroll( -delta.x(), delta.y() );
+        m_panStartPosition = newPosition;
+        event->accept();
+    }
+    else
+    {
+        QtCharts::QChartView::mouseMoveEvent( event );
+    }
 }

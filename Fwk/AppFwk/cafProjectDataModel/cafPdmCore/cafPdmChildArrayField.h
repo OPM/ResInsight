@@ -24,7 +24,7 @@ public:
     PdmChildArrayFieldHandle() {}
     ~PdmChildArrayFieldHandle() override {}
 
-    virtual void deleteAllChildObjects() = 0;
+    virtual void deleteChildren() = 0;
 
     bool hasSameFieldCountForAllObjects();
 };
@@ -63,14 +63,15 @@ public:
 
     size_t           size() const override { return m_pointers.size(); }
     bool             empty() const override { return m_pointers.empty(); }
-    void             clear() override;
-    void             deleteAllChildObjects() override;
+    void             clearWithoutDelete() override;
+    void             deleteChildren() override;
     void             insertAt( int indexAfter, PdmObjectHandle* obj ) override;
     void             insertAt( int indexAfter, std::unique_ptr<PdmObjectHandle> obj );
     PdmObjectHandle* at( size_t index ) override;
     void             setValue( const std::vector<DataType*>& objects );
+    size_t           indexOf( const PdmObjectHandle* obj ) const override;
 
-    virtual void deleteAllChildObjectsAsync();
+    virtual void deleteChildrenAsync();
 
     // std::vector-like access
 
@@ -85,8 +86,7 @@ public:
     void   insert( size_t indexAfter, const std::vector<PdmPointer<DataType>>& objects );
     size_t count( const DataType* pointer ) const;
 
-    void   erase( size_t index ) override;
-    size_t index( const DataType* pointer ) const;
+    void erase( size_t index ) override;
 
     typename std::vector<PdmPointer<DataType>>::iterator begin() { return m_pointers.begin(); };
     typename std::vector<PdmPointer<DataType>>::iterator end() { return m_pointers.end(); };
@@ -95,10 +95,10 @@ public:
     typename std::vector<PdmPointer<DataType>>::const_iterator end() const { return m_pointers.end(); };
 
     // Child objects
-    std::vector<DataType*> childObjects() const;
+    std::vector<DataType*> children() const;
 
-    void childObjects( std::vector<PdmObjectHandle*>* objects ) override;
-    void removeChildObject( PdmObjectHandle* object ) override;
+    void children( std::vector<PdmObjectHandle*>* objects ) override;
+    void removeChild( PdmObjectHandle* object ) override;
 
 private: // To be disabled
     PDM_DISABLE_COPY_AND_ASSIGN( PdmChildArrayField );

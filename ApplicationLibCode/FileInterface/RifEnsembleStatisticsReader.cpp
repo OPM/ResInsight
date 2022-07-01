@@ -57,7 +57,7 @@ bool RifEnsembleStatisticsReader::values( const RifEclipseSummaryAddress& result
     if ( !validateAddress( resultAddress ) ) return false;
 
     const std::vector<double>* sourceData   = nullptr;
-    auto                       quantityName = resultAddress.ensembleStatisticsQuantityName();
+    auto                       quantityName = resultAddress.ensembleStatisticsVectorName();
 
     if ( quantityName == ENSEMBLE_STAT_P10_QUANTITY_NAME )
         sourceData = &m_ensembleStatCase->p10();
@@ -88,12 +88,11 @@ std::string RifEnsembleStatisticsReader::unitName( const RifEclipseSummaryAddres
     auto cases = m_ensembleStatCase->curveSet()->summaryCaseCollection()->allSummaryCases();
     if ( cases.size() > 0 )
     {
-        // get rid of the stats part of the quantity name
-        QString     qName    = QString::fromStdString( resultAddress.quantityName() );
+        QString     qName    = QString::fromStdString( resultAddress.vectorName() );
         std::string orgQName = qName.split( ":" )[1].toStdString();
 
         RifEclipseSummaryAddress address = RifEclipseSummaryAddress( resultAddress );
-        address.setQuantityName( orgQName );
+        address.setVectorName( orgQName );
 
         retval = cases[0]->summaryReader()->unitName( address );
     }
@@ -114,5 +113,5 @@ RiaDefines::EclipseUnitSystem RifEnsembleStatisticsReader::unitSystem() const
 //--------------------------------------------------------------------------------------------------
 bool RifEnsembleStatisticsReader::validateAddress( const RifEclipseSummaryAddress& address ) const
 {
-    return address.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS && !address.quantityName().empty();
+    return address.category() == RifEclipseSummaryAddress::SUMMARY_ENSEMBLE_STATISTICS && !address.vectorName().empty();
 }

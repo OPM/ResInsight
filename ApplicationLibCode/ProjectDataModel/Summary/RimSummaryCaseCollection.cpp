@@ -22,6 +22,7 @@
 #include "RiaLogging.h"
 #include "RiaStatisticsTools.h"
 #include "RiaStdStringTools.h"
+#include "RiaSummaryAddressAnalyzer.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RicfCommandObject.h"
@@ -31,6 +32,7 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimGridSummaryCase.h"
 #include "RimProject.h"
+#include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 
 #include "RifReaderEclipseRft.h"
@@ -38,7 +40,9 @@
 #include "RifSummaryReaderInterface.h"
 
 #include "cafPdmFieldScriptingCapability.h"
+#include "cafPdmUiTreeOrdering.h"
 
+#include <QDate>
 #include <QFileInfo>
 
 #include <algorithm>
@@ -105,24 +109,31 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
     : caseNameChanged( this )
     , caseRemoved( this )
 {
-    CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Summary Case Group", ":/SummaryGroup16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cases, "SummaryCases", "" );
     m_cases.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_name, "SummaryCollectionName", QString( "Group" ), "Name" );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nameAndItemCount, "NameCount", "Name" );
     m_nameAndItemCount.registerGetMethod( this, &RimSummaryCaseCollection::nameAndItemCount );
-    RiaFieldhandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
+    RiaFieldHandleTools::disableWriteAndSetFieldHidden( &m_nameAndItemCount );
 
-    CAF_PDM_InitScriptableField( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_isEnsemble, "IsEnsemble", false, "Is Ensemble" );
     m_isEnsemble.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitScriptableField( &m_ensembleId, "Id", -1, "Ensemble ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_ensembleId, "Id", -1, "Ensemble ID" );
     m_ensembleId.registerKeywordAlias( "EnsembleId" );
     m_ensembleId.uiCapability()->setUiReadOnly( true );
     m_ensembleId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
+
+    CAF_PDM_InitFieldNoDefault( &m_dataVectorFolders, "DataVectorFolders", "Data Folders" );
+    m_dataVectorFolders = new RimSummaryAddressCollection();
+    m_dataVectorFolders.uiCapability()->setUiHidden( true );
+    m_dataVectorFolders.uiCapability()->setUiTreeHidden( true );
+    m_dataVectorFolders->uiCapability()->setUiTreeHidden( true );
+    m_dataVectorFolders.xmlCapability()->disableIO();
 
     m_statisticsEclipseRftReader = new RifReaderEnsembleStatisticsRft( this );
 
@@ -134,30 +145,36 @@ RimSummaryCaseCollection::RimSummaryCaseCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCaseCollection::~RimSummaryCaseCollection()
 {
-    m_cases.deleteAllChildObjectsAsync();
+    m_cases.deleteChildrenAsync();
     updateReferringCurveSets();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase )
+void RimSummaryCaseCollection::removeCase( RimSummaryCase* summaryCase, bool notifyChange )
 {
     size_t caseCountBeforeRemove = m_cases.size();
 
-    m_cases.removeChildObject( summaryCase );
+    m_cases.removeChild( summaryCase );
 
     m_cachedSortedEnsembleParameters.clear();
+    m_analyzer.reset();
 
     caseRemoved.send( summaryCase );
 
-    updateReferringCurveSets();
+    if ( notifyChange )
+    {
+        updateReferringCurveSets();
+    }
 
     if ( m_isEnsemble && m_cases.size() != caseCountBeforeRemove )
     {
         if ( dynamic_cast<RimDerivedSummaryCase*>( summaryCase ) == nullptr )
             calculateEnsembleParametersIntersectionHash();
     }
+
+    clearChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -167,8 +184,11 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 {
     summaryCase->nameChanged.connect( this, &RimSummaryCaseCollection::onCaseNameChanged );
 
+    if ( m_cases.empty() ) summaryCase->setShowRealizationDataSource( true );
+
     m_cases.push_back( summaryCase );
     m_cachedSortedEnsembleParameters.clear();
+    m_analyzer.reset();
 
     // Update derived ensemble cases (if any)
     std::vector<RimDerivedEnsembleCaseCollection*> referringObjects;
@@ -188,6 +208,8 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
     }
 
     updateReferringCurveSets();
+
+    clearChildNodes();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +217,17 @@ void RimSummaryCaseCollection::addCase( RimSummaryCase* summaryCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimSummaryCase*> RimSummaryCaseCollection::allSummaryCases() const
 {
-    return m_cases.childObjects();
+    return m_cases.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryCase* RimSummaryCaseCollection::firstSummaryCase() const
+{
+    if ( !m_cases.empty() ) return m_cases[0];
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -237,6 +269,8 @@ void RimSummaryCaseCollection::setAsEnsemble( bool isEnsemble )
             validateEnsembleCases( allSummaryCases() );
             calculateEnsembleParametersIntersectionHash();
         }
+
+        refreshMetaData();
     }
 }
 
@@ -315,6 +349,7 @@ std::set<time_t> RimSummaryCaseCollection::ensembleTimeSteps() const
     }
     return allTimeSteps;
 }
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -872,7 +907,11 @@ caf::PdmFieldHandle* RimSummaryCaseCollection::userDescriptionField()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::onLoadDataAndUpdate()
 {
-    if ( m_isEnsemble ) calculateEnsembleParametersIntersectionHash();
+    if ( m_isEnsemble )
+    {
+        calculateEnsembleParametersIntersectionHash();
+        clearChildNodes();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -894,6 +933,70 @@ void RimSummaryCaseCollection::updateReferringCurveSets()
             curveSet->loadDataAndUpdate( updateParentPlot );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaSummaryAddressAnalyzer* RimSummaryCaseCollection::addressAnalyzer()
+{
+    if ( !m_analyzer )
+    {
+        m_analyzer = std::make_unique<RiaSummaryAddressAnalyzer>();
+
+        m_analyzer->appendAddresses( ensembleSummaryAddresses() );
+    }
+
+    return m_analyzer.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::computeMinMax( const RifEclipseSummaryAddress& address )
+{
+    if ( m_minMaxValues.count( address ) > 0 ) return;
+
+    double minimumValue( std::numeric_limits<double>::infinity() );
+    double maximumValue( -std::numeric_limits<double>::infinity() );
+
+    std::vector<double> values;
+    for ( const auto& s : m_cases() )
+    {
+        if ( !s->summaryReader() ) continue;
+
+        s->summaryReader()->values( address, &values );
+        if ( values.empty() ) continue;
+
+        const auto [min, max] = std::minmax_element( values.begin(), values.end() );
+
+        minimumValue = std::min( *min, minimumValue );
+        maximumValue = std::max( *max, maximumValue );
+    }
+
+    if ( minimumValue != std::numeric_limits<double>::infinity() &&
+         maximumValue != -std::numeric_limits<double>::infinity() )
+    {
+        setMinMax( address, minimumValue, maximumValue );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::setMinMax( const RifEclipseSummaryAddress& address, double min, double max )
+{
+    m_minMaxValues[address] = std::pair( min, max );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimSummaryCaseCollection::minMax( const RifEclipseSummaryAddress& address )
+{
+    computeMinMax( address );
+
+    return m_minMaxValues[address];
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -972,6 +1075,31 @@ void RimSummaryCaseCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering,
+                                                     QString                 uiConfigName /*= ""*/ )
+{
+    if ( m_isEnsemble() )
+    {
+        buildChildNodes();
+
+        m_dataVectorFolders->updateUiTreeOrdering( uiTreeOrdering );
+
+        if ( !m_cases.empty() )
+        {
+            auto subnode = uiTreeOrdering.add( "Realizations", ":/Folder.png" );
+            for ( auto& smcase : m_cases )
+            {
+                subnode->add( smcase );
+            }
+        }
+
+        uiTreeOrdering.skipRemainingChildren( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimSummaryCaseCollection::setNameAsReadOnly()
 {
     m_name.uiCapability()->setUiReadOnly( true );
@@ -1007,4 +1135,33 @@ bool RimSummaryCaseCollection::hasEnsembleParameters() const
     }
 
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::buildChildNodes()
+{
+    if ( m_dataVectorFolders->isEmpty() )
+    {
+        m_dataVectorFolders->updateFolderStructure( ensembleSummaryAddresses(), -1, m_ensembleId );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::refreshMetaData()
+{
+    clearChildNodes();
+    buildChildNodes();
+    updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCaseCollection::clearChildNodes()
+{
+    m_dataVectorFolders->deleteChildren();
 }

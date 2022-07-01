@@ -45,20 +45,20 @@ RimPlotWindow::RimPlotWindow()
                                                     "PlotWindow",
                                                     "The Abstract base class for all MDI Windows in the Plot Window" );
 
-    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "View ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "View ID" );
     m_id.registerKeywordAlias( "ViewId" );
     m_id.uiCapability()->setUiReadOnly( true );
     m_id.uiCapability()->setUiHidden( true );
     m_id.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
     m_id.xmlCapability()->setCopyable( false );
 
-    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title", "", "", "" );
-    CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends", "", "", "" );
-    CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation", "", "", "" );
+    CAF_PDM_InitField( &m_showPlotTitle, "ShowPlotTitle", true, "Show Plot Title" );
+    CAF_PDM_InitField( &m_showPlotLegends, "ShowTrackLegends", true, "Show Legends" );
+    CAF_PDM_InitField( &m_plotLegendsHorizontal, "TrackLegendsHorizontal", true, "Legend Orientation" );
     m_plotLegendsHorizontal.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleFontSize", "Title Font Size", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_legendFontSize, "LegendDeltaFontSize", "Legend Font Size", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleFontSize", "Title Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_legendFontSize, "LegendDeltaFontSize", "Legend Font Size" );
 
     m_titleFontSize  = caf::FontTools::RelativeSize::XXLarge;
     m_legendFontSize = caf::FontTools::RelativeSize::Large;
@@ -211,7 +211,7 @@ void RimPlotWindow::updateParentLayout()
 //--------------------------------------------------------------------------------------------------
 int RimPlotWindow::columnCount() const
 {
-    return static_cast<int>( RiuMultiPlotPage::ColumnCount::COLUMNS_UNLIMITED );
+    return static_cast<int>( RiaDefines::ColumnCount::COLUMNS_UNLIMITED );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -265,8 +265,7 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                    bool*                      useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_plotLegendsHorizontal )
@@ -335,4 +334,20 @@ void RimPlotWindow::assignIdIfNecessary()
     {
         RimProject::current()->assignPlotIdToPlotWindow( this );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::handleGlobalKeyEvent( QKeyEvent* keyEvent )
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimPlotWindow::handleGlobalWheelEvent( QWheelEvent* wheelEvent )
+{
+    return false;
 }

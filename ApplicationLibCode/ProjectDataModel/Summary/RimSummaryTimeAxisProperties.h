@@ -18,7 +18,7 @@
 
 #pragma once
 
-#include "RiaQDateTimeTools.h"
+#include "RiaDateTimeDefines.h"
 
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimTimeAxisAnnotation.h"
@@ -36,7 +36,7 @@
 ///
 ///
 //==================================================================================================
-class RimSummaryTimeAxisProperties : public caf::PdmObject, public RimPlotAxisPropertiesInterface
+class RimSummaryTimeAxisProperties : public RimPlotAxisPropertiesInterface
 {
     CAF_PDM_HEADER_INIT;
 
@@ -57,8 +57,8 @@ public:
         YEARS
     };
 
-    typedef caf::AppEnum<RiaQDateTimeTools::DateFormatComponents> DateFormatEnum;
-    typedef caf::AppEnum<RiaQDateTimeTools::TimeFormatComponents> TimeFormatEnum;
+    typedef caf::AppEnum<RiaDefines::DateFormatComponents> DateFormatEnum;
+    typedef caf::AppEnum<RiaDefines::TimeFormatComponents> TimeFormatEnum;
 
 public:
     RimSummaryTimeAxisProperties();
@@ -66,7 +66,7 @@ public:
     caf::PdmField<QString> title;
     caf::PdmField<bool>    showTitle;
 
-    RiaDefines::PlotAxis  plotAxisType() const override;
+    RiuPlotAxis           plotAxisType() const override;
     AxisTitlePositionType titlePosition() const override;
     int                   titleFontSize() const override;
     int                   valuesFontSize() const override;
@@ -75,11 +75,10 @@ public:
     double                fromTimeTToDisplayUnitScale();
     double                fromDaysToDisplayUnitScale();
 
-    RiaQDateTimeTools::DateFormatComponents
-        dateComponents( RiaQDateTimeTools::DateFormatComponents fallback = RiaQDateTimeTools::DATE_FORMAT_UNSPECIFIED ) const;
-    RiaQDateTimeTools::TimeFormatComponents
-        timeComponents( RiaQDateTimeTools::TimeFormatComponents fallback =
-                            RiaQDateTimeTools::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
+    RiaDefines::DateFormatComponents dateComponents(
+        RiaDefines::DateFormatComponents fallback = RiaDefines::DateFormatComponents::DATE_FORMAT_UNSPECIFIED ) const;
+    RiaDefines::TimeFormatComponents timeComponents(
+        RiaDefines::TimeFormatComponents fallback = RiaDefines::TimeFormatComponents::TIME_FORMAT_UNSPECIFIED ) const;
 
     std::vector<RimPlotAxisAnnotation*> annotations() const override;
     void                                appendAnnotation( RimPlotAxisAnnotation* annotation ) override;
@@ -88,16 +87,16 @@ public:
     const QString& dateFormat() const;
     const QString& timeFormat() const;
 
-    double visibleRangeMin() const;
-    double visibleRangeMax() const;
+    double visibleRangeMin() const override;
+    double visibleRangeMax() const override;
 
-    void setVisibleRangeMin( double value );
-    void setVisibleRangeMax( double value );
+    void setVisibleRangeMin( double value ) override;
+    void setVisibleRangeMax( double value ) override;
 
-    bool isAutoZoom() const;
-    void setAutoZoom( bool enableAutoZoom );
+    bool isAutoZoom() const override;
+    void setAutoZoom( bool enableAutoZoom ) override;
 
-    bool isActive() const;
+    bool isActive() const override;
 
     QDateTime visibleDateTimeMin() const;
     QDateTime visibleDateTimeMax() const;
@@ -105,13 +104,15 @@ public:
     void setVisibleDateTimeMin( const QDateTime& dateTime );
     void setVisibleDateTimeMax( const QDateTime& dateTime );
 
-    LegendTickmarkCount majorTickmarkCount() const;
-    void                setMajorTickmarkCount( LegendTickmarkCount count );
+    LegendTickmarkCount majorTickmarkCount() const override;
+    void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
+
+    const QString objectName() const override;
+    const QString axisTitleText() const override;
 
 protected:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     caf::PdmFieldHandle*          objectToggleField() override;
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     void                          defineEditorAttribute( const caf::PdmFieldHandle* field,
@@ -123,6 +124,9 @@ protected:
     void                     updateTimeVisibleRange();
     void                     updateDateVisibleRange();
     caf::FontTools::FontSize plotFontSize() const;
+
+private:
+    void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     caf::PdmField<caf::AppEnum<TimeModeType>> m_timeMode;

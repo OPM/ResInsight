@@ -67,56 +67,35 @@ CAF_PDM_SOURCE_INIT( RimStimPlanModelTemplate, "StimPlanModelTemplate" );
 RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     : changed( this )
 {
-    CAF_PDM_InitScriptableObject( "StimPlanModelTemplate", "", "", "" );
+    CAF_PDM_InitScriptableObject( "StimPlanModelTemplate" );
 
-    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "ID", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_id, "Id", -1, "ID" );
     m_id.uiCapability()->setUiReadOnly( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_dynamicEclipseCase, "DynamicEclipseCase", "Dynamic Case", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_dynamicEclipseCase, "DynamicEclipseCase", "Dynamic Case" );
+    CAF_PDM_InitScriptableField( &m_timeStep, "TimeStep", 0, "Time Step" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_initialPressureEclipseCase,
                                           "InitialPressureEclipseCase",
-                                          "Initial Pressure Case",
-                                          "",
-                                          "",
-                                          "" );
-    CAF_PDM_InitField( &m_useTableForInitialPressure,
-                       "UseForInitialPressure",
-                       false,
-                       "Use Pressure Table For Initial Pressure",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure", "", "", "" );
-    CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit", "", "", "" );
+                                          "Initial Pressure Case" );
+    CAF_PDM_InitField( &m_useTableForInitialPressure, "UseForInitialPressure", false, "Use Pressure Table For Initial Pressure" );
+    CAF_PDM_InitField( &m_useTableForPressure, "UseForPressure", false, "Use Pressure Table For Pressure" );
+    CAF_PDM_InitField( &m_editPressureTable, "EditPressureTable", false, "Edit" );
     m_editPressureTable.uiCapability()->setUiEditorTypeName( caf::PdmUiToolButtonEditor::uiEditorTypeName() );
     m_editPressureTable.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_staticEclipseCase, "StaticEclipseCase", "Static Case" );
 
     CAF_PDM_InitField( &m_useEqlnumForPressureInterpolation,
                        "UseEqlNumForPressureInterpolation",
                        true,
-                       "Use EQLNUM For Pressure Interpolation",
-                       "",
-                       "",
-                       "" );
+                       "Use EQLNUM For Pressure Interpolation" );
 
-    CAF_PDM_InitScriptableField( &m_defaultPorosity,
-                                 "DefaultPorosity",
-                                 RiaDefines::defaultPorosity(),
-                                 "Default Porosity",
-                                 "",
-                                 "",
-                                 "" );
+    CAF_PDM_InitScriptableField( &m_defaultPorosity, "DefaultPorosity", RiaDefines::defaultPorosity(), "Default Porosity" );
     CAF_PDM_InitScriptableField( &m_defaultPermeability,
                                  "DefaultPermeability",
                                  RiaDefines::defaultPermeability(),
-                                 "Default Permeability",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Default Permeability" );
 
     // Stress unit: bar
     // Stress gradient unit: bar/m
@@ -125,93 +104,57 @@ RimStimPlanModelTemplate::RimStimPlanModelTemplate()
     double defaultStressDepth    = computeDefaultStressDepth();
     double defaultStress         = defaultStressDepth * defaultStressGradient;
 
-    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_verticalStress, "VerticalStress", defaultStress, "Vertical Stress" );
     m_verticalStress.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
     CAF_PDM_InitScriptableField( &m_verticalStressGradient,
                                  "VerticalStressGradient",
                                  defaultStressGradient,
-                                 "Vertical Stress Gradient",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth", "", "", "" );
+                                 "Vertical Stress Gradient" );
+    CAF_PDM_InitScriptableField( &m_stressDepth, "StressDepth", defaultStressDepth, "Stress Depth" );
     m_stressDepth.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleValueEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 70.0, "Temperature [C]", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperature, "ReferenceTemperature", 70.0, "Temperature [C]" );
     CAF_PDM_InitScriptableField( &m_referenceTemperatureGradient,
                                  "ReferenceTemperatureGradient",
                                  0.025,
-                                 "Temperature Gradient [C/m]",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth,
-                                 "ReferenceTemperatureDepth",
-                                 2500.0,
-                                 "Temperature Depth [m]",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Temperature Gradient [C/m]" );
+    CAF_PDM_InitScriptableField( &m_referenceTemperatureDepth, "ReferenceTemperatureDepth", 2500.0, "Temperature Depth [m]" );
 
-    CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_overburdenPorosity, "OverburdenPorosity", 0.0, "Overburden Porosity", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_overburdenPermeability,
-                                 "OverburdenPermeability",
-                                 10.0e-6,
-                                 "Overburden Permeability",
-                                 "",
-                                 "",
-                                 "" );
-    CAF_PDM_InitScriptableField( &m_overburdenFluidDensity,
-                                 "OverburdenFluidDensity",
-                                 1.03,
-                                 "Overburden Fluid Density [g/cm^3]",
-                                 "",
-                                 "",
-                                 "" );
+    CAF_PDM_InitScriptableField( &m_overburdenHeight, "OverburdenHeight", 50.0, "Overburden Height" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFormation, "OverburdenFormation", "Overburden Formation" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_overburdenFacies, "OverburdenFacies", "Overburden Facies" );
+    CAF_PDM_InitScriptableField( &m_overburdenPorosity, "OverburdenPorosity", 0.0, "Overburden Porosity" );
+    CAF_PDM_InitScriptableField( &m_overburdenPermeability, "OverburdenPermeability", 10.0e-6, "Overburden Permeability" );
+    CAF_PDM_InitScriptableField( &m_overburdenFluidDensity, "OverburdenFluidDensity", 1.03, "Overburden Fluid Density [g/cm^3]" );
 
-    CAF_PDM_InitScriptableField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation", "", "", "" );
-    CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity", "", "", "" );
-    CAF_PDM_InitScriptableField( &m_underburdenPermeability,
-                                 "UnderburdenPermeability",
-                                 10.0e-6,
-                                 "Underburden Permeability",
-                                 "",
-                                 "",
-                                 "" );
+    CAF_PDM_InitScriptableField( &m_underburdenHeight, "UnderburdenHeight", 50.0, "Underburden Height" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFormation, "UnderburdenFormation", "Underburden Formation" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_underburdenFacies, "UnderburdenFacies", "Underburden Facies" );
+    CAF_PDM_InitScriptableField( &m_underburdenPorosity, "UnderburdenPorosity", 0.0, "Underburden Porosity" );
+    CAF_PDM_InitScriptableField( &m_underburdenPermeability, "UnderburdenPermeability", 10.0e-6, "Underburden Permeability" );
     CAF_PDM_InitScriptableField( &m_underburdenFluidDensity,
                                  "UnderburdenFluidDensity",
                                  1.03,
-                                 "Underburden Fluid Density [g/cm^3]",
-                                 "",
-                                 "",
-                                 "" );
+                                 "Underburden Fluid Density [g/cm^3]" );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_faciesInitialPressureConfigs,
                                           "FaciesInitialPressureConfigs",
-                                          "Facies Initial Pressure Configs",
-                                          "",
-                                          "",
-                                          "" );
+                                          "Facies Initial Pressure Configs" );
     m_faciesInitialPressureConfigs.uiCapability()->setUiEditorTypeName( caf::PdmUiTableViewEditor::uiEditorTypeName() );
     m_faciesInitialPressureConfigs.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_faciesInitialPressureConfigs.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTable, "PressureTable", "Pressure Table", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_pressureTable, "PressureTable", "Pressure Table" );
     m_pressureTable.uiCapability()->setUiTreeHidden( true );
     setPressureTable( new RimPressureTable );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_elasticProperties, "ElasticProperties", "Elastic Properties" );
     m_elasticProperties.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesProperties, "FaciesProperties", "Facies Properties", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_faciesProperties, "FaciesProperties", "Facies Properties" );
     m_faciesProperties.uiCapability()->setUiTreeHidden( true );
 
-    CAF_PDM_InitScriptableFieldNoDefault( &m_nonNetLayers, "NonNetLayers", "Non-Net Layers", "", "", "" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_nonNetLayers, "NonNetLayers", "Non-Net Layers" );
     m_nonNetLayers.uiCapability()->setUiTreeHidden( true );
     setNonNetLayers( new RimNonNetLayers );
 
@@ -257,8 +200,7 @@ void RimStimPlanModelTemplate::fieldChangedByUi( const caf::PdmFieldHandle* chan
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo>
-    RimStimPlanModelTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions, bool* useOptionsOnly )
+QList<caf::PdmOptionItemInfo> RimStimPlanModelTemplate::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -569,7 +511,7 @@ void RimStimPlanModelTemplate::initAfterRead()
         m_faciesProperties->setEclipseCase( eclipseCase );
     }
 
-    for ( auto& fipConfig : m_faciesInitialPressureConfigs.childObjects() )
+    for ( auto& fipConfig : m_faciesInitialPressureConfigs.children() )
     {
         fipConfig->changed.connect( this, &RimStimPlanModelTemplate::faciesPropertiesChanged );
     }
@@ -895,7 +837,7 @@ RimEclipseCase* RimStimPlanModelTemplate::initialPressureEclipseCase() const
 std::map<int, double> RimStimPlanModelTemplate::faciesWithInitialPressure() const
 {
     std::map<int, double> valueFractionMap;
-    for ( const RimFaciesInitialPressureConfig* c : m_faciesInitialPressureConfigs.childObjects() )
+    for ( const RimFaciesInitialPressureConfig* c : m_faciesInitialPressureConfigs.children() )
     {
         if ( c->isEnabled() ) valueFractionMap[c->faciesValue()] = c->fraction();
     }

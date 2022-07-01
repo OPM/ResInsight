@@ -19,7 +19,9 @@
 #include "RimPolylinesFromFileAnnotation.h"
 
 #include "RiaLogging.h"
+#include "RiaTextStringTools.h"
 #include "RigPolyLinesData.h"
+
 #include "RimAnnotationCollection.h"
 #include "RimAnnotationLineAppearance.h"
 
@@ -35,10 +37,10 @@ CAF_PDM_SOURCE_INIT( RimPolylinesFromFileAnnotation, "PolylinesFromFileAnnotatio
 //--------------------------------------------------------------------------------------------------
 RimPolylinesFromFileAnnotation::RimPolylinesFromFileAnnotation()
 {
-    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png", "", "" );
+    CAF_PDM_InitObject( "PolyLines Annotation", ":/PolylinesFromFile16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_polyLinesFileName, "PolyLineFilePath", "File", "", "", "" );
-    CAF_PDM_InitField( &m_userDescription, "PolyLineDescription", QString( "" ), "Name", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_polyLinesFileName, "PolyLineFilePath", "File" );
+    CAF_PDM_InitField( &m_userDescription, "PolyLineDescription", QString( "" ), "Name" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -86,10 +88,10 @@ void RimPolylinesFromFileAnnotation::readPolyLinesFile( QString* errorMessage )
     while ( !stream.atEnd() )
     {
         QString     line            = stream.readLine();
-        QStringList commentLineSegs = line.split( "#", QString::KeepEmptyParts );
+        QStringList commentLineSegs = line.split( "#" );
         if ( commentLineSegs.empty() ) continue; // Empty line
 
-        QStringList lineSegs = commentLineSegs[0].split( QRegExp( "\\s+" ), QString::SkipEmptyParts );
+        QStringList lineSegs = RiaTextStringTools::splitSkipEmptyParts( commentLineSegs[0], QRegExp( "\\s+" ) );
 
         if ( lineSegs.empty() ) continue; // No data
 

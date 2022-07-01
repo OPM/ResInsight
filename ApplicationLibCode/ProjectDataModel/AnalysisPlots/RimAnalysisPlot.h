@@ -58,7 +58,7 @@ public:
     {
         NONE,
         SUMMARY_ITEM,
-        QUANTITY,
+        VECTOR,
         CASE,
         ENSEMBLE,
         VALUE,
@@ -102,8 +102,7 @@ private:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     caf::PdmFieldHandle*          userDescriptionField() override;
-    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                         bool*                      useOptionsOnly ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
     std::set<time_t> allAvailableTimeSteps();
 
@@ -127,22 +126,20 @@ private:
 
     // RimPlot Overrides
 
-    RiuQwtPlotWidget* doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
-    RiuQwtPlotWidget* viewer() override;
+    RiuPlotWidget*    doCreatePlotViewWidget( QWidget* mainWindowParent = nullptr ) override;
+    RiuQwtPlotWidget* viewer();
+    RiuPlotWidget*    plotWidget() override;
 
     void detachAllCurves() override;
 
     void reattachAllCurves() override {}
     void updateAxes() override;
-    void onAxisSelected( int axis, bool toggle ) override;
-    void updateZoomInQwt() override {}
-    void updateZoomFromQwt() override {}
+    void onAxisSelected( RiuPlotAxis axis, bool toggle ) override;
     void setAutoScaleXEnabled( bool enabled ) override {}
     void setAutoScaleYEnabled( bool enabled ) override {}
     void updateLegend() override{};
 
-    QString         asciiDataForPlotExport() const override { return ""; }
-    caf::PdmObject* findPdmObjectFromQwtCurve( const QwtPlotCurve* curve ) const override { return nullptr; }
+    QString asciiDataForPlotExport() const override { return ""; }
 
     // Private methods
 
@@ -216,7 +213,7 @@ private:
     caf::PdmField<bool>                             m_useEnsembleInBarText;
     caf::PdmField<bool>                             m_useSummaryItemInBarText;
     caf::PdmField<bool>                             m_useTimeStepInBarText;
-    caf::PdmField<bool>                             m_useQuantityInBarText;
+    caf::PdmField<bool>                             m_useVectorNameInBarText;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_barTextFontSize;
 
     caf::PdmChildField<RimPlotAxisProperties*>       m_valueAxisProperties;

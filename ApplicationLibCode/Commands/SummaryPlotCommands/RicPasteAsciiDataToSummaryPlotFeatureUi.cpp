@@ -18,6 +18,7 @@
 
 #include "RicPasteAsciiDataToSummaryPlotFeatureUi.h"
 
+#include "RiaTextStringTools.h"
 #include "RifCsvUserDataParser.h"
 
 #include "cafPdmUiItem.h"
@@ -174,16 +175,16 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DecimalSeparator mapDecimalSeparator( c
 RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi()
     : m_createNewPlot( false )
 {
-    CAF_PDM_InitObject( "RicPasteAsciiDataToSummaryPlotFeatureUi", "", "", "" );
+    CAF_PDM_InitObject( "RicPasteAsciiDataToSummaryPlotFeatureUi" );
 
-    CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString(), "Plot Title", "", "", "" );
-    CAF_PDM_InitField( &m_curvePrefix, "CurvePrefix", QString(), "Curve Prefix", "", "", "" );
+    CAF_PDM_InitField( &m_plotTitle, "PlotTitle", QString(), "Plot Title" );
+    CAF_PDM_InitField( &m_curvePrefix, "CurvePrefix", QString(), "Curve Prefix" );
 
-    CAF_PDM_InitFieldNoDefault( &m_decimalSeparator, "DecimalSeparator", "Decimal Separator", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_decimalSeparator, "DecimalSeparator", "Decimal Separator" );
 
-    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Format", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Format", "", "", "" );
-    CAF_PDM_InitField( &m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_dateFormat, "DateFormat", "Date Format" );
+    CAF_PDM_InitFieldNoDefault( &m_timeFormat, "TimeFormat", "Time Format" );
+    CAF_PDM_InitField( &m_useCustomDateFormat, "UseCustomDateFormat", false, "Use Custom Date Time Format" );
     CAF_PDM_InitField( &m_customDateTimeFormat,
                        "CustomDateTimeFormat",
                        QString(),
@@ -196,24 +197,18 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::RicPasteAsciiDataToSummaryPlotFeatureUi
                        "LineStyle",
                        caf::AppEnum<RiuQwtPlotCurveDefines::LineStyleEnum>(
                            RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE ),
-                       "Line Style",
-                       "",
-                       "",
-                       "" );
+                       "Line Style" );
     CAF_PDM_InitField( &m_curveSymbol,
                        "Symbol",
-                       caf::AppEnum<RiuQwtSymbol::PointSymbolEnum>( RiuQwtSymbol::SYMBOL_ELLIPSE ),
-                       "Symbol",
-                       "",
-                       "",
-                       "" );
-    CAF_PDM_InitField( &m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f, "Symbol Skip Distance", "", "", "" );
+                       caf::AppEnum<RiuPlotCurveSymbol::PointSymbolEnum>( RiuQwtSymbol::SYMBOL_ELLIPSE ),
+                       "Symbol" );
+    CAF_PDM_InitField( &m_curveSymbolSkipDistance, "SymbolSkipDinstance", 0.0f, "Symbol Skip Distance" );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellSeparator, "CellSeparator", "Cell Separator", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellSeparator, "CellSeparator", "Cell Separator" );
 
-    CAF_PDM_InitFieldNoDefault( &m_timeSeriesColumnName, "TimeColumnName", "Selected Time Column", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_timeSeriesColumnName, "TimeColumnName", "Selected Time Column" );
 
-    CAF_PDM_InitFieldNoDefault( &m_previewText, "PreviewText", "Preview Text", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_previewText, "PreviewText", "Preview Text" );
     m_previewText.uiCapability()->setUiEditorTypeName( caf::PdmUiTextEditor::uiEditorTypeName() );
     m_previewText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
     m_previewText.uiCapability()->setUiReadOnly( true );
@@ -321,7 +316,7 @@ const AsciiDataParseOptions RicPasteAsciiDataToSummaryPlotFeatureUi::parseOption
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicPasteAsciiDataToSummaryPlotFeatureUi::createNewPlot()
+void RicPasteAsciiDataToSummaryPlotFeatureUi::setCreateNewPlot()
 {
     m_createNewPlot = true;
 }
@@ -335,7 +330,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     std::vector<int> values;
 
     {
-        QStringList split = dateString.split( ".", QString::SkipEmptyParts );
+        QStringList split = RiaTextStringTools::splitSkipEmptyParts( dateString, "." );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );
@@ -348,7 +343,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     }
 
     {
-        QStringList split = dateString.split( "-", QString::SkipEmptyParts );
+        QStringList split = RiaTextStringTools::splitSkipEmptyParts( dateString, "-" );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );
@@ -361,7 +356,7 @@ RicPasteAsciiDataToSummaryPlotFeatureUi::DateFormat
     }
 
     {
-        QStringList split = dateString.split( "/", QString::SkipEmptyParts );
+        QStringList split = RiaTextStringTools::splitSkipEmptyParts( dateString, "/" );
         if ( split.size() == 3 )
         {
             values.push_back( split.at( 0 ).toInt() );
@@ -457,8 +452,7 @@ void RicPasteAsciiDataToSummaryPlotFeatureUi::defineUiOrdering( QString uiConfig
 ///
 //--------------------------------------------------------------------------------------------------
 QList<caf::PdmOptionItemInfo>
-    RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions,
-                                                                    bool*                      useOptionsOnly )
+    RicPasteAsciiDataToSummaryPlotFeatureUi::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
     CVF_ASSERT( m_uiMode != UI_MODE_NONE );
 

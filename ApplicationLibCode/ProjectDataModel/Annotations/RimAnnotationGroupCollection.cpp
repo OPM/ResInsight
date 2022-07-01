@@ -44,10 +44,10 @@ const QString RimAnnotationGroupCollection::POLYLINE_FROM_FILE_ANNOTATION_UI_NAM
 //--------------------------------------------------------------------------------------------------
 RimAnnotationGroupCollection::RimAnnotationGroupCollection()
 {
-    CAF_PDM_InitObject( "Annotations", ":/WellCollection.png", "", "" );
+    CAF_PDM_InitObject( "Annotations", ":/WellCollection.png" );
 
-    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active", "", "", "" );
-    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations", "", "", "" );
+    CAF_PDM_InitField( &m_isActive, "IsActive", true, "Is Active" );
+    CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "Annotations" );
 
     m_isActive.uiCapability()->setUiHidden( true );
     m_annotations.uiCapability()->setUiTreeHidden( true );
@@ -95,7 +95,7 @@ void RimAnnotationGroupCollection::addAnnotation( caf::PdmObject* annotation )
 //--------------------------------------------------------------------------------------------------
 void RimAnnotationGroupCollection::removeAnnotation( caf::PdmObject* annotation )
 {
-    m_annotations.removeChildObject( annotation );
+    m_annotations.removeChild( annotation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -103,7 +103,7 @@ void RimAnnotationGroupCollection::removeAnnotation( caf::PdmObject* annotation 
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObject*> RimAnnotationGroupCollection::annotations() const
 {
-    return m_annotations.childObjects();
+    return m_annotations.children();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -6,6 +6,10 @@ if (CMAKE_COMPILER_IS_GNUCXX)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations")
 endif()
 
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wno-deprecated -Wno-deprecated-declarations -Wno-delete-abstract-non-virtual-dtor -Wno-deprecated-copy")
+endif()
+
 include_directories(
     ../custom-opm-flowdiagnostics/opm-flowdiagnostics
     opm-flowdiagnostics-applications

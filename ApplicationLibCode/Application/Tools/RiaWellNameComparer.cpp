@@ -23,6 +23,9 @@
 
 #include <regex>
 
+std::map<QString, QString> RiaWellNameComparer::sm_nameWithoutPrefix;
+std::map<QString, QString> RiaWellNameComparer::sm_matchedName;
+
 //==================================================================================================
 //
 //==================================================================================================
@@ -62,19 +65,41 @@ QString RiaWellNameComparer::tryFindMatchingWellPath( QString wellName )
 //--------------------------------------------------------------------------------------------------
 QString RiaWellNameComparer::tryMatchNameInList( QString searchName, const std::vector<QString>& nameList )
 {
+    if ( sm_matchedName.count( searchName ) > 0 )
+    {
+        return sm_matchedName[searchName];
+    };
+
     // Try exact name match
     QString matchedName = tryMatchName( searchName, nameList );
     if ( !matchedName.isEmpty() )
     {
+        sm_matchedName[searchName] = matchedName;
         return matchedName;
     }
 
     // Try matching ignoring spaces, dashes and underscores
-    return tryMatchName( searchName, nameList, []( const QString& str ) {
+    matchedName = tryMatchName( searchName, nameList, []( const QString& str ) {
         QString s = str;
         s         = removeWellNamePrefix( s );
         return s.remove( ' ' ).remove( '-' ).remove( '_' );
     } );
+
+    if ( !matchedName.isEmpty() )
+    {
+        sm_matchedName[searchName] = matchedName;
+    }
+
+    return matchedName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiaWellNameComparer::clearCache()
+{
+    sm_nameWithoutPrefix.clear();
+    sm_matchedName.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,8 +136,18 @@ QString RiaWellNameComparer::tryMatchName( QString                           sea
 //--------------------------------------------------------------------------------------------------
 QString RiaWellNameComparer::removeWellNamePrefix( const QString& name )
 {
+    if ( sm_nameWithoutPrefix.count( name ) > 0 )
+    {
+        return sm_nameWithoutPrefix[name];
+    };
+
     // Try to remove prefix on the format 'xx xxxx/xx-'
     std::regex pattern( "^.*\\d*[/]\\d*[-_]" );
 
-    return QString::fromStdString( std::regex_replace( name.toStdString(), pattern, "" ) );
+    auto withoutPrefix  = std::regex_replace( name.toStdString(), pattern, "" );
+    auto qWithoutPrefix = QString::fromStdString( withoutPrefix );
+
+    sm_nameWithoutPrefix[name] = qWithoutPrefix;
+
+    return qWithoutPrefix;
 }

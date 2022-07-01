@@ -38,9 +38,9 @@ CAF_PDM_SOURCE_INIT( RimFileSurface, "Surface", "FileSurface" );
 //--------------------------------------------------------------------------------------------------
 RimFileSurface::RimFileSurface()
 {
-    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Surface", ":/ReservoirSurface16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_surfaceDefinitionFilePath, "SurfaceFilePath", "File" );
 }
 
 //--------------------------------------------------------------------------------------------------

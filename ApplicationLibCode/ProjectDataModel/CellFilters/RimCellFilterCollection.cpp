@@ -39,17 +39,17 @@ CAF_PDM_SOURCE_INIT( RimCellFilterCollection, "CellFilterCollection", "RimCellFi
 //--------------------------------------------------------------------------------------------------
 RimCellFilterCollection::RimCellFilterCollection()
 {
-    CAF_PDM_InitScriptableObject( "Cell Filters", ":/CellFilter.png", "", "" );
+    CAF_PDM_InitScriptableObject( "Cell Filters", ":/CellFilter.png" );
 
-    CAF_PDM_InitScriptableField( &m_isActive, "Active", true, "Active", "", "", "" );
+    CAF_PDM_InitScriptableField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilters, "CellFilters", "Filters" );
     m_cellFilters.uiCapability()->setUiTreeHidden( true );
     caf::PdmFieldReorderCapability::addToField( &m_cellFilters );
 
     // for backwards project file compatibility with old CellRangeFilterCollection
-    CAF_PDM_InitFieldNoDefault( &m_rangeFilters_OBSOLETE, "RangeFilters", "Range Filters", "", "", "" );
+    CAF_PDM_InitFieldNoDefault( &m_rangeFilters_OBSOLETE, "RangeFilters", "Range Filters" );
     m_rangeFilters_OBSOLETE.uiCapability()->setUiTreeHidden( true );
     m_rangeFilters_OBSOLETE.xmlCapability()->setIOWritable( false );
 }
@@ -103,7 +103,7 @@ void RimCellFilterCollection::setCase( RimCase* theCase )
 //--------------------------------------------------------------------------------------------------
 std::vector<RimCellFilter*> RimCellFilterCollection::filters() const
 {
-    return m_cellFilters.childObjects();
+    return m_cellFilters.children();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -120,7 +120,7 @@ void RimCellFilterCollection::initAfterRead()
     }
     for ( auto& filter : filters )
     {
-        m_rangeFilters_OBSOLETE.removeChildObject( filter );
+        m_rangeFilters_OBSOLETE.removeChild( filter );
         m_cellFilters.push_back( filter );
     }
 
@@ -328,7 +328,7 @@ void RimCellFilterCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*    
 //--------------------------------------------------------------------------------------------------
 void RimCellFilterCollection::removeFilter( RimCellFilter* filter )
 {
-    m_cellFilters.removeChildObject( filter );
+    m_cellFilters.removeChild( filter );
 }
 
 //--------------------------------------------------------------------------------------------------

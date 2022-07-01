@@ -30,11 +30,12 @@
 #include "RiuContextMenuLauncher.h"
 #include "RiuGuiTheme.h"
 #include "RiuPlotAnnotationTool.h"
+#include "RiuPlotCurve.h"
 #include "RiuQwtCurvePointTracker.h"
+#include "RiuQwtPlotItem.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWheelZoomer.h"
 #include "RiuQwtPlotZoomer.h"
-#include "RiuRimQwtPlotCurve.h"
 #include "RiuWidgetDragger.h"
 
 #include "cafCmdFeatureMenuBuilder.h"
@@ -44,6 +45,7 @@
 
 #include "qwt_legend.h"
 #include "qwt_legend_label.h"
+#include "qwt_plot_curve.h"
 #include "qwt_plot_panner.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_widget.h"
@@ -62,29 +64,29 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     : RiuQwtPlotWidget( plot, parent )
 {
     // LeftButton for the zooming
-    m_zoomerLeft = new RiuQwtPlotZoomer( canvas() );
+    m_zoomerLeft = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
     m_zoomerLeft->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerLeft->initMousePattern( 1 );
 
     // Attach a zoomer for the right axis
-    m_zoomerRight = new RiuQwtPlotZoomer( canvas() );
-    m_zoomerRight->setAxis( xTop, yRight );
+    m_zoomerRight = new RiuQwtPlotZoomer( qwtPlot()->canvas() );
+    m_zoomerRight->setAxes( QwtAxis::XTop, QwtAxis::YRight );
     m_zoomerRight->setTrackerMode( QwtPicker::AlwaysOff );
     m_zoomerRight->initMousePattern( 1 );
 
     // MidButton for the panning
-    QwtPlotPanner* panner = new QwtPlotPanner( canvas() );
-    panner->setMouseButton( Qt::MidButton );
+    QwtPlotPanner* panner = new QwtPlotPanner( qwtPlot()->canvas() );
+    panner->setMouseButton( Qt::MiddleButton );
 
-    auto wheelZoomer = new RiuQwtPlotWheelZoomer( this );
+    auto wheelZoomer = new RiuQwtPlotWheelZoomer( qwtPlot() );
 
     connect( wheelZoomer, SIGNAL( zoomUpdated() ), SLOT( onZoomedSlot() ) );
     connect( m_zoomerLeft, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     connect( m_zoomerRight, SIGNAL( zoomed( const QRectF& ) ), SLOT( onZoomedSlot() ) );
     connect( panner, SIGNAL( panned( int, int ) ), SLOT( onZoomedSlot() ) );
     connect( this,
-             SIGNAL( plotItemSelected( QwtPlotItem*, bool, int ) ),
-             SLOT( onPlotItemSelected( QwtPlotItem*, bool, int ) ) );
+             SIGNAL( plotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ),
+             SLOT( onPlotItemSelected( std::shared_ptr<RiuPlotItem>, bool, int ) ) );
 
     m_annotationTool      = std::unique_ptr<RiuPlotAnnotationTool>( new RiuPlotAnnotationTool() );
     m_selectedPointMarker = new QwtPlotMarker;
@@ -99,11 +101,11 @@ RiuGridCrossQwtPlot::RiuGridCrossQwtPlot( RimGridCrossPlot* plot, QWidget* paren
     m_selectedPointMarker->setSpacing( 3 );
     m_selectedPointMarker->setZ( 1000.0 ); // Make sure it ends up in front of highlighted curves.
 
-    RiuQwtPlotTools::setCommonPlotBehaviour( this );
-    RiuQwtPlotTools::setDefaultAxes( this );
+    RiuQwtPlotTools::setCommonPlotBehaviour( qwtPlot() );
+    RiuQwtPlotTools::setDefaultAxes( qwtPlot() );
 
     this->installEventFilter( this );
-    this->canvas()->installEventFilter( this );
+    this->qwtPlot()->canvas()->installEventFilter( this );
 
     setInternalQwtLegendVisible( true );
 
@@ -139,7 +141,7 @@ void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterfac
 
     for ( auto annotation : axisProperties->annotations() )
     {
-        m_annotationTool->attachAnnotationLine( this,
+        m_annotationTool->attachAnnotationLine( qwtPlot(),
                                                 annotation->color(),
                                                 annotation->name(),
                                                 annotation->value(),
@@ -152,13 +154,13 @@ void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterfac
 //--------------------------------------------------------------------------------------------------
 void RiuGridCrossQwtPlot::setLegendFontSize( int fontSize )
 {
-    if ( legend() )
+    if ( qwtPlot()->legend() )
     {
-        QFont font = legend()->font();
+        QFont font = qwtPlot()->legend()->font();
         font.setPixelSize( caf::FontTools::pointSizeToPixelSize( fontSize ) );
-        legend()->setFont( font );
+        qwtPlot()->legend()->setFont( font );
         // Set font size for all existing labels
-        QList<QwtLegendLabel*> labels = legend()->findChildren<QwtLegendLabel*>();
+        QList<QwtLegendLabel*> labels = qwtPlot()->legend()->findChildren<QwtLegendLabel*>();
         for ( QwtLegendLabel* label : labels )
         {
             label->setFont( font );
@@ -174,29 +176,32 @@ void RiuGridCrossQwtPlot::setInternalQwtLegendVisible( bool visible )
     if ( visible )
     {
         QwtLegend* legend = new QwtLegend( this );
-        this->insertLegend( legend, BottomLegend );
+        this->qwtPlot()->insertLegend( legend, QwtPlot::BottomLegend );
     }
     else
     {
-        this->insertLegend( nullptr );
+        this->qwtPlot()->insertLegend( nullptr );
     }
 }
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuGridCrossQwtPlot::onPlotItemSelected( QwtPlotItem* plotItem, bool toggle, int pointNumber )
+void RiuGridCrossQwtPlot::onPlotItemSelected( std::shared_ptr<RiuPlotItem> plotItem, bool toggle, int pointNumber )
 {
     if ( pointNumber == -1 )
         m_selectedPointMarker->detach();
     else
     {
-        QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( plotItem );
+        RiuQwtPlotItem* qwtPlotItem = dynamic_cast<RiuQwtPlotItem*>( plotItem.get() );
+        if ( !qwtPlotItem ) return;
+
+        QwtPlotCurve* curve = dynamic_cast<QwtPlotCurve*>( qwtPlotItem->qwtPlotItem() );
         if ( curve )
         {
             QPointF sample = curve->sample( pointNumber );
             m_selectedPointMarker->setValue( sample );
-            m_selectedPointMarker->setAxes( QwtPlot::xBottom, QwtPlot::yLeft );
-            m_selectedPointMarker->attach( this );
+            m_selectedPointMarker->setAxes( QwtAxis::XBottom, QwtAxis::YLeft );
+            m_selectedPointMarker->attach( qwtPlot() );
             QString curveName, xAxisName, yAxisName;
             if ( curveText( curve, &curveName, &xAxisName, &yAxisName ) )
             {
@@ -224,7 +229,7 @@ bool RiuGridCrossQwtPlot::curveText( const QwtPlotCurve* curve, QString* curveTi
 {
     CVF_ASSERT( curveTitle && xParamName && yParamName );
 
-    auto riuCurve = dynamic_cast<const RiuRimQwtPlotCurve*>( curve );
+    auto riuCurve = dynamic_cast<const RiuPlotCurve*>( curve );
     if ( riuCurve )
     {
         auto crossPlotCurve = dynamic_cast<const RimGridCrossPlotCurve*>( riuCurve->ownerRimCurve() );
