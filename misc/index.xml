@@ -16,8 +16,8 @@
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/misc/preferences/</guid>
-      <description>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the Preference dialog available from the Edit -&amp;gt; Preferences menu.
-When changing the preferences, any default color, font or Z-scale Factor that has not been changed by the user in the various views, will be applied immediately. If the user has changed font sizes in specific plots or annotations from the default value, ResInsight will ask if the user wants the new defaults applied to all existing views and plots even where custom settings have been set.</description>
+      <description>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the Preferences dialog available from the Edit -&amp;gt; Preferences menu. Preferences are not stored in project files, but in a platform specific way for each user. Essential preferences are listed below.
+General When changing the preferences, any default color, font or Z-scale Factor that has not been changed by the user in the various views, will be applied immediately.</description>
     </item>
     
     <item>

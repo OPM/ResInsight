@@ -27,8 +27,8 @@ Docking Windows Each of the main windows has a central area and several docking 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/projecttree/</guid>
-      <description>As described in Overview, ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots. The content and appearance of displayed information is managed and controlled by the Project Tree and the Plot Project Tree, respectively. This page describes some of their general functionality illustrated by examples using Plot Project Tree.
-Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions.</description>
+      <description>As described in Overview, ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots. The content and appearance of displayed information is managed and controlled by the Project Tree and the Plots windows. Some of their general functionality is described and exemplified below.
+Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions. To exemplify, consider the plot of Bottom Hole Pressure for a number of wells atop this page.</description>
     </item>
     
     <item>
@@ -94,8 +94,8 @@ sudo apt-get updatesudo apt-get install software-properties-commonsudo apt-add
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/misc/preferences/</guid>
-      <description>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the Preference dialog available from the Edit -&amp;gt; Preferences menu.
-When changing the preferences, any default color, font or Z-scale Factor that has not been changed by the user in the various views, will be applied immediately. If the user has changed font sizes in specific plots or annotations from the default value, ResInsight will ask if the user wants the new defaults applied to all existing views and plots even where custom settings have been set.</description>
+      <description>In this section the different settings that controls the default behavior of ResInsight is described. These settings can be controlled using the Preferences dialog available from the Edit -&amp;gt; Preferences menu. Preferences are not stored in project files, but in a platform specific way for each user. Essential preferences are listed below.
+General When changing the preferences, any default color, font or Z-scale Factor that has not been changed by the user in the various views, will be applied immediately.</description>
     </item>
     
     <item>
@@ -125,9 +125,8 @@ Snapshots of Existing Views The commands to snapshot existing views and plots ar
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/summaryplots/</guid>
-      <description>A Summary Plot is a window displaying a graph in the main area of the Plot Main Window. As described below, a Summary Plot can contain Summary Curves, Grid time history curves, and pasted ascii curves.
-A new Summary Plot can be created by using the right-click menu of Summary Plots in the Plot Project Tree and activate Open Summary Plot Editor or New Summary Plot.
-If you have many open plots, it can be useful to collapse all other plots by activating Collapse Other Plots from right-click menu of a plot in the Plot Project Tree.</description>
+      <description>Summary Plots are a display of curves based on Eclipse Summary Data which can be combined with imported observed time history data, grid cell time history curve, and pasted ascii curves.
+Summary plots are displayed on screen by maximum four rows by four columns of plots. In the example above, ResInsight displays two columns and two rows of plots, each plot comprising a single curve. However, a plot may contain an arbitrary number of curves.</description>
     </item>
     
     <item>
@@ -240,6 +239,27 @@ Performance Improved performance for grid model import from GRDECL. Improved per
     </item>
     
     <item>
+      <title>What&#39;s New in 2022.06</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06/</guid>
+      <description>Summary Plotting Summary Plotting is updated with new features and improved workflows:
+ data sources for summary data can be used for drag/drop operations and efficient and easy production of plots extended summary template features enable more powerful and efficient use of preset appearances and layouts optional curve coloring based on the summary vector phase improved management of multiple subplots restructured organization of plot items in Property Editor easy and efficient documentation and paging of multiple summary plots to PDF file  Plot Templates Plot Templates now offer extended features and support for multiplots.</description>
+    </item>
+    
+    <item>
+      <title>Data Sources</title>
+      <link>https://resinsight.org/plot-window/summaryplotdatasources/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/summaryplotdatasources/</guid>
+      <description>Data Sources provides an overview of all data sources for summary plots by category to provide search, selection, and essential functionality pertinent to summary cases.
+As seen above, Data Sources enables search and sourcing of data from case, field, regions, wells, groups, or ensemble. See Summary Plots which illustrates use of Data Sources for effective search and selection of data for summary plots.
+Searching for data sources Atop the Data Sources window, there is a search field for effective searches across all available data sources.</description>
+    </item>
+    
+    <item>
       <title>Log ASCII Standard File</title>
       <link>https://resinsight.org/import/lasfile/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -268,6 +288,16 @@ The *.rsp file is an XML file, and can be edited by any text editor.</descriptio
       <guid>https://resinsight.org/scripting/pythoninterface/</guid>
       <description>ResInsight offers a powerful programming interface which allows you to interact with a running ResInsight instance from Python 3. This enables you to:
  start ResInsight from Python communicate with an a running ResInsight instance load a ResInsight project file load data files such as Eclipse EGRID files and summary files extract data to Python for further processing and automation export snapshots of graphics  Please refer to the ResInsight Python API for configuration and details.</description>
+    </item>
+    
+    <item>
+      <title>Summary Plot Manager</title>
+      <link>https://resinsight.org/plot-window/summaryplotmanager/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/summaryplotmanager/</guid>
+      <description>The Summary Plot Manager is a separate ResInsight dialog window where the user can select which vectors to plot in a summary plot. This dialog is intented to be used from the keyboard with easy access to operations for management of summary plots. This dialog can be opened by using CTRL-K from anywhere in the Plot Window.
+The user writes a text string defining the summary vectors and optionally data sources for curves to be plotted.</description>
     </item>
     
     <item>
@@ -331,9 +361,10 @@ Memory Indicator The tools are available from the memory indicator in the bottom
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/summarysourcestepping/</guid>
-      <description>Summary Plot Source Stepping Summary Source Stepping is a function which enables the user to swiftly step through multiple vectors. The functionality applies both to single summary curves and ensemble curve sets.
-The functionality is available from both the toolbar and the Summary Curves property editor under a Summary Plot item in the Main Plot Window Project Tree.
-The toolbar allows use of vector filters in addition to source stepping:</description>
+      <description>Summary Plot Source Stepping enables the user to efficiently step through multiple vectors, wells, summary cases, ensembles, groups, regions, blocks, and aquifers for plotting purposes. Source stepping is available from both the Source Stepping Toolbar and the Property editor as described below.
+Source Stepping using the toolbar The toolbar for source stepping is:
+Following this example, the available options are:
+ Explicitly setting Step By to vector WBHP by  Change existing plot to display previous or next vector by pressing one of the buttons  Step previous or next vector and add a plot by the buttons  Step previous or next vector and add a curve by the buttons   Source Stepping using the Property Editor Source Stepping is also available through the Property Editor.</description>
     </item>
     
     <item>
@@ -517,7 +548,7 @@ Legend configuration As shown above, the Legend configuration for cell results a
       <guid>https://resinsight.org/plot-window/summaryploteditor/</guid>
       <description>The plot editor is a separate ResInsight dialog window where the user can select which vectors to display in a summary plot. It is also possible to edit an existing plot in this editor.
 The upper part of the editor contains editors for selecting which vectors/summaries to display in the plot. The number of fields vary from 3 to 6 depending on the Summary Type currently highlighted.
-In this context highlighted means the marked item with a different background color, while selected means an item or items that have a ticked check box.</description>
+Here highlighted means marked item with different background color, while selected means item(s) having a ticked check box.</description>
     </item>
     
     <item>
@@ -625,8 +656,8 @@ Subscribe</description>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/plot-window/summaryplottemplate/</guid>
-      <description>Template creation A summary plot template is defined by a number of curves with preset appearance and vector names. The parameters that are selected or varied by the user are:
- case(s) item(s), i.e. well(s), group(s), region(s)  Having tailored a plot setup, the user can save the setup as a template via the right-click command Save As Plot Template, c.f. figure above. It is also possible to select a summary plot in the Plot Project Tree and use the right-click menu to save a template.</description>
+      <description>Template creation A summary plot template is defined by a number of subplots and curves with preset appearance and vector names. Having tailored a plot setup, the user can save the setup as a template for later reuse via the Plots window right-click command Save As Plot Template which pops the Export Plot Template dialog seen above.
+A Summary Plot Template can subsequently be used for summary plotting of various data sources.</description>
     </item>
     
     <item>
@@ -882,8 +913,8 @@ File Format The format is comma-separated values with one measurement per line. 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/intersections/</guid>
-      <description>Intersections are cross sections of the grid model that displays the grid cell values on planes that cut through the grid in various ways.
-There are two main types of intersections. The first one which simply is called Intersection, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. These intersections can also be shown in their own separate 2D Intersection View</description>
+      <description>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. There are two main types of intersections:
+  Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
     </item>
     
     <item>
@@ -976,6 +1007,17 @@ Create New RFT Plot There are several ways to create new RFT Plots.</description
     </item>
     
     <item>
+      <title>RFT Segment Plot</title>
+      <link>https://resinsight.org/plot-window/rftsegmentplot/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/plot-window/rftsegmentplot/</guid>
+      <description>RFT Segment Data can be plotted as horizontal Well Log Plots. RFT data can be imported based on a summary case or a grid case.
+Create RFT Segment Plot From the Project Tree in the Plot Main Window
+ Select right-click command New Well Log Plot for Well Log Plots Select right-click command New Well Log RFT Curve for a Track   Change orientation of the Well Log Plot to Horizontal   If TVD depth is plotted, optionally invert the Y-axis when the track is selected   Add more tracks with to the same plot, and use copy/paste of a track for fast duplication.</description>
+    </item>
+    
+    <item>
       <title>Contour Map Export</title>
       <link>https://resinsight.org/export/contourmapexport/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -1015,6 +1057,18 @@ To use this functionality you will need to :
       <guid>https://resinsight.org/plot-window/pltplot/</guid>
       <description>A PLT (Production Log Tool) plot is a special well plot for comparing observed production (well flow rates) and simulated production. The curves are plotted as production against measured depth (MD). Simulated production data is retrieved directly from the grid model or from the corresponding (*.rft) files, while observed production data are loaded from well log files (*.las).
 Create New PLT Plot There are several ways to create new PLT Plots</description>
+    </item>
+    
+    <item>
+      <title>Grid Property Calculator</title>
+      <link>https://resinsight.org/3d-main-window/gridpropertycalculator/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/gridpropertycalculator/</guid>
+      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes.
+More details on mathematical operations are described in Curve Calculator
+Invoking the Grid Property Calculator Invoke the the Grid Property Calculator by pressing the calculator icon in the menu bar or by right-clicking Cell Result in Project Tree.
+Example using Grid Property Calculator As shown, the Grid Property Calculator is invoked by right-clicking Cell Result in Project Tree.</description>
     </item>
     
     <item>
@@ -1182,6 +1236,17 @@ Phone : +47 73 60 43 00 e-mail : info@ceetronsolutions.com
 Bug reports and general feature requests can be filed directly on GitHub
 
 Ceetron Solutions AS - Digitalization and visualization for engineers</description>
+    </item>
+    
+    <item>
+      <title>Training Courses</title>
+      <link>https://resinsight.org/training/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/training/</guid>
+      <description>ResInsight Introduction Course Content  3D visualization of Eclipse models including faults, intersections, surfaces, and contour maps Eclipse Summary plots, ensemble plots and observed data RFT plots, correlation plots, and analysis plots Flow Diagnostics Linking and comparison of views  Course goals Proficiency in evaluating Eclipse simulation results by 3D visualization and plotting in ResInsight.
+Prerequisites Knowledge about Eclipse reservoir simulations.
+Notes The course is offered online on both Windows and Linux systems.</description>
     </item>
     
   </channel>

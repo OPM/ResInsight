@@ -12,18 +12,18 @@
     <title>Summary Plot Template :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1637588643" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1637588643" rel="stylesheet">
-    <link href="/css/hybrid.css?1637588643" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1637588643" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1637588643" rel="stylesheet">
-    <link href="/css/auto-complete.css?1637588643" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1637588643" rel="stylesheet">
-    <link href="/css/theme.css?1637588643" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1637588643" rel="stylesheet">
+    <link href="/css/nucleus.css?1656680797" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1656680797" rel="stylesheet">
+    <link href="/css/hybrid.css?1656680797" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1656680797" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1656680797" rel="stylesheet">
+    <link href="/css/auto-complete.css?1656680797" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1656680797" rel="stylesheet">
+    <link href="/css/theme.css?1656680797" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1656680797" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1637588643"></script>
+    <script src="/js/jquery-3.3.1.min.js?1656680797"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -752,6 +755,25 @@
  
   
     
+      <li data-nav-id="/3d-main-window/gridpropertycalculator/" title="Grid Property Calculator" class="dd-item ">
+        <a href="/3d-main-window/gridpropertycalculator/">
+        Grid Property Calculator
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/3d-main-window/gridstatisticsdialog/" title="Grid Statistics Dialog" class="dd-item ">
         <a href="/3d-main-window/gridstatisticsdialog/">
         Grid Statistics Dialog
@@ -920,6 +942,44 @@
       <li data-nav-id="/plot-window/summaryplots/" title="Summary Plots" class="dd-item ">
         <a href="/plot-window/summaryplots/">
         Summary Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summaryplotdatasources/" title="Data Sources" class="dd-item ">
+        <a href="/plot-window/summaryplotdatasources/">
+        Data Sources
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summaryplotmanager/" title="Summary Plot Manager" class="dd-item ">
+        <a href="/plot-window/summaryplotmanager/">
+        Summary Plot Manager
         
         </a>
     </li>
@@ -1186,6 +1246,25 @@
       <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
         <a href="/plot-window/rftplot/">
         RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/rftsegmentplot/" title="RFT Segment Plot" class="dd-item ">
+        <a href="/plot-window/rftsegmentplot/">
+        RFT Segment Plot
         
         </a>
     </li>
@@ -2245,6 +2324,10 @@
               </li>
           
               <li> 
+                  <a class="padding" href="https://resinsight.org/training"><i class='fa fa-university'></i> Training</a>
+              </li>
+          
+              <li> 
                   <a class="padding" href="https://resinsight.org/support"><i class='far fa-question-circle'></i> Support</a>
               </li>
           
@@ -2336,7 +2419,8 @@ if (!doNotTrack) {
       <ul>
         <li><a href="#template-creation">Template creation</a></li>
         <li><a href="#template-usage">Template usage</a></li>
-        <li><a href="#template-file-search-and-organization">Template file search and organization</a></li>
+        <li><a href="#default-templates">Default templates</a></li>
+        <li><a href="#templates-window">Templates window</a></li>
       </ul>
     </li>
   </ul>
@@ -2366,37 +2450,59 @@ if (!doNotTrack) {
 
 <p><img src="/images/plot-window/SummaryPlotTemplate.png" alt=""></p>
 <h2 id="template-creation">Template creation</h2>
-<p>A summary plot template is defined by a number of curves with preset appearance and vector names. 
-The parameters that are selected or varied by the user are:</p>
+<p>A summary plot template is defined by a number of subplots and curves with preset appearance and vector names. 
+Having tailored a plot setup, the user can save the setup as a template for later reuse via the <strong>Plots</strong> window right-click command <strong>Save As Plot Template</strong> which pops the <strong>Export Plot Template</strong> dialog seen above.</p>
+<p><img src="/images/plot-window/SummaryPlotTemplateSave.png" alt=""></p>
+<p>A Summary Plot Template can subsequently be used for summary plotting of various data sources. The data sources that can be selected and varied by the user are:</p>
 <ul>
-<li>case(s)</li>
-<li>item(s), i.e. well(s), group(s), region(s)</li>
+<li>case(s), ensemble(s), and realization(s)</li>
+<li>well(s), group(s), and region(s)</li>
 </ul>
-<p>Having tailored a plot setup, the user can save the setup as a template via the right-click command <strong>Save As Plot Template</strong>, c.f. figure above. It is also possible to select a summary plot in the <strong>Plot Project Tree</strong> and use the right-click menu to save a template. 
-Both options save a template definition to file for later reuse.</p>
+<p>When saving a Summary Plot Template, ResInsight incorporates by default placeholders for using the template in conjunction with various wells, groups, and regions. 
+On the other hand, expand and check the appropriate boxes if you want to <strong>persist</strong> the specific wells, groups, and/or regions as part of the plot template definition.
+To exemplify, checking <em>Wells</em> for persistence enables plotting of data for the exact wells of the template in conjunction with any ensemble realization.</p>
+<p><img src="/images/plot-window/SummaryPlotTemplateSavePersistentObjectNames.png" alt=""></p>
+<p>Upon export, ResInsight automatically categorizes the template as an <strong>Ensemble Template</strong> if the template involves plotting of data for an ensemble. 
+Otherwise the template is categorized as a <strong>Summary Case</strong> template.
+Ensemble Templates are listed with the icon 
+<img src="https://resinsight.org/images/plot-window/IconEnsembleTemplate.png" style="display:inline; vertical-align:middle; margin:0">
+ 
+while Summary Case templates are listed with the icon
+<img src="https://resinsight.org/images/plot-window/IconSummaryCaseTemplate.png" style="display:inline; vertical-align:middle; margin:0">
 
-<div class="notices note" ><p>Summary Plot Templates are created for all <em>Summary Plots</em> including ensemble plots by right-click menu option <strong>Save As Plot Template</strong> available in both the plot window and via their entries in the <strong>Plot Project Tree</strong>.</p>
-</div>
-
-<p>Given a new path, ResInsight will ask the user to confirm whether the path of the stored template is to be included in subsequent searches for templates.</p>
+in the <a href="/plot-window/summaryplottemplate/#templates-window">Templates Window</a>, c.f. below.</p>
+<p>Each summary plot template is stored in a single file on disk. ResInsight searches a set of directories for template files which are listed and managed by <a href="/misc/preferences/#plotting"><strong>Plotting Preferences</strong></a>. 
+Given a new path, ResInsight will ask the user to confirm whether the path of the stored template is to be included in subsequent searches for templates.</p>
 <p><img src="/images/plot-window/SummaryPlotTemplatePath.png" alt=""></p>
 <h2 id="template-usage">Template usage</h2>
-<p>Having selected items of interest in the <strong>Plot Project Tree</strong> (i.e. cases, wells, groups, and regions) a template plot can be created.</p>
-<p>Invoke the right-click menu shown below to select a specific summary plot template. 
-Here two summary cases have been selected prior to invoking the right-click menu.
-As seen, available options for select a specific template are:</p>
-<ul>
-<li><strong>Create Plot from Last Used Summary Template</strong>  is a menu option to invoke the last used summary plot template.</li>
-<li><strong>Create Plot from Template</strong> shows all available templates in a separate dialog for search and selection.</li>
-</ul>
+<p>Right-clicking in <strong>Data Sources</strong> and clicking <strong>Create Summary Plot from Template</strong> will list available summary plot templates for selection. To reapply the previously used template, invoke <strong>Create Plot from Last Used Template</strong> or simply press <strong>Ctrl-T</strong>. Both approaces create a summary plot according to template.</p>
 <p><img src="/images/plot-window/SummaryPlotTemplateUsage.png" alt=""></p>
 
-<div class="notices note" ><p><strong>Ctrl-T</strong> is a shortcut to swiftly create a plot based on the last used summary template.</p>
+<div class="notices note" ><p>Summary templates made with prior versions are incompatible with ResInsight 2022 due to significant extensions of functionality. Please load summary plots of prior versions via project files or re-establish plots prior to saving templates with ResInsight 2022.</p>
 </div>
 
-<h2 id="template-file-search-and-organization">Template file search and organization</h2>
-<p>Each summary plot template is stored in a single file on disk. ResInsight searches a set of directories for template files
-which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and the <a href="/misc/preferences/#plotting-tab"><strong>Plotting tab</strong></a>.</p>
+<h2 id="default-templates">Default templates</h2>
+<p>Default templates is a powerful feature to automate the generation of summary plots when importing a summary case or ensemble. The basis for automation is the selection of one or more default templates.</p>
+<p>Specify each default template by right-clicking in the <strong>Templates</strong> window.
+Then activate the use of default templates by specifying <strong>Use Plot Templates</strong> in the <strong>Plotting tab</strong> of Preferences, c.f. menu option <a href="/misc/preferences/#plotting"><strong>Edit→Preferences</strong></a>.</p>
+<p><img src="/images/plot-window/SummaryPlotTemplateWindow.png" alt=""></p>
+<p>As shown, default templates are listed with a green color in their icon.
+Both <img src="https://resinsight.org/images/plot-window/IconSummaryCaseTemplate.png" style="display:inline; vertical-align:middle; margin:0">
+<strong>Summary Case templates</strong> and <img src="https://resinsight.org/images/plot-window/IconEnsembleTemplate.png" style="display:inline; vertical-align:middle; margin:0">
+<strong>Ensemble templates</strong> may constitute default templates. 
+When loading a summary case, the default Summary Case templates will be applied automatically, while default Ensemble templates will be applied automatically when loading an ensemble.</p>
+<h2 id="templates-window">Templates window</h2>
+<p>As seen above, the <strong>Templates</strong> window enables management and overview of summary plot templates by directory and offers the following functionality:</p>
+<ul>
+<li>create new plot based on selected template</li>
+<li>rename template</li>
+<li>delete template</li>
+<li>edit template XML file in the <em>Script Editor</em> specified in 
+<a href="/misc/preferences/#scripting">Preferences</a></li>
+<li>specifying default template as described above</li>
+<li>reload templates in ResInsight in case of directory or file changes on disk</li>
+</ul>
+<p>See also menu option <a href="/misc/preferences/#plotting"><strong>Edit→Preferences</strong></a> for managing template folders and template searches.</p>
 
 
 <footer class="footline">
@@ -2617,17 +2723,6 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
         
                     
                         
@@ -2658,41 +2753,6 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
                     
                     
 
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
                     
             
         
@@ -2742,6 +2802,12 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
             
         
                     
+            
+        
+                    
+            
+        
+                    
                         
             
             
@@ -2754,9 +2820,6 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -3078,6 +3141,70 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
             
         
                     
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
             
         
                     
@@ -3167,6 +3294,38 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
             
                 
                     
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
                     
                 
                 
@@ -3186,6 +3345,22 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
                     
                         
                         
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
                     
                 
                 
@@ -4167,19 +4342,19 @@ which can be managed by menu option <strong>Edit-&gt;Preferences</strong> and th
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1637588643"></script>
-    <script src="/js/perfect-scrollbar.min.js?1637588643"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1637588643"></script>
-    <script src="/js/jquery.sticky.js?1637588643"></script>
-    <script src="/js/featherlight.min.js?1637588643"></script>
-    <script src="/js/highlight.pack.js?1637588643"></script>
+    <script src="/js/clipboard.min.js?1656680797"></script>
+    <script src="/js/perfect-scrollbar.min.js?1656680797"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1656680797"></script>
+    <script src="/js/jquery.sticky.js?1656680797"></script>
+    <script src="/js/featherlight.min.js?1656680797"></script>
+    <script src="/js/highlight.pack.js?1656680797"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1637588643"></script>
-    <script src="/js/learn.js?1637588643"></script>
-    <script src="/js/hugo-learn.js?1637588643"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1656680797"></script>
+    <script src="/js/learn.js?1656680797"></script>
+    <script src="/js/hugo-learn.js?1656680797"></script>
 
-    <link href="/mermaid/mermaid.css?1637588643" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1637588643"></script>
+    <link href="/mermaid/mermaid.css?1656680797" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1656680797"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>

@@ -134,8 +134,8 @@ Visibility of the docking widows can be controlled from the Windows menu.
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/3d-main-window/intersections/</guid>
-      <description>Intersections are cross sections of the grid model that displays the grid cell values on planes that cut through the grid in various ways.
-There are two main types of intersections. The first one which simply is called Intersection, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. These intersections can also be shown in their own separate 2D Intersection View</description>
+      <description>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. There are two main types of intersections:
+  Intersection: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An intersection can also be shown in a separate 2D Intersection View.</description>
     </item>
     
     <item>
@@ -184,6 +184,18 @@ All the tagged cell faces are then compared to the faults possibly imported from
 Formations for k-layers Formation information can be utilized in ResInsight as cell colors, used in property filters and are displayed in the Result info panel when selecting single cells.
 To use this functionality you will need to :
  Import one or more Formation Names file(s) Select the correct Formation Names file in the Case of interest  Import of Formation Names Files Formation Names files can be imported by using the command: File-&amp;gt;Import-&amp;gt;Import Formation Names.</description>
+    </item>
+    
+    <item>
+      <title>Grid Property Calculator</title>
+      <link>https://resinsight.org/3d-main-window/gridpropertycalculator/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/3d-main-window/gridpropertycalculator/</guid>
+      <description>ResInsight offers a built-in property calculator for grid parameters. The Grid Property Calculator enables arithmetic expressions to be parsed and calculated for visualization purposes.
+More details on mathematical operations are described in Curve Calculator
+Invoking the Grid Property Calculator Invoke the the Grid Property Calculator by pressing the calculator icon in the menu bar or by right-clicking Cell Result in Project Tree.
+Example using Grid Property Calculator As shown, the Grid Property Calculator is invoked by right-clicking Cell Result in Project Tree.</description>
     </item>
     
     <item>

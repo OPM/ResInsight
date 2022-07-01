@@ -27,8 +27,8 @@ Docking Windows Each of the main windows has a central area and several docking 
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
       
       <guid>https://resinsight.org/getting-started/projecttree/</guid>
-      <description>As described in Overview, ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots. The content and appearance of displayed information is managed and controlled by the Project Tree and the Plot Project Tree, respectively. This page describes some of their general functionality illustrated by examples using Plot Project Tree.
-Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions.</description>
+      <description>As described in Overview, ResInsight has two main windows, one for 3D related visualizations and one for 2D graphs and plots. The content and appearance of displayed information is managed and controlled by the Project Tree and the Plots windows. Some of their general functionality is described and exemplified below.
+Multiple selection and collective actions Multiple selection of items in ResInsight offers an entrance to powerful combinations and collective actions. To exemplify, consider the plot of Bottom Hole Pressure for a number of wells atop this page.</description>
     </item>
     
     <item>
@@ -138,6 +138,16 @@ Streamlines Streamlines lets the user investigate the flow of different phases t
       <description>Ensemble Surface To study the structural uncertainty for an ensemble of cases, ResInsight enables the user to import an Ensemble Surface and compute the statistical surfaces based on this ensemble.
 Ensemble Well Log To study the uncertainty for well log extraction curves, ResInsight enables the user to import an Ensemble Well Log and compute the statistical distribution in this ensemble.
 Performance Improved performance for grid model import from GRDECL. Improved performace for surface geometry import.</description>
+    </item>
+    
+    <item>
+      <title>What&#39;s New in 2022.06</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06/</guid>
+      <description>Summary Plotting Summary Plotting is updated with new features and improved workflows:
+ data sources for summary data can be used for drag/drop operations and efficient and easy production of plots extended summary template features enable more powerful and efficient use of preset appearances and layouts optional curve coloring based on the summary vector phase improved management of multiple subplots restructured organization of plot items in Property Editor easy and efficient documentation and paging of multiple summary plots to PDF file  Plot Templates Plot Templates now offer extended features and support for multiplots.</description>
     </item>
     
     <item>

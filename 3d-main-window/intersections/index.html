@@ -12,18 +12,18 @@
     <title>Intersections :: ResInsight</title>
 
     
-    <link href="/css/nucleus.css?1637588643" rel="stylesheet">
-    <link href="/css/fontawesome-all.min.css?1637588643" rel="stylesheet">
-    <link href="/css/hybrid.css?1637588643" rel="stylesheet">
-    <link href="/css/featherlight.min.css?1637588643" rel="stylesheet">
-    <link href="/css/perfect-scrollbar.min.css?1637588643" rel="stylesheet">
-    <link href="/css/auto-complete.css?1637588643" rel="stylesheet">
-    <link href="/css/atom-one-dark-reasonable.css?1637588643" rel="stylesheet">
-    <link href="/css/theme.css?1637588643" rel="stylesheet">
-    <link href="/css/hugo-theme.css?1637588643" rel="stylesheet">
+    <link href="/css/nucleus.css?1656680797" rel="stylesheet">
+    <link href="/css/fontawesome-all.min.css?1656680797" rel="stylesheet">
+    <link href="/css/hybrid.css?1656680797" rel="stylesheet">
+    <link href="/css/featherlight.min.css?1656680797" rel="stylesheet">
+    <link href="/css/perfect-scrollbar.min.css?1656680797" rel="stylesheet">
+    <link href="/css/auto-complete.css?1656680797" rel="stylesheet">
+    <link href="/css/atom-one-dark-reasonable.css?1656680797" rel="stylesheet">
+    <link href="/css/theme.css?1656680797" rel="stylesheet">
+    <link href="/css/hugo-theme.css?1656680797" rel="stylesheet">
     
 
-    <script src="/js/jquery-3.3.1.min.js?1637588643"></script>
+    <script src="/js/jquery-3.3.1.min.js?1656680797"></script>
 
     <style>
       :root #header + #content > #left > #rlblock_left{
@@ -264,6 +264,9 @@
   
  
 
+            
+          
+             
             
           
              
@@ -752,6 +755,25 @@
  
   
     
+      <li data-nav-id="/3d-main-window/gridpropertycalculator/" title="Grid Property Calculator" class="dd-item ">
+        <a href="/3d-main-window/gridpropertycalculator/">
+        Grid Property Calculator
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
       <li data-nav-id="/3d-main-window/gridstatisticsdialog/" title="Grid Statistics Dialog" class="dd-item ">
         <a href="/3d-main-window/gridstatisticsdialog/">
         Grid Statistics Dialog
@@ -920,6 +942,44 @@
       <li data-nav-id="/plot-window/summaryplots/" title="Summary Plots" class="dd-item ">
         <a href="/plot-window/summaryplots/">
         Summary Plots
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summaryplotdatasources/" title="Data Sources" class="dd-item ">
+        <a href="/plot-window/summaryplotdatasources/">
+        Data Sources
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/summaryplotmanager/" title="Summary Plot Manager" class="dd-item ">
+        <a href="/plot-window/summaryplotmanager/">
+        Summary Plot Manager
         
         </a>
     </li>
@@ -1186,6 +1246,25 @@
       <li data-nav-id="/plot-window/rftplot/" title="RFT Plot" class="dd-item ">
         <a href="/plot-window/rftplot/">
         RFT Plot
+        
+        </a>
+    </li>
+     
+  
+ 
+
+            
+          
+            
+            
+
+
+ 
+  
+    
+      <li data-nav-id="/plot-window/rftsegmentplot/" title="RFT Segment Plot" class="dd-item ">
+        <a href="/plot-window/rftsegmentplot/">
+        RFT Segment Plot
         
         </a>
     </li>
@@ -2245,6 +2324,10 @@
               </li>
           
               <li> 
+                  <a class="padding" href="https://resinsight.org/training"><i class='fa fa-university'></i> Training</a>
+              </li>
+          
+              <li> 
                   <a class="padding" href="https://resinsight.org/support"><i class='far fa-question-circle'></i> Support</a>
               </li>
           
@@ -2345,6 +2428,7 @@ if (!doNotTrack) {
           </ul>
         </li>
         <li><a href="#intersection-box-and-intersection-planes">Intersection Box and Intersection Planes</a></li>
+        <li><a href="#depth-filter">Depth Filter</a></li>
         <li><a href="#intersection-results">Intersection Results</a></li>
       </ul>
     </li>
@@ -2374,41 +2458,39 @@ if (!doNotTrack) {
 
 
 <p><img src="/images/3d-main-window/IntersectionOverview.png" alt=""></p>
-<p>Intersections are cross sections of the grid model that displays the grid cell values on planes that cut through the grid in various ways.</p>
-<p>There are two main types of intersections. The first one which simply is called <strong>Intersection</strong>, is defined by a piece-wise linear curve and an extrusion direction. The curve can be either a Simulation Well, a Well Path, a user defined polyline, or a user defined line. These intersections can also be shown in their own separate <a href="/3d-main-window/intersections/#2d-intersection-views">2D Intersection View</a></p>
+<p>Intersections are cross sections of a grid model that cut the grid in various ways to display grid cell values. 
+There are two main types of intersections:</p>
+<ol>
+<li>
+<p><strong>Intersection</strong>: is defined by a piece-wise linear curve and a direction of extrusion. The curve can be either a simulation well, a well path, a user defined polyline, or a user defined line. An  intersection can also be shown in a separate <a href="/3d-main-window/intersections/#2d-intersection-views">2D Intersection View</a>.</p>
+</li>
+<li>
+<p><strong>Intersection Box</strong>: can be used as a box cutting grid cells or collapsed to a restricted axis aligned plane.</p>
+</li>
+</ol>
 <p>Structural uncertainty can be visualized on intersections as described in <a href="/workflows/ensemblesurface/">Ensemble Surface</a>.</p>
-<p>The second intersection type is called an <strong>Intersection Box</strong>. An Intersection Box can be used as a box cutting the grid cells, or collapsed to a restricted axis aligned plane.</p>
-<p>All types of intersections are stored in a folder named <strong>Intersections</strong> in a <strong>View</strong> as shown below. Once created, the intersections may be copied to other views by selecting the <strong>Copy intersections to all views in case</strong> option from the right-click menu of each intersection.</p>
-<p>Once created, the intersections may be copied to other views by selecting the <strong>Copy intersections to all views in case</strong> option from the right-click menu of each intersection.</p>
+<p>All types of intersections are stored in the folder <strong>Intersections</strong> of a <strong>View</strong>. An intersection may be copied to other views by the menu option <strong>Copy intersections to all views in case</strong> in the right-click menu.</p>
 <p><img src="/images/3d-main-window/IntersectionInTreeCopy.png" alt=""></p>
 <h2 id="curve-based-intersections">Curve Based Intersections</h2>
 <p>There are four types of curve based intersections: Well Path, Simulation Well, Polyline, and Azimuth and Dip. Azimuth and Dip differs from the other three curves, as it is defined just by one straight line. It is called Azimuth and Dip because the plane&rsquo;s extrusion direction can be defined by the two angles.</p>
 <p>Any of these intersections can be created by activating <img src="https://resinsight.org/images/3d-main-window/CrossSection16x16.png" style="display:inline; vertical-align:middle; margin:0">
- <strong>New Intersection</strong> from the right-click menu of the <strong>Intersections</strong> item in the Project Tree.</p>
-<p>They can also be created from the right-click menu in the 3D view, as described below.</p>
+ <strong>New Intersection</strong> from the right-click menu of the <strong>Intersections</strong> item in the Project Tree. They can also be created from the right-click menu in the 3D view, as described below.</p>
 
-<div class="notices info" ><p>To be able to see the intersections in the 3D view, the grid cells can be hidden by disabling the <b>Grids</b> item in the Project Tree or activating the <b>Hide Grid Cells</b> toolbar button.</p>
+<div class="notices info" ><p>To be able to see the intersections in the 3D view, the grid cells can be hidden by disabling the <b>Grids</b> item in <strong>Project Tree</strong> or activating the <b>Hide Grid Cells</b> toolbar button.</p>
 </div>
 
 <h3 id="common-curve-based-intersection-options">Common Curve Based Intersection Options</h3>
 <p>The property panel of a well path based intersection is shown below:</p>
 <p><img src="/images/3d-main-window/IntersectionWellPath.png" alt=""></p>
 <ul>
-<li><strong>Name</strong> &ndash; Automatically created based on the item specifying the intersection. The user can customize the name by editing, but will be updated if you change the well or well path.</li>
-<li><strong>Intersecting Geometry</strong> &ndash; These options controls the curve to be used for the cross section, and depends on the type of intersection you choose.</li>
+<li><strong>Name</strong> &ndash; Automatically created based on the item specifying the intersection. The user can edit the name, but it will be updated if you change well or well path.</li>
+<li><strong>Intersecting Geometry</strong> &ndash; Options to control the curve used for the cross section dependant on the type of intersection.</li>
 <li><strong>Direction</strong> &ndash; Horizontal, vertical or defined by two points.</li>
 <li><strong>Extent Length</strong> &ndash; Defines how far an intersection for well path or simulation Well is extended at intersection ends.</li>
-<li><strong>Show Inactive Cells</strong> &ndash; Controls if inactive cells are included when creating the intersection geometry.</li>
+<li><strong>Show Inactive Cells</strong> &ndash; Controls if inactive cells are included when creating intersection geometry.</li>
 </ul>
-<h4 id="direction">Direction</h4>
-<p>The direction defined is used to extrude the curve in the defined direction, and thereby create a set of planes.</p>
-<p>When selection the <strong>Horizontal</strong> option, the start and end point of the curve is used as a baseline, and the horizontal direction is thus perpendicular to that line.</p>
-<p>When <strong>Defined by two points</strong> is the active option, the user can define the direction based on any two points. The direction from the first to the second point defines the extrude direction.</p>
-<ul>
-<li>The background color of this list is set to light pink when adding points by picking in the 3D view is active.</li>
-<li>To finish adding points, click the button <strong>Stop picking points</strong> in the <strong>Property Editor</strong>.</li>
-<li>The background color of the point list is then set to white.</li>
-</ul>
+<p><strong>Direction</strong> is used to extrude the curve in the defined direction, and thereby create a set of planes. <strong>Horizontal</strong> implies the start and end point of the curve is used as a baseline, and the horizontal direction is thus perpendicular to that line.
+By <strong>Defined by two points</strong>, the user can define the direction based on any two points. The direction from the first to the second point defines the extrude direction.</p>
 <h3 id="well-path-intersection">Well Path Intersection</h3>
 <p>A new <strong>Well Path</strong> intersection can be created by right-clicking the well path in the 3D view or in the <strong>Project Tree</strong>.</p>
 <p><img src="/images/3d-main-window/IntersectionWellPath.png" alt=""></p>
@@ -2422,26 +2504,24 @@ if (!doNotTrack) {
 <p>A new <strong>Polyline</strong> intersection can be created from the right-click menu in the 3D view. Then, by left-clicking on reservoir geometry, a polyline is created. The points are added to the point list in the <strong>Property Editor</strong>.</p>
 <p><img src="/images/3d-main-window/IntersectionPolyline.png" alt=""></p>
 <ul>
-<li>The background color of this list is set to light pink when adding points by picking in the 3D view is active.</li>
-<li>To finish adding points, click the button <strong>Stop picking points</strong> in the <strong>Property Editor</strong>.</li>
-<li>The background color of the point list is then set to white.</li>
+<li>The background color of point list is light pink when additional points can be picked in 3D view.</li>
+<li>To finish adding points, click button <strong>Stop picking points</strong> (color of point list turns white).</li>
 </ul>
-<p>The points in the list can be deleted and edited using the keyboard. To append more points (by clicking in the 3D view), push the button <strong>Start picking points</strong> again.</p>
-<p>The points in the list can be copied to clipboard using <strong>CTRL-C</strong> when keyboard focus is inside the point list. A new list of points can be pasted into the point list by using <strong>CTRL-V</strong>.</p>
+<p>The points in the list can be deleted and edited using the keyboard. To append more points (by clicking in the 3D view), press button <strong>Start picking points</strong> again.</p>
+<p>The point list can be copied to clipboard using <strong>CTRL-C</strong> when in keyboard focus. A new list of points can be pasted into the point list by using <strong>CTRL-V</strong>.</p>
 <h3 id="azimuth-and-dip">Azimuth and Dip</h3>
-<p>A new <strong>Azimuth and Dip</strong> intersection can be created from the right-click menu in the 3D view. Then, by left-clicking two points on reservoir geometry, a single line is created between the first point, and the second point projected down to the plane with same z-value as the first point. The two points are added to the point list in the <strong>Property Editor</strong>.</p>
+<p>A new <strong>Azimuth and Dip</strong> intersection can be created from the right-click menu in 3D view. Then, by left-clicking two points on reservoir geometry, a single line is created between the first point, and the second point projected down to the plane with same z-value as the first point. The two points are added to the point list in the <strong>Property Editor</strong>.</p>
 <p><img src="/images/3d-main-window/IntersectionAzimuthDip.png" alt=""></p>
 <ul>
-<li>The background color of this list is set to light pink when adding points by picking in the 3D view is active.</li>
-<li>To finish adding points, click the button <strong>Stop picking points</strong> in the <strong>Property Editor</strong>.</li>
-<li>The background color of the point list is then set to white.</li>
+<li>The background color of point list is light pink when additional points can be picked in 3D view.</li>
+<li>To finish adding points, click button <strong>Stop picking points</strong> (color of point list turns white).</li>
 </ul>
-<p>The points in the list can be deleted and edited using the keyboard. To append more points by clicking in the 3D view, push the button <strong>Start picking points</strong> again.</p>
-<p>The points in the list can be copied to clipboard using <strong>CTRL-C</strong> when keyboard focus is inside the point list. A new list of points can be pasted into the point list by using <strong>CTRL-V</strong>.</p>
-<p>When two points are picked, a plane between the points will appear in the 3D view, with a 90 degrees <strong>Dip</strong>, and the <strong>Azimuth</strong> angle calculated from the two points. The two angles can be edited in the <strong>Property Editor</strong> of the intersection, and is defined by the following:</p>
+<p>The points in the list can be deleted and edited using the keyboard. To append more points by clicking in the 3D view, press button <strong>Start picking points</strong> again.</p>
+<p>The points in the list can be copied to clipboard using <strong>CTRL-C</strong> when in keyboard focus. A new list of points can be pasted into the point list by using <strong>CTRL-V</strong>.</p>
+<p>When two points are picked, a plane between the points will appear in the 3D view with a 90 degrees <strong>Dip</strong>, and the <strong>Azimuth</strong> angle calculated from the two points. The two angles can be edited in the <strong>Property Editor</strong> of the intersection:</p>
 <ul>
-<li><strong>Dip</strong> is the angle between the horizontal plane and down.</li>
-<li><strong>Azimuth</strong> is the angle between North and the plane. Changing the azimuth will rotate the plane about the first point picked in the 3D view.</li>
+<li><strong>Dip</strong>: angle between the horizontal plane and down.</li>
+<li><strong>Azimuth</strong>: angle between North and the plane. Changing azimuth will rotate the plane about the first point picked in 3D view.</li>
 </ul>
 <p>The length of the plane can also be set manually in the <strong>Property Editor</strong>.</p>
 <ul>
@@ -2453,17 +2533,17 @@ if (!doNotTrack) {
 <p>A 2D Intersection View displays the intersection in a separate 2D view along with the defining curve. The intersection and the defining well path, simulation well or polyline is flattened to make it easier to see the intersected grid and how the well traverses it.</p>
 <p><img src="/images/3d-main-window/IntersectionView.png" alt=""></p>
 <p>Each of the curve based intersections have a corresponding <strong>2D Intersection View</strong>. Management of these views are automatic. They will be created and deleted along with the intersection.</p>
-<p>The view can be shown either by right clicking the intersection and select the command <strong>Show 2D intersection View</strong>, or by toggling the view in the project tree directly.</p>
+<p>A 2D Intersection View is shown either by right clicking an intersection and select <strong>Show 2D intersection View</strong> or by checking its entry in <strong>Project tree</strong>.</p>
 <p><img src="/images/3d-main-window/IntersectionViewsProjectTree.png" alt=""></p>
 <p>Scales along the edges of the view show the depth and the horizontal length of the intersection. The length is measured from the start of the wellpath or the well head of a simulation well.</p>
-<p>The view is mostly controlled by the options in the 3D view where the intersection is defined. There are, however some independent controls, like drawstyle, timestep and Z-scale.</p>
+<p>The view is mostly controlled by the options in the 3D view where the intersection is defined. There are, however, some independent controls, like drawstyle, timestep and Z-scale:</p>
 <p><img src="/images/3d-main-window/2DIntersectionViewProperties.png" alt=""></p>
 <ul>
 <li><strong>Viewer</strong>
 <ul>
-<li><strong>Name</strong> &ndash; User editable name of the view. The default name is set by combining the name of the origin view and the intersection name.</li>
+<li><strong>Name</strong> &ndash; User editable name of view. The default name combines the name of the origin view and intersection name.</li>
 <li><strong>Background</strong> &ndash; Color of the viewer background</li>
-<li><strong>Disable Results Lighting</strong> &ndash; Toggle the light effect. When the lighting is turned off, the colors are easier to compare with the legend, but the colors carry no visual cue to visualize the 3D shape. The effect is tiny on 2D Intersection Views.</li>
+<li><strong>Disable Results Lighting</strong> &ndash; Toggle the light effect. When turned off, the colors are easier to compare with legend, but carry no visual cue to visualize 3D shape. The effect is tiny on 2D Intersection Views.</li>
 </ul>
 </li>
 <li><strong>Grid Appearance</strong> &ndash; Controls the drawstyle of the grid geometry
@@ -2499,19 +2579,29 @@ if (!doNotTrack) {
 <ul>
 <li><strong>Name</strong> &ndash; Automatically created based on the item specifying the intersection</li>
 <li><strong>Box Type</strong> &ndash; Box or x-plane, y-plane or z-plane</li>
-<li><strong>Show Inactive Cells</strong> &ndash; Controls if inactive cells are included when creating the intersection geometry</li>
+<li><strong>Show Inactive Cells</strong> &ndash; Controls if inactive cells are included when creating intersection geometry</li>
 <li><strong>X Coordinates</strong> &ndash; Coordinates for x range</li>
 <li><strong>Y Coordinates</strong> &ndash; Coordinates for y range</li>
 <li><strong>Depth</strong> &ndash; Coordinates for depth range</li>
-<li><strong>XY Slider Step Size</strong> &ndash; Defines how much the value changes when the slider for XY values is changed, default value 1.0</li>
-<li><strong>Depth Slider Step Size</strong> &ndash; Defines how much the value changes when the slider for depth values is changed, default value 0.5</li>
+<li><strong>XY Slider Step Size</strong> &ndash; Defines incremental changes for slider when XY values are changed (default value 1.0)</li>
+<li><strong>Depth Slider Step Size</strong> &ndash; Defines incremental changes for slider when depth values are changed (default value 0.5)</li>
 </ul>
 <p>Direct interaction in a 3D view is activated when <strong>Show 3D manipulator</strong> is pressed. Handles are displayed at the sides of the intersection object, and interactive modification is done by dragging a handle in the 3D view.</p>
 <p><img src="/images/3d-main-window/IntersectionBoxWithHandles.png" alt=""></p>
+<h2 id="depth-filter">Depth Filter</h2>
+<p>An intersection can be visually filtered, i.e. partly hidden from display, by employing a user defined <strong>Depth Filter</strong>. 
+Depth filtering is performed by selecting an intersection in <strong>Project Tree</strong> and setting the <strong>Depth Filter</strong> properties in <strong>Property Editor</strong>:</p>
+<ul>
+<li><strong>None</strong>: no depth filtering</li>
+<li><strong>Above</strong>: filtering above the specified <em>Upper Depth</em></li>
+<li><strong>Below</strong>: filtering below specified <em>Lower Depth</em></li>
+<li><strong>Between</strong>: filtering above specified <em>Upper Depth</em> and below specified <em>Lower Depth</em></li>
+</ul>
+<p><img src="/images/3d-main-window/IntersectionPropEdDepthFilter.png" alt=""></p>
 <h2 id="intersection-results">Intersection Results</h2>
-<p>To select a simulation result to display on an intersection, the first step is to right-click <strong>Intersection Results</strong> in <strong>Project Tree</strong> and select <strong>New Result Definition</strong>.</p>
+<p>To select a simulation result to display on an intersection, right-click <strong>Intersection Results</strong> in <strong>Project Tree</strong> and select <strong>New Result Definition</strong>.</p>
 <p><img src="/images/3d-main-window/SeparateIntersectionResults.png" alt=""></p>
-<p>By selecting the entry of a specific ** Intersection Result**, the **Property Editor** allows to specify case, type or position etc depending on whether the result stem from an Eclipse case or a Geomechanical case.</p>
+<p>By selecting a specific <strong>Intersection Result</strong>, the <strong>Property Editor</strong> allows to specify case, type or position etc depending on whether the result stem from an Eclipse case or a Geomechanical case.</p>
 <p>The next step is to select an <strong>Intersection</strong> in <strong>Project Tree</strong> and define <strong>Result Reference</strong>. 
 In the example below, available sources are the two <strong>Intersections Results</strong> of previous figure, one of which stems from a geomechanical case and the other from an Eclipse case.</p>
 <p><img src="/images/3d-main-window/IntersectionSeparateResultReference.png" alt=""></p>
@@ -2735,117 +2825,6 @@ In the example below, available sources are the two <strong>Intersections Result
                         
             
             
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-            
-        
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-                        
-            
-            
-                
-                    
-                        
-                        
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
         
                     
                         
@@ -2893,9 +2872,6 @@ In the example below, available sources are the two <strong>Intersections Result
                     
 
                     
-            
-        
-                    
                         
             
             
@@ -2928,82 +2904,8 @@ In the example below, available sources are the two <strong>Intersections Result
             
         
                     
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
             
         
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
-                    
-            
-        
-                    
-                        
-            
-            
-                
-                    
-                
-                
-
-                    
-                    
-                    
-
                     
             
         
@@ -3021,9 +2923,6 @@ In the example below, available sources are the two <strong>Intersections Result
                     
                     
 
-                    
-            
-        
                     
                         
             
@@ -3204,6 +3103,39 @@ In the example below, available sources are the two <strong>Intersections Result
             
         
                     
+                        
+            
+            
+                
+                    
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                        
+                        
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
             
         
                     
@@ -3219,6 +3151,233 @@ In the example below, available sources are the two <strong>Intersections Result
                     
                     
 
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
+                    
+                        
+            
+            
+                
+                    
+                
+                
+
+                    
+                    
+                    
+
+                    
+            
+        
                     
                         
             
@@ -4285,19 +4444,19 @@ In the example below, available sources are the two <strong>Intersections Result
     <div style="left: -1000px; overflow: scroll; position: absolute; top: -1000px; border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;">
       <div style="border: none; box-sizing: content-box; height: 200px; margin: 0px; padding: 0px; width: 200px;"></div>
     </div>
-    <script src="/js/clipboard.min.js?1637588643"></script>
-    <script src="/js/perfect-scrollbar.min.js?1637588643"></script>
-    <script src="/js/perfect-scrollbar.jquery.min.js?1637588643"></script>
-    <script src="/js/jquery.sticky.js?1637588643"></script>
-    <script src="/js/featherlight.min.js?1637588643"></script>
-    <script src="/js/highlight.pack.js?1637588643"></script>
+    <script src="/js/clipboard.min.js?1656680797"></script>
+    <script src="/js/perfect-scrollbar.min.js?1656680797"></script>
+    <script src="/js/perfect-scrollbar.jquery.min.js?1656680797"></script>
+    <script src="/js/jquery.sticky.js?1656680797"></script>
+    <script src="/js/featherlight.min.js?1656680797"></script>
+    <script src="/js/highlight.pack.js?1656680797"></script>
     <script>hljs.initHighlightingOnLoad();</script>
-    <script src="/js/modernizr.custom-3.6.0.js?1637588643"></script>
-    <script src="/js/learn.js?1637588643"></script>
-    <script src="/js/hugo-learn.js?1637588643"></script>
+    <script src="/js/modernizr.custom-3.6.0.js?1656680797"></script>
+    <script src="/js/learn.js?1656680797"></script>
+    <script src="/js/hugo-learn.js?1656680797"></script>
 
-    <link href="/mermaid/mermaid.css?1637588643" rel="stylesheet" />
-    <script src="/mermaid/mermaid.js?1637588643"></script>
+    <link href="/mermaid/mermaid.css?1656680797" rel="stylesheet" />
+    <script src="/mermaid/mermaid.js?1656680797"></script>
     <script>
         mermaid.initialize({ startOnLoad: true });
     </script>
