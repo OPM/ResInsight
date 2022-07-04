@@ -57,6 +57,7 @@
 #include "cafFrameAnimationControl.h"
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapabilityCvfColor3.h"
+#include "cafPdmUiComboBoxEditor.h"
 
 #include "cvfCamera.h"
 #include "cvfModelBasicList.h"
@@ -115,13 +116,14 @@ Rim3dView::Rim3dView()
     CAF_PDM_InitScriptableField( &isPerspectiveView, "PerspectiveProjection", true, "Perspective Projection" );
 
     double defaultScaleFactor = preferences->defaultScaleFactorZ();
-    CAF_PDM_InitScriptableField( &scaleZ,
+    CAF_PDM_InitScriptableField( &m_scaleZ,
                                  "GridZScale",
                                  defaultScaleFactor,
                                  "Z Scale",
                                  "",
                                  "Scales the scene in the Z direction",
                                  "" );
+    m_scaleZ.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
 
     cvf::Color3f defBackgColor = preferences->defaultViewerBackgroundColor();
     CAF_PDM_InitScriptableField( &m_backgroundColor, "BackgroundColor", defBackgColor, "Background" );
@@ -411,8 +413,8 @@ void Rim3dView::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOr
     viewGroup->add( &m_comparisonView );
 
     caf::PdmUiGroup* gridGroup = uiOrdering.addNewGroup( "Grid Appearance" );
-    gridGroup->add( &scaleZ );
-    scaleZ.uiCapability()->setUiReadOnly( !this->isScaleZEditable() );
+    gridGroup->add( &m_scaleZ );
+    m_scaleZ.uiCapability()->setUiReadOnly( !this->isScaleZEditable() );
     gridGroup->add( &meshMode );
     gridGroup->add( &surfaceMode );
 
@@ -846,7 +848,7 @@ void Rim3dView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const
     {
         if ( m_viewer ) m_viewer->enableParallelProjection( !isPerspectiveView() );
     }
-    else if ( changedField == &scaleZ )
+    else if ( changedField == &m_scaleZ )
     {
         updateScaling();
 
@@ -1081,7 +1083,7 @@ void Rim3dView::updateGridBoxData()
             }
         }
 
-        viewer()->updateGridBoxData( scaleZ(),
+        viewer()->updateGridBoxData( m_scaleZ(),
                                      ownerCase()->displayModelOffset(),
                                      backgroundColor(),
                                      combinedDomainBBox,
@@ -1113,12 +1115,26 @@ void Rim3dView::resetLegends()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setScaleZAndUpdate( double scalingFactor )
 {
-    if ( this->scaleZ != scalingFactor )
+    if ( scaleZ() != scalingFactor )
     {
-        this->scaleZ = scalingFactor;
-
-        updateScaling();
+        this->m_scaleZ.setValueWithFieldChanged( scalingFactor );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void Rim3dView::setScaleZ( double scalingFactor )
+{
+    m_scaleZ = scalingFactor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double Rim3dView::scaleZ() const
+{
+    return m_scaleZ();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1126,8 +1142,6 @@ void Rim3dView::setScaleZAndUpdate( double scalingFactor )
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateScaling()
 {
-    if ( scaleZ < 1 ) scaleZ = 1;
-
     if ( viewer() )
     {
         cvf::Vec3d poi = viewer()->pointOfInterest();
@@ -1136,8 +1150,8 @@ void Rim3dView::updateScaling()
         dir = viewer()->mainCamera()->direction();
         up  = viewer()->mainCamera()->up();
 
-        eye[2] = poi[2] * scaleZ() / this->scaleTransform()->worldTransform()( 2, 2 ) + ( eye[2] - poi[2] );
-        poi[2] = poi[2] * scaleZ() / this->scaleTransform()->worldTransform()( 2, 2 );
+        eye[2] = poi[2] * m_scaleZ() / this->scaleTransform()->worldTransform()( 2, 2 ) + ( eye[2] - poi[2] );
+        poi[2] = poi[2] * m_scaleZ() / this->scaleTransform()->worldTransform()( 2, 2 );
 
         viewer()->mainCamera()->setFromLookAt( eye, eye + dir, up );
         viewer()->setPointOfInterest( poi );
@@ -1145,7 +1159,7 @@ void Rim3dView::updateScaling()
 
     if ( activeComparisonView() )
     {
-        activeComparisonView()->setScaleZAndUpdate( scaleZ );
+        activeComparisonView()->setScaleZAndUpdate( m_scaleZ );
     }
 
     onUpdateScaleTransform();
@@ -1160,10 +1174,7 @@ void Rim3dView::updateScaling()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateZScaleLabel()
 {
-    // Update Z scale label
-    int scale = static_cast<int>( scaleZ() );
-
-    if ( viewer() ) viewer()->setZScale( scale );
+    if ( viewer() ) viewer()->setZScale( m_scaleZ() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1371,7 +1382,7 @@ cvf::ref<caf::DisplayCoordTransform> Rim3dView::displayCoordTransform() const
 {
     cvf::ref<caf::DisplayCoordTransform> coordTrans = new caf::DisplayCoordTransform;
 
-    cvf::Vec3d scale( 1.0, 1.0, scaleZ );
+    cvf::Vec3d scale( 1.0, 1.0, m_scaleZ );
     coordTrans->setScale( scale );
 
     RimCase* rimCase = ownerCase();
@@ -1415,6 +1426,13 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
     else if ( fieldNeedingOptions == &m_fontSize )
     {
         options = caf::FontTools::relativeSizeValueOptions( RiaPreferences::current()->defaultSceneFontSize() );
+    }
+    else if ( fieldNeedingOptions == &m_scaleZ )
+    {
+        for ( auto scale : RiaDefines::viewScaleOptions() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( QString::number( scale ), scale ) );
+        }
     }
 
     return options;

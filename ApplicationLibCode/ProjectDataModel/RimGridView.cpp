@@ -466,19 +466,19 @@ void RimGridView::onClearReservoirCellVisibilitiesIfNecessary()
 //--------------------------------------------------------------------------------------------------
 void RimGridView::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
 {
-    if ( changedField == &scaleZ )
+    if ( changedField == &m_scaleZ )
     {
         m_intersectionCollection->updateIntersectionBoxGeometry();
     }
 
     Rim3dView::fieldChangedByUi( changedField, oldValue, newValue );
 
-    if ( changedField == &scaleZ )
+    if ( changedField == &m_scaleZ )
     {
         RimViewLinker* viewLinker = this->assosiatedViewLinker();
         if ( viewLinker )
         {
-            viewLinker->updateScaleZ( this, scaleZ );
+            viewLinker->updateScaleZ( this, scaleZ() );
             viewLinker->updateCamera( this );
         }
     }

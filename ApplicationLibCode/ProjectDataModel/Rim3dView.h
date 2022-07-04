@@ -93,9 +93,8 @@ public:
 
     // Public fields:
 
-    caf::PdmField<double> scaleZ;
-    caf::PdmField<bool>   isPerspectiveView;
-    caf::PdmField<int>    maximumFrameRate;
+    caf::PdmField<bool> isPerspectiveView;
+    caf::PdmField<int>  maximumFrameRate;
 
     // Draw style
 
@@ -168,10 +167,12 @@ public:
     void updateAnnotationItems();
     void resetLegends();
 
-    void setScaleZAndUpdate( double scaleZ );
-    void updateScaling();
-    void updateZScaleLabel();
-    bool isScaleZEditable();
+    void   setScaleZ( double scaleZ );
+    void   setScaleZAndUpdate( double scaleZ );
+    void   updateScaling();
+    void   updateZScaleLabel();
+    bool   isScaleZEditable();
+    double scaleZ() const;
 
     bool                 isMasterView() const;
     Rim3dView*           activeComparisonView() const;
@@ -252,6 +253,9 @@ protected:
     cvf::ref<cvf::ModelBasicList> m_wellPathPipeVizModel;
     cvf::ref<cvf::ModelBasicList> m_intersectionVizModel;
     cvf::ref<RivWellPathsPartMgr> m_wellPathsPartManager;
+
+    caf::PdmField<double> m_scaleZ;
+    caf::PdmField<double> m_customScaleZ;
 
 private:
     friend class RimProject;
