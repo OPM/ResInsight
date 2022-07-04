@@ -1115,11 +1115,9 @@ void Rim3dView::resetLegends()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::setScaleZAndUpdate( double scalingFactor )
 {
-    if ( this->m_scaleZ != scalingFactor )
+    if ( scaleZ() != scalingFactor )
     {
-        this->m_scaleZ = scalingFactor;
-
-        updateScaling();
+        this->m_scaleZ.setValueWithFieldChanged( scalingFactor );
     }
 }
 
@@ -1176,10 +1174,7 @@ void Rim3dView::updateScaling()
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateZScaleLabel()
 {
-    // Update Z scale label
-    int scale = static_cast<int>( m_scaleZ() );
-
-    if ( viewer() ) viewer()->setZScale( scale );
+    if ( viewer() ) viewer()->setZScale( m_scaleZ() );
 }
 
 //--------------------------------------------------------------------------------------------------
