@@ -35,7 +35,7 @@
 class QActionGroup;
 class QMdiSubWindow;
 class QToolButton;
-class QSpinBox;
+class QComboBox;
 class QTimer;
 class QUndoView;
 
@@ -255,7 +255,7 @@ private:
     caf::PdmObject*         m_pdmRoot;
     caf::PdmUiPropertyView* m_pdmUiPropertyView;
 
-    QSpinBox* m_scaleFactor;
+    QComboBox* m_scaleFactor;
 
     QActionGroup* m_dsActionGroup;
     QAction*      m_enableLightingAction;

@@ -1476,10 +1476,11 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
                     rim3dView->applyBackgroundColorAndFontChanges();
                 }
 
-                if ( oldPreferences && ( applySettingsToAllViews ||
-                                         rim3dView->scaleZ == static_cast<double>( oldPreferences->defaultScaleFactorZ() ) ) )
+                if ( oldPreferences &&
+                     ( applySettingsToAllViews ||
+                       rim3dView->scaleZ() == static_cast<double>( oldPreferences->defaultScaleFactorZ() ) ) )
                 {
-                    rim3dView->scaleZ = static_cast<double>( m_preferences->defaultScaleFactorZ() );
+                    rim3dView->setScaleZ( static_cast<double>( m_preferences->defaultScaleFactorZ() ) );
                     rim3dView->updateScaling();
                     if ( rim3dView == activeViewWindow() )
                     {
