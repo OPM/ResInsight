@@ -84,6 +84,7 @@
 
 #include <QAction>
 #include <QCloseEvent>
+#include <QComboBox>
 #include <QDir>
 #include <QDockWidget>
 #include <QLabel>
@@ -665,10 +666,14 @@ void RiuMainWindow::createToolBars()
         scaleLabel->setText( "Scale" );
         toolbar->addWidget( scaleLabel );
 
-        m_scaleFactor = new QSpinBox( toolbar );
-        m_scaleFactor->setValue( 0 );
+        m_scaleFactor = new QComboBox( toolbar );
+        QStringList scaleItems;
+        for ( auto d : RiaDefines::viewScaleOptions() )
+        {
+            m_scaleFactor->addItem( QString::number( d ), QVariant( d ) );
+        }
         toolbar->addWidget( m_scaleFactor );
-        connect( m_scaleFactor, SIGNAL( valueChanged( int ) ), SLOT( slotScaleChanged( int ) ) );
+        connect( m_scaleFactor, SIGNAL( currentIndexChanged( int ) ), SLOT( slotScaleChanged( int ) ) );
     }
 
     {
@@ -1867,11 +1872,13 @@ void RiuMainWindow::applyFontSizesToDockedPlots()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindow::slotScaleChanged( int scaleValue )
+void RiuMainWindow::slotScaleChanged( int index )
 {
     if ( RiaApplication::instance()->activeReservoirView() )
     {
-        RiaApplication::instance()->activeReservoirView()->scaleZ.setValueWithFieldChanged( scaleValue );
+        double scaleValue = m_scaleFactor->currentData().toDouble();
+
+        RiaApplication::instance()->activeReservoirView()->setScaleZAndUpdate( scaleValue );
     }
 }
 
@@ -1885,10 +1892,11 @@ void RiuMainWindow::updateScaleValue()
     if ( isRegularReservoirView && view->isScaleZEditable() )
     {
         m_scaleFactor->setEnabled( true );
-
-        int scaleValue = static_cast<int>( view->scaleZ() ); // Round down is probably ok.
         m_scaleFactor->blockSignals( true );
-        m_scaleFactor->setValue( scaleValue );
+
+        int index = m_scaleFactor->findData( QVariant( view->scaleZ() ) );
+        m_scaleFactor->setCurrentIndex( index );
+
         m_scaleFactor->blockSignals( false );
     }
     else

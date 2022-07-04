@@ -225,4 +225,6 @@ constexpr enum MultiPlotPageUpdateType operator&( const enum MultiPlotPageUpdate
     return ( enum MultiPlotPageUpdateType )( uint32_t( selfValue ) & uint32_t( inValue ) );
 }
 
+std::vector<double> viewScaleOptions();
+
 }; // namespace RiaDefines
