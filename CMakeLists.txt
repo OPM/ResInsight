@@ -458,7 +458,7 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 # Qt Advanced Docking System
 # ##############################################################################
-
+option(ADS_VERSION "Advanced Docking System Version" "3.8.2")
 add_subdirectory(ThirdParty/qtadvanceddocking)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
