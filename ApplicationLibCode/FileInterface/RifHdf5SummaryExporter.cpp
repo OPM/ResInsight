@@ -76,7 +76,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
                                                       const std::string& h5FileName,
                                                       size_t&            hdfFilesCreatedCount )
 {
-    if ( !Opm::filesystem::exists( smspecFileName ) ) return false;
+    if ( !std::filesystem::exists( smspecFileName ) ) return false;
 
     {
         // Check if we have write permission in the folder
@@ -88,7 +88,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
     bool exportIsRequired = false;
 
     {
-        bool h5FileExists = Opm::filesystem::exists( h5FileName );
+        bool h5FileExists = std::filesystem::exists( h5FileName );
         if ( !h5FileExists )
         {
             exportIsRequired = true;
@@ -107,7 +107,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 
             // Read all data summary data before starting export to HDF. Loading one and one summary vector causes huge
             // performance penalty
-            sourceSummaryData.LoadData();
+            sourceSummaryData.loadData();
 
 #pragma omp critical( critical_section_HDF5_export )
             {
@@ -278,10 +278,10 @@ bool RifHdf5SummaryExporter::isFirstOlderThanSecond( const std::string& firstFil
 {
     // Use Opm namespace to make sure the code compiles on older compilers
 
-    if ( !Opm::filesystem::exists( firstFileName ) || !Opm::filesystem::exists( secondFileName ) ) return false;
+    if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
 
-    auto timeA = Opm::filesystem::last_write_time( firstFileName );
-    auto timeB = Opm::filesystem::last_write_time( secondFileName );
+    auto timeA = std::filesystem::last_write_time( firstFileName );
+    auto timeB = std::filesystem::last_write_time( secondFileName );
 
     return ( timeA < timeB );
 }

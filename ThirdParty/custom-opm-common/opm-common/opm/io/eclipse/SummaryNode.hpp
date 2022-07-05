@@ -68,6 +68,8 @@ struct SummaryNode {
     std::optional<std::string> fip_region;
     std::optional<lgr_info> lgr;
 
+	size_t      smspecKeywordIndex;
+
     constexpr static int default_number { std::numeric_limits<int>::min() };
 
     std::string unique_key() const;

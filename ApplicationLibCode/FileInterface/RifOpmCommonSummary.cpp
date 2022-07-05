@@ -279,6 +279,9 @@ QString RifOpmCommonEclipseSummary::enhancedSummaryFilename( const QString& head
 RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
                                                                                  const Opm::EclIO::ESmry* summaryFile )
 {
+    return {};
+
+/*
     int i = -1;
     int j = -1;
     int k = -1;
@@ -354,6 +357,7 @@ RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode(
     }
 
     return RifEclipseSummaryAddress();
+*/
 }
 
 //--------------------------------------------------------------------------------------------------
