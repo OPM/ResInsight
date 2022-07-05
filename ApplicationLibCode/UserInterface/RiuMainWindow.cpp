@@ -777,8 +777,9 @@ void RiuMainWindow::createDockPanels()
         RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this, projectTree );
         projectTree->treeView()->installEventFilter( treeViewEventFilter );
 
-        if ( defaultDockWidgetArea[i] == Qt::LeftDockWidgetArea ) leftWidgets.push_back( dockWidget );
-        if ( defaultDockWidgetArea[i] == Qt::RightDockWidgetArea ) rightWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::LeftDockWidgetArea ) leftWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == ads::DockWidgetArea::RightDockWidgetArea )
+            rightWidgets.push_back( dockWidget );
 
         connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
         connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
