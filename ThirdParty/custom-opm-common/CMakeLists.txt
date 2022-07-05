@@ -42,9 +42,7 @@ set(ENABLE_ECL_INPUT true)
 #set(ENABLE_ECL_OUTPUT true)
 
 
-# TODO: opm-parser should hold a cmake file with source code files only
-#include(opm-parser/CMakeLists_files.cmake)
-include ( CMakeLists_files.cmake )
+include(opm-common/CMakeLists_files.cmake)
 
 set(opm_parser_source_files_short_path 
 	${MAIN_SOURCE_FILES}
@@ -95,6 +93,13 @@ add_library(${PROJECT_NAME}
 
     # Required for use of RstHeader::restart_info
     opm-common/src/opm/io/eclipse/rst/header.cpp
+
+	# 2022.06 additional includes
+    opm-common/src/opm/io/eclipse/rst/aquifer.cpp
+    opm-common/src/opm/io/eclipse/ERst.cpp
+    opm-common/src/opm/io/eclipse/restartfileview.cpp
+    opm-common/cross-platform/windows/Substitutes.cpp 
+	
 )
 
 if(RESINSIGHT_ENABLE_UNITY_BUILD)
