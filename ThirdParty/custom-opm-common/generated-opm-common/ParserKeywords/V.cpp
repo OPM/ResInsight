@@ -749,8 +749,8 @@ const std::string VISOPTS::RETAIN_RESTART_FREQUENCY::itemName = "RETAIN_RESTART_
 const std::string VISOPTS::RETAIN_RESTART_FREQUENCY::defaultValue = "NO";
 const std::string VISOPTS::RETAIN_RESTART_CONTENT::itemName = "RETAIN_RESTART_CONTENT";
 const std::string VISOPTS::RETAIN_RESTART_CONTENT::defaultValue = "NO";
-const std::string VISOPTS::ERROR::itemName = "ERROR";
-const std::string VISOPTS::ERROR::defaultValue = "ERROR";
+const std::string VISOPTS::msvc_prefix_ERROR::itemName = "ERROR";
+const std::string VISOPTS::msvc_prefix_ERROR::defaultValue = "ERROR";
 
 
 }

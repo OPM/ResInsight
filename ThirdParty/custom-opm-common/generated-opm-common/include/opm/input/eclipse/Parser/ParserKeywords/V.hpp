@@ -578,7 +578,7 @@ namespace ParserKeywords {
            static const std::string defaultValue;
        };
 
-       class ERROR {
+       class msvc_prefix_ERROR {
        public:
            static const std::string itemName;
            static const std::string defaultValue;
