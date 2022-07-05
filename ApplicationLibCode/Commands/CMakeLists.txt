@@ -62,7 +62,8 @@ add_library(
 
 target_include_directories(
   ${PROJECT_NAME}
-  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/ThirdParty
+  PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
+         ${CMAKE_SOURCE_DIR}/ThirdParty
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common
          ${CMAKE_SOURCE_DIR}/ThirdParty/qtadvanceddocking/src

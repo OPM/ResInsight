@@ -507,7 +507,6 @@ list(APPEND THIRD_PARTY_LIBRARIES clipper)
 # ##############################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
 
-
 # ##############################################################################
 # Unity Build
 # ##############################################################################
@@ -521,7 +520,6 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
   message("Cmake Unity build is enabled on : qtadvanceddocking")
   set_property(TARGET qtadvanceddocking PROPERTY UNITY_BUILD true)
 endif()
-
 
 # ##############################################################################
 # Vizualization Framework
