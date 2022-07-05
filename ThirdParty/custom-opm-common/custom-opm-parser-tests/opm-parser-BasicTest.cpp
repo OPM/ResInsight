@@ -2,9 +2,13 @@
 #include <string>
 #include "gtest/gtest.h"
 
-#include "opm/parser/eclipse/Parser/Parser.hpp"
-#include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
-#include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
+
+#include "opm/input/eclipse/Parser/ParseContext.hpp"
+#include "opm/input/eclipse/Parser/ParseContext.hpp"
+#include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
+#include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
+#include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Deck/Deck.hpp"
 
 #include "OpmTestDataDirectory.h"
 
@@ -36,7 +40,8 @@ TEST(OpmParserTest, ReadFromFile)
         {
             auto name = kw->name();
     
-            VFPProdTable table(*kw, unitSystem);
+            bool gaslift_opt_active = false;
+            VFPProdTable table(*kw, gaslift_opt_active, unitSystem);
             std::cout << table.getDatumDepth() << std::endl;
         }
     }
