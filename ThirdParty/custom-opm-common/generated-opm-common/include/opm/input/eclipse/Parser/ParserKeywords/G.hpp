@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_G_HPP
 #define PARSER_KEYWORDS_G_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -286,6 +286,26 @@ namespace ParserKeywords {
        class DEC {
        public:
            static const std::string itemName;
+       };
+   };
+
+
+
+   class GASJT : public ParserKeyword {
+   public:
+       GASJT();
+       static const std::string keywordName;
+
+       class PREF {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class JOULE_THOMSON_COEFFICIENT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
        };
    };
 
@@ -588,19 +608,19 @@ namespace ParserKeywords {
            static const UDAValue defaultValue;
        };
 
-       class FREE {
+       class RESPOND_TO_PARENT {
        public:
            static const std::string itemName;
            static const std::string defaultValue;
        };
 
-       class GUIDE_FRACTION {
+       class GUIDE_RATE {
        public:
            static const std::string itemName;
            static const double defaultValue;
        };
 
-       class GUIDE_DEF {
+       class GUIDE_RATE_DEF {
        public:
            static const std::string itemName;
        };
@@ -751,25 +771,21 @@ namespace ParserKeywords {
        class OIL_TARGET {
        public:
            static const std::string itemName;
-           static const UDAValue defaultValue;
        };
 
        class WATER_TARGET {
        public:
            static const std::string itemName;
-           static const UDAValue defaultValue;
        };
 
        class GAS_TARGET {
        public:
            static const std::string itemName;
-           static const UDAValue defaultValue;
        };
 
        class LIQUID_TARGET {
        public:
            static const std::string itemName;
-           static const UDAValue defaultValue;
        };
 
        class EXCEED_PROC {
@@ -812,7 +828,6 @@ namespace ParserKeywords {
        class RESERVOIR_FLUID_TARGET {
        public:
            static const std::string itemName;
-           static const double defaultValue;
        };
 
        class RESERVOIR_VOLUME_BALANCE {
@@ -902,11 +917,13 @@ namespace ParserKeywords {
        class GAS_CONSUMP_RATE {
        public:
            static const std::string itemName;
+           static const UDAValue defaultValue;
        };
 
        class GAS_IMPORT_RATE {
        public:
            static const std::string itemName;
+           static const UDAValue defaultValue;
        };
 
        class NETWORK_NODE {
@@ -1647,6 +1664,7 @@ namespace ParserKeywords {
        class FIP_FAMILY {
        public:
            static const std::string itemName;
+           static const std::string defaultValue;
        };
 
        class PRESSURE_TARGET {
@@ -2069,24 +2087,24 @@ namespace ParserKeywords {
        GRUPRIG();
        static const std::string keywordName;
 
-       class GROUP_NAME {
+       class GROUP {
        public:
            static const std::string itemName;
        };
 
-       class WORKRIGNUM {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class DRILRIGNUM {
+       class WORKOVER_RIG_NUM {
        public:
            static const std::string itemName;
            static const int defaultValue;
        };
 
-       class ADD {
+       class DRILLING_RIG_NUM {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ADD_OR_REMOVE {
        public:
            static const std::string itemName;
            static const std::string defaultValue;

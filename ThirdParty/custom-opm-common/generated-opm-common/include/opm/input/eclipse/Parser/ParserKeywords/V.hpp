@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_V_HPP
 #define PARSER_KEYWORDS_V_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -491,6 +491,11 @@ namespace ParserKeywords {
        };
 
        class REFERENCE_RS {
+       public:
+           static const std::string itemName;
+       };
+
+       class API_GRAVITY {
        public:
            static const std::string itemName;
        };

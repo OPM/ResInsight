@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_O_HPP
 #define PARSER_KEYWORDS_O_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -90,6 +90,26 @@ namespace ParserKeywords {
        };
 
        class EXPANSION_COEFF_QUADRATIC {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class OILJT : public ParserKeyword {
+   public:
+       OILJT();
+       static const std::string keywordName;
+
+       class PREF {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class JOULE_THOMSON_COEFFICIENT {
        public:
            static const std::string itemName;
            static const double defaultValue;
@@ -223,7 +243,7 @@ namespace ParserKeywords {
        OPERATER();
        static const std::string keywordName;
 
-       class RESULT_ARRAY {
+       class TARGET_ARRAY {
        public:
            static const std::string itemName;
        };
@@ -1459,6 +1479,738 @@ namespace ParserKeywords {
        };
 
        class ITEM197 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM198 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM199 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM200 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM201 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM202 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM203 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM204 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM205 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM206 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM207 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM208 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM209 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM210 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM211 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM212 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM213 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM214 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM215 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM216 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM217 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM218 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM219 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM220 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM221 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM222 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM223 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM224 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM225 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM226 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM227 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM228 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM229 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM230 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM231 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM232 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM233 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM234 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM235 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM236 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM237 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM238 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM239 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM240 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM241 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM242 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM243 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM244 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM245 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM246 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM247 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM248 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM249 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM250 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM251 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM252 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM253 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM254 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM255 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM256 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM257 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM258 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM259 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM260 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM261 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM262 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM263 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM264 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM265 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM266 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM267 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM268 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM269 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM270 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM271 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM272 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM273 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM274 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM275 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM276 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM277 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM278 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM279 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM280 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM281 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM282 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM283 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM284 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM285 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM286 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM287 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM288 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM289 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM290 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM291 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM292 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM293 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM294 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM295 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM296 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM297 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM298 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM299 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM300 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM301 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM302 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM303 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM304 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM305 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM306 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM307 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM308 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM309 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM310 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM311 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM312 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM313 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM314 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM315 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM316 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM317 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM318 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class ITEM319 {
        public:
            static const std::string itemName;
            static const int defaultValue;

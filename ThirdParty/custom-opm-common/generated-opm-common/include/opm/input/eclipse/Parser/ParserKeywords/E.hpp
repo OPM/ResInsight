@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_E_HPP
 #define PARSER_KEYWORDS_E_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -260,6 +260,12 @@ namespace ParserKeywords {
            static const std::string itemName;
            static const double defaultValue;
        };
+
+       class FLAG_SOMETHING {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
    };
 
 
@@ -381,13 +387,13 @@ namespace ParserKeywords {
            static const std::string defaultValue;
        };
 
-       class NUM_TABLES {
+       class NTENDP {
        public:
            static const std::string itemName;
            static const int defaultValue;
        };
 
-       class NUM_NODES {
+       class NSENDP {
        public:
            static const std::string itemName;
            static const int defaultValue;
@@ -860,6 +866,16 @@ namespace ParserKeywords {
        public:
            static const std::string itemName;
            static const int defaultValue;
+       };
+
+       class EQLOPT04 {
+       public:
+           static const std::string itemName;
+       };
+
+       class EQLOPT5 {
+       public:
+           static const std::string itemName;
        };
    };
 

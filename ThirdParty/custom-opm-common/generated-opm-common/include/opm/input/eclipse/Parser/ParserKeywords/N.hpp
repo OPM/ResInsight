@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_N_HPP
 #define PARSER_KEYWORDS_N_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -66,7 +66,7 @@ namespace ParserKeywords {
            static const double defaultValue;
        };
 
-       class PRESSURE_CONVERGENCE_LIMT {
+       class PRESSURE_CONVERGENCE_LIMIT {
        public:
            static const std::string itemName;
            static const double defaultValue;
@@ -216,25 +216,6 @@ namespace ParserKeywords {
 
 
 
-   class NEXT : public ParserKeyword {
-   public:
-       NEXT();
-       static const std::string keywordName;
-
-       class MAX_STEP {
-       public:
-           static const std::string itemName;
-       };
-
-       class APPLY_TO_ALL {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-   };
-
-
-
    class NEXTSTEP : public ParserKeyword {
    public:
        NEXTSTEP();
@@ -333,6 +314,14 @@ namespace ParserKeywords {
 
 
 
+   class NMESSAGE : public ParserKeyword {
+   public:
+       NMESSAGE();
+       static const std::string keywordName;
+   };
+
+
+
    class NNC : public ParserKeyword {
    public:
        NNC();
@@ -374,16 +363,16 @@ namespace ParserKeywords {
            static const double defaultValue;
        };
 
-       class SIM_DEPENDENT1 {
+       class IST1 {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static const int defaultValue;
        };
 
-       class SIM_DEPENDENT2 {
+       class IST2 {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static const int defaultValue;
        };
 
        class PRESSURE_TABLE1 {
@@ -484,6 +473,12 @@ namespace ParserKeywords {
            static const std::string defaultValue;
        };
 
+       class ADD_GAS_LIFT_GAS {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
        class CHOKE_GROUP {
        public:
            static const std::string itemName;
@@ -497,7 +492,6 @@ namespace ParserKeywords {
        class NETWORK_VALUE_TYPE {
        public:
            static const std::string itemName;
-           static const std::string defaultValue;
        };
    };
 

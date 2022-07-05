@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/H.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/H.hpp>
 namespace Opm {
 namespace ParserKeywords {
-HALFTRAN::HALFTRAN( ) : ParserKeyword("HALFTRAN")
-{
-  setFixedSize( (size_t) 0);
+HALFTRAN::HALFTRAN() : ParserKeyword("HALFTRAN", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HALFTRAN");
@@ -20,13 +19,15 @@ HALFTRAN::HALFTRAN( ) : ParserKeyword("HALFTRAN")
 const std::string HALFTRAN::keywordName = "HALFTRAN";
 
 
-HAxxxxxx::HAxxxxxx( ) : ParserKeyword("HAxxxxxx")
-{
-  setFixedSize( (size_t) 1);
+HAxxxxxx::HAxxxxxx() : ParserKeyword("HAxxxxxx", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   clearDeckNames();
-  addDeckName("HAxxxxxx");
+  addDeckName("HASOGCR");
+  addDeckName("HASOWCR");
+  addDeckName("HASWL");
+  addDeckName("HASGLPC");
+  addDeckName("HASWLPC");
   {
      ParserRecord record;
      {
@@ -42,9 +43,7 @@ const std::string HAxxxxxx::keywordName = "HAxxxxxx";
 const std::string HAxxxxxx::data::itemName = "data";
 
 
-HBNUM::HBNUM( ) : ParserKeyword("HBNUM")
-{
-  setFixedSize( (size_t) 1);
+HBNUM::HBNUM() : ParserKeyword("HBNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("HBNUM");
@@ -62,10 +61,7 @@ const std::string HBNUM::keywordName = "HBNUM";
 const std::string HBNUM::data::itemName = "data";
 
 
-HDISP::HDISP( ) : ParserKeyword("HDISP")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+HDISP::HDISP() : ParserKeyword("HDISP", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HDISP");
@@ -85,9 +81,7 @@ const std::string HDISP::keywordName = "HDISP";
 const std::string HDISP::DATA::itemName = "DATA";
 
 
-HEATCR::HEATCR( ) : ParserKeyword("HEATCR")
-{
-  setFixedSize( (size_t) 1);
+HEATCR::HEATCR() : ParserKeyword("HEATCR", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HEATCR");
@@ -106,9 +100,7 @@ const std::string HEATCR::keywordName = "HEATCR";
 const std::string HEATCR::data::itemName = "data";
 
 
-HEATCRT::HEATCRT( ) : ParserKeyword("HEATCRT")
-{
-  setFixedSize( (size_t) 1);
+HEATCRT::HEATCRT() : ParserKeyword("HEATCRT", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HEATCRT");
@@ -127,9 +119,7 @@ const std::string HEATCRT::keywordName = "HEATCRT";
 const std::string HEATCRT::data::itemName = "data";
 
 
-HMAQUCT::HMAQUCT( ) : ParserKeyword("HMAQUCT")
-{
-  setSizeType(SLASH_TERMINATED);
+HMAQUCT::HMAQUCT() : ParserKeyword("HMAQUCT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("HMAQUCT");
@@ -167,9 +157,7 @@ const std::string HMAQUCT::DERIVATIES_RESP_AQUIFER_DEPTH::itemName = "DERIVATIES
 const std::string HMAQUCT::DERIVATIES_RESP_AQUIFER_DEPTH::defaultValue = "NO";
 
 
-HMAQUFET::HMAQUFET( ) : ParserKeyword("HMAQUFET")
-{
-  setSizeType(SLASH_TERMINATED);
+HMAQUFET::HMAQUFET() : ParserKeyword("HMAQUFET", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("HMAQUFET");
@@ -207,9 +195,7 @@ const std::string HMAQUFET::DERIVATIES_RESP_AQUIFER_DEPTH::itemName = "DERIVATIE
 const std::string HMAQUFET::DERIVATIES_RESP_AQUIFER_DEPTH::defaultValue = "NO";
 
 
-HMAQUNUM::HMAQUNUM( ) : ParserKeyword("HMAQUNUM")
-{
-  setSizeType(SLASH_TERMINATED);
+HMAQUNUM::HMAQUNUM() : ParserKeyword("HMAQUNUM", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HMAQUNUM");
@@ -245,9 +231,7 @@ const std::string HMAQUNUM::DERIVATIES_RESP_AQUIFER_GRID_CON_TRANS::itemName = "
 const std::string HMAQUNUM::DERIVATIES_RESP_AQUIFER_GRID_CON_TRANS::defaultValue = "NO";
 
 
-HMDIMS::HMDIMS( ) : ParserKeyword("HMDIMS")
-{
-  setFixedSize( (size_t) 1);
+HMDIMS::HMDIMS() : ParserKeyword("HMDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("HMDIMS");
@@ -322,9 +306,7 @@ const std::string HMDIMS::MAX_WELL_CONN_PARAMS::itemName = "MAX_WELL_CONN_PARAMS
 const int HMDIMS::MAX_WELL_CONN_PARAMS::defaultValue = 0;
 
 
-HMFAULTS::HMFAULTS( ) : ParserKeyword("HMFAULTS")
-{
-  setSizeType(SLASH_TERMINATED);
+HMFAULTS::HMFAULTS() : ParserKeyword("HMFAULTS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HMFAULTS");
@@ -341,9 +323,7 @@ const std::string HMFAULTS::keywordName = "HMFAULTS";
 const std::string HMFAULTS::FAULT_SEGMENT::itemName = "FAULT_SEGMENT";
 
 
-HMMLAQUN::HMMLAQUN( ) : ParserKeyword("HMMLAQUN")
-{
-  setSizeType(SLASH_TERMINATED);
+HMMLAQUN::HMMLAQUN() : ParserKeyword("HMMLAQUN", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HMMLAQUN");
@@ -384,9 +364,7 @@ const std::string HMMLAQUN::AQUIFER_GRID_CONN_MULT::itemName = "AQUIFER_GRID_CON
 const double HMMLAQUN::AQUIFER_GRID_CONN_MULT::defaultValue = 1.000000;
 
 
-HMMLCTAQ::HMMLCTAQ( ) : ParserKeyword("HMMLCTAQ")
-{
-  setSizeType(SLASH_TERMINATED);
+HMMLCTAQ::HMMLCTAQ() : ParserKeyword("HMMLCTAQ", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("HMMLCTAQ");
@@ -427,9 +405,7 @@ const std::string HMMLCTAQ::AQUIFER_DEPTH_MULT::itemName = "AQUIFER_DEPTH_MULT";
 const double HMMLCTAQ::AQUIFER_DEPTH_MULT::defaultValue = 1.000000;
 
 
-HMMLFTAQ::HMMLFTAQ( ) : ParserKeyword("HMMLFTAQ")
-{
-  setSizeType(SLASH_TERMINATED);
+HMMLFTAQ::HMMLFTAQ() : ParserKeyword("HMMLFTAQ", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("HMMLFTAQ");
@@ -470,9 +446,7 @@ const std::string HMMLFTAQ::AQUIFER_DEPTH_MULT::itemName = "AQUIFER_DEPTH_MULT";
 const double HMMLFTAQ::AQUIFER_DEPTH_MULT::defaultValue = 1.000000;
 
 
-HMMLTWCN::HMMLTWCN( ) : ParserKeyword("HMMLTWCN")
-{
-  setSizeType(SLASH_TERMINATED);
+HMMLTWCN::HMMLTWCN() : ParserKeyword("HMMLTWCN", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("HMMLTWCN");
@@ -527,9 +501,7 @@ const std::string HMMLTWCN::SKIN::itemName = "SKIN";
 const double HMMLTWCN::SKIN::defaultValue = 1.000000;
 
 
-HMMULTFT::HMMULTFT( ) : ParserKeyword("HMMULTFT")
-{
-  setSizeType(SLASH_TERMINATED);
+HMMULTFT::HMMULTFT() : ParserKeyword("HMMULTFT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HMMULTFT");
@@ -562,9 +534,7 @@ const std::string HMMULTFT::DIFF_MULT::itemName = "DIFF_MULT";
 const double HMMULTFT::DIFF_MULT::defaultValue = 1.000000;
 
 
-HMMULTSG::HMMULTSG( ) : ParserKeyword("HMMULTSG")
-{
-  setFixedSize( (size_t) 1);
+HMMULTSG::HMMULTSG() : ParserKeyword("HMMULTSG", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HMMULTSG");
@@ -583,13 +553,16 @@ const std::string HMMULTSG::keywordName = "HMMULTSG";
 const std::string HMMULTSG::data::itemName = "data";
 
 
-HMMULTxx::HMMULTxx( ) : ParserKeyword("HMMULTxx")
-{
-  setFixedSize( (size_t) 1);
+HMMULTxx::HMMULTxx() : ParserKeyword("HMMULTxx", KeywordSize(1, false)) {
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
   clearDeckNames();
-  addDeckName("HMMULTxx");
+  addDeckName("HMMULTX");
+  addDeckName("HMMULTY");
+  addDeckName("HMMULTR");
+  addDeckName("HMMULTZ");
+  addDeckName("HMMULTPV");
+  addDeckName("HMMULTTH");
   {
      ParserRecord record;
      {
@@ -605,9 +578,7 @@ const std::string HMMULTxx::keywordName = "HMMULTxx";
 const std::string HMMULTxx::data::itemName = "data";
 
 
-HMPROPS::HMPROPS( ) : ParserKeyword("HMPROPS")
-{
-  setFixedSize( (size_t) 0);
+HMPROPS::HMPROPS() : ParserKeyword("HMPROPS", KeywordSize(0, false)) {
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   clearDeckNames();
@@ -616,9 +587,7 @@ HMPROPS::HMPROPS( ) : ParserKeyword("HMPROPS")
 const std::string HMPROPS::keywordName = "HMPROPS";
 
 
-HMROCK::HMROCK( ) : ParserKeyword("HMROCK")
-{
-  setSizeType(SLASH_TERMINATED);
+HMROCK::HMROCK() : ParserKeyword("HMROCK", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HMROCK");
@@ -642,9 +611,7 @@ const std::string HMROCK::CALCULATE_GRADIENTS::itemName = "CALCULATE_GRADIENTS";
 const int HMROCK::CALCULATE_GRADIENTS::defaultValue = 0;
 
 
-HMROCKT::HMROCKT( ) : ParserKeyword("HMROCKT")
-{
-  setSizeType(SLASH_TERMINATED);
+HMROCKT::HMROCKT() : ParserKeyword("HMROCKT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HMROCKT");
@@ -671,10 +638,7 @@ const std::string HMROCKT::CALCULATE_GRADIENTS_1::itemName = "CALCULATE_GRADIENT
 const std::string HMROCKT::CALCULATE_GRADIENTS_2::itemName = "CALCULATE_GRADIENTS_2";
 
 
-HMRREF::HMRREF( ) : ParserKeyword("HMRREF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
+HMRREF::HMRREF() : ParserKeyword("HMRREF", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HMRREF");
@@ -698,9 +662,7 @@ const std::string HMRREF::P_REF::itemName = "P_REF";
 const std::string HMRREF::P_DIM::itemName = "P_DIM";
 
 
-HMWELCON::HMWELCON( ) : ParserKeyword("HMWELCON")
-{
-  setSizeType(SLASH_TERMINATED);
+HMWELCON::HMWELCON() : ParserKeyword("HMWELCON", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("HMWELCON");
@@ -753,9 +715,7 @@ const std::string HMWELCON::REQ_SKIN_FACTOR_GRAD::itemName = "REQ_SKIN_FACTOR_GR
 const std::string HMWELCON::REQ_SKIN_FACTOR_GRAD::defaultValue = "NO";
 
 
-HMWPIMLT::HMWPIMLT( ) : ParserKeyword("HMWPIMLT")
-{
-  setSizeType(SLASH_TERMINATED);
+HMWPIMLT::HMWPIMLT() : ParserKeyword("HMWPIMLT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("HMWPIMLT");
@@ -772,12 +732,33 @@ const std::string HMWPIMLT::keywordName = "HMWPIMLT";
 const std::string HMWPIMLT::WELL::itemName = "WELL";
 
 
-HMxxxxxx::HMxxxxxx( ) : ParserKeyword("HMxxxxxx")
-{
-  setFixedSize( (size_t) 1);
+HMxxxxxx::HMxxxxxx() : ParserKeyword("HMxxxxxx", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
-  addDeckName("HMxxxxxx");
+  addDeckName("HMTRNXY");
+  addDeckName("HMSWCR");
+  addDeckName("HMTRANX");
+  addDeckName("HMTRANY");
+  addDeckName("HMPERMY");
+  addDeckName("HMTRANZ");
+  addDeckName("HMPORVM");
+  addDeckName("HMSIGMA");
+  addDeckName("HMPERMX");
+  addDeckName("HMSOGCR");
+  addDeckName("HMKRO");
+  addDeckName("HMPRMXY");
+  addDeckName("HMPCW");
+  addDeckName("HMPERMZ");
+  addDeckName("HMSGCR");
+  addDeckName("HMSOWCR");
+  addDeckName("HMSWL");
+  addDeckName("HMKRW");
+  addDeckName("HMKRG");
+  addDeckName("HMKRWR");
+  addDeckName("HMKRGR");
+  addDeckName("HMKRORW");
+  addDeckName("HMKRORG");
+  addDeckName("HMPCG");
   {
      ParserRecord record;
      {
@@ -792,9 +773,7 @@ const std::string HMxxxxxx::keywordName = "HMxxxxxx";
 const std::string HMxxxxxx::data::itemName = "data";
 
 
-HRFIN::HRFIN( ) : ParserKeyword("HRFIN")
-{
-  setFixedSize( (size_t) 1);
+HRFIN::HRFIN() : ParserKeyword("HRFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HRFIN");
@@ -813,9 +792,7 @@ const std::string HRFIN::keywordName = "HRFIN";
 const std::string HRFIN::data::itemName = "data";
 
 
-HWKRO::HWKRO( ) : ParserKeyword("HWKRO")
-{
-  setFixedSize( (size_t) 1);
+HWKRO::HWKRO() : ParserKeyword("HWKRO", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWKRO");
@@ -834,9 +811,7 @@ const std::string HWKRO::keywordName = "HWKRO";
 const std::string HWKRO::data::itemName = "data";
 
 
-HWKRORG::HWKRORG( ) : ParserKeyword("HWKRORG")
-{
-  setFixedSize( (size_t) 1);
+HWKRORG::HWKRORG() : ParserKeyword("HWKRORG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWKRORG");
@@ -855,9 +830,7 @@ const std::string HWKRORG::keywordName = "HWKRORG";
 const std::string HWKRORG::data::itemName = "data";
 
 
-HWKRORW::HWKRORW( ) : ParserKeyword("HWKRORW")
-{
-  setFixedSize( (size_t) 1);
+HWKRORW::HWKRORW() : ParserKeyword("HWKRORW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWKRORW");
@@ -876,9 +849,7 @@ const std::string HWKRORW::keywordName = "HWKRORW";
 const std::string HWKRORW::data::itemName = "data";
 
 
-HWKRW::HWKRW( ) : ParserKeyword("HWKRW")
-{
-  setFixedSize( (size_t) 1);
+HWKRW::HWKRW() : ParserKeyword("HWKRW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWKRW");
@@ -897,9 +868,7 @@ const std::string HWKRW::keywordName = "HWKRW";
 const std::string HWKRW::data::itemName = "data";
 
 
-HWKRWR::HWKRWR( ) : ParserKeyword("HWKRWR")
-{
-  setFixedSize( (size_t) 1);
+HWKRWR::HWKRWR() : ParserKeyword("HWKRWR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWKRWR");
@@ -918,9 +887,7 @@ const std::string HWKRWR::keywordName = "HWKRWR";
 const std::string HWKRWR::data::itemName = "data";
 
 
-HWPCW::HWPCW( ) : ParserKeyword("HWPCW")
-{
-  setFixedSize( (size_t) 1);
+HWPCW::HWPCW() : ParserKeyword("HWPCW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWPCW");
@@ -939,9 +906,7 @@ const std::string HWPCW::keywordName = "HWPCW";
 const std::string HWPCW::data::itemName = "data";
 
 
-HWSNUM::HWSNUM( ) : ParserKeyword("HWSNUM")
-{
-  setFixedSize( (size_t) 1);
+HWSNUM::HWSNUM() : ParserKeyword("HWSNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("HWSNUM");
@@ -959,9 +924,7 @@ const std::string HWSNUM::keywordName = "HWSNUM";
 const std::string HWSNUM::data::itemName = "data";
 
 
-HWSOGCR::HWSOGCR( ) : ParserKeyword("HWSOGCR")
-{
-  setFixedSize( (size_t) 1);
+HWSOGCR::HWSOGCR() : ParserKeyword("HWSOGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWSOGCR");
@@ -980,9 +943,7 @@ const std::string HWSOGCR::keywordName = "HWSOGCR";
 const std::string HWSOGCR::data::itemName = "data";
 
 
-HWSOWCR::HWSOWCR( ) : ParserKeyword("HWSOWCR")
-{
-  setFixedSize( (size_t) 1);
+HWSOWCR::HWSOWCR() : ParserKeyword("HWSOWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWSOWCR");
@@ -1001,9 +962,7 @@ const std::string HWSOWCR::keywordName = "HWSOWCR";
 const std::string HWSOWCR::data::itemName = "data";
 
 
-HWSWCR::HWSWCR( ) : ParserKeyword("HWSWCR")
-{
-  setFixedSize( (size_t) 1);
+HWSWCR::HWSWCR() : ParserKeyword("HWSWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWSWCR");
@@ -1022,9 +981,7 @@ const std::string HWSWCR::keywordName = "HWSWCR";
 const std::string HWSWCR::data::itemName = "data";
 
 
-HWSWL::HWSWL( ) : ParserKeyword("HWSWL")
-{
-  setFixedSize( (size_t) 1);
+HWSWL::HWSWL() : ParserKeyword("HWSWL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWSWL");
@@ -1043,9 +1000,7 @@ const std::string HWSWL::keywordName = "HWSWL";
 const std::string HWSWL::data::itemName = "data";
 
 
-HWSWLPC::HWSWLPC( ) : ParserKeyword("HWSWLPC")
-{
-  setFixedSize( (size_t) 1);
+HWSWLPC::HWSWLPC() : ParserKeyword("HWSWLPC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWSWLPC");
@@ -1064,9 +1019,7 @@ const std::string HWSWLPC::keywordName = "HWSWLPC";
 const std::string HWSWLPC::data::itemName = "data";
 
 
-HWSWU::HWSWU( ) : ParserKeyword("HWSWU")
-{
-  setFixedSize( (size_t) 1);
+HWSWU::HWSWU() : ParserKeyword("HWSWU", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HWSWU");
@@ -1085,9 +1038,7 @@ const std::string HWSWU::keywordName = "HWSWU";
 const std::string HWSWU::data::itemName = "data";
 
 
-HXFIN::HXFIN( ) : ParserKeyword("HXFIN")
-{
-  setFixedSize( (size_t) 1);
+HXFIN::HXFIN() : ParserKeyword("HXFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HXFIN");
@@ -1106,9 +1057,7 @@ const std::string HXFIN::keywordName = "HXFIN";
 const std::string HXFIN::data::itemName = "data";
 
 
-HYDRHEAD::HYDRHEAD( ) : ParserKeyword("HYDRHEAD")
-{
-  setFixedSize( (size_t) 1);
+HYDRHEAD::HYDRHEAD() : ParserKeyword("HYDRHEAD", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HYDRHEAD");
@@ -1139,9 +1088,7 @@ const std::string HYDRHEAD::REMOVE_DEPTH_TERMS::itemName = "REMOVE_DEPTH_TERMS";
 const std::string HYDRHEAD::REMOVE_DEPTH_TERMS::defaultValue = "NO";
 
 
-HYFIN::HYFIN( ) : ParserKeyword("HYFIN")
-{
-  setFixedSize( (size_t) 1);
+HYFIN::HYFIN() : ParserKeyword("HYFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HYFIN");
@@ -1160,9 +1107,7 @@ const std::string HYFIN::keywordName = "HYFIN";
 const std::string HYFIN::data::itemName = "data";
 
 
-HYMOBGDR::HYMOBGDR( ) : ParserKeyword("HYMOBGDR")
-{
-  setFixedSize( (size_t) 0);
+HYMOBGDR::HYMOBGDR() : ParserKeyword("HYMOBGDR", KeywordSize(0, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HYMOBGDR");
@@ -1170,9 +1115,7 @@ HYMOBGDR::HYMOBGDR( ) : ParserKeyword("HYMOBGDR")
 const std::string HYMOBGDR::keywordName = "HYMOBGDR";
 
 
-HYST::HYST( ) : ParserKeyword("HYST")
-{
-  setFixedSize( (size_t) 0);
+HYST::HYST() : ParserKeyword("HYST", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("HYST");
@@ -1180,9 +1123,7 @@ HYST::HYST( ) : ParserKeyword("HYST")
 const std::string HYST::keywordName = "HYST";
 
 
-HYSTCHCK::HYSTCHCK( ) : ParserKeyword("HYSTCHCK")
-{
-  setFixedSize( (size_t) 1);
+HYSTCHCK::HYSTCHCK() : ParserKeyword("HYSTCHCK", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("HYSTCHCK");
@@ -1194,9 +1135,7 @@ HYSTCHCK::HYSTCHCK( ) : ParserKeyword("HYSTCHCK")
 const std::string HYSTCHCK::keywordName = "HYSTCHCK";
 
 
-HZFIN::HZFIN( ) : ParserKeyword("HZFIN")
-{
-  setFixedSize( (size_t) 1);
+HZFIN::HZFIN() : ParserKeyword("HZFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("HZFIN");

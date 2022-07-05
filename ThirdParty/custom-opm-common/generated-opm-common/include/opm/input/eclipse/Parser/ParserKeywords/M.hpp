@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_M_HPP
 #define PARSER_KEYWORDS_M_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -9,32 +9,7 @@ namespace ParserKeywords {
        MAPAXES();
        static const std::string keywordName;
 
-       class X1 {
-       public:
-           static const std::string itemName;
-       };
-
-       class Y1 {
-       public:
-           static const std::string itemName;
-       };
-
-       class X2 {
-       public:
-           static const std::string itemName;
-       };
-
-       class Y2 {
-       public:
-           static const std::string itemName;
-       };
-
-       class X3 {
-       public:
-           static const std::string itemName;
-       };
-
-       class Y3 {
+       class data {
        public:
            static const std::string itemName;
        };
@@ -300,6 +275,124 @@ namespace ParserKeywords {
 
 
 
+   class MICP : public ParserKeyword {
+   public:
+       MICP();
+       static const std::string keywordName;
+   };
+
+
+
+   class MICPPARA : public ParserKeyword {
+   public:
+       MICPPARA();
+       static const std::string keywordName;
+
+       class DENSITY_BIOFILM {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class DENSITY_CALCITE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class DETACHMENT_RATE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class CRITICAL_POROSITY {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class FITTING_FACTOR {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class HALF_VELOCITY_OXYGEN {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class HALF_VELOCITY_UREA {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAXIMUM_GROWTH_RATE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAXIMUM_OXYGEN_CONCENTRATION {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAXIMUM_UREA_CONCENTRATION {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAXIMUM_UREA_UTILIZATION {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MICROBIAL_ATTACHMENT_RATE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MICROBIAL_DEATH_RATE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MINIMUM_PERMEABILITY {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class OXYGEN_CONSUMPTION_FACTOR {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class TOLERANCE_BEFORE_CLOGGING {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class YIELD_GROWTH_COEFFICIENT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
    class MINNNCT : public ParserKeyword {
    public:
        MINNNCT();
@@ -321,6 +414,20 @@ namespace ParserKeywords {
        public:
            static const std::string itemName;
            static const double defaultValue;
+       };
+   };
+
+
+
+   class MINNPCOL : public ParserKeyword {
+   public:
+       MINNPCOL();
+       static const std::string keywordName;
+
+       class VALUE {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
        };
    };
 
@@ -614,6 +721,14 @@ namespace ParserKeywords {
        public:
            static const std::string itemName;
        };
+   };
+
+
+
+   class MSUM_PROBE : public ParserKeyword {
+   public:
+       MSUM_PROBE();
+       static const std::string keywordName;
    };
 
 

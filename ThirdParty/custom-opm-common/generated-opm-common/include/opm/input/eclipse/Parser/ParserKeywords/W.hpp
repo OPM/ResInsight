@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_W_HPP
 #define PARSER_KEYWORDS_W_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -170,6 +170,26 @@ namespace ParserKeywords {
 
 
 
+   class WATJT : public ParserKeyword {
+   public:
+       WATJT();
+       static const std::string keywordName;
+
+       class PREF {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class JOULE_THOMSON_COEFFICIENT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
    class WATVISCT : public ParserKeyword {
    public:
        WATVISCT();
@@ -325,10 +345,10 @@ namespace ParserKeywords {
            static const int defaultValue;
        };
 
-       class LIFT {
+       class ALQ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static const UDAValue defaultValue;
        };
 
        class THP {
@@ -343,7 +363,13 @@ namespace ParserKeywords {
            static const UDAValue defaultValue;
        };
 
-       class NGLRAT {
+       class WGASRAT_HIS {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class NGLRAT_HIS {
        public:
            static const std::string itemName;
            static const double defaultValue;
@@ -680,7 +706,7 @@ namespace ParserKeywords {
        class ALQ {
        public:
            static const std::string itemName;
-           static const double defaultValue;
+           static const UDAValue defaultValue;
        };
 
        class E300_ITEM13 {
@@ -742,6 +768,11 @@ namespace ParserKeywords {
        };
 
        class GOR_LIMIT {
+       public:
+           static const std::string itemName;
+       };
+
+       class GLR_LIMIT {
        public:
            static const std::string itemName;
        };
@@ -1344,6 +1375,12 @@ namespace ParserKeywords {
        };
 
        class MAX_SECONDARY_WELLS {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class MAX_GPP_ROWS {
        public:
            static const std::string itemName;
            static const int defaultValue;
@@ -2505,6 +2542,34 @@ namespace ParserKeywords {
 
 
 
+   class WMICP : public ParserKeyword {
+   public:
+       WMICP();
+       static const std::string keywordName;
+
+       class WELL {
+       public:
+           static const std::string itemName;
+       };
+
+       class MICROBIAL_CONCENTRATION {
+       public:
+           static const std::string itemName;
+       };
+
+       class OXYGEN_CONCENTRATION {
+       public:
+           static const std::string itemName;
+       };
+
+       class UREA_CONCENTRATION {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
    class WNETCTRL : public ParserKeyword {
    public:
        WNETCTRL();
@@ -2580,13 +2645,13 @@ namespace ParserKeywords {
        WPAVE();
        static const std::string keywordName;
 
-       class WEIGTH_FACTOR1 {
+       class F1 {
        public:
            static const std::string itemName;
            static const double defaultValue;
        };
 
-       class WEIGTH_FACTOR2 {
+       class F2 {
        public:
            static const std::string itemName;
            static const double defaultValue;
@@ -2612,7 +2677,7 @@ namespace ParserKeywords {
        WPAVEDEP();
        static const std::string keywordName;
 
-       class WELLNAME {
+       class WELL {
        public:
            static const std::string itemName;
        };
@@ -2620,7 +2685,6 @@ namespace ParserKeywords {
        class REFDEPTH {
        public:
            static const std::string itemName;
-           static const double defaultValue;
        };
    };
 
@@ -3113,64 +3177,61 @@ namespace ParserKeywords {
        class SEGMENT1 {
        public:
            static const std::string itemName;
-           static const int defaultValue;
        };
 
        class SEGMENT2 {
        public:
            static const std::string itemName;
+       };
+
+       class STRENGTH {
+       public:
+           static const std::string itemName;
+       };
+
+       class LENGTH {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class DENSITY_CALI {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class VISCOSITY_CALI {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class CRITICAL_VALUE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class WIDTH_TRANS {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class MAX_VISC_RATIO {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class METHOD_SCALING_FACTOR {
+       public:
+           static const std::string itemName;
            static const int defaultValue;
        };
 
-       class AICD_STRENGTH {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class ICD_LENGTH {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class RHO {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class VISCOSITY {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class WATER_LIMIT {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class TRANSITION_WIDTH {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class MAX_SOMETHING {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class SCALING_METHOD {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class MAX_QICD {
+       class MAX_ABS_RATE {
        public:
            static const std::string itemName;
        };
@@ -3185,7 +3246,7 @@ namespace ParserKeywords {
            static const std::string itemName;
        };
 
-       class ICD_FLAG {
+       class STATUS {
        public:
            static const std::string itemName;
            static const std::string defaultValue;
@@ -3209,7 +3270,7 @@ namespace ParserKeywords {
            static const double defaultValue;
        };
 
-       class OIL_VSIC_FRACTION {
+       class OIL_VISC_FRACTION {
        public:
            static const std::string itemName;
            static const double defaultValue;
@@ -3903,12 +3964,12 @@ namespace ParserKeywords {
            static const std::string itemName;
        };
 
-       class SEG1 {
+       class SEGMENT1 {
        public:
            static const std::string itemName;
        };
 
-       class SEG2 {
+       class SEGMENT2 {
        public:
            static const std::string itemName;
        };
@@ -4040,9 +4101,49 @@ namespace ParserKeywords {
            static const std::string itemName;
        };
 
-       class SURFACT {
+       class SEGMENT1 {
        public:
            static const std::string itemName;
+       };
+
+       class SEGMENT2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class VFP {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class VFP_COMPONENTS {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class VFP_OUTLIER {
+       public:
+           static const std::string itemName;
+       };
+
+       class DP_SCALING {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+
+       class ALQ_VALUE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class STATUS {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
        };
    };
 
@@ -4141,6 +4242,24 @@ namespace ParserKeywords {
        };
 
        class SOLVENT_FRACTION {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class WSURFACT : public ParserKeyword {
+   public:
+       WSURFACT();
+       static const std::string keywordName;
+
+       class WELL {
+       public:
+           static const std::string itemName;
+       };
+
+       class SURFACT {
        public:
            static const std::string itemName;
        };
@@ -4434,7 +4553,7 @@ namespace ParserKeywords {
            static const std::string defaultValue;
        };
 
-       class WELL_CONNECTION {
+       class CONNECTION {
        public:
            static const std::string itemName;
            static const std::string defaultValue;

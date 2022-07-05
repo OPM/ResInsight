@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/U.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/U.hpp>
 namespace Opm {
 namespace ParserKeywords {
-UDADIMS::UDADIMS( ) : ParserKeyword("UDADIMS")
-{
-  setFixedSize( (size_t) 1);
+UDADIMS::UDADIMS() : ParserKeyword("UDADIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UDADIMS");
@@ -45,9 +44,7 @@ const std::string UDADIMS::TOTAL_UDQ_UNIQUE::itemName = "TOTAL_UDQ_UNIQUE";
 const int UDADIMS::TOTAL_UDQ_UNIQUE::defaultValue = 100;
 
 
-UDQ::UDQ( ) : ParserKeyword("UDQ")
-{
-  setSizeType(SLASH_TERMINATED);
+UDQ::UDQ() : ParserKeyword("UDQ", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("UDQ");
@@ -75,9 +72,7 @@ const std::string UDQ::QUANTITY::itemName = "QUANTITY";
 const std::string UDQ::DATA::itemName = "DATA";
 
 
-UDQDIMS::UDQDIMS( ) : ParserKeyword("UDQDIMS")
-{
-  setFixedSize( (size_t) 1);
+UDQDIMS::UDQDIMS() : ParserKeyword("UDQDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UDQDIMS");
@@ -166,9 +161,7 @@ const std::string UDQDIMS::RESTART_NEW_SEED::itemName = "RESTART_NEW_SEED";
 const std::string UDQDIMS::RESTART_NEW_SEED::defaultValue = "N";
 
 
-UDQPARAM::UDQPARAM( ) : ParserKeyword("UDQPARAM")
-{
-  setFixedSize( (size_t) 1);
+UDQPARAM::UDQPARAM() : ParserKeyword("UDQPARAM", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UDQPARAM");
@@ -203,14 +196,12 @@ const int UDQPARAM::RANDOM_SEED::defaultValue = 1;
 const std::string UDQPARAM::RANGE::itemName = "RANGE";
 const double UDQPARAM::RANGE::defaultValue = 100000000000000000000.000000;
 const std::string UDQPARAM::UNDEFINED_VALUE::itemName = "UNDEFINED_VALUE";
-const double UDQPARAM::UNDEFINED_VALUE::defaultValue = 0.000000;
+const double UDQPARAM::UNDEFINED_VALUE::defaultValue = 0;
 const std::string UDQPARAM::CMP_EPSILON::itemName = "CMP_EPSILON";
 const double UDQPARAM::CMP_EPSILON::defaultValue = 0.000100;
 
 
-UDT::UDT( ) : ParserKeyword("UDT")
-{
-  setFixedSize( (size_t) 0);
+UDT::UDT() : ParserKeyword("UDT", KeywordSize(0, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("UDT");
@@ -218,9 +209,7 @@ UDT::UDT( ) : ParserKeyword("UDT")
 const std::string UDT::keywordName = "UDT";
 
 
-UDTDIMS::UDTDIMS( ) : ParserKeyword("UDTDIMS")
-{
-  setFixedSize( (size_t) 1);
+UDTDIMS::UDTDIMS() : ParserKeyword("UDTDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UDTDIMS");
@@ -260,9 +249,7 @@ const std::string UDTDIMS::MAX_DIMENSIONS::itemName = "MAX_DIMENSIONS";
 const int UDTDIMS::MAX_DIMENSIONS::defaultValue = 0;
 
 
-UNCODHMD::UNCODHMD( ) : ParserKeyword("UNCODHMD")
-{
-  setFixedSize( (size_t) 0);
+UNCODHMD::UNCODHMD() : ParserKeyword("UNCODHMD", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UNCODHMD");
@@ -270,9 +257,7 @@ UNCODHMD::UNCODHMD( ) : ParserKeyword("UNCODHMD")
 const std::string UNCODHMD::keywordName = "UNCODHMD";
 
 
-UNIFIN::UNIFIN( ) : ParserKeyword("UNIFIN")
-{
-  setFixedSize( (size_t) 0);
+UNIFIN::UNIFIN() : ParserKeyword("UNIFIN", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UNIFIN");
@@ -280,9 +265,7 @@ UNIFIN::UNIFIN( ) : ParserKeyword("UNIFIN")
 const std::string UNIFIN::keywordName = "UNIFIN";
 
 
-UNIFOUT::UNIFOUT( ) : ParserKeyword("UNIFOUT")
-{
-  setFixedSize( (size_t) 0);
+UNIFOUT::UNIFOUT() : ParserKeyword("UNIFOUT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UNIFOUT");
@@ -290,9 +273,7 @@ UNIFOUT::UNIFOUT( ) : ParserKeyword("UNIFOUT")
 const std::string UNIFOUT::keywordName = "UNIFOUT";
 
 
-UNIFOUTS::UNIFOUTS( ) : ParserKeyword("UNIFOUTS")
-{
-  setFixedSize( (size_t) 0);
+UNIFOUTS::UNIFOUTS() : ParserKeyword("UNIFOUTS", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UNIFOUTS");
@@ -300,9 +281,7 @@ UNIFOUTS::UNIFOUTS( ) : ParserKeyword("UNIFOUTS")
 const std::string UNIFOUTS::keywordName = "UNIFOUTS";
 
 
-UNIFSAVE::UNIFSAVE( ) : ParserKeyword("UNIFSAVE")
-{
-  setFixedSize( (size_t) 0);
+UNIFSAVE::UNIFSAVE() : ParserKeyword("UNIFSAVE", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("UNIFSAVE");
@@ -310,9 +289,7 @@ UNIFSAVE::UNIFSAVE( ) : ParserKeyword("UNIFSAVE")
 const std::string UNIFSAVE::keywordName = "UNIFSAVE";
 
 
-USECUPL::USECUPL( ) : ParserKeyword("USECUPL")
-{
-  setSizeType(SLASH_TERMINATED);
+USECUPL::USECUPL() : ParserKeyword("USECUPL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("USECUPL");
@@ -334,9 +311,7 @@ const std::string USECUPL::BASE::itemName = "BASE";
 const std::string USECUPL::FMT::itemName = "FMT";
 
 
-USEFLUX::USEFLUX( ) : ParserKeyword("USEFLUX")
-{
-  setFixedSize( (size_t) 0);
+USEFLUX::USEFLUX() : ParserKeyword("USEFLUX", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("USEFLUX");
@@ -344,9 +319,7 @@ USEFLUX::USEFLUX( ) : ParserKeyword("USEFLUX")
 const std::string USEFLUX::keywordName = "USEFLUX";
 
 
-USENOFLO::USENOFLO( ) : ParserKeyword("USENOFLO")
-{
-  setFixedSize( (size_t) 0);
+USENOFLO::USENOFLO() : ParserKeyword("USENOFLO", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("USENOFLO");

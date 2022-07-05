@@ -1,21 +1,29 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/K.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/K.hpp>
 namespace Opm {
 namespace ParserKeywords {
-KRNUM::KRNUM( ) : ParserKeyword("KRNUM")
-{
-  setFixedSize( (size_t) 1);
+KRNUM::KRNUM() : ParserKeyword("KRNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
-  addDeckName("KRNUM");
+  addDeckName("KRNUMX");
+  addDeckName("KRNUMX-");
+  addDeckName("KRNUMY");
+  addDeckName("KRNUMY-");
+  addDeckName("KRNUMR");
+  addDeckName("KRNUMZ");
+  addDeckName("KRNUMR-");
+  addDeckName("KRNUMZ-");
+  addDeckName("KRNUMT");
+  addDeckName("KRNUMT-");
   {
      ParserRecord record;
      {
@@ -30,9 +38,7 @@ const std::string KRNUM::keywordName = "KRNUM";
 const std::string KRNUM::data::itemName = "data";
 
 
-KRNUMMF::KRNUMMF( ) : ParserKeyword("KRNUMMF")
-{
-  setFixedSize( (size_t) 1);
+KRNUMMF::KRNUMMF() : ParserKeyword("KRNUMMF", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("KRNUMMF");

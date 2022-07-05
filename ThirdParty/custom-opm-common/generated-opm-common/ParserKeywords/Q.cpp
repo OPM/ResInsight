@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/Q.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/Q.hpp>
 namespace Opm {
 namespace ParserKeywords {
-QDRILL::QDRILL( ) : ParserKeyword("QDRILL")
-{
-  setFixedSize( (size_t) 1);
+QDRILL::QDRILL() : ParserKeyword("QDRILL", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("QDRILL");
@@ -30,10 +29,7 @@ const std::string QDRILL::keywordName = "QDRILL";
 const std::string QDRILL::WELL_NAME::itemName = "WELL_NAME";
 
 
-QHRATING::QHRATING( ) : ParserKeyword("QHRATING")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("RIVRDIMS","NRATTA",0);
+QHRATING::QHRATING() : ParserKeyword("QHRATING", KeywordSize("RIVRDIMS", "NRATTA", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("QHRATING");
@@ -53,9 +49,7 @@ const std::string QHRATING::keywordName = "QHRATING";
 const std::string QHRATING::DATA::itemName = "DATA";
 
 
-QMOBIL::QMOBIL( ) : ParserKeyword("QMOBIL")
-{
-  setFixedSize( (size_t) 1);
+QMOBIL::QMOBIL() : ParserKeyword("QMOBIL", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("QMOBIL");

@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_B_HPP
 #define PARSER_KEYWORDS_B_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -330,6 +330,11 @@ namespace ParserKeywords {
    public:
        BRINE();
        static const std::string keywordName;
+
+       class SALTS {
+       public:
+           static const std::string itemName;
+       };
    };
 
 
