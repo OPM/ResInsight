@@ -1,26 +1,30 @@
 set(genkw_SOURCES src/opm/json/JsonObject.cpp
-                  src/opm/parser/eclipse/Parser/createDefaultKeywordList.cpp
-                  src/opm/parser/eclipse/Deck/UDAValue.cpp
-                  src/opm/parser/eclipse/Deck/DeckValue.cpp
-                  src/opm/parser/eclipse/Deck/Deck.cpp
-                  src/opm/parser/eclipse/Deck/DeckItem.cpp
-                  src/opm/parser/eclipse/Deck/DeckKeyword.cpp
-                  src/opm/parser/eclipse/Deck/DeckRecord.cpp
-                  src/opm/parser/eclipse/Deck/DeckOutput.cpp
-                  src/opm/parser/eclipse/Generator/KeywordGenerator.cpp
-                  src/opm/parser/eclipse/Generator/KeywordLoader.cpp
-                  src/opm/parser/eclipse/Parser/ErrorGuard.cpp
-                  src/opm/parser/eclipse/Parser/ParseContext.cpp
-                  src/opm/parser/eclipse/Parser/ParserEnums.cpp
-                  src/opm/parser/eclipse/Parser/ParserItem.cpp
-                  src/opm/parser/eclipse/Parser/ParserKeyword.cpp
-                  src/opm/parser/eclipse/Parser/ParserRecord.cpp
-                  src/opm/parser/eclipse/Parser/raw/RawKeyword.cpp
-                  src/opm/parser/eclipse/Parser/raw/RawRecord.cpp
-                  src/opm/parser/eclipse/Parser/raw/StarToken.cpp
-                  src/opm/parser/eclipse/Units/Dimension.cpp
-                  src/opm/parser/eclipse/Units/UnitSystem.cpp
-                  src/opm/parser/eclipse/Utility/Stringview.cpp
+                  src/opm/input/eclipse/Parser/createDefaultKeywordList.cpp
+                  src/opm/input/eclipse/Deck/UDAValue.cpp
+                  src/opm/input/eclipse/Deck/DeckTree.cpp
+                  src/opm/input/eclipse/Deck/DeckValue.cpp
+                  src/opm/input/eclipse/Deck/Deck.cpp
+                  src/opm/input/eclipse/Deck/DeckView.cpp
+                  src/opm/input/eclipse/Deck/DeckItem.cpp
+                  src/opm/input/eclipse/Deck/DeckKeyword.cpp
+                  src/opm/input/eclipse/Deck/DeckRecord.cpp
+                  src/opm/input/eclipse/Deck/DeckOutput.cpp
+                  src/opm/input/eclipse/Generator/KeywordGenerator.cpp
+                  src/opm/input/eclipse/Generator/KeywordLoader.cpp
+                  src/opm/input/eclipse/Schedule/UDQ/UDQEnums.cpp
+                  src/opm/input/eclipse/Parser/ErrorGuard.cpp
+                  src/opm/input/eclipse/Parser/ParseContext.cpp
+                  src/opm/input/eclipse/Parser/ParserEnums.cpp
+                  src/opm/input/eclipse/Parser/ParserItem.cpp
+                  src/opm/input/eclipse/Parser/ParserKeyword.cpp
+                  src/opm/input/eclipse/Parser/ParserRecord.cpp
+                  src/opm/input/eclipse/Parser/raw/RawKeyword.cpp
+                  src/opm/input/eclipse/Parser/raw/RawRecord.cpp
+                  src/opm/input/eclipse/Parser/raw/StarToken.cpp
+                  src/opm/input/eclipse/Units/Dimension.cpp
+                  src/opm/input/eclipse/Units/UnitSystem.cpp
+                  src/opm/common/utility/OpmInputError.cpp
+                  src/opm/common/utility/shmatch.cpp
                   src/opm/common/OpmLog/OpmLog.cpp
                   src/opm/common/OpmLog/Logger.cpp
                   src/opm/common/OpmLog/StreamLog.cpp
@@ -30,24 +34,25 @@ set(genkw_SOURCES src/opm/json/JsonObject.cpp
 if(NOT cjson_FOUND)
   list(APPEND genkw_SOURCES external/cjson/cJSON.c)
 endif()
-
 add_executable(genkw ${genkw_SOURCES})
 
 target_link_libraries(genkw ${opm-common_LIBRARIES})
 
-# Add dependency of Shlwapi.lib for Windows platforms
-if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
-  target_link_libraries(genkw "Shlwapi.lib")
-endif()
-
 # Generate keyword list
-include(src/opm/parser/eclipse/share/keywords/keyword_list.cmake)
-string(REGEX REPLACE "([^;]+)" "${PROJECT_SOURCE_DIR}/src/opm/parser/eclipse/share/keywords/\\1" keyword_files "${keywords}")
-configure_file(src/opm/parser/eclipse/keyword_list.argv.in keyword_list.argv)
+include(src/opm/input/eclipse/share/keywords/keyword_list.cmake)
+string(REGEX REPLACE "([^;]+)" "${PROJECT_SOURCE_DIR}/src/opm/input/eclipse/share/keywords/\\1" keyword_files "${keywords}")
+configure_file(src/opm/input/eclipse/keyword_list.argv.in keyword_list.argv)
 
 # Generate keyword source
 
-add_custom_command( OUTPUT
+set( genkw_argv keyword_list.argv
+  ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords
+  ${PROJECT_BINARY_DIR}/tmp_gen/ParserInit.cpp
+  ${PROJECT_BINARY_DIR}/tmp_gen/include/
+  opm/input/eclipse/Parser/ParserKeywords
+  ${PROJECT_BINARY_DIR}/tmp_gen/TestKeywords.cpp)
+
+set( _tmp_output
   ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords/A.cpp
   ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords/B.cpp
   ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords/C.cpp
@@ -74,18 +79,11 @@ add_custom_command( OUTPUT
   ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords/X.cpp
   ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords/Y.cpp
   ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords/Z.cpp
-  ${PROJECT_BINARY_DIR}/tmp_gen/TestKeywords.cpp
-  COMMAND genkw keyword_list.argv
-                  ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords
-                  ${PROJECT_BINARY_DIR}/tmp_gen/ParserInit.cpp
-                  ${PROJECT_BINARY_DIR}/tmp_gen/include/
-                  opm/parser/eclipse/Parser/ParserKeywords
-                  ${PROJECT_BINARY_DIR}/tmp_gen/TestKeywords.cpp
-    DEPENDS genkw ${keyword_files} src/opm/parser/eclipse/share/keywords/keyword_list.cmake
-)
+  ${PROJECT_BINARY_DIR}/tmp_gen/ParserInit.cpp
+  ${PROJECT_BINARY_DIR}/tmp_gen/TestKeywords.cpp)
 
-# To avoid some rebuilds
-add_custom_command(OUTPUT
+
+set( _target_output
   ${PROJECT_BINARY_DIR}/ParserKeywords/A.cpp
   ${PROJECT_BINARY_DIR}/ParserKeywords/B.cpp
   ${PROJECT_BINARY_DIR}/ParserKeywords/C.cpp
@@ -113,7 +111,24 @@ add_custom_command(OUTPUT
   ${PROJECT_BINARY_DIR}/ParserKeywords/Y.cpp
   ${PROJECT_BINARY_DIR}/ParserKeywords/Z.cpp
   ${PROJECT_BINARY_DIR}/TestKeywords.cpp
-  ${PROJECT_BINARY_DIR}/ParserInit.cpp
-                   DEPENDS ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords/A.cpp
-                   COMMAND ${CMAKE_COMMAND} -DBASE_DIR=${PROJECT_BINARY_DIR}
-                                            -P ${PROJECT_SOURCE_DIR}/CopyHeaders.cmake)
+  ${PROJECT_BINARY_DIR}/ParserInit.cpp)
+
+
+if (OPM_ENABLE_PYTHON)
+  list(APPEND genkw_argv ${PROJECT_BINARY_DIR}/tmp_gen/builtin_pybind11.cpp)
+  list(APPEND _tmp_output ${PROJECT_BINARY_DIR}/tmp_gen/builtin_pybind11.cpp)
+  list(APPEND _target_output ${PROJECT_BINARY_DIR}/python/cxx/builtin_pybind11.cpp)
+endif()
+
+
+
+add_custom_command( OUTPUT
+  ${_tmp_output}
+  COMMAND genkw ${genkw_argv}
+  DEPENDS genkw ${keyword_files} src/opm/input/eclipse/share/keywords/keyword_list.cmake)
+
+# To avoid some rebuilds
+add_custom_command(OUTPUT
+  ${_target_output}
+  DEPENDS ${PROJECT_BINARY_DIR}/tmp_gen/ParserKeywords/A.cpp
+  COMMAND ${CMAKE_COMMAND} -DBASE_DIR=${PROJECT_BINARY_DIR} -P ${PROJECT_SOURCE_DIR}/CopyHeaders.cmake)

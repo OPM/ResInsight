@@ -19,20 +19,19 @@
 
 #define BOOST_TEST_MODULE WellSolventTests
 
-#include <boost/filesystem.hpp>
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckItem.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
-#include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckItem.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Deck/DeckRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
 
 using namespace Opm;
 
@@ -205,8 +204,8 @@ BOOST_AUTO_TEST_CASE(TestDynamicWSOLVENT) {
     Runspec runspec(deck);
     Schedule schedule(deck, grid , fp, runspec, python);
     BOOST_CHECK(deck.hasKeyword("WSOLVENT"));
-    const auto& keyword = deck.getKeyword("WSOLVENT");
-    BOOST_CHECK_EQUAL(keyword.size(),1);
+    const auto& keyword = deck["WSOLVENT"].back();
+    BOOST_CHECK_EQUAL(keyword.size(),1U);
     const auto& record = keyword.getRecord(0);
     const std::string& well_name = record.getItem("WELL").getTrimmedString(0);
     BOOST_CHECK_EQUAL(well_name, "W_1");
@@ -223,7 +222,7 @@ BOOST_AUTO_TEST_CASE(TestOilInjector) {
     TableManager table ( deck );
     FieldPropsManager fp(deck, Phases{true, true, true}, grid, table);
     Runspec runspec(deck);
-    BOOST_CHECK_THROW (Schedule(deck , grid , fp, runspec, python), std::invalid_argument);
+    BOOST_CHECK_THROW (Schedule(deck , grid , fp, runspec, python), std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(TestWaterInjector) {
@@ -233,5 +232,5 @@ BOOST_AUTO_TEST_CASE(TestWaterInjector) {
     TableManager table ( deck );
     FieldPropsManager fp(deck, Phases{true, true, true}, grid, table);
     Runspec runspec(deck);
-    BOOST_CHECK_THROW (Schedule(deck, grid , fp, runspec, python), std::invalid_argument);
+    BOOST_CHECK_THROW (Schedule(deck, grid , fp, runspec, python), std::exception);
 }

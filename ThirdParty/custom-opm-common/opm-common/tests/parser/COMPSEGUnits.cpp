@@ -21,12 +21,12 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckItem.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
-#include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/C.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckItem.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Deck/DeckRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/C.hpp>
 
 using namespace Opm;
 
@@ -45,7 +45,7 @@ inline Deck createCOMPSEGSDeck() {
 
 BOOST_AUTO_TEST_CASE(CreateDimension) {
     auto deck = createCOMPSEGSDeck();
-    const auto& keyword = deck.getKeyword<ParserKeywords::COMPSEGS>();
+    const auto& keyword = deck.get<ParserKeywords::COMPSEGS>().back();
     const auto& record = keyword.getRecord(1);
     BOOST_CHECK_NO_THROW( record.getItem<ParserKeywords::COMPSEGS::DISTANCE_START>().getSIDouble(0) );
 }

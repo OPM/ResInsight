@@ -1,0 +1,10 @@
+{
+  "name": "SMICR",
+  "sections": [
+    "SOLUTION"
+  ],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Density"
+  }
+}

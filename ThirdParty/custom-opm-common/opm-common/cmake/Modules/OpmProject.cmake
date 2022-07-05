@@ -30,7 +30,6 @@ function (configure_pc_file name source dest prefix libdir includedir)
   set (minor "${${name}_VERSION_MINOR}")
   set (target "${${name}_LIBRARY}")
   linker_cmdline (STRING INTO target from ${target})
-
   configure_file (${source} ${dest} @ONLY)
 endfunction (configure_pc_file name source dist prefix libdir includedir)
 
@@ -55,6 +54,12 @@ function (configure_cmake_file name variant version)
   foreach (suffix IN LISTS variable_suffices)
 	set (opm-project_${suffix} "${${name}_${suffix}}")
   endforeach (suffix)
+
+  if (BUILD_SHARED_LIBS)
+    # No need to list shared libraries as the linker information is alread
+    # in the shared lib
+    string(REGEX REPLACE ";?[^;]*.so" "" opm-project_LIBRARIES "${opm-project_LIBRARIES}")
+  endif()
   set (opm-project_NAME "${${name}_NAME}")
   set (opm-project_NAME_UC "${${name}_NAME}")
   string(TOUPPER "${opm-project_NAME}" opm-project_NAME_UC)
@@ -101,16 +106,24 @@ function (opm_cmake_config name)
   # and we have existing entries pointing to that install directory.
   # Since they will yield a duplicate in next replace anyways, we filter them out first
   # to get avoid those the bogus entries.
-  string(REPLACE "${CMAKE_INSTALL_PREFIX}/include${${name}_VER_DIR}" "" ${name}_INCLUDE_DIRS "${${name}_INCLUDE_DIRS}")
+  # First with trailing / to change /usr/include/package to package and not /package
+  # Fixes broken pkg-config files for Debian/Ubuntu packaging.
+  string(FIND "${${name}_INCLUDE_DIRS}" "${PROJECT_SOURCE_DIR}" _source_in_include)
 
-  # replace the build directory with the target directory in the
-  # variables that contains build paths
-  string (REPLACE
-	"${PROJECT_SOURCE_DIR}"
-	"${CMAKE_INSTALL_PREFIX}/include${${name}_VER_DIR}"
-	${name}_INCLUDE_DIRS
-	"${${name}_INCLUDE_DIRS}"
-	)
+  if(_source_in_include GREATER "-1")
+    string(REGEX REPLACE "${CMAKE_INSTALL_PREFIX}/include${${name}_VER_DIR}[;$]" "" ${name}_INCLUDE_DIRS "${${name}_INCLUDE_DIRS}")
+    # Get rid of empty entries
+    string(REPLACE ";;" ";" ${name}_INCLUDE_DIRS "${${name}_INCLUDE_DIRS}")
+
+    # replace the build directory with the target directory in the
+    # variables that contains build paths
+    string (REPLACE
+      "${PROJECT_SOURCE_DIR}"
+      "${CMAKE_INSTALL_PREFIX}/include${${name}_VER_DIR}"
+      ${name}_INCLUDE_DIRS
+      "${${name}_INCLUDE_DIRS}"
+      )
+  endif()
   string (REPLACE
 	"${CMAKE_LIBRARY_OUTPUT_DIRECTORY}"
 	"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}${${name}_VER_DIR}"

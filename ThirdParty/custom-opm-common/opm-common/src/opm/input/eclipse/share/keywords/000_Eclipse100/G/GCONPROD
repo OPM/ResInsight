@@ -1,0 +1,127 @@
+{
+  "name": "GCONPROD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "CONTROL_MODE",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "item": 3,
+      "name": "OIL_TARGET",
+      "value_type": "UDA",
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "item": 4,
+      "name": "WATER_TARGET",
+      "value_type": "UDA",
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "item": 5,
+      "name": "GAS_TARGET",
+      "value_type": "UDA",
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "item": 6,
+      "name": "LIQUID_TARGET",
+      "value_type": "UDA",
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "item": 7,
+      "name": "EXCEED_PROC",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "item": 8,
+      "name": "RESPOND_TO_PARENT",
+      "value_type": "STRING",
+      "default": "YES"
+    },
+    {
+      "item": 9,
+      "name": "GUIDE_RATE",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 10,
+      "name": "GUIDE_RATE_DEF",
+      "value_type": "STRING"
+    },
+    {
+      "item": 11,
+      "name": "WATER_EXCEED_PROCEDURE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 12,
+      "name": "GAS_EXCEED_PROCEDURE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 13,
+      "name": "LIQUID_EXCEED_PROCEDURE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 14,
+      "name": "RESERVOIR_FLUID_TARGET",
+      "value_type": "DOUBLE",
+      "dimension": "ReservoirVolume/Time"
+    },
+    {
+      "item": 15,
+      "name": "RESERVOIR_VOLUME_BALANCE",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "item": 16,
+      "name": "WET_GAS_TARGET",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 17,
+      "name": "CALORIFIC_TARGET",
+      "value_type": "DOUBLE",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 18,
+      "name": "SURFACE_GAS_FRACTION",
+      "value_type": "DOUBLE",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 19,
+      "name": "SURFACE_WAT_FRACTION",
+      "value_type": "DOUBLE",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 20,
+      "name": "LINEAR_COMBINED_TARGET",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 21,
+      "name": "LIN_TARGET_EXCEED_PROCEDURE",
+      "value_type": "STRING"
+    }
+  ]
+}

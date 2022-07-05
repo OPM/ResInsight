@@ -24,12 +24,16 @@
 
 #include <opm/output/eclipse/RestartIO.hpp>
 
+#include <opm/output/eclipse/AggregateAquiferData.hpp>
 #include <opm/output/eclipse/AggregateGroupData.hpp>
+#include <opm/output/eclipse/AggregateNetworkData.hpp>
 #include <opm/output/eclipse/AggregateWellData.hpp>
+#include <opm/output/eclipse/AggregateWListData.hpp>
 #include <opm/output/eclipse/AggregateConnectionData.hpp>
 #include <opm/output/eclipse/AggregateMSWData.hpp>
 #include <opm/output/eclipse/AggregateUDQData.hpp>
 #include <opm/output/eclipse/AggregateActionxData.hpp>
+#include <opm/input/eclipse/EclipseState/TracerConfig.hpp>
 
 #include <opm/output/eclipse/WriteRestartHelpers.hpp>
 
@@ -38,28 +42,33 @@
 #include <opm/io/eclipse/OutputStream.hpp>
 #include <opm/io/eclipse/PaddedOutputString.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Tuning.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/Well.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/Eqldims.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Network/ExtNetwork.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/Tuning.hpp>
+#include <opm/input/eclipse/Schedule/Well/Well.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/Eqldims.hpp>
 
 #include <opm/common/OpmLog/OpmLog.hpp>
 
 #include <algorithm>
 #include <cassert>
-#include <cmath>
 #include <cstddef>
 #include <fstream>
 #include <initializer_list>
 #include <iomanip>
 #include <iterator>
 #include <sstream>
+#include <stdexcept>
 #include <string>
 #include <unordered_set>
+#include <utility>
 #include <vector>
+
+#include <fmt/format.h>
+#include <fmt/chrono.h>
 
 namespace Opm { namespace RestartIO {
 
@@ -189,9 +198,13 @@ namespace {
                             const RestartValue& restart_value,
                             const EclipseGrid&  grid)
     {
-        for (const auto& elm: restart_value.solution)
-            if (elm.second.data.size() != grid.getNumActive())
-                throw std::runtime_error("Wrong size on solution vector: " + elm.first);
+        for (const auto& [name, vector] : restart_value.solution)
+            if (vector.data.size() != grid.getNumActive()) {
+                const auto msg = fmt::format("Incorrectly sized solution vector {}.  "
+                                             "Expected {} elements, but got {}.", name,
+                                             grid.getNumActive(), vector.data.size());
+                throw std::runtime_error(msg);
+            }
 
         if (es.getSimulationConfig().getThresholdPressure().size() > 0) {
             // If the the THPRES option is active the restart_value should have a
@@ -232,7 +245,7 @@ namespace {
         rstFile.write("LOGIHEAD", Helpers::createLogiHead(es));
 
         // write DOUBHEAD to restart file
-        const auto dh = Helpers::createDoubHead(es, schedule, sim_step,
+        const auto dh = Helpers::createDoubHead(es, schedule, sim_step, report_step,
                                                 simTime, next_step_size);
         rstFile.write("DOUBHEAD", dh);
 
@@ -260,6 +273,29 @@ namespace {
         rstFile.write("ZGRP", groupData.getZGroup());
     }
 
+    void writeNetwork(const Opm::EclipseState&      es,
+                      int                           sim_step,
+                      const UnitSystem&             units,
+                      const Schedule&               schedule,
+                      const Opm::SummaryState&      sumState,
+                      const std::vector<int>&       ih,
+                      EclIO::OutputStream::Restart& rstFile)
+    {
+        // write network data to restart file
+        const size_t simStep = static_cast<size_t> (sim_step);
+
+        auto  networkData = Helpers::AggregateNetworkData(ih);
+
+        networkData.captureDeclaredNetworkData(es, schedule, units, simStep, sumState, ih);
+
+        rstFile.write("INODE", networkData.getINode());
+        rstFile.write("IBRAN", networkData.getIBran());
+        rstFile.write("INOBR", networkData.getINobr());
+        rstFile.write("RNODE", networkData.getRNode());
+        rstFile.write("RBRAN", networkData.getRBran());
+        rstFile.write("ZNODE", networkData.getZNode());
+    }
+
     void writeMSWData(int                           sim_step,
                       const UnitSystem&             units,
                       const Schedule&               schedule,
@@ -285,7 +321,7 @@ namespace {
     void writeUDQ(const int                     report_step,
                   const int                     sim_step,
                   const Schedule&               schedule,
-                  const SummaryState&           sum_state,
+                  const UDQState&               udq_state,
                   const std::vector<int>&       ih,
                   EclIO::OutputStream::Restart& rstFile)
     {
@@ -299,7 +335,7 @@ namespace {
 
         const auto udqDims = Helpers::createUdqDims(schedule, simStep, ih);
         auto  udqData = Helpers::AggregateUDQData(udqDims);
-        udqData.captureDeclaredUDQData(schedule, simStep, sum_state, ih);
+        udqData.captureDeclaredUDQData(schedule, simStep, udq_state, ih);
         
         if (udqDims[0] >= 1) {
             rstFile.write("ZUDN", udqData.getZUDN());
@@ -316,55 +352,58 @@ namespace {
 
     void writeActionx(const int                     report_step,
                       const int                     sim_step,
-                      const EclipseState&           es,
                       const Schedule&               schedule,
+                      const Action::State&          action_state,
                       const SummaryState&           sum_state,
                       EclIO::OutputStream::Restart& rstFile)
     {
-        if (report_step == 0) {
-            // Initial condition.  No ACTION* data yet.
+        if (report_step == 0)
             return;
-        }
 
-        // write ACTIONX - data to restart file
+        if (schedule[sim_step].actions().ecl_size() == 0)
+            return;
+
         const std::size_t simStep = static_cast<size_t> (sim_step);
-        
-        const auto actDims = Opm::RestartIO::Helpers::createActionxDims(es.runspec(), schedule, simStep);
-        auto  actionxData = Opm::RestartIO::Helpers::AggregateActionxData(actDims);
-        actionxData.captureDeclaredActionxData(schedule, sum_state, actDims, simStep);
-        
-        if (actDims[0] >= 1) {
-            rstFile.write("IACT", actionxData.getIACT());
-            rstFile.write("SACT", actionxData.getSACT());
-            rstFile.write("ZACT", actionxData.getZACT());
-            rstFile.write("ZLACT", actionxData.getZLACT());
-            rstFile.write("ZACN", actionxData.getZACN());
-            rstFile.write("IACN", actionxData.getIACN());
-            rstFile.write("SACN", actionxData.getSACN());
-        }
+        Opm::RestartIO::Helpers::AggregateActionxData actionxData{schedule, action_state, sum_state, simStep};
+
+        rstFile.write("IACT", actionxData.getIACT());
+        rstFile.write("SACT", actionxData.getSACT());
+        rstFile.write("ZACT", actionxData.getZACT());
+        rstFile.write("ZLACT", actionxData.getZLACT());
+        rstFile.write("ZACN", actionxData.getZACN());
+        rstFile.write("IACN", actionxData.getIACN());
+        rstFile.write("SACN", actionxData.getSACN());
     }
+
 
     void writeWell(int                             sim_step,
                    const bool                      ecl_compatible_rst,
                    const Phases&                   phases,
-                   const UnitSystem&               units,
                    const EclipseGrid&              grid,
                    const Schedule&                 schedule,
+                   const TracerConfig&             tracers,
                    const std::vector<std::string>& well_names,
                    const data::Wells&              wells,
+                   const Opm::Action::State&       action_state,
+                   const Opm::WellTestState&       wtest_state,
                    const Opm::SummaryState&        sumState,
                    const std::vector<int>&         ih,
                    EclIO::OutputStream::Restart&   rstFile)
     {
         auto wellData = Helpers::AggregateWellData(ih);
-        wellData.captureDeclaredWellData(schedule, units, sim_step, sumState, ih);
-        wellData.captureDynamicWellData(schedule, sim_step,
-                                        wells, sumState);
+        wellData.captureDeclaredWellData(schedule, tracers, sim_step, action_state, wtest_state, sumState, ih);
+        wellData.captureDynamicWellData(schedule, tracers, sim_step, wells, sumState);
 
         rstFile.write("IWEL", wellData.getIWell());
         rstFile.write("SWEL", wellData.getSWell());
         rstFile.write("XWEL", wellData.getXWell());
         rstFile.write("ZWEL", wellData.getZWell());
+
+        auto wListData = Helpers::AggregateWListData(ih);
+        wListData.captureDeclaredWListData(schedule, sim_step, ih);
+
+        rstFile.write("ZWLS", wListData.getZWls());
+        rstFile.write("IWLS", wListData.getIWls());
 
         // Extended set of OPM well vectors
         if (!ecl_compatible_rst)
@@ -380,26 +419,85 @@ namespace {
         }
 
         auto connectionData = Helpers::AggregateConnectionData(ih);
-        connectionData.captureDeclaredConnData(schedule, grid, units,
-                                               wells, sim_step);
+        connectionData.captureDeclaredConnData(schedule, grid, schedule.getUnits(),
+                                               wells, sumState, sim_step);
 
         rstFile.write("ICON", connectionData.getIConn());
         rstFile.write("SCON", connectionData.getSConn());
         rstFile.write("XCON", connectionData.getXConn());
     }
 
-    void writeDynamicData(const int                     sim_step,
-                          const bool                    ecl_compatible_rst,
-                          const Phases&                 phases,
-                          const UnitSystem&             units,
-                          const EclipseGrid&            grid,
-                          const Schedule&               schedule,
-                          const data::WellRates&        wellSol,
-                          const Opm::SummaryState&      sumState,
-                          const std::vector<int>&       inteHD,
-                          EclIO::OutputStream::Restart& rstFile)
+    void writeAnalyticAquiferData(const Helpers::AggregateAquiferData& aquiferData,
+                                  EclIO::OutputStream::Restart&        rstFile)
     {
-        writeGroup(sim_step, units, schedule, sumState, inteHD, rstFile);
+        rstFile.write("IAAQ", aquiferData.getIntegerAquiferData());
+        rstFile.write("SAAQ", aquiferData.getSinglePrecAquiferData());
+        rstFile.write("XAAQ", aquiferData.getDoublePrecAquiferData());
+
+        // Aquifer IDs in 1..maxID inclusive.
+        const auto maxAquiferID = aquiferData.maximumActiveAnalyticAquiferID();
+        for (auto aquiferID = 1 + 0*maxAquiferID; aquiferID <= maxAquiferID; ++aquiferID) {
+            const auto xCAQnum = std::vector<int>{ aquiferID };
+
+            rstFile.write("ICAQNUM", xCAQnum);
+            rstFile.write("ICAQ", aquiferData.getIntegerAquiferConnectionData(aquiferID));
+
+            rstFile.write("SCAQNUM", xCAQnum);
+            rstFile.write("SCAQ", aquiferData.getSinglePrecAquiferConnectionData(aquiferID));
+
+            rstFile.write("ACAQNUM", xCAQnum);
+            rstFile.write("ACAQ", aquiferData.getDoublePrecAquiferConnectionData(aquiferID));
+        }
+    }
+
+    void writeNumericAquiferData(const Helpers::AggregateAquiferData& aquiferData,
+                                 EclIO::OutputStream::Restart&        rstFile)
+    {
+        rstFile.write("IAQN", aquiferData.getNumericAquiferIntegerData());
+        rstFile.write("RAQN", aquiferData.getNumericAquiferDoublePrecData());
+    }
+
+    void updateAndWriteAquiferData(const AquiferConfig&           aqConfig,
+                                   const data::Aquifers&          aquData,
+                                   const SummaryState&            summaryState,
+                                   const UnitSystem&              usys,
+                                   Helpers::AggregateAquiferData& aquiferData,
+                                   EclIO::OutputStream::Restart&  rstFile)
+    {
+        aquiferData.captureDynamicdAquiferData(aqConfig, aquData, summaryState, usys);
+
+        if (aqConfig.hasAnalyticalAquifer()) {
+            writeAnalyticAquiferData(aquiferData, rstFile);
+        }
+
+        if (aqConfig.hasNumericalAquifer()) {
+            writeNumericAquiferData(aquiferData, rstFile);
+        }
+    }
+
+    void writeDynamicData(const int                                     sim_step,
+                          const bool                                    ecl_compatible_rst,
+                          const Phases&                                 phases,
+                          const EclipseGrid&                            grid,
+                          const EclipseState&                           es,
+                          const Schedule&                               schedule,
+                          const data::Wells&                            wellSol,
+                          const Opm::Action::State&                     action_state,
+                          const Opm::WellTestState&                     wtest_state,
+                          const Opm::SummaryState&                      sumState,
+                          const std::vector<int>&                       inteHD,
+                          const data::Aquifers&                         aquDynData,
+                          std::optional<Helpers::AggregateAquiferData>& aquiferData,
+                          EclIO::OutputStream::Restart&                 rstFile)
+    {
+        writeGroup(sim_step, schedule.getUnits(), schedule, sumState, inteHD, rstFile);
+
+        // Write network data if the network option is used and network defined
+        if ((es.runspec().networkDimensions().maxNONodes() >= 1) &&
+            schedule[sim_step].network().active())
+        {
+            writeNetwork(es, sim_step, schedule.getUnits(), schedule, sumState, inteHD, rstFile);
+        }
 
         // Write well and MSW data only when applicable (i.e., when present)
         const auto& wells = schedule.wellNames(sim_step);
@@ -413,13 +511,19 @@ namespace {
                 });
 
             if (haveMSW) {
-                writeMSWData(sim_step, units, schedule, grid, sumState,
-                             wellSol, inteHD, rstFile);
+                writeMSWData(sim_step, schedule.getUnits(), schedule, grid,
+                             sumState, wellSol, inteHD, rstFile);
             }
 
-            writeWell(sim_step, ecl_compatible_rst,
-                      phases, units, grid, schedule, wells,
-                      wellSol, sumState, inteHD, rstFile);
+            writeWell(sim_step, ecl_compatible_rst, phases, grid, schedule, es.tracer(),
+                      wells, wellSol, action_state, wtest_state, sumState, inteHD, rstFile);
+        }
+
+        if ((es.aquifer().hasAnalyticalAquifer() || es.aquifer().hasNumericalAquifer()) &&
+            aquiferData.has_value())
+        {
+            updateAndWriteAquiferData(es.aquifer(), aquDynData, sumState,
+                                      schedule.getUnits(), aquiferData.value(), rstFile);
         }
     }
 
@@ -456,6 +560,81 @@ namespace {
         return smax;
     }
 
+    std::vector<std::string>
+    solutionVectorNames(const RestartValue& value)
+    {
+        auto vectors = std::vector<std::string>{};
+        vectors.reserve(value.solution.size());
+
+        for (const auto& [name, vector] : value.solution) {
+            if (vector.target == data::TargetType::RESTART_SOLUTION) {
+                vectors.push_back(name);
+            }
+        }
+
+        return vectors;
+    }
+
+    std::vector<std::string>
+    extendedSolutionVectorNames(const RestartValue& value)
+    {
+        auto vectors = std::vector<std::string>{};
+        vectors.reserve(value.solution.size());
+
+        for (const auto& [name, vector] : value.solution) {
+            if ((vector.target == data::TargetType::RESTART_AUXILIARY) ||
+                (vector.target == data::TargetType::RESTART_OPM_EXTENDED))
+            {
+                vectors.push_back(name);
+            }
+        }
+
+        return vectors;
+    }
+
+    template <class OutputVector>
+    void writeSolutionVectors(const RestartValue&             value,
+                              const std::vector<std::string>& vectors,
+                              const bool                      write_double,
+                              OutputVector&&                  writeVector)
+    {
+        for (const auto& vector : vectors) {
+            writeVector(vector, value.solution.data(vector), write_double);
+        }
+    }
+
+    template <class OutputVector>
+    void writeRegularSolutionVectors(const RestartValue& value,
+                                     const bool          write_double,
+                                     OutputVector&&      writeVector)
+    {
+        writeSolutionVectors(value, solutionVectorNames(value), write_double,
+                             std::forward<OutputVector>(writeVector));
+    }
+
+    template <class OutputVector>
+    void writeExtendedSolutionVectors(const RestartValue& value,
+                                      const bool          write_double,
+                                      OutputVector&&      writeVector)
+    {
+        writeSolutionVectors(value, extendedSolutionVectorNames(value), write_double,
+                             std::forward<OutputVector>(writeVector));
+    }
+
+    template <class OutputVector>
+    void writeExtraVectors(const RestartValue& value,
+                           OutputVector&&      writeVector)
+    {
+        for (const auto& elm : value.extra) {
+            const std::string& key = elm.first.key;
+            if (extraInSolution(key)) {
+                // Observe that the extra data is unconditionally
+                // output as double precision.
+                writeVector(key, elm.second, true);
+            }
+        }
+    }
+
     template <class OutputVector>
     void writeEclipseCompatHysteresis(const RestartValue& value,
                                       const bool          write_double,
@@ -486,9 +665,44 @@ namespace {
         }
     }
 
+    void writeTracerVectors(const UnitSystem&               unit_system,
+                            const TracerConfig&             tracer_config,
+                            const RestartValue&             value,
+                            const bool                      write_double,
+                            EclIO::OutputStream::Restart& rstFile)
+    {
+        for (const auto& [tracer_rst_name, vector] : value.solution) {
+            if (vector.target != data::TargetType::RESTART_TRACER_SOLUTION)
+                continue;
+
+            /*
+              The tracer name used in the RestartValue coming from the simulator
+              has an additional trailing 'F', need to remove that in order to
+              look up in the tracer configuration.
+            */
+            const auto& tracer_input_name = tracer_rst_name.substr(0, tracer_rst_name.size() - 1);
+            const auto& tracer = tracer_config[tracer_input_name];
+            std::vector<std::string> ztracer;
+            ztracer.push_back(tracer_rst_name);
+            ztracer.push_back(fmt::format("{}/{}", tracer.unit_string, unit_system.name( UnitSystem::measure::volume )));
+            rstFile.write("ZTRACER", ztracer);
+
+            const auto& data = vector.data;
+            if (write_double) {
+                rstFile.write(tracer_rst_name, data);
+            }
+            else {
+                rstFile.write(tracer_rst_name, std::vector<float> {
+                        data.begin(), data.end()
+                    });
+            }
+        }
+    }
+
     void writeSolution(const RestartValue&           value,
                        const Schedule&               schedule,
-                       const SummaryState&           sum_state,
+                       const UDQState&               udq_state,
+                       const TracerConfig&           tracer_config,
                        int                           report_step,
                        int                           sim_step,
                        const bool                    ecl_compatible_rst,
@@ -496,8 +710,6 @@ namespace {
                        const std::vector<int>&       inteHD,
                        EclIO::OutputStream::Restart& rstFile)
     {
-        rstFile.message("STARTSOL");
-
         auto write = [&rstFile]
             (const std::string&         key,
              const std::vector<double>& data,
@@ -513,39 +725,23 @@ namespace {
             }
         };
 
-        for (const auto& elm : value.solution) {
-            if (elm.second.target == data::TargetType::RESTART_SOLUTION)
-            {
-                write(elm.first, elm.second.data, write_double_arg);
-            }
-        }
+        rstFile.message("STARTSOL");
 
-        writeUDQ(report_step, sim_step, schedule, sum_state, inteHD, rstFile);
-        
-        for (const auto& elm : value.extra) {
-            const std::string& key = elm.first.key;
-            if (extraInSolution(key)) {
-                // Observe that the extra data is unconditionally
-                // output as double precision.
-                write(key, elm.second, true);
-            }
-        }
+        writeRegularSolutionVectors(value, write_double_arg, write);
+        writeTracerVectors(schedule.getUnits(), tracer_config, value, write_double_arg, rstFile);
+        writeUDQ(report_step, sim_step, schedule, udq_state, inteHD, rstFile);
+
+        writeExtraVectors(value, write);
 
         if (ecl_compatible_rst && haveHysteresis(value)) {
             writeEclipseCompatHysteresis(value, write_double_arg, write);
         }
 
+        if (! ecl_compatible_rst) {
+            writeExtendedSolutionVectors(value, write_double_arg, write);
+        }
+
         rstFile.message("ENDSOL");
-
-        if (ecl_compatible_rst) {
-            return;
-        }
-
-        for (const auto& elm : value.solution) {
-            if (elm.second.target == data::TargetType::RESTART_AUXILIARY) {
-                write(elm.first, elm.second.data, write_double_arg);
-            }
-        }
     }
 
     void writeExtraData(const RestartValue::ExtraVector& extra_data,
@@ -560,41 +756,49 @@ namespace {
         }
     }
 
-    int numChar(const std::size_t num_reports)
-    {
-        return static_cast<int>(
-            1 + std::floor(std::log10(static_cast<double>(num_reports))));
-    }
-
     void logRestartOutput(const int               report_step,
                           const std::size_t       num_reports,
                           const std::vector<int>& inteHD)
     {
+        using namespace fmt::literals;
         using Ix = ::Opm::RestartIO::Helpers::VectorItems::intehead;
 
-        std::ostringstream logmsg;
+        auto timepoint    = std::tm{};
+        timepoint.tm_year = inteHD[Ix::YEAR]  - 1900;
+        timepoint.tm_mon  = inteHD[Ix::MONTH] -    1;
+        timepoint.tm_mday = inteHD[Ix::DAY];
 
-        logmsg << "Restart file written for report step: "
-               << std::setw(numChar(num_reports)) << report_step << '/'
-               << std::setw(0) << num_reports << ".  Date: "
-               << std::setw(4) <<                      inteHD[Ix::YEAR]  << '/'
-               << std::setw(2) << std::setfill('0') << inteHD[Ix::MONTH] << '/'
-               << std::setw(2) << std::setfill('0') << inteHD[Ix::DAY];
+        timepoint.tm_hour = inteHD[Ix::IHOURZ];
+        timepoint.tm_min  = inteHD[Ix::IMINTS];
+        timepoint.tm_sec  = inteHD[Ix::ISECND] / (1000 * 1000);
 
-        ::Opm::OpmLog::info(logmsg.str());
+        const auto msg =
+            fmt::format("Restart file written for report step "
+                        "{report_step:>{width}}/{num_reports}, "
+                        "date = {timepoint:%d-%b-%Y %H:%M:%S}",
+                        "width"_a = fmt::formatted_size("{}", num_reports),
+                        "report_step"_a = report_step,
+                        "num_reports"_a = num_reports,
+                        "timepoint"_a = timepoint);
+
+        ::Opm::OpmLog::info(msg);
     }
 
 } // Anonymous namespace
 
-void save(EclIO::OutputStream::Restart& rstFile,
-          int                           report_step,
-          double                        seconds_elapsed,
-          RestartValue                  value,
-          const EclipseState&           es,
-          const EclipseGrid&            grid,
-          const Schedule&               schedule,
-          const SummaryState&           sumState,
-          bool                          write_double)
+void save(EclIO::OutputStream::Restart&                 rstFile,
+          int                                           report_step,
+          double                                        seconds_elapsed,
+          RestartValue                                  value,
+          const EclipseState&                           es,
+          const EclipseGrid&                            grid,
+          const Schedule&                               schedule,
+          const Action::State&                          action_state,
+          const WellTestState&                          wtest_state,
+          const SummaryState&                           sumState,
+          const UDQState&                               udqState,
+          std::optional<Helpers::AggregateAquiferData>& aquiferData,
+          bool                                          write_double)
 {
     ::Opm::RestartIO::checkSaveArguments(es, value, grid);
 
@@ -617,20 +821,20 @@ void save(EclIO::OutputStream::Restart& rstFile,
 
     if (report_step > 0) {
         writeDynamicData(sim_step, ecl_compatible_rst, es.runspec().phases(),
-                         units, grid, schedule, value.wells, sumState,
-                         inteHD, rstFile);
+                         grid, es, schedule, value.wells, action_state, wtest_state,
+                         sumState, inteHD, value.aquifer, aquiferData, rstFile);
     }
 
-    writeActionx(report_step, sim_step, es, schedule, sumState, rstFile);
+    writeActionx(report_step, sim_step, schedule, action_state, sumState, rstFile);
 
-    writeSolution(value, schedule, sumState, report_step, sim_step,
+    writeSolution(value, schedule, udqState, es.tracer(), report_step, sim_step,
                   ecl_compatible_rst, write_double, inteHD, rstFile);
 
     if (! ecl_compatible_rst) {
         writeExtraData(value.extra, rstFile);
     }
 
-    logRestartOutput(report_step, schedule.getTimeMap().numTimesteps(), inteHD);
+    logRestartOutput(report_step, schedule.size() - 1, inteHD);
 }
 
 }} // Opm::RestartIO

@@ -25,7 +25,6 @@
 #include <algorithm>
 #include <array>
 #include <stdexcept>
-#include <cctype>
 #include <cmath>
 #include <fstream>
 #include <cstring>
@@ -106,6 +105,18 @@ bool Opm::EclIO::isEOF(std::fstream* fileH)
     }
 }
 
+int Opm::EclIO::combineSummaryNumbers(const int n1, const int n2)
+{
+    return n1 + (1 << 15)*(n2 + 10);
+}
+
+std::tuple<int, int> Opm::EclIO::splitSummaryNumber(const int n)
+{
+    const auto n1 =  n % (1 << 15);
+    const auto n2 = (n / (1 << 15)) - 10;
+
+    return { n1, n2 };
+}
 
 std::tuple<int, int> Opm::EclIO::block_size_data_binary(eclArrType arrType)
 {
@@ -319,10 +330,10 @@ void Opm::EclIO::readBinaryHeader(std::fstream& fileH, std::string& arrName,
         readBinaryHeader(fileH, tmpStrName, tmpSize, tmpStrType);
 
         if (x231ArrayName != tmpStrName)
-            OPM_THROW(std::runtime_error, "Invalied X231 header, name should be same in both headers'");
+            OPM_THROW(std::runtime_error, "Invalid X231 header, name should be same in both headers'");
 
         if (x231exp < 0)
-            OPM_THROW(std::runtime_error, "Invalied X231 header, size of array should be negative'");
+            OPM_THROW(std::runtime_error, "Invalid X231 header, size of array should be negative'");
 
         size = static_cast<int64_t>(tmpSize) + static_cast<int64_t>(x231exp) * pow(2,31);
     } else {

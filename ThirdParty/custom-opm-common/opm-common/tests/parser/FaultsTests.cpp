@@ -25,7 +25,7 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Grid/FaultCollection.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FaultCollection.hpp>
 
 
 BOOST_AUTO_TEST_CASE(CreateFaultCollection) {

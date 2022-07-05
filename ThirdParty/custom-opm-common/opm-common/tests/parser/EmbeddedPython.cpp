@@ -25,12 +25,14 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/P.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/P.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/common/utility/TimeService.hpp>
+#include <opm/input/eclipse/Schedule/Action/State.hpp>
 
 using namespace Opm;
 
@@ -102,7 +104,7 @@ BOOST_AUTO_TEST_CASE(PYINPUT_BASIC) {
     BOOST_CHECK( deck.hasKeyword("FIELD") );
     BOOST_CHECK( deck.hasKeyword("DIMENS") );
     BOOST_CHECK( deck.hasKeyword("DX") );
-    auto DX = deck.getKeyword("DX");
+    auto DX = deck["DX"].back();
     std::vector<double> dx_data = DX.getSIDoubleData();
     BOOST_CHECK_EQUAL( dx_data.size(), 4 );
     BOOST_CHECK_EQUAL( dx_data[2], 0.25 * 0.3048 );
@@ -118,25 +120,54 @@ BOOST_AUTO_TEST_CASE(PYACTION) {
     auto ecl_state = EclipseState(deck);
     auto schedule = Schedule(deck, ecl_state, python);
 
-    SummaryState st(std::chrono::system_clock::now());
-    const auto& pyaction_kw = deck.getKeyword<ParserKeywords::PYACTION>(0);
+    SummaryState st(TimeService::now());
+    const auto& pyaction_kw = deck.get<ParserKeywords::PYACTION>().front();
     const std::string& fname = pyaction_kw.getRecord(1).getItem(0).get<std::string>(0);
     Action::PyAction py_action(python, "WCLOSE", Action::PyAction::RunCount::unlimited, deck.makeDeckPath(fname));
+    auto actionx_callback = [] (const std::string&, const std::vector<std::string>&) { ;};
+    Action::State action_state;
+
     st.update_well_var("PROD1", "WWCT", 0);
-    py_action.run(ecl_state, schedule, 10, st);
+    py_action.run(ecl_state, schedule, 10, st, actionx_callback);
 
     st.update("FOPR", 0);
-    py_action.run(ecl_state, schedule, 10, st);
+    py_action.run(ecl_state, schedule, 10, st, actionx_callback);
 
     st.update("FOPR", 100);
     st.update_well_var("PROD1", "WWCT", 0.90);
-    py_action.run(ecl_state, schedule, 10, st);
+    py_action.run(ecl_state, schedule, 10, st, actionx_callback);
 
     const auto& well1 = schedule.getWell("PROD1", 10);
     const auto& well2 = schedule.getWell("PROD2", 10);
     BOOST_CHECK( well1.getStatus() == Well::Status::SHUT );
     BOOST_CHECK( well2.getStatus() == Well::Status::OPEN );
     BOOST_CHECK( st.has("RUN_COUNT") );
+
+    std::map<std::string, Action::PyAction> action_map;
+    for (const auto * p : schedule[0].actions().pending_python(action_state))
+        action_map.emplace( p->name(), *p );
+
+    const auto& pyaction_unlimited  = action_map.at("UNLIMITED");
+    const auto& pyaction_single     = action_map.at("SINGLE");
+    const auto& pyaction_first_true = action_map.at("FIRST_TRUE");
+
+    auto actions = schedule[0].actions();
+    BOOST_CHECK( actions.pending_python(action_state).size() == 4);
+
+    action_state.add_run( py_action, true);
+    BOOST_CHECK( actions.pending_python(action_state).size() == 4);
+
+    action_state.add_run( pyaction_unlimited, true);
+    BOOST_CHECK( actions.pending_python(action_state).size() == 4);
+
+    action_state.add_run( pyaction_single, false);
+    BOOST_CHECK( actions.pending_python(action_state).size() == 3);
+
+    action_state.add_run( pyaction_first_true, false);
+    BOOST_CHECK( actions.pending_python(action_state).size() == 3);
+
+    action_state.add_run( pyaction_first_true, true);
+    BOOST_CHECK( actions.pending_python(action_state).size() == 2);
 }
 
 

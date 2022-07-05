@@ -17,13 +17,13 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef OPM_SERIALIZER_HPP
+#define OPM_SERIALIZER_HPP
+
 #include <cstring>
 #include <string>
 #include <unordered_map>
 #include <vector>
-
-#ifndef OPM_SERIALIZER_HPP
-#define OPM_SERIALIZER_HPP
 
 namespace Opm {
 /*

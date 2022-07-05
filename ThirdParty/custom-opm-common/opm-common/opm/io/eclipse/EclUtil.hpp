@@ -37,6 +37,17 @@ namespace Opm { namespace EclIO {
     bool isFormatted(const std::string& filename);
     bool is_number(const std::string& numstr);
 
+    /// Compute the linearly combined summary vector ID number from two
+    /// constituents.
+    ///
+    /// Constituents are *typically* one-based region IDs, but at least one
+    /// of the two could be a component ID too.
+    int combineSummaryNumbers(const int n1, const int n2);
+
+    /// Split a combined summary vector ID ('NUMS' entry) into its original
+    /// two constituent IDs.
+    std::tuple<int,int> splitSummaryNumber(const int n);
+
     std::tuple<int, int> block_size_data_binary(eclArrType arrType);
     std::tuple<int, int, int> block_size_data_formatted(eclArrType arrType);
 

@@ -153,7 +153,7 @@ we currently have five different categories:
 
      To infer the number of records in the keyword based on an
      internal calculation is not supported, hence for these keywords
-     size is given as unkown, and the keywords are terminated when the
+     size is given as unknown, and the keywords are terminated when the
      next valid keyword is found:
 
         {"name" : "VFPPROD" , "size" : "UNKNOWN", ....
@@ -297,7 +297,7 @@ composite units based on the dimension of the composite quantity. As a
 consequence the list of dimensions supported by the parser is long,
 and growing. The current list can be found in the source file:
 
-   opm/parser/eclipse/Units/UnitSystem.cpp
+   opm/input/eclipse/Units/UnitSystem.cpp
 
 
 

@@ -22,7 +22,7 @@
 #include <opm/io/eclipse/rst/group.hpp>
 
 #include <opm/output/eclipse/VectorItems/group.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;
@@ -50,9 +50,12 @@ RstGroup::RstGroup(const ::Opm::UnitSystem& unit_system,
     parent_group(igrp[header.nwgmax + VI::IGroup::ParentGroup] ),
     // prod_active_cmode(igrp[header.nwgmax + VI::IGroup::ProdActiveCMode]),
     prod_cmode(igrp[header.nwgmax + VI::IGroup::GConProdCMode]),
-    winj_cmode(igrp[header.nwgmax + VI::IGroup::WInjCMode]),
-    ginj_cmode(igrp[header.nwgmax + VI::IGroup::GInjCMode]),
-    guide_rate_def(igrp[header.nwgmax + VI::IGroup::GuideRateDef]),
+    winj_cmode(igrp[header.nwgmax + VI::IGroup::GConInjeWInjCMode]),
+    ginj_cmode(igrp[header.nwgmax + VI::IGroup::GConInjeGInjCMode]),
+    prod_guide_rate_def(igrp[header.nwgmax + VI::IGroup::GuideRateDef]),
+    exceed_action(igrp[header.nwgmax + VI::IGroup::ExceedAction]),
+    inj_water_guide_rate_def(igrp[header.nwgmax + VI::IGroup::GConInjeWaterGuideRateMode]),
+    inj_gas_guide_rate_def(igrp[header.nwgmax + VI::IGroup::GConInjeGasGuideRateMode]),
     // The values oil_rate_limit -> gas_voidage_limit will be used in UDA
     // values. The UDA values are responsible for unit conversion and raw values
     // are internalized here.
@@ -68,6 +71,11 @@ RstGroup::RstGroup(const ::Opm::UnitSystem& unit_system,
     gas_reservoir_limit(           sgrp_value(sgrp[VI::SGroup::gasResRateLimit])),
     gas_reinject_limit(            sgrp_value(sgrp[VI::SGroup::gasReinjectionLimit])),
     gas_voidage_limit(             sgrp_value(sgrp[VI::SGroup::gasVoidageLimit])),
+    glift_max_supply(              unit_system.to_si(M::gas_surface_rate,      sgrp[VI::SGroup::GLOMaxSupply])),
+    glift_max_rate(                unit_system.to_si(M::gas_surface_rate,      sgrp[VI::SGroup::GLOMaxRate])),
+    efficiency_factor(             unit_system.to_si(M::identity,              sgrp[VI::SGroup::EfficiencyFactor])),
+    inj_water_guide_rate(          sgrp_value(sgrp[VI::SGroup::waterGuideRate])),
+    inj_gas_guide_rate(            sgrp_value(sgrp[VI::SGroup::gasGuideRate])),
     oil_production_rate(           unit_system.to_si(M::liquid_surface_rate,   xgrp[VI::XGroup::OilPrRate])),
     water_production_rate(         unit_system.to_si(M::liquid_surface_rate,   xgrp[VI::XGroup::WatPrRate])),
     gas_production_rate(           unit_system.to_si(M::gas_surface_rate,      xgrp[VI::XGroup::GasPrRate])),

@@ -20,16 +20,16 @@
 #define BOOST_TEST_MODULE ResinsightIntegrationTests
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckSection.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/F.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/G.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/S.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FaultCollection.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckSection.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/F.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/G.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/S.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/GridDims.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FaultCollection.hpp>
 
 using namespace Opm;
 

@@ -1,0 +1,101 @@
+{
+  "name": "MESSAGES",
+  "sections": [
+    "RUNSPEC",
+    "GRID",
+    "EDIT",
+    "PROPS",
+    "REGIONS",
+    "SOLUTION",
+    "SUMMARY",
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "MESSAGE_PRINT_LIMIT",
+      "value_type": "INT",
+      "default": 1000000
+    },
+    {
+      "item": 2,
+      "name": "COMMENT_PRINT_LIMIT",
+      "value_type": "INT",
+      "default": 1000000
+    },
+    {
+      "item": 3,
+      "name": "WARNING_PRINT_LIMIT",
+      "value_type": "INT",
+      "default": 10000
+    },
+    {
+      "item": 4,
+      "name": "PROBLEM_PRINT_LIMIT",
+      "value_type": "INT",
+      "default": 100
+    },
+    {
+      "item": 5,
+      "name": "ERROR_PRINT_LIMIT",
+      "value_type": "INT",
+      "default": 100
+    },
+    {
+      "item": 6,
+      "name": "BUG_PRINT_LIMIT",
+      "value_type": "INT",
+      "default": 100
+    },
+    {
+      "item": 7,
+      "name": "MESSAGE_STOP_LIMIT",
+      "value_type": "INT",
+      "default": 1000000,
+      "comment": "Not supported"
+    },
+    {
+      "item": 8,
+      "name": "COMMENT_STOP_LIMIT",
+      "value_type": "INT",
+      "default": 1000000,
+      "comment": "Not supported"
+    },
+    {
+      "item": 9,
+      "name": "WARNING_STOP_LIMIT",
+      "value_type": "INT",
+      "default": 10000,
+      "comment": "Not supported"
+    },
+    {
+      "item": 10,
+      "name": "PROBLEM_STOP_LIMIT",
+      "value_type": "INT",
+      "default": 100,
+      "comment": "Not supported"
+    },
+    {
+      "item": 11,
+      "name": "ERROR_STOP_LIMIT",
+      "value_type": "INT",
+      "default": 10,
+      "comment": "Not supported"
+    },
+    {
+      "item": 12,
+      "name": "BUG_STOP_LIMIT",
+      "value_type": "INT",
+      "default": 1,
+      "comment": "Not supported"
+    },
+    {
+      "item": 13,
+      "name": "GROUP_PRINT_LIMIT",
+      "value_type": "INT",
+      "default": 10,
+      "comment": "Not supported"
+    }
+  ]
+}

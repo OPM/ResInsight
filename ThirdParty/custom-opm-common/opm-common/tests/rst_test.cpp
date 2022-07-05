@@ -16,28 +16,29 @@
   You should have received a copy of the GNU General Public License
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
+
+#include <cstdlib>
 #include <iostream>
+#include <memory>
+#include <optional>
+#include <tuple>
 #include <unordered_map>
+#include <utility>
 #include <vector>
 
-#include <opm/io/eclipse/rst/state.hpp>
-#include <opm/io/eclipse/ERst.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/Well.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
+#include <opm/io/eclipse/ERst.hpp>
+#include <opm/io/eclipse/RestartFileView.hpp>
+#include <opm/io/eclipse/rst/state.hpp>
+
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
 
 #include <opm/common/OpmLog/OpmLog.hpp>
 #include <opm/common/OpmLog/StreamLog.hpp>
-#include <opm/common/OpmLog/LogUtil.hpp>
 
 void initLogging() {
     std::shared_ptr<Opm::StreamLog> cout_log = std::make_shared<Opm::StreamLog>(std::cout, Opm::Log::DefaultMessageTypes);
@@ -66,7 +67,7 @@ void initLogging() {
 */
 
 
-Opm::Schedule load_schedule(std::shared_ptr<const Opm::Python> python, const std::string& fname, int& report_step) {
+std::pair<Opm::EclipseState, Opm::Schedule> load_schedule(std::shared_ptr<const Opm::Python> python, const std::string& fname, int& report_step) {
     Opm::Parser parser;
     auto deck = parser.parseFile(fname);
     Opm::EclipseState state(deck);
@@ -75,15 +76,24 @@ Opm::Schedule load_schedule(std::shared_ptr<const Opm::Python> python, const std
     if (init_config.restartRequested()) {
         report_step = init_config.getRestartStep();
         const auto& rst_filename = state.getIOConfig().getRestartFileName( init_config.getRestartRootName(), report_step, false );
-        Opm::EclIO::ERst rst_file(rst_filename);
+        auto rst_file = std::make_shared<Opm::EclIO::ERst>(rst_filename);
+        auto rst_view = std::make_shared<Opm::EclIO::RestartFileView>(std::move(rst_file), report_step);
 
-        const auto& rst = Opm::RestartIO::RstState::load(rst_file, report_step);
-        return Opm::Schedule(deck, state, python, &rst);
+        const auto rst = Opm::RestartIO::RstState::load(std::move(rst_view), state.runspec(), parser);
+        return {
+            std::piecewise_construct,
+            std::forward_as_tuple(state),
+            std::forward_as_tuple(deck, state, python, std::nullopt, &rst)
+        };
     } else
-        return Opm::Schedule(deck, state, python);
+        return {
+            std::piecewise_construct,
+            std::forward_as_tuple(state),
+            std::forward_as_tuple(deck, state, python)
+        };
 }
 
-Opm::Schedule load_schedule(std::shared_ptr<const Opm::Python> python, const std::string& fname) {
+std::pair<Opm::EclipseState, Opm::Schedule> load_schedule(std::shared_ptr<const Opm::Python> python, const std::string& fname) {
     int report_step;
     return load_schedule(python, fname, report_step);
 }
@@ -96,16 +106,27 @@ int main(int argc, char ** argv) {
     if (argc == 2)
         load_schedule(python, argv[1]);
     else {
+        bool equal = true;
         int report_step;
-        const auto& sched = load_schedule(python, argv[1]);
-        const auto& rst_sched = load_schedule(python, argv[2], report_step);
+        const auto& [state, sched] = load_schedule(python, argv[1]);
+        const auto& [rst_state, rst_sched] = load_schedule(python, argv[2], report_step);
 
-        if (Opm::Schedule::cmp(sched, rst_sched, report_step) ) {
-            std::cout << "Schedule objects were equal!" << std::endl;
-            std::exit( EXIT_SUCCESS );
-        } else {
-            std::cout << "Differences were encountered between the Schedule objects" << std::endl;
-            std::exit( EXIT_FAILURE );
+
+        if (Opm::EclipseState::rst_cmp(state, rst_state))
+            std::cout << "EclipseState objects were equal!" << std::endl;
+        else {
+            std::cout << "EclipseState objects were different!" << std::endl;
+            equal = false;
         }
+
+        if (Opm::Schedule::cmp(sched, rst_sched, static_cast<std::size_t>(report_step)) )
+            std::cout << "Schedule objects were equal!" << std::endl;
+        else {
+            std::cout << "Differences were encountered between the Schedule objects" << std::endl;
+            equal = false;
+        }
+
+        if (!equal)
+            std::exit( EXIT_FAILURE );
     }
 }

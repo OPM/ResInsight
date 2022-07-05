@@ -130,14 +130,26 @@ endif ()
 
 # parallel computing must be explicitly enabled
 # This needs to be in OpmInit as prereqs is called before OpmLibMain is included.
-option (USE_MPI "Use Message Passing Interface for parallel computing" OFF)
+option (USE_MPI "Use Message Passing Interface for parallel computing" ON)
 if (NOT USE_MPI)
   set (CMAKE_DISABLE_FIND_PACKAGE_MPI TRUE)
 endif ()
 
+# Compiler standard version needs to be requested here as prereqs is included
+# before OpmLibMain and some tests need/use CXX_STANDARD_VERSION (e.g. pybind11)
+# Languages and global compiler settings
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
 # quadmath must be explicitly enabled
 # This needs to be in OpmInit as prereqs is called before OpmLibMain is included.
-option (USE_QUADMATH "Use high precision floating point library (slow)" OFF)
+option (USE_QUADMATH "Search for high precision floating point library (normally not used)" ON)
 if (NOT USE_QUADMATH)
   set (CMAKE_DISABLE_FIND_PACKAGE_QuadMath TRUE)
+endif ()
+
+option (USE_SUPERLU "Use SuperLU direct solvers for AMG (if umfpack is not found)" ON)
+if (NOT USE_SUPERLU)
+  set (CMAKE_DISABLE_FIND_PACKAGE_SuperLU TRUE)
 endif ()

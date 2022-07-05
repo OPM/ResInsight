@@ -106,6 +106,9 @@ namespace Opm { namespace RestartIO {
             return this->data_;
         }
 
+        /// Logical switch to indicate that the network option is used
+        ///
+        LogiHEAD& network(const int maxNoNodes);
     private:
         std::vector<bool> data_;
     };

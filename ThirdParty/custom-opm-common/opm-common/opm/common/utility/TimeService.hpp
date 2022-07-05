@@ -24,6 +24,7 @@
 #include <ctime>
 #include <string>
 #include <unordered_map>
+#include <opm/input/eclipse/Deck/DeckRecord.hpp>
 
 
 namespace Opm {
@@ -38,7 +39,13 @@ namespace Opm {
     std::time_t advance(const std::time_t tp, const double sec);
     std::time_t makeUTCTime(std::tm timePoint);
     const std::unordered_map<std::string , int>& eclipseMonthIndices();
+    const std::unordered_map<int, std::string>& eclipseMonthNames();
+    int eclipseMonth(const std::string& name);
     bool valid_month(const std::string& month_name);
+
+    std::time_t mkdatetime(int in_year, int in_month, int in_day, int hour, int minute, int second);
+    std::time_t mkdate(int in_year, int in_month, int in_day);
+    std::time_t timeFromEclipse(const DeckRecord &dateRecord);
     }
 
     class TimeStampUTC
@@ -115,6 +122,8 @@ namespace Opm {
     TimeStampUTC operator+(const TimeStampUTC& lhs, std::chrono::duration<double> delta);
     std::time_t asTimeT(const TimeStampUTC& tp);
     std::time_t asLocalTimeT(const TimeStampUTC& tp);
+    time_point asTimePoint(const TimeStampUTC& tp);
+
 
 } // namespace Opm
 

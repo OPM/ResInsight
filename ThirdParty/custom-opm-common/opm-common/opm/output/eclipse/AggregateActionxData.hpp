@@ -23,14 +23,14 @@
 #include <opm/output/eclipse/WindowedArray.hpp>
 #include <opm/io/eclipse/PaddedOutputString.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQInput.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQDefine.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQActive.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQAssign.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQEnums.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQParams.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQFunctionTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQInput.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQDefine.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQActive.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQAssign.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQEnums.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQParams.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQFunctionTable.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
 
 #include <cstddef>
 #include <string>
@@ -41,6 +41,11 @@ namespace Opm {
     class Schedule;
     class UDQInput;
     class UDQActive;
+    class Actdims;
+
+    namespace Action {
+        class State;
+    }
 } // Opm
 
 
@@ -50,12 +55,11 @@ namespace Opm { namespace RestartIO { namespace Helpers {
 class AggregateActionxData
 {
 public:
-    explicit AggregateActionxData(const std::vector<int>& actDims);
 
-    void captureDeclaredActionxData(    const Opm::Schedule&    sched,
-                                        const Opm::SummaryState& st,
-                                        const std::vector<int>& actDims,
-                                        const std::size_t       simStep);
+    AggregateActionxData(const Opm::Schedule&      sched,
+                         const Opm::Action::State& action_state,
+                         const Opm::SummaryState&  st,
+                         const std::size_t         simStep);
 
     const std::vector<int>& getIACT() const
     {
@@ -94,6 +98,14 @@ public:
     }
 
 private:
+    AggregateActionxData( const std::vector<int>&     rst_dims,
+                          std::size_t                 num_actions,
+                          const Opm::Actdims& actdims,
+                          const Opm::Schedule&        sched,
+                          const Opm::Action::State&   action_state,
+                          const Opm::SummaryState&    st,
+                          const std::size_t           simStep);
+
     /// Aggregate 'IACT' array (Integer) for all ACTIONX data  (9 integers pr UDQ)
     WindowedArray<int> iACT_;
 

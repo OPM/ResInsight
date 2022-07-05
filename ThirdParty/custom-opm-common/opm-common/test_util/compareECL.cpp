@@ -96,7 +96,7 @@ int main(int argc, char** argv) {
     int reportStepNumber           = -1;
     std::string fileTypeString;
 
-    while ((c = getopt(argc, argv, "hik:alnpt:Rr:x:d")) != -1) {
+    while ((c = getopt(argc, argv, "hik:alnpt:Rr:xd")) != -1) {
         switch (c) {
         case 'a':
             analysis = true;
@@ -194,11 +194,11 @@ int main(int argc, char** argv) {
         if (onlyLastSequence) {
             comparator.setOnlyLastReportNumber(true);
         }
-        
+
         if (reportStepOnly) {
             comparator.setReportStepOnly(true);
         }
-        
+
         if (specificKeyword) {
             comparator.compareSpesificKeyword(keyword);
         }

@@ -19,71 +19,58 @@
 #ifndef RST_STATE
 #define RST_STATE
 
-#include <vector>
+#include <memory>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
-#include <opm/io/eclipse/ERst.hpp>
-#include <opm/io/eclipse/rst/header.hpp>
+#include <opm/io/eclipse/rst/aquifer.hpp>
+#include <opm/io/eclipse/rst/action.hpp>
 #include <opm/io/eclipse/rst/group.hpp>
+#include <opm/io/eclipse/rst/header.hpp>
+#include <opm/io/eclipse/rst/network.hpp>
+#include <opm/io/eclipse/rst/udq.hpp>
 #include <opm/io/eclipse/rst/well.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/Tuning.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Tuning.hpp>
 
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 namespace Opm {
+    class EclipseGrid;
+    class Parser;
+} // namespace Opm
 
-namespace RestartIO {
+namespace Opm { namespace EclIO {
+    class RestartFileView;
+}} // namespace Opm::EclIO
+
+namespace Opm { namespace RestartIO {
+
 struct RstState {
-    RstState(const ::Opm::UnitSystem& unit_system,
-             const std::vector<int>& intehead,
-             const std::vector<bool>& logihead,
-             const std::vector<double>& doubhead);
+    RstState(std::shared_ptr<EclIO::RestartFileView> rstView,
+             const Runspec& runspec,
+             const ::Opm::EclipseGrid*               grid);
 
-    RstState(const ::Opm::UnitSystem& unit_system,
-             const std::vector<int>& intehead,
-             const std::vector<bool>& logihead,
-             const std::vector<double>& doubhead,
-             const std::vector<std::string>& zgrp,
-             const std::vector<int>& igrp,
-             const std::vector<float>& sgrp,
-             const std::vector<double>& xgrp,
-             const std::vector<std::string>& zwel,
-             const std::vector<int>& iwel,
-             const std::vector<float>& swel,
-             const std::vector<double>& xwel,
-             const std::vector<int>& icon,
-             const std::vector<float>& scon,
-             const std::vector<double>& xcon);
-
-    RstState(const ::Opm::UnitSystem& unit_system,
-             const std::vector<int>& intehead,
-             const std::vector<bool>& logihead,
-             const std::vector<double>& doubhead,
-             const std::vector<std::string>& zgrp,
-             const std::vector<int>& igrp,
-             const std::vector<float>& sgrp,
-             const std::vector<double>& xgrp,
-             const std::vector<std::string>& zwel,
-             const std::vector<int>& iwel,
-             const std::vector<float>& swel,
-             const std::vector<double>& xwel,
-             const std::vector<int>& icon,
-             const std::vector<float>& scon,
-             const std::vector<double>& xcon,
-             const std::vector<int>& iseg,
-             const std::vector<double>& rseg);
-
-
-    static RstState load(EclIO::ERst& rst_file, int report_step);
+    static RstState load(std::shared_ptr<EclIO::RestartFileView> rstView,
+                         const Runspec& runspec,
+                         const Parser& parser,
+                         const ::Opm::EclipseGrid*               grid = nullptr);
 
     const RstWell& get_well(const std::string& wname) const;
 
-    const ::Opm::UnitSystem unit_system;
+    ::Opm::UnitSystem unit_system;
     RstHeader header;
+    RstAquifer aquifers;
+    RstNetwork network;
     std::vector<RstWell> wells;
     std::vector<RstGroup> groups;
+    std::vector<RstUDQ> udqs;
+    RstUDQActive udq_active;
+    std::vector<RstAction> actions;
     Tuning tuning;
+    std::unordered_map<std::string, std::vector<std::string>> wlists;
 
 private:
     void load_tuning(const std::vector<int>& intehead,
@@ -93,11 +80,48 @@ private:
                     const std::vector<int>& igrp,
                     const std::vector<float>& sgrp,
                     const std::vector<double>& xgrp);
+
+    void add_wells(const std::vector<std::string>& zwel,
+                   const std::vector<int>& iwel,
+                   const std::vector<float>& swel,
+                   const std::vector<double>& xwel,
+                   const std::vector<int>& icon,
+                   const std::vector<float>& scon,
+                   const std::vector<double>& xcon);
+
+    void add_msw(const std::vector<std::string>& zwel,
+                 const std::vector<int>& iwel,
+                 const std::vector<float>& swel,
+                 const std::vector<double>& xwel,
+                 const std::vector<int>& icon,
+                 const std::vector<float>& scon,
+                 const std::vector<double>& xcon,
+                 const std::vector<int>& iseg,
+                 const std::vector<double>& rseg);
+
+    void add_udqs(const std::vector<int>& iudq,
+                  const std::vector<std::string>& zudn,
+                  const std::vector<std::string>& zudl,
+                  const std::vector<double>& dudw,
+                  const std::vector<double>& dudg,
+                  const std::vector<double>& dudf);
+
+    void add_actions(const Parser& parser,
+                     const Runspec& runspec,
+                     std::time_t sim_time,
+                     const std::vector<std::string>& zact,
+                     const std::vector<int>& iact,
+                     const std::vector<float>& sact,
+                     const std::vector<std::string>& zacn,
+                     const std::vector<int>& iacn,
+                     const std::vector<double>& sacn,
+                     const std::vector<std::string>& zlact);
+
+    void add_wlist(const std::vector<std::string>& zwls,
+                   const std::vector<int>& iwls);
+
 };
-}
-}
 
-
-
+}} // namespace Opm::RestartIO
 
 #endif

@@ -1,0 +1,11 @@
+{
+  "name": "IPCG",
+  "sections": [
+    "PROPS"
+  ],
+  "requires": ["ENDSCALE"],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Pressure"
+  }
+}

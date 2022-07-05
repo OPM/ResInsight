@@ -246,6 +246,10 @@ PVTO
 -- so it is possible to use the assumption described above. 
 -- An equivalent approximation for the viscosity has been used.
 /
+REGIONS
+
+FIPNUM
+  300*1 / 
 
 SOLUTION
 -- -------------------------------------------------------------------------
@@ -283,7 +287,12 @@ SUMMARY
 
 DATE
 
+RPR__NUM
+/
+
 RUNSUM
+FMWPA
+FMWIA
 
 -- 1a) Oil rate vs time
 FOPR
@@ -388,8 +397,10 @@ WELSPECS
 -- Item #: 1	 2	3	4	5	 6
 	'PROD'	'G1'	10	10	8400	'OIL' /
 	'INJ'	  'G1'	1	  1	  8335	'GAS' /
-  'RFT'   'G1'  10  10  8400  'OIL' /
+  'RFTP'   'G1'  10  10  8400  'OIL' /
+  'RFTI'   'G1'  9  9  8400  'WATER' /
 /
+
 -- Coordinates in item 3-4 are retrieved from Odeh's figure 1 and 2
 -- Note that the depth at the midpoint of the well grid blocks
 -- has been used as reference depth for bottom hole pressure in item 5
@@ -397,7 +408,8 @@ WELSPECS
 COMPDAT
 -- Item #: 1	2	3	4	5	6	7	8	9
 	'PROD'	10	10	3	3	'OPEN'	1*	1*	0.5 /
-	'RFT'	  10	10	3	3	'OPEN'	1*	1*	0.5 /
+	'RFTP'  10	10	3	3	'OPEN'	1*	1*	0.5 /
+	'RFTI'  9  	9  	3	3	'OPEN'	1*	1*	0.5 /
 	'INJ'	1	1	1	1	'OPEN'	1*	1*	0.5 /
 /
 -- Coordinates in item 2-5 are retreived from Odeh's figure 1 and 2 
@@ -408,6 +420,7 @@ COMPDAT
 WCONPROD
 -- Item #:1	2      3     4	   5  9
 	'PROD' 'OPEN' 'ORAT' 20000 4* 1000 /
+	'RFTP' 'SHUT' 'ORAT' 20000 4* 1000 /
 /
 -- It is stated in Odeh's paper that the maximum oil prod. rate
 -- is 20 000stb per day which explains the choice of value in item 4.
@@ -417,7 +430,9 @@ WCONPROD
 WCONINJE
 -- Item #:1	 2	 3	 4	5      6  7
 	'INJ'	'GAS'	'OPEN'	'RATE'	100000 1* 9014 /
+  'RFTI'  'GAS' 'SHUT'  'RATE' 0 /
 /
+
 -- Stated in Odeh that gas inj. rate (item 5) is 100MMscf per day
 -- BHP upper limit (item 7) should not be exceeding the highest
 -- pressure in the PVT table=9014.7psia (default is 100 000psia)
@@ -427,25 +442,38 @@ TSTEP
 31 28 31 30 31 30 31 31 30 31 30 31 /
 
 WELOPEN
-   'RFT' OPEN /
+   'RFTP' OPEN /
+   'RFTI' OPEN /
 /
 
 WCONHIST
-   'RFT'  'OPEN'  'RESV'  0 /
+   'RFTP'  'OPEN'  'RESV'  0 /
+/
+
+WCONINJE
+   'RFTI' 'GAS' 'OPEN'  'RATE'  0 /
 /
 
 TSTEP
    31 /
 
 WELOPEN
-   'RFT' 'SHUT' /
+   'RFTP' 'SHUT' /
+   'RFTI' 'STOP' /
 /
 
 TSTEP
    28 31 30 31 30 31 31 30 31 30 31 
 31 28 31 30 31 30 31 31 30 31 30 31 
 31 28 31 30 31 30 31 31 30 31 30 31 
-31 28 31 30 31 30 31 31 30 31 30 31 
+31 /
+
+DATES
+   28 'FEB' 2019 /
+/
+
+TSTEP
+      31 30 31 30 31 31 30 31 30 31
 31 28 31 30 31 30 31 31 30 31 30 31 
 31 28 31 30 31 30 31 31 30 31 30 31 
 31 28 31 30 31 30 31 31 30 31 30 31 

@@ -34,11 +34,16 @@ int main(void){
   if (QUADMATH_FOUND)
     set(QUADMATH_LIBRARIES "quadmath")
     set(HAVE_QUAD "${QUADMATH_FOUND}")
+    add_library(QuadMath::QuadMath INTERFACE IMPORTED)
+    set_target_properties(QuadMath::QuadMath PROPERTIES
+      INTERFACE_LINK_LIBRARIES quadmath
+      INTERFACE_COMPILE_DEFINITIONS _GLIBCXX_USE_FLOAT128
+      INTERFACE_COMPILE_OPTIONS $<$<CXX_COMPILER_ID:GNU>:-fext-numeric-literals>)
   endif()
 endif()
 
 if (USE_QUADMATH AND NOT QUADMATH_FOUND)
-  message(FATAL_ERROR "Quadruple precision math support was explicitly requested but is unavailable!")
+  message(STATUS "Quadruple precision math support is unavailable! Skipping it.")
 endif()
 
 include(FindPackageHandleStandardArgs)

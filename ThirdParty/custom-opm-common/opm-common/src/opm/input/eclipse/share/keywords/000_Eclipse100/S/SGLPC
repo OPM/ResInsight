@@ -1,0 +1,11 @@
+{
+  "name": "SGLPC",
+  "sections": [
+    "PROPS"
+  ],
+  "requires": ["GAS"],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

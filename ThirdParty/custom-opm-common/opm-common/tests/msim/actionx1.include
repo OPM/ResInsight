@@ -287,6 +287,8 @@ SUMMARY
 
 FOPR
 
+FU_TIME
+
 WGOR
 /
 WOPR
@@ -382,6 +384,7 @@ UDQ
   UNITS  WUWCT '1' /
   DEFINE FUOPR SUM(WOPR) /
   UNITS  FUOPR 'SM3/DAY' /
+  DEFINE FU_TIME  TIME/
 /
 
 
@@ -450,75 +453,87 @@ WCONINJE
 -- BHP upper limit (item 7) should not be exceeding the highest
 -- pressure in the PVT table=9014.7psia (default is 100 000psia)
 
-DATES
+DATES       -- 1 
    1 'JAN'  2015 /
 /
 
-DATES
+DATES       -- 2
    1 'FEB'  2015 /
 /
 
-DATES
+DATES       -- 3
    1 'MAR'  2015 /
 /
 
-DATES
+DATES       -- 4
    1 'APR'  2015 /
 /
 
-DATES
+DATES       -- 5
    1 'MAI'  2015 /
 /
 
-DATES
+DATES       -- 6  
    1 'JUN'  2015 /
 /
 
-DATES
+DATES       -- 7
    1 'JUL'  2015 /
 /
 
-DATES
+DATES       -- 8
    1 'AUG'  2015 /
 /
 
-DATES
+UDQ
+   UPDATE FU_TIME OFF /
+/
+
+DATES       -- 9
    1 'SEP'  2015 /
 /
 
-DATES
+DATES       -- 10
    1 'OCT'  2015 /
 /
 
-DATES
+DATES       -- 11
    1 'NOV'  2015 /
 /
 
-DATES
+DATES       -- 12
    1 'DEC'  2015 /
 /
 
-DATES
+UDQ
+   UPDATE FU_TIME NEXT /
+/
+
+DATES       -- 13
    1 'JAN'  2016 /
 /
 
-DATES
+DATES       -- 14
    1 'FEB'  2016 /
 /
 
-DATES
+DATES       -- 15
    1 'MAR'  2016 /
 /
 
-DATES
+UDQ
+   UPDATE FU_TIME ON /
+/
+
+DATES       -- 16
    1 'APR'  2016 /
 /
 
-DATES
+DATES       -- 17
    1 'MAI'  2016 /
 /
 
-DATES
+DATES       -- 18
    1 'JUN'  2016 /
 /
 

@@ -23,7 +23,8 @@
 #include <opm/output/eclipse/VectorItems/logihead.hpp>
 #include <opm/output/eclipse/VectorItems/doubhead.hpp>
 #include <opm/common/utility/TimeService.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
 
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;
 using M = ::Opm::UnitSystem::measure;
@@ -31,7 +32,8 @@ using M = ::Opm::UnitSystem::measure;
 namespace Opm {
 namespace RestartIO {
 
-RstHeader::RstHeader(const Opm::UnitSystem& unit_system, const std::vector<int>& intehead, const std::vector<bool>& logihead, const std::vector<double>& doubhead) :
+RstHeader::RstHeader(const Runspec& runspec_, const Opm::UnitSystem& unit_system, const std::vector<int>& intehead, const std::vector<bool>& logihead, const std::vector<double>& doubhead) :
+    runspec(runspec_),
     nx(intehead[VI::intehead::NX]),
     ny(intehead[VI::intehead::NY]),
     nz(intehead[VI::intehead::NZ]),
@@ -87,6 +89,12 @@ RstHeader::RstHeader(const Opm::UnitSystem& unit_system, const std::vector<int>&
     nmfipr(intehead[VI::intehead::NMFIPR]),
     ngroup(intehead[VI::intehead::NGRP]),
     nwgmax(intehead[VI::intehead::NWGMAX]),
+    nwell_udq(intehead[VI::intehead::NO_WELL_UDQS]),
+    ngroup_udq(intehead[VI::intehead::NO_GROUP_UDQS]),
+    nfield_udq(intehead[VI::intehead::NO_FIELD_UDQS]),
+    num_action(intehead[VI::intehead::NOOFACTIONS]),
+    guide_rate_nominated_phase(intehead[VI::intehead::NGRNPH]),
+    max_wlist(intehead[VI::intehead::MXWLSTPRWELL]),
     //
     e300_radial(logihead[VI::logihead::E300Radial]),
     e100_radial(logihead[VI::logihead::E100Radial]),
@@ -102,6 +110,7 @@ RstHeader::RstHeader(const Opm::UnitSystem& unit_system, const std::vector<int>&
     reversible_eps(logihead[VI::logihead::RevEPS]),
     alt_eps(logihead[VI::logihead::AltEPS]),
     group_control_active(intehead[VI::intehead::NGRNPH] == 1),
+    glift_all_nupcol(intehead[VI::intehead::EACHNCITS] == VI::InteheadValues::LiftOpt::EachNupCol),
     //
     next_timestep1(unit_system.to_si(M::time, doubhead[VI::doubhead::TsInit])),
     next_timestep2(0),
@@ -116,14 +125,31 @@ RstHeader::RstHeader(const Opm::UnitSystem& unit_system, const std::vector<int>&
     guide_rate_damping(doubhead[VI::doubhead::GRpar_damp]),
     udq_range(doubhead[VI::doubhead::UdqPar_2]),
     udq_undefined(doubhead[VI::doubhead::UdqPar_3]),
-    udq_eps(doubhead[VI::doubhead::UdqPar_4])
+    udq_eps(doubhead[VI::doubhead::UdqPar_4]),
+    glift_min_wait(unit_system.to_si(M::time, doubhead[VI::doubhead::LOminInt])),
+    glift_rate_delta(unit_system.to_si(M::gas_surface_rate, doubhead[VI::doubhead::LOincrsz])),
+    glift_min_eco_grad(unit_system.to_si(M::identity, doubhead[VI::doubhead::LOminEcGrad]))
 {
+}
+
+
+std::time_t RstHeader::sim_time() const {
+    TimeStampUTC ts(this->year, this->month, this->mday);
+    ts.hour(this->hour);
+    ts.minutes(this->minute);
+    ts.microseconds(this->microsecond);
+    return asTimeT(ts);
 }
 
 std::pair<std::time_t, std::size_t> RstHeader::restart_info() const {
     return std::make_pair(asTimeT(TimeStampUTC(this->year, this->month, this->mday)),
                           std::size_t(this->report_step));
 }
+
+int RstHeader::num_udq() const {
+    return this->nwell_udq + nfield_udq + ngroup_udq;
+}
+
 
 
 }

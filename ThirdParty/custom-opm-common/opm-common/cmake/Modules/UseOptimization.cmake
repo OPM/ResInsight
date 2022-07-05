@@ -63,9 +63,9 @@ if (CXX_COMPAT_GCC)
 
   # use these options for release builds - full optimization
   add_options (ALL_LANGUAGES "${_prof_RELEASE}" ${_opt_rel} ${_opt_flags})
-  option(WITH_NDEBUG "Disable asserts in release mode" ON)
-  if(WITH_NDEBUG)
-    add_options (ALL_LANGUAGES "${_prof_RELEASE}" -DNDEBUG)
+  option(WITH_NDEBUG "Disable asserts in release mode" OFF)
+  if(NOT WITH_NDEBUG)
+    add_options (ALL_LANGUAGES "${_prof_RELEASE}" -UNDEBUG)
   endif()
 
 else ()

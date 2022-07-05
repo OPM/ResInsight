@@ -1,0 +1,18 @@
+{
+  "name": "REGION2REGION_PROBE_E300",
+  "sections": [
+    "SUMMARY"
+  ],
+  "comment": "E300 only",
+  "deck_name_regex": "R[OGWEK]F(R[-+]?|T[-+])([A-Z0-9_]{3})?",
+  "items": [
+    {
+      "name": "REGION1",
+      "value_type": "INT"
+    },
+    {
+      "name": "REGION2",
+      "value_type": "INT"
+    }
+  ]
+}

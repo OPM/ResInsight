@@ -1,0 +1,16 @@
+{
+  "name": "MAPAXES",
+  "sections": [
+    "GRID"
+  ],
+    "comment" : "
+
+This keyword is organized as a DATA keyword to enable loading it with IMPORT.
+The keyword should have exactly six elements (X1,Y1), (X2,Y2), (X3,Y3)
+
+",
+    "data" : {
+        "value_type" : "DOUBLE",
+        "dimension" : "Length"
+    }
+}

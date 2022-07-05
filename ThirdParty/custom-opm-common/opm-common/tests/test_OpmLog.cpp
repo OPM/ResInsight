@@ -36,7 +36,7 @@
 #include <opm/common/OpmLog/TimerLog.hpp>
 #include <opm/common/OpmLog/StreamLog.hpp>
 #include <opm/common/OpmLog/LogUtil.hpp>
-#include <opm/common/OpmLog/Location.hpp>
+#include <opm/common/OpmLog/KeywordLocation.hpp>
 
 using namespace Opm;
 
@@ -48,7 +48,7 @@ BOOST_AUTO_TEST_CASE(DoLogging) {
 
 
 BOOST_AUTO_TEST_CASE(Test_Format) {
-    BOOST_CHECK_EQUAL( "There is an error here?\nIn file /path/to/file, line 100\n" , Log::fileMessage(Location("/path/to/file" , 100) , "There is an error here?"));
+    BOOST_CHECK_EQUAL( "There is an error here?\nIn file /path/to/file, line 100\n" , Log::fileMessage(KeywordLocation("Keyword", "/path/to/file" , 100) , "There is an error here?"));
 
     BOOST_CHECK_EQUAL( "\nError: This is the error" ,     Log::prefixMessage(Log::MessageType::Error , "This is the error"));
     BOOST_CHECK_EQUAL( "\nWarning: This is the warning" , Log::prefixMessage(Log::MessageType::Warning , "This is the warning"));
@@ -84,7 +84,7 @@ BOOST_AUTO_TEST_CASE(Test_Logger) {
         auto counter2 = logger.getBackend<CounterLog>("COUNTER");
         BOOST_CHECK_EQUAL( 1U , counter2->numMessages( Log::MessageType::Warning));
         BOOST_CHECK_EQUAL( 1U , counter2->numMessages( Log::MessageType::Error));
-        BOOST_CHECK_EQUAL( 0  , counter2->numMessages( Log::MessageType::Info));
+        BOOST_CHECK_EQUAL( 0U , counter2->numMessages( Log::MessageType::Info));
     }
 
     BOOST_CHECK_EQUAL( false , logger.removeBackend("NO-not-found"));
@@ -177,14 +177,14 @@ BOOST_AUTO_TEST_CASE( CounterLogTesting) {
 
     BOOST_CHECK_EQUAL(1U , counter.numMessages( Log::MessageType::Error ));
     BOOST_CHECK_EQUAL(1U , counter.numMessages( Log::MessageType::Warning ));
-    BOOST_CHECK_EQUAL(0  , counter.numMessages( Log::MessageType::Info ));
+    BOOST_CHECK_EQUAL(0U , counter.numMessages( Log::MessageType::Info ));
     BOOST_CHECK_EQUAL(1U  , counter.numMessages( Log::MessageType::Note ));
 
     {
         int64_t not_enabled = 4096;
         int64_t not_power2  = 4095;
 
-        BOOST_CHECK_EQUAL( 0 , counter.numMessages( not_enabled ));
+        BOOST_CHECK_EQUAL( 0U , counter.numMessages( not_enabled ));
         BOOST_CHECK_THROW( counter.numMessages( not_power2 ) , std::invalid_argument);
     }
 }
@@ -231,9 +231,9 @@ BOOST_AUTO_TEST_CASE(TestOpmLog) {
     {
         auto counter = OpmLog::getBackend<CounterLog>("COUNTER");
 
-        BOOST_CHECK_EQUAL( 1 , counter->numMessages(Log::MessageType::Error) );
-        BOOST_CHECK_EQUAL( 1 , counter->numMessages(Log::MessageType::Warning) );
-        BOOST_CHECK_EQUAL( 0 , counter->numMessages(Log::MessageType::Info) );
+        BOOST_CHECK_EQUAL( 1U , counter->numMessages(Log::MessageType::Error) );
+        BOOST_CHECK_EQUAL( 1U , counter->numMessages(Log::MessageType::Warning) );
+        BOOST_CHECK_EQUAL( 0U , counter->numMessages(Log::MessageType::Info) );
     }
 
     BOOST_CHECK_EQUAL( log_stream.str() , "Warning\n");
@@ -252,8 +252,8 @@ BOOST_AUTO_TEST_CASE(TestHelperFunctions)
     BOOST_CHECK(isPower2(1ul << 62));
 
     // fileMessage
-    BOOST_CHECK_EQUAL(fileMessage(Location("foo/bar", 1), "message"), "message\nIn file foo/bar, line 1\n");
-    BOOST_CHECK_EQUAL(fileMessage(MessageType::Error, Location("foo/bar", 1), "message"), "\nError: message\nIn file foo/bar, line 1\n");
+    BOOST_CHECK_EQUAL(fileMessage(KeywordLocation("Keyword", "foo/bar", 1), "message"), "message\nIn file foo/bar, line 1\n");
+    BOOST_CHECK_EQUAL(fileMessage(MessageType::Error, KeywordLocation("Keyword", "foo/bar", 1), "message"), "\nError: message\nIn file foo/bar, line 1\n");
 
     // prefixMessage
     BOOST_CHECK_EQUAL(prefixMessage(MessageType::Error, "message"), "\nError: message");
@@ -301,10 +301,10 @@ BOOST_AUTO_TEST_CASE(TestOpmLogWithColors)
     {
         auto counter = OpmLog::getBackend<CounterLog>("COUNTER");
 
-        BOOST_CHECK_EQUAL( 1 , counter->numMessages(Log::MessageType::Error) );
-        BOOST_CHECK_EQUAL( 1 , counter->numMessages(Log::MessageType::Warning) );
-        BOOST_CHECK_EQUAL( 1 , counter->numMessages(Log::MessageType::Info) );
-        BOOST_CHECK_EQUAL( 1 , counter->numMessages(Log::MessageType::Bug) );
+        BOOST_CHECK_EQUAL( 1U , counter->numMessages(Log::MessageType::Error) );
+        BOOST_CHECK_EQUAL( 1U , counter->numMessages(Log::MessageType::Warning) );
+        BOOST_CHECK_EQUAL( 1U , counter->numMessages(Log::MessageType::Info) );
+        BOOST_CHECK_EQUAL( 1U , counter->numMessages(Log::MessageType::Bug) );
     }
 
 

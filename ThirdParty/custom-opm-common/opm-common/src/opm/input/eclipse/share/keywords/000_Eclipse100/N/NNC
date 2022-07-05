@@ -1,0 +1,110 @@
+{
+  "name": "NNC",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "I1",
+      "value_type": "INT"
+    },
+    {
+      "item": 2,
+      "name": "J1",
+      "value_type": "INT"
+    },
+    {
+      "item": 3,
+      "name": "K1",
+      "value_type": "INT"
+    },
+    {
+      "item": 4,
+      "name": "I2",
+      "value_type": "INT"
+    },
+    {
+      "item": 5,
+      "name": "J2",
+      "value_type": "INT"
+    },
+    {
+      "item": 6,
+      "name": "K2",
+      "value_type": "INT"
+    },
+    {
+      "item": 7,
+      "name": "TRAN",
+      "value_type": "DOUBLE",
+      "dimension": "Transmissibility",
+      "default": 0
+    },
+    {
+      "item": 8,
+      "name": "IST1",
+      "value_type": "INT",
+      "default": 0,
+      "comment" : "This item is used very differently in ECL100 and ECL300. In ECL300 it is floating point number representing the diffusitivity of the NNC"
+    },
+    {
+      "item": 9,
+      "name": "IST2",
+      "value_type": "INT",
+      "default": 0,
+      "comment" : "This item is used very differently in ECL100 and ECL300. In ECL300 it is a floating point number related to thermal conductivity"
+    },
+    {
+      "item": 10,
+      "name": "PRESSURE_TABLE1",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 11,
+      "name": "PRESSURE_TABLE2",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 12,
+      "name": "VE_FACE1",
+      "value_type": "STRING",
+      "default": ""
+    },
+    {
+      "item": 13,
+      "name": "VE_FACE2",
+      "value_type": "STRING",
+      "default": ""
+    },
+    {
+      "item": 14,
+      "name": "DIFFUSIVITY",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "item": 15,
+      "name": "SIM_DEPENDENT3",
+      "value_type": "DOUBLE",
+      "dimension": "ContextDependent",
+      "default": 0
+    },
+    {
+      "item": 16,
+      "name": "VDFLOW_AREA",
+      "value_type": "DOUBLE",
+      "dimension": "Length*Length",
+      "default": 0
+    },
+    {
+      "item": 17,
+      "name": "VDFLOW_PERM",
+      "value_type": "DOUBLE",
+      "dimension": "Permeability",
+      "default": 0
+    }
+  ]
+}

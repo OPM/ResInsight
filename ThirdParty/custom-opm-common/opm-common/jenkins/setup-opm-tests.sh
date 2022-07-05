@@ -14,6 +14,9 @@ then
     if ! test -d $WORKSPACE/deps/opm-tests
     then
       cp $OPM_TESTS_ROOT_PREDEFINED $WORKSPACE/deps/opm-tests -R
+      pushd $WORKSPACE/deps/opm-tests
+      echo "opm-tests revision: `git rev-parse HEAD`"
+      popd
     fi
   else
     # We need a full repo checkout
@@ -29,6 +32,9 @@ else
   if ! test -d $WORKSPACE/deps/opm-tests
   then
     cp $OPM_TESTS_ROOT $WORKSPACE/deps/opm-tests -R
+    pushd $WORKSPACE/deps/opm-tests
+    echo "opm-tests-revision: `git rev-parse HEAD`"
+    popd
   fi
 fi
 OPM_TESTS_ROOT=$WORKSPACE/deps/opm-tests

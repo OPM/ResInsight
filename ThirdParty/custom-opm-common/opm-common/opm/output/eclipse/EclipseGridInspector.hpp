@@ -38,7 +38,7 @@
 #include <vector>
 #include <array>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
 
 namespace Opm
 {

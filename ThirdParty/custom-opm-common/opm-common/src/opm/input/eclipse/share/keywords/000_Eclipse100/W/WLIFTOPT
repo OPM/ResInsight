@@ -1,0 +1,51 @@
+{
+  "name": "WLIFTOPT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+     "item": 1,
+     "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "USE_OPTIMIZER",
+      "value_type": "STRING"
+    },
+    {
+      "item": 3,
+      "name": "MAX_LIFT_GAS_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "item": 4,
+      "name": "WEIGHT_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "item": 5,
+      "name": "MIN_LIFT_GAS_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time",
+      "default": 0
+    },
+    {
+      "item": 6,
+      "name": "DELTA_GAS_RATE_WEIGHT_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 7,
+      "name": "ALLOCATE_EXTRA_LIFT_GAS",
+      "value_type": "STRING",
+      "default": "NO",
+      "comment": "Not supported"
+    }
+  ]
+}

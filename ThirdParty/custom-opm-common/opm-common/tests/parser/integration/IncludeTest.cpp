@@ -26,15 +26,15 @@
 #include <fstream>
 #include <iostream>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
 
-#include <opm/parser/eclipse/Parser/ParserEnums.hpp>
+#include <opm/input/eclipse/Parser/ParserEnums.hpp>
 
 using namespace Opm;
-using namespace Opm::filesystem;
+using namespace std::filesystem;
 
 static void
 createDeckWithInclude(path& datafile, std::string addEndKeyword)

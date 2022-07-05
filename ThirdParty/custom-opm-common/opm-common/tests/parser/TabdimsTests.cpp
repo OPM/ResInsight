@@ -19,7 +19,7 @@
 #define BOOST_TEST_MODULE TABDIMS_TESTS
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Tables/Tabdims.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/Tabdims.hpp>
 
 BOOST_AUTO_TEST_CASE(TEST_CREATE) {
     Opm::Tabdims tabdims;

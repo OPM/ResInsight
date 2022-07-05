@@ -30,7 +30,9 @@
 #include <unordered_map>
 #include <vector>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/Well.hpp>
+#include <opm/json/JsonObject.hpp>
+#include <opm/output/data/GuideRateValue.hpp>
+#include <opm/input/eclipse/Schedule/Well/Well.hpp>
 
 namespace Opm {
 
@@ -66,6 +68,11 @@ namespace Opm {
                 well_potential_water   = (1 << 14),
                 well_potential_oil     = (1 << 15),
                 well_potential_gas     = (1 << 16),
+                brine            = (1 << 17),
+                alq              = (1 << 18),
+                tracer           = (1 << 19),
+                micp             = (1 << 20),
+                vaporized_water     = (1 << 21)
             };
 
             using enum_size = std::underlying_type< opt >::type;
@@ -79,10 +86,12 @@ namespace Opm {
             /// Read the value indicated by m. Returns a default value if
             /// the requested value is unset.
             inline double get( opt m, double default_value ) const;
+            inline double get( opt m, double default_value , const std::string& tracer_name ) const;
             /// Set the value specified by m. Throws an exception if multiple
             /// values are requested. Returns a self-reference to support
             /// chaining.
             inline Rates& set( opt m, double value );
+            inline Rates& set( opt m, double value , const std::string& tracer_name );
 
             /// Returns true if any of the rates oil, gas, water is nonzero
             inline bool flowing() const;
@@ -94,9 +103,12 @@ namespace Opm {
 
             bool operator==(const Rates& rat2) const;
 
+        inline void init_json(Json::JsonObject& json_data) const;
         private:
             double& get_ref( opt );
+            double& get_ref( opt, const std::string& tracer_name );
             const double& get_ref( opt ) const;
+            const double& get_ref( opt, const std::string& tracer_name ) const;
 
             opt mask = static_cast< opt >( 0 );
 
@@ -117,6 +129,11 @@ namespace Opm {
             double well_potential_water = 0.0;
             double well_potential_oil = 0.0;
             double well_potential_gas = 0.0;
+            double brine = 0.0;
+            double alq = 0.0;
+            std::map<std::string, double> tracer;
+            double micp = 0.0;
+            double vaporized_water = 0.0;
     };
 
     struct Connection {
@@ -131,6 +148,7 @@ namespace Opm {
         double cell_saturation_water;
         double cell_saturation_gas;
         double effective_Kh;
+        double trans_factor;
 
         bool operator==(const Connection& conn2) const
         {
@@ -148,6 +166,8 @@ namespace Opm {
         void write(MessageBufferType& buffer) const;
         template <class MessageBufferType>
         void read(MessageBufferType& buffer);
+
+        inline void init_json(Json::JsonObject& json_data) const;
     };
 
     class SegmentPressures {
@@ -190,7 +210,7 @@ namespace Opm {
     private:
         constexpr static std::size_t numvals = 5;
 
-        std::array<double, numvals> values_;
+        std::array<double, numvals> values_ = {0};
 
         std::size_t index(const Value ix) const
         {
@@ -235,6 +255,19 @@ namespace Opm {
                     (!this->isProducer && (this->inj == rhs.inj)));
         }
 
+        void init_json(Json::JsonObject& json_data) const
+        {
+            if (this->inj == ::Opm::Well::InjectorCMode::CMODE_UNDEFINED)
+                json_data.add_item("inj", "CMODE_UNDEFINED");
+            else
+                json_data.add_item("inj", ::Opm::Well::InjectorCMode2String(this->inj));
+
+            if (this->prod == ::Opm::Well::ProducerCMode::CMODE_UNDEFINED)
+                json_data.add_item("prod", "CMODE_UNDEFINED");
+            else
+                json_data.add_item("prod", ::Opm::Well::ProducerCMode2String(this->prod));
+        }
+
         template <class MessageBufferType>
         void write(MessageBufferType& buffer) const;
 
@@ -243,20 +276,26 @@ namespace Opm {
     };
 
     struct Well {
-        Rates rates;
-        double bhp;
-        double thp;
-        double temperature;
-        int control;
-        std::vector< Connection > connections;
-        std::unordered_map<std::size_t, Segment> segments;
-        CurrentControl current_control;
+        Rates rates{};
+        double bhp{0.0};
+        double thp{0.0};
+        double temperature{0.0};
+        int control{0};
+
+        ::Opm::Well::Status dynamicStatus { Opm::Well::Status::OPEN };
+
+        std::vector< Connection > connections{};
+        std::unordered_map<std::size_t, Segment> segments{};
+        CurrentControl current_control{};
+        GuideRateValue guide_rates{};
 
         inline bool flowing() const noexcept;
         template <class MessageBufferType>
         void write(MessageBufferType& buffer) const;
         template <class MessageBufferType>
         void read(MessageBufferType& buffer);
+
+        inline void init_json(Json::JsonObject& json_data) const;
 
         const Connection* find_connection(Connection::global_index connection_grid_index) const {
             const auto connection = std::find_if( this->connections.begin() ,
@@ -291,12 +330,13 @@ namespace Opm {
                  control == well2.control &&
                  connections == well2.connections &&
                  segments == well2.segments &&
-                 current_control == well2.current_control;
+                 current_control == well2.current_control &&
+                 guide_rates == well2.guide_rates;
         }
     };
 
 
-    class WellRates : public std::map<std::string , Well> {
+    class Wells: public std::map<std::string , Well> {
     public:
 
         double get(const std::string& well_name , Rates::opt m) const {
@@ -306,6 +346,12 @@ namespace Opm {
             return well->second.rates.get( m, 0.0 );
         }
 
+        double get(const std::string& well_name , Rates::opt m, const std::string& tracer_name) const {
+            const auto& well = this->find( well_name );
+            if( well == this->end() ) return 0.0;
+
+            return well->second.rates.get( m, 0.0, tracer_name);
+        }
 
         double get(const std::string& well_name , Connection::global_index connection_grid_index, Rates::opt m) const {
             const auto& witr = this->find( well_name );
@@ -347,9 +393,22 @@ namespace Opm {
                 this->emplace(name, well);
             }
         }
-    };
 
-    using Wells = WellRates;
+        void init_json(Json::JsonObject& json_data) const {
+            for (const auto& [wname, well] : *this) {
+                auto json_well = json_data.add_object(wname);
+                well.init_json(json_well);
+            }
+        }
+
+
+        Json::JsonObject json() const {
+            Json::JsonObject json_data;
+            this->init_json(json_data);
+            return json_data;
+        }
+
+    };
 
 
     /* IMPLEMENTATIONS */
@@ -374,8 +433,29 @@ namespace Opm {
         return this->get_ref( m );
     }
 
+    inline double Rates::get( opt m, double default_value, const std::string& tracer_name) const {
+        if( !this->has( m ) ) return default_value;
+
+        if( m == opt::tracer && this->tracer.find(tracer_name) == this->tracer.end()) return default_value;
+
+        return this->get_ref( m, tracer_name);
+    }
+
     inline Rates& Rates::set( opt m, double value ) {
         this->get_ref( m ) = value;
+
+        /* mask |= m */
+        this->mask = static_cast< opt >(
+                        static_cast< enum_size >( this->mask ) |
+                        static_cast< enum_size >( m )
+                    );
+
+        return *this;
+    }
+
+    inline Rates& Rates::set( opt m, double value , const std::string& tracer_name ) {
+        this->get_ref( m , tracer_name) = value;
+
         /* mask |= m */
         this->mask = static_cast< opt >(
                         static_cast< enum_size >( this->mask ) |
@@ -404,7 +484,12 @@ namespace Opm {
              productivity_index_oil == rate.productivity_index_oil &&
              well_potential_water == rate.well_potential_water &&
              well_potential_oil == rate.well_potential_oil &&
-             well_potential_gas == rate.well_potential_gas;
+             well_potential_gas == rate.well_potential_gas &&
+             brine == rate.brine &&
+             alq == rate.alq &&
+             tracer == rate.tracer &&
+             micp == rate.micp &&
+             vaporized_water == rate.vaporized_water;
     }
 
 
@@ -436,6 +521,12 @@ namespace Opm {
             case opt::well_potential_water: return this->well_potential_water;
             case opt::well_potential_oil: return this->well_potential_oil;
             case opt::well_potential_gas: return this->well_potential_gas;
+            case opt::brine: return this->brine;
+            case opt::alq: return this->alq;
+            case opt::tracer: /* Should _not_ be called with tracer argument */
+                break;
+            case opt::micp: return this->micp;
+            case opt::vaporized_water: return this->vaporized_water;
         }
 
         throw std::invalid_argument(
@@ -445,12 +536,36 @@ namespace Opm {
 
     }
 
+    inline const double& Rates::get_ref( opt m, const std::string& tracer_name ) const {
+        if (m != opt::tracer)
+            throw std::logic_error("Logic error - should be called with tracer argument");
+
+        return this->tracer.at(tracer_name);
+    }
+
     inline double& Rates::get_ref( opt m ) {
         return const_cast< double& >(
                 static_cast< const Rates* >( this )->get_ref( m )
                 );
     }
 
+    inline double& Rates::get_ref( opt m, const std::string& tracer_name ) {
+        if (m == opt::tracer) this->tracer.emplace(tracer_name, 0.0);
+        return this->tracer.at(tracer_name);
+    }
+
+    void Rates::init_json(Json::JsonObject& json_data) const {
+
+        if (this->has(opt::wat))
+            json_data.add_item("wat", this->get(opt::wat));
+
+        if (this->has(opt::oil))
+            json_data.add_item("oil", this->get(opt::oil));
+
+        if (this->has(opt::gas))
+            json_data.add_item("gas", this->get(opt::gas));
+
+    }
 
     bool inline Rates::flowing() const {
         return ((this->wat != 0) ||
@@ -482,6 +597,17 @@ namespace Opm {
             buffer.write(this->well_potential_water);
             buffer.write(this->well_potential_oil);
             buffer.write(this->well_potential_gas);
+            buffer.write(this->brine);
+            buffer.write(this->alq);
+            //tracer:
+            unsigned int size = this->tracer.size();
+            buffer.write(size);
+            for (const auto& [name, rate] : this->tracer) {
+                buffer.write(name);
+                buffer.write(rate);
+            }
+            buffer.write(this->micp);
+            buffer.write(this->vaporized_water);
     }
 
     template <class MessageBufferType>
@@ -494,6 +620,22 @@ namespace Opm {
             buffer.write(this->cell_saturation_water);
             buffer.write(this->cell_saturation_gas);
             buffer.write(this->effective_Kh);
+            buffer.write(this->trans_factor);
+    }
+
+
+    void Connection::init_json(Json::JsonObject& json_data) const {
+        auto json_rates = json_data.add_object("rates");
+        this->rates.init_json(json_rates);
+
+        json_data.add_item("global_index", static_cast<int>(this->index));
+        json_data.add_item("pressure", this->pressure);
+        json_data.add_item("reservoir_rate", this->reservoir_rate);
+        json_data.add_item("cell_pressure", this->cell_pressure);
+        json_data.add_item("swat", this->cell_saturation_water);
+        json_data.add_item("sgas", this->cell_saturation_gas);
+        json_data.add_item("Kh", this->effective_Kh);
+        json_data.add_item("trans_factor", this->trans_factor);
     }
 
     template <class MessageBufferType>
@@ -522,6 +664,12 @@ namespace Opm {
         buffer.write(this->thp);
         buffer.write(this->temperature);
         buffer.write(this->control);
+
+        {
+            const auto status = ::Opm::Well::Status2String(this->dynamicStatus);
+            buffer.write(status);
+        }
+
         unsigned int size = this->connections.size();
         buffer.write(size);
         for (const Connection& comp : this->connections)
@@ -538,6 +686,7 @@ namespace Opm {
         }
 
         this->current_control.write(buffer);
+        this->guide_rates.write(buffer);
     }
 
     template <class MessageBufferType>
@@ -560,9 +709,23 @@ namespace Opm {
             buffer.read(this->well_potential_water);
             buffer.read(this->well_potential_oil);
             buffer.read(this->well_potential_gas);
+            buffer.read(this->brine);
+            buffer.read(this->alq);
+            //tracer:
+            unsigned int size;
+            buffer.read(size);
+            for (size_t i = 0; i < size; ++i) {
+                std::string tracer_name;
+                buffer.read(tracer_name);
+                double tracer_rate;
+                buffer.read(tracer_rate);
+                this->tracer.emplace(tracer_name, tracer_rate);
+            }
+            buffer.read(this->micp);
+            buffer.read(this->vaporized_water);
     }
 
-  template <class MessageBufferType>
+   template <class MessageBufferType>
    void Connection::read(MessageBufferType& buffer) {
             buffer.read(this->index);
             this->rates.read(buffer);
@@ -572,6 +735,7 @@ namespace Opm {
             buffer.read(this->cell_saturation_water);
             buffer.read(this->cell_saturation_gas);
             buffer.read(this->effective_Kh);
+            buffer.read(this->trans_factor);
    }
 
     template <class MessageBufferType>
@@ -601,6 +765,12 @@ namespace Opm {
         buffer.read(this->temperature);
         buffer.read(this->control);
 
+        {
+            auto status = std::string{};
+            buffer.read(status);
+            this->dynamicStatus = ::Opm::Well::StatusFromString(status);
+        }
+
         // Connection information
         unsigned int size = 0.0; //this->connections.size();
         buffer.read(size);
@@ -629,6 +799,28 @@ namespace Opm {
         }
 
         this->current_control.read(buffer);
+        this->guide_rates.read(buffer);
+    }
+
+    void Well::init_json(Json::JsonObject& json_data) const {
+        auto json_connections = json_data.add_array("connections");
+        for (const auto& conn : this->connections) {
+            auto json_conn = json_connections.add_object();
+            conn.init_json(json_conn);
+        }
+        auto json_rates = json_data.add_object("rates");
+        this->rates.init_json(json_rates);
+
+        json_data.add_item("bhp", this->bhp);
+        json_data.add_item("thp", this->thp);
+        json_data.add_item("temperature", this->temperature);
+        json_data.add_item("status", ::Opm::Well::Status2String(this->dynamicStatus));
+
+        auto json_control = json_data.add_object("control");
+        this->current_control.init_json(json_control);
+
+        auto json_guiderate = json_data.add_object("guiderate");
+        this->guide_rates.init_json(json_guiderate);
     }
 
 }} // Opm::data

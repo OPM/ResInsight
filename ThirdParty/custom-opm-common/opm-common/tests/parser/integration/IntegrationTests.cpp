@@ -20,17 +20,19 @@
 #define BOOST_TEST_MODULE ParserIntegrationTests
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
-#include <opm/common/utility/FileSystem.hpp>
+#include <opm/common/utility/OpmInputError.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
-#include <opm/parser/eclipse/Deck/DeckRecord.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Deck/DeckRecord.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
 
-#include <opm/parser/eclipse/Parser/ParserEnums.hpp>
+#include <opm/input/eclipse/Parser/ParserEnums.hpp>
+
+#include <filesystem>
 
 using namespace Opm;
 
@@ -41,14 +43,12 @@ inline std::string pathprefix() {
 namespace {
 
 ParserKeyword createFixedSized(const std::string& kw , size_t size) {
-    ParserKeyword pkw(kw);
-    pkw.setFixedSize( size );
+    ParserKeyword pkw(kw, KeywordSize(size));
     return pkw;
 }
 
 ParserKeyword createDynamicSized(const std::string& kw) {
-    ParserKeyword  pkw( kw );
-    pkw.setSizeType(SLASH_TERMINATED);
+    ParserKeyword  pkw( kw, KeywordSize(SLASH_TERMINATED) );
     return pkw;
 }
 
@@ -72,7 +72,7 @@ Parser createWWCTParser() {
 }
 
 BOOST_AUTO_TEST_CASE(parse_fileWithWWCTKeyword_deckReturned) {
-    Opm::filesystem::path singleKeywordFile(pathprefix() + "wwct.data");
+    std::filesystem::path singleKeywordFile(pathprefix() + "wwct.data");
     auto parser = createWWCTParser();
     BOOST_CHECK( parser.isRecognizedKeyword("WWCT"));
     BOOST_CHECK( parser.isRecognizedKeyword("SUMMARY"));
@@ -108,7 +108,7 @@ BOOST_AUTO_TEST_CASE(parse_streamWithWWCTKeyword_deckReturned) {
 }
 
 BOOST_AUTO_TEST_CASE(parse_fileWithWWCTKeyword_deckHasWWCT) {
-    Opm::filesystem::path singleKeywordFile(pathprefix() + "wwct.data");
+    std::filesystem::path singleKeywordFile(pathprefix() + "wwct.data");
     auto parser = createWWCTParser();
     auto deck = parser.parseFile(singleKeywordFile.string());
     BOOST_CHECK(deck.hasKeyword("SUMMARY"));
@@ -116,11 +116,11 @@ BOOST_AUTO_TEST_CASE(parse_fileWithWWCTKeyword_deckHasWWCT) {
 }
 
 BOOST_AUTO_TEST_CASE(parse_fileWithWWCTKeyword_dataIsCorrect) {
-    Opm::filesystem::path singleKeywordFile(pathprefix() + "wwct.data");
+    std::filesystem::path singleKeywordFile(pathprefix() + "wwct.data");
     auto parser = createWWCTParser();
     auto deck = parser.parseFile(singleKeywordFile.string());
-    BOOST_CHECK_EQUAL("WELL-1", deck.getKeyword("WWCT" , 0).getRecord(0).getItem(0).get< std::string >(0));
-    BOOST_CHECK_EQUAL("WELL-2", deck.getKeyword("WWCT" , 0).getRecord(0).getItem(0).get< std::string >(1));
+    BOOST_CHECK_EQUAL("WELL-1", deck["WWCT"][0].getRecord(0).getItem(0).get< std::string >(0));
+    BOOST_CHECK_EQUAL("WELL-2", deck["WWCT"][0].getRecord(0).getItem(0).get< std::string >(1));
 }
 
 BOOST_AUTO_TEST_CASE(parser_internal_name_vs_deck_name) {
@@ -157,14 +157,14 @@ static Parser createBPRParser() {
 }
 
 BOOST_AUTO_TEST_CASE(parse_fileWithBPRKeyword_deckReturned) {
-    Opm::filesystem::path singleKeywordFile(pathprefix() + "bpr.data");
+    std::filesystem::path singleKeywordFile(pathprefix() + "bpr.data");
     auto parser = createBPRParser();
 
     BOOST_CHECK_NO_THROW(parser.parseFile(singleKeywordFile.string()));
 }
 
 BOOST_AUTO_TEST_CASE(parse_fileWithBPRKeyword_DeckhasBRP) {
-    Opm::filesystem::path singleKeywordFile(pathprefix() + "bpr.data");
+    std::filesystem::path singleKeywordFile(pathprefix() + "bpr.data");
 
     auto parser = createBPRParser();
     auto deck =  parser.parseFile(singleKeywordFile.string());
@@ -173,12 +173,12 @@ BOOST_AUTO_TEST_CASE(parse_fileWithBPRKeyword_DeckhasBRP) {
 }
 
 BOOST_AUTO_TEST_CASE(parse_fileWithBPRKeyword_dataiscorrect) {
-    Opm::filesystem::path singleKeywordFile(pathprefix() + "bpr.data");
+    std::filesystem::path singleKeywordFile(pathprefix() + "bpr.data");
 
     auto parser = createBPRParser();
     auto deck =  parser.parseFile(singleKeywordFile.string());
 
-    const auto& keyword = deck.getKeyword("BPR" , 0);
+    const auto& keyword = deck["BPR"][0];
     BOOST_CHECK_EQUAL(2U, keyword.size());
 
     const auto& record1 = keyword.getRecord(0);
@@ -198,7 +198,24 @@ BOOST_AUTO_TEST_CASE(parse_fileWithBPRKeyword_dataiscorrect) {
 /***************** Testing non-recognized keywords ********************/
 BOOST_AUTO_TEST_CASE(parse_unknownkeyword_exceptionthrown) {
     Parser parser;
-    BOOST_CHECK_THROW( parser.parseFile(pathprefix() + "someobscureelements.data"), std::invalid_argument);
+    std::string deck = R"(
+-- Comment
+OIL
+
+GRIDUNIT
+METRES                   /
+
+GRUDINT -- A wrong, or unknown keyword
+ "text" 3 5 /
+  3 3 3 3 3 3 /
+/
+
+
+
+RADFIN4
+ 'NAME' 213 123 123 123 7 7 18 18 18 18 /
+)";
+    BOOST_CHECK_THROW( parser.parseString(deck), OpmInputError);
 }
 
 /*********************Testing truncated (default) records ***************************/
@@ -207,10 +224,21 @@ BOOST_AUTO_TEST_CASE(parse_unknownkeyword_exceptionthrown) {
 // Datafile contains 3 RADFIN4 keywords. One fully specified, one with 2 out of 11 items, and one with no items.
 BOOST_AUTO_TEST_CASE(parse_truncatedrecords_deckFilledWithDefaults) {
     Parser parser;
-    auto deck =  parser.parseFile(pathprefix() + "truncated_records.data");
+    std::string deck_string = R"(
+-- Comment
+OIL
+
+RADFIN4
+'NAME' 213 123 123 123 7 7 18 18 18 18 /
+
+RADFIN4
+'NAME' 213  123 123 123 7 7 18 18 18 /
+)";
+
+    auto deck =  parser.parseString(deck_string);
     BOOST_CHECK_EQUAL(3U, deck.size());
-    const auto& radfin4_0_full= deck.getKeyword("RADFIN4", 0);
-    const auto& radfin4_1_partial= deck.getKeyword("RADFIN4", 1);
+    const auto& radfin4_0_full= deck["RADFIN4"][0];
+    const auto& radfin4_1_partial= deck["RADFIN4"][1];
 
     // Specified in datafile
     BOOST_CHECK_EQUAL("NAME", radfin4_0_full.getRecord(0).getItem(0).get< std::string >(0));

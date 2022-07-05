@@ -22,7 +22,7 @@
 
 #include <fstream>
 #include <opm/io/eclipse/ERsm.hpp>
-#include <tests/WorkArea.cpp>
+#include <tests/WorkArea.hpp>
 #include <opm/common/utility/FileSystem.hpp>
 
 Opm::EclIO::ERsm create(const std::string& rsm_data) {
@@ -178,13 +178,13 @@ BOOST_AUTO_TEST_CASE(ERsm) {
     BOOST_CHECK_THROW( rsm1.get("NO_SUCH_KEY"), std::out_of_range);
 
     const auto& wwit_c_2h = rsm2.get("WWIT:C-2H");
-    BOOST_CHECK_EQUAL( wwit_c_2h.size(), 4 );
+    BOOST_CHECK_EQUAL( wwit_c_2h.size(), 4U );
     std::vector<double> expected = {227.7381, 238.5447, 243.9480, 249.3513};
     for (std::size_t index = 0; index < 4; index++)
         BOOST_CHECK_CLOSE( expected[index] * 1000 , wwit_c_2h[index], 1e-6);
 
     const auto& wwit_c_4h = rsm2.get("WWIT:C-4H");
-    BOOST_CHECK_EQUAL( wwit_c_4h.size(), 4 );
+    BOOST_CHECK_EQUAL( wwit_c_4h.size(), 4U );
     std::vector<double> expected2 = {46279.20, 63147.95, 71582.33, 80016.70};
     for (std::size_t index = 0; index < 4; index++)
         BOOST_CHECK_CLOSE( expected2[index] * 1 , wwit_c_4h[index], 1e-6);

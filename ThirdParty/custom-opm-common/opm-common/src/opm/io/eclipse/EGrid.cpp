@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <cstring>
+#include <filesystem>
 #include <iterator>
 #include <iomanip>
 #include <numeric>
@@ -203,7 +204,7 @@ void EGrid::load_nnc_data()
         nnc1_array = getImpl(nnc1_array_index, Opm::EclIO::INTE, inte_array, "inte");
         nnc2_array = getImpl(nnc2_array_index, Opm::EclIO::INTE, inte_array, "inte");
 
-        if ((Opm::filesystem::exists(initFileName)) && (nnc1_array.size() > 0)){
+        if ((std::filesystem::exists(initFileName)) && (nnc1_array.size() > 0)){
             Opm::EclIO::EInit init(initFileName.string());
 
             auto init_dims = init.grid_dimension(m_grid_name);
@@ -371,7 +372,7 @@ std::vector<std::array<float, 3>> EGrid::getXYZ_layer(int layer, const std::arra
    // layer is layer index, zero based. The box array is i and j range (i1,i2,j1,j2), also zero based
 
     if ((layer < 0) || (layer > (nijk[2] -1))){
-        std::string message = "invalid layer index " + std::to_string(layer) + ". Valied range [0, ";
+        std::string message = "invalid layer index " + std::to_string(layer) + ". Valid range [0, ";
         message = message + std::to_string(nijk[2] -1) + "]";
         throw std::invalid_argument(message);
     }
@@ -380,7 +381,7 @@ std::vector<std::array<float, 3>> EGrid::getXYZ_layer(int layer, const std::arra
          (box[2] < 0) || (box[2]+1 > nijk[1]) || (box[3] < 0) || (box[3]+1 > nijk[1]) ||
            (box[0] > box[1]) || (box[2] > box[3])){
 
-        throw std::invalid_argument("invalid box input, i1,i2,j1 or j2 out of valied range ");
+        throw std::invalid_argument("invalid box input, i1,i2,j1 or j2 out of valid range ");
     }
 
     int nodes_pr_surf = nijk[0]*nijk[1]*4;

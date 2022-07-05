@@ -6,10 +6,6 @@
 
 include (FindPackageHandleStandardArgs)
 
-if ((NOT CJSON_ROOT) AND OPM_PARSER_ROOT)
-  set( CJSON_ROOT ${OPM_PARSER_ROOT}) 
-endif()
-
 if (CJSON_ROOT)
   set (_no_default_path "NO_DEFAULT_PATH")
 else (CJSON_ROOT)
@@ -18,10 +14,9 @@ endif (CJSON_ROOT)
 
 
 find_path (CJSON_INCLUDE_DIR
-  NAMES "cjson/cJSON.h"
+  NAMES "cJSON.h"
   HINTS "${CJSON_ROOT}"
-  PATHS "${PROJECT_SOURCE_DIR}"
-  PATH_SUFFIXES "include" "external"
+  PATH_SUFFIXES "cjson"
   DOC "Path to cjson library header files"
   ${_no_default_path} )
 
@@ -36,17 +31,13 @@ string(REGEX REPLACE "${PROJECT_SOURCE_DIR}/?(.*)" "\\1"  BUILD_DIR_SUFFIX "${PR
 find_library (CJSON_LIBRARY
   NAMES "cjson"
   HINTS "${CJSON_ROOT}"
-  PATHS "${PROJECT_BINARY_DIR}/../opm-parser"
-        "${PROJECT_BINARY_DIR}/../opm-parser${BUILD_DIR_SUFFIX}"
-        "${PROJECT_BINARY_DIR}/../../opm-parser/${BUILD_DIR_SUFFIX}"
   PATH_SUFFIXES "lib" "lib${_BITS}" "lib/${CMAKE_LIBRARY_ARCHITECTURE}"
-                "opm/json"
   DOC "Path to cjson library archive/shared object files"
   ${_no_default_path} )
 
 # setup list of all required libraries to link with cjson
-set (CJSON_INCLUDE_DIRS ${CJSON_INCLUDE_DIR})
-set (CJSON_LIBRARIES ${CJSON_LIBRARY})
+set (cjson_INCLUDE_DIRS ${CJSON_INCLUDE_DIR})
+set (cjson_LIBRARIES ${CJSON_LIBRARY})
 
 # math library (should exist on all unices; automatically linked on Windows)
 if (UNIX)
@@ -81,10 +72,7 @@ endif ()
 
 # if the test program didn't compile, but was required to do so, bail
 # out now and display an error; otherwise limp on
-set (CJSON_FIND_REQUIRED ${cjson_FIND_REQUIRED})
-set (CJSON_FIND_QUIETLY ${cjson_FIND_QUIETLY})
-find_package_handle_standard_args (CJSON
+find_package_handle_standard_args (cjson
   DEFAULT_MSG
-  CJSON_INCLUDE_DIRS CJSON_LIBRARIES HAVE_CJSON
+  cjson_INCLUDE_DIRS cjson_LIBRARIES HAVE_CJSON
   )
-set (cjson_FOUND ${CJSON_FOUND})

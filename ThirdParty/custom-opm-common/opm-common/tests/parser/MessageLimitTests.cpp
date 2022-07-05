@@ -24,57 +24,65 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MessageLimits.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/MessageLimits.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 using namespace Opm;
 
 
 BOOST_AUTO_TEST_CASE(MESSAGES) {
     Opm::Parser parser;
-    std::string input =
-            "START             -- 0 \n"
-            "19 JUN 2007 / \n"
-            "RUNSPEC\n"
-            "MESSAGES\n"
-            "  5* 10 /\n"
-             "GRID\n"
-            "MESSAGES\n"
-            "  5* 77 /\n"
-            "SCHEDULE\n"
-            "DATES             -- 1\n"
-            " 10  OKT 2008 / \n"
-            "/\n"
-            "WELSPECS\n"
-            "    'P1'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  / \n"
-            "    'P2'       'OP'   5   5 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  / \n"
-            "    'I'       'OP'   1   1 1*     'WATER' 1*      1*  1*   1*  1*   1*  1*  / \n"
-            "/\n"
-            "COMPDAT\n"
-            " 'P1'  9  9   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / \n"
-            " 'P1'  9  9   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 / \n"
-            " 'P2'  5  5   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / \n"
-            " 'P2'  5  5   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 / \n"
-            " 'I'  1  1   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / \n"
-            "/\n"
-            "WCONHIST\n"
-            " 'P1' 'OPEN' 'ORAT' 5*/ \n"
-            " 'P2' 'OPEN' 'ORAT' 5*/ \n"
-            "/\n"
-            "MESSAGES\n"
-            "  1 2 /\n"
-            "DATES             -- 2\n"
-            " 15  OKT 2008 / \n"
-            "/\n"
-            "MESSAGES\n"
-            "  10 /\n"
-        ;
+    const std::string input = R"(
+START             -- 0
+19 JUN 2007 /
+RUNSPEC
+MESSAGES
+  5* 10 /
+GRID
+PORO
+    1000*0.1 /
+PERMX
+    1000*1 /
+PERMY
+    1000*0.1 /
+PERMZ
+    1000*0.01 /
+MESSAGES
+  5* 77 /
+SCHEDULE
+DATES             -- 1
+ 10  OKT 2008 /
+/
+WELSPECS
+    'P1'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+    'P2'       'OP'   5   5 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+    'I'       'OP'   1   1 1*     'WATER' 1*      1*  1*   1*  1*   1*  1*  /
+/
+COMPDAT
+ 'P1'  9  9   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+ 'P1'  9  9   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 /
+ 'P2'  5  5   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+ 'P2'  5  5   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 /
+ 'I'  1  1   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+/
+WCONHIST
+ 'P1' 'OPEN' 'ORAT' 5*/
+ 'P2' 'OPEN' 'ORAT' 5*/
+/
+MESSAGES
+  1 2 /
+DATES             -- 2
+ 15  OKT 2008 /
+/
+MESSAGES
+  10 /
+     )";
 
     auto deck = parser.parseString(input);
     auto python = std::make_shared<Python>();
@@ -83,15 +91,14 @@ BOOST_AUTO_TEST_CASE(MESSAGES) {
     FieldPropsManager fp( deck, Phases{true, true, true}, grid, table);
     Runspec runspec (deck);
     Schedule schedule(deck, grid, fp, runspec, python);
-    const MessageLimits limits = schedule.getMessageLimits();
 
-    BOOST_CHECK_EQUAL( limits.getBugPrintLimit( 0 ) , 77 );   // The pre Schedule initialization
+    BOOST_CHECK_EQUAL( schedule[0].message_limits().getBugPrintLimit( ) , 77 );   // The pre Schedule initialization
 
-    BOOST_CHECK_EQUAL( limits.getMessagePrintLimit( 1 ) , 1 );
-    BOOST_CHECK_EQUAL( limits.getCommentPrintLimit( 1 ) , 2 );
-    BOOST_CHECK_EQUAL( limits.getBugPrintLimit( 1 ) , 77 );
+    BOOST_CHECK_EQUAL( schedule[1].message_limits().getMessagePrintLimit( ) , 1 );
+    BOOST_CHECK_EQUAL( schedule[1].message_limits().getCommentPrintLimit( ) , 2 );
+    BOOST_CHECK_EQUAL( schedule[1].message_limits().getBugPrintLimit( ) , 77 );
 
-    BOOST_CHECK_EQUAL( limits.getMessagePrintLimit( 2 ) , 10 );
-    BOOST_CHECK_EQUAL( limits.getCommentPrintLimit( 2 ) , 2  );
-    BOOST_CHECK_EQUAL( limits.getBugPrintLimit( 2 ) , 77 );
+    BOOST_CHECK_EQUAL( schedule[2].message_limits().getMessagePrintLimit( ) , 10 );
+    BOOST_CHECK_EQUAL( schedule[2].message_limits().getCommentPrintLimit( ) , 2  );
+    BOOST_CHECK_EQUAL( schedule[2].message_limits().getBugPrintLimit( ) , 77 );
 }

@@ -24,12 +24,12 @@
 #include <opm/output/eclipse/InteHEAD.hpp>
 
 #include <opm/output/eclipse/VectorItems/intehead.hpp>
+#include <opm/output/eclipse/WriteRestartHelpers.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
 
 #include <opm/io/eclipse/rst/header.hpp>
 
@@ -44,24 +44,24 @@
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;
 
 namespace {
-    std::vector<double> elapsedTime(const Opm::TimeMap& tmap)
+std::vector<double> elapsedTime(const Opm::Schedule& sched)
+{
+    auto elapsed = std::vector<double>{};
+
+    elapsed.reserve(sched.size());
+    elapsed.push_back(0.0);
+
+    for (auto nstep = sched.size() - 1,
+              step  = 0*nstep; step < nstep; ++step)
     {
-        auto elapsed = std::vector<double>{};
-
-        elapsed.reserve(tmap.numTimesteps() + 1);
-        elapsed.push_back(0.0);
-
-        for (auto nstep = tmap.numTimesteps(),
-                  step  = 0*nstep; step < nstep; ++step)
-        {
-            elapsed.push_back(tmap.getTimeStepLength(step));
-        }
-
-        std::partial_sum(std::begin(elapsed), std::end(elapsed),
-                         std::begin(elapsed));
-
-        return elapsed;
+        elapsed.push_back(sched.stepLength(step));
     }
+
+    std::partial_sum(std::begin(elapsed), std::end(elapsed),
+                     std::begin(elapsed));
+
+    return elapsed;
+}
 
     void expectDate(const Opm::RestartIO::InteHEAD::TimePoint& tp,
                     const int year, const int month, const int day)
@@ -75,7 +75,32 @@ namespace {
         BOOST_CHECK_EQUAL(tp.second      , 0);
         BOOST_CHECK_EQUAL(tp.microseconds, 0);
     }
+
+    Opm::Deck first_sim(std::string fname) {
+        return Opm::Parser{}.parseFile(fname);
+    }
+
 } // Anonymous
+
+
+//int main(int argc, char* argv[])
+struct SimulationCase
+{
+    explicit SimulationCase(const Opm::Deck& deck)
+        : es   { deck }
+        , grid { deck }
+        , python{ std::make_shared<Opm::Python>() }
+        , sched{ deck, es, python }
+    {}
+
+    // Order requirement: 'es' must be declared/initialised before 'sched'.
+    Opm::EclipseState es;
+    Opm::EclipseGrid  grid;
+    std::shared_ptr<Opm::Python> python;
+    Opm::Schedule     sched;
+
+};
+
 
 BOOST_AUTO_TEST_SUITE(Member_Functions)
 
@@ -161,10 +186,13 @@ BOOST_AUTO_TEST_CASE(WellTableDimensions)
     const auto maxWellsInGroup  =  3;
     const auto maxGroupInField = 14;
     const auto maxWellsInField = 25;
+    const auto mxwlstprwel = 3;
+    const auto mxdynwlst = 4;
 
     const auto ih = Opm::RestartIO::InteHEAD{}
         .wellTableDimensions({
-            numWells, maxPerf, maxWellsInGroup, maxGroupInField, maxWellsInField
+            numWells, maxPerf, maxWellsInGroup, maxGroupInField, maxWellsInField,
+            mxwlstprwel, mxdynwlst
         });
 
     const auto& v = ih.data();
@@ -174,7 +202,9 @@ BOOST_AUTO_TEST_CASE(WellTableDimensions)
     BOOST_CHECK_EQUAL(v[VI::intehead::NCWMAX], maxPerf);
     BOOST_CHECK_EQUAL(v[VI::intehead::NWGMAX], nwgmax);
     BOOST_CHECK_EQUAL(v[VI::intehead::NGMAXZ], maxGroupInField + 1);
-    //BOOST_CHECK_EQUAL(v[VI::intehead::NWMAXZ], maxWellsInField);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NWMAXZ], maxWellsInField);
+    BOOST_CHECK_EQUAL(v[VI::intehead::MXWLSTPRWELL], mxwlstprwel);
+    BOOST_CHECK_EQUAL(v[VI::intehead::MAXDYNWELLST], mxdynwlst);
 }
 
 BOOST_AUTO_TEST_CASE(CalendarDate)
@@ -310,18 +340,45 @@ BOOST_AUTO_TEST_CASE(GroupSize_Parameters)
 BOOST_AUTO_TEST_CASE(Analytic_Aquifer_Parameters)
 {
     // https://oeis.org/A001622
+    const auto aqudims = Opm::RestartIO::InteHEAD::AquiferDims {
+        1,                      // numAquifers
+        61,                     // maxNumAquifers
+        803,                    // maxNumAquiferConn
+        3988,                   // maxNumActiveAquiferConn
+        74989,                  // maxAquiferID
+        484820,                 // numNumericAquiferRecords
+        45868,                  // numIntAquiferElem
+        3436,                   // numRealAquiferElem
+        563,                    // numDoubAquiferElem
+        81,                     // numNumericAquiferIntElem
+        17,                     // numNumericAquiferDoubleElem
+        720,                    // numIntConnElem
+        30,                     // numRealConnElem
+        9,                      // numDoubConnElem
+    };
+
     const auto ih = Opm::RestartIO::InteHEAD{}
-        .params_NAAQZ(1, 61, 803, 3988, 74989, 484820, 4586834);
+        .aquiferDimensions(aqudims);
 
     const auto& v = ih.data();
 
-    BOOST_CHECK_EQUAL(v[VI::intehead::NCAMAX], 1);
-    BOOST_CHECK_EQUAL(v[VI::intehead::NIAAQZ], 61);
-    BOOST_CHECK_EQUAL(v[VI::intehead::NSAAQZ], 803);
-    BOOST_CHECK_EQUAL(v[VI::intehead::NXAAQZ], 3988);
-    BOOST_CHECK_EQUAL(v[VI::intehead::NICAQZ], 74989);
-    BOOST_CHECK_EQUAL(v[VI::intehead::NSCAQZ], 484820);
-    BOOST_CHECK_EQUAL(v[VI::intehead::NACAQZ], 4586834);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NAQUIF], 1);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NCAMAX], 803);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NIAAQZ], 45868);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NSAAQZ], 3436);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NXAAQZ], 563);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NICAQZ], 720);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NSCAQZ], 30);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NACAQZ], 9);
+
+    BOOST_CHECK_EQUAL(v[VI::intehead::MAX_ACT_ANLYTIC_AQUCONN], 3988);
+    BOOST_CHECK_EQUAL(v[VI::intehead::MAX_AN_AQUIFER_ID], 74989);
+    BOOST_CHECK_EQUAL(v[VI::intehead::AQU_UNKNOWN_1], 1);
+    BOOST_CHECK_EQUAL(v[VI::intehead::MAX_ANALYTIC_AQUIFERS], 61);
+
+    BOOST_CHECK_EQUAL(v[VI::intehead::NIIAQN], 81);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NIRAQN], 17);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NUM_AQUNUM_RECORDS], 484820);
 }
 
 BOOST_AUTO_TEST_CASE(Time_and_report_step)
@@ -343,10 +400,11 @@ BOOST_AUTO_TEST_CASE(Tuning_param)
     const auto litmin	= 20;
     const auto mxwsit	= 8;
     const auto mxwpit	= 6;
+    const auto wseg_max_restart   = 49;
 
     const auto ih = Opm::RestartIO::InteHEAD{}
         .tuningParam({
-            newtmx, newtmn, litmax, litmin, mxwsit, mxwpit
+            newtmx, newtmn, litmax, litmin, mxwsit, mxwpit, wseg_max_restart
         });
 
     const auto& v = ih.data();
@@ -357,6 +415,7 @@ BOOST_AUTO_TEST_CASE(Tuning_param)
     BOOST_CHECK_EQUAL(v[VI::intehead::LITMIN], litmin);
     BOOST_CHECK_EQUAL(v[VI::intehead::MXWSIT], mxwsit);
     BOOST_CHECK_EQUAL(v[VI::intehead::MXWPIT], mxwpit);
+    BOOST_CHECK_EQUAL(v[VI::intehead::WSEGITR_IT2], wseg_max_restart);
 }
 
 BOOST_AUTO_TEST_CASE(Various_Parameters)
@@ -370,7 +429,6 @@ BOOST_AUTO_TEST_CASE(Various_Parameters)
     BOOST_CHECK_EQUAL(v[VI::intehead::IPROG], 100);    // IPROG
     BOOST_CHECK_EQUAL(v[ 76],   5); // IH_076
     BOOST_CHECK_EQUAL(v[101],   1); // IH_101
-    BOOST_CHECK_EQUAL(v[103],   1); // IH_103
 }
 
 BOOST_AUTO_TEST_CASE(wellSegDimensions)
@@ -418,6 +476,20 @@ BOOST_AUTO_TEST_CASE(regionDimensions)
     BOOST_CHECK_EQUAL(v[VI::intehead::NMFIPR], nmfipr);
 }
 
+BOOST_AUTO_TEST_CASE(rockOptions)
+{
+    const auto ttyp  = 5;
+
+    const auto ih = Opm::RestartIO::InteHEAD{}
+        .rockOpts({
+            ttyp
+        });
+
+    const auto& v = ih.data();
+
+    BOOST_CHECK_EQUAL(v[VI::intehead::ROCKOPTS_TABTYP], ttyp);
+}
+
 BOOST_AUTO_TEST_CASE(ngroups)
 {
     const auto ngroup  = 8;
@@ -429,6 +501,17 @@ BOOST_AUTO_TEST_CASE(ngroups)
 
     BOOST_CHECK_EQUAL(v[VI::intehead::NGRP], ngroup);
 }
+
+static Opm::Schedule make_schedule(const std::string& deck_string) {
+    const auto& deck = Opm::Parser{}.parseString(deck_string);
+    auto python = std::make_shared<Opm::Python>();
+    Opm::EclipseGrid grid(10,10,10);
+    Opm::TableManager table ( deck );
+    Opm::FieldPropsManager fp( deck, Opm::Phases{true, true, true}, grid, table);
+    Opm::Runspec runspec (deck);
+    return Opm::Schedule(deck, grid , fp, runspec, python);
+}
+
 BOOST_AUTO_TEST_CASE(SimulationDate)
 {
     const auto input = std::string { R"(
@@ -449,12 +532,10 @@ TSTEP
   10*365.0D0 /
 )"  };
 
-    const auto tmap = ::Opm::TimeMap {
-        ::Opm::Parser{}.parseString(input)
-    };
+    auto sched = make_schedule(input);
 
-    const auto start   = tmap.getStartTime(0);
-    const auto elapsed = elapsedTime(tmap);
+    const auto start = sched.getStartTime();
+    const auto elapsed = elapsedTime(sched);
 
     auto checkDate = [start, &elapsed]
         (const std::vector<double>::size_type i,
@@ -534,6 +615,9 @@ BOOST_AUTO_TEST_CASE(TestHeader) {
     const auto nicaqz = 111111;
     const auto nscaqz = 1111111;
     const auto nacaqz = 11111111;
+    const auto niiaqn = 22222222;
+    const auto niraqn = 2222222;
+    const auto numaqn = 222222;
     const auto tstep  = 78;
     const auto report_step = 12;
     const auto newtmx	= 17;
@@ -555,25 +639,35 @@ BOOST_AUTO_TEST_CASE(TestHeader) {
     const auto nmfipr = 22;
     const auto ngroup  = 8;
 
+    const auto aqudims = Opm::RestartIO::InteHEAD::AquiferDims {
+        1, 61, ncamax, 3988, 74989,
+        numaqn, niaaqz, nsaaqz, nxaaqz,
+        niiaqn, niraqn,
+        nicaqz, nscaqz, nacaqz
+    };
+
+    auto unit_system = Opm::UnitSystem::newMETRIC();
     auto ih = Opm::RestartIO::InteHEAD{}
          .dimensions(nx, ny, nz)
          .numActive(nactive)
-         .unitConventions(Opm::UnitSystem::newMETRIC())
-         .wellTableDimensions({ numWells, maxPerf, maxWellsInGroup, maxGroupInField, maxWellsInField})
+         .unitConventions(unit_system)
+         .wellTableDimensions({ numWells, maxPerf, maxWellsInGroup,
+                                maxGroupInField, maxWellsInField, 0, 0 })
          .calendarDate({year, month, mday, hour, minute, seconds, mseconds})
          .activePhases(Ph{1,1,1})
          .params_NWELZ(niwelz, nswelz, nxwelz, nzwelz)
          .params_NCON(niconz, nsconz, nxconz)
          .params_GRPZ({nigrpz, nsgrpz, nxgrpz, nzgrpz})
-         .params_NAAQZ(ncamax, niaaqz, nsaaqz, nxaaqz, nicaqz, nscaqz, nacaqz)
+         .aquiferDimensions(aqudims)
          .stepParam(tstep, report_step)
-         .tuningParam({newtmx, newtmn, litmax, litmin, mxwsit, mxwpit})
+         .tuningParam({newtmx, newtmn, litmax, litmin, mxwsit, mxwpit, 0})
          .variousParam(version, iprog)
          .wellSegDimensions({nsegwl, nswlmx, nsegmx, nlbrmx, nisegz, nrsegz, nilbrz})
          .regionDimensions({ntfip, nmfipr, 0,0,0})
          .ngroups({ngroup});
 
-    Opm::RestartIO::RstHeader header(ih.data(), std::vector<bool>(100), std::vector<double>(1000));
+    Opm::Runspec runspec;
+    Opm::RestartIO::RstHeader header(runspec, unit_system, ih.data(), std::vector<bool>(100), std::vector<double>(1000));
     BOOST_CHECK_EQUAL(header.nx, nx);
     BOOST_CHECK_EQUAL(header.ny, ny);
     BOOST_CHECK_EQUAL(header.nactive, nactive);
@@ -627,5 +721,37 @@ BOOST_AUTO_TEST_CASE(TestHeader) {
     BOOST_CHECK_EQUAL(header.nmfipr, nmfipr);
     BOOST_CHECK_EQUAL(header.ngroup, ngroup);
 }
+
+
+BOOST_AUTO_TEST_CASE(Netbalan)
+{
+    const auto simCase = SimulationCase{first_sim("5_NETWORK_MODEL5_STDW_NETBAL_PACK.DATA")};
+
+    Opm::EclipseState es    = simCase.es;
+    Opm::EclipseGrid  grid   = simCase.grid;
+
+    Opm::Schedule     sched = simCase.sched;
+    const auto& start_time = sched.getStartTime();
+    double simTime = start_time + 2.E09;
+
+    const std::size_t report_step = 1;
+    const std::size_t lookup_step = report_step - 1;
+
+    const auto ih = Opm::RestartIO::Helpers::
+            createInteHead(es, grid, sched, simTime,
+                           report_step, // Should really be number of timesteps
+                           report_step, lookup_step);
+
+
+    const auto& v = ih.data();
+
+    namespace VI = Opm::RestartIO::Helpers::VectorItems;
+
+    BOOST_CHECK_EQUAL(v[VI::intehead::NETBALAN_3], 13);
+    BOOST_CHECK_EQUAL(v[VI::intehead::NETBALAN_5], 14);
+
+}
+
+
 
 BOOST_AUTO_TEST_SUITE_END() // Transfer_Protocol

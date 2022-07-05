@@ -180,6 +180,16 @@ if(SUPERLU_FOUND)
   if (SUPERLU_BLAS_LIBRARY)
     list(APPEND SUPERLU_LIBRARIES ${SUPERLU_BLAS_LIBRARY})
   endif()
+  if(NOT TARGET SuperLU::SuperLU)
+    add_library(SuperLU::SuperLU UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(SuperLU::SuperLU PROPERTIES
+      IMPORTED_LOCATION ${SUPERLU_LIBRARY}
+      INCLUDE_DIRECTORIES ${SUPERLU_INCLUDE_DIRS})
+    if(SUPERLU_BLAS_LIBRARY)
+      set_property(TARGET SuperLU::SuperLU PROPERTY
+	INTERFACE_LINK_LIBRARIES ${SUPERLU_BLAS_LIBRARY})
+    endif()
+  endif()
 endif()
 
 cmake_pop_check_state()

@@ -1,0 +1,107 @@
+{
+  "name": "WELSPECS",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "item": 3,
+      "name": "HEAD_I",
+      "value_type": "INT"
+    },
+    {
+      "item": 4,
+      "name": "HEAD_J",
+      "value_type": "INT"
+    },
+    {
+      "item": 5,
+      "name": "REF_DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "item": 6,
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 7,
+      "name": "D_RADIUS",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Length"
+    },
+    {
+      "item": 8,
+      "name": "INFLOW_EQ",
+      "value_type": "STRING",
+      "default": "STD"
+    },
+    {
+      "item": 9,
+      "name": "AUTO_SHUTIN",
+      "value_type": "STRING",
+      "default": "SHUT"
+    },
+    {
+      "item": 10,
+      "name": "CROSSFLOW",
+      "value_type": "STRING",
+      "default": "YES"
+    },
+    {
+      "item": 11,
+      "name": "P_TABLE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 12,
+      "name": "DENSITY_CALC",
+      "value_type": "STRING",
+      "default": "SEG"
+    },
+    {
+      "item": 13,
+      "name": "FIP_REGION",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 14,
+      "name": "FRONTSIM1",
+      "value_type": "STRING",
+      "comment": "Not applicable"
+    },
+    {
+      "item": 15,
+      "name": "FRONTSIM2",
+      "value_type": "STRING",
+      "comment": "Not applicable"
+    },
+    {
+      "item": 16,
+      "name": "well_model",
+      "value_type": "STRING",
+      "default": "STD",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 17,
+      "name": "POLYMER_TABLE",
+      "value_type": "INT",
+      "default": 0
+    }
+  ]
+}

@@ -21,35 +21,40 @@
 
 #define BOOST_TEST_MODULE Wells
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
+#include <cctype>
+#include <chrono>
 #include <cstddef>
+#include <ctime>
 #include <exception>
 #include <memory>
+#include <sstream>
 #include <stdexcept>
+#include <string>
 #include <unordered_map>
-#include <cctype>
-#include <ctime>
+#include <utility>
 
 #include <opm/output/data/Wells.hpp>
 #include <opm/output/data/Groups.hpp>
 #include <opm/output/eclipse/Summary.hpp>
+#include <opm/output/eclipse/Inplace.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
 
 #include <opm/io/eclipse/ESmry.hpp>
 
-#include <tests/WorkArea.cpp>
+#include <tests/WorkArea.hpp>
 
 using namespace Opm;
 using rt = data::Rates::opt;
@@ -165,13 +170,14 @@ static data::Wells result_wells() {
       syncronized with the global index in the COMPDAT keyword in the
       input deck.
     */
-    data::Connection well1_comp1 { 0  , crates1, 1.9 , 123.4, 314.15, 0.35, 0.25, 2.718e2};
+    data::Connection well1_comp1 { 0  , crates1, 1.9 , 123.4, 314.15, 0.35, 0.25, 2.718e2, 0.12345};
 
     /*
       The completions
     */
     data::Well well1 {
         rates1, 0.1 * ps, 0.2 * ps, 0.3 * ps, 1,
+        ::Opm::Well::Status::OPEN,
         { {well1_comp1} },
         { { segment.segNumber, segment } },
         data::CurrentControl{}
@@ -187,23 +193,23 @@ static data::Wells result_wells() {
 
 }
 
-static data::Group result_groups() {
-    data::Group groups;
-    data::currentGroupConstraints cgc_group;
+static data::GroupAndNetworkValues result_group_network() {
+    data::GroupAndNetworkValues grp_nwrk;
+    data::GroupConstraints cgc_group;
 
     cgc_group.set(p_cmode::NONE, i_cmode::VREP, i_cmode::RATE);
-    groups.emplace("TEST", cgc_group);
+    grp_nwrk.groupData["TEST"].currentControl = cgc_group;
 
     cgc_group.set(p_cmode::ORAT, i_cmode::RESV, i_cmode::REIN);
-    groups.emplace("LOWER", cgc_group);
+    grp_nwrk.groupData["LOWER"].currentControl = cgc_group;
 
     cgc_group.set(p_cmode::GRAT, i_cmode::REIN, i_cmode::VREP);
-    groups.emplace("UPPER", cgc_group);
+    grp_nwrk.groupData["UPPER"].currentControl = cgc_group;
 
     cgc_group.set(p_cmode::NONE, i_cmode::NONE, i_cmode::NONE);
-    groups.emplace("FIELD", cgc_group);
+    grp_nwrk.groupData["FIELD"].currentControl = cgc_group;
 
-    return groups;
+    return grp_nwrk;
 }
 
 
@@ -215,7 +221,7 @@ struct setup {
     Schedule schedule;
     SummaryConfig config;
     data::Wells wells;
-    data::Group groups;
+    data::GroupAndNetworkValues grp_nwrk;
     std::string name;
     WorkArea ta;
 
@@ -227,14 +233,16 @@ struct setup {
         grid( es.getInputGrid() ),
         python( std::make_shared<Python>() ),
         schedule( deck, es, python),
-        config( deck, schedule, es.getTableManager()),
+        config( deck, schedule, es.fieldProps(), es.aquifer() ),
         wells( result_wells() ),
-        groups( result_groups() ),
+        grp_nwrk( result_group_network() ),
         name( toupper(std::move(fname)) ),
         ta( "test_summary_group_constraints" )
     {}
     };
 } // Anonymous namespace
+
+// =====================================================================
 
 BOOST_AUTO_TEST_SUITE(Summary)
 /*
@@ -249,14 +257,14 @@ BOOST_AUTO_TEST_CASE(group_keywords) {
     cfg.ta.makeSubDir( "PATH" );
     cfg.name = "PATH/CASE";
 
-    SummaryState st(std::chrono::system_clock::now());
+    SummaryState st(TimeService::now());
 
     out::Summary writer( cfg.es, cfg.config, cfg.grid, cfg.schedule , cfg.name );
-    writer.eval(st, 0, 0*day, cfg.es, cfg.schedule, cfg.wells, cfg.groups, {});
-    writer.add_timestep( st, 0);
+    writer.eval(st, 0, 0*day, cfg.wells, cfg.grp_nwrk, {}, {}, {}, {});
+    writer.add_timestep( st, 0, false);
 
-    writer.eval(st, 1, 1*day, cfg.es, cfg.schedule, cfg.wells, cfg.groups, {});
-    writer.add_timestep( st, 1);
+    writer.eval(st, 1, 1*day, cfg.wells, cfg.grp_nwrk, {}, {}, {}, {});
+    writer.add_timestep( st, 1, false);
 
     writer.write();
 

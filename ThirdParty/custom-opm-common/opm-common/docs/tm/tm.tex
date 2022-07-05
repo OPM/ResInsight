@@ -1,0 +1,27 @@
+\documentclass[a4paper,11pt]{book}
+\usepackage{verbatim}
+
+
+\newcommand{\kw}[1]{\texttt{#1}}
+\newcommand{\inlinecode}[1]{\texttt{#1}}
+\newcommand{\flow}[0]{\texttt{flow}}
+\newcommand{\eclipse}[0]{\texttt{Eclipse}}
+\newcommand{\path}[1]{\texttt{#1}}
+\newenvironment{deck}[0]{\verbatim}{\endverbatim}
+\newenvironment{code}[0]{\verbatim}{\endverbatim}
+
+\begin{document}
+
+\begin{titlepage}
+  \begin{center}
+    \Huge
+    \textbf{Technical manual}
+  \end{center}
+\end{titlepage}
+\tableofcontents
+
+\input{udq_actionx/udq}
+\input{udq_actionx/actionx}
+\input{udq_actionx/pyaction}
+
+\end{document}

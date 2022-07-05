@@ -18,13 +18,13 @@ set(_testdir ${PROJECT_SOURCE_DIR}/tests/parser/data)
 opm_add_test(ParserTests
              SOURCES tests/parser/ParserTests.cpp
              LIBRARIES ${TEST_LIBS}
-             TEST_ARGS ${_testdir}/)
+             TEST_ARGS -- ${_testdir}/)
 list(APPEND EXTRA_TESTS ParserTests)
 
 opm_add_test(ParserIncludeTests
              SOURCES tests/parser/ParserIncludeTests.cpp
              LIBRARIES ${TEST_LIBS}
-             TEST_ARGS ${_testdir}/parser/)
+             TEST_ARGS -- ${_testdir}/parser/)
 target_compile_definitions(ParserIncludeTests PRIVATE
                            -DHAVE_CASE_SENSITIVE_FILESYSTEM=${HAVE_CASE_SENSITIVE_FILESYSTEM})
 list(APPEND EXTRA_TESTS ParserIncludeTests)
@@ -32,23 +32,21 @@ list(APPEND EXTRA_TESTS ParserIncludeTests)
 opm_add_test(PvtxTableTests
              SOURCES tests/parser/PvtxTableTests.cpp
              LIBRARIES ${TEST_LIBS}
-             TEST_ARGS ${_testdir}/integration_tests/)
+             TEST_ARGS -- ${_testdir}/integration_tests/)
 list(APPEND EXTRA_TESTS PvtxTableTests)
 
 opm_add_test(EclipseStateTests
              SOURCES tests/parser/EclipseStateTests.cpp
              LIBRARIES ${TEST_LIBS}
-             TEST_ARGS ${_testdir}/integration_tests/)
+             TEST_ARGS -- ${_testdir}/integration_tests/)
 list(APPEND EXTRA_TESTS EclipseStateTests)
 
 foreach (test BoxTest
               CheckDeckValidity
               EclipseGridCreateFromDeck
-              EDITNNCTests
               IncludeTest
               IntegrationTests
               IOConfigIntegrationTest
-              NNCTests
               ParseKEYWORD
               Polymer
               ScheduleCreateFromDeck
@@ -57,7 +55,7 @@ foreach (test BoxTest
   opm_add_test(${test}
                SOURCES tests/parser/integration/${test}.cpp
                LIBRARIES ${TEST_LIBS}
-               TEST_ARGS ${_testdir}/integration_tests/)
+               TEST_ARGS -- ${_testdir}/integration_tests/)
   list(APPEND EXTRA_TESTS ${test})
 endforeach ()
 
@@ -70,6 +68,20 @@ opm_add_test( rst_msw
               SOURCES tests/rst_test.cpp
               LIBRARIES ${TEST_LIBS}
               TEST_ARGS tests/MSW.DATA tests/MSW_RESTART.DATA )
+
+add_test( NAME rst_deck_test
+          COMMAND ${PROJECT_SOURCE_DIR}/tests/rst_test_driver.sh ${PROJECT_BINARY_DIR}/bin/rst_deck ${PROJECT_BINARY_DIR}/bin/opmhash
+          ${PROJECT_SOURCE_DIR}/tests/SPE1CASE2_INCLUDE.DATA)
+
+
+add_test( NAME rst_deck_test2
+          COMMAND ${PROJECT_SOURCE_DIR}/tests/rst_test_driver2.sh
+                  ${PROJECT_BINARY_DIR}/bin/rst_deck
+                  ${PROJECT_BINARY_DIR}/bin/opmi
+                  ${PROJECT_SOURCE_DIR}/tests/ACTIONX_M1.DATA
+                  ${PROJECT_SOURCE_DIR}/tests/ACTIONX_M1_MULTIPLE.DATA
+                  ${PROJECT_SOURCE_DIR}/tests/ACTIONX_M1.UNRST
+                  ${PROJECT_SOURCE_DIR}/tests/ACTIONX_M1.X0010 )
 
 # opm-tests dependent tests
 if(HAVE_OPM_TESTS)
@@ -91,7 +103,6 @@ if(HAVE_OPM_TESTS)
                 ${OPM_TESTS_ROOT}/spe9/SPE9_CP.DATA
                 ${OPM_TESTS_ROOT}/spe9/SPE9_CP_GROUP.DATA
                 ${OPM_TESTS_ROOT}/spe9/SPE9_CP_SHORT.DATA
-                ${OPM_TESTS_ROOT}/spe9/SPE9_CP_SHORT_RESTART.DATA
                 ${OPM_TESTS_ROOT}/spe9/SPE9.DATA
                 ${OPM_TESTS_ROOT}/spe10model1/SPE10_MODEL1.DATA
                 ${OPM_TESTS_ROOT}/spe10model2/SPE10_MODEL2.DATA
@@ -115,7 +126,16 @@ if(HAVE_OPM_TESTS)
   opm_add_test("SPE9_CP_GROUP2" NO_COMPILE EXE_NAME parse_write TEST_ARGS "${OPM_TESTS_ROOT}/spe9group/SPE9_CP_GROUP.DATA")
   set_property(TEST NORNE_ATW2013
                PROPERTY ENVIRONMENT "OPM_ERRORS_IGNORE=PARSE_RANDOM_SLASH")
+
+  add_test( NAME rst_deck_test_norne
+             COMMAND ${PROJECT_SOURCE_DIR}/tests/rst_test_driver.sh ${PROJECT_BINARY_DIR}/bin/rst_deck ${PROJECT_BINARY_DIR}/bin/opmhash
+             ${OPM_TESTS_ROOT}/norne/NORNE_ATW2013.DATA)
+
+  set_property(TEST rst_deck_test_norne
+               PROPERTY ENVIRONMENT "OPM_ERRORS_IGNORE=PARSE_RANDOM_SLASH")
+
 endif()
+
 
 # JSON tests
 opm_add_test(jsonTests

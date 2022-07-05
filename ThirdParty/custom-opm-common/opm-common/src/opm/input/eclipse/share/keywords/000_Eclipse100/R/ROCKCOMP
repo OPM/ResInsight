@@ -1,0 +1,40 @@
+{
+  "name": "ROCKCOMP",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "HYSTERESIS",
+      "value_type": "STRING",
+      "default": "REVERS"
+    },
+    {
+      "item": 2,
+      "name": "NTROCC",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 3,
+      "name": "WATER_COMPACTION",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "item": 4,
+      "name": "PORTXROP",
+      "value_type": "STRING",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 5,
+      "name": "CARKZEXP",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "This item is ECLIPSE300 specific"
+    }
+  ]
+}

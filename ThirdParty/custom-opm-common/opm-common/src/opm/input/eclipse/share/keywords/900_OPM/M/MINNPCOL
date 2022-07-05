@@ -1,0 +1,14 @@
+{
+  "name": "MINNPCOL",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "VALUE",
+      "value_type": "INT",
+      "default": 6
+    }
+  ]
+}

@@ -21,14 +21,13 @@
 
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
+#include <filesystem>
 
-#include <opm/common/utility/FileSystem.hpp>
-
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/Box.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/Box.hpp>
 
 using namespace Opm;
 
@@ -38,7 +37,7 @@ inline std::string prefix() {
 
 inline Deck makeDeck(const std::string& fileName) {
     Parser parser;
-    Opm::filesystem::path boxFile(fileName);
+    std::filesystem::path boxFile(fileName);
     return parser.parseFile(boxFile.string());
 }
 
@@ -156,8 +155,8 @@ BOOST_AUTO_TEST_CASE( OPERATE ) {
 BOOST_AUTO_TEST_CASE( CONSTRUCTOR_AND_UPDATE ) {
     auto deck = makeDeck( prefix() + "BOX/BOXTEST1" );
     EclipseGrid grid(deck);
-    const auto& box_keyword = deck.getKeyword("BOX", 0);
-    const auto& operate_keyword = deck.getKeyword("OPERATE");
+    const auto& box_keyword = deck["BOX"][0];
+    const auto& operate_keyword = deck["OPERATE"].back();
     Box box(grid);
     box.update(box_keyword.getRecord(0));
     BOOST_CHECK_EQUAL(box.size(), 8);

@@ -21,8 +21,8 @@
 
 #include <opm/output/eclipse/LogiHEAD.hpp>
 
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
 
 #include <vector>
 
@@ -55,7 +55,8 @@ createLogiHead(const EclipseState& es)
 	
     const auto lh = LogiHEAD{}
         .variousParam(false, false, wsd.maxSegmentedWells(), hystPar.active())
-	.pvtModel(pvt)
+        .pvtModel(pvt)
+        .network(rspec.networkDimensions().maxNONodes())
         ;
 	
     return lh.data();

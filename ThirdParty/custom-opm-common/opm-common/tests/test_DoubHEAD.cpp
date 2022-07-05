@@ -20,15 +20,21 @@
 #define BOOST_TEST_MODULE DoubHEAD_Vector
 
 #include <boost/test/unit_test.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
 #include <opm/output/eclipse/DoubHEAD.hpp>
+#include <opm/output/eclipse/VectorItems/doubhead.hpp>
+#include <opm/output/eclipse/WriteRestartHelpers.hpp>
 
 #include <opm/output/eclipse/InteHEAD.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
 
 #include <chrono>
 #include <ctime>
@@ -36,6 +42,32 @@
 #include <numeric>              // partial_sum()
 #include <ratio>
 #include <vector>
+
+namespace {
+
+    Opm::Deck first_sim(std::string fname) {
+        return Opm::Parser{}.parseFile(fname);
+    }
+}
+
+//int main(int argc, char* argv[])
+struct SimulationCase
+{
+    explicit SimulationCase(const Opm::Deck& deck)
+        : es   { deck }
+        , grid { deck }
+        , python{ std::make_shared<Opm::Python>() }
+        , sched{ deck, es, python }
+    {}
+
+    // Order requirement: 'es' must be declared/initialised before 'sched'.
+    Opm::EclipseState es;
+    Opm::EclipseGrid  grid;
+    std::shared_ptr<Opm::Python> python;
+    Opm::Schedule     sched;
+
+};
+
 
 namespace {
     using Day = std::chrono::duration<double,
@@ -51,8 +83,7 @@ namespace {
         timePoint.tm_mon  =   4 - 1; // April
         timePoint.tm_mday =   9;     // 9th
 
-        return std::chrono::system_clock::from_time_t(
-            ::Opm::RestartIO::makeUTCTime(timePoint));
+        return Opm::TimeService::from_time_t( Opm::TimeService::makeUTCTime(timePoint) );
     }
 
     std::chrono::duration<double, std::chrono::seconds::period> tstep_123()
@@ -65,6 +96,30 @@ namespace {
                std::chrono::duration<double, std::chrono::seconds::period> elapsed)
     {
         return { start, elapsed };
+    }
+
+    double getTimeConv(const ::Opm::UnitSystem& us)
+    {
+        switch (us.getType()) {
+        case ::Opm::UnitSystem::UnitType::UNIT_TYPE_METRIC:
+            return static_cast<double>(Opm::Metric::Time);
+
+        case ::Opm::UnitSystem::UnitType::UNIT_TYPE_FIELD:
+            return static_cast<double>(Opm::Field::Time);
+
+        case ::Opm::UnitSystem::UnitType::UNIT_TYPE_LAB:
+            return static_cast<double>(Opm::Lab::Time);
+
+        case ::Opm::UnitSystem::UnitType::UNIT_TYPE_PVT_M:
+            return static_cast<double>(Opm::PVT_M::Time);
+
+        case ::Opm::UnitSystem::UnitType::UNIT_TYPE_INPUT:
+            throw std::invalid_argument {
+                "Cannot Run Simulation With Non-Standard Units"
+            };
+        }
+
+        throw std::invalid_argument("Unknown unit type specified");
     }
 } // Anonymous
 
@@ -90,5 +145,66 @@ BOOST_AUTO_TEST_CASE(Time_Stamp)
     // Start + elapsed (days)
     BOOST_CHECK_CLOSE(v[162 - 1], 736200.0, 1.0e-10);
 }
+
+BOOST_AUTO_TEST_CASE(Wsegiter)
+{
+    const auto simCase = SimulationCase{first_sim("0A4_GRCTRL_LRAT_LRAT_GGR_BASE_MODEL2_MSW_ALL.DATA")};
+
+    Opm::EclipseState es    = simCase.es;
+    Opm::Schedule     sched = simCase.sched;
+
+    const auto& usys  = es.getDeckUnitSystem();
+    const auto  tconv = getTimeConv(usys);
+
+    const std::size_t lookup_step = 1;
+
+    const auto dh = Opm::RestartIO::DoubHEAD{}
+        .tuningParameters(sched[lookup_step].tuning(), tconv);
+
+    const auto& v = dh.data();
+
+    namespace VI = Opm::RestartIO::Helpers::VectorItems;
+
+    BOOST_CHECK_EQUAL(v[VI::WsegRedFac], 0.3);
+    BOOST_CHECK_EQUAL(v[VI::WsegIncFac], 2.0);
+
+}
+
+BOOST_AUTO_TEST_CASE(Netbalan)
+{
+    const auto simCase = SimulationCase{first_sim("5_NETWORK_MODEL5_STDW_NETBAL_PACK.DATA")};
+
+    Opm::EclipseState es    = simCase.es;
+    Opm::EclipseGrid  grid   = simCase.grid;
+
+    Opm::Schedule     sched = simCase.sched;
+    const auto& start_time = sched.getStartTime();
+
+    double simTime = start_time + 2.E09;
+    const double next_step_size = 0.2;
+
+    const std::size_t report_step = 1;
+    const std::size_t lookup_step = report_step - 1;
+
+    const auto ih = Opm::RestartIO::Helpers::
+            createInteHead(es, grid, sched, simTime,
+                           report_step, // Should really be number of timesteps
+                           report_step, lookup_step);
+    const auto dh = Opm::RestartIO::Helpers::createDoubHead(es, sched, lookup_step, report_step,
+                                                simTime, next_step_size);
+
+    const auto& v = dh.data();
+
+    namespace VI = Opm::RestartIO::Helpers::VectorItems;
+
+    BOOST_CHECK_EQUAL(v[VI::doubhead::Netbalint], 2.345);
+    BOOST_CHECK_EQUAL(v[VI::doubhead::Netbalnpre], 0.033);
+    BOOST_CHECK_EQUAL(v[VI::doubhead::Netbalthpc], 0.1);
+    BOOST_CHECK_EQUAL(v[VI::doubhead::Netbaltarerr], 1.E+19);
+    BOOST_CHECK_EQUAL(v[VI::doubhead::Netbalmaxerr], 1.E+18);
+    BOOST_CHECK_EQUAL(v[VI::doubhead::Netbalstepsz], 0.15);
+
+}
+
 
 BOOST_AUTO_TEST_SUITE_END()

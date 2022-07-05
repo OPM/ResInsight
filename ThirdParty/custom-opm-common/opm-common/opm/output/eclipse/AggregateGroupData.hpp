@@ -23,7 +23,7 @@
 #include <opm/output/eclipse/WindowedArray.hpp>
 
 #include <opm/io/eclipse/PaddedOutputString.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Group/Group.hpp>
+#include <opm/input/eclipse/Schedule/Group/Group.hpp>
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -71,15 +71,21 @@ public:
 
     const std::vector<std::string> restart_group_keys = {"GOPP", "GWPP", "GOPR", "GWPR", "GGPR",
                                                          "GVPR", "GWIR", "GGIR", "GWCT", "GGOR",
-                                                         "GOPT", "GWPT", "GGPT", "GVPT", "GWIT",
-                                                         "GGIT", "GVIT",
+                                                         "GOPT", "GWPT", "GGPT", "GVPT",
+                                                         "GOPTS", "GGPTS",
+                                                         "GWIT" , "GGIT" , "GVIT",
                                                          "GOPTH", "GWPTH", "GGPTH",
-                                                         "GWITH", "GGITH"};
+                                                         "GWITH", "GGITH",
+                                                         "GOPGR", "GWPGR", "GGPGR", "GVPGR",
+                                                         "GOIGR", "GWIGR", "GGIGR",
+                                                        };
 
+    // Note: guide rates don't exist at the FIELD level.
     const std::vector<std::string> restart_field_keys = {"FOPP", "FWPP", "FOPR", "FWPR", "FGPR",
                                                          "FVPR", "FWIR", "FGIR", "FWCT", "FGOR",
-                                                         "FOPT", "FWPT", "FGPT", "FVPT", "FWIT",
-                                                         "FGIT", "FVIT",
+                                                         "FOPT", "FWPT", "FGPT", "FVPT",
+                                                         "FOPTS", "FGPTS",
+                                                         "FWIT" , "FGIT" , "FVIT",
                                                          "FOPTH", "FWPTH", "FGPTH",
                                                          "FWITH", "FGITH"};
 
@@ -101,24 +107,20 @@ public:
                                                            {"GVIT", 17},
                                                            {"GOPP", 22},
                                                            {"GWPP", 23},
+                                                           {"GOPTS", 73},
+                                                           {"GGPTS", 74},
+                                                           {"GOPGR", 85},
+                                                           {"GWPGR", 86},
+                                                           {"GGPGR", 87},
+                                                           {"GVPGR", 88},
+                                                           {"GOIGR", 89},
+                                                           {"GWIGR", 91},
+                                                           {"GGIGR", 93},
                                                            {"GOPTH", 135},
                                                            {"GWPTH", 139},
                                                            {"GWITH", 140},
                                                            {"GGPTH", 143},
                                                            {"GGITH", 144},
-    };
-    
-    
-    using inj_cmode_enum = Opm::Group::InjectionCMode;
-    const std::map<inj_cmode_enum, int> cmodeToNum = {
-        
-        {inj_cmode_enum::NONE, 0},
-        {inj_cmode_enum::RATE, 1},
-        {inj_cmode_enum::RESV, 2},
-        {inj_cmode_enum::REIN, 3},
-        {inj_cmode_enum::VREP, 4},
-        {inj_cmode_enum::FLD,  0},
-        {inj_cmode_enum::SALE, 0},
     };
 
     const std::map<std::string, size_t> fieldKeyToIndex = {
@@ -139,6 +141,8 @@ public:
                                                            {"FVIT", 17},
                                                            {"FOPP", 22},
                                                            {"FWPP", 23},
+                                                           {"FOPTS", 73},
+                                                           {"FGPTS", 74},
                                                            {"FOPTH", 135},
                                                            {"FWPTH", 139},
                                                            {"FWITH", 140},

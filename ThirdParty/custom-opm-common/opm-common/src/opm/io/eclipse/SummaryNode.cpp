@@ -90,18 +90,8 @@ distinguish_group_from_node(const std::string& keyword)
 }
 
 std::string Opm::EclIO::SummaryNode::unique_key(number_renderer render_number) const {
-    
-    if (category == Category::Well_Lgr) {
-        return create_key_lgr_well(keyword, wgname, lgrname);
-    }
-    else if (category == Category::Connection_Lgr) {
-        return create_key_lgr_completion(keyword, wgname, lgrname, lgri, lgrj, lgrk);
-    }
-    else if (category == Category::Block_Lgr) {
-        return create_key_lgr_block(keyword, lgrname, lgri, lgrj, lgrk);
-    }
-
     std::vector<std::string> key_parts { keyword } ;
+
     if (auto opt = display_name())
         key_parts.emplace_back(opt.value());
 
@@ -156,17 +146,29 @@ bool Opm::EclIO::SummaryNode::is_user_defined() const {
     return matched && !blacklisted;
 }
 
+
+/*
+  Observe that this function started out as a slight generalisation of the
+  special case handling of segment variables; i.e. variables starting with 'S'.
+  In general there are many other expecptions e.g. 'NEWTON' is an Miscellaneous
+  variable and not a network variable - but they will be added when/if required.
+*/
+bool Opm::EclIO::SummaryNode::miscellaneous_exception(const std::string& keyword) {
+    static const std::unordered_set<std::string> miscellaneous_keywords = {"SEPARATE", "STEPTYPE", "SUMTHIN"};
+    return miscellaneous_keywords.count(keyword) == 1;
+}
+
+
 Opm::EclIO::SummaryNode::Category Opm::EclIO::SummaryNode::category_from_keyword(
-    const std::string& keyword,
-    const std::unordered_set<std::string>& miscellaneous_keywords
+    const std::string& keyword
 ) {
+    static const std::unordered_set<std::string> miscellaneous_keywords = {"SEPARATE", "STEPTYPE", "SUMTHIN"};
     if (keyword.length() == 0) {
         return Category::Miscellaneous;
     }
 
-    if (miscellaneous_keywords.find(keyword) != miscellaneous_keywords.end()) {
+    if (Opm::EclIO::SummaryNode::miscellaneous_exception(keyword))
         return Category::Miscellaneous;
-    }
 
     switch (keyword[0]) {
     case 'A': return Category::Aquifer;
@@ -174,24 +176,11 @@ Opm::EclIO::SummaryNode::Category Opm::EclIO::SummaryNode::category_from_keyword
     case 'C': return Category::Connection;
     case 'F': return Category::Field;
     case 'G': return distinguish_group_from_node(keyword);
-    case 'N': return Category::Network;
     case 'R': return Category::Region;
     case 'S': return Category::Segment;
     case 'W': return Category::Well;
-    default: break;
+    default:  return Category::Miscellaneous;
     }
-
-    if (keyword.length() > 1)
-    {
-        // Then check LGR categories
-        std::string firstTwoLetters = keyword.substr(0, 2);
-
-        if (firstTwoLetters == "LB") return Category::Block_Lgr;
-        if (firstTwoLetters == "LC") return Category::Connection_Lgr;
-        if (firstTwoLetters == "LW") return Category::Well_Lgr;
-    }
-
-    return Category::Miscellaneous;
 }
 
 std::optional<std::string> Opm::EclIO::SummaryNode::display_name() const {
@@ -204,40 +193,6 @@ std::optional<std::string> Opm::EclIO::SummaryNode::display_name() const {
 
 std::optional<std::string> Opm::EclIO::SummaryNode::display_number() const {
     return display_number(default_number_renderer);
-}
-
-bool Opm::EclIO::SummaryNode::isRegionToRegion() const {
-    if ((category == SummaryNode::Category::Region) &&
-        (keyword.size() > 2 && keyword[2] == 'F')) return true;
-
-    return false;
-}
-
-std::pair<int, int> Opm::EclIO::SummaryNode::regionToRegionNumbers() const {
-    if (category != SummaryNode::Category::Region) return { -1, -1 };
-
-    if (keyword.size() > 2 && keyword[2] == 'F') {
-        const auto r1 = number % (1 << 15);
-        const auto r2 = (number / (1 << 15)) - 10;
-        return { r1, r2 };
-    }
-
-    return { -1, -1 };
-}
-
-std::string Opm::EclIO::SummaryNode::create_key_lgr_well(const std::string& keyword, 
-                                                         const std::string& wgname, const std::string& lgrname) {
-    return keyword + ":" + wgname + ":" + lgrname;
-}
-
-std::string Opm::EclIO::SummaryNode::create_key_lgr_completion(const std::string& keyword, const std::string& wgname,
-                                                               const std::string& lgrname, int i, int j, int k) {
-    return keyword + ":" + wgname + ":" + lgrname + ":" + std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k);
-}
-
-std::string Opm::EclIO::SummaryNode::create_key_lgr_block(const std::string& keyword, const std::string& lgrname, 
-                                                          int i, int j, int k) {
-    return keyword + ":" + lgrname + ":" + std::to_string(i) + "," + std::to_string(j) + "," + std::to_string(k);
 }
 
 std::optional<std::string> Opm::EclIO::SummaryNode::display_number(number_renderer render_number) const {

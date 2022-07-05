@@ -17,21 +17,21 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <filesystem>
 #include <fstream>
 #include <iostream>
 #include <getopt.h>
 
-#include <opm/common/utility/FileSystem.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/I.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/P.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/G.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/InputErrorAction.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/I.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/P.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/G.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/InputErrorAction.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
 
-namespace fs = Opm::filesystem;
+namespace fs = std::filesystem;
 
 Opm::Deck pack_deck( const char * deck_file, std::ostream& os) {
     Opm::ParseContext parseContext(Opm::InputError::WARN);
@@ -154,16 +154,14 @@ int main(int argc, char** argv) {
             }
 
             using IMPORT = Opm::ParserKeywords::IMPORT;
-            for (std::size_t import_index = 0; import_index < deck.count<IMPORT>(); import_index++) {
-                const auto& import_keyword = deck.getKeyword<IMPORT>(import_index);
+            for (const auto& import_keyword : deck.get<IMPORT>()) {
                 const auto& fname = import_keyword.getRecord(0).getItem<IMPORT::FILE>().get<std::string>(0);
                 copy_file(input_arg.parent_path(), fname, output_dir);
             }
 
 
             using PYACTION = Opm::ParserKeywords::PYACTION;
-            for (std::size_t pyaction_index = 0; pyaction_index < deck.count<PYACTION>(); pyaction_index++) {
-                const auto& pyaction_keyword = deck.getKeyword<PYACTION>(pyaction_index);
+            for (const auto& pyaction_keyword : deck.get<PYACTION>()) {
                 const auto& fname = pyaction_keyword.getRecord(1).getItem<PYACTION::FILENAME>().get<std::string>(0);
                 copy_file(input_arg.parent_path(), fname, output_dir);
             }
@@ -171,7 +169,7 @@ int main(int argc, char** argv) {
 
             using GDFILE = Opm::ParserKeywords::GDFILE;
             if (deck.hasKeyword<GDFILE>()) {
-                const auto& gdfile_keyword = deck.getKeyword<GDFILE>();
+                const auto& gdfile_keyword = deck.get<GDFILE>().back();
                 const auto& fname = gdfile_keyword.getRecord(0).getItem<GDFILE::filename>().get<std::string>(0);
                 copy_file(input_arg.parent_path(), fname, output_dir);
             }

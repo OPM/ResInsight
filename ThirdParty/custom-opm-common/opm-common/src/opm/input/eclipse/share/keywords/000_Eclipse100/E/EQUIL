@@ -1,0 +1,86 @@
+{
+  "name": "EQUIL",
+  "sections": [
+    "SOLUTION"
+  ],
+  "size": {
+    "keyword": "EQLDIMS",
+    "item": "NTEQUL"
+  },
+  "description": "The EQUIL item is used when equilibrating the model. The item should consist of exactly one record for each EQUIL region",
+  "items": [
+    {
+      "item": 1,
+      "name": "DATUM_DEPTH",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Length"
+    },
+    {
+      "item": 2,
+      "name": "DATUM_PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "item": 3,
+      "name": "OWC",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Length",
+      "description": "The OWC item is depth of the OIL Water contact. This should ..."
+    },
+    {
+      "item": 4,
+      "name": "PC_OWC",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "item": 5,
+      "name": "GOC",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Length"
+    },
+    {
+      "item": 6,
+      "name": "PC_GOC",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "item": 7,
+      "name": "BLACK_OIL_INIT",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 8,
+      "name": "BLACK_OIL_INIT_WG",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 9,
+      "name": "OIP_INIT",
+      "value_type": "INT",
+      "default": -5,
+      "comment": "Only values less than or equal to zero supported"
+    },
+    {
+      "item": 10,
+      "name": "EQLOPT04",
+      "value_type": "INT",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 11,
+      "name": "EQLOPT5",
+      "value_type": "INT",
+      "comment": "This item is ECLIPSE300 specific"
+    }
+  ]
+}

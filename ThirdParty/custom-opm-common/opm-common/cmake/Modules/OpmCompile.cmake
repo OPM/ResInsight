@@ -29,12 +29,18 @@ macro (opm_compile opm)
 
   # create this library, if there are any compilation units
   link_directories (${${opm}_LIBRARY_DIRS})
-  add_definitions (${${opm}_DEFINITIONS})
+  if(CMAKE_VERSION VERSION_GREATER_EQUAL "3.12")
+    # Some modules may still export definitions using -D, strip it
+    string(REGEX REPLACE "-D" "" _clean_defs "${${opm}_DEFINITIONS}")
+    add_compile_definitions(${_clean_defs})
+  else()
+    add_definitions(${${opm}_DEFINITIONS})
+  endif()
   set (${opm}_VERSION "${${opm}_VERSION_MAJOR}.${${opm}_VERSION_MINOR}")
   if (${opm}_SOURCES)
         add_library (${${opm}_TARGET} ${${opm}_LIBRARY_TYPE} ${${opm}_SOURCES})
         set_target_properties (${${opm}_TARGET} PROPERTIES
-          SOVERSION ${${opm}_VERSION_MAJOR}
+          SOVERSION ${${opm}_VERSION}
           VERSION ${${opm}_VERSION}
           LINK_FLAGS "${${opm}_LINKER_FLAGS_STR}"
           POSITION_INDEPENDENT_CODE TRUE 

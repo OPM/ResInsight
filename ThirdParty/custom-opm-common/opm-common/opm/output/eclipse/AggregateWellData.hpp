@@ -23,7 +23,7 @@
 #include <opm/output/eclipse/WindowedArray.hpp>
 
 #include <opm/io/eclipse/PaddedOutputString.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/ActionResult.hpp>
+#include <opm/input/eclipse/Schedule/Action/ActionResult.hpp>
 
 #include <cstddef>
 #include <string>
@@ -33,33 +33,36 @@ namespace Opm {
     class Schedule;
     class SummaryState;
     class UnitSystem;
+    class WellTestState;
+    class TracerConfig;
+    namespace Action {
+        class State;
+    }
 } // Opm
 
 namespace Opm { namespace data {
-    class WellRates;
+    class Wells;
 }} // Opm::data
 
 namespace Opm { namespace RestartIO { namespace Helpers {
-    
-    struct ActionResStatus {
-        std::vector<Opm::Action::Result> result;
-        std::vector<std::string> name;
-    };
 
     class AggregateWellData
     {
     public:
         explicit AggregateWellData(const std::vector<int>& inteHead);
 
-	void captureDeclaredWellData(const Schedule&   	sched,
-                        const UnitSystem& 		units,
-                        const std::size_t 		sim_step,
-			const ::Opm::SummaryState&  	smry,
-			const std::vector<int>& 	inteHead);
+        void captureDeclaredWellData(const Schedule&   	       sched,
+                                     const TracerConfig&       tracer,
+                                     const std::size_t 		     sim_step,
+                                     const Opm::Action::State& action_state,
+                                     const Opm::WellTestState& wtest_state,
+                                     const Opm::SummaryState&  smry,
+                                     const std::vector<int>& 	 inteHead);
 
         void captureDynamicWellData(const Opm::Schedule&        sched,
+                                    const TracerConfig&       tracer,
                                     const std::size_t           sim_step,
-                                    const Opm::data::WellRates& xw,
+                                    const Opm::data::Wells&     xw,
                                     const Opm::SummaryState&    smry);
 
         /// Retrieve Integer Well Data Array.
@@ -86,8 +89,8 @@ namespace Opm { namespace RestartIO { namespace Helpers {
             return this->zWell_.data();
         }
 
-        
-        
+
+
     private:
         /// Aggregate 'IWEL' array (Integer) for all wells.
         WindowedArray<int> iWell_;

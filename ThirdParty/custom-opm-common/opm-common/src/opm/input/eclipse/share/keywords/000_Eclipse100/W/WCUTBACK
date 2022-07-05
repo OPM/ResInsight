@@ -1,0 +1,82 @@
+{
+  "name": "WCUTBACK",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "WCT_LIMIT",
+      "value_type": "DOUBLE",
+      "dimension": "LiquidSurfaceVolume/LiquidSurfaceVolume"
+    },
+    {
+      "name": "GOR_LIMIT",
+      "value_type": "DOUBLE",
+      "dimension": "GasDissolutionFactor"
+    },
+    {
+      "name": "GLR_LIMIT",
+      "value_type": "DOUBLE",
+      "dimension": "GasDissolutionFactor"
+    },
+    {
+      "name": "WGR_LIMIT",
+      "value_type": "DOUBLE",
+      "dimension": "OilDissolutionFactor"
+    },
+    {
+      "name": "RATE_CUTBACK",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "name": "PRESSURE_LIMIT",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "PRESSURE_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "WCT_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/LiquidSurfaceVolume"
+    },
+    {
+      "name": "GOR_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "GasDissolutionFactor"
+    },
+    {
+      "name": "GLR_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "GasDissolutionFactor"
+    },
+    {
+      "name": "WGR_LIMIT_REVERSE",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "OilDissolutionFactor"
+    },
+    {
+      "name": "WORKOVER_REMOVE",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

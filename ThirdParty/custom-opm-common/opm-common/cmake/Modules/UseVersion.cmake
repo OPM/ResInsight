@@ -17,6 +17,9 @@ message("-- Writing version information to local header project-version.h")
 string (TIMESTAMP build_timestamp "%Y-%m-%d at %H:%M:%S hrs")
 
 string (TOUPPER "${CMAKE_BUILD_TYPE}" cmake_build_type_upper_)
+set(OPM_BINARY_PACKAGE_VERSION "" CACHE STRING
+  "Version of the binary Linux package built (will be printed in PRT file of flow if not empty)")
+string(LENGTH "${OPM_BINARY_PACKAGE_VERSION}" _BINARY_PACKAGE_VERSION_LENGTH)
 if (cmake_build_type_upper_ MATCHES DEBUG)
   file (WRITE "${PROJECT_BINARY_DIR}/project-version.h"
         "#ifndef OPM_GENERATED_OPM_VERSION_HEADER_INCLUDED\n"
@@ -24,9 +27,16 @@ if (cmake_build_type_upper_ MATCHES DEBUG)
         "#define PROJECT_VERSION_NAME \"${${project}_LABEL}\"\n"
         "#define PROJECT_VERSION_HASH \"debug\"\n"
         "#define PROJECT_VERSION \"${${project}_LABEL} (debug)\"\n"
-        "#define BUILD_TIMESTAMP \"${build_timestamp}\"\n"
         "#endif // OPM_GENERATED_OPM_VERSION_HEADER_INCLUDED\n"
 	)
+
+  # Write header file with build timestamp
+  file (WRITE "${PROJECT_BINARY_DIR}/project-timestamp.h"
+      "#ifndef OPM_GENERATED_OPM_TIMESTAMP_HEADER_INCLUDED\n"
+      "#define OPM_GENERATED_OPM_TIMESTAMP_HEADER_INCLUDED\n"
+      "#define BUILD_TIMESTAMP \"${build_timestamp}\"\n"
+      "#endif // OPM_GENERATED_OPM_TIMESTAMP_HEADER_INCLUDED\n"
+      )
 else ()
   if (NOT GIT_FOUND)
 	find_package (Git)
@@ -36,16 +46,30 @@ else ()
   # system, so there is "no" way we can update the SHA. notice
   # that this is a slightly different version of the label than
   # above.
-  if (NOT GIT_FOUND)
-	file (WRITE "${PROJECT_BINARY_DIR}/project-version.h"
-              "#ifndef OPM_GENERATED_OPM_VERSION_HEADER_INCLUDED\n"
-              "#define OPM_GENERATED_OPM_VERSION_HEADER_INCLUDED\n"
-              "#define PROJECT_VERSION_NAME \"${${project}_LABEL}\"\n"
-              "#define PROJECT_VERSION_HASH \"unknown git version\"\n"
-              "#define PROJECT_VERSION \"${${project}_LABEL} (unknown git version)\"\n"
-              "#define BUILD_TIMESTAMP \"${build_timestamp}\"\n"
-              "#endif // OPM_GENERATED_OPM_VERSION_HEADER_INCLUDED\n"
-              )
+  if (NOT GIT_FOUND OR NOT EXISTS ${PROJECT_SOURCE_DIR}/.git)
+    if(_BINARY_PACKAGE_VERSION_LENGTH GREATER 0)
+      set(_PROJECT_VERSION_HASH "${OPM_BINARY_PACKAGE_VERSION}")
+    else()
+      set(_PROJECT_VERSION_HASH "unknown git version")
+    endif()
+    file (WRITE "${PROJECT_BINARY_DIR}/project-version.h"
+      "#ifndef OPM_GENERATED_OPM_VERSION_HEADER_INCLUDED\n"
+      "#define OPM_GENERATED_OPM_VERSION_HEADER_INCLUDED\n"
+      "#define PROJECT_VERSION_NAME \"${${project}_LABEL}\"\n"
+      "#define PROJECT_VERSION_HASH \"${_PROJECT_VERSION_HASH}\"\n"
+      "#define PROJECT_VERSION \"${${project}_LABEL} (${_PROJECT_VERSION_HASH})\"\n"
+      "#endif // OPM_GENERATED_OPM_VERSION_HEADER_INCLUDED\n"
+      )
+    # Write header file with build timestamp
+    file (WRITE "${PROJECT_BINARY_DIR}/project-timestamp.h"
+      "#ifndef OPM_GENERATED_OPM_TIMESTAMP_HEADER_INCLUDED\n"
+      "#define OPM_GENERATED_OPM_TIMESTAMP_HEADER_INCLUDED\n")
+    if (_BINARY_PACKAGE_VERSION_LENGTH EQUAL 0)
+      file(APPEND "${PROJECT_BINARY_DIR}/project-timestamp.h"
+	"#define BUILD_TIMESTAMP \"${build_timestamp}\"\n")
+    endif()
+    file(APPEND "${PROJECT_BINARY_DIR}/project-timestamp.h"
+      "#endif // OPM_GENERATED_OPM_TIMESTAMP_HEADER_INCLUDED\n")
   else ()
 	add_custom_target (update-version ALL
 	  COMMAND ${CMAKE_COMMAND}

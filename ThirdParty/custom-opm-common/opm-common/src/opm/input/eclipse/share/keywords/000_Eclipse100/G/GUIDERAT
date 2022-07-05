@@ -1,0 +1,84 @@
+{
+  "name": "GUIDERAT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "MIN_CALC_TIME",
+      "value_type": "DOUBLE",
+      "dimension": "Time",
+      "default": 0
+    },
+    {
+      "item": 2,
+      "name": "NOMINATED_PHASE",
+      "value_type": "STRING",
+      "default": "NONE",
+      "comment": "COMB option unsupported"
+    },
+    {
+      "item": 3,
+      "name": "A",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "item": 4,
+      "name": "B",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "item": 5,
+      "name": "C",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "item": 6,
+      "name": "D",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "item": 7,
+      "name": "E",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "item": 8,
+      "name": "F",
+      "value_type": "DOUBLE",
+      "default": 0
+    },
+    {
+      "item": 9,
+      "name": "ALLOW_INCREASE",
+      "value_type": "STRING",
+      "default": "YES",
+      "comment": "NO option unsupported"
+    },
+    {
+      "item": 10,
+      "name": "DAMPING_FACTOR",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "item": 11,
+      "name": "USE_FREE_GAS",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "item": 12,
+      "name": "MIN_GUIDE_RATE",
+      "value_type": "DOUBLE",
+      "default": 1e-06
+    }
+  ]
+}

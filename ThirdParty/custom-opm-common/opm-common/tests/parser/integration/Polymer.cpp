@@ -20,13 +20,13 @@
 #define BOOST_TEST_MODULE ParserIntegrationTests
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PlyviscTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PlymaxTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PlyrockTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PlyadsTable.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableManager.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/PlyviscTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/PlymaxTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/PlyrockTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/PlyadsTable.hpp>
 
 using namespace Opm;
 

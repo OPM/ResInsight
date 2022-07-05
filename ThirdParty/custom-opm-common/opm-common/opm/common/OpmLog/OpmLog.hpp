@@ -88,6 +88,8 @@ public:
     }
 
 
+    static bool stdoutIsTerminal();
+
 private:
     static std::shared_ptr<Logger> getLogger();
     static std::shared_ptr<Logger> m_logger;

@@ -1,0 +1,13 @@
+{
+  "name": "TRPLPORO",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "NUM_MATRIX",
+      "value_type": "INT"
+    }
+  ]
+}

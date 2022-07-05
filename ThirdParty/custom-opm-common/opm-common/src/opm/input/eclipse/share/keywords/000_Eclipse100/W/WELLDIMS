@@ -1,0 +1,98 @@
+{
+  "name": "WELLDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "MAXWELLS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 2,
+      "name": "MAXCONN",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 3,
+      "name": "MAXGROUPS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 4,
+      "name": "MAX_GROUPSIZE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 5,
+      "name": "MAX_STAGES",
+      "value_type": "INT",
+      "default": 5,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 6,
+      "name": "MAX_STREAMS",
+      "value_type": "INT",
+      "default": 10,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 7,
+      "name": "MAX_MIXTURES",
+      "value_type": "INT",
+      "default": 5,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 8,
+      "name": "MAX_SEPARATORS",
+      "value_type": "INT",
+      "default": 4,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 9,
+      "name": "MAX_MIXTURE_ITEMS",
+      "value_type": "INT",
+      "default": 3,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 10,
+      "name": "MAX_COMPLETION_X",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 11,
+      "name": "MAX_WELLIST_PR_WELL",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 12,
+      "name": "MAX_DYNAMIC_WELLIST",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 13,
+      "name": "MAX_SECONDARY_WELLS",
+      "value_type": "INT",
+      "default": 10
+    },
+    {
+      "item": 14,
+      "name": "MAX_GPP_ROWS",
+      "value_type": "INT",
+      "default": 201
+    }
+  ]
+}

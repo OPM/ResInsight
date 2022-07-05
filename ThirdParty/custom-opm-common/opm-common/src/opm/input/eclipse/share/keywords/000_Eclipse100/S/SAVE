@@ -1,0 +1,16 @@
+{
+  "name": "SAVE",
+    "size": 1,
+    "min_size" : 0,
+  "sections": [
+    "RUNSPEC",
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "FILE_TYPE",
+      "value_type": "STRING",
+      "default": "UNFORMATTED"
+    }
+  ]
+}

@@ -18,18 +18,25 @@
 
 #include "EclRegressionTest.hpp"
 
+#include <fmt/format.h>
+
 #include <opm/io/eclipse/EGrid.hpp>
 #include <opm/io/eclipse/ERft.hpp>
 #include <opm/io/eclipse/ERst.hpp>
 #include <opm/io/eclipse/ESmry.hpp>
 #include <opm/io/eclipse/ERsm.hpp>
+#include <opm/io/eclipse/RestartFileView.hpp>
+#include <opm/io/eclipse/rst/state.hpp>
 
-#include <opm/common/utility/FileSystem.hpp>
+#include <opm/output/eclipse/RestartIO.hpp>
+
 #include <opm/common/ErrorMacros.hpp>
+#include <opm/common/utility/numeric/cmp.hpp>
 
 #include <algorithm>
 #include <chrono>
 #include <cmath>
+#include <filesystem>
 #include <iomanip>
 #include <iostream>
 #include <set>
@@ -57,7 +64,6 @@ std::vector<T> sorted(std::vector<T> v) {
 }
 
 }
-
 
 using namespace Opm::EclIO;
 
@@ -675,14 +681,14 @@ void ECLRegressionTest::results_rst()
     }
 
     if (foundRst1 && foundRst2) {
-        ERst rst1(fileName1);
+        auto rst1 = std::make_shared<ERst>(fileName1);
         std::cout << "\nLoading restart file " << fileName1 << "  .... done" << std::endl;
 
-        ERst rst2(fileName2);
+        auto rst2 = std::make_shared<ERst>(fileName2);
         std::cout << "Loading restart file " << fileName2 << "  .... done\n" << std::endl;
 
-        std::vector<int> seqnums1 = rst1.listOfReportStepNumbers();
-        std::vector<int> seqnums2 = rst2.listOfReportStepNumbers();
+        std::vector<int> seqnums1 = rst1->listOfReportStepNumbers();
+        std::vector<int> seqnums2 = rst2->listOfReportStepNumbers();
 
         deviations.clear();
 
@@ -739,11 +745,11 @@ void ECLRegressionTest::results_rst()
 
             std::string reference = "Restart, sequence "+std::to_string(seqn);
 
-            rst1.loadReportStepNumber(seqn);
-            rst2.loadReportStepNumber(seqn);
+            rst1->loadReportStepNumber(seqn);
+            rst2->loadReportStepNumber(seqn);
 
-            auto arrays1 = rst1.listOfRstArrays(seqn);
-            auto arrays2 = rst2.listOfRstArrays(seqn);
+            auto arrays1 = rst1->listOfRstArrays(seqn);
+            auto arrays2 = rst2->listOfRstArrays(seqn);
 
             std::vector<std::string> keywords1;
             std::vector<eclArrType> arrayType1;
@@ -790,7 +796,13 @@ void ECLRegressionTest::results_rst()
                     checkSpesificKeyword(keywords1, keywords2, arrayType1, arrayType2, reference);
                 }
 
+                std::unordered_set<std::string> keywords = {"IGRP"};
+
+
                 for (size_t i = 0; i < keywords1.size(); i++) {
+                    //if (keywords.count(keywords1[i]) == 0)
+                    //    continue;
+
                     auto it1 = std::find(keywords2.begin(), keywords2.end(), keywords1[i]);
                     int ind2 = std::distance(keywords2.begin(), it1);
 
@@ -809,16 +821,16 @@ void ECLRegressionTest::results_rst()
                         std::cout << "Comparing " << keywords1[i] << " ... ";
 
                         if (arrayType1[i] == INTE) {
-                            auto vect1 = rst1.getRst<int>(keywords1[i], seqn, 0);
-                            auto vect2 = rst2.getRst<int>(keywords2[ind2], seqn, 0);
+                            auto vect1 = rst1->getRestartData<int>(keywords1[i], seqn, 0);
+                            auto vect2 = rst2->getRestartData<int>(keywords2[ind2], seqn, 0);
                             compareVectors(vect1, vect2, keywords1[i], reference);
                         } else if (arrayType1[i] == REAL) {
-                            auto vect1 = rst1.getRst<float>(keywords1[i], seqn, 0);
-                            auto vect2 = rst2.getRst<float>(keywords2[ind2], seqn, 0);
+                            auto vect1 = rst1->getRestartData<float>(keywords1[i], seqn, 0);
+                            auto vect2 = rst2->getRestartData<float>(keywords2[ind2], seqn, 0);
                             compareFloatingPointVectors(vect1, vect2, keywords1[i], reference);
                         } else if (arrayType1[i] == DOUB) {
-                            auto vect1 = rst1.getRst<double>(keywords1[i], seqn, 0);
-                            auto vect2 = rst2.getRst<double>(keywords2[ind2], seqn, 0);
+                            auto vect1 = rst1->getRestartData<double>(keywords1[i], seqn, 0);
+                            auto vect2 = rst2->getRestartData<double>(keywords2[ind2], seqn, 0);
 
                             // hack in order to not test doubhead[1], dependent on simulation results
                             // All ohter items in DOUBHEAD are tested with strict tolerances
@@ -827,12 +839,12 @@ void ECLRegressionTest::results_rst()
                             }
                             compareFloatingPointVectors(vect1, vect2, keywords1[i], reference);
                         } else if (arrayType1[i] == LOGI) {
-                            auto vect1 = rst1.getRst<bool>(keywords1[i], seqn, 0);
-                            auto vect2 = rst2.getRst<bool>(keywords2[ind2], seqn, 0);
+                            auto vect1 = rst1->getRestartData<bool>(keywords1[i], seqn, 0);
+                            auto vect2 = rst2->getRestartData<bool>(keywords2[ind2], seqn, 0);
                             compareVectors(vect1, vect2, keywords1[i], reference);
                         } else if (arrayType1[i] == CHAR) {
-                            auto vect1 = rst1.getRst<std::string>(keywords1[i], seqn, 0);
-                            auto vect2 = rst2.getRst<std::string>(keywords2[ind2], seqn, 0);
+                            auto vect1 = rst1->getRestartData<std::string>(keywords1[i], seqn, 0);
+                            auto vect2 = rst2->getRestartData<std::string>(keywords2[ind2], seqn, 0);
                             compareVectors(vect1, vect2, keywords1[i], reference);
                         } else if (arrayType1[i] == MESS) {
                             // shold not be any associated data
@@ -871,11 +883,11 @@ void ECLRegressionTest::results_smry()
 
     if (foundSmspec1 && foundSmspec2) {
         ESmry smry1(fileName1, loadBaseRunData);
-        smry1.LoadData();
+        smry1.loadData();
         std::cout << "\nLoading summary file " << fileName1 << "  .... done" << std::endl;
 
         ESmry smry2(fileName2, loadBaseRunData);
-        smry2.LoadData();
+        smry2.loadData();
         std::cout << "\nLoading summary file " << fileName2 << "  .... done" << std::endl;
 
         deviations.clear();
@@ -895,18 +907,26 @@ void ECLRegressionTest::results_smry()
         std::vector<eclArrType> arrayType2 (keywords1.size(), REAL);
 
         if (integrationTest) {
+
+            auto isIntegrationKw = [](const std::string& kw)
+            {
+                static const auto kwlist = std::vector<std::string> {
+                   "WOPR", "WWPR", "WGPR", "WBHP",
+                   "SPR", "SPRD", "SPRDH", "SPRDF", "SPRDA",
+                };
+
+                const auto p = kw.find_first_of(':');
+                return std::find(kwlist.begin(), kwlist.end(), kw.substr(0, p)) != kwlist.end();
+            };
+
             std::vector<std::string> keywords;
 
-            for (size_t i = 0; i < keywords1.size(); i++) {
-                if (keywords1[i].substr(0,5) == "WOPR:" ||
-                    keywords1[i].substr(0,5) == "WWPR:" ||
-                    keywords1[i].substr(0,5) == "WGPR:" ||
-                    keywords1[i].substr(0,5) == "WBHP:" ||
-                    keywords1[i].substr(0,4) == "SPR:")  {
-                    auto search2 = std::find(keywords2.begin(), keywords2.end(), keywords1[i]);
-                    if (search2 != keywords2.end()) {
-                        keywords.push_back(keywords1[i]);
-                    }
+            for (const auto& kw : keywords1) {
+                if (! isIntegrationKw(kw)) { continue; }
+
+                auto search2 = std::find(keywords2.begin(), keywords2.end(), kw);
+                if (search2 != keywords2.end()) {
+                    keywords.push_back(kw);
                 }
             }
 
@@ -978,7 +998,7 @@ void ECLRegressionTest::results_smry()
             }
         }
 
-        namespace fs = Opm::filesystem;
+        namespace fs = std::filesystem;
         std::string rsm_file = rootName2 + ".RSM";
         if (fs::is_regular_file(fs::path(rsm_file))) {
             auto rsm = ERsm(rsm_file);

@@ -16,7 +16,36 @@ function (linker_cmdline what INTO outvar FROM)
   # (you get an error message about argument not parsed). translate each
   # of the libraries into a linker option
   set (deplib_list "")
+  set (deplib_list_tmp "")
   foreach (deplib IN LISTS ARGN)
+    # resolve imported targets
+    string(FIND ${deplib} "::" _sep)
+    if (_sep GREATER "-1")
+      set(_lib "")
+      # the code below does not really work for imported interface library
+      # as cmake will error out whene querying IMPORTED_LOCATION, because the
+      # property is not whitelisted. I have no idea how to determine if
+      # a library is an imported interface library
+      # At least it works for resolving OpenMP::OpenMP_CXX
+      #
+      # get_property(_def TARGET ${deplib} PROPERTY IMPORTED_LOCATION DEFINED)
+      # if (_def)
+      #   get_property(_def TARGET ${deplib} PROPERTY IMPORTED_LOCATION SET)
+      #   if (_def)
+      #     get_target_property(_tmp_lib ${deplib} IMPORTED_LOCATION)
+      #    list(APPEND _lib ${_tmp_lib})
+      #   endif()
+      # endif()
+      get_property(_def TARGET ${deplib} PROPERTY INTERFACE_LINK_LIBRARIES SET)
+      if (_def)
+	get_target_property(_tmp_lib ${deplib} INTERFACE_LINK_LIBRARIES)
+	list(APPEND _lib ${_tmp_lib})
+      endif()
+      set(deplib ${_lib})
+    endif()
+    list(APPEND deplib_list_tmp ${deplib})
+  endforeach()
+  foreach (deplib IN LISTS deplib_list_tmp)
 	# starts with a hyphen already? then just add it
 	string (SUBSTRING ${deplib} 0 1 dash)
 	if (${dash} STREQUAL "-")
@@ -44,18 +73,20 @@ function (linker_cmdline what INTO outvar FROM)
 	  # is more or less lost. remove system default path, to lessen the
 	  # chance that we pick the wrong library
 	  if (NOT ((deplib_dir STREQUAL "/usr/lib") OR
-			   (deplib_dir STREQUAL "/usr/${CMAKE_INSTALL_LIBDIR}")))
-		   list (APPEND deplib_list "-L${deplib_dir}")
-	  endif (NOT ((deplib_dir STREQUAL "/usr/lib") OR
-			      (deplib_dir STREQUAL "/usr/${CMAKE_INSTALL_LIBDIR}")))
+                (deplib_dir STREQUAL "") OR
+		(deplib_dir STREQUAL "/usr/${CMAKE_INSTALL_LIBDIR}")))
+	    list (APPEND deplib_list "-L${deplib_dir}")
+	  endif ()
 	  # if there was no translation of the name, the library is named
 	  # unconventionally (.so.3gf, I'm looking at you), so pass this
 	  # name unmodified to the linker switch
-	  if (deplib_orig STREQUAL deplib_name)
+	  if (deplib_orig STREQUAL deplib_name AND
+	      NOT deplib_orig STREQUAL "stdc++fs")
 		list (APPEND deplib_list "-l:${deplib_orig}")
-	  else (deplib_orig STREQUAL deplib_name)
+	  else ()
 		list (APPEND deplib_list "-l${deplib_name}")
-	  endif (deplib_orig STREQUAL deplib_name)
+	  endif (deplib_orig STREQUAL deplib_name AND
+	    NOT deplib_orig STREQUAL "stdc++fs")
 	endif (${dash} STREQUAL "-")
   endforeach (deplib)
   # caller determines whether we want it returned as a list or a string

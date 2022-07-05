@@ -31,7 +31,7 @@
 
 #include <opm/io/eclipse/EclFile.hpp>
 #include <opm/io/eclipse/EclUtil.hpp>
-#include "WorkArea.cpp"
+#include "WorkArea.hpp"
 
 #include <opm/io/eclipse/EclOutput.hpp>
 
@@ -89,40 +89,41 @@ void write_header(std::ofstream& ofileH, std::string& arrName, int size, std::st
 
 
 BOOST_AUTO_TEST_CASE(TestEclFile_X231) {
+    WorkArea work;
 
     std::string filename = "TEST.DAT";
     std::string arrName = "TESTX231";
 
     std::vector<int> ivect(10);
-    std::iota(ivect.begin(), ivect.end(), -4);    
+    std::iota(ivect.begin(), ivect.end(), -4);
 
     {
         std::ofstream ofileH;
-        ofileH.open(filename, std::ios_base::binary);    
+        ofileH.open(filename, std::ios_base::binary);
 
-        int size = static_cast<int>((-1) * std::pow(2,31) + 10); 
+        int size = static_cast<int>((-1) * std::pow(2, 31) + 10);
 
         write_header(ofileH, arrName, -1, std::string("X231"));
         write_header(ofileH, arrName, size, std::string("INTE"));
 
-        int sizeData = ivect.size()*sizeof(int);
+        int sizeData = ivect.size() * sizeof(int);
         sizeData = flipEndianInt(sizeData);
-        
+
         ofileH.write(reinterpret_cast<char*>(&sizeData), sizeof(sizeData));
 
-        for (auto v : ivect){
-            int fval = flipEndianInt(v); 
+        for (auto v : ivect) {
+            int fval = flipEndianInt(v);
             ofileH.write(reinterpret_cast<char*>(&fval), sizeof(fval));
         }
-        
+
         ofileH.write(reinterpret_cast<char*>(&sizeData), sizeof(sizeData));
         ofileH.close();
     }
-    
+
     EclFile test1(filename);
     auto array = test1.get<int>(arrName);
-    
-    for (size_t n = 0; n < 10; n++){
+
+    for (size_t n = 0; n < 10; n++) {
         BOOST_CHECK_EQUAL(array[n], ivect[n]);
     }
 }
@@ -134,7 +135,7 @@ BOOST_AUTO_TEST_CASE(TestEclFile_BINARY) {
 
     // check that exception is thrown when input file doesn't exist
 
-    BOOST_CHECK_THROW(EclFile file1("DUMMY.DAT") , std::invalid_argument );
+    BOOST_CHECK_THROW(EclFile file1("DUMMY.DAT") , std::exception );
 
     EclFile file1(testFile);
 
@@ -165,33 +166,34 @@ BOOST_AUTO_TEST_CASE(TestEclFile_BINARY) {
     std::vector<int> vect1a=file1.get<int>(0);
     std::vector<int> vect1b=file1.get<int>("ICON");
 
-    BOOST_CHECK_EQUAL(vect1a.size(), 1875);
-    BOOST_CHECK_EQUAL(vect1b.size(), 1875);
+    BOOST_CHECK_EQUAL(vect1a.size(), 1875U);
+    BOOST_CHECK_EQUAL(vect1b.size(), 1875U);
 
     std::vector<bool> vect2a=file1.get<bool>(1);
     std::vector<bool> vect2b=file1.get<bool>("LOGIHEAD");
 
-    BOOST_CHECK_EQUAL(vect2a.size(), 121);
-    BOOST_CHECK_EQUAL(vect2b.size(), 121);
+    BOOST_CHECK_EQUAL(vect2a.size(), 121U);
+    BOOST_CHECK_EQUAL(vect2b.size(), 121U);
 
     std::vector<float> vect3a=file1.get<float>(2);
     std::vector<float> vect3b=file1.get<float>("PORV");
 
-    BOOST_CHECK_EQUAL(vect3a.size(), 3146);
-    BOOST_CHECK_EQUAL(vect3b.size(), 3146);
+    BOOST_CHECK_EQUAL(vect3a.size(), 3146U);
+    BOOST_CHECK_EQUAL(vect3b.size(), 3146U);
 
     std::vector<double> vect4a=file1.get<double>(3);
     std::vector<double> vect4b=file1.get<double>("XCON");
 
-    BOOST_CHECK_EQUAL(vect4a.size(), 1740);
-    BOOST_CHECK_EQUAL(vect4b.size(), 1740);
+    BOOST_CHECK_EQUAL(vect4a.size(), 1740U);
+    BOOST_CHECK_EQUAL(vect4b.size(), 1740U);
 
     std::vector<std::string> vect5a=file1.get<std::string>(4);
     std::vector<std::string> vect5b=file1.get<std::string>("KEYWORDS");
 
-    BOOST_CHECK_EQUAL(vect5a.size(), 312);
-    BOOST_CHECK_EQUAL(vect5b.size(), 312);
+    BOOST_CHECK_EQUAL(vect5a.size(), 312U);
+    BOOST_CHECK_EQUAL(vect5b.size(), 312U);
 }
+
 
 BOOST_AUTO_TEST_CASE(TestEclFile_FORMATTED) {
 
@@ -238,6 +240,31 @@ BOOST_AUTO_TEST_CASE(TestEclFile_FORMATTED) {
 
 }
 
+
+BOOST_AUTO_TEST_CASE(TestEclFile_IX) {
+
+    // file MODEL1_IX.INIT is output from comercial simulator ix with
+    // BASE_MODEL_1.DATA in opm-tests
+
+    // binary representation of true value for data type LOGI is different
+    // compared with output from Eclipse and OPM-Flow
+
+    std::string testInitFile="MODEL1_IX.INIT";
+
+    EclFile file1(testInitFile);
+    file1.loadData();
+
+    std::vector<bool> refLogihead = {true, true, false,  false, true, false, false, false, false, false, false,
+         false, false, false, false, false, true, false,  true, false };
+
+    auto logih = file1.get<bool>("LOGIHEAD");
+
+    for (size_t n = 0 ; n < refLogihead.size(); n++)
+        BOOST_CHECK_EQUAL(refLogihead[n], logih[n]);
+}
+
+
+
 BOOST_AUTO_TEST_CASE(TestEcl_Write_binary) {
 
     std::string inputFile="ECLFILE.INIT";
@@ -257,6 +284,7 @@ BOOST_AUTO_TEST_CASE(TestEcl_Write_binary) {
 
     // writing vectors to test file (TEST.DAT) using class EclOutput
 
+    WorkArea work;
     {
         EclOutput eclTest(testFile, false);
 
@@ -266,13 +294,10 @@ BOOST_AUTO_TEST_CASE(TestEcl_Write_binary) {
         eclTest.write("XCON",xcon);
         eclTest.write("KEYWORDS",keywords);
         eclTest.write("ENDSOL",std::vector<char>());
+
     }
-
+    work.copyIn(inputFile);
     BOOST_CHECK_EQUAL(compare_files(inputFile, testFile), true);
-
-    if (remove(testFile.c_str())==-1) {
-        std::cout << " > Warning! temporary file was not deleted" << std::endl;
-    };
 }
 
 BOOST_AUTO_TEST_CASE(TestEcl_Write_formatted) {
@@ -293,20 +318,20 @@ BOOST_AUTO_TEST_CASE(TestEcl_Write_formatted) {
 
     // writing vectors to test file (TEST.FDAT) using class EclOutput
 
-    EclOutput eclTest(testFile, true);
+    {
+        WorkArea work;
+        EclOutput eclTest(testFile, true);
 
-    eclTest.write("ICON",icon);
-    eclTest.write("LOGIHEAD",logihead);
-    eclTest.write("PORV",porv);
-    eclTest.write("XCON",xcon);
-    eclTest.write("KEYWORDS",keywords);
-    eclTest.write("ENDSOL",std::vector<char>());
+        eclTest.write("ICON",icon);
+        eclTest.write("LOGIHEAD",logihead);
+        eclTest.write("PORV",porv);
+        eclTest.write("XCON",xcon);
+        eclTest.write("KEYWORDS",keywords);
+        eclTest.write("ENDSOL",std::vector<char>());
 
-    BOOST_CHECK_EQUAL(compare_files(inputFile, testFile), true);
-
-    if (remove(testFile.c_str())==-1) {
-        std::cout << " > Warning! temporary file was not deleted" << std::endl;
-    };
+        work.copyIn(inputFile);
+        BOOST_CHECK_EQUAL(compare_files(inputFile, testFile), true);
+    }
 }
 
 BOOST_AUTO_TEST_CASE(TestEcl_Write_formatted_not_finite) {
@@ -329,7 +354,7 @@ BOOST_AUTO_TEST_CASE(TestEcl_Write_formatted_not_finite) {
     BOOST_CHECK(std::isnan(f[1]));
     BOOST_CHECK(std::isnan(d[1]));
 
-    BOOST_CHECK_EQUAL(file1.size(), 2);
+    BOOST_CHECK_EQUAL(file1.size(), 2U);
 }
 
 
@@ -346,6 +371,7 @@ BOOST_AUTO_TEST_CASE(TestEcl_getList) {
     EclFile file1(inputFile);
     file1.loadData();
 
+    WorkArea work;
     {
         EclOutput eclTest(testFile, false);
 
@@ -381,36 +407,143 @@ BOOST_AUTO_TEST_CASE(TestEcl_getList) {
         }
     }
 
+    work.copyIn(inputFile);
     BOOST_CHECK_EQUAL(compare_files(inputFile, testFile), true);
-
-    if (remove(testFile.c_str())==-1) {
-        std::cout << " > Warning! temporary file was not deleted" << std::endl;
-    };
 }
 
 
 BOOST_AUTO_TEST_CASE(TestEcl_Write_CHAR) {
+    WorkArea work;
+    std::string testFile1="TEST.FDAT";
+    std::string testFile2="TEST2.DAT";
 
-    std::string testFile="TEST.FDAT";
-    std::vector<std::string> refStrList = {"This", "is", "a test.", "", "charact", "er >'<", "can be", "part of", "a string"};
+    std::vector<std::string> refStrList1 = {"This", "is", "a test.", "", "charact", "er >'<", "can be", "part of", "a string"};
+    std::vector<std::string> refStrList2 = {"strings with length", "beyone 8 character","is also possible", "will use type C0nn"};
 
     {
-        EclOutput eclTest(testFile, true);
-        eclTest.write("TEST",refStrList);
+        EclOutput eclTest(testFile1, true);
+        eclTest.write("TEST1",refStrList1);
     }
 
     {
-        EclFile file1(testFile);
-        std::vector<std::string> strList=file1.get<std::string>("TEST");
+        EclFile file1(testFile1);
+        std::vector<std::string> strList=file1.get<std::string>("TEST1");
 
-        for (size_t n = 0; n < refStrList.size(); n++) {
-            BOOST_CHECK(refStrList[n] == strList[n]);
+        for (size_t n = 0; n < refStrList1.size(); n++) {
+            BOOST_CHECK(refStrList1[n] == strList[n]);
         }
+
+        auto arrayList =file1.getList();
+        BOOST_CHECK(std::get<1>(arrayList[0]) == Opm::EclIO::CHAR);
     }
 
-    if (remove(testFile.c_str())==-1) {
-        std::cout << " > Warning! temporary file was not deleted" << std::endl;
-    };
+    // the next should automatically use C019
+    {
+        EclOutput eclTest(testFile1, true);
+        eclTest.write("TEST2",refStrList2);
+    }
 
+    {
+        EclFile file1(testFile1);
+        std::vector<std::string> strList=file1.get<std::string>("TEST2");
 
+        for (size_t n = 0; n < refStrList2.size(); n++) {
+            BOOST_CHECK(refStrList2[n] == strList[n]);
+        }
+
+        auto arrayList =file1.getList();
+        BOOST_CHECK(std::get<1>(arrayList[0]) == Opm::EclIO::C0NN);
+    }
+
+    // the next should automatically use C008 (and not CHAR)
+    // will use C0nn since element size is specified in function call
+    {
+        EclOutput eclTest(testFile1, true);
+        eclTest.write("TEST3",refStrList1, 8);
+    }
+
+    {
+        EclFile file1(testFile1);
+        std::vector<std::string> strList=file1.get<std::string>("TEST3");
+
+        for (size_t n = 0; n < refStrList1.size(); n++) {
+            BOOST_CHECK(refStrList1[n] == strList[n]);
+        }
+
+        auto arrayList =file1.getList();
+        BOOST_CHECK(std::get<1>(arrayList[0]) == Opm::EclIO::C0NN);
+    }
+
+    // testing binary CHAR/C0nn format
+
+    {
+        EclOutput eclTest(testFile2, false);
+        eclTest.write("TEST4",refStrList1);
+    }
+
+    {
+        EclFile file1(testFile2);
+        std::vector<std::string> strList=file1.get<std::string>("TEST4");
+
+        for (size_t n = 0; n < refStrList1.size(); n++) {
+            BOOST_CHECK(refStrList1[n] == strList[n]);
+        }
+
+        auto arrayList =file1.getList();
+        BOOST_CHECK(std::get<1>(arrayList[0]) == Opm::EclIO::CHAR);
+    }
+
+    // the next should automatically use C019
+    {
+        EclOutput eclTest(testFile2, false);
+        eclTest.write("TEST5",refStrList2);
+    }
+
+    {
+        EclFile file1(testFile2);
+        std::vector<std::string> strList=file1.get<std::string>("TEST5");
+
+        for (size_t n = 0; n < refStrList2.size(); n++) {
+            BOOST_CHECK(refStrList2[n] == strList[n]);
+        }
+
+        auto arrayList =file1.getList();
+        BOOST_CHECK(std::get<1>(arrayList[0]) == Opm::EclIO::C0NN);
+    }
+
+    // the next should automatically use C008 (and not CHAR)
+    // will use C0nn since element size is specified in function call
+    {
+        EclOutput eclTest(testFile2, false);
+        eclTest.write("TEST6",refStrList1, 8);
+    }
+
+    {
+        EclFile file1(testFile2);
+        std::vector<std::string> strList=file1.get<std::string>("TEST6");
+
+        for (size_t n = 0; n < refStrList1.size(); n++) {
+            BOOST_CHECK(refStrList1[n] == strList[n]);
+        }
+
+        auto arrayList =file1.getList();
+        BOOST_CHECK(std::get<1>(arrayList[0]) == Opm::EclIO::C0NN);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(CombinedVectorID) {
+    BOOST_CHECK_EQUAL(combineSummaryNumbers(1, 2), 393'217);
+    BOOST_CHECK_EQUAL(combineSummaryNumbers(10, 1), 360'458);
+
+    {
+        const auto [n1, n2] = splitSummaryNumber(393'217);
+        BOOST_CHECK_EQUAL(n1, 1);
+        BOOST_CHECK_EQUAL(n2, 2);
+    }
+
+    {
+        const auto [n1, n2] = splitSummaryNumber(360'458);
+        BOOST_CHECK_EQUAL(n1, 10);
+        BOOST_CHECK_EQUAL(n2,  1);
+    }
 }

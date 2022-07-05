@@ -21,7 +21,7 @@
 #include <stdexcept>
 #include <boost/test/unit_test.hpp>
 
-#include "src/opm/parser/eclipse/Parser/raw/StarToken.hpp"
+#include "src/opm/input/eclipse/Parser/raw/StarToken.hpp"
 
 
 BOOST_AUTO_TEST_CASE(NoStarThrows) {

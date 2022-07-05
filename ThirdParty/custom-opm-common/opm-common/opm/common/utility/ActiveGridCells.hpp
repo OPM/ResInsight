@@ -19,7 +19,7 @@
 #ifndef ACTIVEGRIDCELLS_HPP
 #define ACTIVEGRIDCELLS_HPP
 
-#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/GridDims.hpp>
 
 #include <array>
 

@@ -1,0 +1,115 @@
+{
+  "name": "SWOFLET",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "requires": ["OIL", "WATER"],
+  "items": [
+    {
+      "name": "SW_RESIDUAL",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "1"
+    },
+    {
+      "name": "SW_CRITICAL",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "1"
+    },
+    {
+      "name": "L_WATER",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "E_WATER",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "T_WATER",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "KRT_WATER",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "SO_RESIDUAL",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "1"
+    },
+    {
+      "name": "SO_CRITICAL",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "1"
+    },
+    {
+      "name": "L_OIL",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "E_OIL",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "T_OIL",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "KRT_OIL",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "L_PC",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "E_PC",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "T_PC",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "name": "PCIR",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "PCT",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "Pressure"
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+.TH OPMPACK "1" "April 2022" "opmpack 2022.04" "User Commands"
+.SH NAME
+opmpack \- Validator and printer of deck in Eclipse files without comments
+.SH DESCRIPTION
+The opmpack program will load a deck, resolve all include
+files and then print it out again on stdout. All comments
+will be stripped and the value types will be validated.
+.PP
+By passing the option \fB\-o\fR you can redirect the output to a file
+or a directory.
+.PP
+Print on stdout:
+.TP
+opmpack
+\fI\,/path/to/case/CASE.DATA\/\fP
+.PP
+Print MY_CASE.DATA in /tmp:
+.IP
+opmpack \fB\-o\fR \fI\,/tmp\/\fP /path/to/MY_CASE.DATA
+.PP
+Print NEW_CASE in cwd:
+.IP
+opmpack \fB\-o\fR NEW_CASE.DATA path/to/MY_CASE.DATA
+.PP
+As an alternative to the \fB\-o\fR option you can use \fB\-c\fR; that is equivalent to \fB\-o\fR \-
+but restart and import files referred to in the deck are also copied. The \fB\-o\fR and
+\fB\-c\fR options are mutually exclusive.
+

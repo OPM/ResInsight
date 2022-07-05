@@ -1,0 +1,25 @@
+{
+  "name": "RTEMPVD",
+  "sections": [
+    "PROPS",
+    "SOLUTION"
+  ],
+  "prohibits": [
+    "TEMPVD"
+  ],
+  "size": {
+    "keyword": "EQLDIMS",
+    "item": "NTEQUL"
+  },
+  "items": [
+    {
+      "name": "DATA",
+      "value_type": "DOUBLE",
+      "size_type": "ALL",
+      "dimension": [
+        "Length",
+        "Temperature"
+      ]
+    }
+  ]
+}

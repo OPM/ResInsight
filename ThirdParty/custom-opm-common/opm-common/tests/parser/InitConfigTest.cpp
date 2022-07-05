@@ -22,17 +22,87 @@
 #include <boost/test/unit_test.hpp>
 
 #include <fstream>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/InitConfig/InitConfig.hpp>
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/InitConfig/InitConfig.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
 
-#include <tests/WorkArea.cpp>
+#include <tests/WorkArea.hpp>
 
 #include <fstream>
 
 using namespace Opm;
+
+
+const std::string full_deck1 = R"(
+START
+7 OCT 2020 /
+
+RUNSPEC
+
+DIMENS
+  10 10 3 /
+
+UNIFIN
+
+GRID
+DXV
+  10*100.0 /
+DYV
+  10*100.0 /
+DZV
+  3*10.0 /
+
+DEPTHZ
+  121*2000.0 /
+
+PORO
+  300*0.3 /
+
+SOLUTION
+
+RESTART
+  NOBASE 6 /
+
+SCHEDULE
+)";
+
+const std::string full_deck2 = R"(
+START
+7 OCT 2020 /
+
+RUNSPEC
+
+DIMENS
+  10 10 3 /
+
+UNIFIN
+
+GRID
+DXV
+  10*100.0 /
+DYV
+  10*100.0 /
+DZV
+  3*10.0 /
+
+DEPTHZ
+  121*2000.0 /
+
+PORO
+  300*0.3 /
+
+SOLUTION
+
+RESTART
+  BASE 6 /
+
+SCHEDULE
+)";
+
+
+
 
 const std::string& deckStr =
     "RUNSPEC\n"
@@ -117,7 +187,22 @@ const std::string& deckWithEquil =
 
 static Deck createDeck(const std::string& input) {
     Opm::Parser parser;
-    return parser.parseString(input);
+    auto deck = parser.parseString(input);
+    // The call to setDataFile is completely bogus, it is just to ensure that a
+    // meaningfull path for the input file has been specified - so that we can
+    // locate restart files.
+    deck.setDataFile("SPE1CASE1.DATA");
+    return deck;
+}
+
+BOOST_AUTO_TEST_CASE(EclipseStateTest) {
+    Deck deck1 = createDeck(full_deck1);
+    // This throws because the restart file does not exist
+    BOOST_CHECK_THROW(EclipseState{deck1}, std::exception);
+
+    Deck deck2 = createDeck(full_deck2);
+    // This throws because the restart file does not contain the requested report step
+    BOOST_CHECK_THROW(EclipseState{deck2}, std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(InitConfigTest) {

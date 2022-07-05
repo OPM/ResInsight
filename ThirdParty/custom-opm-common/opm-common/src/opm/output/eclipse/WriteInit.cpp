@@ -31,18 +31,17 @@
 #include <opm/output/eclipse/Tables.hpp>
 #include <opm/output/eclipse/WriteRestartHelpers.hpp>
 
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/EndpointScaling.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/NNC.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/EndpointScaling.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/NNC.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
 
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 #include <cstddef>
-#include <exception>
 #include <initializer_list>
 #include <stdexcept>
 #include <utility>
@@ -301,7 +300,7 @@ namespace {
 
         {
             const auto dh = ::Opm::RestartIO::Helpers::
-                createDoubHead(es, sched, 0, 0.0, 0.0);
+                createDoubHead(es, sched, 0, 0, 0.0, 0.0);
 
             initFile.write("DOUBHEAD", dh);
         }
@@ -411,7 +410,7 @@ namespace {
             {
                 units.from_si(prop.unit, value);
 
-                for (auto n = dflt.size(), i = decltype(n){}; i < n; ++i) {
+                for (auto n = dflt.size(), i = 0*n; i < n; ++i) {
                     if (dflt[i]) {
                         // Element defaulted.  Output sentinel value
                         // (-1.0e+20) to signify defaulted element.
@@ -426,7 +425,7 @@ namespace {
             });
         }
         else {
-            writeCellPropertiesValuesOnly(propList, fp, 
+            writeCellPropertiesValuesOnly(propList, fp,
                 [&units, &initFile](const CellProperty&   prop,
                                     std::vector<double>&& value)
             {
@@ -544,20 +543,77 @@ namespace {
         }
     }
 
-    void writeNonNeighbourConnections(const ::Opm::NNC&                 nnc,
-                                      const ::Opm::UnitSystem&          units,
-                                      ::Opm::EclIO::OutputStream::Init& initFile)
+    void writeNonNeighbourConnections(const std::vector<::Opm::NNCdata>& nnc,
+                                      const ::Opm::UnitSystem&           units,
+                                      ::Opm::EclIO::OutputStream::Init&  initFile)
     {
         auto tran = std::vector<double>{};
-        tran.reserve(nnc.numNNC());
+        tran.reserve(nnc.size());
 
-        for (const auto& nd : nnc.data()) {
+        for (const auto& nd : nnc) {
             tran.push_back(nd.trans);
         }
 
         units.from_si(::Opm::UnitSystem::measure::transmissibility, tran);
 
         initFile.write("TRANNNC", singlePrecision(tran));
+    }
+
+    // output aquifer cell and aquifer connection information for numerical aquifers
+    void writeNumericalAquifers(const Opm::NumericalAquifers& num_aquifers,
+                                const ::Opm::EclipseGrid&          grid,
+                                ::Opm::EclIO::OutputStream::Init&  initFile)
+    {
+        std::vector<int> aquifern(grid.getNumActive(), 0);
+        // aquifer cells
+        const auto& aquifer_cells = num_aquifers.allAquiferCells();
+        for ([[maybe_unused]] const auto& [cell_idx, cell] : aquifer_cells) {
+            const size_t active_index = grid.activeIndex(cell->global_index);
+            aquifern[active_index] = -(1 << (cell->aquifer_id - 1));
+        }
+
+        // aquifer connections
+        for (const auto& [id, aqu] : num_aquifers.aquifers()) {
+            const auto& connections = aqu.connections();
+            const int exp2_id_1 = 1 << (id - 1);
+            for (const auto& con : connections) {
+                const size_t active_index = grid.activeIndex(con.global_index);
+                aquifern[active_index] += exp2_id_1;
+            }
+        }
+
+        initFile.write("AQUIFERN", aquifern);
+    }
+
+    void writeAnalyticalAquiferConnections(const Opm::AquiferConfig&          aquifer,
+                                           const ::Opm::EclipseGrid&          grid,
+                                           ::Opm::EclIO::OutputStream::Init&  initFile)
+    {
+        std::vector<int> aquifera(grid.getNumActive(), 0);
+
+        const auto& cons_data = aquifer.connections().data();
+        for (const auto& [id, cons] : cons_data) {
+            const int exp2_id_1 = 1 << (id - 1);
+            for (const auto& con : cons) {
+                const size_t active_index = grid.activeIndex(con.global_index);
+                aquifera[active_index] += exp2_id_1;
+            }
+        }
+
+        initFile.write("AQUIFERA", aquifera);
+    }
+
+    void writeAquifers(const Opm::AquiferConfig&          aquifer,
+                       const ::Opm::EclipseGrid&          grid,
+                       ::Opm::EclIO::OutputStream::Init&  initFile)
+    {
+        if (aquifer.hasNumericalAquifer()) {
+            writeNumericalAquifers(aquifer.numericalAquifers(), grid, initFile);
+        }
+
+        if (aquifer.hasAnalyticalAquifer()) {
+            writeAnalyticalAquiferConnections(aquifer, grid, initFile);
+        }
     }
 } // Anonymous namespace
 
@@ -566,7 +622,7 @@ void Opm::InitIO::write(const ::Opm::EclipseState&              es,
                         const ::Opm::Schedule&                  schedule,
                         const ::Opm::data::Solution&            simProps,
                         std::map<std::string, std::vector<int>> int_data,
-                        const ::Opm::NNC&                       nnc,
+                        const std::vector<::Opm::NNCdata>&      nnc,
                         ::Opm::EclIO::OutputStream::Init&       initFile)
 {
     const auto& units = es.getUnits();
@@ -587,7 +643,10 @@ void Opm::InitIO::write(const ::Opm::EclipseState&              es,
     writeIntegerMaps(std::move(int_data), initFile);
     writeSatFuncScaling(es, units, initFile);
 
-    if (nnc.numNNC() > std::size_t{0}) {
+    if (!nnc.empty()) {
         writeNonNeighbourConnections(nnc, units, initFile);
+    }
+    if (es.aquifer().active()) {
+        writeAquifers(es.aquifer(), grid, initFile);
     }
 }

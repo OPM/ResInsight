@@ -1,12 +1,41 @@
+/*
+  Copyright 2021 Equinor ASA.
+  Copyright 2016, 2017, 2018 Statoil ASA.
+
+  This file is part of the Open Porous Media Project (OPM).
+
+  OPM is free software: you can redistribute it and/or modify
+  it under the terms of the GNU General Public License as published by
+  the Free Software Foundation, either version 3 of the License, or
+  (at your option) any later version.
+
+  OPM is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with OPM.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include <opm/output/eclipse/InteHEAD.hpp>
 
 #include <opm/output/eclipse/VectorItems/intehead.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+
+#include <opm/input/eclipse/EclipseState/Aquifer/AquiferConfig.hpp>
+#include <opm/input/eclipse/EclipseState/Aquifer/Aquancon.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+
+#include <opm/common/utility/TimeService.hpp>
 
 #include <algorithm>
 #include <chrono>
 #include <cmath>
 #include <ctime>
+#include <numeric>
 #include <ratio>
 #include <utility>
 #include <vector>
@@ -50,7 +79,7 @@ enum index : std::vector<int>::size_type {
   NZWELZ       =       VI::intehead::NZWELZ,   //       NZWEL       3       3       NZWEL = no of 8-character words per well in ZWEL array (= 3)
   ih_028       =       28       ,              //       0       0
   ih_029       =       29       ,              //       0       0
-  ih_030       =       30       ,              //       0       0
+  MXWLSTPW     =       VI::intehead::MXWLSTPRWELL, //   Maximum number of well lists pr well (default = 1)
   ih_031       =       31       ,              //       0       0
   NICONZ       =       VI::intehead::NICONZ,   //       25       15       25       NICON = no of data elements per completion in ICON array (default 19)
   NSCONZ       =       VI::intehead::NSCONZ,   //       41       0              NSCONZ = number of data elements per completion in SCON array
@@ -60,7 +89,7 @@ enum index : std::vector<int>::size_type {
   NSGRPZ       =       VI::intehead::NSGRPZ,   //       112       0       112       NSGRPZ = number of data elements per group in SGRP array
   NXGRPZ       =       VI::intehead::NXGRPZ,   //       180       0       180       NXGRPZ = number of data elements per group in XGRP array
   NZGRPZ       =       VI::intehead::NZGRPZ,   //       5       0              NZGRPZ = number of data elements per group in ZGRP array
-  ih_040       =       40       ,              //       0       0
+  NAQUIF       =       VI::intehead::NAQUIF,   //       0       0              NAQUIF = number of analytic aquifers in model
   NCAMAX       =       VI::intehead::NCAMAX,   //       1       0              NCAMAX = maximum number of analytic aquifer connections
   NIAAQZ       =       VI::intehead::NIAAQZ,   //       18       0              NIAAQZ = number of data elements per aquifer in IAAQ array
   NSAAQZ       =       VI::intehead::NSAAQZ,   //       24       0              NSAAQZ = number of data elements per aquifer in SAAQ array
@@ -79,7 +108,7 @@ enum index : std::vector<int>::size_type {
   ih_056       =       56       ,              //       0       0
   ih_057       =       57       ,              //       0       0
   NGRNPHASE    =       VI::intehead::NGRNPH,   //       Parameter to determine the nominated phase for the guiderate 
-  ih_059       =       59       ,              //       0       0
+  EACHNC       =       VI::intehead::EACHNCITS, //  Index indicating if lift gas distribution optimized each of the NUPCOL first iterations or not
   ih_060       =       60       ,              //       0       0
   ih_061       =       61       ,              //       0       0
   ih_062       =       62       ,              //       0       0
@@ -94,12 +123,13 @@ enum index : std::vector<int>::size_type {
   NWHISTCTL    =       VI::intehead::WHISTC,   //       index for WHISTCTL keyword
   ih_072       =       72       ,              //       0       0
   ih_073       =       73       ,              //       0       0
-  ih_074       =       74       ,              //       0       0
+  ACTIVENETWRK =       VI::intehead::ACTNETWRK,  // Indicator for active external network (= 0: no active network, = 2 Active network)
   ih_075       =       75       ,              //       0       0
   ih_076       =       76       ,              //       0       0       2
-  ih_077       =       77       ,              //       0       0
+  NETBALAN_5   =       VI::intehead::NETBALAN_5, // NETBALAN item 5 - Maximum number of iterations allowed in the calculation of the THP
+                                                 //  for manifold groups under rate control (ECLIPSE 100).
   ih_078       =       78       ,              //       0       0
-  ih_079       =       79       ,              //       0       0
+  NETBALAN_3   =       VI::intehead::NETBALAN_3, // NETBALAN item 3 - Maximum number of iterations allowed in the network balancing calculation
   NEWTMX       =       VI::intehead::NEWTMX,   //       0       0       Tuning,Record3,Item1
   NEWTMN       =       VI::intehead::NEWTMN,   //       0       0       Tuning,Record3,Item2
   LITMAX       =       VI::intehead::LITMAX,   //       0       0       Tuning,Record3,Item3
@@ -123,7 +153,7 @@ enum index : std::vector<int>::size_type {
   ih_100       =      100       ,              //       0       0
   ih_101       =      101       ,              //       0       0       1
   ih_102       =      102       ,              //       0       0
-  ih_103       =      103       ,              //       0       0       1
+  ROCKOPTS_TTYP =      VI::intehead::ROCKOPTS_TABTYP, // 0       0
   ih_104       =      104       ,              //       0       0
   ih_105       =      105       ,              //       0       0
   ih_106       =      106       ,              //       0       0
@@ -149,16 +179,16 @@ enum index : std::vector<int>::size_type {
   ih_126       =      126       ,              //       0       0
   ih_127       =      127       ,              //       0       0
   ih_128       =      128       ,              //       0       0
-  ih_129       =      129       ,              //       0       0
-  ih_130       =      130       ,              //       0       0
-  NODMAX       =      131       ,              //       0       0              NODMAX = maximum number of nodes in extended network option
-  NBRMAX       =      132       ,              //       0       0              NBRMAX = maximum number of branches in extended network option
-  NIBRAN       =      133       ,              //       0       0              NIBRAN = number of entries per branch in the IBRAN array
-  NRBRAN       =      134       ,              //       0       0              NRBRAN = number of tries per branch in the RBRAN array
-  NINODE       =      135       ,              //       0       0              NINODE = number of entries per node in the INODE array
-  NRNODE       =      136       ,              //       0       0              NRNODE = number of entries per node in the RNODE array
-  NZNODE       =      137       ,              //       0       0              NZNODE = number of entries per node in the ZNODE array
-  NINOBR       =      138       ,              //       0       0              NINOBR = size of the INOBR array
+  NOACTNOD     =      VI::intehead::NOACTNOD,  //       0       0              NOACTNOD = Number of active/defined nodes in the network
+  NOACTBR      =      VI::intehead::NOACTBR,   //       0       0              NOACTBR = Number of active/defined branches in the network
+  NODMAX       =      VI::intehead::NODMAX,    //       0       0              NODMAX = maximum number of nodes in extended network option
+  NBRMAX       =      VI::intehead::NBRMAX,    //       0       0              NBRMAX = maximum number of branches in extended network option
+  NIBRAN       =      VI::intehead::NIBRAN,    //       0       0              NIBRAN = number of entries per branch in the IBRAN array
+  NRBRAN       =      VI::intehead::NRBRAN,    //       0       0              NRBRAN = number of tries per branch in the RBRAN array
+  NINODE       =      VI::intehead::NINODE,    //       0       0              NINODE = number of entries per node in the INODE array
+  NRNODE       =      VI::intehead::NRNODE,    //       0       0              NRNODE = number of entries per node in the RNODE array
+  NZNODE       =      VI::intehead::NZNODE,    //       0       0              NZNODE = number of entries per node in the ZNODE array
+  NINOBR       =      VI::intehead::NINOBR,    //       0       0              NINOBR = size of the INOBR array
   ih_139       =      139       ,              //       0       0
   ih_140       =      140       ,              //       0       0
   ih_141       =      141       ,              //       0       0
@@ -182,7 +212,7 @@ enum index : std::vector<int>::size_type {
   ih_159       =      159       ,              //       0       0
   ih_160       =      160       ,              //       0       0
   ih_161       =      161       ,              //       0       0
-  NGCAUS       =      162       ,              //       0       0              NGCAUS = maximum number of aquifer connections actually used.
+  NGCAUS       =      VI::intehead::MAX_ACT_ANLYTIC_AQUCONN, //       0       0 NGCAUS = maximum number of aquifer connections actually used.
   NWMAXZ       =      VI::intehead::NWMAXZ,    //       0       0
   ih_164       =      164       ,              //       0       0
   ih_165       =      165       ,              //       0       0
@@ -228,7 +258,7 @@ enum index : std::vector<int>::size_type {
   ih_205       =      205       ,              //       0
   IHOURZ       =      VI::intehead::IHOURZ,
   IMINTS       =      VI::intehead::IMINTS,
-  ih_208       =      208       ,              //       0
+  WSEGITER_I2  =      VI::intehead::WSEGITR_IT2,
   ih_209       =      209       ,              //       0
   ih_210       =      210       ,              //       0
   ih_211       =      211       ,              //       0
@@ -243,10 +273,10 @@ enum index : std::vector<int>::size_type {
   ih_220       =      220       ,              //       0
   ih_221       =      221       ,              //       0
   ih_222       =      222       ,              //       0
-  NIIAQN       =      223       ,              //       0                     NIIAQN = number of lines of integer AQUNUM data.
-  NIRAQN       =      224       ,              //       0                     NIRAQN = number of lines of real AQUNUM data.
+  NIIAQN       =      VI::intehead::NIIAQN,    //       0                     NIIAQN = Number of integer data elements in IAQN array pr. numeric aquifer record in AQUNUM.
+  NIRAQN       =      VI::intehead::NIRAQN,    //       0                     NIRAQN = number of double precision data elements in RAQN array pr. numeric aquifer record in AQUNUM.
   ih_225       =      225       ,              //       0
-  NUMAQN       =      226       ,              //       0                     NUMAQN = number of lines of AQUNUM data entered.
+  NUMAQN       =      VI::intehead::NUM_AQUNUM_RECORDS, // 0                  NUMAQN = number of lines of AQUNUM data entered (#records).
   ih_227       =      227       ,              //       0
   ih_228       =      228       ,              //       0
   ih_229       =      229       ,              //       0
@@ -272,7 +302,7 @@ enum index : std::vector<int>::size_type {
   ih_249       =      249       ,              //       0
   ih_250       =      250       ,              //       0
   ih_251       =      251       ,              //       0
-  MAAQID       =      VI::intehead::MAX_AN_AQUIFERS,              //       0                     MAAQID = maximum number of analytic aquifers
+  MAAQID       =      VI::intehead::MAX_AN_AQUIFER_ID, //       0             MAAQID = maximum aquifer ID of all analytic aquifers
   ih_253       =      253       ,              //       0
   ih_254       =      254       ,              //       0
   ih_255       =      255       ,              //       0
@@ -289,7 +319,7 @@ enum index : std::vector<int>::size_type {
   NOWUDQS      =      VI::intehead::NO_WELL_UDQS,     //       0
   UDQPAR_1     =      VI::intehead::UDQPAR_1,  //       0
   ih_268       =      268       ,              //       0
-  ih_269       =      269       ,              //       0
+  AQU_UNKNOWN_1=      VI::intehead::AQU_UNKNOWN_1,              //       0  Not characterised.  Equal to NAQUIF in all cases seen so far.
   ih_270       =      270       ,              //       0
   NCRDMX       =      271       ,              //       0                     NCRDMX = maximum number of chord segment links per well
   ih_272       =      272       ,              //       0
@@ -306,7 +336,7 @@ enum index : std::vector<int>::size_type {
   ih_283       =      283       ,              //       0
   ih_284       =      284       ,              //       0
   ih_285       =      285       ,              //       0
-  ih_286       =      286       ,              //       0
+  MAX_ANALYTIC_AQUIFERS= VI::intehead::MAX_ANALYTIC_AQUIFERS, //  Declared maximum number of analytic aquifers in model.  AQUDIMS(5).
   ih_287       =      287       ,              //       0
   ih_288       =      288       ,              //       0
   ih_289       =      289       ,              //       0
@@ -322,7 +352,7 @@ enum index : std::vector<int>::size_type {
   ih_299       =      299       ,              //       0
   ih_300       =      300       ,              //       0
   ih_301       =      301       ,              //       0
-  ih_302       =      302       ,              //       0
+  MXDYNWLST    =      VI::intehead::MAXDYNWELLST, //    Maximum number of dynamic well lists (default = 1)
   ih_303       =      303       ,              //       0
   ih_304       =      304       ,              //       0
   ih_305       =      305       ,              //       0
@@ -491,6 +521,9 @@ Opm::RestartIO::InteHEAD::wellTableDimensions(const WellTableDim& wtdim)
     
     this->data_[NWMAXZ] = wtdim.maxWellsInField;
 
+    this->data_[MXWLSTPW]  = wtdim.mxwlstprwel;
+    this->data_[MXDYNWLST] = wtdim.mxdynwlst;
+
     return *this;
 }
 
@@ -570,21 +603,31 @@ params_NGCTRL(const int gct)
 
 Opm::RestartIO::InteHEAD&
 Opm::RestartIO::InteHEAD::
-params_NAAQZ(const int ncamax,
-             const int niaaqz,
-             const int nsaaqz,
-             const int nxaaqz,
-             const int nicaqz,
-             const int nscaqz,
-             const int nacaqz)
+aquiferDimensions(const AquiferDims& aqdims)
 {
-    this -> data_[NCAMAX] = ncamax;
-    this -> data_[NIAAQZ] = niaaqz;
-    this -> data_[NSAAQZ] = nsaaqz;
-    this -> data_[NXAAQZ] = nxaaqz;
-    this -> data_[NICAQZ] = nicaqz;
-    this -> data_[NSCAQZ] = nscaqz;
-    this -> data_[NACAQZ] = nacaqz;
+    this -> data_[NAQUIF] = aqdims.numAquifers;
+    this -> data_[NCAMAX] = aqdims.maxNumAquiferConn;
+
+    this -> data_[NIAAQZ] = aqdims.numIntAquiferElem;
+    this -> data_[NSAAQZ] = aqdims.numRealAquiferElem;
+    this -> data_[NXAAQZ] = aqdims.numDoubAquiferElem;
+
+    this -> data_[NICAQZ] = aqdims.numIntConnElem;
+    this -> data_[NSCAQZ] = aqdims.numRealConnElem;
+    this -> data_[NACAQZ] = aqdims.numDoubConnElem;
+
+    this -> data_[NGCAUS] = aqdims.maxNumActiveAquiferConn;
+
+    this -> data_[NIIAQN] = aqdims.numNumericAquiferIntElem;
+    this -> data_[NIRAQN] = aqdims.numNumericAquiferDoubleElem;
+    this -> data_[NUMAQN] = aqdims.numNumericAquiferRecords;
+
+    this -> data_[MAAQID] = aqdims.maxAquiferID;
+
+    // Not characterised.  Equal to NAQUIF in all cases seen this far.
+    this -> data_[AQU_UNKNOWN_1] = this -> data_[NAQUIF];
+
+    this -> data_[MAX_ANALYTIC_AQUIFERS] = aqdims.maxNumAquifers;
 
     return *this;
 }
@@ -608,6 +651,7 @@ Opm::RestartIO::InteHEAD::tuningParam(const TuningPar& tunpar)
     this->data_[LITMIN] = tunpar.litmin;
     this->data_[MXWSIT] = tunpar.mxwsit;
     this->data_[MXWPIT] = tunpar.mxwpit;
+    this->data_[WSEGITER_I2] = tunpar.wseg_mx_rst;
 
     return *this;
 }
@@ -632,10 +676,6 @@ Opm::RestartIO::InteHEAD::variousParam(const int version,
 
     // ih_101: Usage unknown, value fixed across reference cases.
     this->data_[ih_101] = 1;
-
-    // ih_103: Usage unknown, value not fixed across reference cases,
-    //         experiments generate warning with 0 but not with 1.
-    this->data_[ih_103] = 1;
 
     // ih_200: Usage unknown, value fixed across reference cases.
     this->data_[ih_200] = 1;
@@ -662,6 +702,14 @@ Opm::RestartIO::InteHEAD::regionDimensions(const RegDims& rdim)
 {
     this->data_[NTFIP]  = rdim.ntfip;
     this->data_[NMFIPR] = rdim.nmfipr;
+
+    return *this;
+}
+
+Opm::RestartIO::InteHEAD&
+Opm::RestartIO::InteHEAD::rockOpts(const RockOpts& rckop)
+{
+    this->data_[ROCKOPTS_TTYP]  = rckop.ttyp;
 
     return *this;
 }
@@ -703,18 +751,18 @@ actionParam(const ActionParam& act_par)
     return *this;
 }
 
-
-//InteHEAD parameters which meaning are currently not known, but which are needed for Eclipse restart runs with UDQ and ACTIONX data
+// InteHEAD parameters which meaning are currently not known, but which are
+// needed for Eclipse restart runs with UDQ and ACTIONX data
 Opm::RestartIO::InteHEAD&
 Opm::RestartIO::InteHEAD::
 variousUDQ_ACTIONXParam()
 {
-    this -> data_[159]  =  4;
-    this -> data_[160]  =  5;
-    this -> data_[161]  =  9;
-    this -> data_[246]  = 26;
-    this -> data_[247]  = 16;
-    this -> data_[248]  = 13;
+    this -> data_[159]  =  4; // entriesPerZACT??
+    this -> data_[160]  =  5; // entriesPerSACT??
+    this -> data_[161]  =  9; // entriesPerIACT??
+    this -> data_[246]  = 26; // entriesPerIACN (multiply max_conditions)
+    this -> data_[247]  = 16; // entriesPerSACN (multiply max_conditions)
+    this -> data_[248]  = 13; // entriesPerZACN (multiply max_conditions)
 
     return *this;
 }
@@ -737,47 +785,80 @@ whistControlMode(int mode)
     return *this;
 }
 
-// =====================================================================
-// Free functions (calendar/time utilities)
-// =====================================================================
-
-namespace {
-    std::time_t advance(const std::time_t tp, const double sec)
-    {
-        using namespace std::chrono;
-
-        using TP      = time_point<system_clock>;
-        using DoubSec = duration<double, seconds::period>;
-
-        const auto t = system_clock::from_time_t(tp) +
-            duration_cast<TP::duration>(DoubSec(sec));
-
-        return system_clock::to_time_t(t);
-    }
-}
-
-std::time_t
-Opm::RestartIO::makeUTCTime(const std::tm& timePoint)
+Opm::RestartIO::InteHEAD&
+Opm::RestartIO::InteHEAD::
+liftOptParam(int in_enc)
 {
-    auto       tp    =  timePoint; // Mutable copy.
-    const auto ltime =  std::mktime(&tp);
-    auto       tmval = *std::gmtime(&ltime); // Mutable.
+    this -> data_[EACHNC]  =  in_enc;
 
-    // offset =  ltime - tmval
-    //        == #seconds by which 'ltime' is AHEAD of tmval.
-    const auto offset =
-        std::difftime(ltime, std::mktime(&tmval));
-
-    // Advance 'ltime' by 'offset' so that std::gmtime(return value) will
-    // have the same broken-down elements as 'tp'.
-    return advance(ltime, offset);
+    return *this;
 }
+
+Opm::RestartIO::InteHEAD&
+Opm::RestartIO::InteHEAD::activeNetwork(const ActiveNetwork& actntwrk)
+{
+    this->data_[ACTIVENETWRK] = actntwrk.actnetwrk;
+
+    return *this;
+}
+
+
+
+Opm::RestartIO::InteHEAD&
+Opm::RestartIO::InteHEAD::networkDimensions(const NetworkDims& nwdim)
+{
+    this->data_[NOACTNOD] = nwdim.noactnod;
+    this->data_[NOACTBR]  = nwdim.noactbr;
+    this->data_[NODMAX]   = nwdim.nodmax;
+    this->data_[NBRMAX]   = nwdim.nbrmax;
+    this->data_[NIBRAN]   = nwdim.nibran;
+    this->data_[NRBRAN]   = nwdim.nrbran;
+    this->data_[NINODE]   = nwdim.ninode;
+    this->data_[NRNODE]   = nwdim.nrnode;
+    this->data_[NZNODE]   = nwdim.nznode;
+    this->data_[NINOBR]   = nwdim.ninobr;
+
+
+    return *this;
+}
+
+
+
+Opm::RestartIO::InteHEAD&
+Opm::RestartIO::InteHEAD::netBalanceData(const NetBalanceDims& nwbaldim)
+{
+    this->data_[NETBALAN_3] = nwbaldim.maxNoIterationsNBC;
+    this->data_[NETBALAN_5]  = nwbaldim.maxNoIterationsTHP;
+
+    return *this;
+}
+
+int Opm::RestartIO::InteHEAD::numRsegElem(const ::Opm::Phases& phase)
+{
+    const auto nact = phase.active(::Opm::Phase::OIL)
+        + phase.active(::Opm::Phase::GAS)
+        + phase.active(::Opm::Phase::WATER);
+
+    switch (nact) {
+    case 1: return 126;
+    case 2: return 134;
+    case 3: return 146;
+    }
+
+    throw std::invalid_argument {
+        "NRSEGZ is not supported for " +
+            std::to_string(nact) +
+            " active phases"
+            };
+}
+
+// =====================================================================
 
 Opm::RestartIO::InteHEAD::TimePoint
 Opm::RestartIO::getSimulationTimePoint(const std::time_t start,
                                        const double      elapsed)
 {
-    const auto now = advance(start, elapsed);
+    const auto now = TimeService::advance(start, elapsed);
     const auto tp  = *std::gmtime(&now);
 
     auto sec  = 0.0;            // Not really used here.
@@ -797,4 +878,75 @@ Opm::RestartIO::getSimulationTimePoint(const std::time_t start,
         // Fractional seconds in microsecond resolution.
         static_cast<int>(usec),
     };
+}
+
+namespace {
+    int getNumberOfAnalyticAquifers(const Opm::AquiferConfig& cfg)
+    {
+        const auto numAnalyticAquifers = cfg.ct().size() + cfg.fetp().size();
+
+        return static_cast<int>(numAnalyticAquifers);
+    }
+
+    int getMaximumNumberOfAnalyticAquifers(const Opm::Runspec& runspec)
+    {
+        return runspec.aquiferDimensions().maxAnalyticAquifers();
+    }
+
+    int getMaximumNumberOfAnalyticAquiferConnections(const Opm::Runspec& runspec)
+    {
+        return runspec.aquiferDimensions().maxAnalyticAquiferConnections();
+    }
+
+    int getMaximumNumberOfActiveAnalyticAquiferConnections(const Opm::AquiferConfig& cfg)
+    {
+        auto maxNumActiveConn = 0;
+        for (const auto& aqConn : cfg.connections().data()) {
+            const auto nActiveConn = static_cast<int>(aqConn.second.size());
+
+            maxNumActiveConn = std::max(maxNumActiveConn, nActiveConn);
+        }
+
+        return maxNumActiveConn;
+    }
+
+    int getMaximumAnalyticAquiferID(const Opm::AquiferConfig& cfg)
+    {
+        auto maxAquID = [](const auto& aquiferCollection) -> int
+        {
+            return std::accumulate(aquiferCollection.begin(), aquiferCollection.end(), 0,
+                                   [](const int maxID, const auto& aquiferData)
+                                   {
+                                       return std::max(maxID, aquiferData.aquiferID);
+                                   });
+        };
+
+        return std::max(maxAquID(cfg.ct()), maxAquID(cfg.fetp()));
+    }
+}
+
+Opm::RestartIO::InteHEAD::AquiferDims
+Opm::RestartIO::inferAquiferDimensions(const EclipseState& es)
+{
+    auto dim = Opm::RestartIO::InteHEAD::AquiferDims{};
+    const auto& cfg = es.aquifer();
+
+    if (cfg.hasAnalyticalAquifer()) {
+        dim.numAquifers = getNumberOfAnalyticAquifers(cfg);
+        dim.maxNumAquifers = getMaximumNumberOfAnalyticAquifers(es.runspec());
+
+        dim.maxNumAquiferConn =
+            getMaximumNumberOfAnalyticAquiferConnections(es.runspec());
+
+        dim.maxNumActiveAquiferConn =
+            getMaximumNumberOfActiveAnalyticAquiferConnections(cfg);
+
+        dim.maxAquiferID = getMaximumAnalyticAquiferID(cfg);
+    }
+
+    if (cfg.hasNumericalAquifer()) {
+        dim.numNumericAquiferRecords = cfg.numericalAquifers().numRecords();
+    }
+
+    return dim;
 }

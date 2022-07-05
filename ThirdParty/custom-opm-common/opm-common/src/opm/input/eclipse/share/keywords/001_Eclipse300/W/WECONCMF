@@ -1,0 +1,31 @@
+{
+  "name": "WECONCMF",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "comment": "Economic limit data on component mole fractions for production wells",
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "COMPONENT_INDEX",
+      "value_type": "INT"
+    },
+    {
+      "name": "MAXIMUM_MOLE_FRACTION",
+      "value_type": "UDA"
+    },
+    {
+      "name": "WORKOVER_PROCEDURE",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "name": "END_RUN_FLAG",
+      "value_type": "STRING",
+      "default": "NO"
+    }
+  ]
+}

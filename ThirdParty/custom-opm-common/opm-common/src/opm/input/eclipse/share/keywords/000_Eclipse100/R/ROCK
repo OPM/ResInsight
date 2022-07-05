@@ -1,0 +1,30 @@
+{
+  "name": "ROCK",
+  "sections": [
+    "PROPS"
+  ],
+  "size": "UNKNOWN",
+  "comment" : "
+If the run sets ROCKOPTS before ROCK then the number of ROCK records is defined by the following relations
+
+    If ROCKOPTS(3) = 'SATNUM' then the number of records is NTSFUN (= TABDIMS(1))
+    If ROCKOPTS(3) = 'ROCKNUM' then the number of records is NTROCC (= TABDIMS(13))
+    If ROCKOPTS(3) = 'PVTNUM' (default setting) then the number records is NTPVT (= TABDIMS(2))
+
+Furthermore if ROCKOPTS(3) = 'ROCKNUM' but NTROCC is defaulted then we should also use NTPVT
+",
+  "items": [
+    {
+      "name": "PREF",
+      "value_type": "DOUBLE",
+      "default": 1.0132,
+      "dimension": "Pressure"
+    },
+    {
+      "name": "COMPRESSIBILITY",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "1/Pressure"
+    }
+  ]
+}

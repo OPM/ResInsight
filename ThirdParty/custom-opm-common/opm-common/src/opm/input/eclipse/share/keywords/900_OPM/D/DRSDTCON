@@ -1,0 +1,19 @@
+{
+  "name": "DRSDTCON",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "DRSDT_MAX",
+      "value_type": "DOUBLE",
+      "dimension": "1"
+    },
+    {
+      "name": "OPTION",
+      "value_type": "STRING",
+      "default": "ALL"
+    }
+  ]
+}

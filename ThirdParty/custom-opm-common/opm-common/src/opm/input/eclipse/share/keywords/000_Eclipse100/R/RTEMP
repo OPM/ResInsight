@@ -1,0 +1,16 @@
+{
+  "name": "RTEMP",
+  "sections": [
+    "PROPS",
+    "SOLUTION"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "TEMP",
+      "value_type": "DOUBLE",
+      "default": 15.555,
+      "dimension": "Temperature"
+    }
+  ]
+}

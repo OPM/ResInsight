@@ -106,8 +106,13 @@ macro (find_and_append_package_to prefix name)
 
   # if we're told not to look for the package, pretend it was never found
   if (CMAKE_DISABLE_FIND_PACKAGE_${name})
-	set (${name}_FOUND FALSE)
-	set (${NAME}_FOUND FALSE)
+    # If required send an error
+    cmake_parse_arguments(FIND "REQUIRED" "" "" ${ARGN} )
+    set (${name}_FOUND FALSE)
+    set (${NAME}_FOUND FALSE)
+    if (FIND_REQUIRED)
+        message(SEND_ERROR "package ${name} but disable with CMAKE_DISABLE_FIND_PACKAGE_${name}")
+    endif ()
   else ()
     # List of components might differ for every module. Therefore we will
     # need to research for a library multiple times. _search_components
@@ -125,9 +130,18 @@ macro (find_and_append_package_to prefix name)
     # and the likes which is only done via opm_find_package
     if ( (NOT DEFINED ${name}_FOUND AND NOT DEFINED ${NAME}_FOUND )
          OR _search_components GREATER -1)
-       string(REGEX MATCH "(opm)-.*" _is_opm ${name})
+      string(REGEX MATCH "(opm)-.*" _is_opm ${name})
       if(NOT _is_opm)
-        find_package (${name} ${ARGN})
+        # When using Boost >= 1.70 and e.g. CMake 3.18 we need to make sure that
+        # subsequent searches are using config mode too. Otherwise the library
+        # list will be completely messed up. We use a set Boost_Dir to detect that
+        # previous searches were done using config mode.
+        if("${name}" STREQUAL "Boost" AND Boost_DIR)
+          set(_CONFIG_MODE CONFIG)
+        else()
+          set(_CONFIG_MODE "")
+        endif()
+        find_package (${name} ${ARGN} ${_CONFIG_MODE})
       else()
         if(${name}_DIR)
           find_package (${name} ${${prefix}_VERSION_MAJOR}.${${prefix}_VERSION_MINOR} ${ARGN} NO_MODULE PATHS ${${name}_DIR} NO_DEFAULT_PATH)
@@ -158,7 +172,21 @@ macro (find_and_append_package_to prefix name)
   string (REPLACE "-" "_" NAME "${NAME}")
 
   if (${name}_FOUND OR ${NAME}_FOUND)
-	foreach (var IN LISTS _opm_proj_vars)
+      foreach (var IN LISTS _opm_proj_vars)
+          if("${var}" STREQUAL "DEFINITIONS"
+            AND CMAKE_VERSION VERSION_LESS "3.12")
+            # For old Cmake versions we use add_definitions which
+            # requires -D qualifier add that
+            set(_defs)
+            foreach(_def IN LISTS ${name}_${var})
+              if(_def MATCHES "^[a-zA-Z].*")
+                list(APPEND _defs "-D${_def}")
+              else()
+                list(APPEND _defs "${_def}")
+              endif()
+            endforeach()
+            set(${name}_${var} "${_defs}")
+          endif()
 	  if (DEFINED ${name}_${var})
 		list (APPEND ${prefix}_${var} ${${name}_${var}})
 	  # some packages define an uppercase version of their own name

@@ -1,0 +1,135 @@
+{
+  "name": "WSEGAICD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "SEGMENT1",
+      "value_type": "INT"
+    },
+    {
+      "item": 3,
+      "name": "SEGMENT2",
+      "value_type": "INT"
+    },
+    {
+      "item": 4,
+      "name": "STRENGTH",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure*Time*Time/GeometricVolume*GeometricVolume*Density"
+    },
+    {
+      "item": 5,
+      "name": "LENGTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length",
+      "default": 12
+    },
+    {
+      "item": 6,
+      "name": "DENSITY_CALI",
+      "value_type": "DOUBLE",
+      "dimension": "Density",
+      "default": 1000.25
+    },
+    {
+      "item": 7,
+      "name": "VISCOSITY_CALI",
+      "value_type": "DOUBLE",
+      "dimension": "Viscosity",
+      "default": 1.45
+    },
+    {
+      "item": 8,
+      "name": "CRITICAL_VALUE",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.5
+    },
+    {
+      "item": 9,
+      "name": "WIDTH_TRANS",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.05
+    },
+    {
+      "item": 10,
+      "name": "MAX_VISC_RATIO",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 5
+    },
+    {
+      "item": 11,
+      "name": "METHOD_SCALING_FACTOR",
+      "value_type": "INT",
+      "default": -1
+    },
+    {
+      "item": 12,
+      "name": "MAX_ABS_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "GeometricVolume/Time"
+    },
+    {
+      "item": 13,
+      "name": "FLOW_RATE_EXPONENT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 14,
+      "name": "VISC_EXPONENT",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 15,
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "item": 16,
+      "name": "OIL_FLOW_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "item": 17,
+      "name": "WATER_FLOW_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "item": 18,
+      "name": "GAS_FLOW_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "item": 19,
+      "name": "OIL_VISC_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "item": 20,
+      "name": "WATER_VISC_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "item": 21,
+      "name": "GAS_VISC_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 1
+    }
+  ]
+}

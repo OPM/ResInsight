@@ -1,0 +1,41 @@
+{
+  "name": "FOAMFSC",
+  "sections": [
+    "PROPS"
+  ],
+  "requires" : ["FOAMROCK"],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTSFUN"
+  },
+  "items": [
+    {
+      "item": 1,
+      "name": "REF_SURF_CONC",
+      "value_type": "DOUBLE",
+      "dimension": "FoamSurfactantConcentration"
+    },
+    {
+      "item": 2,
+      "name": "EXPONENT",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "dimension": "1"
+    },
+    {
+      "item": 3,
+      "name": "MIN_SURF_CONC",
+      "value_type": "DOUBLE",
+      "default": 1e-20,
+      "dimension": "FoamSurfactantConcentration"
+    },
+    {
+      "item": 4,
+      "name": "MIN_WAT_SAT",
+      "value_type": "DOUBLE",
+      "default": 1e-6,
+      "dimension": "1",
+      "comment": "This item is ECLIPSE300 specific"
+    }
+  ]
+}

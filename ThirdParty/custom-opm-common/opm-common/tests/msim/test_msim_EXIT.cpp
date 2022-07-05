@@ -24,16 +24,16 @@
 #include <stdexcept>
 #include <opm/output/eclipse/EclipseIO.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
 
-#include <tests/WorkArea.cpp>
+#include <tests/WorkArea.hpp>
 #include <opm/msim/msim.hpp>
 
 namespace Opm {
@@ -84,11 +84,11 @@ BOOST_AUTO_TEST_CASE(MSIM_EXIT_TEST) {
     Opm::Deck deck = parser.parseFile(deck_file);
     Opm::EclipseState state(deck);
     Opm::Schedule schedule(deck, state, python);
-    Opm::SummaryConfig summary_config(deck, schedule, state.getTableManager());
+    Opm::SummaryConfig summary_config(deck, schedule, state.fieldProps(), state.aquifer());
 
     {
         WorkArea work_area("test_msim");
-        Opm::msim msim(state);
+        Opm::msim msim(state, schedule);
         Opm::EclipseIO io(state, state.getInputGrid(), schedule, summary_config);
         msim.well_rate("P1", Opm::data::Rates::opt::oil, Opm::prod_opr);
         msim.well_rate("P2", Opm::data::Rates::opt::oil, Opm::prod_opr);
@@ -99,9 +99,10 @@ BOOST_AUTO_TEST_CASE(MSIM_EXIT_TEST) {
         msim.well_rate("P2", Opm::data::Rates::opt::wat, Opm::prod_wpr_P2);
         msim.well_rate("P3", Opm::data::Rates::opt::wat, Opm::prod_wpr_P3);
         msim.well_rate("P4", Opm::data::Rates::opt::wat, Opm::prod_wpr_P4);
-        msim.run(schedule, io, false);
+        msim.run(io, false);
+
+        auto exit_status = msim.schedule.exitStatus();
+        BOOST_CHECK( exit_status.has_value() );
+        BOOST_CHECK_EQUAL(exit_status.value(), 99);
     }
-    auto exit_status = schedule.exitStatus();
-    BOOST_CHECK( exit_status.has_value() );
-    BOOST_CHECK_EQUAL(exit_status.value(), 99);
 }

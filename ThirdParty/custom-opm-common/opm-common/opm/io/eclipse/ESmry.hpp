@@ -20,6 +20,7 @@
 #define OPM_IO_ESMRY_HPP
 
 #include <chrono>
+#include <filesystem>
 #include <ostream>
 #include <string>
 #include <unordered_map>
@@ -27,7 +28,6 @@
 #include <map>
 #include <stdint.h>
 
-#include <opm/common/utility/FileSystem.hpp>
 #include <opm/common/utility/TimeService.hpp>
 #include <opm/io/eclipse/SummaryNode.hpp>
 
@@ -44,7 +44,7 @@ public:
     // input is smspec (or fsmspec file)
     explicit ESmry(const std::string& filename, bool loadBaseRunData=false);
 
-    int numberOfVectors() const { return static_cast<int>(nVect); }
+    int numberOfVectors() const { return nVect; }
 
     bool hasKey(const std::string& key) const;
 
@@ -56,8 +56,8 @@ public:
     std::vector<float> get_at_rstep(const SummaryNode& node) const;
     std::vector<time_point> dates_at_rstep() const;
 
-    void LoadData(const std::vector<std::string>& vectList) const;
-    void LoadData() const;
+    void loadData(const std::vector<std::string>& vectList) const;
+    void loadData() const;
 
     bool make_esmry_file();
 
@@ -75,15 +75,14 @@ public:
     const std::string& get_unit(const SummaryNode& node) const;
 
     void write_rsm(std::ostream&) const;
-    void write_rsm_file(std::optional<filesystem::path> = std::nullopt) const;
+    void write_rsm_file(std::optional<std::filesystem::path> = std::nullopt) const;
 
     bool all_steps_available();
-
-    void ijk_from_global_index(int glob, int &i, int &j, int &k) const;
+    std::string rootname() { return inputFileName.stem().string(); }
+    std::tuple<double, double> get_io_elapsed() const;
 
 private:
-
-    filesystem::path inputFileName;
+    std::filesystem::path inputFileName;
     RstEntry restart_info;
 
     int nI, nJ, nK, nSpecFiles;
@@ -106,21 +105,27 @@ private:
     std::vector<int> seqIndex;
     std::vector<int> mini_steps;
 
+    void ijk_from_global_index(int glob, int &i, int &j, int &k) const;
 
     std::vector<SummaryNode> summaryNodes;
     std::unordered_map<std::string, std::string> kwunits;
 
     time_point startdat;
 
-    std::vector<std::string> checkForMultipleResultFiles(const filesystem::path& rootN, bool formatted) const;
+    mutable double m_io_opening;
+    mutable double m_io_loading;
+
+    std::vector<std::string> checkForMultipleResultFiles(const std::filesystem::path& rootN, bool formatted) const;
 
     void getRstString(const std::vector<std::string>& restartArray,
-                      filesystem::path& pathRst,
-                      filesystem::path& rootN) const;
+                      std::filesystem::path& pathRst,
+                      std::filesystem::path& rootN) const;
 
-    void updatePathAndRootName(filesystem::path& dir, filesystem::path& rootN) const;
+    void updatePathAndRootName(std::filesystem::path& dir, std::filesystem::path& rootN) const;
 
-    std::string makeKeyString(const std::string& keyword, const std::string& wgname, int num) const;
+
+    std::string makeKeyString(const std::string& keyword, const std::string& wgname, int num,
+                              const std::optional<Opm::EclIO::lgr_info> lgr_info) const;
 
     std::string unpackNumber(const SummaryNode&) const;
     std::string lookupKey(const SummaryNode&) const;

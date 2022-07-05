@@ -1,0 +1,26 @@
+{
+  "name": "PLYMAX",
+  "sections": [
+    "SPECIAL",
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "REGDIMS",
+    "item": "NPLMIX"
+  },
+  "items": [
+    {
+      "item": 1,
+      "name": "MAX_POLYMER_CONCENTRATION",
+      "value_type": "DOUBLE",
+      "dimension": "PolymerDensity"
+    },
+    {
+      "item": 2,
+      "name": "MAX_SALT_CONCENTRATION",
+      "value_type": "DOUBLE",
+      "dimension": "PolymerDensity",
+      "comment": "This item is ignored if the BRINE keyword is absent"
+    }
+  ]
+}

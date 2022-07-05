@@ -1,0 +1,15 @@
+{
+  "name": "BRINE",
+  "sections": [
+    "RUNSPEC"
+  ],
+    "min_size" : 0,
+    "size" : 1,
+    "items" : [
+        {
+            "name" : "SALTS",
+            "size_type" : "ALL",
+            "value_type" : "STRING"
+        }
+    ]
+}

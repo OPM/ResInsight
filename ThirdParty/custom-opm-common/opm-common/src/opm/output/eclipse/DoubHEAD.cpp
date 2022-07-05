@@ -19,15 +19,16 @@
 
 #include <opm/output/eclipse/DoubHEAD.hpp>
 
-// Note: DynamicState.hpp and <map> are prerequisites of Tuning.hpp
-#include <opm/parser/eclipse/EclipseState/Schedule/DynamicState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Tuning.hpp>
-#include <opm/parser/eclipse/Units/Units.hpp>
-
 #include <opm/output/eclipse/InteHEAD.hpp> // Opm::RestartIO::makeUTCTime()
-
 #include <opm/output/eclipse/VectorItems/doubhead.hpp>
+
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/Tuning.hpp>
+
+#include <opm/input/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+
+#include <opm/input/eclipse/Parser/ParserKeywords/N.hpp>
 
 #include <chrono>
 #include <cmath>
@@ -35,6 +36,7 @@
 #include <iterator>
 #include <map>
 #include <numeric>
+#include <optional>
 #include <ratio>
 #include <utility>
 #include <vector>
@@ -103,10 +105,10 @@ enum Index : std::vector<double>::size_type {
     dh_049  =  49,
 
     // 50..59
-    dh_050  =  50,
-    dh_051  =  51,
+    Netbalan_thpc  = VI::doubhead::Netbalthpc,
+    Netbalan_int  = VI::doubhead::Netbalint,
     dh_052  =  52,
-    dh_053  =  53,
+    Netbalan_npre  = VI::doubhead::Netbalnpre,
     dh_054  =  54,
     dh_055  =  55,
     dh_056  =  56,
@@ -118,10 +120,10 @@ enum Index : std::vector<double>::size_type {
     dh_060  =  60,
     dh_061  =  61,
     dh_062  =  62,
-    dh_063  =  63,
-    dh_064  =  64,
+    Netbalan_tarerr  = VI::doubhead::Netbaltarerr,
+    Netbalan_maxerr  = VI::doubhead::Netbalmaxerr,
     dh_065  =  65,
-    dh_066  =  66,
+    Netbalan_stepsz  = VI::doubhead::Netbalstepsz,
     dh_067  =  67,
     dh_068  =  68,
     dh_069  =  69,
@@ -154,10 +156,10 @@ enum Index : std::vector<double>::size_type {
     grpar_d =  VI::doubhead::GRpar_d,
     grpar_e =  VI::doubhead::GRpar_e,
     grpar_f =  VI::doubhead::GRpar_f,
-    dh_093  =  93,
-    dh_094  =  94,
+    LOmini  =  VI::doubhead::LOminInt,
+    LOincr   =  VI::doubhead::LOincrsz,
     dh_095  =  95,
-    dh_096  =  96,
+    LOmineg  =  VI::doubhead::LOminEcGrad,
     grpar_int =  VI::doubhead::GRpar_int,
     dh_098  =  98,
     ThrUPT  =  VI::doubhead::ThrUPT,
@@ -216,8 +218,8 @@ enum Index : std::vector<double>::size_type {
     dh_142  = 142,
     dh_143  = 143,
     grpar_dmp = VI::doubhead::GRpar_damp,
-    dh_145  = 145,
-    dh_146  = 146,
+    wseg_red_fac  = VI::doubhead::WsegRedFac,
+    wseg_inc_fac  = VI::doubhead::WsegIncFac,
     dh_147  = 147,
     dh_148  = 148,
     dh_149  = 149,
@@ -361,7 +363,7 @@ namespace {
         tm1.tm_sec   = 0;
         tm1.tm_isdst = 0;
 
-        const auto t1 = ::Opm::RestartIO::makeUTCTime(tm1);
+        const auto t1 = Opm::TimeService::makeUTCTime(tm1);
 
         if (t1 != static_cast<std::time_t>(-1)) {
             tm1 = *std::gmtime(&t1); // Get new tm_yday.
@@ -371,10 +373,41 @@ namespace {
         // Failed to convert tm1 to time_t (unexpected).  Use initial value.
         return toDateNum(tm0.tm_year, tm0.tm_yday);
     }
+
+    double defaultNetBalanInterval()
+    {
+        static const auto interval = Opm::UnitSystem::newMETRIC()
+            .to_si(Opm::UnitSystem::measure::time,
+                   Opm::ParserKeywords::NETBALAN::TIME_INTERVAL::defaultValue);
+
+        return interval;
+    }
+
+    double defaultNetBalanNodePressTol()
+    {
+        static const auto tol = Opm::UnitSystem::newMETRIC()
+            .to_si(Opm::UnitSystem::measure::pressure,
+                   Opm::RestartIO::Helpers::VectorItems::DoubHeadValue::NetBalNodPressDefault);
+
+        return tol;
+    }
 }
 
 // =====================================================================
 // Public Interface (DoubHEAD member functions) Below Separator
+// ---------------------------------------------------------------------
+
+Opm::RestartIO::DoubHEAD::NetBalanceParams::NetBalanceParams(const UnitSystem& usys)
+    : balancingInterval {usys.from_si(UnitSystem::measure::time,
+                                      defaultNetBalanInterval())}
+    , convTolNodPres    {usys.from_si(UnitSystem::measure::pressure,
+                                      defaultNetBalanNodePressTol())}
+    , convTolTHPCalc    {ParserKeywords::NETBALAN::THP_CONVERGENCE_LIMIT::defaultValue} // No usys.to_si() here!
+    , targBranchBalError{ParserKeywords::NETBALAN::TARGET_BALANCE_ERROR::defaultValue}  // No usys.to_si() here!
+    , maxBranchBalError {ParserKeywords::NETBALAN::MAX_BALANCE_ERROR::defaultValue}     // No usys.to_si() here!
+    , minTimeStepSize   {Helpers::VectorItems::DoubHeadValue::NetBalMinTSDefault}
+{}
+
 // ---------------------------------------------------------------------
 
 Opm::RestartIO::DoubHEAD::DoubHEAD()
@@ -386,20 +419,17 @@ Opm::RestartIO::DoubHEAD::DoubHEAD()
     this->data_[Index::dh_026] = 0.0;
     this->data_[Index::dh_027] = 0.0;
     this->data_[Index::dh_028] = 0.0;
-    this->data_[Index::dh_050] = 0.01;
     this->data_[Index::dh_054] = 1.0e+20;
     this->data_[Index::dh_055] = 1.0e+20;
-    this->data_[Index::dh_063] = 1.0e+20;
-    this->data_[Index::dh_064] = 1.0e+20;
     this->data_[Index::dh_065] = 0.0;
-    this->data_[Index::dh_066] = 0.0;
     this->data_[Index::dh_069] = -1.0;
     this->data_[Index::dh_080] = 1.0e+20;
     this->data_[Index::dh_081] = 1.0e+20;
     this->data_[grpar_e] = 0.0;
     this->data_[grpar_f] = 0.0;
-    this->data_[Index::dh_093] = 0.0;
-    this->data_[Index::dh_096] = 0.0;
+    this->data_[LOmini] = 0.0;
+    this->data_[LOincr] = 0.0;
+    this->data_[LOmineg] = 0.0;
     this->data_[Index::dh_105] = 1.0;
     this->data_[Index::dh_108] = 0.0;
     this->data_[Index::dh_109] = 0.0;
@@ -426,8 +456,6 @@ Opm::RestartIO::DoubHEAD::DoubHEAD()
     this->data_[Index::dh_141] = 1.013;
     this->data_[Index::dh_142] = 0.0;
     this->data_[Index::dh_143] = 1.0;
-    this->data_[Index::dh_145] = 0.3;
-    this->data_[Index::dh_146] = 2.0;
     this->data_[Index::dh_147] = 0.0;
     this->data_[Index::dh_148] = 0.0;
     this->data_[Index::dh_149] = 0.0;
@@ -568,6 +596,10 @@ Opm::RestartIO::DoubHEAD::tuningParameters(const Tuning&     tuning,
     this->data_[Index::DdpLim] = tuning.DDPLIM;
     this->data_[Index::DdsLim] = tuning.DDSLIM;
 
+    // WSEGITER - data
+    this->data_[Index::wseg_red_fac] = tuning.WSEG_REDUCTION_FACTOR;
+    this->data_[Index::wseg_inc_fac] = tuning.WSEG_INCREASE_FACTOR;
+
     return *this;
 }
 
@@ -606,8 +638,7 @@ Opm::RestartIO::DoubHEAD::drsdt(const Schedule&   sched,
                                 const std::size_t lookup_step,
 				const double      cnvT)
 {
-    const auto& vappar =
-        sched.getOilVaporizationProperties(lookup_step);
+    const auto& vappar = sched[lookup_step].oilvap();
 
     this->data_[dRsdt] =
         (vappar.getType() == Opm::OilVaporizationProperties::OilVaporization::DRDT)
@@ -638,6 +669,29 @@ Opm::RestartIO::DoubHEAD::guide_rate_param(const guideRate& guide_rp)
     this->data_[grpar_f] = guide_rp.F;
     this->data_[grpar_int] = guide_rp.delay;
     this->data_[grpar_dmp] = guide_rp.damping_fact;
+
+    return *this;
+}
+
+Opm::RestartIO::DoubHEAD&
+Opm::RestartIO::DoubHEAD::lift_opt_param(const liftOptPar& lo_par)
+{
+    this->data_[LOmini]  = lo_par.min_int;
+    this->data_[LOincr]   = lo_par.incr;
+    this->data_[LOmineg] = lo_par.min_ec_grad;
+
+    return *this;
+}
+
+Opm::RestartIO::DoubHEAD&
+Opm::RestartIO::DoubHEAD::netBalParams(const NetBalanceParams& net_bal_par)
+{
+    this->data_[Netbalan_int]    = net_bal_par.balancingInterval;
+    this->data_[Netbalan_npre]   = net_bal_par.convTolNodPres;
+    this->data_[Netbalan_thpc]   = net_bal_par.convTolTHPCalc;
+    this->data_[Netbalan_tarerr] = net_bal_par.targBranchBalError;
+    this->data_[Netbalan_maxerr] = net_bal_par.maxBranchBalError;
+    this->data_[Netbalan_stepsz] = net_bal_par.minTimeStepSize;
 
     return *this;
 }

@@ -1,0 +1,13 @@
+{
+  "name": "WELSOMIN",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "size" : 1,
+  "items": [
+    {
+      "name": "SOMIN",
+      "value_type": "DOUBLE"
+    }
+  ]
+}

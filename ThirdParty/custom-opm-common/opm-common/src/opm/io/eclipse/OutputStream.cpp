@@ -28,6 +28,7 @@
 #include <chrono>
 #include <ctime>
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <iomanip>
 #include <ios>
@@ -37,8 +38,6 @@
 #include <string>
 #include <utility>
 #include <vector>
-
-#include <opm/common/utility/FileSystem.hpp>
 
 namespace {
     namespace FileExtension
@@ -396,7 +395,7 @@ openUnified(const std::string& fname,
         // to be an actual unified restart file.
         throw std::invalid_argument {
             "Purported existing unified restart file '"
-            + Opm::filesystem::path{fname}.filename().string()
+            + std::filesystem::path{fname}.filename().string()
             + "' does not appear to be a unified restart file"
         };
     }
@@ -444,7 +443,7 @@ openExisting(const std::string&   fname,
     // resize_file() followed by seekp() is the intended and expected
     // order of operations.
 
-    Opm::filesystem::resize_file(fname, writePos);
+    std::filesystem::resize_file(fname, writePos);
 
     if (! this->stream_->ofileH.seekp(0, std::ios_base::end)) {
         throw std::invalid_argument {
@@ -800,7 +799,7 @@ std::string
 Opm::EclIO::OutputStream::outputFileName(const ResultSet&   rsetDescriptor,
                                          const std::string& ext)
 {
-    namespace fs = Opm::filesystem;
+    namespace fs = std::filesystem;
 
     // Allow baseName = "CASE", "CASE.", "CASE.N", or "CASE.N.".
     auto fname = fs::path {

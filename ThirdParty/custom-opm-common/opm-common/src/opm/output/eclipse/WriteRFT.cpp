@@ -31,11 +31,11 @@
 
 #include <opm/output/eclipse/InteHEAD.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/Connection.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/Well/Connection.hpp>
 
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 #include <algorithm>
 #include <array>
@@ -375,9 +375,8 @@ namespace {
         const auto rft =
             createWellRFT(reportStep, wname, usys, grid, sched, xcon);
 
-        writeWellHeader(elapsed, wname, sched, usys, rftFile);
-
         if (rft.nConn() > std::size_t{0}) {
+            writeWellHeader(elapsed, wname, sched, usys, rftFile);
             write(rft, rftFile);
         }
     }
@@ -388,18 +387,18 @@ void Opm::RftIO::write(const int                        reportStep,
                        const ::Opm::UnitSystem&         usys,
                        const ::Opm::EclipseGrid&        grid,
                        const ::Opm::Schedule&           schedule,
-                       const ::Opm::data::WellRates&    wellSol,
+                       const ::Opm::data::Wells&        wellSol,
                        ::Opm::EclIO::OutputStream::RFT& rftFile)
 {
-    const auto& rftCfg = schedule.rftConfig();
-    if (! rftCfg.active(reportStep)) {
+    const auto& rftCfg = schedule[reportStep].rft_config();
+    if (! rftCfg.active()) {
         // RFT not yet activated.  Nothing to do.
         return;
     }
 
     for (const auto& wname : schedule.wellNames(reportStep)) {
-        if (! (rftCfg.rft(wname, reportStep) ||
-               rftCfg.plt(wname, reportStep)))
+        if (! (rftCfg.rft(wname) ||
+               rftCfg.plt(wname)))
         {
             // RFT output not requested for 'wname' at this time.
             continue;

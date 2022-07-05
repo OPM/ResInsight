@@ -24,7 +24,7 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Utility/Functional.hpp>
+#include <opm/input/eclipse/Utility/Functional.hpp>
 
 
 using namespace Opm;
@@ -95,10 +95,10 @@ BOOST_AUTO_TEST_CASE(iotaForeach) {
 }
 
 BOOST_AUTO_TEST_CASE(iotaSize) {
-    BOOST_CHECK_EQUAL( 5, fun::iota( 5 ).size() );
-    BOOST_CHECK_EQUAL( 5, fun::iota( 1, 6 ).size() );
-    BOOST_CHECK_EQUAL( 0, fun::iota( 0 ).size() );
-    BOOST_CHECK_EQUAL( 0, fun::iota( 0, 0 ).size() );
+    BOOST_CHECK_EQUAL( 5U, fun::iota( 5 ).size() );
+    BOOST_CHECK_EQUAL( 5U, fun::iota( 1, 6 ).size() );
+    BOOST_CHECK_EQUAL( 0U, fun::iota( 0 ).size() );
+    BOOST_CHECK_EQUAL( 0U, fun::iota( 0, 0 ).size() );
 }
 
 BOOST_AUTO_TEST_CASE(iotaWithMap) {

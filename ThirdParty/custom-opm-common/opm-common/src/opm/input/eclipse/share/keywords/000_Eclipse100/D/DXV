@@ -1,0 +1,11 @@
+{
+  "name": "DXV",
+  "sections": [
+    "GRID"
+  ],
+  "prohibits" : ["DX"],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  }
+}

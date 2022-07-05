@@ -20,9 +20,9 @@
 #define OPM_IO_EGRID_HPP
 
 #include <opm/io/eclipse/EclFile.hpp>
-#include <opm/common/utility/FileSystem.hpp>
 
 #include <array>
+#include <filesystem>
 #include <iostream>
 #include <string>
 #include <fstream>
@@ -71,7 +71,7 @@ public:
     const std::string& get_mapunits() const { return m_mapunits; }
 
 private:
-    Opm::filesystem::path inputFileName, initFileName;
+    std::filesystem::path inputFileName, initFileName;
     std::string m_grid_name;
     bool m_radial;
 

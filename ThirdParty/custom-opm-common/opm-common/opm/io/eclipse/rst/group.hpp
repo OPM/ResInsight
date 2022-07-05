@@ -44,7 +44,10 @@ struct RstGroup {
     int prod_cmode;
     int winj_cmode;
     int ginj_cmode;
-    int guide_rate_def;
+    int prod_guide_rate_def;
+    int exceed_action;
+    int inj_water_guide_rate_def;
+    int inj_gas_guide_rate_def;
 
     float oil_rate_limit;
     float water_rate_limit;
@@ -58,6 +61,11 @@ struct RstGroup {
     float gas_reservoir_limit;
     float gas_reinject_limit;
     float gas_voidage_limit;
+    float glift_max_supply;
+    float glift_max_rate;
+    float efficiency_factor;
+    float inj_water_guide_rate;
+    float inj_gas_guide_rate;
 
     double oil_production_rate;
     double water_production_rate;

@@ -43,6 +43,21 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
         XxxMBE  = 18,
         XxxLCV  = 19,
         XxxWFL  = 20,
+
+        Netbalthpc    = 50,    //  Network balancing THP convergence limit (NETBALAN(4))
+        Netbalint     = 51,    //  Network balancing interval (NETBALAN(1))
+        Netbalnpre    = 53,    //  Network balancing nodal pressure
+                               //  convergence limit (NETBALAN(2))
+
+        Netbaltarerr  = 63,    //  Target largest branch network balancing
+                               //  error at end of timestep (NETBALAN(6))
+
+        Netbalmaxerr  = 64,    //  Maximum permitted network balancing error
+                               //  at end of timestep (NETBALAN(7))
+
+        Netbalstepsz  = 66,    //  Minimum stepsize for steps limited by
+                               //  network balancing errors (NETBALAN(8))
+
         TrgDPR  = 82,
         TfDiff  = 83,
         DdpLim  = 84,
@@ -53,16 +68,29 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
         GRpar_d = 90,     // Guiderate parameter D
         GRpar_e = 91,     // Guiderate parameter E
         GRpar_f = 92,     // Guiderate parameter F
+        LOminInt = 93,     // LIFTOP - Minimum interval between gas lift optimizations
+        LOincrsz   = 95,     // LIFTOPT - Increment size for lift gas injection rate
+        LOminEcGrad = 96,  // LIFTOPT - Minimum economic gradient
         GRpar_int = 97,     // Guiderate parameter delay interval
         ThrUPT  =  99,
         XxxDPR  = 100,
         TrgFIP  = 101,
         TrgSFT  = 102,
         GRpar_damp = 144,     // Guiderate parameter damping factor
+        WsegRedFac = 145,     // WSEGITER parameter (item 3) Reduction factor (F_R)
+        WsegIncFac = 146,     // WSEGITER parameter (item 4) Increas factor (F_I)
         UdqPar_2 = 212,		// UDQPARAM item number 2 (Permitted range (+/-) of user-defined quantities)
         UdqPar_3 = 213,		// UDQPARAM item number 3 (Value given to undefined elements when outputting data)
         UdqPar_4 = 214,		// UDQPARAM item number 4 (fractional equality tolerance used in ==, <= etc. functions)
     };
+
+    namespace DoubHeadValue {
+        // Default if no active network (BRANPROP/NODEPROP)
+        constexpr auto NetBalNodPressDefault = 0.0; // Barsa
+
+        // Default => Use TSMINZ from TUNING
+        constexpr auto NetBalMinTSDefault = 0.0;
+    }
 
 }}}} // Opm::RestartIO::Helpers::VectorItems
 

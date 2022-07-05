@@ -1,6 +1,0 @@
-
-
-Errors:
-  RUNSPEC_GROUPSIZE_TOO_LARGE: Run uses maximum group size of 6, but allocates at most 4 in RUNSPEC section.  Increase item 4 of WELLDIMS accordingly.
-
-

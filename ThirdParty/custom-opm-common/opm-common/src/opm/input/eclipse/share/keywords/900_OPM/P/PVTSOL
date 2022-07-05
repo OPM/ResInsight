@@ -1,0 +1,6 @@
+{"name" : "PVTSOL" , "sections" : ["PROPS"], "num_tables" : {"keyword" : "TABDIMS" , "item" : "NTPVT"},
+        "items" : [
+            {"name":"ZCO2", "value_type" : "DOUBLE", "dimension":"1" },
+            {"name":"DATA", "value_type":"DOUBLE", "size_type" : "ALL" , "dimension" : ["Pressure","1","OilDissolutionFactor","GasDissolutionFactor","OilDissolutionFactor","1","1","Viscosity","Viscosity"]}
+         ]
+}

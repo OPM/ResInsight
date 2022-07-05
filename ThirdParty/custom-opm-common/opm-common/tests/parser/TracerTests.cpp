@@ -22,9 +22,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/TracerConfig.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/TracerConfig.hpp>
 
 
 using namespace Opm;
@@ -79,12 +80,12 @@ BOOST_AUTO_TEST_CASE(TracerConfigTest) {
     auto it = tc.begin();
     BOOST_CHECK_EQUAL(it->name, "SEA");
     BOOST_CHECK_EQUAL(it->phase, Phase::WATER);
-    BOOST_CHECK(it->concentration.empty());
-    BOOST_CHECK_EQUAL(it->tvdpf.numColumns(), 2);
+    BOOST_CHECK(!it->free_concentration.has_value());
+    BOOST_CHECK_EQUAL(it->free_tvdp.value().numColumns(), 2U);
 
     ++it;
     BOOST_CHECK_EQUAL(it->name, "OCE");
     BOOST_CHECK_EQUAL(it->phase, Phase::GAS);
-    BOOST_CHECK_EQUAL(it->concentration.size(), 3U);
-    BOOST_CHECK_EQUAL(it->tvdpf.numColumns(), 0);
+    BOOST_CHECK_EQUAL(it->free_concentration.value().size(), 3U);
+    BOOST_CHECK(!it->free_tvdp.has_value());
 }

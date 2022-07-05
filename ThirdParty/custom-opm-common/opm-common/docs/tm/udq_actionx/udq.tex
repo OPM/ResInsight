@@ -1,0 +1,599 @@
+\newcommand{\udq}{\kw{UDQ}}
+\chapter{Programming in the deck: \udq{}}
+\udq{} and \kw{ACTIONX} are two keywords which offer a sort of
+\emph{programming} in the input deck. \udq{} is an acronym for \emph{User
+Defined Quantity}, and the essence of the \udq{} keyword is the ability to
+define arithmetic expressions based on the result vectors of the ongoing
+simulation. The quantites evaluated with \udq{} can then be output as summary
+variables, and they can be used as controls in keywords like \kw{WCONPROD} and
+\kw{GCONINJE}. When used as controls the \udq{} variables are called \emph{User
+Defined Arguments} (UDA).
+
+For both the \udq{} and \kw{ACTIONX} keywords evaluating an arithmetic
+expression based on the current results of the ongoing simulation is an
+important part of the concept, and they are often referenced in pair as
+\udq{}/\kw{ACTIONX}, this is slightly misleading as the two are fully
+independent and share very little both as concepts in \flow{} and in the C++
+implementation. The \kw{ACTIONX} keyword is described in chapter \ref{actionx}. 
+
+The \udq{} keyword is also documented in section 12.3.233 in the \flow{}
+reference manual.
+
+\section{Defining a new \udq{} keyword}
+New \udq{} variables are defined with the \udq{} keyword in the \kw{SCHEDULE}
+section. The \udq{} keyword is a sort of a super keyword with four additional
+subcommands: \kw{DEFINE}, \kw{ASSIGN}, \kw{UNIT} and \kw{UPDATE}. The
+\kw{DEFINE} subcommand is the most important command, that is used to
+\emph{define} an arithmetic expression for a \udq{} variable, which is evaluated
+at the end of every simulator time step. \kw{ASSIGN} is used to define a \udq{}
+variable with a constant numerical value, in addition the \kw{ASSIGN} subcommand
+is often used as a ``forward reference'' to enable using a \udq{} keyword in
+another \kw{DEFINE} expression. The \kw{UNIT} command is used to assign a unit
+string to a \udq{} variable, see section \ref{udq_units} for more details about
+\udq{} variables and units. The \kw{UPDATE ON} and \kw{UPDATE OFF} commands can
+be used to switch updating of \udq{} variables on and off. The \udq{} variables
+are created in mode \kw{ON}.
+
+All \udq{} keywords must have the letter \emph{U} as their second character, the
+first character should be 'F', 'G' or 'W' to indicate whether this is a field,
+group or well quantity\footnote{In \eclipse{} also the characters 'S', 'C', 'A'
+and 'B' are used to denote \emph{segment}, \emph{connection}  \emph{aquifer} and
+\emph{block} variables respectively. None of these are supported in \flow{}.}.
+
+The simplest way to define a \udq{} is just using the \kw{ASSIGN} subcommand of
+the \udq{} keyword:
+\begin{deck}
+UDQ
+  ASSIGN FUVAR1 123 /
+  ASSIGN FUVAR2 456 /
+/
+\end{deck}
+This way we will assign to variables \inlinecode{FUVAR1} and \inlinecode{FUVAR2}
+with values 123 and 456 respectively. These values can output to the summary
+file, be used as control values in a control keyword like \kw{WELTARG} and be
+used to recursively define another \udq{} keyword.
+
+The more interesting \udq{} subcommand is \kw{DEFINE} which is used to define an
+arithmetic expression for a \udq{} variable, the arithmetic expression will be
+evaluated at the end of every timestep. The expressions are built from the
+normal arithmetic operators +,-,*,/, a predefined set of available functions
+(see \ref{udq_functions}) and results from the ongoing simulation.
+
+In the example below we create \udq{} variables \kw{FUWCT1} and \kw{FUWCT2} as
+user defined field water cut, one based on the summary variables \kw{FWPR} and
+\kw{FOPR} and one based on summing \kw{WOPR} and \kw{WWPR} over all wells
+\begin{deck}
+UDQ
+  DEFINE FUWCT1 FWPR/(FWPR + FOPR) /
+  DEFINE FUWCT2 SUM(WWPR)/(SUM(WWPR) + SUM(WOPR)) /
+/
+\end{deck}
+
+A \udq{} variable can be redefined during the simulation, and also change from
+constant \kw{ASSIGN} to variable \kw{DEFINE}. Observe that \udq{} values are
+always evaluated in order of occurence in the input deck. For instance for this
+input
+\begin{deck}
+UDQ
+  ASSIGN FU1 100 /
+  DEFINE FU2 FU1 + FOPR /
+  DEFINE FU1 FWPR /
+/
+\end{deck}
+the evaluation order will be \{\kw{FU1}, \kw{FU2}\}\footnote{Maintaining the
+input order and whether a certain \udq{} symbol is now a \kw{ASSIGN} or
+\kw{DEFINE} keyword is also very important for the restart code.}. \kw{ASSIGN}
+statements take effect at input time, making the newly defined symbol
+immediately available for reuse in a subsequent defintion. This is utilized in
+the \udq{} keyword above where the symbol \kw{FU1} is referenced in the
+defintion of \kw{FU2}. As used in this example the \kw{ASSIGN FU1 100} can be
+seen as a \emph{forward reference}. When we have completed the first timestep
+and it is time to evalute the \udq{} expressions they will be evaluated in order
+of \emph{first appearance}, i.e. \{\kw{FU1}, \kw{FU2}\}. At this stage the
+active definition of \kw{FU1} is \inlinecode{FU1 = FWPR}, i.e. the value
+\inlinecode{100} from the initial definition \inlinecode{FU1 = 100} is never
+actually used.
+
+\section{Different types of \udq{} - field, group and well}
+The \udq{} keywords can be of different types, \flow{} supports \emph{field},
+\emph{well} and \emph{group} keywords\footnote{\eclipse{} also supports
+connection, segment and aquifer variables.}. The field keywords are scalar,
+whereas the well and group keywords are sets with values for every well/group.
+
+The type of a \udq{} keyword is inferred from the name in the same manner as the
+summary keywords, i.e. for this \udq{} keyword
+\begin{deck}
+UDQ
+  ASSIGN FU1 100 /
+  ASSIGN WU1 200 /
+  ASSIGN GU1 300 /
+/
+\end{deck}
+we will define one scalar keyword \kw{FU1}, one well set \kw{WU1} and one group
+set \kw{GU1}. The well sets will have one slot for each well in the model, it is
+not possible to create a well set with only a subset of wells, but the well set
+can have \emph{undefined} value for a subset of wells. The set maintains a
+\inlinecode{is\_defined()} status for each element and most operations only
+apply to the defined elements\footnote{The C++ implementation of the \udq{}
+value set is the equivalent of \texttt{std::map<std::string,
+  std::optional<double>>}.}.
+
+As indicated with \kw{ASSIGN WU1 200} you can assign a scalar value to a set
+keyword, then all elements in the set will have the same value. Assuming we have
+a model with wells OP1, OP2, WI and GI the \kw{WU1} will look like
+\begin{code}
+  WU1 = {"OP1": 100, "OP2": 100, "WI": 100, "GI": 100}.
+\end{code}
+When defining a well \udq{} it is natural to refer to well summary variables, in
+the example below we define \kw{WUBHP} which is the bottom hole pressure
+for each well, \kw{WUOPR1} which is the oil production rate for a subset of
+wells and \kw{WUOPR2} which is the oil production rate for well OP1 \emph{broadcasted to all wells}.
+\begin{deck}
+UDQ
+  DEFINE WUBHP  WBHP     / 
+  DEFINE WUOPR1 WOPR 'OP*' /
+  DEFINE WUOPR2 WOPR OP1 /
+/
+\end{deck}
+After evaluation these \udq{} values will be\footnote{The numerical values are
+arbitrary, just to illustrate that they are \emph{defined}, in contrast to the
+[ ] which is used to illustrate an \emph{undefined} value.}:
+\begin{code}
+  WUBHP  = {"OP1": 20, "OP2": 30, "WI": 10,  "GI": 15}
+  WUOPR1 = {"OP1": 13, "OP2": 17, "WI": [ ], "GI": [ ]}
+  WUOPR2 = {"OP1": 13, "OP2": 13, "WI": 13,  "GI": 13}
+\end{code}
+Observe how well variables like \kw{WBHP} and \kw{WOPR} can be qualified with a
+wellname pattern. If no wellname is supplied the expression will be evaluated
+for all wells, as for \kw{WUBHP}, for \kw{WUOPR1} the pattern 'OP*' will select
+wells \{OP1, OP2\} and leave the injectors \{WI, GI\} undefined. For \kw{WUOPR2}
+the well pattern 'OP1' specifies a well completely, i.e. this will be evaluated
+as a scalar, and then the scalar value \inlinecode{WOPR:OP1 == 13} is
+broadcasted to all the wells in \kw{WUOPR2}.
+
+\udq{} sets with different sets of defined wells can be combined, in most cases
+the operations will be applied to the intersection of all defined wells,
+consider for example\label{udq_diff}:
+
+\begin{deck}
+UDQ
+  DEFINE WUBHP    WBHP /
+  DEFINE WUTHP    WTHP OP* /
+  DEFINE WUPDIFF  WUBHP - WUTHP
+/
+\end{deck}
+When these \udq{} statements are evaluated we will get:
+\begin{code}
+  WUBHP   = {"OP1": 20, "OP2": 30, "WI": 10,  "GI": 15}
+  WUTHP   = {"OP1": 13, "OP2": 17, "WI": [ ], "GI": [ ]}
+  WUPDIFF = {"OP1":  7, "OP2": 13, "WI": [ ], "GI": [ ]}
+\end{code}
+As we see the undefined property for wells GI and WI in \kw{WUTHP} is contagious
+when the two expressions are combined with \inlinecode{WUPDIFF = WUBHP - WUTHP},
+see however section \ref{udq_union_functions} for a collection of functions
+which operate on the union of values.
+
+When an undefined variable is output to the summary file it will get a value
+given as item 3 of the \kw{UDQPARAM} keyword. Summary output is the \emph{only}
+point where the undefined value can be dereferenced, the numerical value given
+in \kw{UDQPARAM} will not be available either for \udq{} nor \kw{ACTIONX}
+evaluations.
+
+
+\section{Functions available in \udq{} defintions}
+\label{udq_functions}
+\flow{} supports all the \udq{} functions available in \eclipse{}, for the
+future it would be a quite simple C++ task to extend the list of available
+functions, although that will affect \eclipse{} compatibility.
+
+\subsection{Ordinary binary functions}
+The \udq{} framework supports all the ordinary arithmetic operators +,-,*,/ and
+\^{} and the comparison operators $>, \ge, <, \le, \ne, ==$. For all of these
+operations sets and scalars can be combined freely. When combining a scalar and
+a set the scalar will be promoted to a set with all values equal, i.e. for
+\begin{deck}
+UDQ
+  ASSIGN WULIMIT 100 /
+/
+\end{deck}
+the numerical value 100 will be broadcasted to all wells:
+\begin{code}
+  WULIMIT = {"OP1": 100, "OP2": 100, "WI": 100,  "GI": 100}.
+\end{code}
+
+In the case of set arguments the operations are only applied to the union of
+values which are defined in both argument sets. The comparison operators produce
+numerical 0 or 1 depending on the result of the comparison, the result from a
+comparison operation can be used numerically in further computations. In the
+following example \kw{FUWCNT} will be the number of wells producing with oil
+production rate above 1000\footnote{Remember: 1000 has the units of the
+deck, i.e. $\mathrm{stb/day}$ in FIELD units and $\mathrm{m^3/day}$ in metric
+units.}.
+\begin{deck}
+UDQ
+  DEFINE FUWCNT SUM( WOPR > 1000 ) /
+/
+\end{deck}
+
+
+
+\subsection{Functions over a set returning a scalar}
+The \udq{} framework has several functions which iterate over all the defined
+members of a set and return a scalar. In the example
+
+\begin{deck}
+UDQ
+  DEFINE FU1 SUM(WOPR 'OP*') /
+/
+\end{deck}
+The scalar variable \kw{FU1} will be equal to the sum of oil production rates
+for all wells matching the pattern \kw{OP*}, the wells with a name not matching
+\kw{OP*} will not contribute to the sum. The complete list of functions iterating
+over a set and returning a scalar are:
+
+\begin{description}
+\item[SUM] Sum all defined elements in the argument set and return a scalar.
+\item[AVEA] The arithmetic average of the elements in the set.
+\item[AVEG] The geometric average of the elements in the set.
+\item[AVEH] The harmonic average of the elements in the set.
+\item[MAX] The maximum element in the set.
+\item[MIN] The minimum element in the set.
+\item[NORM1] The $\mathrm{L^1}$ norm of the elements in the set.
+\item[NORM2] The $\mathrm{L^2}$ norm of the elements in the set.
+\item[NORMI] The $\mathrm{L^\infty}$ norm of the elements in the set.
+\item[PROD] The product of all the elements in the set.
+\end{description}
+
+
+\subsection{Elemental functions}
+There is a family of functions which take a vector or scalar as argument, run
+through  all the elements in the argument and return a result of the same shape
+as the argument, where a function has been applied to all the defined elements.
+Assume that the \kw{WU1} has the following value:
+
+\begin{code}
+  WU1 = {"OP1": -2, "OP2": -1, "WI": 1, "GI": []},
+\end{code}
+
+then \kw{DEFINE WUABS ABS(WU1)} will give
+
+\begin{code}
+  WUABS = {"OP1": 2, "OP2": 1, "WI": 1, "GI": []}.
+\end{code}
+
+The available elemental functions of this kind come in different categories:
+
+\subsubsection*{Mathematical functions}
+\begin{description}
+\item[EXP] Return a new set where all defined elements have been exponentiated.
+\item[ABS] Return a new set with the absolute value of all elements.
+\item[LN] Return a new set with the \emph{natural logarithm} of all elements.
+\item[LOG] Return a new set with $\log_{10}$ of all elements.
+\item[NINT] Return a new set where all elements have been converted to the
+  nearest integer.
+\end{description}
+
+\subsubsection*{Sorting functions}
+The \udq{} functionality supports functions \kw{SORTA} and \kw{SORTD} to sort a
+set in ascending or descending order respectively. Observe that these functions
+do not sort the sets in place - the udqset does not have any notion of ordering,
+rather they create a permutation set with values 1,2,3, ... The following
+combination of \udq{} and \kw{ACTIONX} will use the \kw{SORTD} function to close
+the two wells with the highest watercut:
+\begin{deck}
+UDQ
+  DEFINE WUWCTS SORTD(WWCT OP*) /
+/
+\end{deck}
+assuming the \kw{WWCT} looks like
+\begin{code}
+  WWCT = {"OP1": 0.5, "OP2": 0.2, "OP3": 0.1, "OP4":0.7, "WI": 0, "GI": 0}
+\end{code}
+then the \kw{WUWCTS} set will look like
+\begin{code}
+  WUWCTS = {"OP1": 2, "OP2": 3, "OP3": 4, "OP4":1 "WI": [], "GI": []}
+\end{code}
+
+When this is combined with the \kw{ACTIONX}(see chapter \ref{actionx})
+\begin{code}
+ACTIONX
+CW /
+WUWCTS <= 2 /
+/
+
+WELOPEN
+'?'  'CLOSE' /
+/
+
+ENDACTIO
+\end{code}
+the two wells with highest watercut will be selected in the \inlinecode{WUWCTS
+  <= 2} statement and that will be expanded to \{OP4, OP1\} by the '?'
+expression in the \kw{WELOPEN} keyword.
+
+
+\subsubsection*{Random functions}
+The \udq{} machinery has functionality to sample random numbers, there are one
+set of random number functions which are seeded deterministically by item 1 of
+\kw{UDQPARAMS} and an alternative set which is seeded by the clock. The random
+number functions take a \udq{} variable as argument, that is only to ensure that
+the shape of the result value is correct.
+
+\begin{description}
+\item[RANDN] Random numbers from distribution $N(0,1)$ seeded deterministically
+  by item 1 in \kw{UDQPARAMS}.
+\item[RANDU] Random numbers from distribution $U(-1,1)$ seeded deterministically
+  by item 1 in \kw{UDQPARAMS}.
+\item[RRNDN] Random numbers from distribution $N(0,1)$ seeded by the clock.
+\item[RRNDU] Random numbers from distribution $U(-1,1)$ seeded by the clock.
+\end{description}
+
+Assuming the argument vector \kw{WU1} looks like 
+\begin{code}
+  WU1 = {"OP1": -2, "OP2": [], "WI": 1, "GI": []},
+\end{code}
+the result of \kw{DEFINE WURAND RANDU(WU1)} could be like
+\begin{code}
+ WURAND = {"OP1": 0.576, "OP2": [], "WI": -0.132, "GI": []}.
+\end{code}
+
+\subsubsection*{Work with defined status}
+The functions \kw{DEF}, \kw{UNDEF} and \kw{IDV} can be used to inspect the
+defined/not defined status of the elements in a \udq{} set.
+
+\begin{description}
+  \item[DEF] Return a set with value 1 for all defined elements.
+  \item[UNDEF] Return a set with value 1 for all undefined elements.
+  \item[IDV] Return a set with value 1 for all defined elements and value 0 for
+    all undefined elements.
+\end{description}
+
+Assuming the input argument
+
+\begin{code}
+  WU1 = {"OP1": -2, "OP2": [], "WI": 1, "GI": []},
+\end{code}
+
+the \udq{} assignments
+
+\begin{deck}
+UDQ
+  DEFINE WUDEF   DEF(WU1) /
+  DEFINE WUUNDEF UNDEF(WU1) /
+  DEFINE WUIDV   IDV(WU1) /
+/
+\end{deck}
+
+will produce:
+
+\begin{code}
+  WUDEF   = {"OP1": 1,  "OP2": [], "WI": 1,  "GI": []},
+  WUUNDEF = {"OP1": [], "OP2": 1,  "WI": [], "GI": 1},
+  WUIDV   = {"OP1": 1,  "OP2": 0,  "WI": 1,  "GI": 0},
+\end{code}
+
+
+
+\subsection{Union functions}
+\label{udq_union_functions}
+There are a list of functions \kw{Uxxx} which operate on the union of the values
+found in the two sets, i.e. a result is assigned if at at least one set has
+defined value for this well/group.
+\begin{description}
+\item[UADD] Will add the items from the two sets.
+\item[UMUL] Will multiply the items from the two sets.
+\item[UMAX] The maximum value from the two sets.
+\item[UMIN] The minumum value from the two sets.
+\end{description}
+In the case where only one of the sets has a defined value the operation will be
+performed \emph{as if} the function \kw{Uxxx} is the identity function.
+
+
+As an example consider the two sets:
+\begin{code}
+  WU1     = {"OP1": 1, "OP2": [], "WI": 2,  "GI": []},
+  WU2     = {"OP1": 6, "OP2": 5,  "WI": [], "GI": []},
+\end{code}
+
+and the \udq{} expression \kw{DEFINE WUUADD WU1 UADD WU2}, then the resulting
+set \kw{WUUADD} will be
+\begin{code}
+  WUUADD  = {"OP1": 7, "OP2": 5,  "WI": 2,  "GI": []}.
+\end{code}
+This in contrast to a normal $+$ which only operates on the intersection of the
+two sets, only well OP1 would have a defined value in this case.
+
+
+\section{Used as a control: UDA}
+\label{uda}
+Probably one of the most important uses of the \udq{} functionality is the
+ability to use a \udq{} as control in e.g. the \kw{WCONINJE} keyword. In the
+example below we calculate the produced liquid volume from a group of wells and
+use that as injection target for a water injector:
+
+\begin{deck}
+UDQ
+  DEFINE FULPR  (WOPR P* + WWPR P*) * 1.25 /
+/
+
+...
+...
+
+WCONINJE
+  WI  'WATER'  'OPEN'  'RATE'   'FULPR' /
+/
+\end{deck}
+
+In the following insane example we distribute the current oil production rate
+randomly among the producers and use that as target for the next timestep - do
+not try this at home:
+\begin{deck}
+UDQ
+  -- Create a 0 / 1 mask with 0 for injectors and 1 for producers.
+  DEFINE WUPROD WOPR > 0 /
+  
+  -- Create a vector of random numbers [0,1] for all producers
+  DEFINE WURAND 0.5 * (RANDU(WUPROD) + 1) * WUPROD /
+
+  -- Create a vector where all producers get a random fraction of
+  -- the current total oil production rate
+  DEFINE WUOPR FOPR * WURAND / SUM(WURAND) /
+/
+
+-- Need to have a well list or similar to select all producers for 
+-- the WCONPROD keyword.
+WLIST
+  'P' 'ADD' ..... /
+
+
+WCONPROD
+ '*P' 'OPEN' 'ORAT'  'WUOPR' /
+/
+\end{deck}
+One point about this example is that the \udq{} variable \kw{WUOPR} which is
+used as as control in the \kw{WCONPROD} is a well set, the lookup machinery will
+automatically use the correct well index when assigning control value to a
+particular well.
+
+From an implementation point of view the \kw{UDA} functionality creates a
+significant complexity, because the actual rate to use in the simulation must be
+evaluated \emph{just in time}.
+
+\section{\udq{} units}
+\label{udq_units}
+The \udq{} subcommand \kw{UNIT} can be used to assign a string which is used as
+output unit when the \udq{} variable is output to the summary file. This is
+\emph{only} a string and does not induce any unit conversion. All \udq{}
+evaluations are in terms of the corre deck units - irrespective of the \kw{UNIT}
+subcommand. Consider the following
+\begin{deck}
+RUNSPEC
+
+FIELD
+
+...
+...
+
+SCHEDULE
+
+UDQ
+  DEFINE WUI WWIR - 100 /
+/
+\end{deck}
+
+\begin{enumerate}
+\item The simulation runs in SI units; hence the water injection rate is
+  calculated in $\mathrm{m^3/s}$.
+\item As part of the summary evaluation the \inlinecode{SummaryState} will
+  contain the water injection rate converted to field units.
+\item The \udq{} variable \kw{WUI} is evaluated as the water injection rate from
+  \inlinecode{SummaryState} subtracted numerical value 100, \emph{it is solely the users 
+  responsability that the numerical value 100 represents water injection rate in
+  field units.}
+\end{enumerate}
+
+Observe that the units are complicated, and non intuitive for \kw{UDA} values.
+The \kw{UDA} evaluation is based on the \inlinecode{SummaryState} class which is
+in deck units, the controls determined by \kw{UDA} evaluation must therefor be
+converted to SI units just when it is passed to the simulator. The initial
+design ambition was to block the deck units at the IO boundary, keeping the
+internals fully in SI. The \kw{UDA} concept is the exception which manages to
+inject deck units quite far into the code.
+
+
+\section{Implementation details}
+The significant part of the UDQ implementation is in classes located in
+\path{opm/input/eclipse/Schedule/UDQ}, in addition the restart output of
+\udq{}/\kw{UDA} values is in \path{opm/output/eclipse/AggregateUDQData.cpp}.
+Finally the \udq{} parser makes use of the type \inlinecode{RawString} to treat
+literal ``/'' and ``*'' different from ordinary parsing where ``/'' signifies
+end of line and ``*'' is either a default or part of a multiplier expression.
+
+\subsection*{\inlinecode{UDQConfig}}
+The class \inlinecode{UDQConfig} internalizes the parsing of the \udq{} keywords
+from the input deck. The \inlinecode{UDQConfig} instance is time-versioned and
+managed by the \inlinecode{ScheduleState} class. The \inlinecode{UDQConfig} is
+immutable while the simulator is executing. The \inlinecode{UDQConfig} contains
+two main classes \inlinecode{UDQDefine} and \inlinecode{UDQAssign} in addition
+to book-keeping code to keep track of what type of expression a \udq{} keyword
+is at the time. A significant part of the book-keeping is only required to be
+able to output restart files in \eclipse{} format.
+
+\subsection*{\inlinecode{UDQDefine} and \inlinecode{UDQASTNode}}
+The \inlinecode{UDQDefine} manages a parsed \udq{} expresssion along with a
+chunck of metadata. The parsed \udq{} expression is managed in an instance of
+\inlinecode{UDQASTNode}. The \inlinecode{UDQASTNode} contains a parsed tree
+representation of the \udq{} input expression. The parsing of \udq{} expressions
+happens at input time, and for the rest of the simulation the
+\inlinecode{UDQASTnode} instances are immutable.
+
+Many scalar \udq{} types are defined in the file \path{UDQEenums.hpp} and in the
+namespace \inlinecode{UDQ} there are many small utility functions to work with
+these enums.
+
+
+\subsection*{\inlinecode{SummaryState}}
+\label{summarystate}
+The \inlinecode{SummaryState} class is not part of the \udq{} implementation,
+but it is a very important class for the \udq{} functionality. At the end of
+every timestep the simulator will call the method \inlinecode{evalSummary} which
+will call into opm-common and evaluate all summary variables and store them in a
+\inlinecode{SummaryState} instance\footnote{Observe that during initialization
+the \udq{} expressions are inspected, and we make sure that all summary
+variables needed to evaulate \udq{} expressions are evaluated in the Summary
+evaluation.}. The \inlinecode{SummaryState} class manages a set of maps with
+well, group and field variables, when evaluating e.g. the \kw{WOPR} the results
+will be stored in a two level map first indexed with keyword \kw{WOPR} and then
+with well name. Afterwards the \udq{} layer can fetch values with
+\inlinecode{SummaryState::get\_well\_var()}. The values in the
+\inlinecode{SummaryState} have been converted to output units, this is important
+for the \kw{UDA} evaluation.
+
+At the end of every timestep the \inlinecode{UDQConfig::eval()} method is called
+to evaluate all the \udq{} expressions, the evaluated values will end up in the
+active \inlinecode{SummaryState} instance, i.e. for this \udq{}
+\begin{deck}
+UDQ
+  DEFINE FUOPR SUM(WOPR) /
+  DEFINE WUGWR WGPR / WWPR /
+/
+\end{deck}
+we will get \inlinecode{SummaryState} entries for \kw{FUOPR} and \kw{WUGWR} for
+\emph{all} wells in the model. These \inlinecode{SummaryState} values can then
+be output to the summary file, be used when evaluating \kw{ACTIONX} keywords or
+to evaluate \kw{UDA} control values.
+
+In addition to the \inlinecode{SummaryState} variable there is an instance of
+type \inlinecode{UDQState} which is updated runtime, the \inlinecode{UDQState}
+instance holds on to the results of \udq{} evaluations with more context than
+\inlinecode{SummaryState} and is used to output \udq{} and \kw{UDA} state to the
+restart files. While evaluating the simulator will create a \kw{UDQContext}
+variable which will manage both the \inlinecode{SummaryState},
+\inlinecode{UDQState} and also some \udq{} parameters from the \kw{RUNSPEC}
+section. The lifetime of the \kw{UDQContext} instance is only one \udq{}
+evaluation.
+
+While evaluating the \udq{} expressions the results will be instances of
+\inlinecode{UDQSet} which is a small container class which keeps track of
+well/group names and whether a value is defined or not. The \inlinecode{UDQSet}
+class overrides the arithmetic operators like \inlinecode{UDQSet::operator+()}
+so that expressions like \kw{2 * WOPR 'OP*'} can be easily evaluated in code.
+
+\subsection*{Paralell awareness}
+\label{udq_parallel}
+The opm-common code where the \udq{} functionality is implemented is totally
+unaware of parallel execution, so to be certain that this works for a parallel
+simulator care must be taken. In flow this is handled as:
+\begin{enumerate}
+  \item The \inlinecode{Schedule} class as a whole is identical on all
+    processes.
+  \item The state variables \inlinecode{UDQState} and \inlinecode{SummaryState}
+    are distributed so they are equal on all processes before the \udq{}
+    evaluation. This communication is performed in the simulator.
+\end{enumerate}
+The \udq{} evaluation is invoked from
+\path{opm-simulators/ebos/eclgenericwriter.cc} function
+\inlinecode{evalSummary()}.
+
+
+

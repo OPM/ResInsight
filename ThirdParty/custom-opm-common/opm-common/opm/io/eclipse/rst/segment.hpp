@@ -20,9 +20,10 @@
 #define RST_SEGMENT
 
 #include <vector>
+#include <algorithm>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/icd.hpp>
+#include <opm/input/eclipse/Schedule/MSW/Segment.hpp>
+#include <opm/input/eclipse/Schedule/MSW/icd.hpp>
 
 namespace Opm {
 class UnitSystem;

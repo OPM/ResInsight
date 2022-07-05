@@ -1,0 +1,21 @@
+{
+  "name": "TEMPVD",
+  "sections": [
+    "PROPS"
+  ],
+  "prohibits": [
+    "RTEMPVD"
+  ],
+  "items": [
+    {
+      "name": "DEPTH",
+      "value_type": "DOUBLE",
+      "dimension": "Length"
+    },
+    {
+      "name": "TEMP",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature"
+    }
+  ]
+}

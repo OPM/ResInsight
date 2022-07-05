@@ -23,136 +23,141 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/common/utility/FileSystem.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/RestartConfig.hpp>
+#include <filesystem>
+#include <fstream>
+#include <iostream>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/EclipseState/IOConfig/IOConfig.hpp>
+
+#include "tests/WorkArea.hpp"
+namespace fs = std::filesystem;
 
 using namespace Opm;
 
-const std::string& deckStr =  "RUNSPEC\n"
-                              "\n"
-                              "DIMENS\n"
-                              " 10 10 10 /\n"
-                              "GRID\n"
-                              "GRIDFILE\n"
-                              " 0 1 /\n"
-                              "\n"
-                              "START\n"
-                              " 21 MAY 1981 /\n"
-                              "\n"
-                              "SCHEDULE\n"
-                              "DATES\n"
-                              " 22 MAY 1981 /\n"              // timestep 1
-                              " 23 MAY 1981 /\n"              // timestep 2
-                              " 24 MAY 1981 /\n"              // timestep 3
-                              " 25 MAY 1981 /\n"              // timestep 4
-                              " 26 MAY 1981 /\n"              // timestep 5
-                              " 1 JAN 1982 /\n"               // timestep 6
-                              " 1 JAN 1982 13:55:44 /\n"      // timestep 7
-                              " 3 JAN 1982 14:56:45.123 /\n"  // timestep 8
-                              " 4 JAN 1982 14:56:45.123 /\n"  // timestep 9
-                              " 5 JAN 1982 14:56:45.123 /\n"  // timestep 10
-                              " 6 JAN 1982 14:56:45.123 /\n"  // timestep 11
-                              " 7 JAN 1982 14:56:45.123 /\n"  // timestep 12
-                              " 8 JAN 1982 14:56:45.123 /\n"  // timestep 13
-                              " 9 JAN 1982 14:56:45.123 /\n"  // timestep 14
-                              " 10 JAN 1982 14:56:45.123 /\n" // timestep 15
-                              " 11 JAN 1982 14:56:45.123 /\n" // timestep 16
-                              " 1 JAN 1983 /\n"               // timestep 17
-                              " 2 JAN 1983 /\n"               // timestep 18
-                              " 3 JAN 1983 /\n"               // timestep 19
-                              " 1 JAN 1984 /\n"               // timestep 20
-                              " 2 JAN 1984 /\n"               // timestep 21
-                              " 1 JAN 1985 /\n"               // timestep 22
-                              " 3 JAN 1986 14:56:45.123 /\n"  // timestep 23
-                              " 4 JAN 1986 14:56:45.123 /\n"  // timestep 24
-                              " 5 JAN 1986 14:56:45.123 /\n"  // timestep 25
-                              " 1 JAN 1987 /\n"               // timestep 26
-                              " 1 JAN 1988 /\n"               // timestep 27
-                              " 2 JAN 1988 /\n"               // timestep 28
-                              " 3 JAN 1988 /\n"               // timestep 29
-                              " 1 JAN 1989 /\n"               // timestep 30
-                              " 2 JAN 1989 /\n"               // timestep 31
-                              " 2 JAN 1990 /\n"               // timestep 32
-                              " 2 JAN 1991 /\n"               // timestep 33
-                              " 3 JAN 1991 /\n"               // timestep 34
-                              " 4 JAN 1991 /\n"               // timestep 35
-                              " 1 JAN 1992 /\n"               // timestep 36
-                              " 1 FEB 1992 /\n"               // timestep 37
-                              " 1 MAR 1992 /\n"               // timestep 38
-                              " 2 MAR 1992 /\n"               // timestep 39
-                              " 3 MAR 1992 /\n"               // timestep 40
-                              " 4 MAR 1992 /\n"               // timestep 41
-                              " 1 APR 1992 /\n"               // timestep 42
-                              " 2 APR 1992 /\n"               // timestep 43
-                              " 1 MAY 1992 /\n"               // timestep 44
-                              " 2 MAY 1992 /\n"               // timestep 45
-                              " 3 MAY 1992 /\n"               // timestep 46
-                              " 3 JUN 1992 /\n"               // timestep 47
-                              " 3 JUL 1992 /\n"               // timestep 48
-                              " 3 AUG 1992 /\n"               // timestep 49
-                              " 4 AUG 1992 /\n"               // timestep 50
-                              " 5 AUG 1992 /\n"               // timestep 51
-                              " 6 AUG 1992 /\n"               // timestep 52
-                              " 7 AUG 1992 /\n"               // timestep 53
-                              " 8 AUG 1992 /\n"               // timestep 54
-                              " 9 AUG 1992 /\n"               // timestep 55
-                              " 10 AUG 1992 /\n"              // timestep 56
-                              " 11 AUG 1992 /\n"              // timestep 57
-                              " 12 AUG 1992 /\n"              // timestep 58
-                              " 13 AUG 1992 /\n"              // timestep 59
-                              " 14 AUG 1992 /\n"              // timestep 60
-                              " 15 AUG 1992 /\n"              // timestep 61
-                                                        "/\n"
-                                                        "\n";
+const std::string& deckStr =  R"(
+RUNSPEC
 
-const std::string deckStr_RFT = "RUNSPEC\n"
-                                "OIL\n"
-                                "GAS\n"
-                                "WATER\n"
-                                "DIMENS\n"
-                                " 10 10 10 /\n"
-                                "GRID\n"
-                                "DXV\n"
-                                "10*0.25 /\n"
-                                "DYV\n"
-                                "10*0.25 /\n"
-                                "DZV\n"
-                                "10*0.25 /\n"
-                                "TOPS\n"
-                                "100*0.25 /\n"
-                                "\n"
-                                 "START             -- 0 \n"
-                                "1 NOV 1979 / \n"
-                                "SCHEDULE\n"
-                                "DATES             -- 1\n"
-                                " 1 DES 1979/ \n"
-                                "/\n"
-                                "WELSPECS\n"
-                                "    'OP_1'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  / \n"
-                                "    'OP_2'       'OP'   4   4 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  / \n"
-                                "/\n"
-                                "COMPDAT\n"
-                                " 'OP_1'  9  9   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / \n"
-                                " 'OP_1'  9  9   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 / \n"
-                                " 'OP_1'  9  9   3  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / \n"
-                                " 'OP_2'  4  4   4  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 / \n"
-                                "/\n"
-                                "DATES             -- 2\n"
-                                " 10  OKT 2008 / \n"
-                                "/\n"
-                                "WRFT \n"
-                                "/ \n"
-                                "WELOPEN\n"
-                                " 'OP_1' OPEN / \n"
-                                " 'OP_2' OPEN / \n"
-                                "/\n"
-                                "DATES             -- 3\n"
-                                " 10  NOV 2008 / \n"
-                                "/\n";
+DIMENS
+ 10 10 10 /
+GRID
+GRIDFILE
+ 0 1 /
+
+START
+ 21 MAY 1981 /
+
+SCHEDULE
+DATES
+ 22 MAY 1981 /              -- timestep 1
+ 23 MAY 1981 /              -- timestep 2
+ 24 MAY 1981 /              -- timestep 3
+ 25 MAY 1981 /              -- timestep 4
+ 26 MAY 1981 /              -- timestep 5
+ 1 JAN 1982 /               -- timestep 6
+ 1 JAN 1982 13:55:44 /      -- timestep 7
+ 3 JAN 1982 14:56:45.123 /  -- timestep 8
+ 4 JAN 1982 14:56:45.123 /  -- timestep 9
+ 5 JAN 1982 14:56:45.123 /  -- timestep 10
+ 6 JAN 1982 14:56:45.123 /  -- timestep 11
+ 7 JAN 1982 14:56:45.123 /  -- timestep 12
+ 8 JAN 1982 14:56:45.123 /  -- timestep 13
+ 9 JAN 1982 14:56:45.123 /  -- timestep 14
+ 10 JAN 1982 14:56:45.123 / -- timestep 15
+ 11 JAN 1982 14:56:45.123 / -- timestep 16
+ 1 JAN 1983 /               -- timestep 17
+ 2 JAN 1983 /               -- timestep 18
+ 3 JAN 1983 /               -- timestep 19
+ 1 JAN 1984 /               -- timestep 20
+ 2 JAN 1984 /               -- timestep 21
+ 1 JAN 1985 /               -- timestep 22
+ 3 JAN 1986 14:56:45.123 /  -- timestep 23
+ 4 JAN 1986 14:56:45.123 /  -- timestep 24
+ 5 JAN 1986 14:56:45.123 /  -- timestep 25
+ 1 JAN 1987 /               -- timestep 26
+ 1 JAN 1988 /               -- timestep 27
+ 2 JAN 1988 /               -- timestep 28
+ 3 JAN 1988 /               -- timestep 29
+ 1 JAN 1989 /               -- timestep 30
+ 2 JAN 1989 /               -- timestep 31
+ 2 JAN 1990 /               -- timestep 32
+ 2 JAN 1991 /               -- timestep 33
+ 3 JAN 1991 /               -- timestep 34
+ 4 JAN 1991 /               -- timestep 35
+ 1 JAN 1992 /               -- timestep 36
+ 1 FEB 1992 /               -- timestep 37
+ 1 MAR 1992 /               -- timestep 38
+ 2 MAR 1992 /               -- timestep 39
+ 3 MAR 1992 /               -- timestep 40
+ 4 MAR 1992 /               -- timestep 41
+ 1 APR 1992 /               -- timestep 42
+ 2 APR 1992 /               -- timestep 43
+ 1 MAY 1992 /               -- timestep 44
+ 2 MAY 1992 /               -- timestep 45
+ 3 MAY 1992 /               -- timestep 46
+ 3 JUN 1992 /               -- timestep 47
+ 3 JUL 1992 /               -- timestep 48
+ 3 AUG 1992 /               -- timestep 49
+ 4 AUG 1992 /               -- timestep 50
+ 5 AUG 1992 /               -- timestep 51
+ 6 AUG 1992 /               -- timestep 52
+ 7 AUG 1992 /               -- timestep 53
+ 8 AUG 1992 /               -- timestep 54
+ 9 AUG 1992 /               -- timestep 55
+ 10 AUG 1992 /              -- timestep 56
+ 11 AUG 1992 /              -- timestep 57
+ 12 AUG 1992 /              -- timestep 58
+ 13 AUG 1992 /              -- timestep 59
+ 14 AUG 1992 /              -- timestep 60
+ 15 AUG 1992 /              -- timestep 61
+/)";
+
+const std::string deckStr_RFT = R"(
+RUNSPEC
+OIL
+GAS
+WATER
+DIMENS
+ 10 10 10 /
+GRID
+DXV
+10*0.25 /
+DYV
+10*0.25 /
+DZV
+10*0.25 /
+TOPS
+100*0.25 /
+
+"START             -- 0
+1 NOV 1979 /
+SCHEDULE
+DATES             -- 1
+ 1 DES 1979/
+/
+WELSPECS
+    'OP_1'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+    'OP_2'       'OP'   4   4 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+/
+COMPDAT
+ 'OP_1'  9  9   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+ 'OP_1'  9  9   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 /
+ 'OP_1'  9  9   3  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+ 'OP_2'  4  4   4  9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+/
+DATES             -- 2
+ 10  OKT 2008 /
+/
+WRFT
+/
+WELOPEN
+ 'OP_1' OPEN /
+ 'OP_2' OPEN /
+/
+DATES             -- 3
+ 10  NOV 2008 /
+/
+)";
 
 
 
@@ -160,39 +165,40 @@ const std::string deckStr_RFT = "RUNSPEC\n"
 
 
 BOOST_AUTO_TEST_CASE(DefaultProperties) {
-    const char* data =  "RUNSPEC\n"
-                        "DIMENS\n"
-                        " 10 10 10 /\n"
-                        "GRID\n"
-                        "START\n"
-                        " 21 MAY 1981 /\n"
-                        "\n"
-                        "SCHEDULE\n"
-                        "RPTRST\n"
-                        "'BASIC = 1'"
-                        "/\n"
-                        "DATES\n"
-                        " 22 MAY 1981 /\n"
-                        "/\n"
-                        "RPTSCHED\n"
-                        "RESTART=0\n"
-                        "/\n"
-                        "DATES\n"
-                        " 23 MAY 1981 /\n"
-                        " 24 MAY 1981 /\n"
-                        " 23 MAY 1982 /\n"
-                        " 24 MAY 1982 /\n"
-                        " 24 MAY 1983 /\n"
-                        " 25 MAY 1984 /\n"
-                        " 26 MAY 1984 /\n"
-                        " 26 MAY 1985 /\n"
-                        " 27 MAY 1985 /\n"
-                        " 1 JAN 1986 /\n"
-                       "/\n";
+    const char* data =  R"(
+RUNSPEC
+DIMENS
+ 10 10 10 /
+GRID
+START
+ 21 MAY 1981 /
+
+SCHEDULE
+RPTRST
+'BASIC = 1'
+/
+DATES
+ 22 MAY 1981 /
+/
+RPTSCHED
+RESTART=0
+/
+DATES
+ 23 MAY 1981 /
+ 24 MAY 1981 /
+ 23 MAY 1982 /
+ 24 MAY 1982 /
+ 24 MAY 1983 /
+ 25 MAY 1984 /
+ 26 MAY 1984 /
+ 26 MAY 1985 /
+ 27 MAY 1985 /
+ 1 JAN 1986 /
+/
+)";
 
     auto deck = Parser().parseString( data);
     IOConfig ioConfig( deck );
-    RestartConfig rstConfig( TimeMap(deck), deck);
 
     /*If no GRIDFILE nor NOGGF keywords are specified, default output an EGRID file*/
     BOOST_CHECK( ioConfig.getWriteEGRIDFile() );
@@ -209,20 +215,22 @@ BOOST_AUTO_TEST_CASE(DefaultProperties) {
 }
 
 BOOST_AUTO_TEST_CASE(OutputProperties) {
-    const char* data =  "RUNSPEC\n"
-                        "UNIFIN\n"
-                        "UNIFOUT\n"
-                        "FMTIN\n"
-                        "FMTOUT\n"
-                        "DIMENS\n"
-                        " 10 10 10 /\n"
-                        "GRID\n"
-                        "NOGGF\n"
-                        "INIT\n"
-                        "START\n"
-                        " 21 MAY 1981 /\n"
-                        "\n"
-                        "SCHEDULE\n";
+    const std::string data = R"(
+RUNSPEC
+UNIFIN
+UNIFOUT
+FMTIN
+FMTOUT
+DIMENS
+ 10 10 10 /
+GRID
+NOGGF
+INIT
+START
+ 21 MAY 1981 /
+
+SCHEDULE
+)";
 
 
     auto deck = Parser().parseString( data );
@@ -238,14 +246,15 @@ BOOST_AUTO_TEST_CASE(OutputProperties) {
 }
 
 BOOST_AUTO_TEST_CASE(NoGRIDFILE) {
-    const char* data =  "RUNSPEC\n"
-                        "\n"
-                        "DIMENS\n"
-                        "10 10 10 /\n"
-                        "GRID\n"
-                        "GRIDFILE\n"
-                        " 0 0 /\n"
-                        "\n";
+    const char* data =  R"(
+RUNSPEC
+
+DIMENS
+10 10 10 /
+GRID
+GRIDFILE
+ 0 0 /
+)";
 
     auto deck = Parser().parseString( data );
     IOConfig ioConfig( deck );
@@ -254,22 +263,36 @@ BOOST_AUTO_TEST_CASE(NoGRIDFILE) {
     BOOST_CHECK( !ioConfig.getWriteEGRIDFile() );
 }
 
+void touch_file(const fs::path& file) {
+    if (!fs::exists(file)) {
+        if (file.has_parent_path()) {
+            const auto& parent_path = file.parent_path();
+            if (!fs::is_directory(parent_path))
+                fs::create_directories(parent_path);
+        }
+        std::ofstream os{file};
+    }
+}
+
 BOOST_AUTO_TEST_CASE(OutputPaths) {
+    WorkArea wa;
 
     IOConfig config1( "" );
     BOOST_CHECK_EQUAL("", config1.getBaseName() );
 
     Deck deck2;
+    touch_file("testString.DATA");
     deck2.setDataFile( "testString.DATA" );
     IOConfig config2( deck2 );
     std::string output_dir2 =  ".";
     BOOST_CHECK_EQUAL( output_dir2,  config2.getOutputDir() );
     BOOST_CHECK_EQUAL( "TESTSTRING", config2.getBaseName() );
 
-    namespace fs = Opm::filesystem;
+    namespace fs = std::filesystem;
 
     Deck deck3;
-    deck3.setDataFile( "/path/to/testString.DATA" );
+    touch_file("path/to/testString.DATA");
+    deck3.setDataFile( "path/to/testString.DATA" );
     IOConfig config3( deck3 );
     std::string output_dir3 =  "/path/to";
     config3.setOutputDir( output_dir3 );

@@ -21,9 +21,13 @@ along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/N.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/M.hpp>
+
+#include <stdexcept>
 
 using namespace Opm;
 
@@ -53,7 +57,7 @@ BOOST_AUTO_TEST_CASE(TwoPhase) {
 
     Runspec runspec( deck );
     const auto& phases = runspec.phases();
-    BOOST_CHECK_EQUAL( 2, phases.size() );
+    BOOST_CHECK_EQUAL( 2U, phases.size() );
     BOOST_CHECK(  phases.active( Phase::OIL ) );
     BOOST_CHECK( !phases.active( Phase::GAS ) );
     BOOST_CHECK(  phases.active( Phase::WATER ) );
@@ -79,7 +83,7 @@ BOOST_AUTO_TEST_CASE(ThreePhase) {
 
     Runspec runspec( deck );
     const auto& phases = runspec.phases();
-    BOOST_CHECK_EQUAL( 3, phases.size() );
+    BOOST_CHECK_EQUAL( 3U, phases.size() );
     BOOST_CHECK( phases.active( Phase::OIL ) );
     BOOST_CHECK( phases.active( Phase::GAS ) );
     BOOST_CHECK( phases.active( Phase::WATER ) );
@@ -103,12 +107,12 @@ BOOST_AUTO_TEST_CASE(TABDIMS) {
 
     Runspec runspec( deck );
     const auto& tabdims = runspec.tabdims();
-    BOOST_CHECK_EQUAL( tabdims.getNumSatTables( ) , 1 );
-    BOOST_CHECK_EQUAL( tabdims.getNumPVTTables( ) , 1 );
-    BOOST_CHECK_EQUAL( tabdims.getNumSatNodes( ) , 3 );
-    BOOST_CHECK_EQUAL( tabdims.getNumPressureNodes( ) , 20 );
-    BOOST_CHECK_EQUAL( tabdims.getNumFIPRegions( ) , 5 );
-    BOOST_CHECK_EQUAL( tabdims.getNumRSNodes( ) , 20 );
+    BOOST_CHECK_EQUAL( tabdims.getNumSatTables( ) , 1U );
+    BOOST_CHECK_EQUAL( tabdims.getNumPVTTables( ) , 1U );
+    BOOST_CHECK_EQUAL( tabdims.getNumSatNodes( ) , 3U );
+    BOOST_CHECK_EQUAL( tabdims.getNumPressureNodes( ) , 20U );
+    BOOST_CHECK_EQUAL( tabdims.getNumFIPRegions( ) , 5U );
+    BOOST_CHECK_EQUAL( tabdims.getNumRSNodes( ) , 20U );
 }
 
 BOOST_AUTO_TEST_CASE( EndpointScalingWithoutENDSCALE ) {
@@ -126,7 +130,71 @@ BOOST_AUTO_TEST_CASE( EndpointScalingWithoutENDSCALE ) {
     BOOST_CHECK( !endscale.irreversible() );
 }
 
+BOOST_AUTO_TEST_CASE ( EndpointScalingWithoutENDSCALE_WithEPSProps ) {
+    const auto deck = Parser{}.parseString(R"(RUNSPEC
+DIMENS
+10 10 3/
 
+PROPS
+SWL
+300*0.125 /
+END
+)");
+
+    const auto endscale = Runspec { deck }.endpointScaling();
+
+    BOOST_CHECK_MESSAGE( static_cast<bool>(endscale),
+                         "End-point scaling must be activated by SWL keyword");
+
+    BOOST_CHECK_MESSAGE( !endscale.directional(),
+                         "Directional end-point scaling must NOT "
+                         "be activated by SWL keyword" );
+
+    BOOST_CHECK_MESSAGE( endscale.nondirectional(),
+                         "Non-directional end-point scaling must "
+                         "be activated by SWL keyword" );
+
+    BOOST_CHECK_MESSAGE( endscale.reversible(),
+                         "Reversible nend-point scaling must "
+                         "be activated by SWL keyword" );
+
+    BOOST_CHECK_MESSAGE( !endscale.irreversible(),
+                         "Irreversible end-point scaling must NOT "
+                         "be activated by SWL keyword" );
+}
+
+BOOST_AUTO_TEST_CASE ( EndpointScalingWithoutENDSCALE_WithVertProps ) {
+    const auto deck = Parser{}.parseString(R"(RUNSPEC
+DIMENS
+10 10 3/
+
+PROPS
+KRORW
+300*0.25 /
+END
+)");
+
+    const auto endscale = Runspec { deck }.endpointScaling();
+
+    BOOST_CHECK_MESSAGE( static_cast<bool>(endscale),
+                         "End-point scaling must be activated by KRORW keyword");
+
+    BOOST_CHECK_MESSAGE( !endscale.directional(),
+                         "Directional end-point scaling must NOT "
+                         "be activated by KRORW keyword" );
+
+    BOOST_CHECK_MESSAGE( endscale.nondirectional(),
+                         "Non-directional end-point scaling must "
+                         "be activated by KRORW keyword" );
+
+    BOOST_CHECK_MESSAGE( endscale.reversible(),
+                         "Reversible nend-point scaling must "
+                         "be activated by KRORW keyword" );
+
+    BOOST_CHECK_MESSAGE( !endscale.irreversible(),
+                         "Irreversible end-point scaling must NOT "
+                         "be activated by KRORW keyword" );
+}
 
 BOOST_AUTO_TEST_CASE( EndpointScalingDefaulted ) {
     const std::string input = R"(
@@ -461,6 +529,79 @@ WSEGDIMS
     BOOST_CHECK_EQUAL(wsd.maxLateralBranchesPerWell(), 33); // WSEGDIMS(3)
 }
 
+BOOST_AUTO_TEST_CASE(AQUDIMS_FullSpec)
+{
+    const auto input = std::string {
+        R"(
+RUNSPEC
+
+AQUDIMS
+-- 1 2 3 4 5 6 7  8
+   3 4 5 6 7 8 9 10 /
+)" };
+
+    const auto ad = AquiferDimensions {
+        Parser{}.parseString(input)
+    };
+
+    BOOST_CHECK_EQUAL(ad.maxAnalyticAquifers(), 7);           // AQUDIMS(5)
+    BOOST_CHECK_EQUAL(ad.maxAnalyticAquiferConnections(), 8); // AQUDIMS(6)
+}
+
+BOOST_AUTO_TEST_CASE(AQUDIMS_AllDefaulted)
+{
+    const auto input = std::string {
+        R"(
+RUNSPEC
+
+AQUDIMS
+/
+)" };
+
+    const auto ad = AquiferDimensions {
+        Parser{}.parseString(input)
+    };
+
+    BOOST_CHECK_EQUAL(ad.maxAnalyticAquifers(), 1);           // AQUDIMS(5): Default = 1
+    BOOST_CHECK_EQUAL(ad.maxAnalyticAquiferConnections(), 1); // AQUDIMS(6): Default = 1
+}
+
+BOOST_AUTO_TEST_CASE(AQUDIMS_MaxAnalyticAquifers)
+{
+    const auto input = std::string {
+        R"(
+RUNSPEC
+
+AQUDIMS
+-- 1 2 3 4 5
+   4*      1729 /
+)" };
+
+    const auto ad = AquiferDimensions {
+        Parser{}.parseString(input)
+    };
+
+    BOOST_CHECK_EQUAL(ad.maxAnalyticAquifers(), 1729); // AQUDIMS(5)
+}
+
+BOOST_AUTO_TEST_CASE(AQUDIMS_MaxAnalyticAquiferConnections)
+{
+    const auto input = std::string {
+        R"(
+RUNSPEC
+
+AQUDIMS
+-- 1 2 3 4 5 6
+   5*        42 /
+)" };
+
+    const auto ad = AquiferDimensions {
+        Parser{}.parseString(input)
+    };
+
+    BOOST_CHECK_EQUAL(ad.maxAnalyticAquiferConnections(), 42); // AQUDIMS(6)
+}
+
 BOOST_AUTO_TEST_CASE( SWATINIT ) {
     const std::string input = R"(
     SWATINIT
@@ -477,6 +618,181 @@ BOOST_AUTO_TEST_CASE( SWATINIT ) {
 
 }
 
+BOOST_AUTO_TEST_CASE(SatFunc_Family)
+{
+    {
+        const auto deck = ::Opm::Parser{}.parseString(R"(RUNSPEC
+OIL
+GAS
+
+TABDIMS
+/
+
+PROPS
+
+END
+)");
+
+        const auto rspec = ::Opm::Runspec{deck};
+        const auto sfctrl = rspec.saturationFunctionControls();
+
+        BOOST_CHECK_MESSAGE(sfctrl.family() == ::Opm::SatFuncControls::KeywordFamily::Undefined,
+                            "SatFuncControl Deck-constructor must infer Undefined when Tables missing");
+    }
+
+    {
+        const auto sfctrl = ::Opm::SatFuncControls{};
+        BOOST_CHECK_MESSAGE(sfctrl.family() == ::Opm::SatFuncControls::KeywordFamily::Undefined,
+                            "Default-constructed SatFuncControl must have Undefined keyword family");
+    }
+
+    {
+        const auto sfctrl = ::Opm::SatFuncControls{ 5.0e-7, ::Opm::SatFuncControls::ThreePhaseOilKrModel::Default, ::Opm::SatFuncControls::KeywordFamily::Family_II };
+        BOOST_CHECK_MESSAGE(sfctrl.family() == ::Opm::SatFuncControls::KeywordFamily::Family_II,
+                            "SatFuncControl constructor must assign keyword family");
+    }
+
+    {
+        const auto deck = ::Opm::Parser{}.parseString(R"(RUNSPEC
+OIL
+GAS
+WATER
+
+TABDIMS
+/
+
+PROPS
+
+SWOF
+0 0 1 0
+1 1 0 0 /
+
+SGOF
+0 0 1 0
+1 1 0 0 /
+END
+)");
+
+        const auto rspec = ::Opm::Runspec{deck};
+        const auto sfctrl = rspec.saturationFunctionControls();
+
+        BOOST_CHECK_MESSAGE(sfctrl.family() == ::Opm::SatFuncControls::KeywordFamily::Family_I,
+                            "SatFuncControl Deck-constructor must infer Family I from SWOF/SGOF");
+    }
+
+    {
+        const auto deck = ::Opm::Parser{}.parseString(R"(RUNSPEC
+OIL
+WATER
+
+TABDIMS
+/
+
+PROPS
+
+SWOF
+0 0 1 0
+1 1 0 0 /
+END
+)");
+
+        const auto rspec = ::Opm::Runspec{deck};
+        const auto sfctrl = rspec.saturationFunctionControls();
+
+        BOOST_CHECK_MESSAGE(sfctrl.family() == ::Opm::SatFuncControls::KeywordFamily::Family_I,
+                            "SatFuncControl Deck-constructor must infer Family I from SWOF");
+    }
+
+    {
+        const auto deck = ::Opm::Parser{}.parseString(R"(RUNSPEC
+OIL
+GAS
+WATER
+
+TABDIMS
+/
+
+PROPS
+
+SWOF
+0 0 1 0
+1 1 0 0 /
+
+SLGOF
+0 0 1 0
+1 1 0 0 /
+END
+)");
+
+        const auto rspec = ::Opm::Runspec{deck};
+        const auto sfctrl = rspec.saturationFunctionControls();
+
+        BOOST_CHECK_MESSAGE(sfctrl.family() == ::Opm::SatFuncControls::KeywordFamily::Family_I,
+                            "SatFuncControl Deck-constructor must infer Family I from SWOF/SLGOF");
+    }
+
+    {
+        const auto deck = ::Opm::Parser{}.parseString(R"(RUNSPEC
+OIL
+GAS
+WATER
+
+TABDIMS
+/
+
+PROPS
+
+SWFN
+0 0 0
+1 1 0 /
+
+SGFN
+0 0 0
+1 1 0 /
+
+SOF3
+0 0 0
+1 1 1 /
+
+END
+)");
+
+        const auto rspec = ::Opm::Runspec{deck};
+        const auto sfctrl = rspec.saturationFunctionControls();
+
+        BOOST_CHECK_MESSAGE(sfctrl.family() == ::Opm::SatFuncControls::KeywordFamily::Family_II,
+                            "SatFuncControl Deck-constructor must infer Family II from SWFN/SGFN/SOF3");
+    }
+
+    {
+        const auto deck = ::Opm::Parser{}.parseString(R"(RUNSPEC
+OIL
+GAS
+
+TABDIMS
+/
+
+PROPS
+
+SGFN
+0 0 0
+1 1 0 /
+
+SOF2
+0 0
+1 1 /
+
+END
+)");
+
+        const auto rspec = ::Opm::Runspec{deck};
+        const auto sfctrl = rspec.saturationFunctionControls();
+
+        BOOST_CHECK_MESSAGE(sfctrl.family() == ::Opm::SatFuncControls::KeywordFamily::Family_II,
+                            "SatFuncControl Deck-constructor must infer Family II from SGFN/SOF2");
+    }
+}
+
 BOOST_AUTO_TEST_CASE(TolCrit)
 {
     {
@@ -487,7 +803,7 @@ BOOST_AUTO_TEST_CASE(TolCrit)
     }
 
     {
-        const auto sfctrl = ::Opm::SatFuncControls{ 5.0e-7, ::Opm::SatFuncControls::ThreePhaseOilKrModel::Default };
+        const auto sfctrl = ::Opm::SatFuncControls{ 5.0e-7, ::Opm::SatFuncControls::ThreePhaseOilKrModel::Default, ::Opm::SatFuncControls::KeywordFamily::Family_II };
         BOOST_CHECK_CLOSE(sfctrl.minimumRelpermMobilityThreshold(), 5.0e-7, 1.0e-10);
         BOOST_CHECK_MESSAGE(!(sfctrl == ::Opm::SatFuncControls{}),
                             "Default-constructed SatFuncControl must NOT equal non-default");
@@ -541,7 +857,7 @@ BOOST_AUTO_TEST_CASE(Solvent) {
 
     Runspec runspec( deck );
     const auto& phases = runspec.phases();
-    BOOST_CHECK_EQUAL( 4, phases.size() );
+    BOOST_CHECK_EQUAL( 4U, phases.size() );
     BOOST_CHECK( phases.active( Phase::OIL ) );
     BOOST_CHECK( phases.active( Phase::GAS ) );
     BOOST_CHECK( phases.active( Phase::WATER ) );
@@ -566,7 +882,7 @@ BOOST_AUTO_TEST_CASE(Polymer) {
 
     Runspec runspec( deck );
     const auto& phases = runspec.phases();
-    BOOST_CHECK_EQUAL( 4, phases.size() );
+    BOOST_CHECK_EQUAL( 4U, phases.size() );
     BOOST_CHECK( phases.active( Phase::OIL ) );
     BOOST_CHECK( phases.active( Phase::GAS ) );
     BOOST_CHECK( phases.active( Phase::WATER ) );
@@ -591,7 +907,7 @@ BOOST_AUTO_TEST_CASE(PolymerMolecularWeight) {
 
     Runspec runspec( deck );
     const auto& phases = runspec.phases();
-    BOOST_CHECK_EQUAL( 4, phases.size() );
+    BOOST_CHECK_EQUAL( 4U, phases.size() );
     BOOST_CHECK( phases.active( Phase::OIL ) );
     BOOST_CHECK( !phases.active( Phase::GAS ) );
     BOOST_CHECK( phases.active( Phase::WATER ) );
@@ -615,7 +931,7 @@ BOOST_AUTO_TEST_CASE(Foam) {
 
     Runspec runspec( deck );
     const auto& phases = runspec.phases();
-    BOOST_CHECK_EQUAL( 4, phases.size() );
+    BOOST_CHECK_EQUAL( 4U, phases.size() );
     BOOST_CHECK( phases.active( Phase::OIL ) );
     BOOST_CHECK( phases.active( Phase::GAS ) );
     BOOST_CHECK( phases.active( Phase::WATER ) );
@@ -623,7 +939,7 @@ BOOST_AUTO_TEST_CASE(Foam) {
 
     // not in deck - default constructor.
     const auto& actdims = runspec.actdims();
-    BOOST_CHECK_EQUAL(actdims.max_keywords(), 2);
+    BOOST_CHECK_EQUAL(actdims.max_keywords(), 2U);
 }
 
 BOOST_AUTO_TEST_CASE(ACTDIMS) {
@@ -638,6 +954,54 @@ BOOST_AUTO_TEST_CASE(ACTDIMS) {
 
     Runspec runspec( deck );
     const auto& actdims = runspec.actdims();
-    BOOST_CHECK_EQUAL(actdims.max_keywords(), 2);
-    BOOST_CHECK_EQUAL(actdims.max_conditions(), 14);
+    BOOST_CHECK_EQUAL(actdims.max_keywords(), 2U);
+    BOOST_CHECK_EQUAL(actdims.max_conditions(), 14U);
 }
+
+BOOST_AUTO_TEST_CASE(Co2Storage) {
+    const std::string input = R"(
+    RUNSPEC
+    OIL
+    GAS
+    CO2STORE
+    )";
+
+    Parser parser;
+
+    auto deck = parser.parseString(input);
+
+    Runspec runspec( deck );
+    const auto& phases = runspec.phases();
+    BOOST_CHECK_EQUAL( 2U, phases.size() );
+    BOOST_CHECK( phases.active( Phase::OIL ) );
+    BOOST_CHECK( phases.active( Phase::GAS ) );
+    BOOST_CHECK( runspec.co2Storage() );
+
+
+}
+
+BOOST_AUTO_TEST_CASE(NUPCOL_DEFAULT) {
+    Nupcol np;
+    auto default_value = ParserKeywords::NUPCOL::NUM_ITER::defaultValue;
+    auto min_value = ParserKeywords::MINNPCOL::VALUE::defaultValue;
+    if (default_value > min_value)
+        BOOST_CHECK_EQUAL(np.value(), default_value);
+    else
+        BOOST_CHECK_EQUAL(np.value(), min_value);
+}
+
+
+BOOST_AUTO_TEST_CASE(NUPCOL) {
+    const int min_value = 3;
+    Nupcol np(min_value);
+    BOOST_CHECK_EQUAL(np.value(), ParserKeywords::NUPCOL::NUM_ITER::defaultValue);
+
+    auto above = min_value + 1;
+    auto below = min_value - 1;
+    np.update(above);
+    BOOST_CHECK_EQUAL(np.value(), above);
+
+    np.update(below);
+    BOOST_CHECK_EQUAL(np.value(), min_value);
+}
+

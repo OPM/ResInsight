@@ -74,6 +74,10 @@ WOIR
 /
 WOIT
 /
+WEFF
+/
+WEFFG
+/
 
 GOPR
 /
@@ -88,6 +92,19 @@ GWCT
 GGOR
 /
 
+GOPP
+/
+GWPP
+/
+GGPP
+/
+GGPI
+/
+GWPI
+/
+GEFF
+/
+
 FOPR
 
 FOPT
@@ -96,12 +113,36 @@ FOIR
 
 FOIT
 
+FOPP
+FWPP
+FGPP
+FGPI
+FWPI
+
 COPR
 'W_2' /
 /
 
 COPT
 'W_2' /
+/
+
+CVPR
+  'W_2' 2 1 1 /
+  'W_2' 2 1 2 /
+  'W_3' /
+/
+
+CVPT
+  'W_1' /
+  'W_2' 2 1 1 /
+  'W_2' 2 1 2 /
+  'W_3' 3 1 1 /
+/
+
+CGOR
+  'W_1' /
+  'W_3' /
 /
 
 SCHEDULE
@@ -143,7 +184,7 @@ COMPDAT
    W_1 0 0 1 1 /   -- Active index: 0
    W_2 0 0 1 1 /   -- Active index: 1
    W_2 0 0 2 2 /   -- Active index: 101
-   W_3 0 0 1 1 /   -- Active index: 2
+   W_3 3 1 1 1 /   -- Active index: 2
 /
 
 TSTEP

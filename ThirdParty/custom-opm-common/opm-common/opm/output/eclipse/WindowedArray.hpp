@@ -79,6 +79,11 @@ namespace Opm { namespace RestartIO { namespace Helpers {
                 throw std::invalid_argument("Window array with windowsize==0 is not permitted");
         }
 
+        WindowedArray(const WindowedArray& rhs) = default;
+        WindowedArray(WindowedArray&& rhs) = default;
+        WindowedArray& operator=(const WindowedArray& rhs) = delete;
+        WindowedArray& operator=(WindowedArray&& rhs) = default;
+
         /// Retrieve number of windows allocated for this array.
         Idx numWindows() const
         {

@@ -26,8 +26,9 @@
 
 #include <opm/output/eclipse/RestartValue.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
+#include <opm/output/eclipse/AggregateAquiferData.hpp>
 
+#include <optional>
 #include <string>
 #include <utility>
 #include <vector>
@@ -37,6 +38,9 @@ namespace Opm {
     class EclipseGrid;
     class EclipseState;
     class Schedule;
+    class UDQState;
+    class SummaryState;
+    class WellTestState;
 
 } // namespace Opm
 
@@ -45,6 +49,12 @@ namespace Opm { namespace EclIO { namespace OutputStream {
     class Restart;
 
 }}}
+
+namespace Opm { namespace Action {
+
+    class State;
+
+}}
 
 /*
   The two free functions RestartIO::save() and RestartIO::load() can
@@ -69,19 +79,24 @@ namespace Opm { namespace EclIO { namespace OutputStream {
 */
 namespace Opm { namespace RestartIO {
 
-    void save(EclIO::OutputStream::Restart& rstFile,
-              int                           report_step,
-              double                        seconds_elapsed,
-              RestartValue                  value,
-              const EclipseState&           es,
-              const EclipseGrid&            grid,
-              const Schedule&               schedule,
-              const SummaryState&           sumState,
-              bool                          write_double = false);
+    void save(EclIO::OutputStream::Restart&                 rstFile,
+              int                                           report_step,
+              double                                        seconds_elapsed,
+              RestartValue                                  value,
+              const EclipseState&                           es,
+              const EclipseGrid&                            grid,
+              const Schedule&                               schedule,
+              const Action::State&                          action_state,
+              const WellTestState&                          wtest_state,
+              const SummaryState&                           sumState,
+              const UDQState&                               udqState,
+              std::optional<Helpers::AggregateAquiferData>& aquiferData,
+              bool                                          write_double = false);
 
 
     RestartValue load(const std::string&             filename,
                       int                            report_step,
+                      Action::State&                 action_state,
                       SummaryState&                  summary_state,
                       const std::vector<RestartKey>& solution_keys,
                       const EclipseState&            es,

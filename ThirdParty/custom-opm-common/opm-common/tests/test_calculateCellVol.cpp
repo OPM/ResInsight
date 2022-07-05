@@ -22,7 +22,6 @@
 
 #define BOOST_TEST_MODULE CubicTest
 #include <boost/test/unit_test.hpp>
-#include <boost/test/floating_point_comparison.hpp>
 
 /* --- our own headers --- */
 #include <opm/common/utility/numeric/calculateCellVol.hpp>
@@ -58,6 +57,26 @@ BOOST_AUTO_TEST_CASE (calc_cellvol)
     BOOST_REQUIRE_CLOSE (calculateCellVol(x2,y2,z2), 15766.9187847524, 1e-9);
     BOOST_REQUIRE_CLOSE (calculateCellVol(x3,y3,z3), 3268.8819007839, 1e-9);
     BOOST_REQUIRE_CLOSE (calculateCellVol(x4,y4,z4), 23391.4917234564, 1e-9);
+}
+
+BOOST_AUTO_TEST_CASE (calc_cellvol_cylindric)
+{
+  {
+    double r_inner = 0.0, r_outer = 1.0, delta_theta = 360.0, delta_z = 1.0;
+    BOOST_REQUIRE_CLOSE(calculateCylindricalCellVol(r_inner, r_outer, delta_theta, delta_z), M_PI, 1e-9);
+  }
+  {
+    double r_inner = 1.0, r_outer = 2.0, delta_theta = 360.0, delta_z = 1.0;
+    BOOST_REQUIRE_CLOSE(calculateCylindricalCellVol(r_inner, r_outer, delta_theta, delta_z), 3.0 * M_PI, 1e-9);
+  }
+  {
+    double r_inner = 1.0, r_outer = 2.0, delta_theta = 120.0, delta_z = 1.0;
+    BOOST_REQUIRE_CLOSE(calculateCylindricalCellVol(r_inner, r_outer, delta_theta, delta_z), M_PI, 1e-9);
+  }
+  {
+    double r_inner = 1.0, r_outer = 2.0, delta_theta = 120.0, delta_z = 1.5;
+    BOOST_REQUIRE_CLOSE(calculateCylindricalCellVol(r_inner, r_outer, delta_theta, delta_z), 1.5 * M_PI, 1e-9);
+  }
 }
 
 BOOST_AUTO_TEST_SUITE_END()

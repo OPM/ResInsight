@@ -118,7 +118,7 @@ std::vector<EclFile::EclEntry> ERst::listOfRstArrays(int reportStepNumber, const
     int start_ind_lgr;
     std::string last_array_name;
 
-    if ((lgr_name == "") or (lgr_name_upper == "GLOBAL")){
+    if (lgr_name.empty()  || lgr_name_upper == "GLOBAL"){
         auto rng = this->arrIndexRange.at(reportStepNumber);
         start_ind_lgr = std::get<0>(rng);
 
@@ -282,6 +282,25 @@ std::tuple<int,int> ERst::getIndexRange(int reportStepNumber) const {
 
     return range_it->second;
 }
+
+bool  ERst::hasArray(const std::string& name, int number) const
+{
+    if (!hasReportStepNumber(number))
+        return false;
+
+    auto range_it = arrIndexRange.find(number);
+
+    std::pair<int,int> indexRange = range_it->second;
+
+    auto it = std::find(array_name.begin() + indexRange.first,
+                        array_name.begin() + indexRange.second, name);
+
+    if (std::distance(array_name.begin(), it) == indexRange.second)
+        return false;
+
+    return true;
+}
+
 
 int ERst::getArrayIndex(const std::string& name, int number, int occurrenc)
 {

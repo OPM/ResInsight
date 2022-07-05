@@ -17,6 +17,7 @@
 */
 
 
+#include <algorithm>
 #include <fstream>
 #include <string>
 #include <cmath>
@@ -30,6 +31,7 @@
 #include <opm/common/utility/String.hpp>
 #include <opm/common/utility/numeric/cmp.hpp>
 #include <opm/common/utility/TimeService.hpp>
+#include <opm/output/eclipse/WStat.hpp>
 
 namespace Opm {
 namespace EclIO {
@@ -139,6 +141,20 @@ std::vector<double> make_multiplier(std::deque<std::string>& lines) {
 
     return multiplier;
 }
+
+double convert_wstat(const std::string& symbolic_wstat) {
+    static const std::unordered_map<std::string, int> wstat_map = {
+        {Opm::WStat::symbolic::UNKNOWN, Opm::WStat::numeric::UNKNOWN},
+        {Opm::WStat::symbolic::PROD,    Opm::WStat::numeric::PROD},
+        {Opm::WStat::symbolic::INJ,     Opm::WStat::numeric::INJ},
+        {Opm::WStat::symbolic::SHUT,    Opm::WStat::numeric::SHUT},
+        {Opm::WStat::symbolic::STOP,    Opm::WStat::numeric::STOP},
+        {Opm::WStat::symbolic::PSHUT,   Opm::WStat::numeric::PSHUT},
+        {Opm::WStat::symbolic::PSTOP,   Opm::WStat::numeric::PSTOP},
+    };
+    return static_cast<double>(wstat_map.at(symbolic_wstat));
+}
+
 }
 
 void ERsm::load_block(std::deque<std::string>& lines, std::size_t& vector_length) {
@@ -177,7 +193,9 @@ void ERsm::load_block(std::deque<std::string>& lines, std::size_t& vector_length
                                  SummaryNode::Type::Undefined,
                                  wgnames[kw_index],
                                  make_num(nums_list[kw_index]),
-                                 ""};
+                                 "",
+                                 {}
+        };
         block_data.emplace_back( node, vector_length );
     }
 
@@ -191,7 +209,12 @@ void ERsm::load_block(std::deque<std::string>& lines, std::size_t& vector_length
 
         auto data_row = split_line(pop_return(lines));
         for (std::size_t data_index = 0; data_index < num_rows; data_index++) {
-            double value = std::stod(data_row[data_index + 1]) * mult_list[data_index + 1];
+            const auto& keyword = kw_list[data_index + 1];
+            double value;
+            if (keyword == "WSTAT")
+                value = convert_wstat(data_row[data_index + 1]);
+            else
+                value = std::stod(data_row[data_index + 1]) * mult_list[data_index + 1];
             block_data[data_index].data.push_back(value);
         }
 
@@ -267,17 +290,17 @@ bool cmp(const ESmry& smry, const ERsm& rsm) {
             const auto rsm_ts = rsm_dates[time_index];
 
             if (smry_ts.year() != rsm_ts.year()) {
-                fmt::print(stderr, "time_index: {}  summary.year: {}   rsm.year: {}", time_index, smry_ts.year(), rsm_ts.year());
+                fmt::print(stderr, "time_index: {}  summary.year: {}   rsm.year: {}\n", time_index, smry_ts.year(), rsm_ts.year());
                 return false;
             }
 
             if (smry_ts.month() != rsm_ts.month()) {
-                fmt::print(stderr, "time_index: {}  summary.month: {}   rsm.month: {}", time_index, smry_ts.month(), rsm_ts.month());
+                fmt::print(stderr, "time_index: {}  summary.month: {}   rsm.month: {}\n", time_index, smry_ts.month(), rsm_ts.month());
                 return false;
             }
 
             if (smry_ts.day() != rsm_ts.day()) {
-                fmt::print(stderr, "time_index: {}  summary.day: {}   rsm.day: {}", time_index, smry_ts.day(), rsm_ts.day());
+                fmt::print(stderr, "time_index: {}  summary.day: {}   rsm.day: {}\n", time_index, smry_ts.day(), rsm_ts.day());
                 return false;
             }
         }
@@ -287,10 +310,10 @@ bool cmp(const ESmry& smry, const ERsm& rsm) {
             return false;
 
         for (std::size_t time_index = 0; time_index < rsm_days.size(); time_index++) {
-            auto smry_days = std::chrono::duration_cast<std::chrono::seconds>(summary_dates[time_index] - summary_dates[0]).count() / 86400.0 ;
+            auto smry_days = std::chrono::duration_cast<std::chrono::seconds>(summary_dates[time_index] - smry.startdate()).count() / 86400.0 ;
 
             if (!cmp::scalar_equal(smry_days, rsm_days[time_index])) {
-                fmt::print(stderr, "time_index: {}  summary.days: {}   rsm.days: {}", time_index, smry_days, rsm_days[time_index]);
+                fmt::print(stderr, "time_index: {}  summary.days: {}   rsm.days: {}\n", time_index, smry_days, rsm_days[time_index]);
                 return false;
             }
         }
@@ -320,13 +343,23 @@ bool cmp(const ESmry& smry, const ERsm& rsm) {
         const auto& smry_vector = smry.get(node);
         const auto& rsm_vector = rsm.get(key);
         for (std::size_t index = 0; index < smry_vector.size(); index++) {
-            const double eps  = 5e-5;
-            const double diff = static_cast<double>(smry_vector[index]) - rsm_vector[index];
-            const double sum = std::fabs(static_cast<double>(smry_vector[index])) + std::fabs(rsm_vector[index]);
+            const auto smry_value = static_cast<double>(smry_vector[index]);
+            const auto rsm_value = rsm_vector[index];
+            const double diff = std::fabs(smry_value - rsm_value);
+            if (std::fabs(rsm_value) < 1e-3) {
+                const double zero_eps = 1e-4;
+                if (diff > zero_eps) {
+                    fmt::print(stderr, "time_index: {}  key: {}  summary: {}   rsm: {}\n", index, key, smry_value, rsm_value);
+                    return false;
+                }
+            } else {
+                const double eps  = 5e-5;
+                const double sum = std::fabs(smry_value) + std::fabs(rsm_value);
 
-            if (diff > eps * sum) {
-                fmt::print(stderr, "time_index: {}  key: {}  summary: {}   rsm: {}", index, key, smry_vector[index], rsm_vector[index]);
-                return false;
+                if (diff > eps * std::max(1.0, sum)) {
+                    fmt::print(stderr, "time_index: {}  key: {}  summary: {}   rsm: {}\n", index, key, smry_value, rsm_value);
+                    return false;
+                }
             }
         }
     }

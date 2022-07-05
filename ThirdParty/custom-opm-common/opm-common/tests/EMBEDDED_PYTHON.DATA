@@ -34,6 +34,18 @@ PYACTION
   WCLOSE UNLIMITED /
   'wclose.py' /
 
+PYACTION
+  UNLIMITED UNLIMITED /
+  'wclose.py' /
+
+PYACTION
+  SINGLE SINGLE /
+  'wclose.py' /
+
+PYACTION
+  FIRST_TRUE FIRST_TRUE /
+  'wclose.py' /
+
 WELSPECS
 	'PROD1'	'G1'	10	10	8400	'OIL' /
 	'PROD2'	'G1'	5	  5	  8400	'OIL' /

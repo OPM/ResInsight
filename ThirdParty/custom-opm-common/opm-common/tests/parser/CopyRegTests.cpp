@@ -19,23 +19,18 @@
 
 #include <stdexcept>
 #include <iostream>
-#include <boost/filesystem.hpp>
 #include <cstdio>
 
 #define BOOST_TEST_MODULE CopyRegTests
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
-#include <opm/parser/eclipse/Deck/DeckSection.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
 
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableManager.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
 
 
 static Opm::Deck createDeckInvalidArray1() {

@@ -1,0 +1,83 @@
+{
+  "name": "WCONINJH",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "TYPE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 3,
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "item": 4,
+      "name": "RATE",
+      "value_type": "DOUBLE",
+      "dimension": "ContextDependent"
+    },
+    {
+      "item": 5,
+      "name": "BHP",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "item": 6,
+      "name": "THP",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "item": 7,
+      "name": "VFP_TABLE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 8,
+      "name": "VAPOIL_C",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "OilDissolutionFactor",
+      "comment": "Not supported"
+    },
+    {
+      "item": 9,
+      "name": "SURFACE_OIL_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 10,
+      "name": "SURFACE_WATER_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 11,
+      "name": "SURFACE_GAS_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 12,
+      "name": "CMODE",
+      "value_type": "STRING",
+      "default": "RATE"
+    }
+  ]
+}

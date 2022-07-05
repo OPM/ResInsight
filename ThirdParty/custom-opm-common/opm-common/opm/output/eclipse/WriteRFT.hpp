@@ -30,7 +30,7 @@ namespace Opm {
 
 namespace Opm { namespace data {
 
-    class WellRates;
+    class Wells;
 
 }} // namespace Opm::data
 
@@ -81,7 +81,7 @@ namespace Opm { namespace RftIO {
                const ::Opm::UnitSystem&         usys,
                const ::Opm::EclipseGrid&        grid,
                const ::Opm::Schedule&           schedule,
-               const ::Opm::data::WellRates&    wellSol,
+               const ::Opm::data::Wells&        wellSol,
                ::Opm::EclIO::OutputStream::RFT& rftFile);
 
 }} // namespace Opm::RftIO

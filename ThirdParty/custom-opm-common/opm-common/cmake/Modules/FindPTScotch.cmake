@@ -70,6 +70,20 @@ if(PTSCOTCH_FOUND)
   set(PTSCOCH_LINK_FLAGS "${DUNE_MPI_LINK_FLAGS}"
     CACHE STRING "PT-Scotch link flags")
   set(HAVE_PTSCOTCH 1)
+  if(NOT TARGET PTScotch::Scotch)
+    add_library(PTScotch::Scotch UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(PTScotch::Scotch PROPERTIES
+      IMPORTED_LOCATION "${SCOTCH_LIBRARY}"
+      INCLUDE_DIRECTORIES "${PTSCOTCH_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES "${PTSCOTCHERR_LIBRARY}")
+  endif()
+  if(NOT TARGET PTScotch::PTScotch)
+    add_library(PTScotch::PTScotch UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(PTScotch::PTScotch PROPERTIES
+      IMPORTED_LOCATION "${PTSCOTCH_LIBRARY}"
+      INCLUDE_DIRECTORIES "${PTSCOTCH_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES "PTScotch::Scotch;${MPI_DUNE_LIBRARIES}")
+  endif()
   # log result
   file(APPEND ${CMAKE_BINARY_DIR}${CMAKE_FILES_DIRECTORY}/CMakeOutput.log
     "Determing location of PT-Scotch succeded:\n"

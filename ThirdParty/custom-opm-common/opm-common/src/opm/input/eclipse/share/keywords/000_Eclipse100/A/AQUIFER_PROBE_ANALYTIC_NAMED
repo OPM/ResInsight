@@ -1,0 +1,11 @@
+{
+  "name": "AQUIFER_PROBE_ANALYTIC_NAMED",
+  "sections": [
+    "SUMMARY"
+  ],
+  "comment": "Analytical aquifiers",
+  "data": {
+    "value_type": "STRING"
+  },
+  "deck_name_regex": "AL.+"
+}

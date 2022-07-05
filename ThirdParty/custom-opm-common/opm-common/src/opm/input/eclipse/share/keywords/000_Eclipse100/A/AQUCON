@@ -1,0 +1,80 @@
+{
+  "name": "AQUCON",
+  "sections": [
+    "GRID"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "ID",
+      "value_type": "INT"
+    },
+    {
+      "item": 2,
+      "name": "I1",
+      "value_type": "INT"
+    },
+    {
+      "item": 3,
+      "name": "I2",
+      "value_type": "INT"
+    },
+    {
+      "item": 4,
+      "name": "J1",
+      "value_type": "INT"
+    },
+    {
+      "item": 5,
+      "name": "J2",
+      "value_type": "INT"
+    },
+    {
+      "item": 6,
+      "name": "K1",
+      "value_type": "INT"
+    },
+    {
+      "item": 7,
+      "name": "K2",
+      "value_type": "INT"
+    },
+    {
+      "item": 8,
+      "name": "CONNECT_FACE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 9,
+      "name": "TRANS_MULT",
+      "value_type": "DOUBLE",
+      "default": 1
+    },
+    {
+      "item": 10,
+      "name": "TRANS_OPTION",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 11,
+      "name": "ALLOW_INTERNAL_CELLS",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "item": 12,
+      "name": "VEFRAC",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "comment": "Not supported"
+    },
+    {
+      "item": 13,
+      "name": "VEFRACP",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "comment": "Not supported"
+    }
+  ]
+}

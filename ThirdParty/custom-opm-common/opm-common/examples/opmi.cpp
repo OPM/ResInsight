@@ -21,19 +21,20 @@
 #include <iomanip>
 #include <chrono>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
 
 #include <opm/common/OpmLog/OpmLog.hpp>
 #include <opm/common/OpmLog/StreamLog.hpp>
 #include <opm/common/OpmLog/LogUtil.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
 
 void initLogging() {
@@ -49,29 +50,30 @@ inline void loadDeck( const char * deck_file) {
 
     std::cout << "Loading deck: " << deck_file << " ..... "; std::cout.flush();
 
-    std::chrono::system_clock::time_point start;
+    Opm::time_point start;
 
-    start = std::chrono::system_clock::now();
+    start = Opm::TimeService::now();
     auto deck = parser.parseFile(deck_file, parseContext, errors);
-    auto deck_time = std::chrono::system_clock::now() - start;
+    auto deck_time = Opm::TimeService::now() - start;
 
     std::cout << "parse complete - creating EclipseState .... ";  std::cout.flush();
 
-    start = std::chrono::system_clock::now();
+    start = Opm::TimeService::now();
     Opm::EclipseState state( deck );
-    auto state_time = std::chrono::system_clock::now() - start;
+    auto state_time = Opm::TimeService::now() - start;
 
     std::cout << "creating Schedule .... ";  std::cout.flush();
 
-    start = std::chrono::system_clock::now();
+    start = Opm::TimeService::now();
     Opm::Schedule schedule( deck, state, python);
-    auto schedule_time = std::chrono::system_clock::now() - start;
+    auto schedule_time = Opm::TimeService::now() - start;
 
     std::cout << "creating SummaryConfig .... ";  std::cout.flush();
 
-    start = std::chrono::system_clock::now();
-    Opm::SummaryConfig summary( deck, schedule, state.getTableManager( ), parseContext, errors );
-    auto summary_time = std::chrono::system_clock::now() - start;
+    start = Opm::TimeService::now();
+    Opm::SummaryConfig summary( deck, schedule, state.fieldProps(), state.aquifer(),
+                                parseContext, errors );
+    auto summary_time = Opm::TimeService::now() - start;
 
     std::cout << "complete." << std::endl << std::endl;
     std::cout << "Time: " << std::endl;
