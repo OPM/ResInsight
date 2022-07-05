@@ -264,7 +264,7 @@ set(CMAKE_CXX_COMPILER_LAUNCHER ${TEMP_CMAKE_CXX_COMPILER_LAUNCHER})
 # ##############################################################################
 # Go through required git submodules #
 # ##############################################################################
-list(APPEND THIRD_PARTY_SUBMODULES fast_float qwt)
+list(APPEND THIRD_PARTY_SUBMODULES fast_float qwt qtadvanceddocking)
 
 # ##############################################################################
 # Init GIT submodules if they haven't already #
@@ -454,6 +454,28 @@ if(RESINSIGHT_ENABLE_UNITY_BUILD)
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES qwt)
+
+# ##############################################################################
+# Qt Advanced Docking System
+# ##############################################################################
+set(ADS_VERSION "3.8.2")
+
+add_subdirectory(ThirdParty/qtadvanceddocking)
+
+if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
+  target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated-copy)
+elseif(MSVC)
+  target_compile_options(qtadvanceddocking PRIVATE /wd4996 /wd4005)
+elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated)
+endif()
+
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : QtADS")
+  set_property(TARGET qtadvanceddocking PROPERTY UNITY_BUILD true)
+endif()
+
+list(APPEND THIRD_PARTY_LIBRARIES qtadvanceddocking)
 
 # ##############################################################################
 # Nightcharts
