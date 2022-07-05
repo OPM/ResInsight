@@ -27,8 +27,8 @@
 #include <string>
 #include <vector>
 
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/NNC.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/NNC.hpp>
 
 #include <opm/output/data/Cells.hpp>
 #include <opm/output/data/Solution.hpp>
@@ -45,7 +45,9 @@ class EclipseState;
 class Schedule;
 class SummaryConfig;
 class SummaryState;
-
+class UDQState;
+class WellTestState;
+namespace Action { class State; }
 /*!
  * \brief A class to write the reservoir state and the well state of a
  *        blackoil simulation to disk using the Eclipse binary format.
@@ -59,7 +61,10 @@ public:
     EclipseIO( const EclipseState& es,
                EclipseGrid grid,
                const Schedule& schedule,
-               const SummaryConfig& summary_config);
+               const SummaryConfig& summary_config,
+               const std::string& basename = "",
+               const bool writeEsmry = false
+             );
 
 
 
@@ -111,7 +116,7 @@ public:
   *     are not yet written to disk.
   */
 
-    void writeInitial( data::Solution simProps = data::Solution(), std::map<std::string, std::vector<int> > int_data = {}, const NNC& nnc = NNC());
+    void writeInitial( data::Solution simProps = data::Solution(), std::map<std::string, std::vector<int> > int_data = {}, const std::vector<NNCdata>& nnc = {});
 
     /**
      * \brief Overwrite the initial OIP values.
@@ -174,7 +179,10 @@ public:
      *     hardcoded static map misc_units in Summary.cpp.
      */
 
-    void writeTimeStep( const SummaryState& st,
+    void writeTimeStep( const Action::State& action_state,
+                        const WellTestState& wtest_state,
+                        const SummaryState& st,
+                        const UDQState& udq_state,
                         int report_step,
                         bool isSubstep,
                         double seconds_elapsed,
@@ -220,7 +228,7 @@ public:
       missing, if the bool is false missing keywords will be ignored
       (there will *not* be an empty vector in the return value).
     */
-    RestartValue loadRestart(SummaryState& summary_state, const std::vector<RestartKey>& solution_keys, const std::vector<RestartKey>& extra_keys = {}) const;
+    RestartValue loadRestart(Action::State& action_state, SummaryState& summary_state, const std::vector<RestartKey>& solution_keys, const std::vector<RestartKey>& extra_keys = {}) const;
     const out::Summary& summary();
 
     EclipseIO( const EclipseIO& ) = delete;
@@ -229,7 +237,6 @@ public:
 private:
     class Impl;
     std::unique_ptr< Impl > impl;
-
 };
 
 } // namespace Opm

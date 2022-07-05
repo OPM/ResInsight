@@ -20,6 +20,7 @@
 #define OPM_IO_ExtESmry_HPP
 
 #include <chrono>
+#include <filesystem>
 #include <ostream>
 #include <string>
 #include <unordered_map>
@@ -27,7 +28,6 @@
 #include <map>
 #include <stdint.h>
 
-#include <opm/common/utility/FileSystem.hpp>
 #include <opm/common/utility/TimeService.hpp>
 
 namespace Opm { namespace EclIO {
@@ -37,7 +37,7 @@ using TimeStepEntry = std::tuple<int, int, uint64_t>;
 using RstEntry = std::tuple<std::string, int>;
 
 // start, rstart + rstnum, keycheck, units, rstep, tstep
-using LodsmryHeadType = std::tuple<time_point, RstEntry, std::vector<std::string>, std::vector<std::string>,
+using ExtSmryHeadType = std::tuple<time_point, RstEntry, std::vector<std::string>, std::vector<std::string>,
                                     std::vector<int>, std::vector<int>>;
 
 class ExtESmry
@@ -67,11 +67,12 @@ public:
     std::vector<time_point> dates();
 
     bool all_steps_available();
-
+    std::string rootname() { return m_inputFileName.stem().string(); }
+    std::tuple<double, double> get_io_elapsed() const;
 
 private:
-    filesystem::path m_inputFileName;
-    std::vector<filesystem::path> m_lodsmry_files;
+    std::filesystem::path m_inputFileName;
+    std::vector<std::filesystem::path> m_esmry_files;
 
     bool m_loadBaseRun;
     std::vector<std::map<std::string, int>> m_keyword_index;
@@ -90,14 +91,19 @@ private:
     size_t m_nTstep;
     std::vector<int> m_seqIndex;
 
-    std::vector<uint64_t> m_lod_offset;
-    std::vector<uint64_t> m_lod_arr_size;
+    std::vector<uint64_t> m_rstep_offset;
 
     time_point m_startdat;
 
-    uint64_t open_esmry(Opm::filesystem::path& inputFileName, LodsmryHeadType& lodsmry_head);
+    double m_io_opening;
+    double m_io_loading;
 
-    void updatePathAndRootName(Opm::filesystem::path& dir, Opm::filesystem::path& rootN);
+    bool open_esmry(const std::filesystem::path& inputFileName, ExtSmryHeadType& ext_smry_head, uint64_t& rstep_offset);
+
+    bool load_esmry(const std::vector<std::string>& stringVect, const std::vector<int>& keyIndexVect,
+                               const std::vector<int>& loadKeyIndex, int ind, int to_ind );
+
+    void updatePathAndRootName(std::filesystem::path& dir, std::filesystem::path& rootN);
 };
 
 }} // namespace Opm::EclIO

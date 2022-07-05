@@ -22,32 +22,40 @@
 #define BOOST_TEST_MODULE EclipseIO
 #include <boost/test/unit_test.hpp>
 
+#include <opm/output/eclipse/AggregateAquiferData.hpp>
 #include <opm/output/eclipse/EclipseIO.hpp>
 #include <opm/output/eclipse/RestartIO.hpp>
 #include <opm/output/eclipse/RestartValue.hpp>
 #include <opm/output/data/Cells.hpp>
 #include <opm/output/data/Wells.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/output/data/Groups.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Tables/Eqldims.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Utility/Functional.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/Eqldims.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/IOConfig/IOConfig.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Utility/Functional.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Schedule/Action/State.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQConfig.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQEnums.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQState.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellTestState.hpp>
 
 #include <opm/io/eclipse/OutputStream.hpp>
 #include <opm/io/eclipse/EclIOdata.hpp>
 #include <opm/io/eclipse/ERst.hpp>
 
+#include <sstream>
 #include <tuple>
 
 #include <opm/common/utility/TimeService.hpp>
 
-#include <tests/WorkArea.cpp>
+#include <tests/WorkArea.hpp>
 
 using namespace Opm;
 
@@ -132,6 +140,9 @@ std::ostream& operator<<( std::ostream& stream,
 
 }
 
+data::GroupAndNetworkValues mkGroups() {
+    return {};
+}
 
 data::Wells mkWells() {
     data::Rates r1, r2, rc1, rc2, rc3;
@@ -166,15 +177,15 @@ data::Wells mkWells() {
      *  the completion keys (active indices) and well names correspond to the
      *  input deck. All other entries in the well structures are arbitrary.
      */
-    w1.connections.push_back( { 88, rc1, 30.45, 123.4, 543.21, 0.62, 0.15, 1.0e3 } );
-    w1.connections.push_back( { 288, rc2, 33.19, 123.4, 432.1, 0.26, 0.45, 2.56 } );
+    w1.connections.push_back( { 88, rc1, 30.45, 123.4, 543.21, 0.62, 0.15, 1.0e3, 1.234 } );
+    w1.connections.push_back( { 288, rc2, 33.19, 123.4, 432.1, 0.26, 0.45, 2.56, 2.345 } );
 
     w2.rates = r2;
     w2.thp = 2.0;
     w2.bhp = 2.34;
     w2.temperature = 4.56;
     w2.control = 2;
-    w2.connections.push_back( { 188, rc3, 36.22, 123.4, 256.1, 0.55, 0.0125, 314.15 } );
+    w2.connections.push_back( { 188, rc3, 36.22, 123.4, 256.1, 0.55, 0.0125, 314.15, 3.456 } );
 
     {
         data::Wells wellRates;
@@ -213,104 +224,135 @@ data::Solution mkSolution( int numCells ) {
     return sol;
 }
 
-Opm::SummaryState sim_state()
+Opm::SummaryState sim_state(const Opm::Schedule& sched)
 {
-    auto state = Opm::SummaryState{std::chrono::system_clock::now()};
+    auto state = Opm::SummaryState{TimeService::now()};
+    for (const auto& well : sched.getWellsatEnd()) {
+        for (const auto& connection : well.getConnections()) {
+            state.update_conn_var(well.name(), "CPR", connection.global_index() + 1, 111);
+            if (well.isInjector()) {
+                state.update_conn_var(well.name(), "COIR", connection.global_index() + 1, 222);
+                state.update_conn_var(well.name(), "CGIR", connection.global_index() + 1, 333);
+                state.update_conn_var(well.name(), "CWIR", connection.global_index() + 1, 444);
+                state.update_conn_var(well.name(), "CVIR", connection.global_index() + 1, 555);
 
-    state.update("WOPR:OP_1" ,    1.0);
-    state.update("WWPR:OP_1" ,    2.0);
-    state.update("WGPR:OP_1" ,    3.0);
-    state.update("WVPR:OP_1" ,    4.0);
-    state.update("WOPT:OP_1" ,   10.0);
-    state.update("WWPT:OP_1" ,   20.0);
-    state.update("WGPT:OP_1" ,   30.0);
-    state.update("WVPT:OP_1" ,   40.0);
-    state.update("WWIR:OP_1" ,    0.0);
-    state.update("WGIR:OP_1" ,    0.0);
-    state.update("WWIT:OP_1" ,    0.0);
-    state.update("WGIT:OP_1" ,    0.0);
-    state.update("WVIT:OP_1" ,    0.0);
-    state.update("WWCT:OP_1" ,    0.625);
-    state.update("WGOR:OP_1" ,  234.5);
-    state.update("WBHP:OP_1" ,  314.15);
-    state.update("WOPTH:OP_1",  345.6);
-    state.update("WWPTH:OP_1",  456.7);
-    state.update("WGPTH:OP_1",  567.8);
-    state.update("WWITH:OP_1",    0.0);
-    state.update("WGITH:OP_1",    0.0);
-    state.update("WGVIR:OP_1",    0.0);
-    state.update("WWVIR:OP_1",    0.0);
+                state.update_conn_var(well.name(), "COIT", connection.global_index() + 1, 222 * 2.0);
+                state.update_conn_var(well.name(), "CGIT", connection.global_index() + 1, 333 * 2.0);
+                state.update_conn_var(well.name(), "CWIT", connection.global_index() + 1, 444 * 2.0);
+                state.update_conn_var(well.name(), "CWIT", connection.global_index() + 1, 555 * 2.0);
+            } else {
+                state.update_conn_var(well.name(), "COPR", connection.global_index() + 1, 666);
+                state.update_conn_var(well.name(), "CGPR", connection.global_index() + 1, 777);
+                state.update_conn_var(well.name(), "CWPR", connection.global_index() + 1, 888);
+                state.update_conn_var(well.name(), "CVPR", connection.global_index() + 1, 999);
 
-    state.update("WOPR:OP_2" ,    0.0);
-    state.update("WWPR:OP_2" ,    0.0);
-    state.update("WGPR:OP_2" ,    0.0);
-    state.update("WVPR:OP_2" ,    0.0);
-    state.update("WOPT:OP_2" ,    0.0);
-    state.update("WWPT:OP_2" ,    0.0);
-    state.update("WGPT:OP_2" ,    0.0);
-    state.update("WVPT:OP_2" ,    0.0);
-    state.update("WWIR:OP_2" ,  100.0);
-    state.update("WGIR:OP_2" ,  200.0);
-    state.update("WWIT:OP_2" , 1000.0);
-    state.update("WGIT:OP_2" , 2000.0);
-    state.update("WVIT:OP_2" , 1234.5);
-    state.update("WWCT:OP_2" ,    0.0);
-    state.update("WGOR:OP_2" ,    0.0);
-    state.update("WBHP:OP_2" ,  400.6);
-    state.update("WOPTH:OP_2",    0.0);
-    state.update("WWPTH:OP_2",    0.0);
-    state.update("WGPTH:OP_2",    0.0);
-    state.update("WWITH:OP_2", 1515.0);
-    state.update("WGITH:OP_2", 3030.0);
-    state.update("WGVIR:OP_2", 1234.0);
-    state.update("WWVIR:OP_2", 4321.0);
+                state.update_conn_var(well.name(), "CGOR", connection.global_index() + 1, 777.0 / 666.0);
 
-    state.update("WOPR:OP_3" ,   11.0);
-    state.update("WWPR:OP_3" ,   12.0);
-    state.update("WGPR:OP_3" ,   13.0);
-    state.update("WVPR:OP_3" ,   14.0);
-    state.update("WOPT:OP_3" ,  110.0);
-    state.update("WWPT:OP_3" ,  120.0);
-    state.update("WGPT:OP_3" ,  130.0);
-    state.update("WVPT:OP_3" ,  140.0);
-    state.update("WWIR:OP_3" ,    0.0);
-    state.update("WGIR:OP_3" ,    0.0);
-    state.update("WWIT:OP_3" ,    0.0);
-    state.update("WGIT:OP_3" ,    0.0);
-    state.update("WVIT:OP_3" ,    0.0);
-    state.update("WWCT:OP_3" ,    0.0625);
-    state.update("WGOR:OP_3" , 1234.5);
-    state.update("WBHP:OP_3" ,  314.15);
-    state.update("WOPTH:OP_3", 2345.6);
-    state.update("WWPTH:OP_3", 3456.7);
-    state.update("WGPTH:OP_3", 4567.8);
-    state.update("WWITH:OP_3",    0.0);
-    state.update("WGITH:OP_3",    0.0);
-    state.update("WGVIR:OP_3",    0.0);
-    state.update("WWVIR:OP_3",   43.21);
+                state.update_conn_var(well.name(), "COPT", connection.global_index() + 1, 555 * 2.0);
+                state.update_conn_var(well.name(), "CGPT", connection.global_index() + 1, 666 * 2.0);
+                state.update_conn_var(well.name(), "CWPT", connection.global_index() + 1, 777 * 2.0);
+                state.update_conn_var(well.name(), "CVPT", connection.global_index() + 1, 999 * 2.0);
+            }
+        }
+    }
 
-    state.update("GOPR:OP" ,     110.0);
-    state.update("GWPR:OP" ,     120.0);
-    state.update("GGPR:OP" ,     130.0);
-    state.update("GVPR:OP" ,     140.0);
-    state.update("GOPT:OP" ,    1100.0);
-    state.update("GWPT:OP" ,    1200.0);
-    state.update("GGPT:OP" ,    1300.0);
-    state.update("GVPT:OP" ,    1400.0);
-    state.update("GWIR:OP" , -   256.0);
-    state.update("GGIR:OP" , - 65536.0);
-    state.update("GWIT:OP" ,   31415.9);
-    state.update("GGIT:OP" ,   27182.8);
-    state.update("GVIT:OP" ,   44556.6);
-    state.update("GWCT:OP" ,       0.625);
-    state.update("GGOR:OP" ,    1234.5);
-    state.update("GGVIR:OP",     123.45);
-    state.update("GWVIR:OP",    1234.56);
-    state.update("GOPTH:OP",    5678.90);
-    state.update("GWPTH:OP",    6789.01);
-    state.update("GGPTH:OP",    7890.12);
-    state.update("GWITH:OP",    8901.23);
-    state.update("GGITH:OP",    9012.34);
+    state.update_well_var("OP_1", "WOPR", 1.0);
+    state.update_well_var("OP_1", "WWPR", 2.0);
+    state.update_well_var("OP_1", "WGPR", 3.0);
+    state.update_well_var("OP_1", "WVPR", 4.0);
+    state.update_well_var("OP_1", "WOPT", 10.0);
+    state.update_well_var("OP_1", "WWPT", 20.0);
+    state.update_well_var("OP_1", "WGPT", 30.0);
+    state.update_well_var("OP_1", "WVPT", 40.0);
+    state.update_well_var("OP_1", "WWIR", 0.0);
+    state.update_well_var("OP_1", "WGIR", 0.0);
+    state.update_well_var("OP_1", "WWIT", 0.0);
+    state.update_well_var("OP_1", "WGIT", 0.0);
+    state.update_well_var("OP_1", "WVIT", 0.0);
+    state.update_well_var("OP_1", "WWCT", 0.625);
+    state.update_well_var("OP_1", "WGOR", 234.5);
+    state.update_well_var("OP_1", "WBHP", 314.15);
+    state.update_well_var("OP_1", "WTHP", 123.45);
+    state.update_well_var("OP_1", "WOPTH", 345.6);
+    state.update_well_var("OP_1", "WWPTH", 456.7);
+    state.update_well_var("OP_1", "WGPTH", 567.8);
+    state.update_well_var("OP_1", "WWITH", 0.0);
+    state.update_well_var("OP_1", "WGITH", 0.0);
+    state.update_well_var("OP_1", "WGVIR", 0.0);
+    state.update_well_var("OP_1", "WWVIR", 0.0);
+
+    state.update_well_var("OP_2", "WOPR", 0.0);
+    state.update_well_var("OP_2", "WWPR", 0.0);
+    state.update_well_var("OP_2", "WGPR", 0.0);
+    state.update_well_var("OP_2", "WVPR", 0.0);
+    state.update_well_var("OP_2", "WOPT", 0.0);
+    state.update_well_var("OP_2", "WWPT", 0.0);
+    state.update_well_var("OP_2", "WGPT", 0.0);
+    state.update_well_var("OP_2", "WVPT", 0.0);
+    state.update_well_var("OP_2", "WWIR", 100.0);
+    state.update_well_var("OP_2", "WGIR", 200.0);
+    state.update_well_var("OP_2", "WWIT", 1000.0);
+    state.update_well_var("OP_2", "WGIT", 2000.0);
+    state.update_well_var("OP_2", "WVIT", 1234.5);
+    state.update_well_var("OP_2", "WWCT", 0.0);
+    state.update_well_var("OP_2", "WGOR", 0.0);
+    state.update_well_var("OP_2", "WBHP", 400.6);
+    state.update_well_var("OP_2", "WTHP", 234.5);
+    state.update_well_var("OP_2", "WOPTH", 0.0);
+    state.update_well_var("OP_2", "WWPTH", 0.0);
+    state.update_well_var("OP_2", "WGPTH", 0.0);
+    state.update_well_var("OP_2", "WWITH", 1515.0);
+    state.update_well_var("OP_2", "WGITH", 3030.0);
+    state.update_well_var("OP_2", "WGVIR", 1234.0);
+    state.update_well_var("OP_2", "WWVIR", 4321.0);
+
+    state.update_well_var("OP_3", "WOPR", 11.0);
+    state.update_well_var("OP_3", "WWPR", 12.0);
+    state.update_well_var("OP_3", "WGPR", 13.0);
+    state.update_well_var("OP_3", "WVPR", 14.0);
+    state.update_well_var("OP_3", "WOPT", 110.0);
+    state.update_well_var("OP_3", "WWPT", 120.0);
+    state.update_well_var("OP_3", "WGPT", 130.0);
+    state.update_well_var("OP_3", "WVPT", 140.0);
+    state.update_well_var("OP_3", "WWIR", 0.0);
+    state.update_well_var("OP_3", "WGIR", 0.0);
+    state.update_well_var("OP_3", "WWIT", 0.0);
+    state.update_well_var("OP_3", "WGIT", 0.0);
+    state.update_well_var("OP_3", "WVIT", 0.0);
+    state.update_well_var("OP_3", "WWCT", 0.0625);
+    state.update_well_var("OP_3", "WGOR", 1234.5);
+    state.update_well_var("OP_3", "WBHP", 314.15);
+    state.update_well_var("OP_3", "WTHP", 246.9);
+    state.update_well_var("OP_3", "WOPTH", 2345.6);
+    state.update_well_var("OP_3", "WWPTH", 3456.7);
+    state.update_well_var("OP_3", "WGPTH", 4567.8);
+    state.update_well_var("OP_3", "WWITH", 0.0);
+    state.update_well_var("OP_3", "WGITH", 0.0);
+    state.update_well_var("OP_3", "WGVIR", 0.0);
+    state.update_well_var("OP_3", "WWVIR", 43.21);
+
+    state.update_group_var("OP", "GOPR" ,     110.0);
+    state.update_group_var("OP", "GWPR" ,     120.0);
+    state.update_group_var("OP", "GGPR" ,     130.0);
+    state.update_group_var("OP", "GVPR" ,     140.0);
+    state.update_group_var("OP", "GOPT" ,    1100.0);
+    state.update_group_var("OP", "GWPT" ,    1200.0);
+    state.update_group_var("OP", "GGPT" ,    1300.0);
+    state.update_group_var("OP", "GVPT" ,    1400.0);
+    state.update_group_var("OP", "GWIR" , -   256.0);
+    state.update_group_var("OP", "GGIR" , - 65536.0);
+    state.update_group_var("OP", "GWIT" ,   31415.9);
+    state.update_group_var("OP", "GGIT" ,   27182.8);
+    state.update_group_var("OP", "GVIT" ,   44556.6);
+    state.update_group_var("OP", "GWCT" ,       0.625);
+    state.update_group_var("OP", "GGOR" ,    1234.5);
+    state.update_group_var("OP", "GGVIR",     123.45);
+    state.update_group_var("OP", "GWVIR",    1234.56);
+    state.update_group_var("OP", "GOPTH",    5678.90);
+    state.update_group_var("OP", "GWPTH",    6789.01);
+    state.update_group_var("OP", "GGPTH",    7890.12);
+    state.update_group_var("OP", "GWITH",    8901.23);
+    state.update_group_var("OP", "GGITH",    9012.34);
 
     state.update("FOPR" ,     1100.0);
     state.update("FWPR" ,     1200.0);
@@ -352,7 +394,7 @@ struct Setup {
         grid( es.getInputGrid( ) ),
         python( std::make_shared<Python>() ),
         schedule( deck, es, python ),
-        summary_config( deck, schedule, es.getTableManager( ))
+        summary_config( deck, schedule, es.fieldProps(), es.aquifer() )
     {
         auto& io_config = es.getIOConfig();
         io_config.setEclCompatibleRST(false);
@@ -361,7 +403,9 @@ struct Setup {
 };
 
 
-RestartValue first_sim(const Setup& setup, SummaryState& st, bool write_double) {
+
+RestartValue first_sim(const Setup& setup, Action::State& action_state, SummaryState& st, UDQState& udq_state, bool write_double) {
+    WellTestState wtest_state;
     EclipseIO eclWriter( setup.es, setup.grid, setup.schedule, setup.summary_config);
     auto num_cells = setup.grid.getNumActive( );
     int report_step = 1;
@@ -370,9 +414,15 @@ RestartValue first_sim(const Setup& setup, SummaryState& st, bool write_double) 
 
     auto sol = mkSolution( num_cells );
     auto wells = mkWells();
-    RestartValue restart_value(sol, wells);
+    auto groups = mkGroups();
+    const auto& udq = setup.schedule.getUDQConfig(report_step);
+    RestartValue restart_value(sol, wells, groups, {});
 
-    eclWriter.writeTimeStep( st,
+    udq.eval(report_step, setup.schedule.wellMatcher(report_step), st, udq_state);
+    eclWriter.writeTimeStep( action_state,
+                             wtest_state,
+                             st,
+                             udq_state,
                              report_step,
                              false,
                              std::difftime(first_step, start_time),
@@ -382,9 +432,9 @@ RestartValue first_sim(const Setup& setup, SummaryState& st, bool write_double) 
     return restart_value;
 }
 
-RestartValue second_sim(const Setup& setup, SummaryState& summary_state, const std::vector<RestartKey>& solution_keys) {
+RestartValue second_sim(const Setup& setup, Action::State& action_state, SummaryState& summary_state, const std::vector<RestartKey>& solution_keys) {
     EclipseIO writer(setup.es, setup.grid, setup.schedule, setup.summary_config);
-    return writer.loadRestart( summary_state, solution_keys );
+    return writer.loadRestart( action_state, summary_state, solution_keys );
 }
 
 
@@ -421,15 +471,17 @@ BOOST_AUTO_TEST_CASE(EclipseReadWriteWellStateData) {
     test_area.copyIn("RESTART_SIM.DATA");
 
     Setup base_setup("BASE_SIM.DATA");
-    SummaryState st(std::chrono::system_clock::now());
-    auto state1 = first_sim( base_setup , st, false );
+    auto st = sim_state(base_setup.schedule);
+    Action::State action_state;
+    UDQState udq_state(19);
+    auto state1 = first_sim( base_setup , action_state, st, udq_state, false );
 
     Setup restart_setup("RESTART_SIM.DATA");
-    auto state2 = second_sim( restart_setup , st , keys );
+    auto state2 = second_sim( restart_setup , action_state, st , keys );
     compare(state1, state2 , keys);
 
-    BOOST_CHECK_THROW( second_sim( restart_setup, st, {{"SOIL", UnitSystem::measure::pressure}} ) , std::runtime_error );
-    BOOST_CHECK_THROW( second_sim( restart_setup, st, {{"SOIL", UnitSystem::measure::pressure, true}}) , std::runtime_error );
+    BOOST_CHECK_THROW( second_sim( restart_setup, action_state, st, {{"SOIL", UnitSystem::measure::pressure}} ) , std::runtime_error );
+    BOOST_CHECK_THROW( second_sim( restart_setup, action_state, st, {{"SOIL", UnitSystem::measure::pressure, true}}) , std::runtime_error );
 }
 
 
@@ -445,9 +497,14 @@ BOOST_AUTO_TEST_CASE(ECL_FORMATTED) {
         auto num_cells = base_setup.grid.getNumActive( );
         auto cells = mkSolution( num_cells );
         auto wells = mkWells();
-        auto sumState = sim_state();
+        auto groups = mkGroups();
+        auto sumState = sim_state(base_setup.schedule);
+        auto udqState = UDQState{1};
+        auto aquiferData = std::optional<Opm::RestartIO::Helpers::AggregateAquiferData>{std::nullopt};
+        Action::State action_state;
+        WellTestState wtest_state;
         {
-            RestartValue restart_value(cells, wells);
+            RestartValue restart_value(cells, wells, groups, {});
 
             io_config.setEclCompatibleRST( false );
             restart_value.addExtra("EXTRA", UnitSystem::measure::pressure, {10,1,2,3});
@@ -467,7 +524,11 @@ BOOST_AUTO_TEST_CASE(ECL_FORMATTED) {
                                 base_setup.es,
                                 base_setup.grid,
                                 base_setup.schedule,
+                                action_state,
+                                wtest_state,
                                 sumState,
+                                udqState,
+                                aquiferData,
                                 true);
             }
 
@@ -495,7 +556,11 @@ BOOST_AUTO_TEST_CASE(ECL_FORMATTED) {
                                 base_setup.es,
                                 base_setup.grid,
                                 base_setup.schedule,
+                                action_state,
+                                wtest_state,
                                 sumState,
+                                udqState,
+                                aquiferData,
                                 true);
             }
 
@@ -551,12 +616,14 @@ BOOST_AUTO_TEST_CASE(EclipseReadWriteWellStateData_double) {
     test_area.copyIn("RESTART_SIM.DATA");
     test_area.copyIn("BASE_SIM.DATA");
     Setup base_setup("BASE_SIM.DATA");
-    SummaryState st(std::chrono::system_clock::now());
+    auto st = sim_state(base_setup.schedule);
+    Action::State action_state;
+    UDQState udq_state(1);
 
-    auto state1 = first_sim( base_setup , st, true);
+    auto state1 = first_sim( base_setup , action_state, st, udq_state, true);
     Setup restart_setup("RESTART_SIM.DATA");
 
-    auto state2 = second_sim( restart_setup, st, solution_keys );
+    auto state2 = second_sim( restart_setup, action_state, st, solution_keys );
     compare_equal( state1 , state2 , solution_keys);
 }
 
@@ -572,7 +639,12 @@ BOOST_AUTO_TEST_CASE(WriteWrongSOlutionSize) {
         auto num_cells = setup.grid.getNumActive( ) + 1;
         auto cells = mkSolution( num_cells );
         auto wells = mkWells();
-        Opm::SummaryState sumState(std::chrono::system_clock::now());
+        auto groups = mkGroups();
+        Opm::SummaryState sumState(TimeService::now());
+        Opm::Action::State action_state;
+        Opm::UDQState udq_state(19);
+        Opm::WellTestState wtest_state;
+        auto aquiferData = std::optional<Opm::RestartIO::Helpers::AggregateAquiferData>{std::nullopt};
 
         const auto seqnum = 1;
         auto rstFile = OS::Restart {
@@ -582,11 +654,15 @@ BOOST_AUTO_TEST_CASE(WriteWrongSOlutionSize) {
 
         BOOST_CHECK_THROW( RestartIO::save(rstFile, seqnum,
                                            100,
-                                           RestartValue(cells, wells),
+                                           RestartValue(cells, wells, groups, {}),
                                            setup.es,
                                            setup.grid ,
                                            setup.schedule,
-                                           sumState),
+                                           action_state,
+                                           wtest_state,
+                                           sumState,
+                                           udq_state,
+                                           aquiferData),
                            std::runtime_error);
     }
 }
@@ -597,7 +673,8 @@ BOOST_AUTO_TEST_CASE(ExtraData_KEYS) {
     auto num_cells = setup.grid.getNumActive( );
     auto cells = mkSolution( num_cells );
     auto wells = mkWells();
-    RestartValue restart_value(cells, wells);
+    auto groups = mkGroups();
+    RestartValue restart_value(cells, wells, groups, {});
 
     BOOST_CHECK_THROW( restart_value.addExtra("TOO-LONG-KEY", {0,1,2}), std::runtime_error);
 
@@ -606,7 +683,7 @@ BOOST_AUTO_TEST_CASE(ExtraData_KEYS) {
     BOOST_CHECK_THROW( restart_value.addExtra("KEY", {0,1,1}), std::runtime_error);
 
     /* The keys must be unique across solution and extra_data */
-    BOOST_CHECK_THROW( restart_value.addExtra("PRESSURE", {0,1}), std::runtime_error); 
+    BOOST_CHECK_THROW( restart_value.addExtra("PRESSURE", {0,1}), std::runtime_error);
 
     /* Must avoid using reserved keys like 'LOGIHEAD' */
     BOOST_CHECK_THROW( restart_value.addExtra("LOGIHEAD", {0,1}), std::runtime_error);
@@ -620,14 +697,19 @@ BOOST_AUTO_TEST_CASE(ExtraData_content) {
     test_area.copyIn("RESTART_SIM.DATA");
     Setup setup("BASE_SIM.DATA");
     {
+        Action::State action_state;
+        WellTestState wtest_state;
+        UDQState udq_state(10);
         auto num_cells = setup.grid.getNumActive( );
         auto cells = mkSolution( num_cells );
         auto wells = mkWells();
+        auto groups = mkGroups();
+        auto aquiferData = std::optional<Opm::RestartIO::Helpers::AggregateAquiferData>{std::nullopt};
         const auto& units = setup.es.getUnits();
         {
-            RestartValue restart_value(cells, wells);
-            SummaryState st(std::chrono::system_clock::now());
-            const auto sumState = sim_state();
+            RestartValue restart_value(cells, wells, groups, {});
+            SummaryState st(TimeService::now());
+            const auto sumState = sim_state(setup.schedule);
 
             restart_value.addExtra("EXTRA", UnitSystem::measure::pressure, {10,1,2,3});
 
@@ -646,7 +728,11 @@ BOOST_AUTO_TEST_CASE(ExtraData_content) {
                                 setup.es,
                                 setup.grid,
                                 setup.schedule,
-                                sumState);
+                                action_state,
+                                wtest_state,
+                                sumState,
+                                udq_state,
+                                aquiferData);
             }
 
             const auto rstFile = ::Opm::EclIO::OutputStream::
@@ -656,15 +742,15 @@ BOOST_AUTO_TEST_CASE(ExtraData_content) {
                 EclIO::ERst rst{ rstFile };
                 BOOST_CHECK_MESSAGE( rst.hasKey("EXTRA"), "Restart file is expexted to have EXTRA vector");
 
-                const auto& ex = rst.getRst<double>("EXTRA", 1, 0);
+                const auto& ex = rst.getRestartData<double>("EXTRA", 1, 0);
                 BOOST_CHECK_CLOSE( 10 , units.to_si( UnitSystem::measure::pressure, ex[0] ), 0.00001);
                 BOOST_CHECK_CLOSE( units.from_si( UnitSystem::measure::pressure, 3), ex[3], 0.00001);
             }
 
-            BOOST_CHECK_THROW( RestartIO::load( rstFile , 1 , st, {}, setup.es, setup.grid , setup.schedule,
+            BOOST_CHECK_THROW( RestartIO::load( rstFile , 1 , action_state, st, {}, setup.es, setup.grid , setup.schedule,
                                                 {{"NOT-THIS", UnitSystem::measure::identity, true}}) , std::runtime_error );
             {
-                const auto rst_value = RestartIO::load(rstFile , 1 , st,
+                const auto rst_value = RestartIO::load(rstFile , 1 , action_state, st,
                                                        /* solution_keys = */ {
                                                                               RestartKey("SWAT", UnitSystem::measure::identity),
                                                                               RestartKey("NO"  , UnitSystem::measure::identity, false)
@@ -700,10 +786,12 @@ BOOST_AUTO_TEST_CASE(STORE_THPRES) {
         auto num_cells = base_setup.grid.getNumActive( );
         auto cells = mkSolution( num_cells );
         auto wells = mkWells();
+        auto groups = mkGroups();
+        auto aquiferData = std::optional<Opm::RestartIO::Helpers::AggregateAquiferData>{std::nullopt};
         const auto outputDir = test_area.currentWorkingDirectory();
         {
-            RestartValue restart_value(cells, wells);
-            RestartValue restart_value2(cells, wells);
+            RestartValue restart_value(cells, wells, groups, {});
+            RestartValue restart_value2(cells, wells, groups, {});
 
             /* Missing THPRES data in extra container. */
             /* Because it proved to difficult to update the legacy simulators
@@ -719,7 +807,10 @@ BOOST_AUTO_TEST_CASE(STORE_THPRES) {
             */
 
             restart_value.addExtra("THRESHPR", UnitSystem::measure::pressure, {0,1});
-            const auto sumState = sim_state();
+            const auto sumState = sim_state(base_setup.schedule);
+            Action::State action_state;
+            UDQState udq_state(99);
+            WellTestState wtest_state;
 
             /* THPRES data has wrong size in extra container. */
             {
@@ -735,7 +826,11 @@ BOOST_AUTO_TEST_CASE(STORE_THPRES) {
                                                    base_setup.es,
                                                    base_setup.grid,
                                                    base_setup.schedule,
-                                                   sumState),
+                                                   action_state,
+                                                   wtest_state,
+                                                   sumState,
+                                                   udq_state,
+                                                   aquiferData),
                                    std::runtime_error);
             }
 
@@ -756,7 +851,12 @@ BOOST_AUTO_TEST_CASE(STORE_THPRES) {
                                 restart_value2,
                                 base_setup.es,
                                 base_setup.grid,
-                                base_setup.schedule, sumState);
+                                base_setup.schedule,
+                                action_state,
+                                wtest_state,
+                                sumState,
+                                udq_state,
+                                aquiferData);
             }
 
             {
@@ -799,31 +899,37 @@ BOOST_AUTO_TEST_CASE(Restore_Cumulatives)
 
     const auto restart_value = RestartValue {
         mkSolution(setup.grid.getNumActive()),
-        mkWells()
+        mkWells(),
+        mkGroups(),
+        {}
     };
-    const auto sumState = sim_state();
-
+    const auto sumState = sim_state(setup.schedule);
+    UDQState udq_state(98);
     namespace OS = ::Opm::EclIO::OutputStream;
 
     const auto rset   = OS::ResultSet{ wa.currentWorkingDirectory(), "FILE" };
     const auto seqnum = 1;
     {
+        Action::State action_state;
+        WellTestState wtest_state;
+        auto aquiferData = std::optional<Opm::RestartIO::Helpers::AggregateAquiferData>{std::nullopt};
         auto rstFile = OS::Restart {
             rset, seqnum, OS::Formatted{ false }, OS::Unified{ true }
         };
 
         RestartIO::save(rstFile, seqnum, 100, restart_value,
-                        setup.es, setup.grid, setup.schedule, sumState);
+                        setup.es, setup.grid, setup.schedule,
+                        action_state, wtest_state, sumState, udq_state, aquiferData);
     }
 
-    SummaryState rstSumState(std::chrono::system_clock::now());
-    RestartIO::load(OS::outputFileName(rset, "UNRST"), seqnum, rstSumState,
+    Action::State action_state;
+    SummaryState rstSumState(TimeService::now());
+    RestartIO::load(OS::outputFileName(rset, "UNRST"), seqnum, action_state, rstSumState,
                     /* solution_keys = */ {
                                            RestartKey("SWAT", UnitSystem::measure::identity),
                     },
                     setup.es, setup.grid, setup.schedule,
                     /* extra_keys = */ {});
-
 
     // Verify that the restored summary state has all of its requisite
     // cumulative summary vectors.
@@ -939,5 +1045,228 @@ BOOST_AUTO_TEST_CASE(Restore_Cumulatives)
     BOOST_CHECK_CLOSE(rstSumState.get("FGITH"), 90123.45, 1.0e-10);
 }
 
+void init_st(SummaryState& st) {
+    st.update_well_var("PROD1", "WOPR", 100);
+    st.update_well_var("PROD1", "WLPR", 100);
+    st.update_well_var("PROD2", "WOPR", 100);
+    st.update_well_var("PROD2", "WLPR", 100);
+    st.update_well_var("WINJ1", "WOPR", 100);
+    st.update_well_var("WINJ1", "WLPR", 100);
+    st.update_well_var("WINJ2", "WOPR", 100);
+    st.update_well_var("WINJ2", "WLPR", 100);
 
+    st.update_group_var("GRP1", "GOPR", 100);
+    st.update_group_var("WGRP1", "GOPR", 100);
+    st.update_group_var("WGRP2", "GOPR", 100);
+    st.update("FLPR", 100);
+}
+
+BOOST_AUTO_TEST_CASE(UDQ_RESTART) {
+    std::vector<RestartKey> keys {{"PRESSURE" , UnitSystem::measure::pressure},
+        {"SWAT" , UnitSystem::measure::identity},
+        {"SGAS" , UnitSystem::measure::identity}};
+    WorkArea test_area("test_udq_restart");
+    test_area.copyIn("UDQ_BASE.DATA");
+    test_area.copyIn("UDQ_RESTART.DATA");
+
+    Setup base_setup("UDQ_BASE.DATA");
+    SummaryState st1(TimeService::now());
+    SummaryState st2(TimeService::now());
+    Action::State action_state;
+    UDQState udq_state(1);
+    init_st(st1);
+    auto state1 = first_sim( base_setup , action_state, st1, udq_state, false );
+
+    Setup restart_setup("UDQ_RESTART.DATA");
+    auto state2 = second_sim( restart_setup , action_state, st2 , keys );
+    BOOST_CHECK(st1.wells() == st2.wells());
+    BOOST_CHECK(st1.groups() == st2.groups());
+
+    const auto& udq = base_setup.schedule.getUDQConfig(1);
+    for (const auto& well : st1.wells()) {
+        for (const auto& def : udq.definitions(UDQVarType::WELL_VAR)) {
+            const auto& kw = def.keyword();
+            BOOST_CHECK_EQUAL( st1.has_well_var(well, kw), st2.has_well_var(well, kw));
+            if (st1.has_well_var(well, def.keyword()))
+                BOOST_CHECK_EQUAL(st1.get_well_var(well, kw), st2.get_well_var(well, kw));
+        }
+    }
+
+    for (const auto& group : st1.groups()) {
+        for (const auto& def : udq.definitions(UDQVarType::GROUP_VAR)) {
+            const auto& kw = def.keyword();
+            BOOST_CHECK_EQUAL( st1.has_group_var(group, kw), st2.has_group_var(group, kw));
+            if (st1.has_group_var(group, def.keyword()))
+                BOOST_CHECK_EQUAL(st1.get_group_var(group, kw), st2.get_group_var(group, kw));
+        }
+    }
+
+    for (const auto& well : st1.wells()) {
+        for (const auto& def : udq.assignments(UDQVarType::WELL_VAR)) {
+            const auto& kw = def.keyword();
+            BOOST_CHECK_EQUAL( st1.has_well_var(well, kw), st2.has_well_var(well, kw));
+            if (st1.has_well_var(well, def.keyword()))
+                BOOST_CHECK_EQUAL(st1.get_well_var(well, kw), st2.get_well_var(well, kw));
+        }
+    }
+
+    for (const auto& group : st1.groups()) {
+        for (const auto& def : udq.assignments(UDQVarType::GROUP_VAR)) {
+            const auto& kw = def.keyword();
+            BOOST_CHECK_EQUAL( st1.has_group_var(group, kw), st2.has_group_var(group, kw));
+            if (st1.has_group_var(group, def.keyword()))
+                BOOST_CHECK_EQUAL(st1.get_group_var(group, kw), st2.get_group_var(group, kw));
+        }
+    }
+
+    for (const auto& def : udq.assignments(UDQVarType::FIELD_VAR)) {
+        const auto& kw = def.keyword();
+        BOOST_CHECK_EQUAL( st1.has(kw), st2.has(kw));
+            if (st1.has(kw))
+                BOOST_CHECK_EQUAL(st1.get(kw), st2.get(kw));
+    }
+
+    for (const auto& def : udq.definitions(UDQVarType::FIELD_VAR)) {
+        const auto& kw = def.keyword();
+        BOOST_CHECK_EQUAL( st1.has(kw), st2.has(kw));
+        if (st1.has(kw))
+            BOOST_CHECK_EQUAL(st1.get(kw), st2.get(kw));
+    }
+}
+}
+
+namespace {
+
+struct MessageBuffer
+{
+    std::stringstream str_;
+
+    template <class T>
+    void read( T& value )
+    {
+        str_.read( (char *) &value, sizeof(value) );
+    }
+
+    template <class T>
+    void write( const T& value )
+    {
+        str_.write( (const char *) &value, sizeof(value) );
+    }
+
+    void write( const std::string& str)
+    {
+        int size = str.size();
+        write(size);
+        for (int k = 0; k < size; ++k) {
+            write(str[k]);
+        }
+    }
+
+    void read( std::string& str)
+    {
+        int size = 0;
+        read(size);
+        str.resize(size);
+        for (int k = 0; k < size; ++k) {
+            read(str[k]);
+        }
+    }
+};
+
+Opm::data::AquiferData getFetkovichAquifer(const int aquiferID = 1)
+{
+    auto aquifer = Opm::data::AquiferData {
+        aquiferID, 123.456, 56.78, 9.0e10, 290.0, 2515.5
+    };
+
+    auto* aquFet = aquifer.typeData.create<Opm::data::AquiferType::Fetkovich>();
+
+    aquFet->initVolume = 1.23;
+    aquFet->prodIndex = 45.67;
+    aquFet->timeConstant = 890.123;
+
+    return aquifer;
+}
+
+Opm::data::AquiferData getCarterTracyAquifer(const int aquiferID = 5)
+{
+    auto aquifer = Opm::data::AquiferData {
+        aquiferID, 123.456, 56.78, 9.0e10, 290.0, 2515.5
+    };
+
+    auto* aquCT = aquifer.typeData.create<Opm::data::AquiferType::CarterTracy>();
+
+    aquCT->timeConstant = 987.65;
+    aquCT->influxConstant = 43.21;
+    aquCT->waterDensity = 1014.5;
+    aquCT->waterViscosity = 0.00318;
+    aquCT->dimensionless_time = 42.0;
+    aquCT->dimensionless_pressure = 2.34;
+
+    return aquifer;
+}
+
+Opm::data::AquiferData getNumericalAquifer(const int aquiferID = 2)
+{
+    auto aquifer = Opm::data::AquiferData {
+        aquiferID, 123.456, 56.78, 9.0e10, 290.0, 2515.5
+    };
+
+    auto* aquNum = aquifer.typeData.create<Opm::data::AquiferType::Numerical>();
+
+    aquNum->initPressure.push_back(1.234);
+    aquNum->initPressure.push_back(2.345);
+    aquNum->initPressure.push_back(3.4);
+    aquNum->initPressure.push_back(9.876);
+
+    return aquifer;
+}
+} // Anonymous
+
+BOOST_AUTO_TEST_CASE(ReadWrite_CarterTracy_Data)
+{
+    const auto src = getCarterTracyAquifer(1729);
+
+    BOOST_CHECK_MESSAGE(src.typeData.is<Opm::data::AquiferType::CarterTracy>(),
+                        "Carter Tracy aquifer must be represented as AquiferType::CarterTracy");
+
+    MessageBuffer buffer;
+    src.write(buffer);
+
+    auto dest = Opm::data::AquiferData{};
+    dest.read(buffer);
+
+    BOOST_CHECK_MESSAGE(src == dest, "Serialised/deserialised Carter-Tracy aquifer object must be equal to source object");
+}
+
+BOOST_AUTO_TEST_CASE(ReadWrite_Fetkovich_Data)
+{
+    const auto src = getFetkovichAquifer(42);
+
+    BOOST_CHECK_MESSAGE(src.typeData.is<Opm::data::AquiferType::Fetkovich>(),
+                        "Fetkovich aquifer must be represented as AquiferType::Fetkovich");
+
+    MessageBuffer buffer;
+    src.write(buffer);
+
+    auto dest = Opm::data::AquiferData{};
+    dest.read(buffer);
+
+    BOOST_CHECK_MESSAGE(src == dest, "Serialised/deserialised Fetkovich object must be equal to source object");
+}
+
+BOOST_AUTO_TEST_CASE(ReadWrite_NumericalAquifer_Data)
+{
+    const auto src = getNumericalAquifer(11);
+
+    BOOST_CHECK_MESSAGE(src.typeData.is<Opm::data::AquiferType::Numerical>(),
+                        "Numeric aquifer must be represented as AquiferType::Numerical");
+
+    MessageBuffer buffer;
+    src.write(buffer);
+
+    auto dest = Opm::data::AquiferData{};
+    dest.read(buffer);
+
+    BOOST_CHECK_MESSAGE(src == dest, "Serialised/deserialised Numerical aquifer object must be equal to source object");
 }

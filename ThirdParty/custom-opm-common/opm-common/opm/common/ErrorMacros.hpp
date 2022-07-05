@@ -53,7 +53,7 @@
     do {                                                                \
         std::ostringstream oss__;                                       \
         oss__ << "[" << __FILE__ << ":" << __LINE__ << "] " << message; \
-        Opm::OpmLog::error(oss__.str());                                \
+        ::Opm::OpmLog::error(oss__.str());                                \
         throw Exception(oss__.str());                                   \
     } while (false)
 

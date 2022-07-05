@@ -18,13 +18,13 @@
 
 #define BOOST_TEST_MODULE TransMultTests
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
 
 using namespace Opm;
 
@@ -41,14 +41,13 @@ BOOST_AUTO_TEST_CASE(MULTFLT_IN_SCHEDULE) {
     EclipseState state(deck);
     const auto& trans = state.getTransMult();
     Schedule schedule(deck, state, python);
-    const Events& events = schedule.getEvents();
 
     BOOST_CHECK_EQUAL( 0.10 , trans.getMultiplier( 3,2,0,FaceDir::XPlus ));
     BOOST_CHECK_EQUAL( 0.10 , trans.getMultiplier( 2,2,0,FaceDir::XPlus ));
-    BOOST_CHECK( events.hasEvent( ScheduleEvents::GEO_MODIFIER , 3 ) );
+    BOOST_CHECK( schedule[3].events().hasEvent( ScheduleEvents::GEO_MODIFIER) );
     {
-        const auto& mini_deck = schedule.getModifierDeck(3);
-        state.applyModifierDeck( mini_deck );
+        const auto& keywords = schedule[3].geo_keywords();
+        state.apply_schedule_keywords( keywords );
     }
     BOOST_CHECK_EQUAL( 2.00 , trans.getMultiplier( 2,2,0,FaceDir::XPlus ));
     BOOST_CHECK_EQUAL( 0.10 , trans.getMultiplier( 3,2,0,FaceDir::XPlus ));

@@ -1,0 +1,437 @@
+\newcommand{\actionx}{\kw{ACTIONX}}
+\chapter{Programming in the deck: \actionx}
+\label{actionx}
+The \actionx{} keyword is the most direct way to \emph{program} in the deck. The
+\actionx{} functionality consist of the \actionx{} keyword itself, with some
+metadata and a condition and then a list of keywords which are injected into the
+in-memory representation of the \kw{SCHEDULE} section at the point in time where
+the condition evaluates to true. The \actionx{} statement is evaluated at the
+end of every timestep, and if it evaluates to true the new keywords should take
+effect immediately. The \actionx{} conditions are less sophisticated than the
+expressions used in \udq{}, this implies that a common pattern is to make
+involved calculations as \udq{} expressions, and then use a simple test as
+\actionx{} condition.
+
+The \actionx{} keyword is also documented in section 12.3.6 in the \flow{}
+reference manual.
+
+\section{Structure of the \actionx{} keyword}
+\label{actionx_structure}
+The \actionx{} keyword itself consist of multiple records. The first record is
+metadata with name of the action, the number of times the action can be
+triggered and the minimum time elapsed before an action is eligible for a second
+run. The subsequent records are \emph{conditions}, all the conditions are of the
+same form
+\begin{code}
+  lhs comparison rhs
+\end{code}
+and subsequent conditions are combined with \inlinecode{AND} or \inlinecode{OR}.
+The \inlinecode{lhs} is a field, well or group quantity, in addition you can use
+time variables \kw{DAY}, \kw{MNTH} and \kw{YEAR} as left hand
+side\footnote{\eclipse{} supports a wider list of summary variables like region,
+block and aquifer quantities on both left and right hand side.}. As with the
+\udq{} variables the well and group variables are \emph{sets}, and the
+evaluation status is maintained individually for each well and group.
+
+The comparison is one of the ordinary mathematical comparison operators
+\inlinecode{>,<,=,!=, <=} and \inlinecode{>=}. Numerical comparisons are done
+with the corresponding plain C++ operators, this is in contrast to the \udq{}
+implementation where an epsilon defined in \kw{UDQPARAMS} is used in floating
+point comparisons.
+
+The \inlinecode{rhs} is a numerical scalar, or a field, well or group quantity.
+If your \inlinecode{rhs} is a well or group quantity the \inlinecode{lhs} and
+\inlinecode{rhs} must be of the same type. If you use the symbol \kw{MNTH} as
+\inlinecode{lhs} you can compare with named months, i.e. the following will
+trigger on leap days
+\begin{deck}
+ACTIONX
+  LEAP 1000 /
+  MNTH=FEB AND /
+  DAY=29 /
+/
+...
+...
+ENDACTIO
+\end{deck}
+When there is a well/group quantity as \inlinecode{lhs} the evaluation status is
+maintained individually for each well/group. The complete condition evaluates to
+true if \emph{any} of the wells/groups satisfy the condition. In the case of
+wells the wells matching the condition can subsequently be accessed with
+wellname '?' in the \kw{ACTIONX} keywords, this is a quite common pattern to
+e.g. close the well with highest watercut.
+
+If there are more conditions they must be joined with a trailing \kw{AND} or
+\kw{OR}, furthermore conditions can be grouped with paranthesis. The \actionx{}
+expressions can only contain the four arithmetic operators $+,-,*,/$ and not
+mathematical functions like $\log()$, for more advanced expressions the natural
+approach is to first define a \udq{} and then use the \udq{} symbol in the
+\actionx{}, this is illustrated in section \ref{uda}. When multiple conditions
+involving the same well set are evaluated, the list of matching wells available
+in '?' will contain all the wells from the final condition, i.e. for
+\begin{code}
+ WWCT = {"OP1": 0.25, "OP2": 0.50, "OP3": 0.75}
+\end{code}
+and the action
+\begin{deck}
+ACTIONX
+  WWCT /
+  WWCT > 0.33 AND /
+  WWCT < 0.66 /
+/
+...
+ENDACTIO
+\end{deck}
+the set of wells available for further use in '?' are \emph{all} the wells
+matching the condition \inlinecode{WWCT < 0.66} i.e. OP1 and OP2 and \emph{not}
+the wells matching the combined expression \inlinecode{0.33 < WWCT < 0.66}. In
+order to select wells in a range as attempted here you will have to create an
+indicator variable with \udq{} first and then select based on that indicator -
+e.g. something like
+\begin{deck}
+UDQ
+  DEFINE WUCTR (WWCT < 0.66) * (WWCT > 0.33) /
+/
+
+ACTIONX
+  WUCTR /
+  WUCTR = 1 /
+/
+
+...
+
+ENDACTIO
+\end{deck}
+
+The \actionx{} implementation is located in
+\path{opm/input/eclipse/Schedule/Action} and all the classes are in namespace
+\inlinecode{Action::}. As with the \udq{} the input parser needs some special
+case to handle '/' and '*' as division operator and multiplier respectively, but
+that is the only code shared between the \udq{} and the \actionx{}
+implementation\footnote{It might be possible to share more code between the two,
+in particular both have an internal recursive descent parser, but both \udq{}
+and \actionx{} have so much ``personality'' that at least initially separate
+implementations was the simplest.}.
+
+The condition part of the \actionx{} keyword is internalized while the
+\kw{SCHEDULE} section is parsed, the final product is maintained in a class
+\inlinecode{Action::ActionX} which has a \inlinecode{eval()} method waiting to
+be called. The keywords in the \actionx{} block are stored in the
+\inlinecode{Action::ActionX} keyword for future use. All of the \actionx{}
+keywords are stored in a container \inlinecode{Action::Actions} which will
+eventually manage the book keeping of which actions are eligible for evaluation.
+
+\section{The structure of the \inlinecode{Schedule} implementation}
+\label{schedule_design}
+\flow{} internalizes all keywords from the input deck and passes fully baked
+datastructures to the simulator, whereas our impression is that \eclipse{} works
+more like a reservoir model interepreter, executing one keywords at a time.
+Mostly the \flow{} approach has worked out well, however for the \actionx{}
+functionality the difference in execution model is quite acute, and the nature
+of the \actionx{} keyword has had quite strong influence on the final Schedule
+implementation. Although not required for use of \actionx{} it is valuable to
+understand how the \actionx{} functionality has influenced the design of the
+Schedule class, that way you will hopefully better understand problems or bugs
+which might arise in the future.
+
+At the very first pass the \kw{SCHEDULE} section is split in \emph{blocks}, with
+one block for each report step. The blocks are implemented with the class
+\inlinecode{ScheduleBlock}. Each block has a starting time and a list of
+keywords, the keywords are maintained in the input format
+\inlinecode{DeckKeyword}. Then the entire \kw{SCHEDULE} section is internalized
+in the class \inlinecode{ScheduleDeck} which essentially contains a list of
+\inlinecode{ScheduleBlock} instances. Consider the \kw{SCHEDULE} section
+\begin{deck}
+START
+  1 'JAN' 2020 /
+
+...
+...
+
+SCHEDULE
+
+WELSPECS
+	'PROD'	'G1'	10	10	8400	'OIL' /
+	'INJ'	'G1'	1	1	8335	'GAS' /
+/
+
+COMPDAT
+	'PROD'	10	10	3	3	'OPEN'	1*	1*	0.5 /
+	'INJ'	1	1	1	1	'OPEN'	1*	1*	0.5 /
+/
+
+-- End of block 0
+
+DATES
+   1 'FEB' 2020 /
+/
+
+WCONPROD
+	'PROD' 'OPEN' 'ORAT' 20000 4* 1000 /
+/
+
+WCONINJE
+	'INJ'	'GAS'	'OPEN'	'RATE'	100000 1* 9014 /
+/
+
+-- End of block 1
+
+DATES
+  1 'MAR' 2020 /
+/
+
+-- End of block 2
+END
+
+\end{deck}
+
+When this is internalized we get a \inlinecode{ScheduleDeck} instance with three
+\inlinecode{ScheduleBlock} values:
+
+\begin{code}
+ScheduleDeck sched_deck = [
+  ScheduleBlock {
+    start = "2020-01-01",
+    keywords = ["WELSPECS","COMPDAT"]
+  },
+  ScheduleBlock {
+    start = "2020-02-01",
+    keywords = ["WCONPROD","WCONINJE"]
+  },
+  ScheduleBlock {
+    start = "2020-03-01",
+    keywords = []
+  }
+]
+\end{code}
+
+The \inlinecode{Schedule} class has a \inlinecode{ScheduleDeck} member. The
+processed content of the \inlinecode{Schedule} class is managed in vector of
+\inlinecode{ScheduleState} instances, where one \inlinecode{ScheduleState}
+represents the complete dynamic input state at a particular report step. The
+processed \kw{SCHEDULE} code is created with the method
+\begin{code}
+  Schedule::iterateScheduleSection().
+\end{code}
+
+When \inlinecode{Schedule::iterateScheduleSection(report\_step)} is called it
+starts by clearing the vector of \inlinecode{ScheduleState} instances from
+\inlinecode{report\_step} to the end of the simulation, and then recreates those
+by treating the \inlinecode{ScheduleBlock}. The advantage of this approach is
+that the \inlinecode{Schedule::iterateScheduleSection(report\_step)} method is
+idempotent - it can be called repeatedly, from an arbitrary point in the
+timeseries.
+
+The implementation of the \actionx{} functionality is just to append the
+\actionx{} keywords in the \inlinecode{ScheduleBlock} instance corresponding to
+the current report step and then rerun the
+\inlinecode{Schedule::iterateScheduleSection()} from this report step.
+
+
+
+\section{Forward references of wells and groups}
+When a well or group is defined as an \actionx{} keyword and then
+unconditionally referenced in the deck we get a challenge at the first pass
+through the \kw{SCHEDULE} section. In the example below a new well \kw{W1} is
+defined with the \kw{WELSPECS} keyword when the action \inlinecode{NEW\_WELL}
+evaluates to true. At 1.st of January 2025 the well \kw{W1} is opened with the
+\kw{WCONPROD} keyword. The engineer making this model assumes that the
+\inlinecode{NEW\_WELL} action will evaluate to true sometime before 1.st of
+January 2025, and thereby ensure that the well is fully defined when it is
+eventually opened with \kw{WCONPROD}:
+\begin{deck}
+ACTIONX
+   'NEW_WELL/
+   WWCT OPX  > 0.75 /
+/
+
+WELSPECS
+  'W1'  'OP'  1 1 3.33  'OIL' 7*/
+/
+
+ENDACTIO
+
+TSTEP
+  10*30 /
+
+DATES
+   1 'JAN' 2025 /
+/
+
+WCONPROD
+ 'W1'      'OPEN'      'ORAT'      0.000      0.000      0.000  5* /
+/
+
+TSTEP
+  10*30 /
+
+\end{deck}
+
+For \flow{} this creates problems because the entire \kw{SCHEDULE} section is
+parsed when the simulator starts, and at first pass the well \kw{W1} is unknown
+in the \kw{WCONPROD} keyword. This is ``solved'' in the following way:
+\begin{enumerate}
+\item At first pass we inspect the keywords inside the \actionx{} block and if
+  we discover \kw{WELSPECS} we store the name of the well which will be defined
+  at a later stage through \actionx{}.
+\item When we parse further on as part of the first pass and said well is
+  referenced e.g. in a \kw{WCONPROD} keyword, we verify that the well will
+  eventually appear via \actionx{} - we issue a warning and ignore the well in
+  the \kw{WCONPROD} keyword\footnote{If the well is not registered as ``will
+  appear through \actionx{}'' there will be a runtime error with unknown well
+  name when parsing \kw{WCONPROD}.}.
+\item When the \actionx{} evaluates to true the well will be properly defined,
+  and when reiterating over the Schedule keywords the \kw{WCONPROD} keyword will
+  now be properly internalized. If the \actionx{} never evaluates to true the
+  \kw{WCONPROD} keyword will never be applied, and the warning from point 2 will
+  be the only trace of this well.
+\end{enumerate}
+It should be mentioned that the functionality with forward referencing of well
+names is quite new\footnote{In January 2022}, there might be well keywords in
+the \kw{SCHEDULE} section where the implementation is not yet prepared for this.
+Furthermore the forward referencing is not at all implemented for groups. The
+relevant data structure is the member \inlinecode{Action::WGNames
+  action\_wgnames} in the \inlinecode{Schedule} class.
+
+
+\section{To enable a new keyword for \actionx}
+The keywords must be explicitly enabled to be available in an \actionx{} block,
+and enabling a new keyword requires recompiling \flow{}. The keywords available
+as \actionx{} keywords are listed in the static method
+\inlinecode{ActionX::valid\_keyword()} in
+\path{opm/input/eclipse/Schedule/Action/ActionX.cpp}. In principle it should
+just be to add the keyword to the \inlinecode{ActionX::valid\_keyword()} method
+and rebuild \flow{}, but experience has unfortunately shown that problems of
+various kinds have had a tendency to pop up when new keywords are tried out as
+\actionx{} keywords. Most commonly the problems have been in the interaction
+between the \inlinecode{Schedule} class in opm-common and the simulator - things
+have a tendency to go out of sync.
+
+
+\section{Running \actionx{} during simulation}
+The first part of the \actionx{} treatment is parsing the keyword and conditions
+and assemble a syntax tree which can be used to evaluate the conditions. This
+parsing takes place when the \kw{SCHEDULE} section is parsed for the first time.
+This takes place fully within the realms of the opm-common codebase, and is
+quite mature.
+
+When the simulation actually runs the \actionx{} behavior consists of three
+distinct parts, taking place in the simulator, in opm-common and again in the
+simulator. The simulator will manage an instance of \inlinecode{Action::State}
+which will hold on to the time of last run and the latest results for the
+various actions.
+
+\subsection{Prepare and evaluate}
+As with \udq{} the \inlinecode{SummaryState} instance is the most important
+variable to provide context to the \actionx{} evaluation, i.e. the
+\inlinecode{SummaryState} variable must be evaluated before \actionx{}. In
+addition the \udq{} variables must be evaluated and available in the
+\inlinecode{SummaryState} instance before we invoke the \actionx{}
+functionality.
+
+The evaluation of actions is called from the method \inlinecode{applyActions()}
+in \path{eclproblem.hh}. The method will evaluate which actions are eligible for
+running by inspecting the \inlinecode{Action::Actions} variable and call the
+\inlinecode{ActionX::eval()} method.
+
+\subsection{Recreate \inlinecode{Schedule}}
+When an \actionx{} has evaluated to \inlinecode{true} the simulator will call
+into the opm-common method \inlinecode{Schedule::applyAction(report\_step)}.
+That function will add the keywords from the \actionx{} keyword to the
+\inlinecode{ScheduleBlock} for the correct report step, and then reiterate
+through the \kw{SCHEDULE} section to the end of the simulation.
+
+This reiterate process will recreate all internal members in the
+\inlinecode{Schedule} class, i.e. if the simulator was holding on to a reference
+to an internal \inlinecode{Schedule} datastructure that will be invalidated.
+
+While recreating the \inlinecode{Schedule} instance there is some book keeping
+as to which datastructures need to be recalculated in the simulator as a
+consequence of the \actionx{}. That information is maintained in the data
+structure \inlinecode{Action::SimulatorUpdate} which is returned back to the
+simulator.
+
+
+\subsection{Updating simulator data structures}
+The \actionx{} implementation is in the module opm-common, whereas when the
+simulation is proceeding it is the simulator code which is clearly in control.
+If an action has evaluated to true and new keywords are injected in the Schedule
+object the complete simulator state is updated. This is complex, and many of the
+bugs in \actionx{} functionality have been in the interaction between the
+simulator and opm-common, in particular when an action has evaluated to true.
+
+An assumption permeating the simulator code is that changes to the well and
+group configuration only take place at report steps, and in between those the
+simulator ``owns'' the well and group data. Unfortunately this is no longer the
+case when \actionx{} is active, and depending on the keywords in the \actionx{}
+block we need to update the simulator data structures after \actionx{} has been
+evaluated to true. Some details of what is currently updated is decsribed below.
+This update mechanism will probably need to be continously updated in the
+future.
+
+The simulator code makes \emph{copies} of many of the objects like wells and
+connections from the \inlinecode{Schedule} class, and also assembles many
+simulator specific data structures which to a large extent consist of extracts
+of information from the internals of the \inlinecode{Schedule} object. Some of
+the interaction between the simulator and the input layer could probably be
+simplified if the simulator would call the \inlinecode{Schedule} object when
+e.g. a well or connection is needed, instead of storing references or copies to
+the \inlinecode{Schedule} objects internally.
+
+There are currently three categories of changes that can take place due to
+\actionx{}:
+
+
+\subsubsection{General changes in well status}
+\label{actionx_change_well}
+When there is well related keyword in the \actionx{} block - e.g. \kw{WELOPEN}
+to open or close a well or \kw{WCONPROD} to adjust rates, the simulator is
+required update it's internal data structures with the updated input information.
+This will be communicated by flagging all the wells which need an update in the
+\inlinecode{Action::SimulatorUpdate} instance which is passed from the
+simulator.
+
+
+\subsubsection{Changes in geo properties}
+The grid keywords are in general not permitted in the \kw{SCHEDULE} section,
+however there are a few geo multipliers like \kw{MULTZ} and \kw{MULTFLT} which
+are allowed in the \kw{SCHEDULE} section, and thereby also in \actionx{}. If one
+of these keywords are encountered in the \actionx{} block we set the flag
+\inlinecode{Action::SimulatorUpdate::tran\_update = true} to encourage the
+simulator to recalculate the transmissibilities.
+
+
+\subsubsection{WELPI}
+\label{actionx_welpi}
+The \kw{WELPI} keyword is quite complex from the outset, when it is included as
+an \actionx{} keyword it gets even more complicated. In order to support
+\kw{WELPI} in \actionx{} the simulator needs to inspect the \actionx{} keywords
+before invoking them, and if \kw{WELPI} is included the PI values must be
+assembled from the simulator and passed to the
+\inlinecode{Schedule::applyAction()}. This is implemented and works, but it is
+complex and the special treatment in order to support the combination \kw{WELPI}
++ \actionx{} is quite considerable.
+
+
+\section{Problems in parallel}
+\label{actionx_paralle}
+The operation environment for \actionx{} is quite similar to \udq{} when it
+comes to parallel behavior - see section \ref{udq_parallel}, in addition we
+need to be aware of parallel challenges after the \actionx{} has completed. If
+the \actionx{} keyword changes the well structure there will be problems with
+with the parallel well distribution in the simulator. \emph{As of Januarry 2022
+this will fail undetected.}
+
+
+\section{\actionx{} restart output}
+As with the \udq{} keyword some of the structure and complexity of the
+\actionx{} datastructures are there primarily to enable \eclipse{} compatible
+restart. Regarding restart of \actionx{} related data:
+\begin{enumerate}
+  \item The restart output contains the result of parsing an \actionx{}
+    condition in an intermediate representation which has been reverse
+    engineered, this is complex and might not be 100\% correct.
+  \item When restarting \flow{} from an \eclipse{} formatted restart file the
+    \actionx{} conditions are reparsed based on string data in the restart file
+    and the intermediate representation mentioned in point 1 is not utilised.
+\end{enumerate}

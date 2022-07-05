@@ -19,59 +19,65 @@
 
 #include <stdexcept>
 #include <iostream>
-#include <boost/filesystem.hpp>
 #define BOOST_TEST_MODULE GeoModifiersTests
 #include <boost/test/unit_test.hpp>
 
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/M.hpp>
-#include <opm/parser/eclipse/Parser/InputErrorAction.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/M.hpp>
+#include <opm/input/eclipse/Parser/InputErrorAction.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckItem.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
-#include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Events.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckItem.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Deck/DeckRecord.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/Events.hpp>
 
 using namespace Opm;
 
 
 BOOST_AUTO_TEST_CASE( CheckUnsoppertedInSCHEDULE ) {
-    const char * deckString =
-        "START\n"
-        " 10 'JAN' 2000 /\n"
-        "RUNSPEC\n"
-        "DIMENS\n"
-        "  10 10 10 / \n"
-        "GRID\n"
-        "DX\n"
-        "1000*0.25 /\n"
-        "DY\n"
-        "1000*0.25 /\n"
-        "DZ\n"
-        "1000*0.25 /\n"
-        "TOPS\n"
-        "100*0.25 /\n"
-        "SCHEDULE\n"
-        "TSTEP -- 1,2\n"
-        "   10 10/\n"
-        "MULTFLT\n"
-        "   'F1' 100 /\n"
-        "/\n"
-        "MULTFLT\n"
-        "   'F2' 77 /\n"
-        "/\n"
-        "TSTEP  -- 3,4\n"
-        "   10 10/\n"
-        "\n";
+    const std::string deckString = R"(
+START
+ 10 'JAN' 2000 /
+RUNSPEC
+DIMENS
+  10 10 10 /
+GRID
+DX
+1000*0.25 /
+
+DY
+1000*0.25 /
+
+DZ
+1000*0.25 /
+
+TOPS
+100*0.25 /
+
+SCHEDULE
+TSTEP -- 1,2
+   10 10/
+
+MULTFLT
+   'F1' 100 /
+/
+
+MULTFLT
+   'F2' 77 /
+/
+
+TSTEP  -- 3,4
+   10 10/
+)";
 
     auto python = std::make_shared<Python>();
     Parser parser(true);
@@ -82,31 +88,30 @@ BOOST_AUTO_TEST_CASE( CheckUnsoppertedInSCHEDULE ) {
     TableManager table ( deck );
     FieldPropsManager fp( deck, Phases{true, true, true}, grid, table);
 
-    parseContext.update( ParseContext::UNSUPPORTED_SCHEDULE_GEO_MODIFIER , InputError::IGNORE );
     {
         Runspec runspec ( deck );
         Schedule schedule( deck, grid , fp, runspec , parseContext, errors, python);
-        auto events = schedule.getEvents( );
-        BOOST_CHECK_EQUAL( false , events.hasEvent( ScheduleEvents::GEO_MODIFIER , 1 ));
-        BOOST_CHECK_EQUAL( true  , events.hasEvent( ScheduleEvents::GEO_MODIFIER , 2 ));
-        BOOST_CHECK_EQUAL( false , events.hasEvent( ScheduleEvents::GEO_MODIFIER , 3 ));
+        BOOST_CHECK_EQUAL( false , schedule[1].events().hasEvent( ScheduleEvents::GEO_MODIFIER ));
+        BOOST_CHECK_EQUAL( true  , schedule[2].events().hasEvent( ScheduleEvents::GEO_MODIFIER ));
+        BOOST_CHECK_EQUAL( false , schedule[3].events().hasEvent( ScheduleEvents::GEO_MODIFIER ));
 
 
-        BOOST_CHECK_EQUAL( 0U, schedule.getModifierDeck(1).size() );
-        BOOST_CHECK_EQUAL( 0U, schedule.getModifierDeck(3).size() );
+        BOOST_CHECK_EQUAL( 0U, schedule[1].geo_keywords().size() );
+        BOOST_CHECK_EQUAL( 0U, schedule[3].geo_keywords().size() );
 
-        const Deck& multflt_deck = schedule.getModifierDeck(2);
+        const auto& multflt_deck = schedule[2].geo_keywords();
         BOOST_CHECK_EQUAL( 2U , multflt_deck.size());
-        BOOST_CHECK( multflt_deck.hasKeyword<ParserKeywords::MULTFLT>() );
+        BOOST_CHECK_EQUAL( multflt_deck[0].name(), "MULTFLT");
+        BOOST_CHECK_EQUAL( multflt_deck[1].name(), "MULTFLT");
 
-        const auto& multflt1 = multflt_deck.getKeyword(0);
+        const auto& multflt1 = multflt_deck[0];
         BOOST_CHECK_EQUAL( 1U , multflt1.size( ) );
 
         const auto& record0 = multflt1.getRecord( 0 );
         BOOST_CHECK_EQUAL( 100.0  , record0.getItem<ParserKeywords::MULTFLT::factor>().get< double >(0));
         BOOST_CHECK_EQUAL( "F1" , record0.getItem<ParserKeywords::MULTFLT::fault>().get< std::string >(0));
 
-        const auto& multflt2 = multflt_deck.getKeyword(1);
+        const auto& multflt2 = multflt_deck[1];
         BOOST_CHECK_EQUAL( 1U , multflt2.size( ) );
 
         const auto& record1 = multflt2.getRecord( 0 );

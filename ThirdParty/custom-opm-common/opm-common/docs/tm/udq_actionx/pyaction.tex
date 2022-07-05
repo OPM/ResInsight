@@ -1,0 +1,405 @@
+\newcommand{\pyaction}{\kw{PYACTION}}
+\chapter{Programming in the deck: \pyaction{}}
+\label{pyaction}
+The \pyaction{} keyword is a \flow{} specific keyword which allows for Python
+programming in the \kw{SCHEDULE} section. The \pyaction{} keyword is inspired by
+the \actionx{} keyword, but instead of a \inlinecode{.DATA} formatted condition
+you are allowed to implement the condition with a general Python script. The
+\actionx{} keywords are very clearly separated in a condition part and an action
+part in the form of a list of keywords which are effectively injected in the
+\kw{SCHEDULE} section when the condition evaluates to true. This is not so for
+\pyaction{} where there is only one Python script which can both evaluate
+conditions and apply changes. In principle the script can run arbitrary code,
+but due to the complexity of the \kw{SCHEDULE} datamodel the ``current best''
+way to actually change the course of the simulation is through the use of an
+additional dummy \actionx{} keyword.
+
+In order to enable the \pyaction{} keyword \flow{} must be compiled with the
+\path{cmake} switches \inlinecode{-DOPM\_ENABLE\_EMBEDDED\_PYTHON=ON} and
+\inlinecode{-DOPM\_ENABLE\_PYTHON=ON}, the default is to build with these switches
+set to \inlinecode{OFF}. Before you enable \pyaction{} in your \flow{}
+installation please read carefully through section \ref{pyaction_security} for
+security implications of \pyaction{}.
+
+\section{Python - wrapping and embedding}
+Python is present in the \flow{} codebase in two different ways. For many of
+the classes in the \flow{} codebase - in particular in opm-common, there are
+\emph{Python wrappers} available. That means that you can invoke the C++
+functionality in \flow{} classes from Python - e.g. this Python script can be used to
+load a deck and print all the keywords:
+
+\begin{code}
+import sys
+from opm.io.parser import Parser
+
+input_file = sys.argv[1]
+parser = Parser()
+
+deck = parser.parse_file(input_file)
+for kw in deck:
+    print(kw.name)
+\end{code}
+ 
+When used this way the Python interpreter is the main program running, and the
+\flow{} classes like \inlinecode{Opm::Parser} are loaded to extend the Python
+interpreter. This can also be flipped around, the Python interpreter can be
+\emph{embedded} in the \flow{} executable. When Python is embedded, \flow{} is
+the main program running, and with help of the embedded interpreter the \flow{}
+program can be extended with Python plugins. The \pyaction{} keyword can be
+perceived as a Python plugin. To really interact with the state of the \flow{}
+simulation the plugin needs to utilize the functionality which wraps the C++
+functionality, so for \pyaction{} both wrapping and embedding is at play.
+
+Exporting more functionality from C++ to Python in the form of new and updated
+wrappers is a quite simple and mechanical process. If you need a particular
+functionality which is already available in C++ also in Python it will probably
+be a quite limited effort for a developer who is already familiar with the code.
+
+
+\section{The \pyaction{} keyword}
+The \pyaction{} keyword is in the \kw{SCHEDULE} section like \actionx{}. The
+first record is the name of the action and a string identifier for how many
+times the action should run, then there is a path to a Python module:
+
+\begin{deck}
+PYACTION
+  PYTEST 'FIRST_TRUE' /
+  'pytest.py' /
+\end{deck}
+
+This keyword defines a \pyaction{} called \kw{PYTEST} which will run at the end
+of every timestep until the first time a \inlinecode{true} value is returned. In
+addition to \kw{FIRST\_TRUE} you can choose \kw{SINGLE} to run exactly once and
+\kw{UNLIMITED} to continue running at the end of every timestep for the entire
+simulation. The second record is the path to a file with Python code which will
+run when this \pyaction{} is invoked. The path to the module will be interpreted
+relative to the location of the \path{.DATA} file.
+
+The python module can be quite arbitrary, but it must contain a function
+\inlinecode{run} with the correct signature:
+\begin{code}
+def run(ecl_state, schedule, report_step, summary_state, actionx_callback):
+    print('Running python code in PYACTION')
+    return True
+\end{code}
+The \pyaction{} machinery is not as robust as the simulator proper: while
+loading the \kw{PYACTION} keyword \flow{} will check that the Python module
+contains syntactically valid Python code, and that it contains a
+\inlinecode{run()} function, but it will \emph{not} check the signature of the
+\inlinecode{run()} function. If the signature is wrong you will get a hard to
+diagnose runtime error.
+
+When the Python module is loaded it does so in an environment where the path to
+the \path{.DATA} file has been appended to the Python load path by manipulating
+the internal \inlinecode{sys.path} variable.
+
+ 
+\subsection{The different arguments}
+The \inlinecode{run()} function will be called with exactly five arguments which
+your implementation can use. These arguments point to datastructures in the
+simulator, and is the way to interact with the state of the simulation. The five
+arguments are:
+\begin{description}
+\item[\inlinecode{ecl\_state}:] An instance of the \inlinecode{Opm::EclipseState}
+  class - this is a representation of \emph{all static properties} in the model,
+  ranging from porosity to relperm tables. The content of the
+  \inlinecode{ecl\_state} is immutable - you are not allowed to change the static
+  properties at runtime\footnote{This could certainly be interesting, but this
+  is beyond the scope of the \pyaction{} keyword.}.
+\item[\inlinecode{schedule}:] An instance of the \inlinecode{Opm::Schedule}
+  class - this is a representation of all the content from the \kw{SCHEDULE}
+  section, notably all well and group information and the timestepping. Being
+  able to change the \kw{SCHEDULE} information runtime is certainly one of the
+  main motivations for this functionality, however due to the complexity of
+  the \inlinecode{Opm::Schedule} class (section \ref{schedule_design})
+  the recommended way to actually mutate the \inlinecode{Opm::Schedule} is
+  through the use of a dummy \actionx{} keyword (section
+  \ref{pyaction_actionx}).
+\item[\inlinecode{report\_step}:] This is an integer for the report step we
+  are currently working on. Observe that the \pyaction{} is called for every
+  simulator timestep, i.e. it will typically be called multiple times with
+  the same value for the $\mathrm{report\_step}$ argument.
+\item[\inlinecode{summary\_state}:] An instance of the
+  \inlinecode{Opm::SummaryState} class, this is where the current summary
+  results of the simulator are stored. The \inlinecode{SummaryState} class has
+  methods to get hold of well, group and general variables
+  \begin{code}
+    # Print all well names
+    for well in summary_state.wells:
+        print(well)
+
+    # Assign all group names to the variable group_names
+    group_names = summary_state.groups
+
+    # Sum the oil rate from all wells.
+    sum_wopr = 0
+    for well in summary_state.wells:
+        sum_wopr += summary_state.well_var(well, 'WOPR')
+
+    # Directly fetch the FOPR from the summary_state
+    fopr = summary_state['FOPR'] 
+  \end{code}
+  The \inlinecode{summary\_state} variable can also be updated with the
+  \inlinecode{update()}, \inlinecode{update\_well\_var()} and
+  \inlinecode{update\_group\_var()} methods.
+\item[\inlinecode{actionx\_callback}:] The \inlinecode{actionx\_callback} is a
+  specialized function which is used to update the \inlinecode{Schedule} object
+  by applying the keywords from a normal \actionx{} keyword. This is described
+  in detail in section \ref{pyaction_actionx}.
+\end{description}
+
+\subsection{Holding state}
+The \pyaction{} keywords will often be invoked multiple times, a Python
+dictionary \inlinecode{state} has been injected in the module - that dictionary
+can be used to maintain state between invocations. Let us assume we want to
+detect when the field oil production starts curving down - i.e. when
+$\partial^2_{t} \mathrm{FOPR} < 0$, in order to calculate that we need to keep
+track of the timesteps and the $\mathrm{FOPR}$ as function of time - this is one
+possible implementation:
+\begin{code}
+def diff(pair1, pair2):
+    return (pair1[0] - pair2[0], pair1[1] - pair2[1])   
+
+def fopr_diff2(summary_state):
+    fopr = summary_state.get('FOPR')
+    sim_time = summary_state.get('TIME')
+    if not 'fopr' in state:
+        state['fopr'] = []
+    fopr_series = state['fopr']
+    fopr_series.append( (sim_time, fopr) )
+
+    if len(fopr_series) < 2:
+       return None
+
+    pair0 = fopr_series[-1]
+    pair1 = fopr_series[-2]
+    pair2 = fopr_series[-3]
+
+    dt1, df1 = diff(pair0, pair1)
+    dt2, df2 = diff(pair1, pair2)
+
+    return 2*(df1/dt1 - df2/dt2)/(dt1 + dt2)
+
+def run(ecl_state, schedule, report_step, summary_state, actionx_callback):
+    fopr_d2 = fopr_diff2(summary_state)
+    if not fopr_d2 is None:
+       if fopr_d2 < 0:
+           print('Hmmm - this is going the wrong way')
+       else:
+           print('All good - sky is the limit!')
+\end{code}
+
+\section{Changing the \inlinecode{Schedule} object - using a ``normal'' \actionx{}}
+\label{pyaction_actionx}
+Before reading this section you should make sure to understand the
+\inlinecode{Schedule} design described in section \ref{schedule_design}. The
+initial plan when implementing the \pyaction{} keyword was to be able to make
+function calls like
+\begin{code}
+  schedule.close_well(w1, report_step)
+  schedule.set_orat(w2, 1000, report_step)
+\end{code}
+to close a well and set the oil rate of another well. Unfortunately it proved
+very complex to get good semantics for combining such runtime changes with the
+keyword based model for \kw{SCHEDULE} section. The current recommendation is to
+apply changes to the \kw{SCHEDULE} section using callbacks to \kw{ACTIONX}
+keywords from Python code, this is illustrated in the example
+below\footnote{From a programmers point of view the solution seems very
+unsatisfactory, but it works and it plays nicely with the \kw{ACTIONX} behavior.
+If/when the underlying \inlinecode{Schedule} implementation changes there is
+nothing per se in the \pyaction{} design which inhibits use of a better
+\inlinecode{Schedule} api in the future.}.
+
+The recommended way to achieve this is to create a normal \actionx{} keyword
+which is set up to run zero times, and then explicitly invoke that from the
+Python \inlinecode{run()} function. In the example below we create an \actionx{}
+\inlinecode{CLOSEWELLS} which will close all matching wells (the wellname '?')
+\begin{deck}
+ACTIONX
+  CLOSEWELLS 0 /
+  /
+/
+
+WELOPEN
+  '?' 'CLOSE' /
+/
+
+ENDACTIO
+\end{deck}
+The \inlinecode{CLOSEWELLS} action is set up to run zero times, so the normal
+\actionx{} machinery will never run this action\footnote{The \kw{CLOSEWELL}
+action has an \emph{empty condition}, the \actionx{} keywords with empty
+condition will always evaluate as false.}. Then in the Python run function we go
+through all the wells and call the \inlinecode{CLOSEWELL} action to close those
+with \inlinecode{OPR < 1000}:
+\begin{code}
+def run(ecl_state, schedule, report_step, summary_state, actionx_callback):
+    close_wells = []
+    for well in summary_state.wells:
+        if summary_state.well_var(well, 'WOPR') < 1000:
+           close_wells.append(well)
+
+    if close_wells:
+        actionx_callback('CLOSEWELLS', close_wells)
+\end{code}
+The implementation of this is quite complex with thread of execution going from
+C++ to Python, then invoking a callback to C++ which will call
+\inlinecode{Schedule::iterateScheduleSection()}, going back to Python to
+complete the \inlinecode{run()} method before the function pointers pops back to
+C++ and continues the simulator execution\footnote{This is documented in some
+detail as code comments of \inlinecode{Schedule::applyPyAction()} in the
+\path{Schedule.cpp} file.}.
+
+
+\section{Implementing \udq{} like behavior}
+The \udq{} keyword has three different purposes - all based on defining 
+complex quantities from the current state of the simulation:
+
+\begin{enumerate}
+\item Define a complex quantity to be used in a \actionx{} condition.
+\item Define a complex quantity for reporting in the summary file.
+\item Define a quantity which can used as a control in \kw{UDA}.
+\end{enumerate}
+
+All of these can be achieved by using the \pyaction{} keyword, although for the
+two latter alternatives you must specify the \udq{} keyword in the deck first,
+but you can let the \pyaction{} implementation override the value:
+\begin{deck}
+-- Observe that this UDQ will be assigned from a PYACTION keyword,
+-- the value used in the ASSIGN statement below is pure dummy.
+UDQ
+  ASSIGN WUGOOD 1 /
+  ASSIGN FUGOOD 1 /
+/
+\end{deck}
+
+\subsection{Using \pyaction{} instead of \udq{} + \actionx{}}
+Towards the end of section \ref{actionx_structure} it is demonstrated how \udq{}
+and \actionx{} can be combined to implement an action in case a complicated
+condition applies. As described in section \ref{pyaction_actionx} the best way
+to actually invoke changes on the \kw{SCHEDULE} section is through the use of a
+dummy \actionx{} keyword, but \pyaction{} is very well suited to evaluate
+complex conditions. In the example below we close all wells which have
+consistently produced less than 1000 $\mathrm{m^3/day}$ for more than 60 days:
+
+\begin{code}
+wopr_limit = 1000
+time_limit = 60 * 3600 * 24
+
+def init_state(summary_state):
+    if 'closed_wells' in state:
+        return
+
+    state['closed_wells'] = set()
+    bad_wells = {}
+    for well in summary_state.wells:
+        bad_wells[well] = None
+    state['bad_wells'] = bad_wells
+
+
+def run(ecl_state, schedule, report_step, summary_state, actionx_callback):
+    shut_wells = []
+    init_state(summary_state)
+    for well in summary_state.wells:
+        if well in state['closed_wells']:
+           continue
+
+        if summary_state.well_var(well, 'WOPR') < wopr_limit:
+            elapsed = summary_state.elapsed()
+            if state['bad_wells'][well] is None:
+                state['bad_wells'][well] = elapsed
+            else:
+                bad_time = elapsed - state['bad_wells'][well]
+                if bad_time > time_limit:
+                    shut_wells.append(well)
+                    state['closed_wells'].add( well )         
+        else:
+            state['bad_wells'][well] = None
+
+    if shut_wells:
+       actionx_callback(shut_wells)
+
+\end{code}
+
+\subsection{Using \pyaction{} to report to the summary file}
+The important point when using \pyaction{} to report complex results to the
+summary file is just that the \inlinecode{summary\_state} argument to the
+\inlinecode{run()} function is \emph{writable} with \inlinecode{updata\_xxx}
+calls. Assuming dummy \udq{} variables \kw{WUGOOD} and \kw{FUGOOD} have been
+defined as per the example above, we can use \pyaction{} to set variable
+\kw{FUGOOD} to one for all wells with rate above a limit, and the \kw{FUGOOD}
+variable can be the count of such wells:
+\begin{code}
+def run(ecl_state, schedule, report_step, summary_state, actionx_callback):
+    good_count = 0
+    opr_limit = 1000
+    for wname in schedule.well_names():
+        if summary_state.well_var(wname, 'FOPR') > opr_limit:
+            good_count += 1
+            summary_state.update_well_var(wname, 'WUGOOD', 1)
+        else:
+            summary_state.update_well_var(wname, 'WUGOOD', 0)
+
+    summary_state.update_var('FUGOOD', good_count)
+\end{code}
+
+
+
+\subsection{Using \pyaction{} to set a \kw{UDA} control}
+Using \pyaction{} to set \kw{UDA} controls is quite simple. Again the \udq{}
+keyword must have been defined with a dummy value in the \kw{SCHEDULE} section,
+and the \kw{UDA} keyword used in e.g. a \kw{WCONDPROD} keyword. Then the
+\inlinecode{run()} function can just be used to assign to the \udq{} variable.
+In the example below we use a \kw{UDA} to control the oil production rate, and
+the value is set to the average value of the producing wells:
+\begin{deck}
+-- Define dummy UDQ WUOPR to be used as control in the WCONPROD
+-- keyword. The actual value for this UDQ is assigned in a PYACTION
+-- keyword
+UDQ
+   ASSIGN WUOPR 0 /
+/
+...
+...
+-- Need to define a well list with all the production wells.
+-- This is to ensure that the WCONPROD keyword is only applied
+-- to producers.
+WLIST
+  'PROD'  P1 P2 P3 .../
+
+WCONPROD
+   '*PROD'  'OPEN'  'ORAT'  'WUOPR' /
+/
+\end{deck}
+This can then be combined with the python code:
+\begin{code}
+def run(ecl_state, schedule, report_step, summary_state, actionx_callback):
+    num_prod_wells = 0
+    for wname in schedule.well_names():
+        if summary_state.well_var(wname, 'WOPR') > 0:
+            num_prod_wells += 1
+ 
+    fopr = summary_state['FOPR']
+    new_rate = fopr / num_prod_wells
+    for wname in schedule.well_names():
+        summary_state.update_well_var(wname, 'WUOPR', new_rate)
+\end{code}
+
+
+\section{Security implications of \pyaction{}}
+\label{pyaction_security}
+The \pyaction{} keyword allows for execution of arbitrary user supplied Python
+code, with the priviliges of the user actually running \flow{}. If you have a
+setup where \flow{} runs with a different user account than the person
+submitting the simulation you should be \emph{very careful} about enabling the
+embedded Python functionality and the \pyaction{} keyword. As a scary example
+this script will wipe your disks:
+\begin{code}
+import shutil
+
+def run(ecl_state, schedule, report_step, summary_state, actionx_callback):
+    shutil.rmtree('/')
+\end{code}
+
+If the user running \flow{} has different security credentials than the user
+submits the job, this has significant security implications.

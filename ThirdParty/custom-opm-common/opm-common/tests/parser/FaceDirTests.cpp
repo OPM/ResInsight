@@ -20,13 +20,11 @@
 #include <stdexcept>
 #include <iostream>
 #include <memory>
-#include <boost/filesystem.hpp>
 
 #define BOOST_TEST_MODULE FaceDirTests
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Grid/FaceDir.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FaceDir.hpp>
 
 
 namespace Opm {

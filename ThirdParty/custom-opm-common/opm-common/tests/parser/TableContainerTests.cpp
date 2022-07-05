@@ -21,28 +21,34 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
-#include <opm/parser/eclipse/Deck/DeckRecord.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableContainer.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SwofTable.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Deck/DeckRecord.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableContainer.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SwofTable.hpp>
 
 #include <string>
 #include <memory>
 
-inline Opm::Deck createSWOFDeck() {
-    const char *deckData =
-        "TABDIMS\n"
-        " 2 /\n"
-        "\n"
-        "SWOF\n"
-        " 1 2 3 4\n"
-        " 5 6 7 8 /\n"
-        " 9 10 11 12 /\n";
+namespace {
+    Opm::Deck createSWOFDeck()
+    {
+        return Opm::Parser{}.parseString(R"(RUNSPEC
+OIL
+WATER
 
-    Opm::Parser parser;
-    return parser.parseString(deckData);
+TABDIMS
+2 /
+
+PROPS
+SWOF
+1 2 3 4
+5 6 7 8 /
+9 10 11 12 /
+END
+)");
+    }
 }
 
 BOOST_AUTO_TEST_CASE( CreateContainer ) {
@@ -50,13 +56,13 @@ BOOST_AUTO_TEST_CASE( CreateContainer ) {
     auto deck = createSWOFDeck();
     Opm::TableContainer container(10);
     BOOST_CHECK( container.empty() );
-    BOOST_CHECK_EQUAL( 0 , container.size() );
+    BOOST_CHECK_EQUAL( 0U , container.size() );
     BOOST_CHECK_EQUAL( false , container.hasTable( 1 ));
 
-    std::shared_ptr<Opm::SimpleTable> table = std::make_shared<Opm::SwofTable>( deck.getKeyword("SWOF").getRecord(0).getItem(0), false );
+    std::shared_ptr<Opm::SimpleTable> table = std::make_shared<Opm::SwofTable>( deck["SWOF"].back().getRecord(0).getItem(0), false, 0 );
     BOOST_CHECK_THROW( container.addTable( 10 , table ), std::invalid_argument );
     container.addTable( 6 , table );
-    BOOST_CHECK_EQUAL( 1 , container.size() );
+    BOOST_CHECK_EQUAL( 1U , container.size() );
 
     BOOST_CHECK_EQUAL( table.get() , &(container[6]));
     BOOST_CHECK_EQUAL( table.get() , &(container[9]));
@@ -64,4 +70,3 @@ BOOST_AUTO_TEST_CASE( CreateContainer ) {
     BOOST_CHECK_THROW( container[5] , std::invalid_argument );
     BOOST_CHECK_THROW( container[10] , std::invalid_argument );
 }
-

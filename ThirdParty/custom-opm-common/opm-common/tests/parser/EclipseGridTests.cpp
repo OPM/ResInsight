@@ -17,36 +17,45 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+#include <cstddef>
 #include <cstdio>
 #include <ctime>
 #include <iostream>
 #include <math.h>
 #include <memory>
+#include <optional>
 #include <numeric>
 #include <stdexcept>
 #include <unistd.h>
 
 #include <opm/common/utility/FileSystem.hpp>
+#include <opm/common/utility/OpmInputError.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
 
 #define BOOST_TEST_MODULE EclipseGridTests
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
-#include <opm/parser/eclipse/Deck/DeckSection.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Deck/DeckSection.hpp>
 
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/GridDims.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/NNC.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/MapAxes.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/GridDims.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/NNC.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/PinchMode.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-
+#include <opm/input/eclipse/Parser/Parser.hpp>
 #include <opm/io/eclipse/EclFile.hpp>
+
+#include "tests/WorkArea.hpp"
+
 
 BOOST_AUTO_TEST_CASE(CreateMissingDIMENS_throws) {
     Opm::Deck deck;
@@ -130,15 +139,15 @@ BOOST_AUTO_TEST_CASE(CreateGridNoCells) {
     BOOST_CHECK_THROW( Opm::EclipseGrid{ deck }, std::invalid_argument);
 
     const Opm::GridDims grid( deck);
-    BOOST_CHECK_EQUAL( 10 , grid.getNX());
-    BOOST_CHECK_EQUAL( 10 , grid.getNY());
-    BOOST_CHECK_EQUAL( 10 , grid.getNZ());
+    BOOST_CHECK_EQUAL( 10U , grid.getNX());
+    BOOST_CHECK_EQUAL( 10U , grid.getNY());
+    BOOST_CHECK_EQUAL( 10U , grid.getNZ());
 
-    BOOST_CHECK_EQUAL(10, grid[0]);
-    BOOST_CHECK_EQUAL(10, grid[2]);
+    BOOST_CHECK_EQUAL(10U, grid[0]);
+    BOOST_CHECK_EQUAL(10U, grid[2]);
     BOOST_CHECK_THROW( grid[10], std::invalid_argument);
 
-    BOOST_CHECK_EQUAL( 1000 , grid.getCartesianSize());
+    BOOST_CHECK_EQUAL( 1000U , grid.getCartesianSize());
 }
 
 BOOST_AUTO_TEST_CASE(CheckGridIndex) {
@@ -158,15 +167,15 @@ BOOST_AUTO_TEST_CASE(CheckGridIndex) {
     BOOST_CHECK_EQUAL(v167[0], 14);
     BOOST_CHECK_EQUAL(v167[1], 9);
     BOOST_CHECK_EQUAL(v167[2], 0);
-    BOOST_CHECK_EQUAL(grid.getGlobalIndex(14, 9, 0), 167);
+    BOOST_CHECK_EQUAL(grid.getGlobalIndex(14, 9, 0), 167U);
 
     auto v5723 = grid.getIJK(5723);
     BOOST_CHECK_EQUAL(v5723[0], 11);
     BOOST_CHECK_EQUAL(v5723[1], 13);
     BOOST_CHECK_EQUAL(v5723[2], 17);
-    BOOST_CHECK_EQUAL(grid.getGlobalIndex(11, 13, 17), 5723);
+    BOOST_CHECK_EQUAL(grid.getGlobalIndex(11, 13, 17), 5723U);
 
-    BOOST_CHECK_EQUAL(17 * 19 * 41, grid.getCartesianSize());
+    BOOST_CHECK_EQUAL(std::size_t(17 * 19 * 41), grid.getCartesianSize());
 }
 
 static Opm::Deck createCPDeck() {
@@ -211,6 +220,27 @@ static Opm::Deck createPinchedCPDeck() {
     return parser.parseString( deckData) ;
 }
 
+static Opm::Deck createPinchedNOGAPCPDeck() {
+    const char* deckData =
+        "RUNSPEC\n"
+        "\n"
+        "DIMENS\n"
+        " 10 10 10 /\n"
+        "GRID\n"
+        "COORD\n"
+        "  726*1 / \n"
+        "ZCORN \n"
+        "  8000*1 / \n"
+        "ACTNUM \n"
+        "  1000*1 / \n"
+        "PINCH \n"
+        "  0.2 NOGAP / \n"
+        "EDIT\n"
+        "\n";
+
+    Opm::Parser parser;
+    return parser.parseString( deckData) ;
+}
 
 static Opm::Deck createMinpvDefaultCPDeck() {
     const char* deckData =
@@ -330,10 +360,10 @@ static Opm::Deck createCARTInvalidDeck() {
 BOOST_AUTO_TEST_CASE(CREATE_SIMPLE) {
     Opm::EclipseGrid grid(10,20,30);
 
-    BOOST_CHECK_EQUAL( grid.getNX() , 10 );
-    BOOST_CHECK_EQUAL( grid.getNY() , 20 );
-    BOOST_CHECK_EQUAL( grid.getNZ() , 30 );
-    BOOST_CHECK_EQUAL( grid.getCartesianSize() , 6000 );
+    BOOST_CHECK_EQUAL( grid.getNX() , 10U );
+    BOOST_CHECK_EQUAL( grid.getNY() , 20U );
+    BOOST_CHECK_EQUAL( grid.getNZ() , 30U );
+    BOOST_CHECK_EQUAL( grid.getCartesianSize() , 6000U );
 }
 
 BOOST_AUTO_TEST_CASE(DEPTHZ_EQUAL_TOPS) {
@@ -545,10 +575,10 @@ BOOST_AUTO_TEST_CASE(CreateCartesianGRIDInvalidDEPTHZ2) {
 BOOST_AUTO_TEST_CASE(CreateCartesianGRIDOnlyTopLayerDZ) {
     Opm::Deck deck = createOnlyTopDZCartGrid();
     Opm::EclipseGrid grid( deck );
-    BOOST_CHECK_EQUAL( 10 , grid.getNX( ));
-    BOOST_CHECK_EQUAL(  5 , grid.getNY( ));
-    BOOST_CHECK_EQUAL( 20 , grid.getNZ( ));
-    BOOST_CHECK_EQUAL( 1000 , grid.getNumActive());
+    BOOST_CHECK_EQUAL( 10U , grid.getNX( ));
+    BOOST_CHECK_EQUAL(  5U , grid.getNY( ));
+    BOOST_CHECK_EQUAL( 20U , grid.getNZ( ));
+    BOOST_CHECK_EQUAL( 1000U , grid.getNumActive());
 }
 
 BOOST_AUTO_TEST_CASE(AllActiveExportActnum) {
@@ -557,7 +587,7 @@ BOOST_AUTO_TEST_CASE(AllActiveExportActnum) {
 
     std::vector<int> actnum = grid.getACTNUM();
 
-    BOOST_CHECK_EQUAL( 1000 , actnum.size());
+    BOOST_CHECK_EQUAL( 1000U , actnum.size());
 }
 
 BOOST_AUTO_TEST_CASE(CornerPointSizeMismatchCOORD) {
@@ -578,7 +608,7 @@ BOOST_AUTO_TEST_CASE(CornerPointSizeMismatchCOORD) {
 
     Opm::Parser parser;
     auto deck = parser.parseString( deckData) ;
-    const auto& zcorn = deck.getKeyword("ZCORN");
+    const auto& zcorn = deck["ZCORN"].back();
     BOOST_CHECK_EQUAL( 8000U , zcorn.getDataSize( ));
 
     BOOST_CHECK_THROW(Opm::EclipseGrid{ deck }, std::invalid_argument);
@@ -625,6 +655,8 @@ BOOST_AUTO_TEST_CASE(ResetACTNUM) {
 
     Opm::EclipseGrid grid( deck);
     BOOST_CHECK_EQUAL( 1000U , grid.getNumActive());
+    BOOST_CHECK_EQUAL( 1000U , grid.activeVolume().size());
+
     std::vector<int> actnum(1000);
     actnum[0] = 1;
     actnum[2] = 1;
@@ -634,6 +666,7 @@ BOOST_AUTO_TEST_CASE(ResetACTNUM) {
     grid.resetACTNUM( actnum );
 
     BOOST_CHECK_EQUAL( 4U , grid.getNumActive() );
+    BOOST_CHECK_EQUAL( 4U , grid.activeVolume().size());
     {
         std::vector<int> full(grid.getCartesianSize());
         std::iota(full.begin(), full.end(), 0);
@@ -682,12 +715,12 @@ BOOST_AUTO_TEST_CASE(ResetACTNUM) {
 
     std::vector<int> actMap = grid.getActiveMap();
 
-    BOOST_CHECK_EQUAL(actMap.size(), 993);
+    BOOST_CHECK_EQUAL(actMap.size(), 993U);
     BOOST_CHECK_THROW(grid.getGlobalIndex(993), std::out_of_range);
-    BOOST_CHECK_EQUAL(grid.getGlobalIndex(0), 3);
-    BOOST_CHECK_EQUAL(grid.getGlobalIndex(33), 38);
-    BOOST_CHECK_EQUAL(grid.getGlobalIndex(450), 457);
-    BOOST_CHECK_EQUAL(grid.getGlobalIndex(1,2,3), 321);
+    BOOST_CHECK_EQUAL(grid.getGlobalIndex(0), 3U);
+    BOOST_CHECK_EQUAL(grid.getGlobalIndex(33), 38U);
+    BOOST_CHECK_EQUAL(grid.getGlobalIndex(450), 457U);
+    BOOST_CHECK_EQUAL(grid.getGlobalIndex(1,2,3), 321U);
 }
 
 BOOST_AUTO_TEST_CASE(TestCP_example) {
@@ -794,16 +827,20 @@ BOOST_AUTO_TEST_CASE(ConstructorNoSections) {
 BOOST_AUTO_TEST_CASE(ConstructorNORUNSPEC_PINCH) {
     auto deck1 = createCPDeck();
     auto deck2 = createPinchedCPDeck();
+    auto deck3 = createPinchedNOGAPCPDeck();
 
     Opm::EclipseGrid grid1(deck1);
     Opm::EclipseGrid grid2(deck2);
+    Opm::EclipseGrid grid3(deck3);
 
     BOOST_CHECK(!grid1.equal( grid2 ));
 
     BOOST_CHECK(!grid1.isPinchActive());
-    BOOST_CHECK_THROW(grid1.getPinchThresholdThickness(), std::logic_error);
+    BOOST_CHECK_THROW(grid1.getPinchThresholdThickness(), std::bad_optional_access);
     BOOST_CHECK(grid2.isPinchActive());
     BOOST_CHECK_EQUAL(grid2.getPinchThresholdThickness(), 0.2);
+    BOOST_CHECK_EQUAL(grid2.getPinchGapMode(), Opm::PinchMode::ModeEnum::GAP);
+    BOOST_CHECK_EQUAL(grid3.getPinchGapMode(), Opm::PinchMode::ModeEnum::NOGAP);
 }
 
 BOOST_AUTO_TEST_CASE(ConstructorMINPV) {
@@ -942,6 +979,283 @@ BOOST_AUTO_TEST_CASE(GridBoxActnum) {
     }
 }
 
+
+/// Similar to createActnumBoxDeck(), but uses a corner point grid, and
+/// also used EQUALS for re-activating a cell.
+/// Creates a deck where the top-layer has ACTNUM = 0 and two partially
+/// overlapping 2*2*2 boxes in the center, one [5,7]^3 and one [6,8]^3
+/// have ACTNUM = 0, then the cell (7,7,7) is made active using EQUALS.
+static Opm::Deck createActnumBoxDeck2() {
+    const char* deckData = "RUNSPEC\n"
+            "\n"
+            "DIMENS \n"
+            "  10 10 10 / \n"
+            "GRID\n"
+            "COORD\n"
+            "  726*1 / \n"
+            "ZCORN \n"
+            "  8000*1 / \n"
+            "PORO \n"
+            "  1000*0.15 /\n"
+            "EQUALS\n"
+            " ACTNUM 0 1 10 1 10 1 1 /\n" // disable top layer
+            "/ \n"
+            // start box
+            "BOX\n"
+            "  5 7 5 7 5 7 /\n"
+            "ACTNUM \n"
+            "    0 0 0 0 0 0 0 0 0\n"
+            "    0 0 0 0 0 0 0 0 0\n"
+            "    0 0 0 0 0 0 0 0 0\n"
+            "/\n"
+            "BOX\n" // don't need ENDBOX
+            "  6 8 6 8 6 8 /\n"
+            "ACTNUM \n"
+            "    27*0\n"
+            "/\n"
+            "ENDBOX\n"
+            "EQUALS\n"
+            " ACTNUM 1 7 7 7 7 7 7 /\n" // re-enable cell (7,7,7)
+            "/ \n"
+            "FLUXNUM\n"
+            "1000*0 /\n"
+            "EDIT\n"
+            "PORV\n"
+            "1000*1 /\n";
+
+    Opm::Parser parser;
+    return parser.parseString( deckData);
+}
+
+BOOST_AUTO_TEST_CASE(GridBoxActnum2) {
+    auto deck = createActnumBoxDeck2();
+    Opm::EclipseState es( deck);
+    const auto& fp = es.fieldProps();
+    const auto& grid = es.getInputGrid();
+
+    BOOST_CHECK_NO_THROW(fp.get_int("ACTNUM"));
+
+    size_t active = 10 * 10 * 10     // 1000
+                    - (10 * 10 * 1)  // - top layer
+                    - ( 3 *  3 * 3)  // - [5,7]^3 box
+                    - ( 3 *  3 * 3)  // - [6,8]^3 box
+                    + ( 2 *  2 * 2)  // + inclusion/exclusion
+                    + 1;             // cell (7,7,7)
+    BOOST_CHECK_NO_THROW(grid.getNumActive());
+    BOOST_CHECK_EQUAL(grid.getNumActive(), active);
+
+    BOOST_CHECK_EQUAL(es.getInputGrid().getNumActive(), active);
+
+    {
+        size_t active_index = 0;
+        // NB: The implementation of this test actually assumes that
+        //     the loops are running with z as the outer and x as the
+        //     inner direction.
+        for (size_t z = 0; z < grid.getNZ(); z++) {
+            for (size_t y = 0; y < grid.getNY(); y++) {
+                for (size_t x = 0; x < grid.getNX(); x++) {
+                    if (z == 0)
+                        BOOST_CHECK(!grid.cellActive(x, y, z));
+                    else if (x == 6 && y == 6 && z == 6) {
+                        BOOST_CHECK(grid.cellActive(x, y, z));
+                        BOOST_CHECK_EQUAL( grid.activeIndex(x,y,z) , active_index );
+                        size_t g = grid.getGlobalIndex( x,y,z );
+                        BOOST_CHECK_EQUAL( grid.activeIndex(g) , active_index );
+                        ++active_index;
+                    } else if (x >= 4 && x <= 6 && y >= 4 && y <= 6 && z >= 4 && z <= 6)
+                        BOOST_CHECK(!grid.cellActive(x, y, z));
+                    else if (x >= 5 && x <= 7 && y >= 5 && y <= 7 && z >= 5 && z <= 7)
+                        BOOST_CHECK(!grid.cellActive(x, y, z));
+                    else {
+                        size_t g = grid.getGlobalIndex( x,y,z );
+
+                        BOOST_CHECK(grid.cellActive(x, y, z));
+                        BOOST_CHECK_EQUAL( grid.activeIndex(x,y,z) , active_index );
+                        BOOST_CHECK_EQUAL( grid.activeIndex(g) , active_index );
+
+                        active_index++;
+                    }
+                }
+            }
+        }
+
+        BOOST_CHECK_THROW( grid.activeIndex(0,0,0) , std::invalid_argument );
+    }
+}
+
+// 5-by-1-by-5 Cartesian grid in which all cells have dimension 1-by-1-by-1
+// metres.  Setup otherwise very similar to createActnumBoxDeck2, but this
+// deck uses a full initial ACTNUM, followed by EQUALS to reactivate.
+static Opm::Deck createActnumBoxDeck3() {
+    return Opm::Parser{}.parseString(R"(RUNSPEC
+DIMENS
+5 1 5 /
+GRID
+SPECGRID
+5 1 5 1 F /
+COORD
+0 0 0  0 0 0
+1 0 0  1 0 0
+2 0 0  2 0 0
+3 0 0  3 0 0
+4 0 0  4 0 0
+5 0 0  5 0 0
+0 1 0  0 1 0
+1 1 0  1 1 0
+2 1 0  2 1 0
+3 1 0  3 1 0
+4 1 0  4 1 0
+5 1 0  5 1 0
+/
+ZCORN
+10*0 10*0
+10*1 10*1
+10*1 10*1
+10*2 10*2
+10*2 10*2
+10*3 10*3
+10*3 10*3
+10*4 10*4
+10*4 10*4
+10*5 10*5
+/
+ACTNUM
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
+0 0 1 1 1
+0 0 1 1 1
+/
+EQUALS
+ACTNUM   1   1 3 1 1 5 5 /
+PERMX  100.0 1 5 1 1 1 5 /
+PORO     0.3 1 5 1 1 1 5 /
+/
+COPY
+PERMX PERMY /
+PERMX PERMZ /
+/
+)");
+}
+
+static Opm::Deck createActnumBoxDeck4() {
+    return Opm::Parser{}.parseString(R"(RUNSPEC
+DIMENS
+5 1 5 /
+GRID
+DXV
+5*1 /
+DYV
+1*1 /
+DZV
+5*1 /
+DEPTHZ
+12*0 /
+ACTNUM
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
+0 0 1 1 1
+0 0 1 1 1
+/
+EQUALS
+ACTNUM   1   1 3 1 1 5 5 /
+PERMX  100.0 1 5 1 1 1 5 /
+PORO     0.3 1 5 1 1 1 5 /
+/
+COPY
+PERMX PERMY /
+PERMX PERMZ /
+/
+)");
+}
+
+static Opm::Deck createActnumBoxDeck5() {
+    return Opm::Parser{}.parseString(R"(RUNSPEC
+DIMENS
+5 1 5 /
+GRID
+DX
+25*1 /
+DY
+25*1 /
+DZ
+25*1 /
+TOPS
+5*0 /
+ACTNUM
+1 1 1 1 1
+1 1 1 1 1
+1 1 1 1 1
+0 0 1 1 1
+0 0 1 1 1
+/
+EQUALS
+ACTNUM   1   1 3 1 1 5 5 /
+PERMX  100.0 1 5 1 1 1 5 /
+PORO     0.3 1 5 1 1 1 5 /
+/
+COPY
+PERMX PERMY /
+PERMX PERMZ /
+/
+)");
+}
+
+BOOST_AUTO_TEST_CASE(GridBoxActnum3) {
+    const auto es = Opm::EclipseState { createActnumBoxDeck3() };
+    const auto& grid = es.getInputGrid();
+    BOOST_CHECK_EQUAL(grid.getNumActive(), std::size_t{23});
+
+    const auto expect = std::vector<int> {
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        0, 0, 1, 1, 1,
+        1, 1, 1, 1, 1,
+    };
+
+    const auto& actnum = grid.getACTNUM();
+    BOOST_CHECK_EQUAL_COLLECTIONS(actnum.begin(), actnum.end(),
+                                  expect.begin(), expect.end());
+}
+
+BOOST_AUTO_TEST_CASE(GridBoxActnum4) {
+    const auto es = Opm::EclipseState { createActnumBoxDeck4() };
+    const auto& grid = es.getInputGrid();
+    BOOST_CHECK_EQUAL(grid.getNumActive(), std::size_t{23});
+
+    const auto expect = std::vector<int> {
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        0, 0, 1, 1, 1,
+        1, 1, 1, 1, 1,
+    };
+
+    const auto& actnum = grid.getACTNUM();
+    BOOST_CHECK_EQUAL_COLLECTIONS(actnum.begin(), actnum.end(),
+                                  expect.begin(), expect.end());
+}
+
+BOOST_AUTO_TEST_CASE(GridBoxActnum5) {
+    const auto es = Opm::EclipseState { createActnumBoxDeck5() };
+    const auto& grid = es.getInputGrid();
+    BOOST_CHECK_EQUAL(grid.getNumActive(), std::size_t{23});
+
+    const auto expect = std::vector<int> {
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        1, 1, 1, 1, 1,
+        0, 0, 1, 1, 1,
+        1, 1, 1, 1, 1,
+    };
+
+    const auto& actnum = grid.getACTNUM();
+    BOOST_CHECK_EQUAL_COLLECTIONS(actnum.begin(), actnum.end(),
+                                  expect.begin(), expect.end());
+}
+
 BOOST_AUTO_TEST_CASE(GridActnumVia3D) {
     auto deck = createActnumDeck();
 
@@ -955,12 +1269,12 @@ BOOST_AUTO_TEST_CASE(GridActnumVia3D) {
 
     BOOST_CHECK_NO_THROW(fp.get_int("ACTNUM"));
     BOOST_CHECK_NO_THROW(grid.getNumActive());
-    BOOST_CHECK_EQUAL(grid.getNumActive(), 2 * 2 * 2 - 1);
+    BOOST_CHECK_EQUAL(grid.getNumActive(), std::size_t(2 * 2 * 2 - 1));
 
     BOOST_CHECK_NO_THROW(grid2.getNumActive());
-    BOOST_CHECK_EQUAL(grid2.getNumActive(), 2 * 2 * 2 - 1);
+    BOOST_CHECK_EQUAL(grid2.getNumActive(), std::size_t(2 * 2 * 2 - 1));
 
-    BOOST_CHECK_EQUAL(grid3.getNumActive(), 6);
+    BOOST_CHECK_EQUAL(grid3.getNumActive(), 6U);
 }
 
 
@@ -969,25 +1283,25 @@ BOOST_AUTO_TEST_CASE(GridActnumViaState) {
 
     BOOST_CHECK_NO_THROW( std::unique_ptr<Opm::EclipseState>(new Opm::EclipseState( deck)));
     Opm::EclipseState es( deck);
-    BOOST_CHECK_EQUAL(es.getInputGrid().getNumActive(), 2 * 2 * 2 - 1);
+    BOOST_CHECK_EQUAL(es.getInputGrid().getNumActive(), std::size_t(2 * 2 * 2 - 1));
 }
 
 
 BOOST_AUTO_TEST_CASE(GridDimsSPECGRID) {
     auto deck =  createDeckSPECGRID();
     auto gd = Opm::GridDims( deck );
-    BOOST_CHECK_EQUAL(gd.getNX(), 13);
-    BOOST_CHECK_EQUAL(gd.getNY(), 17);
-    BOOST_CHECK_EQUAL(gd.getNZ(), 19);
+    BOOST_CHECK_EQUAL(gd.getNX(), 13U);
+    BOOST_CHECK_EQUAL(gd.getNY(), 17U);
+    BOOST_CHECK_EQUAL(gd.getNZ(), 19U);
 }
 
 
 BOOST_AUTO_TEST_CASE(GridDimsDIMENS) {
     auto deck =  createDeckDIMENS();
     auto gd = Opm::GridDims( deck );
-    BOOST_CHECK_EQUAL(gd.getNX(), 13);
-    BOOST_CHECK_EQUAL(gd.getNY(), 17);
-    BOOST_CHECK_EQUAL(gd.getNZ(), 19);
+    BOOST_CHECK_EQUAL(gd.getNX(), 13U);
+    BOOST_CHECK_EQUAL(gd.getNY(), 17U);
+    BOOST_CHECK_EQUAL(gd.getNZ(), 19U);
 }
 
 
@@ -1017,7 +1331,7 @@ BOOST_AUTO_TEST_CASE(ProcessedCopy) {
         BOOST_CHECK( gd.equal( gd2 ));
     }
 
-    actnum.assign( gd.getCartesianSize() , 1);
+    actnum.assign( gd.getCartesianSize() , 1U);
     actnum[0] = 0;
     {
         Opm::EclipseGrid gd2(gd , actnum );
@@ -1097,10 +1411,10 @@ BOOST_AUTO_TEST_CASE(ZcornMapper) {
 
     Opm::EclipseGrid grid2(grid , zcorn.data() , actnum );
     points_adjusted = grid2.getZcornFixed();
-    BOOST_CHECK_EQUAL( points_adjusted , 4 );
+    BOOST_CHECK_EQUAL( points_adjusted , 4U );
 
     points_adjusted = grid2.fixupZCORN();
-    BOOST_CHECK_EQUAL( points_adjusted , 0 );
+    BOOST_CHECK_EQUAL( points_adjusted , 0U );
 
     zcorn = grid.getZCORN();
 
@@ -1110,14 +1424,14 @@ BOOST_AUTO_TEST_CASE(ZcornMapper) {
     zcorn[ zmp.index(0,0,0,4) ] = zcorn[ zmp.index(0,0,0,0) ] - 0.1;
     BOOST_CHECK( !zmp.validZCORN( zcorn ));
     points_adjusted = zmp.fixupZCORN( zcorn );
-    BOOST_CHECK_EQUAL( points_adjusted , 1 );
+    BOOST_CHECK_EQUAL( points_adjusted , 1U );
     BOOST_CHECK( zmp.validZCORN( zcorn ));
 
     // Manually destroy it - cell 2 cell
     zcorn[ zmp.index(0,0,0,4) ] = zcorn[ zmp.index(0,0,1,0) ] + 0.1;
     BOOST_CHECK( !zmp.validZCORN( zcorn ));
     points_adjusted = zmp.fixupZCORN( zcorn );
-    BOOST_CHECK_EQUAL( points_adjusted , 1 );
+    BOOST_CHECK_EQUAL( points_adjusted , 1U );
     BOOST_CHECK( zmp.validZCORN( zcorn ));
 
     // Manually destroy it - cell 2 cell and cell internal
@@ -1125,7 +1439,7 @@ BOOST_AUTO_TEST_CASE(ZcornMapper) {
     zcorn[ zmp.index(0,0,0,0) ] = zcorn[ zmp.index(0,0,0,4) ] + 0.1;
     BOOST_CHECK( !zmp.validZCORN( zcorn ));
     points_adjusted = zmp.fixupZCORN( zcorn );
-    BOOST_CHECK_EQUAL( points_adjusted , 2 );
+    BOOST_CHECK_EQUAL( points_adjusted , 2U );
     BOOST_CHECK( zmp.validZCORN( zcorn ));
 }
 
@@ -1154,76 +1468,10 @@ static Opm::Deck radial_missing_INRAD() {
 
 
 
-static Opm::Deck radial_keywords_OK() {
-    const char* deckData =
-        "RUNSPEC\n"
-        "\n"
-        "DIMENS\n"
-        " 10 6 10 /\n"
-        "RADIAL\n"
-        "GRID\n"
-        "INRAD\n"
-        "1 /\n"
-        "DRV\n"
-        "10*1 /\n"
-        "DTHETAV\n"
-        "6*60 /\n"
-        "DZV\n"
-        "10*0.25 /\n"
-        "TOPS\n"
-        "60*0.0 /\n"
-        "PORO \n"
-        "  600*0.15 /"
-        "\n";
-
-    Opm::Parser parser;
-    return parser.parseString( deckData);
-}
-
-static Opm::Deck radial_keywords_OK_CIRCLE() {
-    const char* deckData =
-        "RUNSPEC\n"
-        "\n"
-        "DIMENS\n"
-        " 10 6 10 /\n"
-        "RADIAL\n"
-        "GRID\n"
-        "CIRCLE\n"
-        "INRAD\n"
-        "1 /\n"
-        "DRV\n"
-        "10*1 /\n"
-        "DTHETAV\n"
-        "6*60 /\n"
-        "DZV\n"
-        "10*0.25 /\n"
-        "TOPS\n"
-        "60*0.0 /\n"
-        "PORO \n"
-        "  600*0.15 /"
-        "\n";
-
-    Opm::Parser parser;
-    return parser.parseString( deckData);
-}
-
-
 
 BOOST_AUTO_TEST_CASE(RadialTest) {
     Opm::Deck deck = radial_missing_INRAD();
     BOOST_CHECK_THROW( Opm::EclipseGrid{ deck }, std::invalid_argument);
-}
-
-BOOST_AUTO_TEST_CASE(RadialKeywordsOK) {
-    Opm::Deck deck = radial_keywords_OK();
-    Opm::EclipseGrid grid( deck );
-    BOOST_CHECK(!grid.circle());
-}
-
-BOOST_AUTO_TEST_CASE(RadialKeywordsOK_CIRCLE) {
-    Opm::Deck deck = radial_keywords_OK_CIRCLE();
-    Opm::EclipseGrid grid( deck );
-    BOOST_CHECK(grid.circle());
 }
 
 static Opm::Deck radial_keywords_DRV_size_mismatch() {
@@ -1269,6 +1517,32 @@ static Opm::Deck radial_keywords_DZV_size_mismatch() {
         "6*60 /\n"
         "DZV\n"
         "11*0.25 /\n"
+        "TOPS\n"
+        "60*0.0 /\n"
+        "PORO \n"
+        "  720*0.15 /"
+        "\n";
+
+    Opm::Parser parser;
+    return parser.parseString( deckData);
+}
+
+static Opm::Deck radial_keywords_DZ_size_mismatch() {
+    const char* deckData =
+        "RUNSPEC\n"
+        "\n"
+        "DIMENS\n"
+        "10 6 12 /\n"
+        "RADIAL\n"
+        "GRID\n"
+        "INRAD\n"
+        "1 /\n"
+        "DRV\n"
+        "10*1 /\n"
+        "DTHETAV\n"
+        "6*60 /\n"
+        "DZ\n"
+        "660*0.25 /\n"
         "TOPS\n"
         "60*0.0 /\n"
         "PORO \n"
@@ -1364,9 +1638,117 @@ static Opm::Deck radial_keywords_ANGLE_OVERFLOW() {
 BOOST_AUTO_TEST_CASE(RadialKeywords_SIZE_ERROR) {
     BOOST_CHECK_THROW( Opm::EclipseGrid{ radial_keywords_DRV_size_mismatch() } , std::invalid_argument);
     BOOST_CHECK_THROW( Opm::EclipseGrid{ radial_keywords_DZV_size_mismatch() } , std::invalid_argument);
+    BOOST_CHECK_THROW( Opm::EclipseGrid{ radial_keywords_DZ_size_mismatch() } , std::invalid_argument);
     BOOST_CHECK_THROW( Opm::EclipseGrid{ radial_keywords_TOPS_size_mismatch() } , std::invalid_argument);
     BOOST_CHECK_THROW( Opm::EclipseGrid{ radial_keywords_DTHETAV_size_mismatch() } , std::invalid_argument);
     BOOST_CHECK_THROW( Opm::EclipseGrid{ radial_keywords_ANGLE_OVERFLOW() } , std::invalid_argument);
+}
+
+
+static Opm::Deck spider_details() {
+    const char* deckData =
+        "RUNSPEC\n"
+        "\n"
+        "DIMENS\n"
+        "1 5 2 /\n"
+        "SPIDER\n"
+        "GRID\n"
+        "INRAD\n"
+        "1 /\n"
+        "DRV\n"
+        "1 /\n"
+        "DTHETAV\n"
+        "3*90 60 30/\n"
+        "DZV\n"
+        "2*1 /\n"
+        "TOPS\n"
+        "5*1.0 /\n"
+        "PORO \n"
+        "  10*0.15 /"
+        "\n";
+
+    Opm::Parser parser;
+    return parser.parseString( deckData);
+}
+
+BOOST_AUTO_TEST_CASE(SpiderDetails) {
+    Opm::Deck deck = spider_details();
+    Opm::EclipseGrid grid( deck );
+
+    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 0 , 0 ) , 0.5*(2*2 - 1)*1, 0.0001);
+    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 3 , 0 ) , sqrt(3.0)*0.25*( 4 - 1 ) , 0.0001);
+    auto pos0 = grid.getCellCenter(0,0,0);
+    auto pos2 = grid.getCellCenter(0,2,0);
+
+    BOOST_CHECK_CLOSE( std::get<0>(pos0) , 0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<1>(pos0) , 0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<2>(pos0) , 1.50 , 0.0001);
+
+    BOOST_CHECK_CLOSE( std::get<0>(pos2) , -0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<1>(pos2) , -0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<2>(pos2) , 1.50 , 0.0001);
+
+    {
+        const auto& p0 = grid.getCornerPos( 0,0,0 , 0 );
+        const auto& p6 = grid.getCornerPos( 0,0,0 , 6 );
+        BOOST_CHECK_CLOSE( p0[0]*p0[0] + p0[1]*p0[1] , 1.0, 0.0001);
+        BOOST_CHECK_CLOSE( p6[0]*p6[0] + p6[1]*p6[1] , 1.0, 0.0001);
+
+        BOOST_CHECK_THROW( grid.getCornerPos( 0,0,0 , 8 ) , std::invalid_argument);
+    }
+}
+
+static Opm::Deck spider_details_dz() {
+    const char* deckData =
+        "RUNSPEC\n"
+        "\n"
+        "DIMENS\n"
+        "1 5 2 /\n"
+        "SPIDER\n"
+        "GRID\n"
+        "INRAD\n"
+        "1 /\n"
+        "DRV\n"
+        "1 /\n"
+        "DTHETAV\n"
+        "3*90 60 30/\n"
+        "DZ\n"
+        "10*1 /\n"
+        "TOPS\n"
+        "5*1.0 /\n"
+        "PORO \n"
+        "  10*0.15 /"
+        "\n";
+
+    Opm::Parser parser;
+    return parser.parseString( deckData);
+}
+
+BOOST_AUTO_TEST_CASE(SpiderDetailsDZ) {
+    Opm::Deck deck = spider_details_dz();
+    Opm::EclipseGrid grid( deck );
+
+    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 0 , 0 ) , 0.5*(2*2 - 1)*1, 0.0001);
+    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 3 , 0 ) , sqrt(3.0)*0.25*( 4 - 1 ) , 0.0001);
+    auto pos0 = grid.getCellCenter(0,0,0);
+    auto pos2 = grid.getCellCenter(0,2,0);
+
+    BOOST_CHECK_CLOSE( std::get<0>(pos0) , 0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<1>(pos0) , 0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<2>(pos0) , 1.50 , 0.0001);
+
+    BOOST_CHECK_CLOSE( std::get<0>(pos2) , -0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<1>(pos2) , -0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<2>(pos2) , 1.50 , 0.0001);
+
+    {
+        const auto& p0 = grid.getCornerPos( 0,0,0 , 0 );
+        const auto& p6 = grid.getCornerPos( 0,0,0 , 6 );
+        BOOST_CHECK_CLOSE( p0[0]*p0[0] + p0[1]*p0[1] , 1.0, 0.0001);
+        BOOST_CHECK_CLOSE( p6[0]*p6[0] + p6[1]*p6[1] , 1.0, 0.0001);
+
+        BOOST_CHECK_THROW( grid.getCornerPos( 0,0,0 , 8 ) , std::invalid_argument);
+    }
 }
 
 static Opm::Deck radial_details() {
@@ -1399,8 +1781,61 @@ BOOST_AUTO_TEST_CASE(RadialDetails) {
     Opm::Deck deck = radial_details();
     Opm::EclipseGrid grid( deck );
 
-    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 0 , 0 ) , 0.5*(2*2 - 1)*1, 0.0001);
-    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 3 , 0 ) , sqrt(3.0)*0.25*( 4 - 1 ) , 0.0001);
+    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 0 , 0 ) , 0.75 * M_PI, 0.0001);
+    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 3 , 0 ) , 0.5 * M_PI , 0.0001);
+    auto pos0 = grid.getCellCenter(0,0,0);
+    auto pos2 = grid.getCellCenter(0,2,0);
+
+    BOOST_CHECK_CLOSE( std::get<0>(pos0) , 0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<1>(pos0) , 0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<2>(pos0) , 1.50 , 0.0001);
+
+    BOOST_CHECK_CLOSE( std::get<0>(pos2) , -0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<1>(pos2) , -0.75 , 0.0001);
+    BOOST_CHECK_CLOSE( std::get<2>(pos2) , 1.50 , 0.0001);
+
+    {
+        const auto& p0 = grid.getCornerPos( 0,0,0 , 0 );
+        const auto& p6 = grid.getCornerPos( 0,0,0 , 6 );
+        BOOST_CHECK_CLOSE( p0[0]*p0[0] + p0[1]*p0[1] , 1.0, 0.0001);
+        BOOST_CHECK_CLOSE( p6[0]*p6[0] + p6[1]*p6[1] , 1.0, 0.0001);
+
+        BOOST_CHECK_THROW( grid.getCornerPos( 0,0,0 , 8 ) , std::invalid_argument);
+    }
+}
+
+static Opm::Deck radial_details_dz() {
+    const char* deckData =
+        "RUNSPEC\n"
+        "\n"
+        "DIMENS\n"
+        "1 5 2 /\n"
+        "RADIAL\n"
+        "GRID\n"
+        "INRAD\n"
+        "1 /\n"
+        "DRV\n"
+        "1 /\n"
+        "DTHETAV\n"
+        "3*90 60 30/\n"
+        "DZ\n"
+        "10*1 /\n"
+        "TOPS\n"
+        "5*1.0 /\n"
+        "PORO \n"
+        "  10*0.15 /"
+        "\n";
+
+    Opm::Parser parser;
+    return parser.parseString( deckData);
+}
+
+BOOST_AUTO_TEST_CASE(RadialDetailsDZ) {
+    Opm::Deck deck = radial_details_dz();
+    Opm::EclipseGrid grid( deck );
+
+    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 0 , 0 ) , 0.75 * M_PI, 0.0001);
+    BOOST_CHECK_CLOSE( grid.getCellVolume( 0 , 3 , 0 ) , 0.5 * M_PI , 0.0001);
     auto pos0 = grid.getCellCenter(0,0,0);
     auto pos2 = grid.getCellCenter(0,2,0);
 
@@ -1595,48 +2030,6 @@ static Opm::Deck BAD_CP_GRID() {
     return parser.parseString( deckData);
 }
 
-static Opm::Deck BAD_CP_GRID_MAPAXES() {
-    const char* deckData =
-        "RUNSPEC\n"
-        "\n"
-        "DIMENS\n"
-        "2 2 2 /\n"
-        "GRID\n"
-        "MAPAXES\n"
-        " 0.  100.  0.  0.  100.  0.  /\n"
-        "\n"
-        "SPECGRID\n"
-        " 2 2 2 1 F /\n"
-        "COORD\n"
-        "  2002.0000  2002.0000   100.0000   1999.8255  1999.9127   108.4935\n"
-        "  2011.9939  2000.0000   100.3490   2009.8194  1999.9127   108.8425\n"
-        "  2015.9878  2000.0000   100.6980   2019.8133  1999.9127   109.1915\n"
-        "  2000.0000  2009.9985   100.1745   1999.8255  2009.9112   108.6681 \n"
-        "  2010.9939  2011.9985   100.5235   2009.8194  2009.9112   109.0170\n"
-        "  2019.9878  2009.9985   100.8725   2019.8133  2009.9112   109.3660\n"
-        "  2005.0000  2019.9970   100.3490   1999.8255  2019.9097   108.8426\n"
-        "  2009.9939  2019.9970   100.6980   2009.8194  2019.9097   109.1916\n"
-        "  2016.9878  2019.9970   101.0470   2019.8133  2019.9097   109.5406 /\n"
-        "ZCORN\n"
-        "    98.0000   100.3490    97.3490   100.6980   100.1745   100.5235\n"
-        "   100.5235   100.8725   100.1745   100.5235   100.5235   100.8725\n"
-        "   100.3490   101.6980   101.6980   102.5470   102.4973   102.1463\n"
-        "   103.2463   104.1953   103.6719   104.0209   104.0209   104.3698\n"
-        "   103.6719   104.0209   104.0209   104.3698   103.8464   104.1954\n"
-        "   104.1954   104.5444   103.4973   103.8463   103.8463   104.1953\n"
-        "   103.6719   104.0209   104.0209   104.3698   103.6719   104.0209\n"
-        "   104.0209   104.3698   103.8464   104.1954   104.1954   104.5444\n"
-        "   108.4935   108.8425   108.8425   109.1915   108.6681   109.0170\n"
-        "   109.0170   109.3660   108.6681   109.0170   109.0170   109.3660\n"
-        "   108.8426   109.1916   109.1916   109.5406  /\n"
-        "\n"
-        "PORO\n"
-        "  8*0.15 /\n"
-        "EDIT\n";
-
-    Opm::Parser parser;
-    return parser.parseString( deckData);
-}
 
 BOOST_AUTO_TEST_CASE(SAVE_FIELD_UNITS) {
 
@@ -1723,125 +2116,117 @@ BOOST_AUTO_TEST_CASE(SAVE_FIELD_UNITS) {
 
     const auto& grid1 = es.getInputGrid();
 
-    Opm::NNC nnc( deck );
+    Opm::NNC nnc(grid1,  deck);
     bool formatted = false;
+    {
+        WorkArea work;
 
-    time_t timer;
-    time(&timer);
+        time_t timer;
+        time(&timer);
 
-    std::string cwd = Opm::filesystem::current_path().c_str();
-    std::string testDir = cwd + "/tmp_dir_" + std::to_string(timer);
+        std::string fileName = "TMP.EGRID";
+        grid1.save(fileName, formatted, nnc.input(), units);
 
-    if ( Opm::filesystem::exists( testDir )) {
-        Opm::filesystem::remove_all(testDir);
+        Opm::EclIO::EclFile file1(fileName);
+
+        // Values getZCORNed from the grid needs to be converted from SI to Field units
+        // and then converted from double to single precissions before comparing with values saved to
+        // the EGRID file
+
+        // check coord
+        const std::vector<float> coord_egrid = file1.get<float>("COORD");
+        std::vector<double> coord_input_si = grid1.getCOORD();
+
+        BOOST_CHECK(coord_egrid.size() == coord_input_si.size());
+
+        std::vector<float> coord_input_f;
+        coord_input_f.reserve(coord_input_si.size());
+
+        for (size_t n = 0; n < coord_egrid.size(); n++) {
+            coord_input_f.push_back(static_cast<float>(units.from_si(length, coord_input_si[n])));
+            BOOST_CHECK_CLOSE(coord_input_f[n], coord_egrid[n], 1e-6);
+        }
+
+        // check zcorn
+        const std::vector<float> zcorn_egrid = file1.get<float>("ZCORN");
+        std::vector<double> zcorn_input_si = grid1.getZCORN();
+
+        BOOST_CHECK(zcorn_egrid.size() == zcorn_input_si.size());
+
+        std::vector<float> zcorn_input_f;
+        zcorn_input_f.reserve(zcorn_input_si.size());
+
+        for (size_t n = 0; n < zcorn_egrid.size(); n++) {
+            zcorn_input_f.push_back(static_cast<float>(units.from_si(length, zcorn_input_si[n])));
+            BOOST_CHECK_CLOSE(zcorn_input_f[n], zcorn_egrid[n], 1e-6);
+        }
+
+        BOOST_CHECK(file1.hasKey("GRIDUNIT"));
+        const std::vector<std::string> gridunits = file1.get<std::string>("GRIDUNIT");
+
+        BOOST_CHECK(gridunits[0] == "FEET");
+
+        // input deck do not hold MAPAXES or MAPUNITS entries. Below keywords should not be written to EGRID file
+        BOOST_CHECK(!file1.hasKey("MAPAXES"));
+        BOOST_CHECK(!file1.hasKey("MAPUNITS"));
+
+        // this deck do not have any nnc. Below keywords should not be written to EGRID file
+        BOOST_CHECK(!file1.hasKey("NNCHEAD"));
+        BOOST_CHECK(!file1.hasKey("NNC1"));
+        BOOST_CHECK(!file1.hasKey("NNC2"));
+
+        // testing deck in field units and MAPUNITS in METRES
+        auto deck2 = parser.parseString(deckData2);
+
+        Opm::EclipseState es2(deck2);
+        Opm::UnitSystem units2 = es.getDeckUnitSystem();
+        const auto& grid2 = es2.getInputGrid();
+        Opm::NNC nnc2(grid2, deck2);
+
+
+        std::string fileName2 = "TMP2.FEGRID";
+
+        grid2.save(fileName2, true, nnc2.input(), units);
+
+        Opm::EclIO::EclFile file2(fileName2);
+
+        const std::vector<std::string>& test_mapunits2 = file2.get<std::string>("MAPUNITS");
+        BOOST_CHECK(test_mapunits2[0] == "METRES");
+
+        const std::vector<float>& test_mapaxes2 = file2.get<float>("MAPAXES");
+
+        BOOST_CHECK(test_mapaxes2.size() == ref2_mapaxes.size());
+
+        for (size_t n = 0; n < ref2_mapaxes.size(); n++) {
+            BOOST_CHECK_EQUAL(ref2_mapaxes[n], test_mapaxes2[n]);
+        }
+
+        // testing deck in field units and MAPUNITS in FEET
+        auto deck3 = parser.parseString(deckData3);
+
+        Opm::EclipseState es3(deck3);
+        Opm::UnitSystem units3 = es.getDeckUnitSystem();
+        const auto& grid3 = es3.getInputGrid();
+        Opm::NNC nnc3(grid3, deck3);
+
+
+        std::string fileName3 = "TMP3.FEGRID";
+
+        grid3.save(fileName3, true, nnc3.input(), units3);
+
+        Opm::EclIO::EclFile file3(fileName3);
+
+        const std::vector<std::string>& test_mapunits3 = file3.get<std::string>("MAPUNITS");
+        BOOST_CHECK(test_mapunits3[0] == "FEET");
+
+        const std::vector<float>& test_mapaxes3 = file3.get<float>("MAPAXES");
+
+        BOOST_CHECK(test_mapaxes3.size() == ref3_mapaxes.size());
+
+        for (size_t n = 0; n < ref3_mapaxes.size(); n++) {
+            BOOST_CHECK(ref3_mapaxes[n] == test_mapaxes3[n]);
+        }
     }
-
-    Opm::filesystem::create_directory(testDir);
-
-    std::string fileName = testDir + "/" + "TMP.EGRID";
-    grid1.save(fileName, formatted, nnc, units);
-
-    Opm::EclIO::EclFile file1(fileName);
-
-    // Values getZCORNed from the grid needs to be converted from SI to Field units
-    // and then converted from double to single precissions before comparing with values saved to
-    // the EGRID file
-
-    // check coord
-    const std::vector<float> coord_egrid = file1.get<float>("COORD");
-    std::vector<double> coord_input_si = grid1.getCOORD();
-
-    BOOST_CHECK( coord_egrid.size() == coord_input_si.size());
-
-    std::vector<float> coord_input_f;
-    coord_input_f.reserve(coord_input_si.size());
-
-    for (size_t n =0; n< coord_egrid.size(); n++) {
-        coord_input_f.push_back( static_cast<float>(units.from_si(length, coord_input_si[n])));
-        BOOST_CHECK_CLOSE( coord_input_f[n] , coord_egrid[n], 1e-6 );
-    }
-
-    // check zcorn
-    const std::vector<float> zcorn_egrid = file1.get<float>("ZCORN");
-    std::vector<double> zcorn_input_si = grid1.getZCORN();
-
-    BOOST_CHECK( zcorn_egrid.size() == zcorn_input_si.size());
-
-    std::vector<float> zcorn_input_f;
-    zcorn_input_f.reserve(zcorn_input_si.size());
-
-    for (size_t n =0; n< zcorn_egrid.size(); n++) {
-        zcorn_input_f.push_back( static_cast<float>(units.from_si(length, zcorn_input_si[n])));
-        BOOST_CHECK_CLOSE( zcorn_input_f[n] , zcorn_egrid[n], 1e-6 );
-    }
-
-    BOOST_CHECK( file1.hasKey("GRIDUNIT"));
-    const std::vector<std::string> gridunits = file1.get<std::string>("GRIDUNIT");
-
-    BOOST_CHECK( gridunits[0]=="FEET");
-
-    // input deck do not hold MAPAXES or MAPUNITS entries. Below keywords should not be written to EGRID file
-    BOOST_CHECK( !file1.hasKey("MAPAXES"));
-    BOOST_CHECK( !file1.hasKey("MAPUNITS"));
-
-    // this deck do not have any nnc. Below keywords should not be written to EGRID file
-    BOOST_CHECK( !file1.hasKey("NNCHEAD"));
-    BOOST_CHECK( !file1.hasKey("NNC1"));
-    BOOST_CHECK( !file1.hasKey("NNC2"));
-
-    // testing deck in field units and MAPUNITS in METRES
-    auto deck2 = parser.parseString( deckData2) ;
-
-    Opm::EclipseState es2(deck2);
-    Opm::UnitSystem units2 = es.getDeckUnitSystem();
-    Opm::NNC nnc2( deck2 );
-
-    const auto& grid2 = es2.getInputGrid();
-
-    std::string fileName2 = testDir + "/" + "TMP2.FEGRID";
-
-    grid2.save(fileName2, true, nnc2, units);
-
-    Opm::EclIO::EclFile file2(fileName2);
-
-    const std::vector<std::string>& test_mapunits2 = file2.get<std::string>("MAPUNITS");
-    BOOST_CHECK( test_mapunits2[0] == "METRES");
-
-    const std::vector<float>& test_mapaxes2 = file2.get<float>("MAPAXES");
-
-    BOOST_CHECK( test_mapaxes2.size() == ref2_mapaxes.size());
-
-    for (size_t n =0; n< ref2_mapaxes.size(); n++) {
-        BOOST_CHECK( ref2_mapaxes[n] == test_mapaxes2[n]);
-    }
-
-    // testing deck in field units and MAPUNITS in FEET
-    auto deck3 = parser.parseString( deckData3) ;
-
-    Opm::EclipseState es3(deck3);
-    Opm::UnitSystem units3 = es.getDeckUnitSystem();
-    Opm::NNC nnc3( deck3 );
-
-    const auto& grid3 = es3.getInputGrid();
-
-    std::string fileName3 = testDir + "/" + "TMP3.FEGRID";
-
-    grid3.save(fileName3, true, nnc3, units3);
-
-    Opm::EclIO::EclFile file3(fileName3);
-
-    const std::vector<std::string>& test_mapunits3 = file3.get<std::string>("MAPUNITS");
-    BOOST_CHECK( test_mapunits3[0] == "FEET");
-
-    const std::vector<float>& test_mapaxes3 = file3.get<float>("MAPAXES");
-
-    BOOST_CHECK( test_mapaxes3.size() == ref3_mapaxes.size());
-
-    for (size_t n =0; n< ref3_mapaxes.size(); n++) {
-        BOOST_CHECK( ref3_mapaxes[n] == test_mapaxes3[n]);
-    }
-
-    Opm::filesystem::remove_all(testDir);
 }
 
 BOOST_AUTO_TEST_CASE(SAVE_METRIC_UNITS) {
@@ -1915,126 +2300,117 @@ BOOST_AUTO_TEST_CASE(SAVE_METRIC_UNITS) {
     const auto length = ::Opm::UnitSystem::measure::length;
 
     const auto& grid1 = es1.getInputGrid();
-    Opm::NNC nnc( deck1 );
+    Opm::NNC nnc(grid1, deck1);
 
     bool formatted = true;
 
     time_t timer;
     time(&timer);
 
-    std::string cwd = Opm::filesystem::current_path().c_str();
-    std::string testDir = cwd + "/tmp_dir_" + std::to_string(timer);
+    {
+        WorkArea work;
+        std::string fileName = "TMP.FEGRID";
+        grid1.save(fileName, formatted, nnc.input(), units1);
 
-    if ( Opm::filesystem::exists( testDir )) {
-        Opm::filesystem::remove_all(testDir);
+        Opm::EclIO::EclFile file1(fileName);
+
+        // Values getZCORNed from the grid have same units as input deck (metric), however these needs to be
+        // converted from double to single precissions before comparing with values saved to the EGRID file
+
+        // check coord
+        const std::vector<float> coord_egrid = file1.get<float>("COORD");
+        std::vector<double> coord_input_si = grid1.getCOORD();
+
+        BOOST_CHECK(coord_egrid.size() == coord_input_si.size());
+
+        std::vector<float> coord_input_f;
+        coord_input_f.reserve(coord_input_si.size());
+
+        for (size_t n = 0; n < coord_egrid.size(); n++) {
+            coord_input_f.push_back(static_cast<float>(units1.from_si(length, coord_input_si[n])));
+            BOOST_CHECK_CLOSE(coord_input_f[n], coord_egrid[n], 1e-6);
+        }
+
+        // check zcorn
+        const std::vector<float> zcorn_egrid = file1.get<float>("ZCORN");
+        std::vector<double> zcorn_input_si = grid1.getZCORN();
+
+        BOOST_CHECK(zcorn_egrid.size() == zcorn_input_si.size());
+
+        std::vector<float> zcorn_input_f;
+        zcorn_input_f.reserve(zcorn_input_si.size());
+
+        for (size_t n = 0; n < zcorn_egrid.size(); n++) {
+            zcorn_input_f.push_back(static_cast<float>(units1.from_si(length, zcorn_input_si[n])));
+            BOOST_CHECK_CLOSE(zcorn_input_f[n], zcorn_egrid[n], 1e-6);
+        }
+
+        BOOST_CHECK(file1.hasKey("GRIDUNIT"));
+        const std::vector<std::string> gridunits = file1.get<std::string>("GRIDUNIT");
+
+        BOOST_CHECK(gridunits[0] == "METRES");
+
+        BOOST_CHECK(file1.hasKey("MAPAXES"));
+        std::vector<float> mapaxes = file1.get<float>("MAPAXES");
+
+        for (size_t n = 0; n < 6; n++) {
+            BOOST_CHECK_CLOSE(mapaxes[n], ref_mapaxes1[n], 1e-6);
+        }
+
+        BOOST_CHECK(file1.hasKey("MAPUNITS"));
+        const std::vector<std::string> mapunits = file1.get<std::string>("MAPUNITS");
+        BOOST_CHECK(gridunits[0] == "METRES");
+
+        BOOST_CHECK(file1.hasKey("NNCHEAD"));
+        const std::vector<int> nnchead = file1.get<int>("NNCHEAD");
+
+        BOOST_CHECK(nnchead[0] == static_cast<int>(nnc.input().size()));
+
+        std::vector<int> ref_nnc1 = {6, 7, 8};
+        std::vector<int> ref_nnc2 = {26, 27, 28};
+
+        BOOST_CHECK(file1.hasKey("NNC1"));
+        BOOST_CHECK(file1.hasKey("NNC2"));
+
+        const std::vector<int> nnc1 = file1.get<int>("NNC1");
+        const std::vector<int> nnc2 = file1.get<int>("NNC2");
+
+        BOOST_CHECK(nnc1.size() == nnc2.size());
+
+        for (size_t n = 0; n < nnc1.size(); n++) {
+            BOOST_CHECK(nnc1[n] == ref_nnc1[n]);
+        }
+
+        for (size_t n = 0; n < nnc2.size(); n++) {
+            BOOST_CHECK(nnc2[n] == ref_nnc2[n]);
+        }
+
+        // testing deck in metric units with mapaxes in field units
+        auto deck2 = parser.parseString(deckData2);
+
+        Opm::EclipseState es2(deck2);
+        Opm::UnitSystem units2 = es2.getDeckUnitSystem();
+
+        const auto& grid2 = es2.getInputGrid();
+        // Opm::NNC nnc( deck2 );
+
+        std::string fileName2 = "TMP2.FEGRID";
+
+        grid2.save(fileName2, true, nnc.input(), units2);
+
+        Opm::EclIO::EclFile file2(fileName2);
+
+        const std::vector<std::string>& test_mapunits2 = file2.get<std::string>("MAPUNITS");
+        BOOST_CHECK(test_mapunits2[0] == "FEET");
+
+        const std::vector<float>& test_mapaxes2 = file2.get<float>("MAPAXES");
+
+        BOOST_CHECK(test_mapaxes2.size() == ref_mapaxes2.size());
+
+        for (size_t n = 0; n < ref_mapaxes2.size(); n++) {
+            BOOST_CHECK(ref_mapaxes2[n] == test_mapaxes2[n]);
+        }
     }
-
-    Opm::filesystem::create_directory(testDir);
-
-    std::string fileName = testDir + "/" + "TMP.FEGRID";
-    grid1.save(fileName, formatted, nnc, units1);
-
-    Opm::EclIO::EclFile file1(fileName);
-
-    // Values getZCORNed from the grid have same units as input deck (metric), however these needs to be
-    // converted from double to single precissions before comparing with values saved to the EGRID file
-
-    // check coord
-    const std::vector<float> coord_egrid = file1.get<float>("COORD");
-    std::vector<double> coord_input_si = grid1.getCOORD();
-
-    BOOST_CHECK( coord_egrid.size() == coord_input_si.size());
-
-    std::vector<float> coord_input_f;
-    coord_input_f.reserve(coord_input_si.size());
-
-    for (size_t n =0; n< coord_egrid.size(); n++) {
-        coord_input_f.push_back( static_cast<float>(units1.from_si(length, coord_input_si[n])));
-        BOOST_CHECK_CLOSE( coord_input_f[n] , coord_egrid[n], 1e-6 );
-    }
-
-    // check zcorn
-    const std::vector<float> zcorn_egrid = file1.get<float>("ZCORN");
-    std::vector<double> zcorn_input_si = grid1.getZCORN();
-
-    BOOST_CHECK( zcorn_egrid.size() == zcorn_input_si.size());
-
-    std::vector<float> zcorn_input_f;
-    zcorn_input_f.reserve(zcorn_input_si.size());
-
-    for (size_t n =0; n< zcorn_egrid.size(); n++) {
-        zcorn_input_f.push_back( static_cast<float>(units1.from_si(length, zcorn_input_si[n])));
-        BOOST_CHECK_CLOSE( zcorn_input_f[n] , zcorn_egrid[n], 1e-6 );
-    }
-
-    BOOST_CHECK( file1.hasKey("GRIDUNIT"));
-    const std::vector<std::string> gridunits = file1.get<std::string>("GRIDUNIT");
-
-    BOOST_CHECK( gridunits[0]=="METRES");
-
-    BOOST_CHECK( file1.hasKey("MAPAXES"));
-    std::vector<float> mapaxes = file1.get<float>("MAPAXES");
-
-    for (size_t n = 0; n < 6; n++) {
-        BOOST_CHECK_CLOSE( mapaxes[n] , ref_mapaxes1[n], 1e-6 );
-    }
-
-    BOOST_CHECK( file1.hasKey("MAPUNITS"));
-    const std::vector<std::string> mapunits = file1.get<std::string>("MAPUNITS");
-    BOOST_CHECK( gridunits[0]=="METRES");
-
-    BOOST_CHECK( file1.hasKey("NNCHEAD"));
-    const std::vector<int> nnchead = file1.get<int>("NNCHEAD");
-
-    BOOST_CHECK( nnchead[0] == static_cast<int>(nnc.numNNC()) );
-
-    std::vector<int> ref_nnc1 = { 6, 7, 8 };
-    std::vector<int> ref_nnc2 = { 26, 27, 28 };
-
-    BOOST_CHECK( file1.hasKey("NNC1"));
-    BOOST_CHECK( file1.hasKey("NNC2"));
-
-    const std::vector<int> nnc1 = file1.get<int>("NNC1");
-    const std::vector<int> nnc2 = file1.get<int>("NNC2");
-
-    BOOST_CHECK( nnc1.size() == nnc2.size() );
-
-    for (size_t n =0; n< nnc1.size(); n++) {
-        BOOST_CHECK( nnc1[n] == ref_nnc1[n] );
-    }
-
-    for (size_t n =0; n< nnc2.size(); n++) {
-        BOOST_CHECK( nnc2[n] == ref_nnc2[n] );
-    }
-
-    // testing deck in metric units with mapaxes in field units
-    auto deck2 = parser.parseString( deckData2) ;
-
-    Opm::EclipseState es2(deck2);
-    Opm::UnitSystem units2 = es2.getDeckUnitSystem();
-
-    const auto& grid2 = es2.getInputGrid();
-    //Opm::NNC nnc( deck2 );
-
-    std::string fileName2 = testDir + "/" + "TMP2.FEGRID";
-
-    grid2.save(fileName2, true, nnc, units2);
-
-    Opm::EclIO::EclFile file2(fileName2);
-
-    const std::vector<std::string>& test_mapunits2 = file2.get<std::string>("MAPUNITS");
-    BOOST_CHECK( test_mapunits2[0] == "FEET");
-
-    const std::vector<float>& test_mapaxes2 = file2.get<float>("MAPAXES");
-
-    BOOST_CHECK( test_mapaxes2.size() == ref_mapaxes2.size());
-
-    for (size_t n =0; n< ref_mapaxes2.size(); n++) {
-        BOOST_CHECK( ref_mapaxes2[n] == test_mapaxes2[n]);
-    }
-
-
-    Opm::filesystem::remove_all(testDir);
 }
 
 BOOST_AUTO_TEST_CASE(CalcCellDims) {
@@ -2093,39 +2469,6 @@ BOOST_AUTO_TEST_CASE(CalcCellDims) {
     }
 }
 
-BOOST_AUTO_TEST_CASE(ExportMAPAXES_TEST) {
-
-    Opm::Deck deck1 = BAD_CP_GRID_MAPAXES();
-    Opm::EclipseGrid grid1( deck1 );
-
-    std::vector<double> ref_mapaxes = { 0.0, 100.0, 0.0, 0.0, 100.0, 0.0 };
-
-    std::vector<double> mapaxes = grid1.getMAPAXES();
-
-    for (size_t n=0; n< mapaxes.size(); n++ ) {
-        BOOST_CHECK_EQUAL( ref_mapaxes[n] , mapaxes[n]);
-    }
-
-    Opm::Deck deck2 = BAD_CP_GRID();
-    Opm::EclipseGrid grid2( deck2 );
-
-    BOOST_CHECK( !grid1.equal( grid2 ));
-
-    std::vector<double> coord = grid1.getCOORD();
-    std::vector<double> zcorn = grid1.getZCORN();
-    std::vector<int> actnum = grid1.getACTNUM();
-
-    std::array<int, 3> dims = grid1.getNXYZ();
-
-    Opm::EclipseGrid grid3(dims, coord, zcorn, actnum.data(), mapaxes.data());
-
-    BOOST_CHECK( grid3.equal( grid1 ));
-
-    mapaxes[1] = 101;
-    Opm::EclipseGrid grid4(dims, coord, zcorn, actnum.data(), mapaxes.data());
-
-    BOOST_CHECK( !grid4.equal( grid1 ));
-}
 
 BOOST_AUTO_TEST_CASE(TESTCP_ACTNUM_UPDATE) {
     const char* deckData =
@@ -2184,6 +2527,75 @@ BOOST_AUTO_TEST_CASE(TESTCP_ACTNUM_UPDATE) {
     }
 }
 
+
+BOOST_AUTO_TEST_CASE(TESTCP_ACTNUM_AQUNUM) {
+    const std::string deckData = R"(
+         RUNSPEC
+         DIMENS
+         3 2 1 /
+         GRID
+         COORD
+         2000.0000  2000.0000  2000.0000   1999.9476  2000.0000  2002.9995
+         2049.9924  2000.0000  2000.8726   2049.9400  2000.0000  2003.8722
+         2099.9848  2000.0000  2001.7452   2099.9324  2000.0000  2004.7448
+         2149.9772  2000.0000  2002.6179   2149.9248  2000.0000  2005.6174
+         2000.0000  2050.0000  2000.0000   1999.9476  2050.0000  2002.9995
+         2049.9924  2050.0000  2000.8726   2049.9400  2050.0000  2003.8722
+         2099.9848  2050.0000  2001.7452   2099.9324  2050.0000  2004.7448
+         2149.9772  2050.0000  2002.6179   2149.9248  2050.0000  2005.6174
+         2000.0000  2100.0000  2000.0000   1999.9476  2100.0000  2002.9995
+         2049.9924  2100.0000  2000.8726   2049.9400  2100.0000  2003.8722
+         2099.9848  2100.0000  2001.7452   2099.9324  2100.0000  2004.7448
+         2149.9772  2100.0000  2002.6179   2149.9248  2100.0000  2005.6174 /
+         ZCORN
+         2000.0000  2000.8726  2000.8726  2001.7452  2001.7452  2002.6179
+         2000.0000  2000.8726  2000.8726  2001.7452  2001.7452  2002.6179
+         2000.0000  2000.8726  2000.8726  2001.7452  2001.7452  2002.6179
+         2000.0000  2000.8726  2000.8726  2001.7452  2001.7452  2002.6179
+         2002.9995  2003.8722  2003.8722  2004.7448  2004.7448  2005.6174
+         2002.9995  2003.8722  2003.8722  2004.7448  2004.7448  2005.6174
+         2002.9995  2003.8722  2003.8722  2004.7448  2004.7448  2005.6174
+         2002.9995  2003.8722  2003.8722  2004.7448  2004.7448  2005.6174 /
+         ACTNUM
+          0 0 1 1 0 1 /
+         PORO
+          6*0.15 /
+         PERMX
+          6*100. /
+         PERMY
+          6*100. /
+         PERMZ
+          6*10. /
+         AQUNUM
+            1     1  1  1   1000000.0   10000   0.25   400    2585.00   285.00    1   1  /
+            1     2  1  1   1000000.0   10000   0.25   400    2585.00   285.00    1   1  /
+         /
+         AQUCON
+           1     3    3      2    2     1   1   'J+'      1.00      1  /
+         /
+         EDIT)";
+
+    Opm::Parser parser;
+    const auto deck = parser.parseString( deckData) ;
+    Opm::EclipseGrid grid( deck);
+
+    const std::vector<int>& grid_actnum = grid.getACTNUM();
+    const std::vector<int> desired_actnum = {1, 1, 1, 1, 0, 1};
+
+    BOOST_CHECK( grid_actnum.size() == desired_actnum.size() );
+
+    for (size_t n=0; n< grid_actnum.size(); n++) {
+        BOOST_CHECK_EQUAL( grid_actnum[n], desired_actnum[n] );
+    }
+
+    Opm::EclipseState es(deck);
+    const auto& grid_actnum2 = es.getInputGrid().getACTNUM();
+
+    BOOST_CHECK( desired_actnum.size() == grid_actnum2.size());
+    for (size_t n=0; n< grid_actnum.size(); n++) {
+        BOOST_CHECK_EQUAL( grid_actnum2[n], desired_actnum[n] );
+    }
+}
 
 BOOST_AUTO_TEST_CASE(TEST_altGridConstructors) {
 
@@ -2335,7 +2747,7 @@ BOOST_AUTO_TEST_CASE(TEST_getCellCenters) {
 }
 
 BOOST_AUTO_TEST_CASE(LoadFromBinary) {
-    BOOST_CHECK_THROW(Opm::EclipseGrid( "No/does/not/exist" ) , std::invalid_argument);
+    BOOST_CHECK_THROW(Opm::EclipseGrid( "No/does/not/exist" ) , std::runtime_error);
 }
 
 
@@ -2424,44 +2836,9 @@ BOOST_AUTO_TEST_CASE(TEST_GDFILE_1) {
         "PORO\n"
         "   2*0.15 /\n";
 
-    const char* deckData2 =
-        "RUNSPEC\n"
-        "DIMENS\n"
-        "1 1 2 /\n"
-        "GRID\n"
-        "GDFILE\n"
-        " 'BAD_CP_M.EGRID' /\n"
-        "COORD\n"
-        "10.0000    10.0000  2000.0000      9.8255    10.0000  2014.9977\n"
-        "109.9848   10.0000  2001.7452    109.8102    10.0000  2016.7430\n"
-        "10.0000   110.0000  2000.0000      9.8255   110.0000  2014.9977\n"
-        "109.9848   110.0000  2001.7452    109.8102   110.0000  2016.7430 /\n"
-        "PORO\n"
-        "   2*0.15 /\n";
-
-    const char* deckData3 =
-        "RUNSPEC\n"
-        "DIMENS\n"
-        "1 1 2 /\n"
-        "GRID\n"
-        "GDFILE\n"
-        " 'BAD_CP_M.EGRID' /\n"
-        "ZCORN\n"
-        "2000.0000  2001.7452  2000.0000  2001.7452  2004.9992  2006.7445\n"
-        "2004.9992  2006.7445  2004.9992  2006.7445  2004.9992  2006.7445\n"
-        "2014.9977  2016.7430  2014.9977  2016.7430 /\n"
-        "PORO\n"
-        "   2*0.15 /\n";
-
-
     Opm::Parser parser;
     auto deck1 = parser.parseString( deckData1) ;
-    auto deck2 = parser.parseString( deckData2) ;
-    auto deck3 = parser.parseString( deckData3) ;
-
     BOOST_CHECK_NO_THROW( Opm::EclipseGrid grid1(deck1) );
-    BOOST_CHECK_THROW(Opm::EclipseGrid grid2(deck2), std::invalid_argument);
-    BOOST_CHECK_THROW(Opm::EclipseGrid grid3(deck3), std::invalid_argument);
 }
 
 
@@ -2660,142 +3037,107 @@ BOOST_AUTO_TEST_CASE(TEST_GDFILE_2) {
     Opm::UnitSystem units1a = es1a.getDeckUnitSystem();
 
     const auto& grid1a = es1a.getInputGrid();
-    Opm::NNC nnc( deck1a );
+    Opm::NNC nnc(grid1a, deck1a);
+    {
+        WorkArea work;
+        grid1a.save("BAD_CP_M.EGRID", false, nnc.input(), units1a);
 
-    grid1a.save("BAD_CP_M.EGRID", false, nnc, units1a);
+        auto deck1b = parser.parseString(deckData1b);
+        Opm::EclipseState es1b(deck1b);
+        Opm::UnitSystem units1b = es1b.getDeckUnitSystem();
+        const auto& grid1b = es1b.getInputGrid();
 
-    auto deck1b = parser.parseString( deckData1b) ;
-    Opm::EclipseState es1b( deck1b );
-    Opm::UnitSystem units1b = es1b.getDeckUnitSystem();
-    const auto& grid1b = es1b.getInputGrid();
+        grid1b.save("BAD_CP_F.EGRID", false, nnc.input(), units1b);
 
-    grid1b.save("BAD_CP_F.EGRID", false, nnc, units1b);
+        auto deck1 = parser.parseString(deckData1);
+        Opm::EclipseGrid grid1(deck1);
 
-    auto deck1 = parser.parseString( deckData1) ;
-    Opm::EclipseGrid grid1( deck1);
+        Opm::EclIO::EclFile file1("BAD_CP_M.EGRID");
 
-    Opm::EclIO::EclFile file1("BAD_CP_M.EGRID");
+        // actnum not defined in deck. keyword GDFILE not present in the DECK
+        // check that coord and zcorn from deck-grid identical to coord and zcorn
+        // from egrid - grid
 
-    // actnum not defined in deck. keyword GDFILE not present in the DECK
-    // check that coord and zcorn from deck-grid identical to coord and zcorn
-    // from egrid - grid
+        std::vector<double> coordGrid1 = grid1.getCOORD();
+        std::vector<double> zcornGrid1 = grid1.getZCORN();
+        std::vector<float> coordGrid1_f(coordGrid1.begin(), coordGrid1.end());
+        std::vector<float> zcornGrid1_f(zcornGrid1.begin(), zcornGrid1.end());
 
-    std::vector<double> coordGrid1 = grid1.getCOORD();
-    std::vector<double> zcornGrid1 = grid1.getZCORN();
-    std::vector<float> coordGrid1_f(coordGrid1.begin(), coordGrid1.end() );
-    std::vector<float> zcornGrid1_f(zcornGrid1.begin(), zcornGrid1.end() );
+        const std::vector<float> coord_egrid_f = file1.get<float>("COORD");
+        const std::vector<float> zcorn_egrid_f = file1.get<float>("ZCORN");
 
-    const std::vector<float> coord_egrid_f = file1.get<float>("COORD");
-    const std::vector<float> zcorn_egrid_f = file1.get<float>("ZCORN");
+        BOOST_CHECK(coordGrid1.size() == coord_egrid_f.size());
+        BOOST_CHECK(zcornGrid1.size() == zcorn_egrid_f.size());
 
-    BOOST_CHECK( coordGrid1.size() == coord_egrid_f.size() );
-    BOOST_CHECK( zcornGrid1.size() == zcorn_egrid_f.size() );
+        for (size_t n = 0; n < coordGrid1.size(); n++) {
+            BOOST_CHECK(coordGrid1_f[n] == coord_egrid_f[n]);
+        }
 
-    for (size_t n = 0; n < coordGrid1.size(); n++){
-        BOOST_CHECK( coordGrid1_f[n] == coord_egrid_f[n] );
-    }
+        for (size_t n = 0; n < zcornGrid1.size(); n++) {
+            BOOST_CHECK(zcornGrid1_f[n] == zcorn_egrid_f[n]);
+        }
 
-    for (size_t n = 0; n < zcornGrid1.size(); n++){
-        BOOST_CHECK( zcornGrid1_f[n] == zcorn_egrid_f[n] );
-    }
-
-    // all cells are active, since ACTNUM not present
-    std::vector<int> actGrid1 = grid1.getACTNUM();
-    for (size_t n = 0; n < actGrid1.size(); n++){
-        BOOST_CHECK( actGrid1[n] == 1 );
-    }
-
-    BOOST_CHECK( grid1.getMAPUNITS() == "" );
-
-    std::vector<double> mapaxes = grid1.getMAPAXES();
-    BOOST_CHECK( mapaxes.size() == 0 );
+        // all cells are active, since ACTNUM not present
+        std::vector<int> actGrid1 = grid1.getACTNUM();
+        for (size_t n = 0; n < actGrid1.size(); n++) {
+            BOOST_CHECK(actGrid1[n] == 1);
+        }
 
 
-    auto deck2 = parser.parseString( deckData2) ;
-    Opm::EclipseGrid grid2( deck2);
+        auto deck2 = parser.parseString(deckData2);
+        Opm::EclipseGrid grid2(deck2);
 
-    std::vector<int> actGrid2 = grid2.getACTNUM();
+        std::vector<int> actGrid2 = grid2.getACTNUM();
 
-    // check that actnum is reset from gdfile
+        // check that actnum is reset from gdfile
 
-    for (size_t n = 0; n < actGrid2.size(); n++){
-        BOOST_CHECK( actGrid2[n] == ref_act_egrid[n] );
-    }
-
-    BOOST_CHECK( grid2.getMAPUNITS() == "" );
-
-    mapaxes = grid2.getMAPAXES();
-    BOOST_CHECK( mapaxes.size() == 0 );
+        for (size_t n = 0; n < actGrid2.size(); n++) {
+            BOOST_CHECK(actGrid2[n] == ref_act_egrid[n]);
+        }
 
 
-    auto deck3a = parser.parseString( deckData3a) ;
-    Opm::EclipseGrid grid3a( deck3a);
+        auto deck3a = parser.parseString(deckData3a);
+        Opm::EclipseGrid grid3a(deck3a);
 
-    // mapunits and mapaxes define in deck (only)
+        // mapunits and mapaxes define in deck (only)
 
-    BOOST_CHECK( grid3a.getMAPUNITS() == "FEET" );
+        std::vector<int> actGrid3 = grid3a.getACTNUM();
 
-    mapaxes = grid3a.getMAPAXES();
-    BOOST_CHECK( mapaxes.size() == 6 );
+        // check that actnum is reset from gdfile, ACTNUM input in deck
+        // but before keyword GDFILE
 
-    for (size_t n = 0; n < mapaxes.size(); n++){
-        BOOST_CHECK( mapaxes[n] == ref_mapaxes_deck[n] );
-    }
+        for (size_t n = 0; n < actGrid3.size(); n++) {
+            BOOST_CHECK(actGrid3[n] == ref_act_egrid[n]);
+        }
 
-    std::vector<int> actGrid3 = grid3a.getACTNUM();
+        // check that depth values are in SI units
+        for (size_t n = 0; n < refDepthGrid3a.size(); n++) {
+            BOOST_CHECK_CLOSE(grid3a.getCellDepth(n), refDepthGrid3a[n], 1e-3);
+        }
 
-    // check that actnum is reset from gdfile, ACTNUM input in deck
-    // but before keyword GDFILE
+        auto deck3b = parser.parseString(deckData3b);
+        Opm::EclipseGrid grid3b(deck3b);
 
-    for (size_t n = 0; n < actGrid3.size(); n++){
-        BOOST_CHECK( actGrid3[n] == ref_act_egrid[n] );
-    }
+        // mapunits and mapaxes both in egrid and deck. Uses properties
+        // from the egrid keyword gdfile input after MAPUNITS and MAPAXES
 
-    // check that depth values are in SI units
-    for (size_t n = 0; n < refDepthGrid3a.size(); n++){
-        BOOST_CHECK_CLOSE( grid3a.getCellDepth(n), refDepthGrid3a[n], 1e-3 );
-    }
+        actGrid3 = grid3b.getACTNUM();
 
-    auto deck3b = parser.parseString( deckData3b) ;
-    Opm::EclipseGrid grid3b( deck3b);
+        // check that actnum is reset from deck since input after keyword GDFILE
+        for (size_t n = 0; n < actGrid3.size(); n++) {
+            BOOST_CHECK(actGrid3[n] == ref_act_deck3[n]);
+        }
 
-    // mapunits and mapaxes both in egrid and deck. Uses properties
-    // from the egrid keyword gdfile input after MAPUNITS and MAPAXES
+        // check that depth values are converted from Field to SI units
+        for (size_t n = 0; n < refDepthGrid3b.size(); n++) {
+            BOOST_CHECK_CLOSE(grid3b.getCellDepth(n), refDepthGrid3b[n], 1e-3);
+        }
 
-    BOOST_CHECK( grid3b.getMAPUNITS() == "METRES" );
+        // mapunits and mapaxes both in egrid and deck. Uses properties
+        // from the deck sinze these are input after GDfile
 
-    mapaxes = grid3b.getMAPAXES();
-    BOOST_CHECK( mapaxes.size() == 6 );
-
-    for (size_t n = 0; n < mapaxes.size(); n++){
-        BOOST_CHECK( mapaxes[n] == ref_mapaxes_egrid[n] );
-    }
-
-    actGrid3 = grid3b.getACTNUM();
-
-    // check that actnum is reset from deck since input after keyword GDFILE
-    for (size_t n = 0; n < actGrid3.size(); n++){
-        BOOST_CHECK( actGrid3[n] == ref_act_deck3[n] );
-    }
-
-    // check that depth values are converted from Field to SI units
-    for (size_t n = 0; n < refDepthGrid3b.size(); n++){
-        BOOST_CHECK_CLOSE( grid3b.getCellDepth(n), refDepthGrid3b[n], 1e-3 );
-    }
-
-    // mapunits and mapaxes both in egrid and deck. Uses properties
-    // from the deck sinze these are input after GDfile
-
-    auto deck3c = parser.parseString( deckData3c) ;
-    Opm::EclipseGrid grid3c( deck3c);
-
-    BOOST_CHECK( grid3c.getMAPUNITS() == "FEET" );
-
-    mapaxes = grid3c.getMAPAXES();
-    BOOST_CHECK( mapaxes.size() == 6 );
-
-    for (size_t n = 0; n < mapaxes.size(); n++){
-        BOOST_CHECK( mapaxes[n] == ref_mapaxes_deck[n] );
+        auto deck3c = parser.parseString(deckData3c);
+        Opm::EclipseGrid grid3c(deck3c);
     }
 }
 
@@ -2804,3 +3146,106 @@ BOOST_AUTO_TEST_CASE(TEST_COLLAPSED_CELL) {
     for (std::size_t g = 0; g < grid.getCartesianSize(); g++)
         BOOST_CHECK_EQUAL(grid.getCellVolume(g), 0);
 }
+
+
+
+BOOST_AUTO_TEST_CASE(MAPAXES_DEFAULT) {
+    Opm::MapAxes ma1;
+    const double x1 = 77;
+    const double y1 = 99;
+    {
+        double xt{x1};
+        double yt{y1};
+
+        ma1.transform(xt,yt);
+        BOOST_CHECK_EQUAL(x1,xt);
+        BOOST_CHECK_EQUAL(y1,yt);
+    }
+    {
+        double xi{x1};
+        double yi{y1};
+
+        ma1.inv_transform(xi,yi);
+        BOOST_CHECK_EQUAL(x1,xi);
+        BOOST_CHECK_EQUAL(y1,yi);
+    }
+}
+
+BOOST_AUTO_TEST_CASE(MAPAXES) {
+    const double origo_x = 10;
+    const double origo_y = 10;
+    const double px = 5;
+    const double py = 5;
+    Opm::MapAxes ma( 5,5, origo_x, origo_y, 15,5 );
+    double xt{px};
+    double yt{py};
+    ma.transform(xt,yt);
+    BOOST_CHECK_EQUAL( xt, origo_x );
+    BOOST_CHECK_CLOSE( yt, origo_y - std::sqrt(2) * px, 1e-8);
+
+    double xi{xt};
+    double yi{yt};
+    ma.inv_transform(xi,yi);
+    BOOST_CHECK_CLOSE( px, xi, 1e-8);
+    BOOST_CHECK_CLOSE( py, yi, 1e-8);
+}
+
+BOOST_AUTO_TEST_CASE(MAPAXES_MAPUNITS) {
+    const double feet = Opm::unit::feet;
+    const double origo_x = 10;
+    const double origo_y = 10;
+    const double px = 5;
+    const double py = 5;
+    Opm::MapAxes ma( "FEET", 5/feet,5/feet, origo_x/feet, origo_y/feet, 15/feet, 5/feet );
+    double xt{px};
+    double yt{py};
+    ma.transform(xt,yt);
+    BOOST_CHECK_CLOSE( xt, origo_x , 1e-8);
+    BOOST_CHECK_CLOSE( yt, origo_y - std::sqrt(2) * px, 1e-8);
+
+    double xi{xt};
+    double yi{yt};
+    ma.inv_transform(xi,yi);
+    BOOST_CHECK_CLOSE( px, xi, 1e-8);
+    BOOST_CHECK_CLOSE( py, yi, 1e-8);
+
+    auto mapunits = ma.mapunits();
+    BOOST_CHECK_EQUAL(mapunits.value(), "FEET");
+    BOOST_CHECK_THROW(Opm::MapAxes( "NO_SUCH_LENGTH_UNIT", 5,5, origo_x, origo_y, 15, 5 ), std::exception);
+
+}
+
+BOOST_AUTO_TEST_CASE(GRIDUNITS)
+{
+    const std::string deck_data = R"(
+RUNSPEC
+FIELD
+DIMENS
+ 10 10 10 /
+GRID
+GRIDUNIT
+  METRES /
+DX
+1000*1.0 /
+DYV
+10*1.0/
+DZ
+1000*1.0 /
+TOPS
+100*1.0 /
+EDIT
+)";
+
+    Opm::Parser parser;
+    const auto deck = parser.parseString( deck_data ) ;
+    Opm::EclipseGrid grid(deck);
+    BOOST_CHECK_CLOSE(grid.getCellVolume(0), 1.0, 1e-6);
+}
+
+BOOST_AUTO_TEST_CASE(GDFILE_NO_ACTNUM) {
+    Opm::Parser parser;
+    auto deck = parser.parseFile("GDFILE_NO_ACTNUM.DATA");
+    BOOST_CHECK_NO_THROW( Opm::EclipseState{deck} );
+}
+
+

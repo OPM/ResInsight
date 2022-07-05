@@ -17,55 +17,67 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include <stdexcept>
 #include <iostream>
+#include <memory>
+#include <optional>
+#include <stdexcept>
+#include <utility>
 
 #define BOOST_TEST_MODULE WellTest
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckItem.hpp>
-#include <opm/parser/eclipse/Deck/DeckRecord.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckItem.hpp>
+#include <opm/input/eclipse/Deck/DeckRecord.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/ScheduleTypes.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQActive.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/Connection.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellConnections.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/ScheduleTypes.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQActive.hpp>
+#include <opm/input/eclipse/Schedule/Well/Connection.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellConnections.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellProductionProperties.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellInjectionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellProductionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellInjectionProperties.hpp>
 
 using namespace Opm;
 
+namespace {
+    double liquid_PI_unit()
+    {
+        return UnitSystem::newMETRIC().to_si(UnitSystem::measure::liquid_productivity_index, 1.0);
+    }
 
-namespace Opm {
-inline std::ostream& operator<<( std::ostream& stream, const Connection& c ) {
-    return stream << "(" << c.getI() << "," << c.getJ() << "," << c.getK() << ")";
+    double cp_rm3_per_db()
+    {
+        return UnitSystem::newMETRIC().to_si(UnitSystem::measure::transmissibility, 1.0);
+    }
 }
-inline std::ostream& operator<<( std::ostream& stream, const Well& well ) {
-    return stream << "(" << well.name() << ")";
-}
-}
-
-
 
 BOOST_AUTO_TEST_CASE(WellCOMPDATtestTRACK) {
     Opm::Parser parser;
     std::string input =
                 "START             -- 0 \n"
                 "19 JUN 2007 / \n"
+                "GRID\n"
+                "PORO\n"
+                "1000*0.1  /\n"
+                "PERMX \n"
+                "1000*1 /\n"
+                "PERMY \n"
+                "1000*0.1 /\n"
+                "PERMZ \n"
+                "1000*0.01 /\n"
                 "SCHEDULE\n"
                 "DATES             -- 1\n"
                 " 10  OKT 2008 / \n"
@@ -100,7 +112,66 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestTRACK) {
 
     //Verify TRACK completion ordering
     for (size_t k = 0; k < completions.size(); ++k) {
-        BOOST_CHECK_EQUAL(completions.get( k ).getK(), k);
+        BOOST_CHECK_EQUAL(completions.get( k ).getK(), int(k));
+    }
+
+    // Output / input ordering
+    const auto& output_connections = completions.output(grid);
+    std::vector<int> expected = {0,2,3,4,5,6,7,8,1};
+    for (size_t k = 0; k < completions.size(); ++k)
+        BOOST_CHECK_EQUAL( expected[k], output_connections[k]->getK());
+}
+
+BOOST_AUTO_TEST_CASE(WellCOMPDATtestDEPTH) {
+    Opm::Parser parser;
+    std::string input  = R"(
+START             -- 0
+19 JUN 2007 /
+GRID
+PORO
+    1000*0.1 /
+PERMX
+    1000*1 /
+PERMY
+    1000*0.1 /
+PERMZ
+    1000*0.01 /
+SCHEDULE
+DATES             -- 1
+ 10  OKT 2008 /
+/
+WELSPECS
+    'OP_1'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+/
+COMPORD
+ OP_1 DEPTH /
+/
+COMPDAT
+ 'OP_1'  9  9   1   1 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+ 'OP_1'  9  9   3   9 'OPEN' 1*   32.948   0.311  3047.839 1*  1*  'X'  22.100 /
+ 'OP_1'  9  9   2   2 'OPEN' 1*   46.825   0.311  4332.346 1*  1*  'X'  22.123 /
+/
+DATES             -- 2
+ 20  JAN 2010 /
+/
+)";
+
+
+    auto deck = parser.parseString(input);
+    auto python = std::make_shared<Python>();
+    Opm::EclipseGrid grid(10,10,10);
+    TableManager table ( deck );
+    FieldPropsManager fp( deck, Phases{true, true, true}, grid, table);
+    Opm::Runspec runspec (deck);
+    Opm::Schedule schedule(deck, grid , fp, runspec, python);
+    const auto& op_1 = schedule.getWell("OP_1", 2);
+
+    const auto& completions = op_1.getConnections();
+    BOOST_CHECK_EQUAL(9U, completions.size());
+
+    //Verify TRACK completion ordering
+    for (size_t k = 0; k < completions.size() - 1; ++k) {
+        BOOST_CHECK(completions[k].depth() <= completions[k+1].depth());
     }
 
     // Output / input ordering
@@ -116,6 +187,15 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestDefaultTRACK) {
     std::string input =
                 "START             -- 0 \n"
                 "19 JUN 2007 / \n"
+                "GRID\n"
+                "PORO\n"
+                "1000*0.1  /\n"
+                "PERMX \n"
+                "1000*1 /\n"
+                "PERMY \n"
+                "1000*0.1 /\n"
+                "PERMZ \n"
+                "1000*0.01 /\n"
                 "SCHEDULE\n"
                 "DATES             -- 1\n"
                 " 10  OKT 2008 / \n"
@@ -147,7 +227,7 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestDefaultTRACK) {
 
     //Verify TRACK completion ordering
     for (size_t k = 0; k < completions.size(); ++k) {
-        BOOST_CHECK_EQUAL(completions.get( k ).getK(), k);
+        BOOST_CHECK_EQUAL(completions.get( k ).getK(), int(k));
     }
 }
 
@@ -156,6 +236,15 @@ BOOST_AUTO_TEST_CASE(WellCOMPDATtestINPUT) {
     std::string input =
                 "START             -- 0 \n"
                 "19 JUN 2007 / \n"
+                "GRID\n"
+                "PORO\n"
+                "1000*0.1  /\n"
+                "PERMX \n"
+                "1000*1 /\n"
+                "PERMY \n"
+                "1000*0.1 /\n"
+                "PERMZ \n"
+                "1000*0.01 /\n"
                 "SCHEDULE\n"
                 "DATES             -- 1\n"
                 " 10  OKT 2008 / \n"
@@ -217,7 +306,7 @@ BOOST_AUTO_TEST_CASE(isProducerCorrectlySet) {
 
         /* Set a surface injection rate => Well becomes an Injector */
         auto injectionProps1 = std::make_shared<Opm::Well::WellInjectionProperties>(well.getInjectionProperties());
-        injectionProps1->surfaceInjectionRate = 100;
+        injectionProps1->surfaceInjectionRate.update(100);
         well.updateInjection(injectionProps1);
         BOOST_CHECK_EQUAL( true  , well.isInjector());
         BOOST_CHECK_EQUAL( false , well.isProducer());
@@ -230,7 +319,7 @@ BOOST_AUTO_TEST_CASE(isProducerCorrectlySet) {
 
         /* Set a reservoir injection rate => Well becomes an Injector */
         auto injectionProps2 = std::make_shared<Opm::Well::WellInjectionProperties>(well.getInjectionProperties());
-        injectionProps2->reservoirInjectionRate = 200;
+        injectionProps2->reservoirInjectionRate.update(200);
         well.updateInjection(injectionProps2);
         BOOST_CHECK_EQUAL( false , well.isProducer());
         BOOST_CHECK_EQUAL( 200 , well.getInjectionProperties().reservoirInjectionRate.get<double>());
@@ -244,9 +333,9 @@ BOOST_AUTO_TEST_CASE(isProducerCorrectlySet) {
         well.updateInjection(injectionProps3);
 
         auto properties = std::make_shared<Opm::Well::WellProductionProperties>( well.getProductionProperties() );
-        properties->OilRate = 100;
-        properties->GasRate = 200;
-        properties->WaterRate = 300;
+        properties->OilRate.update(100);
+        properties->GasRate.update(200);
+        properties->WaterRate.update(300);
         well.updateProduction(properties);
 
         BOOST_CHECK_EQUAL( false , well.isInjector());
@@ -283,14 +372,14 @@ BOOST_AUTO_TEST_CASE(XHPLimitDefault) {
 
 
     auto productionProps = std::make_shared<Opm::Well::WellProductionProperties>(well.getProductionProperties());
-    productionProps->BHPTarget = 100;
+    productionProps->BHPTarget.update(100);
     productionProps->addProductionControl(Opm::Well::ProducerCMode::BHP);
     well.updateProduction(productionProps);
     BOOST_CHECK_EQUAL( 100 , well.getProductionProperties().BHPTarget.get<double>());
     BOOST_CHECK_EQUAL( true, well.getProductionProperties().hasProductionControl( Opm::Well::ProducerCMode::BHP ));
 
     auto injProps = std::make_shared<Opm::Well::WellInjectionProperties>(well.getInjectionProperties());
-    injProps->THPTarget = 200;
+    injProps->THPTarget.update(200);
     well.updateInjection(injProps);
     BOOST_CHECK_EQUAL( 200 , well.getInjectionProperties().THPTarget.get<double>());
     BOOST_CHECK( !well.getInjectionProperties().hasInjectionControl( Opm::Well::InjectorCMode::THP ));
@@ -324,26 +413,26 @@ BOOST_AUTO_TEST_CASE(WellHaveProductionControlLimit) {
     BOOST_CHECK( !well.getProductionProperties().hasProductionControl( Opm::Well::ProducerCMode::RESV ));
 
     auto properties1 = std::make_shared<Opm::Well::WellProductionProperties>(well.getProductionProperties());
-    properties1->OilRate = 100;
+    properties1->OilRate.update(100);
     properties1->addProductionControl(Opm::Well::ProducerCMode::ORAT);
     well.updateProduction(properties1);
     BOOST_CHECK(  well.getProductionProperties().hasProductionControl( Opm::Well::ProducerCMode::ORAT ));
     BOOST_CHECK( !well.getProductionProperties().hasProductionControl( Opm::Well::ProducerCMode::RESV ));
 
     auto properties2 = std::make_shared<Opm::Well::WellProductionProperties>(well.getProductionProperties());
-    properties2->ResVRate = 100;
+    properties2->ResVRate.update(100);
     properties2->addProductionControl(Opm::Well::ProducerCMode::RESV);
     well.updateProduction(properties2);
     BOOST_CHECK( well.getProductionProperties().hasProductionControl( Opm::Well::ProducerCMode::RESV ));
 
     auto properties3 = std::make_shared<Opm::Well::WellProductionProperties>(well.getProductionProperties());
-    properties3->OilRate = 100;
-    properties3->WaterRate = 100;
-    properties3->GasRate = 100;
-    properties3->LiquidRate = 100;
-    properties3->ResVRate = 100;
-    properties3->BHPTarget = 100;
-    properties3->THPTarget = 100;
+    properties3->OilRate.update(100);
+    properties3->WaterRate.update(100);
+    properties3->GasRate.update(100);
+    properties3->LiquidRate.update(100);
+    properties3->ResVRate.update(100);
+    properties3->BHPTarget.update(100);
+    properties3->THPTarget.update(100);
     properties3->addProductionControl(Opm::Well::ProducerCMode::ORAT);
     properties3->addProductionControl(Opm::Well::ProducerCMode::LRAT);
     properties3->addProductionControl(Opm::Well::ProducerCMode::BHP);
@@ -370,22 +459,22 @@ BOOST_AUTO_TEST_CASE(WellHaveInjectionControlLimit) {
     BOOST_CHECK( !well.getInjectionProperties().hasInjectionControl( Opm::Well::InjectorCMode::RESV ));
 
     auto injProps1 = std::make_shared<Opm::Well::WellInjectionProperties>(well.getInjectionProperties());
-    injProps1->surfaceInjectionRate = 100;
+    injProps1->surfaceInjectionRate.update(100);
     injProps1->addInjectionControl(Opm::Well::InjectorCMode::RATE);
     well.updateInjection(injProps1);
     BOOST_CHECK(  well.getInjectionProperties().hasInjectionControl( Opm::Well::InjectorCMode::RATE ));
     BOOST_CHECK( !well.getInjectionProperties().hasInjectionControl( Opm::Well::InjectorCMode::RESV ));
 
     auto injProps2 = std::make_shared<Opm::Well::WellInjectionProperties>(well.getInjectionProperties());
-    injProps2->reservoirInjectionRate = 100;
+    injProps2->reservoirInjectionRate.update(100);
     injProps2->addInjectionControl(Opm::Well::InjectorCMode::RESV);
     well.updateInjection(injProps2);
     BOOST_CHECK( well.getInjectionProperties().hasInjectionControl( Opm::Well::InjectorCMode::RESV ));
 
     auto injProps3 = std::make_shared<Opm::Well::WellInjectionProperties>(well.getInjectionProperties());
-    injProps3->BHPTarget = 100;
+    injProps3->BHPTarget.update(100);
     injProps3->addInjectionControl(Opm::Well::InjectorCMode::BHP);
-    injProps3->THPTarget = 100;
+    injProps3->THPTarget.update(100);
     injProps3->addInjectionControl(Opm::Well::InjectorCMode::THP);
     well.updateInjection(injProps3);
 
@@ -497,13 +586,13 @@ namespace {
         }
 
 
-        Opm::Well::WellProductionProperties properties(const std::string& input) {
+    Opm::Well::WellProductionProperties properties(const std::string& input, std::optional<VFPProdTable::ALQ_TYPE> alq_type = {}) {
             Opm::Parser parser;
             Opm::UnitSystem unit_system(Opm::UnitSystem::UnitType::UNIT_TYPE_METRIC);
             auto deck = parser.parseString(input);
-            const auto& record = deck.getKeyword("WCONHIST").getRecord(0);
+            const auto& record = deck["WCONHIST"].back().getRecord(0);
             Opm::Well::WellProductionProperties hist(unit_system, "W");
-            hist.handleWCONHIST(record);
+            hist.handleWCONHIST(alq_type, unit_system, record);
 
 
             return hist;
@@ -549,14 +638,14 @@ namespace {
         }
 
         Opm::UnitSystem unit_system(Opm::UnitSystem::UnitType::UNIT_TYPE_METRIC);
-        Opm::Well::WellProductionProperties properties(const std::string& input)
+        Opm::Well::WellProductionProperties properties(const std::string& input, std::optional<VFPProdTable::ALQ_TYPE> alq_type = {})
         {
             Opm::Parser parser;
             auto deck = parser.parseString(input);
-            const auto& kwd     = deck.getKeyword("WCONPROD");
+            const auto& kwd     = deck["WCONPROD"].back();
             const auto&  record = kwd.getRecord(0);
             Opm::Well::WellProductionProperties pred(unit_system, "W");
-            pred.handleWCONPROD("WELL", record);
+            pred.handleWCONPROD(alq_type, unit_system, "WELL", record);
 
             return pred;
         }
@@ -566,7 +655,7 @@ namespace {
 
 BOOST_AUTO_TEST_CASE(WCH_All_Specified_BHP_Defaulted)
 {
-    Opm::SummaryState st(std::chrono::system_clock::now());
+    Opm::SummaryState st(TimeService::now());
     const Opm::Well::WellProductionProperties& p =
         WCONHIST::properties(WCONHIST::all_specified());
 
@@ -586,7 +675,7 @@ BOOST_AUTO_TEST_CASE(WCH_All_Specified_BHP_Defaulted)
 
 BOOST_AUTO_TEST_CASE(WCH_ORAT_Defaulted_BHP_Defaulted)
 {
-    Opm::SummaryState st(std::chrono::system_clock::now());
+    Opm::SummaryState st(TimeService::now());
     const Opm::Well::WellProductionProperties& p =
         WCONHIST::properties(WCONHIST::orat_defaulted());
 
@@ -604,7 +693,7 @@ BOOST_AUTO_TEST_CASE(WCH_ORAT_Defaulted_BHP_Defaulted)
 
 BOOST_AUTO_TEST_CASE(WCH_OWRAT_Defaulted_BHP_Defaulted)
 {
-    Opm::SummaryState st(std::chrono::system_clock::now());
+    Opm::SummaryState st(TimeService::now());
     const Opm::Well::WellProductionProperties& p =
         WCONHIST::properties(WCONHIST::owrat_defaulted());
 
@@ -622,7 +711,7 @@ BOOST_AUTO_TEST_CASE(WCH_OWRAT_Defaulted_BHP_Defaulted)
 
 BOOST_AUTO_TEST_CASE(WCH_Rates_Defaulted_BHP_Defaulted)
 {
-    Opm::SummaryState st(std::chrono::system_clock::now());
+    Opm::SummaryState st(TimeService::now());
     const Opm::Well::WellProductionProperties& p =
         WCONHIST::properties(WCONHIST::all_defaulted());
 
@@ -640,7 +729,7 @@ BOOST_AUTO_TEST_CASE(WCH_Rates_Defaulted_BHP_Defaulted)
 
 BOOST_AUTO_TEST_CASE(WCH_Rates_Defaulted_BHP_Specified)
 {
-    Opm::SummaryState st(std::chrono::system_clock::now());
+    Opm::SummaryState st(TimeService::now());
     const Opm::Well::WellProductionProperties& p =
         WCONHIST::properties(WCONHIST::all_defaulted_with_bhp());
 
@@ -659,9 +748,9 @@ BOOST_AUTO_TEST_CASE(WCH_Rates_Defaulted_BHP_Specified)
 
 BOOST_AUTO_TEST_CASE(WCH_Rates_NON_Defaulted_VFP)
 {
-    Opm::SummaryState st(std::chrono::system_clock::now());
+    Opm::SummaryState st(TimeService::now());
     const Opm::Well::WellProductionProperties& p =
-        WCONHIST::properties(WCONHIST::all_defaulted_with_bhp_vfp_table());
+        WCONHIST::properties(WCONHIST::all_defaulted_with_bhp_vfp_table(), VFPProdTable::ALQ_TYPE::ALQ_UNDEF);
 
     BOOST_CHECK( !p.hasProductionControl(Opm::Well::ProducerCMode::ORAT));
     BOOST_CHECK( !p.hasProductionControl(Opm::Well::ProducerCMode::WRAT));
@@ -673,14 +762,14 @@ BOOST_AUTO_TEST_CASE(WCH_Rates_NON_Defaulted_VFP)
 
     BOOST_CHECK_EQUAL(true, p.hasProductionControl(Opm::Well::ProducerCMode::BHP));
     BOOST_CHECK_EQUAL(p.VFPTableNumber, 3);
-    BOOST_CHECK_EQUAL(p.ALQValue, 10.);
+    BOOST_CHECK_EQUAL(p.ALQValue.get<double>(), 10.);
     const auto& controls = p.controls(st, 0);
     BOOST_CHECK_EQUAL(controls.bhp_limit, 101325.);
 }
 
 BOOST_AUTO_TEST_CASE(WCH_BHP_Specified)
 {
-    Opm::SummaryState st(std::chrono::system_clock::now());
+    Opm::SummaryState st(TimeService::now());
     const Opm::Well::WellProductionProperties& p =
         WCONHIST::properties(WCONHIST::bhp_defaulted());
 
@@ -713,13 +802,13 @@ BOOST_AUTO_TEST_CASE(WCONPROD_ORAT_CMode)
     BOOST_CHECK_EQUAL(true, p.hasProductionControl(Opm::Well::ProducerCMode::BHP));
 
     BOOST_CHECK_EQUAL(p.VFPTableNumber, 0);
-    BOOST_CHECK_EQUAL(p.ALQValue, 0.);
+    BOOST_CHECK_EQUAL(p.ALQValue.get<double>(), 0.);
 }
 
 BOOST_AUTO_TEST_CASE(WCONPROD_THP_CMode)
 {
     const Opm::Well::WellProductionProperties& p =
-        WCONPROD::properties(WCONPROD::thp_CMODE());
+        WCONPROD::properties(WCONPROD::thp_CMODE(), VFPProdTable::ALQ_TYPE::ALQ_UNDEF);
 
     BOOST_CHECK( p.hasProductionControl(Opm::Well::ProducerCMode::ORAT));
     BOOST_CHECK( p.hasProductionControl(Opm::Well::ProducerCMode::WRAT));
@@ -733,7 +822,7 @@ BOOST_AUTO_TEST_CASE(WCONPROD_THP_CMode)
     BOOST_CHECK_EQUAL(true, p.hasProductionControl(Opm::Well::ProducerCMode::BHP));
 
     BOOST_CHECK_EQUAL(p.VFPTableNumber, 8);
-    BOOST_CHECK_EQUAL(p.ALQValue, 13.);
+    BOOST_CHECK_EQUAL(p.ALQValue.get<double>(), 13.);
     BOOST_CHECK_EQUAL(p.THPTarget.getSI(), 1000000.); // 10 barsa
     BOOST_CHECK_EQUAL(p.BHPTarget.getSI(), 101325.); // 1 atm.
 }
@@ -741,7 +830,7 @@ BOOST_AUTO_TEST_CASE(WCONPROD_THP_CMode)
 BOOST_AUTO_TEST_CASE(WCONPROD_BHP_CMode)
 {
     const Opm::Well::WellProductionProperties& p =
-        WCONPROD::properties(WCONPROD::bhp_CMODE());
+        WCONPROD::properties(WCONPROD::bhp_CMODE(), VFPProdTable::ALQ_TYPE::ALQ_UNDEF);
 
     BOOST_CHECK( p.hasProductionControl(Opm::Well::ProducerCMode::ORAT));
     BOOST_CHECK( p.hasProductionControl(Opm::Well::ProducerCMode::WRAT));
@@ -755,7 +844,7 @@ BOOST_AUTO_TEST_CASE(WCONPROD_BHP_CMode)
     BOOST_CHECK_EQUAL(true, p.hasProductionControl(Opm::Well::ProducerCMode::BHP));
 
     BOOST_CHECK_EQUAL(p.VFPTableNumber, 8);
-    BOOST_CHECK_EQUAL(p.ALQValue, 13.);
+    BOOST_CHECK_EQUAL(p.ALQValue.get<double>(), 13.);
     BOOST_CHECK_EQUAL(p.THPTarget.get<double>(), 10.); // 10 barsa
     BOOST_CHECK_EQUAL(p.BHPTarget.get<double>(), 20.); // 20 barsa
     BOOST_CHECK_EQUAL(p.THPTarget.getSI(), 1000000.); // 10 barsa
@@ -765,8 +854,8 @@ BOOST_AUTO_TEST_CASE(WCONPROD_BHP_CMode)
 
 BOOST_AUTO_TEST_CASE(BHP_CMODE)
 {
-    BOOST_CHECK_THROW( WCONHIST::properties(WCONHIST::all_specified_CMODE_THP()) , std::invalid_argument);
-    BOOST_CHECK_THROW( WCONPROD::properties(WCONPROD::all_specified_CMODE_BHP()) , std::invalid_argument);
+    BOOST_CHECK_THROW( WCONHIST::properties(WCONHIST::all_specified_CMODE_THP()) , std::exception);
+    BOOST_CHECK_THROW( WCONPROD::properties(WCONPROD::all_specified_CMODE_BHP()) , std::exception);
 }
 
 
@@ -788,7 +877,7 @@ BOOST_AUTO_TEST_CASE(WELL_CONTROLS) {
     auto unit_system = UnitSystem::newMETRIC();
     Opm::Well well("WELL", "GROUP", 0, 0, 0, 0, 1000, Opm::WellType(Opm::Phase::OIL), Opm::Well::ProducerCMode::CMODE_UNDEFINED, Opm::Connection::Order::DEPTH, unit_system, 0, 1.0, false, false, 0, Opm::Well::GasInflowEquation::STD);
     Opm::Well::WellProductionProperties prod(unit_system, "OP1");
-    Opm::SummaryState st(std::chrono::system_clock::now());
+    Opm::SummaryState st(Opm::TimeService::now());
     well.productionControls(st);
 
     // Use a scalar FIELD variable - that should work; although it is a bit weird.
@@ -818,7 +907,6 @@ BOOST_AUTO_TEST_CASE(ExtraAccessors) {
     prod_props->VFPTableNumber = 200;
     prod.updateProduction(prod_props);
 
-    BOOST_CHECK_THROW(inj.alq_value(), std::runtime_error);
     BOOST_CHECK_THROW(prod.temperature(), std::runtime_error);
     BOOST_CHECK_EQUAL(inj.vfp_table_number(), 100);
     BOOST_CHECK_EQUAL(prod.vfp_table_number(), 200);
@@ -829,6 +917,15 @@ BOOST_AUTO_TEST_CASE(WELOPEN) {
     std::string input =
                 "START             -- 0 \n"
                 "19 JUN 2007 / \n"
+                "GRID\n"
+                "PORO\n"
+                "1000*0.1  /\n"
+                "PERMX \n"
+                "1000*1 /\n"
+                "PERMY \n"
+                "1000*0.1 /\n"
+                "PERMZ \n"
+                "1000*0.01 /\n"
                 "SCHEDULE\n"
                 "DATES             -- 1\n"
                 " 10  OKT 2008 / \n"
@@ -911,186 +1008,56 @@ BOOST_AUTO_TEST_CASE(WellTypeTest) {
     wtp.update( InjectorType::GAS );
     BOOST_CHECK_EQUAL(wtp.ecl_wtype(), 4);
     BOOST_CHECK_EQUAL(wtp.ecl_phase(), 2);
-    BOOST_CHECK(wtp.preferred_phase() == Phase::WATER);
+    BOOST_CHECK(wtp.preferred_phase() == Phase::GAS);
     BOOST_CHECK(wtp.injector_type() == InjectorType::GAS);
 }
 
 BOOST_AUTO_TEST_CASE(Injector_Control_Mode) {
     using IMode = ::Opm::Well::InjectorCMode;
     using IType = ::Opm::InjectorType;
-    using WStat = ::Opm::Well::Status;
 
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::GAS, WStat::OPEN), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::GAS, WStat::SHUT),  0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::GAS, WStat::STOP), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::GAS, WStat::AUTO), -1);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::WATER, WStat::OPEN), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::WATER, WStat::SHUT),  0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::WATER, WStat::STOP), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::WATER, WStat::AUTO), -1);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::MULTI, WStat::OPEN), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::MULTI, WStat::SHUT),  0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::MULTI, WStat::STOP), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::MULTI, WStat::AUTO), -1);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::OIL, WStat::OPEN), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::OIL, WStat::SHUT),  0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::OIL, WStat::STOP), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::GRUP, IType::OIL, WStat::AUTO), -1);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::OIL, WStat::OPEN), 1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::OIL, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::OIL, WStat::STOP), 1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::OIL, WStat::AUTO), 1);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::WATER, WStat::OPEN), 2);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::WATER, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::WATER, WStat::STOP), 2);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::WATER, WStat::AUTO), 2);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::GAS, WStat::OPEN), 3);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::GAS, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::GAS, WStat::STOP), 3);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::GAS, WStat::AUTO), 3);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::MULTI, WStat::OPEN), -10);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::MULTI, WStat::SHUT),   0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::MULTI, WStat::STOP), -10);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RATE, IType::MULTI, WStat::AUTO), -10);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::GAS, WStat::OPEN), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::GAS, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::GAS, WStat::STOP), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::GAS, WStat::AUTO), 5);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::WATER, WStat::OPEN), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::WATER, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::WATER, WStat::STOP), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::WATER, WStat::AUTO), 5);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::MULTI, WStat::OPEN), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::MULTI, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::MULTI, WStat::STOP), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::MULTI, WStat::AUTO), 5);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::OIL, WStat::OPEN), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::OIL, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::OIL, WStat::STOP), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::RESV, IType::OIL, WStat::AUTO), 5);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::GAS, WStat::OPEN), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::GAS, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::GAS, WStat::STOP), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::GAS, WStat::AUTO), 6);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::WATER, WStat::OPEN), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::WATER, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::WATER, WStat::STOP), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::WATER, WStat::AUTO), 6);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::MULTI, WStat::OPEN), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::MULTI, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::MULTI, WStat::STOP), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::MULTI, WStat::AUTO), 6);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::OIL, WStat::OPEN), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::OIL, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::OIL, WStat::STOP), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::THP, IType::OIL, WStat::AUTO), 6);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::GAS, WStat::OPEN), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::GAS, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::GAS, WStat::STOP), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::GAS, WStat::AUTO), 7);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::WATER, WStat::OPEN), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::WATER, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::WATER, WStat::STOP), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::WATER, WStat::AUTO), 7);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::MULTI, WStat::OPEN), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::MULTI, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::MULTI, WStat::STOP), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::MULTI, WStat::AUTO), 7);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::OIL, WStat::OPEN), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::OIL, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::OIL, WStat::STOP), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::BHP, IType::OIL, WStat::AUTO), 7);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(IMode::CMODE_UNDEFINED, IType::WATER, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(static_cast<IMode>(1729), IType::WATER, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(static_cast<IMode>(1729), IType::WATER, WStat::STOP), -10); // Unknown combination
-    BOOST_CHECK_EQUAL(eclipseControlMode(static_cast<IMode>(1729), IType::WATER, WStat::OPEN), -10); // Unknown combination
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::GRUP, IType::GAS), -1);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::GRUP, IType::WATER), -1);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::GRUP, IType::MULTI), -1);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::GRUP, IType::OIL), -1);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::RATE, IType::OIL), 1);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::RATE, IType::WATER), 2);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::RATE, IType::GAS), 3);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::RATE, IType::MULTI), -10);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::RESV, IType::GAS), 5);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::RESV, IType::WATER), 5);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::RESV, IType::MULTI), 5);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::RESV, IType::OIL), 5);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::THP, IType::GAS), 6);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::THP, IType::WATER), 6);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::THP, IType::MULTI), 6);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::THP, IType::OIL), 6);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::BHP, IType::GAS), 7);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::BHP, IType::WATER), 7);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::BHP, IType::MULTI), 7);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::BHP, IType::OIL), 7);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(IMode::CMODE_UNDEFINED, IType::WATER), -10);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(static_cast<IMode>(1729), IType::WATER), -10);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(static_cast<IMode>(1729), IType::WATER), -10); // Unknown combination
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(static_cast<IMode>(1729), IType::WATER), -10); // Unknown combination
 }
 
 BOOST_AUTO_TEST_CASE(Producer_Control_Mode) {
     using PMode = ::Opm::Well::ProducerCMode;
-    using WStat = ::Opm::Well::Status;
 
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::GRUP, WStat::OPEN), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::GRUP, WStat::STOP), -1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::GRUP, WStat::SHUT),  0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::GRUP, WStat::AUTO), -1);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::ORAT, WStat::OPEN), 1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::ORAT, WStat::STOP), 1);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::ORAT, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::ORAT, WStat::AUTO), 1);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::WRAT, WStat::OPEN), 2);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::WRAT, WStat::STOP), 2);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::WRAT, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::WRAT, WStat::AUTO), 2);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::GRAT, WStat::OPEN), 3);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::GRAT, WStat::STOP), 3);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::GRAT, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::GRAT, WStat::AUTO), 3);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::LRAT, WStat::OPEN), 4);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::LRAT, WStat::STOP), 4);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::LRAT, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::LRAT, WStat::AUTO), 4);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::RESV, WStat::OPEN), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::RESV, WStat::STOP), 5);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::RESV, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::RESV, WStat::AUTO), 5);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::THP, WStat::OPEN), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::THP, WStat::STOP), 6);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::THP, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::THP, WStat::AUTO), 6);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::BHP, WStat::OPEN), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::BHP, WStat::STOP), 7);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::BHP, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::BHP, WStat::AUTO), 7);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::CRAT, WStat::OPEN), 9);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::CRAT, WStat::STOP), 9);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::CRAT, WStat::SHUT), 0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::CRAT, WStat::AUTO), 9);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::NONE, WStat::OPEN), -10);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::NONE, WStat::STOP), -10);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::NONE, WStat::SHUT),   0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::NONE, WStat::AUTO), -10);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::CMODE_UNDEFINED, WStat::OPEN), -10);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::CMODE_UNDEFINED, WStat::STOP), -10);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::CMODE_UNDEFINED, WStat::SHUT),   0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(PMode::CMODE_UNDEFINED, WStat::AUTO), -10);
-
-    BOOST_CHECK_EQUAL(eclipseControlMode(static_cast<PMode>(271828), WStat::OPEN), -10);
-    BOOST_CHECK_EQUAL(eclipseControlMode(static_cast<PMode>(271828), WStat::STOP), -10);
-    BOOST_CHECK_EQUAL(eclipseControlMode(static_cast<PMode>(271828), WStat::SHUT),   0);
-    BOOST_CHECK_EQUAL(eclipseControlMode(static_cast<PMode>(271828), WStat::AUTO), -10);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::GRUP), -1);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::ORAT), 1);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::WRAT), 2);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::GRAT), 3);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::LRAT), 4);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::RESV), 5);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::THP ), 6);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::BHP ), 7);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::CRAT), 9);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::NONE), -10);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(PMode::CMODE_UNDEFINED), -10);
+    BOOST_CHECK_EQUAL(Well::eclipseControlMode(static_cast<PMode>(271828)), -10);
 }
-
 
 BOOST_AUTO_TEST_CASE(WPIMULT) {
     Opm::Parser parser;
@@ -1103,6 +1070,15 @@ REGIONS
 PVTNUM
  1000*77 /
 
+GRID
+PORO
+ 1000*0.1 /
+PERMX
+ 1000*1 /
+PERMY
+ 1000*0.1 /
+PERMZ
+ 1000*0.01 /
 SCHEDULE
 
 WELSPECS
@@ -1220,3 +1196,458 @@ WPIMULT
 }
 
 
+BOOST_AUTO_TEST_CASE(FIRST_OPEN) {
+    Opm::Parser parser;
+    std::string input = R"(
+START             -- 0
+19 JUN 2007 /
+
+REGIONS
+
+PVTNUM
+ 1000*77 /
+
+GRID
+PORO
+ 1000*0.1 /
+PERMX
+ 1000*1 /
+PERMY
+ 1000*0.1 /
+PERMZ
+ 1000*0.01 /
+
+SCHEDULE
+
+WELSPECS
+    'P'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  1*   1*  1*  /
+    'I'       'OP'   9   9 1*     'OIL' 1*      1*  1*   1*  66 /
+/
+
+COMPDAT
+ 'P'  9  9   2   2 'OPEN' 1*   2.0 0.311  3047.839 1*  1*  'X'  22.100 /
+ 'I'  9  9   3   3 'OPEN' 1*   3.0 0.311  4332.346 1*  1*  'X'  22.123 /
+/
+
+DATES             -- 1
+ 20  JAN 2010 /
+/
+
+DATES             -- 2
+ 20  FEB 2010 /
+/
+
+WCONPROD
+ 'P' 'OPEN' 'BHP' 1 2 3 2* 20. 10. 0 13 /
+/
+
+WCONINJE
+ 'I' 'GAS' 'OPEN' 'RATE'  1000 /
+/
+
+
+)";
+
+
+    auto deck = parser.parseString(input);
+    auto python = std::make_shared<Opm::Python>();
+    Opm::EclipseGrid grid(10,10,10);
+    TableManager table ( deck );
+    FieldPropsManager fp(deck, Phases{true, true, true}, grid, table);
+    Opm::Runspec runspec (deck);
+    Opm::Schedule schedule(deck, grid , fp, runspec, python);
+    {
+        const auto& iwell = schedule.getWell("I", 0);
+        const auto& pwell = schedule.getWell("P", 0);
+
+        BOOST_CHECK( iwell.getStatus() == Well::Status::SHUT );
+        BOOST_CHECK( pwell.getStatus() == Well::Status::SHUT );
+        BOOST_CHECK( !iwell.hasProduced() );
+        BOOST_CHECK( !pwell.hasProduced() );
+    }
+    {
+        const auto& iwell = schedule.getWell("I", 2);
+        const auto& pwell = schedule.getWell("P", 2);
+
+        BOOST_CHECK( iwell.getStatus() == Well::Status::OPEN );
+        BOOST_CHECK( pwell.getStatus() == Well::Status::OPEN );
+        BOOST_CHECK( !iwell.hasProduced() );
+        BOOST_CHECK( pwell.hasProduced() );
+    }
+}
+
+
+BOOST_AUTO_TEST_CASE(WellPI) {
+    const auto deck = Parser{}.parseString(R"(RUNSPEC
+START
+7 OCT 2020 /
+
+DIMENS
+  10 10 3 /
+
+GRID
+DXV
+  10*100.0 /
+DYV
+  10*100.0 /
+DZV
+  3*10.0 /
+
+DEPTHZ
+  121*2000.0 /
+
+PERMX
+  300*100.0 /
+PERMY
+  300*100.0 /
+PERMZ
+  300*10.0 /
+PORO
+  300*0.3 /
+
+SCHEDULE
+WELSPECS
+  'P' 'G' 10 10 2005 'LIQ' /
+/
+COMPDAT
+  'P' 0 0 1 3 OPEN 1 100 /
+/
+
+END
+)");
+
+    const auto es    = EclipseState{ deck };
+    const auto sched = Schedule{ deck, es };
+
+    const auto expectCF = 100.0*cp_rm3_per_db();
+
+    auto wellP = sched.getWell("P", 0);
+
+    for (const auto& conn : wellP.getConnections()) {
+        BOOST_CHECK_CLOSE(conn.CF(), expectCF, 1.0e-10);
+    }
+
+    // Simulate applying WELPI before WELPI keyword.  No effect.
+    {
+        std::vector<bool> scalingApplicable;
+        wellP.applyWellProdIndexScaling(2.7182818, scalingApplicable);
+        for (const auto& conn : wellP.getConnections()) {
+            BOOST_CHECK_CLOSE(conn.CF(), expectCF, 1.0e-10);
+        }
+
+        for (const bool applicable : scalingApplicable) {
+            BOOST_CHECK_MESSAGE(! applicable, "No connection must be eligible for WELPI scaling");
+        }
+    }
+
+    // Simulate applying WELPI after seeing
+    //
+    //   WELPI
+    //     P 2 /
+    //   /
+    //
+    // (ignoring units of measure)
+    BOOST_CHECK_MESSAGE(wellP.updateWellProductivityIndex(),
+                        "First call to updateWellProductivityIndex() must be a state change");
+    BOOST_CHECK_MESSAGE(!wellP.updateWellProductivityIndex(),
+                        "Second call to updateWellProductivityIndex() must NOT be a state change");
+
+    // Want PI=2, but actual/effective PI=1 => scale CF by 2.0/1.0.
+    {
+        const auto scalingFactor = wellP.convertDeckPI(2.0) /  liquid_PI_unit();
+        BOOST_CHECK_CLOSE(scalingFactor, 2.0, 1.0e-10);
+
+        std::vector<bool> scalingApplicable;
+        wellP.applyWellProdIndexScaling(scalingFactor, scalingApplicable);
+        for (const auto& conn : wellP.getConnections()) {
+            BOOST_CHECK_CLOSE(conn.CF(), 2.0*expectCF, 1.0e-10);
+        }
+
+        for (const bool applicable : scalingApplicable) {
+            BOOST_CHECK_MESSAGE(applicable, "All connections must be eligible for WELPI scaling");
+        }
+    }
+
+    // Repeated application of WELPI multiplies scaling factors.
+    {
+        const auto scalingFactor = wellP.convertDeckPI(2.0) /  liquid_PI_unit();
+        BOOST_CHECK_CLOSE(scalingFactor, 2.0, 1.0e-10);
+
+        std::vector<bool> scalingApplicable;
+        wellP.applyWellProdIndexScaling(scalingFactor, scalingApplicable);
+        for (const auto& conn : wellP.getConnections()) {
+            BOOST_CHECK_CLOSE(conn.CF(), 4.0*expectCF, 1.0e-10);
+        }
+
+        for (const bool applicable : scalingApplicable) {
+            BOOST_CHECK_MESSAGE(applicable, "All connections must be eligible for WELPI scaling");
+        }
+    }
+
+    // New WELPI record does not reset the scaling factors
+    wellP.updateWellProductivityIndex();
+    for (const auto& conn : wellP.getConnections()) {
+        BOOST_CHECK_CLOSE(conn.CF(), 4.0*expectCF, 1.0e-10);
+    }
+
+    // Effective PI=desired PI => no scaling change
+    {
+        const auto scalingFactor = wellP.convertDeckPI(3.0) /  (3.0*liquid_PI_unit());
+        BOOST_CHECK_CLOSE(scalingFactor, 1.0, 1.0e-10);
+
+        std::vector<bool> scalingApplicable;
+        wellP.applyWellProdIndexScaling(scalingFactor, scalingApplicable);
+        for (const auto& conn : wellP.getConnections()) {
+            BOOST_CHECK_CLOSE(conn.CF(), 4.0*expectCF, 1.0e-10);
+        }
+
+        for (const bool applicable : scalingApplicable) {
+            BOOST_CHECK_MESSAGE(applicable, "All connections must be eligible for WELPI scaling");
+        }
+    }
+}
+
+BOOST_AUTO_TEST_CASE(Has_Same_Connections_Pointers) {
+    const auto deck = Parser{}.parseString(R"(RUNSPEC
+START
+7 OCT 2020 /
+
+DIMENS
+  10 10 3 /
+
+GRID
+DXV
+  10*100.0 /
+DYV
+  10*100.0 /
+DZV
+  3*10.0 /
+
+DEPTHZ
+  121*2000.0 /
+
+PERMX
+  300*100.0 /
+PERMY
+  300*100.0 /
+PERMZ
+  300*10.0 /
+PORO
+  300*0.3 /
+
+SCHEDULE
+WELSPECS
+  'P' 'G' 10 10 2005 'LIQ' /
+/
+COMPDAT
+  'P' 0 0 1 3 OPEN 1 100 /
+/
+
+END
+)");
+
+    const auto es    = EclipseState{ deck };
+    const auto sched = Schedule{ deck, es };
+
+    const auto wellP = sched.getWell("P", 0);
+    auto wellQ = wellP;
+
+    BOOST_CHECK_MESSAGE(wellP.hasSameConnectionsPointers(wellQ),
+                        "P and Q must have the same internal connections pointers");
+
+    auto connQ = std::make_shared<WellConnections>(wellP.getConnections());
+    wellQ.updateConnections(std::move(connQ), true);
+    BOOST_CHECK_MESSAGE(! wellP.hasSameConnectionsPointers(wellQ),
+                        "P and Q must NOT have the same internal connections pointers "
+                        "after forcibly updating the connections structure");
+
+    BOOST_CHECK_MESSAGE(wellP.getConnections() == wellQ.getConnections(),
+                        "P and Q must have same WellConnections VALUE");
+}
+
+
+
+BOOST_AUTO_TEST_CASE(REPERF) {
+      const auto deck = Parser{}.parseString(R"(RUNSPEC
+START
+7 OCT 2020 /
+
+DIMENS
+  10 10 4 /
+
+GRID
+DXV
+  10*100.0 /
+DYV
+  10*100.0 /
+DZV
+  4*10.0 /
+
+DEPTHZ
+  121*2000.0 /
+
+PERMX
+  400*100.0 /
+PERMY
+  400*100.0 /
+PERMZ
+  400*10.0 /
+PORO
+  400*0.3 /
+
+SCHEDULE
+
+WELSPECS
+     'W1'   'G' 1  1  1*       'OIL'  2*      'STOP'  4* /
+/
+
+COMPDAT
+     'W1'   1 1 4 4      'OPEN'  1*     34.720      0.216   3095.832  2*         'Y'     12.828 /
+     'W1'   1 1 3 3      'OPEN'  1*     34.720      0.216   3095.832  2*         'Y'     12.828 /
+/
+-- W0
+
+TSTEP
+  1 /
+
+COMPDAT
+     'W1'     1    1     2    2      'OPEN'  1*     25.620      0.216   2086.842  2*         'Y'      8.486 /
+/
+
+-- W1
+TSTEP
+  1 /
+
+
+
+WELSPECS
+  'W1' 'G' 1 1 2005 'LIQ' /
+/
+
+-- W2
+
+TSTEP
+1 /
+
+WELSPECS
+  'W1' 'G' 1 1 1* 'LIQ' /
+/
+-- W3
+
+WPAVEDEP
+  'W1'  0 /
+/
+
+TSTEP
+1  /
+
+
+COMPDAT
+     'W1'     1    1     1    1      'OPEN'  1*     25.620      0.216   2086.842  2*         'Y'      8.486 /
+/
+-- W4
+TSTEP
+1 /
+
+WELSPECS
+  'W1' 'G' 1 1 1* 'LIQ' /
+/
+-- W5
+
+END
+)");
+
+    const auto es    = EclipseState{ deck };
+    const auto& grid = es.getInputGrid();
+    const auto sched = Schedule{ deck, es };
+
+    const auto& w0 = sched.getWell("W1", 0);
+    const auto& w1 = sched.getWell("W1", 1);
+    const auto& w2 = sched.getWell("W1", 2);
+    const auto& w3 = sched.getWell("W1", 3);
+    const auto& w4 = sched.getWell("W1", 4);
+    const auto& w5 = sched.getWell("W1", 5);
+
+
+    BOOST_CHECK_EQUAL(w0.getRefDepth(), grid.getCellDepth(0,0,2));
+    BOOST_CHECK_EQUAL(w0.getRefDepth(), w0.getWPaveRefDepth());
+    BOOST_CHECK_EQUAL(w1.getRefDepth(), w0.getRefDepth());
+    BOOST_CHECK_EQUAL(w2.getRefDepth(), 2005 );
+    BOOST_CHECK_EQUAL(w3.getRefDepth(), grid.getCellDepth(0,0,1));
+    BOOST_CHECK_EQUAL(w4.getRefDepth(), w3.getRefDepth());
+    BOOST_CHECK_EQUAL(w5.getRefDepth(), grid.getCellDepth(0,0,0));
+    BOOST_CHECK_EQUAL(w5.getWPaveRefDepth(), 0);
+}
+
+BOOST_AUTO_TEST_CASE(Missing_RefDepth) {
+      const auto deck = Parser{}.parseString(R"(RUNSPEC
+START
+17 DEC 2021 /
+
+DIMENS
+  10 10 4 /
+GRID
+DXV
+  10*100.0 /
+DYV
+  10*100.0 /
+DZV
+  4*10.0 /
+
+DEPTHZ
+  121*2000.0 /
+
+PERMX
+  400*100.0 /
+PERMY
+  400*100.0 /
+PERMZ
+  400*10.0 /
+PORO
+  400*0.3 /
+
+-- Deactivate Cells (1,1,3) And (1,1,4)
+ACTNUM
+  1 99*1
+  1 99*1
+  0 99*1
+  0 99*1
+/
+
+SCHEDULE
+
+WELSPECS
+     'W1'   'G' 1  1  1*       'OIL'  2*      'STOP'  4* /
+/
+
+COMPDAT
+     'W1'   1 1 4 4      'OPEN'  1*     34.720      0.216   3095.832  2*         'Y'     12.828 /
+     'W1'   1 1 3 3      'OPEN'  1*     34.720      0.216   3095.832  2*         'Y'     12.828 /
+/
+
+TSTEP
+  1 /
+
+COMPDAT
+     'W1'   1 1 2 2      'OPEN'  1*     25.620      0.216   2086.842  2*         'Y'      8.486 /
+/
+
+TSTEP
+  1 /
+
+END
+)");
+
+    const auto es    = EclipseState{ deck };
+    const auto sched = Schedule{ deck, es };
+
+    const auto& w0 = sched[0].wells("W1");
+    BOOST_CHECK_MESSAGE(! w0.hasRefDepth(),
+                        R"(Well "W1" must NOT have a BHP reference depth at report=1)");
+    BOOST_CHECK_THROW(w0.getRefDepth(), std::logic_error);
+
+    const auto& w1 = sched[1].wells("W1");
+    BOOST_CHECK_MESSAGE(w1.hasRefDepth(),
+                        R"(Well "W1" must have a BHP reference depth at report=2)");
+    BOOST_CHECK_CLOSE(w1.getRefDepth(), es.getInputGrid().getCellDepth(0, 0, 1), 1.0e-8);
+}

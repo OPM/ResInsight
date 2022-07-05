@@ -23,14 +23,17 @@
 #include <ctime>
 #include <cstddef>
 
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+
 namespace Opm {
 class UnitSystem;
 
 namespace RestartIO {
 
 struct RstHeader {
-    RstHeader(const UnitSystem& unit_system, const std::vector<int>& intehead, const std::vector<bool>& logihead, const std::vector<double>& doubhead);
+    RstHeader(const Runspec& runspec, const UnitSystem& unit_system, const std::vector<int>& intehead, const std::vector<bool>& logihead, const std::vector<double>& doubhead);
 
+    Runspec runspec;
     int nx;
     int ny;
     int nz;
@@ -86,6 +89,12 @@ struct RstHeader {
     int nmfipr;
     int ngroup;
     int nwgmax;
+    int nwell_udq;
+    int ngroup_udq;
+    int nfield_udq;
+    int num_action;
+    int guide_rate_nominated_phase;
+    int max_wlist;
 
     bool e300_radial;
     bool e100_radial;
@@ -101,6 +110,7 @@ struct RstHeader {
     bool reversible_eps;
     bool alt_eps;
     bool group_control_active;
+    bool glift_all_nupcol;
 
     double next_timestep1;
     double next_timestep2;
@@ -116,8 +126,14 @@ struct RstHeader {
     double udq_range;
     double udq_undefined;
     double udq_eps;
+    double glift_min_wait;
+    double glift_rate_delta;
+    double glift_min_eco_grad;
 
+
+    std::time_t sim_time() const;
     std::pair<std::time_t, std::size_t> restart_info() const;
+    int num_udq() const;
 };
 
 

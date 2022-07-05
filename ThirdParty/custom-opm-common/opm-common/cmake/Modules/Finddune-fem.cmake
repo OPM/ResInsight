@@ -24,7 +24,8 @@ find_opm_package (
    dune-alugrid;
    ZLIB;
    ZOLTAN;
-   METIS
+   METIS;
+   Quadmath
   "
   # header to search for
   "dune/fem/space/shapefunctionset/legendre.hh"

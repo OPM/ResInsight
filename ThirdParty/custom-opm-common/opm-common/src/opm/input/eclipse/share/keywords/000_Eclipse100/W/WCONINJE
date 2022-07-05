@@ -1,0 +1,102 @@
+{
+  "name": "WCONINJE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "item": 1,
+     "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "TYPE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 3,
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "item": 4,
+      "name": "CMODE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 5,
+      "name": "RATE",
+      "value_type": "UDA"
+    },
+    {
+      "item": 6,
+      "name": "RESV",
+      "value_type": "UDA",
+      "dimension": "ReservoirVolume/Time"
+    },
+    {
+      "item": 7,
+      "name": "BHP",
+      "value_type": "UDA",
+      "dimension": "Pressure",
+      "default": 6895
+    },
+    {
+      "item": 8,
+      "name": "THP",
+      "value_type": "UDA",
+      "dimension": "Pressure"
+    },
+    {
+      "item": 9,
+      "name": "VFP_TABLE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 10,
+      "name": "VAPOIL_C",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "OilDissolutionFactor",
+      "comment": "Not supported"
+    },
+    {
+      "item": 11,
+      "name": "GAS_STEAM_RATIO",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 12,
+      "name": "SURFACE_OIL_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 13,
+      "name": "SURFACE_WATER_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 14,
+      "name": "SURFACE_GAS_FRACTION",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 15,
+      "name": "OIL_STEAM_RATIO",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    }
+  ]
+}

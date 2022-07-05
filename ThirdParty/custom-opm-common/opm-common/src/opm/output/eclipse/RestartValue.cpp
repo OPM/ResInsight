@@ -17,8 +17,9 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <set>
 #include <iostream>
+#include <set>
+#include <utility>
 
 #include <opm/output/eclipse/RestartValue.hpp>
 
@@ -30,11 +31,14 @@ namespace Opm {
 
     }
 
-
-
-    RestartValue::RestartValue(data::Solution sol, data::Wells wells_arg) :
-        solution(std::move(sol)),
-        wells(std::move(wells_arg))
+    RestartValue::RestartValue(data::Solution sol,
+                               data::Wells wells_arg,
+                               data::GroupAndNetworkValues grp_nwrk_arg,
+                               data::Aquifers aquifer_arg)
+        : solution { std::move(sol) }
+        , wells    { std::move(wells_arg) }
+        , grp_nwrk { std::move(grp_nwrk_arg) }
+        , aquifer  { std::move(aquifer_arg) }
     {
     }
 
@@ -100,6 +104,5 @@ namespace Opm {
             units.to_si(restart_key.dim, data);
         }
     }
-
 
 }

@@ -27,7 +27,7 @@
 
 #include <opm/io/eclipse/rst/connection.hpp>
 #include <opm/io/eclipse/rst/segment.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/ScheduleTypes.hpp>
+#include <opm/input/eclipse/Schedule/ScheduleTypes.hpp>
 
 namespace Opm {
 class UnitSystem;
@@ -76,6 +76,11 @@ struct RstWell {
     int completion_ordering;
     int pvt_table;
     int msw_pressure_drop_model;
+    int wtest_config_reasons;
+    int wtest_close_reason;
+    int wtest_remaining;
+    bool glift_active;
+    bool glift_alloc_extra_gas;
 
     float orat_target;
     float wrat_target;
@@ -91,6 +96,13 @@ struct RstWell {
     float drainage_radius;
     float efficiency_factor;
     float alq_value;
+    float wtest_interval;
+    float wtest_startup;
+    float glift_max_rate;
+    float glift_min_rate;
+    float glift_weight_factor;
+    float glift_inc_weight_factor;
+    std::vector<float> tracer_concentration_injection;
 
     double oil_rate;
     double water_rate;

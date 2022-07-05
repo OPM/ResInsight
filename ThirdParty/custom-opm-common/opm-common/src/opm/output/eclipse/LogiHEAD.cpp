@@ -76,8 +76,9 @@ lh_033	=	33	,		//	FALSE
 lh_034	=	34	,		//	FALSE
 lh_035	=	35	,		//	FALSE
 lh_036	=	36	,		//	FALSE
-lh_037	=	37	,		//
 
+    // Flag to indicate that the network option is used
+    HasNetwork = VI::logihead::HasNetwork,
     // Flag to signify constant oil compressibility
     ConstCo = VI::logihead::ConstCo,
 
@@ -215,6 +216,14 @@ Opm::RestartIO::LogiHEAD::saturationFunction(const SatfuncFlags& satfunc)
     this->data_[DirEPS]    = satfunc.useDirectionalEPS;
     this->data_[RevEPS]    = satfunc.useReversibleEPS;
     this->data_[AltEPS]    = satfunc.useAlternateEPS;
+
+    return *this;
+}
+
+Opm::RestartIO::LogiHEAD&
+Opm::RestartIO::LogiHEAD::network(const int maxNoNodes)
+{
+    this->data_[HasNetwork  ] = (maxNoNodes >= 1) ? true : false;
 
     return *this;
 }

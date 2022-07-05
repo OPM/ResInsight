@@ -17,11 +17,12 @@
 */
 
 #include <cmath>
+#include <stdexcept>
 
 #include <opm/io/eclipse/rst/header.hpp>
 #include <opm/io/eclipse/rst/connection.hpp>
 #include <opm/output/eclipse/VectorItems/connection.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;

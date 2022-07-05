@@ -24,9 +24,15 @@
 #include <optional>
 #include <string>
 #include <unordered_set>
+#include <array>
 #include <limits>
 
 namespace Opm { namespace EclIO {
+
+    struct lgr_info {
+        std::string name;
+        std::array<int, 3> ijk;
+    };
 
 struct SummaryNode {
     enum class Category {
@@ -40,10 +46,6 @@ struct SummaryNode {
         Aquifer,
         Node,
         Miscellaneous,
-        Network,
-        Well_Lgr,
-        Block_Lgr,
-        Connection_Lgr
     };
 
     enum class Type {
@@ -57,19 +59,14 @@ struct SummaryNode {
         Undefined,
     };
 
+
     std::string keyword;
     Category    category;
     Type        type;
     std::string wgname;
     int         number;
-    std::string lgrname;
-    int         lgri;
-    int         lgrj;
-    int         lgrk;
-
-    size_t      smspecKeywordIndex;
-
     std::optional<std::string> fip_region;
+    std::optional<lgr_info> lgr;
 
     constexpr static int default_number { std::numeric_limits<int>::min() };
 
@@ -80,19 +77,15 @@ struct SummaryNode {
 
     bool is_user_defined() const;
 
-    static Category category_from_keyword(const std::string&, const std::unordered_set<std::string> &miscellaneous_keywords = {});
+    static Category category_from_keyword(const std::string&);
+
+    // Return true for keywords which should be Miscellaneous, although the
+    // naive first-character-based classification suggests something else.
+    static bool miscellaneous_exception(const std::string& keyword);
 
     std::optional<std::string> display_name() const;
     std::optional<std::string> display_number() const;
     std::optional<std::string> display_number(number_renderer) const;
-
-    bool isRegionToRegion() const;
-    std::pair<int, int> regionToRegionNumbers() const;
-
-    static std::string create_key_lgr_well(const std::string& keyword, const std::string& wgname, const std::string& lgrname);
-    static std::string create_key_lgr_completion(const std::string& keyword, const std::string& wgname, const std::string& lgrname, int i, int j, int k);
-    static std::string create_key_lgr_block(const std::string& keyword, const std::string& lgrname, int i, int j, int k);
-
 };
 
 }} // namespace Opm::EclIO

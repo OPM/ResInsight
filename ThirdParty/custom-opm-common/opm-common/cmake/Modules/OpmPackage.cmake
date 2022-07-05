@@ -95,9 +95,18 @@ macro (find_opm_package module deps header lib defs prog conf)
 
   # compile with this option to avoid avalanche of warnings
   set (${module}_DEFINITIONS "${${module}_DEFINITIONS}")
+  # -D to compile definitions for older CMake versions
+  set (_D_PREFIX "")
+  if(CMAKE_VERSION VERSION_LESS "3.12")
+    set(_D_PREFIX "-D")
+  endif()
   foreach (_def IN ITEMS ${defs})
-	list (APPEND ${module}_DEFINITIONS "-D${_def}")
+    if(_def MATCHES "^[A-Za-z].*")
+      list (APPEND ${module}_DEFINITIONS "${_D_PREFIX}${_def}")
+    endif()
   endforeach (_def)
+
+  list (APPEND ${module}_DEFINITIONS ${defs})
 
   # tidy the lists before returning them
   remove_dup_deps (${module})
@@ -115,26 +124,34 @@ macro (find_opm_package module deps header lib defs prog conf)
   # without config.h
   config_cmd_line (${module}_CMD_CONFIG ${module}_CONFIG_VARS)
 
-  # check that we can compile a small test-program
-  include (CMakePushCheckState)
-  cmake_push_check_state ()
-  include (CheckCXXSourceCompiles)
-  # only add these if they are actually found; otherwise it won't
-  # compile and the variable won't be set
-  append_found (${module}_INCLUDE_DIRS CMAKE_REQUIRED_INCLUDES)
-  append_found (${module}_LIBRARIES CMAKE_REQUIRED_LIBRARIES)
-  # since we don't have any config.h yet
-  list (APPEND CMAKE_REQUIRED_DEFINITIONS ${${module}_DEFINITIONS})
-  list (APPEND CMAKE_REQUIRED_DEFINITIONS ${${module}_CMD_CONFIG})
-  check_cxx_source_compiles ("${prog}" HAVE_${MODULE})
-  cmake_pop_check_state ()
+  if(prog)
+    # check that we can compile a small test-program
+    include (CMakePushCheckState)
+    cmake_push_check_state ()
+    include (CheckCXXSourceCompiles)
+    # only add these if they are actually found; otherwise it won't
+    # compile and the variable won't be set
+    append_found (${module}_INCLUDE_DIRS CMAKE_REQUIRED_INCLUDES)
+    append_found (${module}_LIBRARIES CMAKE_REQUIRED_LIBRARIES)
+    # since we don't have any config.h yet
+    list (APPEND CMAKE_REQUIRED_DEFINITIONS ${${module}_DEFINITIONS})
+    list (APPEND CMAKE_REQUIRED_DEFINITIONS ${${module}_CMD_CONFIG})
+    check_cxx_source_compiles ("${prog}" HAVE_${MODULE})
+    cmake_pop_check_state ()
+  else(prog)
+    if(${module}_FOUND)
+      # No test code provided, mark compilation as successful
+      # if module was founf
+      set(HAVE_${MODULE} 1)
+    endif(${module}_FOUND)
+  endif(prog)
 
   # write status message in the same manner as everyone else
   include (FindPackageHandleStandardArgs)
   find_package_handle_standard_args (
         ${module}
         DEFAULT_MSG
-        ${module}_INCLUDE_DIRS ${module}_LIBRARIES ${module}_FOUND ${module}_ALL_PREREQS
+        ${module}_INCLUDE_DIRS ${module}_LIBRARIES ${module}_FOUND ${module}_ALL_PREREQS HAVE_${MODULE}
         )
 
   # some genius that coded the FindPackageHandleStandardArgs figured out
@@ -200,7 +217,7 @@ macro (find_package_deps module)
   config_cmd_line (${module}_CMD_CONFIG ${module}_CONFIG_VARS)
 
   # This variable is used by UseDuneVer
-  #list(GET ${module}_INCLUDE_DIRS 0 ${module}_INCLUDE_DIR)
+  list(GET ${module}_INCLUDE_DIRS 0 ${module}_INCLUDE_DIR)
   # print everything out if we're asked to
   if (${module}_DEBUG)
 	debug_find_vars (${module})

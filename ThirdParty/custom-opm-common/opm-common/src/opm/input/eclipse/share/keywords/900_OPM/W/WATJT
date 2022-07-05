@@ -1,0 +1,25 @@
+{
+  "name": "WATJT",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "PREF",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure",
+      "default": 1.0132
+    },
+    {
+      "name": "JOULE_THOMSON_COEFFICIENT",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature/Pressure",
+      "default": 0,
+      "comment": "if defaulted the JT coefficient is calculated"
+    }
+  ]
+}

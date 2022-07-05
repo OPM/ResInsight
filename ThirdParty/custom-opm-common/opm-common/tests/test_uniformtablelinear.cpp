@@ -23,6 +23,7 @@
 
 #define BOOST_TEST_MODULE UniformTableLinearTests
 #include <boost/test/unit_test.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 #include <opm/common/utility/numeric/UniformTableLinear.hpp>
 
 
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_CASE(table_operations)
     }
     BOOST_CHECK_EQUAL(t1(2.25), 0.0);
     BOOST_CHECK_EQUAL(t1(9.75), 3.0);
-    BOOST_CHECK_EQUAL(t1.derivative(9.75), -2.0/xdelta);
+    BOOST_CHECK_CLOSE(t1.derivative(9.75), -2.0/xdelta, 1e-13);
     // Until we implement anything but the ClosestValue end policy, we only test that.
     BOOST_CHECK_EQUAL(t1(xmin - 1.0), yv[0]);
     BOOST_CHECK_EQUAL(t1(xmax + 1.0), yv.back());

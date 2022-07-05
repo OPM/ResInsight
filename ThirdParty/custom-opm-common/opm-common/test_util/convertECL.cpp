@@ -24,7 +24,7 @@ template<typename T>
 void write(EclOutput& outFile, ERst& file1,
            const std::string& name, int index, int reportStepNumber)
 {
-    auto vect = file1.getRst<T>(index, reportStepNumber);
+    auto vect = file1.getRestartData<T>(index, reportStepNumber);
     outFile.write(name, vect);
 }
 
@@ -50,6 +50,8 @@ void writeArray(std::string name, eclArrType arrType, T& file1, int index, EclOu
         write<bool>(outFile, file1, name, index);
     } else if (arrType == CHAR) {
         write<std::string>(outFile, file1, name, index);
+    } else if (arrType == C0NN) {
+        write<std::string>(outFile, file1, name, index);
     } else if (arrType == MESS) {
         outFile.message(name);
     } else {
@@ -57,6 +59,7 @@ void writeArray(std::string name, eclArrType arrType, T& file1, int index, EclOu
         exit(1);
     }
 }
+
 
 template <typename T>
 void writeArray(std::string name, eclArrType arrType, T& file1, int index, int reportStepNumber, EclOutput& outFile) {
@@ -79,12 +82,24 @@ void writeArray(std::string name, eclArrType arrType, T& file1, int index, int r
     }
 }
 
-void writeArrayList(std::vector<EclEntry>& arrayList, EclFile file1, EclOutput& outFile) {
+
+void writeC0nnArray(std::string name, int elementSize, EclFile& file1, int index, EclOutput& outFile)
+{
+    auto vect = file1.get<std::string>(index);
+    outFile.write(name, vect, elementSize);
+}
+
+
+void writeArrayList(std::vector<EclEntry>& arrayList, std::vector<int>& elementSizeList, EclFile file1, EclOutput& outFile) {
 
     for (size_t index = 0; index < arrayList.size(); index++) {
         std::string name = std::get<0>(arrayList[index]);
         eclArrType arrType = std::get<1>(arrayList[index]);
-        writeArray(name, arrType, file1, index, outFile);
+
+        if (arrType == Opm::EclIO::C0NN){
+            writeC0nnArray(name, elementSizeList[index], file1, index, outFile);
+        } else
+            writeArray(name, arrType, file1, index, outFile);
     }
 }
 
@@ -102,8 +117,9 @@ static void printHelp() {
     std::cout << "\nconvertECL needs one argument which is the input file to be converted. If this is a binary file the output file will be formatted. If the input file is formatted the output will be binary. \n"
               << "\nIn addition, the program takes these options (which must be given before the arguments):\n\n"
               << "-h Print help and exit.\n"
-              << "-l list report step numbers in the selected restart file.\n"
-              << "-r extract and convert a spesific report time step number from a unified restart file. \n\n";
+              << "-l List report step numbers in the selected restart file.\n"
+              << "-i Enforce IX standard on output file.\n"
+              << "-r Extract and convert a spesific report time step number from a unified restart file. \n\n";
 }
 
 int main(int argc, char **argv) {
@@ -112,14 +128,18 @@ int main(int argc, char **argv) {
     int reportStepNumber           = -1;
     bool specificReportStepNumber  = false;
     bool listProperties            = false;
+    bool enforce_ix_output         = false;
 
-    while ((c = getopt(argc, argv, "hr:l")) != -1) {
+    while ((c = getopt(argc, argv, "hr:li")) != -1) {
         switch (c) {
         case 'h':
             printHelp();
             return 0;
         case 'l':
             listProperties=true;
+            break;
+        case 'i':
+            enforce_ix_output=true;
             break;
         case 'r':
             specificReportStepNumber=true;
@@ -157,7 +177,7 @@ int main(int argc, char **argv) {
 
             for (auto seqn : reportStepList) {
 
-                std::vector<int> inteh = rst1.getRst<int>("INTEHEAD", seqn, 0);
+                std::vector<int> inteh = rst1.getRestartData<int>("INTEHEAD", seqn, 0);
 
                 std::cout << "Report step number: "
                           << std::setfill(' ') << std::setw(4) << seqn << "   Date: " << inteh[66] << "/"
@@ -175,18 +195,18 @@ int main(int argc, char **argv) {
         return 0;
     }
 
-    std::map<std::string, std::string> to_formatted = {{".EGRID", ".FEGRID"}, {".INIT", ".FINIT"}, {".SMSPEC", ".FSMSPEC"}, 
-        {".UNSMRY", ".FUNSMRY"}, {".UNRST", ".FUNRST"}, {".RFT", ".FRFT"}};
+    std::map<std::string, std::string> to_formatted = {{".EGRID", ".FEGRID"}, {".INIT", ".FINIT"}, {".SMSPEC", ".FSMSPEC"},
+        {".UNSMRY", ".FUNSMRY"}, {".UNRST", ".FUNRST"}, {".RFT", ".FRFT"}, {".ESMRY", ".FESMRY"}};
 
-    std::map<std::string, std::string> to_binary = {{".FEGRID", ".EGRID"}, {".FINIT", ".INIT"}, {".FSMSPEC", ".SMSPEC"}, 
-        {".FUNSMRY", ".UNSMRY"}, {".FUNRST", ".UNRST"}, {".FRFT", ".RFT"}};
-        
+    std::map<std::string, std::string> to_binary = {{".FEGRID", ".EGRID"}, {".FINIT", ".INIT"}, {".FSMSPEC", ".SMSPEC"},
+        {".FUNSMRY", ".UNSMRY"}, {".FUNRST", ".UNRST"}, {".FRFT", ".RFT"}, {".FESMRY", ".ESMRY"}};
+
     if (formattedOutput) {
-        
+
         auto search = to_formatted.find(extension);
-    
+
         if (search != to_formatted.end()){
-            resFile = rootN + search->second;     
+            resFile = rootN + search->second;
         } else if (extension.substr(1,1)=="X"){
             resFile = rootN + ".F" + extension.substr(2);
         } else if (extension.substr(1,1)=="S"){
@@ -196,11 +216,11 @@ int main(int argc, char **argv) {
             exit(1);
         }
     } else {
-        
+
         auto search = to_binary.find(extension);
 
         if (search != to_binary.end()){
-            resFile = rootN + search->second;     
+            resFile = rootN + search->second;
         } else if (extension.substr(1,1)=="F"){
             resFile = rootN + ".X" + extension.substr(2);
         } else if (extension.substr(1,1)=="A"){
@@ -214,6 +234,11 @@ int main(int argc, char **argv) {
     std::cout << "\033[1;31m" << "\nconverting  " << argv[argOffset] << " -> " << resFile << "\033[0m\n" << std::endl;
 
     EclOutput outFile(resFile, formattedOutput);
+
+    if ((file1.is_ix()) || (enforce_ix_output)) {
+        std::cout << "setting IX flag on output file \n";
+        outFile.set_ix();
+    }
 
     if (specificReportStepNumber) {
 
@@ -239,8 +264,8 @@ int main(int argc, char **argv) {
 
         file1.loadData();
         auto arrayList = file1.getList();
-
-        writeArrayList(arrayList, file1, outFile);
+        std::vector<int> elementSizeList = file1.getElementSizeList();
+        writeArrayList(arrayList, elementSizeList, file1, outFile);
     }
 
     auto end = std::chrono::system_clock::now();

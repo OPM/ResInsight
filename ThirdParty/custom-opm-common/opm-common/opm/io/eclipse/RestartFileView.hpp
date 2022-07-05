@@ -23,6 +23,7 @@
 #include <cstddef>
 #include <memory>
 #include <vector>
+#include <string>
 
 namespace Opm { namespace EclIO {
     class ERst;

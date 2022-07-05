@@ -40,6 +40,7 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
         DirEPS     = 17,    // Directional end-point scaling
         RevEPS     = 18,    // Reversible end-point scaling
         AltEPS     = 19,    // Alternative (3-pt) end-point scaling
+        HasNetwork = 37,     // Indicates Network option used
         ConstCo    = 38,    // Constant oil compressibility (PVCDO)
         HasMSWells = 75,    // Whether or not model has MS Wells.
     };

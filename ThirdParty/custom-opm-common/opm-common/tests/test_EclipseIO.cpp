@@ -24,17 +24,20 @@
 #include <opm/output/eclipse/EclipseIO.hpp>
 #include <opm/output/data/Cells.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
-#include <opm/parser/eclipse/Units/Units.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/EclipseState/IOConfig/IOConfig.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Schedule/Action/State.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQState.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellTestState.hpp>
 
 #include <opm/io/eclipse/EclFile.hpp>
 #include <opm/io/eclipse/EGrid.hpp>
@@ -47,11 +50,12 @@
 #include <numeric>
 #include <string>
 #include <tuple>
+#include <utility>
 #include <vector>
 
 #include <time.h>
 
-#include <tests/WorkArea.cpp>
+#include <tests/WorkArea.hpp>
 
 using namespace Opm;
 
@@ -153,13 +157,13 @@ void checkInitFile( const Deck& deck, const data::Solution& simProps) {
 
     if (initFile.hasKey("PORO")) {
         const auto& poro   = initFile.get<float>("PORO");
-        const auto& expect = deck.getKeyword("PORO").getSIDoubleData();
+        const auto& expect = deck["PORO"].back().getSIDoubleData();
 
         compareErtData(expect, poro, 1e-4);
     }
 
     if (initFile.hasKey("PERMX")) {
-        const auto& expect = deck.getKeyword("PERMX").getSIDoubleData();
+        const auto& expect = deck["PERMX"].back().getSIDoubleData();
         auto        permx  = initFile.get<float>("PERMX");
 
         for (auto& kx : permx) {
@@ -196,7 +200,7 @@ void checkRestartFile( int timeStepIdx ) {
         const auto& knownVec = rstFile.listOfRstArrays(i);
 
         if (keywordExists(knownVec, "PRESSURE")) {
-            const auto& press = rstFile.getRst<float>("PRESSURE", i, 0);
+            const auto& press = rstFile.getRestartData<float>("PRESSURE", i, 0);
             for( auto& x : sol.data("PRESSURE") )
                 x /= Metric::Pressure;
 
@@ -204,22 +208,22 @@ void checkRestartFile( int timeStepIdx ) {
         }
 
         if (keywordExists(knownVec, "SWAT")) {
-            const auto& swat = rstFile.getRst<float>("SWAT", i, 0);
+            const auto& swat = rstFile.getRestartData<float>("SWAT", i, 0);
             compareErtData( sol.data("SWAT"), swat, 1e-4 );
         }
 
         if (keywordExists(knownVec, "SGAS")) {
-            const auto& sgas = rstFile.getRst<float>("SGAS", i, 0);
+            const auto& sgas = rstFile.getRestartData<float>("SGAS", i, 0);
             compareErtData( sol.data("SGAS"), sgas, 1e-4 );
         }
 
         if (keywordExists(knownVec, "KRO")) {
-            const auto& kro = rstFile.getRst<float>("KRO", i, 0);
+            const auto& kro = rstFile.getRestartData<float>("KRO", i, 0);
             BOOST_CHECK_CLOSE(1.0 * i * kro.size(), sum(kro), 1.0e-8);
         }
 
         if (keywordExists(knownVec, "KRG")) {
-            const auto& krg = rstFile.getRst<float>("KRG", i, 0);
+            const auto& krg = rstFile.getRestartData<float>("KRG", i, 0);
             BOOST_CHECK_CLOSE(10.0 * i * krg.size(), sum(krg), 1.0e-8);
         }
     }
@@ -283,8 +287,8 @@ BOOST_AUTO_TEST_CASE(EclipseIOIntegration) {
         auto& eclGrid = es.getInputGrid();
         auto python = std::make_shared<Python>();
         Schedule schedule(deck, es, python);
-        SummaryConfig summary_config( deck, schedule, es.getTableManager( ));
-        SummaryState st(std::chrono::system_clock::now());
+        SummaryConfig summary_config( deck, schedule, es.fieldProps(), es.aquifer());
+        SummaryState st(TimeService::now());
         es.getIOConfig().setBaseName( "FOO" );
 
         EclipseIO eclWriter( es, eclGrid , schedule, summary_config);
@@ -314,19 +318,26 @@ BOOST_AUTO_TEST_CASE(EclipseIOIntegration) {
         eclWriter.writeInitial( eGridProps , int_data );
 
         data::Wells wells;
+        data::GroupAndNetworkValues grp_nwrk;
 
         for( int i = first; i < last; ++i ) {
             data::Solution sol = createBlackoilState( i, 3 * 3 * 3 );
             sol.insert("KRO", measure::identity , std::vector<double>(3*3*3 , i), TargetType::RESTART_AUXILIARY);
             sol.insert("KRG", measure::identity , std::vector<double>(3*3*3 , i*10), TargetType::RESTART_AUXILIARY);
 
-            RestartValue restart_value(sol, wells);
+            Action::State action_state;
+            WellTestState wtest_state;
+            UDQState udq_state(1);
+            RestartValue restart_value(sol, wells, grp_nwrk, {});
             auto first_step = ecl_util_make_date( 10 + i, 11, 2008 );
-            eclWriter.writeTimeStep( st,
+            eclWriter.writeTimeStep( action_state,
+                                     wtest_state,
+                                     st,
+                                     udq_state,
                                      i,
                                      false,
                                      first_step - start_time,
-                                     restart_value);
+                                     std::move(restart_value));
 
             checkRestartFile( i );
         }

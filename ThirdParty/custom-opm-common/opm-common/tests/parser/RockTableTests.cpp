@@ -21,27 +21,24 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/P.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/P.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 // generic table classes
-#include <opm/parser/eclipse/EclipseState/Tables/SimpleTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableManager.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SimpleTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableManager.hpp>
 
 // keyword specific table classes
-//#include <opm/parser/eclipse/EclipseState/Tables/PvtoTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SwofTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/RockwnodTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/OverburdTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SgofTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PlyadsTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp>
-
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <boost/filesystem.hpp>
+//#include <opm/input/eclipse/EclipseState/Tables/PvtoTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SwofTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/RockwnodTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/OverburdTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SgofTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/PlyadsTable.hpp>
+#include <opm/input/eclipse/Schedule/VFPProdTable.hpp>
+#include <opm/input/eclipse/Schedule/VFPInjTable.hpp>
 
 #include <stdexcept>
 #include <iostream>
@@ -126,8 +123,8 @@ BOOST_AUTO_TEST_CASE( Rock2d ) {
 
     const OverburdTable& overburdTable = overburd.getTable<OverburdTable>(0);
     BOOST_CHECK_THROW( rock2d.at(2), std::out_of_range );
-    BOOST_REQUIRE_EQUAL(3, rec1.size());
-    BOOST_REQUIRE_EQUAL(3, rec2.size());
+    BOOST_REQUIRE_EQUAL(3U, rec1.size());
+    BOOST_REQUIRE_EQUAL(3U, rec2.size());
     BOOST_REQUIRE_EQUAL(0.0, rec1.getPressureValue(0));
     BOOST_REQUIRE_EQUAL(0.13, rec1.getPvmultValue(1,2));
     BOOST_REQUIRE_EQUAL(rec1.sizeMultValues(), rockwnodTable1.getSaturationColumn().size());

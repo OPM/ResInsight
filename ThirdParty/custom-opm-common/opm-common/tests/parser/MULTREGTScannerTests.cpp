@@ -19,25 +19,23 @@
 
 #include <stdexcept>
 #include <iostream>
-#include <boost/filesystem.hpp>
 
 #define BOOST_TEST_MODULE MULTREGTScannerTests
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
-#include <opm/parser/eclipse/Deck/DeckSection.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Deck/DeckSection.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Grid/MULTREGTScanner.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/Box.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FaceDir.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableManager.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/MULTREGTScanner.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/Box.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FaceDir.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableManager.hpp>
 
 
 
@@ -113,19 +111,19 @@ BOOST_AUTO_TEST_CASE(InvalidInput) {
 
     // Invalid direction
     std::vector<const Opm::DeckKeyword*> keywords0;
-    const auto& multregtKeyword0 = deck.getKeyword( "MULTREGT", 0 );
+    const auto& multregtKeyword0 = deck["MULTREGT"][0];
     keywords0.push_back( &multregtKeyword0 );
     BOOST_CHECK_THROW( Opm::MULTREGTScanner scanner( grid, &fp, keywords0 ); , std::invalid_argument );
 
     // Not supported region
     std::vector<const Opm::DeckKeyword*> keywords1;
-    const auto& multregtKeyword1 = deck.getKeyword( "MULTREGT", 1 );
+    const auto& multregtKeyword1 = deck["MULTREGT"][1];
     keywords1.push_back( &multregtKeyword1 );
     BOOST_CHECK_THROW( Opm::MULTREGTScanner scanner( grid, &fp, keywords1 ); , std::invalid_argument );
 
     // The keyword is ok; but it refers to a region which is not in the deck.
     std::vector<const Opm::DeckKeyword*> keywords2;
-    const auto& multregtKeyword2 = deck.getKeyword( "MULTREGT", 2 );
+    const auto& multregtKeyword2 = deck["MULTREGT"][2];
     keywords2.push_back( &multregtKeyword2 );
     BOOST_CHECK_THROW( Opm::MULTREGTScanner scanner( grid, &fp, keywords2 ); , std::logic_error );
 }
@@ -180,13 +178,13 @@ BOOST_AUTO_TEST_CASE(NotSupported) {
 
     // Not support NOAQUNNC behaviour
     std::vector<const Opm::DeckKeyword*> keywords0;
-    const auto& multregtKeyword0 = deck.getKeyword( "MULTREGT", 0 );
+    const auto& multregtKeyword0 = deck["MULTREGT"][0];
     keywords0.push_back( &multregtKeyword0 );
     BOOST_CHECK_THROW( Opm::MULTREGTScanner scanner( grid, &fp, keywords0 ); , std::invalid_argument );
 
     // srcValue == targetValue - not supported
     std::vector<const Opm::DeckKeyword*> keywords1;
-    const Opm::DeckKeyword& multregtKeyword1 = deck.getKeyword( "MULTREGT", 1 );
+    const Opm::DeckKeyword& multregtKeyword1 = deck["MULTREGT"][1];
     keywords1.push_back( &multregtKeyword1 );
     BOOST_CHECK_THROW( Opm::MULTREGTScanner scanner( grid, &fp, keywords1 ); , std::invalid_argument );
 }
@@ -240,7 +238,7 @@ BOOST_AUTO_TEST_CASE(DefaultedRegions) {
 
 
   std::vector<const Opm::DeckKeyword*> keywords0;
-  const auto& multregtKeyword0 = deck.getKeyword( "MULTREGT", 0 );
+  const auto& multregtKeyword0 = deck["MULTREGT"][0];
   keywords0.push_back( &multregtKeyword0 );
   Opm::MULTREGTScanner scanner0(grid, &fp, keywords0);
   BOOST_CHECK_EQUAL( scanner0.getRegionMultiplier(grid.getGlobalIndex(0,0,1), grid.getGlobalIndex(1,0,1), Opm::FaceDir::XPlus ), 1.25);
@@ -248,7 +246,7 @@ BOOST_AUTO_TEST_CASE(DefaultedRegions) {
   BOOST_CHECK_EQUAL( scanner0.getRegionMultiplier(grid.getGlobalIndex(2,0,1), grid.getGlobalIndex(2,0,0), Opm::FaceDir::ZMinus ), 0.0);
 
   std::vector<const Opm::DeckKeyword*> keywords1;
-  const Opm::DeckKeyword& multregtKeyword1 = deck.getKeyword( "MULTREGT", 1 );
+  const Opm::DeckKeyword& multregtKeyword1 = deck["MULTREGT"][1];
   keywords1.push_back( &multregtKeyword1 );
   Opm::MULTREGTScanner scanner1(grid, &fp, keywords1 );
   BOOST_CHECK_EQUAL( scanner1.getRegionMultiplier(grid.getGlobalIndex(2,0,0), grid.getGlobalIndex(1,0,0), Opm::FaceDir::XMinus ), 0.75);

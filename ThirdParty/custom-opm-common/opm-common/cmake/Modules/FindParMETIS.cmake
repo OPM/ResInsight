@@ -60,6 +60,19 @@ set(CMAKE_REQUIRED_FLAGS "${CMAKE_REQUIRED_FLAGS} ${MPI_C_COMPILE_FLAGS}")
 
 include(CheckIncludeFile)
 check_include_file(parmetis.h PARMETIS_FOUND)
+
+if(NOT PARMETIS_FOUND)
+  # If we are using the ParMETIS bindings of PTScotch, we need
+  # to use the scotch include path as partmetis.h includes scotch.h
+  find_package(PTScotch)
+  set(CMAKE_REQUIRED_INCLUDES ${CMAKE_REQUIRED_INCLUDES} ${PTSCOTCH_INCLUDE_DIR})
+    unset(PARMETIS_FOUND CACHE) # force recheck of include file
+    check_include_file(parmetis.h PARMETIS_FOUND)
+    if(PARMETIS_FOUND)
+      set(PARMETIS_SCOTCH_INCLUDE_DIRS ${PTSCOTCH_INCLUDE_DIRS})
+    endif()
+endif()
+
 _search_parmetis_lib(PARMETIS_LIBRARY parmetis "The main ParMETIS library.")
 
 # behave like a CMake module is supposed to behave
@@ -77,7 +90,7 @@ find_package_handle_standard_args(
 cmake_pop_check_state()
 
 if(PARMETIS_FOUND)
-  set(PARMETIS_INCLUDE_DIRS ${PARMETIS_INCLUDE_DIR})
+  set(PARMETIS_INCLUDE_DIRS ${PARMETIS_INCLUDE_DIR} ${PARMETIS_SCOTCH_INCLUDE_DIRS})
   set(PARMETIS_LIBRARIES ${PARMETIS_LIBRARY} ${METIS_LIBRARIES} ${MPI_C_LIBRARIES}
     CACHE FILEPATH "All libraries needed to link programs using ParMETIS")
   set(PARMETIS_LINK_FLAGS "${DUNE_C_LINK_FLAGS}"
@@ -89,6 +102,13 @@ if(PARMETIS_FOUND)
     "Include directory: ${PARMETIS_INCLUDE_DIRS}\n"
     "Library directory: ${PARMETIS_LIBRARIES}\n\n")
 
+  if(NOT TARGET ParMETIS::ParMETIS)
+    add_library(ParMETIS::ParMETIS UNKNOWN IMPORTED GLOBAL)
+    set_target_properties(ParMETIS::ParMETIS PROPERTIES
+      IMPORTED_LOCATION ${PARMETIS_LIBRARY}
+      INCLUDE_DIRECTORIES "${PARMETIS_INCLUDE_DIRS}"
+      INTERFACE_LINK_LIBRARIES "${METIS_LIBRARIES};${MPI_C_LIBRARIES}")
+  endif()
 endif(PARMETIS_FOUND)
 
 mark_as_advanced(PARMETIS_INCLUDE_DIRS PARMETIS_LIBRARIES HAVE_PARMETIS)

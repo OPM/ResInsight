@@ -19,30 +19,26 @@ along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <stdexcept>
 #include <iostream>
-#include <boost/filesystem.hpp>
 
 #define BOOST_TEST_MODULE EclipseStateTests
 
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/SimulationConfig/ThresholdPressure.hpp>
-#include <opm/parser/eclipse/EclipseState/SimulationConfig/SimulationConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/checkDeck.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/Box.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/Fault.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FaultCollection.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/TransMult.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableManager.hpp>
-#include <opm/parser/eclipse/Units/Units.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Deck/DeckItem.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/SimulationConfig/ThresholdPressure.hpp>
+#include <opm/input/eclipse/EclipseState/SimulationConfig/SimulationConfig.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/Box.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/Fault.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FaultCollection.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/TransMult.hpp>
+#include <opm/input/eclipse/EclipseState/IOConfig/IOConfig.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableManager.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Deck/DeckItem.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
 
 using namespace Opm;
 
@@ -203,7 +199,7 @@ BOOST_AUTO_TEST_CASE(CreateSchedule) {
     auto python = std::make_shared<Python>();
     EclipseState state(deck);
     Schedule schedule(deck, state, python);
-    BOOST_CHECK_EQUAL(schedule.getStartTime(), TimeMap::mkdate( 1998 , 3 , 8));
+    BOOST_CHECK_EQUAL(schedule.getStartTime(), asTimeT(TimeStampUTC( 1998 , 3 , 8)));
 }
 
 
@@ -459,199 +455,6 @@ BOOST_AUTO_TEST_CASE(TestIOConfigBaseName) {
     const auto& io2 = state2.cfg().io();
     BOOST_CHECK_EQUAL(io2.getBaseName(), "");
     BOOST_CHECK_EQUAL(io2.getOutputDir(), ".");
-}
-
-BOOST_AUTO_TEST_CASE(TestIOConfigCreation) {
-    const char * deckData  =
-                          "RUNSPEC\n"
-                          "GRIDOPTS\n"
-                          "  'YES'   10 /"
-                          "\n"
-                          "DIMENS\n"
-                          " 10 10 10 /\n"
-                          "GRID\n"
-                          "DX\n"
-                          "1000*0.25 /\n"
-                          "DY\n"
-                          "1000*0.25 /\n"
-                          "DZ\n"
-                          "1000*0.25 /\n"
-                          "TOPS\n"
-                          "100*0.25 /\n"
-                          "PORO\n"
-                          "  1000*0.15 /\n"
-                          "START             -- 0 \n"
-                          "19 JUN 2007 / \n"
-                          "SCHEDULE\n"
-                          "DATES             -- 1\n"
-                          " 10  OKT 2008 / \n"
-                          "/\n"
-                          "RPTRST\n"
-                          "BASIC=3 FREQ=2 /\n"
-                          "DATES             -- 2\n"
-                          " 20  JAN 2010 / \n"
-                          "/\n"
-                          "DATES             -- 3\n"
-                          " 20  JAN 2011 / \n"
-                          "/\n";
-
-
-    Parser parser{};
-    auto deck = parser.parseString(deckData) ;
-    RestartConfig rstConfig(TimeMap(deck), deck);
-
-    BOOST_CHECK_EQUAL(false, rstConfig.getWriteRestartFile(0));
-    BOOST_CHECK_EQUAL(false, rstConfig.getWriteRestartFile(1));
-    BOOST_CHECK_EQUAL(true,  rstConfig.getWriteRestartFile(2));
-    BOOST_CHECK_EQUAL(false, rstConfig.getWriteRestartFile(3));
-}
-
-
-BOOST_AUTO_TEST_CASE(TestIOConfigCreationWithSolutionRPTRST) {
-    const char * deckData  =
-                          "RUNSPEC\n"
-                          "GRIDOPTS\n"
-                          "  'YES'   10 /"
-                          "\n"
-                          "DIMENS\n"
-                          " 10 10 10 /\n"
-                          "GRID\n"
-                          "DX\n"
-                          "1000*0.25 /\n"
-                          "DY\n"
-                          "1000*0.25 /\n"
-                          "DZ\n"
-                          "1000*0.25 /\n"
-                          "TOPS\n"
-                          "100*0.25 /\n"
-                          "PORO\n"
-                          "  1000*0.15 /\n"
-                          "SOLUTION\n"
-                          "RPTRST\n"
-                          "BASIC=1/\n"
-                          "RPTRST\n"
-                          "BASIC=3 FREQ=5 /\n"
-                          "GRID\n"
-                          "START             -- 0 \n"
-                          "19 JUN 2007 / \n"
-                          "SCHEDULE\n"
-                          "DATES             -- 1\n"
-                          " 10  OKT 2008 / \n"
-                          "/\n"
-                          "DATES             -- 2\n"
-                          " 20  JAN 2010 / \n"
-                          "/\n"
-                          "RPTRST\n"
-                          "BASIC=3 FREQ=2 /\n"
-                          "DATES             -- 3\n"
-                          " 20  JAN 2011 / \n"
-                          "/\n";
-
-    Parser parser;
-    auto deck = parser.parseString(deckData) ;
-    RestartConfig rstConfig(TimeMap(deck), deck);
-
-    BOOST_CHECK_EQUAL(true  ,  rstConfig.getWriteRestartFile(0));
-    BOOST_CHECK_EQUAL(false ,  rstConfig.getWriteRestartFile(1));
-    BOOST_CHECK_EQUAL(false ,  rstConfig.getWriteRestartFile(2));
-    BOOST_CHECK_EQUAL(false  , rstConfig.getWriteRestartFile(3));
-}
-
-
-
-BOOST_AUTO_TEST_CASE(TestIOConfigCreationWithSolutionRPTSOL) {
-  const char *deckData =
-                        "RUNSPEC\n"
-                        "DIMENS\n"
-                        " 10 10 10 /\n"
-                        "GRID\n"
-                        "DX\n"
-                        "1000*0.25 /\n"
-                        "DY\n"
-                        "1000*0.25 /\n"
-                        "DZ\n"
-                        "1000*0.25 /\n"
-                        "TOPS\n"
-                        "100*0.25 /\n"
-                        "PORO\n"
-                        "  1000*0.15 /\n"
-                        "SOLUTION\n"
-                        "RPTSOL\n"
-                        "RESTART=2\n"
-                        "/\n"
-                        "START             -- 0 \n"
-                        "19 JUN 2007 / \n"
-                         "SCHEDULE\n"
-                        "DATES             -- 1\n"
-                        " 10  OKT 2008 / \n"
-                        "/\n"
-                        "RPTRST\n"
-                        "BASIC=3 FREQ=3\n"
-                        "/\n"
-                        "DATES             -- 2\n"
-                        " 20  JAN 2010 / \n"
-                        "/\n"
-                        "DATES             -- 3\n"
-                        " 20  FEB 2010 / \n"
-                        "/\n"
-                        "RPTSCHED\n"
-                        "RESTART=1\n"
-                        "/\n";
-
-    const char *deckData2 =
-                          "RUNSPEC\n"
-                          "DIMENS\n"
-                          " 10 10 10 /\n"
-                          "GRID\n"
-                          "DX\n"
-                          "1000*0.25 /\n"
-                          "DY\n"
-                          "1000*0.25 /\n"
-                          "DZ\n"
-                          "1000*0.25 /\n"
-                          "TOPS\n"
-                          "100*0.25 /\n"
-                          "PORO\n"
-                          "  1000*0.15 /\n"
-                          "SOLUTION\n"
-                          "RPTSOL\n"
-                          "0 0 0 0 0 0 2\n"
-                          "/\n"
-                          "START             -- 0 \n"
-                          "19 JUN 2007 / \n"
-                           "SCHEDULE\n"
-                          "DATES             -- 1\n"
-                          " 10  OKT 2008 / \n"
-                          "/\n"
-                          "RPTRST\n"
-                          "BASIC=3 FREQ=3\n"
-                          "/\n"
-                          "DATES             -- 2\n"
-                          " 20  JAN 2010 / \n"
-                          "/\n"
-                          "DATES             -- 3\n"
-                          " 20  FEB 2010 / \n"
-                          "/\n"
-                          "RPTSCHED\n"
-                          "RESTART=1\n"
-                          "/\n";
-
-
-    Parser parser;
-
-    {   //mnemnonics
-        auto deck = parser.parseString(deckData) ;
-        RestartConfig rstConfig(TimeMap(deck), deck);
-
-        BOOST_CHECK_EQUAL(true, rstConfig.getWriteRestartFile(0));
-    }
-
-    {   //old fashion integer mnemonics
-        auto deck = parser.parseString(deckData2) ;
-        RestartConfig rstConfig(TimeMap(deck), deck);
-
-        BOOST_CHECK_EQUAL(true, rstConfig.getWriteRestartFile(0));
-    }
 }
 
 

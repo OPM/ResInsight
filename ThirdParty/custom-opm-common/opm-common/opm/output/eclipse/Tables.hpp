@@ -24,7 +24,7 @@
 
 #include <vector>
 
-#include <opm/parser/eclipse/EclipseState/Tables/FlatTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/FlatTable.hpp>
 
 namespace Opm {
     class UnitSystem;

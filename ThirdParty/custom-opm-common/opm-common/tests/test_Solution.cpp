@@ -24,7 +24,7 @@
 #include <vector>
 
 #include <opm/output/data/Solution.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 using namespace Opm;
 

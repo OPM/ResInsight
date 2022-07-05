@@ -119,6 +119,9 @@ int ERft::getReportIndex(const std::string& wellName, const RftDate& date) const
 bool ERft::hasArray(const std::string& arrayName, const std::string& wellName,
                     const RftDate& date) const
 {
+    if (!hasRft(wellName, date))
+        return false;
+
     int reportInd = getReportIndex(wellName, date);
 
     auto searchInd = arrIndexRange.find(reportInd);

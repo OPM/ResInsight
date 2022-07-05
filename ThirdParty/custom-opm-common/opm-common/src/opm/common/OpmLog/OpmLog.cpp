@@ -40,18 +40,16 @@
 
 namespace Opm {
 
-    namespace {
-        bool stdoutIsTerminal()
-        {
-            const int errno_save = errno; // For playing nice with C error handling.
-            const int file_descriptor = fileno(stdout);
-            if (file_descriptor == -1) {
-                // stdout is an invalid stream
-                errno = errno_save;
-                return false;
-            } else {
-                return isatty(file_descriptor);
-            }
+    bool OpmLog::stdoutIsTerminal()
+    {
+        const int errno_save = errno; // For playing nice with C error handling.
+        const int file_descriptor = fileno(stdout);
+        if (file_descriptor == -1) {
+            // stdout is an invalid stream
+            errno = errno_save;
+            return false;
+        } else {
+            return isatty(file_descriptor);
         }
     }
 

@@ -1,0 +1,70 @@
+{
+  "name": "REGDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "NTFIP",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 2,
+      "name": "NMFIPR",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 3,
+      "name": "NRFREG",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 4,
+      "name": "NTFREG",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 5,
+      "name": "MAX_ETRACK",
+      "value_type": "INT",
+      "default": 0,
+      "E300": true
+    },
+    {
+      "item": 6,
+      "name": "NTCREG",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 7,
+      "name": "MAX_OPERNUM",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 8,
+      "name": "MAX_OPERATE_DWORK",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 9,
+      "name": "MAX_OPERATE_IWORK",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 10,
+      "name": "NPLMIX",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

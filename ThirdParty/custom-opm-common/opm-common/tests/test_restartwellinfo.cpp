@@ -24,24 +24,30 @@
 #include <boost/test/unit_test.hpp>
 #include <opm/common/utility/platform_dependent/reenable_warnings.h>
 
+#include <opm/input/eclipse/Deck/Deck.hpp>
 #include <opm/output/eclipse/EclipseIO.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/TimeMap.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellConnections.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellConnections.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellProductionProperties.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellInjectionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellProductionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellInjectionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Action/State.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQState.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellTestState.hpp>
 
 #include <opm/io/eclipse/EclFile.hpp>
 
 #include <tuple>
 #include <stdio.h>
 
+#include "tests/WorkArea.hpp"
 
 void verifyWellState(const std::string& rst_filename, const Opm::Schedule& schedule) {
 
@@ -118,23 +124,23 @@ void verifyWellState(const std::string& rst_filename, const Opm::Schedule& sched
         icon = rstFile.get<int>("ICON");
     }
 
-    std::vector<std::string> wellList = schedule.wellNames(step);
+    const auto& wellList = schedule.getWells(step);
 
     //Verify number of active wells
-    BOOST_CHECK_EQUAL( wellList.size(), intehead[16]);
+    BOOST_CHECK_EQUAL( wellList.size(), static_cast<std::size_t>(intehead[16]));
 
     for (size_t i=0; i< wellList.size(); i++) {
 
         // Verify wellname
         BOOST_CHECK_EQUAL(zwel[i*3], ref_wellList[step][i]);
-        BOOST_CHECK_EQUAL(zwel[i*3], wellList[i]);
+        BOOST_CHECK_EQUAL(zwel[i*3], wellList[i].name());
 
         // Verify well I, J head
 
         BOOST_CHECK_EQUAL(iwel[i*niwelz], std::get<0>(ref_wellHead[step][i]));
         BOOST_CHECK_EQUAL(iwel[i*niwelz + 1], std::get<1>(ref_wellHead[step][i]));
 
-        Opm::Well sched_well2 = schedule.getWell(wellList[i], step);
+        Opm::Well sched_well2 = schedule.getWell(wellList[i].name(), step);
 
         BOOST_CHECK_EQUAL(iwel[i*niwelz], sched_well2.getHeadI() +1 );
         BOOST_CHECK_EQUAL(iwel[i*niwelz + 1], sched_well2.getHeadJ() +1 );
@@ -168,7 +174,7 @@ void verifyWellState(const std::string& rst_filename, const Opm::Schedule& sched
 
         // Verify number of connections
 
-        BOOST_CHECK_EQUAL(iwel[i*niwelz + 4], connections_set.size() );
+        BOOST_CHECK_EQUAL(static_cast<std::size_t>(iwel[i*niwelz + 4]), connections_set.size() );
         BOOST_CHECK_EQUAL(ref_wellConn[step][i].size(), connections_set.size() );
 
 
@@ -193,7 +199,9 @@ void verifyWellState(const std::string& rst_filename, const Opm::Schedule& sched
 
 BOOST_AUTO_TEST_CASE(EclipseWriteRestartWellInfo) {
 
+    WorkArea work;
     std::string eclipse_data_filename    = "testblackoilstate3.DATA";
+    work.copyIn(eclipse_data_filename);
 
     auto python = std::make_shared<Opm::Python>();
     Opm::Parser parser;
@@ -201,25 +209,32 @@ BOOST_AUTO_TEST_CASE(EclipseWriteRestartWellInfo) {
     Opm::EclipseState es(deck);
     const Opm::EclipseGrid& grid = es.getInputGrid();
     Opm::Schedule schedule( deck, es, python);
-    Opm::SummaryConfig summary_config( deck, schedule, es.getTableManager( ));
+    Opm::SummaryConfig summary_config( deck, schedule, es.fieldProps(), es.aquifer());
     const auto num_cells = grid.getCartesianSize();
     Opm::EclipseIO eclipseWriter( es,  grid , schedule, summary_config);
-    int countTimeStep = schedule.getTimeMap().numTimesteps();
-    Opm::SummaryState st(std::chrono::system_clock::from_time_t(schedule.getStartTime()));
+    int countTimeStep = schedule.size() - 1;
+    Opm::SummaryState st(Opm::TimeService::from_time_t(schedule.getStartTime()));
+    Opm::Action::State action_state;
+    Opm::UDQState udq_state(123);
 
     Opm::data::Solution solution;
     solution.insert( "PRESSURE", Opm::UnitSystem::measure::pressure , std::vector< double >( num_cells, 1 ) , Opm::data::TargetType::RESTART_SOLUTION);
     solution.insert( "SWAT"    , Opm::UnitSystem::measure::identity , std::vector< double >( num_cells, 1 ) , Opm::data::TargetType::RESTART_SOLUTION);
     solution.insert( "SGAS"    , Opm::UnitSystem::measure::identity , std::vector< double >( num_cells, 1 ) , Opm::data::TargetType::RESTART_SOLUTION);
     Opm::data::Wells wells;
+    Opm::data::GroupAndNetworkValues group_nwrk;
+    Opm::WellTestState wtest_state;
 
     for(int timestep = 0; timestep <= countTimeStep; ++timestep) {
 
-        eclipseWriter.writeTimeStep( st,
+        eclipseWriter.writeTimeStep( action_state,
+                                     wtest_state,
+                                     st,
+                                     udq_state,
                                      timestep,
                                      false,
                                      schedule.seconds(timestep),
-                                     Opm::RestartValue(solution, wells));
+                                     Opm::RestartValue(solution, wells, group_nwrk, {}));
     }
 
     for (int i=1; i <=4; i++) {

@@ -25,8 +25,28 @@
 #include <opm/output/eclipse/VectorItems/connection.hpp>
 #include <opm/output/eclipse/VectorItems/msw.hpp>
 #include <opm/output/eclipse/VectorItems/well.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
+#include <cmath>
+
+namespace {
+    bool is_sentinel(const float raw_value)
+    {
+        const auto infty = 1.0e+20f;
+        return ! (std::abs(raw_value) < infty);
+    }
+
+    double swel_value(const float raw_value)
+    {
+        return is_sentinel(raw_value) ? 0.0 : raw_value;
+    }
+
+    template <typename Convert>
+    double keep_sentinel(const float raw_value, Convert&& convert)
+    {
+        return is_sentinel(raw_value) ? raw_value : convert(raw_value);
+    }
+}
 
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;
 
@@ -37,14 +57,6 @@ constexpr int def_ecl_phase = 1;
 constexpr int def_pvt_table = 0;
 
 using M  = ::Opm::UnitSystem::measure;
-
-double swel_value(float raw_value) {
-    const auto infty = 1.0e+20f;
-    if (std::abs(raw_value) == infty)
-        return 0;
-    else
-        return raw_value;
-}
 
 RstWell::RstWell(const ::Opm::UnitSystem& unit_system,
                  const RstHeader& header,
@@ -71,7 +83,12 @@ RstWell::RstWell(const ::Opm::UnitSystem& unit_system,
     completion_ordering(                                             iwel[VI::IWell::CompOrd]),
     pvt_table(                                                       def_pvt_table),
     msw_pressure_drop_model(                                         iwel[VI::IWell::MSW_PlossMod]),
-    // The values orat_target -> bhp_target_flow will be used in UDA values. The
+    wtest_config_reasons(                                            iwel[VI::IWell::WTestConfigReason]),
+    wtest_close_reason(                                              iwel[VI::IWell::WTestCloseReason]),
+    wtest_remaining(                                                 iwel[VI::IWell::WTestRemaining] -1),
+    glift_active(                                                    iwel[VI::IWell::LiftOpt] == 1),
+    glift_alloc_extra_gas(                                           iwel[VI::IWell::LiftOptAllocExtra] == 1),
+    // The values orat_target -> bhp_target_float will be used in UDA values. The
     // UDA values are responsible for unit conversion and raw values are
     // internalized here.
     orat_target(                                                     swel_value(swel[VI::SWell::OilRateTarget])),
@@ -84,10 +101,17 @@ RstWell::RstWell(const ::Opm::UnitSystem& unit_system,
     hist_lrat_target(    unit_system.to_si(M::liquid_surface_rate,   swel[VI::SWell::HistLiqRateTarget])),
     hist_grat_target(    unit_system.to_si(M::gas_surface_rate,      swel[VI::SWell::HistGasRateTarget])),
     hist_bhp_target(     unit_system.to_si(M::pressure,              swel[VI::SWell::HistBHPTarget])),
-    datum_depth(         unit_system.to_si(M::length,                swel[VI::SWell::DatumDepth])),
+    datum_depth(         keep_sentinel(swel[VI::SWell::DatumDepth], [&unit_system](const double depth) { return unit_system.to_si(M::length, depth); })),
     drainage_radius(     unit_system.to_si(M::length,                swel_value(swel[VI::SWell::DrainageRadius]))),
     efficiency_factor(   unit_system.to_si(M::identity,              swel[VI::SWell::EfficiencyFactor1])),
     alq_value(                                                       swel[VI::SWell::Alq_value]),
+    wtest_interval(      unit_system.to_si(M::time,                  swel[VI::SWell::WTestInterval])),
+    wtest_startup(       unit_system.to_si(M::time,                  swel[VI::SWell::WTestStartupTime])),
+    glift_max_rate(      unit_system.to_si(M::gas_surface_rate,      swel[VI::SWell::LOmaxRate])),
+    glift_min_rate(      unit_system.to_si(M::gas_surface_rate,      swel[VI::SWell::LOminRate])),
+    glift_weight_factor(                                             swel[VI::SWell::LOweightFac]),
+    glift_inc_weight_factor(                                         swel[VI::SWell::LOincFac]),
+    //
     oil_rate(            unit_system.to_si(M::liquid_surface_rate,   xwel[VI::XWell::OilPrRate])),
     water_rate(          unit_system.to_si(M::liquid_surface_rate,   xwel[VI::XWell::WatPrRate])),
     gas_rate(            unit_system.to_si(M::gas_surface_rate,      xwel[VI::XWell::GasPrRate])),
@@ -114,6 +138,11 @@ RstWell::RstWell(const ::Opm::UnitSystem& unit_system,
     water_void_rate(     unit_system.to_si(M::liquid_surface_volume, xwel[VI::XWell::WatVoidPrRate])),
     gas_void_rate(       unit_system.to_si(M::gas_surface_volume,    xwel[VI::XWell::GasVoidPrRate]))
 {
+
+    for (std::size_t tracer_index = 0; tracer_index < static_cast<std::size_t>(header.runspec.tracers().water_tracers()); tracer_index++)
+        this->tracer_concentration_injection.push_back( swel[VI::SWell::TracerOffset + tracer_index] );
+
+
     for (int ic = 0; ic < iwel[VI::IWell::NConn]; ic++) {
         std::size_t icon_offset = ic * header.niconz;
         std::size_t scon_offset = ic * header.nsconz;

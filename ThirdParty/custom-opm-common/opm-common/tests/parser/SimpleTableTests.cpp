@@ -22,11 +22,11 @@
 #include <boost/test/unit_test.hpp>
 
 
-#include <opm/parser/eclipse/EclipseState/Tables/ColumnSchema.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SimpleTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableColumn.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableIndex.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableSchema.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/ColumnSchema.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SimpleTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableColumn.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableIndex.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableSchema.hpp>
 
 using namespace Opm;
 

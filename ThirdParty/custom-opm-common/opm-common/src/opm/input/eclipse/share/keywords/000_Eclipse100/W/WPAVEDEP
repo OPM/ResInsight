@@ -1,0 +1,17 @@
+{
+  "name": "WPAVEDEP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "REFDEPTH",
+      "value_type": "DOUBLE",
+      "dimension" : "Length"
+    }
+  ]
+}

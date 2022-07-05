@@ -1,0 +1,14 @@
+{
+  "name": "SALINITY",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "MOLALITY",
+      "value_type": "DOUBLE",
+      "default": 0.0
+    }
+  ]
+}

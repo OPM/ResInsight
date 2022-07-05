@@ -35,14 +35,14 @@ BOOST_AUTO_TEST_CASE(UniqueKey) {
     using Category = Opm::EclIO::SummaryNode::Category;
     using Type = Opm::EclIO::SummaryNode::Type;
 
-    expect_key( { "KEYW", Category::Well,          Type::Rate, "NORA", 1 }, "KEYW:NORA" );
-    expect_key( { "KEYW", Category::Group,         Type::Rate, "NORA", 2 }, "KEYW:NORA" );
-    expect_key( { "KEYW", Category::Field,         Type::Rate, "NORA", 3 }, "KEYW" );
-    expect_key( { "KEYW", Category::Region,        Type::Rate, "NORA", 4 }, "KEYW:4" );
-    expect_key( { "KEYW", Category::Block,         Type::Rate, "NORA", 5 }, "KEYW:5" );
-    expect_key( { "KEYW", Category::Connection,    Type::Rate, "NORA", 6 }, "KEYW:NORA:6" );
-    expect_key( { "KEYW", Category::Segment,       Type::Rate, "NORA", 7 }, "KEYW:NORA:7" );
-    expect_key( { "KEYW", Category::Miscellaneous, Type::Rate, "NORA", 8 }, "KEYW" );
+    expect_key( { "KEYW", Category::Well,          Type::Rate, "NORA", 1, std::nullopt, std::nullopt}, "KEYW:NORA" );
+    expect_key( { "KEYW", Category::Group,         Type::Rate, "NORA", 2, std::nullopt, std::nullopt}, "KEYW:NORA" );
+    expect_key( { "KEYW", Category::Field,         Type::Rate, "NORA", 3, std::nullopt, std::nullopt}, "KEYW" );
+    expect_key( { "KEYW", Category::Region,        Type::Rate, "NORA", 4, std::nullopt, std::nullopt}, "KEYW:4" );
+    expect_key( { "KEYW", Category::Block,         Type::Rate, "NORA", 5, std::nullopt, std::nullopt}, "KEYW:5" );
+    expect_key( { "KEYW", Category::Connection,    Type::Rate, "NORA", 6, std::nullopt, std::nullopt}, "KEYW:NORA:6" );
+    expect_key( { "KEYW", Category::Segment,       Type::Rate, "NORA", 7, std::nullopt, std::nullopt}, "KEYW:NORA:7" );
+    expect_key( { "KEYW", Category::Miscellaneous, Type::Rate, "NORA", 8, std::nullopt, std::nullopt}, "KEYW" );
 }
 
 BOOST_AUTO_TEST_CASE(InjectedNumberRenderer) {
@@ -54,7 +54,9 @@ BOOST_AUTO_TEST_CASE(InjectedNumberRenderer) {
       Category::Region,
       Type::Undefined,
       "-",
-      2
+      2,
+      std::nullopt,
+      std::nullopt
     };
 
     Opm::EclIO::SummaryNode negativeNode {
@@ -62,7 +64,9 @@ BOOST_AUTO_TEST_CASE(InjectedNumberRenderer) {
       Category::Region,
       Type::Undefined,
       "-",
-      -2
+      -2,
+      std::nullopt,
+      std::nullopt
     };
 
     auto chooseSign = [](const Opm::EclIO::SummaryNode& node) -> std::string {
@@ -71,6 +75,14 @@ BOOST_AUTO_TEST_CASE(InjectedNumberRenderer) {
 
     BOOST_CHECK_EQUAL(positiveNode.unique_key(chooseSign), "SIGN:+");
     BOOST_CHECK_EQUAL(negativeNode.unique_key(chooseSign), "SIGN:-");
+}
+
+BOOST_AUTO_TEST_CASE(user_defined) {
+    auto summary_node = Opm::EclIO::SummaryNode{"FU_VAR1",
+                                                Opm::EclIO::SummaryNode::Category::Field,
+                                                Opm::EclIO::SummaryNode::Type::Undefined,
+                                                "", -1 , std::nullopt, std::nullopt};
+    BOOST_CHECK( summary_node.is_user_defined() );
 }
 
 BOOST_AUTO_TEST_SUITE_END() // UniqueKey

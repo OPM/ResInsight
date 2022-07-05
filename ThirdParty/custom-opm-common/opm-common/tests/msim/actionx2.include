@@ -425,6 +425,14 @@ DATES
    1 'FEB'  2015 /
 /
 
+WCONPROD
+-- Item #:1	2      3     4	   5  9
+	'P1' 'OPEN' 'ORAT' 5000 4* 1000 /
+	'P2' 'OPEN' 'ORAT' 5000 4* 1000 /
+	'P3' 'OPEN' 'ORAT' 5000 4* 1000 /
+	'P4' 'OPEN' 'ORAT' 5000 4* 1000 /
+/
+
 DATES
    1 'MAR'  2015 /
 /

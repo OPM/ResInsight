@@ -1,0 +1,30 @@
+{
+  "name": "GRAVITY",
+  "sections": [
+    "PROPS"
+  ],
+  "size": {
+    "keyword": "TABDIMS",
+    "item": "NTPVT"
+  },
+  "items": [
+    {
+      "name": "API_GRAVITY",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "comment": "Dimension should be API"
+    },
+    {
+      "name": "WATER_SP_GRAVITY",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 1
+    },
+    {
+      "name": "GAS_SP_GRAVITY",
+      "value_type": "DOUBLE",
+      "dimension": "1",
+      "default": 0.7773
+    }
+  ]
+}

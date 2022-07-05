@@ -25,12 +25,13 @@
 #include <opm/output/eclipse/RestartIO.hpp>
 
 #include <opm/io/eclipse/ERst.hpp>
-#include <opm/io/eclipse/EclIOdata.hpp>
+#include <opm/io/eclipse/RestartFileView.hpp>
 
 #include <opm/output/data/Aquifer.hpp>
 #include <opm/output/data/Cells.hpp>
 #include <opm/output/data/Solution.hpp>
 #include <opm/output/data/Wells.hpp>
+#include <opm/output/data/Groups.hpp>
 
 #include <opm/output/eclipse/VectorItems/aquifer.hpp>
 #include <opm/output/eclipse/VectorItems/connection.hpp>
@@ -42,14 +43,17 @@
 
 #include <opm/output/eclipse/RestartValue.hpp>
 
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/WellSegments.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/ScheduleTypes.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/Well.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/TracerConfig.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/Schedule/MSW/WellSegments.hpp>
+#include <opm/input/eclipse/Schedule/ScheduleTypes.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/ScheduleTypes.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Schedule/Well/Well.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQEnums.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -67,153 +71,11 @@
 #include <unordered_set>
 #include <utility>
 #include <vector>
+#include <fmt/format.h>
 
 #include <boost/range.hpp>
 
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;
-
-namespace {
-    template <typename T>
-    struct ArrayType;
-
-    template<>
-    struct ArrayType<int>
-    {
-        static Opm::EclIO::eclArrType T;
-    };
-
-    template<>
-    struct ArrayType<float>
-    {
-        static Opm::EclIO::eclArrType T;
-    };
-
-    template<>
-    struct ArrayType<double>
-    {
-        static Opm::EclIO::eclArrType T;
-    };
-
-    Opm::EclIO::eclArrType ArrayType<int>::T    = ::Opm::EclIO::eclArrType::INTE;
-    Opm::EclIO::eclArrType ArrayType<float>::T  = ::Opm::EclIO::eclArrType::REAL;
-    Opm::EclIO::eclArrType ArrayType<double>::T = ::Opm::EclIO::eclArrType::DOUB;
-}
-
-class RestartFileView
-{
-public:
-    explicit RestartFileView(const std::string& filename,
-                             const int          report_step);
-
-    ~RestartFileView() = default;
-
-    RestartFileView(const RestartFileView& rhs) = delete;
-    RestartFileView(RestartFileView&& rhs);
-
-    RestartFileView& operator=(const RestartFileView& rhs) = delete;
-    RestartFileView& operator=(RestartFileView&& rhs);
-
-    std::size_t simStep() const
-    {
-        return this->sim_step_;
-    }
-
-    int reportStep() const
-    {
-        return this->report_step_;
-    }
-
-    template <typename ElmType>
-    bool hasKeyword(const std::string& vector) const
-    {
-        if (this->rst_file_ == nullptr) { return false; }
-
-        return this->vectors_
-            .at(ArrayType<ElmType>::T).count(vector) > 0;
-    }
-
-    template <typename ElmType>
-    const std::vector<ElmType>&
-    getKeyword(const std::string& vector)
-    {
-        return this->rst_file_->getRst<ElmType>(vector, this->report_step_, 0);
-    }
-
-    const std::vector<int>& intehead()
-    {
-        const auto& ihkw = std::string { "INTEHEAD" };
-
-        if (! this->hasKeyword<int>(ihkw)) {
-            throw std::domain_error {
-                "Purported Restart File Does not Have Integer Header"
-            };
-        }
-
-        return this->getKeyword<int>(ihkw);
-    }
-
-private:
-    using RstFile = std::unique_ptr<Opm::EclIO::ERst>;
-
-    using VectorColl = std::unordered_set<std::string>;
-    using TypedColl  = std::unordered_map<
-        Opm::EclIO::eclArrType, VectorColl, std::hash<int>
-        >;
-
-    RstFile     rst_file_;
-    int         report_step_;
-    std::size_t sim_step_;
-    TypedColl   vectors_;
-};
-
-RestartFileView::RestartFileView(const std::string& filename,
-                                 const int          report_step)
-    : rst_file_   { new Opm::EclIO::ERst{filename} }
-    , report_step_(report_step)
-    , sim_step_   (std::max(report_step - 1, 0))
-{
-    if (! rst_file_->hasReportStepNumber(this->report_step_)) {
-        rst_file_.reset();
-        return;
-    }
-
-    this->rst_file_->loadReportStepNumber(this->report_step_);
-
-    for (const auto& vector : this->rst_file_->listOfRstArrays(this->report_step_)) {
-        const auto& type = std::get<1>(vector);
-
-        switch (type) {
-        case ::Opm::EclIO::eclArrType::CHAR:
-        case ::Opm::EclIO::eclArrType::LOGI:
-        case ::Opm::EclIO::eclArrType::MESS:
-            // Currently ignored
-            continue;
-
-        default:
-            this->vectors_[type].emplace(std::get<0>(vector));
-            break;
-        }
-    }
-}
-
-RestartFileView::RestartFileView(RestartFileView&& rhs)
-    : rst_file_   (std::move(rhs.rst_file_))
-    , report_step_(rhs.report_step_)
-    , sim_step_   (rhs.sim_step_)            // Scalar (size_t)
-    , vectors_    (std::move(rhs.vectors_))
-{}
-
-RestartFileView& RestartFileView::operator=(RestartFileView&& rhs)
-{
-    this->rst_file_    = std::move(rhs.rst_file_);
-    this->report_step_ = rhs.report_step_;         // Scalar (int)
-    this->sim_step_    = rhs.sim_step_;            // Scalar (size_t)
-    this->vectors_     = std::move(rhs.vectors_);
-
-    return *this;
-}
-
-// ---------------------------------------------------------------------
 
 namespace {
     template <typename T>
@@ -236,6 +98,54 @@ namespace {
 
 // ---------------------------------------------------------------------
 
+class UDQVectors
+{
+public:
+    template <typename T>
+    using Window = boost::iterator_range<typename std::vector<T>::const_iterator>;
+
+    UDQVectors(std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
+        : rstView_{ std::move(rst_view) }
+    {
+        const auto& intehead = this->rstView_->getKeyword<int>("INTEHEAD");
+        this->num_wells = intehead[VI::intehead::NWMAXZ];
+        this->num_groups = intehead[VI::intehead::NGMAXZ];
+    }
+
+    Window<double> next_dudw() const
+    {
+        return getDataWindow(this->rstView_->getKeyword<double>("DUDW"),
+                             this->num_wells, this->udq_well_index++);
+    }
+
+    Window<double> next_dudg() const
+    {
+        return getDataWindow(this->rstView_->getKeyword<double>("DUDG"),
+                             this->num_groups, this->udq_group_index++);
+    }
+
+    double next_dudf() const
+    {
+        return this->rstView_->getKeyword<double>("DUDF")[ this->udq_field_index++ ];
+    }
+
+    const std::vector<std::string>& zudn() const
+    {
+        return this->rstView_->getKeyword<std::string>("ZUDN");
+    }
+
+private:
+    std::size_t num_wells;
+    std::size_t num_groups;
+    std::shared_ptr<Opm::EclIO::RestartFileView> rstView_;
+
+    mutable std::size_t udq_well_index  = 0;
+    mutable std::size_t udq_group_index = 0;
+    mutable std::size_t udq_field_index = 0;
+};
+
+// ---------------------------------------------------------------------
+
 class WellVectors
 {
 public:
@@ -244,8 +154,8 @@ public:
         typename std::vector<T>::const_iterator
     >;
 
-    explicit WellVectors(const std::vector<int>&          intehead,
-                         std::shared_ptr<RestartFileView> rst_view);
+    explicit WellVectors(const std::vector<int>&                      intehead,
+                         std::shared_ptr<Opm::EclIO::RestartFileView> rst_view);
 
     bool hasDefinedWellValues() const;
     bool hasDefinedConnectionValues() const;
@@ -266,11 +176,11 @@ private:
     std::size_t numIConElem_;
     std::size_t numXConElem_;
 
-    std::shared_ptr<RestartFileView> rstView_;
+    std::shared_ptr<Opm::EclIO::RestartFileView> rstView_;
 };
 
-WellVectors::WellVectors(const std::vector<int>&          intehead,
-                         std::shared_ptr<RestartFileView> rst_view)
+WellVectors::WellVectors(const std::vector<int>&                      intehead,
+                         std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
     : maxConnPerWell_(intehead[VI::intehead::NCWMAX])
     , numIWelElem_   (intehead[VI::intehead::NIWELZ])
     , numXWelElem_   (intehead[VI::intehead::NXWELZ])
@@ -355,8 +265,8 @@ public:
         typename std::vector<T>::const_iterator
     >;
 
-    explicit GroupVectors(const std::vector<int>&          intehead,
-                          std::shared_ptr<RestartFileView> rst_view);
+    explicit GroupVectors(const std::vector<int>&                      intehead,
+                          std::shared_ptr<Opm::EclIO::RestartFileView> rst_view);
 
     bool hasDefinedValues() const;
 
@@ -370,11 +280,11 @@ private:
     std::size_t numIGrpElem_;
     std::size_t numXGrpElem_;
 
-    std::shared_ptr<RestartFileView> rstView_;
+    std::shared_ptr<Opm::EclIO::RestartFileView> rstView_;
 };
 
-GroupVectors::GroupVectors(const std::vector<int>&          intehead,
-                           std::shared_ptr<RestartFileView> rst_view)
+GroupVectors::GroupVectors(const std::vector<int>&                      intehead,
+                           std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
     : maxNumGroups_(intehead[VI::intehead::NGMAXZ] - 1) // -FIELD
     , numIGrpElem_ (intehead[VI::intehead::NIGRPZ])
     , numXGrpElem_ (intehead[VI::intehead::NXGRPZ])
@@ -428,8 +338,8 @@ public:
         typename std::vector<T>::const_iterator
     >;
 
-    explicit SegmentVectors(const std::vector<int>&          intehead,
-                            std::shared_ptr<RestartFileView> rst_view);
+    explicit SegmentVectors(const std::vector<int>&                      intehead,
+                            std::shared_ptr<Opm::EclIO::RestartFileView> rst_view);
 
     bool hasDefinedValues() const;
 
@@ -444,11 +354,11 @@ private:
     std::size_t numISegElm_;
     std::size_t numRSegElm_;
 
-    std::shared_ptr<RestartFileView> rstView_;
+    std::shared_ptr<Opm::EclIO::RestartFileView> rstView_;
 };
 
-SegmentVectors::SegmentVectors(const std::vector<int>&          intehead,
-                               std::shared_ptr<RestartFileView> rst_view)
+SegmentVectors::SegmentVectors(const std::vector<int>&                      intehead,
+                               std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
     : maxSegPerWell_(intehead[VI::intehead::NSEGMX])
     , numISegElm_   (intehead[VI::intehead::NISEGZ])
     , numRSegElm_   (intehead[VI::intehead::NRSEGZ])
@@ -499,31 +409,44 @@ public:
         typename std::vector<T>::const_iterator
     >;
 
-    explicit AquiferVectors(const std::vector<int>&          intehead,
-                            std::shared_ptr<RestartFileView> rst_view);
+    explicit AquiferVectors(const std::vector<int>&                      intehead,
+                            std::shared_ptr<Opm::EclIO::RestartFileView> rst_view);
 
     bool hasDefinedValues() const;
+    bool hasDefinedNumericAquiferValues() const;
+
+    std::size_t maxAnalyticAquiferID() const;
+    std::size_t numRecordsForNumericAquifers() const;
 
     Window<int>    iaaq(const std::size_t aquiferID) const;
     Window<float>  saaq(const std::size_t aquiferID) const;
     Window<double> xaaq(const std::size_t aquiferID) const;
 
+    Window<int>    iaqn(const std::size_t recordID) const;
+    Window<double> raqn(const std::size_t recordID) const;
+
 private:
-    std::size_t maxAnalyticAquifer_;
+    std::size_t maxAnalyticAquiferID_;
+    std::size_t numRecordsForNumericAquifers_;
     std::size_t numIntAnalyticAquiferElm_;
+    std::size_t numIntNumericAquiferElm_;
     std::size_t numFloatAnalyticAquiferElm_;
     std::size_t numDoubleAnalyticAquiferElm_;
+    std::size_t numDoubleNumericAquiferElm_;
 
-    std::shared_ptr<RestartFileView> rstView_;
+    std::shared_ptr<Opm::EclIO::RestartFileView> rstView_;
 };
 
-AquiferVectors::AquiferVectors(const std::vector<int>&          intehead,
-                               std::shared_ptr<RestartFileView> rst_view)
-    : maxAnalyticAquifer_         (intehead[VI::intehead::MAX_AN_AQUIFERS])
-    , numIntAnalyticAquiferElm_   (intehead[VI::intehead::NIAAQZ])
-    , numFloatAnalyticAquiferElm_ (intehead[VI::intehead::NSAAQZ])
-    , numDoubleAnalyticAquiferElm_(intehead[VI::intehead::NXAAQZ])
-    , rstView_                    (std::move(rst_view))
+AquiferVectors::AquiferVectors(const std::vector<int>&                      intehead,
+                               std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
+    : maxAnalyticAquiferID_        (intehead[VI::intehead::MAX_ANALYTIC_AQUIFERS])
+    , numRecordsForNumericAquifers_(intehead[VI::intehead::NUM_AQUNUM_RECORDS])
+    , numIntAnalyticAquiferElm_    (intehead[VI::intehead::NIAAQZ])
+    , numIntNumericAquiferElm_     (intehead[VI::intehead::NIIAQN])
+    , numFloatAnalyticAquiferElm_  (intehead[VI::intehead::NSAAQZ])
+    , numDoubleAnalyticAquiferElm_ (intehead[VI::intehead::NXAAQZ])
+    , numDoubleNumericAquiferElm_  (intehead[VI::intehead::NIRAQN])
+    , rstView_                     (std::move(rst_view))
 {}
 
 bool AquiferVectors::hasDefinedValues() const
@@ -531,6 +454,21 @@ bool AquiferVectors::hasDefinedValues() const
     return this->rstView_->hasKeyword<int>   ("IAAQ")
         && this->rstView_->hasKeyword<float> ("SAAQ")
         && this->rstView_->hasKeyword<double>("XAAQ");
+}
+
+bool AquiferVectors::hasDefinedNumericAquiferValues() const
+{
+    return this->rstView_->hasKeyword<int>   ("IAQN")
+        && this->rstView_->hasKeyword<double>("RAQN");
+}
+
+std::size_t AquiferVectors::numRecordsForNumericAquifers() const
+{
+    if (! this->hasDefinedNumericAquiferValues()) {
+        return 0;
+    }
+
+    return this->numRecordsForNumericAquifers_;
 }
 
 AquiferVectors::Window<int>
@@ -572,6 +510,32 @@ AquiferVectors::xaaq(const std::size_t aquiferID) const
                          this->numDoubleAnalyticAquiferElm_, aquiferID);
 }
 
+AquiferVectors::Window<int>
+AquiferVectors::iaqn(const std::size_t recordID) const
+{
+    if (! this->hasDefinedNumericAquiferValues()) {
+        throw std::logic_error {
+            "Cannot Request IAQN Values Unless Defined"
+        };
+    }
+
+    return getDataWindow(this->rstView_->getKeyword<int>("IAQN"),
+                         this->numIntNumericAquiferElm_, recordID);
+}
+
+AquiferVectors::Window<double>
+AquiferVectors::raqn(const std::size_t recordID) const
+{
+    if (! this->hasDefinedNumericAquiferValues()) {
+        throw std::logic_error {
+            "Cannot Request RAQN Values Unless Defined"
+        };
+    }
+
+    return getDataWindow(this->rstView_->getKeyword<double>("RAQN"),
+                         this->numDoubleNumericAquiferElm_, recordID);
+}
+
 // ---------------------------------------------------------------------
 
 namespace {
@@ -586,18 +550,19 @@ namespace {
         }
     }
 
-    bool hasAnalyticAquifers(const RestartFileView& rst_view)
+    bool hasAquifers(const Opm::EclIO::RestartFileView& rst_view)
     {
-        return rst_view.hasKeyword<double>("XAAQ");
+        return rst_view.hasKeyword<double>("XAAQ")
+            || rst_view.hasKeyword<double>("RAQN");
     }
 
-    std::size_t numAnalyticAquifers(RestartFileView& rst_view)
+    std::size_t maximumAnalyticAquiferID(const Opm::EclIO::RestartFileView& rst_view)
     {
-        return rst_view.intehead()[VI::intehead::MAX_AN_AQUIFERS];
+        return rst_view.intehead()[VI::intehead::MAX_AN_AQUIFER_ID];
     }
 
     std::vector<double>
-    double_vector(const std::string& key, RestartFileView& rst_view)
+    double_vector(const std::string& key, const Opm::EclIO::RestartFileView& rst_view)
     {
         if (rst_view.hasKeyword<double>(key)) {
             // Data exists as type DOUB.  Return unchanged.
@@ -633,7 +598,7 @@ namespace {
 
     void loadIfAvailable(const Opm::RestartKey&               value,
                          const std::vector<double>::size_type numcells,
-                         RestartFileView&                     rst_view,
+                         const Opm::EclIO::RestartFileView&   rst_view,
                          Opm::data::Solution&                 sol)
     {
         const auto& kwdata = double_vector(value.key, rst_view);
@@ -653,7 +618,7 @@ namespace {
     void loadHysteresisIfAvailable(const std::string&                   primary,
                                    const Opm::RestartKey&               fallback_key,
                                    const std::vector<double>::size_type numcells,
-                                   RestartFileView&                     rst_view,
+                                   const Opm::EclIO::RestartFileView&   rst_view,
                                    Opm::data::Solution&                 sol)
     {
         auto kwdata = double_vector(primary, rst_view);
@@ -687,10 +652,10 @@ namespace {
         return false;
     }
 
-    void restoreHysteresisVector(const Opm::RestartKey& value,
-                                 const int              numcells,
-                                 RestartFileView&       rst_view,
-                                 Opm::data::Solution&   sol)
+    void restoreHysteresisVector(const Opm::RestartKey&             value,
+                                 const int                          numcells,
+                                 const Opm::EclIO::RestartFileView& rst_view,
+                                 Opm::data::Solution&               sol)
     {
         const auto& key = value.key;
 
@@ -711,9 +676,9 @@ namespace {
     }
 
     std::vector<double>
-    getOpmExtraFromDoubHEAD(const bool             required,
-                            const Opm::UnitSystem& usys,
-                            RestartFileView&       rst_view)
+    getOpmExtraFromDoubHEAD(const bool                         required,
+                            const Opm::UnitSystem&             usys,
+                            const Opm::EclIO::RestartFileView& rst_view)
     {
         using M = Opm::UnitSystem::measure;
 
@@ -731,7 +696,7 @@ namespace {
     Opm::data::Solution
     restoreSOLUTION(const std::vector<Opm::RestartKey>& solution_keys,
                     const int                           numcells,
-                    RestartFileView&                    rst_view)
+                    const Opm::EclIO::RestartFileView&  rst_view)
     {
         Opm::data::Solution sol(/* init_si = */ false);
 
@@ -753,7 +718,7 @@ namespace {
 
     void restoreExtra(const std::vector<Opm::RestartKey>& extra_keys,
                       const Opm::UnitSystem&              usys,
-                      RestartFileView&                    rst_view,
+                      const Opm::EclIO::RestartFileView&  rst_view,
                       Opm::RestartValue&                  rst_value)
     {
         for (const auto& extra : extra_keys) {
@@ -831,10 +796,10 @@ namespace {
     }
 
     Opm::data::Wells
-    restore_wells_opm(const ::Opm::EclipseState& es,
-                      const ::Opm::EclipseGrid&  grid,
-                      const ::Opm::Schedule&     schedule,
-                      RestartFileView&           rst_view)
+    restore_wells_opm(const ::Opm::EclipseState&         es,
+                      const ::Opm::EclipseGrid&          grid,
+                      const ::Opm::Schedule&             schedule,
+                      const Opm::EclIO::RestartFileView& rst_view)
     {
         if (! (rst_view.hasKeyword<int>   ("OPM_IWEL") &&
                rst_view.hasKeyword<double>("OPM_XWEL")))
@@ -905,6 +870,23 @@ namespace {
         return wells;
     }
 
+    template <typename AssignCumulative>
+    void restoreConnCumulatives(const WellVectors::Window<double>& xcon,
+                                AssignCumulative&&                 asgn)
+    {
+        asgn("COPT", xcon[VI::XConn::index::OilPrTotal]);
+        asgn("COIT", xcon[VI::XConn::index::OilInjTotal]);
+
+        asgn("CGPT", xcon[VI::XConn::index::GasPrTotal]);
+        asgn("CGIT", xcon[VI::XConn::index::GasInjTotal]);
+
+        asgn("CWPT", xcon[VI::XConn::index::WatPrTotal]);
+        asgn("CWIT", xcon[VI::XConn::index::WatInjTotal]);
+
+        asgn("CVPT", xcon[VI::XConn::index::VoidPrTotal]);
+        asgn("CVIT", xcon[VI::XConn::index::VoidInjTotal]);
+    }
+
     void restoreConnRates(const WellVectors::Window<double>& xcon,
                           const Opm::UnitSystem&             usys,
                           const bool                         oil,
@@ -949,6 +931,7 @@ namespace {
                             const Opm::UnitSystem&  usys,
                             const Opm::Phases&      phases,
                             const WellVectors&      wellData,
+                            Opm::SummaryState&      smry,
                             Opm::data::Well&        xw)
     {
         using M  = ::Opm::UnitSystem::measure;
@@ -982,6 +965,7 @@ namespace {
             return;
         }
 
+        const auto& wname = well.name();
         for (auto rstConnID = 0*nConn; rstConnID < nConn; ++rstConnID) {
             const auto icon = wellData.icon(wellID, rstConnID);
 
@@ -989,10 +973,18 @@ namespace {
             const auto j = icon[VI::IConn::index::CellJ] - 1;
             const auto k = icon[VI::IConn::index::CellK] - 1;
 
-            auto* xc = xw.find_connection(grid.getGlobalIndex(i, j, k));
+            const auto globCell = grid.getGlobalIndex(i, j, k);
+            const auto xcon = wellData.xcon(wellID, rstConnID);
+
+            restoreConnCumulatives(xcon, [globCell, &wname, &smry]
+                (const std::string& vector, const double value)
+            {
+                smry.update_conn_var(wname, vector, globCell + 1, value);
+            });
+
+            auto* xc = xw.find_connection(globCell);
             if (xc == nullptr) { continue; }
 
-            const auto xcon = wellData.xcon(wellID, rstConnID);
             restoreConnRates(xcon, usys, oil, gas, wat, *xc);
 
             xc->pressure = usys.to_si(M::pressure, xcon[Ix::Pressure]);
@@ -1132,7 +1124,8 @@ namespace {
                  const Opm::UnitSystem&  usys,
                  const Opm::Phases&      phases,
                  const WellVectors&      wellData,
-                 const SegmentVectors&   segData)
+                 const SegmentVectors&   segData,
+                 Opm::SummaryState&      smry)
     {
         if (! wellData.hasDefinedWellValues()) {
             // Result set does not provide well information.
@@ -1169,18 +1162,55 @@ namespace {
                                       xwel[VI::XWell::index::GasPrRate]));
         }
 
-        // 2) Restore other well quantities (really only xw.bhp)
+        // 2) Restore guide rates
+        if (well.isProducer()) {
+            if (wat)
+                xw.guide_rates.set(Opm::data::GuideRateValue::Item::Water,
+                                   usys.to_si(M::liquid_surface_rate, xwel[VI::XWell::index::WatPrGuideRate]));
+
+            if (oil)
+                xw.guide_rates.set(Opm::data::GuideRateValue::Item::Oil,
+                                   usys.to_si(M::liquid_surface_rate, xwel[VI::XWell::index::PrimGuideRate]));
+
+            if (gas)
+                xw.guide_rates.set(Opm::data::GuideRateValue::Item::Gas,
+                                   usys.to_si(M::gas_surface_rate, xwel[VI::XWell::index::GasPrGuideRate]));
+
+            xw.guide_rates.set(Opm::data::GuideRateValue::Item::ResV,
+                               usys.to_si(M::rate, xwel[VI::XWell::index::VoidPrGuideRate]));
+        } else {
+            const auto& injector_type = well.injectorType();
+            switch (injector_type) {
+            case Opm::InjectorType::WATER:
+                xw.guide_rates.set(Opm::data::GuideRateValue::Item::Water,
+                                   -usys.to_si(M::liquid_surface_rate, xwel[VI::XWell::index::PrimGuideRate]));
+                break;
+
+            case Opm::InjectorType::GAS:
+                xw.guide_rates.set(Opm::data::GuideRateValue::Item::Gas,
+                                   -usys.to_si(M::gas_surface_rate, xwel[VI::XWell::index::PrimGuideRate]));
+                break;
+            default:
+                throw std::logic_error("Only WATER and GAS injectors are supported when loading from restart file");
+            }
+        }
+
+
+        // 3) Restore other well quantities (really only xw.bhp)
         xw.bhp = usys.to_si(M::pressure, xwel[VI::XWell::index::FlowBHP]);
-        xw.thp = xw.temperature = 0.0;
+        xw.thp = usys.to_si(M::pressure, xwel[VI::XWell::index::TubHeadPr]);
+        xw.temperature = 0.0;
 
-        // 3) Restore connection flow rates (xw.connections[i].rates)
-        //    and pressure values (xw.connections[i].pressure).
-        restoreConnResults(well, wellID, grid, usys, phases, wellData, xw);
+        // 4) Restore connection flow rates (xw.connections[i].rates),
+        //    cumulatives (Cx{P,I}T), and pressure values
+        //    (xw.connections[i].pressure).
+        restoreConnResults(well, wellID, grid, usys,
+                           phases, wellData, smry, xw);
 
-        // 4) Restore well's active/current control
+        // 5) Restore well's active/current control
         restoreCurrentControl(wellID, wellData, xw);
 
-        // 5) Restore segment quantities if applicable.
+        // 6) Restore segment quantities if applicable.
         if (well.isMultiSegment() && segData.hasDefinedValues())
         {
             const auto iwel   = wellData.iwel(wellID);
@@ -1201,10 +1231,11 @@ namespace {
     }
 
     Opm::data::Wells
-    restore_wells_ecl(const ::Opm::EclipseState&       es,
-                      const ::Opm::EclipseGrid&        grid,
-                      const ::Opm::Schedule&           schedule,
-                      std::shared_ptr<RestartFileView> rst_view)
+    restore_wells_ecl(const ::Opm::EclipseState&                   es,
+                      const ::Opm::EclipseGrid&                    grid,
+                      const ::Opm::Schedule&                       schedule,
+                      Opm::SummaryState&                           smry,
+                      std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
     {
         auto soln = ::Opm::data::Wells{};
 
@@ -1224,97 +1255,189 @@ namespace {
 
             soln[well.name()] =
                 restore_well(well, wellID, grid, units,
-                             phases, wellData, segData);
+                             phases, wellData, segData, smry);
         }
 
         return soln;
+    }
+
+    Opm::data::GroupAndNetworkValues
+    restore_grp_nwrk(const Opm::Schedule&                         schedule,
+                     const Opm::UnitSystem&                       usys,
+                     std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
+    {
+        using M = Opm::UnitSystem::measure;
+        using xIx = VI::XGroup::index;
+        using GRVI = Opm::data::GuideRateValue::Item;
+
+        auto xg_nwrk = Opm::data::GroupAndNetworkValues{};
+
+        const auto& intehead  = rst_view->intehead();
+        const auto  sim_step  = rst_view->simStep();
+        const auto  nwgmax    = intehead[VI::NWGMAX];
+        const auto  groupData = GroupVectors{ intehead, rst_view };
+
+        for (const auto& gname : schedule.groupNames(sim_step)) {
+            const auto& group = schedule.getGroup(gname, sim_step);
+            const auto group_index = (gname == "FIELD")
+                ? groupData.maxGroups() : group.insert_index() - 1;
+
+            const auto igrp = groupData.igrp(group_index);
+            const auto xgrp = groupData.xgrp(group_index);
+
+            auto& gr_data = xg_nwrk.groupData[gname];
+
+            gr_data.currentControl
+                .set(Opm::Group::ProductionCModeFromInt(igrp[nwgmax + VI::IGroup::index::ProdActiveCMode]),
+                     Opm::Group::InjectionCModeFromInt (igrp[nwgmax + VI::IGroup::index::GInjActiveCMode]),
+                     Opm::Group::InjectionCModeFromInt (igrp[nwgmax + VI::IGroup::index::WInjActiveCMode]));
+
+            if (igrp[nwgmax + VI::IGroup::GuideRateDef] != VI::IGroup::Value::None) {
+                gr_data.guideRates.production
+                    .set(GRVI::Oil,   usys.to_si(M::liquid_surface_rate, xgrp[xIx::OilPrGuideRate]))
+                    .set(GRVI::Gas,   usys.to_si(M::gas_surface_rate,    xgrp[xIx::GasPrGuideRate]))
+                    .set(GRVI::Water, usys.to_si(M::liquid_surface_rate, xgrp[xIx::WatPrGuideRate]))
+                    .set(GRVI::ResV,  usys.to_si(M::rate,                xgrp[xIx::VoidPrGuideRate]));
+
+                gr_data.guideRates.injection
+                    .set(GRVI::Oil,   usys.to_si(M::liquid_surface_rate, xgrp[xIx::OilInjGuideRate]))
+                    .set(GRVI::Gas,   usys.to_si(M::gas_surface_rate,    xgrp[xIx::GasInjGuideRate]))
+                    .set(GRVI::Water, usys.to_si(M::liquid_surface_rate, xgrp[xIx::WatInjGuideRate]));
+            }
+
+            const auto node_pressure = -1.0;
+            xg_nwrk.nodeData[gname].pressure = node_pressure;
+        }
+
+        return xg_nwrk;
     }
 
     Opm::data::AquiferType
     determineAquiferType(const AquiferVectors::Window<int>& iaaq)
     {
         const auto t1 = iaaq[VI::IAnalyticAquifer::TypeRelated1];
-        const auto t2 = iaaq[VI::IAnalyticAquifer::TypeRelated2];
 
-        if ((t1 == 1) && (t2 == 1)) {
-            return Opm::data::AquiferType::CarterTracey;
+        if (t1 == 1) {
+            return Opm::data::AquiferType::CarterTracy;
         }
 
-        if ((t1 == 0) && (t2 == 0)) {
+        if (t1 == 0) {
             return Opm::data::AquiferType::Fetkovich;
         }
 
         throw std::runtime_error {
             "Unknown Aquifer Type:"
-                  " T1 = "  + std::to_string(t1)
-                + ", T2 = " + std::to_string(t2)
+            " T1 = "  + std::to_string(t1)
         };
     }
 
-    std::shared_ptr<Opm::data::FetkovichData>
-    extractFetkcovichData(const Opm::UnitSystem&               usys,
-                          const AquiferVectors::Window<float>& saaq)
+    Opm::data::FetkovichData
+    extractFetkovichData(const Opm::UnitSystem&               usys,
+                         const AquiferVectors::Window<float>& saaq)
     {
         using M = ::Opm::UnitSystem::measure;
 
-        auto data = std::make_shared<Opm::data::FetkovichData>();
+        auto data = Opm::data::FetkovichData{};
 
-        data->initVolume =
+        data.initVolume =
             usys.to_si(M::liquid_surface_volume,
                        saaq[VI::SAnalyticAquifer::FetInitVol]);
 
-        data->prodIndex =
+        data.prodIndex =
             usys.to_si(M::liquid_surface_rate,
             usys.from_si(M::pressure,
                          saaq[VI::SAnalyticAquifer::FetProdIndex]));
 
-        data->timeConstant = saaq[VI::SAnalyticAquifer::FetTimeConstant];
+        data.timeConstant = saaq[VI::SAnalyticAquifer::FetTimeConstant];
 
         return data;
     }
 
-    void restore_aquifers(const ::Opm::EclipseState&       es,
-                          std::shared_ptr<RestartFileView> rst_view,
-                          Opm::RestartValue&               rst_value)
+    void restore_analytic_aquifer(const std::size_t      aquiferID,
+                                  const AquiferVectors&  aquiferData,
+                                  const Opm::UnitSystem& units,
+                                  Opm::data::Aquifers&   aquifers)
     {
         using M  = ::Opm::UnitSystem::measure;
         using Ix = VI::XAnalyticAquifer::index;
 
-        const auto& intehead    = rst_view->intehead();
-        const auto  aquiferData = AquiferVectors{ intehead, rst_view };
+        const auto saaq = aquiferData.saaq(aquiferID);
+        const auto xaaq = aquiferData.xaaq(aquiferID);
 
-        const auto  numAq = numAnalyticAquifers(*rst_view);
-        const auto& units = es.getUnits();
+        auto& aqData = aquifers[1 + static_cast<int>(aquiferID)];
 
-        for (auto aquiferID = 0*numAq; aquiferID < numAq; ++aquiferID) {
-            const auto& saaq = aquiferData.saaq(aquiferID);
-            const auto& xaaq = aquiferData.xaaq(aquiferID);
+        aqData.aquiferID = 1 + static_cast<int>(aquiferID);
+        aqData.pressure  = units.to_si(M::pressure, xaaq[Ix::Pressure]);
+        aqData.volume    = units.to_si(M::liquid_surface_volume,
+                                       xaaq[Ix::ProdVolume]);
 
-            rst_value.aquifer.emplace_back();
+        aqData.initPressure =
+            units.to_si(M::pressure, saaq[VI::SAnalyticAquifer::InitPressure]);
 
-            auto& aqData = rst_value.aquifer.back();
+        aqData.datumDepth =
+            units.to_si(M::length, saaq[VI::SAnalyticAquifer::DatumDepth]);
 
-            aqData.aquiferID = 1 + static_cast<int>(aquiferID);
-            aqData.pressure  = units.to_si(M::pressure, xaaq[Ix::Pressure]);
-            aqData.volume    = units.to_si(M::liquid_surface_volume,
-                                           xaaq[Ix::ProdVolume]);
+        const auto type = determineAquiferType(aquiferData.iaaq(aquiferID));
+        if (type == Opm::data::AquiferType::Fetkovich) {
+            auto* tData = aqData.typeData.create<Opm::data::AquiferType::Fetkovich>();
+            *tData = extractFetkovichData(units, saaq);
+        }
+    }
 
-            aqData.initPressure =
-                units.to_si(M::pressure, saaq[VI::SAnalyticAquifer::InitPressure]);
+    void restore_numeric_aquifers(const AquiferVectors&  aquiferData,
+                                  const Opm::UnitSystem& units,
+                                  Opm::data::Aquifers&   aquifers)
+    {
+        using M = ::Opm::UnitSystem::measure;
+        using Opm::data::AquiferType;
 
-            aqData.datumDepth =
-                units.to_si(M::length, saaq[VI::SAnalyticAquifer::DatumDepth]);
+        const auto IxAqID = VI::INumericAquifer::index::AquiferID;
+        const auto IxANQT = VI::RNumericAquifer::index::ProdVolume;
+        const auto IxIPR  = VI::RNumericAquifer::index::Pressure;
 
-            aqData.type = determineAquiferType(aquiferData.iaaq(aquiferID));
+        const auto numRecords = aquiferData.numRecordsForNumericAquifers();
+        for (auto recordID = 0*numRecords; recordID < numRecords; ++recordID) {
+            const auto aquiferID = aquiferData.iaqn(recordID)[IxAqID];
+            auto& aqData = aquifers[aquiferID];
 
-            if (aqData.type == Opm::data::AquiferType::Fetkovich) {
-                aqData.aquFet = extractFetkcovichData(units, saaq);
+            if (! aqData.typeData.is<AquiferType::Numerical>()) {
+                aqData.typeData.create<AquiferType::Numerical>();
+                aqData.aquiferID = aquiferID;
+            }
+
+            const auto raqn = aquiferData.raqn(recordID);
+            auto* typeData = aqData.typeData.getMutable<AquiferType::Numerical>();
+
+            typeData->initPressure.push_back(units.to_si(M::pressure, raqn[IxIPR]));
+            if (const auto volume = raqn[IxANQT]; volume > 0.0) {
+                aqData.volume = units.to_si(M::liquid_surface_volume, volume);
             }
         }
     }
 
+    Opm::data::Aquifers
+    restore_aquifers(const ::Opm::EclipseState&                   es,
+                     std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
+    {
+        auto aquifers = Opm::data::Aquifers{};
+
+        const auto& intehead    = rst_view->intehead();
+        const auto  aquiferData = AquiferVectors{ intehead, rst_view };
+
+        const auto maxAqID = maximumAnalyticAquiferID(*rst_view);
+        for (auto aquiferID = 0*maxAqID; aquiferID < maxAqID; ++aquiferID) {
+            restore_analytic_aquifer(aquiferID, aquiferData, es.getUnits(), aquifers);
+        }
+
+        restore_numeric_aquifers(aquiferData, es.getUnits(), aquifers);
+
+        return aquifers;
+    }
+
     void assign_well_cumulatives(const std::string& well,
                                  const std::size_t  wellID,
+                                 const Opm::Tracers& tracer_dims,
+                                 const Opm::TracerConfig& tracer_config,
                                  const WellVectors& wellData,
                                  Opm::SummaryState& smry)
     {
@@ -1324,29 +1447,51 @@ namespace {
             return;
         }
 
-        auto key = [&well](const std::string& vector) -> std::string
-        {
-            return vector + ':' + well;
-        };
-
         const auto xwel = wellData.xwel(wellID);
 
         // No unit conversion here.  Smry expects output units.
-        smry.update(key("WOPT"), xwel[VI::XWell::index::OilPrTotal]);
-        smry.update(key("WWPT"), xwel[VI::XWell::index::WatPrTotal]);
-        smry.update(key("WGPT"), xwel[VI::XWell::index::GasPrTotal]);
-        smry.update(key("WVPT"), xwel[VI::XWell::index::VoidPrTotal]);
+        smry.update_well_var(well, "WOPT", xwel[VI::XWell::index::OilPrTotal]);
+        smry.update_well_var(well, "WWPT", xwel[VI::XWell::index::WatPrTotal]);
+        smry.update_well_var(well, "WGPT", xwel[VI::XWell::index::GasPrTotal]);
+        smry.update_well_var(well, "WVPT", xwel[VI::XWell::index::VoidPrTotal]);
 
-        smry.update(key("WWIT"), xwel[VI::XWell::index::WatInjTotal]);
-        smry.update(key("WGIT"), xwel[VI::XWell::index::GasInjTotal]);
-        smry.update(key("WVIT"), xwel[VI::XWell::index::VoidInjTotal]);
+        // Cumulative liquid production = WOPT + WWPT
+        smry.update_well_var(well, "WLPT",
+                             xwel[VI::XWell::index::OilPrTotal] +
+                             xwel[VI::XWell::index::WatPrTotal]);
 
-        smry.update(key("WOPTH"), xwel[VI::XWell::index::HistOilPrTotal]);
-        smry.update(key("WWPTH"), xwel[VI::XWell::index::HistWatPrTotal]);
-        smry.update(key("WGPTH"), xwel[VI::XWell::index::HistGasPrTotal]);
+        smry.update_well_var(well, "WWIT", xwel[VI::XWell::index::WatInjTotal]);
+        smry.update_well_var(well, "WGIT", xwel[VI::XWell::index::GasInjTotal]);
+        smry.update_well_var(well, "WVIT", xwel[VI::XWell::index::VoidInjTotal]);
 
-        smry.update(key("WWITH"), xwel[VI::XWell::index::HistWatInjTotal]);
-        smry.update(key("WGITH"), xwel[VI::XWell::index::HistGasInjTotal]);
+        smry.update_well_var(well, "WOPTS", xwel[VI::XWell::index::OilPrTotalSolution]);
+        smry.update_well_var(well, "WGPTS", xwel[VI::XWell::index::GasPrTotalSolution]);
+
+        // Free oil cumulative production = WOPT - WOPTS
+        smry.update_well_var(well, "WOPTF",
+                             xwel[VI::XWell::index::OilPrTotal] -
+                             xwel[VI::XWell::index::OilPrTotalSolution]);
+
+        // Free gas cumulative production = WGPT - WGPTS
+        smry.update_well_var(well, "WGPTF",
+                             xwel[VI::XWell::index::GasPrTotal] -
+                             xwel[VI::XWell::index::GasPrTotalSolution]);
+
+        smry.update_well_var(well, "WOPTH", xwel[VI::XWell::index::HistOilPrTotal]);
+        smry.update_well_var(well, "WWPTH", xwel[VI::XWell::index::HistWatPrTotal]);
+        smry.update_well_var(well, "WGPTH", xwel[VI::XWell::index::HistGasPrTotal]);
+
+        smry.update_well_var(well, "WWITH", xwel[VI::XWell::index::HistWatInjTotal]);
+        smry.update_well_var(well, "WGITH", xwel[VI::XWell::index::HistGasInjTotal]);
+
+        for (std::size_t tracer_index = 0; tracer_index < tracer_config.size(); tracer_index++) {
+            const auto& tracer_name = tracer_config[tracer_index].name;
+            auto wtpt_offset = VI::XWell::index::TracerOffset +   tracer_dims.water_tracers();
+            auto wtit_offset = VI::XWell::index::TracerOffset + 2*tracer_dims.water_tracers();
+
+            smry.update_well_var(well, fmt::format("WTPT{}", tracer_name), xwel[wtpt_offset + tracer_index]);
+            smry.update_well_var(well, fmt::format("WTIT{}", tracer_name), xwel[wtit_offset + tracer_index]);
+        }
     }
 
     void assign_group_cumulatives(const std::string&  group,
@@ -1356,39 +1501,104 @@ namespace {
     {
         if (! groupData.hasDefinedValues()) {
             // Result set does not provide group information.
-            // No wells?  In any case, nothing to do here.
+            // No groups?  In any case, nothing to do here.
             return;
         }
 
-        auto key = [&group](const std::string& vector) -> std::string
-        {
-            return (group == "FIELD")
-                ?  'F' + vector
-                :  'G' + vector + ':' + group;
-        };
-
+        const auto isField = group == "FIELD";
         const auto xgrp = groupData.xgrp(groupID);
 
+        auto update = [isField, &group, &smry]
+            (const std::string& vector, const double value) -> void
+        {
+            if (isField) {
+                smry.update('F' + vector, value);
+            }
+            else {
+                smry.update_group_var(group, 'G' + vector, value);
+            }
+        };
+
         // No unit conversion here.  Smry expects output units.
-        smry.update(key("OPT"), xgrp[VI::XGroup::index::OilPrTotal]);
-        smry.update(key("WPT"), xgrp[VI::XGroup::index::WatPrTotal]);
-        smry.update(key("GPT"), xgrp[VI::XGroup::index::GasPrTotal]);
-        smry.update(key("VPT"), xgrp[VI::XGroup::index::VoidPrTotal]);
+        update("OPT", xgrp[VI::XGroup::index::OilPrTotal]);
+        update("WPT", xgrp[VI::XGroup::index::WatPrTotal]);
+        update("GPT", xgrp[VI::XGroup::index::GasPrTotal]);
+        update("VPT", xgrp[VI::XGroup::index::VoidPrTotal]);
 
-        smry.update(key("WIT"), xgrp[VI::XGroup::index::WatInjTotal]);
-        smry.update(key("GIT"), xgrp[VI::XGroup::index::GasInjTotal]);
-        smry.update(key("VIT"), xgrp[VI::XGroup::index::VoidInjTotal]);
+        // Cumulative liquid production = xOPT + xWPT
+        update("LPT",
+               xgrp[VI::XGroup::index::OilPrTotal] +
+               xgrp[VI::XGroup::index::WatPrTotal]);
 
-        smry.update(key("OPTH"), xgrp[VI::XGroup::index::HistOilPrTotal]);
-        smry.update(key("WPTH"), xgrp[VI::XGroup::index::HistWatPrTotal]);
-        smry.update(key("GPTH"), xgrp[VI::XGroup::index::HistGasPrTotal]);
-        smry.update(key("WITH"), xgrp[VI::XGroup::index::HistWatInjTotal]);
-        smry.update(key("GITH"), xgrp[VI::XGroup::index::HistGasInjTotal]);
+        update("WIT", xgrp[VI::XGroup::index::WatInjTotal]);
+        update("GIT", xgrp[VI::XGroup::index::GasInjTotal]);
+        update("VIT", xgrp[VI::XGroup::index::VoidInjTotal]);
+
+        update("OPTS", xgrp[VI::XGroup::index::OilPrTotalSolution]);
+        update("GPTS", xgrp[VI::XGroup::index::GasPrTotalSolution]);
+
+        // Free oil cumulative production = xOPT - xOPTS
+        update("OPTF",
+               xgrp[VI::XGroup::index::OilPrTotal] -
+               xgrp[VI::XGroup::index::OilPrTotalSolution]);
+
+        // Free gas cumulative production = xGPT - xGPTS
+        update("GPTF",
+               xgrp[VI::XGroup::index::GasPrTotal] -
+               xgrp[VI::XGroup::index::GasPrTotalSolution]);
+
+        update("OPTH", xgrp[VI::XGroup::index::HistOilPrTotal]);
+        update("WPTH", xgrp[VI::XGroup::index::HistWatPrTotal]);
+        update("GPTH", xgrp[VI::XGroup::index::HistGasPrTotal]);
+        update("WITH", xgrp[VI::XGroup::index::HistWatInjTotal]);
+        update("GITH", xgrp[VI::XGroup::index::HistGasInjTotal]);
     }
 
-    void restore_cumulative(::Opm::SummaryState&             smry,
-                            const ::Opm::Schedule&           schedule,
-                            std::shared_ptr<RestartFileView> rst_view)
+    void restore_udq(::Opm::SummaryState&                         smry,
+                     const ::Opm::Schedule&                       schedule,
+                     std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
+    {
+        if (!rst_view->hasKeyword<std::string>(std::string("ZUDN")))
+            return;
+
+        const auto sim_step = rst_view->simStep();
+        const auto& wnames = schedule.wellNames(sim_step);
+        const auto& groups = schedule.restart_groups(sim_step);
+        const auto udq_vectors = UDQVectors{ std::move(rst_view) };
+
+        for (const auto& udq : udq_vectors.zudn()) {
+            if (udq[0] == 'W') {
+                const auto& dudw = udq_vectors.next_dudw();
+                for (std::size_t well_index = 0; well_index < wnames.size(); well_index++) {
+                    const auto& value = dudw[well_index];
+                    if (value != ::Opm::UDQ::restart_default)
+                        smry.update_well_var(wnames[well_index], udq, value);
+                }
+            }
+
+            if (udq[0] == 'G')  {
+                const auto& dudg = udq_vectors.next_dudg();
+                for (std::size_t group_index = 0; group_index < groups.size(); group_index++) {
+                    const auto& value = dudg[group_index];
+                    if (value != ::Opm::UDQ::restart_default) {
+                        const auto& group_name = groups[group_index]->name();
+                        smry.update_group_var(group_name, udq, value);
+                    }
+                }
+            }
+
+            if (udq[0] == 'F')  {
+                const auto& value = udq_vectors.next_dudf();
+                if (value != ::Opm::UDQ::restart_default)
+                    smry.update(udq, value);
+            }
+        }
+    }
+
+    void restore_cumulative(::Opm::SummaryState&                         smry,
+                            const ::Opm::Schedule&                       schedule,
+                            const Opm::TracerConfig&                     tracer_config,
+                            std::shared_ptr<Opm::EclIO::RestartFileView> rst_view)
     {
         const auto  sim_step = rst_view->simStep();
         const auto& intehead = rst_view->intehead();
@@ -1403,7 +1613,7 @@ namespace {
             for (auto nWells = wells.size(), wellID = 0*nWells;
                  wellID < nWells; ++wellID)
             {
-                assign_well_cumulatives(wells[wellID], wellID, wellData, smry);
+                assign_well_cumulatives(wells[wellID], wellID, schedule.runspec().tracers(), tracer_config, wellData, smry);
             }
         }
 
@@ -1440,6 +1650,7 @@ namespace Opm { namespace RestartIO  {
     RestartValue
     load(const std::string&             filename,
          int                            report_step,
+         Action::State&                 /*  action_state  */,
          SummaryState&                  summary_state,
          const std::vector<RestartKey>& solution_keys,
          const EclipseState&            es,
@@ -1447,8 +1658,9 @@ namespace Opm { namespace RestartIO  {
          const Schedule&                schedule,
          const std::vector<RestartKey>& extra_keys)
     {
-        auto rst_view =
-            std::make_shared<RestartFileView>(filename, report_step);
+        auto rst_file = std::make_shared<Opm::EclIO::ERst>(filename);
+        auto rst_view = std::make_shared<Opm::EclIO::RestartFileView>
+            (std::move(rst_file), report_step);
 
         auto xr = restoreSOLUTION(solution_keys,
                                   grid.getNumActive(), *rst_view);
@@ -1457,19 +1669,23 @@ namespace Opm { namespace RestartIO  {
 
         auto xw = rst_view->hasKeyword<double>("OPM_XWEL")
             ? restore_wells_opm(es, grid, schedule, *rst_view)
-            : restore_wells_ecl(es, grid, schedule,  rst_view);
+            : restore_wells_ecl(es, grid, schedule, summary_state, rst_view);
 
-        auto rst_value = RestartValue{ std::move(xr), std::move(xw) };
+        auto xgrp_nwrk = restore_grp_nwrk(schedule, es.getUnits(), rst_view);
+
+        auto aquifers = hasAquifers(*rst_view)
+            ? restore_aquifers(es, rst_view) : data::Aquifers{};
+
+        auto rst_value = RestartValue {
+            std::move(xr), std::move(xw), std::move(xgrp_nwrk), std::move(aquifers)
+        };
 
         if (! extra_keys.empty()) {
             restoreExtra(extra_keys, es.getUnits(), *rst_view, rst_value);
         }
 
-        if (hasAnalyticAquifers(*rst_view)) {
-            restore_aquifers(es, rst_view, rst_value);
-        }
-
-        restore_cumulative(summary_state, schedule, std::move(rst_view));
+        restore_udq(summary_state, schedule, rst_view);
+        restore_cumulative(summary_state, schedule, es.tracer(), std::move(rst_view));
 
         return rst_value;
     }

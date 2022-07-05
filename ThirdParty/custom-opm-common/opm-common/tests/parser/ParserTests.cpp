@@ -23,21 +23,25 @@
 #include <opm/json/JsonObject.hpp>
 #include <iostream>
 
-#include <opm/parser/eclipse/Utility/Typetools.hpp>
-#include <opm/common/utility/FileSystem.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Deck/DeckKeyword.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/A.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
+#include <opm/common/OpmLog/KeywordLocation.hpp>
+#include <opm/input/eclipse/Utility/Typetools.hpp>
+#include <opm/common/utility/OpmInputError.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Deck/DeckKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/A.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/S.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/Builtin.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
 
-#include "src/opm/parser/eclipse/Parser/raw/RawKeyword.hpp"
-#include "src/opm/parser/eclipse/Parser/raw/RawRecord.hpp"
+#include "src/opm/input/eclipse/Parser/raw/RawKeyword.hpp"
+#include "src/opm/input/eclipse/Parser/raw/RawRecord.hpp"
 
+#include <filesystem>
 #include <iostream>
 
 using namespace Opm;
@@ -54,14 +58,12 @@ std::string prefix() {
 }
 
 ParserKeyword createDynamicSized(const std::string& kw) {
-    ParserKeyword pkw(kw);
-    pkw.setSizeType(SLASH_TERMINATED);
+    ParserKeyword pkw(kw, KeywordSize(SLASH_TERMINATED));
     return pkw;
 }
 
 ParserKeyword createFixedSized(const std::string& kw , size_t size) {
-    ParserKeyword pkw(kw);
-    pkw.setFixedSize( size );
+    ParserKeyword pkw(kw, KeywordSize(size));
     return pkw;
 }
 
@@ -69,9 +71,7 @@ ParserKeyword createTable(const std::string& name,
                           const std::string& sizeKeyword,
                           const std::string& sizeItem,
                           bool isTableCollection) {
-    ParserKeyword pkw(name);
-    pkw.initSizeKeyword(sizeKeyword , sizeItem, 0);
-    pkw.setTableCollection(isTableCollection);
+    ParserKeyword pkw(name, KeywordSize{sizeKeyword, sizeItem, isTableCollection, 0});
     return pkw;
 }
 
@@ -193,28 +193,28 @@ BOOST_AUTO_TEST_CASE(loadKeywordsJSON_manyKeywords_returnstrue) {
 
 BOOST_AUTO_TEST_CASE(loadKeywordFromFile_fileDoesNotExist_returnsFalse) {
     Parser parser;
-    Opm::filesystem::path configFile("File/does/not/exist");
+    std::filesystem::path configFile("File/does/not/exist");
     BOOST_CHECK_EQUAL( false , parser.loadKeywordFromFile( configFile ));
 }
 
 
 BOOST_AUTO_TEST_CASE(loadKeywordFromFile_invalidJson_returnsFalse) {
     Parser parser;
-    Opm::filesystem::path configFile(prefix() + "json/example_invalid_json");
+    std::filesystem::path configFile(prefix() + "json/example_invalid_json");
     BOOST_CHECK_EQUAL( false , parser.loadKeywordFromFile( configFile ));
 }
 
 
 BOOST_AUTO_TEST_CASE(loadKeywordFromFile_invalidConfig_returnsFalse) {
     Parser parser;
-    Opm::filesystem::path configFile(prefix() + "json/example_missing_name.json");
+    std::filesystem::path configFile(prefix() + "json/example_missing_name.json");
     BOOST_CHECK_EQUAL( false , parser.loadKeywordFromFile( configFile ));
 }
 
 
 BOOST_AUTO_TEST_CASE(loadKeywordFromFile_validKeyword_returnsTrueHasKeyword) {
     Parser parser( false );
-    Opm::filesystem::path configFile(prefix() + "json/BPR");
+    std::filesystem::path configFile(prefix() + "json/BPR");
     BOOST_CHECK_EQUAL( true , parser.loadKeywordFromFile( configFile ));
     BOOST_CHECK_EQUAL( 1U , parser.size() );
     BOOST_CHECK_EQUAL( true , parser.isRecognizedKeyword("BPR") );
@@ -224,14 +224,14 @@ BOOST_AUTO_TEST_CASE(loadKeywordFromFile_validKeyword_returnsTrueHasKeyword) {
 
 BOOST_AUTO_TEST_CASE(loadConfigFromDirectory_directoryDoesNotexist_throws) {
         Parser parser;
-        Opm::filesystem::path configPath("path/does/not/exist");
+        std::filesystem::path configPath("path/does/not/exist");
         BOOST_CHECK_THROW(parser.loadKeywordsFromDirectory( configPath), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_CASE(loadConfigFromDirectory_notRecursive_allNames) {
         Parser parser( false );
         BOOST_CHECK_EQUAL(false , parser.isRecognizedKeyword("BPR"));
-        Opm::filesystem::path configPath(prefix() + "config/directory1");
+        std::filesystem::path configPath(prefix() + "config/directory1");
         BOOST_CHECK_NO_THROW(parser.loadKeywordsFromDirectory( configPath, false));
         BOOST_CHECK(parser.isRecognizedKeyword("WWCT"));
         BOOST_CHECK_EQUAL(true , parser.isRecognizedKeyword("BPR"));
@@ -241,7 +241,7 @@ BOOST_AUTO_TEST_CASE(loadConfigFromDirectory_notRecursive_allNames) {
 
 BOOST_AUTO_TEST_CASE(loadConfigFromDirectory_notRecursive_strictNames) {
         Parser parser( false );
-        Opm::filesystem::path configPath(prefix() + "config/directory1");
+        std::filesystem::path configPath(prefix() + "config/directory1");
         BOOST_CHECK_NO_THROW(parser.loadKeywordsFromDirectory( configPath, false));
         BOOST_CHECK(parser.isRecognizedKeyword("WWCT"));
         // the file name for the following keyword is "Bpr", but that
@@ -254,7 +254,7 @@ BOOST_AUTO_TEST_CASE(loadConfigFromDirectory_notRecursive_strictNames) {
 BOOST_AUTO_TEST_CASE(loadConfigFromDirectory_Recursive_allNames) {
         Parser parser( false );
         BOOST_CHECK_EQUAL(false , parser.isRecognizedKeyword("BPR"));
-        Opm::filesystem::path configPath(prefix() + "config/directory1");
+        std::filesystem::path configPath(prefix() + "config/directory1");
         BOOST_CHECK_NO_THROW(parser.loadKeywordsFromDirectory( configPath, true));
         BOOST_CHECK(parser.isRecognizedKeyword("WWCT"));
         BOOST_CHECK_EQUAL(true , parser.isRecognizedKeyword("BPR"));
@@ -265,7 +265,7 @@ BOOST_AUTO_TEST_CASE(loadConfigFromDirectory_Recursive_allNames) {
 BOOST_AUTO_TEST_CASE(loadConfigFromDirectory_default) {
         Parser parser( false );
         BOOST_CHECK_EQUAL(false , parser.isRecognizedKeyword("BPR"));
-        Opm::filesystem::path configPath(prefix() + "config/directory1");
+        std::filesystem::path configPath(prefix() + "config/directory1");
         BOOST_CHECK_NO_THROW(parser.loadKeywordsFromDirectory( configPath ));
         BOOST_CHECK(parser.isRecognizedKeyword("WWCT"));
         // the file name for the following keyword is "Bpr", but that
@@ -323,7 +323,7 @@ BOOST_AUTO_TEST_CASE( PATHS_has_global_scope ) {
     parseContext.update( ParseContext::PARSE_MISSING_INCLUDE , Opm::InputError::THROW_EXCEPTION);
     const auto deck = parser.parseFile( prefix() + "parser/PATHSInInclude.data", parseContext, errors );
     BOOST_CHECK(deck.hasKeyword("OIL"));
-    BOOST_CHECK_THROW( parser.parseFile( prefix() + "parser/PATHSInIncludeInvalid.data", parseContext, errors ), std::invalid_argument );
+    BOOST_CHECK_THROW( parser.parseFile( prefix() + "parser/PATHSInIncludeInvalid.data", parseContext, errors ), OpmInputError );
 }
 
 BOOST_AUTO_TEST_CASE( PATHS_with_backslashes ) {
@@ -344,12 +344,15 @@ BOOST_AUTO_TEST_CASE( handle_empty_title ) {
 
     Parser parser;
     const auto deck = parser.parseString( input_deck);
-    BOOST_CHECK_EQUAL( "opm/flow", deck.getKeyword( "TITLE" ).getStringData().front() );
-    BOOST_CHECK_EQUAL( "simulation", deck.getKeyword( "TITLE" ).getStringData().back() );
+    BOOST_CHECK_EQUAL( "opm/flow", deck["TITLE"].back().getStringData().front() );
+    BOOST_CHECK_EQUAL( "simulation", deck[ "TITLE" ].back().getStringData().back() );
  }
 
 BOOST_AUTO_TEST_CASE( deck_comma_separated_fields ) {
     const char* deck = R"(
+WATER
+OIL
+
 TABDIMS
     2*    24 2*    20    20 1*     1 7* /
 
@@ -440,7 +443,7 @@ BOOST_AUTO_TEST_CASE(scan_PreMatureTerminator_defaultUsed) {
     ParserItem itemInt("ITEM2", INT);
     itemInt.setDefault(123);
 
-    RawRecord rawRecord1( "" );
+    RawRecord rawRecord1( "", KeywordLocation("KW", "File", 100) );
     UnitSystem unit_system;
     const auto defaulted = itemInt.scan(rawRecord1, unit_system, unit_system);
 
@@ -651,7 +654,7 @@ BOOST_AUTO_TEST_CASE(Scan_All_CorrectIntSetInDeckItem) {
     auto sizeType = ParserItem::item_size::ALL;
     ParserItem itemInt("ITEM", INT); itemInt.setSizeType(sizeType);
 
-    RawRecord rawRecord( "100 443 10*77 10*1 25" );
+    RawRecord rawRecord( "100 443 10*77 10*1 25", KeywordLocation("KW", "File", 100) );
     UnitSystem unit_system;
     const auto deckIntItem = itemInt.scan(rawRecord, unit_system, unit_system);
     BOOST_CHECK_EQUAL(23U, deckIntItem.data_size());
@@ -665,7 +668,7 @@ BOOST_AUTO_TEST_CASE(Scan_All_WithDefaults) {
     ParserItem itemInt("ITEM", INT); itemInt.setSizeType(sizeType);
     itemInt.setInputType( ParserItem::itype::INT );
 
-    RawRecord rawRecord( "100 10* 10*1 25" );
+    RawRecord rawRecord( "100 10* 10*1 25", KeywordLocation("KW", "File", 100) );
     UnitSystem unit_system;
     const auto deckIntItem = itemInt.scan(rawRecord, unit_system, unit_system);
     BOOST_CHECK_EQUAL(22U, deckIntItem.data_size());
@@ -680,7 +683,7 @@ BOOST_AUTO_TEST_CASE(Scan_All_WithDefaults) {
 BOOST_AUTO_TEST_CASE(Scan_SINGLE_CorrectIntSetInDeckItem) {
     ParserItem itemInt(std::string("ITEM2"), INT);
 
-    RawRecord rawRecord("100 44.3 'Heisann'" );
+    RawRecord rawRecord("100 44.3 'Heisann'", KeywordLocation("KW", "File", 100) );
     UnitSystem unit_system;
     const auto deckIntItem = itemInt.scan(rawRecord, unit_system, unit_system);
     BOOST_CHECK_EQUAL(100, deckIntItem.get< int >(0));
@@ -691,7 +694,7 @@ BOOST_AUTO_TEST_CASE(Scan_SeveralInts_CorrectIntsSetInDeckItem) {
     ParserItem itemInt2(std::string("ITEM2"), INT);
     ParserItem itemInt3(std::string("ITEM3"), INT);
 
-    RawRecord rawRecord( "100 443 338932 222.33 'Heisann' " );
+    RawRecord rawRecord( "100 443 338932 222.33 'Heisann' " , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     const auto deckIntItem1 = itemInt1.scan(rawRecord, unit_system, unit_system);
     BOOST_CHECK_EQUAL(100, deckIntItem1.get< int >(0));
@@ -710,7 +713,7 @@ BOOST_AUTO_TEST_CASE(Scan_SeveralInts_CorrectIntsSetInDeckItem) {
 BOOST_AUTO_TEST_CASE(Scan_Multiplier_CorrectIntsSetInDeckItem) {
     ParserItem itemInt("ITEM2", INT);
 
-    RawRecord rawRecord( "3*4 " );
+    RawRecord rawRecord( "3*4 " , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     itemInt.setSizeType(ParserItem::item_size::ALL);
     const auto deckIntItem = itemInt.scan(rawRecord, unit_system, unit_system);
@@ -723,7 +726,7 @@ BOOST_AUTO_TEST_CASE(Scan_StarNoMultiplier_ExceptionThrown) {
     ParserItem itemInt("ITEM2", INT);
 
     UnitSystem unit_system;
-    RawRecord rawRecord( "*45 " );
+    RawRecord rawRecord( "*45 ", KeywordLocation("KW", "File", 100) );
     BOOST_CHECK_THROW(itemInt.scan(rawRecord, unit_system, unit_system), std::invalid_argument);
 }
 
@@ -731,7 +734,7 @@ BOOST_AUTO_TEST_CASE(Scan_MultipleItems_CorrectIntsSetInDeckItem) {
     ParserItem itemInt1(std::string("ITEM1"), INT);
     ParserItem itemInt2(std::string("ITEM2"), INT);
 
-    RawRecord rawRecord( "10 20" );
+    RawRecord rawRecord( "10 20" , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     const auto deckIntItem1 = itemInt1.scan(rawRecord, unit_system, unit_system);
     const auto deckIntItem2 = itemInt2.scan(rawRecord, unit_system, unit_system);
@@ -744,7 +747,7 @@ BOOST_AUTO_TEST_CASE(Scan_MultipleDefault_CorrectIntsSetInDeckItem) {
     ParserItem itemInt1("ITEM1", INT); itemInt1.setDefault(10);
     ParserItem itemInt2("ITEM2", INT); itemInt2.setDefault(20);
 
-    RawRecord rawRecord( "* * " );
+    RawRecord rawRecord( "* * " , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     const auto deckIntItem1 = itemInt1.scan(rawRecord, unit_system, unit_system);
     const auto deckIntItem2 = itemInt2.scan(rawRecord, unit_system, unit_system);
@@ -757,7 +760,7 @@ BOOST_AUTO_TEST_CASE(Scan_MultipleWithMultiplier_CorrectIntsSetInDeckItem) {
     ParserItem itemInt1("ITEM1", INT);
     ParserItem itemInt2("ITEM2", INT);
 
-    RawRecord rawRecord( "2*30" );
+    RawRecord rawRecord( "2*30" , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     const auto deckIntItem1 = itemInt1.scan(rawRecord, unit_system, unit_system);
     const auto deckIntItem2 = itemInt2.scan(rawRecord, unit_system, unit_system);
@@ -770,14 +773,14 @@ BOOST_AUTO_TEST_CASE(Scan_MalformedMultiplier_Throw) {
     ParserItem itemInt1("ITEM1", INT);
 
     UnitSystem unit_system;
-    RawRecord rawRecord( "2.10*30" );
+    RawRecord rawRecord( "2.10*30" , KeywordLocation("KW", "File", 100));
     BOOST_CHECK_THROW(itemInt1.scan(rawRecord, unit_system, unit_system), std::invalid_argument);
 }
 
 BOOST_AUTO_TEST_CASE(Scan_MalformedMultiplierChar_Throw) {
     ParserItem itemInt1("ITEM1", INT);
 
-    RawRecord rawRecord( "210X30" );
+    RawRecord rawRecord( "210X30" , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     BOOST_CHECK_THROW(itemInt1.scan(rawRecord, unit_system, unit_system), std::invalid_argument);
 }
@@ -786,7 +789,7 @@ BOOST_AUTO_TEST_CASE(Scan_MultipleWithMultiplierDefault_CorrectIntsSetInDeckItem
     ParserItem itemInt1("ITEM1", INT); itemInt1.setDefault(10);
     ParserItem itemInt2("ITEM2", INT); itemInt2.setDefault(20);
 
-    RawRecord rawRecord( "2*" );
+    RawRecord rawRecord( "2*" , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     const auto deckIntItem1 = itemInt1.scan(rawRecord, unit_system, unit_system);
     const auto deckIntItem2 = itemInt2.scan(rawRecord, unit_system, unit_system);
@@ -799,16 +802,16 @@ BOOST_AUTO_TEST_CASE(Scan_RawRecordErrorInRawData_ExceptionThrown) {
     ParserItem itemInt(std::string("ITEM2"), INT);
 
     // Wrong type
-    RawRecord rawRecord2( "333.2 /" );
+    RawRecord rawRecord2( "333.2 /" , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     BOOST_CHECK_THROW(itemInt.scan(rawRecord2, unit_system, unit_system), std::invalid_argument);
 
     // Wrong type
-    RawRecord rawRecord3( "100X /" );
+    RawRecord rawRecord3( "100X /" , KeywordLocation("KW", "File", 100));
     BOOST_CHECK_THROW(itemInt.scan(rawRecord3, unit_system, unit_system), std::invalid_argument);
 
     // Wrong type
-    RawRecord rawRecord5( "astring /" );
+    RawRecord rawRecord5( "astring /", KeywordLocation("KW", "File", 100) );
     BOOST_CHECK_THROW(itemInt.scan(rawRecord5, unit_system, unit_system), std::invalid_argument);
 }
 
@@ -836,21 +839,21 @@ BOOST_AUTO_TEST_CASE(InitializeStringItem_FromJsonObject_withDefaultInvalid_thro
 
 BOOST_AUTO_TEST_CASE(init_defaultvalue_defaultset) {
     ParserItem itemString(std::string("ITEM1"), STRING);
-    RawRecord rawRecord0( "'1*'" );
+    RawRecord rawRecord0( "'1*'" , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     itemString.setDefault(std::string("DEFAULT"));
     BOOST_CHECK_EQUAL("1*", itemString.scan( rawRecord0, unit_system, unit_system ).get< std::string >(0) );
 
-    RawRecord rawRecord1( "13*" );
+    RawRecord rawRecord1( "13*" , KeywordLocation("KW", "File", 100));
     BOOST_CHECK_EQUAL("DEFAULT" , itemString.scan( rawRecord1, unit_system, unit_system ).get< std::string >(0) );
 
-    RawRecord rawRecord2( "*" );
+    RawRecord rawRecord2( "*" , KeywordLocation("KW", "File", 100));
     BOOST_CHECK_EQUAL("DEFAULT", itemString.scan( rawRecord2, unit_system, unit_system ).get< std::string >(0) );
 }
 
 BOOST_AUTO_TEST_CASE(scan_all_valuesCorrect) {
     ParserItem itemString("ITEMWITHMANY", STRING);
-    RawRecord rawRecord( "'WELL1' FISK BANAN 3*X OPPLEGG_FOR_DATAANALYSE 'Foo$*!% BAR' " );
+    RawRecord rawRecord( "'WELL1' FISK BANAN 3*X OPPLEGG_FOR_DATAANALYSE 'Foo$*!% BAR' " , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     itemString.setSizeType( ParserItem::item_size::ALL );
     const auto deckItem = itemString.scan(rawRecord, unit_system, unit_system);
@@ -868,7 +871,7 @@ BOOST_AUTO_TEST_CASE(scan_all_valuesCorrect) {
 
 BOOST_AUTO_TEST_CASE(scan_all_withdefaults) {
     ParserItem itemString("ITEMWITHMANY", INT);
-    RawRecord rawRecord( "10*1 10* 10*2 " );
+    RawRecord rawRecord( "10*1 10* 10*2 " , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     itemString.setDefault(0);
     itemString.setSizeType( ParserItem::item_size::ALL );
@@ -894,7 +897,7 @@ BOOST_AUTO_TEST_CASE(scan_all_withdefaults) {
 
 BOOST_AUTO_TEST_CASE(scan_single_dataCorrect) {
     ParserItem itemString( "ITEM1", STRING);
-    RawRecord rawRecord( "'WELL1' 'WELL2'" );
+    RawRecord rawRecord( "'WELL1' 'WELL2'" , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     const auto deckItem = itemString.scan(rawRecord, unit_system, unit_system);
     BOOST_CHECK_EQUAL("WELL1", deckItem.get< std::string >(0));
@@ -904,7 +907,7 @@ BOOST_AUTO_TEST_CASE(scan_singleWithMixedRecord_dataCorrect) {
     ParserItem itemString("ITEM1", STRING);
     ParserItem itemInt("ITEM1", INT);
     UnitSystem unit_system;
-    RawRecord rawRecord( "2 'WELL1' /" );
+    RawRecord rawRecord( "2 'WELL1' /" , KeywordLocation("KW", "File", 100));
     itemInt.scan(rawRecord, unit_system, unit_system);
     const auto deckItem = itemString.scan(rawRecord, unit_system, unit_system);
     BOOST_CHECK_EQUAL("WELL1", deckItem.get< std::string >(0));
@@ -912,7 +915,7 @@ BOOST_AUTO_TEST_CASE(scan_singleWithMixedRecord_dataCorrect) {
 
 /******************String and int**********************/
 BOOST_AUTO_TEST_CASE(scan_intsAndStrings_dataCorrect) {
-    RawRecord rawRecord( "'WELL1' 2 2 2*3" );
+    RawRecord rawRecord( "'WELL1' 2 2 2*3" , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
     ParserItem itemSingleString(std::string("ITEM1"), STRING);
     const auto deckItemWell1 = itemSingleString.scan(rawRecord, unit_system, unit_system);
@@ -1054,18 +1057,18 @@ BOOST_AUTO_TEST_CASE(parse_validRecord_noThrow) {
     auto record = createSimpleParserRecord();
     ParseContext parseContext;
     ErrorGuard errors;
-    RawRecord raw( string_view( "100 443" ) );
+    RawRecord raw( std::string_view( "100 443" ), KeywordLocation("KW", "fle", 100) );
     UnitSystem unit_system;
-    BOOST_CHECK_NO_THROW(record.parse(parseContext, errors, raw , unit_system, unit_system, "KEYWORD", "filename") );
+    BOOST_CHECK_NO_THROW(record.parse(parseContext, errors, raw , unit_system, unit_system, KeywordLocation()) );
 }
 
 BOOST_AUTO_TEST_CASE(parse_validRecord_deckRecordCreated) {
     auto record = createSimpleParserRecord();
-    RawRecord rawRecord( string_view( "100 443" ) );
+    RawRecord rawRecord( std::string_view( "100 443") , KeywordLocation("KW", "fle", 100) );
     ParseContext parseContext;
     ErrorGuard errors;
     UnitSystem unit_system;
-    const auto deckRecord = record.parse(parseContext , errors, rawRecord, unit_system, unit_system, "KEYWORD", "filename");
+    const auto deckRecord = record.parse(parseContext , errors, rawRecord, unit_system, unit_system, KeywordLocation());
     BOOST_CHECK_EQUAL(2U, deckRecord.size());
 }
 
@@ -1093,11 +1096,11 @@ static ParserRecord createMixedParserRecord() {
 
 BOOST_AUTO_TEST_CASE(parse_validMixedRecord_noThrow) {
     auto record = createMixedParserRecord();
-    RawRecord rawRecord( string_view( "1 2 10.0 20.0 4 90.0") );
+    RawRecord rawRecord( std::string_view( "1 2 10.0 20.0 4 90.0"), KeywordLocation("KW", "fle", 100));
     ParseContext parseContext;
     ErrorGuard errors;
     UnitSystem unit_system;
-    BOOST_CHECK_NO_THROW(record.parse(parseContext, errors, rawRecord, unit_system, unit_system, "KEYWORD", "filename"));
+    BOOST_CHECK_NO_THROW(record.parse(parseContext, errors, rawRecord, unit_system, unit_system, KeywordLocation()));
 }
 
 BOOST_AUTO_TEST_CASE(Equal_Equal_ReturnsTrue) {
@@ -1143,7 +1146,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefault_defaultAppliedCorrectInDeck) {
     // according to the RM, this is invalid ("an asterisk by itself is not sufficient"),
     // but it seems to appear in the wild. Thus, we interpret this as "1*"...
     {
-        RawRecord rawRecord( "* " );
+        RawRecord rawRecord( "* " , KeywordLocation("KW", "File", 100));
         UnitSystem unit_system;
         const auto& deckStringItem = itemString.scan(rawRecord, unit_system, unit_system);
         const auto& deckIntItem = itemInt.scan(rawRecord, unit_system, unit_system);
@@ -1155,7 +1158,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefault_defaultAppliedCorrectInDeck) {
     }
 
     {
-        RawRecord rawRecord( "" );
+        RawRecord rawRecord( "" , KeywordLocation("KW", "File", 100));
         UnitSystem unit_system;
         const auto deckStringItem = itemString.scan(rawRecord, unit_system, unit_system);
         const auto deckIntItem = itemInt.scan(rawRecord, unit_system, unit_system);
@@ -1168,7 +1171,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefault_defaultAppliedCorrectInDeck) {
 
 
     {
-        RawRecord rawRecord( "TRYGVE 10 2.9 " );
+        RawRecord rawRecord( "TRYGVE 10 2.9 " , KeywordLocation("KW", "File", 100));
 
         // let the raw record be "consumed" by the items. Note that the scan() method
         // modifies the rawRecord object!
@@ -1184,7 +1187,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefault_defaultAppliedCorrectInDeck) {
 
     // again this is invalid according to the RM, but it is used anyway in the wild...
     {
-        RawRecord rawRecord( "* * *" );
+        RawRecord rawRecord( "* * *" , KeywordLocation("KW", "File", 100));
         UnitSystem unit_system;
         const auto deckStringItem = itemString.scan(rawRecord, unit_system, unit_system);
         const auto deckIntItem = itemInt.scan(rawRecord, unit_system, unit_system);
@@ -1196,7 +1199,7 @@ BOOST_AUTO_TEST_CASE(ParseWithDefault_defaultAppliedCorrectInDeck) {
     }
 
     {
-        RawRecord rawRecord(  "3*" );
+        RawRecord rawRecord(  "3*" , KeywordLocation("KW", "File", 100));
         UnitSystem unit_system;
         const auto deckStringItem = itemString.scan(rawRecord, unit_system, unit_system);
         const auto deckIntItem = itemInt.scan(rawRecord, unit_system, unit_system);
@@ -1221,15 +1224,15 @@ BOOST_AUTO_TEST_CASE(Parse_RawRecordTooManyItems_Throws) {
     parserRecord.addItem(itemK);
 
 
-    RawRecord rawRecord(  "3 3 3 " );
+    RawRecord rawRecord(  "3 3 3 " , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
-    BOOST_CHECK_NO_THROW(parserRecord.parse(parseContext, errors, rawRecord, unit_system, unit_system, "KEYWORD", "filename"));
+    BOOST_CHECK_NO_THROW(parserRecord.parse(parseContext, errors, rawRecord, unit_system, unit_system, KeywordLocation()));
 
-    RawRecord rawRecordOneExtra(  "3 3 3 4 " );
-    BOOST_CHECK_THROW(parserRecord.parse(parseContext, errors, rawRecordOneExtra, unit_system, unit_system, "KEYWORD", "filename"), std::invalid_argument);
+    RawRecord rawRecordOneExtra(  "3 3 3 4 " , KeywordLocation("KW", "File", 100));
+    BOOST_CHECK_THROW(parserRecord.parse(parseContext, errors, rawRecordOneExtra, unit_system, unit_system, KeywordLocation()), OpmInputError);
 
-    RawRecord rawRecordForgotRecordTerminator(  "3 3 3 \n 4 4 4 " );
-    BOOST_CHECK_THROW(parserRecord.parse(parseContext, errors, rawRecordForgotRecordTerminator, unit_system, unit_system, "KEYWORD", "filename"), std::invalid_argument);
+    RawRecord rawRecordForgotRecordTerminator(  "3 3 3 \n 4 4 4 ", KeywordLocation("KW", "file", 100) );
+    BOOST_CHECK_THROW(parserRecord.parse(parseContext, errors, rawRecordForgotRecordTerminator, unit_system, unit_system, KeywordLocation()), OpmInputError);
 
 }
 
@@ -1246,12 +1249,13 @@ BOOST_AUTO_TEST_CASE(Parse_RawRecordTooFewItems) {
 
     ParseContext parseContext;
     ErrorGuard errors;
-    RawRecord rawRecord(  "3 3  " );
+    RawRecord rawRecord(  "3 3  " , KeywordLocation("KW", "File", 100));
     UnitSystem unit_system;
+    KeywordLocation location;
     // no default specified for the third item, record can be parsed just fine but trying
     // to access the data will raise an exception...;
-    BOOST_CHECK_NO_THROW(parserRecord.parse(parseContext, errors, rawRecord, unit_system, unit_system, "KEWYORD", "filename"));
-    auto record = parserRecord.parse(parseContext, errors , rawRecord, unit_system, unit_system, "KEYWORD", "filename");
+    BOOST_CHECK_NO_THROW(parserRecord.parse(parseContext, errors, rawRecord, unit_system, unit_system, location));
+    auto record = parserRecord.parse(parseContext, errors , rawRecord, unit_system, unit_system, location);
     BOOST_CHECK_NO_THROW(record.getItem(2));
     BOOST_CHECK_THROW(record.getItem(2).get< int >(0), std::invalid_argument);
 }
@@ -1326,8 +1330,8 @@ BOOST_AUTO_TEST_CASE(ParserKeyword_withOtherSize_SizeTypeOTHER) {
     const auto& parserKeyword = createTable(keyword, "EQUILDIMS" , "NTEQUIL" , false);
     const auto& keyword_size = parserKeyword.getKeywordSize();
     BOOST_CHECK_EQUAL(OTHER_KEYWORD_IN_DECK , parserKeyword.getSizeType() );
-    BOOST_CHECK_EQUAL("EQUILDIMS", keyword_size.keyword );
-    BOOST_CHECK_EQUAL("NTEQUIL" , keyword_size.item );
+    BOOST_CHECK_EQUAL("EQUILDIMS", keyword_size.keyword() );
+    BOOST_CHECK_EQUAL("NTEQUIL" , keyword_size.item() );
 }
 
 BOOST_AUTO_TEST_CASE(ParserKeyword_validDeckName) {
@@ -1461,8 +1465,8 @@ BOOST_AUTO_TEST_CASE(ConstructFromJsonObject_withSizeOther) {
     BOOST_CHECK_EQUAL("BPR" , parserKeyword.getName());
     BOOST_CHECK_EQUAL( false , parserKeyword.hasFixedSize() );
     BOOST_CHECK_EQUAL(OTHER_KEYWORD_IN_DECK , parserKeyword.getSizeType());
-    BOOST_CHECK_EQUAL("Bjarne", keyword_size.keyword);
-    BOOST_CHECK_EQUAL("BjarneIgjen" , keyword_size.item );
+    BOOST_CHECK_EQUAL("Bjarne", keyword_size.keyword());
+    BOOST_CHECK_EQUAL("BjarneIgjen" , keyword_size.item() );
 }
 
 BOOST_AUTO_TEST_CASE(ConstructFromJsonObject_missingName_throws) {
@@ -1586,20 +1590,12 @@ BOOST_AUTO_TEST_CASE(getFixedSize_sizeObjectHasFixedSize_sizeReturned) {
 
 }
 
-BOOST_AUTO_TEST_CASE(getFixedSize_sizeObjectDoesNotHaveFixedSizeObjectSet_ExceptionThrown) {
-    const auto& parserKeyword = createDynamicSized("JA");
-    BOOST_CHECK_THROW(parserKeyword.getFixedSize(), std::logic_error);
-}
 
 BOOST_AUTO_TEST_CASE(hasFixedSize_hasFixedSizeObject_returnstrue) {
     const auto& parserKeyword = createFixedSized("JA", (size_t) 2);
     BOOST_CHECK(parserKeyword.hasFixedSize());
 }
 
-BOOST_AUTO_TEST_CASE(hasFixedSize_sizeObjectDoesNotHaveFixedSize_returnsfalse) {
-    const auto& parserKeyword = createDynamicSized("JA");
-    BOOST_CHECK(!parserKeyword.hasFixedSize());
-}
 
 /******/
 /* Tables: */
@@ -1611,29 +1607,28 @@ BOOST_AUTO_TEST_CASE(DefaultIsNot_TableKeyword) {
 BOOST_AUTO_TEST_CASE(ConstructorIsTableCollection) {
     auto parserKeyword = createTable("JA" , "TABDIMS" , "NTPVT" , true);
     BOOST_CHECK(parserKeyword.isTableCollection());
-    BOOST_CHECK(!parserKeyword.hasFixedSize());
 
     auto keyword_size = parserKeyword.getKeywordSize();
     BOOST_CHECK_EQUAL( parserKeyword.getSizeType() , OTHER_KEYWORD_IN_DECK);
-    BOOST_CHECK_EQUAL("TABDIMS", keyword_size.keyword );
-    BOOST_CHECK_EQUAL("NTPVT" , keyword_size.item);
+    BOOST_CHECK_EQUAL("TABDIMS", keyword_size.keyword() );
+    BOOST_CHECK_EQUAL("NTPVT" , keyword_size.item());
 }
 
 BOOST_AUTO_TEST_CASE(ParseEmptyRecord) {
     auto tabdimsKeyword = createFixedSized("TEST" , 1);
     ParserRecord record;
     ParserItem item("ITEM", INT);
-    RawKeyword rawkeyword( tabdimsKeyword.getName() , "FILE" , 10U , false, Raw::FIXED, 1);
+    RawKeyword rawkeyword( tabdimsKeyword.getName() , "FILE" , 10U , false, Raw::FIXED, {}, 1);
     ParseContext parseContext;
     ErrorGuard errors;
     UnitSystem unit_system;
 
     BOOST_CHECK_EQUAL( Raw::FIXED , rawkeyword.getSizeType());
-    rawkeyword.addRecord( RawRecord("") );
+    rawkeyword.addRecord( RawRecord("", KeywordLocation("KW", "File", 100)) );
     record.addItem(item);
     tabdimsKeyword.addRecord( record );
 
-    const auto deckKeyword = tabdimsKeyword.parse( parseContext, errors, rawkeyword , unit_system, unit_system, "filename");
+    const auto deckKeyword = tabdimsKeyword.parse( parseContext, errors, rawkeyword , unit_system, unit_system);
     BOOST_REQUIRE_EQUAL( 1U , deckKeyword.size());
 
     const auto& deckRecord = deckKeyword.getRecord(0);
@@ -1803,14 +1798,6 @@ BOOST_AUTO_TEST_CASE(GetDoubleRecordKeywordFromParser) {
 
 
 
-BOOST_AUTO_TEST_CASE(Create1Arg) {
-    ParserKeyword kw("GRID");
-    BOOST_CHECK_EQUAL( false , kw.hasDimension() );
-    BOOST_CHECK( kw.hasFixedSize() );
-    BOOST_CHECK_EQUAL( kw.getFixedSize( ) , 0 );
-
-    BOOST_CHECK_THROW( kw.getRecord( 0 ) , std::invalid_argument );
-}
 
 BOOST_AUTO_TEST_CASE(TestKeywordSizeEnum2String) {
     BOOST_CHECK_EQUAL( "SLASH_TERMINATED" , ParserKeywordSizeEnum2String(SLASH_TERMINATED));
@@ -1915,20 +1902,20 @@ AQUTAB
 
   Parser parser;
   const auto deck = parser.parseString( deck_string);
-  const auto& aqutab = deck.getKeyword("AQUTAB");
+  const auto& aqutab = deck["AQUTAB"].back();
   BOOST_CHECK_EQUAL( 1, aqutab.size());
 }
 
 
 BOOST_AUTO_TEST_CASE(ParseRAW_STRING) {
     const std::string deck_string = R"(UDQ
-   DEFINE 'WUBHP' 'P*X*' /
-   DEFINE 'WUBHP' 'P*X*' 5*(1 + LOG(WBHP)) /
+ DEFINE 'WUBHP' 'P*X*' /
+ DEFINE 'WUBHP' 'P*X*' 5*(1 + LOG(WBHP)) /
 /
 )";
     Parser parser;
     const auto deck = parser.parseString( deck_string);
-    const auto& udq = deck.getKeyword("UDQ");
+    const auto& udq = deck["UDQ"].back();
     const std::vector<std::string> expected0 = {"'P*X*'"};
     const std::vector<std::string> expected1 = {"'P*X*'", "5*(1", "+", "LOG(WBHP))"};
     const auto& data0 = RawString::strings( udq.getRecord(0).getItem("DATA").getData<RawString>() );
@@ -2020,7 +2007,7 @@ DENSITY
 
     BOOST_CHECK( deck.hasKeyword( "RSCONST" ) );
 
-    const auto& rsconst = deck.getKeyword("RSCONST");
+    const auto& rsconst = deck["RSCONST"].back();
     BOOST_CHECK_EQUAL( rsconst.size( ), 1 );
 
     const auto& rec = rsconst.getRecord( 0 );
@@ -2067,7 +2054,7 @@ DENSITY
 
     BOOST_CHECK( deck.hasKeyword( "RSCONST" ) );
 
-    const auto& rsconst = deck.getKeyword("RSCONST");
+    const auto& rsconst = deck["RSCONST"].back();
     BOOST_CHECK_EQUAL( rsconst.size( ), 1 );
 
     const auto& rec = rsconst.getRecord( 0 );
@@ -2123,7 +2110,7 @@ FIELD
       section in order to provoke the exception; if at some stage the opm parser
       treats section stricter this test might fail due to that reason instead.
     */
-    BOOST_CHECK_THROW( Parser{}.parseString(deck_string), std::invalid_argument);
+    BOOST_CHECK_THROW( Parser{}.parseString(deck_string), OpmInputError);
 }
 
 BOOST_AUTO_TEST_CASE(ParseRSConstT) {
@@ -2149,7 +2136,7 @@ DENSITY
 
     BOOST_CHECK( deck.hasKeyword( "RSCONSTT" ) );
 
-    const auto& rsconstt = deck.getKeyword( "RSCONSTT" );
+    const auto& rsconstt = deck[ "RSCONSTT" ].back();
     BOOST_CHECK_EQUAL( rsconstt.size( ), 2 );
 
     // First Record (ID = 0)
@@ -2237,9 +2224,9 @@ PLAT-B 15 /
     BOOST_CHECK( deck.hasKeyword("CECONT") );
     BOOST_CHECK( deck.hasKeyword("GCONSUMP") );
 
-    auto kw_density = deck.getKeyword("DENSITY");
+    auto kw_density = deck["DENSITY"].back();
 
-    auto kw = deck.getKeyword("CECONT");
+    auto kw = deck["CECONT"].back();
     BOOST_CHECK( kw.isDoubleRecordKeyword() );
 
     auto record00 = kw.getRecord(0);
@@ -2273,8 +2260,20 @@ BOOST_AUTO_TEST_CASE(ParseSpecialKeywords) {
     const auto deck_string = std::string { R"(RUNSPEC
 FIELD
 TABDIMS
-    2 /
+    2 3 /
 PROPS
+
+PARTTRAC
+   * 3 /
+
+TRACERKM
+   PT1 STANDARD  /
+   A O G /
+   1 2 3
+   4 5 6 /
+   1 2 3
+   4 5 6 /
+/
 
 ADSORP
 POLYMER /
@@ -2286,7 +2285,12 @@ ROCK
 3600.00 .40E-05 /
 3000 0 /
 
+SAVE
+  FORMATTED /
+
 SCHEDULE
+SAVE
+
 UDT
 -- here comes a comment
 -- and another comment
@@ -2312,9 +2316,196 @@ This keyword will not be finished
 Parser parser;
 auto deck = parser.parseString(deck_string);
 BOOST_CHECK( deck.hasKeyword("GCUTBACK") );
-auto kw = deck.getKeyword("GCUTBACK");
+auto kw = deck["GCUTBACK"].back();
 BOOST_CHECK_EQUAL( kw.size(), 2 );
 auto record = kw.getRecord(1);
 BOOST_CHECK_EQUAL( record.getItem(5).get<double>(0), 0.9 );
 BOOST_CHECK( !deck.hasKeyword("LANGMUIR") );
+ const auto& tracerkm = deck.get<ParserKeywords::TRACERKM>().back();
+BOOST_CHECK_EQUAL(tracerkm.size(), 5);
+ BOOST_CHECK_EQUAL(deck.count<ParserKeywords::SAVE>(), 2);
+}
+
+
+
+
+BOOST_AUTO_TEST_CASE(ParseLONGKeywords) {
+   Parser parser;
+   ParseContext parseContext;
+   ErrorGuard errors;
+   const auto deck_string = R"(
+GUIDERATE
+/
+)";
+
+   parseContext.update(ParseContext::PARSE_LONG_KEYWORD, Opm::InputError::THROW_EXCEPTION);
+   BOOST_CHECK_THROW(parser.parseString(deck_string, parseContext, errors), OpmInputError);
+
+   parseContext.update(ParseContext::PARSE_LONG_KEYWORD, Opm::InputError::IGNORE);
+   auto deck = parser.parseString(deck_string, parseContext, errors);
+   BOOST_CHECK( deck.hasKeyword("GUIDERAT") );
+}
+
+BOOST_AUTO_TEST_CASE(DynamicParser1) {
+    Parser parser(false);
+    ParserKeywords::Builtin builtin;
+    const auto deck_string = R"(
+GUIDERAT
+/
+)";
+
+    BOOST_CHECK_EQUAL( parser.size(), 0 );
+    parser.addParserKeyword( builtin.GUIDERAT );
+    BOOST_CHECK_EQUAL( parser.size(), 1 );
+    auto deck = parser.parseString(deck_string);
+    BOOST_CHECK( deck.hasKeyword("GUIDERAT") );
+}
+
+BOOST_AUTO_TEST_CASE(DynamicParser2) {
+    Parser parser(false);
+    ParserKeywords::Builtin builtin;
+    const auto deck_string = R"(
+GUIDERAT
+/
+)";
+
+    BOOST_CHECK_EQUAL( parser.size(), 0 );
+    parser.addParserKeyword( builtin["GUIDERAT"] );
+    BOOST_CHECK_EQUAL( parser.size(), 1 );
+    auto deck = parser.parseString(deck_string);
+    BOOST_CHECK( deck.hasKeyword("GUIDERAT") );
+}
+
+
+
+BOOST_AUTO_TEST_CASE(parseSections) {
+
+    Opm::Parser parser;
+
+    Opm::ParseContext parseContext;
+
+    parseContext.update(Opm::ParseContext::PARSE_EXTRA_DATA , Opm::InputError::IGNORE );
+    parseContext.update(Opm::ParseContext::PARSE_EXTRA_RECORDS , Opm::InputError::IGNORE );
+    parseContext.update(Opm::ParseContext::PARSE_RANDOM_SLASH , Opm::InputError::IGNORE );
+
+    const auto deck_all = parser.parseFile("./tests/SPE1CASE1.DATA", parseContext);
+
+    BOOST_CHECK_EQUAL( deck_all.size(), 79 );
+
+    std::vector<Opm::Ecl::SectionType> grid_section = {Opm::Ecl::GRID};
+    std::vector<Opm::Ecl::SectionType> props_section = {Opm::Ecl::PROPS};
+    std::vector<Opm::Ecl::SectionType> regions_section = {Opm::Ecl::REGIONS};
+    std::vector<Opm::Ecl::SectionType> solution_section = {Opm::Ecl::SOLUTION};
+    std::vector<Opm::Ecl::SectionType> summary_section = {Opm::Ecl::SUMMARY};
+    std::vector<Opm::Ecl::SectionType> schedule_section = {Opm::Ecl::SCHEDULE};
+
+    std::vector<Opm::Ecl::SectionType> test1 = {Opm::Ecl::PROPS, Opm::Ecl::SOLUTION};
+
+    const auto deck_grid = parser.parseFile("./tests/SPE1CASE1.DATA", parseContext, grid_section);
+    const auto deck_props = parser.parseFile("./tests/SPE1CASE1.DATA", parseContext, props_section);
+    const auto deck_regions = parser.parseFile("./tests/SPE1CASE1.DATA", parseContext, regions_section);
+    const auto deck_solution = parser.parseFile("./tests/SPE1CASE1.DATA", parseContext, solution_section);
+    const auto deck_summary = parser.parseFile("./tests/SPE1CASE1.DATA", parseContext, summary_section);
+    const auto deck_schecule = parser.parseFile("./tests/SPE1CASE1.DATA", parseContext, schedule_section);
+
+    const auto deck_test1 = parser.parseFile("./tests/SPE1CASE1.DATA", parseContext, test1);
+
+    BOOST_CHECK_EQUAL( deck_grid.size(), 25 );
+    BOOST_CHECK_EQUAL( deck_props.size(), 21 );
+    BOOST_CHECK_EQUAL( deck_regions.size(), 15 );
+    BOOST_CHECK_EQUAL( deck_solution.size(), 16 );
+    BOOST_CHECK_EQUAL( deck_summary.size(), 37 );
+    BOOST_CHECK_EQUAL( deck_schecule.size(), 30 );
+
+    BOOST_CHECK_EQUAL( deck_test1.size(), 24 );
+
+    const auto deck1b_all = parser.parseFile("./tests/SPE1CASE1B.DATA", parseContext);
+
+    BOOST_CHECK_EQUAL( deck1b_all.size(), 79 );
+
+
+    BOOST_CHECK_THROW(parser.parseFile("./tests/SPE1CASE1B.DATA", parseContext, grid_section), std::runtime_error);
+}
+
+
+BOOST_AUTO_TEST_CASE(ParserKeywordSize) {
+    // Default size: SLASH_TERMINATED and no special attributes
+    {
+        KeywordSize kw_size;
+
+        BOOST_CHECK(!kw_size.table_collection());
+        BOOST_CHECK(kw_size.size_type() == SLASH_TERMINATED);
+
+        auto min_size = kw_size.min_size();
+        BOOST_CHECK(!min_size.has_value());
+
+        auto max_size = kw_size.max_size();
+        BOOST_CHECK(!max_size.has_value());
+        BOOST_CHECK(!kw_size.code());
+    }
+
+    // Given from item in other keyword and no special attributes
+    {
+        KeywordSize kw_size("TABDIMS", "NTSFUN");
+
+        BOOST_CHECK(kw_size.size_type() == OTHER_KEYWORD_IN_DECK);
+
+        auto min_size = kw_size.min_size();
+        BOOST_CHECK(!min_size.has_value());
+
+        auto max_size = kw_size.max_size();
+        BOOST_CHECK(max_size.has_value());
+        BOOST_CHECK(max_size.value().index() == 1);
+        auto [kw, item] = std::get<1>(max_size.value());
+        BOOST_CHECK_EQUAL(kw, "TABDIMS");
+        BOOST_CHECK_EQUAL(item, "NTSFUN");
+
+        BOOST_CHECK_EQUAL(kw_size.size_shift(), 0);
+        BOOST_CHECK(!kw_size.table_collection());
+        BOOST_CHECK(!kw_size.code());
+    }
+
+    // Given from item in other keyword - with size shift.
+    {
+        KeywordSize kw_size("TABDIMS", "NTSFUN", false, 1);
+
+        BOOST_CHECK(kw_size.size_type() == OTHER_KEYWORD_IN_DECK);
+        BOOST_CHECK_EQUAL(kw_size.size_shift(), 1);
+        BOOST_CHECK(!kw_size.table_collection());
+    }
+
+    // Given from item in other keyword - table collection
+    {
+        KeywordSize kw_size("TABDIMS", "NTSFUN", true, 0);
+
+        BOOST_CHECK(kw_size.size_type() == OTHER_KEYWORD_IN_DECK);
+        BOOST_CHECK_EQUAL(kw_size.size_shift(), 0);
+        BOOST_CHECK(kw_size.table_collection());
+    }
+
+    // Specified fixed number
+    {
+        KeywordSize kw_size(4);
+
+        BOOST_CHECK(kw_size.size_type() == FIXED);
+        BOOST_CHECK_EQUAL(kw_size.size_shift(), 0);
+        BOOST_CHECK(!kw_size.table_collection());
+        BOOST_CHECK(!kw_size.code());
+
+        auto min_size = kw_size.min_size();
+        BOOST_CHECK(!min_size.has_value());
+    }
+
+    // Specified fixed code
+    {
+        KeywordSize kw_size(4, true);
+
+        BOOST_CHECK(kw_size.size_type() == FIXED_CODE);
+        BOOST_CHECK_EQUAL(kw_size.size_shift(), 0);
+        BOOST_CHECK(!kw_size.table_collection());
+        BOOST_CHECK(kw_size.code());
+
+        auto min_size = kw_size.min_size();
+        BOOST_CHECK(!min_size.has_value());
+    }
 }

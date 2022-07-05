@@ -4,7 +4,7 @@
 //
 // Created: Tue Jun  2 19:06:46 2009
 //
-// Author(s): Bård Skaflestad     <bard.skaflestad@sintef.no>
+// Author(s): BÃ¥rd Skaflestad     <bard.skaflestad@sintef.no>
 //            Atgeirr F Rasmussen <atgeirr@sintef.no>
 //
 // $Date$
@@ -142,7 +142,7 @@ namespace Opm {
 		    assignments.push_back(std::make_pair(name, value));
 		    continue;
 		}
-        	OpmLog::warning("Too many assignements  (' "
+                OpmLog::warning("Too many assignments  (' "
                 	        + ID_delimiter_assignment
 	                        + "') detected in argument " + to_string(i));
 	    }

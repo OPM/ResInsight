@@ -22,19 +22,21 @@
 #define BOOST_TEST_MODULE SimulationConfigTests
 
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Deck/DeckSection.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/C.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/SimulationConfig/SimulationConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/SimulationConfig/RockConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/common/utility/OpmInputError.hpp>
 
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/SimulationConfig/SimulationConfig.hpp>
+#include <opm/input/eclipse/EclipseState/SimulationConfig/RockConfig.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableManager.hpp>
+
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/C.hpp>
+
+#include <opm/input/eclipse/Deck/DeckSection.hpp>
 
 using namespace Opm;
 
@@ -97,15 +99,16 @@ const std::string& inputStr_cpr_BOTH = "RUNSPEC\n"
     "CPR\n"
     "well1 10 20 30/\n/\n";
 
-const std::string& inputStr_vap_dis = "RUNSPEC\n"
-                                      "VAPOIL\n"
-                                      "DISGAS\n"
-                                      "DIMENS\n"
-                                      "10 3 4 /\n"
-                                      "\n"
-                                      "GRID\n"
-                                      "REGIONS\n"
-                                      "\n";
+const std::string& inputStr_vap_dis = R"(
+RUNSPEC
+VAPOIL
+DISGAS
+VAPWAT
+DIMENS
+ 10 3 4 /
+GRID
+REGIONS
+)";
 
 namespace {
     std::string simDeckStringTEMP()
@@ -200,9 +203,9 @@ BOOST_AUTO_TEST_CASE(SimulationConfigCPRBoth) {
     BOOST_CHECK(  simulationConfig.useCPR());
     BOOST_CHECK(  summary.hasKeyword("CPR"));
 
-    const auto& cpr = summary.getKeyword<ParserKeywords::CPR>();
+    const auto& cpr = summary.get<ParserKeywords::CPR>().back();
     const auto& record = cpr.getRecord(0);
-    BOOST_CHECK_EQUAL( 1 , cpr.size());
+    BOOST_CHECK_EQUAL( 1U , cpr.size());
     BOOST_CHECK_EQUAL( record.getItem<ParserKeywords::CPR::WELL>().get< std::string >(0) , "well1");
     BOOST_CHECK_EQUAL( record.getItem<ParserKeywords::CPR::I>().get< int >(0) , 10);
     BOOST_CHECK_EQUAL( record.getItem<ParserKeywords::CPR::J>().get< int >(0) , 20);
@@ -211,28 +214,30 @@ BOOST_AUTO_TEST_CASE(SimulationConfigCPRBoth) {
 
 
 BOOST_AUTO_TEST_CASE(SimulationConfigCPRRUnspecWithData) {
-    BOOST_CHECK_THROW( createDeck(inputStr_INVALID) , std::invalid_argument );
+    BOOST_CHECK_THROW( createDeck(inputStr_INVALID) , Opm::OpmInputError );
 }
 
 
-BOOST_AUTO_TEST_CASE(SimulationConfig_VAPOIL_DISGAS) {
+BOOST_AUTO_TEST_CASE(SimulationConfig_VAPOIL_DISGAS_VAPWAT) {
+
+    EclipseGrid eg(10, 3, 4);
+
     auto deck = createDeck(inputStr);
     TableManager tm(deck);
-    EclipseGrid eg(10, 3, 4);
     FieldPropsManager fp(deck, Phases{true, true, true}, eg, tm);
     SimulationConfig simulationConfig(false, deck, fp);
     BOOST_CHECK_EQUAL( false , simulationConfig.hasDISGAS());
     BOOST_CHECK_EQUAL( false , simulationConfig.hasVAPOIL());
+    BOOST_CHECK_EQUAL( false , simulationConfig.hasVAPWAT());
 
     auto deck_vd = createDeck(inputStr_vap_dis);
-    TableManager tm_vd(deck_vd);
-    EclipseGrid eg_vd(10, 3, 4);
     FieldPropsManager fp_vd(deck_vd, Phases{true, true, true}, eg, tm);
     SimulationConfig simulationConfig_vd(false, deck_vd, fp_vd);
     BOOST_CHECK_EQUAL( true , simulationConfig_vd.hasDISGAS());
     BOOST_CHECK_EQUAL( true , simulationConfig_vd.hasVAPOIL());
+    BOOST_CHECK_EQUAL( true , simulationConfig_vd.hasVAPWAT());
+    
 }
-
 
 BOOST_AUTO_TEST_CASE(SimulationConfig_TEMP_THERMAL)
 {
@@ -275,6 +280,9 @@ RUNSPEC
 ROCKCOMP
 /
 
+TABDIMS
+  * 3 /
+
 PROPS
 
 ROCK
@@ -293,5 +301,5 @@ ROCKOPTS
     RockConfig rc(deck, fp);
     BOOST_CHECK_EQUAL(rc.rocknum_property(), "SATNUM");
     const auto& comp = rc.comp();
-    BOOST_CHECK_EQUAL(comp.size(), 3);
+    BOOST_CHECK_EQUAL(comp.size(), 3U);
 }

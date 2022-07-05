@@ -3,7 +3,7 @@
 #include <boost/test/unit_test.hpp>
 
 #include <opm/common/utility/String.hpp>
-#include <opm/parser/eclipse/Utility/Stringview.hpp>
+#include <opm/common/utility/shmatch.hpp>
 
 using namespace Opm;
 
@@ -41,145 +41,24 @@ BOOST_AUTO_TEST_CASE( uppercase_move ) {
 
 BOOST_AUTO_TEST_CASE( uppercase_mixed_type ) {
     std::string src = "string";
-    string_view view( src );
+    std::string_view view( src );
 
 
     std::string dst = "string";
     uppercase( view, dst );
     BOOST_CHECK_EQUAL( dst, "STRING" );
-    BOOST_CHECK_EQUAL( view, "string" );
+    BOOST_CHECK( view == "string" );
 }
 
 BOOST_AUTO_TEST_CASE( write_parts_of_dst ) {
     std::string src = "string";
-    string_view view( src );
+    std::string_view view( src );
 
 
     std::string dst = "stringmixed";
     uppercase( view, dst );
     BOOST_CHECK_EQUAL( dst, "STRINGmixed" );
-    BOOST_CHECK_EQUAL( view, "string" );
-}
-
-BOOST_AUTO_TEST_CASE(fullStringView) {
-    std::string srcstr = "lorem ipsum";
-    string_view view( srcstr );
-
-    BOOST_CHECK_EQUAL_COLLECTIONS(
-            srcstr.begin(), srcstr.end(),
-            view.begin(), view.end() );
-}
-
-BOOST_AUTO_TEST_CASE(viewCorrectSize) {
-    std::string srcstr = "lorem ipsum";
-
-    string_view full( srcstr );
-    BOOST_CHECK_EQUAL( srcstr.size(), full.size() );
-
-    string_view view( srcstr, 5 );
-    BOOST_CHECK_EQUAL( 5, view.size() );
-    BOOST_CHECK_EQUAL( 5, view.length() );
-}
-
-BOOST_AUTO_TEST_CASE(viewOperatorAt) {
-    std::string srcstr = "lorem ipsum";
-    string_view view( srcstr );
-
-    for( size_t i = 0; i < view.size(); ++i )
-        BOOST_CHECK_EQUAL( view[ i ], srcstr[ i ] );
-}
-
-BOOST_AUTO_TEST_CASE(viewFrontBack) {
-    std::string srcstr = "lorem ipsum";
-    string_view view( srcstr );
-
-    BOOST_CHECK_EQUAL( view.front(), 'l' );
-    BOOST_CHECK_EQUAL( view.back(), 'm' );
-}
-
-
-BOOST_AUTO_TEST_CASE(viewSubstr) {
-    std::string srcstr = "lorem ipsum";
-    string_view view( srcstr );
-
-    BOOST_CHECK_NO_THROW( view.string() );
-    BOOST_CHECK_EQUAL( srcstr, view.string() );
-    BOOST_CHECK_EQUAL( srcstr, view.substr() );
-    BOOST_CHECK_EQUAL( "", view.substr( 0, 0 ) );
-
-    BOOST_CHECK_EQUAL( srcstr.substr( 1 ), view.substr( 1 ) );
-    BOOST_CHECK_EQUAL( srcstr, view.substr( 0, srcstr.size() + 1 ));
-    BOOST_CHECK_EQUAL( "", view.substr( 1, 0 ));
-    BOOST_CHECK_EQUAL( "", view.substr( 0, 0 ) );
-
-    BOOST_CHECK_THROW( view.substr( srcstr.size() + 1 ), std::out_of_range );
-}
-
-BOOST_AUTO_TEST_CASE(viewStream) {
-    std::string srcstr = "lorem ipsum";
-    string_view view( srcstr );
-
-    std::stringstream str;
-    str << view;
-
-    BOOST_CHECK_EQUAL( srcstr, str.str() );
-}
-
-BOOST_AUTO_TEST_CASE(equalityOperators) {
-    std::string srcstr = "lorem ipsum";
-    std::string diffstr = "lorem";
-    string_view view( srcstr );
-
-    BOOST_CHECK_EQUAL( srcstr, view );
-    BOOST_CHECK_NE( diffstr, view );
-
-    BOOST_CHECK_EQUAL( view, srcstr );
-    BOOST_CHECK_NE( view, diffstr );
-
-    BOOST_CHECK_EQUAL( "lorem ipsum", view );
-    BOOST_CHECK_NE( "lorem", view );
-
-    BOOST_CHECK_EQUAL( view, "lorem ipsum" );
-    BOOST_CHECK_NE( view, "lorem" );
-}
-
-BOOST_AUTO_TEST_CASE(plusOperator) {
-    std::string total = "lorem ipsum";
-    std::string lhs = "lorem";
-    std::string ws = " ";
-    std::string rhs = "ipsum";
-
-    string_view lhs_view( lhs );
-    string_view rhs_view( rhs );
-
-    BOOST_CHECK_EQUAL( total, lhs_view + ws + rhs_view );
-    BOOST_CHECK_EQUAL( lhs + ws, lhs_view + ws );
-    BOOST_CHECK_EQUAL( ws + rhs, ws + rhs_view );
-}
-
-
-
-BOOST_AUTO_TEST_CASE(strncmp_function) {
-    std::string s = "A BB CCC DDDD";
-    string_view view(s);
-
-    BOOST_CHECK(!view.starts_with("this is a very long string -longer than the view"));
-    BOOST_CHECK(view.starts_with("A"));
-    BOOST_CHECK(view.starts_with("A BB"));
-    BOOST_CHECK(!view.starts_with("A BB D"));
-    BOOST_CHECK(view.starts_with(s));
-
-    BOOST_CHECK_EQUAL( view.find("A"), 0);
-    BOOST_CHECK_EQUAL( view.find("BB"), 2);
-    BOOST_CHECK_EQUAL( view.find("C"), 5);
-    BOOST_CHECK_EQUAL( view.find("CCCC"), std::string::npos);
-    BOOST_CHECK_EQUAL( view.find("DDDD"), 9);
-
-    BOOST_CHECK_EQUAL( view.find('A'), 0);
-    BOOST_CHECK_EQUAL( view.find('B'), 2);
-    BOOST_CHECK_EQUAL( view.find('C'), 5);
-    BOOST_CHECK_EQUAL( view.find('X'), std::string::npos);
-    BOOST_CHECK_EQUAL( view.find('D'), 9);
+    BOOST_CHECK( view == "string" );
 }
 
 
@@ -227,18 +106,47 @@ BOOST_AUTO_TEST_CASE(split) {
     std::string s1 = "lorem ipsum";
 
     auto split1 = split_string(s1, ' ');
-    BOOST_CHECK_EQUAL(split1.size(), 2);
+    BOOST_CHECK_EQUAL(split1.size(), 2U);
     BOOST_CHECK_EQUAL(split1[0], "lorem");
     BOOST_CHECK_EQUAL(split1[1], "ipsum");
 
     auto split2 = split_string(s1, "r ");
-    BOOST_CHECK_EQUAL(split2.size(), 3);
+    BOOST_CHECK_EQUAL(split2.size(), 3U);
     BOOST_CHECK_EQUAL(split2[0], "lo");
     BOOST_CHECK_EQUAL(split2[1], "em");
     BOOST_CHECK_EQUAL(split2[2], "ipsum");
 
     auto split3 = split_string(s1, "m ");
-    BOOST_CHECK_EQUAL(split3.size(), 2);
+    BOOST_CHECK_EQUAL(split3.size(), 2U);
     BOOST_CHECK_EQUAL(split3[0], "lore");
     BOOST_CHECK_EQUAL(split3[1], "ipsu");
 }
+
+
+BOOST_AUTO_TEST_CASE(parse_double) {
+    auto d1 = try_parse_double("NOT_NUMERIC");
+    BOOST_CHECK( !d1.has_value() );
+
+    auto d2 = try_parse_double("1.25X");
+    BOOST_CHECK( !d2.has_value() );
+
+    auto d3 = try_parse_double("-1.5");
+    BOOST_CHECK_EQUAL( d3.value(), -1.50 );
+}
+
+BOOST_AUTO_TEST_CASE(match_test) {
+    BOOST_CHECK( shmatch("NAME*", "NAME") );
+    BOOST_CHECK( shmatch("NAME*", "NAMEABC") );
+    BOOST_CHECK( !shmatch("NAME", "NONAMEABC") );
+    BOOST_CHECK( !shmatch("NAME?ABC", "NAMEABC") );
+    BOOST_CHECK( shmatch("NAME?ABC", "NAMEXABC") );
+    BOOST_CHECK( shmatch("NAME[0-9][0-9]", "NAME13") );
+    BOOST_CHECK( !shmatch("NAME[0-9][0-9]", "NAME13X") );
+    BOOST_CHECK( !shmatch("NAME[0-4][0-4]", "NAME77") );
+
+    BOOST_CHECK( shmatch("NAME.*", "NAME.EXT") );
+    BOOST_CHECK( !shmatch("NAME.?", "NAME.") );
+    BOOST_CHECK( !shmatch("NAME.*", "NAME") );
+}
+
+

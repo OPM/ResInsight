@@ -21,10 +21,11 @@
 #include <cstring>
 #include <stdexcept>
 #include <boost/test/unit_test.hpp>
+#include <opm/common/OpmLog/KeywordLocation.hpp>
 
-#include "src/opm/parser/eclipse/Parser/raw/RawEnums.hpp"
-#include "src/opm/parser/eclipse/Parser/raw/RawKeyword.hpp"
-#include "src/opm/parser/eclipse/Parser/raw/RawRecord.hpp"
+#include "src/opm/input/eclipse/Parser/raw/RawEnums.hpp"
+#include "src/opm/input/eclipse/Parser/raw/RawKeyword.hpp"
+#include "src/opm/input/eclipse/Parser/raw/RawRecord.hpp"
 
 
 using namespace Opm;
@@ -33,26 +34,26 @@ using namespace Opm;
 BOOST_AUTO_TEST_CASE(RawKeywordConstructor) {
     BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::FIXED), std::logic_error);
     BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::TABLE_COLLECTION), std::logic_error);
-    BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::TABLE_COLLECTION, 0), std::logic_error);
-    BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::SLASH_TERMINATED, 5), std::logic_error);
-    BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::UNKNOWN, 5), std::logic_error);
-    BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::CODE, 2), std::logic_error);
+    BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::TABLE_COLLECTION, {}, 0), std::logic_error);
+    BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::SLASH_TERMINATED, {}, 5), std::logic_error);
+    BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::UNKNOWN, {}, 5), std::logic_error);
+    BOOST_CHECK_THROW( RawKeyword("NAME", "file", 10, false, Raw::CODE, {}, 2), std::logic_error);
     RawKeyword kw1("NAME", "file", 10, false, Raw::SLASH_TERMINATED);
-    RawKeyword kw2("NAME", "file", 10, false, Raw::FIXED, 10);
-    RawKeyword kw3("NAME", "file", 10, false, Raw::TABLE_COLLECTION, 7);
+    RawKeyword kw2("NAME", "file", 10, false, Raw::FIXED, {}, 10);
+    RawKeyword kw3("NAME", "file", 10, false, Raw::TABLE_COLLECTION, {}, 7);
     RawKeyword kw4("NAME", "file", 10, false, Raw::CODE);
 }
 
 BOOST_AUTO_TEST_CASE(IsFinished) {
     std::string storage = "RecordString";
-    string_view line(storage);
-    RawRecord rec(line);
+    std::string_view line(storage);
+    RawRecord rec(line, KeywordLocation("KW", "file", 100 ));
 
-    RawKeyword kw1("NAME", "file", 10, false, Raw::FIXED, 0);
+    RawKeyword kw1("NAME", "file", 10, false, Raw::FIXED, {}, 0);
     BOOST_CHECK(kw1.isFinished());
 
     {
-        RawKeyword kw2("NAME", "file", 10, false, Raw::FIXED, 2);
+        RawKeyword kw2("NAME", "file", 10, false, Raw::FIXED, {}, 2);
         BOOST_CHECK(!kw2.isFinished());
 
         BOOST_CHECK(!kw2.addRecord(rec));
@@ -71,7 +72,7 @@ BOOST_AUTO_TEST_CASE(IsFinished) {
     }
 
     {
-        RawKeyword kw3("NAME", "file", 10, false, Raw::TABLE_COLLECTION, 2);
+        RawKeyword kw3("NAME", "file", 10, false, Raw::TABLE_COLLECTION, {}, 2);
         BOOST_CHECK(!kw3.isFinished());
 
         BOOST_CHECK(!kw3.terminateKeyword());

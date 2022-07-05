@@ -21,25 +21,32 @@
 
 #include <boost/test/unit_test.hpp>
 
+#include <memory>
 #include <vector>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/io/eclipse/OutputStream.hpp>
+#include <opm/io/eclipse/ERst.hpp>
+#include <opm/io/eclipse/RestartFileView.hpp>
+
+#include <opm/output/data/Wells.hpp>
 #include <opm/output/eclipse/WriteRestartHelpers.hpp>
 #include <opm/output/eclipse/AggregateWellData.hpp>
 #include <opm/output/eclipse/AggregateConnectionData.hpp>
 #include <opm/output/eclipse/AggregateGroupData.hpp>
-
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
 #include <opm/output/eclipse/VectorItems/intehead.hpp>
 #include <opm/output/eclipse/VectorItems/well.hpp>
 #include <opm/output/eclipse/WriteRestartHelpers.hpp>
 
-#include <opm/output/data/Wells.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Action/State.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellTestState.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
 #include <opm/io/eclipse/rst/connection.hpp>
 #include <opm/io/eclipse/rst/header.hpp>
@@ -47,6 +54,8 @@
 #include <opm/io/eclipse/rst/segment.hpp>
 #include <opm/io/eclipse/rst/well.hpp>
 #include <opm/io/eclipse/rst/state.hpp>
+
+#include <tests/WorkArea.hpp>
 
 namespace {
     Opm::Deck first_sim()
@@ -77,6 +86,12 @@ TOPS
 
 PORO
 1000*0.2 /
+PERMX
+1000*1 /
+PERMY
+1000*0.1 /
+PERMZ
+1000*0.01 /
 
 SOLUTION
 
@@ -190,25 +205,25 @@ struct SimulationCase
     explicit SimulationCase(const Opm::Deck& deck)
         : es    { deck }
         , grid  { deck }
-        , python{ std::make_shared<Opm::Python>() }
-        , sched { deck, es, python}
+        , sched { deck, es, std::make_shared<Opm::Python>() }
     {}
 
     // Order requirement: 'es' must be declared/initialised before 'sched'.
     Opm::EclipseState es;
     Opm::EclipseGrid  grid;
-    std::shared_ptr<Opm::Python> python;
     Opm::Schedule     sched;
+    Opm::Parser       parser;
 };
 
 // =====================================================================
+
 BOOST_AUTO_TEST_CASE(group_test) {
     const auto simCase = SimulationCase{first_sim()};
     const auto& units = simCase.es.getUnits();
     // Report Step 2: 2011-01-20 --> 2013-06-15
     const auto rptStep = std::size_t{2};
     const auto sim_step = rptStep - 1;
-    Opm::SummaryState sumState(std::chrono::system_clock::now());
+    Opm::SummaryState sumState(Opm::TimeService::now());
 
     const auto ih = Opm::RestartIO::Helpers::createInteHead(simCase.es,
                                                             simCase.grid,
@@ -223,6 +238,7 @@ BOOST_AUTO_TEST_CASE(group_test) {
     const auto dh = Opm::RestartIO::Helpers::createDoubHead(simCase.es,
                                                             simCase.sched,
                                                             sim_step,
+                                                            sim_step+1,
                                                             0, 0);
 
     auto groupData = Opm::RestartIO::Helpers::AggregateGroupData(ih);
@@ -238,7 +254,7 @@ BOOST_AUTO_TEST_CASE(group_test) {
     for (const auto& s8: zgrp8)
         zgrp.push_back(s8.c_str());
 
-    Opm::RestartIO::RstHeader header(ih,lh,dh);
+    Opm::RestartIO::RstHeader header(simCase.es.runspec(), unit_system,ih,lh,dh);
     for (int ig=0; ig < header.ngroup; ig++) {
         std::size_t zgrp_offset = ig * header.nzgrpz;
         std::size_t igrp_offset = ig * header.nigrpz;
@@ -246,6 +262,7 @@ BOOST_AUTO_TEST_CASE(group_test) {
         std::size_t xgrp_offset = ig * header.nxgrpz;
 
         Opm::RestartIO::RstGroup group(unit_system,
+                                       header,
                                        zgrp.data() + zgrp_offset,
                                        igrp.data() + igrp_offset,
                                        sgrp.data() + sgrp_offset,
@@ -259,7 +276,9 @@ BOOST_AUTO_TEST_CASE(State_test) {
     // Report Step 2: 2011-01-20 --> 2013-06-15
     const auto rptStep = std::size_t{4};
     const auto sim_step = rptStep - 1;
-    Opm::SummaryState sumState(std::chrono::system_clock::now());
+    Opm::SummaryState sumState(Opm::TimeService::now());
+    Opm::Action::State action_state;
+    Opm::WellTestState wtest_state;
 
     const auto ih = Opm::RestartIO::Helpers::createInteHead(simCase.es,
                                                             simCase.grid,
@@ -274,46 +293,75 @@ BOOST_AUTO_TEST_CASE(State_test) {
     const auto dh = Opm::RestartIO::Helpers::createDoubHead(simCase.es,
                                                             simCase.sched,
                                                             sim_step,
+                                                            sim_step+1,
                                                             0, 0);
 
     auto wellData = Opm::RestartIO::Helpers::AggregateWellData(ih);
-    wellData.captureDeclaredWellData(simCase.sched, units, sim_step, sumState, ih);
-    wellData.captureDynamicWellData(simCase.sched, sim_step, {} , sumState);
+    wellData.captureDeclaredWellData(simCase.sched, simCase.es.tracer(), sim_step, action_state, wtest_state, sumState, ih);
+    wellData.captureDynamicWellData(simCase.sched, simCase.es.tracer(), sim_step, {} , sumState);
 
     auto connectionData = Opm::RestartIO::Helpers::AggregateConnectionData(ih);
-    connectionData.captureDeclaredConnData(simCase.sched, simCase.grid, units, {} , sim_step);
+    connectionData.captureDeclaredConnData(simCase.sched, simCase.grid, units, {} , sumState, sim_step);
 
     auto groupData = Opm::RestartIO::Helpers::AggregateGroupData(ih);
     groupData.captureDeclaredGroupData(simCase.sched, units, sim_step, sumState, ih);
 
-    const auto& iwel = wellData.getIWell();
-    const auto& swel = wellData.getSWell();
-    const auto& xwel = wellData.getXWell();
-    const auto& zwel8 = wellData.getZWell();
+    {
+        WorkArea work_area("test_rstate");
+        std::string outputDir = "./";
+        std::string baseName = "TEST_UDQRST";
+        {
+            Opm::EclIO::OutputStream::Restart rstFile {Opm::EclIO::OutputStream::ResultSet {outputDir, baseName},
+                                                       rptStep,
+                                                       Opm::EclIO::OutputStream::Formatted {false},
+                                                       Opm::EclIO::OutputStream::Unified {true}};
+            rstFile.write("INTEHEAD", ih);
+            rstFile.write("DOUBHEAD", dh);
+            rstFile.write("LOGIHEAD", lh);
 
-    const auto& icon = connectionData.getIConn();
-    const auto& scon = connectionData.getSConn();
-    const auto& xcon = connectionData.getXConn();
+            const auto& iwel = wellData.getIWell();
+            const auto& swel = wellData.getSWell();
+            const auto& xwel = wellData.getXWell();
+            const auto& zwel8 = wellData.getZWell();
 
-    const auto& zgrp8 = groupData.getZGroup();
-    const auto& igrp = groupData.getIGroup();
-    const auto& sgrp = groupData.getSGroup();
-    const auto& xgrp = groupData.getXGroup();
+            const auto& icon = connectionData.getIConn();
+            const auto& scon = connectionData.getSConn();
+            const auto& xcon = connectionData.getXConn();
 
-    std::vector<std::string> zwel;
-    for (const auto& s8: zwel8)
-        zwel.push_back(s8.c_str());
+            const auto& zgrp8 = groupData.getZGroup();
+            const auto& igrp = groupData.getIGroup();
+            const auto& sgrp = groupData.getSGroup();
+            const auto& xgrp = groupData.getXGroup();
 
-    std::vector<std::string> zgrp;
-    for (const auto& s8: zgrp8)
-        zgrp.push_back(s8.c_str());
+            std::vector<std::string> zwel;
+            for (const auto& s8 : zwel8)
+                zwel.push_back(s8.c_str());
 
-    Opm::RestartIO::RstState state(units,
-                                   ih, lh, dh,
-                                   zgrp, igrp, sgrp, xgrp,
-                                   zwel, iwel, swel, xwel,
-                                   icon, scon, xcon);
+            std::vector<std::string> zgrp;
+            for (const auto& s8 : zgrp8)
+                zgrp.push_back(s8.c_str());
 
-    const auto& well = state.get_well("OP_3");
-    BOOST_CHECK_THROW(well.segment(10), std::invalid_argument);
+            rstFile.write("IWEL", iwel);
+            rstFile.write("SWEL", swel);
+            rstFile.write("XWEL", xwel);
+            rstFile.write("ZWEL", zwel);
+
+            rstFile.write("ICON", icon);
+            rstFile.write("SCON", scon);
+            rstFile.write("XCON", xcon);
+
+            rstFile.write("ZGRP", zgrp);
+            rstFile.write("IGRP", igrp);
+            rstFile.write("SGRP", sgrp);
+            rstFile.write("XGRP", xgrp);
+        }
+
+        auto rst_file = std::make_shared<Opm::EclIO::ERst>("TEST_UDQRST.UNRST");
+        auto rstView = std::make_shared<Opm::EclIO::RestartFileView>(std::move(rst_file), rptStep);
+
+        auto state = Opm::RestartIO::RstState::load(std::move(rstView), simCase.es.runspec(), simCase.parser);
+
+        const auto& well = state.get_well("OP_3");
+        BOOST_CHECK_THROW(well.segment(10), std::invalid_argument);
+    }
 }

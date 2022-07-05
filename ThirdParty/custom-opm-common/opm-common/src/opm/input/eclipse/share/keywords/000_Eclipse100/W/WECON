@@ -1,0 +1,115 @@
+{
+  "name": "WECON",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "MIN_OIL_PRODUCTION",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "item": 3,
+      "name": "MIN_GAS_PRODUCTION",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "item": 4,
+      "name": "MAX_WATER_CUT",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "item": 5,
+      "name": "MAX_GAS_OIL_RATIO",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "GasSurfaceVolume/LiquidSurfaceVolume"
+    },
+    {
+      "item": 6,
+      "name": "MAX_WATER_GAS_RATIO",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/GasSurfaceVolume"
+    },
+    {
+      "item": 7,
+      "name": "WORKOVER_RATIO_LIMIT",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "item": 8,
+      "name": "END_RUN_FLAG",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "item": 9,
+      "name": "FOLLOW_ON_WELL",
+      "value_type": "STRING",
+      "default": "'",
+      "comment": "Not supported"
+   },
+    {
+      "item": 10,
+      "name": "LIMITED_QUANTITY",
+      "value_type": "STRING",
+      "default": "RATE"
+    },
+    {
+      "item": 11,
+      "name": "SECOND_MAX_WATER_CUT",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported"
+    },
+    {
+      "item": 12,
+      "name": "WORKOVER_SECOND_WATER_CUT_LIMIT",
+      "value_type": "STRING",
+      "comment": "Not supported"
+    },
+    {
+      "item": 13,
+      "name": "MAX_GAS_LIQUID_RATIO",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "Not supported and no default - there should be no default"
+    },
+    {
+      "item": 14,
+      "name": "MIN_LIQUID_PRODCUTION_RATE",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time",
+      "comment": "Not supported - typo in name"
+    },
+    {
+      "item": 15,
+      "name": "MAX_TEMP",
+      "value_type": "DOUBLE",
+      "dimension": "Temperature",
+      "comment": "Not supported"
+    },
+    {
+      "item": 16,
+      "name": "MIN_RES_FLUID_RATE",
+      "value_type": "DOUBLE",
+      "dimension": "ReservoirVolume/Time",
+      "default": 0,
+      "comment": "Not supported"
+    }
+  ]
+}

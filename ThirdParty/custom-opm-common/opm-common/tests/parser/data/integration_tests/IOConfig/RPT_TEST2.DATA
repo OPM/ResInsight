@@ -43,7 +43,7 @@ RPTRST
 --NORST=1  --> output for visualization only 
 
 WELSPECS
-     'F-14A'    'FIELD'   12   85  99.00       'OIL'  7* /
+     'F-14A'    'G'   12   85  99.00       'OIL'  7* /
 /
 
 DATES
@@ -199,6 +199,9 @@ DATES
 DATES
  21 'AUG' 2001 /
 /
+
+SAVE
+
 DATES
  24 'AUG' 2001 /
 /

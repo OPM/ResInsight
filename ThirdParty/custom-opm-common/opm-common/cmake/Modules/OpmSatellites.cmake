@@ -338,7 +338,7 @@ macro(opm_add_test TestName)
       # has been specified to supervise the test binary, use it else
       # run the test binary "naked".
       if (CURTEST_DRIVER)
-        set(CURTEST_COMMAND ${CURTEST_DRIVER} ${CURTEST_DRIVER_ARGS} ${CURTEST_EXE_NAME} ${CURTEST_TEST_ARGS})
+        set(CURTEST_COMMAND ${CURTEST_DRIVER} ${CURTEST_DRIVER_ARGS} -e ${CURTEST_EXE_NAME} -- ${CURTEST_TEST_ARGS})
       else()
         set(CURTEST_COMMAND ${PROJECT_BINARY_DIR}/bin/${CURTEST_EXE_NAME})
         if (CURTEST_TEST_ARGS)

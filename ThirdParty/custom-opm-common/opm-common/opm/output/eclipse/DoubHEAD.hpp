@@ -28,6 +28,7 @@ namespace Opm {
     struct Tuning;
     class Schedule;
     class UDQParams;
+    class UnitSystem;
 }
 
 namespace Opm { namespace RestartIO {
@@ -51,6 +52,23 @@ namespace Opm { namespace RestartIO {
             double damping_fact;
         };
 
+        struct liftOptPar {
+            double min_int;
+            double incr;
+            double min_ec_grad;
+        };
+
+        struct NetBalanceParams {
+            explicit NetBalanceParams(const UnitSystem& usys);
+
+            double balancingInterval;
+            double convTolNodPres;
+            double convTolTHPCalc;
+            double targBranchBalError;
+            double maxBranchBalError;
+            double minTimeStepSize;
+        };
+
         DoubHEAD();
 
         ~DoubHEAD() = default;
@@ -72,6 +90,8 @@ namespace Opm { namespace RestartIO {
 
         DoubHEAD& udq_param(const UDQParams& udqPar);
         DoubHEAD& guide_rate_param(const guideRate& guide_rp);
+        DoubHEAD& lift_opt_param(const liftOptPar& lo_par);
+        DoubHEAD& netBalParams(const NetBalanceParams& net_bal_par);
 
         const std::vector<double>& data() const
         {

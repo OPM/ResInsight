@@ -1,0 +1,87 @@
+{
+  "name": "GCONINJE",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "PHASE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 3,
+      "name": "CONTROL_MODE",
+      "value_type": "STRING",
+      "default": "NONE"
+    },
+    {
+      "item": 4,
+      "name": "SURFACE_TARGET",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "item": 5,
+      "name": "RESV_TARGET",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "ReservoirVolume/Time"
+    },
+    {
+      "item": 6,
+      "name": "REINJ_TARGET",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "1"
+    },
+    {
+      "item": 7,
+      "name": "VOIDAGE_TARGET",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "1"
+    },
+    {
+      "item": 8,
+      "name": "RESPOND_TO_PARENT",
+      "value_type": "STRING",
+      "default": "YES"
+    },
+    {
+      "item": 9,
+      "name": "GUIDE_RATE",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "dimension": "1"
+    },
+    {
+      "item": 10,
+      "name": "GUIDE_RATE_DEF",
+      "value_type": "STRING",
+      "comment": "Only RATE, NETV and VOID supported"
+    },
+    {
+      "item": 11,
+      "name": "REINJECT_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "item": 12,
+      "name": "VOIDAGE_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "item": 13,
+      "name": "WETGAS_TARGET",
+      "value_type": "DOUBLE",
+      "dimension": "GasSurfaceVolume/Time",
+      "comment": "This item is ECLIPSE300 specific"
+    }
+  ]
+}

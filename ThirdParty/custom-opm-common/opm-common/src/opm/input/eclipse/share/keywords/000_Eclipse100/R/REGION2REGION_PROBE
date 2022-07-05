@@ -1,0 +1,17 @@
+{
+  "name": "REGION2REGION_PROBE",
+  "sections": [
+    "SUMMARY"
+  ],
+  "deck_name_regex": "(R[OG]FT[GL]?|RWFT)(_?[A-Z0-9_]{3})?",
+  "items": [
+    {
+      "name": "REGION1",
+      "value_type": "INT"
+    },
+    {
+      "name": "REGION2",
+      "value_type": "INT"
+    }
+  ]
+}

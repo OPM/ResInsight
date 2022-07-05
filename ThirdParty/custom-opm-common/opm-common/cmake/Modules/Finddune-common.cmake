@@ -19,7 +19,9 @@ find_opm_package (
   "BLAS REQUIRED;
   LAPACK REQUIRED;
   CxaDemangle;
-  MPI
+  MPI;
+  TBB;
+  GMP
   "
   # header to search for
   "dune/common/fvector.hh"
@@ -28,7 +30,7 @@ find_opm_package (
   "dunecommon"
 
   # defines to be added to compilations
-  "DUNE_COMMON_FIELDVECTOR_SIZE_IS_METHOD=1"
+  ""
 
   # test program
 "#include <dune/common/fvector.hh>

@@ -1,0 +1,11 @@
+{
+  "name": "DYV",
+  "sections": [
+    "GRID"
+  ],
+  "prohibits" : ["DY"],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "Length"
+  }
+}

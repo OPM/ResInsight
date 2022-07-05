@@ -23,20 +23,28 @@
 #include <boost/test/unit_test.hpp>
 
 #include <stdexcept>
+#include <unordered_set>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
 #include <opm/output/eclipse/RegionCache.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 #include <opm/output/eclipse/RegionCache.hpp>
 
 using namespace Opm;
 
 const char* path = "summary_deck.DATA";
+
+bool cmp_list(const std::vector<std::string>& l1, const std::vector<std::string>& l2) {
+    std::unordered_set<std::string> s1(l1.begin(), l1.end());
+    std::unordered_set<std::string> s2(l2.begin(), l2.end());
+    return s1 == s2;
+}
+
 
 
 BOOST_AUTO_TEST_CASE(create) {
@@ -46,19 +54,25 @@ BOOST_AUTO_TEST_CASE(create) {
     EclipseState es(deck);
     const EclipseGrid& grid = es.getInputGrid();
     Schedule schedule( deck, es, python);
-    out::RegionCache rc(es.fieldProps().get_int("FIPNUM"), grid, schedule);
+    out::RegionCache rc({"FIPNUM"}, es.fieldProps(), grid, schedule);
     {
-        const auto& empty = rc.connections( 4 );
-        BOOST_CHECK_EQUAL( empty.size() , 0 );
+        const auto& empty = rc.connections( "FIPNUM", 4 );
+        BOOST_CHECK_EQUAL( empty.size() , 0U );
     }
 
     {
-        const auto& top_layer = rc.connections( 1 );
-        BOOST_CHECK_EQUAL( top_layer.size() , 3 );
+        const auto& top_layer = rc.connections(  "FIPNUM", 1 );
+        BOOST_CHECK_EQUAL( top_layer.size() , 4U );
         {
             auto pair = top_layer[0];
             BOOST_CHECK_EQUAL( pair.first , "W_1");
             BOOST_CHECK_EQUAL( pair.second , grid.activeIndex( 0,0,0));
         }
     }
+
+    BOOST_CHECK( rc.wells("FIPXYZ", 100).empty() );
+    BOOST_CHECK( rc.wells("FIPXYZ", 1).empty() );
+    BOOST_CHECK( rc.wells("FIPNUM", 100).empty() );
+    BOOST_CHECK( cmp_list(rc.wells("FIPNUM", 1),  {"W_1", "W_2", "W_3", "W_4"}));
+    BOOST_CHECK( cmp_list(rc.wells("FIPNUM", 11), {"W_6"}));
 }

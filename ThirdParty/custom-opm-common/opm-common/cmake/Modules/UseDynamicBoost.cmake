@@ -1,4 +1,11 @@
-find_package (Boost 1.44.0 COMPONENTS unit_test_framework QUIET)
+# When using Boost >= 1.70 and e.g. CMake 3.18 we need to make sure that
+# subsequent searches are using config mode too. Otherwise the library
+# list will be completely messed up. We use a set Boost_Dir to detect that
+# previous searches were done using config mode.
+if(Boost_DIR)
+  set(_Boost_CONFIG_MODE CONFIG)
+endif()
+find_package (Boost 1.44.0 COMPONENTS unit_test_framework QUIET ${_Boost_CONFIG_MODE})
 
 if (Boost_UNIT_TEST_FRAMEWORK_FOUND)
   # setup to do a test compile

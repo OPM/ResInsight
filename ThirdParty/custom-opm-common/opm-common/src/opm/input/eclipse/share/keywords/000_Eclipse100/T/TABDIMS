@@ -1,0 +1,159 @@
+{
+  "name": "TABDIMS",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "NTSFUN",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 2,
+      "name": "NTPVT",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 3,
+      "name": "NSSFUN",
+      "value_type": "INT",
+      "default": 20
+    },
+    {
+      "item": 4,
+      "name": "NPPVT",
+      "value_type": "INT",
+      "default": 20
+    },
+    {
+      "item": 5,
+      "name": "NTFIP",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 6,
+      "name": "NRPVT",
+      "value_type": "INT",
+      "default": 20
+    },
+    {
+      "item": 7,
+      "name": "MAX_RV_NODES",
+      "value_type": "INT",
+      "default": 20,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 8,
+      "name": "NTENDP",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 9,
+      "name": "NUM_EOS_RES",
+      "value_type": "INT",
+      "default": 1,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 10,
+      "name": "NUM_EOS_SURFACE",
+      "value_type": "INT",
+      "default": 1,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 11,
+      "name": "MAX_FLUX_REGIONS",
+      "value_type": "INT",
+      "default": 10
+    },
+    {
+      "item": 12,
+      "name": "MAX_THERMAL_REGIONS",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 13,
+      "name": "NTROCC",
+      "value_type": "INT"
+    },
+    {
+      "item": 14,
+      "name": "MAX_PRESSURE_MAINTAINANCE_REGIONS",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 15,
+      "name": "MAX_KVALUE_TABLES",
+      "value_type": "INT",
+      "default": 0,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 16,
+      "name": "NTALPHA",
+      "value_type": "INT"
+    },
+    {
+      "item": 17,
+      "name": "ASPHALTENE_ASPKDAM_MAX_ROWS",
+      "value_type": "INT",
+      "default": 10
+    },
+    {
+      "item": 18,
+      "name": "ASPHALTENE_ASPREWG_MAX_ROWS",
+      "value_type": "INT",
+      "default": 10
+    },
+    {
+      "item": 19,
+      "name": "ASPHALTENE_ASPVISO_MAX_ROWS",
+      "value_type": "INT",
+      "default": 10
+    },
+    {
+      "item": 20,
+      "name": "ITEM20_NOT_USED",
+      "value_type": "STRING"
+    },
+    {
+      "item": 21,
+      "name": "ASPHALTENE_ASPPW2D_MAX_COLUMNS",
+      "value_type": "INT",
+      "default": 5
+    },
+    {
+      "item": 22,
+      "name": "ASPHALTENE_ASPPW2D_MAX_ROWS",
+      "value_type": "INT",
+      "default": 5
+    },
+    {
+      "item": 23,
+      "name": "ASPHALTENE_ASPWETF_MAX_ROWS",
+      "value_type": "INT",
+      "default": 5
+    },
+    {
+      "item": 24,
+      "name": "NUM_KVALUE_TABLES",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 25,
+      "name": "RESERVED",
+      "value_type": "STRING"
+    }
+  ]
+}

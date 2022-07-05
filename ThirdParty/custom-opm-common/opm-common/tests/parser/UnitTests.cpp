@@ -19,9 +19,9 @@
 
 #define BOOST_TEST_MODULE UnitTests
 
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
-#include <opm/parser/eclipse/Units/Dimension.hpp>
-#include <opm/parser/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/Dimension.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
 
 #include <boost/test/unit_test.hpp>
 

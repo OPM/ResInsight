@@ -18,18 +18,20 @@
 */
 #include <getopt.h>
 
-#include <iostream>
-#include <iomanip>
 #include <vector>
+#include <iostream>
+#include <sstream>
+#include <cstdlib>
+#include <fmt/format.h>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
 
 
 struct keyword {
@@ -49,7 +51,7 @@ struct keyword {
 };
 
 
-std::vector<keyword> load_deck(const char * deck_file) {
+std::vector<keyword> load_deck(const std::string& deck_file) {
     Opm::ParseContext parseContext;
     Opm::ErrorGuard errors;
     Opm::Parser parser;
@@ -73,7 +75,7 @@ std::vector<keyword> load_deck(const char * deck_file) {
 }
 
 
-std::size_t deck_hash(const std::vector<keyword>& keywords) {
+std::size_t make_deck_hash(const std::vector<keyword>& keywords) {
     std::stringstream ss;
     for (const auto& kw : keywords)
         ss << kw.content_hash;
@@ -82,15 +84,14 @@ std::size_t deck_hash(const std::vector<keyword>& keywords) {
 }
 
 
-void print_keywords(const std::vector<keyword>& keywords, bool location_info) {
+void print_keywords(const std::vector<keyword>& keywords, std::size_t deck_hash, bool location_info) {
     for (const auto& kw : keywords) {
         if (location_info)
-            std::cout << std::setw(8) << std::left << kw.name << " : " << kw.filename << ":" << kw.line_number << " " << kw.content_hash << std::endl;
+            fmt::print("{:8s} : {}:{} {} \n", kw.name, kw.filename, kw.line_number, kw.content_hash);
         else
-            std::cout << std::setw(8) << std::left << kw.name << " : " << kw.content_hash << std::endl;
+            fmt::print("{:8s} : {} \n", kw.name, kw.content_hash);
     }
-    std::cout << std::endl;
-    std::cout << std::setw(8) << std::left << "Total" << " : " << deck_hash(keywords) << std::endl;
+    fmt::print("\n{:8s} : {}\n", "Total", deck_hash);
 }
 
 
@@ -119,6 +120,12 @@ Options:
 
  -l : Add filename and linenumber information to each keyword.
  -s : Short form - only print the hash of the complete deck.
+ -S : Silent form - will not print any deck output.
+
+It is possible to add multiple deck arguments, they are then scanned repeatedly,
+and the decks are compared. In the case of multiple deck arguments the exit
+status of the program will be zero if all are equal and nonzero in case of
+differences.
 
 )";
     std::cerr << help_text << std::endl;
@@ -130,10 +137,11 @@ int main(int argc, char** argv) {
     int arg_offset = 1;
     bool location_info = false;
     bool short_form = false;
+    bool silent = false;
 
     while (true) {
         int c;
-        c = getopt(argc, argv, "ls");
+        c = getopt(argc, argv, "lsS");
         if (c == -1)
             break;
 
@@ -144,16 +152,53 @@ int main(int argc, char** argv) {
         case 's':
             short_form = true;
             break;
+        case 'S':
+            silent = true;
+            break;
         }
     }
     arg_offset = optind;
     if (arg_offset >= argc)
         print_help_and_exit();
 
-    auto keywords = load_deck(argv[arg_offset]);
-    if (short_form)
-        std::cout << deck_hash(keywords) << std::endl;
-    else
-        print_keywords(keywords, location_info);
+
+    std::vector<std::pair<std::string, std::size_t>> deck_hash_table;
+    for (int iarg = arg_offset; iarg < argc; iarg++) {
+        const std::string deck_file = argv[iarg];
+        auto keywords = load_deck(deck_file);
+        auto deck_hash = make_deck_hash(keywords);
+        deck_hash_table.emplace_back(deck_file, deck_hash);
+        if (silent)
+            continue;
+
+        if (short_form)
+            std::cout << deck_hash << std::endl;
+        else
+            print_keywords(keywords, deck_hash, location_info);
+    }
+
+    if (deck_hash_table.size() > 1) {
+        bool equal = true;
+        const auto& [first_deck, first_hash] = deck_hash_table[0];
+        for (std::size_t index = 1; index < deck_hash_table.size(); index++) {
+            const auto& [deck, hash] = deck_hash_table[index];
+            if (first_hash != hash)
+                equal = false;
+
+            if (silent)
+                continue;
+
+            fmt::print("{} {} {}\n",
+                       first_deck,
+                       (first_hash == hash) ? "==" : "!=",
+                       deck);
+        }
+
+        if (equal)
+            std::exit(EXIT_SUCCESS);
+        else
+            std::exit(EXIT_FAILURE);
+    }
+
 }
 

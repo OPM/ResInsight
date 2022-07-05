@@ -1,0 +1,63 @@
+.TH COMPAREECL "1" "April 2022" "compareECL 2022.04" "User Commands"
+.SH NAME
+compareECL \- Comparator for Eclipse files
+.SH DESCRIPTION
+compareECL compares ECLIPSE files (restart (.RST), unified restart (.UNRST), initial (.INIT), summary (.SMRY), unified summary (.UNSMRY) or .RFT) and gridsizes (from .EGRID or .GRID file) from two simulations.
+The program takes four arguments:
+.PP
+1. Case number 1, reference case (full path without extension)
+2. Case number 2, test case (full path without extension)
+3. Absolute tolerance
+4. Relative tolerance (between 0 and 1)
+.PP
+.SH OPTIONS
+.HP
+In addition, the program takes these options (which must be given before the arguments):
+.PP
+\fB\-a\fR Run a full analysis of errors.
+.TP
+\fB\-h\fR Print help and exit.
+.TP
+\fB\-d\fR Use report steps only when comparing results from summary files.
+.TP
+\fB\-i\fR Execute integration test (regression test is default).
+.IP
+The integration test compares SGAS, SWAT and PRESSURE in unified restart files, and WOPR, WGPR, WWPR and WBHP (all wells) in summary file.
+.PP
+\fB\-k\fR Specify specific keyword to compare (capitalized), for examples \fB\-k\fR PRESSURE or \fB\-k\fR WOPR:A\-1H
+.TP
+\fB\-l\fR Only do comparison for the last Report Step. This option is only valid for restart files.
+.TP
+\fB\-n\fR Do not throw on errors.
+.TP
+\fB\-p\fR Print keywords in both cases and exit.
+.TP
+\fB\-r\fR compare a spesific report time step number in a restart file.
+.TP
+\fB\-t\fR Specify ECLIPSE filetype to compare, (default behaviour is that all files are compared if found). Different possible arguments are:
+.IP
+\fB\-t\fR UNRST
+Compare two unified restart files (.UNRST). This the default value, so it is the same as not passing option \fB\-t\fR.
+.IP
+\fB\-t\fR EGRID
+Compare two EGrid files (.EGRID).
+.IP
+\fB\-t\fR INIT
+Compare two initial files (.INIT).
+.IP
+\fB\-t\fR RFT
+Compare two RFT files (.RFT).
+.IP
+\fB\-t\fR SMRY
+Compare two cases consistent of (unified) summary files.
+.PP
+\fB\-x\fR Allow extra keywords in case number 2. These additional keywords (not found in case number1) will be ignored in the comparison.
+.PP
+.SH Example usage of the program:
+.PP
+compareECL \fB\-k\fR PRESSURE <path to first casefile> <path to second casefile> 1e\-3 1e\-5
+compareECL \fB\-t\fR INIT \fB\-k\fR PORO <path to first casefile> <path to second casefile> 1e\-3 1e\-5
+compareECL \fB\-i\fR <path to first casefile> <path to second casefile> 0.01 1e\-6
+.PP
+Exceptions are thrown (and hence program exits) when deviations are larger than the specified tolerances, or when the number of cells does not match \fB\-\-\fR either in the grid file or for a specific keyword. Information about the keyword, keyword occurrence (zero based) and cell coordinate is printed when an exception is thrown. For more information about how the cases are compared, see the documentation of the EclFilesComparator class.
+

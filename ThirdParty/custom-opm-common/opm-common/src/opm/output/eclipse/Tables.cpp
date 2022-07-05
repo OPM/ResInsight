@@ -21,22 +21,22 @@
 
 #include <opm/output/eclipse/Tables.hpp>
 
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/FlatTable.hpp> // PVTW, PVCDO
-#include <opm/parser/eclipse/EclipseState/Tables/PvdgTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PvdoTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PvtgTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/PvtoTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SgfnTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SgofTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/Sof2Table.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/Sof3Table.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SwfnTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SwofTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/Tabdims.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableContainer.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/FlatTable.hpp> // PVTW, PVCDO, SWOFLET, SGOFLET
+#include <opm/input/eclipse/EclipseState/Tables/PvdgTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/PvdoTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/PvtgTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/PvtoTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SgfnTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SgofTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/Sof2Table.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/Sof3Table.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SwfnTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SwofTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/Tabdims.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableContainer.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 #include <opm/output/eclipse/VectorItems/tabdims.hpp>
 #include <opm/output/eclipse/LinearisedOutputTable.hpp>
@@ -49,6 +49,7 @@
 #include <numeric>
 #include <utility>
 #include <vector>
+#include <cmath>
 
 using Ix = ::Opm::RestartIO::Helpers::VectorItems::TabDims::index;
 
@@ -232,7 +233,7 @@ namespace { namespace SatFunc {
             std::transform(begin, end, dest,
                 [tolcrit](const double kr) -> double
             {
-                return (kr < tolcrit) ? 0.0 : kr;
+                return (kr > tolcrit) ? kr : 0.0;
             });
         }
 
@@ -341,6 +342,7 @@ namespace { namespace SatFunc {
                 return numActRows;
             });
         }
+
 
         /// Create linearised and padded 'TAB' vector entries of normalised
         /// SGFN tables for all saturation function regions from Family One
@@ -1163,6 +1165,196 @@ namespace { namespace SatFunc {
             });
         }
     } // Water
+
+
+    /// Functions to create linearised, padded, and normalised SGFN/SWFN
+    /// output tables from LET representation of saturation functions.
+    namespace SampleLET {
+
+        /// Create linearised and padded 'TAB' vector entries of normalised
+        /// SGFN/SWFN tables for all saturation function regions from Family
+        /// One table data.
+        ///
+        /// \param[in] numRows Number of rows to allocate in the output
+        ///    vector for each table.  Expected to be equal to the number of
+        ///    declared saturation nodes in the simulation run's TABDIMS
+        ///    keyword (Item 3).
+        ///
+        /// \param tolcrit Minimum relative permeability threshold value for
+        ///    phase to be considered mobile.  Values less than this threshold
+        ///    are output as zero.
+        ///
+        /// \param[in] units Active unit system.  Needed to convert SI
+        ///    convention capillary pressure values (Pascal) to declared
+        ///    conventions of the run specification.
+        ///
+        /// \param[in] paramLET LET parameters for all saturation regions.
+        ///
+        /// \return Linearised and padded 'TAB' vector values sampled from LET.
+        ///    Unit-converted pc. Derivatives for all curves.
+        template <typename ParamLET>
+        std::vector<double>
+        sampleLET(const std::size_t          numRows,
+                  const double               tolcrit,
+                  const Opm::UnitSystem&     units,
+                  const ParamLET&            paramLET)
+        {
+
+           std::vector<double> letTab(5*numRows*paramLET.size(), +2.0e20);
+
+           int offset = numRows*paramLET.size();
+
+           const auto uPress = ::Opm::UnitSystem::measure::pressure;
+
+           for (size_t k=0; k<paramLET.size(); ++k) {
+               const auto let = paramLET[k];
+
+               const double sMin = let.s1_residual;
+               const double sMax = 1.0-let.s2_residual;
+               const double ds = (sMax-sMin)/(numRows-1);
+               for (size_t i=0; i<numRows; ++i) {
+                   const double S = sMin+i*ds;
+
+                   double Kr = 0.0;
+                   if (S > let.s1_critical) {
+                       const double Ss = std::min(1.0, (S-let.s1_critical)/(1.0 - let.s1_critical - let.s2_critical));
+                       const double powS = std::pow(Ss,let.l1_relperm);
+                       const double pow1mS = std::pow(1.0-Ss,let.t1_relperm);
+                       Kr = let.krt1_relperm*powS/(powS+pow1mS*let.e1_relperm);
+                       Kr = (Kr > tolcrit) ? Kr : 0.0;
+                   }
+
+                   const double Ss = std::min(1.0, (S-let.s1_residual)/(1.0 - let.s1_residual - let.s2_residual));
+                   const double powS = std::pow(Ss,let.l_pc);
+                   const double pow1mS = std::pow(1.0-Ss,let.t_pc);
+                   const double Pc = let.pct_pc+(let.pcir_pc-let.pct_pc)*pow1mS/(pow1mS+powS*let.e_pc);
+
+                   letTab[k*numRows+i] = S;
+                   letTab[offset+k*numRows+i] = Kr;
+                   letTab[2*offset+k*numRows+i] = units.from_si(uPress, Pc); //Pc;
+
+                   if (i>0) {
+                       letTab[3*offset+k*numRows+i] = (letTab[offset+k*numRows+i] - letTab[offset+k*numRows+i-1])/ds;
+                       letTab[4*offset+k*numRows+i] = (letTab[2*offset+k*numRows+i] - letTab[2*offset+k*numRows+i-1])/ds;
+                   }
+               }
+           }
+           return letTab;
+        }
+
+
+        /// Create linearised and padded 'TAB' vector entries of
+        /// normalised two/three-phase SOFN tables for all saturation
+        /// function regions from Family One LET data.
+        ///
+        /// \param[in] numRows Number of rows to allocate in the output
+        ///    vector for each table.  If both SWOFLET and SGOFLET are
+        ///    active, it is expected to be 2x the number of declared
+        ///    saturation nodes in the simulation run's
+        ///    TABDIMS keyword (Item 3), otherwise 1x the number.
+        ///
+        /// \param tolcrit Minimum relative permeability threshold value
+        ///    for phase to be considered mobile.  Values less than this
+        ///    threshold are output as zero.
+        ///
+        /// \param[in] swofLET Collection of SWOFLET parameters for all
+        ///    saturation regions. (Compute krow).
+        ///
+        /// \param[in] sgofLET Collection of SGOFLET parameters for all
+        ///    saturation regions. (Compute krog).
+        ///
+        /// \return Linearised and padded 'TAB' vector values for
+        ///    two/three-phase SOFN tables. If both SWOFLET and SGOFLET are
+        ///    active, columns represent |s|krow(s)|krog(s)|krow'(s)|krog'(s)|.
+        ///    If only one is active, columns are removed accordingly.
+        std::vector<double>
+        sampleLET(const std::size_t          numRows,
+                  const double               tolcrit,
+                  const Opm::SwofletTable&   swofLET,
+                  const Opm::SgofletTable&   sgofLET)
+        {
+
+           std::size_t nCol=1;
+           std::size_t numTab=0;
+           int dOff = -1;
+
+           if (!swofLET.empty()) {
+              numTab = swofLET.size();
+              nCol += 2;
+              dOff += 1;
+           }
+           if (!sgofLET.empty()) {
+              numTab = sgofLET.size();
+              nCol += 2;
+              dOff += 1;
+           }
+
+           std::vector<double> letTab(nCol*numRows*numTab, +2.0e20);
+
+           int offset = numRows*numTab;
+
+           for (size_t k=0; k<numTab; ++k) {
+
+               double sMin = 1.0;
+               double sMax = 0.0;
+
+               if (!swofLET.empty()) {
+                  sMin = std::min(sMin, swofLET[k].s2_residual);
+                  sMax = std::max(sMax, 1.0-swofLET[k].s1_residual);
+               }
+
+               if (!sgofLET.empty()) {
+                  sMin = std::min(sMin, sgofLET[k].s2_residual);
+                  sMax = std::max(sMax, 1.0-sgofLET[k].s1_residual);
+               }
+
+               const double ds = (sMax-sMin)/(numRows-1);
+
+               for (size_t i=0; i<numRows; ++i) {
+
+                   const double S = sMin+i*ds;
+                   letTab[k*numRows+i] = S;
+
+                   double Swco = 0.0;
+
+                   if (!swofLET.empty()) {
+                       double Krow = 0.0;
+                       const auto letw = swofLET[k];
+                       Swco = letw.s1_residual;
+                       if (S > letw.s2_critical) {
+                           const double Sow = std::min(1.0, (S-letw.s2_critical)/(1.0 - letw.s1_critical - letw.s2_critical));
+                           const double powS = std::pow(Sow,letw.l2_relperm);
+                           const double pow1mS = std::pow(1.0-Sow,letw.t2_relperm);
+                           Krow = letw.krt2_relperm*powS/(powS+pow1mS*letw.e2_relperm);
+                           Krow = (Krow > tolcrit) ? Krow : 0.0;
+                       }
+                       letTab[offset+k*numRows+i] = Krow;
+                       if (i>0)
+                           letTab[(2+dOff)*offset+k*numRows+i] = (letTab[offset+k*numRows+i] - letTab[offset+k*numRows+i-1])/ds;
+                   }
+
+                   if (!sgofLET.empty()) {
+                       double Krog = 0.0;
+                       const auto letg = sgofLET[k];
+                       if (S > letg.s2_critical) {
+                           const double Sog = std::min(1.0, (S-letg.s2_critical)/(1.0 - Swco - letg.s1_critical - letg.s2_critical));
+                           const double powS = std::pow(Sog,letg.l2_relperm);
+                           const double pow1mS = std::pow(1.0-Sog,letg.t2_relperm);
+                           Krog = letg.krt2_relperm*powS/(powS+pow1mS*letg.e2_relperm);
+                           Krog = (Krog > tolcrit) ? Krog : 0.0;
+                       }
+                       letTab[(1+dOff)*offset+k*numRows+i] = Krog;
+                       if (i>0)
+                           letTab[2*(1+dOff)*offset+k*numRows+i] = (letTab[(1+dOff)*offset+k*numRows+i] - letTab[(1+dOff)*offset+k*numRows+i-1])/ds;
+                   }
+
+               }
+           }
+           return letTab;
+        }
+
+    } // SampleLET
+
 }} // Anonymous::SatFunc
 
 /// Functions to facilitate generating TAB vector entries for tabulated
@@ -2104,7 +2296,9 @@ namespace Opm {
 
         const auto famI =       // SGOF and/or SWOF
             (gas && tabMgr.hasTables("SGOF")) ||
-            (wat && tabMgr.hasTables("SWOF"));
+            (wat && tabMgr.hasTables("SWOF")) ||
+            (gas && !tabMgr.getSgofletTable().empty()) ||
+            (wat && !tabMgr.getSwofletTable().empty());
 
         const auto famII =      // SGFN, SOF{2,3}, SWFN
             (gas && tabMgr.hasTables("SGFN")) ||
@@ -2146,66 +2340,106 @@ namespace Opm {
         const auto  tolcrit = es.runspec()
             .saturationFunctionControls()
             .minimumRelpermMobilityThreshold();
+        std::size_t tabSize;
 
         if (gas) {
-            const auto& tables = tabMgr.getSgofTables();
 
-            const auto sgfn =
-                SatFunc::Gas::fromSGOF(nssfun, tolcrit,
-                                       this->units, tables);
+            std::vector<double> sgfn;
+
+            if ( !tabMgr.getSgofletTable().empty() ) {
+                sgfn = SatFunc::SampleLET::sampleLET(nssfun, tolcrit, this->units, tabMgr.getSgofletTable());
+                tabSize = tabMgr.getSgofletTable().size();
+            }
+            else {
+                const auto& tables = tabMgr.getSgofTables();
+                sgfn = SatFunc::Gas::fromSGOF(nssfun, tolcrit, this->units, tables);
+                tabSize = tables.size();
+            }
 
             this->addData(Ix::SgfnTableStart, sgfn);
             this->m_tabdims[Ix::SgfnNumSatNodes] = nssfun;
-            this->m_tabdims[Ix::SgfnNumTables]   = tables.size();
+            this->m_tabdims[Ix::SgfnNumTables]   = tabSize;
         }
 
         if (oil) {
             if (gas && !wat) {  // 2p G/O System
-                const auto& tables = tabMgr.getSgofTables();
 
-                const auto sofn =
-                    SatFunc::Oil::TwoPhase::fromSGOF(nssfun, tolcrit, tables);
+                std::vector<double> sofn;
+
+                if ( !tabMgr.getSgofletTable().empty() ) {
+                    sofn = SatFunc::SampleLET::sampleLET(nssfun, tolcrit, tabMgr.getSwofletTable(), tabMgr.getSgofletTable());
+                    tabSize = tabMgr.getSgofletTable().size();
+                }
+                else {
+
+                    const auto& tables = tabMgr.getSgofTables();
+
+                    sofn = SatFunc::Oil::TwoPhase::fromSGOF(nssfun, tolcrit, tables);
+                    tabSize = tables.size();
+                }
 
                 this->addData(Ix::SofnTableStart, sofn);
                 this->m_tabdims[Ix::SofnNumSatNodes] = nssfun;
-                this->m_tabdims[Ix::SofnNumTables]   = tables.size();
+                this->m_tabdims[Ix::SofnNumTables]   = tabSize;
             }
             else if (wat && !gas) { // 2p O/W System
-                const auto& tables = tabMgr.getSwofTables();
 
-                const auto sofn =
-                    SatFunc::Oil::TwoPhase::fromSWOF(nssfun, tolcrit, tables);
+                std::vector<double> sofn;
+
+                if ( !tabMgr.getSwofletTable().empty() ) {
+                    sofn = SatFunc::SampleLET::sampleLET(nssfun, tolcrit, tabMgr.getSwofletTable(), tabMgr.getSgofletTable());
+                    tabSize = tabMgr.getSwofletTable().size();
+                }
+                else {
+                    const auto& tables = tabMgr.getSwofTables();
+                    sofn = SatFunc::Oil::TwoPhase::fromSWOF(nssfun, tolcrit, tables);
+                    tabSize = tables.size();
+                }
 
                 this->addData(Ix::SofnTableStart, sofn);
                 this->m_tabdims[Ix::SofnNumSatNodes] = nssfun;
-                this->m_tabdims[Ix::SofnNumTables]   = tables.size();
+                this->m_tabdims[Ix::SofnNumTables]   = tabSize;
             }
             else {              // 3p G/O/W System
-                const auto& sgof = tabMgr.getSgofTables();
-                const auto& swof = tabMgr.getSwofTables();
 
-                // Allocate 2*nssfun rows to account for table merging.
+                std::vector<double> sofn;
+                const auto numRows = 2 * nssfun; // Allocate 2*nssfun rows to allow for table merging.
 
-                const auto numRows = 2 * nssfun;
-
-                const auto sofn = SatFunc::Oil::ThreePhase::
-                    fromSGOFandSWOF(numRows, tolcrit, sgof, swof);
+                if ( !tabMgr.getSwofletTable().empty() && !tabMgr.getSgofletTable().empty()) {
+                    sofn = SatFunc::SampleLET::sampleLET(numRows, tolcrit, tabMgr.getSwofletTable(), tabMgr.getSgofletTable());
+                    tabSize = tabMgr.getSgofletTable().size();
+                }
+                else {
+                    const auto& sgof = tabMgr.getSgofTables();
+                    const auto& swof = tabMgr.getSwofTables();
+                    sofn = SatFunc::Oil::ThreePhase::
+                        fromSGOFandSWOF(numRows, tolcrit, sgof, swof);
+                    tabSize = sgof.size();
+                }
 
                 this->addData(Ix::SofnTableStart, sofn);
                 this->m_tabdims[Ix::SofnNumSatNodes] = numRows;
-                this->m_tabdims[Ix::SofnNumTables]   = sgof.size();
+                this->m_tabdims[Ix::SofnNumTables]   = tabSize;
             }
         }
 
         if (wat) {
-            const auto& tables = tabMgr.getSwofTables();
 
-            const auto swfn =
-                SatFunc::Water::fromSWOF(nssfun, tolcrit, this->units, tables);
+            std::vector<double> swfn;
+
+            if ( !tabMgr.getSwofletTable().empty() ) {
+                swfn = SatFunc::SampleLET::sampleLET(nssfun, tolcrit, this->units, tabMgr.getSwofletTable());
+                tabSize = tabMgr.getSwofletTable().size();
+            }
+            else {
+                const auto& tables = tabMgr.getSwofTables();
+                swfn = SatFunc::Water::fromSWOF(nssfun, tolcrit, this->units, tables);
+                tabSize = tables.size();
+            }
 
             this->addData(Ix::SwfnTableStart, swfn);
             this->m_tabdims[Ix::SwfnNumSatNodes] = nssfun;
-            this->m_tabdims[Ix::SwfnNumTables]   = tables.size();
+            this->m_tabdims[Ix::SwfnNumTables]   = tabSize;
         }
     }
 

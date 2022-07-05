@@ -35,6 +35,9 @@ if(NOT @opm-project_NAME@_FOUND)
   # actual code is self contained - and can be used downstream without awareness of this.
   set (@opm-project_NAME@_EMBEDDED_PYTHON @OPM_ENABLE_EMBEDDED_PYTHON@)
 
+  # Directory for common (across opm modules) Python scripts
+  set(@opm-project_NAME@_PYTHON_COMMON_DIR "${@opm-project_NAME@_PREFIX}/@OPM_PYTHON_COMMON_DIR@")
+
   # libraries come from the build tree where this file was generated
   set (@opm-project_NAME@_LIBRARY "@opm-project_LIBRARY@")
   set (@opm-project_NAME@_LIBRARIES ${@opm-project_NAME@_LIBRARY} "@opm-project_LIBRARIES@")
@@ -58,6 +61,7 @@ if(NOT @opm-project_NAME@_FOUND)
     string(REPLACE ${@opm-project_NAME@_PREFIX} ${DEST_PREFIX} @opm-project_NAME@_INCLUDE_DIRS "${@opm-project_NAME@_INCLUDE_DIRS}")
     string(REPLACE ${@opm-project_NAME@_PREFIX} ${DEST_PREFIX} @opm-project_NAME@_LIBRARY_DIRS "${@opm-project_NAME@_LIBRARY_DIRS}")
     string(REPLACE ${@opm-project_NAME@_PREFIX} ${DEST_PREFIX} @opm-project_NAME@_LIBRARY      "${@opm-project_NAME@_LIBRARY}")
+    string(REPLACE ${@opm-project_NAME@_PREFIX} ${DEST_PREFIX} @opm-project_NAME@_PYTHON_COMMON_DIR "${@opm-project_NAME@_PYTHON_COMMON_DIR}")
   endif()
 
 
@@ -93,6 +97,16 @@ if(NOT @opm-project_NAME@_FOUND)
 
   # this is the contents of config.h as far as our probes can tell:
 
+  # Require correct CMake standard. Needed for user modules as
+  # some software will add incompatible compile switches like
+  # -std=gnu++11 otherwise when search for (I guess because of
+  # imported targets using INTERFACE_COMPILE_FEATURES), and will
+  # break compilation because of missing c++17 features.
+  if(NOT CMAKE_CXX_STANDARD)
+    set(CMAKE_CXX_STANDARD @CMAKE_CXX_STANDARD@)
+    set(CMAKE_CXX_STANDARD_REQUIRED ON)
+    set(CMAKE_CXX_EXTENSIONS OFF)
+  endif()
 
   # The settings in this block do not mix well with the DEST_PREFIX
   # setting.
@@ -104,6 +118,7 @@ if(NOT @opm-project_NAME@_FOUND)
     @OPM_PROJECT_EXTRA_CODE@
     # end extra code
 
+    include(OpmPackage)
     include(@opm-project_NAME@-prereqs)
   endif()
 endif()

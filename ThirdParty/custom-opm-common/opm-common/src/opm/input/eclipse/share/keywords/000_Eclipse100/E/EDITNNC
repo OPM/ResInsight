@@ -1,0 +1,91 @@
+{
+  "name": "EDITNNC",
+  "sections": [
+    "EDIT"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "I1",
+      "value_type": "INT"
+    },
+    {
+      "item": 2,
+      "name": "J1",
+      "value_type": "INT"
+    },
+    {
+      "item": 3,
+      "name": "K1",
+      "value_type": "INT"
+    },
+    {
+      "item": 4,
+      "name": "I2",
+      "value_type": "INT"
+    },
+    {
+      "item": 5,
+      "name": "J2",
+      "value_type": "INT"
+    },
+    {
+      "item": 6,
+      "name": "K2",
+      "value_type": "INT"
+    },
+    {
+      "item": 7,
+      "name": "TRAN_MULT",
+      "value_type": "DOUBLE",
+      "default_value": 1
+    },
+    {
+      "item": 8,
+      "name": "SAT_TABLE12",
+      "value_type": "INT",
+      "default_value": 0,
+      "comment": "Not used"
+    },
+    {
+      "item": 9,
+      "name": "SAT_TABLE21",
+      "value_type": "INT",
+      "default_value": 0,
+      "comment": "Not used"
+    },
+    {
+      "item": 10,
+      "name": "PRESS_TABLE12",
+      "value_type": "INT",
+      "default_value": 0,
+      "comment": "Not used"
+    },
+    {
+      "item": 11,
+      "name": "PRESS_TABLE21",
+      "value_type": "INT",
+      "default_value": 0,
+      "comment": "Not used"
+    },
+    {
+      "item": 12,
+      "name": "FACE_FLOW12",
+      "value_type": "STRING",
+      "comment": "Item is used in the commercial simulator’s Vertical Equilibrium option"
+    },
+    {
+      "item": 13,
+      "name": "FACE_FLOW21",
+      "value_type": "STRING",
+      "comment": "Item is used in the commercial simulator’s Vertical Equilibrium option"
+    },
+    {
+      "item": 14,
+      "name": "DIFFM",
+      "value_type": "DOUBLE",
+      "default_value": 0,
+      "comment": "Not used"
+    }
+  ]
+}

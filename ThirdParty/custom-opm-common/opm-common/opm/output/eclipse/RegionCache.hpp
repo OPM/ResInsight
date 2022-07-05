@@ -20,23 +20,28 @@
 #ifndef OPM_REGION_CACHE_HPP
 #define OPM_REGION_CACHE_HPP
 
+#include <map>
+#include <set>
 #include <vector>
 
 namespace Opm {
     class Schedule;
     class EclipseGrid;
+    class FieldPropsManager;
 
 namespace out {
     class RegionCache {
     public:
         RegionCache() = default;
-        RegionCache(const std::vector<int>& fipnum, const EclipseGrid& grid, const Schedule& schedule);
-        const std::vector<std::pair<std::string,size_t>>& connections( int region_id ) const;
+        RegionCache(const std::set<std::string>& fip_regions, const FieldPropsManager& fp, const EclipseGrid& grid, const Schedule& schedule);
+        const std::vector<std::pair<std::string,size_t>>& connections( const std::string& region_name, int region_id ) const;
 
+        // A well is assigned to the region_id where the first connection is
+        std::vector<std::string> wells(const std::string& region_name, int region_id) const;
     private:
         std::vector<std::pair<std::string,size_t>> connections_empty;
-
-        std::map<int , std::vector<std::pair<std::string,size_t>>> connection_map;
+        std::map<std::pair<std::string, int> , std::vector<std::pair<std::string,size_t>>> connection_map;
+        std::map<std::pair<std::string, int>, std::vector<std::string>> well_map;
     };
 }
 }

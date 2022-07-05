@@ -22,28 +22,34 @@
 #include <opm/output/eclipse/AggregateWellData.hpp>
 #include <opm/output/eclipse/WriteRestartHelpers.hpp>
 
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/common/utility/String.hpp>
 
-
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQActive.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQDefine.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQAssign.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/ActionAST.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/ActionContext.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/Actions.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/ActionX.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQEnums.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQParams.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/UDQ/UDQFunctionTable.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQConfig.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQActive.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQDefine.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQAssign.hpp>
+#include <opm/input/eclipse/Schedule/Action/ActionAST.hpp>
+#include <opm/input/eclipse/Schedule/Action/ActionContext.hpp>
+#include <opm/input/eclipse/Schedule/Action/Actions.hpp>
+#include <opm/input/eclipse/Schedule/Action/ActionX.hpp>
+#include <opm/input/eclipse/Schedule/Action/Actdims.hpp>
+#include <opm/input/eclipse/Schedule/Action/Enums.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQEnums.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQParams.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQFunctionTable.hpp>
+#include <opm/input/eclipse/Schedule/Action/State.hpp>
+#include <opm/output/eclipse/VectorItems/action.hpp>
 
 #include <algorithm>
 #include <cstddef>
 #include <cstring>
-#include <string>
+#include <fmt/format.h>
 #include <iostream>
+#include <string>
+#include <ctime>
 
 // #####################################################################
 // Class Opm::RestartIO::Helpers
@@ -69,29 +75,14 @@ namespace {
                                                            {"Y",   0},
     };*/
 
-    using cmp_enum = Opm::Action::Condition::Comparator;
+    using cmp_enum = Opm::Action::Comparator;
     const std::map<cmp_enum, int> cmpToIacn_12 = {
                                                     {cmp_enum::GREATER,       0},
                                                     {cmp_enum::LESS,          1},
                                                     {cmp_enum::GREATER_EQUAL, 0},
                                                     {cmp_enum::LESS_EQUAL,    1},
-                                                    {cmp_enum::EQUAL,         1},
+                                                    {cmp_enum::EQUAL,         0},
                                                     {cmp_enum::INVALID,       0},
-    };
-
-    const std::map<std::string, double> monthToNo = {
-                                                           {"JAN",   1.},
-                                                           {"FEB",   2.},
-                                                           {"MAR",   3.},
-                                                           {"APR",   4.},
-                                                           {"MAY",   5.},
-                                                           {"JUN",   6.},
-                                                           {"JUL",   7.},
-                                                           {"AUG",   8.},
-                                                           {"SEP",   9.},
-                                                           {"OCT",  10.},
-                                                           {"NOV",  11.},
-                                                           {"DEC",  12.},
     };
 
 
@@ -101,12 +92,7 @@ const std::map<std::string, int> rhsQuantityToIndex = {
                                                 {"G",   3},
 };
 
-using logic_enum = Opm::Action::Condition::Logical;
-const std::map<logic_enum, int> logicalToIndex_13 = {
-                                                    {logic_enum::AND,   1},
-                                                    {logic_enum::OR,    2},
-                                                    {logic_enum::END,   0},
-};
+using logic_enum = Opm::Action::Logical;
 
 const std::map<logic_enum, int> logicalToIndex_17 = {
                                                     {logic_enum::AND,   1},
@@ -115,15 +101,6 @@ const std::map<logic_enum, int> logicalToIndex_17 = {
 };
 
 
-using cmp_enum = Opm::Action::Condition::Comparator;
-const std::map<cmp_enum, int> cmpToIndex = {
-                                                    {cmp_enum::GREATER,       1},
-                                                    {cmp_enum::LESS,          2},
-                                                    {cmp_enum::GREATER_EQUAL, 3},
-                                                    {cmp_enum::LESS_EQUAL,    4},
-                                                    {cmp_enum::EQUAL,         5},
-                                                    {cmp_enum::INVALID,       0},
-};
 
 
     namespace iACT {
@@ -142,24 +119,14 @@ const std::map<cmp_enum, int> cmpToIndex = {
         }
 
         template <class IACTArray>
-        void staticContrib(const Opm::Action::ActionX& actx, IACTArray& iAct)
+        void staticContrib(const Opm::Action::ActionX& actx, IACTArray& iAct, const Opm::Action::State& action_state)
         {
             //item [0]: is unknown, (=0)
             iAct[0] = 0;
             //item [1]: The number of lines of schedule data including ENDACTIO
             iAct[1] = actx.keyword_strings().size();
-            //item [2]: is = 1 for condition and previous condition = AND, and combinations OR/AND
-            //          is = 2 for all conditions and previous conditions = OR
-            //          This is not implemented yet - only use 1 for all cases
-            const auto& actx_cond = actx.conditions();
-            int i_temp = 2;
-            for (auto cond_it = actx_cond.begin(); cond_it < actx_cond.end(); cond_it++) {
-                const auto it_logic_17 = logicalToIndex_17.find(cond_it->logic);
-                if (it_logic_17 != logicalToIndex_17.end()) {
-                    if (it_logic_17->first == logic_enum::AND) i_temp = 1;
-                }
-            }
-            iAct[2] = i_temp;
+            //item [2]: is the number of times an action has been triggered plus 1
+            iAct[2] = action_state.run_count(actx) + 1;
             //item [3]: is unknown, (=7)
             iAct[3] = 7;
             //item [4]: is unknown, (=0)
@@ -170,7 +137,7 @@ const std::map<cmp_enum, int> cmpToIndex = {
             iAct[6] = 0;
             //item [7]: is unknown, (=0)
             iAct[7] = 0;
-            //item [8]: The number of times the action is triggered
+            //item [8]: The number of conditions in an ACTIONX keyword
             iAct[8] = actx.conditions().size();
         }
 
@@ -192,12 +159,20 @@ const std::map<cmp_enum, int> cmpToIndex = {
         }
 
         template <class SACTArray>
-        void staticContrib(SACTArray& sAct)
+        void staticContrib(const Opm::Action::ActionX& actx,
+                           const Opm::Action::State& state,
+                           std::time_t start_time,
+                           const Opm::UnitSystem& units,
+                           SACTArray& sAct)
         {
-            //item [0 - 4]: is unknown, (=0)
-            for (std::size_t ind = 0; ind < 5 ; ind++) {
-                sAct[ind] = 0;
-            }
+            using M  = ::Opm::UnitSystem::measure;
+            sAct[0] = 0.;
+            sAct[1] = 0.;
+            sAct[2] = 0.;
+            //item [3]:  Minimum time interval between action triggers.
+            sAct[3] = units.from_si(M::time, actx.min_wait());
+            //item [4]:  last time that the action was triggered
+            sAct[4] =  (state.run_count(actx) > 0) ? units.from_si(M::time, (state.run_time(actx) - start_time)) : 0.;
         }
 
     } // sAct
@@ -234,42 +209,37 @@ const std::map<cmp_enum, int> cmpToIndex = {
          Opm::RestartIO::Helpers::WindowedArray<
             Opm::EclIO::PaddedOutputString<8>
         >
-        allocate(const std::vector<int>& actDims)
+         allocate(std::size_t num_actions, std::size_t max_input_lines, const Opm::Actdims& actdims)
         {
             using WV = Opm::RestartIO::Helpers::WindowedArray<
                 Opm::EclIO::PaddedOutputString<8>
             >;
-            int nwin = std::max(actDims[0], 1);
-            int nitPrWin = std::max(actDims[4], 1);
             return WV {
-                WV::NumWindows{ static_cast<std::size_t>(nwin) },
-                WV::WindowSize{ static_cast<std::size_t>(nitPrWin) }
+                WV::NumWindows{ num_actions },
+                WV::WindowSize{ actdims.line_size() * max_input_lines }
             };
         }
 
     template <class ZLACTArray>
-    void staticContrib(const Opm::Action::ActionX& actx, int noEPrZlact, ZLACTArray& zLact)
+    void staticContrib(const Opm::Action::ActionX& actx, const Opm::Actdims& actdims, ZLACTArray& zLact)
         {
-            std::size_t ind = 0;
+            std::size_t offset = 0;
             int l_sstr = 8;
-            int max_l_str = 128;
             // write out the schedule input lines
-            const auto& schedule_data = actx.keyword_strings();
-            for (auto z_data : schedule_data) {
-                int n_sstr =  z_data.size()/l_sstr;
-                if (static_cast<int>(z_data.size()) > max_l_str) {
-                    std::cout << "Too long input data string (max 128 characters): " << z_data << std::endl;
-                    throw std::invalid_argument("Actionx: " + actx.name());
+            for (auto input_line : actx.keyword_strings()) {
+                input_line = Opm::trim_copy(input_line);
+                if (input_line.size() > Opm::RestartIO::Helpers::VectorItems::ZLACT::max_line_length)
+                    throw std::invalid_argument(fmt::format("Actionx line to long for action {}", actx.name()));
+
+                int n_sstr =  input_line.size()/l_sstr;
+                for (int i = 0; i < n_sstr; i++) {
+                    zLact[offset + i] = input_line.substr(i*l_sstr, l_sstr);
                 }
-                else {
-                    for (int i = 0; i < n_sstr; i++) {
-                        zLact[ind + i] = z_data.substr(i*l_sstr, l_sstr);
-                    }
-                    //add remainder of last non-zero string
-                    if ((z_data.size() % l_sstr) > 0)
-                        zLact[ind + n_sstr] = z_data.substr(n_sstr*l_sstr);
-                }
-                ind += static_cast<std::size_t>(noEPrZlact);
+                //add remainder of last non-zero string
+                if ((input_line.size() % l_sstr) > 0)
+                    zLact[offset + n_sstr] = input_line.substr(n_sstr*l_sstr);
+
+                offset += actdims.line_size();
             }
         }
     } // zLact
@@ -279,59 +249,57 @@ const std::map<cmp_enum, int> cmpToIndex = {
          Opm::RestartIO::Helpers::WindowedArray<
             Opm::EclIO::PaddedOutputString<8>
         >
-        allocate(const std::vector<int>& actDims)
+        allocate(std::size_t num_actions, const Opm::Actdims& actdims)
         {
             using WV = Opm::RestartIO::Helpers::WindowedArray<
                 Opm::EclIO::PaddedOutputString<8>
             >;
 
-            int nwin = std::max(actDims[0], 1);
-            int nitPrWin = std::max(actDims[5], 1);
             return WV {
-                WV::NumWindows{ static_cast<std::size_t>(nwin) },
-                WV::WindowSize{ static_cast<std::size_t>(nitPrWin) }
+                WV::NumWindows{ num_actions },
+                WV::WindowSize{ actdims.max_conditions() * Opm::RestartIO::Helpers::VectorItems::ZACN::ConditionSize }
             };
         }
 
     template <class ZACNArray>
     void staticContrib(const Opm::Action::ActionX& actx, ZACNArray& zAcn)
         {
-            std::size_t ind = 0;
-            int noEPZacn = 13;
+            using Ix = Opm::RestartIO::Helpers::VectorItems::ZACN::index;
+            std::size_t offset = 0;
             // write out the schedule Actionx conditions
             const auto& actx_cond = actx.conditions();
             for (auto z_data : actx_cond) {
                 // left hand quantity
-                if ((z_data.lhs.quantity.substr(0,1) != "D") &&
-                    (z_data.lhs.quantity.substr(0,1) != "M") &&
-                    (z_data.lhs.quantity.substr(0,1) != "Y"))
-                    zAcn[ind + 0] = z_data.lhs.quantity;
+                if (!z_data.lhs.date())
+                    zAcn[offset + Ix::LHSQuantity] = z_data.lhs.quantity;
+
                 // right hand quantity
                 if ((z_data.rhs.quantity.substr(0,1) == "W") ||
-                    (z_data.rhs.quantity.substr(0,1) == "G"))
-                    zAcn[ind + 1] = z_data.rhs.quantity;
+                    (z_data.rhs.quantity.substr(0,1) == "G") ||
+                    (z_data.rhs.quantity.substr(0,1) == "F"))
+                    zAcn[offset + Ix::RHSQuantity] = z_data.rhs.quantity;
                 // operator (comparator)
-                zAcn[ind + 2] = z_data.cmp_string;
+                zAcn[offset + Ix::Comparator] = z_data.cmp_string;
                 // well-name if left hand quantity is a well quantity
                 if (z_data.lhs.quantity.substr(0,1) == "W") {
-                    zAcn[ind + 3] = z_data.lhs.args[0];
+                    zAcn[offset + Ix::LHSWell] = z_data.lhs.args[0];
                 }
                 // well-name if right hand quantity is a well quantity
                 if (z_data.rhs.quantity.substr(0,1) == "W") {
-                    zAcn[ind + 4] = z_data.rhs.args[0];
+                    zAcn[offset + Ix::RHSWell] = z_data.rhs.args[0];
                 }
 
                 // group-name if left hand quantity is a group quantity
                 if (z_data.lhs.quantity.substr(0,1) == "G") {
-                    zAcn[ind + 5] = z_data.lhs.args[0];
+                    zAcn[offset + Ix::LHSGroup] = z_data.lhs.args[0];
                 }
                 // group-name if right hand quantity is a group quantity
                 if (z_data.rhs.quantity.substr(0,1) == "G") {
-                    zAcn[ind + 6] = z_data.rhs.args[0];
+                    zAcn[offset + Ix::RHSGroup] = z_data.rhs.args[0];
                 }
 
-                //increment index according to no of items pr condition
-                ind += static_cast<std::size_t>(noEPZacn);
+                //increment offsetex according to no of items pr condition
+                offset += Opm::RestartIO::Helpers::VectorItems::ZACN::ConditionSize;
             }
         }
     } // zAcn
@@ -339,15 +307,12 @@ const std::map<cmp_enum, int> cmpToIndex = {
     namespace iACN {
 
         Opm::RestartIO::Helpers::WindowedArray<int>
-        allocate(const std::vector<int>& actDims)
+        allocate(std::size_t num_actions, const Opm::Actdims& actdims)
         {
             using WV = Opm::RestartIO::Helpers::WindowedArray<int>;
-
-            int nwin = std::max(actDims[0], 1);
-            int nitPrWin = std::max(actDims[6], 1);
             return WV {
-                WV::NumWindows{ static_cast<std::size_t>(nwin) },
-                WV::WindowSize{ static_cast<std::size_t>(nitPrWin) }
+                WV::NumWindows{ num_actions },
+                WV::WindowSize{ actdims.max_conditions() * Opm::RestartIO::Helpers::VectorItems::IACN::ConditionSize }
             };
         }
 
@@ -356,109 +321,91 @@ const std::map<cmp_enum, int> cmpToIndex = {
         template <class IACNArray>
         void staticContrib(const Opm::Action::ActionX& actx, IACNArray& iAcn)
         {
-            //item [0 - 9]: are unknown, (=0)
-
-            /*item [10] type of quantity for condition
-                1 for a field quantity (number of flowing producing wells)
-                2 for a well quantity
-                3 for a (node) group quantity
-                //9 for a well group quantity
-                10 for DAY
-                11 for MNTH
-                12 for YEAR
-            */
-            std::size_t ind = 0;
-            int noEPZacn = 26;
-            // write out the schedule Actionx conditions
+            using Ix = Opm::RestartIO::Helpers::VectorItems::IACN::index;
+            std::size_t offset = 0;
             const auto& actx_cond = actx.conditions();
+            int first_greater = 0;
+            {
+                const auto& first_cond = actx_cond[0];
+                if (first_cond.cmp == Opm::Action::Comparator::LESS)
+                    first_greater = 1;
+            }
+
+            for (const auto& cond : actx_cond) {
+                iAcn[offset + Ix::LHSQuantityType] = cond.lhs.int_type();
+                iAcn[offset + Ix::RHSQuantityType] = cond.rhs.int_type();
+                iAcn[offset + Ix::FirstGreater] = first_greater;
+                iAcn[offset + Ix::TerminalLogic] = cond.logic_as_int();
+                iAcn[offset + Ix::Paren] = cond.paren_as_int();
+                iAcn[offset + Ix::Comparator] = cond.comparator_as_int();
+
+                offset += Opm::RestartIO::Helpers::VectorItems::IACN::ConditionSize;
+            }
+
+            /*item [17] - is an item that is non-zero for actions with several conditions combined using logical operators (AND / OR)
+                * First condition => [17] =  0
+                * Second+ conditions
+                *Case - no parentheses
+                    *If all conditions before current condition has AND => [17] = 1
+                    *If one condition before current condition has OR   => [17] = 0
+                *Case - parenthesis before first condition
+                    *If inside first parenthesis
+                        *If all conditions before current condition has AND [17] => 1
+                        *If one condition before current condition has OR  [17] => 0
+                    *If after first parenthesis end and outside parenthesis
+                        *If all conditions outside parentheses and before current condition has AND => [17] = 1
+                        *If one condition outside parentheses and before current condition has OR [17] => 0
+                    *If after first parenthesis end and inside a susequent parenthesis
+                        * [17] = 0
+                *Case - parenthesis after first condition
+                    *If inside parentesis => [17] = 0
+                    *If outside parenthesis:
+                        *If all conditions outside parentheses and before current condition has AND => [17] = 1
+                        *If one condition outside parentheses and before current condition has OR [17] => 0
+            */
+
+            offset = 0;
+            bool insideParen = false;
+            bool parenFirstCond = false;
+            bool allPrevLogicOp_AND = false;
             for (auto cond_it = actx_cond.begin(); cond_it < actx_cond.end(); cond_it++) {
-                auto z_data = *cond_it;
-                // left hand quantity
-                std::string lhsQtype = z_data.lhs.quantity.substr(0,1);
-                const auto it_lhsq = lhsQuantityToIndex.find(lhsQtype);
-                if (it_lhsq != lhsQuantityToIndex.end()) {
-                    iAcn[ind + 10] = it_lhsq->second;
-                }
-                else {
-                    std::cout << "Unknown condition type: " << z_data.lhs.quantity << std::endl;
-                    throw std::invalid_argument("Actionx: " + actx.name());
-                }
+                if (cond_it == actx_cond.begin()) {
+                    if (cond_it->open_paren()) {
+                        parenFirstCond = true;
+                        insideParen = true;
+                    }
+                    if (cond_it->logic == Opm::Action::Logical::AND) {
+                        allPrevLogicOp_AND = true;
+                    }
+                } else {
+                    // update inside parenthesis or not plus whether in first parenthesis or not
+                    if (cond_it->open_paren()) {
+                        insideParen = true;
+                        parenFirstCond = false;
+                    } else if (cond_it->close_paren()) {
+                        insideParen = false;
+                        parenFirstCond = false;
+                    }
 
-                /*item[11] - quantity type for rhs quantity
-                    1 - for field variables
-                    2 - for well variables?
-                    3 - for group variables
-                    8 - for constant values
-                */
-                iAcn[ind + 11] = 8;
-                std::string rhsQtype = z_data.rhs.quantity.substr(0,1);
-                const auto it_rhsq = rhsQuantityToIndex.find(rhsQtype);
-                if (it_rhsq != rhsQuantityToIndex.end()) {
-                    iAcn[ind + 11] = it_rhsq->second;
-                }
+                    // Assign [17] based on logic (see above)
+                    if (parenFirstCond && allPrevLogicOp_AND) {
+                        iAcn[offset + Ix::BoolLink] = 1;
+                    }
+                    else if (!parenFirstCond && !insideParen && allPrevLogicOp_AND) {
+                        iAcn[offset + Ix::BoolLink] = 1;
+                    } else {
+                        iAcn[offset + Ix::BoolLink] = 0;
+                    }
 
-                 /*item[12] - index for relational operator (<, =, > )
-                 0 - for LHS quantity greater RHS quantity
-                 1 - for LHS quantity less than or equal to RHS quantity
-                */
-                const auto it_lhs_it = cmpToIacn_12.find(z_data.cmp);
-                if (it_lhs_it != cmpToIacn_12.end()) {
-                    iAcn[ind + 12] = it_lhs_it->second;
-                }
-
-                /*item [13] - relates to operator
-                    OR   is 2
-                    AND is 1
-                */
-                const auto it_logic_13 = logicalToIndex_13.find(z_data.logic);
-                if (it_logic_13 != logicalToIndex_13.end()) {
-                    iAcn[ind + 13] = it_logic_13->second;
-                }
-                else {
-                    std::cout << "Unknown Boolean operator type for condition: " << z_data.lhs.quantity << std::endl;
-                    throw std::invalid_argument("Actionx: " + actx.name());
-                }
-
-                /*item [16] - related to the operater used in ACTIONX for defined quantities
-                    >     is  1
-                    <     is  2
-                    >=    is  3
-                    <=    is  4
-                    =     is  5
-                */
-                const auto it_cmp = cmpToIndex.find(z_data.cmp);
-                if (it_cmp != cmpToIndex.end()) {
-                    iAcn[ind + 16] = it_cmp->second;
-                }
-                else {
-                    std::cout << "Unknown operator type for condition: " << z_data.lhs.quantity << std::endl;
-                    throw std::invalid_argument("Actionx: " + actx.name());
-                }
-
-                /*item [17] - relates to operator and if the right hand condition is a constant or not
-                 * First condition => [17] =  0
-                 * Second+ conditions
-                    *If the previous condition has a constant rhs => [17] =  0
-                    *If rhs is {W,G, F} and
-                        *If previous condition is AND => [17] =  1
-                        *If previous condition is OR  => [17] =  0
-                */
-                if (cond_it > actx_cond.begin()) {
-                    const std::string prev_rhs_quant = (cond_it-1)->rhs.quantity.substr(0,1);
-                    const auto it_prev_rhs = rhsQuantityToIndex.find(prev_rhs_quant);
-                    if (it_prev_rhs != rhsQuantityToIndex.end()) {
-                    const auto it_logic_17 = logicalToIndex_17.find((cond_it-1)->logic);
-                        if (it_logic_17 != logicalToIndex_17.end()) {
-                            iAcn[ind + 17] = it_logic_17->second;
-                        }
-                        else {
-                            std::cout << "Unknown Boolean operator type for condition: " << z_data.lhs.quantity << std::endl;
-                            throw std::invalid_argument("Actionx: " + actx.name());
-                        }
+                    // update the previous logic-sequence
+                    if (parenFirstCond && cond_it->logic == Opm::Action::Logical::OR) {
+                        allPrevLogicOp_AND = false;
+                    } else if (!insideParen && cond_it->logic == Opm::Action::Logical::OR) {
+                        allPrevLogicOp_AND = false;
                     }
                 }
                 //increment index according to no of items pr condition
-                ind += static_cast<std::size_t>(noEPZacn);
+                offset += Opm::RestartIO::Helpers::VectorItems::IACN::ConditionSize;
             }
         }
     } // iAcn
@@ -466,149 +413,122 @@ const std::map<cmp_enum, int> cmpToIndex = {
         namespace sACN {
 
         Opm::RestartIO::Helpers::WindowedArray<double>
-        allocate(const std::vector<int>& actDims)
+        allocate(std::size_t num_actions, const Opm::Actdims& actdims)
         {
             using WV = Opm::RestartIO::Helpers::WindowedArray<double>;
-
-            int nwin = std::max(actDims[0], 1);
-            int nitPrWin = std::max(actDims[7], 1);
             return WV {
-                WV::NumWindows{ static_cast<std::size_t>(nwin) },
-                WV::WindowSize{ static_cast<std::size_t>(nitPrWin) }
+                WV::NumWindows{ num_actions },
+                WV::WindowSize{ actdims.max_conditions() * Opm::RestartIO::Helpers::VectorItems::SACN::ConditionSize }
             };
         }
 
         Opm::Action::Result
-        act_res(const Opm::Schedule& sched, const Opm::SummaryState&  smry, const std::size_t sim_step, std::vector<Opm::Action::ActionX>::const_iterator act_x) {
-            Opm::Action::Result ar(false);
-            Opm::Action::Context context(smry);
+        act_res(const Opm::Schedule& sched, const Opm::Action::State& action_state, const Opm::SummaryState&  smry, const std::size_t sim_step, const Opm::Action::ActionX& action) {
             auto sim_time = sched.simTime(sim_step);
-            if (act_x->ready(sim_time)) {
-                    ar = act_x->eval(sim_time, context);
-            }
-            return {ar};
+            if (action.ready(action_state, sim_time)) {
+                Opm::Action::Context context(smry, sched[sim_step].wlist_manager.get());
+                return action.eval(context);
+            } else
+                return Opm::Action::Result(false);
         }
 
         template <class SACNArray>
-        void staticContrib(std::vector<Opm::Action::ActionX>::const_iterator    actx_it,
+        void staticContrib(const Opm::Action::ActionX&                          action,
+                           const Opm::Action::State&                            action_state,
                            const Opm::SummaryState&                             st,
                            const Opm::Schedule&                                 sched,
                            const std::size_t                                    simStep,
                            SACNArray&                                           sAcn)
         {
-            std::size_t ind = 0;
-            int noEPZacn = 16;
+            using Ix = Opm::RestartIO::Helpers::VectorItems::SACN::index;
+            std::size_t offset = 0;
             double undef_high_val = 1.0E+20;
             const auto& wells = sched.getWells(simStep);
-            const auto ar = sACN::act_res(sched, st, simStep, actx_it);
+            const auto ar = sACN::act_res(sched, action_state, st, simStep, action);
             // write out the schedule Actionx conditions
-            const auto& actx_cond = actx_it->conditions();
-            for (const auto&  z_data : actx_cond) {
+            for (const auto&  condition : action.conditions()) {
+                const std::string& lhsQtype = condition.lhs.quantity.substr(0,1);
+                const std::string& rhsQtype = condition.rhs.quantity.substr(0,1);
 
-                // item [0 - 1] = 0 (unknown)
-                sAcn[ind + 0] = 0.;
-                sAcn[ind + 1] = 0.;
-
-                const std::string& lhsQtype = z_data.lhs.quantity.substr(0,1);
-                const std::string& rhsQtype = z_data.rhs.quantity.substr(0,1);
-
-                //item  [2, 5, 7, 9]: value of condition 1 (zero if well, group or field variable
                 const auto& it_rhsq = rhsQuantityToIndex.find(rhsQtype);
                 if (it_rhsq == rhsQuantityToIndex.end()) {
                     //come here if constant value condition
                     double t_val = 0.;
-                    if (lhsQtype == "M") {
-                       const auto& it_mnth = monthToNo.find(z_data.rhs.quantity);
-                       if (it_mnth != monthToNo.end()) {
-                           t_val = it_mnth->second;
-                       }
-                       else {
-                            std::cout << "Unknown Month: " << z_data.rhs.quantity << std::endl;
-                            throw std::invalid_argument("Actionx: " + actx_it->name() + "  Condition: " + z_data.lhs.quantity );
-                        }
-                    }
+                    if (lhsQtype == "M")
+                        t_val = Opm::TimeService::eclipseMonth(condition.rhs.quantity);
                     else {
-                        t_val = std::stod(z_data.rhs.quantity);
+                        t_val = std::stod(condition.rhs.quantity);
                     }
-                    sAcn[ind + 2] = t_val;
-                    sAcn[ind + 5] = sAcn[ind + 2];
-                    sAcn[ind + 7] = sAcn[ind + 2];
-                    sAcn[ind + 9] = sAcn[ind + 2];
+                    sAcn[offset + Ix::RHSValue0] = t_val;
+                    sAcn[offset + Ix::RHSValue1] = sAcn[offset + Ix::RHSValue0];
+                    sAcn[offset + Ix::RHSValue2] = sAcn[offset + Ix::RHSValue0];
+                    sAcn[offset + Ix::RHSValue3] = sAcn[offset + Ix::RHSValue0];
                 }
 
 
-                                //Treat well, group and field right hand side conditions
+                //Treat well, group and field right hand side conditions
                 if (it_rhsq != rhsQuantityToIndex.end()) {
                     //Well variable
-                    if ((it_rhsq->first == "W") && (st.has_well_var(z_data.rhs.args[0], z_data.rhs.quantity))) {
-                        sAcn[ind + 5] = st.get_well_var(z_data.rhs.args[0], z_data.rhs.quantity);
-                        sAcn[ind + 7] = st.get_well_var(z_data.rhs.args[0], z_data.rhs.quantity);
-                        sAcn[ind + 9] = st.get_well_var(z_data.rhs.args[0], z_data.rhs.quantity);
+                    if ((rhsQtype == "W") && (st.has_well_var(condition.rhs.args[0], condition.rhs.quantity))) {
+                        sAcn[offset + Ix::RHSValue1] = st.get_well_var(condition.rhs.args[0], condition.rhs.quantity);
+                        sAcn[offset + Ix::RHSValue2] = st.get_well_var(condition.rhs.args[0], condition.rhs.quantity);
+                        sAcn[offset + Ix::RHSValue3] = st.get_well_var(condition.rhs.args[0], condition.rhs.quantity);
                     }
                     //group variable
-                    if ((it_rhsq->first == "G") && (st.has_group_var(z_data.rhs.args[0], z_data.rhs.quantity))) {;
-                        sAcn[ind + 5] = st.get_group_var(z_data.rhs.args[0], z_data.rhs.quantity);
-                        sAcn[ind + 7] = st.get_group_var(z_data.rhs.args[0], z_data.rhs.quantity);
-                        sAcn[ind + 9] = st.get_group_var(z_data.rhs.args[0], z_data.rhs.quantity);
+                    if ((rhsQtype == "G") && (st.has_group_var(condition.rhs.args[0], condition.rhs.quantity))) {;
+                        sAcn[offset + Ix::RHSValue1] = st.get_group_var(condition.rhs.args[0], condition.rhs.quantity);
+                        sAcn[offset + Ix::RHSValue2] = st.get_group_var(condition.rhs.args[0], condition.rhs.quantity);
+                        sAcn[offset + Ix::RHSValue3] = st.get_group_var(condition.rhs.args[0], condition.rhs.quantity);
                     }
                     //field variable
-                    if ((it_rhsq->first == "F") && (st.has(z_data.rhs.quantity))) {
-                        sAcn[ind + 5] = st.get(z_data.rhs.quantity);
-                        sAcn[ind + 7] = st.get(z_data.rhs.quantity);
-                        sAcn[ind + 9] = st.get(z_data.rhs.quantity);
+                    if ((rhsQtype == "F") && (st.has(condition.rhs.quantity))) {
+                        sAcn[offset + Ix::RHSValue1] = st.get(condition.rhs.quantity);
+                        sAcn[offset + Ix::RHSValue2] = st.get(condition.rhs.quantity);
+                        sAcn[offset + Ix::RHSValue3] = st.get(condition.rhs.quantity);
                     }
                 }
 
 
 
-                //treat cases with left hand side condition being: DAY, MNTH og YEAR variable
-                const auto& it_lhsq = lhsQuantityToIndex.find(lhsQtype);
-                if ((it_lhsq->first == "D") || (it_lhsq->first == "M") || (it_lhsq->first == "Y")) {
-                    sAcn[ind + 4] = undef_high_val;
-                    sAcn[ind + 5] = undef_high_val;
-                    sAcn[ind + 6] = undef_high_val;
-                    sAcn[ind + 7] = undef_high_val;
-                    sAcn[ind + 8] = undef_high_val;
-                    sAcn[ind + 9] = undef_high_val;
-                }
-
-                //Treat well, group and field left hand side conditions
-                if (it_lhsq != lhsQuantityToIndex.end()) {
-                    std::string wn = "";
+                if (condition.lhs.date()) {
+                    sAcn[offset + Ix::LHSValue1] = undef_high_val;
+                    sAcn[offset + Ix::RHSValue1] = undef_high_val;
+                    sAcn[offset + Ix::LHSValue2] = undef_high_val;
+                    sAcn[offset + Ix::RHSValue2] = undef_high_val;
+                    sAcn[offset + Ix::LHSValue3] = undef_high_val;
+                    sAcn[offset + Ix::RHSValue3] = undef_high_val;
+                } else {
+                    //Treat well, group and field left hand side conditions
                     //Well variable
-                    if (it_lhsq->first == "W") {
+                    if (lhsQtype == "W" && ar) {
                         //find the well that violates action if relevant
-                        for (const auto& well : wells)
-                        {
-                            if (ar.has_well(well.name())) {
-                                //set well name
-                                wn = well.name();
-                                break;
+                        auto well_iter = std::find_if(wells.begin(), wells.end(), [&ar](const Opm::Well& well) { return ar.has_well(well.name()); });
+                        if (well_iter != wells.end()) {
+                            const auto& wn = well_iter->name();
+
+                            if (st.has_well_var(wn, condition.lhs.quantity)) {
+                                sAcn[offset + Ix::LHSValue1] = st.get_well_var(wn, condition.lhs.quantity);
+                                sAcn[offset + Ix::LHSValue2] = st.get_well_var(wn, condition.lhs.quantity);
+                                sAcn[offset + Ix::LHSValue3] = st.get_well_var(wn, condition.lhs.quantity);
                             }
                         }
-
-                        if ((it_lhsq->first == "W") && (st.has_well_var(wn, z_data.lhs.quantity)) ) {
-                            sAcn[ind + 4] = st.get_well_var(wn, z_data.lhs.quantity);
-                            sAcn[ind + 6] = st.get_well_var(wn, z_data.lhs.quantity);
-                            sAcn[ind + 8] = st.get_well_var(wn, z_data.lhs.quantity);
-                        }
                     }
                     //group variable
-                    if ((it_lhsq->first == "G") && (st.has_group_var(z_data.lhs.args[0], z_data.lhs.quantity))) {
-                        sAcn[ind + 4] = st.get_group_var(z_data.lhs.args[0], z_data.lhs.quantity);
-                        sAcn[ind + 6] = st.get_group_var(z_data.lhs.args[0], z_data.lhs.quantity);
-                        sAcn[ind + 8] = st.get_group_var(z_data.lhs.args[0], z_data.lhs.quantity);
+                    if ((lhsQtype == "G") && (st.has_group_var(condition.lhs.args[0], condition.lhs.quantity))) {
+                        sAcn[offset + Ix::LHSValue1] = st.get_group_var(condition.lhs.args[0], condition.lhs.quantity);
+                        sAcn[offset + Ix::LHSValue2] = st.get_group_var(condition.lhs.args[0], condition.lhs.quantity);
+                        sAcn[offset + Ix::LHSValue3] = st.get_group_var(condition.lhs.args[0], condition.lhs.quantity);
                     }
                     //field variable
-                    if ((it_lhsq->first == "F") && (st.has(z_data.lhs.quantity))) {
-                        sAcn[ind + 4] = st.get(z_data.lhs.quantity);
-                        sAcn[ind + 6] = st.get(z_data.lhs.quantity);
-                        sAcn[ind + 8] = st.get(z_data.lhs.quantity);
+                    if ((lhsQtype == "F") && (st.has(condition.lhs.quantity))) {
+                        sAcn[offset + Ix::LHSValue1] = st.get(condition.lhs.quantity);
+                        sAcn[offset + Ix::LHSValue2] = st.get(condition.lhs.quantity);
+                        sAcn[offset + Ix::LHSValue3] = st.get(condition.lhs.quantity);
                     }
                 }
 
                 //increment index according to no of items pr condition
-                ind += static_cast<std::size_t>(noEPZacn);
+                offset += Opm::RestartIO::Helpers::VectorItems::SACN::ConditionSize;
             }
         }
 
@@ -618,64 +538,76 @@ const std::map<cmp_enum, int> cmpToIndex = {
 // =====================================================================
 
 Opm::RestartIO::Helpers::AggregateActionxData::
-AggregateActionxData(const std::vector<int>& actDims)
-    : iACT_ (iACT::allocate(actDims)),
-      sACT_ (sACT::allocate(actDims)),
-      zACT_ (zACT::allocate(actDims)),
-      zLACT_(zLACT::allocate(actDims)),
-      zACN_ (zACN::allocate(actDims)),
-      iACN_ (iACN::allocate(actDims)),
-      sACN_ (sACN::allocate(actDims))
-{}
-
-// ---------------------------------------------------------------------
-
-void
-Opm::RestartIO::Helpers::AggregateActionxData::
-captureDeclaredActionxData( const Opm::Schedule&    sched,
-                            const Opm::SummaryState& st,
-                            const std::vector<int>& actDims,
-                            const std::size_t       simStep)
+AggregateActionxData( const std::vector<int>&   rst_dims,
+                      std::size_t               num_actions,
+                      const Opm::Actdims&       actdims,
+                      const Opm::Schedule&      sched,
+                      const Opm::Action::State& action_state,
+                      const Opm::SummaryState&  st,
+                      const std::size_t         simStep)
+    : iACT_ (iACT::allocate(rst_dims))
+    , sACT_ (sACT::allocate(rst_dims))
+    , zACT_ (zACT::allocate(rst_dims))
+    , zLACT_(zLACT::allocate(num_actions, sched[simStep].actions().max_input_lines(), actdims))
+    , zACN_ (zACN::allocate(num_actions, actdims))
+    , iACN_ (iACN::allocate(num_actions, actdims))
+    , sACN_ (sACN::allocate(num_actions, actdims))
 {
-    const auto& acts = sched.actions(simStep);
+
+    const auto& acts = sched[simStep].actions();
     std::size_t act_ind = 0;
-    for (auto actx_it = acts.begin(); actx_it < acts.end(); actx_it++) {
+    for (const auto& action : acts) {
         {
             auto i_act = this->iACT_[act_ind];
-            iACT::staticContrib(*actx_it, i_act);
+            iACT::staticContrib(action, i_act, action_state);
         }
 
         {
             auto s_act = this->sACT_[act_ind];
-            sACT::staticContrib(s_act);
+            sACT::staticContrib(action, action_state, sched.getStartTime(), sched.getUnits(), s_act);
         }
 
         {
             auto z_act = this->zACT_[act_ind];
-            zACT::staticContrib(*actx_it, z_act);
+            zACT::staticContrib(action, z_act);
         }
 
         {
             auto z_lact = this->zLACT_[act_ind];
-            zLACT::staticContrib(*actx_it, actDims[8], z_lact);
+            zLACT::staticContrib(action, actdims, z_lact);
         }
 
         {
             auto z_acn = this->zACN_[act_ind];
-            zACN::staticContrib(*actx_it, z_acn);
+            zACN::staticContrib(action, z_acn);
         }
 
         {
             auto i_acn = this->iACN_[act_ind];
-            iACN::staticContrib(*actx_it, i_acn);
+            iACN::staticContrib(action, i_acn);
         }
 
         {
             auto s_acn = this->sACN_[act_ind];
-            sACN::staticContrib(actx_it, st, sched, simStep, s_acn);
+            sACN::staticContrib(action, action_state, st, sched, simStep, s_acn);
         }
 
         act_ind +=1;
     }
+}
+
+Opm::RestartIO::Helpers::AggregateActionxData::
+AggregateActionxData( const Opm::Schedule&      sched,
+                      const Opm::Action::State& action_state,
+                      const Opm::SummaryState&  st,
+                      const std::size_t         simStep)
+    : AggregateActionxData( Opm::RestartIO::Helpers::createActionRSTDims(sched, simStep),
+                            sched[simStep].actions().ecl_size(),
+                            sched.runspec().actdims(),
+                            sched,
+                            action_state,
+                            st,
+                            simStep )
+{
 }
 

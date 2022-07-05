@@ -23,11 +23,12 @@
 #include <utility>
 #include <vector>
 
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 #include <opm/output/data/Aquifer.hpp>
 #include <opm/output/data/Solution.hpp>
 #include <opm/output/data/Wells.hpp>
+#include <opm/output/data/Groups.hpp>
 
 namespace Opm {
 
@@ -68,14 +69,19 @@ namespace Opm {
     class RestartValue {
     public:
         using ExtraVector = std::vector<std::pair<RestartKey, std::vector<double>>>;
-        data::Solution solution;
-        data::Wells wells;
-        ExtraVector extra;
-        std::vector<data::AquiferData> aquifer;
 
-        RestartValue(data::Solution sol, data::Wells wells_arg);
+        data::Solution solution{};
+        data::Wells wells{};
+        data::GroupAndNetworkValues grp_nwrk{};
+        data::Aquifers aquifer{};
+        ExtraVector extra{};
 
-        RestartValue() {}
+        RestartValue(data::Solution sol,
+                     data::Wells wells_arg,
+                     data::GroupAndNetworkValues grpn_nwrk_arg,
+                     data::Aquifers aquifer_arg);
+
+        RestartValue() = default;
 
         bool hasExtra(const std::string& key) const;
         void addExtra(const std::string& key, UnitSystem::measure dimension, std::vector<double> data);
@@ -87,9 +93,11 @@ namespace Opm {
 
         bool operator==(const RestartValue& val2) const
         {
-          return solution == val2.solution &&
-                 wells == val2.wells &&
-                 extra == val2.extra;
+            return (this->solution == val2.solution)
+                && (this->wells == val2.wells)
+                && (this->grp_nwrk == val2.grp_nwrk)
+                && (this->aquifer == val2.aquifer)
+                && (this->extra == val2.extra);
         }
     };
 

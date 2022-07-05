@@ -40,6 +40,7 @@ public:
     explicit ERst(const std::string& filename);
 
     bool hasReportStepNumber(int number) const;
+    bool hasArray(const std::string& name, int number) const;
     bool hasLGR(const std::string& gridname, int reportStepNumber) const;
 
     void loadReportStepNumber(int number);

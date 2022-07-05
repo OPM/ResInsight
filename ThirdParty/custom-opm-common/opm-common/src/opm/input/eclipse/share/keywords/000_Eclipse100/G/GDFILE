@@ -1,0 +1,19 @@
+{
+  "name": "GDFILE",
+  "sections": [
+    "GRID"
+  ],
+  "prohibits" : ["COORD", "ZCORN"],
+  "size": 1,
+  "items": [
+    {
+      "name": "filename",
+      "value_type": "STRING"
+    },
+    {
+      "name": "formatted",
+      "value_type": "STRING",
+      "default": "U"
+    }
+  ]
+}

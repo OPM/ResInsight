@@ -19,28 +19,28 @@
 
 #include <stdexcept>
 #include <iostream>
-#include <boost/filesystem.hpp>
 
 #define BOOST_TEST_MODULE GroupTests
 #include <boost/test/unit_test.hpp>
-#include <boost/date_time/posix_time/posix_time.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/EclipseState/Util/Value.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Group/Group.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Group/GuideRateModel.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Group/GuideRate.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/Group/Group.hpp>
+#include <opm/input/eclipse/Schedule/Group/GuideRateModel.hpp>
+#include <opm/input/eclipse/Schedule/Group/GuideRate.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Schedule/Group/GConSump.hpp>
+#include <opm/input/eclipse/Schedule/Group/GConSale.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellProductionProperties.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellInjectionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellProductionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellInjectionProperties.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
 using namespace Opm;
 
@@ -58,23 +58,15 @@ Opm::Schedule create_schedule(const std::string& deck_string) {
 
 
 BOOST_AUTO_TEST_CASE(CreateGroup_CorrectNameAndDefaultValues) {
-    Opm::Group group("G1" , 1, 0, 0, UnitSystem::newMETRIC());
+    Opm::Group group("G1" , 1, 0, UnitSystem::newMETRIC());
     BOOST_CHECK_EQUAL( "G1" , group.name() );
-}
-
-
-BOOST_AUTO_TEST_CASE(CreateGroupCreateTimeOK) {
-    Opm::Group group("G1" , 1, 5, 0, UnitSystem::newMETRIC());
-    BOOST_CHECK_EQUAL( false, group.defined( 4 ));
-    BOOST_CHECK_EQUAL( true, group.defined( 5 ));
-    BOOST_CHECK_EQUAL( true, group.defined( 6 ));
 }
 
 
 
 BOOST_AUTO_TEST_CASE(CreateGroup_SetInjectorProducer_CorrectStatusSet) {
-    Opm::Group group1("IGROUP" , 1,  0, 0, UnitSystem::newMETRIC());
-    Opm::Group group2("PGROUP" , 2,  0, 0, UnitSystem::newMETRIC());
+    Opm::Group group1("IGROUP" , 1,  0, UnitSystem::newMETRIC());
+    Opm::Group group2("PGROUP" , 2,  0, UnitSystem::newMETRIC());
 
     group1.setProductionGroup();
     BOOST_CHECK(group1.isProductionGroup());
@@ -93,7 +85,7 @@ BOOST_AUTO_TEST_CASE(CreateGroup_SetInjectorProducer_CorrectStatusSet) {
 
 
 BOOST_AUTO_TEST_CASE(GroupDoesNotHaveWell) {
-    Opm::Group group("G1" , 1, 0, 0, UnitSystem::newMETRIC());
+    Opm::Group group("G1" , 1, 0, UnitSystem::newMETRIC());
 
     BOOST_CHECK_EQUAL(false , group.hasWell("NO"));
     BOOST_CHECK_EQUAL(0U , group.numWells());
@@ -106,6 +98,15 @@ BOOST_AUTO_TEST_CASE(createDeckWithGEFAC) {
     std::string input =
             "START             -- 0 \n"
             "19 JUN 2007 / \n"
+            "GRID\n"
+            "PORO\n"
+            "1000*0.1  /\n"
+            "PERMX \n"
+            "1000*1 /\n"
+            "PERMY \n"
+            "1000*0.1 /\n"
+            "PERMZ \n"
+            "1000*0.01 /\n"
             "SCHEDULE\n"
 
 	    "WELSPECS\n"
@@ -125,7 +126,7 @@ BOOST_AUTO_TEST_CASE(createDeckWithGEFAC) {
     auto schedule = create_schedule(input);
 
     auto group_names = schedule.groupNames("PRODUC");
-    BOOST_CHECK_EQUAL(group_names.size(), 1);
+    BOOST_CHECK_EQUAL(group_names.size(), 1U);
     BOOST_CHECK_EQUAL(group_names[0], "PRODUC");
 
     const auto& group1 = schedule.getGroup("PRODUC", 0);
@@ -143,6 +144,15 @@ BOOST_AUTO_TEST_CASE(createDeckWithWGRUPCONandWCONPROD) {
     std::string input =
             "START             -- 0 \n"
             "19 JUN 2007 / \n"
+            "GRID\n"
+            "PORO\n"
+            "1000*0.1  /\n"
+            "PERMX \n"
+            "1000*1 /\n"
+            "PERMY \n"
+            "1000*0.1 /\n"
+            "PERMZ \n"
+            "1000*0.01 /\n"
             "SCHEDULE\n"
 
 	    "WELSPECS\n"
@@ -162,8 +172,8 @@ BOOST_AUTO_TEST_CASE(createDeckWithWGRUPCONandWCONPROD) {
              "/\n"
 
              "WCONPROD\n"
-             " 'B-37T2'    'OPEN'     'GRUP'  1000  2*   2000.000  2* 1*   10 200000.000  5* /  / \n"
-             " 'B-43A'     'OPEN'     'GRUP'  1200  2*   3000.000  2* 1*   11  0.000      5* /  / \n"
+             " 'B-37T2'    'OPEN'     'GRUP'  1000  2*   2000.000  2* 1*   0 200000.000  5* /  / \n"
+             " 'B-43A'     'OPEN'     'GRUP'  1200  2*   3000.000  2* 1*   0  0.000      5* /  / \n"
              "/\n";
 
 
@@ -217,8 +227,8 @@ BOOST_AUTO_TEST_CASE(createDeckWithGRUPNET) {
 
 
 BOOST_AUTO_TEST_CASE(GroupCreate) {
-    Opm::Group g1("NAME", 1, 1, 0, UnitSystem::newMETRIC());
-    Opm::Group g2("NAME", 1, 1, 0, UnitSystem::newMETRIC());
+    Opm::Group g1("NAME", 1, 0, UnitSystem::newMETRIC());
+    Opm::Group g2("NAME", 1, 0, UnitSystem::newMETRIC());
 
     BOOST_CHECK( g1.addWell("W1") );
     BOOST_CHECK( !g1.addWell("W1") );
@@ -226,10 +236,10 @@ BOOST_AUTO_TEST_CASE(GroupCreate) {
     BOOST_CHECK( g1.hasWell("W1"));
     BOOST_CHECK( g1.hasWell("W2"));
     BOOST_CHECK( !g1.hasWell("W3"));
-    BOOST_CHECK_EQUAL( g1.numWells(), 2);
+    BOOST_CHECK_EQUAL( g1.numWells(), 2U);
     BOOST_CHECK_THROW(g1.delWell("W3"), std::invalid_argument);
     BOOST_CHECK_NO_THROW(g1.delWell("W1"));
-    BOOST_CHECK_EQUAL( g1.numWells(), 1);
+    BOOST_CHECK_EQUAL( g1.numWells(), 1U);
 
 
     BOOST_CHECK( g2.addGroup("G1") );
@@ -258,7 +268,7 @@ BOOST_AUTO_TEST_CASE(createDeckWithGCONPROD) {
         /)";
 
     auto schedule = create_schedule(input);
-    SummaryState st(std::chrono::system_clock::now());
+    SummaryState st(TimeService::now());
 
     const auto& group1 = schedule.getGroup("G1", 0);
     const auto& group2 = schedule.getGroup("G2", 0);
@@ -306,7 +316,7 @@ BOOST_AUTO_TEST_CASE(TESTGuideRateLINCOM) {
 
 
     /* The 'COMB' target mode is not supported */
-    BOOST_CHECK_THROW(create_schedule(input), std::logic_error);
+    BOOST_CHECK_THROW(create_schedule(input), std::exception);
 }
 
 BOOST_AUTO_TEST_CASE(TESTGuideRate) {
@@ -364,8 +374,8 @@ BOOST_AUTO_TEST_CASE(TESTGCONSALE) {
     auto schedule = create_schedule(input);
     double metric_to_si = 1.0 / (24.0 * 3600.0);  //cubic meters / day
 
-    const auto& gconsale = schedule.gConSale(0);
-    BOOST_CHECK_EQUAL(gconsale.size(), 1);
+    const auto& gconsale = schedule[0].gconsale.get();
+    BOOST_CHECK_EQUAL(gconsale.size(), 1U);
     BOOST_CHECK(gconsale.has("G1"));
     BOOST_CHECK(!gconsale.has("G2"));
     const GConSale::GCONSALEGroup& group = gconsale.get("G1");
@@ -377,8 +387,8 @@ BOOST_AUTO_TEST_CASE(TESTGCONSALE) {
     BOOST_CHECK_EQUAL(group.min_sales_rate.getSI(), 45000 * metric_to_si);
     BOOST_CHECK(group.max_proc == GConSale::MaxProcedure::WELL);
 
-    const auto& gconsump = schedule.gConSump(0);
-    BOOST_CHECK_EQUAL(gconsump.size(), 2);
+    const auto& gconsump = schedule[0].gconsump.get();
+    BOOST_CHECK_EQUAL(gconsump.size(), 2U);
     BOOST_CHECK(gconsump.has("G1"));
     BOOST_CHECK(gconsump.has("G2"));
     const GConSump::GCONSUMPGroup group1 = gconsump.get("G1");
@@ -389,7 +399,7 @@ BOOST_AUTO_TEST_CASE(TESTGCONSALE) {
     BOOST_CHECK( group1.network_node == "a_node" );
 
     const GConSump::GCONSUMPGroup group2 = gconsump.get("G2");
-    BOOST_CHECK_EQUAL( group2.network_node.size(), 0 );
+    BOOST_CHECK_EQUAL( group2.network_node.size(), 0U );
 
 
 
@@ -424,7 +434,7 @@ BOOST_AUTO_TEST_CASE(GCONINJE_MULTIPLE_PHASES) {
         )";
 
     auto schedule = create_schedule(input);
-    SummaryState st(std::chrono::system_clock::now());
+    SummaryState st(TimeService::now());
     // Step 0
     {
         const auto& g1 = schedule.getGroup("G1", 0);
@@ -440,13 +450,11 @@ BOOST_AUTO_TEST_CASE(GCONINJE_MULTIPLE_PHASES) {
         g1.injectionControls(Phase::GAS, st);
         BOOST_CHECK_THROW(g1.injectionControls(Phase::OIL, st), std::out_of_range);
 
-        BOOST_CHECK(g1.has_topup_phase());
-        BOOST_CHECK(Phase::GAS == g1.topup_phase());
+        BOOST_CHECK(Phase::GAS == g1.topup_phase().value());
     }
     {
         const auto& g2 = schedule.getGroup("G2", 0);
-        BOOST_CHECK(!g2.has_topup_phase());
-        BOOST_CHECK_THROW(g2.topup_phase(), std::logic_error);
+        BOOST_CHECK( !g2.topup_phase().has_value());
         BOOST_CHECK(  g2.injectionGroupControlAvailable(Phase::WATER) );
     }
     // Step 1
@@ -461,14 +469,102 @@ BOOST_AUTO_TEST_CASE(GCONINJE_MULTIPLE_PHASES) {
         g2.injectionControls(Phase::GAS, st);
         BOOST_CHECK_THROW(g2.injectionControls(Phase::OIL, st), std::out_of_range);
 
-        BOOST_CHECK(g2.has_topup_phase());
-        BOOST_CHECK(Phase::GAS == g2.topup_phase());
+        BOOST_CHECK(g2.topup_phase().has_value());
+        BOOST_CHECK(Phase::GAS == g2.topup_phase().value());
     }
     {
         const auto& g1 = schedule.getGroup("G1", 1);
-        BOOST_CHECK(!g1.has_topup_phase());
-        BOOST_CHECK_THROW(g1.topup_phase(), std::logic_error);
+        BOOST_CHECK(!g1.topup_phase().has_value());
     }
+}
+
+BOOST_AUTO_TEST_CASE(GCONINJE_GUIDERATE) {
+    std::string input = R"(
+        START             -- 0
+        31 AUG 1993 /
+        SCHEDULE
+
+        GRUPTREE
+           'G1'  'FIELD' /
+           'G2'  'FIELD' /
+        /
+
+        GCONINJE
+           'G1'   'WATER'   1*  1000 /
+           'G1'   'GAS'     1*  1000 /
+           'G2'   'WATER'   1*  1000 /
+        /
+
+        TSTEP
+           10 /
+
+        GCONINJE
+           'G1'   'WATER'   1*  1000 3* 'YES' 1 'RATE'/
+           'G1'   'GAS'     1*  1000 3* 'YES' 1 'RATE'/
+           'G2'   'WATER'   1*  1000 3* 'YES' 1 'RATE'/
+        /
+
+        TSTEP
+            10 /
+
+        GCONINJE
+            'G1'   'WATER'   1*  1000 /
+            'G1'   'GAS'     1*  1000 3* 'YES' 1 'RATE'/
+            'G2'   'WATER'   1*  1000 3* 'YES' 1 'RATE'/
+        /
+
+        )";
+
+    auto schedule = create_schedule(input);
+    // Step 0
+    {
+        GuideRate gr = GuideRate(schedule);
+        const auto& g1 = schedule.getGroup("G1", 0);
+        const auto& g2 = schedule.getGroup("G2", 0);
+        gr.compute(g1.name(), Phase::WATER, 0, 0.0);
+        gr.compute(g1.name(), Phase::GAS, 0, 0.0);
+        gr.compute(g2.name(), Phase::WATER, 0, 0.0);
+        gr.compute(g2.name(), Phase::GAS, 0, 0.0);
+        BOOST_CHECK( !gr.has(g1.name(), Phase::WATER));
+        BOOST_CHECK( !gr.has(g1.name(), Phase::GAS));
+        BOOST_CHECK( !gr.has(g2.name(), Phase::WATER));
+        BOOST_CHECK( !gr.has(g2.name(), Phase::GAS));
+    }
+    // Step 1
+    {
+        GuideRate gr = GuideRate(schedule);
+        const auto& g1 = schedule.getGroup("G1", 1);
+        const auto& g2 = schedule.getGroup("G2", 1);
+        gr.compute(g1.name(), Phase::WATER, 1, 0.0);
+        gr.compute(g1.name(), Phase::GAS, 1, 0.0);
+        gr.compute(g2.name(), Phase::WATER, 1, 0.0);
+        gr.compute(g2.name(), Phase::GAS, 1, 0.0);
+
+        BOOST_CHECK( gr.has(g1.name(), Phase::WATER));
+        BOOST_CHECK( gr.has(g1.name(), Phase::GAS));
+        BOOST_CHECK( gr.has(g2.name(), Phase::WATER));
+        BOOST_CHECK( !gr.has(g2.name(), Phase::GAS));
+
+        BOOST_CHECK_EQUAL(1.0, gr.get(g1.name(), Phase::WATER));
+        BOOST_CHECK_EQUAL(1.0, gr.get(g1.name(), Phase::GAS));
+        BOOST_CHECK_EQUAL(1.0, gr.get(g2.name(), Phase::WATER));
+        BOOST_CHECK_THROW(gr.get(g2.name(), Phase::GAS), std::logic_error);
+    }
+    // Step 2
+    {
+        GuideRate gr = GuideRate(schedule);
+        const auto& g1 = schedule.getGroup("G1", 2);
+        const auto& g2 = schedule.getGroup("G2", 2);
+        gr.compute(g1.name(), Phase::WATER, 2, 0.0);
+        gr.compute(g1.name(), Phase::GAS, 2, 0.0);
+        gr.compute(g2.name(), Phase::WATER, 2, 0.0);
+        gr.compute(g2.name(), Phase::GAS, 2, 0.0);
+        BOOST_CHECK( !gr.has(g1.name(), Phase::WATER));
+        BOOST_CHECK( gr.has(g1.name(), Phase::GAS));
+        BOOST_CHECK( gr.has(g2.name(), Phase::WATER));
+        BOOST_CHECK( !gr.has(g2.name(), Phase::GAS));
+    }
+
 }
 
 BOOST_AUTO_TEST_CASE(GCONINJE_GCONPROD) {
@@ -524,6 +620,9 @@ BOOST_AUTO_TEST_CASE(GCONINJE_GCONPROD) {
         BOOST_CHECK(!g2.injectionGroupControlAvailable(Phase::WATER));
         BOOST_CHECK( g1.injectionGroupControlAvailable(Phase::GAS));
         BOOST_CHECK( g2.injectionGroupControlAvailable(Phase::GAS));
+
+        BOOST_CHECK(f.is_field());
+        BOOST_CHECK(!g1.is_field());
     }
     {
         const auto& g1 = schedule.getGroup("G1", 1);
@@ -537,3 +636,122 @@ BOOST_AUTO_TEST_CASE(GCONINJE_GCONPROD) {
         BOOST_CHECK( g2.injectionGroupControlAvailable(Phase::GAS));
     }
 }
+
+BOOST_AUTO_TEST_CASE(GPMAINT) {
+    const auto input = R"(
+SCHEDULE
+
+GRUPTREE
+ 'PROD'    'FIELD' /
+
+ 'M5S'    'PLAT-A'  /
+ 'M5N'    'PLAT-A'  /
+
+ 'C1'     'M5N'  /
+ 'F1'     'M5N'  /
+ 'B1'     'M5S'  /
+ 'G1'     'M5S'  /
+ /
+
+GPMAINT
+  'PROD'  'WINJ'   2  1*  100  0.25  1.0 /
+  'C1'    'GINJ'   0  1*  100  0.25  1.0 /
+  'F1'    'PROD'  1 1 1 1 1 /
+/
+
+TSTEP
+   10 /
+
+TSTEP
+  10 /
+
+GPMAINT
+  'PROD'  'WINJ'   2  1*  100  0.25  1.0 /
+/
+
+TSTEP
+ 10 /
+
+GPMAINT
+  'PROD'  'NONE' /
+/
+
+TSTEP
+10 /
+
+GCONPROD
+   PROD        ORAT  0     0     1*    0     RATE  YES   1*    '   '     1*    1*    1*    1*    1*    /
+   FIELD       ORAT  71500 1*    1*    1*    RATE  YES   1*    '   '     1*    1*    1*    1*    1*    /
+/
+
+
+)";
+    Opm::UnitSystem unitSystem = UnitSystem( UnitSystem::UnitType::UNIT_TYPE_METRIC );
+    const auto sched = create_schedule(input);
+    GPMaint::State gpm_state;
+    const auto T = 86400;
+    const auto K = 0.25 / (86400 * 1e5);
+    const double error = 100000;
+    const double dt = 100000;
+    const double current_rate = 65;
+    {
+        const auto& prod_group = sched.getGroup("PROD", 0);
+        const auto& plat_group = sched.getGroup("PLAT-A", 0);
+        const auto& c1_group = sched.getGroup("C1", 0);
+        const auto& f1_group = sched.getGroup("F1", 0);
+
+        const auto& gpm_prod = prod_group.gpmaint();
+        BOOST_CHECK( gpm_prod );
+        BOOST_CHECK(gpm_prod->flow_target() == GPMaint::FlowTarget::RESV_WINJ);
+        {
+            auto rate1 = gpm_prod->rate(gpm_state, current_rate, error, dt);
+            BOOST_CHECK_EQUAL( rate1, current_rate + K * error );
+
+            auto rate2 = gpm_prod->rate(gpm_state, current_rate, error, dt);
+            BOOST_CHECK_EQUAL( rate2, (error + error*dt / T) * K + current_rate );
+
+            auto rate3 = gpm_prod->rate(gpm_state, current_rate, error, dt);
+            BOOST_CHECK_EQUAL( rate3, (error + 2*error*dt / T) * K + current_rate );
+        }
+
+        // This should be flagged as an injection group because the group is
+        // under GPMAINT control with WINJ target.
+        BOOST_CHECK( prod_group.isInjectionGroup() );
+        BOOST_CHECK( f1_group.isProductionGroup() );
+        BOOST_CHECK( prod_group.has_control(Phase::WATER, Group::InjectionCMode::RESV) );
+        BOOST_CHECK( !prod_group.has_control(Phase::GAS, Group::InjectionCMode::RESV) );
+        BOOST_CHECK( f1_group.has_control(Group::ProductionCMode::RESV) );
+
+        auto [name, number] = *gpm_prod->region();
+        BOOST_CHECK_EQUAL(number, 2);
+        BOOST_CHECK_EQUAL(name, "FIPNUM");
+
+        const auto& gpm_c1 = c1_group.gpmaint();
+        BOOST_CHECK(!gpm_c1->region());
+
+        const auto& plat_prod = plat_group.gpmaint();
+        BOOST_CHECK( !plat_prod );
+    }
+    {
+        const auto& prod_group = sched.getGroup("PROD", 1);
+        const auto& gpm_prod = prod_group.gpmaint();
+
+        auto rate4 = gpm_prod->rate(gpm_state, current_rate, error, dt);
+        BOOST_CHECK_EQUAL( rate4, (error + 3*error*dt / T) * K + current_rate );
+    }
+    {
+        const auto& prod_group = sched.getGroup("PROD", 2);
+        const auto& gpm_prod = prod_group.gpmaint();
+
+        auto rate1 = gpm_prod->rate(gpm_state, current_rate, error, dt);
+        BOOST_CHECK_EQUAL( rate1, current_rate + K*error);
+    }
+    {
+        const auto& prod_group = sched.getGroup("PROD", 4);
+        const auto& gpm_prod = prod_group.gpmaint();
+        BOOST_CHECK( !gpm_prod );
+    }
+
+    BOOST_CHECK(sched[0].has_gpmaint());
+}
+

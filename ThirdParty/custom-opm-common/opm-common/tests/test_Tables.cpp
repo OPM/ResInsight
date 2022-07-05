@@ -31,12 +31,12 @@
 #include <stdexcept>
 #include <vector>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 #include <opm/output/eclipse/VectorItems/tabdims.hpp>
 
@@ -172,7 +172,7 @@ END
                         Opm::Parser{}.parseString(input)
                     };
 
-                    return {deck};
+                    return Opm::EclipseState{deck};
                 }
 
                 std::vector<double> expect_SGFN()
@@ -324,7 +324,7 @@ END
                         Opm::Parser{}.parseString(input)
                     };
 
-                    return {deck};
+                    return Opm::EclipseState{deck};
                 }
 
                 std::vector<double> expect_SOFN()
@@ -495,7 +495,7 @@ END
                     Opm::Parser{}.parseString(input)
                 };
 
-                return {deck};
+                return Opm::EclipseState{deck};
             }
 
             std::vector<double> expect_SGFN()
@@ -652,7 +652,7 @@ END
                         Opm::Parser{}.parseString(input)
                     };
 
-                    return {deck};
+                    return Opm::EclipseState{deck};
                 }
 
                 std::vector<double> expect_SGFN()
@@ -823,7 +823,7 @@ END
                         Opm::Parser{}.parseString(input)
                     };
 
-                    return {deck};
+                    return Opm::EclipseState{deck};
                 }
 
                 std::vector<double> expect_SOFN()
@@ -1007,7 +1007,7 @@ END
                     Opm::Parser{}.parseString(input)
                 };
 
-                return {deck};
+                return Opm::EclipseState{deck};
             }
 
             std::vector<double> expect_SGFN()
@@ -1494,7 +1494,7 @@ namespace {
     Opm::EclipseState parse(const std::string& rspec,
                             const std::string& props)
     {
-        return {
+        return Opm::EclipseState{
             Opm::Parser{}.parseString(rspec + R"(GRID
 INIT
 
@@ -2458,8 +2458,8 @@ PVDO
     {
         const auto& tabd = es.runspec().tabdims();
 
-        BOOST_CHECK_EQUAL(tabd.getNumPVTTables(),     2);
-        BOOST_CHECK_EQUAL(tabd.getNumPressureNodes(), 2);
+        BOOST_CHECK_EQUAL(tabd.getNumPVTTables(),     2U);
+        BOOST_CHECK_EQUAL(tabd.getNumPressureNodes(), 2U);
     }
 
     const auto pvdo = std::vector<double> {
@@ -2859,9 +2859,9 @@ PVTO
     {
         const auto& tabd = es.runspec().tabdims();
 
-        BOOST_CHECK_EQUAL(tabd.getNumPVTTables(),     2);
-        BOOST_CHECK_EQUAL(tabd.getNumRSNodes(),       1);
-        BOOST_CHECK_EQUAL(tabd.getNumPressureNodes(), 2);
+        BOOST_CHECK_EQUAL(tabd.getNumPVTTables(),     2U);
+        BOOST_CHECK_EQUAL(tabd.getNumRSNodes(),       1U);
+        BOOST_CHECK_EQUAL(tabd.getNumPressureNodes(), 2U);
     }
 
     // Verify active TABDIMS from dynamic sizes

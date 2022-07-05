@@ -67,7 +67,7 @@ namespace Opm { namespace RestartIO { namespace Helpers {
 				     const std::vector<int>& inteHead,
 				     const Opm::EclipseGrid&  grid,
 				     const Opm::SummaryState& smry,
-				     const Opm::data::WellRates&  wr
+				     const Opm::data::Wells&  wr
 				   );
 
         /// Retrieve Integer Multisegment well data Array.

@@ -24,6 +24,8 @@
 #include <string>
 #include <vector>
 
+#include <opm/input/eclipse/EclipseState/Grid/NNC.hpp>
+
 namespace Opm {
 
     class EclipseGrid;
@@ -52,7 +54,7 @@ namespace Opm { namespace InitIO {
                const ::Opm::Schedule&                  schedule,
                const ::Opm::data::Solution&            simProps,
                std::map<std::string, std::vector<int>> int_data,
-               const ::Opm::NNC&                       nnc,
+               const std::vector<::Opm::NNCdata>&      nnc,
                ::Opm::EclIO::OutputStream::Init&       initFile);
 
 }} // namespace Opm::InitIO

@@ -19,8 +19,8 @@
 #include <opm/io/eclipse/ExtESmry.hpp>
 
 #include <opm/common/ErrorMacros.hpp>
-#include <opm/common/utility/FileSystem.hpp>
 #include <opm/common/utility/TimeService.hpp>
+#include <opm/common/utility/shmatch.hpp>
 #include <opm/io/eclipse/EclFile.hpp>
 #include <opm/io/eclipse/EclUtil.hpp>
 
@@ -28,23 +28,18 @@
 #include <numeric>
 #include <chrono>
 #include <exception>
+#include <filesystem>
 #include <iterator>
 #include <limits>
 #include <set>
 #include <stdexcept>
 #include <string>
-
-#ifdef _WIN32
-#include "cross-platform/windows/Substitutes.hpp"
-#else
-#include <fnmatch.h>
-#endif
-
 #include <fstream>
 #include <cmath>
 #include <cstring>
 #include <iostream>
-#include <iostream>
+#include <thread>
+
 
 namespace {
 
@@ -99,33 +94,49 @@ ExtESmry::ExtESmry(const std::string &filename, bool loadBaseRunData) :
     m_inputFileName { filename },
     m_loadBaseRun(loadBaseRunData)
 {
+    m_io_opening = 0.0;
+    m_io_loading = 0.0;
+
+    auto start = std::chrono::system_clock::now();
+
     if (m_inputFileName.extension()=="")
         m_inputFileName+=".ESMRY";
 
     if (m_inputFileName.extension()!=".ESMRY")
         throw std::invalid_argument("Input file should have extension .ESMRY");
 
-    m_lodsmry_files.push_back(m_inputFileName);
+    m_esmry_files.push_back(m_inputFileName);
 
-    Opm::filesystem::path rootName = m_inputFileName.parent_path() / m_inputFileName.stem();
-    Opm::filesystem::path path = Opm::filesystem::current_path();
+    std::filesystem::path rootName = m_inputFileName.parent_path() / m_inputFileName.stem();
+    std::filesystem::path path = std::filesystem::current_path();
 
-    Opm::filesystem::path rstRootN;
+    std::filesystem::path rstRootN;
 
     updatePathAndRootName(path, rootName);
 
-    LodsmryHeadType lodsmry_head;
+    ExtSmryHeadType ext_esmry_head;
 
-    auto lod_offset = open_esmry(m_inputFileName, lodsmry_head);
+    uint64_t rstep_offset;
 
-    m_startdat = std::get<0>(lodsmry_head);
+    bool res = open_esmry(m_inputFileName, ext_esmry_head, rstep_offset);
+    int n_attempts = 1;
 
-    m_lod_offset.push_back(lod_offset);
+    while ((!res) && (n_attempts < 10)){
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        res = open_esmry(m_inputFileName, ext_esmry_head, rstep_offset);
+        n_attempts ++;
+    }
+
+    if (n_attempts == 10)
+        OPM_THROW( std::runtime_error, "when opening ESMRY file " + filename );
+
+    m_startdat = std::get<0>(ext_esmry_head);
+    m_rstep_offset.push_back(rstep_offset);
 
     std::map<std::string, int> key_index;
 
-    auto keyword = std::get<2>(lodsmry_head);
-    auto units = std::get<3>(lodsmry_head);
+    auto keyword = std::get<2>(ext_esmry_head);
+    auto units = std::get<3>(ext_esmry_head);
 
     for (size_t n = 0; n < keyword.size(); n++){
         key_index[keyword[n]] = n;
@@ -137,16 +148,12 @@ ExtESmry::ExtESmry(const std::string &filename, bool loadBaseRunData) :
     for (size_t n = 0; n < m_keyword.size(); n++)
         kwunits[m_keyword[n]] = units[n];
 
-    RstEntry rst_entry = std::get<1>(lodsmry_head);
+    RstEntry rst_entry = std::get<1>(ext_esmry_head);
 
-    m_rstep_v.push_back(std::get<4>(lodsmry_head));
-    m_tstep_v.push_back(std::get<5>(lodsmry_head));
+    m_rstep_v.push_back(std::get<4>(ext_esmry_head));
+    m_tstep_v.push_back(std::get<5>(ext_esmry_head));
 
     m_nTstep_v.push_back(m_tstep_v.back().size());
-
-    auto lod_arr_size = sizeOnDiskBinary(m_nTstep_v.back(), Opm::EclIO::REAL, sizeOfReal);
-
-    m_lod_arr_size.push_back(lod_arr_size);
 
     m_tstep_range.push_back(std::make_tuple(0, m_tstep_v.back().size() - 1));
 
@@ -159,26 +166,24 @@ ExtESmry::ExtESmry(const std::string &filename, bool loadBaseRunData) :
         while (!restart.empty()){
             sim_ind++;
 
-            rstRootN = Opm::filesystem::path(restart);
+            rstRootN = std::filesystem::path(restart);
 
             updatePathAndRootName(path, rstRootN);
 
-            Opm::filesystem::path rstLodSmryFile = path / rstRootN;
-            rstLodSmryFile += ".ESMRY";
+            std::filesystem::path rstESmryFile = path / rstRootN;
+            rstESmryFile += ".ESMRY";
 
-            m_lodsmry_files.push_back(rstLodSmryFile);
+            m_esmry_files.push_back(rstESmryFile);
 
-            lod_offset = open_esmry(rstLodSmryFile, lodsmry_head);
+            if (!open_esmry(rstESmryFile, ext_esmry_head, rstep_offset))
+                OPM_THROW( std::runtime_error, "when opening ESMRY file" + rstESmryFile.string() );
 
-            m_lod_offset.push_back(lod_offset);
+            m_rstep_offset.push_back(rstep_offset);
 
-            m_rstep_v.push_back(std::get<4>(lodsmry_head));
-            m_tstep_v.push_back(std::get<5>(lodsmry_head));
+            m_rstep_v.push_back(std::get<4>(ext_esmry_head));
+            m_tstep_v.push_back(std::get<5>(ext_esmry_head));
 
             m_nTstep_v.push_back(m_tstep_v.back().size());
-
-            lod_arr_size = sizeOnDiskBinary(m_nTstep_v.back(), Opm::EclIO::REAL, sizeOfReal);
-            m_lod_arr_size.push_back(lod_arr_size);
 
             int cidx = 0;
 
@@ -196,14 +201,14 @@ ExtESmry::ExtESmry(const std::string &filename, bool loadBaseRunData) :
             m_tstep_range.push_back(std::make_tuple(0, ind));
 
             key_index.clear();
-            keyword = std::get<2>(lodsmry_head);
+            keyword = std::get<2>(ext_esmry_head);
 
             for (size_t n = 0; n < keyword.size(); n++)
                 key_index[keyword[n]] = n;
 
             m_keyword_index.push_back(key_index);
 
-            rst_entry = std::get<1>(lodsmry_head);
+            rst_entry = std::get<1>(ext_esmry_head);
             restart = std::get<0>(rst_entry);
             rstNum = std::get<1>(rst_entry);
         }
@@ -228,6 +233,9 @@ ExtESmry::ExtESmry(const std::string &filename, bool loadBaseRunData) :
     for (size_t m = 0; m < m_rstep.size(); m++)
         if (m_rstep[m] == 1)
             m_seqIndex.push_back(m);
+
+    std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - start;
+    m_io_opening += elapsed_seconds.count();
 }
 
 
@@ -261,31 +269,46 @@ bool ExtESmry::all_steps_available()
     return true;
 }
 
-uint64_t ExtESmry::open_esmry(Opm::filesystem::path& inputFileName, LodsmryHeadType& lodsmry_head)
+bool ExtESmry::open_esmry(const std::filesystem::path& inputFileName, ExtSmryHeadType& ext_smry_head, uint64_t& rstep_offset)
 {
     std::fstream fileH;
 
     fileH.open(inputFileName, std::ios::in |  std::ios::binary);
 
     if (!fileH)
-        throw std::runtime_error("Can not open file ");
-
+        return false;
 
     std::string arrName;
     int64_t arr_size;
     Opm::EclIO::eclArrType arrType;
     int sizeOfElement;
 
-    Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    try {
+        Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
-    if ((arrName != "START   ") or (arrType != Opm::EclIO::INTE))
-        OPM_THROW(std::invalid_argument, "reading start, invalid lod file");
+    if (arrName != "START   " || arrType != Opm::EclIO::INTE)
+        OPM_THROW(std::invalid_argument, "reading start, invalid esmry file " + inputFileName.string() );
 
-    auto start_vect = Opm::EclIO::readBinaryInteArray(fileH, arr_size);
+    std::vector<int> start_vect;
+    try {
+        start_vect = Opm::EclIO::readBinaryInteArray(fileH, arr_size);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
     auto startdat = make_date(start_vect);
 
-    Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    try {
+       Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
     Opm::EclIO::RstEntry rst_entry = std::make_tuple("", 0);
 
@@ -309,47 +332,89 @@ uint64_t ExtESmry::open_esmry(Opm::filesystem::path& inputFileName, LodsmryHeadT
     }
 
     if (arrName != "KEYCHECK")
-        OPM_THROW(std::invalid_argument, "!!reading keycheck, invalid lod file");
+        OPM_THROW(std::invalid_argument, "reading keycheck, invalid esmry file " + inputFileName.string() );
 
     std::vector<std::string> keywords;
 
-    keywords = Opm::EclIO::readBinaryC0nnArray(fileH, arr_size, sizeOfElement);
+    try {
+        keywords = Opm::EclIO::readBinaryC0nnArray(fileH, arr_size, sizeOfElement);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
-    Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+
+    try {
+        Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
     if (arrName != "UNITS   ")
-        OPM_THROW(std::invalid_argument, "reading UNITS, invalid lod file");
+        OPM_THROW(std::invalid_argument, "reading UNITS, invalid esmry file " + inputFileName.string() );
 
-    auto units = Opm::EclIO::readBinaryC0nnArray(fileH, arr_size, sizeOfElement);
+    std::vector<std::string> units;
+
+    try {
+        units = Opm::EclIO::readBinaryC0nnArray(fileH, arr_size, sizeOfElement);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
     if (keywords.size() != units.size())
-        throw std::runtime_error("invalied LODSMRY file, size of units not equal size of keywords");
+        OPM_THROW( std::runtime_error, "invalid ESMRY file " + inputFileName.string() + ". Size of UNITS not equal size of KEYCHECK");
 
-    Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    rstep_offset = static_cast<uint64_t>(fileH.tellg());
 
-    if ((arrName != "RSTEP   ") or (arrType != Opm::EclIO::INTE))
-        OPM_THROW(std::invalid_argument, "reading RSTEP, invalid lod file");
+    try {
+        Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
-    auto rstep = Opm::EclIO::readBinaryInteArray(fileH, arr_size);
+    if (arrName != "RSTEP   " || arrType != Opm::EclIO::INTE)
+        OPM_THROW(std::invalid_argument, "Reading RSTEP, invalid esmry file " + inputFileName.string() );
 
-    Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    std::vector<int> rstep;
 
-    if ((arrName != "TSTEP   ") or (arrType != Opm::EclIO::INTE))
-        OPM_THROW(std::invalid_argument, "reading TSTEP, invalid lod file");
+    try {
+        rstep = Opm::EclIO::readBinaryInteArray(fileH, arr_size);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
-    auto tstep = Opm::EclIO::readBinaryInteArray(fileH, arr_size);
+    try {
+        Opm::EclIO::readBinaryHeader(fileH, arrName, arr_size, arrType, sizeOfElement);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
 
-    lodsmry_head = std::make_tuple(startdat, rst_entry, keywords, units, rstep, tstep);
+    if (arrName != "TSTEP   " || arrType != Opm::EclIO::INTE)
+        OPM_THROW(std::invalid_argument, "reading TSTEP, invalid esmry file " + inputFileName.string() );
 
-    uint64_t lodsmry_offset = static_cast<uint64_t>(fileH.tellg());
+    std::vector<int> tstep;
+
+    try {
+        tstep = Opm::EclIO::readBinaryInteArray(fileH, arr_size);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
+
+    ext_smry_head = std::make_tuple(startdat, rst_entry, keywords, units, rstep, tstep);
 
     fileH.close();
 
-    return lodsmry_offset;
+    return true;
 }
 
 
-void ExtESmry::updatePathAndRootName(Opm::filesystem::path& dir, Opm::filesystem::path& rootN) {
+void ExtESmry::updatePathAndRootName(std::filesystem::path& dir, std::filesystem::path& rootN) {
 
     if (rootN.parent_path().is_absolute()){
         dir = rootN.parent_path();
@@ -361,14 +426,117 @@ void ExtESmry::updatePathAndRootName(Opm::filesystem::path& dir, Opm::filesystem
 }
 
 
+bool ExtESmry::load_esmry(const std::vector<std::string>& stringVect, const std::vector<int>& keyIndexVect,
+                               const std::vector<int>& loadKeyIndex, int ind, int to_ind )
+{
+    std::fstream fileH;
+
+    fileH.open(m_esmry_files[ind], std::ios::in |  std::ios::binary);
+
+    if (!fileH)
+        return false;
+
+    std::string arrName;
+    Opm::EclIO::eclArrType arrType;
+    int64_t num_tstep;
+    int sizeOfElement;
+
+    // Read actual number of time steps on disk from RSTEP array before loading
+    // data. Notice that number of time steps can be different than what it was when
+    // the ESMRY file was opened. The simulation may have progressed if this is an
+    // ESMRY file from an active run
+
+    fileH.seekg (m_rstep_offset[ind], fileH.beg);
+
+    try {
+        Opm::EclIO::readBinaryHeader(fileH, arrName, num_tstep, arrType, sizeOfElement);
+    } catch (const std::runtime_error& error)
+    {
+        return false;
+    }
+
+    auto smry_arr_size = sizeOnDiskBinary(num_tstep, Opm::EclIO::REAL, sizeOfReal);
+
+    std::vector<std::vector<float>> smry_data;
+    smry_data.resize(loadKeyIndex.size(), {});
+
+    for (size_t n = 0 ; n < loadKeyIndex.size(); n++) {
+
+        const auto& key = stringVect[loadKeyIndex[n]];
+
+        if ( m_keyword_index[ind].find(key) == m_keyword_index[ind].end() ) {
+
+            smry_data[n].resize(to_ind + 1, 0.0 );
+
+        } else {
+
+            int key_ind = m_keyword_index[ind].at(key);
+
+            uint64_t pos = m_rstep_offset[ind] + smry_arr_size*static_cast<uint64_t>(key_ind);
+
+            // adding size of TSTEP and RSTEP INTE data
+            pos = pos + 2 * sizeOnDiskBinary(num_tstep, Opm::EclIO::INTE, sizeOfInte);
+
+            pos = pos + static_cast<uint64_t>(2 * 24);  // adding size of binary headers (TSTEP and RSTEP)
+            pos = pos + static_cast<uint64_t>(key_ind * 24);  // adding size of binary headers
+
+            fileH.seekg (pos, fileH.beg);
+
+            int64_t size;
+
+            try {
+                readBinaryHeader(fileH, arrName, size, arrType, sizeOfElement);
+            } catch (const std::runtime_error& error)
+            {
+                return false;
+            }
+
+            arrName = Opm::EclIO::trimr(arrName);
+
+            std::string checkName = "V" + std::to_string(key_ind);
+
+            if (arrName != checkName)
+                return false;
+
+            try {
+                smry_data[n] = readBinaryRealArray(fileH, size);
+            } catch (const std::runtime_error& error)
+            {
+                return false;
+            }
+        }
+    }
+
+    fileH.close();
+
+    for (size_t n = 0 ; n < loadKeyIndex.size(); n++)
+        m_vectorData[keyIndexVect[n]].insert(m_vectorData[keyIndexVect[n]].end(), smry_data[n].begin(), smry_data[n].begin() + to_ind + 1);
+
+    return true;
+}
+
+
 void ExtESmry::loadData(const std::vector<std::string>& stringVect)
 {
+    auto start = std::chrono::system_clock::now();
+
+    auto num_keys = stringVect.size();
     std::vector<int> keyIndexVect;
+    std::vector<int> loadKeyIndex;
 
-    for (const auto& key: stringVect)
-        keyIndexVect.push_back(m_keyword_index[0].at(key));
+    keyIndexVect.reserve(num_keys);
+    loadKeyIndex.reserve(num_keys);
 
-    std::fstream fileH;
+    int keyCounter = 0;
+
+    for (const auto& key: stringVect){
+        auto key_ind = m_keyword_index[0].at(key);
+        if ((!m_vectorLoaded[key_ind]) && (std::find(keyIndexVect.begin(), keyIndexVect.end(), key_ind) == keyIndexVect.end() )){
+            keyIndexVect.push_back(key_ind);
+            loadKeyIndex.push_back(keyCounter);
+        }
+        ++keyCounter;
+    }
 
     int ind = static_cast<int>(m_tstep_range.size()) - 1 ;
 
@@ -376,55 +544,29 @@ void ExtESmry::loadData(const std::vector<std::string>& stringVect)
 
         int to_ind = std::get<1>(m_tstep_range[ind]);
 
-        fileH.open(m_lodsmry_files[ind], std::ios::in |  std::ios::binary);
+        bool res = load_esmry(stringVect, keyIndexVect, loadKeyIndex, ind, to_ind );
 
-        if (!fileH)
-            throw std::runtime_error("Can not open file lodFile");
+        int n_attempts = 1;
 
-        for (size_t n = 0 ; n < stringVect.size(); n++) {
-
-            std::string key = stringVect[n];
-
-            std::string arrName;
-            Opm::EclIO::eclArrType arrType;
-
-            if ( m_keyword_index[ind].find(key) == m_keyword_index[ind].end() ) {
-
-                for (int m = 0; m < to_ind + 1; m++)
-                    m_vectorData[keyIndexVect[n]].push_back(0.0);
-
-            } else {
-
-                int key_ind = m_keyword_index[ind].at(key);
-
-                uint64_t pos = m_lod_offset[ind] + m_lod_arr_size[ind]*static_cast<uint64_t>(key_ind);
-                pos = pos + static_cast<uint64_t>(key_ind * 24);  // adding size of binary headers
-
-                fileH.seekg (pos, fileH.beg);
-
-                int64_t size;
-                int sizeOfElement;
-                readBinaryHeader(fileH, arrName, size, arrType, sizeOfElement);
-
-                arrName = Opm::EclIO::trimr(arrName);
-
-                std::string checkName = "V" + std::to_string(key_ind);
-
-                if (arrName != checkName)
-                    OPM_THROW(std::invalid_argument, "lodsmry, wrong header expecting  " + checkName + " found " +  arrName);
-
-                auto smry_data = readBinaryRealArray(fileH, size);
-
-                m_vectorData[keyIndexVect[n]].insert(m_vectorData[keyIndexVect[n]].end(), smry_data.begin(), smry_data.begin() + to_ind + 1);
-            }
+        while ((!res) && (n_attempts < 10)){
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
+            res = load_esmry(stringVect, keyIndexVect, loadKeyIndex, ind, to_ind );
+            n_attempts ++;
         }
 
-        fileH.close();
+        if (n_attempts == 10){
+            std::string emsry_file_name = m_esmry_files[ind].string();
+            OPM_THROW( std::runtime_error, "when loading data from ESMRY file" + emsry_file_name );
+        }
+
         ind--;
     }
 
     for (auto kind : keyIndexVect)
         m_vectorLoaded[kind] = true;
+
+    std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - start;
+    m_io_loading += elapsed_seconds.count();
 }
 
 void ExtESmry::loadData()
@@ -461,7 +603,7 @@ std::vector<std::string> ExtESmry::keywordList(const std::string& pattern) const
     std::vector<std::string> list;
 
     for (const auto& key : m_keyword)
-        if (fnmatch( pattern.c_str(), key.c_str(), 0 ) == 0 )
+        if (shmatch( pattern, key) )
             list.push_back(key);
 
     return list;
@@ -470,6 +612,12 @@ std::vector<std::string> ExtESmry::keywordList(const std::string& pattern) const
 bool ExtESmry::hasKey(const std::string &key) const
 {
     return std::find(m_keyword.begin(), m_keyword.end(), key) != m_keyword.end();
+}
+
+std::tuple<double, double> ExtESmry::get_io_elapsed() const
+{
+    std::tuple<double, double> duration = std::make_tuple(m_io_opening, m_io_loading);
+    return duration;
 }
 
 

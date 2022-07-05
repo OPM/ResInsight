@@ -1,0 +1,11 @@
+{
+  "name": "SOGCR",
+  "sections": [
+    "PROPS"
+  ],
+  "requires" : ["GAS", "OIL", "ENDSCALE"],
+  "data": {
+    "value_type": "DOUBLE",
+    "dimension": "1"
+  }
+}

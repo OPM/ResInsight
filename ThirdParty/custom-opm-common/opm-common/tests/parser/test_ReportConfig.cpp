@@ -24,12 +24,17 @@
 #define BOOST_TEST_MODULE ReportConfigTest
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/RPTConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/common/utility/OpmInputError.hpp>
+
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+
+#include <opm/input/eclipse/Schedule/RPTConfig.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+
+#include <opm/input/eclipse/Python/Python.hpp>
+
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
@@ -96,9 +101,9 @@ RPTSCHED
   FIPSOL=2.50
 )";
 
-    BOOST_CHECK_THROW(make_schedule(sched_string1), std::invalid_argument);
-    BOOST_CHECK_THROW(make_schedule(sched_string2), std::invalid_argument);
-    BOOST_CHECK_THROW(make_schedule(sched_string3), std::invalid_argument);
+    BOOST_CHECK_THROW(make_schedule(sched_string1), Opm::OpmInputError);
+    BOOST_CHECK_THROW(make_schedule(sched_string2), Opm::OpmInputError);
+    BOOST_CHECK_THROW(make_schedule(sched_string3), Opm::OpmInputError);
 }
 
 
@@ -125,8 +130,8 @@ RPTSCHED
 
     // Empty initial report configuration
     {
-        auto report_config = sched.report_config(0);
-        BOOST_CHECK_EQUAL(report_config.size(), 0);
+        auto report_config = sched[0].rpt_config.get();
+        BOOST_CHECK_EQUAL(report_config.size(), 0U);
 
         BOOST_CHECK(!report_config.contains("FIPFOAM"));
         BOOST_CHECK_THROW( report_config.at("FIPFOAM"), std::out_of_range);
@@ -134,27 +139,27 @@ RPTSCHED
 
     // Configuration at step 1
     {
-        auto report_config = sched.report_config(1);
-        BOOST_CHECK_EQUAL( report_config.size() , 2);
+        auto report_config = sched[1].rpt_config.get();
+        BOOST_CHECK_EQUAL( report_config.size() , 2U);
 
         for (const auto& p : report_config) {
             if (p.first == "FIPSOL")
-                BOOST_CHECK_EQUAL(p.second, 1);
+                BOOST_CHECK_EQUAL(p.second, 1U);
 
             if (p.first == "FIP")
-                BOOST_CHECK_EQUAL(p.second, 3);
+                BOOST_CHECK_EQUAL(p.second, 3U);
         }
 
         BOOST_CHECK(!report_config.contains("FIPFOAM"));
         BOOST_CHECK(report_config.contains("FIP"));
-        BOOST_CHECK_EQUAL(report_config.at("FIP"), 3);
-        BOOST_CHECK_EQUAL(report_config.at("FIPSOL"), 1);
+        BOOST_CHECK_EQUAL(report_config.at("FIP"), 3U);
+        BOOST_CHECK_EQUAL(report_config.at("FIPSOL"), 1U);
     }
 
     // Configuration at step 2 - the special 'NOTHING' has cleared everything
     {
-        auto report_config = sched.report_config(2);
-        BOOST_CHECK_EQUAL(report_config.size(), 0);
+        auto report_config = sched[2].rpt_config.get();
+        BOOST_CHECK_EQUAL(report_config.size(), 0U);
 
         BOOST_CHECK(!report_config.contains("FIPFOAM"));
         BOOST_CHECK_THROW( report_config.at("FIPFOAM"), std::out_of_range);

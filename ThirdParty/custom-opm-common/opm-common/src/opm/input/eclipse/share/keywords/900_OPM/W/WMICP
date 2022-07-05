@@ -1,0 +1,27 @@
+{
+  "name": "WMICP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "MICROBIAL_CONCENTRATION",
+      "value_type": "DOUBLE",
+      "dimension": "Density"
+    },
+    {
+      "name": "OXYGEN_CONCENTRATION",
+      "value_type": "DOUBLE",
+      "dimension": "Density"
+    },
+    {
+      "name": "UREA_CONCENTRATION",
+      "value_type": "DOUBLE",
+      "dimension": "Density"
+    }
+  ]
+}

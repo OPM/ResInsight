@@ -20,12 +20,12 @@
 #include <iostream>
 #include <sstream>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
 
 inline void loadDeck( const char * deck_file) {
     Opm::Parser parser;
@@ -34,7 +34,7 @@ inline void loadDeck( const char * deck_file) {
     auto deck = parser.parseFile(deck_file);
     Opm::EclipseState state( deck);
     Opm::Schedule schedule( deck, state, python);
-    Opm::SummaryConfig summary( deck, schedule, state.getTableManager( ));
+    Opm::SummaryConfig summary( deck, schedule, state.fieldProps(), state.aquifer() );
     {
         std::stringstream ss;
 
@@ -46,8 +46,8 @@ inline void loadDeck( const char * deck_file) {
         }
 
         for (size_t index=0; index < deck.size(); index++) {
-            const auto& kw1 = deck.getKeyword( index );
-            const auto& kw2 = deck2.getKeyword( index );
+            const auto& kw1 = deck[index];
+            const auto& kw2 = deck2[index];
 
             if (!kw1.equal( kw2 , true , true)) {
                 std::cerr << "Keyword " << index << " different " << kw1.name() << " " << kw2.name() << std::endl;

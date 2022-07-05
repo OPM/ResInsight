@@ -30,10 +30,11 @@ namespace Opm {
     class EclipseGrid;
     class Schedule;
     class UnitSystem;
+    class SummaryState;
 } // Opm
 
 namespace Opm { namespace data {
-    class WellRates;
+    class Wells;
 }}
 
 namespace Opm { namespace RestartIO { namespace Helpers {
@@ -46,7 +47,8 @@ namespace Opm { namespace RestartIO { namespace Helpers {
         void captureDeclaredConnData(const Opm::Schedule&        sched,
                                      const Opm::EclipseGrid&     grid,
                                      const Opm::UnitSystem&      units,
-                                     const Opm::data::WellRates& xw,
+                                     const Opm::data::Wells&     xw,
+                                     const Opm::SummaryState&    summary_state,
                                      const std::size_t           sim_step);
 
         const std::vector<int>& getIConn() const

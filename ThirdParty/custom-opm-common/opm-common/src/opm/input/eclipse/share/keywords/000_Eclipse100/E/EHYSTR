@@ -1,0 +1,99 @@
+{
+  "name": "EHYSTR",
+  "sections": [
+    "PROPS"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "curvature_caplillary_pressure_hyst",
+      "value_type": "DOUBLE",
+      "default": 0.1,
+      "comment": "Not used"
+    },
+    {
+      "item": 2,
+      "name": "relative_perm_hyst",
+      "value_type": "INT",
+      "default": 0,
+      "comment": "Default is 2 for Eclipse300"
+    },
+    {
+      "item": 3,
+      "name": "curvature_param_killough_wetting",
+      "value_type": "DOUBLE",
+      "default": 1,
+      "comment": "Not used"
+    },
+    {
+      "item": 4,
+      "name": "mod_param_trapped",
+      "value_type": "DOUBLE",
+      "default": 0.1,
+      "comment": "Not used"
+    },
+    {
+      "item": 5,
+      "name": "limiting_hyst_flag",
+      "value_type": "STRING",
+      "default": "BOTH"
+    },
+    {
+      "item": 6,
+      "name": "shape_cap_press_flag",
+      "value_type": "STRING",
+      "default": "RETR",
+      "comment": "Not used"
+    },
+    {
+      "item": 7,
+      "name": "init_fluid_mob_flag",
+      "value_type": "STRING",
+      "default": "DRAIN",
+      "comment": "Not used"
+    },
+    {
+      "item": 8,
+      "name": "wetting_phase_flag",
+      "value_type": "STRING",
+      "default": "OIL",
+      "comment": "Not used"
+    },
+    {
+      "item": 9,
+      "name": "baker_flag_oil",
+      "value_type": "STRING",
+      "default": "NO",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 10,
+      "name": "baker_flag_gas",
+      "value_type": "STRING",
+      "default": "NO",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 11,
+      "name": "baker_flag_water",
+      "value_type": "STRING",
+      "default": "NO",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 12,
+      "name": "threshold_saturation",
+      "value_type": "DOUBLE",
+      "default": 0,
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 13,
+      "name": "FLAG_SOMETHING",
+      "value_type": "INT",
+      "default": 0,
+      "comment": "Not used"
+    }
+  ]
+}

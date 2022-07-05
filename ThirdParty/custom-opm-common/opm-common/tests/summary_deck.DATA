@@ -26,6 +26,9 @@ WELLDIMS
    6      2       3      2
 /
 
+TRACERS
+ 1* 1 /
+
 OIL
 GAS
 WATER
@@ -60,20 +63,29 @@ PERMY
 PERMZ
 1000*10 /
 
+PROPS
+TRACER
+  'SEA' 'WAT'/
+/
+
 REGIONS
 
 FIPNUM
-   100*1
-   100*2
-   100*3
-   100*4
-   100*5
-   100*6
-   100*7
-   100*8
-   100*9
-   100*10 /
-   
+   50*1  50*11
+   50*2  50*12
+   50*3  50*13
+   50*4  50*14
+   50*5  50*15
+   50*6  50*16
+   50*7  50*17
+   50*8  50*18
+   50*9  50*19
+   50*10 50*20
+/ 
+
+SOLUTION
+TBLKFSEA
+ 1000*0.1/
 
 SUMMARY
 DATE
@@ -97,7 +109,9 @@ FGPRF
 FGPRS
 FOPRF
 FOPRS
---FTPRSEA
+FCPR
+FSPR
+FTPRSEA
 -- Injection Rates
 FVIR
 FWIR
@@ -106,6 +120,7 @@ FGIR
 FNIR -- solvent
 FGIRH
 FCIR
+FSIR
 -- Production Cummulatives
 FVPT
 FWPT
@@ -124,6 +139,9 @@ FGPTF
 FOPTF
 FOPTS
 FVPRT
+FCPT
+FSPT
+FTPTSEA
 -- Injection Cummulatives
 FVIT
 FWIT
@@ -132,6 +150,7 @@ FGIT
 FNIT
 FGITH
 FCIT
+FSIT
 -- In place
 FWIP
 FOIP
@@ -195,6 +214,14 @@ BOKR
 
 BKRO
   2  1  1 /
+/
+
+BKROW
+ 3 1 1 /
+/
+
+BKROG
+ 4 1 1 /
 /
 
 BGKR
@@ -289,6 +316,44 @@ RWIP
 RPPO
 /
 
+-- Inter-region flows --
+
+ROFT
+ 1 11 /
+ 1  2 /
+ 9 10 /
+/
+
+RWFR-
+ 2 12 /
+/
+
+RWFR+
+ 2 12 /
+/
+
+RGFR
+ 2 12 /
+ 9 10 /
+/
+
+RGFTG
+ 5  6 /
+ 1 20 / -- No connection => zero flow rate and cumulatives
+/
+
+ROFTG
+ 5  6 /
+/
+
+RGFTL
+ 5  6 /
+/
+
+ROFTL
+ 5  6 /
+/
+
 --  Group data --
 GPR
 /
@@ -340,6 +405,10 @@ GWIT
 GCIR
 /
 GCIT
+/
+GSIR
+/
+GSIT
 /
 GWIRH
 /
@@ -423,10 +492,49 @@ GMWPR
 /
 GMWIN
 /
+
+GCPR
+/
+GCPT
+/
+
+GSPR
+/
+GSPT
+/
+
+-- Production and injection guide rates (group level)
+
+GOPGR
+ G_1 /
+
+GGPGR
+ G_1 /
+
+GWPGR
+ G_1 /
+
+GVPGR
+ G_1 /
+
+GGIGR
+ G_1 /
+
+GWIGR
+ G_1 /
+
+-- Network reporting (extended network, node level)
+GPR
+/
+
 -- Well Data
 -- Production Rates
 WWPR
 /
+WTPRSEA
+ W_1 W_2 /
+WTPCSEA
+ W_1 W_2 /
 WWPRH
 /
 WOPR
@@ -496,11 +604,20 @@ WNIR
 WCIR
  W_3
 /
+WSIR
+ W_3
+/
 WCIT
+ W_3
+/
+WSIT
  W_3
 /
 WNIT
  W_3
+/
+-- Tracers
+WTIRSEA
 /
 
 -- Production Cummulatives
@@ -526,12 +643,9 @@ WOPTF
 /
 WOPTS
 /
-
 -- Tracers
---WTPRSEA
---/
---WTPTSEA
---/
+WTPTSEA
+/
 -- Injection Cummulatives
 WWIT
   W_3
@@ -549,6 +663,11 @@ WGLR
 /
 WGLRH
 /
+-- Tracers
+WTITSEA
+/
+WTICSEA
+/
 
 
 -- Performance
@@ -561,6 +680,14 @@ WTHP
 WTHPH
 /
 WPI
+/
+WPIO
+/
+WPIG
+/
+WPIW
+/
+WPIL
 /
 WBP
 /
@@ -611,6 +738,58 @@ WVIT
 WMCTL
 /
 
+WCPR
+/
+
+WCPT
+/
+
+WSPR
+/
+
+WSPT
+/
+
+-- Production and injection guide rates (well level)
+WOPGR
+/
+
+WGPGR
+/
+
+WWPGR
+/
+
+WVPGR
+/
+
+WGIGR
+/
+
+WWIGR
+/
+
+WOPRL
+  W_1 1 /
+  W_2 2 /
+  W_3 3 /
+/
+
+WOFRL
+  W_1 1 /
+  W_2 2 /
+  W_3 3 /
+/
+
+COPRL
+  W_1 1 1 1 /
+  W_2 /
+/
+
+WSTAT
+/
+
+
 -- Water injection per connection
 CWIR
   * /
@@ -620,6 +799,11 @@ CWIR
 CGIR
 'W_3' 3 1 1 /
 /
+
+CPR
+'W_1' 1 1 1 /
+/
+
 
 CWIT
 'W_3' /
@@ -666,6 +850,14 @@ CCIT
  '*' /
 /
 
+CSIR
+ '*' /
+/
+
+CSIT
+ '*' /
+/
+
 CWPT
  'W_1' 1 1 1 /
 /
@@ -678,6 +870,35 @@ CGPT
  'W_1' /
  'W_2' /
  'W_3' /
+/
+
+CVPR
+  'W_2' 2 1 1 /
+  'W_2' 2 1 2 /
+  'W_3' /
+/
+
+CVIR
+  'W_2' 2 1 1 /
+  'W_2' 2 1 2 /
+  'W_3' /
+  'W_6' /
+/
+
+CVPT
+  'W_1' /
+  'W_2' 2 1 1 /
+  'W_2' 2 1 2 /
+/
+
+CVIT
+  'W_3' /
+  'W_6' /
+/
+
+CGOR
+  'W_1' /
+  'W_6' /
 /
 
 CTFAC
@@ -704,13 +925,26 @@ UDQ
   UNITS  WUBHP  'BARSA' /
 /
 
+BRANPROP
+--  Downtree  Uptree   #VFP    ALQ
+    G_1        PLAT-A   5       1* /
+    G_2        PLAT-A   4       1* /
+/
+
+NODEPROP
+--  Node_name  Press  autoChoke?  addGasLift?  Group_name
+     PLAT-A    21.0   NO          NO           1*  /
+     G_1        1*    NO          NO           1*  /
+     G_2        1*    NO          NO           1*  /
+/
+
 -- Three wells, two producers (so that we can form a group) and one injector
 WELSPECS
      'W_1'        'G_1'   1    1  3.33       'OIL'  7* /
      'W_2'        'G_1'   2    1  3.33       'OIL'  7* /
      'W_3'        'G_2'   3    1  3.92       'WATER'  7* /
      'W_6'        'G_2'   8    8  3.92       'GAS'  7* /
-     'W_5'        'G_3'   4    1  3.92       'OIL'  7* /
+     'W_5'        'G_3'   6    6  3.92       'OIL'  7* /
 /
 
 -- Completion data.
@@ -721,28 +955,35 @@ COMPDAT
     W_2   0 0  1  1 2*              1*        5  20 0.5 /   -- Active index: 1
     W_2   0 0  2  2 2*              1*        5  10 0.2 /   -- Active index: 101
     W_3   0 0  1  1 2*              1*        2*    0.7 /   -- Active index: 2
-    W_6   0 0  2  2 2*              1*        2*    0.7 /   -- Active index: 2
+    W_6   0 0  1  1 2*              1*        2*    0.7 /   -- Active index: 2
+/
+
+COMPLUMP
+  'W_1'  *  *  *  * 1 /
+  'W_2'  *  *  *  * 2 /
+  'W_3'  *  *  *  * 3 /
 /
 
 WCONHIST
 -- history rates are set so that W_1 produces 1, W_2 produces 2 etc.
 -- index.offset.
 -- organised as oil-water-gas
-    W_1 SHUT ORAT 10.1 10 10.2 2* 0.2 0.1 /
-    W_2 SHUT ORAT 20.1 20 20.2 2* 1.2 1.1 /
+    W_1 OPEN ORAT 10.1 10 10.2 2* 0.2 0.1 /
+    W_2 OPEN ORAT 20.1 20 20.2 2* 1.2 1.1 /
 /
 
 WCONINJH
 -- Injection historical rates (water only, as we only support pure injectors)
-    W_3 WATER STOP 30.0 2.1 2.2 /
+    W_3 WATER OPEN 30.0 2.1 2.2 /
 /
 
 WPOLYMER
 'W_3' 1.5 1.0 /
 /
+
 WCONINJH
 -- Injection historical rates (water only, as we only support pure injectors)
-    W_6 GAS STOP 30000.0  /
+    W_6 GAS OPEN 30000.0  /
 /
 
 WCONPROD
@@ -770,7 +1011,7 @@ WELSPECS
 /
 
 COMPDAT
-    W_4 1 1 3 3 /
+    W_4 1 1 1 3 /
 /
 
 WPIMULT

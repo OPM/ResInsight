@@ -3,7 +3,7 @@
 declare -A configurations
 
 declare -A EXTRA_MODULE_FLAGS
-EXTRA_MODULE_FLAGS[opm-simulators]="-DBUILD_EBOS_EXTENSIONS=ON -DBUILD_EBOS_DEBUG_EXTENSIONS=ON -DBUILD_FLOW_VARIANTS=ON -DOPM_ENABLE_PYTHON=ON"
+EXTRA_MODULE_FLAGS[opm-simulators]="-DBUILD_FLOW_VARIANTS=ON -DOPM_ENABLE_PYTHON=ON -DBUILD_FLOW_POLY_GRID=ON"
 EXTRA_MODULE_FLAGS[opm-common]="-DOPM_ENABLE_PYTHON=ON -DOPM_ENABLE_EMBEDDED_PYTHON=ON -DOPM_INSTALL_PYTHON=ON"
 
 # Parse revisions from trigger comment and setup arrays
@@ -16,7 +16,12 @@ function parseRevisions {
   do
     if grep -qi "$upstream=" <<< $ghprbCommentBody
     then
-      upstreamRev[$upstream]=pull/`echo $ghprbCommentBody | sed -r "s/.*${upstream,,}=([0-9]+).*/\1/g"`/merge
+      if test -n "$absolute_revisions"
+      then
+        upstreamRev[$upstream]=`echo $ghprbCommentBody | sed -r "s/.*${upstream,,}=([^ ]+).*/\1/g"`
+      else
+        upstreamRev[$upstream]=pull/`echo $ghprbCommentBody | sed -r "s/.*${upstream,,}=([0-9]+).*/\1/g"`/merge
+      fi
     fi
   done
   if grep -q "with downstreams" <<< $ghprbCommentBody
@@ -25,8 +30,13 @@ function parseRevisions {
     do
       if grep -qi "$downstream=" <<< $ghprbCommentBody
       then
-        downstreamRev[$downstream]=pull/`echo $ghprbCommentBody | sed -r "s/.*${downstream,,}=([0-9]+).*/\1/g"`/merge
-      fi
+        if test -n "$absolute_revisions"
+        then
+          downstreamRev[$downstream]=`echo $ghprbCommentBody | sed -r "s/.*${downstream,,}=([^ ]+).*/\1/g"`
+        else
+          downstreamRev[$downstream]=pull/`echo $ghprbCommentBody | sed -r "s/.*${downstream,,}=([0-9]+).*/\1/g"`/merge
+       fi
+     fi
     done
   fi
 
@@ -222,8 +232,12 @@ function build_downstreams {
 
 # $1 = Name of main module
 function build_module_full {
+  PY_MAJOR=`python3 --version | awk -F ' ' '{print $2}' | awk -F '.' '{print $1}'`
+  PY_MINOR=`python3 --version | awk -F ' ' '{print $2}' | awk -F '.' '{print $2}'`
   for configuration in ${!configurations[@]}
   do
+    export PYTHONPATH="$WORKSPACE/$configuration/install/lib/python$PY_MAJOR.$PY_MINOR/site-packages"
+
     # Build upstream modules
     build_upstreams
 

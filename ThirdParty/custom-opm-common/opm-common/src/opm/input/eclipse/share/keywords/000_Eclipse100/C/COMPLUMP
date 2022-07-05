@@ -1,0 +1,36 @@
+{
+  "name": "COMPLUMP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "I",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "J",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "K1",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "K2",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "name": "N",
+      "value_type": "INT"
+    }
+  ]
+}

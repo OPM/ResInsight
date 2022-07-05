@@ -1,0 +1,25 @@
+{
+  "name": "WTMULT",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "CONTROL",
+      "value_type": "STRING"
+    },
+    {
+      "name": "FACTOR",
+      "value_type": "UDA"
+    },
+    {
+      "name": "NUM",
+      "value_type": "INT",
+      "default": 1
+    }
+  ]
+}

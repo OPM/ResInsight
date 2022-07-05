@@ -24,6 +24,7 @@
 
 #define BOOST_TEST_MODULE NonuniformTableLinearTests
 #include <boost/test/unit_test.hpp>
+#include <boost/test/tools/floating_point_comparison.hpp>
 
 #include <opm/common/utility/numeric/NonuniformTableLinear.hpp>
 
@@ -63,9 +64,9 @@ BOOST_AUTO_TEST_CASE(table_operations)
     for (int i = 0; i < numvals; ++i) {
         BOOST_CHECK_EQUAL(t1(xv[i]), yv[i]);
     }
-    BOOST_CHECK_EQUAL(t1(2.6), 3.5);
-    BOOST_CHECK_EQUAL(t1(4.0), 3.0);
-    BOOST_CHECK_EQUAL(t1.derivative(4.0), -1.0);
+    BOOST_CHECK_CLOSE(t1(2.6), 3.5, 1e-13);
+    BOOST_CHECK_CLOSE(t1(4.0), 3.0, 1e-13);
+    BOOST_CHECK_CLOSE(t1.derivative(4.0), -1.0, 1e-13);
     // Derivatives at endpoints.
     BOOST_CHECK_CLOSE(t1.derivative(-1.0), 1.0/3.0, 1e-13);
     BOOST_CHECK_CLOSE(t1.derivative(5.0), -1.0, 1e-13);
@@ -83,6 +84,6 @@ BOOST_AUTO_TEST_CASE(table_operations)
     for (int i = 0; i < numvals; ++i) {
         BOOST_CHECK_EQUAL(t1((xv[i] + 1.0)*20.0 - 100.0), yv[i]);
     }
-    BOOST_CHECK_EQUAL(t1(0.0), 3.0);
+    BOOST_CHECK_CLOSE(t1(0.0), 3.0, 1e-13);
     BOOST_CHECK(std::fabs(t1.derivative(0.0)  + 1.0/20.0) < 1e-11);
 }

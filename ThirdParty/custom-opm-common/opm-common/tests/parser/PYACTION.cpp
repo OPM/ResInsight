@@ -22,10 +22,11 @@
 
 #define BOOST_TEST_MODULE PY_ACTION_TESTER
 #include <boost/test/unit_test.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParserKeywords/P.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Action/PyAction.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/P.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Schedule/Action/PyAction.hpp>
 
 using namespace Opm;
 
@@ -34,7 +35,7 @@ BOOST_AUTO_TEST_CASE(ParsePYACTION) {
     auto python = std::make_shared<Python>();
     auto deck = parser.parseFile("PYACTION.DATA");
 
-    auto keyword = deck.getKeyword<ParserKeywords::PYACTION>(0);
+    auto keyword = deck.get<ParserKeywords::PYACTION>().front();
     const auto& record0 = keyword.getRecord(0);
     const auto& record1 = keyword.getRecord(1);
 
@@ -50,7 +51,7 @@ BOOST_AUTO_TEST_CASE(ParsePYACTION_Modules) {
     Parser parser;
     auto python = std::make_shared<Python>();
     auto deck = parser.parseFile("PYACTION.DATA");
-    auto keyword = deck.getKeyword<ParserKeywords::PYACTION>(0);
+    auto keyword = deck.get<ParserKeywords::PYACTION>().front();
     const auto& record0 = keyword.getRecord(0);
     const auto& record1 = keyword.getRecord(1);
 

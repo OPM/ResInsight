@@ -1,0 +1,14 @@
+{
+  "name": "SIGMA",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "name": "COUPLING",
+      "value_type": "DOUBLE",
+      "dimension": "1/Length*Length"
+    }
+  ]
+}

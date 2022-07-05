@@ -22,6 +22,7 @@ upstreamRev[opm-grid]=master
 upstreamRev[opm-models]=master
 upstreamRev[opm-simulators]=master
 upstreamRev[opm-upscaling]=master
+upstreamRev[opm-tests]=master
 
 # Setup revision tables
 parseRevisions
@@ -37,14 +38,20 @@ do
     prnumber=${rev//[!0-9]/}
     BRANCH_NAME="${BRANCH_NAME}_${repo}_$prnumber"
     test -n "$REASON" && REASON+="        "
-    REASON+="https://github.com/OPM/$repo/pull/$prnumber\n"
+    REASON+="PR https://github.com/OPM/$repo/pull/$prnumber\n"
   fi
 done
 
 # Do the commit
 export REASON
+if [ "${upstreamRev[opm-tests]}" == "master" ]
+then
+  export BRANCH_BASE=origin/master
+else
+  export BRANCH_BASE=${upstreamRev[opm-tests]}
+fi
 export BRANCH_NAME
-$WORKSPACE/deps/opm-simulators/tests/update_reference_data.sh $OPM_TESTS_ROOT
+$WORKSPACE/deps/opm-simulators/tests/update_reference_data.sh $OPM_TESTS_ROOT $WORKSPACE/$configuration/build-opm-simulators $WORKSPACE/$configuration/install/bin/convertECL
 if test $? -eq 5
 then
   echo "No tests failed - no data to update. Exiting"
@@ -90,7 +97,7 @@ fi
 
 if [ -n "$DATA_PR" ]
 then
-  curl -d "{ \"body\": \"Existing PR https://github.com/OPM/opm-tests/pull/$DATA_PR was updated\" }" -X POST https://api.github.com/repos/OPM/$MAIN_REPO/issues/$PRNUMBER/comments?access_token=$GH_TOKEN
+  curl -d "{ \"body\": \"Existing PR https://github.com/OPM/opm-tests/pull/$DATA_PR was updated\" }" -H "Authorization: token ${GH_TOKEN}" -X POST https://api.github.com/repos/OPM/$MAIN_REPO/issues/$PRNUMBER/comments
 else
   git-open-pull -u jenkins4opm --base-account OPM --base-repo opm-tests -r /tmp/cmsg $BRANCH_NAME
 fi

@@ -1,0 +1,26 @@
+{
+  "name": "NETWORK",
+  "sections": [
+    "RUNSPEC"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "NODMAX",
+      "value_type": "INT"
+    },
+    {
+      "item": 2,
+      "name": "NBRMAX",
+      "value_type": "INT"
+    },
+    {
+      "item": 3,
+      "name": "NBCMAX",
+      "value_type": "INT",
+      "default": 20,
+      "comment": "This item is ECLIPSE300 specific"
+   }
+  ]
+}

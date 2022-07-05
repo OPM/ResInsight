@@ -1,0 +1,83 @@
+{
+  "name": "RADFIN",
+  "sections": [
+    "GRID"
+  ],
+  "size": 1,
+  "items": [
+    {
+      "item": 1,
+      "name": "NAME",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "I",
+      "value_type": "INT"
+    },
+    {
+      "item": 3,
+      "name": "J",
+      "value_type": "INT"
+    },
+    {
+      "item": 4,
+      "name": "K1",
+      "value_type": "INT"
+    },
+    {
+      "item": 5,
+      "name": "K2",
+      "value_type": "INT"
+    },
+    {
+      "item": 6,
+      "name": "NR",
+      "value_type": "INT"
+    },
+    {
+      "item": 7,
+      "name": "NTHETA",
+      "value_type": "INT"
+    },
+    {
+      "item": 8,
+      "name": "NZ",
+      "value_type": "INT"
+    },
+    {
+      "item": 9,
+      "name": "NWMAX",
+      "value_type": "INT",
+      "default": 1
+    },
+    {
+      "item": 10,
+      "name": "INNER_RADIUS",
+      "value_type": "DOUBLE",
+      "default": 0.1524,
+      "dimension" : "Length",
+      "comment": "Default value is 0.5 ft (= 6 in)"
+    },
+    {
+      "item": 11,
+      "name": "OUTER_RADIUS",
+      "value_type": "DOUBLE",
+      "dimension" : "Length"
+    },
+    {
+      "item": 12,
+      "name": "MINIMUM_RADIUS_REFINEMENT",
+      "value_type": "DOUBLE",
+      "default": 1.524,
+      "dimension" : "Length",
+      "comment": "Default value is 5 ft"
+    },
+    {
+      "item": 13,
+      "name": "PARENT_LGR",
+      "value_type": "STRING",
+      "default": "GLOBAL"
+    }
+  ]
+}

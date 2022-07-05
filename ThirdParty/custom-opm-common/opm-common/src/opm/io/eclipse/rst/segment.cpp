@@ -19,11 +19,11 @@
 
 #include <opm/io/eclipse/rst/segment.hpp>
 #include <opm/output/eclipse/VectorItems/msw.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/icd.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/MSW/Segment.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Schedule/MSW/icd.hpp>
+#include <opm/input/eclipse/Schedule/MSW/Segment.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
-#include "src/opm/parser/eclipse/EclipseState/Schedule/MSW/icd_convert.hpp"
+#include "src/opm/input/eclipse/Schedule/MSW/icd_convert.hpp"
 
 namespace VI = ::Opm::RestartIO::Helpers::VectorItems;
 

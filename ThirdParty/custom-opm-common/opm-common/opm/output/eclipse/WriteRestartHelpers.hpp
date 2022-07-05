@@ -33,6 +33,7 @@ namespace Opm {
     class Well;
     class UnitSystem;
     class UDQActive;
+    class Actdims;
 
 } // Opm
 
@@ -41,7 +42,8 @@ namespace Opm { namespace RestartIO { namespace Helpers {
     std::vector<double>
     createDoubHead(const EclipseState& es,
                    const Schedule&     sched,
-                   const std::size_t   lookup_step,
+                   const std::size_t   sim_step,
+                   const std::size_t   report_step,
                    const double        simTime,
                    const double        nextTimeStep);
 
@@ -62,9 +64,26 @@ namespace Opm { namespace RestartIO { namespace Helpers {
                   const std::size_t       lookup_step,
                   const std::vector<int>& inteHead);
 
+    std::size_t
+    entriesPerSACT();
+
+    std::size_t
+    entriesPerIACT();
+
+    std::size_t
+    entriesPerZACT();
+
+    std::size_t
+    entriesPerZACN(const Opm::Actdims& actdims);
+
+    std::size_t
+    entriesPerIACN(const Opm::Actdims& actdims);
+
+    std::size_t
+    entriesPerSACN(const Opm::Actdims& actdims);
+
     std::vector<int>
-    createActionxDims(  const Runspec&      rspec,
-                        const Schedule&     sched,
+    createActionRSTDims(const Schedule&     sched,
                         const std::size_t   simStep);
 
 }}} // Opm::RestartIO::Helpers

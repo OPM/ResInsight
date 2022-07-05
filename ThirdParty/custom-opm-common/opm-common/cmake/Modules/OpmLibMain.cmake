@@ -20,16 +20,6 @@
 include (AddOptions)
 no_default_options ()
 
-# Languages and global compiler settings
-if(CMAKE_VERSION VERSION_LESS 3.8)
-  message(WARNING "CMake version does not support c++17, guessing -std=c++17")
-  set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++17")
-else()
-  set(CMAKE_CXX_STANDARD 17)
-  set(CMAKE_CXX_STANDARD_REQUIRED ON)
-  set(CMAKE_CXX_EXTENSIONS OFF)
-endif()
-
 # Various compiler extension checks
 include(OpmCompilerChecks)
 
@@ -62,16 +52,16 @@ include (UseOptimization)
 
 # turn on all warnings; this must be done before adding any
 # dependencies, in case they alter the list of warnings
-include (UseWarnings)
+option(OPM_DISABLE_WARNINGS "Disable warning flags" OFF)
+if(NOT OPM_DISABLE_WARNINGS)
+  include (UseWarnings)
+endif()
 
 # parallel programming
 include (UseOpenMP)
 find_openmp (${project})
 include (UseThreads)
 find_threads (${project})
-
-# SuperLU is optional
-option (USE_SUPERLU "Use SuperLU direct solvers" OFF)
 
 # PETSc is optional
 option (USE_PETSC "Use PETSc iterative solvers" OFF)

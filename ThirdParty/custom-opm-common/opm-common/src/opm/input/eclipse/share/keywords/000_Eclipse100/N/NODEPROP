@@ -1,0 +1,48 @@
+{
+  "name": "NODEPROP",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+      "item": 1,
+      "name": "NAME",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "PRESSURE",
+      "value_type": "DOUBLE",
+      "dimension": "Pressure"
+    },
+    {
+      "item": 3,
+      "name": "AS_CHOKE",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "item": 4,
+      "name": "ADD_GAS_LIFT_GAS",
+      "value_type": "STRING",
+      "default": "NO"
+    },
+    {
+      "item": 5,
+      "name": "CHOKE_GROUP",
+      "value_type": "STRING"
+    },
+    {
+      "item": 6,
+      "name": "SOURCE_SINK_GROUP",
+      "value_type": "STRING",
+      "comment": "This item is ECLIPSE300 specific"
+    },
+    {
+      "item": 7,
+      "name": "NETWORK_VALUE_TYPE",
+      "value_type": "STRING",
+      "comment": "This item is ECLIPSE300 specific, so no default"
+    }
+  ]
+}

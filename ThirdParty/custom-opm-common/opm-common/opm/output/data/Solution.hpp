@@ -24,7 +24,7 @@
 #include <map>
 
 #include <opm/output/data/Cells.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 namespace Opm {
 namespace data {

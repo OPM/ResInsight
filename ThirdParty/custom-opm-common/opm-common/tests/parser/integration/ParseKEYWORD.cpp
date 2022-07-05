@@ -20,22 +20,26 @@
 #define BOOST_TEST_MODULE ParserKeywordsIntegrationTests
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Python/Python.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SgofTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SlgofTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/SwofTable.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TlpmixpaTable.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Units/Units.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/common/utility/OpmInputError.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/FieldPropsManager.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SgofTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SlgofTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/SwofTable.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TlpmixpaTable.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellProductionProperties.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Well/WellInjectionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellProductionProperties.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellInjectionProperties.hpp>
 
 using namespace Opm;
 
@@ -60,26 +64,32 @@ CECON
 BOOST_AUTO_TEST_CASE( COORDSYS ) {
     const std::string input = R"(
 RUNSPEC
-    NUMRES
-        1 /
+
+BRINE
+
+NUMRES
+    1 /
 GRID
-    COORDSYS
-        1 1141 /
-    COORDSYS
-        1 1141 'COMP' 'JOIN' 1 2 /
-    COORDSYS
-        1 1141 'COMP' 'JOIN' /
-    COORDSYS
-        1 1141 'INCOMP' /
+COORDSYS
+    1 1141 /
+COORDSYS
+    1 1141 'COMP' 'JOIN' 1 2 /
+COORDSYS
+    1 1141 'COMP' 'JOIN' /
+COORDSYS
+    1 1141 'INCOMP' /
 )";
-    Parser().parseString( input );
+    const auto& deck = Parser().parseString( input );
+
+    const auto& brine = deck["BRINE"].back();
+    BOOST_CHECK_EQUAL(brine.size(), 0);
 }
 
 BOOST_AUTO_TEST_CASE( DENSITY ) {
     Parser parser;
     std::string file(pathprefix() + "DENSITY/DENSITY1");
     auto deck =  parser.parseFile(file);
-    const auto& densityKw = deck.getKeyword("DENSITY" , 0);
+    const auto& densityKw = deck["DENSITY"][0];
 
 
     BOOST_CHECK_EQUAL( 2U , densityKw.size());
@@ -125,7 +135,7 @@ BOOST_AUTO_TEST_CASE( EQUIL_MISSING_DIMS ) {
     const std::string equil = "EQUIL\n"
         "2469   382.4   1705.0  0.0    500    0.0     1     1      20 /";
     auto deck = parser.parseString(equil, parseContext, errors);
-    const auto& kw1 = deck.getKeyword("EQUIL" , 0);
+    const auto& kw1 = deck["EQUIL"][0];
     BOOST_CHECK_EQUAL( 1U , kw1.size() );
 
     const auto& rec1 = kw1.getRecord(0);
@@ -141,17 +151,11 @@ BOOST_AUTO_TEST_CASE( EQUIL ) {
     Parser parser;
     std::string pvtgFile(pathprefix() + "EQUIL/EQUIL1");
     auto deck =  parser.parseFile(pvtgFile);
-    const auto& kw1 = deck.getKeyword("EQUIL" , 0);
+    const auto& kw1 = deck["EQUIL"][0];
     BOOST_CHECK_EQUAL( 3U , kw1.size() );
 
     const auto& rec1 = kw1.getRecord(0);
-    BOOST_CHECK_EQUAL( 9U , rec1.size() );
-
-    const auto& rec2 = kw1.getRecord(1);
-    BOOST_CHECK_EQUAL( 9U , rec2.size() );
-
     const auto& rec3 = kw1.getRecord(2);
-    BOOST_CHECK_EQUAL( 9U , rec3.size() );
 
     const auto& item1       = rec1.getItem("OWC");
     const auto& item1_index = rec1.getItem(2);
@@ -216,15 +220,15 @@ BOOST_AUTO_TEST_CASE( SORWMIS ) {
 
     Parser parser;
     // missing miscible keyword
-    BOOST_CHECK_THROW (parser.parseString(sorwmisData), std::invalid_argument );
+    BOOST_CHECK_THROW (parser.parseString(sorwmisData), OpmInputError );
 
     //too many tables
-    BOOST_CHECK_THROW( parser.parseString(miscibleTightData + sorwmisData), std::invalid_argument);
+    BOOST_CHECK_THROW( parser.parseString(miscibleTightData + sorwmisData), OpmInputError);
 
     auto deck1 =  parser.parseString(miscibleData + sorwmisData);
 
-    const auto& sorwmis = deck1.getKeyword("SORWMIS");
-    const auto& miscible = deck1.getKeyword("MISCIBLE");
+    const auto& sorwmis = deck1["SORWMIS"].back();
+    const auto& miscible = deck1["MISCIBLE"].back();
 
     const auto& miscible0 = miscible.getRecord(0);
     const auto& sorwmis0 = sorwmis.getRecord(0);
@@ -232,7 +236,7 @@ BOOST_AUTO_TEST_CASE( SORWMIS ) {
 
     // test number of columns
     size_t ntmisc = miscible0.getItem(0).get< int >(0);
-    Opm::SorwmisTable sorwmisTable0(sorwmis0.getItem(0));
+    Opm::SorwmisTable sorwmisTable0(sorwmis0.getItem(0), 0);
     BOOST_CHECK_EQUAL(sorwmisTable0.numColumns(),ntmisc);
 
     // test table input 1
@@ -241,7 +245,7 @@ BOOST_AUTO_TEST_CASE( SORWMIS ) {
     BOOST_CHECK_EQUAL(0.0, sorwmisTable0.getMiscibleResidualOilColumn()[2]);
 
     // test table input 2
-    Opm::SorwmisTable sorwmisTable1(sorwmis1.getItem(0));
+    Opm::SorwmisTable sorwmisTable1(sorwmis1.getItem(0), 1);
     BOOST_CHECK_EQUAL(sorwmisTable1.numColumns(),ntmisc);
 
     BOOST_CHECK_EQUAL(3U, sorwmisTable1.getWaterSaturationColumn().size());
@@ -253,8 +257,8 @@ BOOST_AUTO_TEST_CASE( SGCWMIS ) {
     Parser parser;
     auto deck1 =  parser.parseString(miscibleData + sgcwmisData);
 
-    const auto& sgcwmis = deck1.getKeyword("SGCWMIS");
-    const auto& miscible = deck1.getKeyword("MISCIBLE");
+    const auto& sgcwmis = deck1["SGCWMIS"].back();
+    const auto& miscible = deck1["MISCIBLE"].back();
 
     const auto& miscible0 = miscible.getRecord(0);
     const auto& sgcwmis0 = sgcwmis.getRecord(0);
@@ -262,7 +266,7 @@ BOOST_AUTO_TEST_CASE( SGCWMIS ) {
 
     // test number of columns
     size_t ntmisc = miscible0.getItem(0).get< int >(0);
-    Opm::SgcwmisTable sgcwmisTable0(sgcwmis0.getItem(0));
+    Opm::SgcwmisTable sgcwmisTable0(sgcwmis0.getItem(0), 0);
     BOOST_CHECK_EQUAL(sgcwmisTable0.numColumns(),ntmisc);
 
     // test table input 1
@@ -271,7 +275,7 @@ BOOST_AUTO_TEST_CASE( SGCWMIS ) {
     BOOST_CHECK_EQUAL(0.0, sgcwmisTable0.getMiscibleResidualGasColumn()[1]);
 
     // test table input 2
-    Opm::SgcwmisTable sgcwmisTable1(sgcwmis1.getItem(0));
+    Opm::SgcwmisTable sgcwmisTable1(sgcwmis1.getItem(0), 1);
     BOOST_CHECK_EQUAL(sgcwmisTable1.numColumns(),ntmisc);
 
     BOOST_CHECK_EQUAL(3U, sgcwmisTable1.getWaterSaturationColumn().size());
@@ -313,18 +317,18 @@ BOOST_AUTO_TEST_CASE( MISC ) {
 
     // out of range MISC keyword
     auto deck1 = parser.parseString(miscOutOfRangeData);
-    const auto& item = deck1.getKeyword("MISC").getRecord(0).getItem(0);
-    Opm::MiscTable miscTable1(item);
+    const auto& item = deck1["MISC"].back().getRecord(0).getItem(0);
+    Opm::MiscTable miscTable1(item, 0);
 
     // too litle range of MISC keyword
     auto deck2 = parser.parseString(miscTooSmallRangeData);
-    const auto& item2 = deck2.getKeyword("MISC").getRecord(0).getItem(0);
-    Opm::MiscTable miscTable2(item2);
+    const auto& item2 = deck2["MISC"].back().getRecord(0).getItem(0);
+    Opm::MiscTable miscTable2(item2, 0);
 
     // test table input
     auto deck3 =  parser.parseString(miscData);
-    const auto& item3 = deck3.getKeyword("MISC").getRecord(0).getItem(0);
-    Opm::MiscTable miscTable3(item3);
+    const auto& item3 = deck3["MISC"].back().getRecord(0).getItem(0);
+    Opm::MiscTable miscTable3(item3, 0);
     BOOST_CHECK_EQUAL(3U, miscTable3.getSolventFractionColumn().size());
     BOOST_CHECK_EQUAL(0.1, miscTable3.getSolventFractionColumn()[1]);
     BOOST_CHECK_EQUAL(0.5, miscTable3.getMiscibilityColumn()[1]);
@@ -343,7 +347,7 @@ PMISC
 BOOST_AUTO_TEST_CASE( PMISC ) {
     Parser parser;
     auto deck =  parser.parseString(pmiscData);
-    Opm::PmiscTable pmiscTable(deck.getKeyword("PMISC").getRecord(0).getItem(0));
+    Opm::PmiscTable pmiscTable(deck["PMISC"].back().getRecord(0).getItem(0), 0);
     BOOST_CHECK_EQUAL(3U, pmiscTable.getOilPhasePressureColumn().size());
     BOOST_CHECK_EQUAL(200*1e5, pmiscTable.getOilPhasePressureColumn()[1]);
     BOOST_CHECK_EQUAL(0.5, pmiscTable.getMiscibilityColumn()[1]);
@@ -365,13 +369,13 @@ BOOST_AUTO_TEST_CASE( MSFN ) {
     Parser parser;
     auto deck =  parser.parseString(msfnData);
 
-    Opm::MsfnTable msfnTable1(deck.getKeyword("MSFN").getRecord(0).getItem(0));
+    Opm::MsfnTable msfnTable1(deck["MSFN"].back().getRecord(0).getItem(0), 0);
     BOOST_CHECK_EQUAL(2U, msfnTable1.getGasPhaseFractionColumn().size());
     BOOST_CHECK_EQUAL(1.0, msfnTable1.getGasPhaseFractionColumn()[1]);
     BOOST_CHECK_EQUAL(1.0, msfnTable1.getGasSolventRelpermMultiplierColumn()[1]);
     BOOST_CHECK_EQUAL(0.0, msfnTable1.getOilRelpermMultiplierColumn()[1]);
 
-    Opm::MsfnTable msfnTable2(deck.getKeyword("MSFN").getRecord(1).getItem(0));
+    Opm::MsfnTable msfnTable2(deck["MSFN"].back().getRecord(1).getItem(0), 1);
     BOOST_CHECK_EQUAL(3U, msfnTable2.getGasPhaseFractionColumn().size());
     BOOST_CHECK_EQUAL(0.5, msfnTable2.getGasPhaseFractionColumn()[1]);
     BOOST_CHECK_EQUAL(0.3, msfnTable2.getGasSolventRelpermMultiplierColumn()[1]);
@@ -391,7 +395,7 @@ BOOST_AUTO_TEST_CASE( TLPMIXPA ) {
 
     Parser parser;
     auto deck =  parser.parseString(tlpmixpa);
-    Opm::TlpmixpaTable tlpmixpaTable(deck.getKeyword("TLPMIXPA").getRecord(0).getItem(0));
+    Opm::TlpmixpaTable tlpmixpaTable(deck["TLPMIXPA"].back().getRecord(0).getItem(0), 0);
     BOOST_CHECK_EQUAL(3U, tlpmixpaTable.getOilPhasePressureColumn().size());
     BOOST_CHECK_EQUAL(200*1e5, tlpmixpaTable.getOilPhasePressureColumn()[1]);
     BOOST_CHECK_EQUAL(0.5, tlpmixpaTable.getMiscibilityColumn()[1]);
@@ -455,7 +459,7 @@ BOOST_AUTO_TEST_CASE( MULTISEGMENT_ABS ) {
     const auto deck =  parser.parseFile(deckFile);
 
     // for WELSEGS keyword
-    const auto& kw = deck.getKeyword("WELSEGS");
+    const auto& kw = deck["WELSEGS"].back();
 
     BOOST_CHECK_EQUAL( 7, kw.size() );
 
@@ -546,7 +550,7 @@ BOOST_AUTO_TEST_CASE( MULTISEGMENT_ABS ) {
     }
 
     // for COMPSEG keyword
-    const auto& kw1 = deck.getKeyword("COMPSEGS");
+    const auto& kw1 = deck["COMPSEGS"].back();
     // check the size of the keywords
     BOOST_CHECK_EQUAL( 8, kw1.size() );
     // first record only contains the well name
@@ -634,7 +638,7 @@ BOOST_AUTO_TEST_CASE( MULTISEGMENT_ABS ) {
 BOOST_AUTO_TEST_CASE( PLYADS ) {
     Parser parser;
     auto deck =  parser.parseFile(pathprefix() + "POLYMER/plyads.data");
-    const auto& kw   = deck.getKeyword("PLYADS");
+    const auto& kw   = deck["PLYADS"].back();
     const auto& rec  = kw.getRecord(0);
     const auto& item = rec.getItem(0);
 
@@ -646,7 +650,7 @@ BOOST_AUTO_TEST_CASE( PLYADSS ) {
     Parser parser;
     std::string deckFile(pathprefix() + "POLYMER/plyadss.data");
     auto deck =  parser.parseFile(deckFile);
-    const auto& kw = deck.getKeyword("PLYADSS");
+    const auto& kw = deck["PLYADSS"].back();
     BOOST_CHECK_EQUAL( kw.size() , 11U );
 }
 
@@ -654,7 +658,7 @@ BOOST_AUTO_TEST_CASE( PLYDHFLF ) {
     Parser parser;
     std::string deckFile(pathprefix() + "POLYMER/plydhflf.data");
     auto deck =  parser.parseFile(deckFile);
-    const auto& kw = deck.getKeyword("PLYDHFLF");
+    const auto& kw = deck["PLYDHFLF"].back();
     const auto& rec = kw.getRecord(0);
     const auto& item = rec.getItem(0);
 
@@ -667,7 +671,7 @@ BOOST_AUTO_TEST_CASE( PLYSHLOG ) {
     Parser parser;
     std::string deckFile(pathprefix() + "POLYMER/plyshlog.data");
     auto deck =  parser.parseFile(deckFile);
-    const auto& kw = deck.getKeyword("PLYSHLOG");
+    const auto& kw = deck["PLYSHLOG"].back();
     const auto& rec1 = kw.getRecord(0); // reference conditions
 
     const auto& itemRefPolyConc = rec1.getItem("REF_POLYMER_CONCENTRATION");
@@ -696,7 +700,7 @@ BOOST_AUTO_TEST_CASE( PLYVISC ) {
     Parser parser;
     std::string deckFile(pathprefix() + "POLYMER/plyvisc.data");
     auto deck =  parser.parseFile(deckFile);
-    const auto& kw = deck.getKeyword("PLYVISC");
+    const auto& kw = deck["PLYVISC"].back();
     const auto& rec = kw.getRecord(0);
     const auto& item = rec.getItem(0);
 
@@ -708,8 +712,8 @@ BOOST_AUTO_TEST_CASE( PORO_PERMX ) {
     Parser parser;
     std::string poroFile(pathprefix() + "PORO/PORO1");
     auto deck =  parser.parseFile(poroFile);
-    const auto& kw1 = deck.getKeyword("PORO" , 0);
-    const auto& kw2 = deck.getKeyword("PERMX" , 0);
+    const auto& kw1 = deck["PORO"][0];
+    const auto& kw2 = deck["PERMX"][0];
 
     BOOST_CHECK_THROW( kw1.getIntData() , std::logic_error );
     BOOST_CHECK_THROW( kw1.getStringData() , std::logic_error );
@@ -748,7 +752,7 @@ BOOST_AUTO_TEST_CASE( RSVD ) {
     Parser parser;
     std::string pvtgFile(pathprefix() + "RSVD/RSVD.txt");
     auto deck =  parser.parseFile(pvtgFile);
-    const auto& kw1 = deck.getKeyword("RSVD" , 0);
+    const auto& kw1 = deck["RSVD"][0];
     BOOST_CHECK_EQUAL( 6U , kw1.size() );
 
     const auto& rec1 = kw1.getRecord(0);
@@ -787,7 +791,7 @@ PVTG
 
     Parser parser;
     auto deck =  parser.parseString(pvtgData);
-    const auto& kw1 = deck.getKeyword("PVTG" , 0);
+    const auto& kw1 = deck["PVTG"][0];
     BOOST_CHECK_EQUAL(5U , kw1.size());
 
     const auto& record0 = kw1.getRecord(0);
@@ -879,7 +883,7 @@ PVTO
 
     Parser parser;
     auto deck =  parser.parseString(pvtoData);
-    const auto& kw1 = deck.getKeyword("PVTO" , 0);
+    const auto& kw1 = deck["PVTO"][0];
     BOOST_CHECK_EQUAL(5U , kw1.size());
 
     const auto& record0 = kw1.getRecord(0);
@@ -938,6 +942,9 @@ PVTO
 
 BOOST_AUTO_TEST_CASE( SGOF ) {
 const std::string parserData = R"(
+GAS
+OIL
+
 TABDIMS
 -- NTSFUN NTPVT NSSFUN NPPVT NTFIP NRPVT
         1     1     30     1     1     1 /
@@ -958,14 +965,14 @@ SGOF
     Parser parser;
     auto deck =  parser.parseString(parserData);
 
-    const auto& kw1 = deck.getKeyword("SGOF");
+    const auto& kw1 = deck["SGOF"].back();
     BOOST_CHECK_EQUAL(1U , kw1.size());
     const auto& record0 = kw1.getRecord(0);
     BOOST_CHECK_EQUAL(1U , record0.size());
     const auto& item0 = record0.getItem(0);
     BOOST_CHECK_EQUAL(10U * 4, item0.data_size());
 
-    Opm::SgofTable sgofTable(deck.getKeyword("SGOF").getRecord(0).getItem(0), false);
+    Opm::SgofTable sgofTable(deck["SGOF"].back().getRecord(0).getItem(0), false, 0);
     BOOST_CHECK_EQUAL(10U, sgofTable.getSgColumn().size());
     BOOST_CHECK_EQUAL(0.1, sgofTable.getSgColumn()[0]);
     BOOST_CHECK_EQUAL(0.0, sgofTable.getKrgColumn()[0]);
@@ -976,6 +983,9 @@ SGOF
 BOOST_AUTO_TEST_CASE( SWOF ) {
 
     const std::string parserData = R"(
+OIL
+WATER
+
 TABDIMS
 -- NTSFUN NTPVT NSSFUN NPPVT NTFIP NRPVT
         1     1     30     1     1     1 /
@@ -996,14 +1006,14 @@ SWOF
     Parser parser;
     auto deck =  parser.parseString(parserData);
 
-    const auto& kw1 = deck.getKeyword("SWOF");
+    const auto& kw1 = deck["SWOF"].back();
     const auto& record0 = kw1.getRecord(0);
     const auto& item0 = record0.getItem(0);
     BOOST_CHECK_EQUAL(1U , kw1.size());
     BOOST_CHECK_EQUAL(1U , record0.size());
     BOOST_CHECK_EQUAL(10U * 4, item0.data_size());
 
-    Opm::SwofTable swofTable(deck.getKeyword("SWOF").getRecord(0).getItem(0), false);
+    Opm::SwofTable swofTable(deck["SWOF"].back().getRecord(0).getItem(0), false, 0);
     BOOST_CHECK_EQUAL(10U, swofTable.getSwColumn().size());
     BOOST_CHECK_CLOSE(0.1, swofTable.getSwColumn()[0], 1e-8);
     BOOST_CHECK_CLOSE(1.0, swofTable.getSwColumn().back(), 1e-8);
@@ -1031,6 +1041,8 @@ SWOF
 BOOST_AUTO_TEST_CASE( SLGOF ) {
 
 const std::string parserData = R"(
+GAS
+
 TABDIMS
 -- NTSFUN NTPVT NSSFUN NPPVT NTFIP NRPVT
         1     1     30     1     1     1 /
@@ -1052,14 +1064,14 @@ SLGOF
     Parser parser;
     auto deck =  parser.parseString(parserData);
 
-    const auto& kw1 = deck.getKeyword("SLGOF");
+    const auto& kw1 = deck["SLGOF"].back();
     const auto& record0 = kw1.getRecord(0);
     const auto& item0 = record0.getItem(0);
     BOOST_CHECK_EQUAL(1U , kw1.size());
     BOOST_CHECK_EQUAL(1U , record0.size());
     BOOST_CHECK_EQUAL(10U * 4, item0.data_size());
 
-    Opm::SlgofTable slgofTable( deck.getKeyword("SLGOF").getRecord(0).getItem(0), false );
+    Opm::SlgofTable slgofTable( deck["SLGOF"].back().getRecord(0).getItem(0), false, 0 );
     BOOST_CHECK_EQUAL(10U, slgofTable.getSlColumn().size());
     BOOST_CHECK_EQUAL(0.1, slgofTable.getSlColumn()[0]);
     BOOST_CHECK_EQUAL(1.0, slgofTable.getSlColumn()[9]);
@@ -1077,7 +1089,7 @@ BOOST_AUTO_TEST_CASE( TITLE ) {
     BOOST_CHECK_EQUAL(size_t(2), deck.size());
     BOOST_CHECK_EQUAL (true, deck.hasKeyword("TITLE"));
 
-    const auto& titleKeyword = deck.getKeyword("TITLE");
+    const auto& titleKeyword = deck["TITLE"].back();
     const auto& record = titleKeyword.getRecord(0);
     const auto& item = record.getItem(0);
 
@@ -1164,9 +1176,9 @@ BOOST_AUTO_TEST_CASE( VFPPROD ) {
     BOOST_CHECK( parser.isRecognizedKeyword("VFPPROD"));
 
     auto deck =  parser.parseFile(file);
-    const auto& VFPPROD1 = deck.getKeyword("VFPPROD" , 0);
-    const auto& BPR = deck.getKeyword("BPR" , 0);
-    const auto& VFPPROD2 = deck.getKeyword("VFPPROD" , 1);
+    const auto& VFPPROD1 = deck["VFPPROD"][0];
+    const auto& BPR = deck["BPR"][0];
+    const auto& VFPPROD2 = deck["VFPPROD"][1];
 
     BOOST_CHECK_EQUAL( 573U  , VFPPROD1.size() );
     BOOST_CHECK_EQUAL( 1U    , BPR.size());
@@ -1293,14 +1305,14 @@ BOOST_AUTO_TEST_CASE( WCHONHIST ) {
     Parser parser;
     std::string wconhistFile(pathprefix() + "WCONHIST/WCONHIST1");
     auto deck =  parser.parseFile(wconhistFile);
-    const auto& kw1 = deck.getKeyword("WCONHIST" , 0);
+    const auto& kw1 = deck["WCONHIST"][0];
     BOOST_CHECK_EQUAL( 3U , kw1.size() );
 
     const auto& rec1 = kw1.getRecord(0);
-    BOOST_CHECK_EQUAL( 11U , rec1.size() );
+    BOOST_CHECK_EQUAL( 12U , rec1.size() );
 
     const auto& rec3 = kw1.getRecord(2);
-    BOOST_CHECK_EQUAL( 11U , rec3.size() );
+    BOOST_CHECK_EQUAL( 12U , rec3.size() );
 
     const auto& item1       = rec1.getItem("WELL");
     const auto& item1_index = rec1.getItem(0);
@@ -1308,7 +1320,7 @@ BOOST_AUTO_TEST_CASE( WCHONHIST ) {
     BOOST_CHECK_EQUAL( &item1  , &item1_index );
     BOOST_CHECK_EQUAL( "OP_1" , item1.get< std::string >(0));
 
-    const auto& kw2 = deck.getKeyword( "WCONHIST", 1 );
+    const auto& kw2 = deck["WCONHIST"][1];
     BOOST_CHECK_EQUAL( "OP_3" , rec3.getItem("WELL").get< std::string >(0));
     BOOST_CHECK_EQUAL( 2U , deck.count("WCONHIST"));
     BOOST_CHECK_EQUAL( "OP_3_B" , kw2.getRecord( 2 ).getItem("WELL").get< std::string >(0));
@@ -1419,7 +1431,7 @@ BOOST_AUTO_TEST_CASE( WCONINJE ) {
     FieldPropsManager fp(deck, Phases{true, true, true}, grid, table);
     Runspec runspec (deck);
     Schedule sched( deck, grid, fp, runspec, python);
-    SummaryState st(std::chrono::system_clock::now());
+    SummaryState st(TimeService::now());
 
     BOOST_CHECK_EQUAL(5U, sched.numWells());
     BOOST_CHECK(sched.hasWell("PROD1"));
@@ -1468,6 +1480,12 @@ BOOST_AUTO_TEST_CASE(PVTWSALT) {
     const std::string input = R"(
 RUNSPEC
 
+OIL
+GAS
+
+BRINE
+NACL KCL /
+
 TABDIMS
  1 2 /
 
@@ -1492,14 +1510,23 @@ SGOF
     0.7 0.8 0.3 6.0
     0.8 0.9 0.2 7.0
     0.9 0.5 0.1 8.0
-    1.0 1.0 0.1 9.0 /;
-
-
+    1.0 1.0 0.1 9.0 /
 )";
-    auto deck = Parser{}.parseString(input);
-    const auto& pvtwsalt = deck.getKeyword("PVTWSALT");
+    Parser parser;
+
+    const auto& keyword = parser.getParserKeywordFromDeckName("BRINE");
+    BOOST_CHECK_EQUAL(keyword.getFixedSize(), 1);
+    BOOST_CHECK_EQUAL(keyword.min_size().value(), 0);
+
+
+    auto deck = parser.parseString(input);
+    const auto& pvtwsalt = deck["PVTWSALT"].back();
     BOOST_CHECK_EQUAL(pvtwsalt.size(), 4);
 
-    const auto& sgof = deck.getKeyword("SGOF");
+    const auto& sgof = deck["SGOF"].back();
     BOOST_CHECK_EQUAL(sgof.size(), 1);
+
+    const auto& brine = deck["BRINE"].back();
+    const auto& salts = brine.getRecord(0).getItem(0);
+    BOOST_CHECK_EQUAL( salts.data_size(), 2);
 }

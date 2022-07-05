@@ -19,7 +19,7 @@ find_opm_package (
   "dune-common REQUIRED;
   ParMETIS;
   SuperLU;
-  SuiteSparse COMPONENTS umfpack
+  SuiteSparse COMPONENTS umfpack REQUIRED
   "
   # header to search for
   "dune/istl/bcrsmatrix.hh"

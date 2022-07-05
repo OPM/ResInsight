@@ -20,7 +20,7 @@
 #ifndef OPM_OUTPUT_WRITER_HPP
 #define OPM_OUTPUT_WRITER_HPP
 
-#include <opm/parser/eclipse/EclipseState/Grid/NNC.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/NNC.hpp>
 
 #include <opm/output/Cells.hpp>
 #include <opm/output/Wells.hpp>
@@ -42,7 +42,6 @@ struct PhaseUsage;
  * Use the create() function to setup a chain of writer based on the
  * configuration values, e.g.
  *
- * \example
  * \code{.cpp}
  *  ParameterGroup params (argc, argv, false);
  *  auto parser = std::make_shared <const Deck> (

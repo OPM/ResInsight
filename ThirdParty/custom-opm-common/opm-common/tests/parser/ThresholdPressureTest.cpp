@@ -24,177 +24,198 @@
 #define BOOST_TEST_MODULE ThresholdPressureTests
 
 #include <boost/test/unit_test.hpp>
-#include <boost/filesystem.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Runspec.hpp>
-#include <opm/parser/eclipse/EclipseState/SimulationConfig/ThresholdPressure.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableManager.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/ErrorGuard.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/Runspec.hpp>
+#include <opm/input/eclipse/EclipseState/SimulationConfig/ThresholdPressure.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableManager.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/ErrorGuard.hpp>
 
 
 using namespace Opm;
 
-const std::string& inputStr = "RUNSPEC\n"
-                              "EQLOPTS\n"
-                              "THPRES /\n "
-                              "\n"
-
-                              "SOLUTION\n"
-                              "THPRES\n"
-                              "1 2 12.0/\n"
-                              "1 3 5.0/\n"
-                              "2 3 33.0 /\n"
-                              "2 3 7.0/\n"
-                              "/\n"
-                              "\n";
-const std::string& inputStr_RESTART = "RUNSPEC\n"
-  "EQLOPTS\n"
-  "THPRES /\n "
-  "\n"
-  "SOLUTION\n"
-  "RESTART\n"
-  " CASE 100 /\n"
-  "\n";
-
-const std::string& inputStr_RESTART2 = "RUNSPEC\n"
-  "EQLOPTS\n"
-  "THPRES /\n "
-  "\n"
-  "REGIONS\n"
-  "EQLNUM\n"
-  "   120*4 /\n"
-  "SOLUTION\n"
-  "RESTART\n"
-  "  CASE 100/\n"
-  "THPRES\n"
-  "1 3 5.0/\n"
-  "2 3 33.0 /\n"
-  "2 4 7.0/\n"
-  "/\n"
-  "\n";
+const std::string& inputStr = R"(
+RUNSPEC
+EQLOPTS
+THPRES /
 
 
-const std::string& inputStrWithEqlNum =
-                              "RUNSPEC\n"
-                              "EQLOPTS\n"
-                              "THPRES /\n "
-                              "\n"
-                              "REGIONS\n"
-                              "EQLNUM\n"
-                              "   120*3 /\n"
-                              "SOLUTION\n"
-                              "THPRES\n"
-                              "1 2 12.0/\n"
-                              "1 3 5.0/\n"
-                              "2 3 33.0 /\n"
-                              "2 3 7.0/\n"
-                              "/\n"
-                              "\n";
+SOLUTION
+THPRES
+1 2 12.0/
+1 3 5.0/
+2 3 33.0 /
+2 3 7.0/
+/
+)";
+
+const std::string& inputStr_RESTART = R"(
+RUNSPEC
+EQLOPTS
+THPRES /
+
+SOLUTION
+RESTART
+ CASE 100 /
+)";
 
 
-const std::string& inputStrWithEqlNumall0 =
-                              "RUNSPEC\n"
-                              "EQLOPTS\n"
-                              "THPRES /\n "
-                              "\n"
-                              "REGIONS\n"
-                              "EQLNUM\n"
-                              "   120*0 /\n"
-                              "SOLUTION\n"
-                              "THPRES\n"
-                              "1 2 12.0/\n"
-                              "1 3 5.0/\n"
-                              "2 3 33.0 /\n"
-                              "2 3 7.0/\n"
-                              "/\n"
-                              "\n";
+const std::string& inputStr_RESTART2 = R"(
+RUNSPEC
+EQLOPTS
+THPRES /
 
+REGIONS
+EQLNUM
+   120*4 /
+SOLUTION
+RESTART
+  CASE 100/
+THPRES
+1 3 5.0/
+2 3 33.0 /
+2 4 7.0/
+/
+)";
 
-const std::string& inputStrNoSolutionSection =  "RUNSPEC\n"
-                                                "EQLOPTS\n"
-                                                "THPRES /\n "
-                                                "\n";
+const std::string& inputStrWithEqlNum = R"(
+RUNSPEC
+EQLOPTS
+THPRES /
 
+REGIONS
+EQLNUM
+   120*3 /
+SOLUTION
+THPRES
+1 2 12.0/
+1 3 5.0/
+2 3 33.0 /
+2 3 7.0/
+/
+)";
 
-const std::string& inputStrNoTHPRESinSolutionNorRUNSPEC = "RUNSPEC\n"
-                                                          "\n"
-                                                          "SOLUTION\n"
-                                                          "\n"
-                                                          "SCHEDULE\n";
+const std::string& inputStrIrrevers2 = R"(
+RUNSPEC
+EQLOPTS
+THPRES IRREVERS /
 
-const std::string& inputStrTHPRESinRUNSPECnotSoultion = "RUNSPEC\n"
-                                                        "EQLOPTS\n"
-                                                        "ss /\n "
-                                                        "\n"
-                                                        "SOLUTION\n"
-                                                        "\n";
+REGIONS
+EQLNUM
+   120*3 /
+SOLUTION
+THPRES
+1 2  12.0 /
+2 1 -12.0 /
+2 3  23.0 /
+3 2 -23.0 /
+1 3  13.0 /
+3 1 -13.0 /
+/
+)";
 
 
 
-const std::string& inputStrIrrevers = "RUNSPEC\n"
-                                      "EQLOPTS\n"
-                                      "THPRES IRREVERS/\n "
-                                      "\n"
+const std::string& inputStrWithEqlNumall0 = R"(
+RUNSPEC
+EQLOPTS
+THPRES /
 
-                                      "SOLUTION\n"
-                                      "THPRES\n"
-                                      "/\n"
-                                      "\n";
-
-const std::string& inputStrInconsistency =  "RUNSPEC\n"
-                                            "EQLOPTS\n"
-                                            "THPRES /\n "
-                                            "\n"
-
-                                            "SOLUTION\n"
-                                            "\n";
-
-const std::string& inputStrTooHighRegionNumbers = "RUNSPEC\n"
-                                                  "EQLOPTS\n"
-                                                  "THPRES /\n "
-                                                  "\n"
-
-                                                  "SOLUTION\n"
-                                                  "THPRES\n"
-                                                  "1 2 12.0/\n"
-                                                  "4 3 5.0/\n"
-                                                  "2 3 7.0/\n"
-                                                  "/\n"
-                                                  "\n";
+REGIONS
+EQLNUM
+   120*0 /
+SOLUTION
+THPRES
+1 2 12.0/
+1 3 5.0/
+2 3 33.0 /
+2 3 7.0/
+/
+)";
 
 
-const std::string& inputStrMissingData = "RUNSPEC\n"
-                                         "EQLOPTS\n"
-                                         "THPRES /\n "
-                                         "\n"
+const std::string& inputStrNoSolutionSection =  R"(
+RUNSPEC
+EQLOPTS
+THPRES /
+)";
 
-                                         "SOLUTION\n"
-                                         "THPRES\n"
-                                         "1 2 12.0/\n"
-                                         "2 3 5.0/\n"
-                                         "1 /\n"
-                                         "/\n"
-                                         "\n";
+const std::string& inputStrNoTHPRESinSolutionNorRUNSPEC = R"(
+RUNSPEC
+
+SOLUTION
+
+SCHEDULE
+)";
+
+const std::string& inputStrTHPRESinRUNSPECnotSoultion = R"(
+RUNSPEC
+EQLOPTS
+ss /
+
+SOLUTION
+)";
 
 
-const std::string& inputStrMissingPressure = "RUNSPEC\n"
-                                         "EQLOPTS\n"
-                                         "THPRES /\n "
-                                         "\n"
-                                         "REGIONS\n"
-                                         "EQLNUM\n"
-                                         "   120*3 /\n"
-                                         "SOLUTION\n"
-                                         "THPRES\n"
-                                         "1 2 12.0/\n"
-                                         "2 3 5.0/\n"
-                                         "2 3 /\n"
-                                         "/\n"
-                                         "\n";
+
+
+const std::string& inputStrTooHighRegionNumbers = R"(
+RUNSPEC
+EQLOPTS
+THPRES /
+
+
+SOLUTION
+THPRES
+1 2 12.0/
+4 3 5.0/
+2 3 7.0/
+/
+)";
+
+
+const std::string& inputStrMissingData = R"(
+RUNSPEC
+EQLOPTS
+THPRES /
+
+
+SOLUTION
+THPRES
+1 2 12.0/
+2 3 5.0/
+1 /
+/
+)";
+
+
+const std::string& inputStrInconsistency =  R"(
+RUNSPEC
+EQLOPTS
+THPRES /
+
+
+SOLUTION
+)";
+
+const std::string& inputStrMissingPressure = R"(
+RUNSPEC
+EQLOPTS
+THPRES /
+
+REGIONS
+EQLNUM
+   120*3 /
+SOLUTION
+THPRES
+1 2 12.0/
+2 3 5.0/
+2 3 /
+/
+)";
 
 static Deck createDeck(const ParseContext& parseContext, const std::string& input) {
     Opm::Parser parser;
@@ -254,19 +275,18 @@ BOOST_AUTO_TEST_CASE(ThresholdPressureTest) {
 
 BOOST_AUTO_TEST_CASE(ThresholdPressureEmptyTest) {
     Setup s(inputStrNoSolutionSection);
-    BOOST_CHECK_EQUAL(0, s.threshPres.size());
+    BOOST_CHECK_EQUAL(0U, s.threshPres.size());
 }
 
 BOOST_AUTO_TEST_CASE(ThresholdPressureNoTHPREStest) {
     Setup s(inputStrNoTHPRESinSolutionNorRUNSPEC);
     Setup s2(inputStrTHPRESinRUNSPECnotSoultion);
 
-    BOOST_CHECK_EQUAL(0, s.threshPres.size());
-    BOOST_CHECK_EQUAL(0, s.threshPres.size());
+    BOOST_CHECK_EQUAL(0U, s.threshPres.size());
+    BOOST_CHECK_EQUAL(0U, s.threshPres.size());
 }
 
 BOOST_AUTO_TEST_CASE(ThresholdPressureThrowTest) {
-    BOOST_CHECK_THROW(Setup sx(inputStrIrrevers), std::runtime_error);
     BOOST_CHECK_THROW(Setup sx(inputStrInconsistency), std::runtime_error);
     BOOST_CHECK_THROW(Setup sx(inputStrTooHighRegionNumbers), std::runtime_error);
     BOOST_CHECK_THROW(Setup sx(inputStrMissingData), std::runtime_error);
@@ -290,14 +310,14 @@ BOOST_AUTO_TEST_CASE(ThresholdPressureThrowTest) {
 BOOST_AUTO_TEST_CASE(Restart) {
     Setup sx(inputStr_RESTART);
     BOOST_CHECK(sx.threshPres.active());
-    BOOST_CHECK_EQUAL(sx.threshPres.size(), 0);
+    BOOST_CHECK_EQUAL(sx.threshPres.size(), 0U);
     BOOST_CHECK(sx.threshPres.restart());
 }
 
 BOOST_AUTO_TEST_CASE(Restart2) {
   Setup sx(inputStr_RESTART2);
   BOOST_CHECK(sx.threshPres.active());
-  BOOST_CHECK_EQUAL(sx.threshPres.size(), 3);
+  BOOST_CHECK_EQUAL(sx.threshPres.size(), 3U);
   BOOST_CHECK(sx.threshPres.restart());
 }
 
@@ -312,4 +332,10 @@ BOOST_AUTO_TEST_CASE(HasPair) {
     BOOST_CHECK( s.threshPres.hasThresholdPressure(1, 2));
     BOOST_CHECK(!s.threshPres.hasThresholdPressure(1, 7));
     BOOST_CHECK_EQUAL(1200000.0, s.threshPres.getThresholdPressure(1, 2));
+}
+
+BOOST_AUTO_TEST_CASE(Irreversible) {
+    Setup s(inputStrIrrevers2);
+    const auto& thp = s.threshPres;
+    BOOST_CHECK(thp.getThresholdPressure(1,2) == -thp.getThresholdPressure(2,1));
 }

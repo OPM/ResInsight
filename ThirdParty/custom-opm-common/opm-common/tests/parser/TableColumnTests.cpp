@@ -22,9 +22,9 @@
 #include <boost/test/unit_test.hpp>
 
 
-#include <opm/parser/eclipse/EclipseState/Tables/TableIndex.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/TableColumn.hpp>
-#include <opm/parser/eclipse/EclipseState/Tables/ColumnSchema.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableIndex.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/TableColumn.hpp>
+#include <opm/input/eclipse/EclipseState/Tables/ColumnSchema.hpp>
 
 using namespace Opm;
 
@@ -32,13 +32,13 @@ using namespace Opm;
 BOOST_AUTO_TEST_CASE( CreateTest ) {
     ColumnSchema schema("COLUMN" , Table::STRICTLY_INCREASING , Table::DEFAULT_LINEAR );
     TableColumn column( schema );
-    BOOST_CHECK_EQUAL( column.size() , 0 );
+    BOOST_CHECK_EQUAL( column.size() , 0U );
 
     column.addValue( 0 );
     column.addValue( 1 );
     column.addValue( 2 );
 
-    BOOST_CHECK_EQUAL( column.size() , 3 );
+    BOOST_CHECK_EQUAL( column.size() , 3U );
 
     BOOST_CHECK_EQUAL( column[0] , 0 );
     BOOST_CHECK_EQUAL( column[1] , 1 );
@@ -65,7 +65,7 @@ BOOST_AUTO_TEST_CASE( TestDefault ) {
     column.addDefault( );
     column.addDefault( );
     column.addDefault( );
-    BOOST_CHECK_EQUAL( column.size() , 3 );
+    BOOST_CHECK_EQUAL( column.size() , 3U );
     BOOST_CHECK_THROW( column[0] , std::invalid_argument );
 
     column.updateValue(0 , 10);
@@ -78,7 +78,7 @@ BOOST_AUTO_TEST_CASE( TestAscending ) {
     ColumnSchema schema("COLUMN" , Table::STRICTLY_INCREASING , Table::DEFAULT_LINEAR);
     TableColumn column( schema );
 
-    BOOST_CHECK_EQUAL( column.size() , 0 );
+    BOOST_CHECK_EQUAL( column.size() , 0U );
 
     column.addValue( 10 );
     BOOST_CHECK_THROW( column.addValue( 9 ) , std::invalid_argument );
@@ -116,7 +116,7 @@ BOOST_AUTO_TEST_CASE( TestDescending ) {
     ColumnSchema schema("COLUMN" , Table::STRICTLY_DECREASING , Table::DEFAULT_LINEAR);
     TableColumn column( schema );
 
-    BOOST_CHECK_EQUAL( column.size() , 0 );
+    BOOST_CHECK_EQUAL( column.size() , 0U );
 
     column.addValue( -10 );
     BOOST_CHECK_THROW( column.addValue( -9 ) , std::invalid_argument );

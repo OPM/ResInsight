@@ -17,36 +17,37 @@
   along with OPM.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #define BOOST_TEST_MODULE Aggregate_Connection_Data
-#include <opm/output/eclipse/AggregateMSWData.hpp>
+
 #include <opm/output/eclipse/AggregateConnectionData.hpp>
-#include <opm/output/eclipse/VectorItems/connection.hpp>
-#include <opm/io/eclipse/rst/header.hpp>
-#include <opm/io/eclipse/rst/connection.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
 
 #include <boost/test/unit_test.hpp>
 
+#include <opm/output/eclipse/AggregateMSWData.hpp>
 #include <opm/output/eclipse/AggregateWellData.hpp>
-
+#include <opm/output/eclipse/VectorItems/connection.hpp>
 #include <opm/output/eclipse/VectorItems/intehead.hpp>
 #include <opm/output/eclipse/VectorItems/well.hpp>
 
+#include <opm/io/eclipse/rst/connection.hpp>
+#include <opm/io/eclipse/rst/header.hpp>
+
 #include <opm/output/data/Wells.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
 
+#include <opm/common/utility/TimeService.hpp>
+
+#include <cstddef>
 #include <exception>
 #include <stdexcept>
 #include <utility>
 #include <vector>
-#include <iostream>
-#include <cstddef>
 
 struct MockIH
 {
@@ -471,38 +472,57 @@ END
         return Opm::Parser{}.parseString(input);
     }
 
-
-    Opm::data::WellRates
-    wr(const Opm::Schedule& sched)
+    std::pair<Opm::data::Wells, Opm::SummaryState> wr(const Opm::Schedule& sched)
     {
         using o = ::Opm::data::Rates::opt;
 
-        auto xw = ::Opm::data::WellRates {};
+        auto xw = ::Opm::data::Wells {};
+        Opm::SummaryState sum_state(Opm::TimeService::now());
 
         {
             xw["PROD"].rates.set(o::wat, 1.0).set(o::oil, 2.0).set(o::gas, 3.0);
             xw["PROD"].bhp = 213.0;
-            double qo = 5.;
-            double qw = 4.;
-            double qg = 50.;
+
+            const double qv = 12.34;
             {
+                const double qw =  4.0;
+                const double qo =  5.0;
+                const double qg = 50.0;
+
                 const auto& well = sched.getWell("PROD", 0);
                 const auto& connections = well.getConnections();
                 for (int i = 0; i < 5; i++) {
-                    xw["PROD"].connections.emplace_back();
-                    auto& c = xw["PROD"].connections.back();
+                    auto& c = xw["PROD"].connections.emplace_back();
 
-                    c.rates.set(o::wat, qw * (float(i) + 1.))
-                        .set(o::oil, qo * (float(i) + 1.))
-                        .set(o::gas, qg * (float(i) + 1.));
-                    c.pressure = 215.;
+                    c.rates.set(o::wat, qw * (float(i) + 1.0))
+                        .set(o::oil, qo * (float(i) + 1.0))
+                        .set(o::gas, qg * (float(i) + 1.0));
+                    c.pressure = 215.0;
                     c.index = connections[i].global_index();
+                    c.trans_factor = connections[i].CF();
+
+                    const auto& global_index = connections[i].global_index();
+                    sum_state.update_conn_var("PROD", "CWPR", global_index + 1, qw * (i + 1));
+                    sum_state.update_conn_var("PROD", "COPR", global_index + 1, qo * (i + 1));
+                    sum_state.update_conn_var("PROD", "CGPR", global_index + 1, qg * (i + 1));
+                    sum_state.update_conn_var("PROD", "CVPR", global_index + 1, qv * (i + 1));
+
+                    sum_state.update_conn_var("PROD", "COPT", global_index + 1, qo * (i + 1) * 2.0);
+                    sum_state.update_conn_var("PROD", "CWPT", global_index + 1, qw * (i + 1) * 2.0);
+                    sum_state.update_conn_var("PROD", "CGPT", global_index + 1, qg * (i + 1) * 2.0);
+                    sum_state.update_conn_var("PROD", "CVPT", global_index + 1, qv * (i + 1) * 2.0);
+
+                    sum_state.update_conn_var("PROD", "CGOR", global_index + 1, qg / qo);
+
+                    sum_state.update_conn_var("PROD", "CPR",  global_index + 1, 215.0);
                 }
+
                 auto seg = Opm::data::Segment {};
                 for (std::size_t i = 1; i < 5; i++) {
                     xw["PROD"].segments.insert(std::pair<std::size_t, Opm::data::Segment>(i, seg));
                 }
             }
+
             {
                 const auto& well = sched.getWell("WINJ", 0);
                 const auto& connections = well.getConnections();
@@ -511,41 +531,53 @@ END
                 xw["WINJ"].rates.set(o::wat, 5.0);
                 xw["WINJ"].rates.set(o::oil, 0.0);
                 xw["WINJ"].rates.set(o::gas, 0.0);
-                qw = 7.;
+
+                const double qw = 7.0;
                 for (int i = 0; i < 4; i++) {
                     xw["WINJ"].connections.emplace_back();
                     auto& c = xw["WINJ"].connections.back();
 
-                    c.rates.set(o::wat, qw * (float(i) + 1.)).set(o::oil, 0.).set(o::gas, 0.);
-                    c.pressure = 218.;
+                    c.rates.set(o::wat, qw * (float(i) + 1.0)).set(o::oil, 0.0).set(o::gas, 0.0);
+                    c.pressure = 218.0;
                     c.index = connections[i].global_index();
+                    c.trans_factor = connections[i].CF();
+
+                    const auto& global_index = connections[i].global_index();
+                    sum_state.update_conn_var("WINJ", "CWIR", global_index+ 1, qw*(i + 1));
+                    sum_state.update_conn_var("WINJ", "COIR", global_index+ 1, 0.0);
+                    sum_state.update_conn_var("WINJ", "CGIR", global_index+ 1, 0.0);
+                    sum_state.update_conn_var("WINJ", "CVIR", global_index+ 1, qv*(i + 1));
+
+                    sum_state.update_conn_var("WINJ", "COIT", global_index + 1, 543.21 * (i + 1));
+                    sum_state.update_conn_var("WINJ", "CWIT", global_index + 1, qw * (i + 1) * 2.0);
+                    sum_state.update_conn_var("WINJ", "CGIT", global_index + 1, 9876.54 * (i + 1));
+                    sum_state.update_conn_var("WINJ", "CVIT", global_index + 1, qv * (i + 1) * 2.0);
+
+                    sum_state.update_conn_var("WINJ", "CPR", global_index + 1, 218.0);
                 }
             }
         }
-        return xw;
+
+        return { std::move(xw), std::move(sum_state) };
     }
-    } // namespace
+} // namespace
 
-    struct SimulationCase {
-        explicit SimulationCase(const Opm::Deck& deck)
-            : es(deck)
-            , python(std::make_shared<Opm::Python>())
-            , grid(deck)
-            , sched(deck, es, python)
-        {
-        }
+struct SimulationCase {
+    explicit SimulationCase(const Opm::Deck& deck)
+        : es   (deck)
+        , grid (deck)
+        , sched(deck, es, std::make_shared<Opm::Python>())
+    {}
 
-        // Order requirement: 'es' must be declared/initialised before 'sched'.
-        Opm::EclipseState es;
-        std::shared_ptr<Opm::Python> python;
-        Opm::EclipseGrid grid;
-        Opm::Schedule sched;
-    };
+    // Order requirement: 'es' must be declared/initialised before 'sched'.
+    Opm::EclipseState es;
+    Opm::EclipseGrid grid;
+    Opm::Schedule sched;
+};
 
 // =====================================================================
 
 BOOST_AUTO_TEST_SUITE(Aggregate_ConnData)
-
 
 // test dimensions of Connection data
 BOOST_AUTO_TEST_CASE (Constructor)
@@ -559,7 +591,6 @@ BOOST_AUTO_TEST_CASE (Constructor)
     BOOST_CHECK_EQUAL(amconn.getXConn().size(), ih.nwells * ih.ncwmax * ih.nxconz);
 }
 
-
 BOOST_AUTO_TEST_CASE(Declared_Connection_Data)
 {
     const auto simCase = SimulationCase {first_sim()};
@@ -571,9 +602,9 @@ BOOST_AUTO_TEST_CASE(Declared_Connection_Data)
 
     BOOST_CHECK_EQUAL(ih.nwells, MockIH::Sz {2});
 
-    const Opm::data::WellRates wrc = wr(simCase.sched);
+    const auto& [wrc, sum_state] = wr(simCase.sched);
     auto amconn = Opm::RestartIO::Helpers::AggregateConnectionData {ih.value};
-    amconn.captureDeclaredConnData(simCase.sched, simCase.grid, simCase.es.getUnits(), wrc, rptStep);
+    amconn.captureDeclaredConnData(simCase.sched, simCase.grid, simCase.es.getUnits(), wrc, sum_state, rptStep);
 
     // ICONN (PROD)
     {
@@ -689,58 +720,103 @@ BOOST_AUTO_TEST_CASE(Declared_Connection_Data)
     // XCONN (PROD)  + (WINJ)
     {
         using Ix = ::Opm::RestartIO::Helpers::VectorItems::XConn::index;
-        const auto& units = simCase.es.getUnits();
-        using M = ::Opm::UnitSystem::measure;
         const auto& xconn = amconn.getXConn();
 
         // PROD well
         int connNo = 1;
         auto i0 = (connNo - 1) * ih.nxconz;
-        BOOST_CHECK_CLOSE(xconn[i0 + Ix::OilRate],
-                          -units.from_si(M::liquid_surface_rate, 5. * (float(connNo))),
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::OilRate], 5.0 * (float(connNo)),
                           1.0e-5); // PROD - conn 1 : Surface oil rate
-        BOOST_CHECK_CLOSE(xconn[i0 + Ix::WaterRate],
-                          -units.from_si(M::liquid_surface_rate, 4. * (float(connNo))),
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::WaterRate], 4.0 * (float(connNo)),
                           1.0e-5); // PROD - conn 1 : Surface water rate
-        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GasRate],
-                          -units.from_si(M::gas_surface_rate, 50. * (float(connNo))),
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GasRate], 50.0 * (float(connNo)),
                           1.0e-5); // PROD - conn 1 : Surface gas rate
-        BOOST_CHECK_CLOSE(
-            xconn[i0 + Ix::Pressure], units.from_si(M::pressure, 215.), 1.0e-5); // PROD - conn 1 : Connection pressure
-        BOOST_CHECK_CLOSE(xconn[i0 + Ix::ResVRate], 0., 1.0e-5); // PROD - conn 1 : Reservoir volume rate
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::ResVRate],
+                          12.34 * static_cast<float>(connNo),
+                          1.0e-5); // PROD - conn 1 : Reservoir volume rate
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::OilPrTotal],
+                          5.0 * static_cast<float>(connNo) * 2.0,
+                          1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::WatPrTotal],
+                          4.0 * static_cast<float>(connNo) * 2.0,
+                          1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GasPrTotal],
+                          50.0 * static_cast<float>(connNo) * 2.0,
+                          1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::VoidPrTotal],
+                          12.34 * static_cast<float>(connNo) * 2.0,
+                          1.0e-5);
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GORatio],
+                          50.0 / 5.0,
+                          1.0e-5);
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::OilInjTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::WatInjTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GasInjTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::VoidInjTotal], 0.0, 1.0e-5);
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::Pressure], 215.0, 1.0e-5); // PROD - conn 1 : Connection pressure
 
         // WINJ well
         connNo = 3;
         i0 = ih.ncwmax * ih.nxconz + (connNo - 1) * ih.nxconz;
         BOOST_CHECK_CLOSE(xconn[i0 + Ix::WaterRate],
-                          -units.from_si(M::liquid_surface_rate, 7. * (float(connNo))),
+                          -7.0 * (float(connNo)),
                           1.0e-5); // WINJ - conn 3 : Surface water rate
-        BOOST_CHECK_CLOSE(
-            xconn[i0 + Ix::Pressure], units.from_si(M::pressure, 218.), 1.0e-5); // WINJ - conn 3 : Connection pressure
-        BOOST_CHECK_CLOSE(xconn[i0 + Ix::ResVRate], 0., 1.0e-5); // WINJ - conn 3 : Reservoir volume rate
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::Pressure], 218., 1.0e-5); // WINJ - conn 3 : Connection pressure
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::ResVRate],
+                          -12.34 * static_cast<float>(connNo),
+                          1.0e-5); // WINJ - conn 3 : Reservoir volume rate
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::OilPrTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::WatPrTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GasPrTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::VoidPrTotal], 0.0, 1.0e-5);
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GORatio], 0.0, 1.0e-5);
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::OilInjTotal] , 543.21 * connNo, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::WatInjTotal] , 7.0 * connNo * 2.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GasInjTotal] , 9876.54 * connNo, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::VoidInjTotal], 12.34 * connNo * 2.0, 1.0e-5);
 
         connNo = 4;
         i0 = ih.ncwmax * ih.nxconz + (connNo - 1) * ih.nxconz;
         BOOST_CHECK_CLOSE(xconn[i0 + Ix::WaterRate],
-                          -units.from_si(M::liquid_surface_rate, 7. * (float(connNo))),
+                          -7.0 * (float(connNo)),
                           1.0e-5); // WINJ - conn 3 : Surface water rate
-        BOOST_CHECK_CLOSE(
-            xconn[i0 + Ix::Pressure], units.from_si(M::pressure, 218.), 1.0e-5); // WINJ - conn 3 : Connection pressure
-        BOOST_CHECK_CLOSE(xconn[i0 + Ix::ResVRate], 0., 1.0e-5); // WINJ - conn 3 : Reservoir volume rate
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::Pressure], 218., 1.0e-5); // WINJ - conn 3 : Connection pressure
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::ResVRate],
+                          -12.34 * static_cast<float>(connNo),
+                          1.0e-5); // WINJ - conn 3 : Reservoir volume rate
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::OilPrTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::WatPrTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GasPrTotal] , 0.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::VoidPrTotal], 0.0, 1.0e-5);
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GORatio], 0.0, 1.0e-5);
+
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::OilInjTotal] , 543.21 * connNo, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::WatInjTotal] , 7.0 * connNo * 2.0, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::GasInjTotal] , 9876.54 * connNo, 1.0e-5);
+        BOOST_CHECK_CLOSE(xconn[i0 + Ix::VoidInjTotal], 12.34 * connNo * 2.0, 1.0e-5);
     }
 }
-
 
 BOOST_AUTO_TEST_CASE(InactiveCell) {
     auto simCase = SimulationCase{first_sim()};
     const auto rptStep = std::size_t{1};
     const auto ih = MockIH {static_cast<int>(simCase.sched.getWells(rptStep).size())};
-    const Opm::data::WellRates wrc = wr(simCase.sched);
+    const auto& [wrc, sum_state] = wr(simCase.sched);
     auto conn0 = Opm::RestartIO::Helpers::AggregateConnectionData{ih.value};
     conn0.captureDeclaredConnData(simCase.sched,
                                   simCase.grid,
                                   simCase.es.getUnits(),
                                   wrc,
+                                  sum_state,
                                   rptStep
                                   );
 
@@ -754,6 +830,7 @@ BOOST_AUTO_TEST_CASE(InactiveCell) {
                                   simCase.grid,
                                   simCase.es.getUnits(),
                                   wrc,
+                                  sum_state,
                                   rptStep
                                   );
 

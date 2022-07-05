@@ -24,25 +24,30 @@
 
 #include <opm/io/eclipse/ERft.hpp>
 #include <opm/io/eclipse/OutputStream.hpp>
-#include <opm/parser/eclipse/Python/Python.hpp>
+#include <opm/input/eclipse/Python/Python.hpp>
 
 #include <opm/output/data/Solution.hpp>
 #include <opm/output/data/Wells.hpp>
+#include <opm/output/data/Groups.hpp>
 #include <opm/output/eclipse/EclipseIO.hpp>
 #include <opm/output/eclipse/InteHEAD.hpp>
 #include <opm/output/eclipse/WriteRFT.hpp>
 
-#include <opm/parser/eclipse/Deck/Deck.hpp>
-#include <opm/parser/eclipse/EclipseState/Grid/EclipseGrid.hpp>
-#include <opm/parser/eclipse/EclipseState/IOConfig/IOConfig.hpp>
-#include <opm/parser/eclipse/EclipseState/Schedule/Schedule.hpp>
-#include <opm/parser/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/EclipseState/Grid/EclipseGrid.hpp>
+#include <opm/input/eclipse/EclipseState/IOConfig/IOConfig.hpp>
+#include <opm/input/eclipse/Schedule/Schedule.hpp>
+#include <opm/input/eclipse/EclipseState/SummaryConfig/SummaryConfig.hpp>
+#include <opm/input/eclipse/Schedule/Action/State.hpp>
+#include <opm/input/eclipse/Schedule/UDQ/UDQState.hpp>
+#include <opm/input/eclipse/Schedule/SummaryState.hpp>
+#include <opm/input/eclipse/Schedule/Well/WellTestState.hpp>
 
-#include <opm/parser/eclipse/Parser/ParseContext.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/Parser/ParseContext.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
-#include <opm/parser/eclipse/Units/Units.hpp>
-#include <opm/parser/eclipse/Units/UnitSystem.hpp>
+#include <opm/input/eclipse/Units/Units.hpp>
+#include <opm/input/eclipse/Units/UnitSystem.hpp>
 
 #include <cstddef>
 #include <ctime>
@@ -55,8 +60,8 @@
 #include <utility>
 #include <vector>
 
-#include <boost/date_time/posix_time/posix_time.hpp>
 #include <opm/common/utility/FileSystem.hpp>
+#include <opm/common/utility/TimeService.hpp>
 
 using namespace Opm;
 
@@ -77,16 +82,16 @@ namespace {
     {
     public:
         explicit RSet(std::string base)
-            : odir_(Opm::filesystem::temp_directory_path() /
+            : odir_(std::filesystem::temp_directory_path() /
                     Opm::unique_path("rset-%%%%"))
             , base_(std::move(base))
         {
-            Opm::filesystem::create_directories(this->odir_);
+            std::filesystem::create_directories(this->odir_);
         }
 
         ~RSet()
         {
-            Opm::filesystem::remove_all(this->odir_);
+            std::filesystem::remove_all(this->odir_);
         }
 
         std::string outputDir() const
@@ -100,7 +105,7 @@ namespace {
         }
 
     private:
-        Opm::filesystem::path odir_;
+        std::filesystem::path odir_;
         std::string             base_;
     };
 
@@ -237,7 +242,7 @@ namespace {
         tp.tm_mon  = std::get<1>(date) -    1; // 0..11
         tp.tm_mday = std::get<2>(date);        // 1..31
 
-        return ::Opm::RestartIO::makeUTCTime(tp);
+        return Opm::TimeService::makeUTCTime(tp);
     }
 } // Anonymous namespace
 
@@ -266,14 +271,17 @@ BOOST_AUTO_TEST_CASE(test_RFT)
         const auto numCells = grid.getCartesianSize( );
 
         const Schedule schedule(deck, eclipseState, python);
-        const SummaryConfig summary_config( deck, schedule, eclipseState.getTableManager( ));
+        const SummaryConfig summary_config( deck, schedule, eclipseState.fieldProps(), eclipseState.aquifer() );
 
         EclipseIO eclipseWriter( eclipseState, grid, schedule, summary_config );
 
         const auto start_time = schedule.posixStartTime();
         const auto step_time  = timeStamp(::Opm::EclIO::ERft::RftDate{ 2008, 10, 10 });
 
-        SummaryState st(std::chrono::system_clock::now());
+        SummaryState st(TimeService::now());
+        Action::State action_state;
+        UDQState udq_state(1234);
+        WellTestState wtest_state;
 
         data::Rates r1, r2;
         r1.set( data::Rates::opt::wat, 4.11 );
@@ -286,27 +294,39 @@ BOOST_AUTO_TEST_CASE(test_RFT)
 
         std::vector<Opm::data::Connection> well1_comps(9);
         for (size_t i = 0; i < 9; ++i) {
-            Opm::data::Connection well_comp { grid.getGlobalIndex(8,8,i) ,r1, 0.0 , 0.0, (double)i, 0.1*i,0.2*i, 1.2e3};
+            Opm::data::Connection well_comp { grid.getGlobalIndex(8,8,i) ,r1, 0.0 , 0.0, (double)i, 0.1*i,0.2*i, 1.2e3, 4.321};
             well1_comps[i] = std::move(well_comp);
         }
         std::vector<Opm::data::Connection> well2_comps(6);
         for (size_t i = 0; i < 6; ++i) {
-            Opm::data::Connection well_comp { grid.getGlobalIndex(3,3,i+3) ,r2, 0.0 , 0.0, (double)i, i*0.1,i*0.2, 0.15};
+            Opm::data::Connection well_comp { grid.getGlobalIndex(3,3,i+3) ,r2, 0.0 , 0.0, (double)i, i*0.1,i*0.2, 0.15, 0.54321};
             well2_comps[i] = std::move(well_comp);
         }
 
         Opm::data::Solution solution = createBlackoilState(2, numCells);
         Opm::data::Wells wells;
+        Opm::data::GroupAndNetworkValues group_nwrk;
 
         using SegRes = decltype(wells["w"].segments);
         using Ctrl = decltype(wells["w"].current_control);
 
-        wells["OP_1"] = { std::move(r1), 1.0, 1.1, 3.1, 1, std::move(well1_comps), SegRes{}, Ctrl{} };
-        wells["OP_2"] = { std::move(r2), 1.0, 1.1, 3.2, 1, std::move(well2_comps), SegRes{}, Ctrl{} };
+        wells["OP_1"] = {
+            std::move(r1), 1.0, 1.1, 3.1, 1,
+            ::Opm::Well::Status::OPEN,
+            std::move(well1_comps), SegRes{}, Ctrl{}
+        };
+        wells["OP_2"] = {
+            std::move(r2), 1.0, 1.1, 3.2, 1,
+            ::Opm::Well::Status::OPEN,
+            std::move(well2_comps), SegRes{}, Ctrl{}
+        };
 
-        RestartValue restart_value(std::move(solution), std::move(wells));
+        RestartValue restart_value(std::move(solution), std::move(wells), std::move(group_nwrk), {});
 
-        eclipseWriter.writeTimeStep( st,
+        eclipseWriter.writeTimeStep( action_state,
+                                     wtest_state,
+                                     st,
+                                     udq_state,
                                      2,
                                      false,
                                      step_time - start_time,
@@ -388,16 +408,17 @@ BOOST_AUTO_TEST_CASE(test_RFT2)
         const auto numCells = grid.getCartesianSize( );
 
         Schedule schedule(deck, eclipseState, python);
-        SummaryConfig summary_config( deck, schedule, eclipseState.getTableManager( ));
-        SummaryState st(std::chrono::system_clock::now());
+        SummaryConfig summary_config( deck, schedule, eclipseState.fieldProps(), eclipseState.aquifer() );
+        SummaryState st(Opm::TimeService::now());
+        Action::State action_state;
+        UDQState udq_state(10);
+        WellTestState wtest_state;
 
         const auto  start_time = schedule.posixStartTime();
-        const auto& time_map   = schedule.getTimeMap( );
-
         for (int counter = 0; counter < 2; counter++) {
             EclipseIO eclipseWriter( eclipseState, grid, schedule, summary_config );
-            for (size_t step = 0; step < time_map.size(); step++) {
-                const auto step_time = time_map[step];
+            for (size_t step = 0; step < schedule.size(); step++) {
+                const auto step_time = schedule.simTime(step);
 
                 data::Rates r1, r2;
                 r1.set( data::Rates::opt::wat, 4.11 );
@@ -410,12 +431,12 @@ BOOST_AUTO_TEST_CASE(test_RFT2)
 
                 std::vector<Opm::data::Connection> well1_comps(9);
                 for (size_t i = 0; i < 9; ++i) {
-                    Opm::data::Connection well_comp { grid.getGlobalIndex(8,8,i) ,r1, 0.0 , 0.0, (double)i, 0.1*i,0.2*i, 3.14e5};
+                    Opm::data::Connection well_comp { grid.getGlobalIndex(8,8,i) ,r1, 0.0 , 0.0, (double)i, 0.1*i,0.2*i, 3.14e5, 0.1234};
                     well1_comps[i] = std::move(well_comp);
                 }
                 std::vector<Opm::data::Connection> well2_comps(6);
                 for (size_t i = 0; i < 6; ++i) {
-                    Opm::data::Connection well_comp { grid.getGlobalIndex(3,3,i+3) ,r2, 0.0 , 0.0, (double)i, i*0.1,i*0.2, 355.113};
+                    Opm::data::Connection well_comp { grid.getGlobalIndex(3,3,i+3) ,r2, 0.0 , 0.0, (double)i, i*0.1,i*0.2, 355.113, 0.9876};
                     well2_comps[i] = std::move(well_comp);
                 }
 
@@ -425,12 +446,23 @@ BOOST_AUTO_TEST_CASE(test_RFT2)
                 using SegRes = decltype(wells["w"].segments);
                 using Ctrl = decltype(wells["w"].current_control);
 
-                wells["OP_1"] = { std::move(r1), 1.0, 1.1, 3.1, 1, std::move(well1_comps), SegRes{}, Ctrl{} };
-                wells["OP_2"] = { std::move(r2), 1.0, 1.1, 3.2, 1, std::move(well2_comps), SegRes{}, Ctrl{} };
+                wells["OP_1"] = {
+                    std::move(r1), 1.0, 1.1, 3.1, 1,
+                    ::Opm::Well::Status::OPEN,
+                    std::move(well1_comps), SegRes{}, Ctrl{}
+                };
+                wells["OP_2"] = {
+                    std::move(r2), 1.0, 1.1, 3.2, 1,
+                    ::Opm::Well::Status::OPEN,
+                    std::move(well2_comps), SegRes{}, Ctrl{}
+                };
 
-                RestartValue restart_value(std::move(solution), std::move(wells));
+                RestartValue restart_value(std::move(solution), std::move(wells), data::GroupAndNetworkValues(), {});
 
-                eclipseWriter.writeTimeStep( st,
+                eclipseWriter.writeTimeStep( action_state,
+                                             wtest_state,
+                                             st,
+                                             udq_state,
                                              step,
                                              false,
                                              step_time - start_time,
@@ -457,13 +489,11 @@ namespace {
 
         explicit Setup(const ::Opm::Deck& deck)
             : es    { deck }
-            , python{ std::make_shared<::Opm::Python>() }
-            , sched { deck, es , python }
+            , sched { deck, es, std::make_shared<const ::Opm::Python>() }
         {
         }
 
         ::Opm::EclipseState es;
-        std::shared_ptr<::Opm::Python> python;
         ::Opm::Schedule     sched;
     };
 
@@ -483,6 +513,7 @@ namespace {
 
             c.cell_saturation_gas   = 0.15;
             c.cell_saturation_water = 0.3 + con/20.0;
+            c.trans_factor          = 0.98765;
         }
 
         return xcon;
@@ -512,6 +543,7 @@ namespace {
 
             c.cell_saturation_gas   = 0.6 - con/20.0;
             c.cell_saturation_water = 0.25;
+            c.trans_factor          = 0.12345;
         }
 
         return xcon;
@@ -525,7 +557,7 @@ namespace {
         return xw;
     }
 
-    ::Opm::data::WellRates wellSol(const ::Opm::EclipseGrid& grid)
+    ::Opm::data::Wells wellSol(const ::Opm::EclipseGrid& grid)
     {
         auto xw = ::Opm::data::Wells{};
 

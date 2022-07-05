@@ -163,7 +163,7 @@ private:
                                                         "TRANX", "TRANY", "TRANZ", "TRANNNC", "SGRP", "SCON", "DOUBHEAD"
                                                        };
     // keywords that should not be compared
-    const std::vector<std::string> keywordsBlackList = {"TCPU"};
+    const std::vector<std::string> keywordsBlackList = {"TCPU", "ELAPSED", "TCPUDAY", "TCPUTS", "TELAPLIN", "TCPUH", "TCPUHT", "TCPUSCH", "TCPUTSH", "TCPUTSHT", "TELAPDAY", "TELAPTS"};
 
     bool reportStepOnly = false;
 

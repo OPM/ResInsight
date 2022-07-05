@@ -22,6 +22,7 @@
 #include <chrono>
 #include <cmath>
 #include <ctime>
+#include <filesystem>
 #include <fstream>
 #include <functional>
 #include <iomanip>
@@ -30,9 +31,12 @@
 #include <regex>
 #include <string>
 
+#include <fmt/format.h>
+
 #include <opm/common/ErrorMacros.hpp>
 #include <opm/common/utility/TimeService.hpp>
 #include <opm/io/eclipse/ESmry.hpp>
+#include <opm/output/eclipse/WStat.hpp>
 
 #include "project-version.h"
 
@@ -110,12 +114,33 @@ namespace {
         os << '\n';
     }
 
-    void write_data_row(std::ostream& os, const std::vector<std::string>& time_column, const std::vector<std::pair<std::vector<float>, int>>& data, std::size_t index, char prefix = ' ') {
+    std::string convert_wstat(double numeric_wstat) {
+        static const std::unordered_map<int, std::string> wstat_map = {
+            {Opm::WStat::numeric::UNKNOWN, Opm::WStat::symbolic::UNKNOWN},
+            {Opm::WStat::numeric::PROD,    Opm::WStat::symbolic::PROD},
+            {Opm::WStat::numeric::INJ,     Opm::WStat::symbolic::INJ},
+            {Opm::WStat::numeric::SHUT,    Opm::WStat::symbolic::SHUT},
+            {Opm::WStat::numeric::STOP,    Opm::WStat::symbolic::STOP},
+            {Opm::WStat::numeric::PSHUT,   Opm::WStat::symbolic::PSHUT},
+            {Opm::WStat::numeric::PSTOP,   Opm::WStat::symbolic::PSTOP},
+        };
+        return wstat_map.at(static_cast<int>(numeric_wstat));
+    }
+
+
+
+    void write_data_row(std::ostream& os, const std::vector<std::string>& time_column, const std::vector<Opm::EclIO::SummaryNode>& summary_nodes, const std::vector<std::pair<std::vector<float>, int>>& data, std::size_t time_index, char prefix = ' ') {
         os << prefix;
 
-        print_time_element( os, time_column[index] );
-        for (const auto& vector : data) {
-            print_float_element(os, vector.first[index] * std::pow(10.0, -vector.second));
+        print_time_element( os, time_column[time_index] );
+        for (std::size_t row_index = 0; row_index < data.size(); row_index++) {
+            const auto& [time_series, scale_factor] = data[row_index];
+            const auto& summary_node = summary_nodes[row_index];
+
+            if (summary_node.keyword == "WSTAT")
+                print_text_element(os, convert_wstat(time_series[time_index]));
+            else
+                print_float_element(os, time_series[time_index] * std::pow(10.0, -scale_factor));
         }
         write_padding(os, data.size());
 
@@ -126,8 +151,8 @@ namespace {
         os << prefix;
 
         print_text_element(os, "");
-        for (const auto& vector : data) {
-            const auto scale_factor { vector.second } ;
+        for (const auto& [_ , scale_factor] : data) {
+            (void)_;
             if (scale_factor) {
                 print_text_element(os, "*10**" + std::to_string(scale_factor));
             } else {
@@ -147,14 +172,14 @@ namespace Opm::EclIO {
 void ESmry::write_block(std::ostream& os, bool write_dates, const std::vector<std::string>& time_column, const std::vector<SummaryNode>& vectors) const {
     write_line(os, block_separator_line, '1');
     write_line(os, divider_line);
-    write_line(os, block_header_line(inputFileName.stem()));
+    write_line(os, block_header_line(inputFileName.stem().string()));
     write_line(os, divider_line);
 
     std::vector<std::pair<std::vector<float>, int>> data;
 
     bool has_scale_factors { false } ;
     for (const auto& vector : vectors) {
-        const auto& vector_data { get(vector) } ;
+        const auto& vector_data { this->get(vector) } ;
 
         auto max = *std::max_element(vector_data.begin(), vector_data.end());
         int scale_factor { std::max(0, 3 * static_cast<int>(std::floor(( std::log10(max) - 4 ) / 3 ))) } ;
@@ -185,7 +210,7 @@ void ESmry::write_block(std::ostream& os, bool write_dates, const std::vector<st
         write_line(os, divider_line);
 
         for (std::size_t i { 0 } ; i < rows; i++) {
-            write_data_row(os, time_column, data, i);
+            write_data_row(os, time_column, vectors, data, i);
         }
     }
 
@@ -220,7 +245,7 @@ void ESmry::write_rsm(std::ostream& os) const {
         data_vector_blocks.emplace_back(data_vectors.begin() + i, data_vectors.begin() + last);
     }
 
-    this->LoadData();
+    this->loadData();
     std::vector<std::string> time_column;
     if (this->hasKey("DAY") && this->hasKey("MONTH") && this->hasKey("YEAR")) {
         write_dates = true;
@@ -238,14 +263,14 @@ void ESmry::write_rsm(std::ostream& os) const {
     }
 }
 
-void ESmry::write_rsm_file(std::optional<Opm::filesystem::path> filename) const {
-    Opm::filesystem::path summary_file_name { filename.value_or(inputFileName) } ;
+void ESmry::write_rsm_file(std::optional<std::filesystem::path> filename) const {
+    std::filesystem::path summary_file_name { filename.value_or(inputFileName) } ;
     summary_file_name.replace_extension("RSM");
 
     std::ofstream rsm_file { summary_file_name } ;
 
     if (!rsm_file.is_open()) {
-        OPM_THROW(std::runtime_error, "Could not open file " + std::string(summary_file_name));
+        OPM_THROW(std::runtime_error, "Could not open file " + std::string(summary_file_name.string()));
     }
 
     write_rsm(rsm_file);

@@ -25,6 +25,7 @@
 namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems {
 
     namespace ISeg {
+
         enum index : std::vector<int>::size_type {
             SegNo          = 0, // Segment number (one-based)
             OutSeg         = 1, // Outlet segment (one-based)
@@ -55,6 +56,8 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
             GasFlowFract = 10,  // Normalised Gas flow rate fraction
             Pressure     = 11,  // Segment pressure
 
+            item31  =  30,      // Very close to Normalised Water flow rate fraction - value used pr today
+
             item40  =  39,      // Unknown
 
             ValveLength    = 40, // Length of valve
@@ -64,24 +67,30 @@ namespace Opm { namespace RestartIO { namespace Helpers { namespace VectorItems 
 
             DeviceBaseStrength = 86,
 
+            ScalingFactor = 87,
+
             CalibrFluidDensity   = 88,
             CalibrFluidViscosity = 89,
 
             CriticalWaterFraction = 90,
             TransitionRegWidth    = 91,
             MaxEmulsionRatio      = 92,
+
+            FlowRateExponent      = 95,
+            ViscFuncExponent      = 96,
+
             MaxValidFlowRate      = 97,
 
             ICDLength = 102,
 
             ValveAreaFraction  = 103,
 
-            item106 = 105,      // Unknown
-            item107 = 106,      // Unknown
-            item108 = 107,      // Unknown
-            item109 = 108,      // Unknown
-            item110 = 109,      // Unknown
-            item111 = 110,      // Unknown
+            flowFractionOilDensityExponent      = 105,
+            flowFractionWaterDensityExponent    = 106,
+            flowFractionGasDensityExponent      = 107,
+            flowFractionOilViscosityExponent    = 108,
+            flowFractionWaterViscosityExponent  = 109,
+            flowFractionGasViscosityExponent    = 110,
         };
     } // RSeg
 

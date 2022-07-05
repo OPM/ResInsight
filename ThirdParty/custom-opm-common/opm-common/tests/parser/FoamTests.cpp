@@ -22,9 +22,10 @@
 
 #include <boost/test/unit_test.hpp>
 
-#include <opm/parser/eclipse/Parser/Parser.hpp>
-#include <opm/parser/eclipse/EclipseState/EclipseState.hpp>
-#include <opm/parser/eclipse/EclipseState/InitConfig/FoamConfig.hpp>
+#include <opm/input/eclipse/Deck/Deck.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
+#include <opm/input/eclipse/EclipseState/EclipseState.hpp>
+#include <opm/input/eclipse/EclipseState/InitConfig/FoamConfig.hpp>
 
 
 using namespace Opm;
@@ -81,15 +82,16 @@ PROPS
 FOAMOPTS
 GAS TAB /
 
+FOAMROCK
+1 2000 /
+2 1800 /
+2 2400 /
+
 FOAMFSC
 1 2 0.3 /
 4 5 /
 6 /
 
-FOAMROCK
-1 2000 /
-2 1800 /
-2 2400 /
 
 REGIONS
 SWAT
@@ -172,7 +174,7 @@ BOOST_AUTO_TEST_CASE(FoamConfigTest) {
     auto deck = createDeck();
     EclipseState state(deck);
     const FoamConfig& fc = state.getInitConfig().getFoamConfig();
-    BOOST_REQUIRE_EQUAL(fc.size(), 3);
+    BOOST_REQUIRE_EQUAL(fc.size(), 3U);
     BOOST_CHECK_EQUAL(fc.getRecord(0).referenceSurfactantConcentration(), 1.0);
     BOOST_CHECK_EQUAL(fc.getRecord(0).exponent(), 2.0);
     BOOST_CHECK_EQUAL(fc.getRecord(0).minimumSurfactantConcentration(), 0.3);
@@ -193,7 +195,6 @@ BOOST_AUTO_TEST_CASE(FoamConfigTest) {
 }
 
 BOOST_AUTO_TEST_CASE(FoamConfigFailureTest) {
-    auto deck = createFailingDeck();
-    BOOST_CHECK_THROW(EclipseState state(deck), std::runtime_error);
+    BOOST_CHECK_THROW( createFailingDeck(), std::exception );
 }
 

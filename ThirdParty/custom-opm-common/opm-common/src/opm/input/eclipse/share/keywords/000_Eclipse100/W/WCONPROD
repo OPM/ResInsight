@@ -1,0 +1,125 @@
+{
+  "name": "WCONPROD",
+  "sections": [
+    "SCHEDULE"
+  ],
+  "items": [
+    {
+       "item": 1,
+     "name": "WELL",
+      "value_type": "STRING"
+    },
+    {
+      "item": 2,
+      "name": "STATUS",
+      "value_type": "STRING",
+      "default": "OPEN"
+    },
+    {
+      "item": 3,
+      "name": "CMODE",
+      "value_type": "STRING"
+    },
+    {
+      "item": 4,
+      "name": "ORAT",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "item": 5,
+      "name": "WRAT",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "item": 6,
+      "name": "GRAT",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "GasSurfaceVolume/Time"
+    },
+    {
+      "item": 7,
+      "name": "LRAT",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "item": 8,
+      "name": "RESV",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "LiquidSurfaceVolume/Time"
+    },
+    {
+      "item": 9,
+      "name": "BHP",
+      "value_type": "UDA",
+      "default": 1.01325,
+      "dimension": "Pressure"
+    },
+    {
+      "item": 10,
+      "name": "THP",
+      "value_type": "UDA",
+      "default": 0,
+      "dimension": "Pressure"
+    },
+    {
+      "item": 11,
+      "name": "VFP_TABLE",
+      "value_type": "INT",
+      "default": 0
+    },
+    {
+      "item": 12,
+      "name": "ALQ",
+      "value_type": "UDA",
+      "default": 0
+    },
+    {
+      "item": 13,
+      "name": "E300_ITEM13",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 14,
+      "name": "E300_ITEM14",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 15,
+      "name": "E300_ITEM15",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 16,
+      "name": "E300_ITEM16",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 17,
+      "name": "E300_ITEM17",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 18,
+      "name": "E300_ITEM18",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 18,
+      "name": "E300_ITEM19",
+      "value_type": "DOUBLE"
+    },
+    {
+      "item": 20,
+      "name": "E300_ITEM20",
+      "value_type": "DOUBLE"
+    }
+  ]
+}
