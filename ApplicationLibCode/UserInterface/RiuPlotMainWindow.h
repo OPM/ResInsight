@@ -24,6 +24,7 @@
 #include "cafPdmPointer.h"
 
 #include <QPointer>
+#include <QString>
 
 #include <memory>
 
@@ -128,11 +129,8 @@ private slots:
 private:
     QByteArray m_initialDockAndToolbarLayout; // Initial dock window and toolbar layout, used to reset GUI
 
-    RiuMdiArea*                    m_mdiArea;
     caf::PdmPointer<RimViewWindow> m_activePlotViewWindow;
     QPointer<RiuMessagePanel>      m_messagePanel;
-
-    QMenu* m_windowMenu;
 
     std::unique_ptr<caf::PdmUiToolBarEditor> m_wellLogPlotToolBarEditor;
     std::unique_ptr<caf::PdmUiToolBarEditor> m_multiPlotToolBarEditor;

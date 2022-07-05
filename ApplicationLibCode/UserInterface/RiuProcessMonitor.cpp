@@ -35,7 +35,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuProcessMonitor::RiuProcessMonitor( QDockWidget* pParent )
+RiuProcessMonitor::RiuProcessMonitor( QWidget* pParent )
     : QWidget( pParent )
 {
     m_monitoredProcess = nullptr;

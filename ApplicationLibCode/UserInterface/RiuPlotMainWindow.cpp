@@ -65,11 +65,14 @@
 #include "cafPdmUiTreeView.h"
 #include "cafSelectionManager.h"
 
+#include "DockAreaWidget.h"
+
 #include <QCloseEvent>
-#include <QDockWidget>
 #include <QLayout>
 #include <QMdiSubWindow>
 #include <QMenuBar>
+#include <QMessageBox>
+#include <QSettings>
 #include <QToolBar>
 #include <QTreeView>
 #include <QUndoStack>
@@ -80,11 +83,14 @@
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow::RiuPlotMainWindow()
     : m_activePlotViewWindow( nullptr )
-    , m_windowMenu( nullptr )
 {
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
-    setCentralWidget( m_mdiArea );
+
+    ads::CDockWidget* widget = new ads::CDockWidget( "Plots", this );
+    widget->setWidget( m_mdiArea );
+    auto dockArea = dockManager()->setCentralWidget( widget );
+    dockArea->setVisible( true );
 
     createMenus();
     createToolBars();
@@ -483,21 +489,22 @@ void RiuPlotMainWindow::createDockPanels()
                                                      RiuDockWidgetTools::plotMainWindowTemplateTreeName(),
                                                      RiuDockWidgetTools::plotMainWindowScriptsTreeName() };
 
-    const std::vector<Qt::DockWidgetArea> defaultDockWidgetArea{ Qt::LeftDockWidgetArea,
-                                                                 Qt::RightDockWidgetArea,
-                                                                 Qt::LeftDockWidgetArea,
-                                                                 Qt::LeftDockWidgetArea };
+    const std::vector<ads::DockWidgetArea> defaultDockWidgetArea{ ads::DockWidgetArea::LeftDockWidgetArea,
+                                                                  ads::DockWidgetArea::RightDockWidgetArea,
+                                                                  ads::DockWidgetArea::LeftDockWidgetArea,
+                                                                  ads::DockWidgetArea::LeftDockWidgetArea };
 
     createTreeViews( nTreeViews );
 
-    std::vector<QDockWidget*> rightTabbedWidgets;
-    std::vector<QDockWidget*> leftTabbedWidgets;
+    std::vector<ads::CDockWidget*> rightWidgets;
+    std::vector<ads::CDockWidget*> leftWidgets;
+    std::vector<ads::CDockWidget*> bottomWidgets;
 
+    // the project trees
     for ( int i = 0; i < nTreeViews; i++ )
     {
-        QDockWidget* dockWidget = new QDockWidget( treeViewTitles[i], this );
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( treeViewTitles[i], this );
         dockWidget->setObjectName( treeViewDockNames[i] );
-        dockWidget->setAllowedAreas( Qt::AllDockWidgetAreas );
 
         caf::PdmUiTreeView* projectTree = projectTreeView( i );
         projectTree->enableSelectionManagerUpdating( true );
@@ -505,6 +512,7 @@ void RiuPlotMainWindow::createDockPanels()
         projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
 
         dockWidget->setWidget( projectTree );
+        dockWidget->hide();
 
         projectTree->treeView()->setHeaderHidden( true );
         projectTree->treeView()->setSelectionMode( QAbstractItemView::ExtendedSelection );
@@ -519,10 +527,8 @@ void RiuPlotMainWindow::createDockPanels()
         RiuTreeViewEventFilter* treeViewEventFilter = new RiuTreeViewEventFilter( this, projectTree );
         projectTree->treeView()->installEventFilter( treeViewEventFilter );
 
-        addDockWidget( defaultDockWidgetArea[i], dockWidget );
-
-        if ( defaultDockWidgetArea[i] == Qt::LeftDockWidgetArea ) leftTabbedWidgets.push_back( dockWidget );
-        if ( defaultDockWidgetArea[i] == Qt::RightDockWidgetArea ) rightTabbedWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == Qt::LeftDockWidgetArea ) leftWidgets.push_back( dockWidget );
+        if ( defaultDockWidgetArea[i] == Qt::RightDockWidgetArea ) rightWidgets.push_back( dockWidget );
 
         connect( dockWidget, SIGNAL( visibilityChanged( bool ) ), projectTree, SLOT( treeVisibilityChanged( bool ) ) );
         connect( projectTree, SIGNAL( selectionChanged() ), this, SLOT( selectedObjectsChanged() ) );
@@ -535,28 +541,9 @@ void RiuPlotMainWindow::createDockPanels()
         projectTree->setUiConfigurationName( treeViewConfigs[i] );
     }
 
+    // the plot manager
     {
-        QDockWidget* dockWidget = new QDockWidget( "Property Editor", this );
-        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowPropertyEditorName() );
-        dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-
-        m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
-        dockWidget->setWidget( m_pdmUiPropertyView.get() );
-
-        addDockWidget( Qt::LeftDockWidgetArea, dockWidget );
-    }
-
-    {
-        QDockWidget* dockWidget = new QDockWidget( "Messages", this );
-        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
-        m_messagePanel = new RiuMessagePanel( dockWidget );
-        dockWidget->setWidget( m_messagePanel );
-        splitDockWidget( rightTabbedWidgets.front(), dockWidget, Qt::Vertical );
-        dockWidget->hide();
-    }
-
-    {
-        QDockWidget* dockWidget = new QDockWidget( "Plot Manager", this );
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Plot Manager", this );
         dockWidget->setObjectName( RiuDockWidgetTools::summaryPlotManagerName() );
 
         m_summaryPlotManagerView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
@@ -567,54 +554,57 @@ void RiuPlotMainWindow::createDockPanels()
         m_summaryPlotManager = std::move( plotManager );
 
         dockWidget->setWidget( m_summaryPlotManagerView.get() );
-        addDockWidget( Qt::RightDockWidgetArea, dockWidget );
-
-        rightTabbedWidgets.push_back( dockWidget );
-
         dockWidget->hide();
+
+        rightWidgets.push_back( dockWidget );
     }
 
+    // the undo stack
     if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
     {
-        QDockWidget* dockWidget = new QDockWidget( "Undo Stack", this );
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Undo Stack", this );
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowUndoStackName() );
-        dockWidget->setAllowedAreas( Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea );
-
         dockWidget->setWidget( m_undoView );
-        addDockWidget( Qt::RightDockWidgetArea, dockWidget );
-        rightTabbedWidgets.push_back( dockWidget );
-
         dockWidget->hide();
+        rightWidgets.push_back( dockWidget );
     }
 
+    ads::CDockAreaWidget* leftArea   = addTabbedWidgets( leftWidgets, ads::DockWidgetArea::LeftDockWidgetArea );
+    ads::CDockAreaWidget* rightArea  = addTabbedWidgets( rightWidgets, ads::DockWidgetArea::RightDockWidgetArea );
+    ads::CDockAreaWidget* bottomArea = addTabbedWidgets( bottomWidgets,
+                                                         ads::DockWidgetArea::BottomDockWidgetArea,
+                                                         dockManager()->centralWidget()->dockAreaWidget() );
+
+    // the property editor
     {
-        QDockWidget* topDock = nullptr;
-        for ( auto d : leftTabbedWidgets )
-        {
-            if ( !topDock )
-                topDock = d;
-            else
-                tabifyDockWidget( topDock, d );
-        }
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Property Editor", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowPropertyEditorName() );
+
+        m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
+        dockWidget->setWidget( m_pdmUiPropertyView.get() );
+        dockWidget->hide();
+        dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, leftArea );
     }
+
+    // the log message view
     {
-        QDockWidget* topDock = nullptr;
-        for ( auto d : rightTabbedWidgets )
-        {
-            if ( !topDock )
-                topDock = d;
-            else
-                tabifyDockWidget( topDock, d );
-        }
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Messages", this );
+        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
+        m_messagePanel = new RiuMessagePanel( dockWidget );
+        dockWidget->setWidget( m_messagePanel );
+        dockWidget->hide();
+        dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, rightArea );
     }
 
-    setCorner( Qt::BottomLeftCorner, Qt::LeftDockWidgetArea );
-    setCorner( Qt::BottomRightCorner, Qt::BottomDockWidgetArea );
+    if ( leftArea ) leftArea->setCurrentIndex( 0 );
+    if ( rightArea ) rightArea->setCurrentIndex( 0 );
+    if ( bottomArea ) bottomArea->setCurrentIndex( 0 );
 
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-    for ( QDockWidget* dock : dockWidgets )
+    auto dockWidgets = dockManager()->dockWidgetsMap();
+    for ( ads::CDockWidget* dock : dockWidgets )
     {
         connect( dock->toggleViewAction(), SIGNAL( triggered() ), SLOT( slotDockWidgetToggleViewActionTriggered() ) );
+        // dock->setVisible( true );
     }
 }
 
@@ -799,7 +789,8 @@ RiuMessagePanel* RiuPlotMainWindow::messagePanel()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
 {
-    auto dockWidget = RiuDockWidgetTools::findDockWidget( this, RiuDockWidgetTools::summaryPlotManagerName() );
+    auto dockWidget =
+        RiuDockWidgetTools::findDockWidget( this->dockManager(), RiuDockWidgetTools::summaryPlotManagerName() );
     if ( dockWidget )
     {
         dockWidget->setVisible( true );
@@ -919,28 +910,11 @@ void RiuPlotMainWindow::slotBuildWindowActions()
 {
     m_windowMenu->clear();
 
-    {
-        caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-        m_windowMenu->addAction( cmdFeatureMgr->action( "RicShowMainWindowFeature" ) );
-        m_windowMenu->addSeparator();
-    }
-
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-    for ( QDockWidget* dock : dockWidgets )
-    {
-        m_windowMenu->addAction( dock->toggleViewAction() );
-    }
-
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+    m_windowMenu->addAction( cmdFeatureMgr->action( "RicShowMainWindowFeature" ) );
     m_windowMenu->addSeparator();
-    QAction* cascadeWindowsAction = new QAction( "Cascade Windows", this );
-    connect( cascadeWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( cascadeSubWindows() ) );
 
-    QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
-    connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
-
-    m_windowMenu->addAction( caf::CmdFeatureManager::instance()->action( "RicTilePlotWindowsFeature" ) );
-    m_windowMenu->addAction( cascadeWindowsAction );
-    m_windowMenu->addAction( closeAllSubWindowsAction );
+    addDefaultEntriesToWindowsMenu();
 }
 
 //--------------------------------------------------------------------------------------------------

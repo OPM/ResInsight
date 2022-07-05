@@ -287,6 +287,10 @@ endif()
 
 target_link_libraries(ResInsight ${LINK_LIBRARIES})
 
+if(UNIX AND NOT APPLE)
+	target_link_libraries(ResInsight xcb)
+endif()
+
 # ##############################################################################
 # Unity builds
 # ##############################################################################

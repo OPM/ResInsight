@@ -65,6 +65,7 @@ target_include_directories(
   PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_SOURCE_DIR}/ThirdParty
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/generated-opm-common
          ${CMAKE_SOURCE_DIR}/ThirdParty/custom-opm-common/opm-common
+         ${CMAKE_SOURCE_DIR}/ThirdParty/qtadvanceddocking/src
 )
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")

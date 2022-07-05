@@ -46,7 +46,6 @@
 #include <QButtonGroup>
 #include <QCheckBox>
 #include <QContextMenuEvent>
-#include <QDockWidget>
 #include <QGridLayout>
 #include <QGroupBox>
 #include <QHBoxLayout>
@@ -84,7 +83,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QDockWidget* parent )
+RiuRelativePermeabilityPlotPanel::RiuRelativePermeabilityPlotPanel( QWidget* parent )
     : QWidget( parent )
     , m_unitSystem( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
     , m_swat( HUGE_VAL )

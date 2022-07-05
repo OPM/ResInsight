@@ -20,7 +20,6 @@
 
 #include <QWidget>
 
-class QDockWidget;
 class QLabel;
 class QPlainTextEdit;
 class QPushButton;
@@ -45,7 +44,7 @@ private:
     caf::UiProcess* m_monitoredProcess; // Pointer to the process we're monitoring. Needed to fetch text
 
 public:
-    explicit RiuProcessMonitor( QDockWidget* pParent );
+    explicit RiuProcessMonitor( QWidget* pParent );
     ~RiuProcessMonitor() override;
 
     void startMonitorWorkProcess( caf::UiProcess* process );

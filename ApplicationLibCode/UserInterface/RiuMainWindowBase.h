@@ -22,11 +22,15 @@
 
 #include "cafPdmUiDragDropInterface.h"
 
+#include "DockManager.h"
+
 #include <memory>
 #include <vector>
 
 class QMdiArea;
 struct RimMdiWindowGeometry;
+
+class RiuMdiArea;
 
 namespace caf
 {
@@ -47,8 +51,8 @@ class RiuMainWindowBase : public QMainWindow
     Q_OBJECT
 
 public:
-	RiuMainWindowBase();
-	~RiuMainWindowBase() override;
+    RiuMainWindowBase();
+    ~RiuMainWindowBase() override;
 
     virtual QString mainWindowName() = 0;
 
@@ -93,6 +97,8 @@ public:
     void setBlockViewSelectionOnSubWindowActivated( bool block );
     bool isBlockingViewSelectionOnSubWindowActivated() const;
 
+    ads::CDockManager* dockManager() const;
+
 protected:
     void createTreeViews( int numberOfTrees );
     void removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer );
@@ -103,6 +109,12 @@ protected:
 
     void restoreTreeViewStates( QString treeStateString, QString treeIndexString );
 
+    ads::CDockAreaWidget* addTabbedWidgets( std::vector<ads::CDockWidget*> widgets,
+                                            ads::DockWidgetArea            whereToDock,
+                                            ads::CDockAreaWidget*          dockInside = nullptr );
+
+    void addDefaultEntriesToWindowsMenu();
+
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotRefreshHelpActions();
@@ -111,6 +123,10 @@ protected slots:
     void slotUndo();
     void slotRefreshUndoRedoActions();
 
+    void setDockLayout();
+    void deleteDockLayout();
+    void saveDockLayout();
+
 protected:
     bool m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
                                                // whether to select the corresponding active view or not
@@ -118,6 +134,9 @@ protected:
     QAction*   m_undoAction;
     QAction*   m_redoAction;
     QUndoView* m_undoView;
+
+    RiuMdiArea* m_mdiArea;
+    QMenu*      m_windowMenu;
 
 private:
     QString registryFolderName();
@@ -129,4 +148,6 @@ private:
     bool m_showFirstVisibleWindowMaximized;
     bool m_blockSubWindowActivation;
     bool m_blockSubWindowProjectTreeSelection;
+
+    ads::CDockManager* m_dockManager;
 };
