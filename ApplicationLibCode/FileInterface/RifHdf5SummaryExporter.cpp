@@ -200,20 +200,20 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
 
     const std::string datasetName( "values" );
 
-    std::map<std::string, std::vector<RifEclipseSummaryAddress>> mapKeywordToSummaryAddresses;
+    std::map<std::string, std::vector<RifEclipseSummaryAddress>> mapVectorNameToSummaryAddresses;
     auto [addresses, addressToKeywordMap] =
         RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( sourceSummaryData.keywordList() );
     for ( const auto& adr : addresses )
     {
         auto vectorName = adr.vectorName();
 
-        if ( mapKeywordToSummaryAddresses.find( vectorName ) == mapKeywordToSummaryAddresses.end() )
+        if ( mapVectorNameToSummaryAddresses.find( vectorName ) == mapVectorNameToSummaryAddresses.end() )
         {
-            mapKeywordToSummaryAddresses[vectorName] = {};
+            mapVectorNameToSummaryAddresses[vectorName] = {};
         }
 
-        auto it = mapKeywordToSummaryAddresses.find( vectorName );
-        if ( it != mapKeywordToSummaryAddresses.end() )
+        auto it = mapVectorNameToSummaryAddresses.find( vectorName );
+        if ( it != mapVectorNameToSummaryAddresses.end() )
         {
             it->second.push_back( adr );
         }
@@ -223,12 +223,13 @@ bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm
 
     std::set<std::string> exportErrorKeywords;
 
-    for ( const auto& [keyword, addresses] : mapKeywordToSummaryAddresses )
+    for ( const auto& [vectorName, addresses] : mapVectorNameToSummaryAddresses )
     {
-        auto keywordGroup = exporter.createGroup( &summaryVectorsGroup, keyword );
+        auto keywordGroup = exporter.createGroup( &summaryVectorsGroup, vectorName );
 
         for ( const auto& address : addresses )
         {
+            auto           keyword            = addressToKeywordMap[address];
             auto           smspecKeywordIndex = sourceSummaryData.getSmspecIndexForKeyword( keyword );
             const QString& smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
 
