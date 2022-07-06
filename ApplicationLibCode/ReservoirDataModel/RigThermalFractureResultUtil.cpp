@@ -58,7 +58,10 @@ std::vector<std::vector<double>>
                                                       const QString&                                      unitName,
                                                       size_t timeStepIndex )
 {
+    std::vector<std::vector<double>> vec;
+
     int propertyIndex = fractureDefinition->getPropertyIndex( resultName );
+    if ( propertyIndex < 0 ) return vec;
 
     std::vector<cvf::Vec3d> relativePos = getRelativeCoordinates( fractureDefinition, timeStepIndex );
 
@@ -79,8 +82,6 @@ std::vector<std::vector<double>>
     std::vector<double> depthCoords;
     for ( int i = 0; i < static_cast<int>( yCoordsAtNodes.size() ) - 1; i++ )
         depthCoords.push_back( ( yCoordsAtNodes[i] + yCoordsAtNodes[i + 1] ) / 2 );
-
-    std::vector<std::vector<double>> vec;
 
     // Fill with invalid value
     for ( int i = 0; i < numSamplesY; i++ )
@@ -380,6 +381,7 @@ void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr
                                                                  PosNegAccumulator& posNegAccumulator )
 {
     int propertyIndex = fractureDefinition->getPropertyIndex( resultName );
+    if ( propertyIndex < 0 ) return;
 
     int maxTs = static_cast<int>( fractureDefinition->timeSteps().size() );
     for ( int ts = 0; ts < maxTs; ts++ )
