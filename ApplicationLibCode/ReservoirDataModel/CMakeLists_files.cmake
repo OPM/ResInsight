@@ -62,6 +62,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureDefinition.h
     ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureResultUtil.h
+    ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureResult.h
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.h
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.h
     ${CMAKE_CURRENT_LIST_DIR}/RigConvexHull.h
@@ -154,6 +155,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RigStimPlanFractureDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureDefinition.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureResultUtil.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RigThermalFractureResult.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureGrid.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigFractureCell.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RigConvexHull.cpp

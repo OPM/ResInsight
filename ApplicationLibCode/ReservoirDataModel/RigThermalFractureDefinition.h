@@ -20,46 +20,13 @@
 
 #include "RiaDefines.h"
 
+#include "RigThermalFractureResult.h"
+
 #include "cvfVector3.h"
 
 #include <QString>
 
 #include <vector>
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-class RigThermalFractureResult
-{
-public:
-    RigThermalFractureResult( const QString& name, const QString& unit )
-        : m_name( name )
-        , m_unit( unit )
-    {
-    }
-
-    QString name() const { return m_name; }
-    QString unit() const { return m_unit; }
-
-    void appendValue( int nodeIndex, int timeStepIndex, double value )
-    {
-        if ( nodeIndex >= static_cast<int>( parameterValues.size() ) )
-            parameterValues.push_back( { value } );
-        else
-            parameterValues[nodeIndex].push_back( value );
-    }
-
-    double getValue( int nodeIndex, int timeStepIndex ) const { return parameterValues[nodeIndex][timeStepIndex]; }
-
-    size_t numNodes() const { return parameterValues.size(); }
-
-private:
-    QString m_name;
-    QString m_unit;
-
-    // Vector for each time step for each node
-    std::vector<std::vector<double>> parameterValues;
-};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -83,7 +50,7 @@ public:
 
     std::vector<std::pair<QString, QString>> getPropertyNamesUnits() const;
 
-    void appendPropertyValue( int propertyIndex, int nodeIndex, int timeStepIndex, double value );
+    void appendPropertyValue( int propertyIndex, int nodeIndex, double value );
 
     double getPropertyValue( int propertyIndex, int nodeIndex, int timeStepIndex ) const;
 

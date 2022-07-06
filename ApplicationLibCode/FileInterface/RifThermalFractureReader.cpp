@@ -44,12 +44,12 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
 
     QString separator = ",";
 
-    auto appendPropertyValues = [def]( int nodeIndex, int timeStepIndex, int valueOffset, const QStringList& values ) {
+    auto appendPropertyValues = [def]( int nodeIndex, int valueOffset, const QStringList& values ) {
         for ( int i = valueOffset; i < values.size() - 1; i++ )
         {
             double value         = values[i].toDouble();
             int    propertyIndex = i - valueOffset;
-            def->appendPropertyValue( propertyIndex, nodeIndex, timeStepIndex, value );
+            def->appendPropertyValue( propertyIndex, nodeIndex, value );
         }
     };
 
@@ -60,8 +60,8 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
     // The two items in the csv is name and timestep
     const int valueOffset   = 2;
     int       nodeIndex     = 0;
-    int       timeStepIndex = 0;
     bool      isFirstHeader = true;
+    bool      isValidNode   = false;
     while ( !in.atEnd() )
     {
         QString line = in.readLine();
@@ -84,10 +84,9 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
 
                 isFirstHeader = false;
             }
-            else
+            else if ( isValidNode )
             {
                 nodeIndex++;
-                timeStepIndex = 0;
             }
         }
         else if ( isCenterNodeLine( line ) )
@@ -96,33 +95,45 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
             auto values = RifFileParseTools::splitLineAndTrim( line, separator );
 
             // Second is the timestamp
-            QString   dateString = values[1];
-            QString   dateFormat = "dd.MM.yyyy hh:mm:ss";
-            QDateTime dateTime   = QDateTime::fromString( dateString, dateFormat );
-            // Sometimes the datetime field is missing time
-            if ( !dateTime.isValid() )
-            {
-                QString dateFormat = "dd.MM.yyyy";
-                dateTime           = QDateTime::fromString( dateString, dateFormat );
-            }
-
+            QDateTime dateTime = parseDateTime( values[1] );
             def->addTimeStep( dateTime.toSecsSinceEpoch() );
 
             //
-            appendPropertyValues( nodeIndex, timeStepIndex, valueOffset, values );
-            timeStepIndex = 0;
+            appendPropertyValues( nodeIndex, valueOffset, values );
+            isValidNode = true;
         }
-        else if ( isInternalNodeLine( line ) )
+        else if ( isInternalNodeLine( line ) || isPerimeterNodeLine( line ) )
         {
             auto values = RifFileParseTools::splitLineAndTrim( line, separator );
-            appendPropertyValues( nodeIndex, timeStepIndex, valueOffset, values );
-            timeStepIndex = 0;
+            appendPropertyValues( nodeIndex, valueOffset, values );
+            isValidNode = true;
+        }
+        else
+        {
+            isValidNode = false;
         }
 
         lineNumber++;
     }
 
     return std::make_pair( def, "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RifThermalFractureReader::parseDateTime( const QString& dateString )
+{
+    QString   dateFormat = "dd.MM.yyyy hh:mm:ss";
+    QDateTime dateTime   = QDateTime::fromString( dateString, dateFormat );
+    // Sometimes the datetime field is missing time
+    if ( !dateTime.isValid() )
+    {
+        QString dateFormat = "dd.MM.yyyy";
+        dateTime           = QDateTime::fromString( dateString, dateFormat );
+    }
+
+    return dateTime;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -147,6 +158,20 @@ bool RifThermalFractureReader::isCenterNodeLine( const QString& line )
 bool RifThermalFractureReader::isInternalNodeLine( const QString& line )
 {
     return line.contains( "Internal Node" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifThermalFractureReader::isPerimeterNodeLine( const QString& line )
+{
+    std::vector<QString> validPerimeterNames = { "Perimeter Node", "Bottom Node", "Top Node", "Right Node", "Left Node" };
+
+    bool result = std::any_of( validPerimeterNames.begin(), validPerimeterNames.end(), [line]( const QString& str ) {
+        return line.contains( str );
+    } );
+
+    return result;
 }
 
 //--------------------------------------------------------------------------------------------------
