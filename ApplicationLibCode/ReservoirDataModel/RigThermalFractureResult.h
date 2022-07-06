@@ -18,28 +18,34 @@
 
 #pragma once
 
-#include <QDateTime>
+#include "RiaDefines.h"
+
+#include "cvfVector3.h"
+
 #include <QString>
 
-#include <memory>
-
-class RigThermalFractureDefinition;
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RifThermalFractureReader
+class RigThermalFractureResult
 {
 public:
-    static std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString> readFractureCsvFile( const QString& fileName );
+    RigThermalFractureResult( const QString& name, const QString& unit );
+
+    QString name() const;
+    QString unit() const;
+
+    void   appendValue( int nodeIndex, double value );
+    double getValue( int nodeIndex, int timeStepIndex ) const;
+
+    size_t numNodes() const;
 
 private:
-    static bool isHeaderLine( const QString& line );
-    static bool isCenterNodeLine( const QString& line );
-    static bool isInternalNodeLine( const QString& line );
-    static bool isPerimeterNodeLine( const QString& line );
+    QString m_name;
+    QString m_unit;
 
-    static QDateTime parseDateTime( const QString& dateString );
-
-    static std::pair<QString, QString> parseNameAndUnit( const QString& value );
+    // Vector for each time step for each node
+    std::vector<std::vector<double>> m_parameterValues;
 };

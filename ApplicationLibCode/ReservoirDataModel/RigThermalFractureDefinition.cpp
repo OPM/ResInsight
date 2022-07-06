@@ -110,12 +110,12 @@ std::vector<std::pair<QString, QString>> RigThermalFractureDefinition::getProper
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigThermalFractureDefinition::appendPropertyValue( int propertyIndex, int nodeIndex, int timeStepIndex, double value )
+void RigThermalFractureDefinition::appendPropertyValue( int propertyIndex, int nodeIndex, double value )
 {
     CAF_ASSERT( propertyIndex >= 0 );
     CAF_ASSERT( propertyIndex < static_cast<int>( m_results.size() ) );
 
-    m_results[propertyIndex].appendValue( nodeIndex, timeStepIndex, value );
+    m_results[propertyIndex].appendValue( nodeIndex, value );
 }
 
 //--------------------------------------------------------------------------------------------------
