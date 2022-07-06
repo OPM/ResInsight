@@ -122,8 +122,7 @@ TEST( DISABLED_HDFTests, ReadOpmSummaryDataListContent )
     for ( size_t i = 0; i < nodes.size(); i++ )
     {
         Opm::EclIO::SummaryNode n = nodes[i];
-        std::cout << n.keyword << " number: " << n.number << " msjNumber: " << n.smspecKeywordIndex << " "
-                  << n.unique_key() << "\n";
+        std::cout << n.keyword << " number: " << n.number << " msjNumber: " << n.unique_key() << "\n";
     }
 }
 
