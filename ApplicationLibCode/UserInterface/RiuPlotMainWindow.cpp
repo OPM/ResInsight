@@ -512,7 +512,6 @@ void RiuPlotMainWindow::createDockPanels()
         projectTree->enableAppendOfClassNameToUiItemText( RiaPreferencesSystem::current()->appendClassNameToUiText() );
 
         dockWidget->setWidget( projectTree );
-        dockWidget->hide();
 
         projectTree->treeView()->setHeaderHidden( true );
         projectTree->treeView()->setSelectionMode( QAbstractItemView::ExtendedSelection );
@@ -555,7 +554,6 @@ void RiuPlotMainWindow::createDockPanels()
         m_summaryPlotManager = std::move( plotManager );
 
         dockWidget->setWidget( m_summaryPlotManagerView.get() );
-        dockWidget->hide();
 
         rightWidgets.push_back( dockWidget );
     }
@@ -566,7 +564,6 @@ void RiuPlotMainWindow::createDockPanels()
         ads::CDockWidget* dockWidget = new ads::CDockWidget( "Undo Stack", this );
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowUndoStackName() );
         dockWidget->setWidget( m_undoView );
-        dockWidget->hide();
         rightWidgets.push_back( dockWidget );
     }
 
@@ -583,7 +580,6 @@ void RiuPlotMainWindow::createDockPanels()
 
         m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
         dockWidget->setWidget( m_pdmUiPropertyView.get() );
-        dockWidget->hide();
         dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, leftArea );
     }
 
@@ -593,7 +589,6 @@ void RiuPlotMainWindow::createDockPanels()
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
-        dockWidget->hide();
         dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, rightArea );
     }
 
@@ -601,11 +596,14 @@ void RiuPlotMainWindow::createDockPanels()
     if ( rightArea ) rightArea->setCurrentIndex( 0 );
     if ( bottomArea ) bottomArea->setCurrentIndex( 0 );
 
-    auto dockWidgets = dockManager()->dockWidgetsMap();
-    for ( ads::CDockWidget* dock : dockWidgets )
+    auto widgets = dockManager()->dockWidgetsMap().values();
+    std::reverse( widgets.begin(), widgets.end() );
+
+    for ( ads::CDockWidget* dock : widgets )
     {
         connect( dock->toggleViewAction(), SIGNAL( triggered() ), SLOT( slotDockWidgetToggleViewActionTriggered() ) );
-        // dock->setVisible( true );
+        dock->setVisible( true );
+        dock->raise();
     }
 }
 
