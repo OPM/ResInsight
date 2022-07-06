@@ -1379,5 +1379,16 @@ std::tuple<double, double> ESmry::get_io_elapsed() const
     return duration;
 }
 
+size_t ESmry::getSmspecIndexForKeyword(const std::string& keyword) const
+{
+    if (!keywordListSpecFile.empty())
+    {
+        std::vector<std::string> keywordForFirstSmspecFile = keywordListSpecFile.front();
+        auto it = std::find(keywordForFirstSmspecFile.begin(), keywordForFirstSmspecFile.end(), keyword);
+        if (it != keywordForFirstSmspecFile.end()) return std::distance(keywordForFirstSmspecFile.begin(), it);
+    }
+	
+    return std::numeric_limits<size_t>::max();
+}
 
 }} // namespace Opm::EclIO

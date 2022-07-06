@@ -80,6 +80,8 @@ public:
     bool all_steps_available();
     std::string rootname() { return inputFileName.stem().string(); }
     std::tuple<double, double> get_io_elapsed() const;
+	
+    size_t getSmspecIndexForKeyword(const std::string& keyword) const;
 
 private:
     std::filesystem::path inputFileName;
