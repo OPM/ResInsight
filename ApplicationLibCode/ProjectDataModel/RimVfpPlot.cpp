@@ -919,7 +919,7 @@ RimVfpDefines::FlowingGasFractionType RimVfpPlot::getFlowingGasFractionType( con
 {
     switch ( table.getGFRType() )
     {
-    case Opm::VFPProdTable::GFR_TYPE::GFR_GOR:
+        case Opm::VFPProdTable::GFR_TYPE::GFR_GOR:
             return RimVfpDefines::FlowingGasFractionType::GOR;
         case Opm::VFPProdTable::GFR_TYPE::GFR_GLR:
             return RimVfpDefines::FlowingGasFractionType::GLR;
