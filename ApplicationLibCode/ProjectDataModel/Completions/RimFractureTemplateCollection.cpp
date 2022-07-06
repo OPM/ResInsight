@@ -28,8 +28,8 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
+#include "RimMeshFractureTemplate.h"
 #include "RimProject.h"
-#include "RimStimPlanFractureTemplate.h"
 
 #include "cafPdmObject.h"
 #include "cafPdmObjectScriptingCapability.h"
@@ -272,7 +272,7 @@ void RimFractureTemplateCollection::loadAndUpdateData()
 {
     for ( RimFractureTemplate* f : m_fractureDefinitions() )
     {
-        RimStimPlanFractureTemplate* stimPlanFracture = dynamic_cast<RimStimPlanFractureTemplate*>( f );
+        RimMeshFractureTemplate* stimPlanFracture = dynamic_cast<RimMeshFractureTemplate*>( f );
         if ( stimPlanFracture )
         {
             stimPlanFracture->loadDataAndUpdate();
