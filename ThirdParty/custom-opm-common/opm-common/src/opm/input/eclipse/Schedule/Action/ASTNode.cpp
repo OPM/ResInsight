@@ -74,7 +74,7 @@ ASTNode::ASTNode(TokenType type_arg, FuncType func_type_arg, const std::string& 
 ASTNode ASTNode::serializeObject()
 {
     ASTNode result;
-    result.type = ::number;
+    result.type = Opm::number;
     result.func_type = FuncType::field;
     result.func = "test1";
     result.arg_list = {"test2"};

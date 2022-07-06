@@ -3,6 +3,7 @@
 
 #include <opm/input/eclipse/Schedule/Action/ActionResult.hpp>
 
+namespace Opm {
 enum TokenType {
   number,        //  0
   ecl_expr,      //  1
@@ -37,7 +38,6 @@ enum class FuncType {
 
 
 
-namespace Opm {
 namespace Action {
 
 class Value {
