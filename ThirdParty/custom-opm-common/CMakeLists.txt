@@ -97,7 +97,7 @@ add_library(${PROJECT_NAME}
 	# 2022.06 additional includes
     opm-common/src/opm/io/eclipse/rst/aquifer.cpp
     opm-common/src/opm/io/eclipse/ERst.cpp
-    opm-common/src/opm/io/eclipse/restartfileview.cpp
+    opm-common/src/opm/io/eclipse/RestartFileView.cpp
     opm-common/cross-platform/windows/Substitutes.cpp 
 	
 )
