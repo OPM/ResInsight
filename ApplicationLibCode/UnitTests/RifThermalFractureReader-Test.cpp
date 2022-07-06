@@ -21,7 +21,7 @@ TEST( RifThermalFractureReaderTest, LoadFile )
 
     EXPECT_EQ( "frac01", fractureData->name().toStdString() );
 
-    EXPECT_EQ( fractureData->numNodes(), 57u );
+    EXPECT_EQ( fractureData->numNodes(), 81u );
 
     EXPECT_EQ( fractureData->numTimeSteps(), 29u );
 
@@ -41,5 +41,41 @@ TEST( RifThermalFractureReaderTest, LoadFile )
         EXPECT_DOUBLE_EQ( centerNodeX, fractureData->getPropertyValue( 0, nodeIndex, static_cast<int>( timeStepIndex ) ) );
         EXPECT_DOUBLE_EQ( centerNodeY, fractureData->getPropertyValue( 1, nodeIndex, static_cast<int>( timeStepIndex ) ) );
         EXPECT_DOUBLE_EQ( centerNodeZ, fractureData->getPropertyValue( 2, nodeIndex, static_cast<int>( timeStepIndex ) ) );
+    }
+
+    {
+        // Sample from center node: LeakoffPressureDrop from last time step
+        double expectedValue = 18.8747;
+        int    propertyIndex = 18;
+        int    nodeIndex     = 0;
+        int    timeStepIndex = 28;
+        EXPECT_DOUBLE_EQ( expectedValue, fractureData->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex ) );
+    }
+
+    {
+        // Sample from internal node: EffectiveFracStress from tenth time step
+        double expectedValue = 7.72785;
+        int    propertyIndex = 17;
+        int    nodeIndex     = 2;
+        int    timeStepIndex = 10;
+        EXPECT_DOUBLE_EQ( expectedValue, fractureData->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex ) );
+    }
+
+    {
+        // Sample from bottom node: EffectiveResStress from fifth time step
+        double expectedValue = 28.5565;
+        int    propertyIndex = 16;
+        int    nodeIndex     = 57;
+        int    timeStepIndex = 6;
+        EXPECT_DOUBLE_EQ( expectedValue, fractureData->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex ) );
+    }
+
+    {
+        // Sample from perimeter node: ResTemperature from eight time step
+        double expectedValue = 10.3882;
+        int    propertyIndex = 13;
+        int    nodeIndex     = 58;
+        int    timeStepIndex = 7;
+        EXPECT_DOUBLE_EQ( expectedValue, fractureData->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex ) );
     }
 }
