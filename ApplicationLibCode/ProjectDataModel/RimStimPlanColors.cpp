@@ -398,23 +398,23 @@ void RimStimPlanColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     colorGroup->add( &m_resultNameAndUnit );
     colorGroup->add( &m_defaultColor );
 
-    bool                              stimPlanExists = false;
-    std::vector<RimFractureTemplate*> fracTemplates  = RimProject::current()->allFractureTemplates();
-
-    for ( auto fractemplate : fracTemplates )
-    {
-        if ( dynamic_cast<RimStimPlanFractureTemplate*>( fractemplate ) )
+    auto hasMeshTemplate = []() {
+        std::vector<RimFractureTemplate*> fracTemplates = RimProject::current()->allFractureTemplates();
+        for ( auto fractemplate : fracTemplates )
         {
-            stimPlanExists = true;
-            break;
+            if ( dynamic_cast<RimMeshFractureTemplate*>( fractemplate ) )
+            {
+                return true;
+            }
         }
-    }
+        return false;
+    };
 
-    if ( stimPlanExists )
+    if ( hasMeshTemplate() )
     {
-        caf::PdmUiGroup* stimPlanGroup = uiOrdering.addNewGroup( "StimPlan" );
-        stimPlanGroup->add( &m_showStimPlanMesh );
-        stimPlanGroup->add( &m_stimPlanCellVizMode );
+        caf::PdmUiGroup* meshGroup = uiOrdering.addNewGroup( "Mesh" );
+        meshGroup->add( &m_showStimPlanMesh );
+        meshGroup->add( &m_stimPlanCellVizMode );
     }
 
     uiOrdering.skipRemainingFields( true );
