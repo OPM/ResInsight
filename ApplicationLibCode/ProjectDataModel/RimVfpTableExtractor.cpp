@@ -21,8 +21,9 @@
 #include "cafPdmUiItem.h"
 #include "cafUtils.h"
 
-#include "opm/parser/eclipse/Parser/Parser.hpp"
-#include "opm/parser/eclipse/Parser/ParserKeywords/V.hpp"
+#include "opm/input/eclipse/Deck/Deck.hpp"
+#include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/V.hpp"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -33,8 +34,14 @@ std::vector<Opm::VFPInjTable> RimVfpTableExtractor::extractVfpInjectionTables( c
 
     try
     {
-        Opm::Parser parser;
-        auto        deck = parser.parseFile( filename );
+        Opm::Parser                           parser( false );
+        const ::Opm::ParserKeywords::VFPINJ   kw1;
+        const ::Opm::ParserKeywords::VFPIDIMS kw2;
+
+        parser.addParserKeyword( kw1 );
+        parser.addParserKeyword( kw2 );
+
+        auto deck = parser.parseFile( filename );
 
         std::string myKeyword   = "VFPINJ";
         auto        keywordList = deck.getKeywordList( myKeyword );
@@ -75,8 +82,12 @@ std::vector<Opm::VFPProdTable> RimVfpTableExtractor::extractVfpProductionTables(
 
     try
     {
-        Opm::Parser parser;
-        auto        deck = parser.parseFile( filename );
+        Opm::Parser                          parser( false );
+        const ::Opm::ParserKeywords::VFPPROD kw1;
+
+        parser.addParserKeyword( kw1 );
+
+        auto deck = parser.parseFile( filename );
 
         std::string myKeyword   = "VFPPROD";
         auto        keywordList = deck.getKeywordList( myKeyword );
@@ -97,7 +108,8 @@ std::vector<Opm::VFPProdTable> RimVfpTableExtractor::extractVfpProductionTables(
                 }
             }
 
-            Opm::VFPProdTable table( *kw, unitSystem );
+            bool              gaslift_opt_active = false;
+            Opm::VFPProdTable table( *kw, gaslift_opt_active, unitSystem );
             tables.push_back( table );
         }
     }
