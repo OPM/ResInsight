@@ -5,14 +5,14 @@
 #include "RifThermalFractureReader.h"
 #include "RigThermalFractureDefinition.h"
 
-static const QString CASE_REAL_TEST_DATA_DIRECTORY = QString( "%1/RifThermalFractureReader/" ).arg( TEST_DATA_DIR );
+static const QString CASE_REAL_TEST_DATA_DIRECTORY_03 = QString( "%1/RifThermalFractureReader/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RifThermalFractureReaderTest, LoadFile )
 {
-    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY + "fracture_metric.csv";
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_03 + "fracture_metric.csv";
 
     auto [fractureData, errorMessage] = RifThermalFractureReader::readFractureCsvFile( fileName );
 
