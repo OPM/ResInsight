@@ -26,8 +26,8 @@
 
 #include <QPointer>
 
-#include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
-#include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
+#include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
+#include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
 
 class RiuPlotWidget;
 class VfpPlotData;

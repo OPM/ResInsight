@@ -21,6 +21,10 @@
 #include "RiaLogging.h"
 #include "RiaStdStringTools.h"
 
+#ifdef _MSC_VER
+// Disable warning from external library to make sure treat warnings as error works
+#pragma warning( disable : 4267 )
+#endif
 #include "opm/io/eclipse/ESmry.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
 
@@ -209,7 +213,7 @@ void RifOpmCommonEclipseSummary::buildMetaData()
         m_timeSteps.push_back( timeAsTimeT );
     }
 
-    auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildMetaDataKeyword( keywords );
+    auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( keywords );
 
     m_allResultAddresses         = addresses;
     m_summaryAddressToKeywordMap = addressMap;
@@ -276,129 +280,53 @@ QString RifOpmCommonEclipseSummary::enhancedSummaryFilename( const QString& head
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseSummaryAddress RifOpmCommonSummaryTools::createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
-                                                                                 const Opm::EclIO::ESmry* summaryFile )
+std::tuple<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>, std::map<RifEclipseSummaryAddress, std::string>>
+    RifOpmCommonSummaryTools::buildAddressesSmspecAndKeywordMap( const Opm::EclIO::ESmry* summaryFile )
 {
-    int i = -1;
-    int j = -1;
-    int k = -1;
-
-    switch ( summaryNode.category )
-    {
-        case Opm::EclIO::SummaryNode::Category::Aquifer:
-            return RifEclipseSummaryAddress::aquiferAddress( summaryNode.keyword, summaryNode.number );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Well:
-            return RifEclipseSummaryAddress::wellAddress( summaryNode.keyword, summaryNode.wgname );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Group:
-            return RifEclipseSummaryAddress::groupAddress( summaryNode.keyword, summaryNode.wgname );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Field:
-            return RifEclipseSummaryAddress::fieldAddress( summaryNode.keyword );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Region:
-        {
-            if ( summaryNode.isRegionToRegion() )
-            {
-                auto [r1, r2] = summaryNode.regionToRegionNumbers();
-                return RifEclipseSummaryAddress::regionToRegionAddress( summaryNode.keyword, r1, r2 );
-            }
-
-            return RifEclipseSummaryAddress::regionAddress( summaryNode.keyword, summaryNode.number );
-        }
-        break;
-        case Opm::EclIO::SummaryNode::Category::Block:
-            summaryFile->ijk_from_global_index( summaryNode.number, i, j, k );
-            return RifEclipseSummaryAddress::blockAddress( summaryNode.keyword, i, j, k );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Connection:
-            summaryFile->ijk_from_global_index( summaryNode.number, i, j, k );
-            return RifEclipseSummaryAddress::wellCompletionAddress( summaryNode.keyword, summaryNode.wgname, i, j, k );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Segment:
-            return RifEclipseSummaryAddress::wellSegmentAddress( summaryNode.keyword, summaryNode.wgname, summaryNode.number );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Miscellaneous:
-            return RifEclipseSummaryAddress::miscAddress( summaryNode.keyword );
-            break;
-        default:
-            break;
-        case Opm::EclIO::SummaryNode::Category::Node:
-            // The vector "GPR" is defined as Node
-            // The behavior in libecl is to use the category Group
-            // https://github.com/OPM/ResInsight/issues/7838
-            return RifEclipseSummaryAddress::groupAddress( summaryNode.keyword, summaryNode.wgname );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Network:
-            return RifEclipseSummaryAddress::networkAddress( summaryNode.keyword );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Well_Lgr:
-            return RifEclipseSummaryAddress::wellLgrAddress( summaryNode.keyword, summaryNode.lgrname, summaryNode.wgname );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Block_Lgr:
-            return RifEclipseSummaryAddress::blockLgrAddress( summaryNode.keyword,
-                                                              summaryNode.lgrname,
-                                                              summaryNode.lgri,
-                                                              summaryNode.lgrj,
-                                                              summaryNode.lgrk );
-            break;
-        case Opm::EclIO::SummaryNode::Category::Connection_Lgr:
-            return RifEclipseSummaryAddress::wellCompletionLgrAddress( summaryNode.keyword,
-                                                                       summaryNode.lgrname,
-                                                                       summaryNode.wgname,
-                                                                       summaryNode.lgri,
-                                                                       summaryNode.lgrj,
-                                                                       summaryNode.lgrk );
-            break;
-    }
-
-    return RifEclipseSummaryAddress();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>>
-    RifOpmCommonSummaryTools::buildMetaData( const Opm::EclIO::ESmry* summaryFile )
-{
-    std::set<RifEclipseSummaryAddress>         addresses;
-    std::map<RifEclipseSummaryAddress, size_t> addressToNodeIndexMap;
+    std::set<RifEclipseSummaryAddress>              addresses;
+    std::map<RifEclipseSummaryAddress, size_t>      addressToSmspecIndexMap;
+    std::map<RifEclipseSummaryAddress, std::string> addressToKeywordMap;
 
     if ( summaryFile )
     {
-        auto nodes = summaryFile->summaryNodeList();
-        for ( size_t i = 0; i < nodes.size(); i++ )
+        auto keywords = summaryFile->keywordList();
+        for ( const auto& keyword : keywords )
         {
-            auto summaryNode = nodes[i];
-            auto eclAdr      = createAddressFromSummaryNode( summaryNode, summaryFile );
+            auto eclAdr = RifEclipseSummaryAddress::fromEclipseTextAddress( keyword );
+            if ( !eclAdr.isValid() )
+            {
+                // If a category is not found, use the MISC category
+                eclAdr = RifEclipseSummaryAddress::miscAddress( keyword );
+            }
 
             if ( eclAdr.isValid() )
             {
                 addresses.insert( eclAdr );
-                addressToNodeIndexMap[eclAdr] = i;
+                size_t smspecIndex              = summaryFile->getSmspecIndexForKeyword( keyword );
+                addressToSmspecIndexMap[eclAdr] = smspecIndex;
+                addressToKeywordMap[eclAdr]     = keyword;
             }
         }
     }
 
-    return { addresses, addressToNodeIndexMap };
+    return { addresses, addressToSmspecIndexMap, addressToKeywordMap };
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
-    RifOpmCommonSummaryTools::buildMetaDataKeyword( const std::vector<std::string>& keywords )
+    RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( const std::vector<std::string>& keywords )
 {
     std::set<RifEclipseSummaryAddress>              addresses;
-    std::map<RifEclipseSummaryAddress, std::string> addressToNodeIndexMap;
+    std::map<RifEclipseSummaryAddress, std::string> addressToKeywordMap;
 
     std::vector<std::string> invalidKeywords;
 
 #pragma omp parallel
     {
         std::set<RifEclipseSummaryAddress>              threadAddresses;
-        std::map<RifEclipseSummaryAddress, std::string> threadAddressToNodeIndexMap;
+        std::map<RifEclipseSummaryAddress, std::string> threadAddressToKeywordMap;
         std::vector<std::string>                        threadInvalidKeywords;
 
 #pragma omp for
@@ -418,14 +346,14 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
             if ( eclAdr.isValid() )
             {
                 threadAddresses.insert( eclAdr );
-                threadAddressToNodeIndexMap[eclAdr] = keyword;
+                threadAddressToKeywordMap[eclAdr] = keyword;
             }
         }
 
 #pragma omp critical
         {
             addresses.insert( threadAddresses.begin(), threadAddresses.end() );
-            addressToNodeIndexMap.insert( threadAddressToNodeIndexMap.begin(), threadAddressToNodeIndexMap.end() );
+            addressToKeywordMap.insert( threadAddressToKeywordMap.begin(), threadAddressToKeywordMap.end() );
             invalidKeywords.insert( invalidKeywords.end(), threadInvalidKeywords.begin(), threadInvalidKeywords.end() );
         }
 
@@ -439,5 +367,5 @@ std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress,
         */
     }
 
-    return { addresses, addressToNodeIndexMap };
+    return { addresses, addressToKeywordMap };
 }

@@ -30,6 +30,7 @@
 #include <memory>
 #include <set>
 #include <string>
+#include <tuple>
 #include <vector>
 
 namespace Opm
@@ -38,7 +39,6 @@ namespace EclIO
 {
     class ESmry;
     class ExtESmry;
-    struct SummaryNode;
 } // namespace EclIO
 } // namespace Opm
 
@@ -47,14 +47,13 @@ class RiaThreadSafeLogger;
 class RifOpmCommonSummaryTools
 {
 public:
-    static RifEclipseSummaryAddress createAddressFromSummaryNode( const Opm::EclIO::SummaryNode& summaryNode,
-                                                                  const Opm::EclIO::ESmry*       summaryFile );
-
-    static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, size_t>>
-        buildMetaData( const Opm::EclIO::ESmry* summaryFile );
+    static std::tuple<std::set<RifEclipseSummaryAddress>,
+                      std::map<RifEclipseSummaryAddress, size_t>,
+                      std::map<RifEclipseSummaryAddress, std::string>>
+        buildAddressesSmspecAndKeywordMap( const Opm::EclIO::ESmry* summaryFile );
 
     static std::pair<std::set<RifEclipseSummaryAddress>, std::map<RifEclipseSummaryAddress, std::string>>
-        buildMetaDataKeyword( const std::vector<std::string>& keywords );
+        buildAddressesAndKeywordMap( const std::vector<std::string>& keywords );
 };
 
 //==================================================================================================

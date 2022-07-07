@@ -23,8 +23,13 @@
 #include "RiaStdStringTools.h"
 
 #include "RifHdf5Exporter.h"
+#include "RifOpmCommonSummary.h"
 #include "RifSummaryReaderInterface.h"
 
+#ifdef _MSC_VER
+// Disable warning from external library to make sure treat warnings as error works
+#pragma warning( disable : 4267 )
+#endif
 #include "opm/common/utility/FileSystem.hpp"
 #include "opm/common/utility/TimeService.hpp"
 #include "opm/io/eclipse/ESmry.hpp"
@@ -76,7 +81,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
                                                       const std::string& h5FileName,
                                                       size_t&            hdfFilesCreatedCount )
 {
-    if ( !Opm::filesystem::exists( smspecFileName ) ) return false;
+    if ( !std::filesystem::exists( smspecFileName ) ) return false;
 
     {
         // Check if we have write permission in the folder
@@ -88,7 +93,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
     bool exportIsRequired = false;
 
     {
-        bool h5FileExists = Opm::filesystem::exists( h5FileName );
+        bool h5FileExists = std::filesystem::exists( h5FileName );
         if ( !h5FileExists )
         {
             exportIsRequired = true;
@@ -107,7 +112,7 @@ bool RifHdf5SummaryExporter::ensureHdf5FileIsCreated( const std::string& smspecF
 
             // Read all data summary data before starting export to HDF. Loading one and one summary vector causes huge
             // performance penalty
-            sourceSummaryData.LoadData();
+            sourceSummaryData.loadData();
 
 #pragma omp critical( critical_section_HDF5_export )
             {
@@ -194,53 +199,47 @@ bool RifHdf5SummaryExporter::writeGeneralSection( RifHdf5Exporter& exporter, Opm
 //--------------------------------------------------------------------------------------------------
 bool RifHdf5SummaryExporter::writeSummaryVectors( RifHdf5Exporter& exporter, Opm::EclIO::ESmry& sourceSummaryData )
 {
-    using SumNodeVector = std::vector<Opm::EclIO::SummaryNode>;
-
     size_t valueCount = sourceSummaryData.numberOfTimeSteps();
     if ( valueCount == 0 ) return false;
 
     const std::string datasetName( "values" );
 
-    const SumNodeVector& summaryNodeList = sourceSummaryData.summaryNodeList();
-
-    auto summaryVectorsGroup = exporter.createGroup( nullptr, "summary_vectors" );
-
-    std::map<std::string, std::vector<size_t>> mapKeywordToSummaryNodeIndex;
-
-    for ( size_t i = 0; i < summaryNodeList.size(); i++ )
+    std::map<std::string, std::vector<RifEclipseSummaryAddress>> mapVectorNameToSummaryAddresses;
+    auto [addresses, addressToKeywordMap] =
+        RifOpmCommonSummaryTools::buildAddressesAndKeywordMap( sourceSummaryData.keywordList() );
+    for ( const auto& adr : addresses )
     {
-        const auto        summaryNode = summaryNodeList[i];
-        const std::string keyword     = summaryNode.keyword;
+        auto vectorName = adr.vectorName();
 
-        if ( mapKeywordToSummaryNodeIndex.find( keyword ) == mapKeywordToSummaryNodeIndex.end() )
+        if ( mapVectorNameToSummaryAddresses.find( vectorName ) == mapVectorNameToSummaryAddresses.end() )
         {
-            mapKeywordToSummaryNodeIndex[keyword] = std::vector<size_t>();
+            mapVectorNameToSummaryAddresses[vectorName] = {};
         }
 
-        auto it = mapKeywordToSummaryNodeIndex.find( keyword );
-        if ( it != mapKeywordToSummaryNodeIndex.end() )
+        auto it = mapVectorNameToSummaryAddresses.find( vectorName );
+        if ( it != mapVectorNameToSummaryAddresses.end() )
         {
-            it->second.push_back( i );
+            it->second.push_back( adr );
         }
     }
 
+    auto summaryVectorsGroup = exporter.createGroup( nullptr, "summary_vectors" );
+
     std::set<std::string> exportErrorKeywords;
 
-    for ( const auto& nodesForKeyword : mapKeywordToSummaryNodeIndex )
+    for ( const auto& [vectorName, addresses] : mapVectorNameToSummaryAddresses )
     {
-        std::string keyword = nodesForKeyword.first;
+        auto keywordGroup = exporter.createGroup( &summaryVectorsGroup, vectorName );
 
-        auto keywordGroup = exporter.createGroup( &summaryVectorsGroup, keyword );
-
-        for ( auto nodeIndex : nodesForKeyword.second )
+        for ( const auto& address : addresses )
         {
-            const auto&    summaryNode        = summaryNodeList[nodeIndex];
-            auto           smspecKeywordIndex = summaryNode.smspecKeywordIndex;
+            auto           keyword            = addressToKeywordMap[address];
+            auto           smspecKeywordIndex = sourceSummaryData.getSmspecIndexForKeyword( keyword );
             const QString& smspecKeywordText  = QString( "%1" ).arg( smspecKeywordIndex );
 
             try
             {
-                const std::vector<float>& values = sourceSummaryData.get( summaryNode );
+                const std::vector<float>& values = sourceSummaryData.get( keyword );
                 auto dataValuesGroup = exporter.createGroup( &keywordGroup, smspecKeywordText.toStdString() );
 
                 exporter.writeDataset( dataValuesGroup, datasetName, values );
@@ -278,10 +277,10 @@ bool RifHdf5SummaryExporter::isFirstOlderThanSecond( const std::string& firstFil
 {
     // Use Opm namespace to make sure the code compiles on older compilers
 
-    if ( !Opm::filesystem::exists( firstFileName ) || !Opm::filesystem::exists( secondFileName ) ) return false;
+    if ( !std::filesystem::exists( firstFileName ) || !std::filesystem::exists( secondFileName ) ) return false;
 
-    auto timeA = Opm::filesystem::last_write_time( firstFileName );
-    auto timeB = Opm::filesystem::last_write_time( secondFileName );
+    auto timeA = std::filesystem::last_write_time( firstFileName );
+    auto timeB = std::filesystem::last_write_time( secondFileName );
 
     return ( timeA < timeB );
 }

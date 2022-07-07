@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/C.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/C.hpp>
 namespace Opm {
 namespace ParserKeywords {
-CALTRAC::CALTRAC( ) : ParserKeyword("CALTRAC")
-{
-  setFixedSize( (size_t) 1);
+CALTRAC::CALTRAC() : ParserKeyword("CALTRAC", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("CALTRAC");
@@ -29,9 +28,7 @@ const std::string CALTRAC::keywordName = "CALTRAC";
 const std::string CALTRAC::IX1::itemName = "IX1";
 
 
-CARFIN::CARFIN( ) : ParserKeyword("CARFIN")
-{
-  setFixedSize( (size_t) 1);
+CARFIN::CARFIN() : ParserKeyword("CARFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("CARFIN");
@@ -105,9 +102,7 @@ const std::string CARFIN::PARENT::itemName = "PARENT";
 const std::string CARFIN::PARENT::defaultValue = "GLOBAL";
 
 
-CART::CART( ) : ParserKeyword("CART")
-{
-  setFixedSize( (size_t) 0);
+CART::CART() : ParserKeyword("CART", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("CART");
@@ -115,9 +110,7 @@ CART::CART( ) : ParserKeyword("CART")
 const std::string CART::keywordName = "CART";
 
 
-CBMOPTS::CBMOPTS( ) : ParserKeyword("CBMOPTS")
-{
-  setFixedSize( (size_t) 1);
+CBMOPTS::CBMOPTS() : ParserKeyword("CBMOPTS", KeywordSize(1, false)) {
   addValidSectionName("SRUNSPEC");
   clearDeckNames();
   addDeckName("CBMOPTS");
@@ -189,12 +182,10 @@ const std::string CBMOPTS::APPLICATION::defaultValue = "PMPVK";
 const std::string CBMOPTS::PRESSURE_CHOP::itemName = "PRESSURE_CHOP";
 const std::string CBMOPTS::PRESSURE_CHOP::defaultValue = "NOPMPCHP";
 const std::string CBMOPTS::MIN_PORE_VOLUME::itemName = "MIN_PORE_VOLUME";
-const double CBMOPTS::MIN_PORE_VOLUME::defaultValue = 0.000005;
+const double CBMOPTS::MIN_PORE_VOLUME::defaultValue = 5e-06;
 
 
-CECON::CECON( ) : ParserKeyword("CECON")
-{
-  setSizeType(SLASH_TERMINATED);
+CECON::CECON() : ParserKeyword("CECON", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("CECON");
@@ -278,11 +269,11 @@ const int CECON::K1::defaultValue = 0;
 const std::string CECON::K2::itemName = "K2";
 const int CECON::K2::defaultValue = 0;
 const std::string CECON::MAX_WCUT::itemName = "MAX_WCUT";
-const double CECON::MAX_WCUT::defaultValue = 0.000000;
+const double CECON::MAX_WCUT::defaultValue = 0;
 const std::string CECON::MAX_GOR::itemName = "MAX_GOR";
-const double CECON::MAX_GOR::defaultValue = 0.000000;
+const double CECON::MAX_GOR::defaultValue = 0;
 const std::string CECON::MAX_WGR::itemName = "MAX_WGR";
-const double CECON::MAX_WGR::defaultValue = 0.000000;
+const double CECON::MAX_WGR::defaultValue = 0;
 const std::string CECON::WORKOVER_PROCEDURE::itemName = "WORKOVER_PROCEDURE";
 const std::string CECON::WORKOVER_PROCEDURE::defaultValue = "CON";
 const std::string CECON::CHECK_STOPPED::itemName = "CHECK_STOPPED";
@@ -295,9 +286,7 @@ const std::string CECON::FOLLOW_ON_WELL::itemName = "FOLLOW_ON_WELL";
 const std::string CECON::FOLLOW_ON_WELL::defaultValue = "";
 
 
-CECONT::CECONT( ) : ParserKeyword("CECONT")
-{
-  setSizeType(DOUBLE_SLASH_TERMINATED);
+CECONT::CECONT() : ParserKeyword("CECONT", KeywordSize(DOUBLE_SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("CECONT");
@@ -408,9 +397,7 @@ const std::string CECONT::MAX_SOL_TRACER_CONC::itemName = "MAX_SOL_TRACER_CONC";
 const double CECONT::MAX_SOL_TRACER_CONC::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 
 
-CIRCLE::CIRCLE( ) : ParserKeyword("CIRCLE")
-{
-  setFixedSize( (size_t) 0);
+CIRCLE::CIRCLE() : ParserKeyword("CIRCLE", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("CIRCLE");
@@ -418,9 +405,23 @@ CIRCLE::CIRCLE( ) : ParserKeyword("CIRCLE")
 const std::string CIRCLE::keywordName = "CIRCLE";
 
 
-COAL::COAL( ) : ParserKeyword("COAL")
-{
-  setFixedSize( (size_t) 0);
+CO2STOR::CO2STOR() : ParserKeyword("CO2STOR", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("CO2STOR");
+}
+const std::string CO2STOR::keywordName = "CO2STOR";
+
+
+CO2STORE::CO2STORE() : ParserKeyword("CO2STORE", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("CO2STORE");
+}
+const std::string CO2STORE::keywordName = "CO2STORE";
+
+
+COAL::COAL() : ParserKeyword("COAL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("COAL");
@@ -428,10 +429,7 @@ COAL::COAL( ) : ParserKeyword("COAL")
 const std::string COAL::keywordName = "COAL";
 
 
-COALADS::COALADS( ) : ParserKeyword("COALADS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("REGDIMS","NTCREG",0);
+COALADS::COALADS() : ParserKeyword("COALADS", KeywordSize("REGDIMS", "NTCREG", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("COALADS");
@@ -452,9 +450,7 @@ const std::string COALADS::keywordName = "COALADS";
 const std::string COALADS::DATA::itemName = "DATA";
 
 
-COALNUM::COALNUM( ) : ParserKeyword("COALNUM")
-{
-  setFixedSize( (size_t) 1);
+COALNUM::COALNUM() : ParserKeyword("COALNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("COALNUM");
@@ -472,10 +468,7 @@ const std::string COALNUM::keywordName = "COALNUM";
 const std::string COALNUM::data::itemName = "data";
 
 
-COALPP::COALPP( ) : ParserKeyword("COALPP")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("REGDIMS","NTCREG",0);
+COALPP::COALPP() : ParserKeyword("COALPP", KeywordSize("REGDIMS", "NTCREG", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("COALPP");
@@ -496,9 +489,7 @@ const std::string COALPP::keywordName = "COALPP";
 const std::string COALPP::DATA::itemName = "DATA";
 
 
-COARSEN::COARSEN( ) : ParserKeyword("COARSEN")
-{
-  setFixedSize( (size_t) 1);
+COARSEN::COARSEN() : ParserKeyword("COARSEN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("COARSEN");
@@ -555,9 +546,7 @@ const std::string COARSEN::NY::itemName = "NY";
 const std::string COARSEN::NZ::itemName = "NZ";
 
 
-COLLAPSE::COLLAPSE( ) : ParserKeyword("COLLAPSE")
-{
-  setSizeType(SLASH_TERMINATED);
+COLLAPSE::COLLAPSE() : ParserKeyword("COLLAPSE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("COLLAPSE");
@@ -576,17 +565,15 @@ const std::string COLLAPSE::VALUE::itemName = "VALUE";
 const int COLLAPSE::VALUE::defaultValue = 1;
 
 
-COLUMNS::COLUMNS( ) : ParserKeyword("COLUMNS")
-{
-  setFixedSize( (size_t) 1);
+COLUMNS::COLUMNS() : ParserKeyword("COLUMNS", KeywordSize(1, false)) {
+  addValidSectionName("RUNSPEC");
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COLUMNS");
   {
@@ -611,9 +598,7 @@ const std::string COLUMNS::RIGHT_MARGIN::itemName = "RIGHT_MARGIN";
 const int COLUMNS::RIGHT_MARGIN::defaultValue = 132;
 
 
-COMPDAT::COMPDAT( ) : ParserKeyword("COMPDAT")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPDAT::COMPDAT() : ParserKeyword("COMPDAT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPDAT");
@@ -708,20 +693,18 @@ const std::string COMPDAT::DIAMETER::itemName = "DIAMETER";
 const std::string COMPDAT::Kh::itemName = "Kh";
 const double COMPDAT::Kh::defaultValue = -1.000000;
 const std::string COMPDAT::SKIN::itemName = "SKIN";
-const double COMPDAT::SKIN::defaultValue = 0.000000;
+const double COMPDAT::SKIN::defaultValue = 0;
 const std::string COMPDAT::D_FACTOR::itemName = "D_FACTOR";
 const std::string COMPDAT::DIR::itemName = "DIR";
 const std::string COMPDAT::DIR::defaultValue = "Z";
 const std::string COMPDAT::PR::itemName = "PR";
 
 
-COMPDATX::COMPDATX( ) : ParserKeyword("COMPDATX")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPDATX::COMPDATX() : ParserKeyword("COMPDATX", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
-  addDeckName("COMPDATL");
   addDeckName("COMPDATM");
+  addDeckName("COMPDATL");
   {
      ParserRecord record;
      {
@@ -818,16 +801,14 @@ const std::string COMPDATX::DIAMETER::itemName = "DIAMETER";
 const std::string COMPDATX::Kh::itemName = "Kh";
 const double COMPDATX::Kh::defaultValue = -1.000000;
 const std::string COMPDATX::SKIN::itemName = "SKIN";
-const double COMPDATX::SKIN::defaultValue = 0.000000;
+const double COMPDATX::SKIN::defaultValue = 0;
 const std::string COMPDATX::D_FACTOR::itemName = "D_FACTOR";
 const std::string COMPDATX::DIR::itemName = "DIR";
 const std::string COMPDATX::DIR::defaultValue = "Z";
 const std::string COMPDATX::PR::itemName = "PR";
 
 
-COMPFLSH::COMPFLSH( ) : ParserKeyword("COMPFLSH")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPFLSH::COMPFLSH() : ParserKeyword("COMPFLSH", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPFLSH");
@@ -895,9 +876,7 @@ const std::string COMPFLSH::FLASH_PVTNUM::itemName = "FLASH_PVTNUM";
 const int COMPFLSH::FLASH_PVTNUM::defaultValue = 0;
 
 
-COMPIMB::COMPIMB( ) : ParserKeyword("COMPIMB")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPIMB::COMPIMB() : ParserKeyword("COMPIMB", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPIMB");
@@ -945,9 +924,7 @@ const std::string COMPIMB::SAT_TABLE::itemName = "SAT_TABLE";
 const int COMPIMB::SAT_TABLE::defaultValue = 0;
 
 
-COMPINJK::COMPINJK( ) : ParserKeyword("COMPINJK")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPINJK::COMPINJK() : ParserKeyword("COMPINJK", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPINJK");
@@ -997,12 +974,10 @@ const int COMPINJK::K_UPPER::defaultValue = 0;
 const std::string COMPINJK::K_LOWER::itemName = "K_LOWER";
 const int COMPINJK::K_LOWER::defaultValue = 0;
 const std::string COMPINJK::REL_PERM::itemName = "REL_PERM";
-const double COMPINJK::REL_PERM::defaultValue = 0.000000;
+const double COMPINJK::REL_PERM::defaultValue = 0;
 
 
-COMPLMPL::COMPLMPL( ) : ParserKeyword("COMPLMPL")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPLMPL::COMPLMPL() : ParserKeyword("COMPLMPL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPLMPL");
@@ -1059,9 +1034,7 @@ const int COMPLMPL::LOWER_K::defaultValue = 0;
 const std::string COMPLMPL::COMPLETION_NUMBER::itemName = "COMPLETION_NUMBER";
 
 
-COMPLUMP::COMPLUMP( ) : ParserKeyword("COMPLUMP")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPLUMP::COMPLUMP() : ParserKeyword("COMPLUMP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPLUMP");
@@ -1073,18 +1046,22 @@ COMPLUMP::COMPLUMP( ) : ParserKeyword("COMPLUMP")
      }
      {
         ParserItem item("I", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
         ParserItem item("J", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
         ParserItem item("K1", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
         ParserItem item("K2", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
@@ -1097,15 +1074,17 @@ COMPLUMP::COMPLUMP( ) : ParserKeyword("COMPLUMP")
 const std::string COMPLUMP::keywordName = "COMPLUMP";
 const std::string COMPLUMP::WELL::itemName = "WELL";
 const std::string COMPLUMP::I::itemName = "I";
+const int COMPLUMP::I::defaultValue = 0;
 const std::string COMPLUMP::J::itemName = "J";
+const int COMPLUMP::J::defaultValue = 0;
 const std::string COMPLUMP::K1::itemName = "K1";
+const int COMPLUMP::K1::defaultValue = 0;
 const std::string COMPLUMP::K2::itemName = "K2";
+const int COMPLUMP::K2::defaultValue = 0;
 const std::string COMPLUMP::N::itemName = "N";
 
 
-COMPOFF::COMPOFF( ) : ParserKeyword("COMPOFF")
-{
-  setFixedSize( (size_t) 0);
+COMPOFF::COMPOFF() : ParserKeyword("COMPOFF", KeywordSize(0, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPOFF");
@@ -1113,9 +1092,7 @@ COMPOFF::COMPOFF( ) : ParserKeyword("COMPOFF")
 const std::string COMPOFF::keywordName = "COMPOFF";
 
 
-COMPORD::COMPORD( ) : ParserKeyword("COMPORD")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPORD::COMPORD() : ParserKeyword("COMPORD", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPORD");
@@ -1139,9 +1116,7 @@ const std::string COMPORD::ORDER_TYPE::itemName = "ORDER_TYPE";
 const std::string COMPORD::ORDER_TYPE::defaultValue = "TRACK";
 
 
-COMPRIV::COMPRIV( ) : ParserKeyword("COMPRIV")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPRIV::COMPRIV() : ParserKeyword("COMPRIV", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPRIV");
@@ -1173,9 +1148,7 @@ const std::string COMPRIV::J::itemName = "J";
 const std::string COMPRIV::K::itemName = "K";
 
 
-COMPRP::COMPRP( ) : ParserKeyword("COMPRP")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPRP::COMPRP() : ParserKeyword("COMPRP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPRP");
@@ -1249,9 +1222,7 @@ const std::string COMPRP::SGMIN::itemName = "SGMIN";
 const std::string COMPRP::SGMAX::itemName = "SGMAX";
 
 
-COMPRPL::COMPRPL( ) : ParserKeyword("COMPRPL")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPRPL::COMPRPL() : ParserKeyword("COMPRPL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPRPL");
@@ -1330,9 +1301,7 @@ const std::string COMPRPL::SGMIN::itemName = "SGMIN";
 const std::string COMPRPL::SGMAX::itemName = "SGMAX";
 
 
-COMPS::COMPS( ) : ParserKeyword("COMPS")
-{
-  setFixedSize( (size_t) 1);
+COMPS::COMPS() : ParserKeyword("COMPS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("COMPS");
@@ -1349,9 +1318,7 @@ const std::string COMPS::keywordName = "COMPS";
 const std::string COMPS::NUM_COMPS::itemName = "NUM_COMPS";
 
 
-COMPSEGL::COMPSEGL( ) : ParserKeyword("COMPSEGL")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPSEGL::COMPSEGL() : ParserKeyword("COMPSEGL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPSEGL");
@@ -1433,14 +1400,12 @@ const std::string COMPSEGL::DISTANCE_END::itemName = "DISTANCE_END";
 const std::string COMPSEGL::DIRECTION::itemName = "DIRECTION";
 const std::string COMPSEGL::END_IJK::itemName = "END_IJK";
 const std::string COMPSEGL::CENTER_DEPTH::itemName = "CENTER_DEPTH";
-const double COMPSEGL::CENTER_DEPTH::defaultValue = 0.000000;
+const double COMPSEGL::CENTER_DEPTH::defaultValue = 0;
 const std::string COMPSEGL::THERMAL_LENGTH::itemName = "THERMAL_LENGTH";
 const std::string COMPSEGL::SEGMENT_NUMBER::itemName = "SEGMENT_NUMBER";
 
 
-COMPSEGS::COMPSEGS( ) : ParserKeyword("COMPSEGS")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPSEGS::COMPSEGS() : ParserKeyword("COMPSEGS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPSEGS");
@@ -1517,14 +1482,12 @@ const std::string COMPSEGS::DISTANCE_END::itemName = "DISTANCE_END";
 const std::string COMPSEGS::DIRECTION::itemName = "DIRECTION";
 const std::string COMPSEGS::END_IJK::itemName = "END_IJK";
 const std::string COMPSEGS::CENTER_DEPTH::itemName = "CENTER_DEPTH";
-const double COMPSEGS::CENTER_DEPTH::defaultValue = 0.000000;
+const double COMPSEGS::CENTER_DEPTH::defaultValue = 0;
 const std::string COMPSEGS::THERMAL_LENGTH::itemName = "THERMAL_LENGTH";
 const std::string COMPSEGS::SEGMENT_NUMBER::itemName = "SEGMENT_NUMBER";
 
 
-COMPVE::COMPVE( ) : ParserKeyword("COMPVE")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPVE::COMPVE() : ParserKeyword("COMPVE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPVE");
@@ -1613,14 +1576,12 @@ const std::string COMPVE::DBOT::itemName = "DBOT";
 const std::string COMPVE::FLAG::itemName = "FLAG";
 const std::string COMPVE::FLAG::defaultValue = "NO";
 const std::string COMPVE::S_D::itemName = "S_D";
-const double COMPVE::S_D::defaultValue = 0.000000;
+const double COMPVE::S_D::defaultValue = 0;
 const std::string COMPVE::GTOP::itemName = "GTOP";
 const std::string COMPVE::GBOT::itemName = "GBOT";
 
 
-COMPVEL::COMPVEL( ) : ParserKeyword("COMPVEL")
-{
-  setSizeType(SLASH_TERMINATED);
+COMPVEL::COMPVEL() : ParserKeyword("COMPVEL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("COMPVEL");
@@ -1714,129 +1675,128 @@ const std::string COMPVEL::DBOT::itemName = "DBOT";
 const std::string COMPVEL::FLAG::itemName = "FLAG";
 const std::string COMPVEL::FLAG::defaultValue = "NO";
 const std::string COMPVEL::S_D::itemName = "S_D";
-const double COMPVEL::S_D::defaultValue = 0.000000;
+const double COMPVEL::S_D::defaultValue = 0;
 const std::string COMPVEL::GTOP::itemName = "GTOP";
 const std::string COMPVEL::GBOT::itemName = "GBOT";
 
 
-CONNECTION_PROBE::CONNECTION_PROBE( ) : ParserKeyword("CONNECTION_PROBE")
-{
-  setSizeType(SLASH_TERMINATED);
+CONNECTION_PROBE::CONNECTION_PROBE() : ParserKeyword("CONNECTION_PROBE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("CAPI");
-  addDeckName("CCFR");
-  addDeckName("CCIC");
-  addDeckName("CCIR");
-  addDeckName("CCIT");
-  addDeckName("CCPC");
-  addDeckName("CCPT");
-  addDeckName("CDBF");
-  addDeckName("CDFAC");
-  addDeckName("CDSF");
-  addDeckName("CDSM");
-  addDeckName("CDSML");
-  addDeckName("CGFR");
-  addDeckName("CGFRF");
-  addDeckName("CGFRL");
-  addDeckName("CGFRS");
-  addDeckName("CGFRU");
+  addDeckName("COPT");
+  addDeckName("COPRL");
+  addDeckName("COFR");
+  addDeckName("CGPRL");
+  addDeckName("COFRF");
+  addDeckName("CVPT");
   addDeckName("CGIR");
-  addDeckName("CGIRL");
+  addDeckName("COFRS");
+  addDeckName("CWPTL");
+  addDeckName("CWFRL");
+  addDeckName("COPR");
+  addDeckName("COFRL");
+  addDeckName("CGPR");
+  addDeckName("CVPR");
+  addDeckName("CDSML");
   addDeckName("CGIT");
+  addDeckName("COFRU");
+  addDeckName("COPTL");
+  addDeckName("COPTF");
+  addDeckName("CWCT");
+  addDeckName("COPTS");
+  addDeckName("CLFRL");
+  addDeckName("COIT");
+  addDeckName("CWFRU");
+  addDeckName("COITL");
+  addDeckName("COPP");
+  addDeckName("COPI");
+  addDeckName("CWPT");
+  addDeckName("CWFR");
+  addDeckName("CWPRL");
+  addDeckName("CWPR");
+  addDeckName("CWIR");
+  addDeckName("CWIT");
+  addDeckName("CWIRL");
+  addDeckName("CWITL");
+  addDeckName("CSIC");
+  addDeckName("CWPP");
+  addDeckName("CWPI");
+  addDeckName("CGFR");
+  addDeckName("CVITL");
+  addDeckName("CGFRF");
+  addDeckName("CGPP");
+  addDeckName("CVFRL");
+  addDeckName("WGIRL");
+  addDeckName("CGFRS");
+  addDeckName("CGFRL");
+  addDeckName("CDSM");
+  addDeckName("CGFRU");
+  addDeckName("CTITALK");
+  addDeckName("CGPT");
+  addDeckName("CGPTL");
+  addDeckName("CGPTF");
+  addDeckName("CGPTS");
+  addDeckName("CCIR");
+  addDeckName("CTPTSUR");
+  addDeckName("CVPTL");
+  addDeckName("CGIRL");
+  addDeckName("CGQ");
   addDeckName("CGITL");
-  addDeckName("CGLR");
-  addDeckName("CGLRL");
+  addDeckName("WGITL");
+  addDeckName("CGPI");
+  addDeckName("CDBF");
+  addDeckName("CLFR");
+  addDeckName("CLPT");
+  addDeckName("CCIT");
+  addDeckName("CAPI");
+  addDeckName("CLPTL");
+  addDeckName("CVFR");
+  addDeckName("CVIRL");
+  addDeckName("CVIR");
+  addDeckName("CVIT");
+  addDeckName("LCGFRU");
+  addDeckName("CWCTL");
   addDeckName("CGOR");
   addDeckName("CGORL");
-  addDeckName("CGPI");
-  addDeckName("CGPP");
-  addDeckName("CGPR");
-  addDeckName("CGPRL");
-  addDeckName("CGPT");
-  addDeckName("CGPTF");
-  addDeckName("CGPTL");
-  addDeckName("CGPTS");
-  addDeckName("CGQ");
-  addDeckName("CLFR");
-  addDeckName("CLFRL");
-  addDeckName("CLPT");
-  addDeckName("CLPTL");
-  addDeckName("CNFR");
-  addDeckName("CNIT");
-  addDeckName("CNPT");
-  addDeckName("COFR");
-  addDeckName("COFRF");
-  addDeckName("COFRL");
-  addDeckName("COFRS");
-  addDeckName("COFRU");
   addDeckName("COGR");
   addDeckName("COGRL");
-  addDeckName("COIT");
-  addDeckName("COITL");
-  addDeckName("COPI");
-  addDeckName("COPP");
-  addDeckName("COPR");
-  addDeckName("COPRL");
-  addDeckName("COPT");
-  addDeckName("COPTF");
-  addDeckName("COPTL");
-  addDeckName("COPTS");
+  addDeckName("CWGR");
+  addDeckName("CWGRL");
+  addDeckName("CSPR");
+  addDeckName("CGLR");
+  addDeckName("CSFR");
+  addDeckName("CGLRL");
   addDeckName("CPI");
   addDeckName("CPRL");
-  addDeckName("CSFR");
-  addDeckName("CSIC");
+  addDeckName("CTFAC");
+  addDeckName("CDSF");
+  addDeckName("CDFAC");
+  addDeckName("CSPT");
   addDeckName("CSIR");
   addDeckName("CSIT");
   addDeckName("CSPC");
-  addDeckName("CSPR");
-  addDeckName("CSPT");
-  addDeckName("CTFAC");
-  addDeckName("CTFRALK");
   addDeckName("CTFRANI");
-  addDeckName("CTFRCAT");
-  addDeckName("CTFRFOA");
-  addDeckName("CTFRSUR");
-  addDeckName("CTITALK");
-  addDeckName("CTITANI");
-  addDeckName("CTITCAT");
-  addDeckName("CTITFOA");
-  addDeckName("CTITSUR");
-  addDeckName("CTPTALK");
   addDeckName("CTPTANI");
+  addDeckName("CTITANI");
+  addDeckName("CTFRCAT");
   addDeckName("CTPTCAT");
+  addDeckName("CTITCAT");
+  addDeckName("CTFRFOA");
   addDeckName("CTPTFOA");
-  addDeckName("CTPTSUR");
-  addDeckName("CVFR");
-  addDeckName("CVFRL");
-  addDeckName("CVIR");
-  addDeckName("CVIRL");
-  addDeckName("CVIT");
-  addDeckName("CVITL");
-  addDeckName("CVPT");
-  addDeckName("CVPTL");
-  addDeckName("CWCT");
-  addDeckName("CWCTL");
-  addDeckName("CWFR");
-  addDeckName("CWFRL");
-  addDeckName("CWFRU");
-  addDeckName("CWGR");
-  addDeckName("CWGRL");
-  addDeckName("CWIR");
-  addDeckName("CWIRL");
-  addDeckName("CWIT");
-  addDeckName("CWITL");
-  addDeckName("CWPI");
-  addDeckName("CWPP");
-  addDeckName("CWPR");
-  addDeckName("CWPRL");
-  addDeckName("CWPT");
-  addDeckName("CWPTL");
-  addDeckName("LCGFRU");
+  addDeckName("CTITFOA");
+  addDeckName("CCFR");
+  addDeckName("CCPC");
+  addDeckName("CCPT");
+  addDeckName("CCIC");
+  addDeckName("CNFR");
+  addDeckName("CNPT");
+  addDeckName("CNIT");
+  addDeckName("CTFRSUR");
+  addDeckName("CTITSUR");
+  addDeckName("CTFRALK");
+  addDeckName("CTPTALK");
   addDeckName("LCOFRU");
   addDeckName("LCWFRU");
-  addDeckName("WGIRL");
-  addDeckName("WGITL");
   setMatchRegex("CU.+|CTFR.+|CTPR.+|CTPT.+|CTPC.+|CTIR.+|CTIT.+|CTIC.+|CTFR.+|CTPR.+|CTPT.+|CTPC.+|CTIR.+|CTIT.+|CTIC.+|CTIRF.+|CTIRS.+|CTPRF.+|CTPRS.+|CTITF.+|CTITS.+|CTPTF.+|CTPTS.+|CTICF.+|CTICS.+|CTPCF.+|CTPCS");
   {
      ParserRecord record;
@@ -1866,10 +1826,11 @@ const std::string CONNECTION_PROBE::J::itemName = "J";
 const std::string CONNECTION_PROBE::K::itemName = "K";
 
 
-COORD::COORD( ) : ParserKeyword("COORD")
-{
-  setFixedSize( (size_t) 1);
+COORD::COORD() : ParserKeyword("COORD", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  setProhibitedKeywords({
+    "GDFILE",
+  });
   clearDeckNames();
   addDeckName("COORD");
   {
@@ -1887,10 +1848,7 @@ const std::string COORD::keywordName = "COORD";
 const std::string COORD::data::itemName = "data";
 
 
-COORDSYS::COORDSYS( ) : ParserKeyword("COORDSYS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("NUMRES","num",0);
+COORDSYS::COORDSYS() : ParserKeyword("COORDSYS", KeywordSize("NUMRES", "num", false, 0)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("COORDSYS");
@@ -1940,12 +1898,10 @@ const std::string COORDSYS::R2::itemName = "R2";
 const int COORDSYS::R2::defaultValue = 0;
 
 
-COPY::COPY( ) : ParserKeyword("COPY")
-{
-  setSizeType(SLASH_TERMINATED);
+COPY::COPY() : ParserKeyword("COPY", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -1998,11 +1954,9 @@ const std::string COPY::K1::itemName = "K1";
 const std::string COPY::K2::itemName = "K2";
 
 
-COPYBOX::COPYBOX( ) : ParserKeyword("COPYBOX")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("GRID");
+COPYBOX::COPYBOX() : ParserKeyword("COPYBOX", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
+  addValidSectionName("GRID");
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("COPYBOX");
@@ -2079,12 +2033,10 @@ const std::string COPYBOX::KY1D::itemName = "KY1D";
 const std::string COPYBOX::KY2D::itemName = "KY2D";
 
 
-COPYREG::COPYREG( ) : ParserKeyword("COPYREG")
-{
-  setSizeType(SLASH_TERMINATED);
+COPYREG::COPYREG() : ParserKeyword("COPYREG", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -2123,9 +2075,7 @@ const std::string COPYREG::REGION_NAME::itemName = "REGION_NAME";
 const std::string COPYREG::REGION_NAME::defaultValue = "M";
 
 
-CPIFACT::CPIFACT( ) : ParserKeyword("CPIFACT")
-{
-  setSizeType(SLASH_TERMINATED);
+CPIFACT::CPIFACT() : ParserKeyword("CPIFACT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("CPIFACT");
@@ -2172,9 +2122,7 @@ const std::string CPIFACT::C1::itemName = "C1";
 const std::string CPIFACT::C2::itemName = "C2";
 
 
-CPIFACTL::CPIFACTL( ) : ParserKeyword("CPIFACTL")
-{
-  setSizeType(SLASH_TERMINATED);
+CPIFACTL::CPIFACTL() : ParserKeyword("CPIFACTL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("CPIFACTL");
@@ -2226,9 +2174,7 @@ const std::string CPIFACTL::C1::itemName = "C1";
 const std::string CPIFACTL::C2::itemName = "C2";
 
 
-CPR::CPR( ) : ParserKeyword("CPR")
-{
-  setSizeType(SLASH_TERMINATED);
+CPR::CPR() : ParserKeyword("CPR", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("RUNSPEC");
   addValidSectionName("SUMMARY");
   clearDeckNames();
@@ -2261,10 +2207,7 @@ const std::string CPR::J::itemName = "J";
 const std::string CPR::K::itemName = "K";
 
 
-CREF::CREF( ) : ParserKeyword("CREF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+CREF::CREF() : ParserKeyword("CREF", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("CREF");
@@ -2283,10 +2226,7 @@ const std::string CREF::keywordName = "CREF";
 const std::string CREF::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
 
 
-CREFS::CREFS( ) : ParserKeyword("CREFS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+CREFS::CREFS() : ParserKeyword("CREFS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("CREFS");
@@ -2305,9 +2245,7 @@ const std::string CREFS::keywordName = "CREFS";
 const std::string CREFS::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
 
 
-CRITPERM::CRITPERM( ) : ParserKeyword("CRITPERM")
-{
-  setFixedSize( (size_t) 1);
+CRITPERM::CRITPERM() : ParserKeyword("CRITPERM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("CRITPERM");
@@ -2325,9 +2263,7 @@ const std::string CRITPERM::keywordName = "CRITPERM";
 const std::string CRITPERM::VALUE::itemName = "VALUE";
 
 
-CSKIN::CSKIN( ) : ParserKeyword("CSKIN")
-{
-  setSizeType(SLASH_TERMINATED);
+CSKIN::CSKIN() : ParserKeyword("CSKIN", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("CSKIN");
@@ -2377,7 +2313,7 @@ const int CSKIN::K_UPPER::defaultValue = 0;
 const std::string CSKIN::K_LOWER::itemName = "K_LOWER";
 const int CSKIN::K_LOWER::defaultValue = 0;
 const std::string CSKIN::CONNECTION_SKIN_FACTOR::itemName = "CONNECTION_SKIN_FACTOR";
-const double CSKIN::CONNECTION_SKIN_FACTOR::defaultValue = 0.000000;
+const double CSKIN::CONNECTION_SKIN_FACTOR::defaultValue = 0;
 
 
 }

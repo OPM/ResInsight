@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/L.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/L.hpp>
 namespace Opm {
 namespace ParserKeywords {
-LAB::LAB( ) : ParserKeyword("LAB")
-{
-  setFixedSize( (size_t) 0);
+LAB::LAB() : ParserKeyword("LAB", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("LAB");
@@ -20,9 +19,7 @@ LAB::LAB( ) : ParserKeyword("LAB")
 const std::string LAB::keywordName = "LAB";
 
 
-LANGMPL::LANGMPL( ) : ParserKeyword("LANGMPL")
-{
-  setFixedSize( (size_t) 1);
+LANGMPL::LANGMPL() : ParserKeyword("LANGMPL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LANGMPL");
@@ -41,10 +38,7 @@ const std::string LANGMPL::keywordName = "LANGMPL";
 const std::string LANGMPL::data::itemName = "data";
 
 
-LANGMUIR::LANGMUIR( ) : ParserKeyword("LANGMUIR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("REGDIMS","NTCREG",0);
+LANGMUIR::LANGMUIR() : ParserKeyword("LANGMUIR", KeywordSize("REGDIMS", "NTCREG", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LANGMUIR");
@@ -65,10 +59,7 @@ const std::string LANGMUIR::keywordName = "LANGMUIR";
 const std::string LANGMUIR::DATA::itemName = "DATA";
 
 
-LANGSOLV::LANGSOLV( ) : ParserKeyword("LANGSOLV")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("REGDIMS","NTCREG",0);
+LANGSOLV::LANGSOLV() : ParserKeyword("LANGSOLV", KeywordSize("REGDIMS", "NTCREG", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LANGSOLV");
@@ -88,9 +79,7 @@ const std::string LANGSOLV::keywordName = "LANGSOLV";
 const std::string LANGSOLV::DATA::itemName = "DATA";
 
 
-LCUNIT::LCUNIT( ) : ParserKeyword("LCUNIT")
-{
-  setFixedSize( (size_t) 1);
+LCUNIT::LCUNIT() : ParserKeyword("LCUNIT", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LCUNIT");
@@ -109,9 +98,7 @@ const std::string LCUNIT::UNIT::itemName = "UNIT";
 const std::string LCUNIT::UNIT::defaultValue = "UNIT";
 
 
-LGR::LGR( ) : ParserKeyword("LGR")
-{
-  setFixedSize( (size_t) 1);
+LGR::LGR() : ParserKeyword("LGR", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("LGR");
@@ -179,21 +166,17 @@ const std::string LGR::NCHCOR::itemName = "NCHCOR";
 const int LGR::NCHCOR::defaultValue = 0;
 
 
-LGRCOPY::LGRCOPY( ) : ParserKeyword("LGRCOPY")
-{
-  setFixedSize( (size_t) 0);
+LGRCOPY::LGRCOPY() : ParserKeyword("LGRCOPY", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("LGRCOPY");
 }
 const std::string LGRCOPY::keywordName = "LGRCOPY";
 
 
-LGRFREE::LGRFREE( ) : ParserKeyword("LGRFREE")
-{
-  setSizeType(SLASH_TERMINATED);
+LGRFREE::LGRFREE() : ParserKeyword("LGRFREE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("LGRFREE");
@@ -210,9 +193,7 @@ const std::string LGRFREE::keywordName = "LGRFREE";
 const std::string LGRFREE::LOCAL_GRID_REFINMENT::itemName = "LOCAL_GRID_REFINMENT";
 
 
-LGRLOCK::LGRLOCK( ) : ParserKeyword("LGRLOCK")
-{
-  setSizeType(SLASH_TERMINATED);
+LGRLOCK::LGRLOCK() : ParserKeyword("LGRLOCK", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("LGRLOCK");
@@ -229,9 +210,7 @@ const std::string LGRLOCK::keywordName = "LGRLOCK";
 const std::string LGRLOCK::LOCAL_GRID_REFINMENT::itemName = "LOCAL_GRID_REFINMENT";
 
 
-LGROFF::LGROFF( ) : ParserKeyword("LGROFF")
-{
-  setFixedSize( (size_t) 1);
+LGROFF::LGROFF() : ParserKeyword("LGROFF", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("LGROFF");
@@ -255,9 +234,7 @@ const std::string LGROFF::ACTIVE_WELLS::itemName = "ACTIVE_WELLS";
 const int LGROFF::ACTIVE_WELLS::defaultValue = 0;
 
 
-LGRON::LGRON( ) : ParserKeyword("LGRON")
-{
-  setFixedSize( (size_t) 1);
+LGRON::LGRON() : ParserKeyword("LGRON", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("LGRON");
@@ -281,12 +258,10 @@ const std::string LGRON::ACTIVE_WELLS::itemName = "ACTIVE_WELLS";
 const int LGRON::ACTIVE_WELLS::defaultValue = 0;
 
 
-LICENSE::LICENSE( ) : ParserKeyword("LICENSE")
-{
-  setSizeType(SLASH_TERMINATED);
+LICENSES::LICENSES() : ParserKeyword("LICENSES", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
-  addDeckName("LICENSE");
+  addDeckName("LICENSES");
   {
      ParserRecord record;
      {
@@ -296,13 +271,11 @@ LICENSE::LICENSE( ) : ParserKeyword("LICENSE")
      addRecord( record );
   }
 }
-const std::string LICENSE::keywordName = "LICENSE";
-const std::string LICENSE::FEATURE::itemName = "FEATURE";
+const std::string LICENSES::keywordName = "LICENSES";
+const std::string LICENSES::FEATURE::itemName = "FEATURE";
 
 
-LIFTOPT::LIFTOPT( ) : ParserKeyword("LIFTOPT")
-{
-  setFixedSize( (size_t) 1);
+LIFTOPT::LIFTOPT() : ParserKeyword("LIFTOPT", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("LIFTOPT");
@@ -310,19 +283,22 @@ LIFTOPT::LIFTOPT( ) : ParserKeyword("LIFTOPT")
      ParserRecord record;
      {
         ParserItem item("INCREMENT_SIZE", ParserItem::itype::DOUBLE);
+        item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
      {
         ParserItem item("MIN_ECONOMIC_GRADIENT", ParserItem::itype::DOUBLE);
+        item.push_backDimension("LiquidSurfaceVolume/GasSurfaceVolume");
         record.addItem(item);
      }
      {
         ParserItem item("MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
+        item.push_backDimension("Time");
         record.addItem(item);
      }
      {
-        ParserItem item("OPTIMISE_GAS_LIFT", ParserItem::itype::STRING);
+        ParserItem item("OPTIMISE_ALL_ITERATIONS", ParserItem::itype::STRING);
         item.setDefault( std::string("YES") );
         record.addItem(item);
      }
@@ -333,14 +309,12 @@ const std::string LIFTOPT::keywordName = "LIFTOPT";
 const std::string LIFTOPT::INCREMENT_SIZE::itemName = "INCREMENT_SIZE";
 const std::string LIFTOPT::MIN_ECONOMIC_GRADIENT::itemName = "MIN_ECONOMIC_GRADIENT";
 const std::string LIFTOPT::MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS::itemName = "MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS";
-const double LIFTOPT::MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS::defaultValue = 0.000000;
-const std::string LIFTOPT::OPTIMISE_GAS_LIFT::itemName = "OPTIMISE_GAS_LIFT";
-const std::string LIFTOPT::OPTIMISE_GAS_LIFT::defaultValue = "YES";
+const double LIFTOPT::MIN_INTERVAL_BETWEEN_GAS_LIFT_OPTIMIZATIONS::defaultValue = 0;
+const std::string LIFTOPT::OPTIMISE_ALL_ITERATIONS::itemName = "OPTIMISE_ALL_ITERATIONS";
+const std::string LIFTOPT::OPTIMISE_ALL_ITERATIONS::defaultValue = "YES";
 
 
-LINCOM::LINCOM( ) : ParserKeyword("LINCOM")
-{
-  setFixedSize( (size_t) 1);
+LINCOM::LINCOM() : ParserKeyword("LINCOM", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("LINCOM");
@@ -366,16 +340,14 @@ LINCOM::LINCOM( ) : ParserKeyword("LINCOM")
 }
 const std::string LINCOM::keywordName = "LINCOM";
 const std::string LINCOM::ALPHA::itemName = "ALPHA";
-const UDAValue LINCOM::ALPHA::defaultValue = UDAValue(0.000000);
+const UDAValue LINCOM::ALPHA::defaultValue = UDAValue(0);
 const std::string LINCOM::BETA::itemName = "BETA";
-const UDAValue LINCOM::BETA::defaultValue = UDAValue(0.000000);
+const UDAValue LINCOM::BETA::defaultValue = UDAValue(0);
 const std::string LINCOM::GAMMA::itemName = "GAMMA";
-const UDAValue LINCOM::GAMMA::defaultValue = UDAValue(0.000000);
+const UDAValue LINCOM::GAMMA::defaultValue = UDAValue(0);
 
 
-LINKPERM::LINKPERM( ) : ParserKeyword("LINKPERM")
-{
-  setFixedSize( (size_t) 1);
+LINKPERM::LINKPERM() : ParserKeyword("LINKPERM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("LINKPERM");
@@ -393,9 +365,7 @@ const std::string LINKPERM::keywordName = "LINKPERM";
 const std::string LINKPERM::data::itemName = "data";
 
 
-LIVEOIL::LIVEOIL( ) : ParserKeyword("LIVEOIL")
-{
-  setFixedSize( (size_t) 0);
+LIVEOIL::LIVEOIL() : ParserKeyword("LIVEOIL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("LIVEOIL");
@@ -403,9 +373,7 @@ LIVEOIL::LIVEOIL( ) : ParserKeyword("LIVEOIL")
 const std::string LIVEOIL::keywordName = "LIVEOIL";
 
 
-LKRO::LKRO( ) : ParserKeyword("LKRO")
-{
-  setFixedSize( (size_t) 1);
+LKRO::LKRO() : ParserKeyword("LKRO", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LKRO");
@@ -424,9 +392,7 @@ const std::string LKRO::keywordName = "LKRO";
 const std::string LKRO::data::itemName = "data";
 
 
-LKRORG::LKRORG( ) : ParserKeyword("LKRORG")
-{
-  setFixedSize( (size_t) 1);
+LKRORG::LKRORG() : ParserKeyword("LKRORG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LKRORG");
@@ -445,9 +411,7 @@ const std::string LKRORG::keywordName = "LKRORG";
 const std::string LKRORG::data::itemName = "data";
 
 
-LKRORW::LKRORW( ) : ParserKeyword("LKRORW")
-{
-  setFixedSize( (size_t) 1);
+LKRORW::LKRORW() : ParserKeyword("LKRORW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LKRORW");
@@ -466,9 +430,7 @@ const std::string LKRORW::keywordName = "LKRORW";
 const std::string LKRORW::data::itemName = "data";
 
 
-LKRW::LKRW( ) : ParserKeyword("LKRW")
-{
-  setFixedSize( (size_t) 1);
+LKRW::LKRW() : ParserKeyword("LKRW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LKRW");
@@ -487,9 +449,7 @@ const std::string LKRW::keywordName = "LKRW";
 const std::string LKRW::data::itemName = "data";
 
 
-LKRWR::LKRWR( ) : ParserKeyword("LKRWR")
-{
-  setFixedSize( (size_t) 1);
+LKRWR::LKRWR() : ParserKeyword("LKRWR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LKRWR");
@@ -508,9 +468,7 @@ const std::string LKRWR::keywordName = "LKRWR";
 const std::string LKRWR::data::itemName = "data";
 
 
-LOAD::LOAD( ) : ParserKeyword("LOAD")
-{
-  setFixedSize( (size_t) 1);
+LOAD::LOAD() : ParserKeyword("LOAD", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("LOAD");
@@ -553,9 +511,7 @@ const std::string LOAD::REQUEST_SAVE_OUTPUT::itemName = "REQUEST_SAVE_OUTPUT";
 const std::string LOAD::REQUEST_SAVE_OUTPUT::defaultValue = "NO";
 
 
-LOWSALT::LOWSALT( ) : ParserKeyword("LOWSALT")
-{
-  setFixedSize( (size_t) 0);
+LOWSALT::LOWSALT() : ParserKeyword("LOWSALT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("LOWSALT");
@@ -563,9 +519,7 @@ LOWSALT::LOWSALT( ) : ParserKeyword("LOWSALT")
 const std::string LOWSALT::keywordName = "LOWSALT";
 
 
-LPCW::LPCW( ) : ParserKeyword("LPCW")
-{
-  setFixedSize( (size_t) 1);
+LPCW::LPCW() : ParserKeyword("LPCW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LPCW");
@@ -584,10 +538,7 @@ const std::string LPCW::keywordName = "LPCW";
 const std::string LPCW::data::itemName = "data";
 
 
-LSALTFNC::LSALTFNC( ) : ParserKeyword("LSALTFNC")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+LSALTFNC::LSALTFNC() : ParserKeyword("LSALTFNC", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LSALTFNC");
@@ -608,9 +559,7 @@ const std::string LSALTFNC::keywordName = "LSALTFNC";
 const std::string LSALTFNC::DATA::itemName = "DATA";
 
 
-LSLTWNUM::LSLTWNUM( ) : ParserKeyword("LSLTWNUM")
-{
-  setFixedSize( (size_t) 1);
+LSLTWNUM::LSLTWNUM() : ParserKeyword("LSLTWNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("LSLTWNUM");
@@ -628,9 +577,7 @@ const std::string LSLTWNUM::keywordName = "LSLTWNUM";
 const std::string LSLTWNUM::data::itemName = "data";
 
 
-LSNUM::LSNUM( ) : ParserKeyword("LSNUM")
-{
-  setFixedSize( (size_t) 1);
+LSNUM::LSNUM() : ParserKeyword("LSNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("LSNUM");
@@ -648,9 +595,7 @@ const std::string LSNUM::keywordName = "LSNUM";
 const std::string LSNUM::data::itemName = "data";
 
 
-LSOGCR::LSOGCR( ) : ParserKeyword("LSOGCR")
-{
-  setFixedSize( (size_t) 1);
+LSOGCR::LSOGCR() : ParserKeyword("LSOGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LSOGCR");
@@ -669,9 +614,7 @@ const std::string LSOGCR::keywordName = "LSOGCR";
 const std::string LSOGCR::data::itemName = "data";
 
 
-LSOWCR::LSOWCR( ) : ParserKeyword("LSOWCR")
-{
-  setFixedSize( (size_t) 1);
+LSOWCR::LSOWCR() : ParserKeyword("LSOWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LSOWCR");
@@ -690,9 +633,7 @@ const std::string LSOWCR::keywordName = "LSOWCR";
 const std::string LSOWCR::data::itemName = "data";
 
 
-LSWCR::LSWCR( ) : ParserKeyword("LSWCR")
-{
-  setFixedSize( (size_t) 1);
+LSWCR::LSWCR() : ParserKeyword("LSWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LSWCR");
@@ -711,9 +652,7 @@ const std::string LSWCR::keywordName = "LSWCR";
 const std::string LSWCR::data::itemName = "data";
 
 
-LSWL::LSWL( ) : ParserKeyword("LSWL")
-{
-  setFixedSize( (size_t) 1);
+LSWL::LSWL() : ParserKeyword("LSWL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LSWL");
@@ -732,9 +671,7 @@ const std::string LSWL::keywordName = "LSWL";
 const std::string LSWL::data::itemName = "data";
 
 
-LSWLPC::LSWLPC( ) : ParserKeyword("LSWLPC")
-{
-  setFixedSize( (size_t) 1);
+LSWLPC::LSWLPC() : ParserKeyword("LSWLPC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LSWLPC");
@@ -753,9 +690,7 @@ const std::string LSWLPC::keywordName = "LSWLPC";
 const std::string LSWLPC::data::itemName = "data";
 
 
-LSWU::LSWU( ) : ParserKeyword("LSWU")
-{
-  setFixedSize( (size_t) 1);
+LSWU::LSWU() : ParserKeyword("LSWU", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LSWU");
@@ -774,9 +709,7 @@ const std::string LSWU::keywordName = "LSWU";
 const std::string LSWU::data::itemName = "data";
 
 
-LTOSIGMA::LTOSIGMA( ) : ParserKeyword("LTOSIGMA")
-{
-  setFixedSize( (size_t) 1);
+LTOSIGMA::LTOSIGMA() : ParserKeyword("LTOSIGMA", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("LTOSIGMA");
@@ -822,14 +755,12 @@ const double LTOSIGMA::FY::defaultValue = 4.000000;
 const std::string LTOSIGMA::FZ::itemName = "FZ";
 const double LTOSIGMA::FZ::defaultValue = 4.000000;
 const std::string LTOSIGMA::FGD::itemName = "FGD";
-const double LTOSIGMA::FGD::defaultValue = 0.000000;
+const double LTOSIGMA::FGD::defaultValue = 0;
 const std::string LTOSIGMA::OPTION::itemName = "OPTION";
 const std::string LTOSIGMA::OPTION::defaultValue = "XONLY";
 
 
-LWKRO::LWKRO( ) : ParserKeyword("LWKRO")
-{
-  setFixedSize( (size_t) 1);
+LWKRO::LWKRO() : ParserKeyword("LWKRO", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWKRO");
@@ -848,9 +779,7 @@ const std::string LWKRO::keywordName = "LWKRO";
 const std::string LWKRO::data::itemName = "data";
 
 
-LWKRORG::LWKRORG( ) : ParserKeyword("LWKRORG")
-{
-  setFixedSize( (size_t) 1);
+LWKRORG::LWKRORG() : ParserKeyword("LWKRORG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWKRORG");
@@ -869,9 +798,7 @@ const std::string LWKRORG::keywordName = "LWKRORG";
 const std::string LWKRORG::data::itemName = "data";
 
 
-LWKRORW::LWKRORW( ) : ParserKeyword("LWKRORW")
-{
-  setFixedSize( (size_t) 1);
+LWKRORW::LWKRORW() : ParserKeyword("LWKRORW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWKRORW");
@@ -890,9 +817,7 @@ const std::string LWKRORW::keywordName = "LWKRORW";
 const std::string LWKRORW::data::itemName = "data";
 
 
-LWKRW::LWKRW( ) : ParserKeyword("LWKRW")
-{
-  setFixedSize( (size_t) 1);
+LWKRW::LWKRW() : ParserKeyword("LWKRW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWKRW");
@@ -911,9 +836,7 @@ const std::string LWKRW::keywordName = "LWKRW";
 const std::string LWKRW::data::itemName = "data";
 
 
-LWKRWR::LWKRWR( ) : ParserKeyword("LWKRWR")
-{
-  setFixedSize( (size_t) 1);
+LWKRWR::LWKRWR() : ParserKeyword("LWKRWR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWKRWR");
@@ -932,9 +855,7 @@ const std::string LWKRWR::keywordName = "LWKRWR";
 const std::string LWKRWR::data::itemName = "data";
 
 
-LWPCW::LWPCW( ) : ParserKeyword("LWPCW")
-{
-  setFixedSize( (size_t) 1);
+LWPCW::LWPCW() : ParserKeyword("LWPCW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWPCW");
@@ -953,9 +874,7 @@ const std::string LWPCW::keywordName = "LWPCW";
 const std::string LWPCW::data::itemName = "data";
 
 
-LWSLTNUM::LWSLTNUM( ) : ParserKeyword("LWSLTNUM")
-{
-  setFixedSize( (size_t) 1);
+LWSLTNUM::LWSLTNUM() : ParserKeyword("LWSLTNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("LWSLTNUM");
@@ -973,9 +892,7 @@ const std::string LWSLTNUM::keywordName = "LWSLTNUM";
 const std::string LWSLTNUM::data::itemName = "data";
 
 
-LWSNUM::LWSNUM( ) : ParserKeyword("LWSNUM")
-{
-  setFixedSize( (size_t) 1);
+LWSNUM::LWSNUM() : ParserKeyword("LWSNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("LWSNUM");
@@ -993,9 +910,7 @@ const std::string LWSNUM::keywordName = "LWSNUM";
 const std::string LWSNUM::data::itemName = "data";
 
 
-LWSOGCR::LWSOGCR( ) : ParserKeyword("LWSOGCR")
-{
-  setFixedSize( (size_t) 1);
+LWSOGCR::LWSOGCR() : ParserKeyword("LWSOGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWSOGCR");
@@ -1014,9 +929,7 @@ const std::string LWSOGCR::keywordName = "LWSOGCR";
 const std::string LWSOGCR::data::itemName = "data";
 
 
-LWSOWCR::LWSOWCR( ) : ParserKeyword("LWSOWCR")
-{
-  setFixedSize( (size_t) 1);
+LWSOWCR::LWSOWCR() : ParserKeyword("LWSOWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWSOWCR");
@@ -1035,9 +948,7 @@ const std::string LWSOWCR::keywordName = "LWSOWCR";
 const std::string LWSOWCR::data::itemName = "data";
 
 
-LWSWCR::LWSWCR( ) : ParserKeyword("LWSWCR")
-{
-  setFixedSize( (size_t) 1);
+LWSWCR::LWSWCR() : ParserKeyword("LWSWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWSWCR");
@@ -1056,9 +967,7 @@ const std::string LWSWCR::keywordName = "LWSWCR";
 const std::string LWSWCR::data::itemName = "data";
 
 
-LWSWL::LWSWL( ) : ParserKeyword("LWSWL")
-{
-  setFixedSize( (size_t) 1);
+LWSWL::LWSWL() : ParserKeyword("LWSWL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWSWL");
@@ -1077,9 +986,7 @@ const std::string LWSWL::keywordName = "LWSWL";
 const std::string LWSWL::data::itemName = "data";
 
 
-LWSWLPC::LWSWLPC( ) : ParserKeyword("LWSWLPC")
-{
-  setFixedSize( (size_t) 1);
+LWSWLPC::LWSWLPC() : ParserKeyword("LWSWLPC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWSWLPC");
@@ -1098,9 +1005,7 @@ const std::string LWSWLPC::keywordName = "LWSWLPC";
 const std::string LWSWLPC::data::itemName = "data";
 
 
-LWSWU::LWSWU( ) : ParserKeyword("LWSWU")
-{
-  setFixedSize( (size_t) 1);
+LWSWU::LWSWU() : ParserKeyword("LWSWU", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("LWSWU");
@@ -1119,9 +1024,7 @@ const std::string LWSWU::keywordName = "LWSWU";
 const std::string LWSWU::data::itemName = "data";
 
 
-LX::LX( ) : ParserKeyword("LX")
-{
-  setFixedSize( (size_t) 1);
+LX::LX() : ParserKeyword("LX", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("LX");
@@ -1140,9 +1043,7 @@ const std::string LX::keywordName = "LX";
 const std::string LX::data::itemName = "data";
 
 
-LXFIN::LXFIN( ) : ParserKeyword("LXFIN")
-{
-  setFixedSize( (size_t) 1);
+LXFIN::LXFIN() : ParserKeyword("LXFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("LXFIN");
@@ -1165,9 +1066,7 @@ const std::string LXFIN::CELL_THICKNESS::itemName = "CELL_THICKNESS";
 const std::string LXFIN::SIZE_OPTION::itemName = "SIZE_OPTION";
 
 
-LY::LY( ) : ParserKeyword("LY")
-{
-  setFixedSize( (size_t) 1);
+LY::LY() : ParserKeyword("LY", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("LY");
@@ -1186,9 +1085,7 @@ const std::string LY::keywordName = "LY";
 const std::string LY::data::itemName = "data";
 
 
-LYFIN::LYFIN( ) : ParserKeyword("LYFIN")
-{
-  setFixedSize( (size_t) 1);
+LYFIN::LYFIN() : ParserKeyword("LYFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("LYFIN");
@@ -1211,9 +1108,7 @@ const std::string LYFIN::CELL_THICKNESS::itemName = "CELL_THICKNESS";
 const std::string LYFIN::SIZE_OPTION::itemName = "SIZE_OPTION";
 
 
-LZ::LZ( ) : ParserKeyword("LZ")
-{
-  setFixedSize( (size_t) 1);
+LZ::LZ() : ParserKeyword("LZ", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("LZ");
@@ -1232,9 +1127,7 @@ const std::string LZ::keywordName = "LZ";
 const std::string LZ::data::itemName = "data";
 
 
-LZFIN::LZFIN( ) : ParserKeyword("LZFIN")
-{
-  setFixedSize( (size_t) 1);
+LZFIN::LZFIN() : ParserKeyword("LZFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("LZFIN");

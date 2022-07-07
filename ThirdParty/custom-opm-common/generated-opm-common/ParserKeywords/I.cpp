@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/I.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/I.hpp>
 namespace Opm {
 namespace ParserKeywords {
-IHOST::IHOST( ) : ParserKeyword("IHOST")
-{
-  setSizeType(SLASH_TERMINATED);
+IHOST::IHOST() : ParserKeyword("IHOST", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("IHOST");
@@ -36,9 +35,7 @@ const std::string IHOST::PROCESS::itemName = "PROCESS";
 const int IHOST::PROCESS::defaultValue = 0;
 
 
-IMBNUM::IMBNUM( ) : ParserKeyword("IMBNUM")
-{
-  setFixedSize( (size_t) 1);
+IMBNUM::IMBNUM() : ParserKeyword("IMBNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("IMBNUM");
@@ -56,9 +53,7 @@ const std::string IMBNUM::keywordName = "IMBNUM";
 const std::string IMBNUM::data::itemName = "data";
 
 
-IMBNUMMF::IMBNUMMF( ) : ParserKeyword("IMBNUMMF")
-{
-  setFixedSize( (size_t) 1);
+IMBNUMMF::IMBNUMMF() : ParserKeyword("IMBNUMMF", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("IMBNUMMF");
@@ -76,10 +71,7 @@ const std::string IMBNUMMF::keywordName = "IMBNUMMF";
 const std::string IMBNUMMF::data::itemName = "data";
 
 
-IMKRVD::IMKRVD( ) : ParserKeyword("IMKRVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NUM_TABLES",0);
+IMKRVD::IMKRVD() : ParserKeyword("IMKRVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("IMKRVD");
@@ -105,10 +97,7 @@ const std::string IMKRVD::keywordName = "IMKRVD";
 const std::string IMKRVD::DATA::itemName = "DATA";
 
 
-IMPCVD::IMPCVD( ) : ParserKeyword("IMPCVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NTENDP",0);
+IMPCVD::IMPCVD() : ParserKeyword("IMPCVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("IMPCVD");
@@ -129,9 +118,7 @@ const std::string IMPCVD::keywordName = "IMPCVD";
 const std::string IMPCVD::DATA::itemName = "DATA";
 
 
-IMPES::IMPES( ) : ParserKeyword("IMPES")
-{
-  setFixedSize( (size_t) 0);
+IMPES::IMPES() : ParserKeyword("IMPES", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("IMPES");
@@ -139,9 +126,7 @@ IMPES::IMPES( ) : ParserKeyword("IMPES")
 const std::string IMPES::keywordName = "IMPES";
 
 
-IMPLICIT::IMPLICIT( ) : ParserKeyword("IMPLICIT")
-{
-  setFixedSize( (size_t) 0);
+IMPLICIT::IMPLICIT() : ParserKeyword("IMPLICIT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("IMPLICIT");
@@ -149,11 +134,9 @@ IMPLICIT::IMPLICIT( ) : ParserKeyword("IMPLICIT")
 const std::string IMPLICIT::keywordName = "IMPLICIT";
 
 
-IMPORT::IMPORT( ) : ParserKeyword("IMPORT")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("EDIT");
+IMPORT::IMPORT() : ParserKeyword("IMPORT", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
@@ -179,10 +162,7 @@ const std::string IMPORT::FORMATTED::itemName = "FORMATTED";
 const std::string IMPORT::FORMATTED::defaultValue = "UNFORMATTED";
 
 
-IMPTVD::IMPTVD( ) : ParserKeyword("IMPTVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NUM_TABLES",0);
+IMPTVD::IMPTVD() : ParserKeyword("IMPTVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("IMPTVD");
@@ -209,10 +189,7 @@ const std::string IMPTVD::keywordName = "IMPTVD";
 const std::string IMPTVD::DATA::itemName = "DATA";
 
 
-IMSPCVD::IMSPCVD( ) : ParserKeyword("IMSPCVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NTENDP",0);
+IMSPCVD::IMSPCVD() : ParserKeyword("IMSPCVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("IMSPCVD");
@@ -233,17 +210,15 @@ const std::string IMSPCVD::keywordName = "IMSPCVD";
 const std::string IMSPCVD::DATA::itemName = "DATA";
 
 
-INCLUDE::INCLUDE( ) : ParserKeyword("INCLUDE")
-{
-  setFixedSize( (size_t) 1);
+INCLUDE::INCLUDE() : ParserKeyword("INCLUDE", KeywordSize(1, false)) {
+  addValidSectionName("RUNSPEC");
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("INCLUDE");
   {
@@ -259,9 +234,7 @@ const std::string INCLUDE::keywordName = "INCLUDE";
 const std::string INCLUDE::IncludeFile::itemName = "IncludeFile";
 
 
-INIT::INIT( ) : ParserKeyword("INIT")
-{
-  setFixedSize( (size_t) 0);
+INIT::INIT() : ParserKeyword("INIT", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("INIT");
@@ -269,9 +242,7 @@ INIT::INIT( ) : ParserKeyword("INIT")
 const std::string INIT::keywordName = "INIT";
 
 
-INRAD::INRAD( ) : ParserKeyword("INRAD")
-{
-  setFixedSize( (size_t) 1);
+INRAD::INRAD() : ParserKeyword("INRAD", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("INRAD");
@@ -289,9 +260,7 @@ const std::string INRAD::keywordName = "INRAD";
 const std::string INRAD::RADIUS::itemName = "RADIUS";
 
 
-INSPEC::INSPEC( ) : ParserKeyword("INSPEC")
-{
-  setFixedSize( (size_t) 0);
+INSPEC::INSPEC() : ParserKeyword("INSPEC", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("INSPEC");
@@ -299,9 +268,7 @@ INSPEC::INSPEC( ) : ParserKeyword("INSPEC")
 const std::string INSPEC::keywordName = "INSPEC";
 
 
-INTPC::INTPC( ) : ParserKeyword("INTPC")
-{
-  setFixedSize( (size_t) 1);
+INTPC::INTPC() : ParserKeyword("INTPC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("INTPC");
@@ -320,9 +287,7 @@ const std::string INTPC::PHASE::itemName = "PHASE";
 const std::string INTPC::PHASE::defaultValue = "BOTH";
 
 
-IONROCK::IONROCK( ) : ParserKeyword("IONROCK")
-{
-  setFixedSize( (size_t) 1);
+IONROCK::IONROCK() : ParserKeyword("IONROCK", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("IONROCK");
@@ -340,10 +305,7 @@ const std::string IONROCK::keywordName = "IONROCK";
 const std::string IONROCK::data::itemName = "data";
 
 
-IONXROCK::IONXROCK( ) : ParserKeyword("IONXROCK")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+IONXROCK::IONXROCK() : ParserKeyword("IONXROCK", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("IONXROCK");
@@ -359,13 +321,10 @@ IONXROCK::IONXROCK( ) : ParserKeyword("IONXROCK")
 }
 const std::string IONXROCK::keywordName = "IONXROCK";
 const std::string IONXROCK::VALUE::itemName = "VALUE";
-const double IONXROCK::VALUE::defaultValue = 0.000000;
+const double IONXROCK::VALUE::defaultValue = 0;
 
 
-IONXSURF::IONXSURF( ) : ParserKeyword("IONXSURF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+IONXSURF::IONXSURF() : ParserKeyword("IONXSURF", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("IONXSURF");
@@ -386,13 +345,14 @@ IONXSURF::IONXSURF( ) : ParserKeyword("IONXSURF")
 const std::string IONXSURF::keywordName = "IONXSURF";
 const std::string IONXSURF::MOLECULAR_WEIGHT::itemName = "MOLECULAR_WEIGHT";
 const std::string IONXSURF::ION_EXCH_CONST::itemName = "ION_EXCH_CONST";
-const double IONXSURF::ION_EXCH_CONST::defaultValue = 0.000000;
+const double IONXSURF::ION_EXCH_CONST::defaultValue = 0;
 
 
-IPCG::IPCG( ) : ParserKeyword("IPCG")
-{
-  setFixedSize( (size_t) 1);
+IPCG::IPCG() : ParserKeyword("IPCG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "ENDSCALE",
+  });
   clearDeckNames();
   addDeckName("IPCG");
   {
@@ -410,10 +370,11 @@ const std::string IPCG::keywordName = "IPCG";
 const std::string IPCG::data::itemName = "data";
 
 
-IPCW::IPCW( ) : ParserKeyword("IPCW")
-{
-  setFixedSize( (size_t) 1);
+IPCW::IPCW() : ParserKeyword("IPCW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "ENDSCALE",
+  });
   clearDeckNames();
   addDeckName("IPCW");
   {
@@ -431,9 +392,7 @@ const std::string IPCW::keywordName = "IPCW";
 const std::string IPCW::data::itemName = "data";
 
 
-ISGCR::ISGCR( ) : ParserKeyword("ISGCR")
-{
-  setFixedSize( (size_t) 1);
+ISGCR::ISGCR() : ParserKeyword("ISGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISGCR");
@@ -452,9 +411,7 @@ const std::string ISGCR::keywordName = "ISGCR";
 const std::string ISGCR::data::itemName = "data";
 
 
-ISGL::ISGL( ) : ParserKeyword("ISGL")
-{
-  setFixedSize( (size_t) 1);
+ISGL::ISGL() : ParserKeyword("ISGL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISGL");
@@ -473,9 +430,7 @@ const std::string ISGL::keywordName = "ISGL";
 const std::string ISGL::data::itemName = "data";
 
 
-ISGLPC::ISGLPC( ) : ParserKeyword("ISGLPC")
-{
-  setFixedSize( (size_t) 1);
+ISGLPC::ISGLPC() : ParserKeyword("ISGLPC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISGLPC");
@@ -494,9 +449,7 @@ const std::string ISGLPC::keywordName = "ISGLPC";
 const std::string ISGLPC::data::itemName = "data";
 
 
-ISGU::ISGU( ) : ParserKeyword("ISGU")
-{
-  setFixedSize( (size_t) 1);
+ISGU::ISGU() : ParserKeyword("ISGU", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISGU");
@@ -515,9 +468,7 @@ const std::string ISGU::keywordName = "ISGU";
 const std::string ISGU::data::itemName = "data";
 
 
-ISOGCR::ISOGCR( ) : ParserKeyword("ISOGCR")
-{
-  setFixedSize( (size_t) 1);
+ISOGCR::ISOGCR() : ParserKeyword("ISOGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISOGCR");
@@ -536,9 +487,7 @@ const std::string ISOGCR::keywordName = "ISOGCR";
 const std::string ISOGCR::data::itemName = "data";
 
 
-ISOLNUM::ISOLNUM( ) : ParserKeyword("ISOLNUM")
-{
-  setFixedSize( (size_t) 1);
+ISOLNUM::ISOLNUM() : ParserKeyword("ISOLNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("ISOLNUM");
@@ -556,9 +505,7 @@ const std::string ISOLNUM::keywordName = "ISOLNUM";
 const std::string ISOLNUM::data::itemName = "data";
 
 
-ISOWCR::ISOWCR( ) : ParserKeyword("ISOWCR")
-{
-  setFixedSize( (size_t) 1);
+ISOWCR::ISOWCR() : ParserKeyword("ISOWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISOWCR");
@@ -577,9 +524,7 @@ const std::string ISOWCR::keywordName = "ISOWCR";
 const std::string ISOWCR::data::itemName = "data";
 
 
-ISWCR::ISWCR( ) : ParserKeyword("ISWCR")
-{
-  setFixedSize( (size_t) 1);
+ISWCR::ISWCR() : ParserKeyword("ISWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISWCR");
@@ -598,9 +543,7 @@ const std::string ISWCR::keywordName = "ISWCR";
 const std::string ISWCR::data::itemName = "data";
 
 
-ISWL::ISWL( ) : ParserKeyword("ISWL")
-{
-  setFixedSize( (size_t) 1);
+ISWL::ISWL() : ParserKeyword("ISWL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISWL");
@@ -619,9 +562,7 @@ const std::string ISWL::keywordName = "ISWL";
 const std::string ISWL::data::itemName = "data";
 
 
-ISWLPC::ISWLPC( ) : ParserKeyword("ISWLPC")
-{
-  setFixedSize( (size_t) 1);
+ISWLPC::ISWLPC() : ParserKeyword("ISWLPC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISWLPC");
@@ -640,9 +581,7 @@ const std::string ISWLPC::keywordName = "ISWLPC";
 const std::string ISWLPC::data::itemName = "data";
 
 
-ISWU::ISWU( ) : ParserKeyword("ISWU")
-{
-  setFixedSize( (size_t) 1);
+ISWU::ISWU() : ParserKeyword("ISWU", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ISWU");

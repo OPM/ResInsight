@@ -1,9 +1,0 @@
-{
-  "name": "NINENUM",
-  "sections": [
-    "GRID"
-  ],
-  "data": {
-    "value_type": "INT"
-  }
-}

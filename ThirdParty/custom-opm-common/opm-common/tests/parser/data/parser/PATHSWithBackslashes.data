@@ -1,7 +1,0 @@
-INCLUDE
- 'include\foobackslash.inc'
-/
-
-INCLUDE
- '$FOOPATH\foo_target.inc'
-/
