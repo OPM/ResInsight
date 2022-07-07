@@ -117,7 +117,7 @@ static GuideRateProdTarget GuideRateProdTargetFromInt(int ecl_id);
 
 enum class GuideRateInjTarget {
     RATE = 1,
-    VOID = 2,
+    msvc_VOID = 2,
     NETV = 3,
     RESV = 4,
     POTN = 5,

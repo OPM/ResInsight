@@ -1116,7 +1116,7 @@ Group::GuideRateInjTarget Group::GuideRateInjTargetFromString( const std::string
     else if (stringValue == "RESV")
         return GuideRateInjTarget::RESV;
     else if (stringValue == "VOID")
-        return GuideRateInjTarget::VOID;
+        return GuideRateInjTarget::msvc_VOID;
     else if (stringValue == "NETV")
         return GuideRateInjTarget::NETV;
     else
@@ -1129,7 +1129,7 @@ int Group::GuideRateInjTargetToInt(GuideRateInjTarget target) {
         return 1;
     case GuideRateInjTarget::RESV:
         return 2;
-    case GuideRateInjTarget::VOID:
+    case GuideRateInjTarget::msvc_VOID:
         return 3;
     case GuideRateInjTarget::NETV:
         return 4;
@@ -1145,7 +1145,7 @@ Group::GuideRateInjTarget Group::GuideRateInjTargetFromInt(int ecl_id) {
     case 2:
         return GuideRateInjTarget::RESV;
     case 3:
-        return GuideRateInjTarget::VOID;
+        return GuideRateInjTarget::msvc_VOID;
     case 4:
         return GuideRateInjTarget::NETV;
     default:
