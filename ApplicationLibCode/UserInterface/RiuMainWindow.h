@@ -28,6 +28,7 @@
 #include <QEvent>
 #include <QLabel>
 #include <QPointer>
+#include <QString>
 
 #include <memory>
 #include <vector>
@@ -68,6 +69,11 @@ namespace ssihub
 {
 class Interface;
 }
+
+namespace ads
+{
+class CDockWidget;
+};
 
 //==================================================================================================
 //
@@ -171,7 +177,6 @@ private:
 
     caf::AnimationToolBar* m_animationToolBar;
 
-    RiuMdiArea*               m_mdiArea;
     RiuResultInfoPanel*       m_resultInfoPanel;
     RiuProcessMonitor*        m_processMonitor;
     QPointer<RiuMessagePanel> m_messagePanel;
@@ -182,7 +187,6 @@ private:
     RiuPvtPlotPanel*                         m_pvtPlotPanel;
     std::unique_ptr<RicGridCalculatorDialog> m_gridCalculatorDialog;
 
-    QMenu*       m_windowMenu;
     QLabel*      m_memoryCriticalWarning;
     QToolButton* m_memoryUsedButton;
     QLabel*      m_memoryTotalStatus;
@@ -269,5 +273,5 @@ private:
 
     QToolBar* m_holoLensToolBar;
 
-    std::vector<QPointer<QDockWidget>> m_additionalProjectViews;
+    std::vector<QPointer<ads::CDockWidget>> m_additionalProjectViews;
 };

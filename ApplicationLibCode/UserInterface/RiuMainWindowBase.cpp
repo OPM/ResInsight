@@ -25,6 +25,7 @@
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
+#include "RiuMdiArea.h"
 #include "RiuMdiSubWindow.h"
 
 #include "RimProject.h"
@@ -35,10 +36,14 @@
 #include "cafPdmUiTreeView.h"
 #include "cafQTreeViewStateSerializer.h"
 
+#include "DockWidget.h"
+
 #include <QAction>
-#include <QDockWidget>
+#include <QInputDialog>
 #include <QMdiArea>
 #include <QMdiSubWindow>
+#include <QMenu>
+#include <QMessageBox>
 #include <QSettings>
 #include <QTreeView>
 #include <QUndoStack>
@@ -52,8 +57,10 @@ RiuMainWindowBase::RiuMainWindowBase()
     , m_showFirstVisibleWindowMaximized( true )
     , m_blockSubWindowActivation( false )
     , m_blockSubWindowProjectTreeSelection( false )
+    , m_windowMenu( nullptr )
+    , m_mdiArea( nullptr )
 {
-    setDockNestingEnabled( true );
+    m_dockManager = new ads::CDockManager( this );
 
     if ( RiaPreferences::current()->useUndoRedo() && RiaApplication::enableDevelopmentFeatures() )
     {
@@ -84,6 +91,14 @@ RiuMainWindowBase::~RiuMainWindowBase()
     }
 
     m_projectTreeViews.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ads::CDockManager* RiuMainWindowBase::dockManager() const
+{
+    return m_dockManager;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -122,8 +137,9 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
     // Company and appname set through QCoreApplication
     QSettings settings;
 
-    QVariant winGeo = settings.value( QString( "%1/winGeometry" ).arg( registryFolderName() ) );
-    QVariant layout = settings.value( QString( "%1/dockAndToolBarLayout" ).arg( registryFolderName() ) );
+    QVariant winGeo    = settings.value( QString( "%1/winGeometry" ).arg( registryFolderName() ) );
+    QVariant layout    = settings.value( QString( "%1/toolBarLayout" ).arg( registryFolderName() ) );
+    QVariant dockState = settings.value( QString( "%1/dockLayout" ).arg( registryFolderName() ) );
 
     if ( winGeo.isValid() )
     {
@@ -135,6 +151,13 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
             }
         }
     }
+    if ( dockState.isValid() )
+    {
+        m_dockManager->restoreState( dockState.toByteArray(), 1 );
+    }
+
+    settings.beginGroup( registryFolderName() );
+    m_dockManager->loadPerspectives( settings );
 
     restoreDockWidgetVisibilities();
 }
@@ -161,13 +184,15 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
     settings.setValue( QString( "%1/winGeometry" ).arg( registryFolderName() ), winGeo );
 
     QByteArray layout = saveState( 0 );
-    settings.setValue( QString( "%1/dockAndToolBarLayout" ).arg( registryFolderName() ), layout );
+    settings.setValue( QString( "%1/toolBarLayout" ).arg( registryFolderName() ), layout );
 
     settings.setValue( QString( "%1/isMaximized" ).arg( registryFolderName() ), isMaximized() );
 
+    settings.setValue( QString( "%1/dockLayout" ).arg( registryFolderName() ), m_dockManager->saveState( 1 ) );
+
     if ( this->isVisible() )
     {
-        QVariant dockWindowVisibilities = RiuDockWidgetTools::dockWidgetsVisibility( this );
+        QVariant dockWindowVisibilities = RiuDockWidgetTools::dockWidgetsVisibility( this->dockManager() );
         QString  key                    = mainWindowDockWidgetSettingsKey( registryFolderName() );
 
         settings.setValue( key, dockWindowVisibilities );
@@ -201,7 +226,7 @@ void RiuMainWindowBase::restoreDockWidgetVisibilities()
     QString key = mainWindowDockWidgetSettingsKey( registryFolderName() );
 
     QVariant dockWindowVisibilities = settings.value( key );
-    RiuDockWidgetTools::applyDockWidgetVisibilities( this, dockWindowVisibilities.toMap() );
+    RiuDockWidgetTools::applyDockWidgetVisibilities( this->dockManager(), dockWindowVisibilities.toMap() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -226,9 +251,7 @@ void RiuMainWindowBase::showWindow()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::hideAllDockWidgets()
 {
-    QList<QDockWidget*> dockWidgets = findChildren<QDockWidget*>();
-
-    for ( QDockWidget* dock : dockWidgets )
+    for ( auto dock : dockManager()->dockWidgetsMap() )
     {
         if ( dock )
         {
@@ -258,7 +281,7 @@ void RiuMainWindowBase::selectAsCurrentItem( const caf::PdmObject* object, bool 
     if ( tv )
     {
         tv->selectAsCurrentItem( object );
-        QDockWidget* dw = dynamic_cast<QDockWidget*>( tv->parentWidget() );
+        ads::CDockWidget* dw = dynamic_cast<ads::CDockWidget*>( tv->parentWidget() );
         if ( dw )
         {
             dw->show();
@@ -405,7 +428,7 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 {
     if ( !sender() ) return;
 
-    auto dockWidget = dynamic_cast<QDockWidget*>( sender()->parent() );
+    auto dockWidget = dynamic_cast<ads::CDockWidget*>( sender()->parent() );
     if ( dockWidget )
     {
         if ( dockWidget->isVisible() )
@@ -584,4 +607,126 @@ void RiuMainWindowBase::restoreTreeViewStates( QString treeStateString, QString 
             tv->treeView()->setCurrentIndex( mi );
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+ads::CDockAreaWidget* RiuMainWindowBase::addTabbedWidgets( std::vector<ads::CDockWidget*> widgets,
+                                                           ads::DockWidgetArea            whereToDock,
+                                                           ads::CDockAreaWidget*          dockInside )
+{
+    ads::CDockAreaWidget* areaToDockIn = nullptr;
+
+    for ( auto widget : widgets )
+    {
+        if ( areaToDockIn )
+        {
+            m_dockManager->addDockWidgetTabToArea( widget, areaToDockIn );
+        }
+        else
+        {
+            areaToDockIn = m_dockManager->addDockWidget( whereToDock, widget, dockInside );
+        }
+    }
+    return areaToDockIn;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setDockLayout()
+{
+    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    if ( action )
+    {
+        QString layoutName = action->text();
+        dockManager()->openPerspective( layoutName );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::deleteDockLayout()
+{
+    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    if ( action )
+    {
+        QString name = action->text();
+
+        QString questionStr = "Are you sure you want to delete the window layout \"" + name + "\"?";
+        auto    reply       = QMessageBox::question( this,
+                                            "Delete Window Layout",
+                                            questionStr,
+                                            QMessageBox::Yes | QMessageBox::No,
+                                            QMessageBox::No );
+        if ( reply == QMessageBox::Yes )
+        {
+            dockManager()->removePerspective( name );
+            QSettings settings;
+            settings.beginGroup( registryFolderName() );
+            dockManager()->savePerspectives( settings );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::saveDockLayout()
+{
+    bool    ok = false;
+    QString name =
+        QInputDialog::getText( this, "Save Window Layout", "Give the window layout a name:", QLineEdit::Normal, "", &ok );
+    if ( ok && !name.isEmpty() )
+    {
+        dockManager()->addPerspective( name );
+        QSettings settings;
+        settings.beginGroup( registryFolderName() );
+        dockManager()->savePerspectives( settings );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
+{
+    QMenu* showHideMenu = m_windowMenu->addMenu( "Show/Hide Windows" );
+
+    for ( auto dock : dockManager()->dockWidgetsMap() )
+    {
+        showHideMenu->addAction( dock->toggleViewAction() );
+    }
+    m_windowMenu->addSeparator();
+
+    QAction* saveLayoutAction = m_windowMenu->addAction( "Save Window Layout..." );
+    connect( saveLayoutAction, SIGNAL( triggered() ), this, SLOT( saveDockLayout() ) );
+
+    QStringList names = dockManager()->perspectiveNames();
+    if ( names.size() > 0 )
+    {
+        QMenu* layoutsMenu      = m_windowMenu->addMenu( "Use Window Layout" );
+        QMenu* deleteLayoutMenu = m_windowMenu->addMenu( "Delete Window Layout" );
+
+        for ( auto& layout : names )
+        {
+            QAction* chooseLayoutAction = layoutsMenu->addAction( layout );
+            connect( chooseLayoutAction, SIGNAL( triggered() ), this, SLOT( setDockLayout() ) );
+            QAction* deleteLayoutAction = deleteLayoutMenu->addAction( layout );
+            connect( deleteLayoutAction, SIGNAL( triggered() ), this, SLOT( deleteDockLayout() ) );
+        }
+    }
+
+    m_windowMenu->addSeparator();
+    QAction* cascadeWindowsAction = new QAction( "Cascade Windows", this );
+    connect( cascadeWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( cascadeSubWindows() ) );
+
+    QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
+    connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
+
+    m_windowMenu->addAction( caf::CmdFeatureManager::instance()->action( "RicTilePlotWindowsFeature" ) );
+    m_windowMenu->addAction( cascadeWindowsAction );
+    m_windowMenu->addAction( closeAllSubWindowsAction );
 }

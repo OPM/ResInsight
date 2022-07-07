@@ -23,7 +23,6 @@
 #include <QPointer>
 #include <QWidget>
 
-class QDockWidget;
 class QPlainTextEdit;
 
 //==================================================================================================
@@ -36,7 +35,7 @@ class RiuMessagePanel : public QWidget
     Q_OBJECT
 
 public:
-    explicit RiuMessagePanel( QDockWidget* parent );
+    explicit RiuMessagePanel( QWidget* parent );
 
     void  addMessage( RILogLevel messageLevel, const QString& msg );
     QSize sizeHint() const override;

@@ -22,7 +22,8 @@
 
 #include "RiuGuiTheme.h"
 
-#include <QDockWidget>
+#include "DockWidget.h"
+
 #include <QMenu>
 #include <QPlainTextEdit>
 #include <QThread>
@@ -37,7 +38,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuMessagePanel::RiuMessagePanel( QDockWidget* parent )
+RiuMessagePanel::RiuMessagePanel( QWidget* parent )
     : QWidget( parent )
 {
     QVBoxLayout* layout = new QVBoxLayout( this );
@@ -80,7 +81,7 @@ void RiuMessagePanel::addMessage( RILogLevel messageLevel, const QString& msg )
     {
         if ( messageLevel == RILogLevel::RI_LL_ERROR || messageLevel == RILogLevel::RI_LL_WARNING )
         {
-            QDockWidget* parentDockWidget = dynamic_cast<QDockWidget*>( this->parent() );
+            ads::CDockWidget* parentDockWidget = dynamic_cast<ads::CDockWidget*>( this->parent() );
             if ( parentDockWidget && !parentDockWidget->isVisible() )
             {
                 parentDockWidget->toggleViewAction()->trigger();
@@ -104,7 +105,7 @@ void RiuMessagePanel::slotShowContextMenu( const QPoint& pos )
 {
     QMenu menu;
 
-    // Reworked from implemenmtation in  QTextControl::createStandardContextMenu()
+    // Reworked from implementation in  QTextControl::createStandardContextMenu()
     {
         QAction* a = menu.addAction( "&Copy", m_textEdit, SLOT( copy() ), QKeySequence::Copy );
         a->setEnabled( m_textEdit->textCursor().hasSelection() );
@@ -211,7 +212,7 @@ void RiuMessagePanelLogger::writeToMessagePanel( RILogLevel messageLevel, const 
         return;
     }
 
-    for ( auto panel : m_messagePanel )
+    for ( auto& panel : m_messagePanel )
     {
         if ( panel )
         {

@@ -989,7 +989,6 @@ void RiaGuiApplication::createMainPlotWindow()
     m_mainPlotWindow->setWindowTitle( "Plots - ResInsight" );
     m_mainPlotWindow->setDefaultWindowSize();
     m_mainPlotWindow->loadWinGeoAndDockToolBarLayout();
-    m_mainPlotWindow->hideAllDockWidgets();
 }
 
 //--------------------------------------------------------------------------------------------------
