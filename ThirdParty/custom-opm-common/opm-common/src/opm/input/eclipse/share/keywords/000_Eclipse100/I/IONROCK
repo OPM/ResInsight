@@ -1,9 +1,0 @@
-{
-  "name": "IONROCK",
-  "sections": [
-    "GRID"
-  ],
-  "data": {
-    "value_type": "DOUBLE"
-  }
-}

@@ -1,8 +1,0 @@
-THROW
-  -- This keyword should raise an exception in the parser
-  Some data /     
-/  
-
-
-
-
