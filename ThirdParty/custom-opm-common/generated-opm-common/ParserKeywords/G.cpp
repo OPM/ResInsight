@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/G.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/G.hpp>
 namespace Opm {
 namespace ParserKeywords {
-GAS::GAS( ) : ParserKeyword("GAS")
-{
-  setFixedSize( (size_t) 0);
+GAS::GAS() : ParserKeyword("GAS", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GAS");
@@ -20,9 +19,7 @@ GAS::GAS( ) : ParserKeyword("GAS")
 const std::string GAS::keywordName = "GAS";
 
 
-GASBEGIN::GASBEGIN( ) : ParserKeyword("GASBEGIN")
-{
-  setFixedSize( (size_t) 0);
+GASBEGIN::GASBEGIN() : ParserKeyword("GASBEGIN", KeywordSize(0, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASBEGIN");
@@ -30,9 +27,7 @@ GASBEGIN::GASBEGIN( ) : ParserKeyword("GASBEGIN")
 const std::string GASBEGIN::keywordName = "GASBEGIN";
 
 
-GASCONC::GASCONC( ) : ParserKeyword("GASCONC")
-{
-  setFixedSize( (size_t) 1);
+GASCONC::GASCONC() : ParserKeyword("GASCONC", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("GASCONC");
@@ -51,10 +46,7 @@ const std::string GASCONC::keywordName = "GASCONC";
 const std::string GASCONC::data::itemName = "data";
 
 
-GASDENT::GASDENT( ) : ParserKeyword("GASDENT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+GASDENT::GASDENT() : ParserKeyword("GASDENT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("GASDENT");
@@ -85,14 +77,12 @@ const std::string GASDENT::keywordName = "GASDENT";
 const std::string GASDENT::REFERENCE_TEMPERATURE::itemName = "REFERENCE_TEMPERATURE";
 const double GASDENT::REFERENCE_TEMPERATURE::defaultValue = 293.150000;
 const std::string GASDENT::EXPANSION_COEFF_LINEAR::itemName = "EXPANSION_COEFF_LINEAR";
-const double GASDENT::EXPANSION_COEFF_LINEAR::defaultValue = 0.000000;
+const double GASDENT::EXPANSION_COEFF_LINEAR::defaultValue = 0;
 const std::string GASDENT::EXPANSION_COEFF_QUADRATIC::itemName = "EXPANSION_COEFF_QUADRATIC";
-const double GASDENT::EXPANSION_COEFF_QUADRATIC::defaultValue = 0.000000;
+const double GASDENT::EXPANSION_COEFF_QUADRATIC::defaultValue = 0;
 
 
-GASEND::GASEND( ) : ParserKeyword("GASEND")
-{
-  setFixedSize( (size_t) 0);
+GASEND::GASEND() : ParserKeyword("GASEND", KeywordSize(0, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASEND");
@@ -100,9 +90,7 @@ GASEND::GASEND( ) : ParserKeyword("GASEND")
 const std::string GASEND::keywordName = "GASEND";
 
 
-GASFCOMP::GASFCOMP( ) : ParserKeyword("GASFCOMP")
-{
-  setSizeType(SLASH_TERMINATED);
+GASFCOMP::GASFCOMP() : ParserKeyword("GASFCOMP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASFCOMP");
@@ -146,18 +134,16 @@ const std::string GASFCOMP::GROUP::itemName = "GROUP";
 const std::string GASFCOMP::VFP_TABLE_NUM::itemName = "VFP_TABLE_NUM";
 const int GASFCOMP::VFP_TABLE_NUM::defaultValue = 0;
 const std::string GASFCOMP::ARTFICIAL_LIFT_QNTY::itemName = "ARTFICIAL_LIFT_QNTY";
-const double GASFCOMP::ARTFICIAL_LIFT_QNTY::defaultValue = 0.000000;
+const double GASFCOMP::ARTFICIAL_LIFT_QNTY::defaultValue = 0;
 const std::string GASFCOMP::GAS_CONSUMPTION_RATE::itemName = "GAS_CONSUMPTION_RATE";
-const double GASFCOMP::GAS_CONSUMPTION_RATE::defaultValue = 0.000000;
+const double GASFCOMP::GAS_CONSUMPTION_RATE::defaultValue = 0;
 const std::string GASFCOMP::COMPRESSION_LVL::itemName = "COMPRESSION_LVL";
 const int GASFCOMP::COMPRESSION_LVL::defaultValue = 1;
 const std::string GASFCOMP::ACTION_SEQ_NUM::itemName = "ACTION_SEQ_NUM";
 const int GASFCOMP::ACTION_SEQ_NUM::defaultValue = 1;
 
 
-GASFDECR::GASFDECR( ) : ParserKeyword("GASFDECR")
-{
-  setFixedSize( (size_t) 1);
+GASFDECR::GASFDECR() : ParserKeyword("GASFDECR", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASFDECR");
@@ -228,34 +214,32 @@ GASFDECR::GASFDECR( ) : ParserKeyword("GASFDECR")
 }
 const std::string GASFDECR::keywordName = "GASFDECR";
 const std::string GASFDECR::JAN::itemName = "JAN";
-const double GASFDECR::JAN::defaultValue = 0.000000;
+const double GASFDECR::JAN::defaultValue = 0;
 const std::string GASFDECR::FEB::itemName = "FEB";
-const double GASFDECR::FEB::defaultValue = 0.000000;
+const double GASFDECR::FEB::defaultValue = 0;
 const std::string GASFDECR::MAR::itemName = "MAR";
-const double GASFDECR::MAR::defaultValue = 0.000000;
+const double GASFDECR::MAR::defaultValue = 0;
 const std::string GASFDECR::APR::itemName = "APR";
-const double GASFDECR::APR::defaultValue = 0.000000;
+const double GASFDECR::APR::defaultValue = 0;
 const std::string GASFDECR::MAY::itemName = "MAY";
-const double GASFDECR::MAY::defaultValue = 0.000000;
+const double GASFDECR::MAY::defaultValue = 0;
 const std::string GASFDECR::JUN::itemName = "JUN";
-const double GASFDECR::JUN::defaultValue = 0.000000;
+const double GASFDECR::JUN::defaultValue = 0;
 const std::string GASFDECR::JUL::itemName = "JUL";
-const double GASFDECR::JUL::defaultValue = 0.000000;
+const double GASFDECR::JUL::defaultValue = 0;
 const std::string GASFDECR::AUG::itemName = "AUG";
-const double GASFDECR::AUG::defaultValue = 0.000000;
+const double GASFDECR::AUG::defaultValue = 0;
 const std::string GASFDECR::SEP::itemName = "SEP";
-const double GASFDECR::SEP::defaultValue = 0.000000;
+const double GASFDECR::SEP::defaultValue = 0;
 const std::string GASFDECR::OCT::itemName = "OCT";
-const double GASFDECR::OCT::defaultValue = 0.000000;
+const double GASFDECR::OCT::defaultValue = 0;
 const std::string GASFDECR::NOV::itemName = "NOV";
-const double GASFDECR::NOV::defaultValue = 0.000000;
+const double GASFDECR::NOV::defaultValue = 0;
 const std::string GASFDECR::DEC::itemName = "DEC";
-const double GASFDECR::DEC::defaultValue = 0.000000;
+const double GASFDECR::DEC::defaultValue = 0;
 
 
-GASFDELC::GASFDELC( ) : ParserKeyword("GASFDELC")
-{
-  setFixedSize( (size_t) 1);
+GASFDELC::GASFDELC() : ParserKeyword("GASFDELC", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASFDELC");
@@ -272,9 +256,7 @@ const std::string GASFDELC::keywordName = "GASFDELC";
 const std::string GASFDELC::VALUE::itemName = "VALUE";
 
 
-GASFIELD::GASFIELD( ) : ParserKeyword("GASFIELD")
-{
-  setFixedSize( (size_t) 1);
+GASFIELD::GASFIELD() : ParserKeyword("GASFIELD", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GASFIELD");
@@ -300,9 +282,7 @@ const std::string GASFIELD::FLAG_IT::itemName = "FLAG_IT";
 const std::string GASFIELD::FLAG_IT::defaultValue = "NO";
 
 
-GASFTARG::GASFTARG( ) : ParserKeyword("GASFTARG")
-{
-  setFixedSize( (size_t) 1);
+GASFTARG::GASFTARG() : ParserKeyword("GASFTARG", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASFTARG");
@@ -386,9 +366,35 @@ const std::string GASFTARG::NOV::itemName = "NOV";
 const std::string GASFTARG::DEC::itemName = "DEC";
 
 
-GASMONTH::GASMONTH( ) : ParserKeyword("GASMONTH")
-{
-  setFixedSize( (size_t) 1);
+GASJT::GASJT() : ParserKeyword("GASJT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("GASJT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("PREF", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.013200) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("JOULE_THOMSON_COEFFICIENT", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Temperature/Pressure");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string GASJT::keywordName = "GASJT";
+const std::string GASJT::PREF::itemName = "PREF";
+const double GASJT::PREF::defaultValue = 1.013200;
+const std::string GASJT::JOULE_THOMSON_COEFFICIENT::itemName = "JOULE_THOMSON_COEFFICIENT";
+const double GASJT::JOULE_THOMSON_COEFFICIENT::defaultValue = 0;
+
+
+GASMONTH::GASMONTH() : ParserKeyword("GASMONTH", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASMONTH");
@@ -412,9 +418,7 @@ const std::string GASMONTH::WRITE_REPORT::itemName = "WRITE_REPORT";
 const std::string GASMONTH::WRITE_REPORT::defaultValue = "NO";
 
 
-GASPERIO::GASPERIO( ) : ParserKeyword("GASPERIO")
-{
-  setFixedSize( (size_t) 1);
+GASPERIO::GASPERIO() : ParserKeyword("GASPERIO", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASPERIO");
@@ -479,7 +483,7 @@ const std::string GASPERIO::SWING_REQ::defaultValue = "PER";
 const std::string GASPERIO::LIMIT_TIMESTEPS::itemName = "LIMIT_TIMESTEPS";
 const std::string GASPERIO::LIMIT_TIMESTEPS::defaultValue = "YES";
 const std::string GASPERIO::LIMIT_DCQ_RED_FACTOR::itemName = "LIMIT_DCQ_RED_FACTOR";
-const double GASPERIO::LIMIT_DCQ_RED_FACTOR::defaultValue = 0.000000;
+const double GASPERIO::LIMIT_DCQ_RED_FACTOR::defaultValue = 0;
 const std::string GASPERIO::ANTICIPATED_DCQ_RED_FACTOR::itemName = "ANTICIPATED_DCQ_RED_FACTOR";
 const double GASPERIO::ANTICIPATED_DCQ_RED_FACTOR::defaultValue = 1.000000;
 const std::string GASPERIO::MAX_ITERATIONS::itemName = "MAX_ITERATIONS";
@@ -488,9 +492,7 @@ const std::string GASPERIO::DCQ_CONV_TOLERANCE::itemName = "DCQ_CONV_TOLERANCE";
 const double GASPERIO::DCQ_CONV_TOLERANCE::defaultValue = 0.100000;
 
 
-GASSATC::GASSATC( ) : ParserKeyword("GASSATC")
-{
-  setFixedSize( (size_t) 1);
+GASSATC::GASSATC() : ParserKeyword("GASSATC", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("GASSATC");
@@ -509,10 +511,7 @@ const std::string GASSATC::keywordName = "GASSATC";
 const std::string GASSATC::data::itemName = "data";
 
 
-GASVISCT::GASVISCT( ) : ParserKeyword("GASVISCT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+GASVISCT::GASVISCT() : ParserKeyword("GASVISCT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("GASVISCT");
@@ -531,9 +530,7 @@ const std::string GASVISCT::keywordName = "GASVISCT";
 const std::string GASVISCT::DATA::itemName = "DATA";
 
 
-GASYEAR::GASYEAR( ) : ParserKeyword("GASYEAR")
-{
-  setFixedSize( (size_t) 1);
+GASYEAR::GASYEAR() : ParserKeyword("GASYEAR", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GASYEAR");
@@ -591,7 +588,7 @@ const std::string GASYEAR::SWING_REQ::defaultValue = "YEAR";
 const std::string GASYEAR::LIMIT_TIMESTEPS::itemName = "LIMIT_TIMESTEPS";
 const std::string GASYEAR::LIMIT_TIMESTEPS::defaultValue = "YES";
 const std::string GASYEAR::LIMIT_DCQ_RED_FACTOR::itemName = "LIMIT_DCQ_RED_FACTOR";
-const double GASYEAR::LIMIT_DCQ_RED_FACTOR::defaultValue = 0.000000;
+const double GASYEAR::LIMIT_DCQ_RED_FACTOR::defaultValue = 0;
 const std::string GASYEAR::ANTICIPATED_DCQ_RED_FACTOR::itemName = "ANTICIPATED_DCQ_RED_FACTOR";
 const double GASYEAR::ANTICIPATED_DCQ_RED_FACTOR::defaultValue = 1.000000;
 const std::string GASYEAR::MAX_ITERATIONS::itemName = "MAX_ITERATIONS";
@@ -600,9 +597,7 @@ const std::string GASYEAR::DCQ_CONV_TOLERANCE::itemName = "DCQ_CONV_TOLERANCE";
 const double GASYEAR::DCQ_CONV_TOLERANCE::defaultValue = 0.100000;
 
 
-GCALECON::GCALECON( ) : ParserKeyword("GCALECON")
-{
-  setSizeType(SLASH_TERMINATED);
+GCALECON::GCALECON() : ParserKeyword("GCALECON", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCALECON");
@@ -635,16 +630,14 @@ GCALECON::GCALECON( ) : ParserKeyword("GCALECON")
 const std::string GCALECON::keywordName = "GCALECON";
 const std::string GCALECON::GROUP::itemName = "GROUP";
 const std::string GCALECON::MIN_ENERGY_PROD_RATE::itemName = "MIN_ENERGY_PROD_RATE";
-const double GCALECON::MIN_ENERGY_PROD_RATE::defaultValue = 0.000000;
+const double GCALECON::MIN_ENERGY_PROD_RATE::defaultValue = 0;
 const std::string GCALECON::MIN_CALORIFIC_VAL::itemName = "MIN_CALORIFIC_VAL";
-const double GCALECON::MIN_CALORIFIC_VAL::defaultValue = 0.000000;
+const double GCALECON::MIN_CALORIFIC_VAL::defaultValue = 0;
 const std::string GCALECON::FLAG_END_RUN::itemName = "FLAG_END_RUN";
 const std::string GCALECON::FLAG_END_RUN::defaultValue = "NO";
 
 
-GCOMPIDX::GCOMPIDX( ) : ParserKeyword("GCOMPIDX")
-{
-  setFixedSize( (size_t) 1);
+GCOMPIDX::GCOMPIDX() : ParserKeyword("GCOMPIDX", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GCOMPIDX");
@@ -661,9 +654,7 @@ const std::string GCOMPIDX::keywordName = "GCOMPIDX";
 const std::string GCOMPIDX::GAS_COMPONENT_INDEX::itemName = "GAS_COMPONENT_INDEX";
 
 
-GCONCAL::GCONCAL( ) : ParserKeyword("GCONCAL")
-{
-  setSizeType(SLASH_TERMINATED);
+GCONCAL::GCONCAL() : ParserKeyword("GCONCAL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCONCAL");
@@ -701,9 +692,7 @@ const std::string GCONCAL::RATE_RED_FACTOR::itemName = "RATE_RED_FACTOR";
 const double GCONCAL::RATE_RED_FACTOR::defaultValue = 0.900000;
 
 
-GCONENG::GCONENG( ) : ParserKeyword("GCONENG")
-{
-  setSizeType(SLASH_TERMINATED);
+GCONENG::GCONENG() : ParserKeyword("GCONENG", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCONENG");
@@ -728,9 +717,7 @@ const std::string GCONENG::ENERGY_PROD_RATE::itemName = "ENERGY_PROD_RATE";
 const double GCONENG::ENERGY_PROD_RATE::defaultValue = 100000000000000000000.000000;
 
 
-GCONINJE::GCONINJE( ) : ParserKeyword("GCONINJE")
-{
-  setSizeType(SLASH_TERMINATED);
+GCONINJE::GCONINJE() : ParserKeyword("GCONINJE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCONINJE");
@@ -773,18 +760,18 @@ GCONINJE::GCONINJE( ) : ParserKeyword("GCONINJE")
         record.addItem(item);
      }
      {
-        ParserItem item("FREE", ParserItem::itype::STRING);
+        ParserItem item("RESPOND_TO_PARENT", ParserItem::itype::STRING);
         item.setDefault( std::string("YES") );
         record.addItem(item);
      }
      {
-        ParserItem item("GUIDE_FRACTION", ParserItem::itype::DOUBLE);
+        ParserItem item("GUIDE_RATE", ParserItem::itype::DOUBLE);
         item.setDefault( double(0) );
         item.push_backDimension("1");
         record.addItem(item);
      }
      {
-        ParserItem item("GUIDE_DEF", ParserItem::itype::STRING);
+        ParserItem item("GUIDE_RATE_DEF", ParserItem::itype::STRING);
         record.addItem(item);
      }
      {
@@ -809,26 +796,24 @@ const std::string GCONINJE::PHASE::itemName = "PHASE";
 const std::string GCONINJE::CONTROL_MODE::itemName = "CONTROL_MODE";
 const std::string GCONINJE::CONTROL_MODE::defaultValue = "NONE";
 const std::string GCONINJE::SURFACE_TARGET::itemName = "SURFACE_TARGET";
-const UDAValue GCONINJE::SURFACE_TARGET::defaultValue = UDAValue(0.000000);
+const UDAValue GCONINJE::SURFACE_TARGET::defaultValue = UDAValue(0);
 const std::string GCONINJE::RESV_TARGET::itemName = "RESV_TARGET";
-const UDAValue GCONINJE::RESV_TARGET::defaultValue = UDAValue(0.000000);
+const UDAValue GCONINJE::RESV_TARGET::defaultValue = UDAValue(0);
 const std::string GCONINJE::REINJ_TARGET::itemName = "REINJ_TARGET";
-const UDAValue GCONINJE::REINJ_TARGET::defaultValue = UDAValue(0.000000);
+const UDAValue GCONINJE::REINJ_TARGET::defaultValue = UDAValue(0);
 const std::string GCONINJE::VOIDAGE_TARGET::itemName = "VOIDAGE_TARGET";
-const UDAValue GCONINJE::VOIDAGE_TARGET::defaultValue = UDAValue(0.000000);
-const std::string GCONINJE::FREE::itemName = "FREE";
-const std::string GCONINJE::FREE::defaultValue = "YES";
-const std::string GCONINJE::GUIDE_FRACTION::itemName = "GUIDE_FRACTION";
-const double GCONINJE::GUIDE_FRACTION::defaultValue = 0.000000;
-const std::string GCONINJE::GUIDE_DEF::itemName = "GUIDE_DEF";
+const UDAValue GCONINJE::VOIDAGE_TARGET::defaultValue = UDAValue(0);
+const std::string GCONINJE::RESPOND_TO_PARENT::itemName = "RESPOND_TO_PARENT";
+const std::string GCONINJE::RESPOND_TO_PARENT::defaultValue = "YES";
+const std::string GCONINJE::GUIDE_RATE::itemName = "GUIDE_RATE";
+const double GCONINJE::GUIDE_RATE::defaultValue = 0;
+const std::string GCONINJE::GUIDE_RATE_DEF::itemName = "GUIDE_RATE_DEF";
 const std::string GCONINJE::REINJECT_GROUP::itemName = "REINJECT_GROUP";
 const std::string GCONINJE::VOIDAGE_GROUP::itemName = "VOIDAGE_GROUP";
 const std::string GCONINJE::WETGAS_TARGET::itemName = "WETGAS_TARGET";
 
 
-GCONPRI::GCONPRI( ) : ParserKeyword("GCONPRI")
-{
-  setSizeType(SLASH_TERMINATED);
+GCONPRI::GCONPRI() : ParserKeyword("GCONPRI", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCONPRI");
@@ -966,9 +951,7 @@ const std::string GCONPRI::PROCEDURE_LIMIT::itemName = "PROCEDURE_LIMIT";
 const std::string GCONPRI::PROCEDURE_LIMIT::defaultValue = "NONE";
 
 
-GCONPROD::GCONPROD( ) : ParserKeyword("GCONPROD")
-{
-  setSizeType(SLASH_TERMINATED);
+GCONPROD::GCONPROD() : ParserKeyword("GCONPROD", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCONPROD");
@@ -985,25 +968,21 @@ GCONPROD::GCONPROD( ) : ParserKeyword("GCONPROD")
      }
      {
         ParserItem item("OIL_TARGET", ParserItem::itype::UDA);
-        item.setDefault( UDAValue(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000) );
         item.push_backDimension("LiquidSurfaceVolume/Time");
         record.addItem(item);
      }
      {
         ParserItem item("WATER_TARGET", ParserItem::itype::UDA);
-        item.setDefault( UDAValue(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000) );
         item.push_backDimension("LiquidSurfaceVolume/Time");
         record.addItem(item);
      }
      {
         ParserItem item("GAS_TARGET", ParserItem::itype::UDA);
-        item.setDefault( UDAValue(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000) );
         item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
      {
         ParserItem item("LIQUID_TARGET", ParserItem::itype::UDA);
-        item.setDefault( UDAValue(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000) );
         item.push_backDimension("LiquidSurfaceVolume/Time");
         record.addItem(item);
      }
@@ -1039,7 +1018,6 @@ GCONPROD::GCONPROD( ) : ParserKeyword("GCONPROD")
      }
      {
         ParserItem item("RESERVOIR_FLUID_TARGET", ParserItem::itype::DOUBLE);
-        item.setDefault( double(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000) );
         item.push_backDimension("ReservoirVolume/Time");
         record.addItem(item);
      }
@@ -1085,13 +1063,9 @@ const std::string GCONPROD::GROUP::itemName = "GROUP";
 const std::string GCONPROD::CONTROL_MODE::itemName = "CONTROL_MODE";
 const std::string GCONPROD::CONTROL_MODE::defaultValue = "NONE";
 const std::string GCONPROD::OIL_TARGET::itemName = "OIL_TARGET";
-const UDAValue GCONPROD::OIL_TARGET::defaultValue = UDAValue(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000);
 const std::string GCONPROD::WATER_TARGET::itemName = "WATER_TARGET";
-const UDAValue GCONPROD::WATER_TARGET::defaultValue = UDAValue(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000);
 const std::string GCONPROD::GAS_TARGET::itemName = "GAS_TARGET";
-const UDAValue GCONPROD::GAS_TARGET::defaultValue = UDAValue(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000);
 const std::string GCONPROD::LIQUID_TARGET::itemName = "LIQUID_TARGET";
-const UDAValue GCONPROD::LIQUID_TARGET::defaultValue = UDAValue(-9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000);
 const std::string GCONPROD::EXCEED_PROC::itemName = "EXCEED_PROC";
 const std::string GCONPROD::EXCEED_PROC::defaultValue = "NONE";
 const std::string GCONPROD::RESPOND_TO_PARENT::itemName = "RESPOND_TO_PARENT";
@@ -1102,7 +1076,6 @@ const std::string GCONPROD::WATER_EXCEED_PROCEDURE::itemName = "WATER_EXCEED_PRO
 const std::string GCONPROD::GAS_EXCEED_PROCEDURE::itemName = "GAS_EXCEED_PROCEDURE";
 const std::string GCONPROD::LIQUID_EXCEED_PROCEDURE::itemName = "LIQUID_EXCEED_PROCEDURE";
 const std::string GCONPROD::RESERVOIR_FLUID_TARGET::itemName = "RESERVOIR_FLUID_TARGET";
-const double GCONPROD::RESERVOIR_FLUID_TARGET::defaultValue = -9989999999999999764508097064678579891241680670206998059982957902605768119280291502755086619213633159168.000000;
 const std::string GCONPROD::RESERVOIR_VOLUME_BALANCE::itemName = "RESERVOIR_VOLUME_BALANCE";
 const std::string GCONPROD::WET_GAS_TARGET::itemName = "WET_GAS_TARGET";
 const std::string GCONPROD::CALORIFIC_TARGET::itemName = "CALORIFIC_TARGET";
@@ -1112,9 +1085,7 @@ const std::string GCONPROD::LINEAR_COMBINED_TARGET::itemName = "LINEAR_COMBINED_
 const std::string GCONPROD::LIN_TARGET_EXCEED_PROCEDURE::itemName = "LIN_TARGET_EXCEED_PROCEDURE";
 
 
-GCONSALE::GCONSALE( ) : ParserKeyword("GCONSALE")
-{
-  setSizeType(SLASH_TERMINATED);
+GCONSALE::GCONSALE() : ParserKeyword("GCONSALE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCONSALE");
@@ -1160,9 +1131,7 @@ const std::string GCONSALE::MAX_PROC::itemName = "MAX_PROC";
 const std::string GCONSALE::MAX_PROC::defaultValue = "NONE";
 
 
-GCONSUMP::GCONSUMP( ) : ParserKeyword("GCONSUMP")
-{
-  setSizeType(SLASH_TERMINATED);
+GCONSUMP::GCONSUMP() : ParserKeyword("GCONSUMP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCONSUMP");
@@ -1174,11 +1143,13 @@ GCONSUMP::GCONSUMP( ) : ParserKeyword("GCONSUMP")
      }
      {
         ParserItem item("GAS_CONSUMP_RATE", ParserItem::itype::UDA);
+        item.setDefault( UDAValue(0) );
         item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
      {
         ParserItem item("GAS_IMPORT_RATE", ParserItem::itype::UDA);
+        item.setDefault( UDAValue(0) );
         item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
@@ -1192,13 +1163,13 @@ GCONSUMP::GCONSUMP( ) : ParserKeyword("GCONSUMP")
 const std::string GCONSUMP::keywordName = "GCONSUMP";
 const std::string GCONSUMP::GROUP::itemName = "GROUP";
 const std::string GCONSUMP::GAS_CONSUMP_RATE::itemName = "GAS_CONSUMP_RATE";
+const UDAValue GCONSUMP::GAS_CONSUMP_RATE::defaultValue = UDAValue(0);
 const std::string GCONSUMP::GAS_IMPORT_RATE::itemName = "GAS_IMPORT_RATE";
+const UDAValue GCONSUMP::GAS_IMPORT_RATE::defaultValue = UDAValue(0);
 const std::string GCONSUMP::NETWORK_NODE::itemName = "NETWORK_NODE";
 
 
-GCONTOL::GCONTOL( ) : ParserKeyword("GCONTOL")
-{
-  setFixedSize( (size_t) 1);
+GCONTOL::GCONTOL() : ParserKeyword("GCONTOL", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCONTOL");
@@ -1234,9 +1205,7 @@ const std::string GCONTOL::MAX_IT_INJ::itemName = "MAX_IT_INJ";
 const int GCONTOL::MAX_IT_INJ::defaultValue = 5;
 
 
-GCUTBACK::GCUTBACK( ) : ParserKeyword("GCUTBACK")
-{
-  setSizeType(SLASH_TERMINATED);
+GCUTBACK::GCUTBACK() : ParserKeyword("GCUTBACK", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCUTBACK");
@@ -1288,9 +1257,7 @@ const std::string GCUTBACK::RATE_CUTBACK_FACTOR::itemName = "RATE_CUTBACK_FACTOR
 const std::string GCUTBACK::CONTROL_PHASE::itemName = "CONTROL_PHASE";
 
 
-GCUTBACT::GCUTBACT( ) : ParserKeyword("GCUTBACT")
-{
-  setSizeType(DOUBLE_SLASH_TERMINATED);
+GCUTBACT::GCUTBACT() : ParserKeyword("GCUTBACT", KeywordSize(DOUBLE_SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GCUTBACT");
@@ -1360,10 +1327,7 @@ const std::string GCUTBACT::LOWER_CONC_LIM::itemName = "LOWER_CONC_LIM";
 const double GCUTBACT::LOWER_CONC_LIM::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 
 
-GCVD::GCVD( ) : ParserKeyword("GCVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+GCVD::GCVD() : ParserKeyword("GCVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("GCVD");
@@ -1383,9 +1347,7 @@ const std::string GCVD::keywordName = "GCVD";
 const std::string GCVD::DATA::itemName = "DATA";
 
 
-GDCQ::GDCQ( ) : ParserKeyword("GDCQ")
-{
-  setSizeType(SLASH_TERMINATED);
+GDCQ::GDCQ() : ParserKeyword("GDCQ", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GDCQ");
@@ -1414,9 +1376,7 @@ const std::string GDCQ::DCQ_TYPE::itemName = "DCQ_TYPE";
 const std::string GDCQ::DCQ_TYPE::defaultValue = "VAR";
 
 
-GDCQECON::GDCQECON( ) : ParserKeyword("GDCQECON")
-{
-  setSizeType(SLASH_TERMINATED);
+GDCQECON::GDCQECON() : ParserKeyword("GDCQECON", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GDCQECON");
@@ -1438,10 +1398,12 @@ const std::string GDCQECON::GROUP_NAME::itemName = "GROUP_NAME";
 const std::string GDCQECON::MIN_DCQ::itemName = "MIN_DCQ";
 
 
-GDFILE::GDFILE( ) : ParserKeyword("GDFILE")
-{
-  setFixedSize( (size_t) 1);
+GDFILE::GDFILE() : ParserKeyword("GDFILE", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  setProhibitedKeywords({
+    "COORD",
+    "ZCORN",
+  });
   clearDeckNames();
   addDeckName("GDFILE");
   {
@@ -1464,9 +1426,7 @@ const std::string GDFILE::formatted::itemName = "formatted";
 const std::string GDFILE::formatted::defaultValue = "U";
 
 
-GDIMS::GDIMS( ) : ParserKeyword("GDIMS")
-{
-  setFixedSize( (size_t) 1);
+GDIMS::GDIMS() : ParserKeyword("GDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GDIMS");
@@ -1485,9 +1445,7 @@ const std::string GDIMS::MAX_NUM_GRAD_PARAMS::itemName = "MAX_NUM_GRAD_PARAMS";
 const int GDIMS::MAX_NUM_GRAD_PARAMS::defaultValue = 0;
 
 
-GDORIENT::GDORIENT( ) : ParserKeyword("GDORIENT")
-{
-  setFixedSize( (size_t) 1);
+GDORIENT::GDORIENT() : ParserKeyword("GDORIENT", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("GDORIENT");
@@ -1534,9 +1492,7 @@ const std::string GDORIENT::HAND::itemName = "HAND";
 const std::string GDORIENT::HAND::defaultValue = "RIGHT";
 
 
-GDRILPOT::GDRILPOT( ) : ParserKeyword("GDRILPOT")
-{
-  setSizeType(SLASH_TERMINATED);
+GDRILPOT::GDRILPOT() : ParserKeyword("GDRILPOT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GDRILPOT");
@@ -1562,12 +1518,10 @@ const std::string GDRILPOT::keywordName = "GDRILPOT";
 const std::string GDRILPOT::GROUP_NAME::itemName = "GROUP_NAME";
 const std::string GDRILPOT::QNTY_TYPE::itemName = "QNTY_TYPE";
 const std::string GDRILPOT::MIN_POTENTIAL_RATE::itemName = "MIN_POTENTIAL_RATE";
-const double GDRILPOT::MIN_POTENTIAL_RATE::defaultValue = 0.000000;
+const double GDRILPOT::MIN_POTENTIAL_RATE::defaultValue = 0;
 
 
-GECON::GECON( ) : ParserKeyword("GECON")
-{
-  setSizeType(SLASH_TERMINATED);
+GECON::GECON() : ParserKeyword("GECON", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GECON");
@@ -1623,15 +1577,15 @@ GECON::GECON( ) : ParserKeyword("GECON")
 const std::string GECON::keywordName = "GECON";
 const std::string GECON::GROUP::itemName = "GROUP";
 const std::string GECON::MIN_OIL_RATE::itemName = "MIN_OIL_RATE";
-const UDAValue GECON::MIN_OIL_RATE::defaultValue = UDAValue(0.000000);
+const UDAValue GECON::MIN_OIL_RATE::defaultValue = UDAValue(0);
 const std::string GECON::MIN_GAS_RATE::itemName = "MIN_GAS_RATE";
-const UDAValue GECON::MIN_GAS_RATE::defaultValue = UDAValue(0.000000);
+const UDAValue GECON::MIN_GAS_RATE::defaultValue = UDAValue(0);
 const std::string GECON::MAX_WCT::itemName = "MAX_WCT";
-const UDAValue GECON::MAX_WCT::defaultValue = UDAValue(0.000000);
+const UDAValue GECON::MAX_WCT::defaultValue = UDAValue(0);
 const std::string GECON::MAX_GOR::itemName = "MAX_GOR";
-const UDAValue GECON::MAX_GOR::defaultValue = UDAValue(0.000000);
+const UDAValue GECON::MAX_GOR::defaultValue = UDAValue(0);
 const std::string GECON::MAX_WATER_GAS_RATIO::itemName = "MAX_WATER_GAS_RATIO";
-const UDAValue GECON::MAX_WATER_GAS_RATIO::defaultValue = UDAValue(0.000000);
+const UDAValue GECON::MAX_WATER_GAS_RATIO::defaultValue = UDAValue(0);
 const std::string GECON::WORKOVER::itemName = "WORKOVER";
 const std::string GECON::WORKOVER::defaultValue = "NONE";
 const std::string GECON::END_RUN::itemName = "END_RUN";
@@ -1640,9 +1594,7 @@ const std::string GECON::MAX_OPEN_WELLS::itemName = "MAX_OPEN_WELLS";
 const int GECON::MAX_OPEN_WELLS::defaultValue = 0;
 
 
-GECONT::GECONT( ) : ParserKeyword("GECONT")
-{
-  setSizeType(DOUBLE_SLASH_TERMINATED);
+GECONT::GECONT() : ParserKeyword("GECONT", KeywordSize(DOUBLE_SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GECONT");
@@ -1738,9 +1690,7 @@ const std::string GECONT::MAX_SOL_TRACER_CONC::itemName = "MAX_SOL_TRACER_CONC";
 const double GECONT::MAX_SOL_TRACER_CONC::defaultValue = 99999999999999996973312221251036165947450327545502362648241750950346848435554075534196338404706251868027512415973882408182135734368278484639385041047239877871023591066789981811181813306167128854888448.000000;
 
 
-GEFAC::GEFAC( ) : ParserKeyword("GEFAC")
-{
-  setSizeType(SLASH_TERMINATED);
+GEFAC::GEFAC() : ParserKeyword("GEFAC", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GEFAC");
@@ -1771,11 +1721,9 @@ const std::string GEFAC::TRANSFER_EXT_NET::itemName = "TRANSFER_EXT_NET";
 const std::string GEFAC::TRANSFER_EXT_NET::defaultValue = "YES";
 
 
-GETDATA::GETDATA( ) : ParserKeyword("GETDATA")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("EDIT");
+GETDATA::GETDATA() : ParserKeyword("GETDATA", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
@@ -1811,9 +1759,7 @@ const std::string GETDATA::ZNAME::itemName = "ZNAME";
 const std::string GETDATA::ZALT::itemName = "ZALT";
 
 
-GETGLOB::GETGLOB( ) : ParserKeyword("GETGLOB")
-{
-  setFixedSize( (size_t) 0);
+GETGLOB::GETGLOB() : ParserKeyword("GETGLOB", KeywordSize(0, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("GETGLOB");
@@ -1821,9 +1767,7 @@ GETGLOB::GETGLOB( ) : ParserKeyword("GETGLOB")
 const std::string GETGLOB::keywordName = "GETGLOB";
 
 
-GI::GI( ) : ParserKeyword("GI")
-{
-  setFixedSize( (size_t) 1);
+GI::GI() : ParserKeyword("GI", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("GI");
@@ -1841,10 +1785,7 @@ const std::string GI::keywordName = "GI";
 const std::string GI::data::itemName = "data";
 
 
-GIALL::GIALL( ) : ParserKeyword("GIALL")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+GIALL::GIALL() : ParserKeyword("GIALL", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("GIALL");
@@ -1872,9 +1813,7 @@ const std::string GIALL::PRESSURE::itemName = "PRESSURE";
 const std::string GIALL::TABLE::itemName = "TABLE";
 
 
-GIMODEL::GIMODEL( ) : ParserKeyword("GIMODEL")
-{
-  setFixedSize( (size_t) 0);
+GIMODEL::GIMODEL() : ParserKeyword("GIMODEL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GIMODEL");
@@ -1882,10 +1821,7 @@ GIMODEL::GIMODEL( ) : ParserKeyword("GIMODEL")
 const std::string GIMODEL::keywordName = "GIMODEL";
 
 
-GINODE::GINODE( ) : ParserKeyword("GINODE")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+GINODE::GINODE() : ParserKeyword("GINODE", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("GINODE");
@@ -1904,9 +1840,7 @@ const std::string GINODE::keywordName = "GINODE";
 const std::string GINODE::DATA::itemName = "DATA";
 
 
-GLIFTLIM::GLIFTLIM( ) : ParserKeyword("GLIFTLIM")
-{
-  setSizeType(SLASH_TERMINATED);
+GLIFTLIM::GLIFTLIM() : ParserKeyword("GLIFTLIM", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GLIFTLIM");
@@ -1932,15 +1866,16 @@ GLIFTLIM::GLIFTLIM( ) : ParserKeyword("GLIFTLIM")
 const std::string GLIFTLIM::keywordName = "GLIFTLIM";
 const std::string GLIFTLIM::GROUP_NAME::itemName = "GROUP_NAME";
 const std::string GLIFTLIM::MAX_LIFT_CAPACITY::itemName = "MAX_LIFT_CAPACITY";
-const double GLIFTLIM::MAX_LIFT_CAPACITY::defaultValue = 0.000000;
+const double GLIFTLIM::MAX_LIFT_CAPACITY::defaultValue = 0;
 const std::string GLIFTLIM::MAX_NUM_WELL::itemName = "MAX_NUM_WELL";
 const int GLIFTLIM::MAX_NUM_WELL::defaultValue = 0;
 
 
-GLIFTOPT::GLIFTOPT( ) : ParserKeyword("GLIFTOPT")
-{
-  setSizeType(SLASH_TERMINATED);
+GLIFTOPT::GLIFTOPT() : ParserKeyword("GLIFTOPT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
+  setRequiredKeywords({
+    "LIFTOPT",
+  });
   clearDeckNames();
   addDeckName("GLIFTOPT");
   {
@@ -1952,11 +1887,13 @@ GLIFTOPT::GLIFTOPT( ) : ParserKeyword("GLIFTOPT")
      {
         ParserItem item("MAX_LIFT_GAS_SUPPLY", ParserItem::itype::DOUBLE);
         item.setDefault( double(-100000000000000000000.000000) );
+        item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
      {
         ParserItem item("MAX_TOTAL_GAS_RATE", ParserItem::itype::DOUBLE);
         item.setDefault( double(-100000000000000000000.000000) );
+        item.push_backDimension("GasSurfaceVolume/Time");
         record.addItem(item);
      }
      addRecord( record );
@@ -1970,9 +1907,7 @@ const std::string GLIFTOPT::MAX_TOTAL_GAS_RATE::itemName = "MAX_TOTAL_GAS_RATE";
 const double GLIFTOPT::MAX_TOTAL_GAS_RATE::defaultValue = -100000000000000000000.000000;
 
 
-GMWSET::GMWSET( ) : ParserKeyword("GMWSET")
-{
-  setFixedSize( (size_t) 0);
+GMWSET::GMWSET() : ParserKeyword("GMWSET", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("GMWSET");
@@ -1980,9 +1915,7 @@ GMWSET::GMWSET( ) : ParserKeyword("GMWSET")
 const std::string GMWSET::keywordName = "GMWSET";
 
 
-GNETDP::GNETDP( ) : ParserKeyword("GNETDP")
-{
-  setSizeType(SLASH_TERMINATED);
+GNETDP::GNETDP() : ParserKeyword("GNETDP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GNETDP");
@@ -2039,22 +1972,20 @@ const std::string GNETDP::FIXED_PRESSURE_GROUP::itemName = "FIXED_PRESSURE_GROUP
 const std::string GNETDP::PHASE_TYPE::itemName = "PHASE_TYPE";
 const std::string GNETDP::PHASE_TYPE::defaultValue = "GA";
 const std::string GNETDP::MIN_RATE_TRIGGER::itemName = "MIN_RATE_TRIGGER";
-const double GNETDP::MIN_RATE_TRIGGER::defaultValue = 0.000000;
+const double GNETDP::MIN_RATE_TRIGGER::defaultValue = 0;
 const std::string GNETDP::MAX_RATE_TRIGGER::itemName = "MAX_RATE_TRIGGER";
 const double GNETDP::MAX_RATE_TRIGGER::defaultValue = 100000000000000000000.000000;
 const std::string GNETDP::PRESSURE_INCR_SUBTRACT::itemName = "PRESSURE_INCR_SUBTRACT";
-const double GNETDP::PRESSURE_INCR_SUBTRACT::defaultValue = 0.000000;
+const double GNETDP::PRESSURE_INCR_SUBTRACT::defaultValue = 0;
 const std::string GNETDP::PRESSURE_INCR_ADD::itemName = "PRESSURE_INCR_ADD";
-const double GNETDP::PRESSURE_INCR_ADD::defaultValue = 0.000000;
+const double GNETDP::PRESSURE_INCR_ADD::defaultValue = 0;
 const std::string GNETDP::MIN_ALLOW_PRESSURE::itemName = "MIN_ALLOW_PRESSURE";
-const double GNETDP::MIN_ALLOW_PRESSURE::defaultValue = 0.000000;
+const double GNETDP::MIN_ALLOW_PRESSURE::defaultValue = 0;
 const std::string GNETDP::MAX_ALLOW_PRESSURE::itemName = "MAX_ALLOW_PRESSURE";
 const double GNETDP::MAX_ALLOW_PRESSURE::defaultValue = 100000000000000000000.000000;
 
 
-GNETINJE::GNETINJE( ) : ParserKeyword("GNETINJE")
-{
-  setSizeType(SLASH_TERMINATED);
+GNETINJE::GNETINJE() : ParserKeyword("GNETINJE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GNETINJE");
@@ -2089,9 +2020,7 @@ const std::string GNETINJE::VFP_TABLE::itemName = "VFP_TABLE";
 const int GNETINJE::VFP_TABLE::defaultValue = 0;
 
 
-GNETPUMP::GNETPUMP( ) : ParserKeyword("GNETPUMP")
-{
-  setSizeType(SLASH_TERMINATED);
+GNETPUMP::GNETPUMP() : ParserKeyword("GNETPUMP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GNETPUMP");
@@ -2133,20 +2062,18 @@ GNETPUMP::GNETPUMP( ) : ParserKeyword("GNETPUMP")
 const std::string GNETPUMP::keywordName = "GNETPUMP";
 const std::string GNETPUMP::GROUP::itemName = "GROUP";
 const std::string GNETPUMP::PROD_RATE_SWITCH::itemName = "PROD_RATE_SWITCH";
-const double GNETPUMP::PROD_RATE_SWITCH::defaultValue = 0.000000;
+const double GNETPUMP::PROD_RATE_SWITCH::defaultValue = 0;
 const std::string GNETPUMP::PHASE_TYPE::itemName = "PHASE_TYPE";
 const std::string GNETPUMP::PHASE_TYPE::defaultValue = "OIL";
 const std::string GNETPUMP::NEW_VFT_TABLE_NUM::itemName = "NEW_VFT_TABLE_NUM";
 const int GNETPUMP::NEW_VFT_TABLE_NUM::defaultValue = 4;
 const std::string GNETPUMP::NEW_ARTIFICIAL_LIFT_QNTY::itemName = "NEW_ARTIFICIAL_LIFT_QNTY";
-const double GNETPUMP::NEW_ARTIFICIAL_LIFT_QNTY::defaultValue = 0.000000;
+const double GNETPUMP::NEW_ARTIFICIAL_LIFT_QNTY::defaultValue = 0;
 const std::string GNETPUMP::NEW_GAS_CONUMPTION_RATE::itemName = "NEW_GAS_CONUMPTION_RATE";
-const double GNETPUMP::NEW_GAS_CONUMPTION_RATE::defaultValue = 0.000000;
+const double GNETPUMP::NEW_GAS_CONUMPTION_RATE::defaultValue = 0;
 
 
-GPMAINT::GPMAINT( ) : ParserKeyword("GPMAINT")
-{
-  setSizeType(SLASH_TERMINATED);
+GPMAINT::GPMAINT() : ParserKeyword("GPMAINT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GPMAINT");
@@ -2166,6 +2093,7 @@ GPMAINT::GPMAINT( ) : ParserKeyword("GPMAINT")
      }
      {
         ParserItem item("FIP_FAMILY", ParserItem::itype::STRING);
+        item.setDefault( std::string("FIPNUM") );
         record.addItem(item);
      }
      {
@@ -2191,14 +2119,13 @@ const std::string GPMAINT::GROUP::itemName = "GROUP";
 const std::string GPMAINT::FLOW_TARGET::itemName = "FLOW_TARGET";
 const std::string GPMAINT::REGION::itemName = "REGION";
 const std::string GPMAINT::FIP_FAMILY::itemName = "FIP_FAMILY";
+const std::string GPMAINT::FIP_FAMILY::defaultValue = "FIPNUM";
 const std::string GPMAINT::PRESSURE_TARGET::itemName = "PRESSURE_TARGET";
 const std::string GPMAINT::PROP_CONSTANT::itemName = "PROP_CONSTANT";
 const std::string GPMAINT::TIME_CONSTANT::itemName = "TIME_CONSTANT";
 
 
-GRADGRUP::GRADGRUP( ) : ParserKeyword("GRADGRUP")
-{
-  setSizeType(SLASH_TERMINATED);
+GRADGRUP::GRADGRUP() : ParserKeyword("GRADGRUP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRADGRUP");
@@ -2215,9 +2142,7 @@ const std::string GRADGRUP::keywordName = "GRADGRUP";
 const std::string GRADGRUP::MNENONIC::itemName = "MNENONIC";
 
 
-GRADRESV::GRADRESV( ) : ParserKeyword("GRADRESV")
-{
-  setSizeType(SLASH_TERMINATED);
+GRADRESV::GRADRESV() : ParserKeyword("GRADRESV", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRADRESV");
@@ -2234,9 +2159,7 @@ const std::string GRADRESV::keywordName = "GRADRESV";
 const std::string GRADRESV::MNENONIC::itemName = "MNENONIC";
 
 
-GRADRFT::GRADRFT( ) : ParserKeyword("GRADRFT")
-{
-  setSizeType(SLASH_TERMINATED);
+GRADRFT::GRADRFT() : ParserKeyword("GRADRFT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRADRFT");
@@ -2253,9 +2176,7 @@ const std::string GRADRFT::keywordName = "GRADRFT";
 const std::string GRADRFT::MNENONIC::itemName = "MNENONIC";
 
 
-GRADWELL::GRADWELL( ) : ParserKeyword("GRADWELL")
-{
-  setSizeType(SLASH_TERMINATED);
+GRADWELL::GRADWELL() : ParserKeyword("GRADWELL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRADWELL");
@@ -2272,9 +2193,7 @@ const std::string GRADWELL::keywordName = "GRADWELL";
 const std::string GRADWELL::MNENONIC::itemName = "MNENONIC";
 
 
-GRAVCONS::GRAVCONS( ) : ParserKeyword("GRAVCONS")
-{
-  setSizeType(SLASH_TERMINATED);
+GRAVCONS::GRAVCONS() : ParserKeyword("GRAVCONS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("GRAVCONS");
@@ -2292,9 +2211,7 @@ const std::string GRAVCONS::keywordName = "GRAVCONS";
 const std::string GRAVCONS::MNENONIC::itemName = "MNENONIC";
 
 
-GRAVDR::GRAVDR( ) : ParserKeyword("GRAVDR")
-{
-  setFixedSize( (size_t) 0);
+GRAVDR::GRAVDR() : ParserKeyword("GRAVDR", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GRAVDR");
@@ -2302,9 +2219,7 @@ GRAVDR::GRAVDR( ) : ParserKeyword("GRAVDR")
 const std::string GRAVDR::keywordName = "GRAVDR";
 
 
-GRAVDRB::GRAVDRB( ) : ParserKeyword("GRAVDRB")
-{
-  setFixedSize( (size_t) 0);
+GRAVDRB::GRAVDRB() : ParserKeyword("GRAVDRB", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GRAVDRB");
@@ -2312,9 +2227,7 @@ GRAVDRB::GRAVDRB( ) : ParserKeyword("GRAVDRB")
 const std::string GRAVDRB::keywordName = "GRAVDRB";
 
 
-GRAVDRM::GRAVDRM( ) : ParserKeyword("GRAVDRM")
-{
-  setFixedSize( (size_t) 1);
+GRAVDRM::GRAVDRM() : ParserKeyword("GRAVDRM", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GRAVDRM");
@@ -2333,10 +2246,7 @@ const std::string GRAVDRM::ALLOW_RE_INFL::itemName = "ALLOW_RE_INFL";
 const std::string GRAVDRM::ALLOW_RE_INFL::defaultValue = "YES";
 
 
-GRAVITY::GRAVITY( ) : ParserKeyword("GRAVITY")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+GRAVITY::GRAVITY() : ParserKeyword("GRAVITY", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("GRAVITY");
@@ -2350,11 +2260,13 @@ GRAVITY::GRAVITY( ) : ParserKeyword("GRAVITY")
      {
         ParserItem item("WATER_SP_GRAVITY", ParserItem::itype::DOUBLE);
         item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
         record.addItem(item);
      }
      {
         ParserItem item("GAS_SP_GRAVITY", ParserItem::itype::DOUBLE);
         item.setDefault( double(0.777300) );
+        item.push_backDimension("1");
         record.addItem(item);
      }
      addRecord( record );
@@ -2368,9 +2280,7 @@ const std::string GRAVITY::GAS_SP_GRAVITY::itemName = "GAS_SP_GRAVITY";
 const double GRAVITY::GAS_SP_GRAVITY::defaultValue = 0.777300;
 
 
-GRDREACH::GRDREACH( ) : ParserKeyword("GRDREACH")
-{
-  setSizeType(SLASH_TERMINATED);
+GRDREACH::GRDREACH() : ParserKeyword("GRDREACH", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRDREACH");
@@ -2491,7 +2401,7 @@ const std::string GRDREACH::GRID_BLOCK_COORD::itemName = "GRID_BLOCK_COORD";
 const std::string GRDREACH::CONTACT_AREA::itemName = "CONTACT_AREA";
 const std::string GRDREACH::TABLE_NUM::itemName = "TABLE_NUM";
 const std::string GRDREACH::PRODUCTIVITY_INDEX::itemName = "PRODUCTIVITY_INDEX";
-const double GRDREACH::PRODUCTIVITY_INDEX::defaultValue = 0.000000;
+const double GRDREACH::PRODUCTIVITY_INDEX::defaultValue = 0;
 const std::string GRDREACH::LENGTH_DEAD_GRID_BLOCK::itemName = "LENGTH_DEAD_GRID_BLOCK";
 const std::string GRDREACH::OPTION_CONNECT_REACH::itemName = "OPTION_CONNECT_REACH";
 const int GRDREACH::OPTION_CONNECT_REACH::defaultValue = 0;
@@ -2502,23 +2412,19 @@ const std::string GRDREACH::REMOVE_CAP_PRESSURE::defaultValue = "NO";
 const std::string GRDREACH::INFILTR_EQ::itemName = "INFILTR_EQ";
 const int GRDREACH::INFILTR_EQ::defaultValue = 0;
 const std::string GRDREACH::HYDRAULIC_CONDUCTIVITY::itemName = "HYDRAULIC_CONDUCTIVITY";
-const double GRDREACH::HYDRAULIC_CONDUCTIVITY::defaultValue = 0.000000;
+const double GRDREACH::HYDRAULIC_CONDUCTIVITY::defaultValue = 0;
 const std::string GRDREACH::RIVER_BED_THICKNESS::itemName = "RIVER_BED_THICKNESS";
-const double GRDREACH::RIVER_BED_THICKNESS::defaultValue = 0.000000;
+const double GRDREACH::RIVER_BED_THICKNESS::defaultValue = 0;
 
 
-GRID::GRID( ) : ParserKeyword("GRID")
-{
-  setFixedSize( (size_t) 0);
+GRID::GRID() : ParserKeyword("GRID", KeywordSize(0, false)) {
   clearDeckNames();
   addDeckName("GRID");
 }
 const std::string GRID::keywordName = "GRID";
 
 
-GRIDFILE::GRIDFILE( ) : ParserKeyword("GRIDFILE")
-{
-  setFixedSize( (size_t) 1);
+GRIDFILE::GRIDFILE() : ParserKeyword("GRIDFILE", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("GRIDFILE");
@@ -2544,9 +2450,7 @@ const std::string GRIDFILE::EGRID::itemName = "EGRID";
 const int GRIDFILE::EGRID::defaultValue = 1;
 
 
-GRIDOPTS::GRIDOPTS( ) : ParserKeyword("GRIDOPTS")
-{
-  setFixedSize( (size_t) 1);
+GRIDOPTS::GRIDOPTS() : ParserKeyword("GRIDOPTS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("GRIDOPTS");
@@ -2579,9 +2483,7 @@ const std::string GRIDOPTS::NRPINC::itemName = "NRPINC";
 const int GRIDOPTS::NRPINC::defaultValue = 0;
 
 
-GRIDUNIT::GRIDUNIT( ) : ParserKeyword("GRIDUNIT")
-{
-  setFixedSize( (size_t) 1);
+GRIDUNIT::GRIDUNIT() : ParserKeyword("GRIDUNIT", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("GRIDUNIT");
@@ -2605,237 +2507,237 @@ const std::string GRIDUNIT::LengthUnit::defaultValue = "METRES";
 const std::string GRIDUNIT::MAP::itemName = "MAP";
 
 
-GROUP_PROBE::GROUP_PROBE( ) : ParserKeyword("GROUP_PROBE")
-{
-  setFixedSize( (size_t) 1);
+GROUP_PROBE::GROUP_PROBE() : ParserKeyword("GROUP_PROBE", KeywordSize(1, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("GALQ");
-  addDeckName("GAPI");
-  addDeckName("GCIC");
-  addDeckName("GCIR");
-  addDeckName("GCIT");
-  addDeckName("GCPC");
-  addDeckName("GCPR");
-  addDeckName("GCPT");
-  addDeckName("GEDC");
-  addDeckName("GEDCQ");
-  addDeckName("GEFF");
-  addDeckName("GEPR");
-  addDeckName("GEPT");
-  addDeckName("GESR");
-  addDeckName("GEST");
-  addDeckName("GFGR");
-  addDeckName("GFGT");
-  addDeckName("GFMF");
-  addDeckName("GGCR");
-  addDeckName("GGCT");
-  addDeckName("GGCV");
-  addDeckName("GGDC");
-  addDeckName("GGDCQ");
-  addDeckName("GGIGR");
-  addDeckName("GGIMR");
-  addDeckName("GGIMT");
-  addDeckName("GGIR");
-  addDeckName("GGIRH");
-  addDeckName("GGIRL");
-  addDeckName("GGIRNB");
-  addDeckName("GGIRT");
-  addDeckName("GGIT");
-  addDeckName("GGITH");
-  addDeckName("GGLIR");
-  addDeckName("GGLR");
-  addDeckName("GGLRH");
-  addDeckName("GGOR");
-  addDeckName("GGORH");
-  addDeckName("GGPGR");
-  addDeckName("GGPI");
-  addDeckName("GGPI2");
-  addDeckName("GGPP");
-  addDeckName("GGPP2");
-  addDeckName("GGPPF");
-  addDeckName("GGPPF2");
-  addDeckName("GGPPS");
-  addDeckName("GGPPS2");
-  addDeckName("GGPR");
-  addDeckName("GGPRF");
-  addDeckName("GGPRH");
-  addDeckName("GGPRL");
-  addDeckName("GGPRNB");
-  addDeckName("GGPRNBFP");
-  addDeckName("GGPRS");
-  addDeckName("GGPRT");
-  addDeckName("GGPT");
-  addDeckName("GGPTF");
-  addDeckName("GGPTH");
-  addDeckName("GGPTS");
-  addDeckName("GGQ");
-  addDeckName("GGSPR");
-  addDeckName("GGSR");
-  addDeckName("GGSRL");
-  addDeckName("GGSRU");
-  addDeckName("GGSSP");
-  addDeckName("GGST");
-  addDeckName("GGSTP");
-  addDeckName("GJPR");
-  addDeckName("GJPRH");
-  addDeckName("GJPRL");
-  addDeckName("GJPRT");
-  addDeckName("GJPT");
-  addDeckName("GJPTH");
-  addDeckName("GLPR");
-  addDeckName("GLPRH");
-  addDeckName("GLPRL");
-  addDeckName("GLPRNB");
-  addDeckName("GLPRT");
-  addDeckName("GLPT");
-  addDeckName("GLPTH");
-  addDeckName("GMCPL");
-  addDeckName("GMCTG");
-  addDeckName("GMCTP");
-  addDeckName("GMCTW");
-  addDeckName("GMIR");
-  addDeckName("GMIT");
-  addDeckName("GMPR");
-  addDeckName("GMPT");
-  addDeckName("GMWDR");
-  addDeckName("GMWDT");
-  addDeckName("GMWIA");
-  addDeckName("GMWIG");
-  addDeckName("GMWIN");
-  addDeckName("GMWIP");
-  addDeckName("GMWIS");
-  addDeckName("GMWIT");
-  addDeckName("GMWIU");
-  addDeckName("GMWIV");
-  addDeckName("GMWPA");
-  addDeckName("GMWPG");
-  addDeckName("GMWPL");
-  addDeckName("GMWPO");
-  addDeckName("GMWPP");
-  addDeckName("GMWPR");
-  addDeckName("GMWPS");
-  addDeckName("GMWPT");
-  addDeckName("GMWPU");
-  addDeckName("GMWPV");
-  addDeckName("GMWWO");
-  addDeckName("GMWWT");
-  addDeckName("GNIR");
-  addDeckName("GNIT");
-  addDeckName("GNPR");
-  addDeckName("GNPT");
-  addDeckName("GOGR");
-  addDeckName("GOGRH");
-  addDeckName("GOIGR");
-  addDeckName("GOIR");
-  addDeckName("GOIRH");
-  addDeckName("GOIRL");
-  addDeckName("GOIRT");
-  addDeckName("GOIT");
-  addDeckName("GOITH");
-  addDeckName("GOPGR");
-  addDeckName("GOPI");
-  addDeckName("GOPI2");
-  addDeckName("GOPP");
-  addDeckName("GOPP2");
   addDeckName("GOPR");
-  addDeckName("GOPRF");
   addDeckName("GOPRH");
-  addDeckName("GOPRL");
-  addDeckName("GOPRNB");
-  addDeckName("GOPRS");
-  addDeckName("GOPRT");
   addDeckName("GOPT");
-  addDeckName("GOPTF");
+  addDeckName("GOPRL");
+  addDeckName("GWPT");
+  addDeckName("GOPRT");
   addDeckName("GOPTH");
-  addDeckName("GOPTS");
-  addDeckName("GOSPR");
-  addDeckName("GOSRL");
-  addDeckName("GOSRU");
-  addDeckName("GOSSP");
-  addDeckName("GOSTP");
-  addDeckName("GPR");
-  addDeckName("GPRB");
-  addDeckName("GPRBG");
-  addDeckName("GPRBW");
-  addDeckName("GPRDC");
-  addDeckName("GPRFP");
-  addDeckName("GPRG");
-  addDeckName("GPRW");
-  addDeckName("GSGR");
-  addDeckName("GSGT");
-  addDeckName("GSIC");
-  addDeckName("GSIR");
-  addDeckName("GSIT");
-  addDeckName("GSMF");
-  addDeckName("GSPC");
-  addDeckName("GSPR");
-  addDeckName("GSPT");
-  addDeckName("GTICHEA");
-  addDeckName("GTIRALK");
-  addDeckName("GTIRANI");
-  addDeckName("GTIRCAT");
-  addDeckName("GTIRFOA");
-  addDeckName("GTIRHEA");
-  addDeckName("GTIRSUR");
-  addDeckName("GTITALK");
-  addDeckName("GTITANI");
-  addDeckName("GTITCAT");
-  addDeckName("GTITFOA");
-  addDeckName("GTITHEA");
-  addDeckName("GTITSUR");
-  addDeckName("GTPCHEA");
-  addDeckName("GTPRALK");
-  addDeckName("GTPRANI");
-  addDeckName("GTPRCAT");
-  addDeckName("GTPRFOA");
-  addDeckName("GTPRHEA");
-  addDeckName("GTPRSUR");
-  addDeckName("GTPTALK");
-  addDeckName("GTPTANI");
-  addDeckName("GTPTCAT");
-  addDeckName("GTPTFOA");
-  addDeckName("GTPTHEA");
-  addDeckName("GTPTSUR");
-  addDeckName("GVIR");
   addDeckName("GVIRL");
-  addDeckName("GVIRT");
-  addDeckName("GVIT");
-  addDeckName("GVPGR");
-  addDeckName("GVPR");
-  addDeckName("GVPRL");
-  addDeckName("GVPRT");
-  addDeckName("GVPT");
-  addDeckName("GWCT");
-  addDeckName("GWCTH");
-  addDeckName("GWGR");
-  addDeckName("GWGRH");
-  addDeckName("GWIGR");
+  addDeckName("GWPTH");
+  addDeckName("GOPRF");
+  addDeckName("GOPRS");
+  addDeckName("GGSRL");
+  addDeckName("GALQ");
+  addDeckName("GWPRH");
+  addDeckName("GOPTF");
+  addDeckName("GVIR");
+  addDeckName("GGIRH");
+  addDeckName("GGIR");
+  addDeckName("GOPTS");
+  addDeckName("GWSTP");
+  addDeckName("GOIR");
+  addDeckName("GMWIU");
+  addDeckName("GOIRH");
+  addDeckName("GOIRT");
+  addDeckName("GJPT");
+  addDeckName("GOIRL");
+  addDeckName("GWPIR");
+  addDeckName("GOIT");
+  addDeckName("GMWIS");
+  addDeckName("GOITH");
+  addDeckName("GGPTF");
+  addDeckName("GOPP2");
+  addDeckName("GNIR");
+  addDeckName("GOPP");
+  addDeckName("GWIRL");
+  addDeckName("GOPI");
+  addDeckName("GWIT");
+  addDeckName("GOGRH");
+  addDeckName("GOPI2");
+  addDeckName("GGIRT");
+  addDeckName("GTPTSUR");
+  addDeckName("GOPGR");
+  addDeckName("GSMF");
+  addDeckName("GOIGR");
+  addDeckName("GWPR");
+  addDeckName("GWPRT");
+  addDeckName("GWPRL");
   addDeckName("GWIR");
   addDeckName("GWIRH");
-  addDeckName("GWIRL");
-  addDeckName("GWIRNB");
+  addDeckName("GGPI");
   addDeckName("GWIRT");
-  addDeckName("GWIT");
+  addDeckName("GMWPV");
+  addDeckName("GMWDR");
   addDeckName("GWITH");
-  addDeckName("GWPGR");
+  addDeckName("GWPP");
+  addDeckName("GGPP");
+  addDeckName("GWIGR");
+  addDeckName("GMWPO");
+  addDeckName("GWPP2");
   addDeckName("GWPI");
   addDeckName("GWPI2");
-  addDeckName("GWPIR");
-  addDeckName("GWPP");
-  addDeckName("GWPP2");
-  addDeckName("GWPR");
-  addDeckName("GWPRH");
-  addDeckName("GWPRL");
-  addDeckName("GWPRNB");
-  addDeckName("GWPRT");
-  addDeckName("GWPT");
-  addDeckName("GWPTH");
-  addDeckName("GWSPR");
+  addDeckName("GGPPS");
+  addDeckName("GWPGR");
+  addDeckName("GGPR");
+  addDeckName("GGPP2");
+  addDeckName("GEPR");
+  addDeckName("GGPRH");
+  addDeckName("GSPT");
+  addDeckName("GGPPF2");
+  addDeckName("GGPRT");
+  addDeckName("GTITSUR");
+  addDeckName("GGPRL");
+  addDeckName("GGPRF");
+  addDeckName("GGPRS");
+  addDeckName("GGPPF");
+  addDeckName("GGPT");
+  addDeckName("GGPTH");
+  addDeckName("GGPTS");
+  addDeckName("GGIRL");
+  addDeckName("GGPPS2");
+  addDeckName("GOSPR");
+  addDeckName("GGIT");
+  addDeckName("GGITH");
+  addDeckName("GGPI2");
+  addDeckName("GGPGR");
+  addDeckName("GGIGR");
+  addDeckName("GSGR");
   addDeckName("GWSRL");
+  addDeckName("GGSR");
+  addDeckName("GPRFP");
+  addDeckName("GSGT");
+  addDeckName("GGST");
+  addDeckName("GFGR");
+  addDeckName("GFGT");
+  addDeckName("GGPRNBFP");
+  addDeckName("GFMF");
+  addDeckName("GPRBG");
+  addDeckName("GGCR");
+  addDeckName("GJPRH");
+  addDeckName("GGCT");
+  addDeckName("GGIMR");
+  addDeckName("GGIMT");
+  addDeckName("GTITALK");
+  addDeckName("GGLIR");
+  addDeckName("GJPRT");
+  addDeckName("GCPC");
+  addDeckName("GGQ");
+  addDeckName("GVPRT");
+  addDeckName("GLPR");
+  addDeckName("GLPRH");
+  addDeckName("GLPRT");
+  addDeckName("GLPRL");
+  addDeckName("GLPT");
+  addDeckName("GLPTH");
+  addDeckName("GJPR");
+  addDeckName("GJPRL");
+  addDeckName("GGCV");
+  addDeckName("GJPTH");
+  addDeckName("GLPRNB");
+  addDeckName("GVPR");
+  addDeckName("GVPRL");
+  addDeckName("GVPT");
+  addDeckName("GVPGR");
+  addDeckName("GVIRT");
+  addDeckName("GVIT");
+  addDeckName("GWCT");
+  addDeckName("GMWPR");
+  addDeckName("GWCTH");
+  addDeckName("GGOR");
+  addDeckName("GTPRSUR");
+  addDeckName("GGORH");
+  addDeckName("GOGR");
+  addDeckName("GWGR");
+  addDeckName("GWGRH");
+  addDeckName("GTPTCAT");
+  addDeckName("GPRB");
+  addDeckName("GGLR");
+  addDeckName("GSPR");
+  addDeckName("GGLRH");
+  addDeckName("GMCTP");
+  addDeckName("GMCTW");
+  addDeckName("GMCTG");
+  addDeckName("GMWPT");
+  addDeckName("GMWPA");
+  addDeckName("GMWPU");
+  addDeckName("GMWPG");
+  addDeckName("GMWPS");
+  addDeckName("GMWPP");
+  addDeckName("GMWDT");
+  addDeckName("GMWPL");
+  addDeckName("GMWIT");
+  addDeckName("GMWIN");
+  addDeckName("GMWIA");
+  addDeckName("GMWIG");
+  addDeckName("GMWIV");
+  addDeckName("GMWIP");
+  addDeckName("GOSSP");
+  addDeckName("GMWWO");
+  addDeckName("GMWWT");
+  addDeckName("GEPT");
+  addDeckName("GEFF");
+  addDeckName("GGSPR");
+  addDeckName("GGSRU");
+  addDeckName("GGSSP");
+  addDeckName("GGSTP");
+  addDeckName("GOSRL");
+  addDeckName("GOSRU");
+  addDeckName("GOSTP");
+  addDeckName("GEDC");
+  addDeckName("GWSPR");
   addDeckName("GWSRU");
   addDeckName("GWSSP");
-  addDeckName("GWSTP");
+  addDeckName("GCPT");
+  addDeckName("GAPI");
+  addDeckName("GSIR");
+  addDeckName("GSIT");
+  addDeckName("GSPC");
+  addDeckName("GSIC");
+  addDeckName("GTPRANI");
+  addDeckName("GTPTANI");
+  addDeckName("GTIRANI");
+  addDeckName("GPRG");
+  addDeckName("GTITANI");
+  addDeckName("GTPRCAT");
+  addDeckName("GTIRCAT");
+  addDeckName("GTITCAT");
+  addDeckName("GTPCHEA");
+  addDeckName("GTICHEA");
+  addDeckName("GTPRHEA");
+  addDeckName("GTPTHEA");
+  addDeckName("GTIRHEA");
+  addDeckName("GCPR");
+  addDeckName("GTITHEA");
+  addDeckName("GMPR");
+  addDeckName("GMPT");
+  addDeckName("GMIR");
+  addDeckName("GMIT");
+  addDeckName("GTPRFOA");
+  addDeckName("GTPTFOA");
+  addDeckName("GTIRFOA");
+  addDeckName("GTITFOA");
+  addDeckName("GGDC");
+  addDeckName("GGDCQ");
+  addDeckName("GMCPL");
+  addDeckName("GPR");
+  addDeckName("GPRDC");
+  addDeckName("GWPRNB");
+  addDeckName("GEIR");
+  addDeckName("GEIT");
+  addDeckName("GESR");
+  addDeckName("GEST");
+  addDeckName("GEDCQ");
+  addDeckName("GPRW");
+  addDeckName("GPRBW");
+  addDeckName("GCIC");
+  addDeckName("GOPRNB");
+  addDeckName("GGPRNB");
+  addDeckName("GWIRNB");
+  addDeckName("GGIRNB");
+  addDeckName("GCIR");
+  addDeckName("GCIT");
+  addDeckName("GNPR");
+  addDeckName("GNPT");
+  addDeckName("GNIT");
+  addDeckName("GTIRSUR");
+  addDeckName("GTPRALK");
+  addDeckName("GTPTALK");
+  addDeckName("GTIRALK");
   setMatchRegex("GU.+|GTPR.+|GTPT.+|GTPC.+|GTIR.+|GTIT.+|GTIC.+|GTIRF.+|GTIRS.+|GTPRF.+|GTPRS.+|GTITF.+|GTITS.+|GTPTF.+|GTPTS.+|GTICF.+|GTICS.+|GTPCF.+|GTPCS.+");
   {
      ParserRecord record;
@@ -2851,9 +2753,7 @@ const std::string GROUP_PROBE::keywordName = "GROUP_PROBE";
 const std::string GROUP_PROBE::GROUPS::itemName = "GROUPS";
 
 
-GRUPMAST::GRUPMAST( ) : ParserKeyword("GRUPMAST")
-{
-  setSizeType(SLASH_TERMINATED);
+GRUPMAST::GRUPMAST() : ParserKeyword("GRUPMAST", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRUPMAST");
@@ -2886,11 +2786,9 @@ const std::string GRUPMAST::SLAVE_GROUP::itemName = "SLAVE_GROUP";
 const std::string GRUPMAST::LIMITING_FRACTION::itemName = "LIMITING_FRACTION";
 
 
-GRUPNET::GRUPNET( ) : ParserKeyword("GRUPNET")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("SCHEDULE");
+GRUPNET::GRUPNET() : ParserKeyword("GRUPNET", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SPECIAL");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRUPNET");
   {
@@ -2937,7 +2835,7 @@ const std::string GRUPNET::TERMINAL_PRESSURE::itemName = "TERMINAL_PRESSURE";
 const std::string GRUPNET::VFP_TABLE::itemName = "VFP_TABLE";
 const int GRUPNET::VFP_TABLE::defaultValue = 0;
 const std::string GRUPNET::ALQ::itemName = "ALQ";
-const double GRUPNET::ALQ::defaultValue = 0.000000;
+const double GRUPNET::ALQ::defaultValue = 0;
 const std::string GRUPNET::SUB_SEA_MANIFOLD::itemName = "SUB_SEA_MANIFOLD";
 const std::string GRUPNET::SUB_SEA_MANIFOLD::defaultValue = "NO";
 const std::string GRUPNET::LIFT_GAS_FLOW_THROUGH::itemName = "LIFT_GAS_FLOW_THROUGH";
@@ -2946,30 +2844,28 @@ const std::string GRUPNET::ALQ_SURFACE_EQV::itemName = "ALQ_SURFACE_EQV";
 const std::string GRUPNET::ALQ_SURFACE_EQV::defaultValue = "NONE";
 
 
-GRUPRIG::GRUPRIG( ) : ParserKeyword("GRUPRIG")
-{
-  setSizeType(SLASH_TERMINATED);
+GRUPRIG::GRUPRIG() : ParserKeyword("GRUPRIG", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRUPRIG");
   {
      ParserRecord record;
      {
-        ParserItem item("GROUP_NAME", ParserItem::itype::STRING);
+        ParserItem item("GROUP", ParserItem::itype::STRING);
         record.addItem(item);
      }
      {
-        ParserItem item("WORKRIGNUM", ParserItem::itype::INT);
+        ParserItem item("WORKOVER_RIG_NUM", ParserItem::itype::INT);
         item.setDefault( 0 );
         record.addItem(item);
      }
      {
-        ParserItem item("DRILRIGNUM", ParserItem::itype::INT);
+        ParserItem item("DRILLING_RIG_NUM", ParserItem::itype::INT);
         item.setDefault( 0 );
         record.addItem(item);
      }
      {
-        ParserItem item("ADD", ParserItem::itype::STRING);
+        ParserItem item("ADD_OR_REMOVE", ParserItem::itype::STRING);
         item.setDefault( std::string("ADD") );
         record.addItem(item);
      }
@@ -2977,18 +2873,16 @@ GRUPRIG::GRUPRIG( ) : ParserKeyword("GRUPRIG")
   }
 }
 const std::string GRUPRIG::keywordName = "GRUPRIG";
-const std::string GRUPRIG::GROUP_NAME::itemName = "GROUP_NAME";
-const std::string GRUPRIG::WORKRIGNUM::itemName = "WORKRIGNUM";
-const int GRUPRIG::WORKRIGNUM::defaultValue = 0;
-const std::string GRUPRIG::DRILRIGNUM::itemName = "DRILRIGNUM";
-const int GRUPRIG::DRILRIGNUM::defaultValue = 0;
-const std::string GRUPRIG::ADD::itemName = "ADD";
-const std::string GRUPRIG::ADD::defaultValue = "ADD";
+const std::string GRUPRIG::GROUP::itemName = "GROUP";
+const std::string GRUPRIG::WORKOVER_RIG_NUM::itemName = "WORKOVER_RIG_NUM";
+const int GRUPRIG::WORKOVER_RIG_NUM::defaultValue = 0;
+const std::string GRUPRIG::DRILLING_RIG_NUM::itemName = "DRILLING_RIG_NUM";
+const int GRUPRIG::DRILLING_RIG_NUM::defaultValue = 0;
+const std::string GRUPRIG::ADD_OR_REMOVE::itemName = "ADD_OR_REMOVE";
+const std::string GRUPRIG::ADD_OR_REMOVE::defaultValue = "ADD";
 
 
-GRUPSLAV::GRUPSLAV( ) : ParserKeyword("GRUPSLAV")
-{
-  setSizeType(SLASH_TERMINATED);
+GRUPSLAV::GRUPSLAV() : ParserKeyword("GRUPSLAV", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRUPSLAV");
@@ -3059,9 +2953,7 @@ const std::string GRUPSLAV::GAS_INJ_PROD_CONSTRAINTS::itemName = "GAS_INJ_PROD_C
 const std::string GRUPSLAV::GAS_INJ_PROD_CONSTRAINTS::defaultValue = "MAST";
 
 
-GRUPTARG::GRUPTARG( ) : ParserKeyword("GRUPTARG")
-{
-  setSizeType(SLASH_TERMINATED);
+GRUPTARG::GRUPTARG() : ParserKeyword("GRUPTARG", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRUPTARG");
@@ -3090,9 +2982,7 @@ const std::string GRUPTARG::NEW_VALUE::itemName = "NEW_VALUE";
 const double GRUPTARG::NEW_VALUE::defaultValue = 999999999999999949387135297074018866963645011013410073083904.000000;
 
 
-GRUPTREE::GRUPTREE( ) : ParserKeyword("GRUPTREE")
-{
-  setSizeType(SLASH_TERMINATED);
+GRUPTREE::GRUPTREE() : ParserKeyword("GRUPTREE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GRUPTREE");
@@ -3116,9 +3006,7 @@ const std::string GRUPTREE::PARENT_GROUP::itemName = "PARENT_GROUP";
 const std::string GRUPTREE::PARENT_GROUP::defaultValue = "FIELD";
 
 
-GSATINJE::GSATINJE( ) : ParserKeyword("GSATINJE")
-{
-  setSizeType(SLASH_TERMINATED);
+GSATINJE::GSATINJE() : ParserKeyword("GSATINJE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GSATINJE");
@@ -3155,16 +3043,14 @@ const std::string GSATINJE::keywordName = "GSATINJE";
 const std::string GSATINJE::GROUP::itemName = "GROUP";
 const std::string GSATINJE::PHASE::itemName = "PHASE";
 const std::string GSATINJE::SURF_INJ_RATE::itemName = "SURF_INJ_RATE";
-const double GSATINJE::SURF_INJ_RATE::defaultValue = 0.000000;
+const double GSATINJE::SURF_INJ_RATE::defaultValue = 0;
 const std::string GSATINJE::RES_INJ_RATE::itemName = "RES_INJ_RATE";
-const double GSATINJE::RES_INJ_RATE::defaultValue = 0.000000;
+const double GSATINJE::RES_INJ_RATE::defaultValue = 0;
 const std::string GSATINJE::MEAN_CALORIFIC::itemName = "MEAN_CALORIFIC";
-const double GSATINJE::MEAN_CALORIFIC::defaultValue = 0.000000;
+const double GSATINJE::MEAN_CALORIFIC::defaultValue = 0;
 
 
-GSATPROD::GSATPROD( ) : ParserKeyword("GSATPROD")
-{
-  setSizeType(SLASH_TERMINATED);
+GSATPROD::GSATPROD() : ParserKeyword("GSATPROD", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GSATPROD");
@@ -3210,22 +3096,20 @@ GSATPROD::GSATPROD( ) : ParserKeyword("GSATPROD")
 const std::string GSATPROD::keywordName = "GSATPROD";
 const std::string GSATPROD::SATELLITE_GROUP_NAME_OR_GROUP_NAME_ROOT::itemName = "SATELLITE_GROUP_NAME_OR_GROUP_NAME_ROOT";
 const std::string GSATPROD::OIL_PRODUCTION_RATE::itemName = "OIL_PRODUCTION_RATE";
-const double GSATPROD::OIL_PRODUCTION_RATE::defaultValue = 0.000000;
+const double GSATPROD::OIL_PRODUCTION_RATE::defaultValue = 0;
 const std::string GSATPROD::WATER_PRODUCTION_RATE::itemName = "WATER_PRODUCTION_RATE";
-const double GSATPROD::WATER_PRODUCTION_RATE::defaultValue = 0.000000;
+const double GSATPROD::WATER_PRODUCTION_RATE::defaultValue = 0;
 const std::string GSATPROD::GAS_PRODUCTION_RATE::itemName = "GAS_PRODUCTION_RATE";
-const double GSATPROD::GAS_PRODUCTION_RATE::defaultValue = 0.000000;
+const double GSATPROD::GAS_PRODUCTION_RATE::defaultValue = 0;
 const std::string GSATPROD::RES_FLUID_VOL_PRODUCTION_RATE::itemName = "RES_FLUID_VOL_PRODUCTION_RATE";
-const double GSATPROD::RES_FLUID_VOL_PRODUCTION_RATE::defaultValue = 0.000000;
+const double GSATPROD::RES_FLUID_VOL_PRODUCTION_RATE::defaultValue = 0;
 const std::string GSATPROD::LIFT_GAS_SUPPLY_RATE::itemName = "LIFT_GAS_SUPPLY_RATE";
-const double GSATPROD::LIFT_GAS_SUPPLY_RATE::defaultValue = 0.000000;
+const double GSATPROD::LIFT_GAS_SUPPLY_RATE::defaultValue = 0;
 const std::string GSATPROD::MEAN_CALORIFIC_VALUE::itemName = "MEAN_CALORIFIC_VALUE";
-const double GSATPROD::MEAN_CALORIFIC_VALUE::defaultValue = 0.000000;
+const double GSATPROD::MEAN_CALORIFIC_VALUE::defaultValue = 0;
 
 
-GSEPCOND::GSEPCOND( ) : ParserKeyword("GSEPCOND")
-{
-  setSizeType(SLASH_TERMINATED);
+GSEPCOND::GSEPCOND() : ParserKeyword("GSEPCOND", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GSEPCOND");
@@ -3247,9 +3131,7 @@ const std::string GSEPCOND::GROUP::itemName = "GROUP";
 const std::string GSEPCOND::SEPARATOR::itemName = "SEPARATOR";
 
 
-GSSCPTST::GSSCPTST( ) : ParserKeyword("GSSCPTST")
-{
-  setFixedSize( (size_t) 1);
+GSSCPTST::GSSCPTST() : ParserKeyword("GSSCPTST", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GSSCPTST");
@@ -3303,22 +3185,20 @@ const std::string GSSCPTST::GROUP::itemName = "GROUP";
 const std::string GSSCPTST::CONTROL_MODE::itemName = "CONTROL_MODE";
 const std::string GSSCPTST::CONTROL_MODE::defaultValue = "GRAT";
 const std::string GSSCPTST::TARGET_PROD_RATE::itemName = "TARGET_PROD_RATE";
-const double GSSCPTST::TARGET_PROD_RATE::defaultValue = 0.000000;
+const double GSSCPTST::TARGET_PROD_RATE::defaultValue = 0;
 const std::string GSSCPTST::TARGET_PROD_PERIOD::itemName = "TARGET_PROD_PERIOD";
-const double GSSCPTST::TARGET_PROD_PERIOD::defaultValue = 0.000000;
+const double GSSCPTST::TARGET_PROD_PERIOD::defaultValue = 0;
 const std::string GSSCPTST::MAX_PROD_RATE_FLAG::itemName = "MAX_PROD_RATE_FLAG";
 const int GSSCPTST::MAX_PROD_RATE_FLAG::defaultValue = 1;
 const std::string GSSCPTST::CONV_TOLERANCE::itemName = "CONV_TOLERANCE";
-const double GSSCPTST::CONV_TOLERANCE::defaultValue = 0.000000;
+const double GSSCPTST::CONV_TOLERANCE::defaultValue = 0;
 const std::string GSSCPTST::MAT_IT::itemName = "MAT_IT";
 const int GSSCPTST::MAT_IT::defaultValue = 6;
 const std::string GSSCPTST::SUB_GRP_CONTROL_FLAG::itemName = "SUB_GRP_CONTROL_FLAG";
 const int GSSCPTST::SUB_GRP_CONTROL_FLAG::defaultValue = 1;
 
 
-GSWINGF::GSWINGF( ) : ParserKeyword("GSWINGF")
-{
-  setSizeType(SLASH_TERMINATED);
+GSWINGF::GSWINGF() : ParserKeyword("GSWINGF", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GSWINGF");
@@ -3479,9 +3359,7 @@ const std::string GSWINGF::PROFILE_NOV::itemName = "PROFILE_NOV";
 const std::string GSWINGF::PROFILE_DEC::itemName = "PROFILE_DEC";
 
 
-GTADD::GTADD( ) : ParserKeyword("GTADD")
-{
-  setSizeType(SLASH_TERMINATED);
+GTADD::GTADD() : ParserKeyword("GTADD", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GTADD");
@@ -3515,9 +3393,7 @@ const std::string GTADD::NUM_ADDITIONS::itemName = "NUM_ADDITIONS";
 const int GTADD::NUM_ADDITIONS::defaultValue = 1;
 
 
-GTMULT::GTMULT( ) : ParserKeyword("GTMULT")
-{
-  setSizeType(SLASH_TERMINATED);
+GTMULT::GTMULT() : ParserKeyword("GTMULT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GTMULT");
@@ -3551,9 +3427,7 @@ const std::string GTMULT::NUM_MULT::itemName = "NUM_MULT";
 const int GTMULT::NUM_MULT::defaultValue = 1;
 
 
-GUIDECAL::GUIDECAL( ) : ParserKeyword("GUIDECAL")
-{
-  setFixedSize( (size_t) 1);
+GUIDECAL::GUIDECAL() : ParserKeyword("GUIDECAL", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GUIDECAL");
@@ -3575,9 +3449,7 @@ const std::string GUIDECAL::COEFF_A::itemName = "COEFF_A";
 const std::string GUIDECAL::COEFF_B::itemName = "COEFF_B";
 
 
-GUIDERAT::GUIDERAT( ) : ParserKeyword("GUIDERAT")
-{
-  setFixedSize( (size_t) 1);
+GUIDERAT::GUIDERAT() : ParserKeyword("GUIDERAT", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GUIDERAT");
@@ -3649,21 +3521,21 @@ GUIDERAT::GUIDERAT( ) : ParserKeyword("GUIDERAT")
 }
 const std::string GUIDERAT::keywordName = "GUIDERAT";
 const std::string GUIDERAT::MIN_CALC_TIME::itemName = "MIN_CALC_TIME";
-const double GUIDERAT::MIN_CALC_TIME::defaultValue = 0.000000;
+const double GUIDERAT::MIN_CALC_TIME::defaultValue = 0;
 const std::string GUIDERAT::NOMINATED_PHASE::itemName = "NOMINATED_PHASE";
 const std::string GUIDERAT::NOMINATED_PHASE::defaultValue = "NONE";
 const std::string GUIDERAT::A::itemName = "A";
-const double GUIDERAT::A::defaultValue = 0.000000;
+const double GUIDERAT::A::defaultValue = 0;
 const std::string GUIDERAT::B::itemName = "B";
-const double GUIDERAT::B::defaultValue = 0.000000;
+const double GUIDERAT::B::defaultValue = 0;
 const std::string GUIDERAT::C::itemName = "C";
-const double GUIDERAT::C::defaultValue = 0.000000;
+const double GUIDERAT::C::defaultValue = 0;
 const std::string GUIDERAT::D::itemName = "D";
-const double GUIDERAT::D::defaultValue = 0.000000;
+const double GUIDERAT::D::defaultValue = 0;
 const std::string GUIDERAT::E::itemName = "E";
-const double GUIDERAT::E::defaultValue = 0.000000;
+const double GUIDERAT::E::defaultValue = 0;
 const std::string GUIDERAT::F::itemName = "F";
-const double GUIDERAT::F::defaultValue = 0.000000;
+const double GUIDERAT::F::defaultValue = 0;
 const std::string GUIDERAT::ALLOW_INCREASE::itemName = "ALLOW_INCREASE";
 const std::string GUIDERAT::ALLOW_INCREASE::defaultValue = "YES";
 const std::string GUIDERAT::DAMPING_FACTOR::itemName = "DAMPING_FACTOR";
@@ -3671,12 +3543,10 @@ const double GUIDERAT::DAMPING_FACTOR::defaultValue = 1.000000;
 const std::string GUIDERAT::USE_FREE_GAS::itemName = "USE_FREE_GAS";
 const std::string GUIDERAT::USE_FREE_GAS::defaultValue = "NO";
 const std::string GUIDERAT::MIN_GUIDE_RATE::itemName = "MIN_GUIDE_RATE";
-const double GUIDERAT::MIN_GUIDE_RATE::defaultValue = 0.000001;
+const double GUIDERAT::MIN_GUIDE_RATE::defaultValue = 1e-06;
 
 
-GUPFREQ::GUPFREQ( ) : ParserKeyword("GUPFREQ")
-{
-  setFixedSize( (size_t) 1);
+GUPFREQ::GUPFREQ() : ParserKeyword("GUPFREQ", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GUPFREQ");
@@ -3695,9 +3565,7 @@ const std::string GUPFREQ::UPDATE_FREQ_TYPE::itemName = "UPDATE_FREQ_TYPE";
 const std::string GUPFREQ::UPDATE_FREQ_TYPE::defaultValue = "ALL";
 
 
-GWRTWCV::GWRTWCV( ) : ParserKeyword("GWRTWCV")
-{
-  setSizeType(SLASH_TERMINATED);
+GWRTWCV::GWRTWCV() : ParserKeyword("GWRTWCV", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("GWRTWCV");

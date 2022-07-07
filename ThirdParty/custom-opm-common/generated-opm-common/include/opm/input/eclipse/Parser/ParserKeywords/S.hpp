@@ -1,83 +1,29 @@
-#ifndef PARSER_KEYWORDS_P_HPP
-#define PARSER_KEYWORDS_P_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#ifndef PARSER_KEYWORDS_S_HPP
+#define PARSER_KEYWORDS_S_HPP
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
-   class PARALLEL : public ParserKeyword {
+   class SALINITY : public ParserKeyword {
    public:
-       PARALLEL();
+       SALINITY();
        static const std::string keywordName;
 
-       class NDMAIN {
+       class MOLALITY {
        public:
            static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class MACHINE_TYPE {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
+           static const double defaultValue;
        };
    };
 
 
 
-   class PARAOPTS : public ParserKeyword {
+   class SALT : public ParserKeyword {
    public:
-       PARAOPTS();
+       SALT();
        static const std::string keywordName;
 
-       class METHOD {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class SET_PRINT {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class SIZE {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class NUM_BUFFERS {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class VALUE_MEM {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class VALUE_COARSE {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class VALUE_NNC {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class VALUE_PRT_FILE {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class RESERVED {
+       class SALT_CONCENTRATION {
        public:
            static const std::string itemName;
        };
@@ -85,43 +31,12 @@ namespace ParserKeywords {
 
 
 
-   class PARTTRAC : public ParserKeyword {
+   class SALTNODE : public ParserKeyword {
    public:
-       PARTTRAC();
+       SALTNODE();
        static const std::string keywordName;
 
-       class NPARTT {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class NKPTMX {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class NPKPMX {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-   };
-
-
-
-   class PATHS : public ParserKeyword {
-   public:
-       PATHS();
-       static const std::string keywordName;
-
-       class PathName {
-       public:
-           static const std::string itemName;
-       };
-
-       class PathValue {
+       class SALT_CONCENTRATION {
        public:
            static const std::string itemName;
        };
@@ -129,12 +44,12 @@ namespace ParserKeywords {
 
 
 
-   class PBUB : public ParserKeyword {
+   class SALTP : public ParserKeyword {
    public:
-       PBUB();
+       SALTP();
        static const std::string keywordName;
 
-       class data {
+       class SALT_SATURATION {
        public:
            static const std::string itemName;
        };
@@ -142,9 +57,9 @@ namespace ParserKeywords {
 
 
 
-   class PBVD : public ParserKeyword {
+   class SALTPVD : public ParserKeyword {
    public:
-       PBVD();
+       SALTPVD();
        static const std::string keywordName;
 
        class DATA {
@@ -155,12 +70,12 @@ namespace ParserKeywords {
 
 
 
-   class PCG : public ParserKeyword {
+   class SALTREST : public ParserKeyword {
    public:
-       PCG();
+       SALTREST();
        static const std::string keywordName;
 
-       class data {
+       class SALT_CONCENTRATION {
        public:
            static const std::string itemName;
        };
@@ -168,61 +83,9 @@ namespace ParserKeywords {
 
 
 
-   class PCG32D : public ParserKeyword {
+   class SALTSOL : public ParserKeyword {
    public:
-       PCG32D();
-       static const std::string keywordName;
-
-       class SOME_DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PCW : public ParserKeyword {
-   public:
-       PCW();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PCW32D : public ParserKeyword {
-   public:
-       PCW32D();
-       static const std::string keywordName;
-
-       class SOME_DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PDEW : public ParserKeyword {
-   public:
-       PDEW();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PDVD : public ParserKeyword {
-   public:
-       PDVD();
+       SALTSOL();
        static const std::string keywordName;
 
        class DATA {
@@ -233,115 +96,9 @@ namespace ParserKeywords {
 
 
 
-   class PEBI : public ParserKeyword {
+   class SALTVD : public ParserKeyword {
    public:
-       PEBI();
-       static const std::string keywordName;
-
-       class NEG_TRANSMISSIBILITIES {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class AVOID_GRID_CALC {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-   };
-
-
-
-   class PECOEFS : public ParserKeyword {
-   public:
-       PECOEFS();
-       static const std::string keywordName;
-
-       class WAT_SALINITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class TEMP {
-       public:
-           static const std::string itemName;
-       };
-
-       class MINERAL_DENSITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class PHI_EFF_0 {
-       public:
-           static const std::string itemName;
-       };
-
-       class PHI_EFF_1 {
-       public:
-           static const std::string itemName;
-       };
-
-       class C_0 {
-       public:
-           static const std::string itemName;
-       };
-
-       class C_K {
-       public:
-           static const std::string itemName;
-       };
-
-       class SHEAR_MOD {
-       public:
-           static const std::string itemName;
-       };
-
-       class ALPHA {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class E {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class METHOD {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-   };
-
-
-
-   class PEDIMS : public ParserKeyword {
-   public:
-       PEDIMS();
-       static const std::string keywordName;
-
-       class NUM_REGIONS {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class MAX_PRESSURE_POINTS {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-   };
-
-
-
-   class PEGTABX : public ParserKeyword {
-   public:
-       PEGTABX();
+       SALTVD();
        static const std::string keywordName;
 
        class DATA {
@@ -352,9 +109,199 @@ namespace ParserKeywords {
 
 
 
-   class PEKTABX : public ParserKeyword {
+   class SAMG : public ParserKeyword {
    public:
-       PEKTABX();
+       SAMG();
+       static const std::string keywordName;
+
+       class EPS {
+       public:
+           static const std::string itemName;
+       };
+
+       class REUSE {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SATNUM : public ParserKeyword {
+   public:
+       SATNUM();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SATOPTS : public ParserKeyword {
+   public:
+       SATOPTS();
+       static const std::string keywordName;
+
+       class options {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SAVE : public ParserKeyword {
+   public:
+       SAVE();
+       static const std::string keywordName;
+
+       class FILE_TYPE {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+   };
+
+
+
+   class SBIOF : public ParserKeyword {
+   public:
+       SBIOF();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SCALC : public ParserKeyword {
+   public:
+       SCALC();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SCALECRS : public ParserKeyword {
+   public:
+       SCALECRS();
+       static const std::string keywordName;
+
+       class VALUE {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+   };
+
+
+
+   class SCALELIM : public ParserKeyword {
+   public:
+       SCALELIM();
+       static const std::string keywordName;
+
+       class SAT_LIMIT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class SCDATAB : public ParserKeyword {
+   public:
+       SCDATAB();
+       static const std::string keywordName;
+
+       class SCALE_DATA {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class SCDETAB : public ParserKeyword {
+   public:
+       SCDETAB();
+       static const std::string keywordName;
+
+       class SCALE_DATA {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class SCDPDIMS : public ParserKeyword {
+   public:
+       SCDPDIMS();
+       static const std::string keywordName;
+
+       class NTSCDP {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class NPSCDP {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class NTSCDA {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class PSCDA {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class UNUSED1 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class UNUSED2 {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class NTSCDE {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+   };
+
+
+
+   class SCDPTAB : public ParserKeyword {
+   public:
+       SCDPTAB();
        static const std::string keywordName;
 
        class DATA {
@@ -365,12 +312,12 @@ namespace ParserKeywords {
 
 
 
-   class PENUM : public ParserKeyword {
+   class SCDPTRAC : public ParserKeyword {
    public:
-       PENUM();
+       SCDPTRAC();
        static const std::string keywordName;
 
-       class data {
+       class TRACER {
        public:
            static const std::string itemName;
        };
@@ -378,483 +325,17 @@ namespace ParserKeywords {
 
 
 
-   class PERFORMANCE_PROBE : public ParserKeyword {
+   class SCHEDULE : public ParserKeyword {
    public:
-       PERFORMANCE_PROBE();
+       SCHEDULE();
        static const std::string keywordName;
    };
 
 
 
-   class PERMAVE : public ParserKeyword {
+   class SCVD : public ParserKeyword {
    public:
-       PERMAVE();
-       static const std::string keywordName;
-
-       class EXPO_0 {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class EXPO_1 {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class EXPO_2 {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-   };
-
-
-
-   class PERMFACT : public ParserKeyword {
-   public:
-       PERMFACT();
-       static const std::string keywordName;
-
-       class POROSITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class PERMFACTMULT {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PERMJFUN : public ParserKeyword {
-   public:
-       PERMJFUN();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PERMR : public ParserKeyword {
-   public:
-       PERMR();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PERMTHT : public ParserKeyword {
-   public:
-       PERMTHT();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PERMX : public ParserKeyword {
-   public:
-       PERMX();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PERMXY : public ParserKeyword {
-   public:
-       PERMXY();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PERMY : public ParserKeyword {
-   public:
-       PERMY();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-   };
-
-
-
-   class PERMYZ : public ParserKeyword {
-   public:
-       PERMYZ();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PERMZ : public ParserKeyword {
-   public:
-       PERMZ();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-   };
-
-
-
-   class PERMZX : public ParserKeyword {
-   public:
-       PERMZX();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PETGRID : public ParserKeyword {
-   public:
-       PETGRID();
-       static const std::string keywordName;
-
-       class FILE_NAME {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PETOPTS : public ParserKeyword {
-   public:
-       PETOPTS();
-       static const std::string keywordName;
-
-       class OPTIONS {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PICOND : public ParserKeyword {
-   public:
-       PICOND();
-       static const std::string keywordName;
-
-       class MAX_INTERVAL_BELOW_DEWPOINT {
-       public:
-           static const std::string itemName;
-       };
-
-       class MAX_INTERVAL_ABOVE_DEWPOINT {
-       public:
-           static const std::string itemName;
-       };
-
-       class D_F {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class INCLUDE {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class F_L {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class F_U {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class DELTA_WAT_SAT {
-       public:
-           static const std::string itemName;
-       };
-
-       class DELTA_PRESSURE {
-       public:
-           static const std::string itemName;
-       };
-
-       class DELTA_FRAC_COMP {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class MAX_DELTA_TIME {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class ADAPTIVE_ORD_CONTROL {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class ADAPTIVE_ORD_MIN_SPACING {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PIMTDIMS : public ParserKeyword {
-   public:
-       PIMTDIMS();
-       static const std::string keywordName;
-
-       class NTPIMT {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class NPPIMT {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-   };
-
-
-
-   class PIMULTAB : public ParserKeyword {
-   public:
-       PIMULTAB();
-       static const std::string keywordName;
-
-       class TABLE {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PINCH : public ParserKeyword {
-   public:
-       PINCH();
-       static const std::string keywordName;
-
-       class THRESHOLD_THICKNESS {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class CONTROL_OPTION {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class MAX_EMPTY_GAP {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class PINCHOUT_OPTION {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class MULTZ_OPTION {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-   };
-
-
-
-   class PINCHNUM : public ParserKeyword {
-   public:
-       PINCHNUM();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PINCHOUT : public ParserKeyword {
-   public:
-       PINCHOUT();
-       static const std::string keywordName;
-   };
-
-
-
-   class PINCHREG : public ParserKeyword {
-   public:
-       PINCHREG();
-       static const std::string keywordName;
-
-       class THRESHOLD_THICKNESS {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class OPTION1 {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class MAX_GAP {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class OPTION2 {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class OPTION3 {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-   };
-
-
-
-   class PINCHXY : public ParserKeyword {
-   public:
-       PINCHXY();
-       static const std::string keywordName;
-
-       class THRESHOLD_XR {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class THRESHOLD_YTHETA {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-   };
-
-
-
-   class PINTDIMS : public ParserKeyword {
-   public:
-       PINTDIMS();
-       static const std::string keywordName;
-
-       class NTSKWAT {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class NTSKPOLY {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-
-       class NTPMWINJ {
-       public:
-           static const std::string itemName;
-           static const int defaultValue;
-       };
-   };
-
-
-
-   class PLMIXNUM : public ParserKeyword {
-   public:
-       PLMIXNUM();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLMIXPAR : public ParserKeyword {
-   public:
-       PLMIXPAR();
-       static const std::string keywordName;
-
-       class TODD_LONGSTAFF {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYADS : public ParserKeyword {
-   public:
-       PLYADS();
+       SCVD();
        static const std::string keywordName;
 
        class DATA {
@@ -865,20 +346,112 @@ namespace ParserKeywords {
 
 
 
-   class PLYADSS : public ParserKeyword {
+   class SDENSITY : public ParserKeyword {
    public:
-       PLYADSS();
+       SDENSITY();
        static const std::string keywordName;
 
-       class POLYMER_C {
+       class SOLVENT_DENSITY {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class SEGMENT_PROBE : public ParserKeyword {
+   public:
+       SEGMENT_PROBE();
+       static const std::string keywordName;
+
+       class Well {
        public:
            static const std::string itemName;
        };
 
-       class POLYMER_ADS_C {
+       class Segment {
        public:
            static const std::string itemName;
        };
+   };
+
+
+
+   class SEPARATE : public ParserKeyword {
+   public:
+       SEPARATE();
+       static const std::string keywordName;
+   };
+
+
+
+   class SEPVALS : public ParserKeyword {
+   public:
+       SEPVALS();
+       static const std::string keywordName;
+
+       class SEPARATOR {
+       public:
+           static const std::string itemName;
+       };
+
+       class BO {
+       public:
+           static const std::string itemName;
+       };
+
+       class RS {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SFOAM : public ParserKeyword {
+   public:
+       SFOAM();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SGAS : public ParserKeyword {
+   public:
+       SGAS();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SGCR : public ParserKeyword {
+   public:
+       SGCR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SGCWMIS : public ParserKeyword {
+   public:
+       SGCWMIS();
+       static const std::string keywordName;
 
        class DATA {
        public:
@@ -888,12 +461,22 @@ namespace ParserKeywords {
 
 
 
-   class PLYATEMP : public ParserKeyword {
+   class SGF32D : public ParserKeyword {
    public:
-       PLYATEMP();
+       SGF32D();
        static const std::string keywordName;
 
-       class data {
+       class SOIL {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWAT {
+       public:
+           static const std::string itemName;
+       };
+
+       class KRG {
        public:
            static const std::string itemName;
        };
@@ -901,22 +484,9 @@ namespace ParserKeywords {
 
 
 
-   class PLYCAMAX : public ParserKeyword {
+   class SGFN : public ParserKeyword {
    public:
-       PLYCAMAX();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYDHFLF : public ParserKeyword {
-   public:
-       PLYDHFLF();
+       SGFN();
        static const std::string keywordName;
 
        class DATA {
@@ -927,22 +497,9 @@ namespace ParserKeywords {
 
 
 
-   class PLYESAL : public ParserKeyword {
+   class SGL : public ParserKeyword {
    public:
-       PLYESAL();
-       static const std::string keywordName;
-
-       class ALPHAP {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYKRRF : public ParserKeyword {
-   public:
-       PLYKRRF();
+       SGL();
        static const std::string keywordName;
 
        class data {
@@ -953,17 +510,12 @@ namespace ParserKeywords {
 
 
 
-   class PLYMAX : public ParserKeyword {
+   class SGLPC : public ParserKeyword {
    public:
-       PLYMAX();
+       SGLPC();
        static const std::string keywordName;
 
-       class MAX_POLYMER_CONCENTRATION {
-       public:
-           static const std::string itemName;
-       };
-
-       class MAX_SALT_CONCENTRATION {
+       class data {
        public:
            static const std::string itemName;
        };
@@ -971,9 +523,296 @@ namespace ParserKeywords {
 
 
 
-   class PLYMWINJ : public ParserKeyword {
+   class SGOF : public ParserKeyword {
    public:
-       PLYMWINJ();
+       SGOF();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SGOFLET : public ParserKeyword {
+   public:
+       SGOFLET();
+       static const std::string keywordName;
+
+       class SG_0 {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class SG_CRITICAL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class L_GAS {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class E_GAS {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class T_GAS {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class KRT_GAS {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class SO_0 {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class SO_CRITICAL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class L_OIL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class E_OIL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class T_OIL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class KRT_OIL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class L_PC {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class E_PC {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class T_PC {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class PCIR {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class PCT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class SGU : public ParserKeyword {
+   public:
+       SGU();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SGWFN : public ParserKeyword {
+   public:
+       SGWFN();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SHRATE : public ParserKeyword {
+   public:
+       SHRATE();
+       static const std::string keywordName;
+
+       class SHEAR_RATE {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SIGMA : public ParserKeyword {
+   public:
+       SIGMA();
+       static const std::string keywordName;
+
+       class COUPLING {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SIGMAGDV : public ParserKeyword {
+   public:
+       SIGMAGDV();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SIGMATH : public ParserKeyword {
+   public:
+       SIGMATH();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SIGMAV : public ParserKeyword {
+   public:
+       SIGMAV();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SIMULATE : public ParserKeyword {
+   public:
+       SIMULATE();
+       static const std::string keywordName;
+   };
+
+
+
+   class SKIP : public ParserKeyword {
+   public:
+       SKIP();
+       static const std::string keywordName;
+   };
+
+
+
+   class SKIP100 : public ParserKeyword {
+   public:
+       SKIP100();
+       static const std::string keywordName;
+   };
+
+
+
+   class SKIP300 : public ParserKeyword {
+   public:
+       SKIP300();
+       static const std::string keywordName;
+   };
+
+
+
+   class SKIPREST : public ParserKeyword {
+   public:
+       SKIPREST();
+       static const std::string keywordName;
+   };
+
+
+
+   class SKPRPOLY : public ParserKeyword {
+   public:
+       SKPRPOLY();
+       static const std::string keywordName;
+
+       class TABLE_NUMBER {
+       public:
+           static const std::string itemName;
+       };
+
+       class POLYMERCONCENTRATION {
+       public:
+           static const std::string itemName;
+       };
+
+       class THROUGHPUT {
+       public:
+           static const std::string itemName;
+       };
+
+       class VELOCITY {
+       public:
+           static const std::string itemName;
+       };
+
+       class SKINPRESSURE {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SKPRWAT : public ParserKeyword {
+   public:
+       SKPRWAT();
        static const std::string keywordName;
 
        class TABLE_NUMBER {
@@ -991,7 +830,7 @@ namespace ParserKeywords {
            static const std::string itemName;
        };
 
-       class MOLECULARWEIGHT {
+       class SKINPRESSURE {
        public:
            static const std::string itemName;
        };
@@ -999,23 +838,9 @@ namespace ParserKeywords {
 
 
 
-   class PLYOPTS : public ParserKeyword {
+   class SKRO : public ParserKeyword {
    public:
-       PLYOPTS();
-       static const std::string keywordName;
-
-       class MIN_SWAT {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-   };
-
-
-
-   class PLYRMDEN : public ParserKeyword {
-   public:
-       PLYRMDEN();
+       SKRO();
        static const std::string keywordName;
 
        class data {
@@ -1026,33 +851,12 @@ namespace ParserKeywords {
 
 
 
-   class PLYROCK : public ParserKeyword {
+   class SKRORG : public ParserKeyword {
    public:
-       PLYROCK();
+       SKRORG();
        static const std::string keywordName;
 
-       class IPV {
-       public:
-           static const std::string itemName;
-       };
-
-       class RRF {
-       public:
-           static const std::string itemName;
-       };
-
-       class ROCK_DENSITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class AI {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class MAX_ADSORPTION {
+       class data {
        public:
            static const std::string itemName;
        };
@@ -1060,33 +864,12 @@ namespace ParserKeywords {
 
 
 
-   class PLYROCKM : public ParserKeyword {
+   class SKRORW : public ParserKeyword {
    public:
-       PLYROCKM();
+       SKRORW();
        static const std::string keywordName;
 
-       class IPV {
-       public:
-           static const std::string itemName;
-       };
-
-       class RRF {
-       public:
-           static const std::string itemName;
-       };
-
-       class ROCK_DENSITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class AI {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class MAX_ADSORPTION {
+       class data {
        public:
            static const std::string itemName;
        };
@@ -1094,17 +877,12 @@ namespace ParserKeywords {
 
 
 
-   class PLYSHEAR : public ParserKeyword {
+   class SKRW : public ParserKeyword {
    public:
-       PLYSHEAR();
+       SKRW();
        static const std::string keywordName;
 
-       class WATER_VELOCITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class VRF {
+       class data {
        public:
            static const std::string itemName;
        };
@@ -1112,27 +890,12 @@ namespace ParserKeywords {
 
 
 
-   class PLYSHLOG : public ParserKeyword {
+   class SKRWR : public ParserKeyword {
    public:
-       PLYSHLOG();
+       SKRWR();
        static const std::string keywordName;
 
-       class REF_POLYMER_CONCENTRATION {
-       public:
-           static const std::string itemName;
-       };
-
-       class REF_SALINITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class REF_TEMPERATURE {
-       public:
-           static const std::string itemName;
-       };
-
-       class DATA {
+       class data {
        public:
            static const std::string itemName;
        };
@@ -1140,150 +903,32 @@ namespace ParserKeywords {
 
 
 
-   class PLYTRRF : public ParserKeyword {
+   class SLAVES : public ParserKeyword {
    public:
-       PLYTRRF();
+       SLAVES();
        static const std::string keywordName;
 
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYTRRFA : public ParserKeyword {
-   public:
-       PLYTRRFA();
-       static const std::string keywordName;
-
-       class NBTRRF {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYVISC : public ParserKeyword {
-   public:
-       PLYVISC();
-       static const std::string keywordName;
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYVISCS : public ParserKeyword {
-   public:
-       PLYVISCS();
-       static const std::string keywordName;
-
-       class PC {
+       class SLAVE_RESERVOIR {
        public:
            static const std::string itemName;
        };
 
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYVISCT : public ParserKeyword {
-   public:
-       PLYVISCT();
-       static const std::string keywordName;
-
-       class PC {
+       class SLAVE_ECLBASE {
        public:
            static const std::string itemName;
        };
 
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYVMH : public ParserKeyword {
-   public:
-       PLYVMH();
-       static const std::string keywordName;
-
-       class K_MH {
+       class HOST_NAME {
        public:
            static const std::string itemName;
        };
 
-       class A_MH {
+       class DIRECTORY {
        public:
            static const std::string itemName;
        };
 
-       class GAMMA {
-       public:
-           static const std::string itemName;
-       };
-
-       class KAPPA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PLYVSCST : public ParserKeyword {
-   public:
-       PLYVSCST();
-       static const std::string keywordName;
-
-       class PC1 {
-       public:
-           static const std::string itemName;
-       };
-
-       class MULT {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PMAX : public ParserKeyword {
-   public:
-       PMAX();
-       static const std::string keywordName;
-
-       class MAX_PRESSURE {
-       public:
-           static const std::string itemName;
-       };
-
-       class MAX_PRESSURE_CHECK {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class MIN_PRESSURE_CHECK {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class NUM_NODES {
+       class NUM_PE {
        public:
            static const std::string itemName;
            static const int defaultValue;
@@ -1292,9 +937,9 @@ namespace ParserKeywords {
 
 
 
-   class PMISC : public ParserKeyword {
+   class SLGOF : public ParserKeyword {
    public:
-       PMISC();
+       SLGOF();
        static const std::string keywordName;
 
        class DATA {
@@ -1305,39 +950,9 @@ namespace ParserKeywords {
 
 
 
-   class POLYMER : public ParserKeyword {
+   class SMICR : public ParserKeyword {
    public:
-       POLYMER();
-       static const std::string keywordName;
-   };
-
-
-
-   class POLYMW : public ParserKeyword {
-   public:
-       POLYMW();
-       static const std::string keywordName;
-   };
-
-
-
-   class PORO : public ParserKeyword {
-   public:
-       PORO();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-   };
-
-
-
-   class PORV : public ParserKeyword {
-   public:
-       PORV();
+       SMICR();
        static const std::string keywordName;
 
        class data {
@@ -1348,63 +963,23 @@ namespace ParserKeywords {
 
 
 
-   class PPCWMAX : public ParserKeyword {
+   class SMRYDIMS : public ParserKeyword {
    public:
-       PPCWMAX();
+       SMRYDIMS();
        static const std::string keywordName;
 
-       class MAXIMUM_CAPILLARY_PRESSURE {
+       class DIMS {
        public:
            static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class MODIFY_CONNATE_SATURATION {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
+           static const int defaultValue;
        };
    };
 
 
 
-   class PRECSALT : public ParserKeyword {
+   class SMULTX : public ParserKeyword {
    public:
-       PRECSALT();
-       static const std::string keywordName;
-   };
-
-
-
-   class PREF : public ParserKeyword {
-   public:
-       PREF();
-       static const std::string keywordName;
-
-       class PRESSURE {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PREFS : public ParserKeyword {
-   public:
-       PREFS();
-       static const std::string keywordName;
-
-       class PRESSURE {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PRESSURE : public ParserKeyword {
-   public:
-       PRESSURE();
+       SMULTX();
        static const std::string keywordName;
 
        class data {
@@ -1415,189 +990,48 @@ namespace ParserKeywords {
 
 
 
-   class PRIORITY : public ParserKeyword {
+   class SMULTY : public ParserKeyword {
    public:
-       PRIORITY();
+       SMULTY();
        static const std::string keywordName;
 
-       class MIN_CALC_TIME {
+       class data {
        public:
            static const std::string itemName;
-       };
-
-       class A1 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class B1 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class C1 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class D1 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class E1 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class F1 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class G1 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class H1 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class A2 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class B2 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class C2 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class D2 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class E2 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class F2 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class G2 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class H2 {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
        };
    };
 
 
 
-   class PROPS : public ParserKeyword {
+   class SMULTZ : public ParserKeyword {
    public:
-       PROPS();
-       static const std::string keywordName;
-   };
-
-
-
-   class PRORDER : public ParserKeyword {
-   public:
-       PRORDER();
+       SMULTZ();
        static const std::string keywordName;
 
-       class NO1 {
+       class data {
        public:
            static const std::string itemName;
-       };
-
-       class NO2 {
-       public:
-           static const std::string itemName;
-       };
-
-       class NO3 {
-       public:
-           static const std::string itemName;
-       };
-
-       class NO4 {
-       public:
-           static const std::string itemName;
-       };
-
-       class NO5 {
-       public:
-           static const std::string itemName;
-       };
-
-       class OPT1 {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class OPT2 {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class OPT3 {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class OPT4 {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class OPT5 {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
        };
    };
 
 
 
-   class PRVD : public ParserKeyword {
+   class SOCRS : public ParserKeyword {
    public:
-       PRVD();
+       SOCRS();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOF2 : public ParserKeyword {
+   public:
+       SOF2();
        static const std::string keywordName;
 
        class DATA {
@@ -1608,67 +1042,453 @@ namespace ParserKeywords {
 
 
 
-   class PSTEADY : public ParserKeyword {
+   class SOF3 : public ParserKeyword {
    public:
-       PSTEADY();
+       SOF3();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOF32D : public ParserKeyword {
+   public:
+       SOF32D();
+       static const std::string keywordName;
+
+       class SWAT {
+       public:
+           static const std::string itemName;
+       };
+
+       class SGAS {
+       public:
+           static const std::string itemName;
+       };
+
+       class KRO {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOGCR : public ParserKeyword {
+   public:
+       SOGCR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOIL : public ParserKeyword {
+   public:
+       SOIL();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOLUTION : public ParserKeyword {
+   public:
+       SOLUTION();
+       static const std::string keywordName;
+   };
+
+
+
+   class SOLVCONC : public ParserKeyword {
+   public:
+       SOLVCONC();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOLVDIMS : public ParserKeyword {
+   public:
+       SOLVDIMS();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOLVDIRS : public ParserKeyword {
+   public:
+       SOLVDIRS();
+       static const std::string keywordName;
+
+       class DIRECTION {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOLVENT : public ParserKeyword {
+   public:
+       SOLVENT();
+       static const std::string keywordName;
+   };
+
+
+
+   class SOLVFRAC : public ParserKeyword {
+   public:
+       SOLVFRAC();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOLVNUM : public ParserKeyword {
+   public:
+       SOLVNUM();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOMGAS : public ParserKeyword {
+   public:
+       SOMGAS();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOMWAT : public ParserKeyword {
+   public:
+       SOMWAT();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SORWMIS : public ParserKeyword {
+   public:
+       SORWMIS();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOWCR : public ParserKeyword {
+   public:
+       SOWCR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SOXYG : public ParserKeyword {
+   public:
+       SOXYG();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SPECGRID : public ParserKeyword {
+   public:
+       SPECGRID();
+       static const std::string keywordName;
+
+       class NX {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class NY {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class NZ {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class NUMRES {
+       public:
+           static const std::string itemName;
+           static const int defaultValue;
+       };
+
+       class COORD_TYPE {
+       public:
+           static const std::string itemName;
+           static const std::string defaultValue;
+       };
+   };
+
+
+
+   class SPECHEAT : public ParserKeyword {
+   public:
+       SPECHEAT();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SPECROCK : public ParserKeyword {
+   public:
+       SPECROCK();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SPIDER : public ParserKeyword {
+   public:
+       SPIDER();
+       static const std::string keywordName;
+   };
+
+
+
+   class SPOLY : public ParserKeyword {
+   public:
+       SPOLY();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SPOLYMW : public ParserKeyword {
+   public:
+       SPOLYMW();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSFN : public ParserKeyword {
+   public:
+       SSFN();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSGCR : public ParserKeyword {
+   public:
+       SSGCR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSGL : public ParserKeyword {
+   public:
+       SSGL();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSOGCR : public ParserKeyword {
+   public:
+       SSOGCR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSOL : public ParserKeyword {
+   public:
+       SSOL();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSOWCR : public ParserKeyword {
+   public:
+       SSOWCR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSWCR : public ParserKeyword {
+   public:
+       SSWCR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSWL : public ParserKeyword {
+   public:
+       SSWL();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SSWU : public ParserKeyword {
+   public:
+       SSWU();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class START : public ParserKeyword {
+   public:
+       START();
        static const std::string keywordName;
 
        class DAY {
        public:
            static const std::string itemName;
+           static const int defaultValue;
        };
 
        class MONTH {
        public:
            static const std::string itemName;
+           static const std::string defaultValue;
        };
 
        class YEAR {
        public:
            static const std::string itemName;
+           static const int defaultValue;
        };
 
-       class DIFF {
-       public:
-           static const std::string itemName;
-       };
-
-       class PRESSURE_TOL {
-       public:
-           static const std::string itemName;
-       };
-
-       class OIL_TOL {
-       public:
-           static const std::string itemName;
-       };
-
-       class WATER_TOL {
-       public:
-           static const std::string itemName;
-       };
-
-       class GAS_TOL {
-       public:
-           static const std::string itemName;
-       };
-
-       class BRINE_TOL {
-       public:
-           static const std::string itemName;
-       };
-
-       class MAX_TIME {
-       public:
-           static const std::string itemName;
-       };
-
-       class MIN_TIME {
-       public:
-           static const std::string itemName;
-       };
-
-       class PIM_AQUIFERS {
+       class TIME {
        public:
            static const std::string itemName;
            static const std::string defaultValue;
@@ -1677,231 +1497,18 @@ namespace ParserKeywords {
 
 
 
-   class PSWRG : public ParserKeyword {
+   class STCOND : public ParserKeyword {
    public:
-       PSWRG();
+       STCOND();
        static const std::string keywordName;
 
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PSWRO : public ParserKeyword {
-   public:
-       PSWRO();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVCDO : public ParserKeyword {
-   public:
-       PVCDO();
-       static const std::string keywordName;
-
-       class P_REF {
-       public:
-           static const std::string itemName;
-       };
-
-       class OIL_VOL_FACTOR {
-       public:
-           static const std::string itemName;
-       };
-
-       class OIL_COMPRESSIBILITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class OIL_VISCOSITY {
-       public:
-           static const std::string itemName;
-       };
-
-       class OIL_VISCOSIBILITY {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVCO : public ParserKeyword {
-   public:
-       PVCO();
-       static const std::string keywordName;
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVDG : public ParserKeyword {
-   public:
-       PVDG();
-       static const std::string keywordName;
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVDO : public ParserKeyword {
-   public:
-       PVDO();
-       static const std::string keywordName;
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVDS : public ParserKeyword {
-   public:
-       PVDS();
-       static const std::string keywordName;
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVTG : public ParserKeyword {
-   public:
-       PVTG();
-       static const std::string keywordName;
-
-       class GAS_PRESSURE {
-       public:
-           static const std::string itemName;
-       };
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVTGW : public ParserKeyword {
-   public:
-       PVTGW();
-       static const std::string keywordName;
-
-       class GAS_PRESSURE {
-       public:
-           static const std::string itemName;
-       };
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVTGWO : public ParserKeyword {
-   public:
-       PVTGWO();
-       static const std::string keywordName;
-
-       class GAS_PRESSURE {
-       public:
-           static const std::string itemName;
-       };
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVTNUM : public ParserKeyword {
-   public:
-       PVTNUM();
-       static const std::string keywordName;
-
-       class data {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVTO : public ParserKeyword {
-   public:
-       PVTO();
-       static const std::string keywordName;
-
-       class RS {
-       public:
-           static const std::string itemName;
-       };
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVTW : public ParserKeyword {
-   public:
-       PVTW();
-       static const std::string keywordName;
-
-       class P_REF {
-       public:
-           static const std::string itemName;
-       };
-
-       class WATER_VOL_FACTOR {
+       class TEMPERATURE {
        public:
            static const std::string itemName;
            static const double defaultValue;
        };
 
-       class WATER_COMPRESSIBILITY {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class WATER_VISCOSITY {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class WATER_VISCOSIBILITY {
+       class PRESSURE {
        public:
            static const std::string itemName;
            static const double defaultValue;
@@ -1910,44 +1517,12 @@ namespace ParserKeywords {
 
 
 
-   class PVTWSALT : public ParserKeyword {
+   class STOG : public ParserKeyword {
    public:
-       PVTWSALT();
+       STOG();
        static const std::string keywordName;
 
-       class P_REF {
-       public:
-           static const std::string itemName;
-       };
-
-       class SALT_CONCENTRATION_REF {
-       public:
-           static const std::string itemName;
-           static const double defaultValue;
-       };
-
-       class DATA {
-       public:
-           static const std::string itemName;
-       };
-   };
-
-
-
-   class PVT_M : public ParserKeyword {
-   public:
-       PVT_M();
-       static const std::string keywordName;
-   };
-
-
-
-   class PVZG : public ParserKeyword {
-   public:
-       PVZG();
-       static const std::string keywordName;
-
-       class REF_TEMP {
+       class REF_OIL_PHASE_PRESSURE {
        public:
            static const std::string itemName;
        };
@@ -1960,23 +1535,55 @@ namespace ParserKeywords {
 
 
 
-   class PYACTION : public ParserKeyword {
+   class STONE : public ParserKeyword {
    public:
-       PYACTION();
+       STONE();
+       static const std::string keywordName;
+   };
+
+
+
+   class STONE1 : public ParserKeyword {
+   public:
+       STONE1();
+       static const std::string keywordName;
+   };
+
+
+
+   class STONE1EX : public ParserKeyword {
+   public:
+       STONE1EX();
        static const std::string keywordName;
 
-       class NAME {
+       class EXP_VALUE {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class STONE2 : public ParserKeyword {
+   public:
+       STONE2();
+       static const std::string keywordName;
+   };
+
+
+
+   class STOW : public ParserKeyword {
+   public:
+       STOW();
+       static const std::string keywordName;
+
+       class REF_OIL_PRESSURE {
        public:
            static const std::string itemName;
        };
 
-       class RUN_COUNT {
-       public:
-           static const std::string itemName;
-           static const std::string defaultValue;
-       };
-
-       class FILENAME {
+       class table {
        public:
            static const std::string itemName;
        };
@@ -1984,12 +1591,600 @@ namespace ParserKeywords {
 
 
 
-   class PYINPUT : public ParserKeyword {
+   class STWG : public ParserKeyword {
    public:
-       PYINPUT();
+       STWG();
        static const std::string keywordName;
 
-       class code {
+       class REF_OIL_PRESSURE {
+       public:
+           static const std::string itemName;
+       };
+
+       class table {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SUMMARY : public ParserKeyword {
+   public:
+       SUMMARY();
+       static const std::string keywordName;
+   };
+
+
+
+   class SUMTHIN : public ParserKeyword {
+   public:
+       SUMTHIN();
+       static const std::string keywordName;
+
+       class TIME {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SUREA : public ParserKeyword {
+   public:
+       SUREA();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURF : public ParserKeyword {
+   public:
+       SURF();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFACT : public ParserKeyword {
+   public:
+       SURFACT();
+       static const std::string keywordName;
+   };
+
+
+
+   class SURFACTW : public ParserKeyword {
+   public:
+       SURFACTW();
+       static const std::string keywordName;
+   };
+
+
+
+   class SURFADDW : public ParserKeyword {
+   public:
+       SURFADDW();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFADS : public ParserKeyword {
+   public:
+       SURFADS();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFCAPD : public ParserKeyword {
+   public:
+       SURFCAPD();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFESAL : public ParserKeyword {
+   public:
+       SURFESAL();
+       static const std::string keywordName;
+
+       class COEFF {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFNUM : public ParserKeyword {
+   public:
+       SURFNUM();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFOPTS : public ParserKeyword {
+   public:
+       SURFOPTS();
+       static const std::string keywordName;
+
+       class MIN_SWAT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class SMOOTHING {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class SURFROCK : public ParserKeyword {
+   public:
+       SURFROCK();
+       static const std::string keywordName;
+
+       class INDEX {
+       public:
+           static const std::string itemName;
+       };
+
+       class MASS_DENSITY {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFST : public ParserKeyword {
+   public:
+       SURFST();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFSTES : public ParserKeyword {
+   public:
+       SURFSTES();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFVISC : public ParserKeyword {
+   public:
+       SURFVISC();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SURFWNUM : public ParserKeyword {
+   public:
+       SURFWNUM();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWAT : public ParserKeyword {
+   public:
+       SWAT();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWATINIT : public ParserKeyword {
+   public:
+       SWATINIT();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWCR : public ParserKeyword {
+   public:
+       SWCR();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWF32D : public ParserKeyword {
+   public:
+       SWF32D();
+       static const std::string keywordName;
+
+       class SOIL {
+       public:
+           static const std::string itemName;
+       };
+
+       class SGAS {
+       public:
+           static const std::string itemName;
+       };
+
+       class KRW {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWFN : public ParserKeyword {
+   public:
+       SWFN();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWINGFAC : public ParserKeyword {
+   public:
+       SWINGFAC();
+       static const std::string keywordName;
+
+       class SWING_FACTOR1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR3 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR4 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR5 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR6 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR7 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR8 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR9 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR10 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR11 {
+       public:
+           static const std::string itemName;
+       };
+
+       class SWING_FACTOR12 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR1 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR2 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR3 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR4 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR5 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR6 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR7 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR8 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR9 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR10 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR11 {
+       public:
+           static const std::string itemName;
+       };
+
+       class PROFILE_FACTOR12 {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWL : public ParserKeyword {
+   public:
+       SWL();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWLPC : public ParserKeyword {
+   public:
+       SWLPC();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWOF : public ParserKeyword {
+   public:
+       SWOF();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class SWOFLET : public ParserKeyword {
+   public:
+       SWOFLET();
+       static const std::string keywordName;
+
+       class SW_RESIDUAL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class SW_CRITICAL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class L_WATER {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class E_WATER {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class T_WATER {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class KRT_WATER {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class SO_RESIDUAL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class SO_CRITICAL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class L_OIL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class E_OIL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class T_OIL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class KRT_OIL {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class L_PC {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class E_PC {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class T_PC {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class PCIR {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+
+       class PCT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
+   };
+
+
+
+   class SWU : public ParserKeyword {
+   public:
+       SWU();
+       static const std::string keywordName;
+
+       class data {
        public:
            static const std::string itemName;
        };

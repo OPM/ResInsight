@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_C_HPP
 #define PARSER_KEYWORDS_C_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -334,6 +334,22 @@ namespace ParserKeywords {
    class CIRCLE : public ParserKeyword {
    public:
        CIRCLE();
+       static const std::string keywordName;
+   };
+
+
+
+   class CO2STOR : public ParserKeyword {
+   public:
+       CO2STOR();
+       static const std::string keywordName;
+   };
+
+
+
+   class CO2STORE : public ParserKeyword {
+   public:
+       CO2STORE();
        static const std::string keywordName;
    };
 
@@ -848,21 +864,25 @@ namespace ParserKeywords {
        class I {
        public:
            static const std::string itemName;
+           static const int defaultValue;
        };
 
        class J {
        public:
            static const std::string itemName;
+           static const int defaultValue;
        };
 
        class K1 {
        public:
            static const std::string itemName;
+           static const int defaultValue;
        };
 
        class K2 {
        public:
            static const std::string itemName;
+           static const int defaultValue;
        };
 
        class N {

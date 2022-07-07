@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_F_HPP
 #define PARSER_KEYWORDS_F_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -267,6 +267,11 @@ namespace ParserKeywords {
    public:
        FLUXTYPE();
        static const std::string keywordName;
+
+       class BC_TYPE {
+       public:
+           static const std::string itemName;
+       };
    };
 
 
@@ -403,6 +408,12 @@ namespace ParserKeywords {
            static const std::string itemName;
            static const double defaultValue;
        };
+
+       class MIN_WAT_SAT {
+       public:
+           static const std::string itemName;
+           static const double defaultValue;
+       };
    };
 
 
@@ -499,6 +510,7 @@ namespace ParserKeywords {
        class MODEL {
        public:
            static const std::string itemName;
+           static const std::string defaultValue;
        };
    };
 

@@ -1,68 +1,36 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/M.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/M.hpp>
 namespace Opm {
 namespace ParserKeywords {
-MAPAXES::MAPAXES( ) : ParserKeyword("MAPAXES")
-{
-  setFixedSize( (size_t) 1);
+MAPAXES::MAPAXES() : ParserKeyword("MAPAXES", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MAPAXES");
   {
      ParserRecord record;
      {
-        ParserItem item("X1", ParserItem::itype::DOUBLE);
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
         item.push_backDimension("Length");
-        record.addItem(item);
+        record.addDataItem(item);
      }
-     {
-        ParserItem item("Y1", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Length");
-        record.addItem(item);
-     }
-     {
-        ParserItem item("X2", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Length");
-        record.addItem(item);
-     }
-     {
-        ParserItem item("Y2", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Length");
-        record.addItem(item);
-     }
-     {
-        ParserItem item("X3", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Length");
-        record.addItem(item);
-     }
-     {
-        ParserItem item("Y3", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Length");
-        record.addItem(item);
-     }
-     addRecord( record );
+     addDataRecord( record );
   }
 }
 const std::string MAPAXES::keywordName = "MAPAXES";
-const std::string MAPAXES::X1::itemName = "X1";
-const std::string MAPAXES::Y1::itemName = "Y1";
-const std::string MAPAXES::X2::itemName = "X2";
-const std::string MAPAXES::Y2::itemName = "Y2";
-const std::string MAPAXES::X3::itemName = "X3";
-const std::string MAPAXES::Y3::itemName = "Y3";
+const std::string MAPAXES::data::itemName = "data";
 
 
-MAPUNITS::MAPUNITS( ) : ParserKeyword("MAPUNITS")
-{
-  setFixedSize( (size_t) 1);
+MAPUNITS::MAPUNITS() : ParserKeyword("MAPUNITS", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MAPUNITS");
@@ -81,9 +49,7 @@ const std::string MAPUNITS::UNIT::itemName = "UNIT";
 const std::string MAPUNITS::UNIT::defaultValue = "METRES";
 
 
-MASSFLOW::MASSFLOW( ) : ParserKeyword("MASSFLOW")
-{
-  setSizeType(SLASH_TERMINATED);
+MASSFLOW::MASSFLOW() : ParserKeyword("MASSFLOW", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MASSFLOW");
@@ -101,9 +67,7 @@ const std::string MASSFLOW::keywordName = "MASSFLOW";
 const std::string MASSFLOW::WORD::itemName = "WORD";
 
 
-MATCORR::MATCORR( ) : ParserKeyword("MATCORR")
-{
-  setFixedSize( (size_t) 1);
+MATCORR::MATCORR() : ParserKeyword("MATCORR", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MATCORR");
@@ -135,14 +99,12 @@ const int MATCORR::NEWTON_IT_NUM::defaultValue = 12;
 const std::string MATCORR::NON_LIN_CONV_ERR::itemName = "NON_LIN_CONV_ERR";
 const double MATCORR::NON_LIN_CONV_ERR::defaultValue = 0.010000;
 const std::string MATCORR::MATERIAL_BALANCE_ERR::itemName = "MATERIAL_BALANCE_ERR";
-const double MATCORR::MATERIAL_BALANCE_ERR::defaultValue = 0.000001;
+const double MATCORR::MATERIAL_BALANCE_ERR::defaultValue = 1e-06;
 
 
-MAXVALUE::MAXVALUE( ) : ParserKeyword("MAXVALUE")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+MAXVALUE::MAXVALUE() : ParserKeyword("MAXVALUE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MAXVALUE");
@@ -194,9 +156,7 @@ const std::string MAXVALUE::K1::itemName = "K1";
 const std::string MAXVALUE::K2::itemName = "K2";
 
 
-MEMORY::MEMORY( ) : ParserKeyword("MEMORY")
-{
-  setFixedSize( (size_t) 1);
+MEMORY::MEMORY() : ParserKeyword("MEMORY", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("MEMORY");
@@ -218,17 +178,15 @@ const std::string MEMORY::UNUSED::itemName = "UNUSED";
 const std::string MEMORY::THOUSANDS_CHAR8::itemName = "THOUSANDS_CHAR8";
 
 
-MESSAGE::MESSAGE( ) : ParserKeyword("MESSAGE")
-{
-  setFixedSize( (size_t) 1);
+MESSAGE::MESSAGE() : ParserKeyword("MESSAGE", KeywordSize(1, false)) {
+  addValidSectionName("RUNSPEC");
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MESSAGE");
   {
@@ -245,17 +203,15 @@ const std::string MESSAGE::keywordName = "MESSAGE";
 const std::string MESSAGE::MessageText::itemName = "MessageText";
 
 
-MESSAGES::MESSAGES( ) : ParserKeyword("MESSAGES")
-{
-  setFixedSize( (size_t) 1);
+MESSAGES::MESSAGES() : ParserKeyword("MESSAGES", KeywordSize(1, false)) {
+  addValidSectionName("RUNSPEC");
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MESSAGES");
   {
@@ -357,9 +313,7 @@ const std::string MESSAGES::GROUP_PRINT_LIMIT::itemName = "GROUP_PRINT_LIMIT";
 const int MESSAGES::GROUP_PRINT_LIMIT::defaultValue = 10;
 
 
-MESSOPTS::MESSOPTS( ) : ParserKeyword("MESSOPTS")
-{
-  setFixedSize( (size_t) 1);
+MESSOPTS::MESSOPTS() : ParserKeyword("MESSOPTS", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MESSOPTS");
@@ -381,9 +335,7 @@ const std::string MESSOPTS::MNEMONIC::itemName = "MNEMONIC";
 const std::string MESSOPTS::SEVERITY::itemName = "SEVERITY";
 
 
-MESSSRVC::MESSSRVC( ) : ParserKeyword("MESSSRVC")
-{
-  setFixedSize( (size_t) 1);
+MESSSRVC::MESSSRVC() : ParserKeyword("MESSSRVC", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("MESSSRVC");
@@ -402,9 +354,7 @@ const std::string MESSSRVC::PRODUCE_MESSAGE::itemName = "PRODUCE_MESSAGE";
 const std::string MESSSRVC::PRODUCE_MESSAGE::defaultValue = "ON";
 
 
-METRIC::METRIC( ) : ParserKeyword("METRIC")
-{
-  setFixedSize( (size_t) 0);
+METRIC::METRIC() : ParserKeyword("METRIC", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("METRIC");
@@ -412,9 +362,158 @@ METRIC::METRIC( ) : ParserKeyword("METRIC")
 const std::string METRIC::keywordName = "METRIC";
 
 
-MINNNCT::MINNNCT( ) : ParserKeyword("MINNNCT")
-{
-  setFixedSize( (size_t) 1);
+MICP::MICP() : ParserKeyword("MICP", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("MICP");
+}
+const std::string MICP::keywordName = "MICP";
+
+
+MICPPARA::MICPPARA() : ParserKeyword("MICPPARA", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("MICPPARA");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DENSITY_BIOFILM", ParserItem::itype::DOUBLE);
+        item.setDefault( double(35.000000) );
+        item.push_backDimension("Density");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("DENSITY_CALCITE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(2710.000000) );
+        item.push_backDimension("Density");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("DETACHMENT_RATE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(2.6e-10) );
+        item.push_backDimension("Length/Viscosity");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("CRITICAL_POROSITY", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.100000) );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("FITTING_FACTOR", ParserItem::itype::DOUBLE);
+        item.setDefault( double(3.000000) );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("HALF_VELOCITY_OXYGEN", ParserItem::itype::DOUBLE);
+        item.setDefault( double(2e-05) );
+        item.push_backDimension("Density");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("HALF_VELOCITY_UREA", ParserItem::itype::DOUBLE);
+        item.setDefault( double(21.300000) );
+        item.push_backDimension("Density");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MAXIMUM_GROWTH_RATE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(4.17e-05) );
+        item.push_backDimension("1/Time");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MAXIMUM_OXYGEN_CONCENTRATION", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.040000) );
+        item.push_backDimension("Density");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MAXIMUM_UREA_CONCENTRATION", ParserItem::itype::DOUBLE);
+        item.setDefault( double(60.000000) );
+        item.push_backDimension("Density");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MAXIMUM_UREA_UTILIZATION", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.016100) );
+        item.push_backDimension("1/Time");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MICROBIAL_ATTACHMENT_RATE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(8.51e-07) );
+        item.push_backDimension("1/Time");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MICROBIAL_DEATH_RATE", ParserItem::itype::DOUBLE);
+        item.setDefault( double(3.18e-07) );
+        item.push_backDimension("1/Time");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MINIMUM_PERMEABILITY", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1e-20) );
+        item.push_backDimension("Permeability");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("OXYGEN_CONSUMPTION_FACTOR", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.500000) );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("TOLERANCE_BEFORE_CLOGGING", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.000100) );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("YIELD_GROWTH_COEFFICIENT", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.500000) );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string MICPPARA::keywordName = "MICPPARA";
+const std::string MICPPARA::DENSITY_BIOFILM::itemName = "DENSITY_BIOFILM";
+const double MICPPARA::DENSITY_BIOFILM::defaultValue = 35.000000;
+const std::string MICPPARA::DENSITY_CALCITE::itemName = "DENSITY_CALCITE";
+const double MICPPARA::DENSITY_CALCITE::defaultValue = 2710.000000;
+const std::string MICPPARA::DETACHMENT_RATE::itemName = "DETACHMENT_RATE";
+const double MICPPARA::DETACHMENT_RATE::defaultValue = 2.6e-10;
+const std::string MICPPARA::CRITICAL_POROSITY::itemName = "CRITICAL_POROSITY";
+const double MICPPARA::CRITICAL_POROSITY::defaultValue = 0.100000;
+const std::string MICPPARA::FITTING_FACTOR::itemName = "FITTING_FACTOR";
+const double MICPPARA::FITTING_FACTOR::defaultValue = 3.000000;
+const std::string MICPPARA::HALF_VELOCITY_OXYGEN::itemName = "HALF_VELOCITY_OXYGEN";
+const double MICPPARA::HALF_VELOCITY_OXYGEN::defaultValue = 2e-05;
+const std::string MICPPARA::HALF_VELOCITY_UREA::itemName = "HALF_VELOCITY_UREA";
+const double MICPPARA::HALF_VELOCITY_UREA::defaultValue = 21.300000;
+const std::string MICPPARA::MAXIMUM_GROWTH_RATE::itemName = "MAXIMUM_GROWTH_RATE";
+const double MICPPARA::MAXIMUM_GROWTH_RATE::defaultValue = 4.17e-05;
+const std::string MICPPARA::MAXIMUM_OXYGEN_CONCENTRATION::itemName = "MAXIMUM_OXYGEN_CONCENTRATION";
+const double MICPPARA::MAXIMUM_OXYGEN_CONCENTRATION::defaultValue = 0.040000;
+const std::string MICPPARA::MAXIMUM_UREA_CONCENTRATION::itemName = "MAXIMUM_UREA_CONCENTRATION";
+const double MICPPARA::MAXIMUM_UREA_CONCENTRATION::defaultValue = 60.000000;
+const std::string MICPPARA::MAXIMUM_UREA_UTILIZATION::itemName = "MAXIMUM_UREA_UTILIZATION";
+const double MICPPARA::MAXIMUM_UREA_UTILIZATION::defaultValue = 0.016100;
+const std::string MICPPARA::MICROBIAL_ATTACHMENT_RATE::itemName = "MICROBIAL_ATTACHMENT_RATE";
+const double MICPPARA::MICROBIAL_ATTACHMENT_RATE::defaultValue = 8.51e-07;
+const std::string MICPPARA::MICROBIAL_DEATH_RATE::itemName = "MICROBIAL_DEATH_RATE";
+const double MICPPARA::MICROBIAL_DEATH_RATE::defaultValue = 3.18e-07;
+const std::string MICPPARA::MINIMUM_PERMEABILITY::itemName = "MINIMUM_PERMEABILITY";
+const double MICPPARA::MINIMUM_PERMEABILITY::defaultValue = 1e-20;
+const std::string MICPPARA::OXYGEN_CONSUMPTION_FACTOR::itemName = "OXYGEN_CONSUMPTION_FACTOR";
+const double MICPPARA::OXYGEN_CONSUMPTION_FACTOR::defaultValue = 0.500000;
+const std::string MICPPARA::TOLERANCE_BEFORE_CLOGGING::itemName = "TOLERANCE_BEFORE_CLOGGING";
+const double MICPPARA::TOLERANCE_BEFORE_CLOGGING::defaultValue = 0.000100;
+const std::string MICPPARA::YIELD_GROWTH_COEFFICIENT::itemName = "YIELD_GROWTH_COEFFICIENT";
+const double MICPPARA::YIELD_GROWTH_COEFFICIENT::defaultValue = 0.500000;
+
+
+MINNNCT::MINNNCT() : ParserKeyword("MINNNCT", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MINNNCT");
@@ -443,16 +542,33 @@ MINNNCT::MINNNCT( ) : ParserKeyword("MINNNCT")
 }
 const std::string MINNNCT::keywordName = "MINNNCT";
 const std::string MINNNCT::CUTOFF_TRANSMISSIBILITY::itemName = "CUTOFF_TRANSMISSIBILITY";
-const double MINNNCT::CUTOFF_TRANSMISSIBILITY::defaultValue = 0.000000;
+const double MINNNCT::CUTOFF_TRANSMISSIBILITY::defaultValue = 0;
 const std::string MINNNCT::DIFFUSIVITY::itemName = "DIFFUSIVITY";
-const double MINNNCT::DIFFUSIVITY::defaultValue = 0.000000;
+const double MINNNCT::DIFFUSIVITY::defaultValue = 0;
 const std::string MINNNCT::CUTOFF_THERMAL_TRANSMISSIBILITY::itemName = "CUTOFF_THERMAL_TRANSMISSIBILITY";
-const double MINNNCT::CUTOFF_THERMAL_TRANSMISSIBILITY::defaultValue = 0.000000;
+const double MINNNCT::CUTOFF_THERMAL_TRANSMISSIBILITY::defaultValue = 0;
 
 
-MINPORV::MINPORV( ) : ParserKeyword("MINPORV")
-{
-  setFixedSize( (size_t) 1);
+MINNPCOL::MINNPCOL() : ParserKeyword("MINNPCOL", KeywordSize(1, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("MINNPCOL");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("VALUE", ParserItem::itype::INT);
+        item.setDefault( 6 );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string MINNPCOL::keywordName = "MINNPCOL";
+const std::string MINNPCOL::VALUE::itemName = "VALUE";
+const int MINNPCOL::VALUE::defaultValue = 6;
+
+
+MINPORV::MINPORV() : ParserKeyword("MINPORV", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MINPORV");
@@ -469,12 +585,10 @@ MINPORV::MINPORV( ) : ParserKeyword("MINPORV")
 }
 const std::string MINPORV::keywordName = "MINPORV";
 const std::string MINPORV::MIN_PORE_VOL::itemName = "MIN_PORE_VOL";
-const double MINPORV::MIN_PORE_VOL::defaultValue = 0.000001;
+const double MINPORV::MIN_PORE_VOL::defaultValue = 1e-06;
 
 
-MINPV::MINPV( ) : ParserKeyword("MINPV")
-{
-  setFixedSize( (size_t) 1);
+MINPV::MINPV() : ParserKeyword("MINPV", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MINPV");
@@ -491,12 +605,10 @@ MINPV::MINPV( ) : ParserKeyword("MINPV")
 }
 const std::string MINPV::keywordName = "MINPV";
 const std::string MINPV::VALUE::itemName = "VALUE";
-const double MINPV::VALUE::defaultValue = 0.000001;
+const double MINPV::VALUE::defaultValue = 1e-06;
 
 
-MINPVFIL::MINPVFIL( ) : ParserKeyword("MINPVFIL")
-{
-  setFixedSize( (size_t) 1);
+MINPVFIL::MINPVFIL() : ParserKeyword("MINPVFIL", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MINPVFIL");
@@ -513,12 +625,10 @@ MINPVFIL::MINPVFIL( ) : ParserKeyword("MINPVFIL")
 }
 const std::string MINPVFIL::keywordName = "MINPVFIL";
 const std::string MINPVFIL::VALUE::itemName = "VALUE";
-const double MINPVFIL::VALUE::defaultValue = 0.000001;
+const double MINPVFIL::VALUE::defaultValue = 1e-06;
 
 
-MINPVV::MINPVV( ) : ParserKeyword("MINPVV")
-{
-  setFixedSize( (size_t) 1);
+MINPVV::MINPVV() : ParserKeyword("MINPVV", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MINPVV");
@@ -536,14 +646,12 @@ MINPVV::MINPVV( ) : ParserKeyword("MINPVV")
 }
 const std::string MINPVV::keywordName = "MINPVV";
 const std::string MINPVV::data::itemName = "data";
-const double MINPVV::data::defaultValue = 0.000001;
+const double MINPVV::data::defaultValue = 1e-06;
 
 
-MINVALUE::MINVALUE( ) : ParserKeyword("MINVALUE")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+MINVALUE::MINVALUE() : ParserKeyword("MINVALUE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MINVALUE");
@@ -595,10 +703,7 @@ const std::string MINVALUE::K1::itemName = "K1";
 const std::string MINVALUE::K2::itemName = "K2";
 
 
-MISC::MISC( ) : ParserKeyword("MISC")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("MISCIBLE","NTMISC",0);
+MISC::MISC() : ParserKeyword("MISC", KeywordSize("MISCIBLE", "NTMISC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MISC");
@@ -618,9 +723,7 @@ const std::string MISC::keywordName = "MISC";
 const std::string MISC::DATA::itemName = "DATA";
 
 
-MISCIBLE::MISCIBLE( ) : ParserKeyword("MISCIBLE")
-{
-  setFixedSize( (size_t) 1);
+MISCIBLE::MISCIBLE() : ParserKeyword("MISCIBLE", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("MISCIBLE");
@@ -653,9 +756,7 @@ const std::string MISCIBLE::TWOPOINT::itemName = "TWOPOINT";
 const std::string MISCIBLE::TWOPOINT::defaultValue = "NONE";
 
 
-MISCNUM::MISCNUM( ) : ParserKeyword("MISCNUM")
-{
-  setFixedSize( (size_t) 1);
+MISCNUM::MISCNUM() : ParserKeyword("MISCNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("MISCNUM");
@@ -673,9 +774,7 @@ const std::string MISCNUM::keywordName = "MISCNUM";
 const std::string MISCNUM::data::itemName = "data";
 
 
-MLANG::MLANG( ) : ParserKeyword("MLANG")
-{
-  setFixedSize( (size_t) 1);
+MLANG::MLANG() : ParserKeyword("MLANG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MLANG");
@@ -694,9 +793,7 @@ const std::string MLANG::keywordName = "MLANG";
 const std::string MLANG::data::itemName = "data";
 
 
-MLANGSLV::MLANGSLV( ) : ParserKeyword("MLANGSLV")
-{
-  setFixedSize( (size_t) 1);
+MLANGSLV::MLANGSLV() : ParserKeyword("MLANGSLV", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MLANGSLV");
@@ -715,9 +812,7 @@ const std::string MLANGSLV::keywordName = "MLANGSLV";
 const std::string MLANGSLV::data::itemName = "data";
 
 
-MONITOR::MONITOR( ) : ParserKeyword("MONITOR")
-{
-  setFixedSize( (size_t) 0);
+MONITOR::MONITOR() : ParserKeyword("MONITOR", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   addValidSectionName("SUMMARY");
   clearDeckNames();
@@ -726,9 +821,7 @@ MONITOR::MONITOR( ) : ParserKeyword("MONITOR")
 const std::string MONITOR::keywordName = "MONITOR";
 
 
-MPFANUM::MPFANUM( ) : ParserKeyword("MPFANUM")
-{
-  setFixedSize( (size_t) 1);
+MPFANUM::MPFANUM() : ParserKeyword("MPFANUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MPFANUM");
@@ -746,9 +839,7 @@ const std::string MPFANUM::keywordName = "MPFANUM";
 const std::string MPFANUM::data::itemName = "data";
 
 
-MPFNNC::MPFNNC( ) : ParserKeyword("MPFNNC")
-{
-  setSizeType(DOUBLE_SLASH_TERMINATED);
+MPFNNC::MPFNNC() : ParserKeyword("MPFNNC", KeywordSize(DOUBLE_SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MPFNNC");
@@ -822,10 +913,7 @@ const std::string MPFNNC::KZ::itemName = "KZ";
 const std::string MPFNNC::TRANS::itemName = "TRANS";
 
 
-MSFN::MSFN( ) : ParserKeyword("MSFN")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+MSFN::MSFN() : ParserKeyword("MSFN", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MSFN");
@@ -846,9 +934,7 @@ const std::string MSFN::keywordName = "MSFN";
 const std::string MSFN::DATA::itemName = "DATA";
 
 
-MSGFILE::MSGFILE( ) : ParserKeyword("MSGFILE")
-{
-  setFixedSize( (size_t) 1);
+MSGFILE::MSGFILE() : ParserKeyword("MSGFILE", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("MSGFILE");
@@ -865,9 +951,23 @@ const std::string MSGFILE::keywordName = "MSGFILE";
 const std::string MSGFILE::ENABLE_FLAG::itemName = "ENABLE_FLAG";
 
 
-MULSGGD::MULSGGD( ) : ParserKeyword("MULSGGD")
-{
-  setFixedSize( (size_t) 1);
+MSUM_PROBE::MSUM_PROBE() : ParserKeyword("MSUM_PROBE", KeywordSize(0, false)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  addDeckName("MSUMLINP");
+  addDeckName("MSUMLINS");
+  addDeckName("MSUMCOMM");
+  addDeckName("MSUMBUG");
+  addDeckName("MSUMERR");
+  addDeckName("MSUMMESS");
+  addDeckName("MSUMNEWT");
+  addDeckName("MSUMPROB");
+  addDeckName("MSUMWARN");
+}
+const std::string MSUM_PROBE::keywordName = "MSUM_PROBE";
+
+
+MULSGGD::MULSGGD() : ParserKeyword("MULSGGD", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MULSGGD");
@@ -886,9 +986,7 @@ const std::string MULSGGD::keywordName = "MULSGGD";
 const std::string MULSGGD::data::itemName = "data";
 
 
-MULSGGDV::MULSGGDV( ) : ParserKeyword("MULSGGDV")
-{
-  setFixedSize( (size_t) 1);
+MULSGGDV::MULSGGDV() : ParserKeyword("MULSGGDV", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MULSGGDV");
@@ -907,9 +1005,7 @@ const std::string MULSGGDV::keywordName = "MULSGGDV";
 const std::string MULSGGDV::data::itemName = "data";
 
 
-MULTFLT::MULTFLT( ) : ParserKeyword("MULTFLT")
-{
-  setSizeType(SLASH_TERMINATED);
+MULTFLT::MULTFLT() : ParserKeyword("MULTFLT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
   addValidSectionName("SCHEDULE");
@@ -933,9 +1029,7 @@ const std::string MULTFLT::fault::itemName = "fault";
 const std::string MULTFLT::factor::itemName = "factor";
 
 
-MULTIN::MULTIN( ) : ParserKeyword("MULTIN")
-{
-  setFixedSize( (size_t) 0);
+MULTIN::MULTIN() : ParserKeyword("MULTIN", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("MULTIN");
@@ -943,12 +1037,10 @@ MULTIN::MULTIN( ) : ParserKeyword("MULTIN")
 const std::string MULTIN::keywordName = "MULTIN";
 
 
-MULTIPLY::MULTIPLY( ) : ParserKeyword("MULTIPLY")
-{
-  setSizeType(SLASH_TERMINATED);
+MULTIPLY::MULTIPLY() : ParserKeyword("MULTIPLY", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -1002,12 +1094,10 @@ const std::string MULTIPLY::K1::itemName = "K1";
 const std::string MULTIPLY::K2::itemName = "K2";
 
 
-MULTIREG::MULTIREG( ) : ParserKeyword("MULTIREG")
-{
-  setSizeType(SLASH_TERMINATED);
+MULTIREG::MULTIREG() : ParserKeyword("MULTIREG", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -1042,15 +1132,13 @@ MULTIREG::MULTIREG( ) : ParserKeyword("MULTIREG")
 const std::string MULTIREG::keywordName = "MULTIREG";
 const std::string MULTIREG::ARRAY::itemName = "ARRAY";
 const std::string MULTIREG::FACTOR::itemName = "FACTOR";
-const double MULTIREG::FACTOR::defaultValue = 0.000000;
+const double MULTIREG::FACTOR::defaultValue = 0;
 const std::string MULTIREG::REGION_NUMBER::itemName = "REGION_NUMBER";
 const std::string MULTIREG::REGION_NAME::itemName = "REGION_NAME";
 const std::string MULTIREG::REGION_NAME::defaultValue = "M";
 
 
-MULTNUM::MULTNUM( ) : ParserKeyword("MULTNUM")
-{
-  setFixedSize( (size_t) 1);
+MULTNUM::MULTNUM() : ParserKeyword("MULTNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("MULTNUM");
@@ -1068,9 +1156,7 @@ const std::string MULTNUM::keywordName = "MULTNUM";
 const std::string MULTNUM::data::itemName = "data";
 
 
-MULTOUT::MULTOUT( ) : ParserKeyword("MULTOUT")
-{
-  setFixedSize( (size_t) 0);
+MULTOUT::MULTOUT() : ParserKeyword("MULTOUT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("MULTOUT");
@@ -1078,9 +1164,7 @@ MULTOUT::MULTOUT( ) : ParserKeyword("MULTOUT")
 const std::string MULTOUT::keywordName = "MULTOUT";
 
 
-MULTOUTS::MULTOUTS( ) : ParserKeyword("MULTOUTS")
-{
-  setFixedSize( (size_t) 0);
+MULTOUTS::MULTOUTS() : ParserKeyword("MULTOUTS", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("MULTOUTS");
@@ -1088,9 +1172,7 @@ MULTOUTS::MULTOUTS( ) : ParserKeyword("MULTOUTS")
 const std::string MULTOUTS::keywordName = "MULTOUTS";
 
 
-MULTPV::MULTPV( ) : ParserKeyword("MULTPV")
-{
-  setFixedSize( (size_t) 1);
+MULTPV::MULTPV() : ParserKeyword("MULTPV", KeywordSize(1, false)) {
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
   clearDeckNames();
@@ -1110,9 +1192,7 @@ const std::string MULTPV::keywordName = "MULTPV";
 const std::string MULTPV::data::itemName = "data";
 
 
-MULTREAL::MULTREAL( ) : ParserKeyword("MULTREAL")
-{
-  setFixedSize( (size_t) 1);
+MULTREAL::MULTREAL() : ParserKeyword("MULTREAL", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("MULTREAL");
@@ -1136,11 +1216,9 @@ const std::string MULTREAL::STANDARD_LICENCE::itemName = "STANDARD_LICENCE";
 const std::string MULTREAL::STANDARD_LICENCE::defaultValue = "YES";
 
 
-MULTREGD::MULTREGD( ) : ParserKeyword("MULTREGD")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+MULTREGD::MULTREGD() : ParserKeyword("MULTREGD", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   clearDeckNames();
   addDeckName("MULTREGD");
   {
@@ -1188,11 +1266,9 @@ const std::string MULTREGD::CHOICE::itemName = "CHOICE";
 const std::string MULTREGD::CHOICE::defaultValue = "M";
 
 
-MULTREGH::MULTREGH( ) : ParserKeyword("MULTREGH")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+MULTREGH::MULTREGH() : ParserKeyword("MULTREGH", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   clearDeckNames();
   addDeckName("MULTREGH");
   {
@@ -1240,11 +1316,9 @@ const std::string MULTREGH::CHOICE::itemName = "CHOICE";
 const std::string MULTREGH::CHOICE::defaultValue = "M";
 
 
-MULTREGP::MULTREGP( ) : ParserKeyword("MULTREGP")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+MULTREGP::MULTREGP() : ParserKeyword("MULTREGP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   clearDeckNames();
   addDeckName("MULTREGP");
   {
@@ -1272,11 +1346,9 @@ const std::string MULTREGP::REGION_TYPE::itemName = "REGION_TYPE";
 const std::string MULTREGP::REGION_TYPE::defaultValue = "M";
 
 
-MULTREGT::MULTREGT( ) : ParserKeyword("MULTREGT")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+MULTREGT::MULTREGT() : ParserKeyword("MULTREGT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MULTREGT");
@@ -1324,9 +1396,7 @@ const std::string MULTREGT::REGION_DEF::itemName = "REGION_DEF";
 const std::string MULTREGT::REGION_DEF::defaultValue = "M";
 
 
-MULTSIG::MULTSIG( ) : ParserKeyword("MULTSIG")
-{
-  setFixedSize( (size_t) 1);
+MULTSIG::MULTSIG() : ParserKeyword("MULTSIG", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MULTSIG");
@@ -1344,9 +1414,7 @@ const std::string MULTSIG::keywordName = "MULTSIG";
 const std::string MULTSIG::VALUE::itemName = "VALUE";
 
 
-MULTSIGV::MULTSIGV( ) : ParserKeyword("MULTSIGV")
-{
-  setFixedSize( (size_t) 1);
+MULTSIGV::MULTSIGV() : ParserKeyword("MULTSIGV", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("MULTSIGV");
@@ -1365,20 +1433,19 @@ const std::string MULTSIGV::keywordName = "MULTSIGV";
 const std::string MULTSIGV::data::itemName = "data";
 
 
-MULT_XYZ::MULT_XYZ( ) : ParserKeyword("MULT_XYZ")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("EDIT");
+MULT_XYZ::MULT_XYZ() : ParserKeyword("MULT_XYZ", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
+  addDeckName("MULTY-");
+  addDeckName("MULTX");
+  addDeckName("MULTTHT");
+  addDeckName("MULTX-");
+  addDeckName("MULTTHT-");
   addDeckName("MULTR");
   addDeckName("MULTR-");
-  addDeckName("MULTTHT");
-  addDeckName("MULTTHT-");
-  addDeckName("MULTX");
-  addDeckName("MULTX-");
   addDeckName("MULTY");
-  addDeckName("MULTY-");
   addDeckName("MULTZ");
   addDeckName("MULTZ-");
   {
@@ -1396,10 +1463,7 @@ const std::string MULT_XYZ::keywordName = "MULT_XYZ";
 const std::string MULT_XYZ::data::itemName = "data";
 
 
-MW::MW( ) : ParserKeyword("MW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+MW::MW() : ParserKeyword("MW", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MW");
@@ -1417,10 +1481,7 @@ const std::string MW::keywordName = "MW";
 const std::string MW::MOLAR_WEIGHT::itemName = "MOLAR_WEIGHT";
 
 
-MWS::MWS( ) : ParserKeyword("MWS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+MWS::MWS() : ParserKeyword("MWS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("MWS");

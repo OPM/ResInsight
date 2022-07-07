@@ -1,20 +1,107 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/R.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/R.hpp>
 namespace Opm {
 namespace ParserKeywords {
-RADFIN4::RADFIN4( ) : ParserKeyword("RADFIN4")
-{
-  setFixedSize( (size_t) 1);
+RADFIN::RADFIN() : ParserKeyword("RADFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  clearDeckNames();
+  addDeckName("RADFIN");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("NAME", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("I", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("J", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("K1", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("K2", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("NR", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("NTHETA", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("NZ", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("NWMAX", ParserItem::itype::INT);
+        item.setDefault( 1 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("INNER_RADIUS", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0.152400) );
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("OUTER_RADIUS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("MINIMUM_RADIUS_REFINEMENT", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.524000) );
+        item.push_backDimension("Length");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PARENT_LGR", ParserItem::itype::STRING);
+        item.setDefault( std::string("GLOBAL") );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string RADFIN::keywordName = "RADFIN";
+const std::string RADFIN::NAME::itemName = "NAME";
+const std::string RADFIN::I::itemName = "I";
+const std::string RADFIN::J::itemName = "J";
+const std::string RADFIN::K1::itemName = "K1";
+const std::string RADFIN::K2::itemName = "K2";
+const std::string RADFIN::NR::itemName = "NR";
+const std::string RADFIN::NTHETA::itemName = "NTHETA";
+const std::string RADFIN::NZ::itemName = "NZ";
+const std::string RADFIN::NWMAX::itemName = "NWMAX";
+const int RADFIN::NWMAX::defaultValue = 1;
+const std::string RADFIN::INNER_RADIUS::itemName = "INNER_RADIUS";
+const double RADFIN::INNER_RADIUS::defaultValue = 0.152400;
+const std::string RADFIN::OUTER_RADIUS::itemName = "OUTER_RADIUS";
+const std::string RADFIN::MINIMUM_RADIUS_REFINEMENT::itemName = "MINIMUM_RADIUS_REFINEMENT";
+const double RADFIN::MINIMUM_RADIUS_REFINEMENT::defaultValue = 1.524000;
+const std::string RADFIN::PARENT_LGR::itemName = "PARENT_LGR";
+const std::string RADFIN::PARENT_LGR::defaultValue = "GLOBAL";
+
+
+RADFIN4::RADFIN4() : ParserKeyword("RADFIN4", KeywordSize(1, false)) {
   addValidSectionName("SPECIAL");
+  addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("RADFIN4");
   {
@@ -82,9 +169,7 @@ const std::string RADFIN4::NWMAX::itemName = "NWMAX";
 const int RADFIN4::NWMAX::defaultValue = 1;
 
 
-RADIAL::RADIAL( ) : ParserKeyword("RADIAL")
-{
-  setFixedSize( (size_t) 0);
+RADIAL::RADIAL() : ParserKeyword("RADIAL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("RADIAL");
@@ -92,11 +177,9 @@ RADIAL::RADIAL( ) : ParserKeyword("RADIAL")
 const std::string RADIAL::keywordName = "RADIAL";
 
 
-RAINFALL::RAINFALL( ) : ParserKeyword("RAINFALL")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("SCHEDULE");
+RAINFALL::RAINFALL() : ParserKeyword("RAINFALL", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RAINFALL");
   {
@@ -184,10 +267,7 @@ const std::string RAINFALL::NOV_FLUX::itemName = "NOV_FLUX";
 const std::string RAINFALL::DES_FLUX::itemName = "DES_FLUX";
 
 
-RBEDCONT::RBEDCONT( ) : ParserKeyword("RBEDCONT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("RIVRDIMS","MXTBGR",0);
+RBEDCONT::RBEDCONT() : ParserKeyword("RBEDCONT", KeywordSize("RIVRDIMS", "MXTBGR", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RBEDCONT");
@@ -207,9 +287,7 @@ const std::string RBEDCONT::keywordName = "RBEDCONT";
 const std::string RBEDCONT::DATA::itemName = "DATA";
 
 
-RCMASTS::RCMASTS( ) : ParserKeyword("RCMASTS")
-{
-  setFixedSize( (size_t) 1);
+RCMASTS::RCMASTS() : ParserKeyword("RCMASTS", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RCMASTS");
@@ -227,9 +305,7 @@ const std::string RCMASTS::keywordName = "RCMASTS";
 const std::string RCMASTS::MIN_TSTEP::itemName = "MIN_TSTEP";
 
 
-REACHES::REACHES( ) : ParserKeyword("REACHES")
-{
-  setSizeType(SLASH_TERMINATED);
+REACHES::REACHES() : ParserKeyword("REACHES", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("REACHES");
@@ -350,16 +426,14 @@ const std::string REACHES::ROUGHNESS::itemName = "ROUGHNESS";
 const std::string REACHES::XLENGTH::itemName = "XLENGTH";
 const std::string REACHES::YLENGTH::itemName = "YLENGTH";
 const std::string REACHES::REACH_LENGTH::itemName = "REACH_LENGTH";
-const double REACHES::REACH_LENGTH::defaultValue = 0.000000;
+const double REACHES::REACH_LENGTH::defaultValue = 0;
 const std::string REACHES::NUM_REACHES::itemName = "NUM_REACHES";
 const int REACHES::NUM_REACHES::defaultValue = 1;
 const std::string REACHES::DEPTH_SOMETHING::itemName = "DEPTH_SOMETHING";
 const int REACHES::DEPTH_SOMETHING::defaultValue = 1;
 
 
-READDATA::READDATA( ) : ParserKeyword("READDATA")
-{
-  setFixedSize( (size_t) 1);
+READDATA::READDATA() : ParserKeyword("READDATA", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("READDATA");
@@ -378,15 +452,13 @@ const std::string READDATA::INPUT_METHOD::itemName = "INPUT_METHOD";
 const std::string READDATA::INPUT_METHOD::defaultValue = "FILE";
 
 
-REFINE::REFINE( ) : ParserKeyword("REFINE")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("EDIT");
+REFINE::REFINE() : ParserKeyword("REFINE", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("REFINE");
   {
@@ -402,9 +474,7 @@ const std::string REFINE::keywordName = "REFINE";
 const std::string REFINE::LGR::itemName = "LGR";
 
 
-REGDIMS::REGDIMS( ) : ParserKeyword("REGDIMS")
-{
-  setFixedSize( (size_t) 1);
+REGDIMS::REGDIMS() : ParserKeyword("REGDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("REGDIMS");
@@ -486,14 +556,10 @@ const std::string REGDIMS::NPLMIX::itemName = "NPLMIX";
 const int REGDIMS::NPLMIX::defaultValue = 1;
 
 
-REGION2REGION_PROBE::REGION2REGION_PROBE( ) : ParserKeyword("REGION2REGION_PROBE")
-{
-  setSizeType(SLASH_TERMINATED);
+REGION2REGION_PROBE::REGION2REGION_PROBE() : ParserKeyword("REGION2REGION_PROBE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("RGFT");
-  addDeckName("ROFT");
-  addDeckName("RWFT");
+  setMatchRegex("(R[OG]FT[GL]?|RWFT)(_?[A-Z0-9_]{3})?");
   {
      ParserRecord record;
      {
@@ -512,115 +578,134 @@ const std::string REGION2REGION_PROBE::REGION1::itemName = "REGION1";
 const std::string REGION2REGION_PROBE::REGION2::itemName = "REGION2";
 
 
-REGIONS::REGIONS( ) : ParserKeyword("REGIONS")
-{
-  setFixedSize( (size_t) 0);
+REGION2REGION_PROBE_E300::REGION2REGION_PROBE_E300() : ParserKeyword("REGION2REGION_PROBE_E300", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  setMatchRegex("R[OGWEK]F(R[-+]?|T[-+])([A-Z0-9_]{3})?");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("REGION1", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("REGION2", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string REGION2REGION_PROBE_E300::keywordName = "REGION2REGION_PROBE_E300";
+const std::string REGION2REGION_PROBE_E300::REGION1::itemName = "REGION1";
+const std::string REGION2REGION_PROBE_E300::REGION2::itemName = "REGION2";
+
+
+REGIONS::REGIONS() : ParserKeyword("REGIONS", KeywordSize(0, false)) {
   clearDeckNames();
   addDeckName("REGIONS");
 }
 const std::string REGIONS::keywordName = "REGIONS";
 
 
-REGION_PROBE::REGION_PROBE( ) : ParserKeyword("REGION_PROBE")
-{
-  setFixedSize( (size_t) 1);
+REGION_PROBE::REGION_PROBE() : ParserKeyword("REGION_PROBE", KeywordSize(1, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("RAPI");
-  addDeckName("RCAD");
-  addDeckName("RCFT");
-  addDeckName("RCGC");
-  addDeckName("RCIP");
-  addDeckName("RCSC");
-  addDeckName("RGDEN");
-  addDeckName("RGFTG");
-  addDeckName("RGFTL");
-  addDeckName("RGIP");
-  addDeckName("RGIPG");
-  addDeckName("RGIPL");
-  addDeckName("RGIR");
-  addDeckName("RGIT");
-  addDeckName("RGP");
-  addDeckName("RGPR");
-  addDeckName("RGPRF");
-  addDeckName("RGPRS");
-  addDeckName("RGPT");
-  addDeckName("RGPTF");
-  addDeckName("RGPTS");
-  addDeckName("RGPV");
-  addDeckName("RGSAT");
-  addDeckName("RGVIS");
-  addDeckName("RHPV");
-  addDeckName("RNFT");
-  addDeckName("RNIP");
-  addDeckName("RODEN");
-  addDeckName("ROE");
+  addDeckName("RRPV_[0-9A-Z][0-9A-Z][0-9A-Z]");
   addDeckName("ROEIG");
-  addDeckName("ROEIW");
+  addDeckName("ROEW_[0-9A-Z][0-9A-Z][0-9A-Z]");
+  addDeckName("RWIR");
+  addDeckName("RGPV");
+  addDeckName("RHPV_[0-9A-Z][0-9A-Z][0-9A-Z]");
+  addDeckName("RORFR");
+  addDeckName("ROP");
   addDeckName("ROEW");
-  addDeckName("ROEWG");
-  addDeckName("ROEWW");
+  addDeckName("RGP");
+  addDeckName("ROSAT");
   addDeckName("ROIP");
-  addDeckName("ROIPG");
   addDeckName("ROIPL");
+  addDeckName("RWVIS");
+  addDeckName("ROIPG");
+  addDeckName("RPPO");
+  addDeckName("ROVIS");
+  addDeckName("RODEN");
+  addDeckName("RORFY");
+  addDeckName("ROPR");
+  addDeckName("RRTM");
+  addDeckName("RGSAT");
+  addDeckName("ROPT");
+  addDeckName("RWDEN");
   addDeckName("ROIR");
   addDeckName("ROIT");
-  addDeckName("ROP");
-  addDeckName("ROPR");
-  addDeckName("ROPT");
-  addDeckName("ROPV");
-  addDeckName("RORFE");
-  addDeckName("RORFF");
-  addDeckName("RORFG");
-  addDeckName("RORFR");
-  addDeckName("RORFS");
-  addDeckName("RORFW");
-  addDeckName("RORFX");
-  addDeckName("RORFY");
-  addDeckName("RORME");
-  addDeckName("RORMF");
-  addDeckName("RORMG");
-  addDeckName("RORMR");
-  addDeckName("RORMS");
-  addDeckName("RORMW");
-  addDeckName("RORMX");
-  addDeckName("RORMY");
-  addDeckName("ROSAT");
-  addDeckName("ROVIS");
-  addDeckName("RPPC");
-  addDeckName("RPPG");
-  addDeckName("RPPO");
-  addDeckName("RPPW");
-  addDeckName("RPR");
-  addDeckName("RPRGZ");
-  addDeckName("RPRH");
-  addDeckName("RPRP");
-  addDeckName("RRPV");
-  addDeckName("RRS");
-  addDeckName("RRTM");
-  addDeckName("RRV");
-  addDeckName("RSFT");
   addDeckName("RSIP");
-  addDeckName("RTADSFOA");
-  addDeckName("RTADSUR");
-  addDeckName("RTDCYFOA");
-  addDeckName("RTFTTFOA");
-  addDeckName("RTFTTSUR");
-  addDeckName("RTIPT");
-  addDeckName("RTIPTFOA");
-  addDeckName("RTIPTHEA");
-  addDeckName("RTIPTSUR");
-  addDeckName("RTMOBFOA");
-  addDeckName("RWDEN");
+  addDeckName("RORME");
+  addDeckName("RPPC");
+  addDeckName("RWSAT");
   addDeckName("RWIP");
-  addDeckName("RWIR");
-  addDeckName("RWIT");
+  addDeckName("RRS");
   addDeckName("RWP");
+  addDeckName("RPRGZ");
+  addDeckName("RPPW");
   addDeckName("RWPR");
   addDeckName("RWPT");
+  addDeckName("RORMR");
+  addDeckName("RWIT");
+  addDeckName("RGIP");
+  addDeckName("ROE");
+  addDeckName("RGIPL");
+  addDeckName("RGPR");
+  addDeckName("RGIPG");
+  addDeckName("RPPG");
+  addDeckName("RGVIS");
+  addDeckName("RGDEN");
+  addDeckName("RGPT");
+  addDeckName("RGPRF");
+  addDeckName("RRV");
+  addDeckName("RGPRS");
   addDeckName("RWPV");
-  addDeckName("RWSAT");
-  addDeckName("RWVIS");
+  addDeckName("RGPTF");
+  addDeckName("RGPTS");
+  addDeckName("RPRH");
+  addDeckName("RGIR");
+  addDeckName("RGIT");
+  addDeckName("RPR");
+  addDeckName("RPRP");
+  addDeckName("RRPV");
+  addDeckName("RORMW");
+  addDeckName("ROPV");
+  addDeckName("RHPV");
+  addDeckName("ROEIW");
+  addDeckName("ROEWW");
+  addDeckName("ROEWG");
+  addDeckName("RORMG");
+  addDeckName("RCGC");
+  addDeckName("RORMS");
+  addDeckName("RORMF");
+  addDeckName("RORMX");
+  addDeckName("RORMY");
+  addDeckName("RORFW");
+  addDeckName("RORFG");
+  addDeckName("RORFE");
+  addDeckName("RORFS");
+  addDeckName("RTMOBFOA");
+  addDeckName("RORFF");
+  addDeckName("RTIPTFOA");
+  addDeckName("RORFX");
+  addDeckName("RTIPT");
+  addDeckName("RAPI");
+  addDeckName("RSFT");
+  addDeckName("RTIPTHEA");
+  addDeckName("RCSC");
+  addDeckName("RTFTTFOA");
+  addDeckName("RTADSFOA");
+  addDeckName("RTDCYFOA");
+  addDeckName("RCIP");
+  addDeckName("RCFT");
+  addDeckName("RCAD");
+  addDeckName("RNIP");
+  addDeckName("RNFT");
+  addDeckName("RTIPTSUR");
+  addDeckName("RTFTTSUR");
+  addDeckName("RTADSUR");
   setMatchRegex("R[OGW]?[OIP][EPRT]_.+|RU.+|RTIPF.+|RTIPS.+|RTFTF.+|RTFTS.+|RTFTT.+|RTIPT.+|RTIPF.+|RTIPS.+|RTIP[1-9][0-9]*.+|RTFTT.+|RTFTF.+|RTFTS.+|RTFT[1-9][0-9]*.+|RTADS.+|RTDCY.+");
   {
      ParserRecord record;
@@ -636,9 +721,7 @@ const std::string REGION_PROBE::keywordName = "REGION_PROBE";
 const std::string REGION_PROBE::data::itemName = "data";
 
 
-RESIDNUM::RESIDNUM( ) : ParserKeyword("RESIDNUM")
-{
-  setFixedSize( (size_t) 1);
+RESIDNUM::RESIDNUM() : ParserKeyword("RESIDNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("RESIDNUM");
@@ -656,9 +739,7 @@ const std::string RESIDNUM::keywordName = "RESIDNUM";
 const std::string RESIDNUM::data::itemName = "data";
 
 
-RESTART::RESTART( ) : ParserKeyword("RESTART")
-{
-  setFixedSize( (size_t) 1);
+RESTART::RESTART() : ParserKeyword("RESTART", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("RESTART");
@@ -694,9 +775,7 @@ const std::string RESTART::SAVEFILE_FORMAT::itemName = "SAVEFILE_FORMAT";
 const std::string RESTART::SAVEFILE_FORMAT::defaultValue = "UNFORMATTED";
 
 
-RESVNUM::RESVNUM( ) : ParserKeyword("RESVNUM")
-{
-  setFixedSize( (size_t) 1);
+RESVNUM::RESVNUM() : ParserKeyword("RESVNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("RESVNUM");
@@ -713,9 +792,7 @@ const std::string RESVNUM::keywordName = "RESVNUM";
 const std::string RESVNUM::NEXT_RES::itemName = "NEXT_RES";
 
 
-RHO::RHO( ) : ParserKeyword("RHO")
-{
-  setFixedSize( (size_t) 1);
+RHO::RHO() : ParserKeyword("RHO", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("RHO");
@@ -733,12 +810,10 @@ RHO::RHO( ) : ParserKeyword("RHO")
 }
 const std::string RHO::keywordName = "RHO";
 const std::string RHO::data::itemName = "data";
-const double RHO::data::defaultValue = 0.000000;
+const double RHO::data::defaultValue = 0;
 
 
-RIVDEBUG::RIVDEBUG( ) : ParserKeyword("RIVDEBUG")
-{
-  setSizeType(SLASH_TERMINATED);
+RIVDEBUG::RIVDEBUG() : ParserKeyword("RIVDEBUG", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RIVDEBUG");
@@ -760,11 +835,9 @@ const std::string RIVDEBUG::RIVER::itemName = "RIVER";
 const std::string RIVDEBUG::DEBUG_CONTROL::itemName = "DEBUG_CONTROL";
 
 
-RIVERSYS::RIVERSYS( ) : ParserKeyword("RIVERSYS")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("SCHEDULE");
+RIVERSYS::RIVERSYS() : ParserKeyword("RIVERSYS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RIVERSYS");
   {
@@ -805,9 +878,7 @@ const std::string RIVERSYS::BRANCH_NAME::itemName = "BRANCH_NAME";
 const std::string RIVERSYS::DOWNSTREAM_BC::itemName = "DOWNSTREAM_BC";
 
 
-RIVRDIMS::RIVRDIMS( ) : ParserKeyword("RIVRDIMS")
-{
-  setFixedSize( (size_t) 1);
+RIVRDIMS::RIVRDIMS() : ParserKeyword("RIVRDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("RIVRDIMS");
@@ -910,9 +981,7 @@ const std::string RIVRDIMS::MXRATE::itemName = "MXRATE";
 const int RIVRDIMS::MXRATE::defaultValue = 2;
 
 
-RIVRPROP::RIVRPROP( ) : ParserKeyword("RIVRPROP")
-{
-  setSizeType(SLASH_TERMINATED);
+RIVRPROP::RIVRPROP() : ParserKeyword("RIVRPROP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RIVRPROP");
@@ -944,10 +1013,7 @@ const std::string RIVRPROP::REACH2::itemName = "REACH2";
 const std::string RIVRPROP::ROUGHNESS::itemName = "ROUGHNESS";
 
 
-RIVRXSEC::RIVRXSEC( ) : ParserKeyword("RIVRXSEC")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("RIVRDIMS","MXDPTB",0);
+RIVRXSEC::RIVRXSEC() : ParserKeyword("RIVRXSEC", KeywordSize("RIVRDIMS", "MXDPTB", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RIVRXSEC");
@@ -977,9 +1043,7 @@ const std::string RIVRXSEC::WET_PERIMTER::itemName = "WET_PERIMTER";
 const std::string RIVRXSEC::AREA::itemName = "AREA";
 
 
-RIVSALT::RIVSALT( ) : ParserKeyword("RIVSALT")
-{
-  setSizeType(SLASH_TERMINATED);
+RIVSALT::RIVSALT() : ParserKeyword("RIVSALT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RIVSALT");
@@ -1012,9 +1076,7 @@ const std::string RIVSALT::BRANCH::itemName = "BRANCH";
 const std::string RIVSALT::REACH::itemName = "REACH";
 
 
-RIVTRACE::RIVTRACE( ) : ParserKeyword("RIVTRACE")
-{
-  setSizeType(SLASH_TERMINATED);
+RIVTRACE::RIVTRACE() : ParserKeyword("RIVTRACE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RIVTRACE");
@@ -1057,9 +1119,7 @@ const std::string RIVTRACE::BRANCH::itemName = "BRANCH";
 const std::string RIVTRACE::REACH::itemName = "REACH";
 
 
-RKTRMDIR::RKTRMDIR( ) : ParserKeyword("RKTRMDIR")
-{
-  setFixedSize( (size_t) 0);
+RKTRMDIR::RKTRMDIR() : ParserKeyword("RKTRMDIR", KeywordSize(0, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RKTRMDIR");
@@ -1067,9 +1127,7 @@ RKTRMDIR::RKTRMDIR( ) : ParserKeyword("RKTRMDIR")
 const std::string RKTRMDIR::keywordName = "RKTRMDIR";
 
 
-ROCK::ROCK( ) : ParserKeyword("ROCK")
-{
-  setSizeType(UNKNOWN);
+ROCK::ROCK() : ParserKeyword("ROCK", KeywordSize(UNKNOWN)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCK");
@@ -1094,14 +1152,10 @@ const std::string ROCK::keywordName = "ROCK";
 const std::string ROCK::PREF::itemName = "PREF";
 const double ROCK::PREF::defaultValue = 1.013200;
 const std::string ROCK::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
-const double ROCK::COMPRESSIBILITY::defaultValue = 0.000000;
+const double ROCK::COMPRESSIBILITY::defaultValue = 0;
 
 
-ROCK2D::ROCK2D( ) : ParserKeyword("ROCK2D")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
-  setTableCollection( true );
+ROCK2D::ROCK2D() : ParserKeyword("ROCK2D", KeywordSize("ROCKCOMP", "NTROCC", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCK2D");
@@ -1126,11 +1180,7 @@ const std::string ROCK2D::PRESSURE::itemName = "PRESSURE";
 const std::string ROCK2D::PVMULT::itemName = "PVMULT";
 
 
-ROCK2DTR::ROCK2DTR( ) : ParserKeyword("ROCK2DTR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
-  setTableCollection( true );
+ROCK2DTR::ROCK2DTR() : ParserKeyword("ROCK2DTR", KeywordSize("ROCKCOMP", "NTROCC", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCK2DTR");
@@ -1155,9 +1205,7 @@ const std::string ROCK2DTR::PRESSURE::itemName = "PRESSURE";
 const std::string ROCK2DTR::TRANSMULT::itemName = "TRANSMULT";
 
 
-ROCKCOMP::ROCKCOMP( ) : ParserKeyword("ROCKCOMP")
-{
-  setFixedSize( (size_t) 1);
+ROCKCOMP::ROCKCOMP() : ParserKeyword("ROCKCOMP", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("ROCKCOMP");
@@ -1178,6 +1226,15 @@ ROCKCOMP::ROCKCOMP( ) : ParserKeyword("ROCKCOMP")
         item.setDefault( std::string("NO") );
         record.addItem(item);
      }
+     {
+        ParserItem item("PORTXROP", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("CARKZEXP", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        record.addItem(item);
+     }
      addRecord( record );
   }
 }
@@ -1188,11 +1245,12 @@ const std::string ROCKCOMP::NTROCC::itemName = "NTROCC";
 const int ROCKCOMP::NTROCC::defaultValue = 1;
 const std::string ROCKCOMP::WATER_COMPACTION::itemName = "WATER_COMPACTION";
 const std::string ROCKCOMP::WATER_COMPACTION::defaultValue = "NO";
+const std::string ROCKCOMP::PORTXROP::itemName = "PORTXROP";
+const std::string ROCKCOMP::CARKZEXP::itemName = "CARKZEXP";
+const double ROCKCOMP::CARKZEXP::defaultValue = 0;
 
 
-ROCKFRAC::ROCKFRAC( ) : ParserKeyword("ROCKFRAC")
-{
-  setFixedSize( (size_t) 1);
+ROCKFRAC::ROCKFRAC() : ParserKeyword("ROCKFRAC", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("ROCKFRAC");
@@ -1210,9 +1268,7 @@ const std::string ROCKFRAC::keywordName = "ROCKFRAC";
 const std::string ROCKFRAC::data::itemName = "data";
 
 
-ROCKNUM::ROCKNUM( ) : ParserKeyword("ROCKNUM")
-{
-  setFixedSize( (size_t) 1);
+ROCKNUM::ROCKNUM() : ParserKeyword("ROCKNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("ROCKNUM");
@@ -1230,9 +1286,7 @@ const std::string ROCKNUM::keywordName = "ROCKNUM";
 const std::string ROCKNUM::data::itemName = "data";
 
 
-ROCKOPTS::ROCKOPTS( ) : ParserKeyword("ROCKOPTS")
-{
-  setFixedSize( (size_t) 1);
+ROCKOPTS::ROCKOPTS() : ParserKeyword("ROCKOPTS", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCKOPTS");
@@ -1272,9 +1326,7 @@ const std::string ROCKOPTS::HYST_TYPE::itemName = "HYST_TYPE";
 const std::string ROCKOPTS::HYST_TYPE::defaultValue = "DEFLATION";
 
 
-ROCKPAMA::ROCKPAMA( ) : ParserKeyword("ROCKPAMA")
-{
-  setSizeType(SLASH_TERMINATED);
+ROCKPAMA::ROCKPAMA() : ParserKeyword("ROCKPAMA", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCKPAMA");
@@ -1335,11 +1387,11 @@ const std::string ROCKPAMA::keywordName = "ROCKPAMA";
 const std::string ROCKPAMA::K::itemName = "K";
 const std::string ROCKPAMA::M::itemName = "M";
 const std::string ROCKPAMA::G::itemName = "G";
-const double ROCKPAMA::G::defaultValue = 0.000000;
+const double ROCKPAMA::G::defaultValue = 0;
 const std::string ROCKPAMA::B::itemName = "B";
-const double ROCKPAMA::B::defaultValue = 0.000000;
+const double ROCKPAMA::B::defaultValue = 0;
 const std::string ROCKPAMA::E1::itemName = "E1";
-const double ROCKPAMA::E1::defaultValue = 0.000000;
+const double ROCKPAMA::E1::defaultValue = 0;
 const std::string ROCKPAMA::f::itemName = "f";
 const double ROCKPAMA::f::defaultValue = 0.500000;
 const std::string ROCKPAMA::n::itemName = "n";
@@ -1347,15 +1399,12 @@ const double ROCKPAMA::n::defaultValue = 3.000000;
 const std::string ROCKPAMA::g::itemName = "g";
 const double ROCKPAMA::g::defaultValue = 1.000000;
 const std::string ROCKPAMA::Bs::itemName = "Bs";
-const double ROCKPAMA::Bs::defaultValue = 0.000000;
+const double ROCKPAMA::Bs::defaultValue = 0;
 const std::string ROCKPAMA::Es::itemName = "Es";
-const double ROCKPAMA::Es::defaultValue = 0.000000;
+const double ROCKPAMA::Es::defaultValue = 0;
 
 
-ROCKTAB::ROCKTAB( ) : ParserKeyword("ROCKTAB")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
+ROCKTAB::ROCKTAB() : ParserKeyword("ROCKTAB", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCKTAB");
@@ -1367,8 +1416,6 @@ ROCKTAB::ROCKTAB( ) : ParserKeyword("ROCKTAB")
         item.push_backDimension("Pressure");
         item.push_backDimension("1");
         item.push_backDimension("1");
-        item.push_backDimension("1");
-        item.push_backDimension("1");
         record.addItem(item);
      }
      addRecord( record );
@@ -1378,10 +1425,7 @@ const std::string ROCKTAB::keywordName = "ROCKTAB";
 const std::string ROCKTAB::DATA::itemName = "DATA";
 
 
-ROCKTABH::ROCKTABH( ) : ParserKeyword("ROCKTABH")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
+ROCKTABH::ROCKTABH() : ParserKeyword("ROCKTABH", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCKTABH");
@@ -1399,10 +1443,7 @@ const std::string ROCKTABH::keywordName = "ROCKTABH";
 const std::string ROCKTABH::DATA::itemName = "DATA";
 
 
-ROCKTABW::ROCKTABW( ) : ParserKeyword("ROCKTABW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
+ROCKTABW::ROCKTABW() : ParserKeyword("ROCKTABW", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCKTABW");
@@ -1420,10 +1461,7 @@ const std::string ROCKTABW::keywordName = "ROCKTABW";
 const std::string ROCKTABW::DATA::itemName = "DATA";
 
 
-ROCKTHSG::ROCKTHSG( ) : ParserKeyword("ROCKTHSG")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
+ROCKTHSG::ROCKTHSG() : ParserKeyword("ROCKTHSG", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCKTHSG");
@@ -1443,10 +1481,7 @@ const std::string ROCKTHSG::keywordName = "ROCKTHSG";
 const std::string ROCKTHSG::DATA::itemName = "DATA";
 
 
-ROCKTSIG::ROCKTSIG( ) : ParserKeyword("ROCKTSIG")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
+ROCKTSIG::ROCKTSIG() : ParserKeyword("ROCKTSIG", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCKTSIG");
@@ -1466,9 +1501,7 @@ const std::string ROCKTSIG::keywordName = "ROCKTSIG";
 const std::string ROCKTSIG::DATA::itemName = "DATA";
 
 
-ROCKV::ROCKV( ) : ParserKeyword("ROCKV")
-{
-  setFixedSize( (size_t) 1);
+ROCKV::ROCKV() : ParserKeyword("ROCKV", KeywordSize(1, false)) {
   addValidSectionName("EDIT");
   clearDeckNames();
   addDeckName("ROCKV");
@@ -1487,10 +1520,7 @@ const std::string ROCKV::keywordName = "ROCKV";
 const std::string ROCKV::data::itemName = "data";
 
 
-ROCKWNOD::ROCKWNOD( ) : ParserKeyword("ROCKWNOD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
+ROCKWNOD::ROCKWNOD() : ParserKeyword("ROCKWNOD", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ROCKWNOD");
@@ -1509,9 +1539,7 @@ const std::string ROCKWNOD::keywordName = "ROCKWNOD";
 const std::string ROCKWNOD::DATA::itemName = "DATA";
 
 
-RPTCPL::RPTCPL( ) : ParserKeyword("RPTCPL")
-{
-  setFixedSize( (size_t) 1);
+RPTCPL::RPTCPL() : ParserKeyword("RPTCPL", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("RPTCPL");
@@ -1519,9 +1547,7 @@ RPTCPL::RPTCPL( ) : ParserKeyword("RPTCPL")
 const std::string RPTCPL::keywordName = "RPTCPL";
 
 
-RPTGRID::RPTGRID( ) : ParserKeyword("RPTGRID")
-{
-  setFixedSize( (size_t) 1);
+RPTGRID::RPTGRID() : ParserKeyword("RPTGRID", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("RPTGRID");
@@ -1539,9 +1565,7 @@ const std::string RPTGRID::keywordName = "RPTGRID";
 const std::string RPTGRID::DATA::itemName = "DATA";
 
 
-RPTGRIDL::RPTGRIDL( ) : ParserKeyword("RPTGRIDL")
-{
-  setFixedSize( (size_t) 1);
+RPTGRIDL::RPTGRIDL() : ParserKeyword("RPTGRIDL", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("RPTGRIDL");
@@ -1559,9 +1583,7 @@ const std::string RPTGRIDL::keywordName = "RPTGRIDL";
 const std::string RPTGRIDL::DATA::itemName = "DATA";
 
 
-RPTHMD::RPTHMD( ) : ParserKeyword("RPTHMD")
-{
-  setFixedSize( (size_t) 1);
+RPTHMD::RPTHMD() : ParserKeyword("RPTHMD", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("RPTHMD");
@@ -1615,9 +1637,7 @@ const std::string RPTHMD::ITEM6::itemName = "ITEM6";
 const int RPTHMD::ITEM6::defaultValue = 0;
 
 
-RPTHMG::RPTHMG( ) : ParserKeyword("RPTHMG")
-{
-  setSizeType(SLASH_TERMINATED);
+RPTHMG::RPTHMG() : ParserKeyword("RPTHMG", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RPTHMG");
@@ -1639,9 +1659,7 @@ const std::string RPTHMG::GROUP::itemName = "GROUP";
 const std::string RPTHMG::INCLUDE::itemName = "INCLUDE";
 
 
-RPTHMW::RPTHMW( ) : ParserKeyword("RPTHMW")
-{
-  setSizeType(SLASH_TERMINATED);
+RPTHMW::RPTHMW() : ParserKeyword("RPTHMW", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RPTHMW");
@@ -1672,9 +1690,7 @@ const std::string RPTHMW::INCLUDE_RFT::itemName = "INCLUDE_RFT";
 const std::string RPTHMW::INCLUDE_RFT::defaultValue = "OFF";
 
 
-RPTINIT::RPTINIT( ) : ParserKeyword("RPTINIT")
-{
-  setFixedSize( (size_t) 1);
+RPTINIT::RPTINIT() : ParserKeyword("RPTINIT", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("RPTINIT");
@@ -1692,9 +1708,7 @@ const std::string RPTINIT::keywordName = "RPTINIT";
 const std::string RPTINIT::MNEMONICS_LIST::itemName = "MNEMONICS_LIST";
 
 
-RPTISOL::RPTISOL( ) : ParserKeyword("RPTISOL")
-{
-  setFixedSize( (size_t) 0);
+RPTISOL::RPTISOL() : ParserKeyword("RPTISOL", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("RPTISOL");
@@ -1702,31 +1716,25 @@ RPTISOL::RPTISOL( ) : ParserKeyword("RPTISOL")
 const std::string RPTISOL::keywordName = "RPTISOL";
 
 
-RPTONLY::RPTONLY( ) : ParserKeyword("RPTONLY")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("SCHEDULE");
+RPTONLY::RPTONLY() : ParserKeyword("RPTONLY", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RPTONLY");
 }
 const std::string RPTONLY::keywordName = "RPTONLY";
 
 
-RPTONLYO::RPTONLYO( ) : ParserKeyword("RPTONLYO")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("SCHEDULE");
+RPTONLYO::RPTONLYO() : ParserKeyword("RPTONLYO", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RPTONLYO");
 }
 const std::string RPTONLYO::keywordName = "RPTONLYO";
 
 
-RPTPROPS::RPTPROPS( ) : ParserKeyword("RPTPROPS")
-{
-  setFixedSize( (size_t) 1);
+RPTPROPS::RPTPROPS() : ParserKeyword("RPTPROPS", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RPTPROPS");
@@ -1744,9 +1752,7 @@ const std::string RPTPROPS::keywordName = "RPTPROPS";
 const std::string RPTPROPS::mnemonics::itemName = "mnemonics";
 
 
-RPTREGS::RPTREGS( ) : ParserKeyword("RPTREGS")
-{
-  setFixedSize( (size_t) 1);
+RPTREGS::RPTREGS() : ParserKeyword("RPTREGS", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("RPTREGS");
@@ -1764,11 +1770,9 @@ const std::string RPTREGS::keywordName = "RPTREGS";
 const std::string RPTREGS::MNEMONIC_LIST::itemName = "MNEMONIC_LIST";
 
 
-RPTRST::RPTRST( ) : ParserKeyword("RPTRST")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("SCHEDULE");
+RPTRST::RPTRST() : ParserKeyword("RPTRST", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RPTRST");
   {
@@ -1785,9 +1789,7 @@ const std::string RPTRST::keywordName = "RPTRST";
 const std::string RPTRST::MNEMONIC_LIST::itemName = "MNEMONIC_LIST";
 
 
-RPTRUNSP::RPTRUNSP( ) : ParserKeyword("RPTRUNSP")
-{
-  setFixedSize( (size_t) 0);
+RPTRUNSP::RPTRUNSP() : ParserKeyword("RPTRUNSP", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("RPTRUNSP");
@@ -1795,9 +1797,7 @@ RPTRUNSP::RPTRUNSP( ) : ParserKeyword("RPTRUNSP")
 const std::string RPTRUNSP::keywordName = "RPTRUNSP";
 
 
-RPTSCHED::RPTSCHED( ) : ParserKeyword("RPTSCHED")
-{
-  setFixedSize( (size_t) 1);
+RPTSCHED::RPTSCHED() : ParserKeyword("RPTSCHED", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("RPTSCHED");
@@ -1815,9 +1815,7 @@ const std::string RPTSCHED::keywordName = "RPTSCHED";
 const std::string RPTSCHED::MNEMONIC_LIST::itemName = "MNEMONIC_LIST";
 
 
-RPTSMRY::RPTSMRY( ) : ParserKeyword("RPTSMRY")
-{
-  setFixedSize( (size_t) 1);
+RPTSMRY::RPTSMRY() : ParserKeyword("RPTSMRY", KeywordSize(1, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("RPTSMRY");
@@ -1834,9 +1832,7 @@ const std::string RPTSMRY::keywordName = "RPTSMRY";
 const std::string RPTSMRY::WRITE::itemName = "WRITE";
 
 
-RPTSOL::RPTSOL( ) : ParserKeyword("RPTSOL")
-{
-  setFixedSize( (size_t) 1);
+RPTSOL::RPTSOL() : ParserKeyword("RPTSOL", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("RPTSOL");
@@ -1854,9 +1850,7 @@ const std::string RPTSOL::keywordName = "RPTSOL";
 const std::string RPTSOL::mnemonics::itemName = "mnemonics";
 
 
-RS::RS( ) : ParserKeyword("RS")
-{
-  setFixedSize( (size_t) 1);
+RS::RS() : ParserKeyword("RS", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("RS");
@@ -1875,9 +1869,7 @@ const std::string RS::keywordName = "RS";
 const std::string RS::data::itemName = "data";
 
 
-RSCONST::RSCONST( ) : ParserKeyword("RSCONST")
-{
-  setFixedSize( (size_t) 1);
+RSCONST::RSCONST() : ParserKeyword("RSCONST", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RSCONST");
@@ -1901,10 +1893,7 @@ const std::string RSCONST::RS::itemName = "RS";
 const std::string RSCONST::PB::itemName = "PB";
 
 
-RSCONSTT::RSCONSTT( ) : ParserKeyword("RSCONSTT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+RSCONSTT::RSCONSTT() : ParserKeyword("RSCONSTT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RSCONSTT");
@@ -1928,10 +1917,7 @@ const std::string RSCONSTT::RS_CONSTT::itemName = "RS_CONSTT";
 const std::string RSCONSTT::PB_CONSTT::itemName = "PB_CONSTT";
 
 
-RSGI::RSGI( ) : ParserKeyword("RSGI")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+RSGI::RSGI() : ParserKeyword("RSGI", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RSGI");
@@ -1951,9 +1937,7 @@ const std::string RSGI::keywordName = "RSGI";
 const std::string RSGI::DATA::itemName = "DATA";
 
 
-RSSPEC::RSSPEC( ) : ParserKeyword("RSSPEC")
-{
-  setFixedSize( (size_t) 0);
+RSSPEC::RSSPEC() : ParserKeyword("RSSPEC", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("RSSPEC");
@@ -1961,10 +1945,7 @@ RSSPEC::RSSPEC( ) : ParserKeyword("RSSPEC")
 const std::string RSSPEC::keywordName = "RSSPEC";
 
 
-RSVD::RSVD( ) : ParserKeyword("RSVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+RSVD::RSVD() : ParserKeyword("RSVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("RSVD");
@@ -1984,9 +1965,7 @@ const std::string RSVD::keywordName = "RSVD";
 const std::string RSVD::DATA::itemName = "DATA";
 
 
-RTEMP::RTEMP( ) : ParserKeyword("RTEMP")
-{
-  setSizeType(SLASH_TERMINATED);
+RTEMP::RTEMP() : ParserKeyword("RTEMP", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -2007,9 +1986,7 @@ const std::string RTEMP::TEMP::itemName = "TEMP";
 const double RTEMP::TEMP::defaultValue = 15.555000;
 
 
-RTEMPA::RTEMPA( ) : ParserKeyword("RTEMPA")
-{
-  setSizeType(SLASH_TERMINATED);
+RTEMPA::RTEMPA() : ParserKeyword("RTEMPA", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -2030,12 +2007,12 @@ const std::string RTEMPA::TEMP::itemName = "TEMP";
 const double RTEMPA::TEMP::defaultValue = 15.555000;
 
 
-RTEMPVD::RTEMPVD( ) : ParserKeyword("RTEMPVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+RTEMPVD::RTEMPVD() : ParserKeyword("RTEMPVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("PROPS");
   addValidSectionName("SOLUTION");
+  setProhibitedKeywords({
+    "TEMPVD",
+  });
   clearDeckNames();
   addDeckName("RTEMPVD");
   {
@@ -2054,18 +2031,14 @@ const std::string RTEMPVD::keywordName = "RTEMPVD";
 const std::string RTEMPVD::DATA::itemName = "DATA";
 
 
-RUNSPEC::RUNSPEC( ) : ParserKeyword("RUNSPEC")
-{
-  setFixedSize( (size_t) 0);
+RUNSPEC::RUNSPEC() : ParserKeyword("RUNSPEC", KeywordSize(0, false)) {
   clearDeckNames();
   addDeckName("RUNSPEC");
 }
 const std::string RUNSPEC::keywordName = "RUNSPEC";
 
 
-RUNSUM::RUNSUM( ) : ParserKeyword("RUNSUM")
-{
-  setFixedSize( (size_t) 0);
+RUNSUM::RUNSUM() : ParserKeyword("RUNSUM", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("RUNSUM");
@@ -2073,9 +2046,7 @@ RUNSUM::RUNSUM( ) : ParserKeyword("RUNSUM")
 const std::string RUNSUM::keywordName = "RUNSUM";
 
 
-RV::RV( ) : ParserKeyword("RV")
-{
-  setFixedSize( (size_t) 1);
+RV::RV() : ParserKeyword("RV", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("RV");
@@ -2094,9 +2065,7 @@ const std::string RV::keywordName = "RV";
 const std::string RV::data::itemName = "data";
 
 
-RVCONST::RVCONST( ) : ParserKeyword("RVCONST")
-{
-  setFixedSize( (size_t) 1);
+RVCONST::RVCONST() : ParserKeyword("RVCONST", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RVCONST");
@@ -2120,10 +2089,7 @@ const std::string RVCONST::RV::itemName = "RV";
 const std::string RVCONST::DEWP::itemName = "DEWP";
 
 
-RVCONSTT::RVCONSTT( ) : ParserKeyword("RVCONSTT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+RVCONSTT::RVCONSTT() : ParserKeyword("RVCONSTT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RVCONSTT");
@@ -2143,10 +2109,7 @@ const std::string RVCONSTT::keywordName = "RVCONSTT";
 const std::string RVCONSTT::DATA::itemName = "DATA";
 
 
-RVGI::RVGI( ) : ParserKeyword("RVGI")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+RVGI::RVGI() : ParserKeyword("RVGI", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RVGI");
@@ -2166,10 +2129,7 @@ const std::string RVGI::keywordName = "RVGI";
 const std::string RVGI::DATA::itemName = "DATA";
 
 
-RVVD::RVVD( ) : ParserKeyword("RVVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+RVVD::RVVD() : ParserKeyword("RVVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("RVVD");
@@ -2189,30 +2149,36 @@ const std::string RVVD::keywordName = "RVVD";
 const std::string RVVD::DATA::itemName = "DATA";
 
 
-RWGSALT::RWGSALT( ) : ParserKeyword("RWGSALT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
-  setTableCollection( true );
+RVW::RVW() : ParserKeyword("RVW", KeywordSize(1, false)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("RVW");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("OilDissolutionFactor");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string RVW::keywordName = "RVW";
+const std::string RVW::data::itemName = "data";
+
+
+RWGSALT::RWGSALT() : ParserKeyword("RWGSALT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("RWGSALT");
   {
      ParserRecord record;
      {
-        ParserItem item("RESERVOIR_PRESSURE", ParserItem::itype::DOUBLE);
-        item.push_backDimension("Pressure");
-        record.addItem(item);
-     }
-     {
-        ParserItem item("SALT_CONCENTRATION", ParserItem::itype::DOUBLE);
-        item.setSizeType(ParserItem::item_size::ALL);
-        item.push_backDimension("Mass/Length*Length*Length");
-        record.addItem(item);
-     }
-     {
         ParserItem item("DATA", ParserItem::itype::DOUBLE);
         item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Pressure");
+        item.push_backDimension("Mass/Length*Length*Length");
         item.push_backDimension("OilDissolutionFactor");
         record.addItem(item);
      }
@@ -2220,8 +2186,6 @@ RWGSALT::RWGSALT( ) : ParserKeyword("RWGSALT")
   }
 }
 const std::string RWGSALT::keywordName = "RWGSALT";
-const std::string RWGSALT::RESERVOIR_PRESSURE::itemName = "RESERVOIR_PRESSURE";
-const std::string RWGSALT::SALT_CONCENTRATION::itemName = "SALT_CONCENTRATION";
 const std::string RWGSALT::DATA::itemName = "DATA";
 
 

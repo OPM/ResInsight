@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/F.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/F.hpp>
 namespace Opm {
 namespace ParserKeywords {
-FAULTDIM::FAULTDIM( ) : ParserKeyword("FAULTDIM")
-{
-  setFixedSize( (size_t) 1);
+FAULTDIM::FAULTDIM() : ParserKeyword("FAULTDIM", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("FAULTDIM");
@@ -31,9 +30,7 @@ const std::string FAULTDIM::MFSEGS::itemName = "MFSEGS";
 const int FAULTDIM::MFSEGS::defaultValue = 0;
 
 
-FAULTS::FAULTS( ) : ParserKeyword("FAULTS")
-{
-  setSizeType(SLASH_TERMINATED);
+FAULTS::FAULTS() : ParserKeyword("FAULTS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("FAULTS");
@@ -85,9 +82,7 @@ const std::string FAULTS::IZ2::itemName = "IZ2";
 const std::string FAULTS::FACE::itemName = "FACE";
 
 
-FBHPDEF::FBHPDEF( ) : ParserKeyword("FBHPDEF")
-{
-  setFixedSize( (size_t) 1);
+FBHPDEF::FBHPDEF() : ParserKeyword("FBHPDEF", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("FBHPDEF");
@@ -111,10 +106,7 @@ const std::string FBHPDEF::TARGET_BHP::itemName = "TARGET_BHP";
 const std::string FBHPDEF::LIMIT_BHP::itemName = "LIMIT_BHP";
 
 
-FHERCHBL::FHERCHBL( ) : ParserKeyword("FHERCHBL")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("NNEWTF","NTHRBL",0);
+FHERCHBL::FHERCHBL() : ParserKeyword("FHERCHBL", KeywordSize("NNEWTF", "NTHRBL", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FHERCHBL");
@@ -136,9 +128,7 @@ const std::string FHERCHBL::keywordName = "FHERCHBL";
 const std::string FHERCHBL::DATA::itemName = "DATA";
 
 
-FIELD::FIELD( ) : ParserKeyword("FIELD")
-{
-  setFixedSize( (size_t) 0);
+FIELD::FIELD() : ParserKeyword("FIELD", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("FIELD");
@@ -146,285 +136,286 @@ FIELD::FIELD( ) : ParserKeyword("FIELD")
 const std::string FIELD::keywordName = "FIELD";
 
 
-FIELD_PROBE::FIELD_PROBE( ) : ParserKeyword("FIELD_PROBE")
-{
-  setFixedSize( (size_t) 0);
+FIELD_PROBE::FIELD_PROBE() : ParserKeyword("FIELD_PROBE", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("FAPI");
-  addDeckName("FAQR");
-  addDeckName("FAQRG");
-  addDeckName("FAQT");
-  addDeckName("FAQTG");
-  addDeckName("FCAD");
-  addDeckName("FCGC");
-  addDeckName("FCIC");
-  addDeckName("FCIP");
-  addDeckName("FCIR");
-  addDeckName("FCIT");
-  addDeckName("FCPC");
-  addDeckName("FCPR");
-  addDeckName("FCPT");
+  addDeckName("FORFF");
+  addDeckName("FOPR");
   addDeckName("FCSC");
-  addDeckName("FEPR");
-  addDeckName("FEPT");
-  addDeckName("FGCR");
-  addDeckName("FGCT");
-  addDeckName("FGDC");
-  addDeckName("FGDCQ");
-  addDeckName("FGDEN");
-  addDeckName("FGIMR");
-  addDeckName("FGIMT");
-  addDeckName("FGIP");
-  addDeckName("FGIPG");
-  addDeckName("FGIPL");
-  addDeckName("FGIR");
-  addDeckName("FGIRH");
-  addDeckName("FGIRT");
-  addDeckName("FGIT");
-  addDeckName("FGITH");
-  addDeckName("FGLIR");
-  addDeckName("FGLR");
-  addDeckName("FGLRH");
-  addDeckName("FGOR");
-  addDeckName("FGORH");
-  addDeckName("FGPI");
-  addDeckName("FGPI2");
-  addDeckName("FGPP");
-  addDeckName("FGPP2");
-  addDeckName("FGPPF");
-  addDeckName("FGPPF2");
-  addDeckName("FGPPS");
-  addDeckName("FGPPS2");
-  addDeckName("FGPR");
-  addDeckName("FGPRF");
-  addDeckName("FGPRH");
-  addDeckName("FGPRS");
-  addDeckName("FGPRT");
-  addDeckName("FGPT");
+  addDeckName("FOPRH");
+  addDeckName("FOPTF");
+  addDeckName("FSPR");
   addDeckName("FGPTF");
+  addDeckName("FGIMT");
+  addDeckName("FGPP2");
+  addDeckName("FGLRH");
+  addDeckName("FOPRT");
+  addDeckName("FGPRF");
+  addDeckName("FOPT");
+  addDeckName("FOPRF");
+  addDeckName("FMWPL");
+  addDeckName("FGST");
+  addDeckName("FOPRS");
+  addDeckName("FOPI2");
+  addDeckName("FOPI");
+  addDeckName("FGPP");
+  addDeckName("FOPTH");
+  addDeckName("FGIRT");
+  addDeckName("FCIP");
+  addDeckName("FOPTS");
+  addDeckName("FOIR");
+  addDeckName("FCIT");
+  addDeckName("FOIRH");
+  addDeckName("FOIRT");
+  addDeckName("FWIT");
+  addDeckName("FOIT");
+  addDeckName("FGPRS");
+  addDeckName("FWPI2");
+  addDeckName("FOITH");
+  addDeckName("FOPP");
+  addDeckName("FWPRT");
+  addDeckName("FOPP2");
+  addDeckName("FWPRH");
+  addDeckName("FMWPO");
+  addDeckName("FWPR");
+  addDeckName("FWPT");
+  addDeckName("FCIC");
+  addDeckName("FWPTH");
+  addDeckName("FWIR");
+  addDeckName("FGSR");
+  addDeckName("FWIRH");
+  addDeckName("FWIRT");
+  addDeckName("FWITH");
+  addDeckName("FSPT");
+  addDeckName("FGIMR");
+  addDeckName("FWPP");
+  addDeckName("FWPP2");
+  addDeckName("FORFE");
+  addDeckName("FGPI2");
+  addDeckName("FMWPT");
+  addDeckName("FWPI");
+  addDeckName("FGPI");
+  addDeckName("FWPIR");
+  addDeckName("FGPPF");
+  addDeckName("FGPR");
+  addDeckName("FGPRH");
+  addDeckName("FGPRT");
+  addDeckName("FGSAT");
+  addDeckName("FGPT");
   addDeckName("FGPTH");
   addDeckName("FGPTS");
-  addDeckName("FGPV");
-  addDeckName("FGQ");
-  addDeckName("FGSAT");
-  addDeckName("FGSPR");
-  addDeckName("FGSR");
-  addDeckName("FGSRL");
-  addDeckName("FGSRU");
-  addDeckName("FGSSP");
-  addDeckName("FGST");
-  addDeckName("FGSTP");
-  addDeckName("FGVIS");
-  addDeckName("FHPV");
-  addDeckName("FJPR");
+  addDeckName("FGIR");
+  addDeckName("FMWIA");
+  addDeckName("FSGR");
+  addDeckName("FGCR");
+  addDeckName("FGIRH");
+  addDeckName("FGPPS2");
+  addDeckName("FGIT");
+  addDeckName("FOSRL");
+  addDeckName("FGITH");
+  addDeckName("FGPPS");
+  addDeckName("FGPPF2");
+  addDeckName("FMWIG");
+  addDeckName("FSGT");
+  addDeckName("FGCT");
   addDeckName("FJPRH");
-  addDeckName("FJPRT");
-  addDeckName("FJPT");
-  addDeckName("FJPTH");
+  addDeckName("FGLIR");
+  addDeckName("FGQ");
   addDeckName("FLPR");
+  addDeckName("FTICHEA");
+  addDeckName("FSIP");
   addDeckName("FLPRH");
   addDeckName("FLPRT");
   addDeckName("FLPT");
-  addDeckName("FLPTH");
-  addDeckName("FMCTG");
-  addDeckName("FMCTP");
-  addDeckName("FMCTW");
-  addDeckName("FMIR");
-  addDeckName("FMIT");
-  addDeckName("FMPR");
-  addDeckName("FMPT");
-  addDeckName("FMWDR");
-  addDeckName("FMWDT");
-  addDeckName("FMWIA");
-  addDeckName("FMWIG");
-  addDeckName("FMWIN");
-  addDeckName("FMWIP");
-  addDeckName("FMWIS");
-  addDeckName("FMWIT");
-  addDeckName("FMWIU");
-  addDeckName("FMWIV");
-  addDeckName("FMWPA");
-  addDeckName("FMWPG");
-  addDeckName("FMWPL");
-  addDeckName("FMWPO");
-  addDeckName("FMWPP");
-  addDeckName("FMWPR");
-  addDeckName("FMWPS");
-  addDeckName("FMWPT");
-  addDeckName("FMWPU");
-  addDeckName("FMWPV");
-  addDeckName("FMWWO");
-  addDeckName("FMWWT");
-  addDeckName("FNIP");
-  addDeckName("FNIR");
-  addDeckName("FNIT");
-  addDeckName("FNPR");
-  addDeckName("FNPT");
-  addDeckName("FNQR");
-  addDeckName("FNQT");
-  addDeckName("FODEN");
-  addDeckName("FOE");
-  addDeckName("FOEIG");
   addDeckName("FOEIW");
-  addDeckName("FOEW");
-  addDeckName("FOEWG");
-  addDeckName("FOEWW");
-  addDeckName("FOGR");
-  addDeckName("FOGRH");
-  addDeckName("FOIP");
-  addDeckName("FOIPG");
-  addDeckName("FOIPL");
-  addDeckName("FOIR");
-  addDeckName("FOIRH");
-  addDeckName("FOIRT");
-  addDeckName("FOIT");
-  addDeckName("FOITH");
-  addDeckName("FOPI");
-  addDeckName("FOPI2");
-  addDeckName("FOPP");
-  addDeckName("FOPP2");
-  addDeckName("FOPR");
-  addDeckName("FOPRF");
-  addDeckName("FOPRH");
-  addDeckName("FOPRS");
-  addDeckName("FOPRT");
-  addDeckName("FOPT");
-  addDeckName("FOPTF");
-  addDeckName("FOPTH");
-  addDeckName("FOPTS");
-  addDeckName("FOPV");
-  addDeckName("FORFE");
-  addDeckName("FORFF");
-  addDeckName("FORFG");
-  addDeckName("FORFR");
-  addDeckName("FORFS");
-  addDeckName("FORFW");
-  addDeckName("FORFX");
-  addDeckName("FORFY");
-  addDeckName("FORME");
-  addDeckName("FORMF");
-  addDeckName("FORMG");
-  addDeckName("FORMR");
-  addDeckName("FORMS");
-  addDeckName("FORMW");
-  addDeckName("FORMX");
-  addDeckName("FORMY");
-  addDeckName("FOSAT");
-  addDeckName("FOSPR");
-  addDeckName("FOSRL");
-  addDeckName("FOSRU");
-  addDeckName("FOSSP");
-  addDeckName("FOSTP");
-  addDeckName("FOVIS");
-  addDeckName("FPPC");
-  addDeckName("FPPG");
-  addDeckName("FPPO");
-  addDeckName("FPPW");
-  addDeckName("FPR");
-  addDeckName("FPRGZ");
-  addDeckName("FPRH");
-  addDeckName("FPRP");
-  addDeckName("FRPV");
-  addDeckName("FRS");
-  addDeckName("FRTM");
-  addDeckName("FRV");
-  addDeckName("FSGR");
-  addDeckName("FSGT");
-  addDeckName("FSIC");
-  addDeckName("FSIP");
-  addDeckName("FSIR");
-  addDeckName("FSIT");
-  addDeckName("FSPC");
-  addDeckName("FSPR");
-  addDeckName("FSPT");
-  addDeckName("FTADSFOA");
-  addDeckName("FTADSUR");
-  addDeckName("FTDCYFOA");
-  addDeckName("FTICHEA");
-  addDeckName("FTIPTFOA");
-  addDeckName("FTIPTHEA");
-  addDeckName("FTIPTSUR");
-  addDeckName("FTIRALK");
-  addDeckName("FTIRANI");
-  addDeckName("FTIRCAT");
-  addDeckName("FTIRFOA");
-  addDeckName("FTIRHEA");
-  addDeckName("FTIRSUR");
-  addDeckName("FTITALK");
-  addDeckName("FTITANI");
-  addDeckName("FTITCAT");
-  addDeckName("FTITFOA");
-  addDeckName("FTITHEA");
-  addDeckName("FTITSUR");
-  addDeckName("FTMOBFOA");
-  addDeckName("FTPCHEA");
-  addDeckName("FTPRALK");
-  addDeckName("FTPRANI");
-  addDeckName("FTPRCAT");
-  addDeckName("FTPRFOA");
-  addDeckName("FTPRHEA");
-  addDeckName("FTPRSUR");
-  addDeckName("FTPTALK");
-  addDeckName("FTPTANI");
-  addDeckName("FTPTCAT");
-  addDeckName("FTPTFOA");
-  addDeckName("FTPTHEA");
-  addDeckName("FTPTSUR");
+  addDeckName("FLPTH");
+  addDeckName("FJPR");
+  addDeckName("FJPRT");
+  addDeckName("FJPT");
+  addDeckName("FEIR");
+  addDeckName("FJPTH");
+  addDeckName("FVPR");
+  addDeckName("FVPRT");
+  addDeckName("FGDEN");
+  addDeckName("FVPT");
   addDeckName("FVIR");
   addDeckName("FVIRT");
   addDeckName("FVIT");
-  addDeckName("FVPR");
-  addDeckName("FVPRT");
-  addDeckName("FVPT");
   addDeckName("FWCT");
+  addDeckName("FORFG");
   addDeckName("FWCTH");
-  addDeckName("FWDEN");
+  addDeckName("FGOR");
+  addDeckName("FGORH");
+  addDeckName("FOGR");
+  addDeckName("FORMX");
+  addDeckName("FOGRH");
   addDeckName("FWGR");
   addDeckName("FWGRH");
-  addDeckName("FWIP");
-  addDeckName("FWIR");
-  addDeckName("FWIRH");
-  addDeckName("FWIRT");
-  addDeckName("FWIT");
-  addDeckName("FWITH");
-  addDeckName("FWPI");
-  addDeckName("FWPI2");
-  addDeckName("FWPIR");
-  addDeckName("FWPP");
-  addDeckName("FWPP2");
-  addDeckName("FWPR");
-  addDeckName("FWPRH");
-  addDeckName("FWPRT");
-  addDeckName("FWPT");
-  addDeckName("FWPTH");
-  addDeckName("FWPV");
-  addDeckName("FWSAT");
+  addDeckName("FMPT");
+  addDeckName("FGLR");
+  addDeckName("FPRP");
+  addDeckName("FMCTP");
+  addDeckName("FMCTW");
+  addDeckName("FOVIS");
+  addDeckName("FMCTG");
+  addDeckName("FMWPR");
+  addDeckName("FMWPA");
+  addDeckName("FMWPU");
+  addDeckName("FMWPG");
+  addDeckName("FMWPS");
+  addDeckName("FMWPV");
+  addDeckName("FMWPP");
+  addDeckName("FMWIT");
+  addDeckName("FMWIN");
+  addDeckName("FMWIU");
+  addDeckName("FMWIS");
+  addDeckName("FMWIV");
+  addDeckName("FMWIP");
+  addDeckName("FMWDR");
+  addDeckName("FMWDT");
+  addDeckName("FMWWO");
+  addDeckName("FMWWT");
+  addDeckName("FEPR");
+  addDeckName("FTITSUR");
+  addDeckName("FEPT");
+  addDeckName("FGSPR");
+  addDeckName("FGSRL");
+  addDeckName("FGSRU");
+  addDeckName("FGSSP");
+  addDeckName("FMIR");
+  addDeckName("FGSTP");
+  addDeckName("FOSPR");
+  addDeckName("FOSRU");
+  addDeckName("FOSSP");
+  addDeckName("FOSTP");
   addDeckName("FWSPR");
+  addDeckName("FTPTCAT");
   addDeckName("FWSRL");
   addDeckName("FWSRU");
   addDeckName("FWSSP");
   addDeckName("FWSTP");
+  addDeckName("FOSAT");
+  addDeckName("FOIP");
+  addDeckName("FOIPR");
+  addDeckName("FOIPL");
+  addDeckName("FOIPG");
+  addDeckName("FPPO");
+  addDeckName("FMIT");
+  addDeckName("FODEN");
+  addDeckName("FWSAT");
+  addDeckName("FWIP");
+  addDeckName("FWIPR");
+  addDeckName("FPPW");
+  addDeckName("FORMS");
   addDeckName("FWVIS");
+  addDeckName("FWDEN");
+  addDeckName("FGIP");
+  addDeckName("FGIPR");
+  addDeckName("FGIPL");
+  addDeckName("FGIPG");
+  addDeckName("FPPG");
+  addDeckName("FGVIS");
+  addDeckName("FCAD");
+  addDeckName("FPR");
+  addDeckName("FPRH");
+  addDeckName("FPRGZ");
+  addDeckName("FRS");
+  addDeckName("FSIR");
+  addDeckName("FRV");
+  addDeckName("FPPC");
+  addDeckName("FRPV");
+  addDeckName("FOPV");
+  addDeckName("FWPV");
+  addDeckName("FGPV");
+  addDeckName("FHPV");
+  addDeckName("FRTM");
+  addDeckName("FOE");
+  addDeckName("FOEW");
+  addDeckName("FAPI");
+  addDeckName("FOEWW");
+  addDeckName("FOEIG");
+  addDeckName("FOEWG");
+  addDeckName("FTPTALK");
+  addDeckName("FORMR");
+  addDeckName("FORMW");
+  addDeckName("FNIT");
+  addDeckName("FORMG");
+  addDeckName("FORME");
+  addDeckName("FORMF");
+  addDeckName("FORMY");
+  addDeckName("FORFR");
+  addDeckName("FORFW");
+  addDeckName("FORFS");
+  addDeckName("FORFX");
+  addDeckName("FORFY");
+  addDeckName("FAQR");
+  addDeckName("FAQT");
+  addDeckName("FAQRG");
+  addDeckName("FAQTG");
+  addDeckName("FNQR");
+  addDeckName("FNQT");
+  addDeckName("FSIT");
+  addDeckName("FSPC");
+  addDeckName("FSIC");
+  addDeckName("FTPRANI");
+  addDeckName("FTPTANI");
+  addDeckName("FTIRANI");
+  addDeckName("FTITANI");
+  addDeckName("FTPTSUR");
+  addDeckName("FTPRCAT");
+  addDeckName("FTIRCAT");
+  addDeckName("FTITCAT");
+  addDeckName("FTPCHEA");
+  addDeckName("FTPRHEA");
+  addDeckName("FTPTHEA");
+  addDeckName("FTIRHEA");
+  addDeckName("FTITHEA");
+  addDeckName("FTIPTHEA");
+  addDeckName("FMPR");
+  addDeckName("FCGC");
+  addDeckName("FTPRFOA");
+  addDeckName("FTPTFOA");
+  addDeckName("FTIRFOA");
+  addDeckName("FTITFOA");
+  addDeckName("FNIP");
+  addDeckName("FTIPTFOA");
+  addDeckName("FTADSFOA");
+  addDeckName("FTDCYFOA");
+  addDeckName("FTMOBFOA");
+  addDeckName("FGDC");
+  addDeckName("FGDCQ");
+  addDeckName("FEIT");
+  addDeckName("FCPR");
+  addDeckName("FCPC");
+  addDeckName("FCPT");
+  addDeckName("FCIR");
   addDeckName("PSSPR");
-  addDeckName("PSSSC");
-  addDeckName("PSSSG");
   addDeckName("PSSSO");
   addDeckName("PSSSW");
+  addDeckName("PSSSG");
+  addDeckName("PSSSC");
+  addDeckName("FNPR");
+  addDeckName("FNPT");
+  addDeckName("FNIR");
+  addDeckName("FTPRSUR");
+  addDeckName("FTIRALK");
+  addDeckName("FTIRSUR");
+  addDeckName("FTIPTSUR");
+  addDeckName("FTADSUR");
+  addDeckName("FTPRALK");
+  addDeckName("FTITALK");
   setMatchRegex("FU.+|FTPR.+|FTPT.+|FTPC.+|FTIR.+|FTIT.+|FTIC.+|FTIPT.+|FTIPF.+|FTIPS|FTIP[1-9][0-9]*.+|FTPR.+|FTPT.+|FTPC.+|FTIR.+|FTIT.+|FTIC.+|FTADS.+|FTDCY.+|FTIRF.+|FTIRS.+|FTPRF.+|FTPRS.+|FTITF.+|FTITS.+|FTPTF.+|FTPTS.+|FTICF.+|FTICS.+|FTPCF.+|FTPCS.+");
 }
 const std::string FIELD_PROBE::keywordName = "FIELD_PROBE";
 
 
-FILEUNIT::FILEUNIT( ) : ParserKeyword("FILEUNIT")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("EDIT");
+FILEUNIT::FILEUNIT() : ParserKeyword("FILEUNIT", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("FILEUNIT");
   {
@@ -440,9 +431,7 @@ const std::string FILEUNIT::keywordName = "FILEUNIT";
 const std::string FILEUNIT::FILE_UNIT_SYSTEM::itemName = "FILE_UNIT_SYSTEM";
 
 
-FILLEPS::FILLEPS( ) : ParserKeyword("FILLEPS")
-{
-  setFixedSize( (size_t) 0);
+FILLEPS::FILLEPS() : ParserKeyword("FILLEPS", KeywordSize(0, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FILLEPS");
@@ -450,9 +439,7 @@ FILLEPS::FILLEPS( ) : ParserKeyword("FILLEPS")
 const std::string FILLEPS::keywordName = "FILLEPS";
 
 
-FIPNUM::FIPNUM( ) : ParserKeyword("FIPNUM")
-{
-  setFixedSize( (size_t) 1);
+FIPNUM::FIPNUM() : ParserKeyword("FIPNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("FIPNUM");
@@ -470,9 +457,7 @@ const std::string FIPNUM::keywordName = "FIPNUM";
 const std::string FIPNUM::data::itemName = "data";
 
 
-FIPOWG::FIPOWG( ) : ParserKeyword("FIPOWG")
-{
-  setFixedSize( (size_t) 0);
+FIPOWG::FIPOWG() : ParserKeyword("FIPOWG", KeywordSize(0, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("FIPOWG");
@@ -480,9 +465,7 @@ FIPOWG::FIPOWG( ) : ParserKeyword("FIPOWG")
 const std::string FIPOWG::keywordName = "FIPOWG";
 
 
-FIPSEP::FIPSEP( ) : ParserKeyword("FIPSEP")
-{
-  setSizeType(SLASH_TERMINATED);
+FIPSEP::FIPSEP() : ParserKeyword("FIPSEP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("FIPSEP");
@@ -565,9 +548,7 @@ const std::string FIPSEP::DENSITY_EVAL_GAS_TEMP::itemName = "DENSITY_EVAL_GAS_TE
 const std::string FIPSEP::DENSITY_EVAL_PRESSURE_TEMP::itemName = "DENSITY_EVAL_PRESSURE_TEMP";
 
 
-FIP_PROBE::FIP_PROBE( ) : ParserKeyword("FIP_PROBE")
-{
-  setFixedSize( (size_t) 1);
+FIP_PROBE::FIP_PROBE() : ParserKeyword("FIP_PROBE", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   setMatchRegex("FIP.+");
@@ -585,9 +566,7 @@ const std::string FIP_PROBE::keywordName = "FIP_PROBE";
 const std::string FIP_PROBE::data::itemName = "data";
 
 
-FLUXNUM::FLUXNUM( ) : ParserKeyword("FLUXNUM")
-{
-  setFixedSize( (size_t) 1);
+FLUXNUM::FLUXNUM() : ParserKeyword("FLUXNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("FLUXNUM");
@@ -605,9 +584,7 @@ const std::string FLUXNUM::keywordName = "FLUXNUM";
 const std::string FLUXNUM::data::itemName = "data";
 
 
-FLUXREG::FLUXREG( ) : ParserKeyword("FLUXREG")
-{
-  setFixedSize( (size_t) 1);
+FLUXREG::FLUXREG() : ParserKeyword("FLUXREG", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("FLUXREG");
@@ -625,19 +602,24 @@ const std::string FLUXREG::keywordName = "FLUXREG";
 const std::string FLUXREG::data::itemName = "data";
 
 
-FLUXTYPE::FLUXTYPE( ) : ParserKeyword("FLUXTYPE")
-{
-  setFixedSize( (size_t) 1);
+FLUXTYPE::FLUXTYPE() : ParserKeyword("FLUXTYPE", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("FLUXTYPE");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("BC_TYPE", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
 }
 const std::string FLUXTYPE::keywordName = "FLUXTYPE";
+const std::string FLUXTYPE::BC_TYPE::itemName = "BC_TYPE";
 
 
-FMTHMD::FMTHMD( ) : ParserKeyword("FMTHMD")
-{
-  setFixedSize( (size_t) 0);
+FMTHMD::FMTHMD() : ParserKeyword("FMTHMD", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("FMTHMD");
@@ -645,9 +627,7 @@ FMTHMD::FMTHMD( ) : ParserKeyword("FMTHMD")
 const std::string FMTHMD::keywordName = "FMTHMD";
 
 
-FMTIN::FMTIN( ) : ParserKeyword("FMTIN")
-{
-  setFixedSize( (size_t) 0);
+FMTIN::FMTIN() : ParserKeyword("FMTIN", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("FMTIN");
@@ -655,9 +635,7 @@ FMTIN::FMTIN( ) : ParserKeyword("FMTIN")
 const std::string FMTIN::keywordName = "FMTIN";
 
 
-FMTOUT::FMTOUT( ) : ParserKeyword("FMTOUT")
-{
-  setFixedSize( (size_t) 0);
+FMTOUT::FMTOUT() : ParserKeyword("FMTOUT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("FMTOUT");
@@ -665,9 +643,7 @@ FMTOUT::FMTOUT( ) : ParserKeyword("FMTOUT")
 const std::string FMTOUT::keywordName = "FMTOUT";
 
 
-FMWSET::FMWSET( ) : ParserKeyword("FMWSET")
-{
-  setFixedSize( (size_t) 0);
+FMWSET::FMWSET() : ParserKeyword("FMWSET", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("FMWSET");
@@ -675,9 +651,7 @@ FMWSET::FMWSET( ) : ParserKeyword("FMWSET")
 const std::string FMWSET::keywordName = "FMWSET";
 
 
-FOAM::FOAM( ) : ParserKeyword("FOAM")
-{
-  setFixedSize( (size_t) 0);
+FOAM::FOAM() : ParserKeyword("FOAM", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("FOAM");
@@ -685,10 +659,7 @@ FOAM::FOAM( ) : ParserKeyword("FOAM")
 const std::string FOAM::keywordName = "FOAM";
 
 
-FOAMADS::FOAMADS( ) : ParserKeyword("FOAMADS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMADS::FOAMADS() : ParserKeyword("FOAMADS", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMADS");
@@ -708,10 +679,7 @@ const std::string FOAMADS::keywordName = "FOAMADS";
 const std::string FOAMADS::DATA::itemName = "DATA";
 
 
-FOAMDCYO::FOAMDCYO( ) : ParserKeyword("FOAMDCYO")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMDCYO::FOAMDCYO() : ParserKeyword("FOAMDCYO", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMDCYO");
@@ -731,10 +699,7 @@ const std::string FOAMDCYO::keywordName = "FOAMDCYO";
 const std::string FOAMDCYO::DATA::itemName = "DATA";
 
 
-FOAMDCYW::FOAMDCYW( ) : ParserKeyword("FOAMDCYW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMDCYW::FOAMDCYW() : ParserKeyword("FOAMDCYW", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMDCYW");
@@ -754,17 +719,14 @@ const std::string FOAMDCYW::keywordName = "FOAMDCYW";
 const std::string FOAMDCYW::DATA::itemName = "DATA";
 
 
-FOAMFCN::FOAMFCN( ) : ParserKeyword("FOAMFCN")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMFCN::FOAMFCN() : ParserKeyword("FOAMFCN", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMFCN");
   {
      ParserRecord record;
      {
-        ParserItem item("CAPILLARY_NUMBER", ParserItem::itype::INT);
+        ParserItem item("CAPILLARY_NUMBER", ParserItem::itype::DOUBLE);
         record.addItem(item);
      }
      {
@@ -782,10 +744,7 @@ const std::string FOAMFCN::EXP::itemName = "EXP";
 const double FOAMFCN::EXP::defaultValue = 1.000000;
 
 
-FOAMFRM::FOAMFRM( ) : ParserKeyword("FOAMFRM")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMFRM::FOAMFRM() : ParserKeyword("FOAMFRM", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMFRM");
@@ -804,11 +763,11 @@ const std::string FOAMFRM::keywordName = "FOAMFRM";
 const std::string FOAMFRM::DATA::itemName = "DATA";
 
 
-FOAMFSC::FOAMFSC( ) : ParserKeyword("FOAMFSC")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMFSC::FOAMFSC() : ParserKeyword("FOAMFSC", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "FOAMROCK",
+  });
   clearDeckNames();
   addDeckName("FOAMFSC");
   {
@@ -830,6 +789,12 @@ FOAMFSC::FOAMFSC( ) : ParserKeyword("FOAMFSC")
         item.push_backDimension("FoamSurfactantConcentration");
         record.addItem(item);
      }
+     {
+        ParserItem item("MIN_WAT_SAT", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1e-06) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
      addRecord( record );
   }
 }
@@ -838,13 +803,12 @@ const std::string FOAMFSC::REF_SURF_CONC::itemName = "REF_SURF_CONC";
 const std::string FOAMFSC::EXPONENT::itemName = "EXPONENT";
 const double FOAMFSC::EXPONENT::defaultValue = 1.000000;
 const std::string FOAMFSC::MIN_SURF_CONC::itemName = "MIN_SURF_CONC";
-const double FOAMFSC::MIN_SURF_CONC::defaultValue = 0.000000;
+const double FOAMFSC::MIN_SURF_CONC::defaultValue = 1e-20;
+const std::string FOAMFSC::MIN_WAT_SAT::itemName = "MIN_WAT_SAT";
+const double FOAMFSC::MIN_WAT_SAT::defaultValue = 1e-06;
 
 
-FOAMFSO::FOAMFSO( ) : ParserKeyword("FOAMFSO")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMFSO::FOAMFSO() : ParserKeyword("FOAMFSO", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMFSO");
@@ -864,10 +828,7 @@ const std::string FOAMFSO::keywordName = "FOAMFSO";
 const std::string FOAMFSO::DATA::itemName = "DATA";
 
 
-FOAMFST::FOAMFST( ) : ParserKeyword("FOAMFST")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMFST::FOAMFST() : ParserKeyword("FOAMFST", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMFST");
@@ -887,10 +848,7 @@ const std::string FOAMFST::keywordName = "FOAMFST";
 const std::string FOAMFST::DATA::itemName = "DATA";
 
 
-FOAMFSW::FOAMFSW( ) : ParserKeyword("FOAMFSW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMFSW::FOAMFSW() : ParserKeyword("FOAMFSW", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMFSW");
@@ -910,10 +868,7 @@ const std::string FOAMFSW::keywordName = "FOAMFSW";
 const std::string FOAMFSW::DATA::itemName = "DATA";
 
 
-FOAMMOB::FOAMMOB( ) : ParserKeyword("FOAMMOB")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+FOAMMOB::FOAMMOB() : ParserKeyword("FOAMMOB", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMMOB");
@@ -933,10 +888,7 @@ const std::string FOAMMOB::keywordName = "FOAMMOB";
 const std::string FOAMMOB::DATA::itemName = "DATA";
 
 
-FOAMMOBP::FOAMMOBP( ) : ParserKeyword("FOAMMOBP")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+FOAMMOBP::FOAMMOBP() : ParserKeyword("FOAMMOBP", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMMOBP");
@@ -956,10 +908,7 @@ const std::string FOAMMOBP::keywordName = "FOAMMOBP";
 const std::string FOAMMOBP::DATA::itemName = "DATA";
 
 
-FOAMMOBS::FOAMMOBS( ) : ParserKeyword("FOAMMOBS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+FOAMMOBS::FOAMMOBS() : ParserKeyword("FOAMMOBS", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMMOBS");
@@ -979,9 +928,7 @@ const std::string FOAMMOBS::keywordName = "FOAMMOBS";
 const std::string FOAMMOBS::DATA::itemName = "DATA";
 
 
-FOAMOPTS::FOAMOPTS( ) : ParserKeyword("FOAMOPTS")
-{
-  setFixedSize( (size_t) 1);
+FOAMOPTS::FOAMOPTS() : ParserKeyword("FOAMOPTS", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMOPTS");
@@ -994,6 +941,7 @@ FOAMOPTS::FOAMOPTS( ) : ParserKeyword("FOAMOPTS")
      }
      {
         ParserItem item("MODEL", ParserItem::itype::STRING);
+        item.setDefault( std::string("TAB") );
         record.addItem(item);
      }
      addRecord( record );
@@ -1003,12 +951,10 @@ const std::string FOAMOPTS::keywordName = "FOAMOPTS";
 const std::string FOAMOPTS::TRANSPORT_PHASE::itemName = "TRANSPORT_PHASE";
 const std::string FOAMOPTS::TRANSPORT_PHASE::defaultValue = "GAS";
 const std::string FOAMOPTS::MODEL::itemName = "MODEL";
+const std::string FOAMOPTS::MODEL::defaultValue = "TAB";
 
 
-FOAMROCK::FOAMROCK( ) : ParserKeyword("FOAMROCK")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+FOAMROCK::FOAMROCK() : ParserKeyword("FOAMROCK", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("FOAMROCK");
@@ -1033,17 +979,15 @@ const int FOAMROCK::ADSORPTION_INDEX::defaultValue = 1;
 const std::string FOAMROCK::ROCK_DENSITY::itemName = "ROCK_DENSITY";
 
 
-FORMFEED::FORMFEED( ) : ParserKeyword("FORMFEED")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("EDIT");
+FORMFEED::FORMFEED() : ParserKeyword("FORMFEED", KeywordSize(1, false)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("FORMFEED");
   {
@@ -1061,9 +1005,7 @@ const std::string FORMFEED::VALUE::itemName = "VALUE";
 const int FORMFEED::VALUE::defaultValue = 1;
 
 
-FRICTION::FRICTION( ) : ParserKeyword("FRICTION")
-{
-  setFixedSize( (size_t) 1);
+FRICTION::FRICTION() : ParserKeyword("FRICTION", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("FRICTION");
@@ -1089,9 +1031,7 @@ const std::string FRICTION::NWFRIB::itemName = "NWFRIB";
 const int FRICTION::NWFRIB::defaultValue = 1;
 
 
-FULLIMP::FULLIMP( ) : ParserKeyword("FULLIMP")
-{
-  setFixedSize( (size_t) 0);
+FULLIMP::FULLIMP() : ParserKeyword("FULLIMP", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("FULLIMP");

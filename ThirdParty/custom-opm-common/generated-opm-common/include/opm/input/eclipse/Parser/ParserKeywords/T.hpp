@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_T_HPP
 #define PARSER_KEYWORDS_T_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -48,15 +48,10 @@ namespace ParserKeywords {
        class MAX_RV_NODES {
        public:
            static const std::string itemName;
-       };
-
-       class NTENDP {
-       public:
-           static const std::string itemName;
            static const int defaultValue;
        };
 
-       class NUM_STATE_EQ {
+       class NTENDP {
        public:
            static const std::string itemName;
            static const int defaultValue;
@@ -71,6 +66,7 @@ namespace ParserKeywords {
        class NUM_EOS_SURFACE {
        public:
            static const std::string itemName;
+           static const int defaultValue;
        };
 
        class MAX_FLUX_REGIONS {
@@ -362,6 +358,19 @@ namespace ParserKeywords {
        TIGHTEN();
        static const std::string keywordName;
 
+       class FACTOR {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class TIGHTENP : public ParserKeyword {
+   public:
+       TIGHTENP();
+       static const std::string keywordName;
+
        class LINEAR_FACTOR {
        public:
            static const std::string itemName;
@@ -485,6 +494,19 @@ namespace ParserKeywords {
    class TPAMEPS : public ParserKeyword {
    public:
        TPAMEPS();
+       static const std::string keywordName;
+
+       class DATA {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class TPAMEPSS : public ParserKeyword {
+   public:
+       TPAMEPSS();
        static const std::string keywordName;
 
        class DATA {

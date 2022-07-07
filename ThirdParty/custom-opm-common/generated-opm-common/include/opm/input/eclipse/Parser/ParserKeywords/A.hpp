@@ -1,6 +1,6 @@
 #ifndef PARSER_KEYWORDS_A_HPP
 #define PARSER_KEYWORDS_A_HPP
-#include <opm/parser/eclipse/Parser/ParserKeyword.hpp>
+#include <opm/input/eclipse/Parser/ParserKeyword.hpp>
 namespace Opm {
 namespace ParserKeywords {
 
@@ -689,9 +689,9 @@ namespace ParserKeywords {
 
 
 
-   class APIVID : public ParserKeyword {
+   class APIVD : public ParserKeyword {
    public:
-       APIVID();
+       APIVD();
        static const std::string keywordName;
 
        class DATA {
@@ -1090,26 +1090,31 @@ namespace ParserKeywords {
        class TRANS_MULT {
        public:
            static const std::string itemName;
+           static const double defaultValue;
        };
 
        class TRANS_OPTION {
        public:
            static const std::string itemName;
+           static const int defaultValue;
        };
 
        class ALLOW_INTERNAL_CELLS {
        public:
            static const std::string itemName;
+           static const std::string defaultValue;
        };
 
        class VEFRAC {
        public:
            static const std::string itemName;
+           static const double defaultValue;
        };
 
        class VEFRACP {
        public:
            static const std::string itemName;
+           static const double defaultValue;
        };
    };
 
@@ -1440,6 +1445,19 @@ namespace ParserKeywords {
    class AQUIFER_PROBE_ANALYTIC : public ParserKeyword {
    public:
        AQUIFER_PROBE_ANALYTIC();
+       static const std::string keywordName;
+
+       class data {
+       public:
+           static const std::string itemName;
+       };
+   };
+
+
+
+   class AQUIFER_PROBE_ANALYTIC_NAMED : public ParserKeyword {
+   public:
+       AQUIFER_PROBE_ANALYTIC_NAMED();
        static const std::string keywordName;
 
        class data {

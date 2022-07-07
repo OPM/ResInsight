@@ -1,19 +1,21 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/J.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/J.hpp>
 namespace Opm {
 namespace ParserKeywords {
-JFUNC::JFUNC( ) : ParserKeyword("JFUNC")
-{
-  setFixedSize( (size_t) 1);
+JFUNC::JFUNC() : ParserKeyword("JFUNC", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  setRequiredKeywords({
+    "ENDSCALE",
+  });
   clearDeckNames();
   addDeckName("JFUNC");
   {
@@ -68,11 +70,11 @@ const std::string JFUNC::DIRECTION::itemName = "DIRECTION";
 const std::string JFUNC::DIRECTION::defaultValue = "XY";
 
 
-JFUNCR::JFUNCR( ) : ParserKeyword("JFUNCR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+JFUNCR::JFUNCR() : ParserKeyword("JFUNCR", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("GRID");
+  setRequiredKeywords({
+    "ENDSCALE",
+  });
   clearDeckNames();
   addDeckName("JFUNCR");
   {
