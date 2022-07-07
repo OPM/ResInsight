@@ -20,11 +20,16 @@
 
 #include "RifSummaryReaderInterface.h"
 
+#include "cafAssert.h"
+
+#ifdef _MSC_VER
+// Disable warning from external library to make sure treat warnings as error works
+#pragma warning( disable : 4267 )
+#endif
+
 #include "opm/common/utility/TimeService.hpp"
 #include "opm/io/eclipse/EclOutput.hpp"
 #include "opm/io/eclipse/ExtESmry.hpp"
-
-#include "cafAssert.h"
 
 #include <numeric>
 

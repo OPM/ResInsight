@@ -1,9 +1,0 @@
-{
-  "name": "ISOLNUM",
-  "sections": [
-    "GRID"
-  ],
-  "data": {
-    "value_type": "INT"
-  }
-}

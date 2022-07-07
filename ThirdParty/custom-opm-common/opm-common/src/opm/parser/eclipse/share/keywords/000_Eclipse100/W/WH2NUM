@@ -1,9 +1,0 @@
-{
-  "name": "WH2NUM",
-  "sections": [
-    "REGIONS"
-  ],
-  "data": {
-    "value_type": "INT"
-  }
-}

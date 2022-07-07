@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/V.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/V.hpp>
 namespace Opm {
 namespace ParserKeywords {
-VAPOIL::VAPOIL( ) : ParserKeyword("VAPOIL")
-{
-  setFixedSize( (size_t) 0);
+VAPOIL::VAPOIL() : ParserKeyword("VAPOIL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("VAPOIL");
@@ -20,11 +19,9 @@ VAPOIL::VAPOIL( ) : ParserKeyword("VAPOIL")
 const std::string VAPOIL::keywordName = "VAPOIL";
 
 
-VAPPARS::VAPPARS( ) : ParserKeyword("VAPPARS")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("SCHEDULE");
+VAPPARS::VAPPARS() : ParserKeyword("VAPPARS", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("VAPPARS");
   {
@@ -45,9 +42,7 @@ const std::string VAPPARS::OIL_VAP_PROPENSITY::itemName = "OIL_VAP_PROPENSITY";
 const std::string VAPPARS::OIL_DENSITY_PROPENSITY::itemName = "OIL_DENSITY_PROPENSITY";
 
 
-VAPWAT::VAPWAT( ) : ParserKeyword("VAPWAT")
-{
-  setFixedSize( (size_t) 0);
+VAPWAT::VAPWAT() : ParserKeyword("VAPWAT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("VAPWAT");
@@ -55,9 +50,7 @@ VAPWAT::VAPWAT( ) : ParserKeyword("VAPWAT")
 const std::string VAPWAT::keywordName = "VAPWAT";
 
 
-VDFLOW::VDFLOW( ) : ParserKeyword("VDFLOW")
-{
-  setFixedSize( (size_t) 1);
+VDFLOW::VDFLOW() : ParserKeyword("VDFLOW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("VDFLOW");
@@ -74,10 +67,7 @@ const std::string VDFLOW::keywordName = "VDFLOW";
 const std::string VDFLOW::BETA::itemName = "BETA";
 
 
-VDFLOWR::VDFLOWR( ) : ParserKeyword("VDFLOWR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+VDFLOWR::VDFLOWR() : ParserKeyword("VDFLOWR", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("VDFLOWR");
@@ -94,9 +84,7 @@ const std::string VDFLOWR::keywordName = "VDFLOWR";
 const std::string VDFLOWR::BETA::itemName = "BETA";
 
 
-VE::VE( ) : ParserKeyword("VE")
-{
-  setFixedSize( (size_t) 1);
+VE::VE() : ParserKeyword("VE", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("VE");
@@ -115,9 +103,7 @@ const std::string VE::MODEL_TYPE::itemName = "MODEL_TYPE";
 const std::string VE::MODEL_TYPE::defaultValue = "NOCOMP";
 
 
-VEDEBUG::VEDEBUG( ) : ParserKeyword("VEDEBUG")
-{
-  setFixedSize( (size_t) 1);
+VEDEBUG::VEDEBUG() : ParserKeyword("VEDEBUG", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("VEDEBUG");
@@ -173,9 +159,7 @@ const std::string VEDEBUG::LGR::itemName = "LGR";
 const std::string VEDEBUG::LGR::defaultValue = " ";
 
 
-VEFIN::VEFIN( ) : ParserKeyword("VEFIN")
-{
-  setFixedSize( (size_t) 1);
+VEFIN::VEFIN() : ParserKeyword("VEFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("VEFIN");
@@ -201,9 +185,7 @@ const std::string VEFIN::NVEPT::itemName = "NVEPT";
 const int VEFIN::NVEPT::defaultValue = 0;
 
 
-VEFRAC::VEFRAC( ) : ParserKeyword("VEFRAC")
-{
-  setFixedSize( (size_t) 1);
+VEFRAC::VEFRAC() : ParserKeyword("VEFRAC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("VEFRAC");
@@ -222,9 +204,7 @@ const std::string VEFRAC::FRAC::itemName = "FRAC";
 const double VEFRAC::FRAC::defaultValue = 10.000000;
 
 
-VEFRACP::VEFRACP( ) : ParserKeyword("VEFRACP")
-{
-  setFixedSize( (size_t) 1);
+VEFRACP::VEFRACP() : ParserKeyword("VEFRACP", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("VEFRACP");
@@ -243,9 +223,7 @@ const std::string VEFRACP::FRAC::itemName = "FRAC";
 const double VEFRACP::FRAC::defaultValue = 1.000000;
 
 
-VEFRACPV::VEFRACPV( ) : ParserKeyword("VEFRACPV")
-{
-  setFixedSize( (size_t) 1);
+VEFRACPV::VEFRACPV() : ParserKeyword("VEFRACPV", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("VEFRACPV");
@@ -263,9 +241,7 @@ const std::string VEFRACPV::keywordName = "VEFRACPV";
 const std::string VEFRACPV::data::itemName = "data";
 
 
-VEFRACV::VEFRACV( ) : ParserKeyword("VEFRACV")
-{
-  setFixedSize( (size_t) 1);
+VEFRACV::VEFRACV() : ParserKeyword("VEFRACV", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("VEFRACV");
@@ -283,9 +259,7 @@ const std::string VEFRACV::keywordName = "VEFRACV";
 const std::string VEFRACV::data::itemName = "data";
 
 
-VFPCHK::VFPCHK( ) : ParserKeyword("VFPCHK")
-{
-  setFixedSize( (size_t) 1);
+VFPCHK::VFPCHK() : ParserKeyword("VFPCHK", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("VFPCHK");
@@ -305,9 +279,7 @@ const std::string VFPCHK::BHP_LIMIT::itemName = "BHP_LIMIT";
 const double VFPCHK::BHP_LIMIT::defaultValue = 10000000000.000000;
 
 
-VFPIDIMS::VFPIDIMS( ) : ParserKeyword("VFPIDIMS")
-{
-  setFixedSize( (size_t) 1);
+VFPIDIMS::VFPIDIMS() : ParserKeyword("VFPIDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("VFPIDIMS");
@@ -340,9 +312,7 @@ const std::string VFPIDIMS::MAX_INJ_VFP_TABLE::itemName = "MAX_INJ_VFP_TABLE";
 const int VFPIDIMS::MAX_INJ_VFP_TABLE::defaultValue = 0;
 
 
-VFPINJ::VFPINJ( ) : ParserKeyword("VFPINJ")
-{
-  setSizeType(UNKNOWN);
+VFPINJ::VFPINJ() : ParserKeyword("VFPINJ", KeywordSize(UNKNOWN)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("VFPINJ");
@@ -424,9 +394,7 @@ const std::string VFPINJ::THP_INDEX::itemName = "THP_INDEX";
 const std::string VFPINJ::VALUES::itemName = "VALUES";
 
 
-VFPPDIMS::VFPPDIMS( ) : ParserKeyword("VFPPDIMS")
-{
-  setFixedSize( (size_t) 1);
+VFPPDIMS::VFPPDIMS() : ParserKeyword("VFPPDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("VFPPDIMS");
@@ -480,9 +448,7 @@ const std::string VFPPDIMS::MAX_PROD_VFP_TABLE::itemName = "MAX_PROD_VFP_TABLE";
 const int VFPPDIMS::MAX_PROD_VFP_TABLE::defaultValue = 0;
 
 
-VFPPROD::VFPPROD( ) : ParserKeyword("VFPPROD")
-{
-  setSizeType(UNKNOWN);
+VFPPROD::VFPPROD() : ParserKeyword("VFPPROD", KeywordSize(UNKNOWN)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("VFPPROD");
@@ -624,9 +590,7 @@ const std::string VFPPROD::ALQ_INDEX::itemName = "ALQ_INDEX";
 const std::string VFPPROD::VALUES::itemName = "VALUES";
 
 
-VFPTABL::VFPTABL( ) : ParserKeyword("VFPTABL")
-{
-  setFixedSize( (size_t) 1);
+VFPTABL::VFPTABL() : ParserKeyword("VFPTABL", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("VFPTABL");
@@ -643,9 +607,7 @@ const std::string VFPTABL::keywordName = "VFPTABL";
 const std::string VFPTABL::METHOD::itemName = "METHOD";
 
 
-VISAGE::VISAGE( ) : ParserKeyword("VISAGE")
-{
-  setFixedSize( (size_t) 0);
+VISAGE::VISAGE() : ParserKeyword("VISAGE", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("VISAGE");
@@ -653,9 +615,7 @@ VISAGE::VISAGE( ) : ParserKeyword("VISAGE")
 const std::string VISAGE::keywordName = "VISAGE";
 
 
-VISCD::VISCD( ) : ParserKeyword("VISCD")
-{
-  setFixedSize( (size_t) 0);
+VISCD::VISCD() : ParserKeyword("VISCD", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("VISCD");
@@ -663,10 +623,7 @@ VISCD::VISCD( ) : ParserKeyword("VISCD")
 const std::string VISCD::keywordName = "VISCD";
 
 
-VISCREF::VISCREF( ) : ParserKeyword("VISCREF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+VISCREF::VISCREF() : ParserKeyword("VISCREF", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("VISCREF");
@@ -682,17 +639,21 @@ VISCREF::VISCREF( ) : ParserKeyword("VISCREF")
         item.push_backDimension("GasDissolutionFactor");
         record.addItem(item);
      }
+     {
+        ParserItem item("API_GRAVITY", ParserItem::itype::DOUBLE);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
      addRecord( record );
   }
 }
 const std::string VISCREF::keywordName = "VISCREF";
 const std::string VISCREF::REFERENCE_PRESSURE::itemName = "REFERENCE_PRESSURE";
 const std::string VISCREF::REFERENCE_RS::itemName = "REFERENCE_RS";
+const std::string VISCREF::API_GRAVITY::itemName = "API_GRAVITY";
 
 
-VISDATES::VISDATES( ) : ParserKeyword("VISDATES")
-{
-  setSizeType(SLASH_TERMINATED);
+VISDATES::VISDATES() : ParserKeyword("VISDATES", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("VISDATES");
@@ -726,9 +687,7 @@ const std::string VISDATES::TIMESTAMP::itemName = "TIMESTAMP";
 const std::string VISDATES::TIMESTAMP::defaultValue = "00:00:00";
 
 
-VISOPTS::VISOPTS( ) : ParserKeyword("VISOPTS")
-{
-  setSizeType(SLASH_TERMINATED);
+VISOPTS::VISOPTS() : ParserKeyword("VISOPTS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("VISOPTS");
@@ -790,8 +749,8 @@ const std::string VISOPTS::RETAIN_RESTART_FREQUENCY::itemName = "RETAIN_RESTART_
 const std::string VISOPTS::RETAIN_RESTART_FREQUENCY::defaultValue = "NO";
 const std::string VISOPTS::RETAIN_RESTART_CONTENT::itemName = "RETAIN_RESTART_CONTENT";
 const std::string VISOPTS::RETAIN_RESTART_CONTENT::defaultValue = "NO";
-const std::string VISOPTS::ERROR::itemName = "ERROR";
-const std::string VISOPTS::ERROR::defaultValue = "ERROR";
+const std::string VISOPTS::msvc_prefix_ERROR::itemName = "ERROR";
+const std::string VISOPTS::msvc_prefix_ERROR::defaultValue = "ERROR";
 
 
 }

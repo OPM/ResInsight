@@ -66,9 +66,10 @@ private:
     bool openESmryFile( const QString& headerFileName, bool includeRestartFiles, RiaThreadSafeLogger* threadSafeLogger );
 
 private:
-    std::unique_ptr<Opm::EclIO::ESmry>         m_eSmry;
-    std::map<RifEclipseSummaryAddress, size_t> m_adrToSummaryNodeIndex;
-    std::vector<time_t>                        m_timeSteps;
+    std::unique_ptr<Opm::EclIO::ESmry>              m_eSmry;
+    std::map<RifEclipseSummaryAddress, std::string> m_summaryAddressToKeywordMap;
+    std::map<RifEclipseSummaryAddress, size_t>      m_adrToSmspecIndices;
+    std::vector<time_t>                             m_timeSteps;
 
     std::unique_ptr<RifHdf5SummaryReader> m_hdf5Reader;
 };

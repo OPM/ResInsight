@@ -1,9 +1,0 @@
-{
-  "name": "HBNUM",
-  "sections": [
-    "REGIONS"
-  ],
-  "data": {
-    "value_type": "INT"
-  }
-}

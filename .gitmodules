@@ -10,3 +10,6 @@
 [submodule "ThirdParty/qtadvanceddocking"]
 	path = ThirdParty/qtadvanceddocking
 	url = https://github.com/CeetronSolutions/qtadvanceddocking.git
+[submodule "ThirdParty/custom-opm-common/opm-common"]
+	path = ThirdParty/custom-opm-common/opm-common
+	url = https://github.com/CeetronSolutions/opm-common

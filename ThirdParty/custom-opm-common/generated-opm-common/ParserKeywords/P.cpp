@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/P.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/P.hpp>
 namespace Opm {
 namespace ParserKeywords {
-PARALLEL::PARALLEL( ) : ParserKeyword("PARALLEL")
-{
-  setFixedSize( (size_t) 1);
+PARALLEL::PARALLEL() : ParserKeyword("PARALLEL", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PARALLEL");
@@ -38,9 +37,7 @@ const std::string PARALLEL::MACHINE_TYPE::itemName = "MACHINE_TYPE";
 const std::string PARALLEL::MACHINE_TYPE::defaultValue = "DISTRIBUTED";
 
 
-PARAOPTS::PARAOPTS( ) : ParserKeyword("PARAOPTS")
-{
-  setFixedSize( (size_t) 1);
+PARAOPTS::PARAOPTS() : ParserKeyword("PARAOPTS", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PARAOPTS");
@@ -113,9 +110,7 @@ const int PARAOPTS::VALUE_PRT_FILE::defaultValue = 1;
 const std::string PARAOPTS::RESERVED::itemName = "RESERVED";
 
 
-PARTTRAC::PARTTRAC( ) : ParserKeyword("PARTTRAC")
-{
-  setFixedSize( (size_t) 1);
+PARTTRAC::PARTTRAC() : ParserKeyword("PARTTRAC", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PARTTRAC");
@@ -148,9 +143,7 @@ const std::string PARTTRAC::NPKPMX::itemName = "NPKPMX";
 const int PARTTRAC::NPKPMX::defaultValue = 0;
 
 
-PATHS::PATHS( ) : ParserKeyword("PATHS")
-{
-  setSizeType(SLASH_TERMINATED);
+PATHS::PATHS() : ParserKeyword("PATHS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PATHS");
@@ -172,9 +165,7 @@ const std::string PATHS::PathName::itemName = "PathName";
 const std::string PATHS::PathValue::itemName = "PathValue";
 
 
-PBUB::PBUB( ) : ParserKeyword("PBUB")
-{
-  setFixedSize( (size_t) 1);
+PBUB::PBUB() : ParserKeyword("PBUB", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("PBUB");
@@ -193,10 +184,7 @@ const std::string PBUB::keywordName = "PBUB";
 const std::string PBUB::data::itemName = "data";
 
 
-PBVD::PBVD( ) : ParserKeyword("PBVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+PBVD::PBVD() : ParserKeyword("PBVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("PBVD");
@@ -216,10 +204,11 @@ const std::string PBVD::keywordName = "PBVD";
 const std::string PBVD::DATA::itemName = "DATA";
 
 
-PCG::PCG( ) : ParserKeyword("PCG")
-{
-  setFixedSize( (size_t) 1);
+PCG::PCG() : ParserKeyword("PCG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "ENDSCALE",
+  });
   clearDeckNames();
   addDeckName("PCG");
   {
@@ -237,11 +226,7 @@ const std::string PCG::keywordName = "PCG";
 const std::string PCG::data::itemName = "data";
 
 
-PCG32D::PCG32D( ) : ParserKeyword("PCG32D")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
-  setTableCollection( true );
+PCG32D::PCG32D() : ParserKeyword("PCG32D", KeywordSize("TABDIMS", "NTSFUN", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PCG32D");
@@ -259,10 +244,11 @@ const std::string PCG32D::keywordName = "PCG32D";
 const std::string PCG32D::SOME_DATA::itemName = "SOME_DATA";
 
 
-PCW::PCW( ) : ParserKeyword("PCW")
-{
-  setFixedSize( (size_t) 1);
+PCW::PCW() : ParserKeyword("PCW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "ENDSCALE",
+  });
   clearDeckNames();
   addDeckName("PCW");
   {
@@ -280,11 +266,7 @@ const std::string PCW::keywordName = "PCW";
 const std::string PCW::data::itemName = "data";
 
 
-PCW32D::PCW32D( ) : ParserKeyword("PCW32D")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
-  setTableCollection( true );
+PCW32D::PCW32D() : ParserKeyword("PCW32D", KeywordSize("TABDIMS", "NTSFUN", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PCW32D");
@@ -302,9 +284,7 @@ const std::string PCW32D::keywordName = "PCW32D";
 const std::string PCW32D::SOME_DATA::itemName = "SOME_DATA";
 
 
-PDEW::PDEW( ) : ParserKeyword("PDEW")
-{
-  setFixedSize( (size_t) 1);
+PDEW::PDEW() : ParserKeyword("PDEW", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("PDEW");
@@ -323,10 +303,7 @@ const std::string PDEW::keywordName = "PDEW";
 const std::string PDEW::data::itemName = "data";
 
 
-PDVD::PDVD( ) : ParserKeyword("PDVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+PDVD::PDVD() : ParserKeyword("PDVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("PDVD");
@@ -346,9 +323,7 @@ const std::string PDVD::keywordName = "PDVD";
 const std::string PDVD::DATA::itemName = "DATA";
 
 
-PEBI::PEBI( ) : ParserKeyword("PEBI")
-{
-  setFixedSize( (size_t) 1);
+PEBI::PEBI() : ParserKeyword("PEBI", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PEBI");
@@ -374,9 +349,7 @@ const std::string PEBI::AVOID_GRID_CALC::itemName = "AVOID_GRID_CALC";
 const std::string PEBI::AVOID_GRID_CALC::defaultValue = "No";
 
 
-PECOEFS::PECOEFS( ) : ParserKeyword("PECOEFS")
-{
-  setSizeType(SLASH_TERMINATED);
+PECOEFS::PECOEFS() : ParserKeyword("PECOEFS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PECOEFS");
@@ -459,9 +432,7 @@ const std::string PECOEFS::METHOD::itemName = "METHOD";
 const int PECOEFS::METHOD::defaultValue = 0;
 
 
-PEDIMS::PEDIMS( ) : ParserKeyword("PEDIMS")
-{
-  setFixedSize( (size_t) 1);
+PEDIMS::PEDIMS() : ParserKeyword("PEDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PEDIMS");
@@ -487,10 +458,7 @@ const std::string PEDIMS::MAX_PRESSURE_POINTS::itemName = "MAX_PRESSURE_POINTS";
 const int PEDIMS::MAX_PRESSURE_POINTS::defaultValue = 0;
 
 
-PEGTABX::PEGTABX( ) : ParserKeyword("PEGTABX")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("PEDIMS","NUM_REGIONS",0);
+PEGTABX::PEGTABX() : ParserKeyword("PEGTABX", KeywordSize("PEDIMS", "NUM_REGIONS", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PEGTAB0");
@@ -517,10 +485,7 @@ const std::string PEGTABX::keywordName = "PEGTABX";
 const std::string PEGTABX::DATA::itemName = "DATA";
 
 
-PEKTABX::PEKTABX( ) : ParserKeyword("PEKTABX")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("PEDIMS","NUM_REGIONS",0);
+PEKTABX::PEKTABX() : ParserKeyword("PEKTABX", KeywordSize("PEDIMS", "NUM_REGIONS", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PEKTAB0");
@@ -547,9 +512,7 @@ const std::string PEKTABX::keywordName = "PEKTABX";
 const std::string PEKTABX::DATA::itemName = "DATA";
 
 
-PENUM::PENUM( ) : ParserKeyword("PENUM")
-{
-  setFixedSize( (size_t) 1);
+PENUM::PENUM() : ParserKeyword("PENUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("PENUM");
@@ -567,51 +530,47 @@ const std::string PENUM::keywordName = "PENUM";
 const std::string PENUM::data::itemName = "data";
 
 
-PERFORMANCE_PROBE::PERFORMANCE_PROBE( ) : ParserKeyword("PERFORMANCE_PROBE")
-{
-  setFixedSize( (size_t) 0);
+PERFORMANCE_PROBE::PERFORMANCE_PROBE() : ParserKeyword("PERFORMANCE_PROBE", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("ELAPSED");
   addDeckName("HLINEARS");
+  addDeckName("TCPUDAY");
+  addDeckName("ELAPSED");
   addDeckName("HSUMLINS");
+  addDeckName("WNEWTON");
   addDeckName("MAXDPR");
-  addDeckName("MAXDSG");
-  addDeckName("MAXDSO");
   addDeckName("MAXDSW");
+  addDeckName("MAXDSO");
+  addDeckName("MAXDSG");
   addDeckName("MEMORYTS");
   addDeckName("MLINEARS");
+  addDeckName("TELAPDAY");
   addDeckName("MSUMLINS");
   addDeckName("MSUMNEWT");
   addDeckName("NBYTOT");
+  addDeckName("TCPUTSHT");
   addDeckName("NEWTON");
-  addDeckName("NLINEARS");
-  addDeckName("NLINSMAX");
-  addDeckName("NLINSMIN");
-  addDeckName("PERFORMA");
-  addDeckName("STEPTYPE");
-  addDeckName("TCPU");
-  addDeckName("TCPUDAY");
   addDeckName("TCPUH");
-  addDeckName("TCPUHT");
+  addDeckName("NLINEARS");
+  addDeckName("TCPU");
+  addDeckName("NLINSMIN");
+  addDeckName("NLINSMAX");
+  addDeckName("PERFORMA");
   addDeckName("TCPUSCH");
+  addDeckName("STEPTYPE");
+  addDeckName("TCPUHT");
   addDeckName("TCPUTS");
   addDeckName("TCPUTSH");
-  addDeckName("TCPUTSHT");
-  addDeckName("TELAPDAY");
+  addDeckName("TIMESTEP");
   addDeckName("TELAPLIN");
   addDeckName("TELAPTS");
-  addDeckName("TIMESTEP");
-  addDeckName("WNEWTON");
   addDeckName("ZIPEFF");
   addDeckName("ZIPEFFC");
 }
 const std::string PERFORMANCE_PROBE::keywordName = "PERFORMANCE_PROBE";
 
 
-PERMAVE::PERMAVE( ) : ParserKeyword("PERMAVE")
-{
-  setFixedSize( (size_t) 1);
+PERMAVE::PERMAVE() : ParserKeyword("PERMAVE", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMAVE");
@@ -644,21 +603,16 @@ const std::string PERMAVE::EXPO_2::itemName = "EXPO_2";
 const int PERMAVE::EXPO_2::defaultValue = -1;
 
 
-PERMFACT::PERMFACT( ) : ParserKeyword("PERMFACT")
-{
-  setSizeType(SLASH_TERMINATED);
+PERMFACT::PERMFACT() : ParserKeyword("PERMFACT", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PERMFACT");
   {
      ParserRecord record;
      {
-        ParserItem item("POROSITY", ParserItem::itype::DOUBLE);
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
         item.push_backDimension("1");
-        record.addItem(item);
-     }
-     {
-        ParserItem item("PERMFACTMULT", ParserItem::itype::DOUBLE);
         item.push_backDimension("1");
         record.addItem(item);
      }
@@ -666,13 +620,10 @@ PERMFACT::PERMFACT( ) : ParserKeyword("PERMFACT")
   }
 }
 const std::string PERMFACT::keywordName = "PERMFACT";
-const std::string PERMFACT::POROSITY::itemName = "POROSITY";
-const std::string PERMFACT::PERMFACTMULT::itemName = "PERMFACTMULT";
+const std::string PERMFACT::DATA::itemName = "DATA";
 
 
-PERMJFUN::PERMJFUN( ) : ParserKeyword("PERMJFUN")
-{
-  setFixedSize( (size_t) 1);
+PERMJFUN::PERMJFUN() : ParserKeyword("PERMJFUN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMJFUN");
@@ -691,9 +642,7 @@ const std::string PERMJFUN::keywordName = "PERMJFUN";
 const std::string PERMJFUN::data::itemName = "data";
 
 
-PERMR::PERMR( ) : ParserKeyword("PERMR")
-{
-  setFixedSize( (size_t) 1);
+PERMR::PERMR() : ParserKeyword("PERMR", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMR");
@@ -712,9 +661,7 @@ const std::string PERMR::keywordName = "PERMR";
 const std::string PERMR::data::itemName = "data";
 
 
-PERMTHT::PERMTHT( ) : ParserKeyword("PERMTHT")
-{
-  setFixedSize( (size_t) 1);
+PERMTHT::PERMTHT() : ParserKeyword("PERMTHT", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMTHT");
@@ -733,9 +680,7 @@ const std::string PERMTHT::keywordName = "PERMTHT";
 const std::string PERMTHT::data::itemName = "data";
 
 
-PERMX::PERMX( ) : ParserKeyword("PERMX")
-{
-  setFixedSize( (size_t) 1);
+PERMX::PERMX() : ParserKeyword("PERMX", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMX");
@@ -754,9 +699,7 @@ const std::string PERMX::keywordName = "PERMX";
 const std::string PERMX::data::itemName = "data";
 
 
-PERMXY::PERMXY( ) : ParserKeyword("PERMXY")
-{
-  setFixedSize( (size_t) 1);
+PERMXY::PERMXY() : ParserKeyword("PERMXY", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMXY");
@@ -775,9 +718,7 @@ const std::string PERMXY::keywordName = "PERMXY";
 const std::string PERMXY::data::itemName = "data";
 
 
-PERMY::PERMY( ) : ParserKeyword("PERMY")
-{
-  setFixedSize( (size_t) 1);
+PERMY::PERMY() : ParserKeyword("PERMY", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMY");
@@ -795,12 +736,10 @@ PERMY::PERMY( ) : ParserKeyword("PERMY")
 }
 const std::string PERMY::keywordName = "PERMY";
 const std::string PERMY::data::itemName = "data";
-const double PERMY::data::defaultValue = 0.000000;
+const double PERMY::data::defaultValue = 0;
 
 
-PERMYZ::PERMYZ( ) : ParserKeyword("PERMYZ")
-{
-  setFixedSize( (size_t) 1);
+PERMYZ::PERMYZ() : ParserKeyword("PERMYZ", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMYZ");
@@ -819,9 +758,7 @@ const std::string PERMYZ::keywordName = "PERMYZ";
 const std::string PERMYZ::data::itemName = "data";
 
 
-PERMZ::PERMZ( ) : ParserKeyword("PERMZ")
-{
-  setFixedSize( (size_t) 1);
+PERMZ::PERMZ() : ParserKeyword("PERMZ", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMZ");
@@ -839,12 +776,10 @@ PERMZ::PERMZ( ) : ParserKeyword("PERMZ")
 }
 const std::string PERMZ::keywordName = "PERMZ";
 const std::string PERMZ::data::itemName = "data";
-const double PERMZ::data::defaultValue = 0.000000;
+const double PERMZ::data::defaultValue = 0;
 
 
-PERMZX::PERMZX( ) : ParserKeyword("PERMZX")
-{
-  setFixedSize( (size_t) 1);
+PERMZX::PERMZX() : ParserKeyword("PERMZX", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PERMZX");
@@ -863,9 +798,7 @@ const std::string PERMZX::keywordName = "PERMZX";
 const std::string PERMZX::data::itemName = "data";
 
 
-PETGRID::PETGRID( ) : ParserKeyword("PETGRID")
-{
-  setFixedSize( (size_t) 1);
+PETGRID::PETGRID() : ParserKeyword("PETGRID", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PETGRID");
@@ -882,9 +815,7 @@ const std::string PETGRID::keywordName = "PETGRID";
 const std::string PETGRID::FILE_NAME::itemName = "FILE_NAME";
 
 
-PETOPTS::PETOPTS( ) : ParserKeyword("PETOPTS")
-{
-  setFixedSize( (size_t) 1);
+PETOPTS::PETOPTS() : ParserKeyword("PETOPTS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PETOPTS");
@@ -902,9 +833,7 @@ const std::string PETOPTS::keywordName = "PETOPTS";
 const std::string PETOPTS::OPTIONS::itemName = "OPTIONS";
 
 
-PICOND::PICOND( ) : ParserKeyword("PICOND")
-{
-  setFixedSize( (size_t) 1);
+PICOND::PICOND() : ParserKeyword("PICOND", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("PICOND");
@@ -985,7 +914,7 @@ const double PICOND::D_F::defaultValue = 1.000000;
 const std::string PICOND::INCLUDE::itemName = "INCLUDE";
 const std::string PICOND::INCLUDE::defaultValue = "NO";
 const std::string PICOND::F_L::itemName = "F_L";
-const double PICOND::F_L::defaultValue = 0.000000;
+const double PICOND::F_L::defaultValue = 0;
 const std::string PICOND::F_U::itemName = "F_U";
 const double PICOND::F_U::defaultValue = 1.100000;
 const std::string PICOND::DELTA_WAT_SAT::itemName = "DELTA_WAT_SAT";
@@ -999,9 +928,7 @@ const double PICOND::ADAPTIVE_ORD_CONTROL::defaultValue = -1.000000;
 const std::string PICOND::ADAPTIVE_ORD_MIN_SPACING::itemName = "ADAPTIVE_ORD_MIN_SPACING";
 
 
-PIMTDIMS::PIMTDIMS( ) : ParserKeyword("PIMTDIMS")
-{
-  setFixedSize( (size_t) 1);
+PIMTDIMS::PIMTDIMS() : ParserKeyword("PIMTDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PIMTDIMS");
@@ -1027,10 +954,7 @@ const std::string PIMTDIMS::NPPIMT::itemName = "NPPIMT";
 const int PIMTDIMS::NPPIMT::defaultValue = 0;
 
 
-PIMULTAB::PIMULTAB( ) : ParserKeyword("PIMULTAB")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("PIMTDIMS","NTPIMT",0);
+PIMULTAB::PIMULTAB() : ParserKeyword("PIMULTAB", KeywordSize("PIMTDIMS", "NTPIMT", false, 0)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("PIMULTAB");
@@ -1048,9 +972,7 @@ const std::string PIMULTAB::keywordName = "PIMULTAB";
 const std::string PIMULTAB::TABLE::itemName = "TABLE";
 
 
-PINCH::PINCH( ) : ParserKeyword("PINCH")
-{
-  setFixedSize( (size_t) 1);
+PINCH::PINCH() : ParserKeyword("PINCH", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PINCH");
@@ -1099,9 +1021,7 @@ const std::string PINCH::MULTZ_OPTION::itemName = "MULTZ_OPTION";
 const std::string PINCH::MULTZ_OPTION::defaultValue = "TOP";
 
 
-PINCHNUM::PINCHNUM( ) : ParserKeyword("PINCHNUM")
-{
-  setFixedSize( (size_t) 1);
+PINCHNUM::PINCHNUM() : ParserKeyword("PINCHNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PINCHNUM");
@@ -1119,9 +1039,7 @@ const std::string PINCHNUM::keywordName = "PINCHNUM";
 const std::string PINCHNUM::data::itemName = "data";
 
 
-PINCHOUT::PINCHOUT( ) : ParserKeyword("PINCHOUT")
-{
-  setFixedSize( (size_t) 0);
+PINCHOUT::PINCHOUT() : ParserKeyword("PINCHOUT", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PINCHOUT");
@@ -1129,9 +1047,7 @@ PINCHOUT::PINCHOUT( ) : ParserKeyword("PINCHOUT")
 const std::string PINCHOUT::keywordName = "PINCHOUT";
 
 
-PINCHREG::PINCHREG( ) : ParserKeyword("PINCHREG")
-{
-  setSizeType(SLASH_TERMINATED);
+PINCHREG::PINCHREG() : ParserKeyword("PINCHREG", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PINCHREG");
@@ -1180,9 +1096,7 @@ const std::string PINCHREG::OPTION3::itemName = "OPTION3";
 const std::string PINCHREG::OPTION3::defaultValue = "TOP";
 
 
-PINCHXY::PINCHXY( ) : ParserKeyword("PINCHXY")
-{
-  setFixedSize( (size_t) 1);
+PINCHXY::PINCHXY() : ParserKeyword("PINCHXY", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PINCHXY");
@@ -1210,9 +1124,7 @@ const std::string PINCHXY::THRESHOLD_YTHETA::itemName = "THRESHOLD_YTHETA";
 const double PINCHXY::THRESHOLD_YTHETA::defaultValue = 0.001000;
 
 
-PINTDIMS::PINTDIMS( ) : ParserKeyword("PINTDIMS")
-{
-  setFixedSize( (size_t) 1);
+PINTDIMS::PINTDIMS() : ParserKeyword("PINTDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PINTDIMS");
@@ -1245,9 +1157,7 @@ const std::string PINTDIMS::NTPMWINJ::itemName = "NTPMWINJ";
 const int PINTDIMS::NTPMWINJ::defaultValue = 1;
 
 
-PLMIXNUM::PLMIXNUM( ) : ParserKeyword("PLMIXNUM")
-{
-  setFixedSize( (size_t) 1);
+PLMIXNUM::PLMIXNUM() : ParserKeyword("PLMIXNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("PLMIXNUM");
@@ -1265,10 +1175,7 @@ const std::string PLMIXNUM::keywordName = "PLMIXNUM";
 const std::string PLMIXNUM::data::itemName = "data";
 
 
-PLMIXPAR::PLMIXPAR( ) : ParserKeyword("PLMIXPAR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("REGDIMS","NPLMIX",0);
+PLMIXPAR::PLMIXPAR() : ParserKeyword("PLMIXPAR", KeywordSize("REGDIMS", "NPLMIX", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLMIXPAR");
@@ -1287,12 +1194,9 @@ const std::string PLMIXPAR::keywordName = "PLMIXPAR";
 const std::string PLMIXPAR::TODD_LONGSTAFF::itemName = "TODD_LONGSTAFF";
 
 
-PLYADS::PLYADS( ) : ParserKeyword("PLYADS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
-  addValidSectionName("PROPS");
+PLYADS::PLYADS() : ParserKeyword("PLYADS", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("SPECIAL");
+  addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYADS");
   {
@@ -1311,11 +1215,7 @@ const std::string PLYADS::keywordName = "PLYADS";
 const std::string PLYADS::DATA::itemName = "DATA";
 
 
-PLYADSS::PLYADSS( ) : ParserKeyword("PLYADSS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
-  setTableCollection( true );
+PLYADSS::PLYADSS() : ParserKeyword("PLYADSS", KeywordSize("TABDIMS", "NTSFUN", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYADSS");
@@ -1345,9 +1245,7 @@ const std::string PLYADSS::POLYMER_ADS_C::itemName = "POLYMER_ADS_C";
 const std::string PLYADSS::DATA::itemName = "DATA";
 
 
-PLYATEMP::PLYATEMP( ) : ParserKeyword("PLYATEMP")
-{
-  setFixedSize( (size_t) 1);
+PLYATEMP::PLYATEMP() : ParserKeyword("PLYATEMP", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYATEMP");
@@ -1366,9 +1264,7 @@ const std::string PLYATEMP::keywordName = "PLYATEMP";
 const std::string PLYATEMP::data::itemName = "data";
 
 
-PLYCAMAX::PLYCAMAX( ) : ParserKeyword("PLYCAMAX")
-{
-  setFixedSize( (size_t) 1);
+PLYCAMAX::PLYCAMAX() : ParserKeyword("PLYCAMAX", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYCAMAX");
@@ -1387,13 +1283,10 @@ const std::string PLYCAMAX::keywordName = "PLYCAMAX";
 const std::string PLYCAMAX::data::itemName = "data";
 
 
-PLYDHFLF::PLYDHFLF( ) : ParserKeyword("PLYDHFLF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PLYDHFLF::PLYDHFLF() : ParserKeyword("PLYDHFLF", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+  addValidSectionName("SPECIAL");
   addValidSectionName("PROPS");
   addValidSectionName("SCHEDULE");
-  addValidSectionName("SPECIAL");
   clearDeckNames();
   addDeckName("PLYDHFLF");
   {
@@ -1412,10 +1305,7 @@ const std::string PLYDHFLF::keywordName = "PLYDHFLF";
 const std::string PLYDHFLF::DATA::itemName = "DATA";
 
 
-PLYESAL::PLYESAL( ) : ParserKeyword("PLYESAL")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+PLYESAL::PLYESAL() : ParserKeyword("PLYESAL", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYESAL");
@@ -1432,9 +1322,7 @@ const std::string PLYESAL::keywordName = "PLYESAL";
 const std::string PLYESAL::ALPHAP::itemName = "ALPHAP";
 
 
-PLYKRRF::PLYKRRF( ) : ParserKeyword("PLYKRRF")
-{
-  setFixedSize( (size_t) 1);
+PLYKRRF::PLYKRRF() : ParserKeyword("PLYKRRF", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYKRRF");
@@ -1453,12 +1341,9 @@ const std::string PLYKRRF::keywordName = "PLYKRRF";
 const std::string PLYKRRF::data::itemName = "data";
 
 
-PLYMAX::PLYMAX( ) : ParserKeyword("PLYMAX")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("REGDIMS","NPLMIX",0);
-  addValidSectionName("PROPS");
+PLYMAX::PLYMAX() : ParserKeyword("PLYMAX", KeywordSize("REGDIMS", "NPLMIX", false, 0)) {
   addValidSectionName("SPECIAL");
+  addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYMAX");
   {
@@ -1481,9 +1366,7 @@ const std::string PLYMAX::MAX_POLYMER_CONCENTRATION::itemName = "MAX_POLYMER_CON
 const std::string PLYMAX::MAX_SALT_CONCENTRATION::itemName = "MAX_SALT_CONCENTRATION";
 
 
-PLYMWINJ::PLYMWINJ( ) : ParserKeyword("PLYMWINJ")
-{
-  setSizeType(SLASH_TERMINATED);
+PLYMWINJ::PLYMWINJ() : ParserKeyword("PLYMWINJ", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYMWINJ");
@@ -1533,9 +1416,7 @@ const std::string PLYMWINJ::VELOCITY::itemName = "VELOCITY";
 const std::string PLYMWINJ::MOLECULARWEIGHT::itemName = "MOLECULARWEIGHT";
 
 
-PLYOPTS::PLYOPTS( ) : ParserKeyword("PLYOPTS")
-{
-  setFixedSize( (size_t) 1);
+PLYOPTS::PLYOPTS() : ParserKeyword("PLYOPTS", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYOPTS");
@@ -1551,12 +1432,10 @@ PLYOPTS::PLYOPTS( ) : ParserKeyword("PLYOPTS")
 }
 const std::string PLYOPTS::keywordName = "PLYOPTS";
 const std::string PLYOPTS::MIN_SWAT::itemName = "MIN_SWAT";
-const double PLYOPTS::MIN_SWAT::defaultValue = 0.000001;
+const double PLYOPTS::MIN_SWAT::defaultValue = 1e-06;
 
 
-PLYRMDEN::PLYRMDEN( ) : ParserKeyword("PLYRMDEN")
-{
-  setFixedSize( (size_t) 1);
+PLYRMDEN::PLYRMDEN() : ParserKeyword("PLYRMDEN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PLYRMDEN");
@@ -1575,10 +1454,7 @@ const std::string PLYRMDEN::keywordName = "PLYRMDEN";
 const std::string PLYRMDEN::data::itemName = "data";
 
 
-PLYROCK::PLYROCK( ) : ParserKeyword("PLYROCK")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+PLYROCK::PLYROCK() : ParserKeyword("PLYROCK", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYROCK");
@@ -1622,10 +1498,7 @@ const double PLYROCK::AI::defaultValue = 1.000000;
 const std::string PLYROCK::MAX_ADSORPTION::itemName = "MAX_ADSORPTION";
 
 
-PLYROCKM::PLYROCKM( ) : ParserKeyword("PLYROCKM")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+PLYROCKM::PLYROCKM() : ParserKeyword("PLYROCKM", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("PLYROCKM");
@@ -1669,23 +1542,17 @@ const double PLYROCKM::AI::defaultValue = 1.000000;
 const std::string PLYROCKM::MAX_ADSORPTION::itemName = "MAX_ADSORPTION";
 
 
-PLYSHEAR::PLYSHEAR( ) : ParserKeyword("PLYSHEAR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
-  addValidSectionName("PROPS");
+PLYSHEAR::PLYSHEAR() : ParserKeyword("PLYSHEAR", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("SPECIAL");
+  addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYSHEAR");
   {
      ParserRecord record;
      {
-        ParserItem item("WATER_VELOCITY", ParserItem::itype::DOUBLE);
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
         item.push_backDimension("Length/Time");
-        record.addItem(item);
-     }
-     {
-        ParserItem item("VRF", ParserItem::itype::DOUBLE);
         item.push_backDimension("1");
         record.addItem(item);
      }
@@ -1693,16 +1560,13 @@ PLYSHEAR::PLYSHEAR( ) : ParserKeyword("PLYSHEAR")
   }
 }
 const std::string PLYSHEAR::keywordName = "PLYSHEAR";
-const std::string PLYSHEAR::WATER_VELOCITY::itemName = "WATER_VELOCITY";
-const std::string PLYSHEAR::VRF::itemName = "VRF";
+const std::string PLYSHEAR::DATA::itemName = "DATA";
 
 
-PLYSHLOG::PLYSHLOG( ) : ParserKeyword("PLYSHLOG")
-{
-  setFixedSize( (size_t) 2);
+PLYSHLOG::PLYSHLOG() : ParserKeyword("PLYSHLOG", KeywordSize(2, false)) {
+  addValidSectionName("SPECIAL");
   addValidSectionName("PROPS");
   addValidSectionName("SCHEDULE");
-  addValidSectionName("SPECIAL");
   clearDeckNames();
   addDeckName("PLYSHLOG");
   {
@@ -1743,10 +1607,7 @@ const std::string PLYSHLOG::REF_TEMPERATURE::itemName = "REF_TEMPERATURE";
 const std::string PLYSHLOG::DATA::itemName = "DATA";
 
 
-PLYTRRF::PLYTRRF( ) : ParserKeyword("PLYTRRF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+PLYTRRF::PLYTRRF() : ParserKeyword("PLYTRRF", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYTRRF");
@@ -1766,9 +1627,7 @@ const std::string PLYTRRF::keywordName = "PLYTRRF";
 const std::string PLYTRRF::DATA::itemName = "DATA";
 
 
-PLYTRRFA::PLYTRRFA( ) : ParserKeyword("PLYTRRFA")
-{
-  setFixedSize( (size_t) 1);
+PLYTRRFA::PLYTRRFA() : ParserKeyword("PLYTRRFA", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYTRRFA");
@@ -1785,13 +1644,10 @@ const std::string PLYTRRFA::keywordName = "PLYTRRFA";
 const std::string PLYTRRFA::NBTRRF::itemName = "NBTRRF";
 
 
-PLYVISC::PLYVISC( ) : ParserKeyword("PLYVISC")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PLYVISC::PLYVISC() : ParserKeyword("PLYVISC", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+  addValidSectionName("SPECIAL");
   addValidSectionName("PROPS");
   addValidSectionName("SCHEDULE");
-  addValidSectionName("SPECIAL");
   clearDeckNames();
   addDeckName("PLYVISC");
   {
@@ -1810,10 +1666,7 @@ const std::string PLYVISC::keywordName = "PLYVISC";
 const std::string PLYVISC::DATA::itemName = "DATA";
 
 
-PLYVISCS::PLYVISCS( ) : ParserKeyword("PLYVISCS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PLYVISCS::PLYVISCS() : ParserKeyword("PLYVISCS", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -1838,10 +1691,7 @@ const std::string PLYVISCS::PC::itemName = "PC";
 const std::string PLYVISCS::DATA::itemName = "DATA";
 
 
-PLYVISCT::PLYVISCT( ) : ParserKeyword("PLYVISCT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PLYVISCT::PLYVISCT() : ParserKeyword("PLYVISCT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -1866,10 +1716,7 @@ const std::string PLYVISCT::PC::itemName = "PC";
 const std::string PLYVISCT::DATA::itemName = "DATA";
 
 
-PLYVMH::PLYVMH( ) : ParserKeyword("PLYVMH")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("REGDIMS","NPLMIX",0);
+PLYVMH::PLYVMH() : ParserKeyword("PLYVMH", KeywordSize("REGDIMS", "NPLMIX", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PLYVMH");
@@ -1905,11 +1752,7 @@ const std::string PLYVMH::GAMMA::itemName = "GAMMA";
 const std::string PLYVMH::KAPPA::itemName = "KAPPA";
 
 
-PLYVSCST::PLYVSCST( ) : ParserKeyword("PLYVSCST")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
-  setTableCollection( true );
+PLYVSCST::PLYVSCST() : ParserKeyword("PLYVSCST", KeywordSize("TABDIMS", "NTPVT", true, 0)) {
   addValidSectionName("PROPS");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -1934,9 +1777,7 @@ const std::string PLYVSCST::PC1::itemName = "PC1";
 const std::string PLYVSCST::MULT::itemName = "MULT";
 
 
-PMAX::PMAX( ) : ParserKeyword("PMAX")
-{
-  setFixedSize( (size_t) 1);
+PMAX::PMAX() : ParserKeyword("PMAX", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PMAX");
@@ -1970,17 +1811,14 @@ PMAX::PMAX( ) : ParserKeyword("PMAX")
 const std::string PMAX::keywordName = "PMAX";
 const std::string PMAX::MAX_PRESSURE::itemName = "MAX_PRESSURE";
 const std::string PMAX::MAX_PRESSURE_CHECK::itemName = "MAX_PRESSURE_CHECK";
-const double PMAX::MAX_PRESSURE_CHECK::defaultValue = 0.000000;
+const double PMAX::MAX_PRESSURE_CHECK::defaultValue = 0;
 const std::string PMAX::MIN_PRESSURE_CHECK::itemName = "MIN_PRESSURE_CHECK";
 const double PMAX::MIN_PRESSURE_CHECK::defaultValue = 100000000000000000000.000000;
 const std::string PMAX::NUM_NODES::itemName = "NUM_NODES";
 const int PMAX::NUM_NODES::defaultValue = 30;
 
 
-PMISC::PMISC( ) : ParserKeyword("PMISC")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("MISCIBLE","NTMISC",0);
+PMISC::PMISC() : ParserKeyword("PMISC", KeywordSize("MISCIBLE", "NTMISC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PMISC");
@@ -2000,9 +1838,7 @@ const std::string PMISC::keywordName = "PMISC";
 const std::string PMISC::DATA::itemName = "DATA";
 
 
-POLYMER::POLYMER( ) : ParserKeyword("POLYMER")
-{
-  setFixedSize( (size_t) 0);
+POLYMER::POLYMER() : ParserKeyword("POLYMER", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("POLYMER");
@@ -2010,9 +1846,7 @@ POLYMER::POLYMER( ) : ParserKeyword("POLYMER")
 const std::string POLYMER::keywordName = "POLYMER";
 
 
-POLYMW::POLYMW( ) : ParserKeyword("POLYMW")
-{
-  setFixedSize( (size_t) 0);
+POLYMW::POLYMW() : ParserKeyword("POLYMW", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("POLYMW");
@@ -2020,9 +1854,7 @@ POLYMW::POLYMW( ) : ParserKeyword("POLYMW")
 const std::string POLYMW::keywordName = "POLYMW";
 
 
-PORO::PORO( ) : ParserKeyword("PORO")
-{
-  setFixedSize( (size_t) 1);
+PORO::PORO() : ParserKeyword("PORO", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("PORO");
@@ -2040,12 +1872,10 @@ PORO::PORO( ) : ParserKeyword("PORO")
 }
 const std::string PORO::keywordName = "PORO";
 const std::string PORO::data::itemName = "data";
-const double PORO::data::defaultValue = 0.000000;
+const double PORO::data::defaultValue = 0;
 
 
-PORV::PORV( ) : ParserKeyword("PORV")
-{
-  setFixedSize( (size_t) 1);
+PORV::PORV() : ParserKeyword("PORV", KeywordSize(1, false)) {
   addValidSectionName("EDIT");
   clearDeckNames();
   addDeckName("PORV");
@@ -2064,10 +1894,7 @@ const std::string PORV::keywordName = "PORV";
 const std::string PORV::data::itemName = "data";
 
 
-PPCWMAX::PPCWMAX( ) : ParserKeyword("PPCWMAX")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+PPCWMAX::PPCWMAX() : ParserKeyword("PPCWMAX", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PPCWMAX");
@@ -2093,9 +1920,7 @@ const std::string PPCWMAX::MODIFY_CONNATE_SATURATION::itemName = "MODIFY_CONNATE
 const std::string PPCWMAX::MODIFY_CONNATE_SATURATION::defaultValue = "NO";
 
 
-PRECSALT::PRECSALT( ) : ParserKeyword("PRECSALT")
-{
-  setFixedSize( (size_t) 0);
+PRECSALT::PRECSALT() : ParserKeyword("PRECSALT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PRECSALT");
@@ -2103,10 +1928,7 @@ PRECSALT::PRECSALT( ) : ParserKeyword("PRECSALT")
 const std::string PRECSALT::keywordName = "PRECSALT";
 
 
-PREF::PREF( ) : ParserKeyword("PREF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+PREF::PREF() : ParserKeyword("PREF", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PREF");
@@ -2125,10 +1947,7 @@ const std::string PREF::keywordName = "PREF";
 const std::string PREF::PRESSURE::itemName = "PRESSURE";
 
 
-PREFS::PREFS( ) : ParserKeyword("PREFS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+PREFS::PREFS() : ParserKeyword("PREFS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PREFS");
@@ -2147,9 +1966,7 @@ const std::string PREFS::keywordName = "PREFS";
 const std::string PREFS::PRESSURE::itemName = "PRESSURE";
 
 
-PRESSURE::PRESSURE( ) : ParserKeyword("PRESSURE")
-{
-  setFixedSize( (size_t) 1);
+PRESSURE::PRESSURE() : ParserKeyword("PRESSURE", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("PRESSURE");
@@ -2168,9 +1985,7 @@ const std::string PRESSURE::keywordName = "PRESSURE";
 const std::string PRESSURE::data::itemName = "data";
 
 
-PRIORITY::PRIORITY( ) : ParserKeyword("PRIORITY")
-{
-  setFixedSize( (size_t) 1);
+PRIORITY::PRIORITY() : ParserKeyword("PRIORITY", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("PRIORITY");
@@ -2267,51 +2082,47 @@ PRIORITY::PRIORITY( ) : ParserKeyword("PRIORITY")
 const std::string PRIORITY::keywordName = "PRIORITY";
 const std::string PRIORITY::MIN_CALC_TIME::itemName = "MIN_CALC_TIME";
 const std::string PRIORITY::A1::itemName = "A1";
-const double PRIORITY::A1::defaultValue = 0.000000;
+const double PRIORITY::A1::defaultValue = 0;
 const std::string PRIORITY::B1::itemName = "B1";
-const double PRIORITY::B1::defaultValue = 0.000000;
+const double PRIORITY::B1::defaultValue = 0;
 const std::string PRIORITY::C1::itemName = "C1";
-const double PRIORITY::C1::defaultValue = 0.000000;
+const double PRIORITY::C1::defaultValue = 0;
 const std::string PRIORITY::D1::itemName = "D1";
-const double PRIORITY::D1::defaultValue = 0.000000;
+const double PRIORITY::D1::defaultValue = 0;
 const std::string PRIORITY::E1::itemName = "E1";
-const double PRIORITY::E1::defaultValue = 0.000000;
+const double PRIORITY::E1::defaultValue = 0;
 const std::string PRIORITY::F1::itemName = "F1";
-const double PRIORITY::F1::defaultValue = 0.000000;
+const double PRIORITY::F1::defaultValue = 0;
 const std::string PRIORITY::G1::itemName = "G1";
-const double PRIORITY::G1::defaultValue = 0.000000;
+const double PRIORITY::G1::defaultValue = 0;
 const std::string PRIORITY::H1::itemName = "H1";
-const double PRIORITY::H1::defaultValue = 0.000000;
+const double PRIORITY::H1::defaultValue = 0;
 const std::string PRIORITY::A2::itemName = "A2";
-const double PRIORITY::A2::defaultValue = 0.000000;
+const double PRIORITY::A2::defaultValue = 0;
 const std::string PRIORITY::B2::itemName = "B2";
-const double PRIORITY::B2::defaultValue = 0.000000;
+const double PRIORITY::B2::defaultValue = 0;
 const std::string PRIORITY::C2::itemName = "C2";
-const double PRIORITY::C2::defaultValue = 0.000000;
+const double PRIORITY::C2::defaultValue = 0;
 const std::string PRIORITY::D2::itemName = "D2";
-const double PRIORITY::D2::defaultValue = 0.000000;
+const double PRIORITY::D2::defaultValue = 0;
 const std::string PRIORITY::E2::itemName = "E2";
-const double PRIORITY::E2::defaultValue = 0.000000;
+const double PRIORITY::E2::defaultValue = 0;
 const std::string PRIORITY::F2::itemName = "F2";
-const double PRIORITY::F2::defaultValue = 0.000000;
+const double PRIORITY::F2::defaultValue = 0;
 const std::string PRIORITY::G2::itemName = "G2";
-const double PRIORITY::G2::defaultValue = 0.000000;
+const double PRIORITY::G2::defaultValue = 0;
 const std::string PRIORITY::H2::itemName = "H2";
-const double PRIORITY::H2::defaultValue = 0.000000;
+const double PRIORITY::H2::defaultValue = 0;
 
 
-PROPS::PROPS( ) : ParserKeyword("PROPS")
-{
-  setFixedSize( (size_t) 0);
+PROPS::PROPS() : ParserKeyword("PROPS", KeywordSize(0, false)) {
   clearDeckNames();
   addDeckName("PROPS");
 }
 const std::string PROPS::keywordName = "PROPS";
 
 
-PRORDER::PRORDER( ) : ParserKeyword("PRORDER")
-{
-  setFixedSize( (size_t) 2);
+PRORDER::PRORDER() : ParserKeyword("PRORDER", KeywordSize(2, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("PRORDER");
@@ -2387,10 +2198,7 @@ const std::string PRORDER::OPT5::itemName = "OPT5";
 const std::string PRORDER::OPT5::defaultValue = "YES";
 
 
-PRVD::PRVD( ) : ParserKeyword("PRVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+PRVD::PRVD() : ParserKeyword("PRVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("PRVD");
@@ -2410,9 +2218,7 @@ const std::string PRVD::keywordName = "PRVD";
 const std::string PRVD::DATA::itemName = "DATA";
 
 
-PSTEADY::PSTEADY( ) : ParserKeyword("PSTEADY")
-{
-  setFixedSize( (size_t) 1);
+PSTEADY::PSTEADY() : ParserKeyword("PSTEADY", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PSTEADY");
@@ -2488,9 +2294,7 @@ const std::string PSTEADY::PIM_AQUIFERS::itemName = "PIM_AQUIFERS";
 const std::string PSTEADY::PIM_AQUIFERS::defaultValue = "NO";
 
 
-PSWRG::PSWRG( ) : ParserKeyword("PSWRG")
-{
-  setFixedSize( (size_t) 1);
+PSWRG::PSWRG() : ParserKeyword("PSWRG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PSWRG");
@@ -2508,9 +2312,7 @@ const std::string PSWRG::keywordName = "PSWRG";
 const std::string PSWRG::data::itemName = "data";
 
 
-PSWRO::PSWRO( ) : ParserKeyword("PSWRO")
-{
-  setFixedSize( (size_t) 1);
+PSWRO::PSWRO() : ParserKeyword("PSWRO", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PSWRO");
@@ -2528,10 +2330,7 @@ const std::string PSWRO::keywordName = "PSWRO";
 const std::string PSWRO::data::itemName = "data";
 
 
-PVCDO::PVCDO( ) : ParserKeyword("PVCDO")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PVCDO::PVCDO() : ParserKeyword("PVCDO", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVCDO");
@@ -2573,10 +2372,7 @@ const std::string PVCDO::OIL_VISCOSITY::itemName = "OIL_VISCOSITY";
 const std::string PVCDO::OIL_VISCOSIBILITY::itemName = "OIL_VISCOSIBILITY";
 
 
-PVCO::PVCO( ) : ParserKeyword("PVCO")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PVCO::PVCO() : ParserKeyword("PVCO", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVCO");
@@ -2600,10 +2396,7 @@ const std::string PVCO::keywordName = "PVCO";
 const std::string PVCO::DATA::itemName = "DATA";
 
 
-PVDG::PVDG( ) : ParserKeyword("PVDG")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PVDG::PVDG() : ParserKeyword("PVDG", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVDG");
@@ -2624,10 +2417,7 @@ const std::string PVDG::keywordName = "PVDG";
 const std::string PVDG::DATA::itemName = "DATA";
 
 
-PVDO::PVDO( ) : ParserKeyword("PVDO")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PVDO::PVDO() : ParserKeyword("PVDO", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVDO");
@@ -2648,10 +2438,7 @@ const std::string PVDO::keywordName = "PVDO";
 const std::string PVDO::DATA::itemName = "DATA";
 
 
-PVDS::PVDS( ) : ParserKeyword("PVDS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PVDS::PVDS() : ParserKeyword("PVDS", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVDS");
@@ -2672,11 +2459,7 @@ const std::string PVDS::keywordName = "PVDS";
 const std::string PVDS::DATA::itemName = "DATA";
 
 
-PVTG::PVTG( ) : ParserKeyword("PVTG")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
-  setTableCollection( true );
+PVTG::PVTG() : ParserKeyword("PVTG", KeywordSize("TABDIMS", "NTPVT", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVTG");
@@ -2703,11 +2486,7 @@ const std::string PVTG::GAS_PRESSURE::itemName = "GAS_PRESSURE";
 const std::string PVTG::DATA::itemName = "DATA";
 
 
-PVTGW::PVTGW( ) : ParserKeyword("PVTGW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
-  setTableCollection( true );
+PVTGW::PVTGW() : ParserKeyword("PVTGW", KeywordSize("TABDIMS", "NTPVT", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVTGW");
@@ -2734,11 +2513,7 @@ const std::string PVTGW::GAS_PRESSURE::itemName = "GAS_PRESSURE";
 const std::string PVTGW::DATA::itemName = "DATA";
 
 
-PVTGWO::PVTGWO( ) : ParserKeyword("PVTGWO")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
-  setTableCollection( true );
+PVTGWO::PVTGWO() : ParserKeyword("PVTGWO", KeywordSize("TABDIMS", "NTPVT", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVTGWO");
@@ -2766,9 +2541,7 @@ const std::string PVTGWO::GAS_PRESSURE::itemName = "GAS_PRESSURE";
 const std::string PVTGWO::DATA::itemName = "DATA";
 
 
-PVTNUM::PVTNUM( ) : ParserKeyword("PVTNUM")
-{
-  setFixedSize( (size_t) 1);
+PVTNUM::PVTNUM() : ParserKeyword("PVTNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("PVTNUM");
@@ -2786,11 +2559,7 @@ const std::string PVTNUM::keywordName = "PVTNUM";
 const std::string PVTNUM::data::itemName = "data";
 
 
-PVTO::PVTO( ) : ParserKeyword("PVTO")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
-  setTableCollection( true );
+PVTO::PVTO() : ParserKeyword("PVTO", KeywordSize("TABDIMS", "NTPVT", true, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVTO");
@@ -2817,10 +2586,40 @@ const std::string PVTO::RS::itemName = "RS";
 const std::string PVTO::DATA::itemName = "DATA";
 
 
-PVTW::PVTW( ) : ParserKeyword("PVTW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PVTSOL::PVTSOL() : ParserKeyword("PVTSOL", KeywordSize("TABDIMS", "NTPVT", true, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("PVTSOL");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("ZCO2", ParserItem::itype::DOUBLE);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Pressure");
+        item.push_backDimension("1");
+        item.push_backDimension("OilDissolutionFactor");
+        item.push_backDimension("GasDissolutionFactor");
+        item.push_backDimension("OilDissolutionFactor");
+        item.push_backDimension("1");
+        item.push_backDimension("1");
+        item.push_backDimension("Viscosity");
+        item.push_backDimension("Viscosity");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string PVTSOL::keywordName = "PVTSOL";
+const std::string PVTSOL::ZCO2::itemName = "ZCO2";
+const std::string PVTSOL::DATA::itemName = "DATA";
+
+
+PVTW::PVTW() : ParserKeyword("PVTW", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVTW");
@@ -2863,17 +2662,14 @@ const std::string PVTW::P_REF::itemName = "P_REF";
 const std::string PVTW::WATER_VOL_FACTOR::itemName = "WATER_VOL_FACTOR";
 const double PVTW::WATER_VOL_FACTOR::defaultValue = 1.000000;
 const std::string PVTW::WATER_COMPRESSIBILITY::itemName = "WATER_COMPRESSIBILITY";
-const double PVTW::WATER_COMPRESSIBILITY::defaultValue = 0.000040;
+const double PVTW::WATER_COMPRESSIBILITY::defaultValue = 4e-05;
 const std::string PVTW::WATER_VISCOSITY::itemName = "WATER_VISCOSITY";
 const double PVTW::WATER_VISCOSITY::defaultValue = 0.500000;
 const std::string PVTW::WATER_VISCOSIBILITY::itemName = "WATER_VISCOSIBILITY";
-const double PVTW::WATER_VISCOSIBILITY::defaultValue = 0.000000;
+const double PVTW::WATER_VISCOSIBILITY::defaultValue = 0;
 
 
-PVTWSALT::PVTWSALT( ) : ParserKeyword("PVTWSALT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PVTWSALT::PVTWSALT() : ParserKeyword("PVTWSALT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVTWSALT");
@@ -2911,13 +2707,11 @@ PVTWSALT::PVTWSALT( ) : ParserKeyword("PVTWSALT")
 const std::string PVTWSALT::keywordName = "PVTWSALT";
 const std::string PVTWSALT::P_REF::itemName = "P_REF";
 const std::string PVTWSALT::SALT_CONCENTRATION_REF::itemName = "SALT_CONCENTRATION_REF";
-const double PVTWSALT::SALT_CONCENTRATION_REF::defaultValue = 0.000000;
+const double PVTWSALT::SALT_CONCENTRATION_REF::defaultValue = 0;
 const std::string PVTWSALT::DATA::itemName = "DATA";
 
 
-PVT_M::PVT_M( ) : ParserKeyword("PVT_M")
-{
-  setFixedSize( (size_t) 0);
+PVT_M::PVT_M() : ParserKeyword("PVT_M", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("PVT-M");
@@ -2925,10 +2719,7 @@ PVT_M::PVT_M( ) : ParserKeyword("PVT_M")
 const std::string PVT_M::keywordName = "PVT_M";
 
 
-PVZG::PVZG( ) : ParserKeyword("PVZG")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+PVZG::PVZG() : ParserKeyword("PVZG", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("PVZG");
@@ -2960,9 +2751,7 @@ const std::string PVZG::REF_TEMP::itemName = "REF_TEMP";
 const std::string PVZG::table::itemName = "table";
 
 
-PYACTION::PYACTION( ) : ParserKeyword("PYACTION")
-{
-  setFixedSize( (size_t) 2);
+PYACTION::PYACTION() : ParserKeyword("PYACTION", KeywordSize(2, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("PYACTION");
@@ -2995,17 +2784,15 @@ const std::string PYACTION::RUN_COUNT::defaultValue = "SINGLE";
 const std::string PYACTION::FILENAME::itemName = "FILENAME";
 
 
-PYINPUT::PYINPUT( ) : ParserKeyword("PYINPUT")
-{
-  setSizeType(FIXED_CODE);
-  addValidSectionName("EDIT");
+PYINPUT::PYINPUT() : ParserKeyword("PYINPUT", KeywordSize(1, true)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("PYINPUT");
   setCodeEnd("PYEND");
