@@ -251,9 +251,7 @@ void RiuMainWindowBase::showWindow()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::hideAllDockWidgets()
 {
-    QList<ads::CDockWidget*> dockWidgets = findChildren<ads::CDockWidget*>();
-
-    for ( auto dock : dockWidgets )
+    for ( auto dock : dockManager()->dockWidgetsMap() )
     {
         if ( dock )
         {

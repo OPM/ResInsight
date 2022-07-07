@@ -451,8 +451,6 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 set(ADS_VERSION "3.8.2")
 
-set(BUILD_STATIC ON)
-set(BUILD_EXAMPLES OFF)
 add_subdirectory(ThirdParty/qtadvanceddocking)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
