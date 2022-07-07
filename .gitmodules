@@ -7,3 +7,6 @@
 [submodule "ThirdParty/fast_float"]
 	path = ThirdParty/fast_float
 	url = https://github.com/fastfloat/fast_float
+[submodule "ThirdParty/qtadvanceddocking"]
+	path = ThirdParty/qtadvanceddocking
+	url = https://github.com/CeetronSolutions/qtadvanceddocking.git
