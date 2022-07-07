@@ -26,6 +26,10 @@
 #include "RifOpmCommonSummary.h"
 #include "RifSummaryReaderInterface.h"
 
+#ifdef _MSC_VER
+// Disable warning from external library to make sure treat warnings as error works
+#pragma warning( disable : 4267 )
+#endif
 #include "opm/common/utility/FileSystem.hpp"
 #include "opm/common/utility/TimeService.hpp"
 #include "opm/io/eclipse/ESmry.hpp"

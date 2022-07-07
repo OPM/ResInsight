@@ -24,6 +24,10 @@
 #include "RifHdf5SummaryReader.h"
 #include "RifOpmCommonSummary.h"
 
+#ifdef _MSC_VER
+// Disable warning from external library to make sure treat warnings as error works
+#pragma warning( disable : 4267 )
+#endif
 #include "opm/io/eclipse/ESmry.hpp"
 
 #include <QFileInfo>
