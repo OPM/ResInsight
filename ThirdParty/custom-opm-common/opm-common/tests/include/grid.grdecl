@@ -1,8 +1,0 @@
-INCLUDE
-  'include/dx.grdecl' /
-
-INCLUDE
-  'include/dy.grdecl' /
-
-INCLUDE
-  'include/dz.grdecl' /

@@ -1,3 +1,0 @@
-PATHS
- 'FOOPATH' 'include/invalid' /
-/
