@@ -1,19 +1,21 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/Z.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/Z.hpp>
 namespace Opm {
 namespace ParserKeywords {
-ZCORN::ZCORN( ) : ParserKeyword("ZCORN")
-{
-  setFixedSize( (size_t) 1);
+ZCORN::ZCORN() : ParserKeyword("ZCORN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  setProhibitedKeywords({
+    "GDFILE",
+  });
   clearDeckNames();
   addDeckName("ZCORN");
   {
@@ -31,10 +33,7 @@ const std::string ZCORN::keywordName = "ZCORN";
 const std::string ZCORN::data::itemName = "data";
 
 
-ZFACT1::ZFACT1( ) : ParserKeyword("ZFACT1")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+ZFACT1::ZFACT1() : ParserKeyword("ZFACT1", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ZFACT1");
@@ -53,10 +52,7 @@ const std::string ZFACT1::keywordName = "ZFACT1";
 const std::string ZFACT1::Z0::itemName = "Z0";
 
 
-ZFACT1S::ZFACT1S( ) : ParserKeyword("ZFACT1S")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+ZFACT1S::ZFACT1S() : ParserKeyword("ZFACT1S", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ZFACT1S");
@@ -75,10 +71,7 @@ const std::string ZFACT1S::keywordName = "ZFACT1S";
 const std::string ZFACT1S::Z0::itemName = "Z0";
 
 
-ZFACTOR::ZFACTOR( ) : ParserKeyword("ZFACTOR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+ZFACTOR::ZFACTOR() : ParserKeyword("ZFACTOR", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ZFACTOR");
@@ -97,10 +90,7 @@ const std::string ZFACTOR::keywordName = "ZFACTOR";
 const std::string ZFACTOR::Z0::itemName = "Z0";
 
 
-ZFACTORS::ZFACTORS( ) : ParserKeyword("ZFACTORS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NUM_STATE_EQ",0);
+ZFACTORS::ZFACTORS() : ParserKeyword("ZFACTORS", KeywordSize("TABDIMS", "NUM_STATE_EQ", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ZFACTORS");
@@ -119,9 +109,7 @@ const std::string ZFACTORS::keywordName = "ZFACTORS";
 const std::string ZFACTORS::Z0::itemName = "Z0";
 
 
-ZIPP2OFF::ZIPP2OFF( ) : ParserKeyword("ZIPP2OFF")
-{
-  setFixedSize( (size_t) 0);
+ZIPP2OFF::ZIPP2OFF() : ParserKeyword("ZIPP2OFF", KeywordSize(0, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ZIPP2OFF");
@@ -129,9 +117,7 @@ ZIPP2OFF::ZIPP2OFF( ) : ParserKeyword("ZIPP2OFF")
 const std::string ZIPP2OFF::keywordName = "ZIPP2OFF";
 
 
-ZIPPY2::ZIPPY2( ) : ParserKeyword("ZIPPY2")
-{
-  setFixedSize( (size_t) 1);
+ZIPPY2::ZIPPY2() : ParserKeyword("ZIPPY2", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ZIPPY2");

@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/O.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/O.hpp>
 namespace Opm {
 namespace ParserKeywords {
-OCOMPIDX::OCOMPIDX( ) : ParserKeyword("OCOMPIDX")
-{
-  setFixedSize( (size_t) 1);
+OCOMPIDX::OCOMPIDX() : ParserKeyword("OCOMPIDX", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("OCOMPIDX");
@@ -29,9 +28,7 @@ const std::string OCOMPIDX::keywordName = "OCOMPIDX";
 const std::string OCOMPIDX::OIL_COMPONENT_INDEX::itemName = "OIL_COMPONENT_INDEX";
 
 
-OFM::OFM( ) : ParserKeyword("OFM")
-{
-  setFixedSize( (size_t) 0);
+OFM::OFM() : ParserKeyword("OFM", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("OFM");
@@ -39,9 +36,7 @@ OFM::OFM( ) : ParserKeyword("OFM")
 const std::string OFM::keywordName = "OFM";
 
 
-OIL::OIL( ) : ParserKeyword("OIL")
-{
-  setFixedSize( (size_t) 0);
+OIL::OIL() : ParserKeyword("OIL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("OIL");
@@ -49,9 +44,7 @@ OIL::OIL( ) : ParserKeyword("OIL")
 const std::string OIL::keywordName = "OIL";
 
 
-OILAPI::OILAPI( ) : ParserKeyword("OILAPI")
-{
-  setFixedSize( (size_t) 1);
+OILAPI::OILAPI() : ParserKeyword("OILAPI", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("OILAPI");
@@ -69,10 +62,7 @@ const std::string OILAPI::keywordName = "OILAPI";
 const std::string OILAPI::data::itemName = "data";
 
 
-OILCOMPR::OILCOMPR( ) : ParserKeyword("OILCOMPR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+OILCOMPR::OILCOMPR() : ParserKeyword("OILCOMPR", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("OILCOMPR");
@@ -100,17 +90,14 @@ OILCOMPR::OILCOMPR( ) : ParserKeyword("OILCOMPR")
 }
 const std::string OILCOMPR::keywordName = "OILCOMPR";
 const std::string OILCOMPR::COMPRESSIBILITY::itemName = "COMPRESSIBILITY";
-const double OILCOMPR::COMPRESSIBILITY::defaultValue = 0.000000;
+const double OILCOMPR::COMPRESSIBILITY::defaultValue = 0;
 const std::string OILCOMPR::EXPANSION_COEFF_LINEAR::itemName = "EXPANSION_COEFF_LINEAR";
-const double OILCOMPR::EXPANSION_COEFF_LINEAR::defaultValue = 0.000000;
+const double OILCOMPR::EXPANSION_COEFF_LINEAR::defaultValue = 0;
 const std::string OILCOMPR::EXPANSION_COEFF_QUADRATIC::itemName = "EXPANSION_COEFF_QUADRATIC";
-const double OILCOMPR::EXPANSION_COEFF_QUADRATIC::defaultValue = 0.000000;
+const double OILCOMPR::EXPANSION_COEFF_QUADRATIC::defaultValue = 0;
 
 
-OILDENT::OILDENT( ) : ParserKeyword("OILDENT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+OILDENT::OILDENT() : ParserKeyword("OILDENT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("OILDENT");
@@ -141,15 +128,40 @@ const std::string OILDENT::keywordName = "OILDENT";
 const std::string OILDENT::REFERENCE_TEMPERATURE::itemName = "REFERENCE_TEMPERATURE";
 const double OILDENT::REFERENCE_TEMPERATURE::defaultValue = 293.150000;
 const std::string OILDENT::EXPANSION_COEFF_LINEAR::itemName = "EXPANSION_COEFF_LINEAR";
-const double OILDENT::EXPANSION_COEFF_LINEAR::defaultValue = 0.000000;
+const double OILDENT::EXPANSION_COEFF_LINEAR::defaultValue = 0;
 const std::string OILDENT::EXPANSION_COEFF_QUADRATIC::itemName = "EXPANSION_COEFF_QUADRATIC";
-const double OILDENT::EXPANSION_COEFF_QUADRATIC::defaultValue = 0.000000;
+const double OILDENT::EXPANSION_COEFF_QUADRATIC::defaultValue = 0;
 
 
-OILMW::OILMW( ) : ParserKeyword("OILMW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+OILJT::OILJT() : ParserKeyword("OILJT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("OILJT");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("PREF", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.013200) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("JOULE_THOMSON_COEFFICIENT", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Temperature/Pressure");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string OILJT::keywordName = "OILJT";
+const std::string OILJT::PREF::itemName = "PREF";
+const double OILJT::PREF::defaultValue = 1.013200;
+const std::string OILJT::JOULE_THOMSON_COEFFICIENT::itemName = "JOULE_THOMSON_COEFFICIENT";
+const double OILJT::JOULE_THOMSON_COEFFICIENT::defaultValue = 0;
+
+
+OILMW::OILMW() : ParserKeyword("OILMW", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("OILMW");
@@ -166,10 +178,7 @@ const std::string OILMW::keywordName = "OILMW";
 const std::string OILMW::MOLAR_WEIGHT::itemName = "MOLAR_WEIGHT";
 
 
-OILVISCT::OILVISCT( ) : ParserKeyword("OILVISCT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+OILVISCT::OILVISCT() : ParserKeyword("OILVISCT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("OILVISCT");
@@ -189,9 +198,7 @@ const std::string OILVISCT::keywordName = "OILVISCT";
 const std::string OILVISCT::DATA::itemName = "DATA";
 
 
-OILVTIM::OILVTIM( ) : ParserKeyword("OILVTIM")
-{
-  setSizeType(SLASH_TERMINATED);
+OILVTIM::OILVTIM() : ParserKeyword("OILVTIM", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("OILVTIM");
@@ -208,9 +215,7 @@ const std::string OILVTIM::keywordName = "OILVTIM";
 const std::string OILVTIM::INTERPOLATION_METHOD::itemName = "INTERPOLATION_METHOD";
 
 
-OLDTRAN::OLDTRAN( ) : ParserKeyword("OLDTRAN")
-{
-  setFixedSize( (size_t) 0);
+OLDTRAN::OLDTRAN() : ParserKeyword("OLDTRAN", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("OLDTRAN");
@@ -218,9 +223,7 @@ OLDTRAN::OLDTRAN( ) : ParserKeyword("OLDTRAN")
 const std::string OLDTRAN::keywordName = "OLDTRAN";
 
 
-OLDTRANR::OLDTRANR( ) : ParserKeyword("OLDTRANR")
-{
-  setFixedSize( (size_t) 0);
+OLDTRANR::OLDTRANR() : ParserKeyword("OLDTRANR", KeywordSize(0, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("OLDTRANR");
@@ -228,11 +231,9 @@ OLDTRANR::OLDTRANR( ) : ParserKeyword("OLDTRANR")
 const std::string OLDTRANR::keywordName = "OLDTRANR";
 
 
-OPERATE::OPERATE( ) : ParserKeyword("OPERATE")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+OPERATE::OPERATE() : ParserKeyword("OPERATE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
@@ -300,17 +301,15 @@ const std::string OPERATE::K2::itemName = "K2";
 const std::string OPERATE::OPERATION::itemName = "OPERATION";
 const std::string OPERATE::ARRAY::itemName = "ARRAY";
 const std::string OPERATE::PARAM1::itemName = "PARAM1";
-const double OPERATE::PARAM1::defaultValue = 0.000000;
+const double OPERATE::PARAM1::defaultValue = 0;
 const std::string OPERATE::PARAM2::itemName = "PARAM2";
-const double OPERATE::PARAM2::defaultValue = 0.000000;
+const double OPERATE::PARAM2::defaultValue = 0;
 
 
-OPERATER::OPERATER( ) : ParserKeyword("OPERATER")
-{
-  setSizeType(SLASH_TERMINATED);
+OPERATER::OPERATER() : ParserKeyword("OPERATER", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -318,7 +317,7 @@ OPERATER::OPERATER( ) : ParserKeyword("OPERATER")
   {
      ParserRecord record;
      {
-        ParserItem item("RESULT_ARRAY", ParserItem::itype::STRING);
+        ParserItem item("TARGET_ARRAY", ParserItem::itype::STRING);
         record.addItem(item);
      }
      {
@@ -352,21 +351,19 @@ OPERATER::OPERATER( ) : ParserKeyword("OPERATER")
   }
 }
 const std::string OPERATER::keywordName = "OPERATER";
-const std::string OPERATER::RESULT_ARRAY::itemName = "RESULT_ARRAY";
+const std::string OPERATER::TARGET_ARRAY::itemName = "TARGET_ARRAY";
 const std::string OPERATER::REGION_NUMBER::itemName = "REGION_NUMBER";
 const std::string OPERATER::OPERATION::itemName = "OPERATION";
 const std::string OPERATER::ARRAY_PARAMETER::itemName = "ARRAY_PARAMETER";
 const std::string OPERATER::PARAM1::itemName = "PARAM1";
-const double OPERATER::PARAM1::defaultValue = 0.000000;
+const double OPERATER::PARAM1::defaultValue = 0;
 const std::string OPERATER::PARAM2::itemName = "PARAM2";
-const double OPERATER::PARAM2::defaultValue = 0.000000;
+const double OPERATER::PARAM2::defaultValue = 0;
 const std::string OPERATER::REGION_NAME::itemName = "REGION_NAME";
 const std::string OPERATER::REGION_NAME::defaultValue = "OPERNUM";
 
 
-OPERNUM::OPERNUM( ) : ParserKeyword("OPERNUM")
-{
-  setFixedSize( (size_t) 1);
+OPERNUM::OPERNUM() : ParserKeyword("OPERNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   addValidSectionName("REGIONS");
   clearDeckNames();
@@ -385,9 +382,7 @@ const std::string OPERNUM::keywordName = "OPERNUM";
 const std::string OPERNUM::data::itemName = "data";
 
 
-OPTIONS::OPTIONS( ) : ParserKeyword("OPTIONS")
-{
-  setFixedSize( (size_t) 1);
+OPTIONS::OPTIONS() : ParserKeyword("OPTIONS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -1379,6 +1374,616 @@ OPTIONS::OPTIONS( ) : ParserKeyword("OPTIONS")
         item.setDefault( 0 );
         record.addItem(item);
      }
+     {
+        ParserItem item("ITEM198", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM199", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM200", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM201", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM202", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM203", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM204", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM205", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM206", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM207", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM208", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM209", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM210", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM211", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM212", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM213", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM214", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM215", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM216", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM217", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM218", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM219", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM220", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM221", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM222", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM223", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM224", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM225", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM226", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM227", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM228", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM229", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM230", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM231", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM232", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM233", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM234", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM235", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM236", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM237", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM238", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM239", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM240", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM241", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM242", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM243", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM244", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM245", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM246", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM247", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM248", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM249", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM250", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM251", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM252", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM253", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM254", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM255", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM256", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM257", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM258", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM259", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM260", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM261", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM262", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM263", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM264", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM265", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM266", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM267", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM268", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM269", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM270", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM271", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM272", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM273", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM274", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM275", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM276", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM277", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM278", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM279", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM280", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM281", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM282", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM283", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM284", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM285", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM286", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM287", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM288", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM289", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM290", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM291", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM292", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM293", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM294", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM295", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM296", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM297", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM298", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM299", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM300", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM301", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM302", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM303", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM304", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM305", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM306", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM307", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM308", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM309", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM310", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM311", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM312", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM313", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM314", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM315", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM316", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM317", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM318", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
+     {
+        ParserItem item("ITEM319", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
      addRecord( record );
   }
 }
@@ -1777,11 +2382,253 @@ const std::string OPTIONS::ITEM196::itemName = "ITEM196";
 const int OPTIONS::ITEM196::defaultValue = 0;
 const std::string OPTIONS::ITEM197::itemName = "ITEM197";
 const int OPTIONS::ITEM197::defaultValue = 0;
+const std::string OPTIONS::ITEM198::itemName = "ITEM198";
+const int OPTIONS::ITEM198::defaultValue = 0;
+const std::string OPTIONS::ITEM199::itemName = "ITEM199";
+const int OPTIONS::ITEM199::defaultValue = 0;
+const std::string OPTIONS::ITEM200::itemName = "ITEM200";
+const int OPTIONS::ITEM200::defaultValue = 0;
+const std::string OPTIONS::ITEM201::itemName = "ITEM201";
+const int OPTIONS::ITEM201::defaultValue = 0;
+const std::string OPTIONS::ITEM202::itemName = "ITEM202";
+const int OPTIONS::ITEM202::defaultValue = 0;
+const std::string OPTIONS::ITEM203::itemName = "ITEM203";
+const int OPTIONS::ITEM203::defaultValue = 0;
+const std::string OPTIONS::ITEM204::itemName = "ITEM204";
+const int OPTIONS::ITEM204::defaultValue = 0;
+const std::string OPTIONS::ITEM205::itemName = "ITEM205";
+const int OPTIONS::ITEM205::defaultValue = 0;
+const std::string OPTIONS::ITEM206::itemName = "ITEM206";
+const int OPTIONS::ITEM206::defaultValue = 0;
+const std::string OPTIONS::ITEM207::itemName = "ITEM207";
+const int OPTIONS::ITEM207::defaultValue = 0;
+const std::string OPTIONS::ITEM208::itemName = "ITEM208";
+const int OPTIONS::ITEM208::defaultValue = 0;
+const std::string OPTIONS::ITEM209::itemName = "ITEM209";
+const int OPTIONS::ITEM209::defaultValue = 0;
+const std::string OPTIONS::ITEM210::itemName = "ITEM210";
+const int OPTIONS::ITEM210::defaultValue = 0;
+const std::string OPTIONS::ITEM211::itemName = "ITEM211";
+const int OPTIONS::ITEM211::defaultValue = 0;
+const std::string OPTIONS::ITEM212::itemName = "ITEM212";
+const int OPTIONS::ITEM212::defaultValue = 0;
+const std::string OPTIONS::ITEM213::itemName = "ITEM213";
+const int OPTIONS::ITEM213::defaultValue = 0;
+const std::string OPTIONS::ITEM214::itemName = "ITEM214";
+const int OPTIONS::ITEM214::defaultValue = 0;
+const std::string OPTIONS::ITEM215::itemName = "ITEM215";
+const int OPTIONS::ITEM215::defaultValue = 0;
+const std::string OPTIONS::ITEM216::itemName = "ITEM216";
+const int OPTIONS::ITEM216::defaultValue = 0;
+const std::string OPTIONS::ITEM217::itemName = "ITEM217";
+const int OPTIONS::ITEM217::defaultValue = 0;
+const std::string OPTIONS::ITEM218::itemName = "ITEM218";
+const int OPTIONS::ITEM218::defaultValue = 0;
+const std::string OPTIONS::ITEM219::itemName = "ITEM219";
+const int OPTIONS::ITEM219::defaultValue = 0;
+const std::string OPTIONS::ITEM220::itemName = "ITEM220";
+const int OPTIONS::ITEM220::defaultValue = 0;
+const std::string OPTIONS::ITEM221::itemName = "ITEM221";
+const int OPTIONS::ITEM221::defaultValue = 0;
+const std::string OPTIONS::ITEM222::itemName = "ITEM222";
+const int OPTIONS::ITEM222::defaultValue = 0;
+const std::string OPTIONS::ITEM223::itemName = "ITEM223";
+const int OPTIONS::ITEM223::defaultValue = 0;
+const std::string OPTIONS::ITEM224::itemName = "ITEM224";
+const int OPTIONS::ITEM224::defaultValue = 0;
+const std::string OPTIONS::ITEM225::itemName = "ITEM225";
+const int OPTIONS::ITEM225::defaultValue = 0;
+const std::string OPTIONS::ITEM226::itemName = "ITEM226";
+const int OPTIONS::ITEM226::defaultValue = 0;
+const std::string OPTIONS::ITEM227::itemName = "ITEM227";
+const int OPTIONS::ITEM227::defaultValue = 0;
+const std::string OPTIONS::ITEM228::itemName = "ITEM228";
+const int OPTIONS::ITEM228::defaultValue = 0;
+const std::string OPTIONS::ITEM229::itemName = "ITEM229";
+const int OPTIONS::ITEM229::defaultValue = 0;
+const std::string OPTIONS::ITEM230::itemName = "ITEM230";
+const int OPTIONS::ITEM230::defaultValue = 0;
+const std::string OPTIONS::ITEM231::itemName = "ITEM231";
+const int OPTIONS::ITEM231::defaultValue = 0;
+const std::string OPTIONS::ITEM232::itemName = "ITEM232";
+const int OPTIONS::ITEM232::defaultValue = 0;
+const std::string OPTIONS::ITEM233::itemName = "ITEM233";
+const int OPTIONS::ITEM233::defaultValue = 0;
+const std::string OPTIONS::ITEM234::itemName = "ITEM234";
+const int OPTIONS::ITEM234::defaultValue = 0;
+const std::string OPTIONS::ITEM235::itemName = "ITEM235";
+const int OPTIONS::ITEM235::defaultValue = 0;
+const std::string OPTIONS::ITEM236::itemName = "ITEM236";
+const int OPTIONS::ITEM236::defaultValue = 0;
+const std::string OPTIONS::ITEM237::itemName = "ITEM237";
+const int OPTIONS::ITEM237::defaultValue = 0;
+const std::string OPTIONS::ITEM238::itemName = "ITEM238";
+const int OPTIONS::ITEM238::defaultValue = 0;
+const std::string OPTIONS::ITEM239::itemName = "ITEM239";
+const int OPTIONS::ITEM239::defaultValue = 0;
+const std::string OPTIONS::ITEM240::itemName = "ITEM240";
+const int OPTIONS::ITEM240::defaultValue = 0;
+const std::string OPTIONS::ITEM241::itemName = "ITEM241";
+const int OPTIONS::ITEM241::defaultValue = 0;
+const std::string OPTIONS::ITEM242::itemName = "ITEM242";
+const int OPTIONS::ITEM242::defaultValue = 0;
+const std::string OPTIONS::ITEM243::itemName = "ITEM243";
+const int OPTIONS::ITEM243::defaultValue = 0;
+const std::string OPTIONS::ITEM244::itemName = "ITEM244";
+const int OPTIONS::ITEM244::defaultValue = 0;
+const std::string OPTIONS::ITEM245::itemName = "ITEM245";
+const int OPTIONS::ITEM245::defaultValue = 0;
+const std::string OPTIONS::ITEM246::itemName = "ITEM246";
+const int OPTIONS::ITEM246::defaultValue = 0;
+const std::string OPTIONS::ITEM247::itemName = "ITEM247";
+const int OPTIONS::ITEM247::defaultValue = 0;
+const std::string OPTIONS::ITEM248::itemName = "ITEM248";
+const int OPTIONS::ITEM248::defaultValue = 0;
+const std::string OPTIONS::ITEM249::itemName = "ITEM249";
+const int OPTIONS::ITEM249::defaultValue = 0;
+const std::string OPTIONS::ITEM250::itemName = "ITEM250";
+const int OPTIONS::ITEM250::defaultValue = 0;
+const std::string OPTIONS::ITEM251::itemName = "ITEM251";
+const int OPTIONS::ITEM251::defaultValue = 0;
+const std::string OPTIONS::ITEM252::itemName = "ITEM252";
+const int OPTIONS::ITEM252::defaultValue = 0;
+const std::string OPTIONS::ITEM253::itemName = "ITEM253";
+const int OPTIONS::ITEM253::defaultValue = 0;
+const std::string OPTIONS::ITEM254::itemName = "ITEM254";
+const int OPTIONS::ITEM254::defaultValue = 0;
+const std::string OPTIONS::ITEM255::itemName = "ITEM255";
+const int OPTIONS::ITEM255::defaultValue = 0;
+const std::string OPTIONS::ITEM256::itemName = "ITEM256";
+const int OPTIONS::ITEM256::defaultValue = 0;
+const std::string OPTIONS::ITEM257::itemName = "ITEM257";
+const int OPTIONS::ITEM257::defaultValue = 0;
+const std::string OPTIONS::ITEM258::itemName = "ITEM258";
+const int OPTIONS::ITEM258::defaultValue = 0;
+const std::string OPTIONS::ITEM259::itemName = "ITEM259";
+const int OPTIONS::ITEM259::defaultValue = 0;
+const std::string OPTIONS::ITEM260::itemName = "ITEM260";
+const int OPTIONS::ITEM260::defaultValue = 0;
+const std::string OPTIONS::ITEM261::itemName = "ITEM261";
+const int OPTIONS::ITEM261::defaultValue = 0;
+const std::string OPTIONS::ITEM262::itemName = "ITEM262";
+const int OPTIONS::ITEM262::defaultValue = 0;
+const std::string OPTIONS::ITEM263::itemName = "ITEM263";
+const int OPTIONS::ITEM263::defaultValue = 0;
+const std::string OPTIONS::ITEM264::itemName = "ITEM264";
+const int OPTIONS::ITEM264::defaultValue = 0;
+const std::string OPTIONS::ITEM265::itemName = "ITEM265";
+const int OPTIONS::ITEM265::defaultValue = 0;
+const std::string OPTIONS::ITEM266::itemName = "ITEM266";
+const int OPTIONS::ITEM266::defaultValue = 0;
+const std::string OPTIONS::ITEM267::itemName = "ITEM267";
+const int OPTIONS::ITEM267::defaultValue = 0;
+const std::string OPTIONS::ITEM268::itemName = "ITEM268";
+const int OPTIONS::ITEM268::defaultValue = 0;
+const std::string OPTIONS::ITEM269::itemName = "ITEM269";
+const int OPTIONS::ITEM269::defaultValue = 0;
+const std::string OPTIONS::ITEM270::itemName = "ITEM270";
+const int OPTIONS::ITEM270::defaultValue = 0;
+const std::string OPTIONS::ITEM271::itemName = "ITEM271";
+const int OPTIONS::ITEM271::defaultValue = 0;
+const std::string OPTIONS::ITEM272::itemName = "ITEM272";
+const int OPTIONS::ITEM272::defaultValue = 0;
+const std::string OPTIONS::ITEM273::itemName = "ITEM273";
+const int OPTIONS::ITEM273::defaultValue = 0;
+const std::string OPTIONS::ITEM274::itemName = "ITEM274";
+const int OPTIONS::ITEM274::defaultValue = 0;
+const std::string OPTIONS::ITEM275::itemName = "ITEM275";
+const int OPTIONS::ITEM275::defaultValue = 0;
+const std::string OPTIONS::ITEM276::itemName = "ITEM276";
+const int OPTIONS::ITEM276::defaultValue = 0;
+const std::string OPTIONS::ITEM277::itemName = "ITEM277";
+const int OPTIONS::ITEM277::defaultValue = 0;
+const std::string OPTIONS::ITEM278::itemName = "ITEM278";
+const int OPTIONS::ITEM278::defaultValue = 0;
+const std::string OPTIONS::ITEM279::itemName = "ITEM279";
+const int OPTIONS::ITEM279::defaultValue = 0;
+const std::string OPTIONS::ITEM280::itemName = "ITEM280";
+const int OPTIONS::ITEM280::defaultValue = 0;
+const std::string OPTIONS::ITEM281::itemName = "ITEM281";
+const int OPTIONS::ITEM281::defaultValue = 0;
+const std::string OPTIONS::ITEM282::itemName = "ITEM282";
+const int OPTIONS::ITEM282::defaultValue = 0;
+const std::string OPTIONS::ITEM283::itemName = "ITEM283";
+const int OPTIONS::ITEM283::defaultValue = 0;
+const std::string OPTIONS::ITEM284::itemName = "ITEM284";
+const int OPTIONS::ITEM284::defaultValue = 0;
+const std::string OPTIONS::ITEM285::itemName = "ITEM285";
+const int OPTIONS::ITEM285::defaultValue = 0;
+const std::string OPTIONS::ITEM286::itemName = "ITEM286";
+const int OPTIONS::ITEM286::defaultValue = 0;
+const std::string OPTIONS::ITEM287::itemName = "ITEM287";
+const int OPTIONS::ITEM287::defaultValue = 0;
+const std::string OPTIONS::ITEM288::itemName = "ITEM288";
+const int OPTIONS::ITEM288::defaultValue = 0;
+const std::string OPTIONS::ITEM289::itemName = "ITEM289";
+const int OPTIONS::ITEM289::defaultValue = 0;
+const std::string OPTIONS::ITEM290::itemName = "ITEM290";
+const int OPTIONS::ITEM290::defaultValue = 0;
+const std::string OPTIONS::ITEM291::itemName = "ITEM291";
+const int OPTIONS::ITEM291::defaultValue = 0;
+const std::string OPTIONS::ITEM292::itemName = "ITEM292";
+const int OPTIONS::ITEM292::defaultValue = 0;
+const std::string OPTIONS::ITEM293::itemName = "ITEM293";
+const int OPTIONS::ITEM293::defaultValue = 0;
+const std::string OPTIONS::ITEM294::itemName = "ITEM294";
+const int OPTIONS::ITEM294::defaultValue = 0;
+const std::string OPTIONS::ITEM295::itemName = "ITEM295";
+const int OPTIONS::ITEM295::defaultValue = 0;
+const std::string OPTIONS::ITEM296::itemName = "ITEM296";
+const int OPTIONS::ITEM296::defaultValue = 0;
+const std::string OPTIONS::ITEM297::itemName = "ITEM297";
+const int OPTIONS::ITEM297::defaultValue = 0;
+const std::string OPTIONS::ITEM298::itemName = "ITEM298";
+const int OPTIONS::ITEM298::defaultValue = 0;
+const std::string OPTIONS::ITEM299::itemName = "ITEM299";
+const int OPTIONS::ITEM299::defaultValue = 0;
+const std::string OPTIONS::ITEM300::itemName = "ITEM300";
+const int OPTIONS::ITEM300::defaultValue = 0;
+const std::string OPTIONS::ITEM301::itemName = "ITEM301";
+const int OPTIONS::ITEM301::defaultValue = 0;
+const std::string OPTIONS::ITEM302::itemName = "ITEM302";
+const int OPTIONS::ITEM302::defaultValue = 0;
+const std::string OPTIONS::ITEM303::itemName = "ITEM303";
+const int OPTIONS::ITEM303::defaultValue = 0;
+const std::string OPTIONS::ITEM304::itemName = "ITEM304";
+const int OPTIONS::ITEM304::defaultValue = 0;
+const std::string OPTIONS::ITEM305::itemName = "ITEM305";
+const int OPTIONS::ITEM305::defaultValue = 0;
+const std::string OPTIONS::ITEM306::itemName = "ITEM306";
+const int OPTIONS::ITEM306::defaultValue = 0;
+const std::string OPTIONS::ITEM307::itemName = "ITEM307";
+const int OPTIONS::ITEM307::defaultValue = 0;
+const std::string OPTIONS::ITEM308::itemName = "ITEM308";
+const int OPTIONS::ITEM308::defaultValue = 0;
+const std::string OPTIONS::ITEM309::itemName = "ITEM309";
+const int OPTIONS::ITEM309::defaultValue = 0;
+const std::string OPTIONS::ITEM310::itemName = "ITEM310";
+const int OPTIONS::ITEM310::defaultValue = 0;
+const std::string OPTIONS::ITEM311::itemName = "ITEM311";
+const int OPTIONS::ITEM311::defaultValue = 0;
+const std::string OPTIONS::ITEM312::itemName = "ITEM312";
+const int OPTIONS::ITEM312::defaultValue = 0;
+const std::string OPTIONS::ITEM313::itemName = "ITEM313";
+const int OPTIONS::ITEM313::defaultValue = 0;
+const std::string OPTIONS::ITEM314::itemName = "ITEM314";
+const int OPTIONS::ITEM314::defaultValue = 0;
+const std::string OPTIONS::ITEM315::itemName = "ITEM315";
+const int OPTIONS::ITEM315::defaultValue = 0;
+const std::string OPTIONS::ITEM316::itemName = "ITEM316";
+const int OPTIONS::ITEM316::defaultValue = 0;
+const std::string OPTIONS::ITEM317::itemName = "ITEM317";
+const int OPTIONS::ITEM317::defaultValue = 0;
+const std::string OPTIONS::ITEM318::itemName = "ITEM318";
+const int OPTIONS::ITEM318::defaultValue = 0;
+const std::string OPTIONS::ITEM319::itemName = "ITEM319";
+const int OPTIONS::ITEM319::defaultValue = 0;
 
 
-OPTIONS3::OPTIONS3( ) : ParserKeyword("OPTIONS3")
-{
-  setFixedSize( (size_t) 1);
+OPTIONS3::OPTIONS3() : ParserKeyword("OPTIONS3", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -3810,9 +4657,7 @@ const std::string OPTIONS3::ITEM288::itemName = "ITEM288";
 const int OPTIONS3::ITEM288::defaultValue = 0;
 
 
-OUTRAD::OUTRAD( ) : ParserKeyword("OUTRAD")
-{
-  setFixedSize( (size_t) 1);
+OUTRAD::OUTRAD() : ParserKeyword("OUTRAD", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("OUTRAD");
@@ -3830,21 +4675,16 @@ const std::string OUTRAD::keywordName = "OUTRAD";
 const std::string OUTRAD::RADIUS::itemName = "RADIUS";
 
 
-OUTSOL::OUTSOL( ) : ParserKeyword("OUTSOL")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("SCHEDULE");
+OUTSOL::OUTSOL() : ParserKeyword("OUTSOL", KeywordSize(0, false)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("OUTSOL");
 }
 const std::string OUTSOL::keywordName = "OUTSOL";
 
 
-OVERBURD::OVERBURD( ) : ParserKeyword("OVERBURD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ROCKCOMP","NTROCC",0);
+OVERBURD::OVERBURD() : ParserKeyword("OVERBURD", KeywordSize("ROCKCOMP", "NTROCC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("OVERBURD");

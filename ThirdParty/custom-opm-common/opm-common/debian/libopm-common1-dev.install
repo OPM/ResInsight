@@ -1,6 +1,0 @@
-usr/include/*
-usr/lib/dunecontrol/*
-usr/lib/*/pkgconfig/*
-usr/share/cmake/*
-usr/share/opm/*
-usr/lib/*/lib*.so

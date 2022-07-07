@@ -1,35 +1,32 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/E.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/E.hpp>
 namespace Opm {
 namespace ParserKeywords {
-ECHO::ECHO( ) : ParserKeyword("ECHO")
-{
-  setFixedSize( (size_t) 0);
+ECHO::ECHO() : ParserKeyword("ECHO", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ECHO");
 }
 const std::string ECHO::keywordName = "ECHO";
 
 
-ECLMC::ECLMC( ) : ParserKeyword("ECLMC")
-{
-  setFixedSize( (size_t) 0);
+ECLMC::ECLMC() : ParserKeyword("ECLMC", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("ECLMC");
@@ -37,18 +34,14 @@ ECLMC::ECLMC( ) : ParserKeyword("ECLMC")
 const std::string ECLMC::keywordName = "ECLMC";
 
 
-EDIT::EDIT( ) : ParserKeyword("EDIT")
-{
-  setFixedSize( (size_t) 0);
+EDIT::EDIT() : ParserKeyword("EDIT", KeywordSize(0, false)) {
   clearDeckNames();
   addDeckName("EDIT");
 }
 const std::string EDIT::keywordName = "EDIT";
 
 
-EDITNNC::EDITNNC( ) : ParserKeyword("EDITNNC")
-{
-  setSizeType(SLASH_TERMINATED);
+EDITNNC::EDITNNC() : ParserKeyword("EDITNNC", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("EDIT");
   clearDeckNames();
   addDeckName("EDITNNC");
@@ -130,9 +123,7 @@ const std::string EDITNNC::FACE_FLOW21::itemName = "FACE_FLOW21";
 const std::string EDITNNC::DIFFM::itemName = "DIFFM";
 
 
-EDITNNCR::EDITNNCR( ) : ParserKeyword("EDITNNCR")
-{
-  setSizeType(SLASH_TERMINATED);
+EDITNNCR::EDITNNCR() : ParserKeyword("EDITNNCR", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("EDIT");
   clearDeckNames();
   addDeckName("EDITNNCR");
@@ -215,9 +206,7 @@ const std::string EDITNNCR::FACE_FLOW21::itemName = "FACE_FLOW21";
 const std::string EDITNNCR::DIFF::itemName = "DIFF";
 
 
-EHYSTR::EHYSTR( ) : ParserKeyword("EHYSTR")
-{
-  setFixedSize( (size_t) 1);
+EHYSTR::EHYSTR() : ParserKeyword("EHYSTR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("EHYSTR");
@@ -283,6 +272,11 @@ EHYSTR::EHYSTR( ) : ParserKeyword("EHYSTR")
         item.setDefault( double(0) );
         record.addItem(item);
      }
+     {
+        ParserItem item("FLAG_SOMETHING", ParserItem::itype::INT);
+        item.setDefault( 0 );
+        record.addItem(item);
+     }
      addRecord( record );
   }
 }
@@ -310,13 +304,12 @@ const std::string EHYSTR::baker_flag_gas::defaultValue = "NO";
 const std::string EHYSTR::baker_flag_water::itemName = "baker_flag_water";
 const std::string EHYSTR::baker_flag_water::defaultValue = "NO";
 const std::string EHYSTR::threshold_saturation::itemName = "threshold_saturation";
-const double EHYSTR::threshold_saturation::defaultValue = 0.000000;
+const double EHYSTR::threshold_saturation::defaultValue = 0;
+const std::string EHYSTR::FLAG_SOMETHING::itemName = "FLAG_SOMETHING";
+const int EHYSTR::FLAG_SOMETHING::defaultValue = 0;
 
 
-EHYSTRR::EHYSTRR( ) : ParserKeyword("EHYSTRR")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+EHYSTRR::EHYSTRR() : ParserKeyword("EHYSTRR", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("EHYSTRR");
@@ -349,26 +342,22 @@ const std::string EHYSTRR::mod_param_non_wet_phase_sat::itemName = "mod_param_no
 const double EHYSTRR::mod_param_non_wet_phase_sat::defaultValue = 0.100000;
 
 
-END::END( ) : ParserKeyword("END")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("EDIT");
+END::END() : ParserKeyword("END", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("END");
 }
 const std::string END::keywordName = "END";
 
 
-ENDACTIO::ENDACTIO( ) : ParserKeyword("ENDACTIO")
-{
-  setFixedSize( (size_t) 0);
+ENDACTIO::ENDACTIO() : ParserKeyword("ENDACTIO", KeywordSize(0, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ENDACTIO");
@@ -376,67 +365,57 @@ ENDACTIO::ENDACTIO( ) : ParserKeyword("ENDACTIO")
 const std::string ENDACTIO::keywordName = "ENDACTIO";
 
 
-ENDBOX::ENDBOX( ) : ParserKeyword("ENDBOX")
-{
-  setFixedSize( (size_t) 0);
+ENDBOX::ENDBOX() : ParserKeyword("ENDBOX", KeywordSize(0, false)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ENDBOX");
 }
 const std::string ENDBOX::keywordName = "ENDBOX";
 
 
-ENDDYN::ENDDYN( ) : ParserKeyword("ENDDYN")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("SCHEDULE");
+ENDDYN::ENDDYN() : ParserKeyword("ENDDYN", KeywordSize(0, false)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ENDDYN");
 }
 const std::string ENDDYN::keywordName = "ENDDYN";
 
 
-ENDFIN::ENDFIN( ) : ParserKeyword("ENDFIN")
-{
-  setFixedSize( (size_t) 0);
+ENDFIN::ENDFIN() : ParserKeyword("ENDFIN", KeywordSize(0, false)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ENDFIN");
 }
 const std::string ENDFIN::keywordName = "ENDFIN";
 
 
-ENDINC::ENDINC( ) : ParserKeyword("ENDINC")
-{
-  setFixedSize( (size_t) 0);
+ENDINC::ENDINC() : ParserKeyword("ENDINC", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ENDINC");
 }
 const std::string ENDINC::keywordName = "ENDINC";
 
 
-ENDNUM::ENDNUM( ) : ParserKeyword("ENDNUM")
-{
-  setFixedSize( (size_t) 1);
+ENDNUM::ENDNUM() : ParserKeyword("ENDNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("ENDNUM");
@@ -454,202 +433,200 @@ const std::string ENDNUM::keywordName = "ENDNUM";
 const std::string ENDNUM::data::itemName = "data";
 
 
-ENDPOINT_SPECIFIERS::ENDPOINT_SPECIFIERS( ) : ParserKeyword("ENDPOINT_SPECIFIERS")
-{
-  setFixedSize( (size_t) 1);
+ENDPOINT_SPECIFIERS::ENDPOINT_SPECIFIERS() : ParserKeyword("ENDPOINT_SPECIFIERS", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
-  addDeckName("IKRG");
-  addDeckName("IKRGR");
-  addDeckName("IKRGRX");
-  addDeckName("IKRGRX-");
-  addDeckName("IKRGRY");
-  addDeckName("IKRGRY-");
-  addDeckName("IKRGRZ");
-  addDeckName("IKRGRZ-");
-  addDeckName("IKRGX");
-  addDeckName("IKRGX-");
-  addDeckName("IKRGY");
-  addDeckName("IKRGY-");
-  addDeckName("IKRGZ");
-  addDeckName("IKRGZ-");
-  addDeckName("IKRO");
-  addDeckName("IKRORG");
-  addDeckName("IKRORGX");
-  addDeckName("IKRORGX-");
-  addDeckName("IKRORGY");
-  addDeckName("IKRORGY-");
-  addDeckName("IKRORGZ");
-  addDeckName("IKRORGZ-");
-  addDeckName("IKRORW");
-  addDeckName("IKRORWX");
-  addDeckName("IKRORWX-");
-  addDeckName("IKRORWY");
-  addDeckName("IKRORWY-");
-  addDeckName("IKRORWZ");
-  addDeckName("IKRORWZ-");
-  addDeckName("IKROX-");
-  addDeckName("IKROY-");
-  addDeckName("IKROZ-");
-  addDeckName("IKRW");
-  addDeckName("IKRWR");
-  addDeckName("IKRWRX");
-  addDeckName("IKRWRX-");
-  addDeckName("IKRWRY");
-  addDeckName("IKRWRY-");
-  addDeckName("IKRWRZ");
-  addDeckName("IKRWRZ-");
-  addDeckName("IKRWX");
-  addDeckName("IKRWX-");
-  addDeckName("IKRWY");
-  addDeckName("IKRWY-");
-  addDeckName("IKRWZ");
-  addDeckName("IKRWZ-");
-  addDeckName("ISGCR");
-  addDeckName("ISGCRX");
-  addDeckName("ISGCRX-");
-  addDeckName("ISGCRY");
-  addDeckName("ISGCRY-");
-  addDeckName("ISGCRZ");
-  addDeckName("ISGCRZ-");
-  addDeckName("ISGU");
-  addDeckName("ISGUX");
-  addDeckName("ISGUX-");
-  addDeckName("ISGUY");
-  addDeckName("ISGUY-");
-  addDeckName("ISGUZ");
-  addDeckName("ISGUZ-");
-  addDeckName("ISOGCR");
-  addDeckName("ISOGCRX");
-  addDeckName("ISOGCRX-");
-  addDeckName("ISOGCRY");
-  addDeckName("ISOGCRY-");
-  addDeckName("ISOGCRZ");
-  addDeckName("ISOGCRZ-");
-  addDeckName("ISOWCR");
-  addDeckName("ISOWCRX");
-  addDeckName("ISOWCRX-");
-  addDeckName("ISOWCRY");
-  addDeckName("ISOWCRY-");
-  addDeckName("ISOWCRZ");
-  addDeckName("ISOWCRZ-");
-  addDeckName("ISWCR");
-  addDeckName("ISWCRX");
-  addDeckName("ISWCRX-");
-  addDeckName("ISWCRZ");
-  addDeckName("ISWCRZ-");
-  addDeckName("ISWL");
-  addDeckName("ISWLX");
-  addDeckName("ISWLX-");
-  addDeckName("ISWLY");
-  addDeckName("ISWLY-");
-  addDeckName("ISWLZ");
-  addDeckName("ISWLZ-");
-  addDeckName("ISWU");
-  addDeckName("ISWUX");
-  addDeckName("ISWUX-");
-  addDeckName("ISWUY");
-  addDeckName("ISWUY-");
-  addDeckName("ISWUZ");
-  addDeckName("ISWUZ-");
-  addDeckName("KRG");
-  addDeckName("KRGR");
-  addDeckName("KRGRX");
-  addDeckName("KRGRX-");
-  addDeckName("KRGRY");
-  addDeckName("KRGRY-");
-  addDeckName("KRGRZ");
-  addDeckName("KRGRZ-");
-  addDeckName("KRGX");
-  addDeckName("KRGX-");
-  addDeckName("KRGY");
-  addDeckName("KRGY-");
-  addDeckName("KRGZ");
-  addDeckName("KRGZ-");
-  addDeckName("KRO");
-  addDeckName("KRORG");
-  addDeckName("KRORGX");
-  addDeckName("KRORGX-");
   addDeckName("KRORGY");
-  addDeckName("KRORGY-");
-  addDeckName("KRORGZ");
-  addDeckName("KRORGZ-");
+  addDeckName("KRGR");
+  addDeckName("IKRGRZ-");
+  addDeckName("KRGZ");
+  addDeckName("IKRGX-");
+  addDeckName("ISOWCRX-");
+  addDeckName("KRG");
+  addDeckName("IKRORWY-");
+  addDeckName("SWCRZ-");
+  addDeckName("KRGX");
+  addDeckName("KRGY");
+  addDeckName("IKRO");
+  addDeckName("KRORG");
+  addDeckName("KRGX-");
+  addDeckName("KRGY-");
+  addDeckName("SWLX");
+  addDeckName("KRGZ-");
+  addDeckName("KRGRX");
+  addDeckName("KRGRY");
+  addDeckName("IKROX-");
+  addDeckName("KRO");
+  addDeckName("KRORGX-");
+  addDeckName("KRGRZ");
+  addDeckName("KRGRX-");
+  addDeckName("KRGRY-");
+  addDeckName("IKRORGY");
+  addDeckName("SOWCRY");
+  addDeckName("KRGRZ-");
+  addDeckName("IKRGRY-");
+  addDeckName("IKRG");
+  addDeckName("ISOWCR");
+  addDeckName("IKRORWX-");
+  addDeckName("IKRGX");
+  addDeckName("ISOWCRX");
+  addDeckName("KRORWX-");
+  addDeckName("IKRGY");
+  addDeckName("ISOWCRY");
+  addDeckName("IKRGZ");
+  addDeckName("ISOWCRZ");
+  addDeckName("IKRGY-");
+  addDeckName("ISOWCRY-");
+  addDeckName("IKRGZ-");
+  addDeckName("ISWUX");
+  addDeckName("ISOWCRZ-");
+  addDeckName("KRORWZ");
+  addDeckName("IKRGR");
+  addDeckName("IKRORWZ-");
+  addDeckName("SWCRY-");
+  addDeckName("IKRGRX");
+  addDeckName("IKRGRY");
+  addDeckName("ISGUY-");
+  addDeckName("IKRGRZ");
+  addDeckName("IKRORGX");
+  addDeckName("SOWCRX");
+  addDeckName("IKRGRX-");
+  addDeckName("KROX");
+  addDeckName("KROY");
+  addDeckName("KROZ");
+  addDeckName("KROX-");
+  addDeckName("ISOGCR");
+  addDeckName("IKRORWX");
+  addDeckName("KROY-");
+  addDeckName("KROZ-");
   addDeckName("KRORW");
   addDeckName("KRORWX");
-  addDeckName("KRORWX-");
   addDeckName("KRORWY");
   addDeckName("KRORWY-");
-  addDeckName("KRORWZ");
   addDeckName("KRORWZ-");
-  addDeckName("KROX");
-  addDeckName("KROX-");
-  addDeckName("KROY");
-  addDeckName("KROY-");
-  addDeckName("KROZ");
-  addDeckName("KROZ-");
+  addDeckName("KRORGX");
+  addDeckName("KRORGZ");
+  addDeckName("SOGCRZ-");
+  addDeckName("IKROY-");
+  addDeckName("KRORGY-");
+  addDeckName("IKROZ-");
+  addDeckName("KRORGZ-");
+  addDeckName("IKRORW");
+  addDeckName("IKRORWY");
+  addDeckName("KRWZ-");
+  addDeckName("SWCRZ");
+  addDeckName("IKRORWZ");
+  addDeckName("SOGCR");
+  addDeckName("SWCRY");
+  addDeckName("IKRORG");
+  addDeckName("SOWCR");
+  addDeckName("IKRORGZ");
+  addDeckName("SOWCRZ");
+  addDeckName("IKRORGX-");
+  addDeckName("SOWCRX-");
+  addDeckName("IKRORGY-");
+  addDeckName("SOWCRY-");
+  addDeckName("IKRORGZ-");
+  addDeckName("SOWCRZ-");
   addDeckName("KRW");
+  addDeckName("KRWX");
+  addDeckName("KRWY");
+  addDeckName("KRWZ");
+  addDeckName("KRWX-");
+  addDeckName("KRWY-");
   addDeckName("KRWR");
   addDeckName("KRWRX");
-  addDeckName("KRWRX-");
   addDeckName("KRWRY");
-  addDeckName("KRWRY-");
   addDeckName("KRWRZ");
+  addDeckName("KRWRX-");
+  addDeckName("KRWRY-");
   addDeckName("KRWRZ-");
-  addDeckName("KRWX");
-  addDeckName("KRWX-");
-  addDeckName("KRWY");
-  addDeckName("KRWY-");
-  addDeckName("KRWZ");
-  addDeckName("KRWZ-");
-  addDeckName("SGCR");
-  addDeckName("SGCRX");
-  addDeckName("SGCRX-");
-  addDeckName("SGCRY");
-  addDeckName("SGCRY-");
-  addDeckName("SGCRZ");
-  addDeckName("SGCRZ-");
-  addDeckName("SGU");
-  addDeckName("SGUX");
-  addDeckName("SGUX-");
-  addDeckName("SGUY");
-  addDeckName("SGUY-");
-  addDeckName("SGUZ");
-  addDeckName("SGUZ-");
-  addDeckName("SOGCR");
-  addDeckName("SOGCRX");
-  addDeckName("SOGCRX-");
-  addDeckName("SOGCRY");
-  addDeckName("SOGCRY-");
-  addDeckName("SOGCRZ");
-  addDeckName("SOGCRZ-");
-  addDeckName("SOWCR");
-  addDeckName("SOWCRX");
-  addDeckName("SOWCRX-");
-  addDeckName("SOWCRY");
-  addDeckName("SOWCRY-");
-  addDeckName("SOWCRZ");
-  addDeckName("SOWCRZ-");
-  addDeckName("SWCR");
-  addDeckName("SWCRX");
-  addDeckName("SWCRX-");
-  addDeckName("SWCRY");
-  addDeckName("SWCRY-");
-  addDeckName("SWCRZ");
-  addDeckName("SWCRZ-");
+  addDeckName("IKRW");
+  addDeckName("ISGCRZ-");
+  addDeckName("IKRWX");
+  addDeckName("IKRWY");
+  addDeckName("IKRWZ");
+  addDeckName("IKRWX-");
+  addDeckName("IKRWY-");
+  addDeckName("IKRWZ-");
+  addDeckName("IKRWR");
+  addDeckName("IKRWRX");
+  addDeckName("IKRWRY");
+  addDeckName("IKRWRZ");
+  addDeckName("IKRWRX-");
+  addDeckName("IKRWRY-");
+  addDeckName("IKRWRZ-");
   addDeckName("SWL");
-  addDeckName("SWLX");
+  addDeckName("SWLZ");
+  addDeckName("ISWL");
   addDeckName("SWLX-");
+  addDeckName("ISWLX");
+  addDeckName("ISWLX-");
   addDeckName("SWLY");
   addDeckName("SWLY-");
-  addDeckName("SWLZ");
+  addDeckName("ISWCRZ");
+  addDeckName("ISWLY");
+  addDeckName("ISWLY-");
   addDeckName("SWLZ-");
+  addDeckName("ISWLZ");
+  addDeckName("ISWLZ-");
+  addDeckName("SGU");
+  addDeckName("ISGU");
+  addDeckName("SGUX");
+  addDeckName("SGUX-");
+  addDeckName("ISGUX");
+  addDeckName("ISGUX-");
+  addDeckName("SGUY");
+  addDeckName("SGUY-");
+  addDeckName("SGCRZ");
+  addDeckName("ISGUY");
+  addDeckName("SGUZ");
+  addDeckName("ISWUZ-");
+  addDeckName("SGUZ-");
+  addDeckName("ISGUZ");
+  addDeckName("ISGUZ-");
   addDeckName("SWU");
+  addDeckName("ISWU");
   addDeckName("SWUX");
   addDeckName("SWUX-");
+  addDeckName("ISWUX-");
   addDeckName("SWUY");
   addDeckName("SWUY-");
+  addDeckName("ISWUY");
+  addDeckName("ISWUY-");
   addDeckName("SWUZ");
   addDeckName("SWUZ-");
+  addDeckName("ISWUZ");
+  addDeckName("SGCR");
+  addDeckName("ISGCR");
+  addDeckName("SGCRX");
+  addDeckName("SGCRX-");
+  addDeckName("ISGCRX");
+  addDeckName("ISGCRX-");
+  addDeckName("SGCRY");
+  addDeckName("SGCRY-");
+  addDeckName("ISGCRY");
+  addDeckName("ISGCRY-");
+  addDeckName("SGCRZ-");
+  addDeckName("ISGCRZ");
+  addDeckName("SOGCRX");
+  addDeckName("SOGCRX-");
+  addDeckName("ISOGCRX");
+  addDeckName("ISOGCRX-");
+  addDeckName("SOGCRY");
+  addDeckName("SOGCRY-");
+  addDeckName("ISOGCRY");
+  addDeckName("ISOGCRY-");
+  addDeckName("SOGCRZ");
+  addDeckName("ISOGCRZ");
+  addDeckName("ISOGCRZ-");
+  addDeckName("SWCR");
+  addDeckName("ISWCR");
+  addDeckName("SWCRX");
+  addDeckName("SWCRX-");
+  addDeckName("ISWCRX");
+  addDeckName("ISWCRX-");
+  addDeckName("ISWCRZ-");
   {
      ParserRecord record;
      {
@@ -665,9 +642,7 @@ const std::string ENDPOINT_SPECIFIERS::keywordName = "ENDPOINT_SPECIFIERS";
 const std::string ENDPOINT_SPECIFIERS::data::itemName = "data";
 
 
-ENDSCALE::ENDSCALE( ) : ParserKeyword("ENDSCALE")
-{
-  setFixedSize( (size_t) 1);
+ENDSCALE::ENDSCALE() : ParserKeyword("ENDSCALE", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("ENDSCALE");
@@ -684,12 +659,12 @@ ENDSCALE::ENDSCALE( ) : ParserKeyword("ENDSCALE")
         record.addItem(item);
      }
      {
-        ParserItem item("NUM_TABLES", ParserItem::itype::INT);
+        ParserItem item("NTENDP", ParserItem::itype::INT);
         item.setDefault( 1 );
         record.addItem(item);
      }
      {
-        ParserItem item("NUM_NODES", ParserItem::itype::INT);
+        ParserItem item("NSENDP", ParserItem::itype::INT);
         item.setDefault( 20 );
         record.addItem(item);
      }
@@ -706,35 +681,30 @@ const std::string ENDSCALE::DIRECT::itemName = "DIRECT";
 const std::string ENDSCALE::DIRECT::defaultValue = "NODIR";
 const std::string ENDSCALE::IRREVERS::itemName = "IRREVERS";
 const std::string ENDSCALE::IRREVERS::defaultValue = "REVERS";
-const std::string ENDSCALE::NUM_TABLES::itemName = "NUM_TABLES";
-const int ENDSCALE::NUM_TABLES::defaultValue = 1;
-const std::string ENDSCALE::NUM_NODES::itemName = "NUM_NODES";
-const int ENDSCALE::NUM_NODES::defaultValue = 20;
+const std::string ENDSCALE::NTENDP::itemName = "NTENDP";
+const int ENDSCALE::NTENDP::defaultValue = 1;
+const std::string ENDSCALE::NSENDP::itemName = "NSENDP";
+const int ENDSCALE::NSENDP::defaultValue = 20;
 const std::string ENDSCALE::COMB_MODE::itemName = "COMB_MODE";
 const int ENDSCALE::COMB_MODE::defaultValue = 0;
 
 
-ENDSKIP::ENDSKIP( ) : ParserKeyword("ENDSKIP")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("EDIT");
+ENDSKIP::ENDSKIP() : ParserKeyword("ENDSKIP", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ENDSKIP");
 }
 const std::string ENDSKIP::keywordName = "ENDSKIP";
 
 
-ENKRVD::ENKRVD( ) : ParserKeyword("ENKRVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NUM_TABLES",0);
+ENKRVD::ENKRVD() : ParserKeyword("ENKRVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ENKRVD");
@@ -762,10 +732,7 @@ const std::string ENKRVD::DATA::itemName = "DATA";
 const double ENKRVD::DATA::defaultValue = -1.000000;
 
 
-ENPCVD::ENPCVD( ) : ParserKeyword("ENPCVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NUM_TABLES",0);
+ENPCVD::ENPCVD() : ParserKeyword("ENPCVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ENPCVD");
@@ -788,10 +755,7 @@ const std::string ENPCVD::DATA::itemName = "DATA";
 const double ENPCVD::DATA::defaultValue = -1.000000;
 
 
-ENPTVD::ENPTVD( ) : ParserKeyword("ENPTVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NUM_TABLES",0);
+ENPTVD::ENPTVD() : ParserKeyword("ENPTVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ENPTVD");
@@ -820,10 +784,7 @@ const std::string ENPTVD::DATA::itemName = "DATA";
 const double ENPTVD::DATA::defaultValue = -1.000000;
 
 
-ENSPCVD::ENSPCVD( ) : ParserKeyword("ENSPCVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NUM_TABLES",0);
+ENSPCVD::ENSPCVD() : ParserKeyword("ENSPCVD", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ENSPCVD");
@@ -846,9 +807,7 @@ const std::string ENSPCVD::DATA::itemName = "DATA";
 const double ENSPCVD::DATA::defaultValue = -1.000000;
 
 
-EPSDBGS::EPSDBGS( ) : ParserKeyword("EPSDBGS")
-{
-  setSizeType(SLASH_TERMINATED);
+EPSDBGS::EPSDBGS() : ParserKeyword("EPSDBGS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -916,9 +875,7 @@ const std::string EPSDBGS::GRID_NAME::itemName = "GRID_NAME";
 const std::string EPSDBGS::GRID_NAME::defaultValue = "";
 
 
-EPSDEBUG::EPSDEBUG( ) : ParserKeyword("EPSDEBUG")
-{
-  setFixedSize( (size_t) 1);
+EPSDEBUG::EPSDEBUG() : ParserKeyword("EPSDEBUG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -982,9 +939,7 @@ const std::string EPSDEBUG::CHECK_DRAIN_HYST::itemName = "CHECK_DRAIN_HYST";
 const int EPSDEBUG::CHECK_DRAIN_HYST::defaultValue = 0;
 
 
-EQLDIMS::EQLDIMS( ) : ParserKeyword("EQLDIMS")
-{
-  setFixedSize( (size_t) 1);
+EQLDIMS::EQLDIMS() : ParserKeyword("EQLDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("EQLDIMS");
@@ -1031,9 +986,7 @@ const std::string EQLDIMS::NSTRVD::itemName = "NSTRVD";
 const int EQLDIMS::NSTRVD::defaultValue = 20;
 
 
-EQLNUM::EQLNUM( ) : ParserKeyword("EQLNUM")
-{
-  setFixedSize( (size_t) 1);
+EQLNUM::EQLNUM() : ParserKeyword("EQLNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("EQLNUM");
@@ -1051,9 +1004,7 @@ const std::string EQLNUM::keywordName = "EQLNUM";
 const std::string EQLNUM::data::itemName = "data";
 
 
-EQLOPTS::EQLOPTS( ) : ParserKeyword("EQLOPTS")
-{
-  setFixedSize( (size_t) 1);
+EQLOPTS::EQLOPTS() : ParserKeyword("EQLOPTS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("EQLOPTS");
@@ -1085,9 +1036,7 @@ const std::string EQLOPTS::OPTION3::itemName = "OPTION3";
 const std::string EQLOPTS::OPTION4::itemName = "OPTION4";
 
 
-EQLZCORN::EQLZCORN( ) : ParserKeyword("EQLZCORN")
-{
-  setSizeType(SLASH_TERMINATED);
+EQLZCORN::EQLZCORN() : ParserKeyword("EQLZCORN", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("EQLZCORN");
@@ -1162,12 +1111,10 @@ const std::string EQLZCORN::ACTION_REQ::itemName = "ACTION_REQ";
 const std::string EQLZCORN::ACTION_REQ::defaultValue = "TOP";
 
 
-EQUALREG::EQUALREG( ) : ParserKeyword("EQUALREG")
-{
-  setSizeType(SLASH_TERMINATED);
+EQUALREG::EQUALREG() : ParserKeyword("EQUALREG", KeywordSize(SLASH_TERMINATED)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -1202,17 +1149,15 @@ EQUALREG::EQUALREG( ) : ParserKeyword("EQUALREG")
 const std::string EQUALREG::keywordName = "EQUALREG";
 const std::string EQUALREG::ARRAY::itemName = "ARRAY";
 const std::string EQUALREG::VALUE::itemName = "VALUE";
-const double EQUALREG::VALUE::defaultValue = 0.000000;
+const double EQUALREG::VALUE::defaultValue = 0;
 const std::string EQUALREG::REGION_NUMBER::itemName = "REGION_NUMBER";
 const std::string EQUALREG::REGION_NAME::itemName = "REGION_NAME";
 const std::string EQUALREG::REGION_NAME::defaultValue = "M";
 
 
-EQUALS::EQUALS( ) : ParserKeyword("EQUALS")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+EQUALS::EQUALS() : ParserKeyword("EQUALS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
@@ -1266,10 +1211,7 @@ const std::string EQUALS::K1::itemName = "K1";
 const std::string EQUALS::K2::itemName = "K2";
 
 
-EQUIL::EQUIL( ) : ParserKeyword("EQUIL")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+EQUIL::EQUIL() : ParserKeyword("EQUIL", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("EQUIL");
@@ -1326,33 +1268,40 @@ EQUIL::EQUIL( ) : ParserKeyword("EQUIL")
         item.setDefault( -5 );
         record.addItem(item);
      }
+     {
+        ParserItem item("EQLOPT04", ParserItem::itype::INT);
+        record.addItem(item);
+     }
+     {
+        ParserItem item("EQLOPT5", ParserItem::itype::INT);
+        record.addItem(item);
+     }
      addRecord( record );
   }
 }
 const std::string EQUIL::keywordName = "EQUIL";
 const std::string EQUIL::DATUM_DEPTH::itemName = "DATUM_DEPTH";
-const double EQUIL::DATUM_DEPTH::defaultValue = 0.000000;
+const double EQUIL::DATUM_DEPTH::defaultValue = 0;
 const std::string EQUIL::DATUM_PRESSURE::itemName = "DATUM_PRESSURE";
 const std::string EQUIL::OWC::itemName = "OWC";
-const double EQUIL::OWC::defaultValue = 0.000000;
+const double EQUIL::OWC::defaultValue = 0;
 const std::string EQUIL::PC_OWC::itemName = "PC_OWC";
-const double EQUIL::PC_OWC::defaultValue = 0.000000;
+const double EQUIL::PC_OWC::defaultValue = 0;
 const std::string EQUIL::GOC::itemName = "GOC";
-const double EQUIL::GOC::defaultValue = 0.000000;
+const double EQUIL::GOC::defaultValue = 0;
 const std::string EQUIL::PC_GOC::itemName = "PC_GOC";
-const double EQUIL::PC_GOC::defaultValue = 0.000000;
+const double EQUIL::PC_GOC::defaultValue = 0;
 const std::string EQUIL::BLACK_OIL_INIT::itemName = "BLACK_OIL_INIT";
 const int EQUIL::BLACK_OIL_INIT::defaultValue = 0;
 const std::string EQUIL::BLACK_OIL_INIT_WG::itemName = "BLACK_OIL_INIT_WG";
 const int EQUIL::BLACK_OIL_INIT_WG::defaultValue = 0;
 const std::string EQUIL::OIP_INIT::itemName = "OIP_INIT";
 const int EQUIL::OIP_INIT::defaultValue = -5;
+const std::string EQUIL::EQLOPT04::itemName = "EQLOPT04";
+const std::string EQUIL::EQLOPT5::itemName = "EQLOPT5";
 
 
-ESSNODE::ESSNODE( ) : ParserKeyword("ESSNODE")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+ESSNODE::ESSNODE() : ParserKeyword("ESSNODE", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ESSNODE");
@@ -1371,9 +1320,7 @@ const std::string ESSNODE::keywordName = "ESSNODE";
 const std::string ESSNODE::DATA::itemName = "DATA";
 
 
-EXCAVATE::EXCAVATE( ) : ParserKeyword("EXCAVATE")
-{
-  setFixedSize( (size_t) 1);
+EXCAVATE::EXCAVATE() : ParserKeyword("EXCAVATE", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("EXCAVATE");
@@ -1391,9 +1338,7 @@ const std::string EXCAVATE::keywordName = "EXCAVATE";
 const std::string EXCAVATE::DATA::itemName = "DATA";
 
 
-EXCEL::EXCEL( ) : ParserKeyword("EXCEL")
-{
-  setFixedSize( (size_t) 0);
+EXCEL::EXCEL() : ParserKeyword("EXCEL", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("EXCEL");
@@ -1401,9 +1346,7 @@ EXCEL::EXCEL( ) : ParserKeyword("EXCEL")
 const std::string EXCEL::keywordName = "EXCEL";
 
 
-EXIT::EXIT( ) : ParserKeyword("EXIT")
-{
-  setFixedSize( (size_t) 1);
+EXIT::EXIT() : ParserKeyword("EXIT", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("EXIT");
@@ -1422,9 +1365,7 @@ const std::string EXIT::STATUS_CODE::itemName = "STATUS_CODE";
 const int EXIT::STATUS_CODE::defaultValue = 0;
 
 
-EXTFIN::EXTFIN( ) : ParserKeyword("EXTFIN")
-{
-  setFixedSize( (size_t) 1);
+EXTFIN::EXTFIN() : ParserKeyword("EXTFIN", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("EXTFIN");
@@ -1486,9 +1427,7 @@ const std::string EXTFIN::NUMCON::itemName = "NUMCON";
 const std::string EXTFIN::NWMAX::itemName = "NWMAX";
 
 
-EXTHOST::EXTHOST( ) : ParserKeyword("EXTHOST")
-{
-  setFixedSize( (size_t) 1);
+EXTHOST::EXTHOST() : ParserKeyword("EXTHOST", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("EXTHOST");
@@ -1506,17 +1445,15 @@ const std::string EXTHOST::keywordName = "EXTHOST";
 const std::string EXTHOST::data::itemName = "data";
 
 
-EXTRAPMS::EXTRAPMS( ) : ParserKeyword("EXTRAPMS")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("EDIT");
+EXTRAPMS::EXTRAPMS() : ParserKeyword("EXTRAPMS", KeywordSize(1, false)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("GRID");
   addValidSectionName("PROPS");
+  addValidSectionName("EDIT");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("EXTRAPMS");
   {
@@ -1534,9 +1471,7 @@ const std::string EXTRAPMS::LEVEL::itemName = "LEVEL";
 const int EXTRAPMS::LEVEL::defaultValue = 0;
 
 
-EXTREPGL::EXTREPGL( ) : ParserKeyword("EXTREPGL")
-{
-  setFixedSize( (size_t) 1);
+EXTREPGL::EXTREPGL() : ParserKeyword("EXTREPGL", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("EXTREPGL");

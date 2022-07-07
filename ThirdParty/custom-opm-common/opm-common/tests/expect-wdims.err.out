@@ -1,8 +1,0 @@
-
-
-Errors:
-  RUNSPEC_NUMWELLS_TOO_LARGE      : Run uses 12 wells, but allocates at most 0 in RUNSPEC section.  Increase item 1 of WELLDIMS accordingly.
-  RUNSPEC_CONNS_PER_WELL_TOO_LARGE: Run has well with 15 reservoir connections, but allocates at most 0 connections per well in RUNSPEC section.  Increase item 2 of WELLDIMS accordingly.
-  RUNSPEC_NUMGROUPS_TOO_LARGE     : Run uses 11 non-FIELD groups, but allocates at most 0 in RUNSPEC section.  Increase item 3 of WELLDIMS accordingly.
-  RUNSPEC_GROUPSIZE_TOO_LARGE     : Run uses maximum group size of 10, but allocates at most 0 in RUNSPEC section.  Increase item 4 of WELLDIMS accordingly.
-

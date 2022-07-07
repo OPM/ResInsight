@@ -10,6 +10,10 @@
 
 #include <iostream>
 
+#ifdef _MSC_VER
+// Disable warning from external library to make sure treat warnings as error works
+#pragma warning( disable : 4267 )
+#endif
 #include "opm/io/eclipse/ESmry.hpp"
 
 static const QString H5_TEST_DATA_DIRECTORY = QString( "%1/h5-file/" ).arg( TEST_DATA_DIR );
@@ -122,8 +126,7 @@ TEST( DISABLED_HDFTests, ReadOpmSummaryDataListContent )
     for ( size_t i = 0; i < nodes.size(); i++ )
     {
         Opm::EclIO::SummaryNode n = nodes[i];
-        std::cout << n.keyword << " number: " << n.number << " msjNumber: " << n.smspecKeywordIndex << " "
-                  << n.unique_key() << "\n";
+        std::cout << n.keyword << " number: " << n.number << " msjNumber: " << n.unique_key() << "\n";
     }
 }
 

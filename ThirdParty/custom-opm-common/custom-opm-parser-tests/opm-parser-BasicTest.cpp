@@ -2,9 +2,14 @@
 #include <string>
 #include "gtest/gtest.h"
 
-#include "opm/parser/eclipse/Parser/Parser.hpp"
-#include "opm/parser/eclipse/EclipseState/Schedule/VFPInjTable.hpp"
-#include "opm/parser/eclipse/EclipseState/Schedule/VFPProdTable.hpp"
+
+#include "opm/input/eclipse/Parser/ParseContext.hpp"
+#include "opm/input/eclipse/Parser/ParseContext.hpp"
+#include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
+#include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
+#include "opm/input/eclipse/Parser/Parser.hpp"
+#include "opm/input/eclipse/Deck/Deck.hpp"
+#include <opm/input/eclipse/Parser/ParserKeywords/V.hpp>
 
 #include "OpmTestDataDirectory.h"
 
@@ -18,7 +23,10 @@ TEST(OpmParserTest, ReadFromFile)
     ParseContext parseContext;
 
     {
-        Parser parser;
+        Parser parser(false);
+		const ::Opm::ParserKeywords::VFPPROD kw1;
+
+		parser.addParserKeyword(kw1);
 
         std::stringstream ss;
         ss << TEST_DATA_DIR << "/B1BH.Ecl";
@@ -36,12 +44,18 @@ TEST(OpmParserTest, ReadFromFile)
         {
             auto name = kw->name();
     
-            VFPProdTable table(*kw, unitSystem);
+            bool gaslift_opt_active = false;
+            VFPProdTable table(*kw, gaslift_opt_active, unitSystem);
             std::cout << table.getDatumDepth() << std::endl;
         }
     }
     {
-        Parser parser;
+		Parser parser(false);
+		const ::Opm::ParserKeywords::VFPINJ kw1;
+		const ::Opm::ParserKeywords::VFPIDIMS kw2;
+
+		parser.addParserKeyword(kw1);
+		parser.addParserKeyword(kw2);
 
         std::stringstream ss;
         ss << TEST_DATA_DIR << "/C1H.Ecl";

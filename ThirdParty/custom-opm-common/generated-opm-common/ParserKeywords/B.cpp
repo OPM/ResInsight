@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/B.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/B.hpp>
 namespace Opm {
 namespace ParserKeywords {
-BC::BC( ) : ParserKeyword("BC")
-{
-  setSizeType(SLASH_TERMINATED);
+BC::BC() : ParserKeyword("BC", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("BC");
@@ -76,13 +75,10 @@ const std::string BC::DIRECTION::itemName = "DIRECTION";
 const std::string BC::COMPONENT::itemName = "COMPONENT";
 const std::string BC::COMPONENT::defaultValue = "NONE";
 const std::string BC::RATE::itemName = "RATE";
-const double BC::RATE::defaultValue = 0.000000;
+const double BC::RATE::defaultValue = 0;
 
 
-BDENSITY::BDENSITY( ) : ParserKeyword("BDENSITY")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+BDENSITY::BDENSITY() : ParserKeyword("BDENSITY", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("BDENSITY");
@@ -101,10 +97,7 @@ const std::string BDENSITY::keywordName = "BDENSITY";
 const std::string BDENSITY::BRINE_DENSITY::itemName = "BRINE_DENSITY";
 
 
-BGGI::BGGI( ) : ParserKeyword("BGGI")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+BGGI::BGGI() : ParserKeyword("BGGI", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("BGGI");
@@ -129,9 +122,7 @@ const std::string BGGI::GAS_PRESSURE::itemName = "GAS_PRESSURE";
 const std::string BGGI::DATA::itemName = "DATA";
 
 
-BIGMODEL::BIGMODEL( ) : ParserKeyword("BIGMODEL")
-{
-  setFixedSize( (size_t) 0);
+BIGMODEL::BIGMODEL() : ParserKeyword("BIGMODEL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("BIGMODEL");
@@ -139,9 +130,7 @@ BIGMODEL::BIGMODEL( ) : ParserKeyword("BIGMODEL")
 const std::string BIGMODEL::keywordName = "BIGMODEL";
 
 
-BLACKOIL::BLACKOIL( ) : ParserKeyword("BLACKOIL")
-{
-  setFixedSize( (size_t) 0);
+BLACKOIL::BLACKOIL() : ParserKeyword("BLACKOIL", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("BLACKOIL");
@@ -149,136 +138,137 @@ BLACKOIL::BLACKOIL( ) : ParserKeyword("BLACKOIL")
 const std::string BLACKOIL::keywordName = "BLACKOIL";
 
 
-BLOCK_PROBE::BLOCK_PROBE( ) : ParserKeyword("BLOCK_PROBE")
-{
-  setSizeType(SLASH_TERMINATED);
+BLOCK_PROBE::BLOCK_PROBE() : ParserKeyword("BLOCK_PROBE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("BAPI");
-  addDeckName("BCGC");
-  addDeckName("BCSC");
-  addDeckName("BCTRA_X");
-  addDeckName("BDENG");
-  addDeckName("BDENO");
-  addDeckName("BDENW");
-  addDeckName("BESALPLY");
-  addDeckName("BESALSUR");
-  addDeckName("BEWV_SAL");
-  addDeckName("BEWV_SUR");
-  addDeckName("BFLOGI");
-  addDeckName("BFLOGJ");
-  addDeckName("BFLOGK");
-  addDeckName("BFLOOI");
-  addDeckName("BFLOOJ");
+  addDeckName("BVELWK");
   addDeckName("BFLOOK");
-  addDeckName("BFLOWI");
-  addDeckName("BGDEN");
-  addDeckName("BGI");
-  addDeckName("BGIP");
-  addDeckName("BGIPG");
-  addDeckName("BGIPL");
-  addDeckName("BGKR");
-  addDeckName("BGPC");
-  addDeckName("BGPR");
-  addDeckName("BGPV");
-  addDeckName("BGSAT");
-  addDeckName("BGSHY");
-  addDeckName("BGSTRP");
-  addDeckName("BGTPD");
-  addDeckName("BGTRP");
-  addDeckName("BGVIS");
-  addDeckName("BHD");
-  addDeckName("BHDF");
-  addDeckName("BHDF_X");
-  addDeckName("BHD_X");
-  addDeckName("BHPV");
-  addDeckName("BKRG");
-  addDeckName("BKRO");
-  addDeckName("BKRW");
-  addDeckName("BNIP");
-  addDeckName("BNKR");
-  addDeckName("BNSAT");
-  addDeckName("BODEN");
-  addDeckName("BOIP");
-  addDeckName("BOIPG");
-  addDeckName("BOIPL");
-  addDeckName("BOKR");
-  addDeckName("BOPV");
+  addDeckName("BSOIL");
   addDeckName("BOSAT");
+  addDeckName("BGIP");
+  addDeckName("BVOIL");
+  addDeckName("BGKR");
+  addDeckName("BOIP");
+  addDeckName("BOIPL");
+  addDeckName("BGPR");
+  addDeckName("BSCN_X");
+  addDeckName("BGIPG");
   addDeckName("BOVIS");
-  addDeckName("BPBUB");
-  addDeckName("BPDEW");
-  addDeckName("BPERMMOD");
-  addDeckName("BPORVMOD");
-  addDeckName("BPPC");
-  addDeckName("BPPG");
-  addDeckName("BPPO");
-  addDeckName("BPPW");
-  addDeckName("BPR");
-  addDeckName("BPR_X");
-  addDeckName("BRPV");
-  addDeckName("BRS");
+  addDeckName("BOIPG");
+  addDeckName("BWVIS");
   addDeckName("BRSSAT");
-  addDeckName("BRTM");
+  addDeckName("BPPO");
+  addDeckName("BPDEW");
+  addDeckName("BDENO");
+  addDeckName("BVELOJ");
+  addDeckName("BODEN");
+  addDeckName("BVELWI");
+  addDeckName("BFLOOI");
+  addDeckName("BGDEN");
+  addDeckName("BVELWJ");
+  addDeckName("BFLOOJ");
+  addDeckName("BFLOWI");
+  addDeckName("LBHDF_X");
+  addDeckName("BVELOI");
+  addDeckName("BVELOK");
+  addDeckName("BPPC");
+  addDeckName("BTRADCAT");
+  addDeckName("BFLOGK");
+  addDeckName("BWSAT");
+  addDeckName("BSWAT");
+  addDeckName("BGSAT");
+  addDeckName("BPR");
+  addDeckName("BWIP");
+  addDeckName("BEWV_SAL");
+  addDeckName("BPPW");
+  addDeckName("BWKR");
+  addDeckName("BVWAT");
+  addDeckName("BDENW");
+  addDeckName("BKRO");
+  addDeckName("BVELGJ");
+  addDeckName("BWDEN");
+  addDeckName("BSGAS");
+  addDeckName("BGIPL");
+  addDeckName("BPPG");
+  addDeckName("BKROG");
+  addDeckName("BVGAS");
+  addDeckName("BGVIS");
+  addDeckName("BDENG");
+  addDeckName("BFLOGI");
+  addDeckName("BKRG");
+  addDeckName("BFLOGJ");
+  addDeckName("BPBUB");
+  addDeckName("BVELGI");
+  addDeckName("BRS");
+  addDeckName("BVELGK");
+  addDeckName("BWPR");
   addDeckName("BRV");
   addDeckName("BRVSAT");
-  addDeckName("BSCN");
-  addDeckName("BSCN_X");
-  addDeckName("BSGAS");
-  addDeckName("BSIP");
-  addDeckName("BSOIL");
   addDeckName("BSTATE");
-  addDeckName("BSWAT");
-  addDeckName("BTADSALK");
-  addDeckName("BTADSFOA");
-  addDeckName("BTADSUR");
-  addDeckName("BTCASUR");
-  addDeckName("BTCNFALK");
-  addDeckName("BTCNFANI");
-  addDeckName("BTCNFCAT");
-  addDeckName("BTCNFFOA");
-  addDeckName("BTCNFHEA");
-  addDeckName("BTCNFSUR");
-  addDeckName("BTCNMFOA");
-  addDeckName("BTDCYFOA");
-  addDeckName("BTHLFFOA");
-  addDeckName("BTIPTFOA");
-  addDeckName("BTIPTHEA");
-  addDeckName("BTIPTSUR");
-  addDeckName("BTMOBFOA");
-  addDeckName("BTPADALK");
-  addDeckName("BTRADCAT");
-  addDeckName("BTSADALK");
-  addDeckName("BTSADCAT");
-  addDeckName("BTSTMALK");
-  addDeckName("BTSTSUR");
-  addDeckName("BVELGI");
-  addDeckName("BVELGJ");
-  addDeckName("BVELGK");
-  addDeckName("BVELOI");
-  addDeckName("BVELOJ");
-  addDeckName("BVELOK");
-  addDeckName("BVELWI");
-  addDeckName("BVELWJ");
-  addDeckName("BVELWK");
-  addDeckName("BVGAS");
-  addDeckName("BVOIL");
-  addDeckName("BVWAT");
-  addDeckName("BWDEN");
-  addDeckName("BWIP");
-  addDeckName("BWKR");
+  addDeckName("BOKR");
+  addDeckName("BKROW");
+  addDeckName("BKRW");
   addDeckName("BWPC");
-  addDeckName("BWPR");
-  addDeckName("BWPV");
-  addDeckName("BWSAT");
+  addDeckName("BGPC");
+  addDeckName("BGTRP");
+  addDeckName("BGTPD");
+  addDeckName("BOPV");
+  addDeckName("BGSHY");
+  addDeckName("BGSTRP");
   addDeckName("BWSHY");
   addDeckName("BWSMA");
-  addDeckName("BWVIS");
-  addDeckName("LBCTRA_X");
-  addDeckName("LBHDF_X");
-  addDeckName("LBHD_X");
+  addDeckName("BHD");
+  addDeckName("BHDF");
+  addDeckName("BPR_X");
+  addDeckName("BHD_X");
+  addDeckName("BHDF_X");
+  addDeckName("BCTRA_X");
   addDeckName("LBPR_X");
+  addDeckName("LBHD_X");
   addDeckName("LBSCN_X");
+  addDeckName("LBCTRA_X");
+  addDeckName("BRPV");
+  addDeckName("BWPV");
+  addDeckName("BGPV");
+  addDeckName("BHPV");
+  addDeckName("BRTM");
+  addDeckName("BPORVMOD");
+  addDeckName("BPERMMOD");
+  addDeckName("BSCN");
+  addDeckName("BAPI");
+  addDeckName("BSIP");
+  addDeckName("BCAD");
+  addDeckName("BTCNFANI");
+  addDeckName("BTCNFCAT");
+  addDeckName("BTCASUR");
+  addDeckName("BTSADCAT");
+  addDeckName("BESALSUR");
+  addDeckName("BESALPLY");
+  addDeckName("BTCNFHEA");
+  addDeckName("BTIPTHEA");
+  addDeckName("BCGC");
+  addDeckName("BCSC");
+  addDeckName("BTCNFFOA");
+  addDeckName("BTCNMFOA");
+  addDeckName("BTIPTFOA");
+  addDeckName("BTADSFOA");
+  addDeckName("BTDCYFOA");
+  addDeckName("BTMOBFOA");
+  addDeckName("BTHLFFOA");
+  addDeckName("BGI");
+  addDeckName("BNSAT");
+  addDeckName("BNIP");
+  addDeckName("BNKR");
+  addDeckName("BTPADALK");
+  addDeckName("BTCNFSUR");
+  addDeckName("BTIPTSUR");
+  addDeckName("BTADSUR");
+  addDeckName("BTSTSUR");
+  addDeckName("BEWV_SUR");
+  addDeckName("BTCNFALK");
+  addDeckName("BTADSALK");
+  addDeckName("BTSTMALK");
+  addDeckName("BTSADALK");
   setMatchRegex("BU.+|BTIPF.+|BTIPS.+|BTCNF.+|BTCNS.+|BTCN[1-9][0-9]*.+|BTIPT.+|BTIPF.+|BTIPS.+|BTIP[1-9][0-9]*.+|BTADS.+|BTDCY");
   {
      ParserRecord record;
@@ -303,9 +293,7 @@ const std::string BLOCK_PROBE::J::itemName = "J";
 const std::string BLOCK_PROBE::K::itemName = "K";
 
 
-BLOCK_PROBE300::BLOCK_PROBE300( ) : ParserKeyword("BLOCK_PROBE300")
-{
-  setSizeType(SLASH_TERMINATED);
+BLOCK_PROBE300::BLOCK_PROBE300() : ParserKeyword("BLOCK_PROBE300", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("BTEMP");
@@ -332,10 +320,7 @@ const std::string BLOCK_PROBE300::J::itemName = "J";
 const std::string BLOCK_PROBE300::K::itemName = "K";
 
 
-BOGI::BOGI( ) : ParserKeyword("BOGI")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+BOGI::BOGI() : ParserKeyword("BOGI", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("BOGI");
@@ -360,14 +345,12 @@ const std::string BOGI::OIL_PRESSURE::itemName = "OIL_PRESSURE";
 const std::string BOGI::DATA::itemName = "DATA";
 
 
-BOUNDARY::BOUNDARY( ) : ParserKeyword("BOUNDARY")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("EDIT");
+BOUNDARY::BOUNDARY() : ParserKeyword("BOUNDARY", KeywordSize(1, false)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("REGIONS");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("BOUNDARY");
   {
@@ -422,15 +405,13 @@ const std::string BOUNDARY::DUAL_PORO_FLAG::itemName = "DUAL_PORO_FLAG";
 const std::string BOUNDARY::DUAL_PORO_FLAG::defaultValue = "BOTH";
 
 
-BOX::BOX( ) : ParserKeyword("BOX")
-{
-  setFixedSize( (size_t) 1);
+BOX::BOX() : ParserKeyword("BOX", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
   addValidSectionName("EDIT");
   addValidSectionName("GRID");
-  addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("BOX");
   {
@@ -471,9 +452,7 @@ const std::string BOX::K1::itemName = "K1";
 const std::string BOX::K2::itemName = "K2";
 
 
-BPARA::BPARA( ) : ParserKeyword("BPARA")
-{
-  setFixedSize( (size_t) 0);
+BPARA::BPARA() : ParserKeyword("BPARA", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("BPARA");
@@ -481,9 +460,7 @@ BPARA::BPARA( ) : ParserKeyword("BPARA")
 const std::string BPARA::keywordName = "BPARA";
 
 
-BPIDIMS::BPIDIMS( ) : ParserKeyword("BPIDIMS")
-{
-  setFixedSize( (size_t) 1);
+BPIDIMS::BPIDIMS() : ParserKeyword("BPIDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("BPIDIMS");
@@ -509,9 +486,7 @@ const std::string BPIDIMS::MXNLBI::itemName = "MXNLBI";
 const int BPIDIMS::MXNLBI::defaultValue = 1;
 
 
-BRANPROP::BRANPROP( ) : ParserKeyword("BRANPROP")
-{
-  setSizeType(SLASH_TERMINATED);
+BRANPROP::BRANPROP() : ParserKeyword("BRANPROP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("BRANPROP");
@@ -547,24 +522,30 @@ const std::string BRANPROP::DOWNTREE_NODE::itemName = "DOWNTREE_NODE";
 const std::string BRANPROP::UPTREE_NODE::itemName = "UPTREE_NODE";
 const std::string BRANPROP::VFP_TABLE::itemName = "VFP_TABLE";
 const std::string BRANPROP::ALQ::itemName = "ALQ";
-const double BRANPROP::ALQ::defaultValue = 0.000000;
+const double BRANPROP::ALQ::defaultValue = 0;
 const std::string BRANPROP::ALQ_SURFACE_DENSITY::itemName = "ALQ_SURFACE_DENSITY";
 const std::string BRANPROP::ALQ_SURFACE_DENSITY::defaultValue = "NONE";
 
 
-BRINE::BRINE( ) : ParserKeyword("BRINE")
-{
-  setFixedSize( (size_t) 0);
+BRINE::BRINE() : ParserKeyword("BRINE", KeywordSize(0, 1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("BRINE");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("SALTS", ParserItem::itype::STRING);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
 }
 const std::string BRINE::keywordName = "BRINE";
+const std::string BRINE::SALTS::itemName = "SALTS";
 
 
-BTOBALFA::BTOBALFA( ) : ParserKeyword("BTOBALFA")
-{
-  setFixedSize( (size_t) 1);
+BTOBALFA::BTOBALFA() : ParserKeyword("BTOBALFA", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("BTOBALFA");
@@ -582,9 +563,7 @@ const std::string BTOBALFA::keywordName = "BTOBALFA";
 const std::string BTOBALFA::VALUE::itemName = "VALUE";
 
 
-BTOBALFV::BTOBALFV( ) : ParserKeyword("BTOBALFV")
-{
-  setFixedSize( (size_t) 1);
+BTOBALFV::BTOBALFV() : ParserKeyword("BTOBALFV", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("BTOBALFV");

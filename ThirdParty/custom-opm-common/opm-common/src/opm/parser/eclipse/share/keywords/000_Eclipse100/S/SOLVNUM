@@ -1,9 +1,0 @@
-{
-  "name": "SOLVNUM",
-  "sections": [
-    "GRID"
-  ],
-  "data": {
-    "value_type": "INT"
-  }
-}

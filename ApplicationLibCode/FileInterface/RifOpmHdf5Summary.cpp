@@ -24,6 +24,10 @@
 #include "RifHdf5SummaryReader.h"
 #include "RifOpmCommonSummary.h"
 
+#ifdef _MSC_VER
+// Disable warning from external library to make sure treat warnings as error works
+#pragma warning( disable : 4267 )
+#endif
 #include "opm/io/eclipse/ESmry.hpp"
 
 #include <QFileInfo>
@@ -95,18 +99,18 @@ bool RifOpmHdf5Summary::values( const RifEclipseSummaryAddress& resultAddress, s
 {
     if ( m_eSmry && m_hdf5Reader )
     {
-        auto it = m_adrToSummaryNodeIndex.find( resultAddress );
-        if ( it != m_adrToSummaryNodeIndex.end() )
+        auto it = m_adrToSmspecIndices.find( resultAddress );
+        if ( it != m_adrToSmspecIndices.end() )
         {
-            size_t index = it->second;
-            auto   node  = m_eSmry->summaryNodeList()[index];
-
-            int         smspecIndex = static_cast<int>( node.smspecKeywordIndex );
             const auto& vectorName  = resultAddress.vectorName();
+            size_t      smspecIndex = it->second;
 
-            *values = m_hdf5Reader->values( vectorName, smspecIndex );
+            if ( smspecIndex != std::numeric_limits<size_t>::max() )
+            {
+                *values = m_hdf5Reader->values( vectorName, static_cast<int>( smspecIndex ) );
 
-            return true;
+                return true;
+            }
         }
     }
 
@@ -120,13 +124,12 @@ std::string RifOpmHdf5Summary::unitName( const RifEclipseSummaryAddress& resultA
 {
     if ( m_eSmry )
     {
-        auto it = m_adrToSummaryNodeIndex.find( resultAddress );
-        if ( it != m_adrToSummaryNodeIndex.end() )
+        auto it = m_summaryAddressToKeywordMap.find( resultAddress );
+        if ( it != m_summaryAddressToKeywordMap.end() )
         {
-            auto index = it->second;
-            auto node  = m_eSmry->summaryNodeList()[index];
+            auto keyword              = it->second;
+            auto stringFromFileReader = m_eSmry->get_unit( keyword );
 
-            auto stringFromFileReader = m_eSmry->get_unit( node );
             return RiaStdStringTools::trimString( stringFromFileReader );
         }
     }
@@ -167,10 +170,13 @@ void RifOpmHdf5Summary::buildMetaData()
             }
         }
 
-        auto [addresses, addressMap] = RifOpmCommonSummaryTools::buildMetaData( m_eSmry.get() );
-
-        m_allResultAddresses    = addresses;
-        m_adrToSummaryNodeIndex = addressMap;
+        {
+            auto [addresses, smspecIndices, addressToKeywordMap] =
+                RifOpmCommonSummaryTools::buildAddressesSmspecAndKeywordMap( m_eSmry.get() );
+            m_allResultAddresses         = addresses;
+            m_adrToSmspecIndices         = smspecIndices;
+            m_summaryAddressToKeywordMap = addressToKeywordMap;
+        }
     }
 }
 

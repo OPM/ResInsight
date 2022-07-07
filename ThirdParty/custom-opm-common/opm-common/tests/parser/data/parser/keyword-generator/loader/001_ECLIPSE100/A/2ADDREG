@@ -1,5 +1,0 @@
-{"name" : "ADDREG" , "sections" : ["GRID","EDIT","PROPS","REGIONS","SOLUTION"], 
- "items" :
- [{"name" : "ARRAY" , "value_type" : "STRING" , "description" : "The 3D array we will update"},
-  {"name" : "SHIFT" , "value_type" : "DOUBLE" , "description" : "The value we will multiply with" , "default" : 0} ,
-  {"name" : "REGION_NAME"   , "value_type" : "STRING" , "description" : "The name of the region we are interested in" , "default" : "M"}]}

@@ -1,18 +1,17 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/A.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/A.hpp>
 namespace Opm {
 namespace ParserKeywords {
-ACTDIMS::ACTDIMS( ) : ParserKeyword("ACTDIMS")
-{
-  setFixedSize( (size_t) 1);
+ACTDIMS::ACTDIMS() : ParserKeyword("ACTDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("ACTDIMS");
@@ -52,9 +51,7 @@ const std::string ACTDIMS::MAX_ACTION_COND::itemName = "MAX_ACTION_COND";
 const int ACTDIMS::MAX_ACTION_COND::defaultValue = 3;
 
 
-ACTION::ACTION( ) : ParserKeyword("ACTION")
-{
-  setFixedSize( (size_t) 1);
+ACTION::ACTION() : ParserKeyword("ACTION", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ACTION");
@@ -86,9 +83,7 @@ const std::string ACTION::OPERATOR::itemName = "OPERATOR";
 const std::string ACTION::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 
 
-ACTIONG::ACTIONG( ) : ParserKeyword("ACTIONG")
-{
-  setFixedSize( (size_t) 1);
+ACTIONG::ACTIONG() : ParserKeyword("ACTIONG", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ACTIONG");
@@ -136,12 +131,10 @@ const std::string ACTIONG::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 const std::string ACTIONG::REPETITIONS::itemName = "REPETITIONS";
 const int ACTIONG::REPETITIONS::defaultValue = 1;
 const std::string ACTIONG::INCREMENT::itemName = "INCREMENT";
-const double ACTIONG::INCREMENT::defaultValue = 0.000000;
+const double ACTIONG::INCREMENT::defaultValue = 0;
 
 
-ACTIONR::ACTIONR( ) : ParserKeyword("ACTIONR")
-{
-  setFixedSize( (size_t) 1);
+ACTIONR::ACTIONR() : ParserKeyword("ACTIONR", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ACTIONR");
@@ -194,12 +187,10 @@ const std::string ACTIONR::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 const std::string ACTIONR::REPETITIONS::itemName = "REPETITIONS";
 const int ACTIONR::REPETITIONS::defaultValue = 1;
 const std::string ACTIONR::INCREMENT::itemName = "INCREMENT";
-const double ACTIONR::INCREMENT::defaultValue = 0.000000;
+const double ACTIONR::INCREMENT::defaultValue = 0;
 
 
-ACTIONS::ACTIONS( ) : ParserKeyword("ACTIONS")
-{
-  setFixedSize( (size_t) 1);
+ACTIONS::ACTIONS() : ParserKeyword("ACTIONS", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ACTIONS");
@@ -252,12 +243,10 @@ const std::string ACTIONS::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 const std::string ACTIONS::REPETITIONS::itemName = "REPETITIONS";
 const int ACTIONS::REPETITIONS::defaultValue = 1;
 const std::string ACTIONS::INCREMENT::itemName = "INCREMENT";
-const double ACTIONS::INCREMENT::defaultValue = 0.000000;
+const double ACTIONS::INCREMENT::defaultValue = 0;
 
 
-ACTIONW::ACTIONW( ) : ParserKeyword("ACTIONW")
-{
-  setFixedSize( (size_t) 1);
+ACTIONW::ACTIONW() : ParserKeyword("ACTIONW", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ACTIONW");
@@ -305,12 +294,10 @@ const std::string ACTIONW::TRIGGER_VALUE::itemName = "TRIGGER_VALUE";
 const std::string ACTIONW::REPETITIONS::itemName = "REPETITIONS";
 const int ACTIONW::REPETITIONS::defaultValue = 1;
 const std::string ACTIONW::INCREMENT::itemName = "INCREMENT";
-const double ACTIONW::INCREMENT::defaultValue = 0.000000;
+const double ACTIONW::INCREMENT::defaultValue = 0;
 
 
-ACTIONX::ACTIONX( ) : ParserKeyword("ACTIONX")
-{
-  setSizeType(SLASH_TERMINATED);
+ACTIONX::ACTIONX() : ParserKeyword("ACTIONX", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("ACTIONX");
@@ -348,13 +335,11 @@ const std::string ACTIONX::NAME::itemName = "NAME";
 const std::string ACTIONX::NUM::itemName = "NUM";
 const int ACTIONX::NUM::defaultValue = 1;
 const std::string ACTIONX::MIN_WAIT::itemName = "MIN_WAIT";
-const double ACTIONX::MIN_WAIT::defaultValue = 0.000000;
+const double ACTIONX::MIN_WAIT::defaultValue = 0;
 const std::string ACTIONX::CONDITION::itemName = "CONDITION";
 
 
-ACTNUM::ACTNUM( ) : ParserKeyword("ACTNUM")
-{
-  setFixedSize( (size_t) 1);
+ACTNUM::ACTNUM() : ParserKeyword("ACTNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("ACTNUM");
@@ -372,9 +357,7 @@ const std::string ACTNUM::keywordName = "ACTNUM";
 const std::string ACTNUM::data::itemName = "data";
 
 
-ACTPARAM::ACTPARAM( ) : ParserKeyword("ACTPARAM")
-{
-  setFixedSize( (size_t) 1);
+ACTPARAM::ACTPARAM() : ParserKeyword("ACTPARAM", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("ACTPARAM");
@@ -394,11 +377,9 @@ const std::string ACTPARAM::data::itemName = "data";
 const double ACTPARAM::data::defaultValue = 0.000100;
 
 
-ADD::ADD( ) : ParserKeyword("ADD")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+ADD::ADD() : ParserKeyword("ADD", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
@@ -452,11 +433,9 @@ const std::string ADD::K1::itemName = "K1";
 const std::string ADD::K2::itemName = "K2";
 
 
-ADDREG::ADDREG( ) : ParserKeyword("ADDREG")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("EDIT");
+ADDREG::ADDREG() : ParserKeyword("ADDREG", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
   addValidSectionName("SOLUTION");
@@ -492,15 +471,13 @@ ADDREG::ADDREG( ) : ParserKeyword("ADDREG")
 const std::string ADDREG::keywordName = "ADDREG";
 const std::string ADDREG::ARRAY::itemName = "ARRAY";
 const std::string ADDREG::SHIFT::itemName = "SHIFT";
-const double ADDREG::SHIFT::defaultValue = 0.000000;
+const double ADDREG::SHIFT::defaultValue = 0;
 const std::string ADDREG::REGION_NUMBER::itemName = "REGION_NUMBER";
 const std::string ADDREG::REGION_NAME::itemName = "REGION_NAME";
 const std::string ADDREG::REGION_NAME::defaultValue = "M";
 
 
-ADDZCORN::ADDZCORN( ) : ParserKeyword("ADDZCORN")
-{
-  setSizeType(SLASH_TERMINATED);
+ADDZCORN::ADDZCORN() : ParserKeyword("ADDZCORN", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("ADDZCORN");
@@ -573,10 +550,7 @@ const std::string ADDZCORN::JY2A::itemName = "JY2A";
 const std::string ADDZCORN::ACTION::itemName = "ACTION";
 
 
-ADSALNOD::ADSALNOD( ) : ParserKeyword("ADSALNOD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+ADSALNOD::ADSALNOD() : ParserKeyword("ADSALNOD", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ADSALNOD");
@@ -595,10 +569,7 @@ const std::string ADSALNOD::keywordName = "ADSALNOD";
 const std::string ADSALNOD::DATA::itemName = "DATA";
 
 
-ADSORP::ADSORP( ) : ParserKeyword("ADSORP")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",1);
+ADSORP::ADSORP() : ParserKeyword("ADSORP", KeywordSize("TABDIMS", "NTSFUN", false, 1)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ADSORP");
@@ -662,9 +633,7 @@ const double ADSORP::N::defaultValue = 0.500000;
 const std::string ADSORP::K_REF::itemName = "K_REF";
 
 
-AITS::AITS( ) : ParserKeyword("AITS")
-{
-  setFixedSize( (size_t) 0);
+AITS::AITS() : ParserKeyword("AITS", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -673,9 +642,7 @@ AITS::AITS( ) : ParserKeyword("AITS")
 const std::string AITS::keywordName = "AITS";
 
 
-AITSOFF::AITSOFF( ) : ParserKeyword("AITSOFF")
-{
-  setFixedSize( (size_t) 0);
+AITSOFF::AITSOFF() : ParserKeyword("AITSOFF", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -684,10 +651,7 @@ AITSOFF::AITSOFF( ) : ParserKeyword("AITSOFF")
 const std::string AITSOFF::keywordName = "AITSOFF";
 
 
-ALKADS::ALKADS( ) : ParserKeyword("ALKADS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+ALKADS::ALKADS() : ParserKeyword("ALKADS", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ALKADS");
@@ -707,9 +671,7 @@ const std::string ALKADS::keywordName = "ALKADS";
 const std::string ALKADS::DATA::itemName = "DATA";
 
 
-ALKALINE::ALKALINE( ) : ParserKeyword("ALKALINE")
-{
-  setFixedSize( (size_t) 0);
+ALKALINE::ALKALINE() : ParserKeyword("ALKALINE", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("ALKALINE");
@@ -717,10 +679,7 @@ ALKALINE::ALKALINE( ) : ParserKeyword("ALKALINE")
 const std::string ALKALINE::keywordName = "ALKALINE";
 
 
-ALKROCK::ALKROCK( ) : ParserKeyword("ALKROCK")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+ALKROCK::ALKROCK() : ParserKeyword("ALKROCK", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ALKROCK");
@@ -737,9 +696,7 @@ const std::string ALKROCK::keywordName = "ALKROCK";
 const std::string ALKROCK::ROCK_ADS_INDEX::itemName = "ROCK_ADS_INDEX";
 
 
-ALL::ALL( ) : ParserKeyword("ALL")
-{
-  setFixedSize( (size_t) 0);
+ALL::ALL() : ParserKeyword("ALL", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("ALL");
@@ -747,10 +704,7 @@ ALL::ALL( ) : ParserKeyword("ALL")
 const std::string ALL::keywordName = "ALL";
 
 
-ALPOLADS::ALPOLADS( ) : ParserKeyword("ALPOLADS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+ALPOLADS::ALPOLADS() : ParserKeyword("ALPOLADS", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ALPOLADS");
@@ -770,10 +724,7 @@ const std::string ALPOLADS::keywordName = "ALPOLADS";
 const std::string ALPOLADS::DATA::itemName = "DATA";
 
 
-ALSURFAD::ALSURFAD( ) : ParserKeyword("ALSURFAD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+ALSURFAD::ALSURFAD() : ParserKeyword("ALSURFAD", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ALSURFAD");
@@ -793,10 +744,7 @@ const std::string ALSURFAD::keywordName = "ALSURFAD";
 const std::string ALSURFAD::DATA::itemName = "DATA";
 
 
-ALSURFST::ALSURFST( ) : ParserKeyword("ALSURFST")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+ALSURFST::ALSURFST() : ParserKeyword("ALSURFST", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("ALSURFST");
@@ -816,9 +764,7 @@ const std::string ALSURFST::keywordName = "ALSURFST";
 const std::string ALSURFST::DATA::itemName = "DATA";
 
 
-AMALGAM::AMALGAM( ) : ParserKeyword("AMALGAM")
-{
-  setSizeType(SLASH_TERMINATED);
+AMALGAM::AMALGAM() : ParserKeyword("AMALGAM", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("AMALGAM");
@@ -836,9 +782,7 @@ const std::string AMALGAM::keywordName = "AMALGAM";
 const std::string AMALGAM::LGR_GROUPS::itemName = "LGR_GROUPS";
 
 
-API::API( ) : ParserKeyword("API")
-{
-  setFixedSize( (size_t) 0);
+API::API() : ParserKeyword("API", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("API");
@@ -846,9 +790,7 @@ API::API( ) : ParserKeyword("API")
 const std::string API::keywordName = "API";
 
 
-APIGROUP::APIGROUP( ) : ParserKeyword("APIGROUP")
-{
-  setFixedSize( (size_t) 1);
+APIGROUP::APIGROUP() : ParserKeyword("APIGROUP", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("APIGROUP");
@@ -867,9 +809,7 @@ const std::string APIGROUP::MAX_OIL_PVT_GROUP_COUNT::itemName = "MAX_OIL_PVT_GRO
 const int APIGROUP::MAX_OIL_PVT_GROUP_COUNT::defaultValue = 1;
 
 
-APILIM::APILIM( ) : ParserKeyword("APILIM")
-{
-  setFixedSize( (size_t) 1);
+APILIM::APILIM() : ParserKeyword("APILIM", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("APILIM");
@@ -912,13 +852,10 @@ const std::string APILIM::NUM_ROWS::itemName = "NUM_ROWS";
 const int APILIM::NUM_ROWS::defaultValue = 10;
 
 
-APIVID::APIVID( ) : ParserKeyword("APIVID")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+APIVD::APIVD() : ParserKeyword("APIVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
-  addDeckName("APIVID");
+  addDeckName("APIVD");
   {
      ParserRecord record;
      {
@@ -931,13 +868,11 @@ APIVID::APIVID( ) : ParserKeyword("APIVID")
      addRecord( record );
   }
 }
-const std::string APIVID::keywordName = "APIVID";
-const std::string APIVID::DATA::itemName = "DATA";
+const std::string APIVD::keywordName = "APIVD";
+const std::string APIVD::DATA::itemName = "DATA";
 
 
-AQANCONL::AQANCONL( ) : ParserKeyword("AQANCONL")
-{
-  setSizeType(SLASH_TERMINATED);
+AQANCONL::AQANCONL() : ParserKeyword("AQANCONL", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("AQANCONL");
@@ -1013,9 +948,7 @@ const double AQANCONL::AQUIFER_INFLUX_MULT::defaultValue = 1.000000;
 const std::string AQANCONL::ALLOW::itemName = "ALLOW";
 
 
-AQANNC::AQANNC( ) : ParserKeyword("AQANNC")
-{
-  setSizeType(SLASH_TERMINATED);
+AQANNC::AQANNC() : ParserKeyword("AQANNC", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("AQANNC");
@@ -1052,12 +985,10 @@ const std::string AQANNC::IX::itemName = "IX";
 const std::string AQANNC::IY::itemName = "IY";
 const std::string AQANNC::IZ::itemName = "IZ";
 const std::string AQANNC::AREA::itemName = "AREA";
-const double AQANNC::AREA::defaultValue = 0.000000;
+const double AQANNC::AREA::defaultValue = 0;
 
 
-AQANTRC::AQANTRC( ) : ParserKeyword("AQANTRC")
-{
-  setSizeType(SLASH_TERMINATED);
+AQANTRC::AQANTRC() : ParserKeyword("AQANTRC", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("AQANTRC");
@@ -1084,9 +1015,7 @@ const std::string AQANTRC::TRACER::itemName = "TRACER";
 const std::string AQANTRC::VALUE::itemName = "VALUE";
 
 
-AQUALIST::AQUALIST( ) : ParserKeyword("AQUALIST")
-{
-  setSizeType(SLASH_TERMINATED);
+AQUALIST::AQUALIST() : ParserKeyword("AQUALIST", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("AQUALIST");
@@ -1109,9 +1038,7 @@ const std::string AQUALIST::AQUIFER_LIST::itemName = "AQUIFER_LIST";
 const std::string AQUALIST::LIST::itemName = "LIST";
 
 
-AQUANCON::AQUANCON( ) : ParserKeyword("AQUANCON")
-{
-  setSizeType(SLASH_TERMINATED);
+AQUANCON::AQUANCON() : ParserKeyword("AQUANCON", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   addValidSectionName("SOLUTION");
   clearDeckNames();
@@ -1185,11 +1112,9 @@ const std::string AQUANCON::CONNECT_ADJOINING_ACTIVE_CELL::itemName = "CONNECT_A
 const std::string AQUANCON::CONNECT_ADJOINING_ACTIVE_CELL::defaultValue = "NO";
 
 
-AQUCHGAS::AQUCHGAS( ) : ParserKeyword("AQUCHGAS")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("SCHEDULE");
+AQUCHGAS::AQUCHGAS() : ParserKeyword("AQUCHGAS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("AQUCHGAS");
   {
@@ -1236,11 +1161,9 @@ const int AQUCHGAS::TABLE_NUM::defaultValue = 1;
 const std::string AQUCHGAS::TEMPERATURE::itemName = "TEMPERATURE";
 
 
-AQUCHWAT::AQUCHWAT( ) : ParserKeyword("AQUCHWAT")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("SCHEDULE");
+AQUCHWAT::AQUCHWAT() : ParserKeyword("AQUCHWAT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("AQUCHWAT");
   {
@@ -1350,9 +1273,7 @@ const int AQUCHWAT::IMPORT_MAX_MIN_FLOW_RATE::defaultValue = 0;
 const std::string AQUCHWAT::TEMPERATURE::itemName = "TEMPERATURE";
 
 
-AQUCON::AQUCON( ) : ParserKeyword("AQUCON")
-{
-  setSizeType(SLASH_TERMINATED);
+AQUCON::AQUCON() : ParserKeyword("AQUCON", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("AQUCON");
@@ -1392,22 +1313,27 @@ AQUCON::AQUCON( ) : ParserKeyword("AQUCON")
      }
      {
         ParserItem item("TRANS_MULT", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
         record.addItem(item);
      }
      {
         ParserItem item("TRANS_OPTION", ParserItem::itype::INT);
+        item.setDefault( 0 );
         record.addItem(item);
      }
      {
         ParserItem item("ALLOW_INTERNAL_CELLS", ParserItem::itype::STRING);
+        item.setDefault( std::string("NO") );
         record.addItem(item);
      }
      {
         ParserItem item("VEFRAC", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
         record.addItem(item);
      }
      {
         ParserItem item("VEFRACP", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
         record.addItem(item);
      }
      addRecord( record );
@@ -1423,19 +1349,25 @@ const std::string AQUCON::K1::itemName = "K1";
 const std::string AQUCON::K2::itemName = "K2";
 const std::string AQUCON::CONNECT_FACE::itemName = "CONNECT_FACE";
 const std::string AQUCON::TRANS_MULT::itemName = "TRANS_MULT";
+const double AQUCON::TRANS_MULT::defaultValue = 1.000000;
 const std::string AQUCON::TRANS_OPTION::itemName = "TRANS_OPTION";
+const int AQUCON::TRANS_OPTION::defaultValue = 0;
 const std::string AQUCON::ALLOW_INTERNAL_CELLS::itemName = "ALLOW_INTERNAL_CELLS";
+const std::string AQUCON::ALLOW_INTERNAL_CELLS::defaultValue = "NO";
 const std::string AQUCON::VEFRAC::itemName = "VEFRAC";
+const double AQUCON::VEFRAC::defaultValue = 1.000000;
 const std::string AQUCON::VEFRACP::itemName = "VEFRACP";
+const double AQUCON::VEFRACP::defaultValue = 1.000000;
 
 
-AQUCT::AQUCT( ) : ParserKeyword("AQUCT")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("GRID");
+AQUCT::AQUCT() : ParserKeyword("AQUCT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
-  addValidSectionName("SCHEDULE");
+  addValidSectionName("GRID");
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
+  setRequiredKeywords({
+    "AQUDIMS",
+  });
   clearDeckNames();
   addDeckName("AQUCT");
   {
@@ -1527,13 +1459,11 @@ const int AQUCT::TABLE_NUM_WATER_PRESS::defaultValue = 1;
 const std::string AQUCT::TABLE_NUM_INFLUENCE_FN::itemName = "TABLE_NUM_INFLUENCE_FN";
 const int AQUCT::TABLE_NUM_INFLUENCE_FN::defaultValue = 1;
 const std::string AQUCT::INI_SALT::itemName = "INI_SALT";
-const double AQUCT::INI_SALT::defaultValue = 0.000000;
+const double AQUCT::INI_SALT::defaultValue = 0;
 const std::string AQUCT::TEMP_AQUIFER::itemName = "TEMP_AQUIFER";
 
 
-AQUCWFAC::AQUCWFAC( ) : ParserKeyword("AQUCWFAC")
-{
-  setSizeType(SLASH_TERMINATED);
+AQUCWFAC::AQUCWFAC() : ParserKeyword("AQUCWFAC", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("AQUCWFAC");
@@ -1556,14 +1486,12 @@ AQUCWFAC::AQUCWFAC( ) : ParserKeyword("AQUCWFAC")
 }
 const std::string AQUCWFAC::keywordName = "AQUCWFAC";
 const std::string AQUCWFAC::ADD_TO_DEPTH::itemName = "ADD_TO_DEPTH";
-const double AQUCWFAC::ADD_TO_DEPTH::defaultValue = 0.000000;
+const double AQUCWFAC::ADD_TO_DEPTH::defaultValue = 0;
 const std::string AQUCWFAC::MULTIPLY::itemName = "MULTIPLY";
 const double AQUCWFAC::MULTIPLY::defaultValue = 1.000000;
 
 
-AQUDIMS::AQUDIMS( ) : ParserKeyword("AQUDIMS")
-{
-  setFixedSize( (size_t) 1);
+AQUDIMS::AQUDIMS() : ParserKeyword("AQUDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("AQUDIMS");
@@ -1631,10 +1559,7 @@ const std::string AQUDIMS::MXAAQL::itemName = "MXAAQL";
 const int AQUDIMS::MXAAQL::defaultValue = 0;
 
 
-AQUFET::AQUFET( ) : ParserKeyword("AQUFET")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("AQUDIMS","NANAQU",0);
+AQUFET::AQUFET() : ParserKeyword("AQUFET", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("AQUFET");
@@ -1721,14 +1646,12 @@ const std::string AQUFET::LOWER_K::itemName = "LOWER_K";
 const std::string AQUFET::UPPER_K::itemName = "UPPER_K";
 const std::string AQUFET::FACE_INDX::itemName = "FACE_INDX";
 const std::string AQUFET::SC_0::itemName = "SC_0";
-const double AQUFET::SC_0::defaultValue = 0.000000;
+const double AQUFET::SC_0::defaultValue = 0;
 
 
-AQUFETP::AQUFETP( ) : ParserKeyword("AQUFETP")
-{
-  setSizeType(SLASH_TERMINATED);
-  addValidSectionName("SCHEDULE");
+AQUFETP::AQUFETP() : ParserKeyword("AQUFETP", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("AQUFETP");
   {
@@ -1791,16 +1714,13 @@ const std::string AQUFETP::PI::itemName = "PI";
 const std::string AQUFETP::TABLE_NUM_WATER_PRESS::itemName = "TABLE_NUM_WATER_PRESS";
 const int AQUFETP::TABLE_NUM_WATER_PRESS::defaultValue = 1;
 const std::string AQUFETP::SALINITY::itemName = "SALINITY";
-const double AQUFETP::SALINITY::defaultValue = 0.000000;
+const double AQUFETP::SALINITY::defaultValue = 0;
 const std::string AQUFETP::TEMP::itemName = "TEMP";
 
 
-AQUFLUX::AQUFLUX( ) : ParserKeyword("AQUFLUX")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("AQUDIMS","NANAQU",0);
-  addValidSectionName("SCHEDULE");
+AQUFLUX::AQUFLUX() : ParserKeyword("AQUFLUX", KeywordSize("AQUDIMS", "NANAQU", false, 0)) {
   addValidSectionName("SOLUTION");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("AQUFLUX");
   {
@@ -1837,22 +1757,20 @@ const std::string AQUFLUX::keywordName = "AQUFLUX";
 const std::string AQUFLUX::AQUIFER_ID::itemName = "AQUIFER_ID";
 const std::string AQUFLUX::DAT_DEPTH::itemName = "DAT_DEPTH";
 const std::string AQUFLUX::SC_0::itemName = "SC_0";
-const double AQUFLUX::SC_0::defaultValue = 0.000000;
+const double AQUFLUX::SC_0::defaultValue = 0;
 const std::string AQUFLUX::TEMP::itemName = "TEMP";
 const std::string AQUFLUX::PRESSURE::itemName = "PRESSURE";
 
 
-AQUIFER_PROBE_ANALYTIC::AQUIFER_PROBE_ANALYTIC( ) : ParserKeyword("AQUIFER_PROBE_ANALYTIC")
-{
-  setFixedSize( (size_t) 1);
+AQUIFER_PROBE_ANALYTIC::AQUIFER_PROBE_ANALYTIC() : ParserKeyword("AQUIFER_PROBE_ANALYTIC", KeywordSize(1, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("AAQP");
   addDeckName("AAQPD");
   addDeckName("AAQR");
-  addDeckName("AAQRG");
   addDeckName("AAQT");
   addDeckName("AAQTD");
+  addDeckName("AAQRG");
   addDeckName("AAQTG");
   setMatchRegex("AA.+");
   {
@@ -1869,9 +1787,25 @@ const std::string AQUIFER_PROBE_ANALYTIC::keywordName = "AQUIFER_PROBE_ANALYTIC"
 const std::string AQUIFER_PROBE_ANALYTIC::data::itemName = "data";
 
 
-AQUIFER_PROBE_NUMERIC::AQUIFER_PROBE_NUMERIC( ) : ParserKeyword("AQUIFER_PROBE_NUMERIC")
-{
-  setFixedSize( (size_t) 1);
+AQUIFER_PROBE_ANALYTIC_NAMED::AQUIFER_PROBE_ANALYTIC_NAMED() : ParserKeyword("AQUIFER_PROBE_ANALYTIC_NAMED", KeywordSize(1, false)) {
+  addValidSectionName("SUMMARY");
+  clearDeckNames();
+  setMatchRegex("AL.+");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::STRING);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string AQUIFER_PROBE_ANALYTIC_NAMED::keywordName = "AQUIFER_PROBE_ANALYTIC_NAMED";
+const std::string AQUIFER_PROBE_ANALYTIC_NAMED::data::itemName = "data";
+
+
+AQUIFER_PROBE_NUMERIC::AQUIFER_PROBE_NUMERIC() : ParserKeyword("AQUIFER_PROBE_NUMERIC", KeywordSize(1, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("ANQP");
@@ -1892,9 +1826,7 @@ const std::string AQUIFER_PROBE_NUMERIC::keywordName = "AQUIFER_PROBE_NUMERIC";
 const std::string AQUIFER_PROBE_NUMERIC::data::itemName = "data";
 
 
-AQUNNC::AQUNNC( ) : ParserKeyword("AQUNNC")
-{
-  setSizeType(SLASH_TERMINATED);
+AQUNNC::AQUNNC() : ParserKeyword("AQUNNC", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("AQUNNC");
@@ -1975,7 +1907,7 @@ const std::string AQUNNC::JX::itemName = "JX";
 const std::string AQUNNC::JY::itemName = "JY";
 const std::string AQUNNC::JZ::itemName = "JZ";
 const std::string AQUNNC::TRAN::itemName = "TRAN";
-const double AQUNNC::TRAN::defaultValue = 0.000000;
+const double AQUNNC::TRAN::defaultValue = 0;
 const std::string AQUNNC::IST1::itemName = "IST1";
 const std::string AQUNNC::IST2::itemName = "IST2";
 const std::string AQUNNC::IPT1::itemName = "IPT1";
@@ -1985,9 +1917,7 @@ const std::string AQUNNC::ZF2::itemName = "ZF2";
 const std::string AQUNNC::DIFF::itemName = "DIFF";
 
 
-AQUNUM::AQUNUM( ) : ParserKeyword("AQUNUM")
-{
-  setSizeType(SLASH_TERMINATED);
+AQUNUM::AQUNUM() : ParserKeyword("AQUNUM", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("AQUNUM");
@@ -2065,10 +1995,7 @@ const std::string AQUNUM::PVT_TABLE_NUM::itemName = "PVT_TABLE_NUM";
 const std::string AQUNUM::SAT_TABLE_NUM::itemName = "SAT_TABLE_NUM";
 
 
-AQUTAB::AQUTAB( ) : ParserKeyword("AQUTAB")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("AQUDIMS","NIFTBL",-1);
+AQUTAB::AQUTAB() : ParserKeyword("AQUTAB", KeywordSize("AQUDIMS", "NIFTBL", false, -1)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("AQUTAB");
@@ -2088,9 +2015,7 @@ const std::string AQUTAB::keywordName = "AQUTAB";
 const std::string AQUTAB::DATA::itemName = "DATA";
 
 
-AUTOCOAR::AUTOCOAR( ) : ParserKeyword("AUTOCOAR")
-{
-  setSizeType(SLASH_TERMINATED);
+AUTOCOAR::AUTOCOAR() : ParserKeyword("AUTOCOAR", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("AUTOCOAR");
@@ -2147,9 +2072,7 @@ const std::string AUTOCOAR::NY::itemName = "NY";
 const std::string AUTOCOAR::NZ::itemName = "NZ";
 
 
-AUTOREF::AUTOREF( ) : ParserKeyword("AUTOREF")
-{
-  setSizeType(SLASH_TERMINATED);
+AUTOREF::AUTOREF() : ParserKeyword("AUTOREF", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("AUTOREF");
@@ -2186,7 +2109,7 @@ const int AUTOREF::NY::defaultValue = 1;
 const std::string AUTOREF::NZ::itemName = "NZ";
 const int AUTOREF::NZ::defaultValue = 1;
 const std::string AUTOREF::OPTION_TRANS_MULT::itemName = "OPTION_TRANS_MULT";
-const double AUTOREF::OPTION_TRANS_MULT::defaultValue = 0.000000;
+const double AUTOREF::OPTION_TRANS_MULT::defaultValue = 0;
 
 
 }

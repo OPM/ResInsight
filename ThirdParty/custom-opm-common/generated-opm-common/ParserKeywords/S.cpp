@@ -1,18 +1,36 @@
-#include <opm/parser/eclipse/Deck/UDAValue.hpp>
-#include <opm/parser/eclipse/Parser/ParserItem.hpp>
-#include <opm/parser/eclipse/Parser/ParserRecord.hpp>
-#include <opm/parser/eclipse/Parser/Parser.hpp>
+
+#include <opm/input/eclipse/Deck/UDAValue.hpp>
+#include <opm/input/eclipse/Parser/ParserItem.hpp>
+#include <opm/input/eclipse/Parser/ParserRecord.hpp>
+#include <opm/input/eclipse/Parser/Parser.hpp>
 
 
 
 
 
-#include <opm/parser/eclipse/Parser/ParserKeywords/S.hpp>
+#include <opm/input/eclipse/Parser/ParserKeywords/S.hpp>
 namespace Opm {
 namespace ParserKeywords {
-SALT::SALT( ) : ParserKeyword("SALT")
-{
-  setFixedSize( (size_t) 1);
+SALINITY::SALINITY() : ParserKeyword("SALINITY", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("SALINITY");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("MOLALITY", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string SALINITY::keywordName = "SALINITY";
+const std::string SALINITY::MOLALITY::itemName = "MOLALITY";
+const double SALINITY::MOLALITY::defaultValue = 0;
+
+
+SALT::SALT() : ParserKeyword("SALT", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SALT");
@@ -21,7 +39,7 @@ SALT::SALT( ) : ParserKeyword("SALT")
      {
         ParserItem item("SALT_CONCENTRATION", ParserItem::itype::DOUBLE);
         item.setSizeType(ParserItem::item_size::ALL);
-        item.push_backDimension("Mass/Length*Length*Length");
+        item.push_backDimension("Salinity");
         record.addItem(item);
      }
      addRecord( record );
@@ -31,10 +49,7 @@ const std::string SALT::keywordName = "SALT";
 const std::string SALT::SALT_CONCENTRATION::itemName = "SALT_CONCENTRATION";
 
 
-SALTNODE::SALTNODE( ) : ParserKeyword("SALTNODE")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+SALTNODE::SALTNODE() : ParserKeyword("SALTNODE", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SALTNODE");
@@ -53,10 +68,26 @@ const std::string SALTNODE::keywordName = "SALTNODE";
 const std::string SALTNODE::SALT_CONCENTRATION::itemName = "SALT_CONCENTRATION";
 
 
-SALTPVD::SALTPVD( ) : ParserKeyword("SALTPVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+SALTP::SALTP() : ParserKeyword("SALTP", KeywordSize(1, false)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("SALTP");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("SALT_SATURATION", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string SALTP::keywordName = "SALTP";
+const std::string SALTP::SALT_SATURATION::itemName = "SALT_SATURATION";
+
+
+SALTPVD::SALTPVD() : ParserKeyword("SALTPVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SALTPVD");
@@ -66,7 +97,6 @@ SALTPVD::SALTPVD( ) : ParserKeyword("SALTPVD")
         ParserItem item("DATA", ParserItem::itype::DOUBLE);
         item.setSizeType(ParserItem::item_size::ALL);
         item.push_backDimension("Length");
-        item.push_backDimension("Density");
         item.push_backDimension("1");
         record.addItem(item);
      }
@@ -77,9 +107,7 @@ const std::string SALTPVD::keywordName = "SALTPVD";
 const std::string SALTPVD::DATA::itemName = "DATA";
 
 
-SALTREST::SALTREST( ) : ParserKeyword("SALTREST")
-{
-  setFixedSize( (size_t) 1);
+SALTREST::SALTREST() : ParserKeyword("SALTREST", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SALTREST");
@@ -98,31 +126,26 @@ const std::string SALTREST::keywordName = "SALTREST";
 const std::string SALTREST::SALT_CONCENTRATION::itemName = "SALT_CONCENTRATION";
 
 
-SALTSOL::SALTSOL( ) : ParserKeyword("SALTSOL")
-{
-  setFixedSize( (size_t) 1);
+SALTSOL::SALTSOL() : ParserKeyword("SALTSOL", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SALTSOL");
   {
      ParserRecord record;
      {
-        ParserItem item("data", ParserItem::itype::DOUBLE);
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
         item.setSizeType(ParserItem::item_size::ALL);
         item.push_backDimension("Density");
-        record.addDataItem(item);
+        record.addItem(item);
      }
-     addDataRecord( record );
+     addRecord( record );
   }
 }
 const std::string SALTSOL::keywordName = "SALTSOL";
-const std::string SALTSOL::data::itemName = "data";
+const std::string SALTSOL::DATA::itemName = "DATA";
 
 
-SALTVD::SALTVD( ) : ParserKeyword("SALTVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+SALTVD::SALTVD() : ParserKeyword("SALTVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SALTVD");
@@ -132,7 +155,7 @@ SALTVD::SALTVD( ) : ParserKeyword("SALTVD")
         ParserItem item("DATA", ParserItem::itype::DOUBLE);
         item.setSizeType(ParserItem::item_size::ALL);
         item.push_backDimension("Length");
-        item.push_backDimension("Density");
+        item.push_backDimension("Salinity");
         record.addItem(item);
      }
      addRecord( record );
@@ -142,9 +165,7 @@ const std::string SALTVD::keywordName = "SALTVD";
 const std::string SALTVD::DATA::itemName = "DATA";
 
 
-SAMG::SAMG( ) : ParserKeyword("SAMG")
-{
-  setFixedSize( (size_t) 1);
+SAMG::SAMG() : ParserKeyword("SAMG", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("SAMG");
@@ -166,9 +187,7 @@ const std::string SAMG::EPS::itemName = "EPS";
 const std::string SAMG::REUSE::itemName = "REUSE";
 
 
-SATNUM::SATNUM( ) : ParserKeyword("SATNUM")
-{
-  setFixedSize( (size_t) 1);
+SATNUM::SATNUM() : ParserKeyword("SATNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("SATNUM");
@@ -186,9 +205,7 @@ const std::string SATNUM::keywordName = "SATNUM";
 const std::string SATNUM::data::itemName = "data";
 
 
-SATOPTS::SATOPTS( ) : ParserKeyword("SATOPTS")
-{
-  setFixedSize( (size_t) 1);
+SATOPTS::SATOPTS() : ParserKeyword("SATOPTS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("SATOPTS");
@@ -206,9 +223,7 @@ const std::string SATOPTS::keywordName = "SATOPTS";
 const std::string SATOPTS::options::itemName = "options";
 
 
-SAVE::SAVE( ) : ParserKeyword("SAVE")
-{
-  setSizeType(UNKNOWN);
+SAVE::SAVE() : ParserKeyword("SAVE", KeywordSize(0, 1, false)) {
   addValidSectionName("RUNSPEC");
   addValidSectionName("SCHEDULE");
   clearDeckNames();
@@ -228,9 +243,45 @@ const std::string SAVE::FILE_TYPE::itemName = "FILE_TYPE";
 const std::string SAVE::FILE_TYPE::defaultValue = "UNFORMATTED";
 
 
-SCALECRS::SCALECRS( ) : ParserKeyword("SCALECRS")
-{
-  setFixedSize( (size_t) 1);
+SBIOF::SBIOF() : ParserKeyword("SBIOF", KeywordSize(1, false)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("SBIOF");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string SBIOF::keywordName = "SBIOF";
+const std::string SBIOF::data::itemName = "data";
+
+
+SCALC::SCALC() : ParserKeyword("SCALC", KeywordSize(1, false)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("SCALC");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string SCALC::keywordName = "SCALC";
+const std::string SCALC::data::itemName = "data";
+
+
+SCALECRS::SCALECRS() : ParserKeyword("SCALECRS", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SCALECRS");
@@ -249,10 +300,7 @@ const std::string SCALECRS::VALUE::itemName = "VALUE";
 const std::string SCALECRS::VALUE::defaultValue = "NO";
 
 
-SCALELIM::SCALELIM( ) : ParserKeyword("SCALELIM")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("ENDSCALE","NTENDP",0);
+SCALELIM::SCALELIM() : ParserKeyword("SCALELIM", KeywordSize("ENDSCALE", "NTENDP", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SCALELIM");
@@ -268,13 +316,10 @@ SCALELIM::SCALELIM( ) : ParserKeyword("SCALELIM")
 }
 const std::string SCALELIM::keywordName = "SCALELIM";
 const std::string SCALELIM::SAT_LIMIT::itemName = "SAT_LIMIT";
-const double SCALELIM::SAT_LIMIT::defaultValue = 0.000000;
+const double SCALELIM::SAT_LIMIT::defaultValue = 0;
 
 
-SCDATAB::SCDATAB( ) : ParserKeyword("SCDATAB")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("SCDPDIMS","NTSCDA",0);
+SCDATAB::SCDATAB() : ParserKeyword("SCDATAB", KeywordSize("SCDPDIMS", "NTSCDA", false, 0)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SCDATAB");
@@ -293,13 +338,10 @@ SCDATAB::SCDATAB( ) : ParserKeyword("SCDATAB")
 }
 const std::string SCDATAB::keywordName = "SCDATAB";
 const std::string SCDATAB::SCALE_DATA::itemName = "SCALE_DATA";
-const double SCDATAB::SCALE_DATA::defaultValue = 0.000000;
+const double SCDATAB::SCALE_DATA::defaultValue = 0;
 
 
-SCDETAB::SCDETAB( ) : ParserKeyword("SCDETAB")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("SCDPDIMS","NTSCDE",0);
+SCDETAB::SCDETAB() : ParserKeyword("SCDETAB", KeywordSize("SCDPDIMS", "NTSCDE", false, 0)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SCDETAB");
@@ -318,66 +360,13 @@ SCDETAB::SCDETAB( ) : ParserKeyword("SCDETAB")
 }
 const std::string SCDETAB::keywordName = "SCDETAB";
 const std::string SCDETAB::SCALE_DATA::itemName = "SCALE_DATA";
-const double SCDETAB::SCALE_DATA::defaultValue = 0.000000;
+const double SCDETAB::SCALE_DATA::defaultValue = 0;
 
 
-SCDPTAB::SCDPTAB( ) : ParserKeyword("SCDPTAB")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("SCDPDIMS","NTSCDP",0);
-  addValidSectionName("SCHEDULE");
-  clearDeckNames();
-  addDeckName("SCDPTAB");
-  {
-     ParserRecord record;
-     {
-        ParserItem item("DATA", ParserItem::itype::DOUBLE);
-        item.setSizeType(ParserItem::item_size::ALL);
-        item.push_backDimension("1");
-        item.push_backDimension("1");
-        record.addItem(item);
-     }
-     addRecord( record );
-  }
-}
-const std::string SCDPTAB::keywordName = "SCDPTAB";
-const std::string SCDPTAB::DATA::itemName = "DATA";
-
-
-SCDPTRAC::SCDPTRAC( ) : ParserKeyword("SCDPTRAC")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("SCHEDULE");
-  clearDeckNames();
-  addDeckName("SCDPTRAC");
-  {
-     ParserRecord record;
-     {
-        ParserItem item("TRACER", ParserItem::itype::STRING);
-        record.addItem(item);
-     }
-     addRecord( record );
-  }
-}
-const std::string SCDPTRAC::keywordName = "SCDPTRAC";
-const std::string SCDPTRAC::TRACER::itemName = "TRACER";
-
-
-SCHEDULE::SCHEDULE( ) : ParserKeyword("SCHEDULE")
-{
-  setFixedSize( (size_t) 0);
-  clearDeckNames();
-  addDeckName("SCHEDULE");
-}
-const std::string SCHEDULE::keywordName = "SCHEDULE";
-
-
-SCPDIMS::SCPDIMS( ) : ParserKeyword("SCPDIMS")
-{
-  setFixedSize( (size_t) 1);
+SCDPDIMS::SCDPDIMS() : ParserKeyword("SCDPDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
-  addDeckName("SCPDIMS");
+  addDeckName("SCDPDIMS");
   {
      ParserRecord record;
      {
@@ -418,27 +407,68 @@ SCPDIMS::SCPDIMS( ) : ParserKeyword("SCPDIMS")
      addRecord( record );
   }
 }
-const std::string SCPDIMS::keywordName = "SCPDIMS";
-const std::string SCPDIMS::NTSCDP::itemName = "NTSCDP";
-const int SCPDIMS::NTSCDP::defaultValue = 0;
-const std::string SCPDIMS::NPSCDP::itemName = "NPSCDP";
-const int SCPDIMS::NPSCDP::defaultValue = 0;
-const std::string SCPDIMS::NTSCDA::itemName = "NTSCDA";
-const int SCPDIMS::NTSCDA::defaultValue = 0;
-const std::string SCPDIMS::PSCDA::itemName = "PSCDA";
-const int SCPDIMS::PSCDA::defaultValue = 0;
-const std::string SCPDIMS::UNUSED1::itemName = "UNUSED1";
-const int SCPDIMS::UNUSED1::defaultValue = 0;
-const std::string SCPDIMS::UNUSED2::itemName = "UNUSED2";
-const int SCPDIMS::UNUSED2::defaultValue = 0;
-const std::string SCPDIMS::NTSCDE::itemName = "NTSCDE";
-const int SCPDIMS::NTSCDE::defaultValue = 0;
+const std::string SCDPDIMS::keywordName = "SCDPDIMS";
+const std::string SCDPDIMS::NTSCDP::itemName = "NTSCDP";
+const int SCDPDIMS::NTSCDP::defaultValue = 0;
+const std::string SCDPDIMS::NPSCDP::itemName = "NPSCDP";
+const int SCDPDIMS::NPSCDP::defaultValue = 0;
+const std::string SCDPDIMS::NTSCDA::itemName = "NTSCDA";
+const int SCDPDIMS::NTSCDA::defaultValue = 0;
+const std::string SCDPDIMS::PSCDA::itemName = "PSCDA";
+const int SCDPDIMS::PSCDA::defaultValue = 0;
+const std::string SCDPDIMS::UNUSED1::itemName = "UNUSED1";
+const int SCDPDIMS::UNUSED1::defaultValue = 0;
+const std::string SCDPDIMS::UNUSED2::itemName = "UNUSED2";
+const int SCDPDIMS::UNUSED2::defaultValue = 0;
+const std::string SCDPDIMS::NTSCDE::itemName = "NTSCDE";
+const int SCDPDIMS::NTSCDE::defaultValue = 0;
 
 
-SCVD::SCVD( ) : ParserKeyword("SCVD")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("EQLDIMS","NTEQUL",0);
+SCDPTAB::SCDPTAB() : ParserKeyword("SCDPTAB", KeywordSize("SCDPDIMS", "NTSCDP", false, 0)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("SCDPTAB");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string SCDPTAB::keywordName = "SCDPTAB";
+const std::string SCDPTAB::DATA::itemName = "DATA";
+
+
+SCDPTRAC::SCDPTRAC() : ParserKeyword("SCDPTRAC", KeywordSize(1, false)) {
+  addValidSectionName("SCHEDULE");
+  clearDeckNames();
+  addDeckName("SCDPTRAC");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("TRACER", ParserItem::itype::STRING);
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string SCDPTRAC::keywordName = "SCDPTRAC";
+const std::string SCDPTRAC::TRACER::itemName = "TRACER";
+
+
+SCHEDULE::SCHEDULE() : ParserKeyword("SCHEDULE", KeywordSize(0, false)) {
+  clearDeckNames();
+  addDeckName("SCHEDULE");
+}
+const std::string SCHEDULE::keywordName = "SCHEDULE";
+
+
+SCVD::SCVD() : ParserKeyword("SCVD", KeywordSize("EQLDIMS", "NTEQUL", false, 0)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SCVD");
@@ -458,10 +488,7 @@ const std::string SCVD::keywordName = "SCVD";
 const std::string SCVD::DATA::itemName = "DATA";
 
 
-SDENSITY::SDENSITY( ) : ParserKeyword("SDENSITY")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+SDENSITY::SDENSITY() : ParserKeyword("SDENSITY", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SDENSITY");
@@ -481,19 +508,18 @@ const std::string SDENSITY::SOLVENT_DENSITY::itemName = "SOLVENT_DENSITY";
 const double SDENSITY::SOLVENT_DENSITY::defaultValue = 1.000000;
 
 
-SEGMENT_PROBE::SEGMENT_PROBE( ) : ParserKeyword("SEGMENT_PROBE")
-{
-  setSizeType(SLASH_TERMINATED);
+SEGMENT_PROBE::SEGMENT_PROBE() : ParserKeyword("SEGMENT_PROBE", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
-  addDeckName("SGFR");
-  addDeckName("SOFR");
-  addDeckName("SPR");
-  addDeckName("SPRD");
-  addDeckName("SPRDA");
-  addDeckName("SPRDF");
-  addDeckName("SPRDH");
   addDeckName("SWFR");
+  addDeckName("SOFR");
+  addDeckName("SGFR");
+  addDeckName("SPR");
+  addDeckName("SPRDH");
+  addDeckName("SWCT");
+  addDeckName("SPRD");
+  addDeckName("SPRDF");
+  addDeckName("SPRDA");
   {
      ParserRecord record;
      {
@@ -512,9 +538,7 @@ const std::string SEGMENT_PROBE::Well::itemName = "Well";
 const std::string SEGMENT_PROBE::Segment::itemName = "Segment";
 
 
-SEPARATE::SEPARATE( ) : ParserKeyword("SEPARATE")
-{
-  setFixedSize( (size_t) 0);
+SEPARATE::SEPARATE() : ParserKeyword("SEPARATE", KeywordSize(0, false)) {
   addValidSectionName("SUMMARY");
   clearDeckNames();
   addDeckName("SEPARATE");
@@ -522,9 +546,7 @@ SEPARATE::SEPARATE( ) : ParserKeyword("SEPARATE")
 const std::string SEPARATE::keywordName = "SEPARATE";
 
 
-SEPVALS::SEPVALS( ) : ParserKeyword("SEPVALS")
-{
-  setSizeType(SLASH_TERMINATED);
+SEPVALS::SEPVALS() : ParserKeyword("SEPVALS", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SEPVALS");
@@ -553,9 +575,7 @@ const std::string SEPVALS::BO::itemName = "BO";
 const std::string SEPVALS::RS::itemName = "RS";
 
 
-SFOAM::SFOAM( ) : ParserKeyword("SFOAM")
-{
-  setFixedSize( (size_t) 1);
+SFOAM::SFOAM() : ParserKeyword("SFOAM", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SFOAM");
@@ -574,9 +594,7 @@ const std::string SFOAM::keywordName = "SFOAM";
 const std::string SFOAM::data::itemName = "data";
 
 
-SGAS::SGAS( ) : ParserKeyword("SGAS")
-{
-  setFixedSize( (size_t) 1);
+SGAS::SGAS() : ParserKeyword("SGAS", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SGAS");
@@ -595,10 +613,11 @@ const std::string SGAS::keywordName = "SGAS";
 const std::string SGAS::data::itemName = "data";
 
 
-SGCR::SGCR( ) : ParserKeyword("SGCR")
-{
-  setFixedSize( (size_t) 1);
+SGCR::SGCR() : ParserKeyword("SGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "GAS",
+  });
   clearDeckNames();
   addDeckName("SGCR");
   {
@@ -616,10 +635,7 @@ const std::string SGCR::keywordName = "SGCR";
 const std::string SGCR::data::itemName = "data";
 
 
-SGCWMIS::SGCWMIS( ) : ParserKeyword("SGCWMIS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("MISCIBLE","NTMISC",0);
+SGCWMIS::SGCWMIS() : ParserKeyword("SGCWMIS", KeywordSize("MISCIBLE", "NTMISC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SGCWMIS");
@@ -639,9 +655,7 @@ const std::string SGCWMIS::keywordName = "SGCWMIS";
 const std::string SGCWMIS::DATA::itemName = "DATA";
 
 
-SGF32D::SGF32D( ) : ParserKeyword("SGF32D")
-{
-  setSizeType(SLASH_TERMINATED);
+SGF32D::SGF32D() : ParserKeyword("SGF32D", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SGF32D");
@@ -676,11 +690,11 @@ const std::string SGF32D::SWAT::itemName = "SWAT";
 const std::string SGF32D::KRG::itemName = "KRG";
 
 
-SGFN::SGFN( ) : ParserKeyword("SGFN")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SGFN::SGFN() : ParserKeyword("SGFN", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "GAS",
+  });
   clearDeckNames();
   addDeckName("SGFN");
   {
@@ -700,10 +714,11 @@ const std::string SGFN::keywordName = "SGFN";
 const std::string SGFN::DATA::itemName = "DATA";
 
 
-SGL::SGL( ) : ParserKeyword("SGL")
-{
-  setFixedSize( (size_t) 1);
+SGL::SGL() : ParserKeyword("SGL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "GAS",
+  });
   clearDeckNames();
   addDeckName("SGL");
   {
@@ -721,10 +736,11 @@ const std::string SGL::keywordName = "SGL";
 const std::string SGL::data::itemName = "data";
 
 
-SGLPC::SGLPC( ) : ParserKeyword("SGLPC")
-{
-  setFixedSize( (size_t) 1);
+SGLPC::SGLPC() : ParserKeyword("SGLPC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "GAS",
+  });
   clearDeckNames();
   addDeckName("SGLPC");
   {
@@ -742,11 +758,15 @@ const std::string SGLPC::keywordName = "SGLPC";
 const std::string SGLPC::data::itemName = "data";
 
 
-SGOF::SGOF( ) : ParserKeyword("SGOF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SGOF::SGOF() : ParserKeyword("SGOF", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
+  setProhibitedKeywords({
+    "SLGOF",
+  });
+  setRequiredKeywords({
+    "GAS",
+    "OIL",
+  });
   clearDeckNames();
   addDeckName("SGOF");
   {
@@ -767,10 +787,163 @@ const std::string SGOF::keywordName = "SGOF";
 const std::string SGOF::DATA::itemName = "DATA";
 
 
-SGU::SGU( ) : ParserKeyword("SGU")
-{
-  setFixedSize( (size_t) 1);
+SGOFLET::SGOFLET() : ParserKeyword("SGOFLET", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "GAS",
+    "OIL",
+  });
+  clearDeckNames();
+  addDeckName("SGOFLET");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("SG_0", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SG_CRITICAL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("L_GAS", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("E_GAS", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("T_GAS", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("KRT_GAS", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SO_0", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SO_CRITICAL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("L_OIL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("E_OIL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("T_OIL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("KRT_OIL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("L_PC", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("E_PC", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("T_PC", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PCIR", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PCT", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string SGOFLET::keywordName = "SGOFLET";
+const std::string SGOFLET::SG_0::itemName = "SG_0";
+const double SGOFLET::SG_0::defaultValue = 0;
+const std::string SGOFLET::SG_CRITICAL::itemName = "SG_CRITICAL";
+const double SGOFLET::SG_CRITICAL::defaultValue = 0;
+const std::string SGOFLET::L_GAS::itemName = "L_GAS";
+const double SGOFLET::L_GAS::defaultValue = 1.000000;
+const std::string SGOFLET::E_GAS::itemName = "E_GAS";
+const double SGOFLET::E_GAS::defaultValue = 1.000000;
+const std::string SGOFLET::T_GAS::itemName = "T_GAS";
+const double SGOFLET::T_GAS::defaultValue = 1.000000;
+const std::string SGOFLET::KRT_GAS::itemName = "KRT_GAS";
+const double SGOFLET::KRT_GAS::defaultValue = 1.000000;
+const std::string SGOFLET::SO_0::itemName = "SO_0";
+const double SGOFLET::SO_0::defaultValue = 0;
+const std::string SGOFLET::SO_CRITICAL::itemName = "SO_CRITICAL";
+const double SGOFLET::SO_CRITICAL::defaultValue = 0;
+const std::string SGOFLET::L_OIL::itemName = "L_OIL";
+const double SGOFLET::L_OIL::defaultValue = 1.000000;
+const std::string SGOFLET::E_OIL::itemName = "E_OIL";
+const double SGOFLET::E_OIL::defaultValue = 1.000000;
+const std::string SGOFLET::T_OIL::itemName = "T_OIL";
+const double SGOFLET::T_OIL::defaultValue = 1.000000;
+const std::string SGOFLET::KRT_OIL::itemName = "KRT_OIL";
+const double SGOFLET::KRT_OIL::defaultValue = 1.000000;
+const std::string SGOFLET::L_PC::itemName = "L_PC";
+const double SGOFLET::L_PC::defaultValue = 1.000000;
+const std::string SGOFLET::E_PC::itemName = "E_PC";
+const double SGOFLET::E_PC::defaultValue = 1.000000;
+const std::string SGOFLET::T_PC::itemName = "T_PC";
+const double SGOFLET::T_PC::defaultValue = 1.000000;
+const std::string SGOFLET::PCIR::itemName = "PCIR";
+const double SGOFLET::PCIR::defaultValue = 0;
+const std::string SGOFLET::PCT::itemName = "PCT";
+const double SGOFLET::PCT::defaultValue = 0;
+
+
+SGU::SGU() : ParserKeyword("SGU", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "GAS",
+  });
   clearDeckNames();
   addDeckName("SGU");
   {
@@ -788,10 +961,7 @@ const std::string SGU::keywordName = "SGU";
 const std::string SGU::data::itemName = "data";
 
 
-SGWFN::SGWFN( ) : ParserKeyword("SGWFN")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SGWFN::SGWFN() : ParserKeyword("SGWFN", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SGWFN");
@@ -813,10 +983,7 @@ const std::string SGWFN::keywordName = "SGWFN";
 const std::string SGWFN::DATA::itemName = "DATA";
 
 
-SHRATE::SHRATE( ) : ParserKeyword("SHRATE")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+SHRATE::SHRATE() : ParserKeyword("SHRATE", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SHRATE");
@@ -835,9 +1002,7 @@ const std::string SHRATE::keywordName = "SHRATE";
 const std::string SHRATE::SHEAR_RATE::itemName = "SHEAR_RATE";
 
 
-SIGMA::SIGMA( ) : ParserKeyword("SIGMA")
-{
-  setSizeType(SLASH_TERMINATED);
+SIGMA::SIGMA() : ParserKeyword("SIGMA", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SIGMA");
@@ -855,9 +1020,7 @@ const std::string SIGMA::keywordName = "SIGMA";
 const std::string SIGMA::COUPLING::itemName = "COUPLING";
 
 
-SIGMAGDV::SIGMAGDV( ) : ParserKeyword("SIGMAGDV")
-{
-  setFixedSize( (size_t) 1);
+SIGMAGDV::SIGMAGDV() : ParserKeyword("SIGMAGDV", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SIGMAGDV");
@@ -875,9 +1038,7 @@ const std::string SIGMAGDV::keywordName = "SIGMAGDV";
 const std::string SIGMAGDV::data::itemName = "data";
 
 
-SIGMATH::SIGMATH( ) : ParserKeyword("SIGMATH")
-{
-  setFixedSize( (size_t) 1);
+SIGMATH::SIGMATH() : ParserKeyword("SIGMATH", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SIGMATH");
@@ -895,9 +1056,7 @@ const std::string SIGMATH::keywordName = "SIGMATH";
 const std::string SIGMATH::data::itemName = "data";
 
 
-SIGMAV::SIGMAV( ) : ParserKeyword("SIGMAV")
-{
-  setFixedSize( (size_t) 1);
+SIGMAV::SIGMAV() : ParserKeyword("SIGMAV", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SIGMAV");
@@ -915,9 +1074,7 @@ const std::string SIGMAV::keywordName = "SIGMAV";
 const std::string SIGMAV::data::itemName = "data";
 
 
-SIMULATE::SIMULATE( ) : ParserKeyword("SIMULATE")
-{
-  setFixedSize( (size_t) 0);
+SIMULATE::SIMULATE() : ParserKeyword("SIMULATE", KeywordSize(0, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SIMULATE");
@@ -925,60 +1082,52 @@ SIMULATE::SIMULATE( ) : ParserKeyword("SIMULATE")
 const std::string SIMULATE::keywordName = "SIMULATE";
 
 
-SKIP::SKIP( ) : ParserKeyword("SKIP")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("EDIT");
+SKIP::SKIP() : ParserKeyword("SKIP", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SKIP");
 }
 const std::string SKIP::keywordName = "SKIP";
 
 
-SKIP100::SKIP100( ) : ParserKeyword("SKIP100")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("EDIT");
+SKIP100::SKIP100() : ParserKeyword("SKIP100", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SKIP100");
 }
 const std::string SKIP100::keywordName = "SKIP100";
 
 
-SKIP300::SKIP300( ) : ParserKeyword("SKIP300")
-{
-  setFixedSize( (size_t) 0);
-  addValidSectionName("EDIT");
+SKIP300::SKIP300() : ParserKeyword("SKIP300", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
   addValidSectionName("GRID");
+  addValidSectionName("EDIT");
   addValidSectionName("PROPS");
   addValidSectionName("REGIONS");
-  addValidSectionName("RUNSPEC");
-  addValidSectionName("SCHEDULE");
   addValidSectionName("SOLUTION");
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SKIP300");
 }
 const std::string SKIP300::keywordName = "SKIP300";
 
 
-SKIPREST::SKIPREST( ) : ParserKeyword("SKIPREST")
-{
-  setFixedSize( (size_t) 0);
+SKIPREST::SKIPREST() : ParserKeyword("SKIPREST", KeywordSize(0, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SKIPREST");
@@ -986,9 +1135,7 @@ SKIPREST::SKIPREST( ) : ParserKeyword("SKIPREST")
 const std::string SKIPREST::keywordName = "SKIPREST";
 
 
-SKPRPOLY::SKPRPOLY( ) : ParserKeyword("SKPRPOLY")
-{
-  setSizeType(SLASH_TERMINATED);
+SKPRPOLY::SKPRPOLY() : ParserKeyword("SKPRPOLY", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SKPRPOLY");
@@ -1044,9 +1191,7 @@ const std::string SKPRPOLY::VELOCITY::itemName = "VELOCITY";
 const std::string SKPRPOLY::SKINPRESSURE::itemName = "SKINPRESSURE";
 
 
-SKPRWAT::SKPRWAT( ) : ParserKeyword("SKPRWAT")
-{
-  setSizeType(SLASH_TERMINATED);
+SKPRWAT::SKPRWAT() : ParserKeyword("SKPRWAT", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SKPRWAT");
@@ -1096,9 +1241,7 @@ const std::string SKPRWAT::VELOCITY::itemName = "VELOCITY";
 const std::string SKPRWAT::SKINPRESSURE::itemName = "SKINPRESSURE";
 
 
-SKRO::SKRO( ) : ParserKeyword("SKRO")
-{
-  setFixedSize( (size_t) 1);
+SKRO::SKRO() : ParserKeyword("SKRO", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SKRO");
@@ -1116,9 +1259,7 @@ const std::string SKRO::keywordName = "SKRO";
 const std::string SKRO::data::itemName = "data";
 
 
-SKRORG::SKRORG( ) : ParserKeyword("SKRORG")
-{
-  setFixedSize( (size_t) 1);
+SKRORG::SKRORG() : ParserKeyword("SKRORG", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SKRORG");
@@ -1136,9 +1277,7 @@ const std::string SKRORG::keywordName = "SKRORG";
 const std::string SKRORG::data::itemName = "data";
 
 
-SKRORW::SKRORW( ) : ParserKeyword("SKRORW")
-{
-  setFixedSize( (size_t) 1);
+SKRORW::SKRORW() : ParserKeyword("SKRORW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SKRORW");
@@ -1156,9 +1295,7 @@ const std::string SKRORW::keywordName = "SKRORW";
 const std::string SKRORW::data::itemName = "data";
 
 
-SKRW::SKRW( ) : ParserKeyword("SKRW")
-{
-  setFixedSize( (size_t) 1);
+SKRW::SKRW() : ParserKeyword("SKRW", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SKRW");
@@ -1176,9 +1313,7 @@ const std::string SKRW::keywordName = "SKRW";
 const std::string SKRW::data::itemName = "data";
 
 
-SKRWR::SKRWR( ) : ParserKeyword("SKRWR")
-{
-  setFixedSize( (size_t) 1);
+SKRWR::SKRWR() : ParserKeyword("SKRWR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SKRWR");
@@ -1196,9 +1331,7 @@ const std::string SKRWR::keywordName = "SKRWR";
 const std::string SKRWR::data::itemName = "data";
 
 
-SLAVES::SLAVES( ) : ParserKeyword("SLAVES")
-{
-  setSizeType(SLASH_TERMINATED);
+SLAVES::SLAVES() : ParserKeyword("SLAVES", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SLAVES");
@@ -1237,11 +1370,14 @@ const std::string SLAVES::NUM_PE::itemName = "NUM_PE";
 const int SLAVES::NUM_PE::defaultValue = 1;
 
 
-SLGOF::SLGOF( ) : ParserKeyword("SLGOF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SLGOF::SLGOF() : ParserKeyword("SLGOF", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
+  setProhibitedKeywords({
+    "SGOF",
+  });
+  setRequiredKeywords({
+    "GAS",
+  });
   clearDeckNames();
   addDeckName("SLGOF");
   {
@@ -1262,9 +1398,26 @@ const std::string SLGOF::keywordName = "SLGOF";
 const std::string SLGOF::DATA::itemName = "DATA";
 
 
-SMRYDIMS::SMRYDIMS( ) : ParserKeyword("SMRYDIMS")
-{
-  setFixedSize( (size_t) 1);
+SMICR::SMICR() : ParserKeyword("SMICR", KeywordSize(1, false)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("SMICR");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Density");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string SMICR::keywordName = "SMICR";
+const std::string SMICR::data::itemName = "data";
+
+
+SMRYDIMS::SMRYDIMS() : ParserKeyword("SMRYDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("SMRYDIMS");
@@ -1283,9 +1436,7 @@ const std::string SMRYDIMS::DIMS::itemName = "DIMS";
 const int SMRYDIMS::DIMS::defaultValue = 10000;
 
 
-SMULTX::SMULTX( ) : ParserKeyword("SMULTX")
-{
-  setFixedSize( (size_t) 1);
+SMULTX::SMULTX() : ParserKeyword("SMULTX", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SMULTX");
@@ -1303,9 +1454,7 @@ const std::string SMULTX::keywordName = "SMULTX";
 const std::string SMULTX::data::itemName = "data";
 
 
-SMULTY::SMULTY( ) : ParserKeyword("SMULTY")
-{
-  setFixedSize( (size_t) 1);
+SMULTY::SMULTY() : ParserKeyword("SMULTY", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SMULTY");
@@ -1323,9 +1472,7 @@ const std::string SMULTY::keywordName = "SMULTY";
 const std::string SMULTY::data::itemName = "data";
 
 
-SMULTZ::SMULTZ( ) : ParserKeyword("SMULTZ")
-{
-  setFixedSize( (size_t) 1);
+SMULTZ::SMULTZ() : ParserKeyword("SMULTZ", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SMULTZ");
@@ -1343,9 +1490,7 @@ const std::string SMULTZ::keywordName = "SMULTZ";
 const std::string SMULTZ::data::itemName = "data";
 
 
-SOCRS::SOCRS( ) : ParserKeyword("SOCRS")
-{
-  setFixedSize( (size_t) 1);
+SOCRS::SOCRS() : ParserKeyword("SOCRS", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SOCRS");
@@ -1363,11 +1508,11 @@ const std::string SOCRS::keywordName = "SOCRS";
 const std::string SOCRS::data::itemName = "data";
 
 
-SOF2::SOF2( ) : ParserKeyword("SOF2")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SOF2::SOF2() : ParserKeyword("SOF2", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "OIL",
+  });
   clearDeckNames();
   addDeckName("SOF2");
   {
@@ -1386,11 +1531,13 @@ const std::string SOF2::keywordName = "SOF2";
 const std::string SOF2::DATA::itemName = "DATA";
 
 
-SOF3::SOF3( ) : ParserKeyword("SOF3")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SOF3::SOF3() : ParserKeyword("SOF3", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "OIL",
+    "GAS",
+    "WATER",
+  });
   clearDeckNames();
   addDeckName("SOF3");
   {
@@ -1410,16 +1557,14 @@ const std::string SOF3::keywordName = "SOF3";
 const std::string SOF3::DATA::itemName = "DATA";
 
 
-SOF32D::SOF32D( ) : ParserKeyword("SOF32D")
-{
-  setSizeType(SLASH_TERMINATED);
+SOF32D::SOF32D() : ParserKeyword("SOF32D", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SOF32D");
   {
      ParserRecord record;
      {
-        ParserItem item("SOIL", ParserItem::itype::DOUBLE);
+        ParserItem item("SWAT", ParserItem::itype::DOUBLE);
         item.setSizeType(ParserItem::item_size::ALL);
         item.push_backDimension("1");
         record.addItem(item);
@@ -1434,7 +1579,7 @@ SOF32D::SOF32D( ) : ParserKeyword("SOF32D")
         record.addItem(item);
      }
      {
-        ParserItem item("KRW", ParserItem::itype::DOUBLE);
+        ParserItem item("KRO", ParserItem::itype::DOUBLE);
         item.push_backDimension("1");
         record.addItem(item);
      }
@@ -1442,15 +1587,18 @@ SOF32D::SOF32D( ) : ParserKeyword("SOF32D")
   }
 }
 const std::string SOF32D::keywordName = "SOF32D";
-const std::string SOF32D::SOIL::itemName = "SOIL";
+const std::string SOF32D::SWAT::itemName = "SWAT";
 const std::string SOF32D::SGAS::itemName = "SGAS";
-const std::string SOF32D::KRW::itemName = "KRW";
+const std::string SOF32D::KRO::itemName = "KRO";
 
 
-SOGCR::SOGCR( ) : ParserKeyword("SOGCR")
-{
-  setFixedSize( (size_t) 1);
+SOGCR::SOGCR() : ParserKeyword("SOGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "GAS",
+    "OIL",
+    "ENDSCALE",
+  });
   clearDeckNames();
   addDeckName("SOGCR");
   {
@@ -1468,9 +1616,7 @@ const std::string SOGCR::keywordName = "SOGCR";
 const std::string SOGCR::data::itemName = "data";
 
 
-SOIL::SOIL( ) : ParserKeyword("SOIL")
-{
-  setFixedSize( (size_t) 1);
+SOIL::SOIL() : ParserKeyword("SOIL", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SOIL");
@@ -1489,18 +1635,14 @@ const std::string SOIL::keywordName = "SOIL";
 const std::string SOIL::data::itemName = "data";
 
 
-SOLUTION::SOLUTION( ) : ParserKeyword("SOLUTION")
-{
-  setFixedSize( (size_t) 0);
+SOLUTION::SOLUTION() : ParserKeyword("SOLUTION", KeywordSize(0, false)) {
   clearDeckNames();
   addDeckName("SOLUTION");
 }
 const std::string SOLUTION::keywordName = "SOLUTION";
 
 
-SOLVCONC::SOLVCONC( ) : ParserKeyword("SOLVCONC")
-{
-  setFixedSize( (size_t) 1);
+SOLVCONC::SOLVCONC() : ParserKeyword("SOLVCONC", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SOLVCONC");
@@ -1519,11 +1661,9 @@ const std::string SOLVCONC::keywordName = "SOLVCONC";
 const std::string SOLVCONC::data::itemName = "data";
 
 
-SOLVDIMS::SOLVDIMS( ) : ParserKeyword("SOLVDIMS")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("GRID");
+SOLVDIMS::SOLVDIMS() : ParserKeyword("SOLVDIMS", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
+  addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SOLVDIMS");
   {
@@ -1540,9 +1680,7 @@ const std::string SOLVDIMS::keywordName = "SOLVDIMS";
 const std::string SOLVDIMS::data::itemName = "data";
 
 
-SOLVDIRS::SOLVDIRS( ) : ParserKeyword("SOLVDIRS")
-{
-  setSizeType(SLASH_TERMINATED);
+SOLVDIRS::SOLVDIRS() : ParserKeyword("SOLVDIRS", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SOLVDIRS");
@@ -1559,9 +1697,7 @@ const std::string SOLVDIRS::keywordName = "SOLVDIRS";
 const std::string SOLVDIRS::DIRECTION::itemName = "DIRECTION";
 
 
-SOLVENT::SOLVENT( ) : ParserKeyword("SOLVENT")
-{
-  setFixedSize( (size_t) 0);
+SOLVENT::SOLVENT() : ParserKeyword("SOLVENT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("SOLVENT");
@@ -1569,9 +1705,7 @@ SOLVENT::SOLVENT( ) : ParserKeyword("SOLVENT")
 const std::string SOLVENT::keywordName = "SOLVENT";
 
 
-SOLVFRAC::SOLVFRAC( ) : ParserKeyword("SOLVFRAC")
-{
-  setFixedSize( (size_t) 1);
+SOLVFRAC::SOLVFRAC() : ParserKeyword("SOLVFRAC", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SOLVFRAC");
@@ -1589,9 +1723,7 @@ const std::string SOLVFRAC::keywordName = "SOLVFRAC";
 const std::string SOLVFRAC::data::itemName = "data";
 
 
-SOLVNUM::SOLVNUM( ) : ParserKeyword("SOLVNUM")
-{
-  setFixedSize( (size_t) 1);
+SOLVNUM::SOLVNUM() : ParserKeyword("SOLVNUM", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SOLVNUM");
@@ -1609,10 +1741,7 @@ const std::string SOLVNUM::keywordName = "SOLVNUM";
 const std::string SOLVNUM::data::itemName = "data";
 
 
-SOMGAS::SOMGAS( ) : ParserKeyword("SOMGAS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SOMGAS::SOMGAS() : ParserKeyword("SOMGAS", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SOMGAS");
@@ -1632,10 +1761,7 @@ const std::string SOMGAS::keywordName = "SOMGAS";
 const std::string SOMGAS::DATA::itemName = "DATA";
 
 
-SOMWAT::SOMWAT( ) : ParserKeyword("SOMWAT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SOMWAT::SOMWAT() : ParserKeyword("SOMWAT", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SOMWAT");
@@ -1655,10 +1781,7 @@ const std::string SOMWAT::keywordName = "SOMWAT";
 const std::string SOMWAT::DATA::itemName = "DATA";
 
 
-SORWMIS::SORWMIS( ) : ParserKeyword("SORWMIS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("MISCIBLE","NTMISC",0);
+SORWMIS::SORWMIS() : ParserKeyword("SORWMIS", KeywordSize("MISCIBLE", "NTMISC", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SORWMIS");
@@ -1678,10 +1801,13 @@ const std::string SORWMIS::keywordName = "SORWMIS";
 const std::string SORWMIS::DATA::itemName = "DATA";
 
 
-SOWCR::SOWCR( ) : ParserKeyword("SOWCR")
-{
-  setFixedSize( (size_t) 1);
+SOWCR::SOWCR() : ParserKeyword("SOWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "OIL",
+    "WATER",
+    "ENDSCALE",
+  });
   clearDeckNames();
   addDeckName("SOWCR");
   {
@@ -1699,9 +1825,26 @@ const std::string SOWCR::keywordName = "SOWCR";
 const std::string SOWCR::data::itemName = "data";
 
 
-SPECGRID::SPECGRID( ) : ParserKeyword("SPECGRID")
-{
-  setFixedSize( (size_t) 1);
+SOXYG::SOXYG() : ParserKeyword("SOXYG", KeywordSize(1, false)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("SOXYG");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Density");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string SOXYG::keywordName = "SOXYG";
+const std::string SOXYG::data::itemName = "data";
+
+
+SPECGRID::SPECGRID() : ParserKeyword("SPECGRID", KeywordSize(1, false)) {
   addValidSectionName("GRID");
   clearDeckNames();
   addDeckName("SPECGRID");
@@ -1748,10 +1891,7 @@ const std::string SPECGRID::COORD_TYPE::itemName = "COORD_TYPE";
 const std::string SPECGRID::COORD_TYPE::defaultValue = "F";
 
 
-SPECHEAT::SPECHEAT( ) : ParserKeyword("SPECHEAT")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+SPECHEAT::SPECHEAT() : ParserKeyword("SPECHEAT", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SPECHEAT");
@@ -1773,10 +1913,7 @@ const std::string SPECHEAT::keywordName = "SPECHEAT";
 const std::string SPECHEAT::DATA::itemName = "DATA";
 
 
-SPECROCK::SPECROCK( ) : ParserKeyword("SPECROCK")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SPECROCK::SPECROCK() : ParserKeyword("SPECROCK", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SPECROCK");
@@ -1796,9 +1933,15 @@ const std::string SPECROCK::keywordName = "SPECROCK";
 const std::string SPECROCK::DATA::itemName = "DATA";
 
 
-SPOLY::SPOLY( ) : ParserKeyword("SPOLY")
-{
-  setFixedSize( (size_t) 1);
+SPIDER::SPIDER() : ParserKeyword("SPIDER", KeywordSize(0, false)) {
+  addValidSectionName("RUNSPEC");
+  clearDeckNames();
+  addDeckName("SPIDER");
+}
+const std::string SPIDER::keywordName = "SPIDER";
+
+
+SPOLY::SPOLY() : ParserKeyword("SPOLY", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   addValidSectionName("SPECIAL");
   clearDeckNames();
@@ -1818,9 +1961,7 @@ const std::string SPOLY::keywordName = "SPOLY";
 const std::string SPOLY::data::itemName = "data";
 
 
-SPOLYMW::SPOLYMW( ) : ParserKeyword("SPOLYMW")
-{
-  setFixedSize( (size_t) 1);
+SPOLYMW::SPOLYMW() : ParserKeyword("SPOLYMW", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SPOLYMW");
@@ -1839,10 +1980,7 @@ const std::string SPOLYMW::keywordName = "SPOLYMW";
 const std::string SPOLYMW::data::itemName = "data";
 
 
-SSFN::SSFN( ) : ParserKeyword("SSFN")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SSFN::SSFN() : ParserKeyword("SSFN", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SSFN");
@@ -1863,9 +2001,7 @@ const std::string SSFN::keywordName = "SSFN";
 const std::string SSFN::DATA::itemName = "DATA";
 
 
-SSGCR::SSGCR( ) : ParserKeyword("SSGCR")
-{
-  setFixedSize( (size_t) 1);
+SSGCR::SSGCR() : ParserKeyword("SSGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SSGCR");
@@ -1883,9 +2019,7 @@ const std::string SSGCR::keywordName = "SSGCR";
 const std::string SSGCR::data::itemName = "data";
 
 
-SSGL::SSGL( ) : ParserKeyword("SSGL")
-{
-  setFixedSize( (size_t) 1);
+SSGL::SSGL() : ParserKeyword("SSGL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SSGL");
@@ -1903,9 +2037,7 @@ const std::string SSGL::keywordName = "SSGL";
 const std::string SSGL::data::itemName = "data";
 
 
-SSOGCR::SSOGCR( ) : ParserKeyword("SSOGCR")
-{
-  setFixedSize( (size_t) 1);
+SSOGCR::SSOGCR() : ParserKeyword("SSOGCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SSOGCR");
@@ -1923,9 +2055,7 @@ const std::string SSOGCR::keywordName = "SSOGCR";
 const std::string SSOGCR::data::itemName = "data";
 
 
-SSOL::SSOL( ) : ParserKeyword("SSOL")
-{
-  setFixedSize( (size_t) 1);
+SSOL::SSOL() : ParserKeyword("SSOL", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SSOL");
@@ -1944,9 +2074,7 @@ const std::string SSOL::keywordName = "SSOL";
 const std::string SSOL::data::itemName = "data";
 
 
-SSOWCR::SSOWCR( ) : ParserKeyword("SSOWCR")
-{
-  setFixedSize( (size_t) 1);
+SSOWCR::SSOWCR() : ParserKeyword("SSOWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SSOWCR");
@@ -1964,9 +2092,25 @@ const std::string SSOWCR::keywordName = "SSOWCR";
 const std::string SSOWCR::data::itemName = "data";
 
 
-SSWL::SSWL( ) : ParserKeyword("SSWL")
-{
-  setFixedSize( (size_t) 1);
+SSWCR::SSWCR() : ParserKeyword("SSWCR", KeywordSize(1, false)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("SSWCR");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string SSWCR::keywordName = "SSWCR";
+const std::string SSWCR::data::itemName = "data";
+
+
+SSWL::SSWL() : ParserKeyword("SSWL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SSWL");
@@ -1984,9 +2128,7 @@ const std::string SSWL::keywordName = "SSWL";
 const std::string SSWL::data::itemName = "data";
 
 
-SSWU::SSWU( ) : ParserKeyword("SSWU")
-{
-  setFixedSize( (size_t) 1);
+SSWU::SSWU() : ParserKeyword("SSWU", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SSWU");
@@ -2004,9 +2146,7 @@ const std::string SSWU::keywordName = "SSWU";
 const std::string SSWU::data::itemName = "data";
 
 
-START::START( ) : ParserKeyword("START")
-{
-  setFixedSize( (size_t) 1);
+START::START() : ParserKeyword("START", KeywordSize(1, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("START");
@@ -2046,9 +2186,7 @@ const std::string START::TIME::itemName = "TIME";
 const std::string START::TIME::defaultValue = "00:00:00.000";
 
 
-STCOND::STCOND( ) : ParserKeyword("STCOND")
-{
-  setFixedSize( (size_t) 1);
+STCOND::STCOND() : ParserKeyword("STCOND", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("STCOND");
@@ -2076,10 +2214,7 @@ const std::string STCOND::PRESSURE::itemName = "PRESSURE";
 const double STCOND::PRESSURE::defaultValue = 1.013250;
 
 
-STOG::STOG( ) : ParserKeyword("STOG")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+STOG::STOG() : ParserKeyword("STOG", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("STOG");
@@ -2110,9 +2245,7 @@ const std::string STOG::REF_OIL_PHASE_PRESSURE::itemName = "REF_OIL_PHASE_PRESSU
 const std::string STOG::table::itemName = "table";
 
 
-STONE::STONE( ) : ParserKeyword("STONE")
-{
-  setFixedSize( (size_t) 0);
+STONE::STONE() : ParserKeyword("STONE", KeywordSize(0, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("STONE");
@@ -2120,9 +2253,7 @@ STONE::STONE( ) : ParserKeyword("STONE")
 const std::string STONE::keywordName = "STONE";
 
 
-STONE1::STONE1( ) : ParserKeyword("STONE1")
-{
-  setFixedSize( (size_t) 0);
+STONE1::STONE1() : ParserKeyword("STONE1", KeywordSize(0, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("STONE1");
@@ -2130,10 +2261,7 @@ STONE1::STONE1( ) : ParserKeyword("STONE1")
 const std::string STONE1::keywordName = "STONE1";
 
 
-STONE1EX::STONE1EX( ) : ParserKeyword("STONE1EX")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+STONE1EX::STONE1EX() : ParserKeyword("STONE1EX", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("STONE1EX");
@@ -2153,9 +2281,7 @@ const std::string STONE1EX::EXP_VALUE::itemName = "EXP_VALUE";
 const double STONE1EX::EXP_VALUE::defaultValue = 1.000000;
 
 
-STONE2::STONE2( ) : ParserKeyword("STONE2")
-{
-  setFixedSize( (size_t) 0);
+STONE2::STONE2() : ParserKeyword("STONE2", KeywordSize(0, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("STONE2");
@@ -2163,10 +2289,7 @@ STONE2::STONE2( ) : ParserKeyword("STONE2")
 const std::string STONE2::keywordName = "STONE2";
 
 
-STOW::STOW( ) : ParserKeyword("STOW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+STOW::STOW() : ParserKeyword("STOW", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("STOW");
@@ -2197,10 +2320,7 @@ const std::string STOW::REF_OIL_PRESSURE::itemName = "REF_OIL_PRESSURE";
 const std::string STOW::table::itemName = "table";
 
 
-STWG::STWG( ) : ParserKeyword("STWG")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+STWG::STWG() : ParserKeyword("STWG", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("STWG");
@@ -2231,20 +2351,16 @@ const std::string STWG::REF_OIL_PRESSURE::itemName = "REF_OIL_PRESSURE";
 const std::string STWG::table::itemName = "table";
 
 
-SUMMARY::SUMMARY( ) : ParserKeyword("SUMMARY")
-{
-  setFixedSize( (size_t) 0);
+SUMMARY::SUMMARY() : ParserKeyword("SUMMARY", KeywordSize(0, false)) {
   clearDeckNames();
   addDeckName("SUMMARY");
 }
 const std::string SUMMARY::keywordName = "SUMMARY";
 
 
-SUMTHIN::SUMTHIN( ) : ParserKeyword("SUMTHIN")
-{
-  setFixedSize( (size_t) 1);
-  addValidSectionName("SCHEDULE");
+SUMTHIN::SUMTHIN() : ParserKeyword("SUMTHIN", KeywordSize(1, false)) {
   addValidSectionName("SUMMARY");
+  addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SUMTHIN");
   {
@@ -2261,9 +2377,26 @@ const std::string SUMTHIN::keywordName = "SUMTHIN";
 const std::string SUMTHIN::TIME::itemName = "TIME";
 
 
-SURF::SURF( ) : ParserKeyword("SURF")
-{
-  setFixedSize( (size_t) 1);
+SUREA::SUREA() : ParserKeyword("SUREA", KeywordSize(1, false)) {
+  addValidSectionName("SOLUTION");
+  clearDeckNames();
+  addDeckName("SUREA");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("data", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Density");
+        record.addDataItem(item);
+     }
+     addDataRecord( record );
+  }
+}
+const std::string SUREA::keywordName = "SUREA";
+const std::string SUREA::data::itemName = "data";
+
+
+SURF::SURF() : ParserKeyword("SURF", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SURF");
@@ -2282,9 +2415,7 @@ const std::string SURF::keywordName = "SURF";
 const std::string SURF::data::itemName = "data";
 
 
-SURFACT::SURFACT( ) : ParserKeyword("SURFACT")
-{
-  setFixedSize( (size_t) 0);
+SURFACT::SURFACT() : ParserKeyword("SURFACT", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("SURFACT");
@@ -2292,9 +2423,7 @@ SURFACT::SURFACT( ) : ParserKeyword("SURFACT")
 const std::string SURFACT::keywordName = "SURFACT";
 
 
-SURFACTW::SURFACTW( ) : ParserKeyword("SURFACTW")
-{
-  setFixedSize( (size_t) 0);
+SURFACTW::SURFACTW() : ParserKeyword("SURFACTW", KeywordSize(0, false)) {
   addValidSectionName("RUNSPEC");
   clearDeckNames();
   addDeckName("SURFACTW");
@@ -2302,10 +2431,7 @@ SURFACTW::SURFACTW( ) : ParserKeyword("SURFACTW")
 const std::string SURFACTW::keywordName = "SURFACTW";
 
 
-SURFADDW::SURFADDW( ) : ParserKeyword("SURFADDW")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SURFADDW::SURFADDW() : ParserKeyword("SURFADDW", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SURFADDW");
@@ -2325,13 +2451,30 @@ const std::string SURFADDW::keywordName = "SURFADDW";
 const std::string SURFADDW::DATA::itemName = "DATA";
 
 
-SURFADS::SURFADS( ) : ParserKeyword("SURFADS")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SURFADS::SURFADS() : ParserKeyword("SURFADS", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SURFADS");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("DATA", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("Mass/Length*Length*Length");
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string SURFADS::keywordName = "SURFADS";
+const std::string SURFADS::DATA::itemName = "DATA";
+
+
+SURFCAPD::SURFCAPD() : ParserKeyword("SURFCAPD", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
+  addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("SURFCAPD");
   {
      ParserRecord record;
      {
@@ -2344,14 +2487,11 @@ SURFADS::SURFADS( ) : ParserKeyword("SURFADS")
      addRecord( record );
   }
 }
-const std::string SURFADS::keywordName = "SURFADS";
-const std::string SURFADS::DATA::itemName = "DATA";
+const std::string SURFCAPD::keywordName = "SURFCAPD";
+const std::string SURFCAPD::DATA::itemName = "DATA";
 
 
-SURFESAL::SURFESAL( ) : ParserKeyword("SURFESAL")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SURFESAL::SURFESAL() : ParserKeyword("SURFESAL", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SURFESAL");
@@ -2369,9 +2509,7 @@ const std::string SURFESAL::keywordName = "SURFESAL";
 const std::string SURFESAL::COEFF::itemName = "COEFF";
 
 
-SURFNUM::SURFNUM( ) : ParserKeyword("SURFNUM")
-{
-  setFixedSize( (size_t) 1);
+SURFNUM::SURFNUM() : ParserKeyword("SURFNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("SURFNUM");
@@ -2389,9 +2527,7 @@ const std::string SURFNUM::keywordName = "SURFNUM";
 const std::string SURFNUM::data::itemName = "data";
 
 
-SURFOPTS::SURFOPTS( ) : ParserKeyword("SURFOPTS")
-{
-  setFixedSize( (size_t) 1);
+SURFOPTS::SURFOPTS() : ParserKeyword("SURFOPTS", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SURFOPTS");
@@ -2412,15 +2548,12 @@ SURFOPTS::SURFOPTS( ) : ParserKeyword("SURFOPTS")
 }
 const std::string SURFOPTS::keywordName = "SURFOPTS";
 const std::string SURFOPTS::MIN_SWAT::itemName = "MIN_SWAT";
-const double SURFOPTS::MIN_SWAT::defaultValue = 0.000001;
+const double SURFOPTS::MIN_SWAT::defaultValue = 1e-06;
 const std::string SURFOPTS::SMOOTHING::itemName = "SMOOTHING";
-const double SURFOPTS::SMOOTHING::defaultValue = 0.000001;
+const double SURFOPTS::SMOOTHING::defaultValue = 1e-06;
 
 
-SURFROCK::SURFROCK( ) : ParserKeyword("SURFROCK")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SURFROCK::SURFROCK() : ParserKeyword("SURFROCK", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SURFROCK");
@@ -2443,10 +2576,7 @@ const std::string SURFROCK::INDEX::itemName = "INDEX";
 const std::string SURFROCK::MASS_DENSITY::itemName = "MASS_DENSITY";
 
 
-SURFST::SURFST( ) : ParserKeyword("SURFST")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+SURFST::SURFST() : ParserKeyword("SURFST", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SURFST");
@@ -2464,10 +2594,7 @@ const std::string SURFST::keywordName = "SURFST";
 const std::string SURFST::DATA::itemName = "DATA";
 
 
-SURFSTES::SURFSTES( ) : ParserKeyword("SURFSTES")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+SURFSTES::SURFSTES() : ParserKeyword("SURFSTES", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SURFSTES");
@@ -2485,10 +2612,7 @@ const std::string SURFSTES::keywordName = "SURFSTES";
 const std::string SURFSTES::DATA::itemName = "DATA";
 
 
-SURFVISC::SURFVISC( ) : ParserKeyword("SURFVISC")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTPVT",0);
+SURFVISC::SURFVISC() : ParserKeyword("SURFVISC", KeywordSize("TABDIMS", "NTPVT", false, 0)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SURFVISC");
@@ -2508,9 +2632,7 @@ const std::string SURFVISC::keywordName = "SURFVISC";
 const std::string SURFVISC::DATA::itemName = "DATA";
 
 
-SURFWNUM::SURFWNUM( ) : ParserKeyword("SURFWNUM")
-{
-  setFixedSize( (size_t) 1);
+SURFWNUM::SURFWNUM() : ParserKeyword("SURFWNUM", KeywordSize(1, false)) {
   addValidSectionName("REGIONS");
   clearDeckNames();
   addDeckName("SURFWNUM");
@@ -2528,9 +2650,7 @@ const std::string SURFWNUM::keywordName = "SURFWNUM";
 const std::string SURFWNUM::data::itemName = "data";
 
 
-SWAT::SWAT( ) : ParserKeyword("SWAT")
-{
-  setFixedSize( (size_t) 1);
+SWAT::SWAT() : ParserKeyword("SWAT", KeywordSize(1, false)) {
   addValidSectionName("SOLUTION");
   clearDeckNames();
   addDeckName("SWAT");
@@ -2549,9 +2669,7 @@ const std::string SWAT::keywordName = "SWAT";
 const std::string SWAT::data::itemName = "data";
 
 
-SWATINIT::SWATINIT( ) : ParserKeyword("SWATINIT")
-{
-  setFixedSize( (size_t) 1);
+SWATINIT::SWATINIT() : ParserKeyword("SWATINIT", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SWATINIT");
@@ -2570,9 +2688,7 @@ const std::string SWATINIT::keywordName = "SWATINIT";
 const std::string SWATINIT::data::itemName = "data";
 
 
-SWCR::SWCR( ) : ParserKeyword("SWCR")
-{
-  setFixedSize( (size_t) 1);
+SWCR::SWCR() : ParserKeyword("SWCR", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SWCR");
@@ -2591,11 +2707,46 @@ const std::string SWCR::keywordName = "SWCR";
 const std::string SWCR::data::itemName = "data";
 
 
-SWFN::SWFN( ) : ParserKeyword("SWFN")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SWF32D::SWF32D() : ParserKeyword("SWF32D", KeywordSize(SLASH_TERMINATED)) {
   addValidSectionName("PROPS");
+  clearDeckNames();
+  addDeckName("SWF32D");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("SOIL", ParserItem::itype::DOUBLE);
+        item.setSizeType(ParserItem::item_size::ALL);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+  {
+     ParserRecord record;
+     {
+        ParserItem item("SGAS", ParserItem::itype::DOUBLE);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("KRW", ParserItem::itype::DOUBLE);
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string SWF32D::keywordName = "SWF32D";
+const std::string SWF32D::SOIL::itemName = "SOIL";
+const std::string SWF32D::SGAS::itemName = "SGAS";
+const std::string SWF32D::KRW::itemName = "KRW";
+
+
+SWFN::SWFN() : ParserKeyword("SWFN", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
+  addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "WATER",
+  });
   clearDeckNames();
   addDeckName("SWFN");
   {
@@ -2615,9 +2766,7 @@ const std::string SWFN::keywordName = "SWFN";
 const std::string SWFN::DATA::itemName = "DATA";
 
 
-SWINGFAC::SWINGFAC( ) : ParserKeyword("SWINGFAC")
-{
-  setFixedSize( (size_t) 1);
+SWINGFAC::SWINGFAC() : ParserKeyword("SWINGFAC", KeywordSize(1, false)) {
   addValidSectionName("SCHEDULE");
   clearDeckNames();
   addDeckName("SWINGFAC");
@@ -2749,9 +2898,7 @@ const std::string SWINGFAC::PROFILE_FACTOR11::itemName = "PROFILE_FACTOR11";
 const std::string SWINGFAC::PROFILE_FACTOR12::itemName = "PROFILE_FACTOR12";
 
 
-SWL::SWL( ) : ParserKeyword("SWL")
-{
-  setFixedSize( (size_t) 1);
+SWL::SWL() : ParserKeyword("SWL", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SWL");
@@ -2770,9 +2917,7 @@ const std::string SWL::keywordName = "SWL";
 const std::string SWL::data::itemName = "data";
 
 
-SWLPC::SWLPC( ) : ParserKeyword("SWLPC")
-{
-  setFixedSize( (size_t) 1);
+SWLPC::SWLPC() : ParserKeyword("SWLPC", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SWLPC");
@@ -2791,11 +2936,12 @@ const std::string SWLPC::keywordName = "SWLPC";
 const std::string SWLPC::data::itemName = "data";
 
 
-SWOF::SWOF( ) : ParserKeyword("SWOF")
-{
-  setSizeType(OTHER_KEYWORD_IN_DECK);
-  initSizeKeyword("TABDIMS","NTSFUN",0);
+SWOF::SWOF() : ParserKeyword("SWOF", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
   addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "OIL",
+    "WATER",
+  });
   clearDeckNames();
   addDeckName("SWOF");
   {
@@ -2816,9 +2962,159 @@ const std::string SWOF::keywordName = "SWOF";
 const std::string SWOF::DATA::itemName = "DATA";
 
 
-SWU::SWU( ) : ParserKeyword("SWU")
-{
-  setFixedSize( (size_t) 1);
+SWOFLET::SWOFLET() : ParserKeyword("SWOFLET", KeywordSize("TABDIMS", "NTSFUN", false, 0)) {
+  addValidSectionName("PROPS");
+  setRequiredKeywords({
+    "OIL",
+    "WATER",
+  });
+  clearDeckNames();
+  addDeckName("SWOFLET");
+  {
+     ParserRecord record;
+     {
+        ParserItem item("SW_RESIDUAL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SW_CRITICAL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("L_WATER", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("E_WATER", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("T_WATER", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("KRT_WATER", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SO_RESIDUAL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("SO_CRITICAL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("L_OIL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("E_OIL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("T_OIL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("KRT_OIL", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("L_PC", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("E_PC", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("T_PC", ParserItem::itype::DOUBLE);
+        item.setDefault( double(1.000000) );
+        item.push_backDimension("1");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PCIR", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     {
+        ParserItem item("PCT", ParserItem::itype::DOUBLE);
+        item.setDefault( double(0) );
+        item.push_backDimension("Pressure");
+        record.addItem(item);
+     }
+     addRecord( record );
+  }
+}
+const std::string SWOFLET::keywordName = "SWOFLET";
+const std::string SWOFLET::SW_RESIDUAL::itemName = "SW_RESIDUAL";
+const double SWOFLET::SW_RESIDUAL::defaultValue = 0;
+const std::string SWOFLET::SW_CRITICAL::itemName = "SW_CRITICAL";
+const double SWOFLET::SW_CRITICAL::defaultValue = 0;
+const std::string SWOFLET::L_WATER::itemName = "L_WATER";
+const double SWOFLET::L_WATER::defaultValue = 1.000000;
+const std::string SWOFLET::E_WATER::itemName = "E_WATER";
+const double SWOFLET::E_WATER::defaultValue = 1.000000;
+const std::string SWOFLET::T_WATER::itemName = "T_WATER";
+const double SWOFLET::T_WATER::defaultValue = 1.000000;
+const std::string SWOFLET::KRT_WATER::itemName = "KRT_WATER";
+const double SWOFLET::KRT_WATER::defaultValue = 1.000000;
+const std::string SWOFLET::SO_RESIDUAL::itemName = "SO_RESIDUAL";
+const double SWOFLET::SO_RESIDUAL::defaultValue = 0;
+const std::string SWOFLET::SO_CRITICAL::itemName = "SO_CRITICAL";
+const double SWOFLET::SO_CRITICAL::defaultValue = 0;
+const std::string SWOFLET::L_OIL::itemName = "L_OIL";
+const double SWOFLET::L_OIL::defaultValue = 1.000000;
+const std::string SWOFLET::E_OIL::itemName = "E_OIL";
+const double SWOFLET::E_OIL::defaultValue = 1.000000;
+const std::string SWOFLET::T_OIL::itemName = "T_OIL";
+const double SWOFLET::T_OIL::defaultValue = 1.000000;
+const std::string SWOFLET::KRT_OIL::itemName = "KRT_OIL";
+const double SWOFLET::KRT_OIL::defaultValue = 1.000000;
+const std::string SWOFLET::L_PC::itemName = "L_PC";
+const double SWOFLET::L_PC::defaultValue = 1.000000;
+const std::string SWOFLET::E_PC::itemName = "E_PC";
+const double SWOFLET::E_PC::defaultValue = 1.000000;
+const std::string SWOFLET::T_PC::itemName = "T_PC";
+const double SWOFLET::T_PC::defaultValue = 1.000000;
+const std::string SWOFLET::PCIR::itemName = "PCIR";
+const double SWOFLET::PCIR::defaultValue = 0;
+const std::string SWOFLET::PCT::itemName = "PCT";
+const double SWOFLET::PCT::defaultValue = 0;
+
+
+SWU::SWU() : ParserKeyword("SWU", KeywordSize(1, false)) {
   addValidSectionName("PROPS");
   clearDeckNames();
   addDeckName("SWU");
