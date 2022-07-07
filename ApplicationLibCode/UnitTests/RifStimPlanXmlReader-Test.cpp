@@ -5,14 +5,14 @@
 #include "RifStimPlanXmlReader.h"
 #include "RigStimPlanFractureDefinition.h"
 
-static const QString CASE_REAL_TEST_DATA_DIRECTORY = QString( "%1/RifStimPlanXmlReader/" ).arg( TEST_DATA_DIR );
+static const QString CASE_REAL_TEST_DATA_DIRECTORY_02 = QString( "%1/RifStimPlanXmlReader/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 TEST( RifStimPlanXmlReaderTest, LoadFile )
 {
-    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY + "small_fracture.xml";
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_02 + "small_fracture.xml";
 
     double                           conductivityScaleFactor = 1.0;
     RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
@@ -38,7 +38,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFile )
 //--------------------------------------------------------------------------------------------------
 TEST( RifStimPlanXmlReaderTest, LoadFileNewFormat )
 {
-    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY + "contour_Metric.xml";
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_02 + "contour_Metric.xml";
 
     double                           conductivityScaleFactor = 1.0;
     RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;
@@ -69,7 +69,7 @@ TEST( RifStimPlanXmlReaderTest, LoadFileNewFormat )
 //--------------------------------------------------------------------------------------------------
 TEST( RifStimPlanXmlReaderTest, LoadFileNewFormatExtraParameters )
 {
-    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY + "contour_with_extra_parameters.xml";
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_02 + "contour_with_extra_parameters.xml";
 
     double                           conductivityScaleFactor = 1.0;
     RiaDefines::EclipseUnitSystem    unit                    = RiaDefines::EclipseUnitSystem::UNITS_METRIC;

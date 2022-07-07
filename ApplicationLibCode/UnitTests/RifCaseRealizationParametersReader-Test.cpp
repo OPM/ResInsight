@@ -8,7 +8,7 @@
 #include <QString>
 #include <numeric>
 
-static const QString CASE_REAL_TEST_DATA_DIRECTORY =
+static const QString CASE_REAL_TEST_DATA_DIRECTORY_01 =
     QString( "%1/RifCaseRealizationParametersReader/" ).arg( TEST_DATA_DIR );
 
 //--------------------------------------------------------------------------------------------------
@@ -16,8 +16,8 @@ static const QString CASE_REAL_TEST_DATA_DIRECTORY =
 //--------------------------------------------------------------------------------------------------
 TEST( RifCaseRealizationParametersReaderTest, LocatorTestSuccess )
 {
-    QString file     = RifCaseRealizationParametersFileLocator::locate( CASE_REAL_TEST_DATA_DIRECTORY + "4/3/2" );
-    QString expected = CASE_REAL_TEST_DATA_DIRECTORY + "parameters.txt";
+    QString file     = RifCaseRealizationParametersFileLocator::locate( CASE_REAL_TEST_DATA_DIRECTORY_01 + "4/3/2" );
+    QString expected = CASE_REAL_TEST_DATA_DIRECTORY_01 + "parameters.txt";
     EXPECT_EQ( expected.toStdString(), file.toStdString() );
 }
 
@@ -26,7 +26,7 @@ TEST( RifCaseRealizationParametersReaderTest, LocatorTestSuccess )
 //--------------------------------------------------------------------------------------------------
 TEST( RifCaseRealizationParametersReaderTest, LocatorTestFailure )
 {
-    QString file     = RifCaseRealizationParametersFileLocator::locate( CASE_REAL_TEST_DATA_DIRECTORY + "4/3/2/1" );
+    QString file     = RifCaseRealizationParametersFileLocator::locate( CASE_REAL_TEST_DATA_DIRECTORY_01 + "4/3/2/1" );
     QString expected = "";
     EXPECT_EQ( expected.toStdString(), file.toStdString() );
 }
@@ -36,7 +36,7 @@ TEST( RifCaseRealizationParametersReaderTest, LocatorTestFailure )
 //--------------------------------------------------------------------------------------------------
 TEST( RifCaseRealizationParametersReaderTest, SuccessfulParsing )
 {
-    RifCaseRealizationParametersReader reader( CASE_REAL_TEST_DATA_DIRECTORY + "parameters.txt" );
+    RifCaseRealizationParametersReader reader( CASE_REAL_TEST_DATA_DIRECTORY_01 + "parameters.txt" );
 
     try
     {
