@@ -127,7 +127,7 @@ namespace Opm {
     void ParseContext::initEnv() {
         envUpdate( "OPM_ERRORS_EXCEPTION" , InputError::THROW_EXCEPTION );
         envUpdate( "OPM_ERRORS_WARN" , InputError::WARN );
-        envUpdate( "OPM_ERRORS_IGNORE" , InputError::IGNORE );
+        envUpdate( "OPM_ERRORS_IGNORE" , InputError::msvc_IGNORE );
         envUpdate( "OPM_ERRORS_EXIT1", InputError::EXIT1);
         envUpdate( "OPM_ERRORS_EXIT", InputError::EXIT1);
         envUpdate( "OPM_ERRORS_DELAYED_EXIT1", InputError::DELAYED_EXIT1);
@@ -149,7 +149,7 @@ namespace Opm {
         InputError::Action action = get( errorKey );
         std::string msg = location ? OpmInputError::format(msg_fmt, *location) : msg_fmt;
 
-        if (action == InputError::IGNORE) {
+        if (action == InputError::msvc_IGNORE) {
             errors.addWarning(errorKey, msg);
             return;
         }

@@ -339,7 +339,7 @@ UDQASTNode UDQParser::parse(const UDQParams& udq_params, UDQVarType target_type,
                                           "Invalid type conversion detected in UDQ expression expected: {}  got: {}", target_var, UDQ::typeName(target_type), UDQ::typeName(tree.var_type));
 
         parseContext.handleError(ParseContext::UDQ_TYPE_ERROR, msg_fmt, location, errors);
-        if (parseContext.get(ParseContext::UDQ_TYPE_ERROR) != InputError::IGNORE)
+        if (parseContext.get(ParseContext::UDQ_TYPE_ERROR) != InputError::msvc_IGNORE)
             dump_tokens(target_var, tokens);
 
         return UDQASTNode( udq_params.undefinedValue() );
@@ -350,7 +350,7 @@ UDQASTNode UDQParser::parse(const UDQParams& udq_params, UDQVarType target_type,
                                           "In {{file}} line {{line}}.\n"
                                           "Could not determine expression type.", target_var);
         parseContext.handleError(ParseContext::UDQ_TYPE_ERROR, msg_fmt, location, errors);
-        if (parseContext.get(ParseContext::UDQ_TYPE_ERROR) != InputError::IGNORE)
+        if (parseContext.get(ParseContext::UDQ_TYPE_ERROR) != InputError::msvc_IGNORE)
             dump_tokens(target_var, tokens);
 
         return UDQASTNode( udq_params.undefinedValue() );
