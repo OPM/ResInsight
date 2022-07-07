@@ -9,4 +9,4 @@
 	url = https://github.com/fastfloat/fast_float
 [submodule "ThirdParty/qtadvanceddocking"]
 	path = ThirdParty/qtadvanceddocking
-	url = https://github.com/githubuser0xFFFF/Qt-Advanced-Docking-System.git
+	url = https://github.com/CeetronSolutions/qtadvanceddocking.git

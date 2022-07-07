@@ -23,7 +23,6 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 
-#include <QDockWidget>
 #include <QPointer>
 
 class RimAnalysisPlotCollection;

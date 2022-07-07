@@ -22,11 +22,16 @@
 #include <QString>
 #include <QVariant>
 
-class QDockWidget;
 class QObject;
 class QAction;
 
 class Rim3dView;
+
+namespace ads
+{
+class CDockWidget;
+class CDockManager;
+}; // namespace ads
 
 //==================================================================================================
 //
@@ -61,9 +66,9 @@ public:
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
 
-    static QAction* toggleActionForWidget( const QObject* parent, const QString& dockWidgetName );
+    static QAction* toggleActionForWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 
-    static QVariant dockWidgetsVisibility( const QObject* parent );
+    static QVariant dockWidgetsVisibility( const ads::CDockManager* dockManager );
     static QVariant defaultDockWidgetVisibilities();
 
     static void workaroundForQwtDockWidgets();
@@ -71,10 +76,12 @@ public:
     static void setVisibleDockingWindowsForEclipse();
     static void setVisibleDockingWindowsForGeoMech();
 
-    static void setDockWidgetVisibility( const QObject* parent, const QString& dockWidgetName, bool isVisible );
-    static void applyDockWidgetVisibilities( const QObject* parent, const QMap<QString, QVariant>& visibilityMap );
+    static void
+                setDockWidgetVisibility( const ads::CDockManager* dockManager, const QString& dockWidgetName, bool isVisible );
+    static void applyDockWidgetVisibilities( const ads::CDockManager*       dockManager,
+                                             const QMap<QString, QVariant>& visibilityMap );
 
-    static QDockWidget* findDockWidget( const QObject* parent, const QString& dockWidgetName );
+    static ads::CDockWidget* findDockWidget( const ads::CDockManager*, const QString& dockWidgetName );
 
 private:
     static QMap<QString, QVariant> widgetVisibilitiesForEclipse();

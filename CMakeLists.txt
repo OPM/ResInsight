@@ -444,15 +444,6 @@ elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(qwt PRIVATE -Wno-deprecated)
 endif()
 
-if(RESINSIGHT_ENABLE_UNITY_BUILD)
-  message("Cmake Unity build is enabled on : qwt")
-  set_property(TARGET qwt PROPERTY UNITY_BUILD true)
-  message("Cmake Unity build is enabled on : custom-opm-flowdiagnostics")
-  set_property(TARGET custom-opm-flowdiagnostics PROPERTY UNITY_BUILD true)
-  message("Cmake Unity build is enabled on : custom-opm-common")
-  set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
-endif()
-
 list(APPEND THIRD_PARTY_LIBRARIES qwt)
 
 # ##############################################################################
@@ -468,11 +459,6 @@ elseif(MSVC)
   target_compile_options(qtadvanceddocking PRIVATE /wd4996 /wd4005)
 elseif(CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated)
-endif()
-
-if(RESINSIGHT_ENABLE_UNITY_BUILD)
-  message("Cmake Unity build is enabled on : QtADS")
-  set_property(TARGET qtadvanceddocking PROPERTY UNITY_BUILD true)
 endif()
 
 list(APPEND THIRD_PARTY_LIBRARIES qtadvanceddocking)
@@ -518,6 +504,20 @@ list(APPEND THIRD_PARTY_LIBRARIES clipper)
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
+
+# ##############################################################################
+# Unity Build
+# ##############################################################################
+if(RESINSIGHT_ENABLE_UNITY_BUILD)
+  message("Cmake Unity build is enabled on : qwt")
+  set_property(TARGET qwt PROPERTY UNITY_BUILD true)
+  message("Cmake Unity build is enabled on : custom-opm-flowdiagnostics")
+  set_property(TARGET custom-opm-flowdiagnostics PROPERTY UNITY_BUILD true)
+  message("Cmake Unity build is enabled on : custom-opm-common")
+  set_property(TARGET custom-opm-common PROPERTY UNITY_BUILD true)
+  message("Cmake Unity build is enabled on : qtadvanceddocking")
+  set_property(TARGET qtadvanceddocking PROPERTY UNITY_BUILD true)
+endif()
 
 # ##############################################################################
 # Vizualization Framework

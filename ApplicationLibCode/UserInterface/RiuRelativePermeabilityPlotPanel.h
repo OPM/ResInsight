@@ -28,7 +28,6 @@
 
 class RiuDockedQwtPlot;
 class RiuRelativePermeabilityPlotUpdater;
-class QDockWidget;
 class QButtonGroup;
 class QCheckBox;
 class QwtPlot;
@@ -46,7 +45,7 @@ class RiuRelativePermeabilityPlotPanel : public QWidget
     Q_OBJECT
 
 public:
-    RiuRelativePermeabilityPlotPanel( QDockWidget* parent );
+    RiuRelativePermeabilityPlotPanel( QWidget* parent );
     ~RiuRelativePermeabilityPlotPanel() override;
 
     void                                setPlotData( RiaDefines::EclipseUnitSystem                                unitSystem,
