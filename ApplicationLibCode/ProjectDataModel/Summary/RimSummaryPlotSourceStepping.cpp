@@ -321,6 +321,8 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     std::vector<RimSummaryCurve*> curves;
     if ( dataSourceSteppingObject() ) curves = dataSourceSteppingObject()->allCurves( m_sourceSteppingType );
 
+    bool isAutoZoomAllowed = false;
+
     if ( changedField == &m_stepDimension )
     {
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->getOrCreateMainPlotWindow();
@@ -444,6 +446,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         }
         m_vectorName.uiCapability()->updateConnectedEditors();
         triggerLoadDataAndUpdate = true;
+        isAutoZoomAllowed        = true;
     }
 
     if ( changedField != &m_vectorName )
@@ -521,7 +524,9 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
         {
             summaryMultiPlot->updatePlots();
             summaryMultiPlot->updatePlotWindowTitle();
-            summaryMultiPlot->zoomAllYAxes();
+
+            if ( isAutoZoomAllowed ) summaryMultiPlot->zoomAllYAxes();
+
             RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
             mainPlotWindow->updateMultiPlotToolBar();
         }
