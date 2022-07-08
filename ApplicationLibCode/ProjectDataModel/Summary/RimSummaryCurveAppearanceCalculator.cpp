@@ -396,18 +396,21 @@ cvf::Color3f RimSummaryCurveAppearanceCalculator::computeTintedCurveColorForAddr
 {
     bool usePhaseColor = RiaPreferencesSummary::current()->colorCurvesByPhase();
 
+    float        scalingFactor = 0.25;
     cvf::Color3f curveColor;
+
     if ( usePhaseColor )
     {
-        curveColor = RimSummaryCurveAppearanceCalculator::assignColorByPhase( address );
+        // A negative scaling factor will make the color darker
+        scalingFactor = -0.1 * colorIndex;
+        curveColor    = RimSummaryCurveAppearanceCalculator::assignColorByPhase( address );
     }
     else
     {
         curveColor = RiaColorTables::summaryCurveDefaultPaletteColors().cycledColor3f( colorIndex );
     }
 
-    float scalingFactor = 0.25;
-    curveColor          = RiaColorTools::makeLighter( curveColor, scalingFactor );
+    curveColor = RiaColorTools::makeLighter( curveColor, scalingFactor );
     return curveColor;
 }
 

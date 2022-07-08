@@ -222,6 +222,7 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
     std::vector<RimSummaryAddress*>           addresses;
     std::vector<RimSummaryAddressCollection*> addressCollections;
     std::vector<RimSummaryCase*>              cases;
+    std::vector<RimSummaryCaseCollection*>    ensembles;
 
     for ( auto o : objects )
     {
@@ -243,11 +244,13 @@ void RimSummaryMultiPlot::handleDroppedObjects( const std::vector<caf::PdmObject
 
         auto summaryCase = dynamic_cast<RimSummaryCase*>( o );
         if ( summaryCase ) cases.push_back( summaryCase );
+        auto ensemble = dynamic_cast<RimSummaryCaseCollection*>( o );
+        if ( ensemble ) ensembles.push_back( ensemble );
     }
 
     RicAppendSummaryPlotsForSummaryAddressesFeature::appendPlotsForAddresses( this, addresses );
     RicAppendSummaryPlotsForObjectsFeature::appendPlots( this, addressCollections );
-    RicAppendSummaryPlotsForSummaryCasesFeature::appendPlotsForCases( this, cases );
+    RicAppendSummaryPlotsForObjectsFeature::appendPlots( this, cases, ensembles );
 }
 
 //--------------------------------------------------------------------------------------------------

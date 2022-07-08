@@ -24,6 +24,7 @@
 
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
@@ -77,12 +78,21 @@ void RicAppendSummaryCurvesForSummaryCasesFeature::setupActionLook( QAction* act
 //--------------------------------------------------------------------------------------------------
 std::vector<caf::PdmObjectHandle*> RicAppendSummaryCurvesForSummaryCasesFeature::selectedCases()
 {
-    std::vector<RimSummaryCase*> objects;
-    caf::SelectionManager::instance()->objectsByType( &objects );
-
     // Make the object type general to match the expected type for handleDroppedObjects();
     std::vector<caf::PdmObjectHandle*> generalObjects;
-    generalObjects.insert( generalObjects.begin(), objects.begin(), objects.end() );
+
+    {
+        std::vector<RimSummaryCase*> objects;
+        caf::SelectionManager::instance()->objectsByType( &objects );
+
+        generalObjects.insert( generalObjects.begin(), objects.begin(), objects.end() );
+    }
+    {
+        std::vector<RimSummaryCaseCollection*> objects;
+        caf::SelectionManager::instance()->objectsByType( &objects );
+
+        generalObjects.insert( generalObjects.begin(), objects.begin(), objects.end() );
+    }
 
     return generalObjects;
 }

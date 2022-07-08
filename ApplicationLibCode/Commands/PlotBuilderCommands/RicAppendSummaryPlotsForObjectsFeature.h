@@ -29,6 +29,8 @@ class RimSummaryAddressCollection;
 class RimSummaryMultiPlot;
 class RifEclipseSummaryAddress;
 class RimSummaryPlot;
+class RimSummaryCase;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///
@@ -39,14 +41,20 @@ class RicAppendSummaryPlotsForObjectsFeature : public caf::CmdFeature
 
 public:
     static std::vector<RimSummaryAddressCollection*> selectedCollections();
+
     static std::vector<RimSummaryPlot*>
-                plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
-                                                 RimSummaryAddressCollection::CollectionContentType objectType );
+        plotsForOneInstanceOfObjectType( const std::vector<RimSummaryPlot*>&                sourcePlots,
+                                         RimSummaryAddressCollection::CollectionContentType objectType );
+
     static bool isSelectionCompatibleWithPlot( const std::vector<RimSummaryAddressCollection*>& selection,
                                                RimSummaryMultiPlot*                             summaryMultiPlot );
 
     static void appendPlots( RimSummaryMultiPlot*                             summaryMultiPlot,
                              const std::vector<RimSummaryAddressCollection*>& selection );
+
+    static void appendPlots( RimSummaryMultiPlot*                          summaryMultiPlot,
+                             const std::vector<RimSummaryCase*>&           cases,
+                             const std::vector<RimSummaryCaseCollection*>& ensembles );
 
 protected:
     bool isCommandEnabled() override;
@@ -54,6 +62,10 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
+    static std::vector<RimSummaryAddressCollection*>
+        createAddressCollections( const std::vector<RimSummaryCase*>&           cases,
+                                  const std::vector<RimSummaryCaseCollection*>& ensembles );
+
     static RifEclipseSummaryAddress modifyAddress( const RifEclipseSummaryAddress& sourceAddress,
                                                    RimSummaryAddressCollection*    summaryAddressCollection );
 };

@@ -165,6 +165,7 @@ public:
     size_t singleColorCurveCount() const;
     void   applyDefaultCurveAppearances();
     void   applyDefaultCurveAppearances( std::vector<RimSummaryCurve*> curvesToUpdate );
+    void   applyDefaultCurveAppearances( std::vector<RimEnsembleCurveSet*> ensembleCurvesToUpdate );
 
     void setNormalizationEnabled( bool enable );
     bool isNormalizationEnabled();
@@ -288,13 +289,14 @@ private:
     void assignPlotAxis( RimSummaryCurve* curve );
 
     RimSummaryCurve* addNewCurveY( const RifEclipseSummaryAddress& address, RimSummaryCase* summaryCase );
-    void addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
+    RimEnsembleCurveSet* addNewEnsembleCurveY( const RifEclipseSummaryAddress& address, RimSummaryCaseCollection* ensemble );
 
     void updateStackedCurveData();
     bool updateStackedCurveDataForAxis( RiuPlotAxis plotAxis );
     bool updateStackedCurveDataForRelevantAxes();
 
-    std::pair<int, std::vector<RimSummaryCurve*>> handleSummaryCaseDrop( RimSummaryCase* summaryCase );
+    std::pair<int, std::vector<RimSummaryCurve*>>     handleSummaryCaseDrop( RimSummaryCase* summaryCase );
+    std::pair<int, std::vector<RimEnsembleCurveSet*>> handleEnsembleDrop( RimSummaryCaseCollection* ensemble );
     std::pair<int, std::vector<RimSummaryCurve*>> handleAddressCollectionDrop( RimSummaryAddressCollection* addrColl );
     std::pair<int, std::vector<RimSummaryCurve*>> handleSummaryAddressDrop( RimSummaryAddress* summaryAddr );
 
