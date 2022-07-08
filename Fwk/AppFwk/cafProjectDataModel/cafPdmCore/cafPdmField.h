@@ -5,4 +5,3 @@
 #include "cafPdmDataValueField.h"
 #undef PdmDataValueField
 #undef CAF_IS_DEFINING_PDM_FIELD
-
