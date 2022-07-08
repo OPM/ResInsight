@@ -77,9 +77,21 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
                 summaryMultiPlot->addPlot( duplicatedPlot );
 
                 auto summaryCase = RiaSummaryTools::summaryCaseById( summaryAdrCollection->caseId() );
-                for ( auto c : duplicatedPlot->summaryCurves() )
+                if ( summaryCase )
                 {
-                    c->setSummaryCaseY( summaryCase );
+                    for ( auto c : duplicatedPlot->summaryCurves() )
+                    {
+                        c->setSummaryCaseY( summaryCase );
+                    }
+                }
+
+                auto ensemble = RiaSummaryTools::ensembleById( summaryAdrCollection->ensembleId() );
+                if ( ensemble )
+                {
+                    for ( auto c : duplicatedPlot->curveSets() )
+                    {
+                        c->setSummaryCaseCollection( ensemble );
+                    }
                 }
             }
             else
@@ -100,6 +112,51 @@ void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot* s
         }
         info.incrementProgress();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicAppendSummaryPlotsForObjectsFeature::appendPlots( RimSummaryMultiPlot*                summaryMultiPlot,
+                                                          const std::vector<RimSummaryCase*>& cases,
+                                                          const std::vector<RimSummaryCaseCollection*>& ensembles )
+{
+    auto addressCollectionsToBeDeleted =
+        RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( cases, ensembles );
+    RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, addressCollectionsToBeDeleted );
+
+    for ( auto obj : addressCollectionsToBeDeleted )
+    {
+        delete obj;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryAddressCollection*>
+    RicAppendSummaryPlotsForObjectsFeature::createAddressCollections( const std::vector<RimSummaryCase*>& cases,
+                                                                      const std::vector<RimSummaryCaseCollection*>& ensembles )
+{
+    std::vector<RimSummaryAddressCollection*> addresses;
+
+    for ( auto c : cases )
+    {
+        auto myColl = new RimSummaryAddressCollection;
+        myColl->setContentType( RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE );
+        myColl->setCaseId( c->caseId() );
+        addresses.push_back( myColl );
+    }
+
+    for ( auto c : ensembles )
+    {
+        auto myColl = new RimSummaryAddressCollection;
+        myColl->setContentType( RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE );
+        myColl->setEnsembleId( c->ensembleId() );
+        addresses.push_back( myColl );
+    }
+
+    return addresses;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -276,8 +333,9 @@ std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOne
 
     std::string wellNameToMatch;
     std::string groupNameToMatch;
-    int         regionToMatch = -1;
-    int         caseIdToMatch = -1;
+    int         regionToMatch     = -1;
+    int         caseIdToMatch     = -1;
+    int         ensembleIdToMatch = -1;
 
     RiaSummaryAddressAnalyzer myAnalyser;
     for ( auto sourcePlot : sourcePlots )
@@ -307,6 +365,11 @@ std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOne
             {
                 caseIdToMatch = curves.front()->summaryCaseY()->caseId();
             }
+            auto curveSets = sourcePlots.back()->curveSets();
+            if ( !curveSets.empty() )
+            {
+                ensembleIdToMatch = curveSets.front()->ensembleId();
+            }
         }
     }
 
@@ -320,6 +383,14 @@ std::vector<RimSummaryPlot*> RicAppendSummaryPlotsForObjectsFeature::plotsForOne
             for ( auto c : curves )
             {
                 if ( c->summaryCaseY()->caseId() == caseIdToMatch ) isMatching = true;
+            }
+        }
+        else if ( ensembleIdToMatch != -1 )
+        {
+            auto curveSets = sourcePlot->curveSets();
+            for ( auto c : curveSets )
+            {
+                if ( c->summaryCaseCollection()->ensembleId() == ensembleIdToMatch ) isMatching = true;
             }
         }
         else

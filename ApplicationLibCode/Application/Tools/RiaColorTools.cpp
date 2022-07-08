@@ -196,8 +196,10 @@ cvf::Color3f RiaColorTools::makeLighter( const cvf::Color3f& color, float normal
     double l = 0.0;
     qColor.getHslF( &h, &s, &l );
 
+    // A negative value will make the color darker
     l = l + ( 1.0 - l ) * normalizedScalingFactor;
-    l = std::min( 1.0, l );
+
+    l = std::clamp( l, 0.0, 1.0 );
 
     qColor.setHslF( h, s, l );
 
