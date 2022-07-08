@@ -24,6 +24,7 @@
 
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
+#include "RimSummaryCaseCollection.h"
 #include "RimSummaryMultiPlot.h"
 
 #include "cafSelectionManager.h"
@@ -35,36 +36,14 @@ CAF_CMD_SOURCE_INIT( RicAppendSummaryPlotsForSummaryCasesFeature, "RicAppendSumm
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicAppendSummaryPlotsForSummaryCasesFeature::appendPlotsForCases( RimSummaryMultiPlot* summaryMultiPlot,
-                                                                       const std::vector<RimSummaryCase*>& cases )
-{
-    if ( !summaryMultiPlot ) return;
-    if ( cases.empty() ) return;
-
-    std::vector<RimSummaryAddressCollection*> tmp;
-
-    for ( auto c : cases )
-    {
-        auto myColl = new RimSummaryAddressCollection;
-        myColl->setContentType( RimSummaryAddressCollection::CollectionContentType::SUMMARY_CASE );
-        myColl->setCaseId( c->caseId() );
-        tmp.push_back( myColl );
-    }
-
-    RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, tmp );
-
-    for ( auto obj : tmp )
-    {
-        delete obj;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RicAppendSummaryPlotsForSummaryCasesFeature::isCommandEnabled()
 {
-    return !selectedCases().empty();
+    auto cases     = selectedCases();
+    auto ensembles = selectedEnsembles();
+
+    if ( cases.empty() && ensembles.empty() ) return false;
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,10 +56,10 @@ void RicAppendSummaryPlotsForSummaryCasesFeature::onActionTriggered( bool isChec
     auto summaryMultiPlot = dynamic_cast<RimSummaryMultiPlot*>( app->activePlotWindow() );
     if ( !summaryMultiPlot ) return;
 
-    auto cases = selectedCases();
-    if ( cases.empty() ) return;
+    auto cases     = selectedCases();
+    auto ensembles = selectedEnsembles();
 
-    appendPlotsForCases( summaryMultiPlot, cases );
+    RicAppendSummaryPlotsForObjectsFeature::appendPlots( summaryMultiPlot, cases, ensembles );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,6 +80,17 @@ void RicAppendSummaryPlotsForSummaryCasesFeature::setupActionLook( QAction* acti
 std::vector<RimSummaryCase*> RicAppendSummaryPlotsForSummaryCasesFeature::selectedCases()
 {
     std::vector<RimSummaryCase*> objects;
+    caf::SelectionManager::instance()->objectsByType( &objects );
+
+    return objects;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimSummaryCaseCollection*> RicAppendSummaryPlotsForSummaryCasesFeature::selectedEnsembles()
+{
+    std::vector<RimSummaryCaseCollection*> objects;
     caf::SelectionManager::instance()->objectsByType( &objects );
 
     return objects;

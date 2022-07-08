@@ -777,6 +777,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
             menuBuilder << "RicNewDerivedEnsembleFeature";
             menuBuilder << "RicOpenSummaryPlotEditorFeature";
             menuBuilder << "RicNewSummaryCrossPlotFeature";
+            menuBuilder << "RicAppendSummaryCurvesForSummaryCasesFeature";
+            menuBuilder << "RicAppendSummaryPlotsForSummaryCasesFeature";
             menuBuilder.addSeparator();
             menuBuilder << "RicConvertGroupToEnsembleFeature";
             menuBuilder.addSeparator();

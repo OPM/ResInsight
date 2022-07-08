@@ -24,6 +24,7 @@
 
 class RimSummaryCase;
 class RimSummaryMultiPlot;
+class RimSummaryCaseCollection;
 
 //==================================================================================================
 ///
@@ -32,14 +33,12 @@ class RicAppendSummaryPlotsForSummaryCasesFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
-public:
-    static void appendPlotsForCases( RimSummaryMultiPlot* summaryMultiPlot, const std::vector<RimSummaryCase*>& cases );
-
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    static std::vector<RimSummaryCase*> selectedCases();
+    static std::vector<RimSummaryCase*>           selectedCases();
+    static std::vector<RimSummaryCaseCollection*> selectedEnsembles();
 };
