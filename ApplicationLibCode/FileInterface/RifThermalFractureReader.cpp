@@ -18,6 +18,7 @@
 
 #include "RifThermalFractureReader.h"
 
+#include "RiaDefines.h"
 #include "RiaTextStringTools.h"
 
 #include "RigThermalFractureDefinition.h"
@@ -60,7 +61,6 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
     QTextStream in( &file );
     int         lineNumber = 1;
 
-    QStringList headerValues;
     // The two items in the csv is name and timestep
     const int valueOffset   = 2;
     int       nodeIndex     = 0;
@@ -76,7 +76,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
         }
         else if ( isHeaderLine( line ) )
         {
-            headerValues = RifFileParseTools::splitLineAndTrim( line, separator );
+            QStringList headerValues = RifFileParseTools::splitLineAndTrim( line, separator );
             if ( isFirstHeader )
             {
                 // Create the result vector when encountering the first header
@@ -84,6 +84,21 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
                 {
                     auto [name, unit] = parseNameAndUnit( headerValues[i] );
                     if ( !name.isEmpty() && !unit.isEmpty() ) def->addProperty( name, unit );
+                }
+
+                // Detect unit system
+                RiaDefines::EclipseUnitSystem unitSystem = detectUnitSystem( def );
+                if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
+                {
+                    return std::make_pair( nullptr, QString( "Unknown unit system found in file: %1" ).arg( filePath ) );
+                }
+
+                // Verify that all values have consistent units:
+                // all values should be either metric or field, and mixing is not allowed
+                bool isUnitsConsistent = checkUnits( def, unitSystem );
+                if ( !isUnitsConsistent )
+                {
+                    return std::make_pair( nullptr, QString( "Inconsistent units found in file: %1" ).arg( filePath ) );
                 }
 
                 isFirstHeader = false;
@@ -197,4 +212,87 @@ std::pair<QString, QString> RifThermalFractureReader::parseNameAndUnit( const QS
     {
         return std::make_pair( "", "" );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EclipseUnitSystem
+    RifThermalFractureReader::detectUnitSystem( std::shared_ptr<const RigThermalFractureDefinition> definition )
+{
+    // Use XCoord property to determine expected unit for entire file
+    QString targetName    = "XCoord";
+    auto    namesAndUnits = definition->getPropertyNamesUnits();
+    auto    res           = std::find_if( namesAndUnits.begin(), namesAndUnits.end(), [&]( const auto& val ) {
+        return val.first == targetName;
+    } );
+
+    if ( res != namesAndUnits.end() )
+    {
+        QString unit = res->second;
+        if ( unit == getExpectedUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_METRIC ) )
+            return RiaDefines::EclipseUnitSystem::UNITS_METRIC;
+        else if ( unit == getExpectedUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_FIELD ) )
+            return RiaDefines::EclipseUnitSystem::UNITS_FIELD;
+    }
+
+    return RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RifThermalFractureReader::checkUnits( std::shared_ptr<const RigThermalFractureDefinition> definition,
+                                           RiaDefines::EclipseUnitSystem                       unitSystem )
+{
+    auto namesAndUnits = definition->getPropertyNamesUnits();
+    for ( auto [name, unit] : namesAndUnits )
+    {
+        auto expectedUnit = getExpectedUnit( name, unitSystem );
+        if ( expectedUnit != unit ) return false;
+    }
+
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RifThermalFractureReader::getExpectedUnit( const QString& name, RiaDefines::EclipseUnitSystem unitSystem )
+{
+    CAF_ASSERT( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC ||
+                unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD );
+
+    // parameter name --> { metric unit, field unit }
+    std::map<QString, std::pair<QString, QString>> mapping = { { "XCoord", { "m", "feet" } },
+                                                               { "YCoord", { "m", "feet" } },
+                                                               { "ZCoord", { "m", "feet" } },
+                                                               { "Width", { "cm", "inches" } },
+                                                               { "Pressure", { "BARa", "psia" } },
+                                                               { "Temperature", { "deg C", "deg F" } },
+                                                               { "Stress", { "BARa", "psia" } },
+                                                               { "Density", { "Kg/m3", "lb/ft3" } },
+                                                               { "Viscosity", { "mPa.s", "centipoise" } },
+                                                               { "LeakoffMobility", { "m/day/bar", "ft/day/psi" } },
+                                                               { "Conductivity", { "D.m", "D.ft" } },
+                                                               { "Velocity", { "m/sec", "ft/sec" } },
+                                                               { "ResPressure", { "BARa", "psia" } },
+                                                               { "ResTemperature", { "deg C", "deg F" } },
+                                                               { "FiltrateThickness", { "cm", "inches" } },
+                                                               { "FiltratePressureDrop", { "bar", "psi" } },
+                                                               { "EffectiveResStress", { "bar", "psi" } },
+                                                               { "EffectiveFracStress", { "bar", "psi" } },
+                                                               { "LeakoffPressureDrop", { "bar", "psi" } } };
+
+    auto res = std::find_if( mapping.begin(), mapping.end(), [&]( const auto& val ) { return val.first == name; } );
+
+    if ( res != mapping.end() )
+    {
+        if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+            return res->second.first;
+        else
+            return res->second.second;
+    }
+
+    return "";
 }

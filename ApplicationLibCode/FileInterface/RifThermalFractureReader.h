@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaDefines.h"
+
 #include <QDateTime>
 #include <QString>
 
@@ -42,4 +44,10 @@ private:
     static QDateTime parseDateTime( const QString& dateString );
 
     static std::pair<QString, QString> parseNameAndUnit( const QString& value );
+
+    static RiaDefines::EclipseUnitSystem detectUnitSystem( std::shared_ptr<const RigThermalFractureDefinition> definition );
+    static bool                          checkUnits( std::shared_ptr<const RigThermalFractureDefinition> definition,
+                                                     RiaDefines::EclipseUnitSystem                       unitSystem );
+
+    static QString getExpectedUnit( const QString& name, RiaDefines::EclipseUnitSystem unitSystem );
 };
