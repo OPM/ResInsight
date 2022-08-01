@@ -237,7 +237,7 @@ void RivExtrudedCurveIntersectionPartMgr::generatePartGeometry()
     if ( m_intersectionGenerator.isNull() ) return;
 
     if ( m_rimIntersection->depthFilterType() == RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN &&
-         ( m_rimIntersection->lowerFilterDepth( 1.0 ) <= m_rimIntersection->upperFilterDepth( 1.0 ) ) )
+         ( m_rimIntersection->lowerFilterDepth( 1.0 ) >= m_rimIntersection->upperFilterDepth( 1.0 ) ) )
         return;
 
     bool useBufferObjects = true;
