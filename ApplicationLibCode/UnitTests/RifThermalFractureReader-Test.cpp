@@ -79,3 +79,16 @@ TEST( RifThermalFractureReaderTest, LoadFile )
         EXPECT_DOUBLE_EQ( expectedValue, fractureData->getPropertyValue( propertyIndex, nodeIndex, timeStepIndex ) );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifThermalFractureReaderTest, LoadFileMixedUnits )
+{
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_03 + "fracture_mixed_units.csv";
+
+    auto [fractureData, errorMessage] = RifThermalFractureReader::readFractureCsvFile( fileName );
+
+    EXPECT_FALSE( errorMessage.isEmpty() );
+    EXPECT_FALSE( fractureData.get() );
+}
