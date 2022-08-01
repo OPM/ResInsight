@@ -92,3 +92,16 @@ TEST( RifThermalFractureReaderTest, LoadFileMixedUnits )
     EXPECT_FALSE( errorMessage.isEmpty() );
     EXPECT_FALSE( fractureData.get() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( RifThermalFractureReaderTest, LoadFileNonExistingFiles )
+{
+    QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_03 + "this_file_does_not_exist.csv";
+
+    auto [fractureData, errorMessage] = RifThermalFractureReader::readFractureCsvFile( fileName );
+
+    EXPECT_FALSE( errorMessage.isEmpty() );
+    EXPECT_FALSE( fractureData.get() );
+}
