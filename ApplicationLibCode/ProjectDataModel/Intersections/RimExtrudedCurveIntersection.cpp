@@ -251,10 +251,10 @@ RimExtrudedCurveIntersection::RimExtrudedCurveIntersection()
     m_surfaceIntersections = new RimSurfaceIntersectionCollection;
     m_surfaceIntersections->objectChanged.connect( this, &RimExtrudedCurveIntersection::onSurfaceIntersectionsChanged );
 
-    CAF_PDM_InitField( &m_depthUpperThreshold, "UpperThreshold", 2000.0, "Upper Threshold" );
+    CAF_PDM_InitField( &m_depthUpperThreshold, "UpperThreshold", 0.0, "Upper Threshold" );
     m_depthUpperThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
-    CAF_PDM_InitField( &m_depthLowerThreshold, "LowerThreshold", 3000.0, "Lower Threshold" );
+    CAF_PDM_InitField( &m_depthLowerThreshold, "LowerThreshold", 300000.0, "Lower Threshold" );
     m_depthLowerThreshold.uiCapability()->setUiEditorTypeName( caf::PdmUiDoubleSliderEditor::uiEditorTypeName() );
 
     CAF_PDM_InitFieldNoDefault( &m_depthFilterType, "DepthFilter", "Depth Filter" );
@@ -313,7 +313,7 @@ void RimExtrudedCurveIntersection::setName( const QString& newName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimExtrudedCurveIntersection::upperFilterDepth( double sceneRadius ) const
+double RimExtrudedCurveIntersection::upperFilterDepth( double upperGridLimit ) const
 {
     if ( m_depthThresholdOverridden )
     {
@@ -321,12 +321,12 @@ double RimExtrudedCurveIntersection::upperFilterDepth( double sceneRadius ) cons
         {
             case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
             case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-                return m_collectionUpperThreshold;
+                return -m_collectionUpperThreshold;
 
             case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
             case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
             default:
-                return -sceneRadius;
+                return upperGridLimit;
         }
     }
 
@@ -334,12 +334,12 @@ double RimExtrudedCurveIntersection::upperFilterDepth( double sceneRadius ) cons
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-            return m_depthUpperThreshold;
+            return -m_depthUpperThreshold;
 
         case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
         default:
-            return -sceneRadius;
+            return upperGridLimit;
     }
 }
 
@@ -358,7 +358,7 @@ RimIntersectionFilterEnum RimExtrudedCurveIntersection::depthFilterType() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RimExtrudedCurveIntersection::lowerFilterDepth( double sceneRadius ) const
+double RimExtrudedCurveIntersection::lowerFilterDepth( double lowerGridLimit ) const
 {
     if ( m_depthThresholdOverridden )
     {
@@ -366,12 +366,12 @@ double RimExtrudedCurveIntersection::lowerFilterDepth( double sceneRadius ) cons
         {
             case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
             case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-                return m_collectionLowerThreshold;
+                return -m_collectionLowerThreshold;
 
             case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
             case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
             default:
-                return sceneRadius;
+                return lowerGridLimit;
         }
     }
 
@@ -379,12 +379,12 @@ double RimExtrudedCurveIntersection::lowerFilterDepth( double sceneRadius ) cons
     {
         case RimIntersectionFilterEnum::INTERSECT_FILTER_ABOVE:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BETWEEN:
-            return m_depthLowerThreshold;
+            return -m_depthLowerThreshold;
 
         case RimIntersectionFilterEnum::INTERSECT_FILTER_BELOW:
         case RimIntersectionFilterEnum::INTERSECT_FILTER_NONE:
         default:
-            return sceneRadius;
+            return lowerGridLimit;
     }
 }
 
