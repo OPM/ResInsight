@@ -291,11 +291,9 @@ void RivExtrudedCurveIntersectionGeometryGenerator::calculateArrays()
     calculateLineSegementTransforms();
     calculateTransformedPolyline();
 
-    const double gridRadius = gridBBox.radius();
-
     // set up our horizontal cut planes
-    const double topDepth    = -1.0 * m_intersection->upperFilterDepth( gridRadius );
-    const double bottomDepth = -1.0 * m_intersection->lowerFilterDepth( gridRadius );
+    const double topDepth    = m_intersection->upperFilterDepth( gridBBox.max().z() );
+    const double bottomDepth = m_intersection->lowerFilterDepth( gridBBox.min().z() );
 
     std::array<cvf::Vec3d, 8> corners;
     gridBBox.cornerVertices( corners.data() );
