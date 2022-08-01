@@ -24,8 +24,11 @@
 
 #include "RifFileParseTools.h"
 
+#include "cafAssert.h"
+
 #include <QDateTime>
 #include <QFile>
+#include <QRegularExpression>
 #include <QTextStream>
 
 //--------------------------------------------------------------------------------------------------
@@ -45,6 +48,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
     QString separator = ",";
 
     auto appendPropertyValues = [def]( int nodeIndex, int valueOffset, const QStringList& values ) {
+        CAF_ASSERT( valueOffset <= values.size() );
         for ( int i = valueOffset; i < values.size() - 1; i++ )
         {
             double value         = values[i].toDouble();
@@ -79,7 +83,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
                 for ( int i = valueOffset; i < headerValues.size() - 1; i++ )
                 {
                     auto [name, unit] = parseNameAndUnit( headerValues[i] );
-                    def->addProperty( name, unit );
+                    if ( !name.isEmpty() && !unit.isEmpty() ) def->addProperty( name, unit );
                 }
 
                 isFirstHeader = false;
@@ -179,8 +183,18 @@ bool RifThermalFractureReader::isPerimeterNodeLine( const QString& line )
 //--------------------------------------------------------------------------------------------------
 std::pair<QString, QString> RifThermalFractureReader::parseNameAndUnit( const QString& value )
 {
-    QStringList values = value.split( " " );
-    QString     name   = values[0];
-    QString     unit   = values[1].replace( "(", "" ).replace( ")", "" );
-    return std::make_pair( name, unit );
+    // Expected values: "name(unit)" or "name (unit)"
+    QRegularExpression re( "(\\w*)\\s?\\(([^\\)]+)\\)" );
+
+    QRegularExpressionMatch match = re.match( value );
+    if ( match.hasMatch() )
+    {
+        QString name = match.captured( 1 );
+        QString unit = match.captured( 2 );
+        return std::make_pair( name, unit );
+    }
+    else
+    {
+        return std::make_pair( "", "" );
+    }
 }
