@@ -80,7 +80,7 @@ RimThermalFractureTemplate::~RimThermalFractureTemplate()
 //--------------------------------------------------------------------------------------------------
 void RimThermalFractureTemplate::setDefaultsBasedOnFile()
 {
-    if ( m_fractureDefinitionData ) return;
+    if ( !m_fractureDefinitionData ) return;
 
     computeDepthOfWellPathAtFracture();
     computePerforationLength();
