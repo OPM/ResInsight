@@ -82,21 +82,30 @@ public:
 
 private:
     static Qt::Alignment trackTextAlignment( RiaDefines::TrackSpan trackSpan );
-    static void          horizontalDashedLine( QwtPlotMarker* line,
-                                               const QString& name,
-                                               double         yValue,
-                                               const QColor&  color               = QColor( 0, 0, 100 ),
-                                               const QColor&  textColor           = QColor( 0, 0, 100 ),
-                                               Qt::Alignment  horizontalAlignment = Qt::AlignRight,
-                                               int            fontSize            = 0 );
 
-    void verticalLine( QwtPlotMarker* line,
-                       const QString& name,
-                       double         xValue,
-                       const QColor&  color               = QColor( 0, 0, 100 ),
-                       const QColor&  textColor           = QColor( 0, 0, 100 ),
-                       Qt::PenStyle   lineStyle           = Qt::DashLine,
-                       Qt::Alignment  horizontalAlignment = Qt::AlignRight | Qt::AlignBottom );
+    static void horizontalDashedLine( QwtPlotMarker* line,
+                                      const QString& name,
+                                      double         yValue,
+                                      const QColor&  color               = QColor( 0, 0, 100 ),
+                                      const QColor&  textColor           = QColor( 0, 0, 100 ),
+                                      Qt::Alignment  horizontalAlignment = Qt::AlignRight,
+                                      int            fontSize            = 0 );
+
+    static void verticalDashedLine( QwtPlotMarker* line,
+                                    const QString& name,
+                                    double         linePosition,
+                                    const QColor&  color     = QColor( 0, 0, 100 ),
+                                    const QColor&  textColor = QColor( 0, 0, 100 ),
+                                    Qt::Alignment  alignment = Qt::AlignRight,
+                                    int            fontSize  = 0 );
+
+    static void verticalLine( QwtPlotMarker* line,
+                              const QString& name,
+                              double         xValue,
+                              const QColor&  color               = QColor( 0, 0, 100 ),
+                              const QColor&  textColor           = QColor( 0, 0, 100 ),
+                              Qt::PenStyle   lineStyle           = Qt::DashLine,
+                              Qt::Alignment  horizontalAlignment = Qt::AlignRight | Qt::AlignBottom );
 
 private:
     QPointer<QwtPlot>         m_plot;
