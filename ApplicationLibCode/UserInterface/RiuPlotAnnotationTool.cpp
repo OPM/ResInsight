@@ -44,8 +44,7 @@ RiuPlotAnnotationTool::~RiuPlotAnnotationTool()
 //--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                                      plot,
                                                 const std::vector<QString>&                   names,
-                                                const std::pair<double, double>               xRange,
-                                                const std::vector<std::pair<double, double>>& yPositions,
+                                                const std::vector<std::pair<double, double>>& regionPositions,
                                                 RegionDisplay                                 regionDisplay,
                                                 const caf::ColorTable&                        colorTable,
                                                 int                                           shadingAlphaByte,
@@ -54,7 +53,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                 const std::vector<Qt::BrushStyle>& brushStyles /* = {}*/,
                                                 int                                fontSize )
 {
-    if ( names.size() != yPositions.size() ) return;
+    if ( names.size() != regionPositions.size() ) return;
     m_plot = plot;
 
     double delta = 0.5;
@@ -86,7 +85,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
 
             QwtPlotZoneItem* shading = new QwtPlotZoneItem();
             shading->setOrientation( Qt::Horizontal );
-            shading->setInterval( yPositions[i].first, yPositions[i].second );
+            shading->setInterval( regionPositions[i].first, regionPositions[i].second );
             shading->setPen( shadingColor, 0.0, Qt::NoPen );
             QBrush brush( shadingColor );
             if ( i < brushStyles.size() )
@@ -124,7 +123,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
         Qt::Alignment horizontalAlignment = trackTextAlignment( trackSpan );
         RiuPlotAnnotationTool::horizontalDashedLine( line,
                                                      name,
-                                                     yPositions[i].first,
+                                                     regionPositions[i].first,
                                                      lineColor,
                                                      textColor,
                                                      horizontalAlignment,
@@ -132,12 +131,12 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
         line->attach( m_plot );
         m_horizontalMarkers.push_back( std::move( line ) );
 
-        if ( ( i != names.size() - 1 ) && cvf::Math::abs( yPositions[i].second - yPositions[i + 1].first ) > delta )
+        if ( ( i != names.size() - 1 ) && cvf::Math::abs( regionPositions[i].second - regionPositions[i + 1].first ) > delta )
         {
             QwtPlotMarker* bottomLine( new QwtPlotMarker() );
             RiuPlotAnnotationTool::horizontalDashedLine( bottomLine,
                                                          QString(),
-                                                         yPositions[i].second,
+                                                         regionPositions[i].second,
                                                          lineColor,
                                                          textColor,
                                                          Qt::AlignRight,

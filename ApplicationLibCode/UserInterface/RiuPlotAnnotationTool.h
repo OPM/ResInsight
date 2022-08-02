@@ -68,7 +68,6 @@ public:
 
     void attachNamedRegions( QwtPlot*                                      plot,
                              const std::vector<QString>&                   names,
-                             const std::pair<double, double>               xRange,
                              const std::vector<std::pair<double, double>>& yPositions,
                              RegionDisplay                                 regionDisplay,
                              const caf::ColorTable&                        colorTable,

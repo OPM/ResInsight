@@ -2833,8 +2833,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
         if ( geoMechWellLogExtractor )
         {
             // Attach water and rock base formations
-            const std::pair<double, double> xRange =
-                std::make_pair( m_visiblePropertyValueRangeMin(), m_visiblePropertyValueRangeMax() );
 
             const caf::ColorTable waterAndRockColors = RiaColorTables::waterAndRockPaletteColors();
             const std::vector<std::pair<double, double>> waterAndRockIntervals =
@@ -2845,7 +2843,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
 
             m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                   { "Sea Level", "" },
-                                                  xRange,
                                                   convertedYValues,
                                                   m_regionAnnotationDisplay(),
                                                   waterAndRockColors,
@@ -2891,7 +2888,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
             caf::ColorTable colorTable( m_colorShadingLegend->colorArray() );
             m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                   formationNamesToPlot,
-                                                  xRange,
                                                   convertedYValues,
                                                   m_regionAnnotationDisplay(),
                                                   colorTable,
@@ -3020,7 +3016,6 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
 
         m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                               namesToPlot,
-                                              xRange,
                                               convertedYValues,
                                               m_regionAnnotationDisplay(),
                                               colorTable,
@@ -3098,7 +3093,6 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
 
                 m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                       sourceNamesToPlot,
-                                                      xRange,
                                                       convertedYValues,
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
@@ -3129,7 +3123,6 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
 
                 m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                       sourceNamesToPlot,
-                                                      xRange,
                                                       convertedYValues,
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
@@ -3159,7 +3152,6 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
 
                 m_annotationTool->attachNamedRegions( m_plotWidget->qwtPlot(),
                                                       sourceNamesToPlot,
-                                                      xRange,
                                                       convertedYValues,
                                                       m_regionAnnotationDisplay(),
                                                       colorTable,
