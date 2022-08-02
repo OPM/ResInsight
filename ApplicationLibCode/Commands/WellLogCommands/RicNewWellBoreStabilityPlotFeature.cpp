@@ -20,6 +20,7 @@
 
 #include "RiaColorTables.h"
 #include "RiaLogging.h"
+#include "RiaPlotDefines.h"
 #include "RiaResultNames.h"
 
 #include "RicNewWellLogCurveExtractionFeature.h"
@@ -219,7 +220,7 @@ void RicNewWellBoreStabilityPlotFeature::createFormationTrack( RimWellBoreStabil
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Formations", plot );
     formationTrack->setFormationWellPath( wellPath );
     formationTrack->setFormationCase( geoMechCase );
-    formationTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
+    formationTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
     formationTrack->setVisiblePropertyValueRange( 0.0, 0.0 );
     formationTrack->setColSpan( RimPlot::ONE );
 }
@@ -235,8 +236,8 @@ void RicNewWellBoreStabilityPlotFeature::createCasingShoeTrack( RimWellBoreStabi
     casingShoeTrack->setColSpan( RimPlot::ONE );
     casingShoeTrack->setFormationWellPath( wellPath );
     casingShoeTrack->setFormationCase( geoMechCase );
-    casingShoeTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
-    casingShoeTrack->setAnnotationDisplay( RiuPlotAnnotationTool::COLOR_SHADING_AND_LINES );
+    casingShoeTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
+    casingShoeTrack->setAnnotationDisplay( RiaDefines::COLOR_SHADING_AND_LINES );
     casingShoeTrack->setShowRegionLabels( false );
     casingShoeTrack->setShowWellPathAttributes( true );
     casingShoeTrack->setShowBothSidesOfWell( false );
@@ -312,8 +313,8 @@ void RicNewWellBoreStabilityPlotFeature::createStabilityCurvesTrack( RimWellBore
     stabilityCurvesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     stabilityCurvesTrack->setFormationWellPath( wellPath );
     stabilityCurvesTrack->setFormationCase( geoMechCase );
-    stabilityCurvesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
-    stabilityCurvesTrack->setAnnotationDisplay( RiuPlotAnnotationTool::LIGHT_LINES );
+    stabilityCurvesTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
+    stabilityCurvesTrack->setAnnotationDisplay( RiaDefines::LIGHT_LINES );
     stabilityCurvesTrack->setShowRegionLabels( false );
 
     std::vector<QString> resultNames = RiaResultNames::wbsDerivedResultNames();
@@ -431,7 +432,7 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
     wellPathAnglesTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AXIS_GRID_MAJOR_AND_MINOR );
     wellPathAnglesTrack->setFormationWellPath( wellPath );
     wellPathAnglesTrack->setFormationCase( geoMechCase );
-    wellPathAnglesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
-    wellPathAnglesTrack->setAnnotationDisplay( RiuPlotAnnotationTool::LIGHT_LINES );
+    wellPathAnglesTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
+    wellPathAnglesTrack->setAnnotationDisplay( RiaDefines::LIGHT_LINES );
     wellPathAnglesTrack->setShowRegionLabels( false );
 }

@@ -21,8 +21,8 @@
 
 #include "RimWellLogPlot.h"
 
+#include "RiaPlotDefines.h"
 #include "RigWellPathFormations.h"
-#include "RiuPlotAnnotationTool.h"
 
 #include "RimPlot.h"
 
@@ -57,6 +57,7 @@ class RigWellLogExtractor;
 class RimEclipseResultDefinition;
 class RimColorLegend;
 class RimEnsembleWellLogCurveSet;
+class RiuPlotAnnotationTool;
 
 struct CurveSamplingPointData
 {
@@ -87,8 +88,8 @@ public:
         WELL_PICK_FILTER
     };
 
-    using RegionAnnotationTypeEnum    = caf::AppEnum<RiuPlotAnnotationTool::RegionAnnotationType>;
-    using RegionAnnotationDisplayEnum = caf::AppEnum<RiuPlotAnnotationTool::RegionDisplay>;
+    using RegionAnnotationTypeEnum    = caf::AppEnum<RiaDefines::RegionAnnotationType>;
+    using RegionAnnotationDisplayEnum = caf::AppEnum<RiaDefines::RegionDisplay>;
 
 public:
     RimWellLogTrack();
@@ -166,13 +167,13 @@ public:
     void setMinAndMaxTicksOnly( bool enable );
     void setPropertyValueAxisGridVisibility( RimWellLogPlot::AxisGridVisibility gridLines );
 
-    void setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType annotationType );
-    void setAnnotationDisplay( RiuPlotAnnotationTool::RegionDisplay annotationDisplay );
+    void setAnnotationType( RiaDefines::RegionAnnotationType annotationType );
+    void setAnnotationDisplay( RiaDefines::RegionDisplay annotationDisplay );
     void setAnnotationTransparency( int percent );
     void setColorShadingLegend( RimColorLegend* colorLegend );
 
-    RiuPlotAnnotationTool::RegionAnnotationType annotationType() const;
-    RiuPlotAnnotationTool::RegionDisplay        annotationDisplay() const;
+    RiaDefines::RegionAnnotationType annotationType() const;
+    RiaDefines::RegionDisplay        annotationDisplay() const;
 
     bool showFormations() const;
 
