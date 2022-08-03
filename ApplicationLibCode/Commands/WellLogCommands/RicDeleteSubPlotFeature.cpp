@@ -44,29 +44,10 @@ bool RicDeleteSubPlotFeature::isCommandEnabled()
 {
     if ( RicWellLogPlotCurveFeatureImpl::parentWellAllocationPlot() ) return false;
 
-    std::vector<caf::PdmObject*> selection;
-    caf::SelectionManager::instance()->objectsByType( &selection );
+    std::vector<RimPlot*> selection;
+    getSelection( selection );
 
-    if ( selection.size() > 0 )
-    {
-        if ( dynamic_cast<RimMultiPlot*>( selection.front() ) ) return false;
-
-        size_t plotsSelected = 0;
-        for ( caf::PdmObject* object : selection )
-        {
-            RimMultiPlot*   multiPlot   = nullptr;
-            RimWellLogPlot* wellLogPlot = nullptr;
-            object->firstAncestorOrThisOfType( multiPlot );
-            object->firstAncestorOrThisOfType( wellLogPlot );
-            if ( dynamic_cast<RimPlotWindow*>( object ) && ( multiPlot || wellLogPlot ) )
-            {
-                plotsSelected++;
-            }
-        }
-        return plotsSelected == selection.size();
-    }
-
-    return false;
+    return ( selection.size() > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------

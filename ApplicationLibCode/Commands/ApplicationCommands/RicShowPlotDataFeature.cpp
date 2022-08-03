@@ -25,6 +25,7 @@
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
+#include "RimPlot.h"
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
@@ -302,4 +303,25 @@ void RicShowPlotDataFeature::showTextWindow( const QString& title, const QString
     textWiget->show();
 
     plotwindow->addToTemporaryWidgets( textWiget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicShowPlotDataFeature::getSelection( std::vector<RimPlot*>& selection )
+{
+    if ( sender() )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<void*>() )
+        {
+            RimPlot* plot = static_cast<RimPlot*>( userData.value<void*>() );
+            if ( plot ) selection.push_back( plot );
+        }
+    }
+
+    if ( selection.empty() )
+    {
+        caf::SelectionManager::instance()->objectsByType( &selection );
+    }
 }
