@@ -66,6 +66,10 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
     catMapper.setCategories( categoryIndices );
     catMapper.setInterpolateColors( colorTable.color3ubArray() );
 
+    RiaDefines::Orientation annotationOrientation = RiaDefines::Orientation::HORIZONTAL;
+    if ( depthOrientation == RiaDefines::Orientation::HORIZONTAL )
+        annotationOrientation = RiaDefines::Orientation::VERTICAL;
+
     for ( size_t i = 0; i < names.size(); i++ )
     {
         QwtPlotMarker* line( new QwtPlotMarker() );
@@ -129,59 +133,33 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
         }
         Qt::Alignment horizontalAlignment = trackTextAlignment( trackSpan );
 
-        if ( depthOrientation == RiaDefines::Orientation::VERTICAL )
-        {
-            RiuPlotAnnotationTool::horizontalDashedLine( line,
-                                                         name,
-                                                         regionRanges[i].first,
-                                                         lineColor,
-                                                         textColor,
-                                                         horizontalAlignment,
-                                                         fontSize );
-            line->attach( m_plot );
-            m_plotItems.push_back( std::move( line ) );
-        }
-        else
-        {
-            RiuPlotAnnotationTool::verticalDashedLine( line,
-                                                       name,
-                                                       regionRanges[i].first,
-                                                       lineColor,
-                                                       textColor,
-                                                       horizontalAlignment,
-                                                       fontSize );
-            line->attach( m_plot );
-            m_plotItems.push_back( std::move( line ) );
-        }
+        RiuPlotAnnotationTool::setLineProperties( line,
+                                                  name,
+                                                  annotationOrientation,
+                                                  regionRanges[i].first,
+                                                  Qt::DashLine,
+                                                  lineColor,
+                                                  textColor,
+                                                  horizontalAlignment,
+                                                  fontSize );
+        line->attach( m_plot );
+        m_plotItems.push_back( std::move( line ) );
 
         if ( ( i != names.size() - 1 ) && cvf::Math::abs( regionRanges[i].second - regionRanges[i + 1].first ) > delta )
         {
             QwtPlotMarker* bottomLine( new QwtPlotMarker() );
 
-            if ( depthOrientation == RiaDefines::Orientation::VERTICAL )
-            {
-                RiuPlotAnnotationTool::horizontalDashedLine( bottomLine,
-                                                             QString(),
-                                                             regionRanges[i].second,
-                                                             lineColor,
-                                                             textColor,
-                                                             Qt::AlignRight,
-                                                             fontSize );
-                bottomLine->attach( m_plot );
-                m_plotItems.push_back( std::move( bottomLine ) );
-            }
-            else
-            {
-                RiuPlotAnnotationTool::verticalDashedLine( bottomLine,
-                                                           QString(),
-                                                           regionRanges[i].second,
-                                                           lineColor,
-                                                           textColor,
-                                                           Qt::AlignRight,
-                                                           fontSize );
-                bottomLine->attach( m_plot );
-                m_plotItems.push_back( std::move( bottomLine ) );
-            }
+            RiuPlotAnnotationTool::setLineProperties( bottomLine,
+                                                      QString(),
+                                                      annotationOrientation,
+                                                      regionRanges[i].second,
+                                                      Qt::DashLine,
+                                                      lineColor,
+                                                      textColor,
+                                                      Qt::AlignRight,
+                                                      fontSize );
+            bottomLine->attach( m_plot );
+            m_plotItems.push_back( std::move( bottomLine ) );
         }
     }
 }
@@ -201,7 +179,7 @@ void RiuPlotAnnotationTool::attachWellPicks( QwtPlot*                    plot,
     for ( size_t i = 0; i < names.size(); i++ )
     {
         QwtPlotMarker* line( new QwtPlotMarker() );
-        RiuPlotAnnotationTool::horizontalDashedLine( line, names[i], yPositions[i] );
+        RiuPlotAnnotationTool::setLineProperties( line, names[i], RiaDefines::Orientation::HORIZONTAL, yPositions[i] );
         line->attach( m_plot );
         m_plotItems.push_back( std::move( line ) );
     }
@@ -219,20 +197,15 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
     m_plot = plot;
 
     QwtPlotMarker* line( new QwtPlotMarker() );
-    if ( orientation == RiaDefines::Orientation::HORIZONTAL )
+
+    auto textColor = color;
+    if ( orientation == RiaDefines::Orientation::VERTICAL )
     {
-        RiuPlotAnnotationTool::horizontalDashedLine( line, annotationText, position, color, color );
-        m_plotItems.push_back( std::move( line ) );
+        textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
     }
-    else if ( orientation == RiaDefines::Orientation::VERTICAL )
-    {
-        RiuPlotAnnotationTool::verticalLine( line,
-                                             annotationText,
-                                             position,
-                                             color,
-                                             RiuGuiTheme::getColorByVariableName( "textColor" ) );
-        m_plotItems.push_back( std::move( line ) );
-    }
+
+    RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, Qt::SolidLine, color, textColor );
+    m_plotItems.push_back( std::move( line ) );
     line->attach( m_plot );
 }
 
@@ -302,59 +275,6 @@ Qt::Alignment RiuPlotAnnotationTool::trackTextAlignment( RiaDefines::TrackSpan t
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::horizontalDashedLine( QwtPlotMarker* line,
-                                                  const QString& name,
-                                                  double         yValue,
-                                                  const QColor&  color /*= QColor(0, 0, 100) */,
-                                                  const QColor&  textColor /*= QColor(0, 0, 100) */,
-                                                  Qt::Alignment  horizontalAlignment /*= Qt::AlignRight */,
-                                                  int            fontSize )
-{
-    QPen curvePen;
-    curvePen.setStyle( Qt::DashLine );
-    curvePen.setColor( color );
-    curvePen.setWidth( 1 );
-
-    line->setLineStyle( QwtPlotMarker::HLine );
-    line->setLinePen( curvePen );
-    line->setYValue( yValue );
-    QwtText label( name );
-    label.setColor( textColor );
-    if ( fontSize > 0 ) label.setFont( QFont( label.font().key(), fontSize ) );
-    line->setLabel( label );
-    line->setLabelAlignment( horizontalAlignment | Qt::AlignBottom );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::verticalDashedLine( QwtPlotMarker* line,
-                                                const QString& name,
-                                                double         linePosition,
-                                                const QColor&  color /*= QColor( 0, 0, 100 )*/,
-                                                const QColor&  textColor /*= QColor( 0, 0, 100 )*/,
-                                                Qt::Alignment  alignment /*= Qt::AlignRight*/,
-                                                int            fontSize /*= 0 */ )
-{
-    QPen curvePen;
-    curvePen.setStyle( Qt::DashLine );
-    curvePen.setColor( color );
-    curvePen.setWidth( 1 );
-
-    line->setLineStyle( QwtPlotMarker::VLine );
-    line->setLinePen( curvePen );
-    line->setXValue( linePosition );
-    QwtText label( name );
-    label.setColor( textColor );
-    if ( fontSize > 0 ) label.setFont( QFont( label.font().key(), fontSize ) );
-    line->setLabel( label );
-    line->setLabelAlignment( alignment | Qt::AlignBottom );
-    line->setLabelOrientation( Qt::Orientation::Vertical );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RiuPlotAnnotationTool::horizontalRange( const QString&                  name,
                                              const std::pair<double, double> yRange,
                                              const QColor&                   color /*= QColor( 0, 0, 100 )*/,
@@ -376,12 +296,25 @@ void RiuPlotAnnotationTool::horizontalRange( const QString&                  nam
     m_plotItems.push_back( std::move( shading ) );
 
     QwtPlotMarker* line( new QwtPlotMarker() );
-    RiuPlotAnnotationTool::horizontalDashedLine( line, name, yRange.first, color, color, horizontalAlignment );
+    RiuPlotAnnotationTool::setLineProperties( line,
+                                              name,
+                                              RiaDefines::Orientation::HORIZONTAL,
+                                              yRange.first,
+                                              Qt::DashLine,
+                                              color,
+                                              color,
+                                              horizontalAlignment );
     line->attach( m_plot );
     m_plotItems.push_back( std::move( line ) );
 
     QwtPlotMarker* bottomLine( new QwtPlotMarker() );
-    RiuPlotAnnotationTool::horizontalDashedLine( bottomLine, QString(), yRange.second, color, color );
+    RiuPlotAnnotationTool::setLineProperties( bottomLine,
+                                              QString(),
+                                              RiaDefines::Orientation::HORIZONTAL,
+                                              yRange.second,
+                                              Qt::DashLine,
+                                              color,
+                                              color );
 
     bottomLine->attach( m_plot );
     m_plotItems.push_back( std::move( bottomLine ) );
@@ -413,24 +346,26 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
     QStringList labels = name.split( " - " );
 
     QwtPlotMarker* line( new QwtPlotMarker() );
-    RiuPlotAnnotationTool::verticalLine( line,
-                                         labels[0],
-                                         xRange.first,
-                                         color,
-                                         textColor,
-                                         Qt::SolidLine,
-                                         Qt::AlignRight | horizontalAlignment );
+    RiuPlotAnnotationTool::setLineProperties( line,
+                                              labels[0],
+                                              RiaDefines::Orientation::VERTICAL,
+                                              xRange.first,
+                                              Qt::SolidLine,
+                                              color,
+                                              textColor,
+                                              Qt::AlignRight | horizontalAlignment );
     line->attach( m_plot );
     m_plotItems.push_back( std::move( line ) );
 
     QwtPlotMarker* rightLine( new QwtPlotMarker() );
-    RiuPlotAnnotationTool::verticalLine( rightLine,
-                                         labels.size() == 2 ? labels[1] : QString(),
-                                         xRange.second,
-                                         color,
-                                         textColor,
-                                         Qt::SolidLine,
-                                         Qt::AlignLeft | horizontalAlignment );
+    RiuPlotAnnotationTool::setLineProperties( rightLine,
+                                              labels.size() == 2 ? labels[1] : QString(),
+                                              RiaDefines::Orientation::VERTICAL,
+                                              xRange.second,
+                                              Qt::SolidLine,
+                                              color,
+                                              textColor,
+                                              Qt::AlignLeft | horizontalAlignment );
     rightLine->attach( m_plot );
     m_plotItems.push_back( std::move( rightLine ) );
 }
@@ -438,26 +373,36 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::verticalLine( QwtPlotMarker* line,
-                                          const QString& name,
-                                          double         xValue,
-                                          const QColor&  color /*= QColor(0, 0, 100) */,
-                                          const QColor&  textColor /*= QColor(0, 0, 100) */,
-                                          Qt::PenStyle   lineStyle /*= Qt::DashLine */,
-                                          Qt::Alignment  horizontalAlignment /*= Qt::AlignRight | Qt::AlignBottom */ )
+void RiuPlotAnnotationTool::setLineProperties( QwtPlotMarker*          line,
+                                               const QString&          name,
+                                               RiaDefines::Orientation orientation,
+                                               double                  linePosition,
+                                               Qt::PenStyle            lineStyle,
+                                               const QColor&           color /*= QColor( 0, 0, 100 )*/,
+                                               const QColor&           textColor /*= QColor( 0, 0, 100 )*/,
+                                               Qt::Alignment           horizontalAlignment /*= Qt::AlignRight*/,
+                                               int                     fontSize /*= 0 */ )
 {
     QPen curvePen;
     curvePen.setStyle( lineStyle );
     curvePen.setColor( color );
     curvePen.setWidth( 1 );
 
-    line->setAxes( QwtAxis::XBottom, QwtAxis::YLeft );
-    line->setLineStyle( QwtPlotMarker::VLine );
     line->setLinePen( curvePen );
-    line->setXValue( xValue );
     QwtText label( name );
     label.setColor( textColor );
+    if ( fontSize > 0 ) label.setFont( QFont( label.font().key(), fontSize ) );
     line->setLabel( label );
-    line->setLabelAlignment( horizontalAlignment );
-    line->setLabelOrientation( Qt::Orientation::Vertical );
+    line->setLabelAlignment( horizontalAlignment | Qt::AlignBottom );
+
+    if ( orientation == RiaDefines::Orientation::HORIZONTAL )
+    {
+        line->setLineStyle( QwtPlotMarker::HLine );
+        line->setYValue( linePosition );
+    }
+    else
+    {
+        line->setLineStyle( QwtPlotMarker::VLine );
+        line->setXValue( linePosition );
+    }
 }
