@@ -112,6 +112,7 @@ void RicPasteEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
     if ( plot )
     {
         plot->updateAll();
+        plot->updateConnectedEditors();
     }
 
     coll->updateConnectedEditors();
