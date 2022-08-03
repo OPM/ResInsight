@@ -2883,9 +2883,6 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
                                                     &formationNamesToPlot,
                                                     &yValues );
 
-            const std::pair<double, double> xRange =
-                std::make_pair( m_visiblePropertyValueRangeMin(), m_visiblePropertyValueRangeMax() );
-
             std::vector<std::pair<double, double>> convertedYValues =
                 RiaWellLogUnitTools<double>::convertDepths( yValues, fromDepthUnit, toDepthUnit );
 
@@ -3064,9 +3061,6 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
             geoMechWellLogExtractor =
                 RiaExtractionTools::findOrCreateWellLogExtractor( wellPath, dynamic_cast<RimGeoMechCase*>( geoMechCase ) );
             if ( !geoMechWellLogExtractor ) return;
-
-            std::pair<double, double> xRange =
-                std::make_pair( m_visiblePropertyValueRangeMin(), m_visiblePropertyValueRangeMax() );
 
             CurveSamplingPointData curveData;
             curveData.md  = geoMechWellLogExtractor->cellIntersectionMDs();
