@@ -160,12 +160,10 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     {
         setDefaultConductivityResultIfEmpty();
 
-        // if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
-        // {
-        //     setUnitSystem( m_fractureDefinitionData->unitSet() );
-        // }
-        // TODO: handle other units
-        setUnitSystem( RiaDefines::EclipseUnitSystem::UNITS_METRIC );
+        if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
+        {
+            setUnitSystem( m_fractureDefinitionData->unitSystem() );
+        }
 
         if ( !m_userDefinedWellPathDepthAtFracture )
         {

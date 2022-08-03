@@ -18,6 +18,7 @@
 
 #include "RigThermalFractureResultUtil.h"
 
+#include "RiaEclipseUnitTools.h"
 #include "RiaLogging.h"
 
 #include "RiaWeightedMeanCalculator.h"
@@ -254,6 +255,30 @@ cvf::cref<RigFractureGrid>
     {
         RiaLogging::error( QString( "No conductivity values found for result: %1" ).arg( resultName ) );
         return nullptr;
+    }
+
+    // Check that the data is in the required unit system.
+    // Convert if not the case.
+    if ( requiredUnitSet != fractureDefinition->unitSystem() )
+    {
+        // Convert to the conductivity unit system used by the fracture template
+        // The conductivity value is used in the computations of transmissibility when exporting COMPDAT, and has unit
+        // md-m or md-ft This unit must match the unit used to represent coordinates of the grid used for export
+
+        for ( auto& yValues : conductivityValues )
+        {
+            for ( auto& xVal : yValues )
+            {
+                if ( requiredUnitSet == RiaDefines::EclipseUnitSystem::UNITS_FIELD )
+                {
+                    xVal = RiaEclipseUnitTools::convertToFeet( xVal, conductivityUnitTextOnFile, false );
+                }
+                else if ( requiredUnitSet == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
+                {
+                    xVal = RiaEclipseUnitTools::convertToMeter( xVal, conductivityUnitTextOnFile, false );
+                }
+            }
+        }
     }
 
     // Create bounding box

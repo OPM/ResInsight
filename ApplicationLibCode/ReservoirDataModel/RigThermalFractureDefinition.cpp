@@ -27,6 +27,7 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RigThermalFractureDefinition::RigThermalFractureDefinition()
+    : m_unitSystem( RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
 {
 }
 
@@ -51,6 +52,22 @@ void RigThermalFractureDefinition::setName( const QString& name )
 QString RigThermalFractureDefinition::name() const
 {
     return m_name;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RigThermalFractureDefinition::setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem )
+{
+    m_unitSystem = unitSystem;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::EclipseUnitSystem RigThermalFractureDefinition::unitSystem() const
+{
+    return m_unitSystem;
 }
 
 //--------------------------------------------------------------------------------------------------

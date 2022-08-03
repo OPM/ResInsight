@@ -58,9 +58,14 @@ public:
 
     std::vector<cvf::Vec3d> relativeCoordinates( int timeStepIndex ) const;
 
+    void setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem );
+
+    RiaDefines::EclipseUnitSystem unitSystem() const;
+
 private:
     QString m_name;
 
+    RiaDefines::EclipseUnitSystem         m_unitSystem;
     std::vector<double>                   m_timeSteps;
     std::vector<RigThermalFractureResult> m_results;
 };
