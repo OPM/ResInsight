@@ -44,17 +44,17 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
         return std::make_pair( nullptr, QString( "Unable to open file: %1" ).arg( filePath ) );
     }
 
-    std::shared_ptr<RigThermalFractureDefinition> def = std::make_shared<RigThermalFractureDefinition>();
+    std::shared_ptr<RigThermalFractureDefinition> definition = std::make_shared<RigThermalFractureDefinition>();
 
     QString separator = ",";
 
-    auto appendPropertyValues = [def]( int nodeIndex, int valueOffset, const QStringList& values ) {
+    auto appendPropertyValues = [definition]( int nodeIndex, int valueOffset, const QStringList& values ) {
         CAF_ASSERT( valueOffset <= values.size() );
         for ( int i = valueOffset; i < values.size() - 1; i++ )
         {
             double value         = values[i].toDouble();
             int    propertyIndex = i - valueOffset;
-            def->appendPropertyValue( propertyIndex, nodeIndex, value );
+            definition->appendPropertyValue( propertyIndex, nodeIndex, value );
         }
     };
 
@@ -72,7 +72,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
         if ( lineNumber == 1 )
         {
             // The first line is the name of the fracture
-            def->setName( line );
+            definition->setName( line );
         }
         else if ( isHeaderLine( line ) )
         {
@@ -83,11 +83,11 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
                 for ( int i = valueOffset; i < headerValues.size() - 1; i++ )
                 {
                     auto [name, unit] = parseNameAndUnit( headerValues[i] );
-                    if ( !name.isEmpty() && !unit.isEmpty() ) def->addProperty( name, unit );
+                    if ( !name.isEmpty() && !unit.isEmpty() ) definition->addProperty( name, unit );
                 }
 
                 // Detect unit system
-                RiaDefines::EclipseUnitSystem unitSystem = detectUnitSystem( def );
+                RiaDefines::EclipseUnitSystem unitSystem = detectUnitSystem( definition );
                 if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
                 {
                     return std::make_pair( nullptr, QString( "Unknown unit system found in file: %1" ).arg( filePath ) );
@@ -95,7 +95,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
 
                 // Verify that all values have consistent units:
                 // all values should be either metric or field, and mixing is not allowed
-                bool isUnitsConsistent = checkUnits( def, unitSystem );
+                bool isUnitsConsistent = checkUnits( definition, unitSystem );
                 if ( !isUnitsConsistent )
                 {
                     return std::make_pair( nullptr, QString( "Inconsistent units found in file: %1" ).arg( filePath ) );
@@ -115,7 +115,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
 
             // Second is the timestamp
             QDateTime dateTime = parseDateTime( values[1] );
-            def->addTimeStep( dateTime.toSecsSinceEpoch() );
+            definition->addTimeStep( dateTime.toSecsSinceEpoch() );
 
             //
             appendPropertyValues( nodeIndex, valueOffset, values );
@@ -135,7 +135,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
         lineNumber++;
     }
 
-    return std::make_pair( def, "" );
+    return std::make_pair( definition, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
