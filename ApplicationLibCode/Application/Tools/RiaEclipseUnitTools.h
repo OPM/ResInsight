@@ -49,6 +49,6 @@ public:
 
     static QString unitStringPressure( RiaDefines::EclipseUnitSystem unitSystem );
 
-    static double convertToMeter( double sourceValue, const QString& unitText );
-    static double convertToFeet( double sourceValue, const QString& unitText );
+    static double convertToMeter( double sourceValue, const QString& unitText, bool replaceUnmatched = true );
+    static double convertToFeet( double sourceValue, const QString& unitText, bool replaceUnmatched = true );
 };

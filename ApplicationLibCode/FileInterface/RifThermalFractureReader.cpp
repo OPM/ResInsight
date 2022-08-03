@@ -101,6 +101,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
                     return std::make_pair( nullptr, QString( "Inconsistent units found in file: %1" ).arg( filePath ) );
                 }
 
+                definition->setUnitSystem( unitSystem );
                 isFirstHeader = false;
             }
             else if ( isValidNode )
