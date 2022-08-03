@@ -78,7 +78,6 @@ public:
                         Qt::Alignment                   horizontalAlignment = Qt::AlignRight );
 
     void detachAllAnnotations();
-    void detachAllAnnotations( RiaDefines::Orientation orientation );
 
 private:
     static Qt::Alignment trackTextAlignment( RiaDefines::TrackSpan trackSpan );
@@ -109,6 +108,5 @@ private:
 
 private:
     QPointer<QwtPlot>         m_plot;
-    std::vector<QwtPlotItem*> m_horizontalMarkers;
-    std::vector<QwtPlotItem*> m_verticalMarkers;
+    std::vector<QwtPlotItem*> m_plotItems;
 };

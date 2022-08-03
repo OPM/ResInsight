@@ -154,7 +154,7 @@ void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface*
     {
         orientation = RiaDefines::Orientation::VERTICAL;
     }
-    m_annotationTool->detachAllAnnotations( orientation );
+    m_annotationTool->detachAllAnnotations();
 
     for ( auto annotation : axisProperties->annotations() )
     {

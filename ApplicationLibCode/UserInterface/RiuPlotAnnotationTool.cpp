@@ -102,7 +102,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
             shading->attach( m_plot );
             shading->setZ( -100.0 );
             shading->setXAxis( QwtAxis::XTop );
-            m_horizontalMarkers.push_back( std::move( shading ) );
+            m_plotItems.push_back( std::move( shading ) );
         }
 
         QColor lineColor( 0, 0, 0, 0 );
@@ -139,7 +139,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                          horizontalAlignment,
                                                          fontSize );
             line->attach( m_plot );
-            m_horizontalMarkers.push_back( std::move( line ) );
+            m_plotItems.push_back( std::move( line ) );
         }
         else
         {
@@ -151,7 +151,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                        horizontalAlignment,
                                                        fontSize );
             line->attach( m_plot );
-            m_verticalMarkers.push_back( std::move( line ) );
+            m_plotItems.push_back( std::move( line ) );
         }
 
         if ( ( i != names.size() - 1 ) && cvf::Math::abs( regionRanges[i].second - regionRanges[i + 1].first ) > delta )
@@ -168,7 +168,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                              Qt::AlignRight,
                                                              fontSize );
                 bottomLine->attach( m_plot );
-                m_horizontalMarkers.push_back( std::move( bottomLine ) );
+                m_plotItems.push_back( std::move( bottomLine ) );
             }
             else
             {
@@ -180,7 +180,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                            Qt::AlignRight,
                                                            fontSize );
                 bottomLine->attach( m_plot );
-                m_verticalMarkers.push_back( std::move( bottomLine ) );
+                m_plotItems.push_back( std::move( bottomLine ) );
             }
         }
     }
@@ -193,7 +193,7 @@ void RiuPlotAnnotationTool::attachWellPicks( QwtPlot*                    plot,
                                              const std::vector<QString>& names,
                                              const std::vector<double>&  yPositions )
 {
-    detachAllAnnotations( RiaDefines::Orientation::HORIZONTAL );
+    detachAllAnnotations();
 
     if ( names.size() != yPositions.size() ) return;
     m_plot = plot;
@@ -203,7 +203,7 @@ void RiuPlotAnnotationTool::attachWellPicks( QwtPlot*                    plot,
         QwtPlotMarker* line( new QwtPlotMarker() );
         RiuPlotAnnotationTool::horizontalDashedLine( line, names[i], yPositions[i] );
         line->attach( m_plot );
-        m_horizontalMarkers.push_back( std::move( line ) );
+        m_plotItems.push_back( std::move( line ) );
     }
 }
 
@@ -222,7 +222,7 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
     if ( orientation == RiaDefines::Orientation::HORIZONTAL )
     {
         RiuPlotAnnotationTool::horizontalDashedLine( line, annotationText, position, color, color );
-        m_horizontalMarkers.push_back( std::move( line ) );
+        m_plotItems.push_back( std::move( line ) );
     }
     else if ( orientation == RiaDefines::Orientation::VERTICAL )
     {
@@ -231,7 +231,7 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
                                              position,
                                              color,
                                              RiuGuiTheme::getColorByVariableName( "textColor" ) );
-        m_verticalMarkers.push_back( std::move( line ) );
+        m_plotItems.push_back( std::move( line ) );
     }
     line->attach( m_plot );
 }
@@ -267,44 +267,17 @@ void RiuPlotAnnotationTool::attachAnnotationRange( QwtPlot*                plot,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::detachAllAnnotations( RiaDefines::Orientation orientation )
+void RiuPlotAnnotationTool::detachAllAnnotations()
 {
     if ( m_plot )
     {
-        if ( orientation == RiaDefines::Orientation::HORIZONTAL )
+        for ( size_t i = 0; i < m_plotItems.size(); i++ )
         {
-            for ( size_t i = 0; i < m_horizontalMarkers.size(); i++ )
-            {
-                m_horizontalMarkers[i]->detach();
-                delete m_horizontalMarkers[i];
-            }
-        }
-        else if ( orientation == RiaDefines::Orientation::VERTICAL )
-        {
-            for ( size_t i = 0; i < m_verticalMarkers.size(); i++ )
-            {
-                m_verticalMarkers[i]->detach();
-                delete m_verticalMarkers[i];
-            }
+            m_plotItems[i]->detach();
+            delete m_plotItems[i];
         }
     }
-    if ( orientation == RiaDefines::Orientation::HORIZONTAL )
-    {
-        m_horizontalMarkers.clear();
-    }
-    else if ( orientation == RiaDefines::Orientation::VERTICAL )
-    {
-        m_verticalMarkers.clear();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotAnnotationTool::detachAllAnnotations()
-{
-    detachAllAnnotations( RiaDefines::Orientation::HORIZONTAL );
-    detachAllAnnotations( RiaDefines::Orientation::VERTICAL );
+    m_plotItems.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -400,18 +373,18 @@ void RiuPlotAnnotationTool::horizontalRange( const QString&                  nam
     shading->attach( m_plot );
     shading->setZ( -100.0 );
     shading->setXAxis( QwtAxis::XBottom );
-    m_horizontalMarkers.push_back( std::move( shading ) );
+    m_plotItems.push_back( std::move( shading ) );
 
     QwtPlotMarker* line( new QwtPlotMarker() );
     RiuPlotAnnotationTool::horizontalDashedLine( line, name, yRange.first, color, color, horizontalAlignment );
     line->attach( m_plot );
-    m_horizontalMarkers.push_back( std::move( line ) );
+    m_plotItems.push_back( std::move( line ) );
 
     QwtPlotMarker* bottomLine( new QwtPlotMarker() );
     RiuPlotAnnotationTool::horizontalDashedLine( bottomLine, QString(), yRange.second, color, color );
 
     bottomLine->attach( m_plot );
-    m_horizontalMarkers.push_back( std::move( bottomLine ) );
+    m_plotItems.push_back( std::move( bottomLine ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -435,7 +408,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
     shading->attach( m_plot );
     shading->setZ( -100.0 );
     shading->setXAxis( QwtAxis::XBottom );
-    m_verticalMarkers.push_back( std::move( shading ) );
+    m_plotItems.push_back( std::move( shading ) );
 
     QStringList labels = name.split( " - " );
 
@@ -448,7 +421,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
                                          Qt::SolidLine,
                                          Qt::AlignRight | horizontalAlignment );
     line->attach( m_plot );
-    m_verticalMarkers.push_back( std::move( line ) );
+    m_plotItems.push_back( std::move( line ) );
 
     QwtPlotMarker* rightLine( new QwtPlotMarker() );
     RiuPlotAnnotationTool::verticalLine( rightLine,
@@ -459,7 +432,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
                                          Qt::SolidLine,
                                          Qt::AlignLeft | horizontalAlignment );
     rightLine->attach( m_plot );
-    m_verticalMarkers.push_back( std::move( rightLine ) );
+    m_plotItems.push_back( std::move( rightLine ) );
 }
 
 //--------------------------------------------------------------------------------------------------
