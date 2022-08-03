@@ -72,7 +72,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
 
     for ( size_t i = 0; i < names.size(); i++ )
     {
-        QwtPlotMarker* line( new QwtPlotMarker() );
+        auto* line( new QwtPlotMarker() );
 
         QString name;
         if ( showNames && !names[i].isEmpty() )
@@ -88,7 +88,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
             cvf::Color3ub cvfColor = catMapper.mapToColor( static_cast<double>( i ) );
             QColor        shadingColor( cvfColor.r(), cvfColor.g(), cvfColor.b(), shadingAlphaByte );
 
-            QwtPlotZoneItem* shading = new QwtPlotZoneItem();
+            auto* shading = new QwtPlotZoneItem();
 
             if ( depthOrientation == RiaDefines::Orientation::HORIZONTAL )
                 shading->setOrientation( Qt::Vertical );
@@ -106,7 +106,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
             shading->attach( m_plot );
             shading->setZ( -100.0 );
             shading->setXAxis( QwtAxis::XTop );
-            m_plotItems.push_back( std::move( shading ) );
+            m_plotItems.push_back( shading );
         }
 
         QColor lineColor( 0, 0, 0, 0 );
@@ -143,11 +143,11 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                   horizontalAlignment,
                                                   fontSize );
         line->attach( m_plot );
-        m_plotItems.push_back( std::move( line ) );
+        m_plotItems.push_back( line );
 
         if ( ( i != names.size() - 1 ) && cvf::Math::abs( regionRanges[i].second - regionRanges[i + 1].first ) > delta )
         {
-            QwtPlotMarker* bottomLine( new QwtPlotMarker() );
+            auto* bottomLine( new QwtPlotMarker() );
 
             RiuPlotAnnotationTool::setLineProperties( bottomLine,
                                                       QString(),
@@ -159,7 +159,7 @@ void RiuPlotAnnotationTool::attachNamedRegions( QwtPlot*                        
                                                       Qt::AlignRight,
                                                       fontSize );
             bottomLine->attach( m_plot );
-            m_plotItems.push_back( std::move( bottomLine ) );
+            m_plotItems.push_back( bottomLine );
         }
     }
 }
@@ -178,10 +178,10 @@ void RiuPlotAnnotationTool::attachWellPicks( QwtPlot*                    plot,
 
     for ( size_t i = 0; i < names.size(); i++ )
     {
-        QwtPlotMarker* line( new QwtPlotMarker() );
+        auto* line( new QwtPlotMarker() );
         RiuPlotAnnotationTool::setLineProperties( line, names[i], RiaDefines::Orientation::HORIZONTAL, yPositions[i] );
         line->attach( m_plot );
-        m_plotItems.push_back( std::move( line ) );
+        m_plotItems.push_back( line );
     }
 }
 
@@ -196,7 +196,7 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
 {
     m_plot = plot;
 
-    QwtPlotMarker* line( new QwtPlotMarker() );
+    auto* line( new QwtPlotMarker() );
 
     auto textColor = color;
     if ( orientation == RiaDefines::Orientation::VERTICAL )
@@ -205,7 +205,7 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
     }
 
     RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, Qt::SolidLine, color, textColor );
-    m_plotItems.push_back( std::move( line ) );
+    m_plotItems.push_back( line );
     line->attach( m_plot );
 }
 
@@ -244,10 +244,10 @@ void RiuPlotAnnotationTool::detachAllAnnotations()
 {
     if ( m_plot )
     {
-        for ( size_t i = 0; i < m_plotItems.size(); i++ )
+        for ( auto& plotItem : m_plotItems )
         {
-            m_plotItems[i]->detach();
-            delete m_plotItems[i];
+            plotItem->detach();
+            delete plotItem;
         }
     }
     m_plotItems.clear();
@@ -284,7 +284,7 @@ void RiuPlotAnnotationTool::horizontalRange( const QString&                  nam
     QColor shadingColor = color;
     shadingColor.setAlpha( 10 );
 
-    QwtPlotZoneItem* shading = new QwtPlotZoneItem();
+    auto* shading = new QwtPlotZoneItem();
     shading->setOrientation( Qt::Horizontal );
     shading->setInterval( yRange.first, yRange.second );
     shading->setPen( shadingColor, 0.0, Qt::NoPen );
@@ -293,9 +293,9 @@ void RiuPlotAnnotationTool::horizontalRange( const QString&                  nam
     shading->attach( m_plot );
     shading->setZ( -100.0 );
     shading->setXAxis( QwtAxis::XBottom );
-    m_plotItems.push_back( std::move( shading ) );
+    m_plotItems.push_back( shading );
 
-    QwtPlotMarker* line( new QwtPlotMarker() );
+    auto* line( new QwtPlotMarker() );
     RiuPlotAnnotationTool::setLineProperties( line,
                                               name,
                                               RiaDefines::Orientation::HORIZONTAL,
@@ -305,9 +305,9 @@ void RiuPlotAnnotationTool::horizontalRange( const QString&                  nam
                                               color,
                                               horizontalAlignment );
     line->attach( m_plot );
-    m_plotItems.push_back( std::move( line ) );
+    m_plotItems.push_back( line );
 
-    QwtPlotMarker* bottomLine( new QwtPlotMarker() );
+    auto* bottomLine( new QwtPlotMarker() );
     RiuPlotAnnotationTool::setLineProperties( bottomLine,
                                               QString(),
                                               RiaDefines::Orientation::HORIZONTAL,
@@ -317,7 +317,7 @@ void RiuPlotAnnotationTool::horizontalRange( const QString&                  nam
                                               color );
 
     bottomLine->attach( m_plot );
-    m_plotItems.push_back( std::move( bottomLine ) );
+    m_plotItems.push_back( bottomLine );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -332,7 +332,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
     QColor shadingColor = color;
     shadingColor.setAlpha( 50 );
 
-    QwtPlotZoneItem* shading = new QwtPlotZoneItem();
+    auto* shading = new QwtPlotZoneItem();
     shading->setOrientation( Qt::Vertical );
     shading->setInterval( xRange.first, xRange.second );
     shading->setPen( shadingColor, 0.0, Qt::NoPen );
@@ -341,11 +341,11 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
     shading->attach( m_plot );
     shading->setZ( -100.0 );
     shading->setXAxis( QwtAxis::XBottom );
-    m_plotItems.push_back( std::move( shading ) );
+    m_plotItems.push_back( shading );
 
     QStringList labels = name.split( " - " );
 
-    QwtPlotMarker* line( new QwtPlotMarker() );
+    auto* line( new QwtPlotMarker() );
     RiuPlotAnnotationTool::setLineProperties( line,
                                               labels[0],
                                               RiaDefines::Orientation::VERTICAL,
@@ -355,9 +355,9 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
                                               textColor,
                                               Qt::AlignRight | horizontalAlignment );
     line->attach( m_plot );
-    m_plotItems.push_back( std::move( line ) );
+    m_plotItems.push_back( line );
 
-    QwtPlotMarker* rightLine( new QwtPlotMarker() );
+    auto* rightLine( new QwtPlotMarker() );
     RiuPlotAnnotationTool::setLineProperties( rightLine,
                                               labels.size() == 2 ? labels[1] : QString(),
                                               RiaDefines::Orientation::VERTICAL,
@@ -367,7 +367,7 @@ void RiuPlotAnnotationTool::verticalRange( const QString&                  name,
                                               textColor,
                                               Qt::AlignLeft | horizontalAlignment );
     rightLine->attach( m_plot );
-    m_plotItems.push_back( std::move( rightLine ) );
+    m_plotItems.push_back( rightLine );
 }
 
 //--------------------------------------------------------------------------------------------------
