@@ -2946,8 +2946,6 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
     CurveSamplingPointData curveData = RimWellLogTrack::curveSamplingPointData( eclWellLogExtractor, resultAccessor.p() );
 
     // Attach water and rock base formations
-    const std::pair<double, double> xRange =
-        std::make_pair( m_visiblePropertyValueRangeMin(), m_visiblePropertyValueRangeMax() );
 
     if ( m_formationSource == FormationSource::CASE )
     {
