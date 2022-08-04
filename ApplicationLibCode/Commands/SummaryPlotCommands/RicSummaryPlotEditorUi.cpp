@@ -164,7 +164,10 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*             
 
     if ( m_targetPlot )
     {
-        targetPlot->firstAncestorOfType( m_plotContainer );
+        RimSummaryMultiPlot* parentPlot = nullptr;
+        targetPlot->firstAncestorOfType( parentPlot );
+        m_plotContainer = parentPlot;
+
         populateCurveCreator( *m_targetPlot );
         syncPreviewCurvesFromUiSelection();
         setInitialCurveVisibility( targetPlot );

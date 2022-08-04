@@ -134,5 +134,5 @@ private:
 
     std::unique_ptr<RiuSummaryVectorSelectionWidgetCreator> m_summaryCurveSelectionEditor;
 
-    RimSummaryMultiPlot* m_plotContainer;
+    caf::PdmPointer<RimSummaryMultiPlot> m_plotContainer;
 };
