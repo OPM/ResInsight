@@ -22,6 +22,7 @@
 
 #include "RigThermalFractureResult.h"
 
+#include "cvfBoundingBox.h"
 #include "cvfVector3.h"
 
 #include <QString>
@@ -58,11 +59,18 @@ public:
 
     std::vector<cvf::Vec3d> relativeCoordinates( int timeStepIndex ) const;
 
+    cvf::Vec3d centerPosition() const;
+
+    double minDepth( int timeStepIndex ) const;
+    double maxDepth( int timeStepIndex ) const;
+
     void setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem );
 
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
 private:
+    cvf::BoundingBox getBoundingBox( int timeStepIndex ) const;
+
     QString m_name;
 
     RiaDefines::EclipseUnitSystem         m_unitSystem;

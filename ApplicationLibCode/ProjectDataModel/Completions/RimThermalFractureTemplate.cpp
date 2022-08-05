@@ -97,15 +97,6 @@ void RimThermalFractureTemplate::setDefaultsBasedOnFile()
     else
         RiaLogging::info( QString( "Property for polygon calculation not set." ) );
 
-    // if ( m_fractureDefinitionData->orientation() == RigStimPlanFractureDefinition::Orientation::TRANSVERSE )
-    // {
-    //     m_orientationType = TRANSVERSE_WELL_PATH;
-    // }
-    // else if ( m_fractureDefinitionData->orientation() == RigStimPlanFractureDefinition::Orientation::LONGITUDINAL )
-    // {
-    //     m_orientationType = ALONG_WELL_PATH;
-    // }
-
     QStringList resultNames = conductivityResultNames();
     if ( !resultNames.isEmpty() )
     {
@@ -216,22 +207,11 @@ QStringList RimThermalFractureTemplate::conductivityResultNames() const
 //--------------------------------------------------------------------------------------------------
 void RimThermalFractureTemplate::computeDepthOfWellPathAtFracture()
 {
-    // if ( !m_fractureDefinitionData.isNull() )
-    // {
-    //     double firstTvd = m_fractureDefinitionData->topPerfTvd();
-    //     double lastTvd  = m_fractureDefinitionData->bottomPerfTvd();
-
-    //     if ( firstTvd != HUGE_VAL && lastTvd != HUGE_VAL )
-    //     {
-    //         m_wellPathDepthAtFracture.setValueWithFieldChanged( ( firstTvd + lastTvd ) / 2 );
-    //     }
-    //     else
-    //     {
-    //         firstTvd = m_fractureDefinitionData->minDepth();
-    //         lastTvd  = m_fractureDefinitionData->maxDepth();
-    //         m_wellPathDepthAtFracture.setValueWithFieldChanged( ( firstTvd + lastTvd ) / 2 );
-    //     }
-    // }
+    if ( m_fractureDefinitionData )
+    {
+        double z = m_fractureDefinitionData->centerPosition().z();
+        m_wellPathDepthAtFracture.setValueWithFieldChanged( z );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -239,26 +219,27 @@ void RimThermalFractureTemplate::computeDepthOfWellPathAtFracture()
 //--------------------------------------------------------------------------------------------------
 void RimThermalFractureTemplate::computePerforationLength()
 {
-    // if ( !m_fractureDefinitionData.isNull() )
-    // {
-    //     double firstTvd = m_fractureDefinitionData->topPerfTvd();
-    //     double lastTvd  = m_fractureDefinitionData->bottomPerfTvd();
+    if ( m_fractureDefinitionData )
+    {
+        auto [firstTvd, lastTvd] =
+            RigThermalFractureResultUtil::minMaxDepth( m_fractureDefinitionData, m_activeTimeStepIndex );
 
-    //     if ( firstTvd != HUGE_VAL && lastTvd != HUGE_VAL )
-    //     {
-    //         m_perforationLength = cvf::Math::abs( firstTvd - lastTvd );
-    //     }
-    // }
+        if ( firstTvd != HUGE_VAL && lastTvd != HUGE_VAL )
+        {
+            m_perforationLength = cvf::Math::abs( firstTvd - lastTvd );
+        }
+    }
 
-    // if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && m_perforationLength < 10 )
-    // {
-    //     m_perforationLength = 10;
-    // }
-    // else if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
-    //           m_perforationLength < RiaEclipseUnitTools::meterToFeet( 10 ) )
-    // {
-    //     m_perforationLength = std::round( RiaEclipseUnitTools::meterToFeet( 10 ) );
-    // }
+    double minPerforationLength = 10.0;
+    if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_METRIC && m_perforationLength < minPerforationLength )
+    {
+        m_perforationLength = minPerforationLength;
+    }
+    else if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_FIELD &&
+              m_perforationLength < RiaEclipseUnitTools::meterToFeet( minPerforationLength ) )
+    {
+        m_perforationLength = std::round( RiaEclipseUnitTools::meterToFeet( minPerforationLength ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -664,21 +645,6 @@ void RimThermalFractureTemplate::fractureTriangleGeometry( std::vector<cvf::Vec3
     }
 }
 
-// //--------------------------------------------------------------------------------------------------
-// ///
-// //--------------------------------------------------------------------------------------------------
-// void RimThermalFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-// {
-//     RimMeshFractureTemplate::defineUiOrdering( uiConfigName, uiOrdering );
-
-//     uiOrdering.add( &m_propertiesTable );
-
-//     // if ( widthResultValues().empty() )
-//     // {
-//     //     m_fractureWidthType = USER_DEFINED_WIDTH;
-//     // }
-// }
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -692,11 +658,9 @@ QString RimThermalFractureTemplate::getFileSelectionFilter() const
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimThermalFractureTemplate::wellPathDepthAtFractureRange() const
 {
-    // if ( !m_fractureDefinitionData ) return std::make_pair( 0.0, 1.0 );
+    if ( !m_fractureDefinitionData ) return std::make_pair( 0.0, 1.0 );
 
-    // return std::make_pair( m_fractureDefinitionData->minDepth(), m_fractureDefinitionData->maxDepth() );
-
-    return std::make_pair( 0.0, 1.0 );
+    return RigThermalFractureResultUtil::minMaxDepth( m_fractureDefinitionData, m_activeTimeStepIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
