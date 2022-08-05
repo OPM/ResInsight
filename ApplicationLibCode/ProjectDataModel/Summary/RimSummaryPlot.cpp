@@ -217,6 +217,8 @@ void RimSummaryPlot::updateAxes()
     updateAxis( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
     updateAxis( RiaDefines::PlotAxis::PLOT_AXIS_RIGHT );
 
+    m_summaryPlot->clearAnnotationObjects();
+
     if ( timeAxisProperties() && plotWidget() )
     {
         m_summaryPlot->updateAnnotationObjects( timeAxisProperties() );

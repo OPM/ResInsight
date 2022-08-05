@@ -20,6 +20,7 @@
 
 #include "RiaDateStringParser.h"
 #include "RiaLogging.h"
+#include "RiaPlotDefines.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaWellNameComparer.h"
 
@@ -1096,7 +1097,7 @@ void RimWellPltPlot::onLoadDataAndUpdate()
             RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
             if ( plotTrack )
             {
-                plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
+                plotTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
             }
         }
         m_isOnLoad = false;

@@ -31,6 +31,34 @@ enum class PlotAxis
     PLOT_AXIS_TOP
 };
 
+enum class RegionAnnotationType
+{
+    NO_ANNOTATIONS        = 0,
+    FORMATION_ANNOTATIONS = 1,
+    // Used to have Wbs-parameter coding as 2
+    RESULT_PROPERTY_ANNOTATIONS = 3
+};
+enum RegionDisplay
+{
+    DARK_LINES              = 0x01,
+    COLORED_LINES           = 0x02,
+    COLOR_SHADING           = 0x04,
+    COLOR_SHADING_AND_LINES = 0x05,
+    LIGHT_LINES             = 0x08,
+};
+enum class TrackSpan
+{
+    FULL_WIDTH,
+    LEFT_COLUMN,
+    CENTRE_COLUMN,
+    RIGHT_COLUMN
+};
+enum class Orientation
+{
+    HORIZONTAL = 0,
+    VERTICAL
+};
+
 double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();
 double maximumDefaultValuePlot();

@@ -47,6 +47,7 @@ public:
 
     virtual void useTimeBasedTimeAxis() = 0;
 
+    virtual void clearAnnotationObjects()                                                  = 0;
     virtual void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties ) = 0;
 
     virtual RiuPlotWidget* plotWidget() const = 0;

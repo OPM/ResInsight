@@ -50,6 +50,7 @@ public:
 
     void useTimeBasedTimeAxis() override;
 
+    void clearAnnotationObjects() override;
     void updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties ) override;
 
     RiuPlotWidget* plotWidget() const override;

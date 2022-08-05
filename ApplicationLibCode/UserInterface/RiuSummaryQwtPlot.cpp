@@ -149,12 +149,11 @@ void RiuSummaryQwtPlot::useTimeBasedTimeAxis()
 //--------------------------------------------------------------------------------------------------
 void RiuSummaryQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterface* axisProperties )
 {
-    RiuPlotAnnotationTool::Orientation orientation = RiuPlotAnnotationTool::Orientation::HORIZONTAL;
+    RiaDefines::Orientation orientation = RiaDefines::Orientation::HORIZONTAL;
     if ( axisProperties->plotAxisType().axis() == RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM )
     {
-        orientation = RiuPlotAnnotationTool::Orientation::VERTICAL;
+        orientation = RiaDefines::Orientation::VERTICAL;
     }
-    m_annotationTool->detachAllAnnotations( orientation );
 
     for ( auto annotation : axisProperties->annotations() )
     {
@@ -220,4 +219,12 @@ void RiuSummaryQwtPlot::onZoomedSlot()
 RiuPlotWidget* RiuSummaryQwtPlot::plotWidget() const
 {
     return m_plotWidget;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuSummaryQwtPlot::clearAnnotationObjects()
+{
+    m_annotationTool->detachAllAnnotations();
 }
