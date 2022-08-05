@@ -306,10 +306,10 @@ cvf::cref<RigFractureGrid>
         for ( int j = 0; j < static_cast<int>( depthCoords.size() ) - 1; j++ )
         {
             std::vector<cvf::Vec3d> cellPolygon;
-            cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j], 0.0 ) );
-            cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j], 0.0 ) );
-            cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j + 1], 0.0 ) );
             cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j + 1], 0.0 ) );
+            cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j + 1], 0.0 ) );
+            cellPolygon.push_back( cvf::Vec3d( xCoords[i + 1], depthCoords[j], 0.0 ) );
+            cellPolygon.push_back( cvf::Vec3d( xCoords[i], depthCoords[j], 0.0 ) );
 
             RigFractureCell stimPlanCell( cellPolygon, i, j );
             if ( !conductivityValues.empty() ) // Assuming vector to be of correct length, or no values
