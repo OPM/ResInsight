@@ -21,16 +21,18 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress::RifEclipseRftAddress( const QString&        wellName,
-                                            const QDateTime&      timeStep,
-                                            RftWellLogChannelType wellLogChannelName,
-                                            const QString&        segmentResultName,
-                                            int                   segmentBranchNumber )
+RifEclipseRftAddress::RifEclipseRftAddress( const QString&            wellName,
+                                            const QDateTime&          timeStep,
+                                            RftWellLogChannelType     wellLogChannelName,
+                                            const QString&            segmentResultName,
+                                            int                       segmentBranchNumber,
+                                            RiaDefines::RftBranchType segmentBranchType )
     : m_wellName( wellName )
     , m_timeStep( timeStep )
     , m_wellLogChannel( wellLogChannelName )
     , m_segmentResultName( segmentResultName )
     , m_segmentBranchNumber( segmentBranchNumber )
+    , m_segmentBranchType( segmentBranchType )
 {
 }
 
@@ -43,7 +45,12 @@ RifEclipseRftAddress RifEclipseRftAddress::createAddress( const QString&        
 {
     auto segmentResultName   = "";
     auto segmentBranchNumber = -1;
-    auto adr = RifEclipseRftAddress( wellName, timeStep, wellLogChannel, segmentResultName, segmentBranchNumber );
+    auto adr                 = RifEclipseRftAddress( wellName,
+                                     timeStep,
+                                     wellLogChannel,
+                                     segmentResultName,
+                                     segmentBranchNumber,
+                                     RiaDefines::RftBranchType::RFT_UNKNOWN );
 
     return adr;
 }
@@ -51,16 +58,18 @@ RifEclipseRftAddress RifEclipseRftAddress::createAddress( const QString&        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString&   wellName,
-                                                                 const QDateTime& dateTime,
-                                                                 const QString&   resultName,
-                                                                 int              segmentBranchNumber )
+RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString&            wellName,
+                                                                 const QDateTime&          dateTime,
+                                                                 const QString&            resultName,
+                                                                 int                       segmentBranchNumber,
+                                                                 RiaDefines::RftBranchType segmentBranchType )
 {
     auto adr = RifEclipseRftAddress( wellName,
                                      dateTime,
                                      RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES,
                                      resultName,
-                                     segmentBranchNumber );
+                                     segmentBranchNumber,
+                                     segmentBranchType );
 
     return adr;
 }
@@ -79,6 +88,14 @@ QString RifEclipseRftAddress::segmentResultName() const
 int RifEclipseRftAddress::segmentBranchNumber() const
 {
     return m_segmentBranchNumber;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::RftBranchType RifEclipseRftAddress::segmentBranchType() const
+{
+    return m_segmentBranchType;
 }
 
 //--------------------------------------------------------------------------------------------------

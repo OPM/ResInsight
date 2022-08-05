@@ -144,8 +144,9 @@ private:
 
     caf::PdmField<caf::AppEnum<RimWellLogRftCurve::RftDataType>> m_rftDataType;
 
-    caf::PdmField<QString> m_segmentResultName;
-    caf::PdmField<int>     m_segmentBranchId;
+    caf::PdmField<QString>                                 m_segmentResultName;
+    caf::PdmField<int>                                     m_segmentBranchId;
+    caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_segmentBranchType;
 
     std::map<size_t, size_t>                                                 m_idxInWellPathToIdxInRftFile;
     caf::PdmField<caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>> m_wellLogChannelName;

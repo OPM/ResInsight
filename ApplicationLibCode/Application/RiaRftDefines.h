@@ -33,8 +33,8 @@ QString segmentBranchNumberResultName();
 enum class RftBranchType
 {
     RFT_TUBING,
-    RFT_ANNULAR,
     RFT_DEVICE,
+    RFT_ANNULAR,
     RFT_UNKNOWN
 };
 
