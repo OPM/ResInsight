@@ -4,12 +4,13 @@
 
 
 #include "opm/input/eclipse/Parser/ParseContext.hpp"
-#include "opm/input/eclipse/Parser/ParseContext.hpp"
 #include "opm/input/eclipse/Schedule/VFPInjTable.hpp"
 #include "opm/input/eclipse/Schedule/VFPProdTable.hpp"
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Deck/Deck.hpp"
+
 #include <opm/input/eclipse/Parser/ParserKeywords/V.hpp>
+#include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 
 #include "OpmTestDataDirectory.h"
 
@@ -80,6 +81,63 @@ TEST(OpmParserTest, ReadFromFile)
 
 }
 
+//--------------------------------------------------------------------------------------------------
+/// 
+//--------------------------------------------------------------------------------------------------
+TEST(OpmParserTest, ReadAndParseWSEGLINK)
+{
+    ParseContext parseContext;
 
+    {
+        Parser parser(false);
+        const ::Opm::ParserKeywords::WSEGLINK kw1;
 
-    
+        parser.addParserKeyword(kw1);
+
+        std::stringstream ss;
+        ss << TEST_DATA_DIR << "/test_wseglink.DATA";
+        std::string testFile = ss.str();
+
+        auto deck = parser.parseFile(testFile);
+
+        std::string myKeyword = "WSEGLINK";
+        auto keywordList = deck.getKeywordList(myKeyword);
+        for (auto kw : keywordList)
+        {
+            auto name = kw->name();
+            
+            for (size_t i = 0; i < kw->size(); i++)
+            {
+                auto deckRecord = kw->getRecord(i);
+			
+                std::string wellName;
+                int segment1 = -1;
+                int segment2 = -1;
+
+                {
+                    auto itemName = ::Opm::ParserKeywords::WSEGLINK::WELL::itemName;
+                    if (deckRecord.hasItem(itemName) && deckRecord.getItem(itemName).hasValue(0))
+                    {
+				        wellName = deckRecord.getItem(itemName).getTrimmedString(0);
+                    }
+                }
+				{
+					auto itemName = ::Opm::ParserKeywords::WSEGLINK::SEGMENT1::itemName;
+					if (deckRecord.hasItem(itemName) && deckRecord.getItem(itemName).hasValue(0))
+					{
+						segment1 = deckRecord.getItem(itemName).get<int>(0);
+					}
+				}
+				{
+					auto itemName = ::Opm::ParserKeywords::WSEGLINK::SEGMENT2::itemName;
+					if (deckRecord.hasItem(itemName) && deckRecord.getItem(itemName).hasValue(0))
+					{
+						segment2 = deckRecord.getItem(itemName).get<int>(0);
+					}
+				}
+				
+				std::cout << wellName << " " << segment1 << " " << segment2 << std::endl;
+            }
+        }
+    }
+}
