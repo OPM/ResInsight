@@ -519,6 +519,17 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 
             segmentRef.setBranchType( id, branchType );
         }
+
+        // Other categories
+        // Device
+        // - has output segment on tubing
+        // - offset with 0.1 relative tubing segment start
+        //
+        // Annulus
+        // - has output segment on device
+        // - offset with 0.2 relative tubing segment start
+        //
+        // Other laterals can be connected directly to tubing segment or device segment
     }
 }
 
