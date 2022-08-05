@@ -185,3 +185,69 @@ std::vector<cvf::Vec3d> RigThermalFractureDefinition::relativeCoordinates( int t
 
     return relCoords;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Vec3d RigThermalFractureDefinition::centerPosition() const
+{
+    int xIndex = getPropertyIndex( "XCoord" );
+    int yIndex = getPropertyIndex( "YCoord" );
+    int zIndex = getPropertyIndex( "ZCoord" );
+    if ( xIndex == -1 || yIndex == -1 || zIndex == -1 )
+    {
+        return cvf::Vec3d::UNDEFINED;
+    }
+
+    // The first node is the center node
+    int        centerNodeIndex = 0;
+    int        timeStepIndex   = 0;
+    cvf::Vec3d centerNode( getPropertyValue( xIndex, centerNodeIndex, timeStepIndex ),
+                           getPropertyValue( yIndex, centerNodeIndex, timeStepIndex ),
+                           getPropertyValue( zIndex, centerNodeIndex, timeStepIndex ) );
+    return centerNode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::BoundingBox RigThermalFractureDefinition::getBoundingBox( int timeStepIndex ) const
+{
+    std::vector<cvf::Vec3d> coords;
+
+    cvf::BoundingBox bb;
+
+    int xIndex = getPropertyIndex( "XCoord" );
+    int yIndex = getPropertyIndex( "YCoord" );
+    int zIndex = getPropertyIndex( "ZCoord" );
+    if ( xIndex == -1 || yIndex == -1 || zIndex == -1 )
+    {
+        return bb;
+    }
+
+    for ( size_t nodeIndex = 0; nodeIndex < numNodes(); nodeIndex++ )
+    {
+        cvf::Vec3d nodePos( getPropertyValue( xIndex, static_cast<int>( nodeIndex ), timeStepIndex ),
+                            getPropertyValue( yIndex, static_cast<int>( nodeIndex ), timeStepIndex ),
+                            getPropertyValue( zIndex, static_cast<int>( nodeIndex ), timeStepIndex ) );
+        bb.add( nodePos );
+    }
+
+    return bb;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigThermalFractureDefinition::minDepth( int timeStepIndex ) const
+{
+    return getBoundingBox( timeStepIndex ).min().z();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigThermalFractureDefinition::maxDepth( int timeStepIndex ) const
+{
+    return getBoundingBox( timeStepIndex ).max().z();
+}
