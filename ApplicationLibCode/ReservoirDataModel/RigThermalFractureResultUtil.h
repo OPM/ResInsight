@@ -83,6 +83,9 @@ public:
                                               MinMaxAccumulator&                                  minMaxAccumulator,
                                               PosNegAccumulator&                                  posNegAccumulator );
 
+    static std::pair<double, double> minMaxDepth( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                                  int activeTimeStepIndex );
+
 private:
     static std::pair<std::vector<double>, std::vector<double>>
         generateUniformMesh( const cvf::BoundingBox& bb, int numSamplesX, int numSamplesY );
@@ -94,6 +97,10 @@ private:
     static std::vector<cvf::Vec3d>
         getRelativeCoordinates( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                 size_t                                              timeStepIndex );
+
+    static std::vector<double> scaleVector( const std::vector<double>& xs, double scaleFactor );
+
+    static std::vector<double> adjustedYCoordsAroundWellPathPosition( const std::vector<double>& ys, double offset );
 
     static double interpolateProperty( const cvf::Vec3d&                                   position,
                                        const std::vector<cvf::Vec3d>&                      points,

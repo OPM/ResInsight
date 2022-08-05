@@ -73,16 +73,8 @@ std::vector<std::vector<double>>
 
     boundingBox.expand( 1.0 );
 
-    // Generate a uniform mesh
-    auto [xCoordsAtNodes, yCoordsAtNodes] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
-
-    // Find center points
-    std::vector<double> xCoords;
-    for ( int i = 0; i < static_cast<int>( xCoordsAtNodes.size() ) - 1; i++ )
-        xCoords.push_back( ( xCoordsAtNodes[i] + xCoordsAtNodes[i + 1] ) / 2 );
-    std::vector<double> depthCoords;
-    for ( int i = 0; i < static_cast<int>( yCoordsAtNodes.size() ) - 1; i++ )
-        depthCoords.push_back( ( yCoordsAtNodes[i] + yCoordsAtNodes[i + 1] ) / 2 );
+    // Generate a uniform mesh (center points)
+    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
 
     // Fill with invalid value
     for ( int i = 0; i < numSamplesY; i++ )
@@ -289,7 +281,18 @@ cvf::cref<RigFractureGrid>
     boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh
-    auto [xCoordsAtNodes, yCoordsAtNodes] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
+    auto [Xs, Ys] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
+
+    double centerZ = fractureDefinition->centerPosition().z();
+    double offset  = wellPathIntersectionAtFractureDepth - centerZ;
+
+    std::vector<double> adjustedYs = adjustedYCoordsAroundWellPathPosition( Ys, offset );
+
+    std::vector<double> scaledXs = scaleVector( Xs, xScaleFactor );
+    std::vector<double> scaledYs = scaleVector( adjustedYs, yScaleFactor );
+
+    std::vector<double> xCoordsAtNodes = scaledXs;
+    std::vector<double> yCoordsAtNodes = scaledYs;
 
     // Find center points
     std::vector<double> xCoords;
@@ -399,6 +402,36 @@ double RigThermalFractureResultUtil::linearSampling( double               minVal
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<double> RigThermalFractureResultUtil::scaleVector( const std::vector<double>& xs, double scaleFactor )
+{
+    std::vector<double> scaledXs;
+
+    // Scale using 0 as scaling anchor
+    for ( double x : xs )
+    {
+        if ( scaleFactor != 1.0 ) x *= scaleFactor;
+        scaledXs.push_back( x );
+    }
+
+    return scaledXs;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> RigThermalFractureResultUtil::adjustedYCoordsAroundWellPathPosition( const std::vector<double>& ys,
+                                                                                         double offset )
+{
+    std::vector<double> adjusted;
+    for ( auto p : ys )
+        adjusted.push_back( p + offset );
+
+    return adjusted;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                                                  const QString&     resultName,
                                                                  const QString&     unit,
@@ -499,4 +532,26 @@ double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&     
     }
 
     return calc.weightedMean();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double>
+    RigThermalFractureResultUtil::minMaxDepth( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                               int                                                 activeTimeStepIndex )
+{
+    auto getBoundingBox = []( const std::vector<cvf::Vec3d>& coords ) {
+        cvf::BoundingBox bb;
+        for ( auto c : coords )
+            bb.add( c );
+        return bb;
+    };
+
+    auto relativeCoords = getRelativeCoordinates( fractureDefinition, activeTimeStepIndex );
+    auto bb             = getBoundingBox( relativeCoords );
+
+    double centerZ = fractureDefinition->centerPosition().z();
+    // Y is depth in fracture coordinate system.
+    return std::make_pair( centerZ + bb.min().y(), centerZ + bb.max().y() );
 }
