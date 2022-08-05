@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 
 #include "RiaRftDefines.h"
+#include "cafAppEnum.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -65,3 +66,16 @@ QString RiaDefines::segmentBranchNumberResultName()
 {
     return "SegmenBranchNumber";
 }
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RiaDefines::RftBranchType>::setUp()
+{
+    addItem( RiaDefines::RftBranchType::RFT_TUBING, "RFT_TUBING", "Tubing" );
+    addItem( RiaDefines::RftBranchType::RFT_DEVICE, "RFT_DEVICE", "Device" );
+    addItem( RiaDefines::RftBranchType::RFT_ANNULAR, "RFT_ANNULAR", "Annular" );
+    addItem( RiaDefines::RftBranchType::RFT_UNKNOWN, "RFT_UNKNOWN", "Unknown" );
+    setDefault( RiaDefines::RftBranchType::RFT_TUBING );
+}
+} // namespace caf

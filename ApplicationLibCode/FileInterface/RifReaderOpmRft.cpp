@@ -318,7 +318,8 @@ void RifReaderOpmRft::buildMetaData()
             auto adr        = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
                                                                    dt,
                                                                    QString::fromStdString( resultName ),
-                                                                   -1 );
+                                                                   -1,
+                                                                   RiaDefines::RftBranchType::RFT_UNKNOWN );
 
             m_addresses.insert( adr );
         }
@@ -326,7 +327,8 @@ void RifReaderOpmRft::buildMetaData()
         auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
                                                                dt,
                                                                RiaDefines::segmentNumberResultName(),
-                                                               -1 );
+                                                               -1,
+                                                               RiaDefines::RftBranchType::RFT_UNKNOWN );
 
         m_addresses.insert( adr );
     }
@@ -469,8 +471,11 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
     std::vector<double> seglenstValues;
     std::vector<double> seglenenValues;
     {
-        auto resultName =
-            RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ), dt, "SEGLENST", -1 );
+        auto resultName = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
+                                                                      dt,
+                                                                      "SEGLENST",
+                                                                      -1,
+                                                                      RiaDefines::RftBranchType::RFT_UNKNOWN );
 
         values( resultName, &seglenstValues );
 
@@ -480,8 +485,11 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
         }
     }
     {
-        auto resultName =
-            RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ), dt, "SEGLENEN", -1 );
+        auto resultName = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
+                                                                      dt,
+                                                                      "SEGLENEN",
+                                                                      -1,
+                                                                      RiaDefines::RftBranchType::RFT_UNKNOWN );
 
         values( resultName, &seglenenValues );
     }
