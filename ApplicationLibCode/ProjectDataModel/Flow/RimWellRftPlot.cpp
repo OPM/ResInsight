@@ -21,6 +21,7 @@
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
 #include "RiaDateStringParser.h"
+#include "RiaPlotDefines.h"
 #include "RiaSimWellBranchTools.h"
 
 #include "RifReaderEclipseRft.h"
@@ -1058,7 +1059,7 @@ void RimWellRftPlot::onLoadDataAndUpdate()
             RimWellLogTrack* const plotTrack = dynamic_cast<RimWellLogTrack*>( plotByIndex( 0 ) );
             if ( plotTrack )
             {
-                plotTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
+                plotTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
             }
         }
 

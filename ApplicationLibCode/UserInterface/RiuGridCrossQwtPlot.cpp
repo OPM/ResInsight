@@ -18,6 +18,7 @@
 #include "RiuGridCrossQwtPlot.h"
 
 #include "RiaFontCache.h"
+#include "RiaPlotDefines.h"
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
@@ -145,7 +146,7 @@ void RiuGridCrossQwtPlot::updateAnnotationObjects( RimPlotAxisPropertiesInterfac
                                                 annotation->color(),
                                                 annotation->name(),
                                                 annotation->value(),
-                                                RiuPlotAnnotationTool::Orientation::HORIZONTAL );
+                                                RiaDefines::Orientation::HORIZONTAL );
     }
 }
 

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaPlotDefines.h"
+
 #include "cafColorTable.h"
 
 #include "qwt_plot_marker.h"
@@ -34,63 +36,34 @@ class QwtPlot;
 class RiuPlotAnnotationTool
 {
 public:
-    enum class RegionAnnotationType
-    {
-        NO_ANNOTATIONS        = 0,
-        FORMATION_ANNOTATIONS = 1,
-        // Used to have Wbs-parameter coding as 2
-        RESULT_PROPERTY_ANNOTATIONS = 3
-    };
-    enum RegionDisplay
-    {
-        DARK_LINES              = 0x01,
-        COLORED_LINES           = 0x02,
-        COLOR_SHADING           = 0x04,
-        COLOR_SHADING_AND_LINES = 0x05,
-        LIGHT_LINES             = 0x08,
-    };
-    enum class TrackSpan
-    {
-        FULL_WIDTH,
-        LEFT_COLUMN,
-        CENTRE_COLUMN,
-        RIGHT_COLUMN
-    };
-    enum class Orientation
-    {
-        HORIZONTAL = 0,
-        VERTICAL
-    };
-
-public:
     RiuPlotAnnotationTool(){};
     ~RiuPlotAnnotationTool();
 
     void attachNamedRegions( QwtPlot*                                      plot,
                              const std::vector<QString>&                   names,
-                             const std::pair<double, double>               xRange,
-                             const std::vector<std::pair<double, double>>& yPositions,
-                             RegionDisplay                                 regionDisplay,
+                             RiaDefines::Orientation                       orientation,
+                             const std::vector<std::pair<double, double>>& regionRanges,
+                             RiaDefines::RegionDisplay                     regionDisplay,
                              const caf::ColorTable&                        colorTable,
                              int                                           shadingAlphaByte,
-                             bool                                          showNames   = true,
-                             TrackSpan                                     trackSpan   = TrackSpan::FULL_WIDTH,
-                             const std::vector<Qt::BrushStyle>&            brushStyles = {},
-                             int                                           fontSize    = 0 );
+                             bool                                          showNames = true,
+                             RiaDefines::TrackSpan              trackSpan   = RiaDefines::TrackSpan::FULL_WIDTH,
+                             const std::vector<Qt::BrushStyle>& brushStyles = {},
+                             int                                fontSize    = 0 );
     void attachWellPicks( QwtPlot* plot, const std::vector<QString>& names, const std::vector<double>& yPositions );
 
-    void attachAnnotationLine( QwtPlot*       plot,
-                               const QColor&  color,
-                               const QString& annotationText,
-                               const double   position,
-                               Orientation    orientation );
+    void attachAnnotationLine( QwtPlot*                plot,
+                               const QColor&           color,
+                               const QString&          annotationText,
+                               const double            position,
+                               RiaDefines::Orientation orientation );
 
-    void attachAnnotationRange( QwtPlot*       plot,
-                                const QColor&  color,
-                                const QString& annotationText,
-                                const double   rangeStart,
-                                const double   rangeEnd,
-                                Orientation    orientation );
+    void attachAnnotationRange( QwtPlot*                plot,
+                                const QColor&           color,
+                                const QString&          annotationText,
+                                const double            rangeStart,
+                                const double            rangeEnd,
+                                RiaDefines::Orientation orientation );
 
     void horizontalRange( const QString&                  name,
                           const std::pair<double, double> yRange,
@@ -105,28 +78,21 @@ public:
                         Qt::Alignment                   horizontalAlignment = Qt::AlignRight );
 
     void detachAllAnnotations();
-    void detachAllAnnotations( Orientation orientation );
 
 private:
-    static Qt::Alignment trackTextAlignment( TrackSpan trackSpan );
-    static void          horizontalDashedLine( QwtPlotMarker* line,
-                                               const QString& name,
-                                               double         yValue,
-                                               const QColor&  color               = QColor( 0, 0, 100 ),
-                                               const QColor&  textColor           = QColor( 0, 0, 100 ),
-                                               Qt::Alignment  horizontalAlignment = Qt::AlignRight,
-                                               int            fontSize            = 0 );
+    static Qt::Alignment trackTextAlignment( RiaDefines::TrackSpan trackSpan );
 
-    void verticalLine( QwtPlotMarker* line,
-                       const QString& name,
-                       double         xValue,
-                       const QColor&  color               = QColor( 0, 0, 100 ),
-                       const QColor&  textColor           = QColor( 0, 0, 100 ),
-                       Qt::PenStyle   lineStyle           = Qt::DashLine,
-                       Qt::Alignment  horizontalAlignment = Qt::AlignRight | Qt::AlignBottom );
+    static void setLineProperties( QwtPlotMarker*          line,
+                                   const QString&          name,
+                                   RiaDefines::Orientation orientation,
+                                   double                  linePosition,
+                                   Qt::PenStyle            lineStyle           = Qt::DashLine,
+                                   const QColor&           color               = QColor( 0, 0, 100 ),
+                                   const QColor&           textColor           = QColor( 0, 0, 100 ),
+                                   Qt::Alignment           horizontalAlignment = Qt::AlignRight,
+                                   int                     fontSize            = 0 );
 
 private:
     QPointer<QwtPlot>         m_plot;
-    std::vector<QwtPlotItem*> m_horizontalMarkers;
-    std::vector<QwtPlotItem*> m_verticalMarkers;
+    std::vector<QwtPlotItem*> m_plotItems;
 };

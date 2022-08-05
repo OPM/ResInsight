@@ -223,7 +223,7 @@ void RicNewStimPlanModelPlotFeature::createFormationTrack( RimStimPlanModelPlot*
     RimWellLogTrack* formationTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Formations", plot );
     formationTrack->setFormationWellPath( stimPlanModel->thicknessDirectionWellPath() );
     formationTrack->setFormationCase( eclipseCase );
-    formationTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::FORMATION_ANNOTATIONS );
+    formationTrack->setAnnotationType( RiaDefines::RegionAnnotationType::FORMATION_ANNOTATIONS );
     formationTrack->setPropertyValueAxisGridVisibility( RimWellLogPlot::AxisGridVisibility::AXIS_GRID_NONE );
     formationTrack->setShowWellPathAttributes( true );
     formationTrack->setShowBothSidesOfWell( false );
@@ -255,9 +255,9 @@ void RicNewStimPlanModelPlotFeature::createFaciesTrack( RimStimPlanModelPlot* pl
     RimWellLogTrack* faciesTrack = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Facies", plot );
     faciesTrack->setFormationWellPath( stimPlanModel->thicknessDirectionWellPath() );
     faciesTrack->setFormationCase( eclipseCase );
-    faciesTrack->setAnnotationType( RiuPlotAnnotationTool::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
+    faciesTrack->setAnnotationType( RiaDefines::RegionAnnotationType::RESULT_PROPERTY_ANNOTATIONS );
     faciesTrack->setRegionPropertyResultType( faciesDefinition->resultType(), faciesDefinition->resultVariable() );
-    faciesTrack->setAnnotationDisplay( RiuPlotAnnotationTool::COLOR_SHADING );
+    faciesTrack->setAnnotationDisplay( RiaDefines::COLOR_SHADING );
     faciesTrack->setOverburdenHeight( stimPlanModel->overburdenHeight() );
     faciesTrack->setUnderburdenHeight( stimPlanModel->underburdenHeight() );
     faciesTrack->setPropertyValueAxisTitle( stimPlanModel->unitForProperty( RiaDefines::CurveProperty::FACIES ) );
