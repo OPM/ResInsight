@@ -25,6 +25,7 @@
 
 #include "RimGridCrossPlot.h"
 #include "RimGridCrossPlotCurve.h"
+#include "RimPlot.h"
 #include "RimProject.h"
 #include "RimSummaryCrossPlot.h"
 #include "RimSummaryPlot.h"
@@ -173,30 +174,26 @@ bool RicShowPlotDataFeature::isCommandEnabled()
         return true;
     }
 
-    auto selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
-    if ( selectedSummaryPlots.size() > 0 )
+    std::vector<RimPlot*> selection;
+    getSelection( selection );
+
+    int validPlots = 0;
+
+    for ( auto plot : selection )
     {
-        for ( auto c : selectedSummaryPlots )
+        if ( dynamic_cast<RimSummaryCrossPlot*>( plot ) )
         {
-            if ( dynamic_cast<RimSummaryCrossPlot*>( c ) )
-            {
-                return false;
-            }
+            return false;
         }
 
-        return true;
+        if ( dynamic_cast<RimSummaryPlot*>( plot ) != nullptr ||
+             ( dynamic_cast<RimWellLogPlot*>( plot ) != nullptr || dynamic_cast<RimGridCrossPlot*>( plot ) != nullptr ||
+               dynamic_cast<RimVfpPlot*>( plot ) != nullptr ) )
+        {
+            validPlots++;
+        }
     }
-
-    auto wellLogPlots = caf::selectedObjectsByType<RimWellLogPlot*>();
-    if ( wellLogPlots.size() > 0 ) return true;
-
-    auto gridCrossPlots = caf::selectedObjectsByType<RimGridCrossPlot*>();
-    if ( gridCrossPlots.size() > 0 ) return true;
-
-    auto vfpPlots = caf::selectedObjectsByType<RimVfpPlot*>();
-    if ( vfpPlots.size() > 0 ) return true;
-
-    return false;
+    return ( validPlots > 0 );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -220,10 +217,45 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
 
     this->disableModelChangeContribution();
 
-    std::vector<RimSummaryPlot*>   selectedSummaryPlots = caf::selectedObjectsByType<RimSummaryPlot*>();
-    std::vector<RimWellLogPlot*>   wellLogPlots         = caf::selectedObjectsByType<RimWellLogPlot*>();
-    std::vector<RimGridCrossPlot*> crossPlots           = caf::selectedObjectsByType<RimGridCrossPlot*>();
-    std::vector<RimVfpPlot*>       vfpPlots             = caf::selectedObjectsByType<RimVfpPlot*>();
+    std::vector<RimPlot*> selection;
+    getSelection( selection );
+
+    std::vector<RimSummaryPlot*>   selectedSummaryPlots;
+    std::vector<RimWellLogPlot*>   wellLogPlots;
+    std::vector<RimGridCrossPlot*> crossPlots;
+    std::vector<RimVfpPlot*>       vfpPlots;
+
+    for ( auto plot : selection )
+    {
+        auto sumPlot = dynamic_cast<RimSummaryPlot*>( plot );
+        if ( sumPlot )
+        {
+            selectedSummaryPlots.push_back( sumPlot );
+            continue;
+        }
+
+        auto wellPlot = dynamic_cast<RimWellLogPlot*>( plot );
+        if ( wellPlot )
+        {
+            wellLogPlots.push_back( wellPlot );
+            continue;
+        }
+
+        auto xPlot = dynamic_cast<RimGridCrossPlot*>( plot );
+        if ( xPlot )
+        {
+            crossPlots.push_back( xPlot );
+            continue;
+        }
+
+        auto vfpPlot = dynamic_cast<RimVfpPlot*>( plot );
+        if ( vfpPlot )
+        {
+            vfpPlots.push_back( vfpPlot );
+            continue;
+        }
+    }
+
     if ( selectedSummaryPlots.empty() && wellLogPlots.empty() && crossPlots.empty() && vfpPlots.empty() )
     {
         CVF_ASSERT( false );
@@ -302,4 +334,25 @@ void RicShowPlotDataFeature::showTextWindow( const QString& title, const QString
     textWiget->show();
 
     plotwindow->addToTemporaryWidgets( textWiget );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicShowPlotDataFeature::getSelection( std::vector<RimPlot*>& selection )
+{
+    if ( sender() )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<void*>() )
+        {
+            RimPlot* plot = static_cast<RimPlot*>( userData.value<void*>() );
+            if ( plot ) selection.push_back( plot );
+        }
+    }
+
+    if ( selection.empty() )
+    {
+        caf::SelectionManager::instance()->objectsByType( &selection );
+    }
 }

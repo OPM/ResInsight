@@ -21,8 +21,10 @@
 #include "cafCmdFeature.h"
 
 #include <functional>
+#include <vector>
 
 class RiuTabbedTextProvider;
+class RimPlot;
 
 //==================================================================================================
 ///
@@ -35,6 +37,9 @@ protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
+
+private:
+    void getSelection( std::vector<RimPlot*>& selection );
 
 public:
     static void showTabbedTextWindow( RiuTabbedTextProvider* textProvider );

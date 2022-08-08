@@ -46,7 +46,7 @@ bool RicSplitMultiPlotFeature::isCommandEnabled()
         return ( ( plot->summaryCurves().size() > 1 ) || ( plot->curveSets().size() > 1 ) );
     }
 
-    return false;
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

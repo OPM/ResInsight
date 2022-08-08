@@ -133,6 +133,16 @@ RimSummaryPlot* RicEditSummaryPlotFeature::selectedSummaryPlot()
 {
     RimSummaryPlot* sumPlot = nullptr;
 
+    if ( sender() )
+    {
+        QVariant userData = this->userData();
+        if ( !userData.isNull() && userData.canConvert<void*>() )
+        {
+            RimSummaryPlot* plot = static_cast<RimSummaryPlot*>( userData.value<void*>() );
+            if ( plot ) return plot;
+        }
+    }
+
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( selObj )
     {

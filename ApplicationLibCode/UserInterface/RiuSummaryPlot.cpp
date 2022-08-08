@@ -59,7 +59,17 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
     QMenu                      menu;
     caf::CmdFeatureMenuBuilder menuBuilder;
 
-    menuBuilder << "RicShowPlotDataFeature";
+    RimSummaryPlot* plot = dynamic_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
+    if ( plot )
+    {
+        QVariant plotVariant( QVariant::fromValue( static_cast<void*>( plot ) ) );
+        menuBuilder.addCmdFeatureWithUserData( "RicShowPlotDataCtxFeature", "Show Plot Data", plotVariant );
+        menuBuilder.addCmdFeatureWithUserData( "RicEditSummaryPlotCtxFeature", "Edit Plot", plotVariant );
+        menuBuilder.addCmdFeatureWithUserData( "RicSplitMultiPlotFeature", "Split into Multiple Plots", plotVariant );
+        menuBuilder.addSeparator();
+        menuBuilder.addCmdFeatureWithUserData( "RicDeleteSubPlotCtxFeature", "Delete Plot", plotVariant );
+    }
+    menuBuilder.addSeparator();
 
     double distanceFromClick = std::numeric_limits<double>::infinity();
 
@@ -190,16 +200,6 @@ void RiuSummaryPlot::showContextMenu( QPoint pos )
                 }
             }
         }
-    }
-
-    menuBuilder.addSeparator();
-
-    RimSummaryPlot* plot = dynamic_cast<RimSummaryPlot*>( plotWidget()->plotDefinition() );
-    if ( plot )
-    {
-        QVariant plotVariant( QVariant::fromValue( static_cast<void*>( plot ) ) );
-        menuBuilder.addCmdFeatureWithUserData( "RicSplitMultiPlotFeature", "Split into Multiple Plots", plotVariant );
-        menuBuilder.addCmdFeatureWithUserData( "RicDeleteSubPlotFeature", "Delete Plot", plotVariant );
     }
 
     menuBuilder.appendToMenu( &menu );
