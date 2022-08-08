@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <set>
 #include <string>
 #include <tuple>
 #include <vector>
@@ -55,7 +56,8 @@ public:
 
     std::vector<int>         tubingBranchIds() const;
     std::vector<int>         branchIds() const;
-    int                      branchIdForOneBasedBranchIndex( int oneBasedBranchIndex ) const;
+    std::set<int>            oneBasedBranchIndices() const;
+    std::vector<int>         branchIdForOneBasedBranchIndex( int oneBasedBranchIndex ) const;
     int                      oneBasedBranchIndexForBranchId( int branchId ) const;
     const RifRftSegmentData* segmentData( int segmentNumber ) const;
 
@@ -66,6 +68,7 @@ public:
     void setOneBasedBranchIndex( int branchId, int oneBasedBranchIndex );
 
     std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
+    std::vector<size_t> indicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
 
 private:
     std::vector<RifRftSegmentData>             m_topology;

@@ -25,13 +25,13 @@ RifEclipseRftAddress::RifEclipseRftAddress( const QString&            wellName,
                                             const QDateTime&          timeStep,
                                             RftWellLogChannelType     wellLogChannelName,
                                             const QString&            segmentResultName,
-                                            int                       segmentBranchNumber,
+                                            int                       segmentBranchIndex,
                                             RiaDefines::RftBranchType segmentBranchType )
     : m_wellName( wellName )
     , m_timeStep( timeStep )
     , m_wellLogChannel( wellLogChannelName )
     , m_segmentResultName( segmentResultName )
-    , m_segmentBranchNumber( segmentBranchNumber )
+    , m_segmentBranchIndex( segmentBranchIndex )
     , m_segmentBranchType( segmentBranchType )
 {
 }
@@ -61,14 +61,14 @@ RifEclipseRftAddress RifEclipseRftAddress::createAddress( const QString&        
 RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString&            wellName,
                                                                  const QDateTime&          dateTime,
                                                                  const QString&            resultName,
-                                                                 int                       segmentBranchNumber,
+                                                                 int                       segmentBranchIndex,
                                                                  RiaDefines::RftBranchType segmentBranchType )
 {
     auto adr = RifEclipseRftAddress( wellName,
                                      dateTime,
                                      RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES,
                                      resultName,
-                                     segmentBranchNumber,
+                                     segmentBranchIndex,
                                      segmentBranchType );
 
     return adr;
@@ -85,9 +85,9 @@ QString RifEclipseRftAddress::segmentResultName() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RifEclipseRftAddress::segmentBranchNumber() const
+int RifEclipseRftAddress::segmentBranchIndex() const
 {
-    return m_segmentBranchNumber;
+    return m_segmentBranchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -154,7 +154,7 @@ bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& 
     if ( first.timeStep() != second.timeStep() ) return false;
     if ( first.wellLogChannel() != second.wellLogChannel() ) return false;
     if ( first.segmentResultName() != second.segmentResultName() ) return false;
-    if ( first.segmentBranchNumber() != second.segmentBranchNumber() ) return false;
+    if ( first.segmentBranchIndex() != second.segmentBranchIndex() ) return false;
 
     return true;
 }
@@ -170,8 +170,8 @@ bool operator<( const RifEclipseRftAddress& first, const RifEclipseRftAddress& s
         return ( first.wellLogChannel() < second.wellLogChannel() );
     if ( first.segmentResultName() != second.segmentResultName() )
         return first.segmentResultName() < second.segmentResultName();
-    if ( first.segmentBranchNumber() != second.segmentBranchNumber() )
-        return first.segmentBranchNumber() < second.segmentBranchNumber();
+    if ( first.segmentBranchIndex() != second.segmentBranchIndex() )
+        return first.segmentBranchIndex() < second.segmentBranchIndex();
 
     return false;
 }

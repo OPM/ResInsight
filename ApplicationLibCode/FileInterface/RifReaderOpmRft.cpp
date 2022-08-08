@@ -82,7 +82,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto data = segment.topology();
 
-            auto indices = segment.indicesForBranchNumber( rftAddress.segmentBranchNumber() );
+            auto indices = segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
             for ( const auto& i : indices )
             {
                 CAF_ASSERT( i < data.size() );
@@ -93,6 +93,14 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto branchNumbers = segment.tubingBranchIds();
             for ( const auto& branchNumber : branchNumbers )
+            {
+                values->push_back( branchNumber );
+            }
+        }
+        else if ( rftAddress.segmentResultName() == RiaDefines::segmentOneBasedBranchIndexResultName() )
+        {
+            auto branchIndices = segment.oneBasedBranchIndices();
+            for ( const auto& branchNumber : branchIndices )
             {
                 values->push_back( branchNumber );
             }
@@ -114,7 +122,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
                 auto segment = m_rftWellDateSegments[key];
 
-                auto indices = segment.indicesForBranchNumber( rftAddress.segmentBranchNumber() );
+                auto indices =
+                    segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
                 for ( const auto& i : indices )
                 {
                     CAF_ASSERT( i < data.size() );

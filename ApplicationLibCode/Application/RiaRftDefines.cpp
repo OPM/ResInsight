@@ -64,7 +64,15 @@ QString RiaDefines::allBranches()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::segmentBranchNumberResultName()
 {
-    return "SegmenBranchNumber";
+    return "SegmentBranchNumber";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RiaDefines::segmentOneBasedBranchIndexResultName()
+{
+    return "SegmentOneBasedBranchIndex";
 }
 
 namespace caf

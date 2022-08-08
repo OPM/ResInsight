@@ -60,11 +60,11 @@ public:
     static RifEclipseRftAddress createSegmentAddress( const QString&            wellName,
                                                       const QDateTime&          dateTime,
                                                       const QString&            resultName,
-                                                      int                       segmentBranchNumber,
+                                                      int                       segmentBranchIndex,
                                                       RiaDefines::RftBranchType segmentBranchType );
 
     QString                   segmentResultName() const;
-    int                       segmentBranchNumber() const;
+    int                       segmentBranchIndex() const;
     RiaDefines::RftBranchType segmentBranchType() const;
 
     const QString&               wellName() const;
@@ -79,7 +79,7 @@ private:
                           const QDateTime&          timeStep,
                           RftWellLogChannelType     wellLogChannel,
                           const QString&            segmentResultName,
-                          int                       segmentBranchNumber,
+                          int                       segmentBranchIndex,
                           RiaDefines::RftBranchType segmentBranchType );
 
 private:
@@ -88,7 +88,7 @@ private:
     RftWellLogChannelType m_wellLogChannel;
 
     QString                   m_segmentResultName;
-    int                       m_segmentBranchNumber;
+    int                       m_segmentBranchIndex;
     RiaDefines::RftBranchType m_segmentBranchType;
 };
 

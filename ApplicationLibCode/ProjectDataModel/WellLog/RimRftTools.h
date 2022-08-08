@@ -42,5 +42,5 @@ public:
     static QList<caf::PdmOptionItemInfo>
         segmentResultNameOptions( RifReaderRftInterface* readerRft, const QString& wellName, const QDateTime& timeStep );
     static QList<caf::PdmOptionItemInfo>
-        segmentBranchIdOptions( RifReaderRftInterface* readerRft, const QString& wellName, const QDateTime& timeStep );
+        segmentBranchIndexOptions( RifReaderRftInterface* readerRft, const QString& wellName, const QDateTime& timeStep );
 };

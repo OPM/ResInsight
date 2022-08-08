@@ -140,9 +140,9 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentResultNameOptions( RifReaderRf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIdOptions( RifReaderRftInterface* readerRft,
-                                                                   const QString&         wellName,
-                                                                   const QDateTime&       timeStep )
+QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIndexOptions( RifReaderRftInterface* readerRft,
+                                                                      const QString&         wellName,
+                                                                      const QDateTime&       timeStep )
 {
     QList<caf::PdmOptionItemInfo> options;
 
@@ -154,7 +154,7 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIdOptions( RifReaderRftI
 
         auto adr = RifEclipseRftAddress::createSegmentAddress( wellName,
                                                                timeStep,
-                                                               RiaDefines::segmentBranchNumberResultName(),
+                                                               RiaDefines::segmentOneBasedBranchIndexResultName(),
                                                                -1,
                                                                RiaDefines::RftBranchType::RFT_UNKNOWN );
 
