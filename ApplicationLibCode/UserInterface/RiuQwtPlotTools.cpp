@@ -26,7 +26,7 @@
 #include "RimPlotCurve.h"
 
 #include "RiuGuiTheme.h"
-#include "RiuQtChartsPlotCurveSymbol.h"
+#include "RiuPlotCurveSymbolImageCreator.h"
 #include "RiuQwtPlotLegend.h"
 
 #include "qwt_axis.h"
@@ -323,13 +323,12 @@ QList<QwtLegendData> RiuQwtPlotTools::createLegendData( const std::vector<RimPlo
                 QwtPainter::drawLine( &painter, 0.0, y, size.width(), y );
             }
 
-            if ( c->symbol() != RiuQtChartsPlotCurveSymbol::SYMBOL_NONE )
+            if ( c->symbol() != RiuPlotCurveSymbol::SYMBOL_NONE )
             {
-                RiuQtChartsPlotCurveSymbol symbol( c->symbol() );
-                symbol.setSize( size.height() / 2, size.height() / 2 );
-                symbol.setColor( RiaColorTools::toQColor( c->color() ) );
-
-                auto image = symbol.image();
+                auto image =
+                    RiuPlotCurveSymbolImageCreator::createSymbolImage( c->symbol(),
+                                                                       QSize( size.width() / 2, size.height() / 2 ),
+                                                                       RiaColorTools::toQColor( c->color() ) );
 
                 QPoint p( size.width() / 4, size.height() / 4 );
                 painter.drawImage( p, image );
