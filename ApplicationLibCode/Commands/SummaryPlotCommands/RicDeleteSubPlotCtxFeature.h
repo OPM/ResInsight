@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2016-     Statoil ASA
+//  Copyright (C) 2022     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,30 +18,15 @@
 
 #pragma once
 
-#include "cafCmdFeature.h"
-
-class RimSummaryPlot;
-class RicSummaryPlotEditorDialog;
+#include "WellLogCommands/RicDeleteSubPlotFeature.h"
 
 //==================================================================================================
 ///
 //==================================================================================================
-class RicEditSummaryPlotFeature : public caf::CmdFeature
+class RicDeleteSubPlotCtxFeature : public RicDeleteSubPlotFeature
 {
     CAF_CMD_HEADER_INIT;
-    RicEditSummaryPlotFeature();
-
-public:
-    void closeDialogAndResetTargetPlot();
-
-    static RicSummaryPlotEditorDialog* curveCreatorDialog( bool createIfNotPresent );
-    static void                        editSummaryPlot( RimSummaryPlot* plot );
 
 protected:
     bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
-    void setupActionLook( QAction* actionToSetup ) override;
-
-private:
-    RimSummaryPlot* selectedSummaryPlot();
 };
