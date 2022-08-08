@@ -63,16 +63,6 @@ public:
     QImage image() const;
 
 private:
-    QImage createTriangleImage( RiuPlotCurveSymbol::PointSymbolEnum symbolStyle ) const;
-    QImage createRectImage() const;
-    QImage createStar1Image() const;
-    QImage createStar2Image() const;
-    QImage createHexagonImage() const;
-    QImage createEllipseImage() const;
-    QImage createCrossImage() const;
-    QImage createXCrossImage() const;
-    QImage createDiamondImage() const;
-
     void setImageBrush( QtCharts::QScatterSeries* series, const QImage& image ) const;
 
     QColor m_color;
