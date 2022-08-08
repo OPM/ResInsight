@@ -174,7 +174,7 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitFieldNoDefault( &m_rftDataType, "RftDataType", "Data Type" );
 
     CAF_PDM_InitField( &m_segmentResultName, "SegmentResultName", RiaResultNames::undefinedResultName(), "Segment Result Name" );
-    CAF_PDM_InitField( &m_segmentBranchId, "SegmentBranchId", -1, "Segment Branch" );
+    CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Segment Branch" );
     CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Branch Type" );
 }
 
@@ -236,9 +236,9 @@ QDateTime RimWellLogRftCurve::timeStep() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogRftCurve::setSegmentBranchId( int branchId )
+void RimWellLogRftCurve::setSegmentBranchIndex( int branchIndex )
 {
-    m_segmentBranchId = branchId;
+    m_segmentBranchIndex = branchIndex;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -316,9 +316,9 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
 
     if ( address.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
     {
-        m_rftDataType       = RftDataType::RFT_SEGMENT_DATA;
-        m_segmentResultName = address.segmentResultName();
-        m_segmentBranchId   = address.segmentBranchNumber();
+        m_rftDataType        = RftDataType::RFT_SEGMENT_DATA;
+        m_segmentResultName  = address.segmentResultName();
+        m_segmentBranchIndex = address.segmentBranchIndex();
     }
     else
     {
@@ -336,7 +336,7 @@ RifEclipseRftAddress RimWellLogRftCurve::rftAddress() const
         return RifEclipseRftAddress::createSegmentAddress( m_wellName,
                                                            m_timeStep,
                                                            m_segmentResultName(),
-                                                           m_segmentBranchId(),
+                                                           m_segmentBranchIndex(),
                                                            m_segmentBranchType() );
     }
 
@@ -475,8 +475,10 @@ QString RimWellLogRftCurve::createCurveAutoName()
     {
         name.push_back( m_segmentResultName );
 
-        QString branchText = QString( "Branch %1" ).arg( m_segmentBranchId() );
+        QString branchText = QString( "Branch %1" ).arg( m_segmentBranchIndex() );
         name.push_back( branchText );
+
+        name.push_back( m_segmentBranchType().uiText() );
     }
 
     if ( !m_timeStep().isNull() )
@@ -699,7 +701,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     else
     {
         curveDataGroup->add( &m_segmentResultName );
-        curveDataGroup->add( &m_segmentBranchId );
+        curveDataGroup->add( &m_segmentBranchIndex );
         curveDataGroup->add( &m_segmentBranchType );
     }
 
@@ -765,9 +767,9 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     {
         options = RimRftTools::segmentResultNameOptions( reader, m_wellName(), m_timeStep() );
     }
-    else if ( fieldNeedingOptions == &m_segmentBranchId )
+    else if ( fieldNeedingOptions == &m_segmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIdOptions( reader, m_wellName(), m_timeStep() );
+        options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep() );
     }
 
     return options;
@@ -817,8 +819,8 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         }
         loadData = true;
     }
-    else if ( changedField == &m_timeStep || changedField == &m_segmentResultName ||
-              changedField == &m_segmentBranchId || changedField == &m_rftDataType )
+    else if ( changedField == &m_timeStep || changedField == &m_segmentResultName || changedField == &m_segmentBranchIndex ||
+              changedField == &m_rftDataType || changedField == &m_segmentBranchType )
     {
         loadData = true;
     }
@@ -1008,7 +1010,7 @@ std::vector<double> RimWellLogRftCurve::xValues()
         auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(),
                                                                         m_timeStep,
                                                                         m_segmentResultName(),
-                                                                        segmentBranchId(),
+                                                                        segmentBranchIndex(),
                                                                         m_segmentBranchType() );
 
         reader->values( depthAddress, &values );
@@ -1075,7 +1077,7 @@ std::vector<double> RimWellLogRftCurve::tvDepthValues()
         auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(),
                                                                         m_timeStep,
                                                                         RiaDefines::segmentTvdDepthResultName(),
-                                                                        segmentBranchId(),
+                                                                        segmentBranchIndex(),
                                                                         m_segmentBranchType() );
 
         reader->values( depthAddress, &values );
@@ -1121,7 +1123,7 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
             auto depthAddress = RifEclipseRftAddress::createSegmentAddress( m_wellName(),
                                                                             m_timeStep,
                                                                             RiaDefines::segmentStartDepthResultName(),
-                                                                            segmentBranchId(),
+                                                                            segmentBranchIndex(),
                                                                             m_segmentBranchType() );
 
             reader->values( depthAddress, &values );
@@ -1247,7 +1249,7 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimWellLogRftCurve::segmentBranchId() const
+int RimWellLogRftCurve::segmentBranchIndex() const
 {
-    return m_segmentBranchId();
+    return m_segmentBranchIndex();
 }
