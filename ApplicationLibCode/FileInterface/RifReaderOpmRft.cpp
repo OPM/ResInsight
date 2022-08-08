@@ -494,6 +494,8 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
         values( resultName, &seglenenValues );
     }
 
+    int oneBasedBranchIndex = 1;
+
     if ( !seglenenValues.empty() && !seglenstValues.empty() )
     {
         auto branchIds = segmentRef.branchIds();
@@ -518,6 +520,38 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
             if ( length > tubingThreshold ) branchType = RiaDefines::RftBranchType::RFT_TUBING;
 
             segmentRef.setBranchType( id, branchType );
+            if ( branchType == RiaDefines::RftBranchType::RFT_TUBING )
+            {
+                segmentRef.setOneBasedBranchIndex( id, oneBasedBranchIndex++ );
+            }
+        }
+
+        auto tubingBranchIds = segmentRef.tubingBranchIds();
+
+        for ( auto& segment : segmentRef.topology() )
+        {
+            auto segmentBranchId = segment.segBrno();
+            auto it              = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), segmentBranchId );
+            if ( it == tubingBranchIds.end() )
+            {
+                auto upstreamSegmentNumber = segment.segNext();
+
+                auto upstreamSegmentData = segmentRef.segmentData( upstreamSegmentNumber );
+                if ( upstreamSegmentData != nullptr )
+                {
+                    auto it = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), upstreamSegmentData->segBrno() );
+                    if ( it != tubingBranchIds.end() )
+                    {
+                        // Upstream segment is part of tubing branch
+                        // Find all connected segments that is not part of a tubing branch, and mark as device layer
+
+                        auto upstreamBranchIndex =
+                            segmentRef.oneBasedBranchIndexForBranchId( upstreamSegmentData->segBrno() );
+
+                        segmentRef.deviceBranchCandidates( segment.segNo(), upstreamBranchIndex );
+                    }
+                }
+            }
         }
 
         // Other categories
