@@ -53,11 +53,17 @@ public:
     void addResultNameAndSize( const Opm::EclIO::EclFile::EclEntry& resultNameAndSize );
     std::vector<Opm::EclIO::EclFile::EclEntry> resultNameAndSize() const;
 
-    std::vector<int> tubingBranchIds() const;
-    std::vector<int> branchIds() const;
+    std::vector<int>         tubingBranchIds() const;
+    std::vector<int>         branchIds() const;
+    int                      branchIdForOneBasedBranchIndex( int oneBasedBranchIndex ) const;
+    int                      oneBasedBranchIndexForBranchId( int branchId ) const;
+    const RifRftSegmentData* segmentData( int segmentNumber ) const;
+
+    std::vector<RifRftSegmentData> deviceBranchCandidates( int segmentNumber, int oneBasedBranchIndex );
 
     void setBranchLength( int branchId, double length );
     void setBranchType( int branchId, RiaDefines::RftBranchType branchType );
+    void setOneBasedBranchIndex( int branchId, int oneBasedBranchIndex );
 
     std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
 
@@ -67,4 +73,5 @@ private:
 
     std::map<int, double>                    m_branchLength;
     std::map<int, RiaDefines::RftBranchType> m_branchType;
+    std::map<int, int>                       m_oneBasedBranchIndexMap;
 };
