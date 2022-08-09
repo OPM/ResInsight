@@ -702,8 +702,8 @@ void RicSummaryPlotEditorUi::updateTargetPlot()
 
     m_targetPlot->loadDataAndUpdate();
 
-    m_targetPlot->updatePlotTitle();
     m_targetPlot->updateConnectedEditors();
+    m_targetPlot->curvesChanged.send();
 }
 
 //--------------------------------------------------------------------------------------------------
