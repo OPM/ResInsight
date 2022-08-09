@@ -399,6 +399,8 @@ void RimSummaryPlotManager::createNewPlot()
     if ( m_individualPlotPerObject ) groping = RicSummaryPlotBuilder::RicGraphCurveGrouping::CURVES_FOR_OBJECT;
     plotBuilder.setGrouping( groping );
 
+    plotBuilder.setIndividualPlotPerDataSource( m_individualPlotPerDataSource );
+
     auto plots = plotBuilder.createPlots();
     if ( m_createMultiPlot )
     {
