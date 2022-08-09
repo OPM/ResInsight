@@ -2708,6 +2708,8 @@ bool RimSummaryPlot::handleGlobalKeyEvent( QKeyEvent* keyEvent )
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onCurveCollectionChanged( const SignalEmitter* emitter )
 {
+    curvesChanged.send();
+
     updateStackedCurveData();
     scheduleReplotIfVisible();
 
