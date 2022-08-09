@@ -425,7 +425,7 @@ void RiaGuiApplication::initialize()
     // Create main windows
     // The plot window is created to be able to set expanded state on created objects, but hidden by default
     getOrCreateAndShowMainWindow();
-    RiuPlotMainWindow* plotMainWindow = getOrCreateMainPlotWindow();
+    getOrCreateMainPlotWindow();
 
     RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
 
@@ -994,8 +994,6 @@ void RiaGuiApplication::createMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 {
-    bool triggerReloadOfDockWidgetVisibilities = false;
-
     if ( !m_mainPlotWindow )
     {
         createMainPlotWindow();
