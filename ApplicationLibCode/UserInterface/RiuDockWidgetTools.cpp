@@ -201,50 +201,6 @@ QString RiuDockWidgetTools::messagesName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QMap<QString, QVariant> RiuDockWidgetTools::widgetVisibilitiesForEclipse()
-{
-    QMap<QString, QVariant> widgetVisibility;
-
-    widgetVisibility[RiuDockWidgetTools::projectTreeName()]    = true;
-    widgetVisibility[RiuDockWidgetTools::propertyEditorName()] = true;
-    widgetVisibility[RiuDockWidgetTools::resultInfoName()]     = true;
-    widgetVisibility[RiuDockWidgetTools::processMonitorName()] = true;
-    widgetVisibility[RiuDockWidgetTools::resultPlotName()]     = true;
-    widgetVisibility[RiuDockWidgetTools::relPermPlotName()]    = true;
-    widgetVisibility[RiuDockWidgetTools::pvtPlotName()]        = true;
-    widgetVisibility[RiuDockWidgetTools::messagesName()]       = true;
-    widgetVisibility[RiuDockWidgetTools::undoStackName()]      = false;
-
-    widgetVisibility[RiuDockWidgetTools::mohrsCirclePlotName()] = false;
-
-    return widgetVisibility;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QMap<QString, QVariant> RiuDockWidgetTools::widgetVisibilitiesForGeoMech()
-{
-    QMap<QString, QVariant> widgetVisibility;
-
-    widgetVisibility[RiuDockWidgetTools::projectTreeName()]    = true;
-    widgetVisibility[RiuDockWidgetTools::propertyEditorName()] = true;
-    widgetVisibility[RiuDockWidgetTools::resultInfoName()]     = true;
-    widgetVisibility[RiuDockWidgetTools::processMonitorName()] = true;
-    widgetVisibility[RiuDockWidgetTools::resultPlotName()]     = true;
-    widgetVisibility[RiuDockWidgetTools::relPermPlotName()]    = false;
-    widgetVisibility[RiuDockWidgetTools::pvtPlotName()]        = false;
-    widgetVisibility[RiuDockWidgetTools::messagesName()]       = true;
-    widgetVisibility[RiuDockWidgetTools::undoStackName()]      = false;
-
-    widgetVisibility[RiuDockWidgetTools::mohrsCirclePlotName()] = true;
-
-    return widgetVisibility;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 ads::CDockWidget* RiuDockWidgetTools::findDockWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName )
 {
     return dockManager->findDockWidget( dockWidgetName );
@@ -267,138 +223,12 @@ QAction* RiuDockWidgetTools::toggleActionForWidget( const ads::CDockManager* doc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::setVisibleDockingWindowsForEclipse()
+void RiuDockWidgetTools::showDockWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName )
 {
-    if ( !RiuMainWindow::instance() ) return;
-
-    RiuMainWindow* mainWindow         = RiuMainWindow::instance();
-    auto           widgetVisibilities = widgetVisibilitiesForEclipse();
-
-    applyDockWidgetVisibilities( mainWindow->dockManager(), widgetVisibilities );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::setVisibleDockingWindowsForGeoMech()
-{
-    if ( !RiuMainWindow::instance() ) return;
-
-    RiuMainWindow* mainWindow         = RiuMainWindow::instance();
-    auto           widgetVisibilities = widgetVisibilitiesForGeoMech();
-
-    applyDockWidgetVisibilities( mainWindow->dockManager(), widgetVisibilities );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::setDockWidgetVisibility( const ads::CDockManager* dockManager,
-                                                  const QString&           dockWidgetName,
-                                                  bool                     isVisible )
-{
-    ads::CDockWidget* dockWidget = findDockWidget( dockManager, dockWidgetName );
-    if ( dockWidget )
+    auto dw = findDockWidget( dockManager, dockWidgetName );
+    if ( dw )
     {
-        dockWidget->setVisible( isVisible );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QVariant RiuDockWidgetTools::dockWidgetsVisibility( const ads::CDockManager* dockManager )
-{
-    QMap<QString, QVariant> widgetVisibility;
-
-    auto dockWidgets = dockManager->dockWidgetsMap();
-
-    for ( auto dock : dockWidgets )
-    {
-        if ( dock )
-        {
-            bool isVisible                       = dock->isVisible();
-            widgetVisibility[dock->objectName()] = isVisible;
-        }
-    }
-
-    return QVariant( widgetVisibility );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QVariant RiuDockWidgetTools::defaultDockWidgetVisibilities()
-{
-    return QVariant( widgetVisibilitiesForEclipse() );
-}
-
-//--------------------------------------------------------------------------------------------------
-/// Qwt widgets in non-visible dock widgets (tabbed dock windows) will on some systems enter an
-/// eternal update loop. This is seen on both Windows and Linux.
-/// The workaround is to hide all dock widgets, and then set visible the docking windows seen to
-/// trigger the unwanted behavior
-///
-/// https://github.com/OPM/ResInsight/issues/6743
-/// https://github.com/OPM/ResInsight/issues/6627
-//--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::workaroundForQwtDockWidgets()
-{
-    if ( !RiuMainWindow::instance() ) return;
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-
-    auto dockWidgets = mainWindow->dockManager()->dockWidgetsMap();
-
-    for ( auto dock : dockWidgets )
-    {
-        if ( dock ) dock->setVisible( false );
-    }
-    QApplication::processEvents();
-
-    {
-        auto dock = mainWindow->dockManager()->findDockWidget( relPermPlotName() );
-        if ( dock )
-        {
-            dock->setVisible( true );
-        }
-    }
-
-    {
-        auto dock = mainWindow->dockManager()->findDockWidget( pvtPlotName() );
-        if ( dock )
-        {
-            dock->setVisible( true );
-        }
-    }
-
-    QApplication::processEvents();
-
-    mainWindow->loadWinGeoAndDockToolBarLayout();
-    mainWindow->restoreDockWidgetVisibilities();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuDockWidgetTools::applyDockWidgetVisibilities( const ads::CDockManager*       dockManager,
-                                                      const QMap<QString, QVariant>& widgetVisibilities )
-{
-    auto dockWidgets = dockManager->dockWidgetsMap();
-
-    for ( auto dock : dockWidgets )
-    {
-        if ( dock )
-        {
-            bool isVisible = true;
-
-            auto widgetVisibility = widgetVisibilities.find( dock->objectName() );
-            if ( widgetVisibility != widgetVisibilities.end() )
-            {
-                isVisible = widgetVisibility.value().toBool();
-            }
-
-            dock->setVisible( isVisible );
-        }
+        dw->show();
+        dw->raise();
     }
 }

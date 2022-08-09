@@ -158,8 +158,6 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 
     settings.beginGroup( registryFolderName() );
     m_dockManager->loadPerspectives( settings );
-
-    restoreDockWidgetVisibilities();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -189,44 +187,6 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
     settings.setValue( QString( "%1/isMaximized" ).arg( registryFolderName() ), isMaximized() );
 
     settings.setValue( QString( "%1/dockLayout" ).arg( registryFolderName() ), m_dockManager->saveState( 1 ) );
-
-    if ( this->isVisible() )
-    {
-        QVariant dockWindowVisibilities = RiuDockWidgetTools::dockWidgetsVisibility( this->dockManager() );
-        QString  key                    = mainWindowDockWidgetSettingsKey( registryFolderName() );
-
-        settings.setValue( key, dockWindowVisibilities );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::storeDefaultDockWidgetVisibilitiesIfRequired()
-{
-    QSettings settings;
-
-    QString key = mainWindowDockWidgetSettingsKey( registryFolderName() );
-
-    if ( !settings.contains( key ) )
-    {
-        QVariant dockWidgetVisibilities = RiuDockWidgetTools::defaultDockWidgetVisibilities();
-        settings.setValue( key, dockWidgetVisibilities );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::restoreDockWidgetVisibilities()
-{
-    // Company and appname set through QCoreApplication
-    QSettings settings;
-
-    QString key = mainWindowDockWidgetSettingsKey( registryFolderName() );
-
-    QVariant dockWindowVisibilities = settings.value( key );
-    RiuDockWidgetTools::applyDockWidgetVisibilities( this->dockManager(), dockWindowVisibilities.toMap() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,20 +203,6 @@ void RiuMainWindowBase::showWindow()
     if ( isMax.toBool() )
     {
         showMaximized();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::hideAllDockWidgets()
-{
-    for ( auto dock : dockManager()->dockWidgetsMap() )
-    {
-        if ( dock )
-        {
-            dock->hide();
-        }
     }
 }
 

@@ -69,11 +69,7 @@ public:
     RimMdiWindowGeometry windowGeometryForViewer( QWidget* viewer );
     void                 loadWinGeoAndDockToolBarLayout();
     void                 saveWinGeoAndDockToolBarLayout();
-    void                 storeDefaultDockWidgetVisibilitiesIfRequired();
-    void                 restoreDockWidgetVisibilities();
     void                 showWindow();
-
-    void hideAllDockWidgets();
 
     std::vector<caf::PdmUiTreeView*> projectTreeViews();
     caf::PdmUiTreeView*              projectTreeView( int treeId );

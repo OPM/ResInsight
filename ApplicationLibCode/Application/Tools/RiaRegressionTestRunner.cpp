@@ -657,7 +657,6 @@ void RiaRegressionTestRunner::executeRegressionTests( const QString& regressionT
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     if ( mainWnd )
     {
-        mainWnd->hideAllDockWidgets();
         mainWnd->statusBar()->close();
 
         mainWnd->setDefaultWindowSize();
@@ -667,8 +666,6 @@ void RiaRegressionTestRunner::executeRegressionTests( const QString& regressionT
         m_rootPath   = regressionTestPath;
         m_testFilter = testFilter;
         runRegressionTest();
-
-        mainWnd->loadWinGeoAndDockToolBarLayout();
     }
 }
 
