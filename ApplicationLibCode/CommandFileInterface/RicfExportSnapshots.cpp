@@ -82,7 +82,6 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT( mainWnd );
-    mainWnd->hideAllDockWidgets();
     RiaGuiApplication::instance()->processEvents();
 
     QString absolutePathToSnapshotDir =
@@ -134,7 +133,6 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
                                                                            fileSuffix );
     }
 
-    mainWnd->loadWinGeoAndDockToolBarLayout();
     RiaGuiApplication::instance()->processEvents();
 
     return caf::PdmScriptResponse();

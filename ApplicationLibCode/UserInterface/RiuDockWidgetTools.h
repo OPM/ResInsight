@@ -68,22 +68,7 @@ public:
 
     static QAction* toggleActionForWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 
-    static QVariant dockWidgetsVisibility( const ads::CDockManager* dockManager );
-    static QVariant defaultDockWidgetVisibilities();
+    static ads::CDockWidget* findDockWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 
-    static void workaroundForQwtDockWidgets();
-
-    static void setVisibleDockingWindowsForEclipse();
-    static void setVisibleDockingWindowsForGeoMech();
-
-    static void
-                setDockWidgetVisibility( const ads::CDockManager* dockManager, const QString& dockWidgetName, bool isVisible );
-    static void applyDockWidgetVisibilities( const ads::CDockManager*       dockManager,
-                                             const QMap<QString, QVariant>& visibilityMap );
-
-    static ads::CDockWidget* findDockWidget( const ads::CDockManager*, const QString& dockWidgetName );
-
-private:
-    static QMap<QString, QVariant> widgetVisibilitiesForEclipse();
-    static QMap<QString, QVariant> widgetVisibilitiesForGeoMech();
+    static void showDockWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 };

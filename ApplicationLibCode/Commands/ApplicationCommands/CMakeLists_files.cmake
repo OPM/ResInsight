@@ -15,8 +15,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicLaunchRegressionTestsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRunCommandFileFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMemoryCleanupDialogFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigEclipseFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigGeoMechFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicExportObjectAndFieldKeywordsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowClassNamesFeature.h
@@ -40,8 +38,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicLaunchRegressionTestsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRunCommandFileFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowMemoryCleanupDialogFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigEclipseFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicDefaultDockConfigGeoMechFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicExportObjectAndFieldKeywordsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicSaveProjectNoGlobalPathsFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowClassNamesFeature.cpp

@@ -249,7 +249,6 @@ void RiuPlotMainWindow::closeEvent( QCloseEvent* event )
         }
     }
     this->saveWinGeoAndDockToolBarLayout();
-    this->hideAllDockWidgets();
     QMainWindow::closeEvent( event );
 }
 
@@ -503,7 +502,7 @@ void RiuPlotMainWindow::createDockPanels()
     // the project trees
     for ( int i = 0; i < nTreeViews; i++ )
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( treeViewTitles[i], this );
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( treeViewTitles[i], dockManager() );
         dockWidget->setObjectName( treeViewDockNames[i] );
 
         caf::PdmUiTreeView* projectTree = projectTreeView( i );
@@ -543,7 +542,7 @@ void RiuPlotMainWindow::createDockPanels()
 
     // the plot manager
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Plot Manager", this );
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Plot Manager", dockManager() );
         dockWidget->setObjectName( RiuDockWidgetTools::summaryPlotManagerName() );
 
         m_summaryPlotManagerView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
@@ -561,7 +560,7 @@ void RiuPlotMainWindow::createDockPanels()
     // the undo stack
     if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Undo Stack", this );
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Undo Stack", dockManager() );
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowUndoStackName() );
         dockWidget->setWidget( m_undoView );
         rightWidgets.push_back( dockWidget );
@@ -575,7 +574,7 @@ void RiuPlotMainWindow::createDockPanels()
 
     // the property editor
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Property Editor", this );
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Property Editor", dockManager() );
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowPropertyEditorName() );
 
         m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
@@ -585,7 +584,7 @@ void RiuPlotMainWindow::createDockPanels()
 
     // the log message view
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Messages", this );
+        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Messages", dockManager() );
         dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
@@ -602,8 +601,6 @@ void RiuPlotMainWindow::createDockPanels()
     for ( ads::CDockWidget* dock : widgets )
     {
         connect( dock->toggleViewAction(), SIGNAL( triggered() ), SLOT( slotDockWidgetToggleViewActionTriggered() ) );
-        dock->setVisible( true );
-        dock->raise();
     }
 }
 

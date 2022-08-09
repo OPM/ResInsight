@@ -425,8 +425,7 @@ void RiaGuiApplication::initialize()
     // Create main windows
     // The plot window is created to be able to set expanded state on created objects, but hidden by default
     getOrCreateAndShowMainWindow();
-    RiuPlotMainWindow* plotMainWindow = getOrCreateMainPlotWindow();
-    plotMainWindow->hideAllDockWidgets();
+    getOrCreateMainPlotWindow();
 
     RiuGuiTheme::updateGuiTheme( m_preferences->guiTheme() );
 
@@ -968,7 +967,6 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->setWindowTitle( "ResInsight " + platform );
     m_mainWindow->setDefaultWindowSize();
     m_mainWindow->setDefaultToolbarVisibility();
-    m_mainWindow->storeDefaultDockWidgetVisibilitiesIfRequired();
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
     m_mainWindow->showWindow();
 }
@@ -996,17 +994,11 @@ void RiaGuiApplication::createMainPlotWindow()
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 {
-    bool triggerReloadOfDockWidgetVisibilities = false;
-
     if ( !m_mainPlotWindow )
     {
         createMainPlotWindow();
         m_mainPlotWindow->initializeGuiNewProjectLoaded();
         loadAndUpdatePlotData();
-    }
-    else
-    {
-        triggerReloadOfDockWidgetVisibilities = !m_mainPlotWindow->isVisible();
     }
 
     if ( m_mainPlotWindow->isMinimized() )
@@ -1021,11 +1013,6 @@ RiuPlotMainWindow* RiaGuiApplication::getOrCreateAndShowMainPlotWindow()
 
     m_mainPlotWindow->raise();
     m_mainPlotWindow->activateWindow();
-
-    if ( triggerReloadOfDockWidgetVisibilities )
-    {
-        m_mainPlotWindow->restoreDockWidgetVisibilities();
-    }
 
     return m_mainPlotWindow.get();
 }
@@ -1252,8 +1239,6 @@ void RiaGuiApplication::onProjectOpened()
             m_mainPlotWindow->show();
             m_mainPlotWindow->raise();
         }
-
-        m_mainPlotWindow->restoreDockWidgetVisibilities();
     }
     else if ( mainPlotWindow() )
     {
@@ -1640,8 +1625,6 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
 {
     if ( !m_mainWindow ) return;
 
-    m_mainWindow->hideAllDockWidgets();
-
     const size_t numGridFiles = gridFileNames.size();
     for ( size_t i = 0; i < numGridFiles; i++ )
     {
@@ -1656,8 +1639,6 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
             RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolderName );
         }
     }
-
-    m_mainWindow->loadWinGeoAndDockToolBarLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
