@@ -19,6 +19,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaRftDefines.h"
 
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
@@ -122,9 +123,10 @@ private:
     caf::PdmField<caf::Tristate>      m_wbsSmoothing;
     caf::PdmField<double>             m_wbsSmoothingThreshold;
 
-    caf::PdmField<QDateTime> m_rftTimeStep;
-    caf::PdmField<QString>   m_rftWellName;
-    caf::PdmField<int>       m_rftSegmentBranchIndex;
+    caf::PdmField<QDateTime>                               m_rftTimeStep;
+    caf::PdmField<QString>                                 m_rftWellName;
+    caf::PdmField<int>                                     m_rftSegmentBranchIndex;
+    caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_rftSegmentBranchType;
 
     std::set<RimCase*>                 m_uniqueCases;
     std::set<RimSummaryCase*>          m_uniqueSummaryCases;
@@ -137,7 +139,8 @@ private:
     std::set<bool>                     m_uniqueWbsSmoothing;
     std::set<double, DoubleComparator> m_uniqueWbsSmoothingThreshold;
 
-    std::set<QDateTime> m_uniqueRftTimeSteps;
-    std::set<QString>   m_uniqueRftWellNames;
-    std::set<int>       m_uniqueRftBranchIndices;
+    std::set<QDateTime>                 m_uniqueRftTimeSteps;
+    std::set<QString>                   m_uniqueRftWellNames;
+    std::set<int>                       m_uniqueRftBranchIndices;
+    std::set<RiaDefines::RftBranchType> m_uniqueRftBranchTypes;
 };

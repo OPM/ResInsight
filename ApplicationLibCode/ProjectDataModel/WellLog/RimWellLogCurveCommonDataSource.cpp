@@ -103,7 +103,8 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
 
     CAF_PDM_InitFieldNoDefault( &m_rftTimeStep, "RftTimeStep", "RFT Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_rftWellName, "RftWellName", "RFT Well Name" );
-    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchIndex, "SegmentBranchIndex", "RFT Segment Branch" );
+    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchIndex, "SegmentBranchIndex", "RFT Branch" );
+    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchType, "SegmentBranchType", "RFT Branch Type" );
 
     m_case     = nullptr;
     m_wellPath = nullptr;
@@ -307,6 +308,7 @@ void RimWellLogCurveCommonDataSource::resetDefaultOptions()
     m_uniqueRftTimeSteps.clear();
     m_uniqueRftWellNames.clear();
     m_uniqueRftBranchIndices.clear();
+    m_uniqueRftBranchTypes.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -387,6 +389,7 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
                 m_uniqueRftWellNames.insert( adr.wellName() );
                 m_uniqueRftTimeSteps.insert( adr.timeStep() );
                 m_uniqueRftBranchIndices.insert( adr.segmentBranchIndex() );
+                m_uniqueRftBranchTypes.insert( adr.segmentBranchType() );
             }
         }
     }
@@ -478,6 +481,11 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
     if ( m_uniqueRftBranchIndices.size() == 1u )
     {
         m_rftSegmentBranchIndex = *( m_uniqueRftBranchIndices.begin() );
+    }
+
+    if ( m_uniqueRftBranchTypes.size() == 1u )
+    {
+        m_rftSegmentBranchType = *( m_uniqueRftBranchTypes.begin() );
     }
 }
 
@@ -615,6 +623,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
             rftCurve->setTimeStep( m_rftTimeStep() );
             rftCurve->setWellName( m_rftWellName() );
             rftCurve->setSegmentBranchIndex( m_rftSegmentBranchIndex() );
+            rftCurve->setSegmentBranchType( m_rftSegmentBranchType() );
 
             RimWellLogPlot* parentPlot = nullptr;
             rftCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
@@ -791,6 +800,7 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
     if ( m_uniqueTimeSteps.size() == 1u ) fieldsToDisplay.push_back( &m_timeStep );
     if ( m_uniqueRftTimeSteps.size() == 1u ) fieldsToDisplay.push_back( &m_rftTimeStep );
     if ( m_uniqueRftBranchIndices.size() == 1u ) fieldsToDisplay.push_back( &m_rftSegmentBranchIndex );
+    if ( m_uniqueRftBranchTypes.size() == 1u ) fieldsToDisplay.push_back( &m_rftSegmentBranchType );
 
     return fieldsToDisplay;
 }
@@ -1042,6 +1052,7 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
     if ( !m_uniqueRftTimeSteps.empty() ) group->add( &m_rftTimeStep );
     if ( !m_uniqueRftWellNames.empty() ) group->add( &m_rftWellName );
     if ( !m_uniqueRftBranchIndices.empty() ) group->add( &m_rftSegmentBranchIndex );
+    if ( !m_uniqueRftBranchTypes.empty() ) group->add( &m_rftSegmentBranchType );
 
     uiOrdering.skipRemainingFields( true );
 }
