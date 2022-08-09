@@ -18,13 +18,14 @@
 
 #pragma once
 
+#include "RiaRftDefines.h"
+
+#include "opm/io/eclipse/EclFile.hpp"
+
 #include <set>
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include "RiaRftDefines.h"
-#include "opm/io/eclipse/EclFile.hpp"
 
 class RifRftSegmentData
 {
@@ -57,11 +58,10 @@ public:
     std::vector<int>         tubingBranchIds() const;
     std::vector<int>         branchIds() const;
     std::set<int>            oneBasedBranchIndices() const;
-    std::vector<int>         branchIdForOneBasedBranchIndex( int oneBasedBranchIndex ) const;
     int                      oneBasedBranchIndexForBranchId( int branchId ) const;
     const RifRftSegmentData* segmentData( int segmentNumber ) const;
 
-    std::vector<RifRftSegmentData> deviceBranchCandidates( int segmentNumber, int oneBasedBranchIndex );
+    void createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex );
 
     void setBranchLength( int branchId, double length );
     void setBranchType( int branchId, RiaDefines::RftBranchType branchType );

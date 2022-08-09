@@ -190,29 +190,24 @@ const RifRftSegmentData* RifRftSegment::segmentData( int segmentNumber ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RifRftSegmentData> RifRftSegment::deviceBranchCandidates( int segmentNumber, int oneBasedBranchIndex )
+void RifRftSegment::createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex )
 {
-    std::vector<RifRftSegmentData> deviceCandidates;
-
     auto alreadyAssignedBranchIds = tubingBranchIds();
 
     for ( auto& segData : m_topology )
     {
-        if ( segData.segNo() < segmentNumber ) continue;
+        if ( segData.segNo() < deviceBranchFirstSegmentNumber ) continue;
 
         auto it = std::find( alreadyAssignedBranchIds.begin(), alreadyAssignedBranchIds.end(), segData.segBrno() );
         if ( it != alreadyAssignedBranchIds.end() )
         {
-            return deviceCandidates;
+            return;
         }
 
-        deviceCandidates.push_back( segData );
         setOneBasedBranchIndex( segData.segBrno(), oneBasedBranchIndex );
 
         setBranchType( segData.segBrno(), RiaDefines::RftBranchType::RFT_DEVICE );
     }
-
-    return deviceCandidates;
 }
 
 //--------------------------------------------------------------------------------------------------
