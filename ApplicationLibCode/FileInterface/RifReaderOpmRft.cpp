@@ -526,13 +526,13 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 
             const double              tubingThreshold = 1.0;
             RiaDefines::RftBranchType branchType      = RiaDefines::RftBranchType::RFT_UNKNOWN;
-            if ( length > tubingThreshold ) branchType = RiaDefines::RftBranchType::RFT_TUBING;
-
-            segmentRef.setBranchType( id, branchType );
-            if ( branchType == RiaDefines::RftBranchType::RFT_TUBING )
+            if ( length > tubingThreshold )
             {
+                branchType = RiaDefines::RftBranchType::RFT_TUBING;
                 segmentRef.setOneBasedBranchIndex( id, oneBasedBranchIndex++ );
             }
+
+            segmentRef.setBranchType( id, branchType );
         }
 
         auto tubingBranchIds = segmentRef.tubingBranchIds();
@@ -543,21 +543,18 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
             auto it              = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), segmentBranchId );
             if ( it == tubingBranchIds.end() )
             {
-                auto upstreamSegmentNumber = segment.segNext();
+                auto tubingSegmentNumber = segment.segNext();
 
-                auto upstreamSegmentData = segmentRef.segmentData( upstreamSegmentNumber );
-                if ( upstreamSegmentData != nullptr )
+                auto tubingSegmentData = segmentRef.segmentData( tubingSegmentNumber );
+                if ( tubingSegmentData != nullptr )
                 {
-                    auto it = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), upstreamSegmentData->segBrno() );
+                    auto it = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), tubingSegmentData->segBrno() );
                     if ( it != tubingBranchIds.end() )
                     {
-                        // Upstream segment is part of tubing branch
                         // Find all connected segments that is not part of a tubing branch, and mark as device layer
 
-                        auto upstreamBranchIndex =
-                            segmentRef.oneBasedBranchIndexForBranchId( upstreamSegmentData->segBrno() );
-
-                        segmentRef.deviceBranchCandidates( segment.segNo(), upstreamBranchIndex );
+                        auto tubingBranchIndex = segmentRef.oneBasedBranchIndexForBranchId( tubingSegmentData->segBrno() );
+                        segmentRef.createDeviceBranch( segment.segNo(), tubingBranchIndex );
                     }
                 }
             }
