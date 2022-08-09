@@ -46,8 +46,6 @@ void RicShowMainWindowFeature::showMainWindow()
         }
 
         mainWnd->raise();
-
-        mainWnd->restoreDockWidgetVisibilities();
     }
     else
     {
