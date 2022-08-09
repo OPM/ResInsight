@@ -77,6 +77,7 @@ public:
     QDateTime timeStep() const;
 
     void setSegmentBranchIndex( int branchIndex );
+    void setSegmentBranchType( RiaDefines::RftBranchType branchType );
 
     void                  setEclipseResultCase( RimEclipseResultCase* eclipseResultCase );
     RimEclipseResultCase* eclipseResultCase() const;

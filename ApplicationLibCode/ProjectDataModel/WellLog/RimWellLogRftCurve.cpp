@@ -244,6 +244,14 @@ void RimWellLogRftCurve::setSegmentBranchIndex( int branchIndex )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setSegmentBranchType( RiaDefines::RftBranchType branchType )
+{
+    m_segmentBranchType = branchType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::setEclipseResultCase( RimEclipseResultCase* eclipseResultCase )
 {
     m_eclipseResultCase = eclipseResultCase;
