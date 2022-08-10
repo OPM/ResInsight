@@ -1357,8 +1357,12 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
             RimSummaryCase* newCase = m_sourceStepping()->stepCase( direction );
             for ( auto curve : newPlot->allCurves( RimSummaryDataSourceStepping::Axis::Y_AXIS ) )
             {
-                curve->setSummaryCaseX( newCase );
                 curve->setSummaryCaseY( newCase );
+
+                // NOTE: If summary cross plots should be handled here, we also need to call
+                // curve->setSummaryCaseX( newCase );
+                // Setting summaryCaseX with a default uninitialized summary address causes issues for the summary name
+                // analyzer
             }
         }
         else if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )
