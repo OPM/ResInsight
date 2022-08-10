@@ -1292,11 +1292,15 @@ void RimWellLogTrack::onLoadDataAndUpdate()
         {
             m_plotWidget->setAxisEnabled( QwtAxis::XTop, true );
             m_plotWidget->setAxisEnabled( QwtAxis::XBottom, false );
+            m_plotWidget->setAxisEnabled( QwtAxis::YLeft, true );
+            m_plotWidget->setAxisEnabled( QwtAxis::YRight, false );
         }
         else
         {
             m_plotWidget->setAxisEnabled( QwtAxis::XTop, false );
             m_plotWidget->setAxisEnabled( QwtAxis::XBottom, true );
+            m_plotWidget->setAxisEnabled( QwtAxis::YLeft, true );
+            m_plotWidget->setAxisEnabled( QwtAxis::YRight, false );
         }
     }
 
