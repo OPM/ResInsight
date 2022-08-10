@@ -135,10 +135,14 @@ static WellLogCurveInfoTextProvider wellLogCurveInfoTextProvider;
 RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nullptr */ )
     : RiuQwtPlotWidget( track, parent )
 {
+    RimWellLogPlot* wlp = nullptr;
+    track->firstAncestorOfType( wlp );
+
+    bool isVertical = ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL );
     setAxisEnabled( QwtAxis::YLeft, true );
     setAxisEnabled( QwtAxis::YRight, false );
-    setAxisEnabled( QwtAxis::XTop, true );
-    setAxisEnabled( QwtAxis::XBottom, true );
+    setAxisEnabled( QwtAxis::XTop, !isVertical );
+    setAxisEnabled( QwtAxis::XBottom, isVertical );
 
     new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
 }
@@ -166,6 +170,7 @@ void RiuWellLogTrack::setAxisEnabled( QwtAxis::Position axis, bool enabled )
         qwtPlot()->axisScaleDraw( axis )->setMinimumExtent( axisExtent( plotAxis ) );
 
         qwtPlot()->axisWidget( axis )->setMargin( 0 );
-        setAxisTitleEnabled( plotAxis, true );
     }
+
+    setAxisTitleEnabled( plotAxis, enabled );
 }
