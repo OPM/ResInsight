@@ -73,6 +73,8 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     QList<QPointer<RiuPlotWidget>>    plotWidgets = this->visiblePlotWidgets();
 
+    m_visibleIndexToPositionMapping.clear();
+
     int visibleIndex = 0;
     int phIndex      = 0;
 
@@ -89,6 +91,8 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
                 phIndex++;
                 continue;
             }
+
+            m_visibleIndexToPositionMapping[visibleIndex] = std::make_pair( row, col );
 
             auto plotWidget      = plotWidgets[visibleIndex];
             int  expectedColSpan = plotWidget->colSpan();

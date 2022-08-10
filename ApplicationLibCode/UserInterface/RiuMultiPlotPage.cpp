@@ -49,10 +49,12 @@
 
 #include "cvfAssert.h"
 
+#include "qwt_axis.h"
 #include "qwt_legend.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_renderer.h"
 #include "qwt_scale_draw.h"
+#include "qwt_scale_widget.h"
 
 #include <QDebug>
 #include <QDesktopWidget>
@@ -579,6 +581,7 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
 
         reinsertPlotWidgets();
         alignCanvasTops();
+        alignAxes();
         return;
     }
 
@@ -586,7 +589,9 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
     {
         refreshLegends();
         alignCanvasTops();
+        alignAxes();
     }
+
     if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::TITLE ) == RiaDefines::MultiPlotPageUpdateType::TITLE )
     {
         updateSubTitles();
@@ -624,6 +629,8 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
     QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
     QList<QPointer<RiuPlotWidget>>    plotWidgets = this->visiblePlotWidgets();
 
+    m_visibleIndexToPositionMapping.clear();
+
     if ( !plotWidgets.empty() )
     {
         auto [rowCount, columnCount] = this->rowAndColumnCount( plotWidgets.size() );
@@ -636,7 +643,10 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             int colSpan         = std::min( expectedColSpan, columnCount );
             int rowSpan         = plotWidgets[visibleIndex]->rowSpan();
 
-            std::tie( row, column ) = findAvailableRowAndColumn( row, column, colSpan, columnCount );
+            auto position           = findAvailableRowAndColumn( row, column, colSpan, columnCount );
+            std::tie( row, column ) = position;
+
+            m_visibleIndexToPositionMapping[visibleIndex] = position;
 
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
             if ( legends[visibleIndex] )
@@ -927,4 +937,88 @@ void RiuMultiPlotPage::updateTitleFont()
     auto titleFont = m_plotTitle->font();
     titleFont.setPixelSize( m_titleFontPixelSize );
     m_plotTitle->setFont( titleFont );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::alignAxes()
+{
+    auto [rowCount, columnCount] = rowAndColumnCount( visiblePlotWidgets().size() );
+
+    auto matchRow = []( int row, int column, int targetRow ) { return row == targetRow; };
+
+    for ( int row = 0; row < rowCount; row++ )
+    {
+        alignAxis( QwtAxisId( QwtAxis::Position::XTop, 0 ), row, matchRow );
+        alignAxis( QwtAxisId( QwtAxis::Position::XBottom, 0 ), row, matchRow );
+    }
+
+    auto matchColumn = []( int row, int column, int targetColumn ) { return column == targetColumn; };
+
+    for ( int column = 0; column < columnCount; column++ )
+    {
+        alignAxis( QwtAxisId( QwtAxis::Position::YLeft, 0 ), column, matchColumn );
+        alignAxis( QwtAxisId( QwtAxis::Position::YRight, 0 ), column, matchColumn );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::function<bool( int, int, int )> matchPosition )
+{
+    auto rowAndColumnFromIdx = [this]( int idx ) {
+        auto hit = m_visibleIndexToPositionMapping.find( idx );
+        CAF_ASSERT( hit != m_visibleIndexToPositionMapping.end() );
+        return hit->second;
+    };
+
+    QList<QPointer<RiuPlotWidget>> plotWidgets = visiblePlotWidgets();
+
+    // Find the max extent of the "scale draws" for the given axis
+    double maxExtent = 0;
+    for ( int tIdx = 0; tIdx < plotWidgets.size(); ++tIdx )
+    {
+        RiuPlotWidget* plotWidget = plotWidgets[tIdx];
+        auto [row, column]        = rowAndColumnFromIdx( tIdx );
+        bool matchesRowOrColumn   = matchPosition( row, column, targetRowOrColumn );
+        if ( plotWidget && matchesRowOrColumn )
+        {
+            RiuQwtPlotWidget* riuQwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
+
+            if ( riuQwtPlotWidget )
+            {
+                QwtPlot* p = riuQwtPlotWidget->qwtPlot();
+                if ( p )
+                {
+                    QwtScaleWidget* scaleWidget = p->axisWidget( axis );
+                    QwtScaleDraw*   sd          = scaleWidget->scaleDraw();
+                    sd->setMinimumExtent( 0.0 );
+                    maxExtent = std::max( sd->extent( scaleWidget->font() ), maxExtent );
+                }
+            }
+        }
+    }
+
+    // Set minimum extent for all "scale draws" for the given axis.
+    for ( int tIdx = 0; tIdx < plotWidgets.size(); ++tIdx )
+    {
+        RiuPlotWidget* plotWidget = plotWidgets[tIdx];
+        auto [row, column]        = rowAndColumnFromIdx( tIdx );
+        bool matchesRowOrColumn   = matchPosition( row, column, targetRowOrColumn );
+        if ( plotWidget && matchesRowOrColumn )
+        {
+            RiuQwtPlotWidget* riuQwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
+            if ( riuQwtPlotWidget )
+            {
+                QwtPlot* p = riuQwtPlotWidget->qwtPlot();
+                if ( p )
+                {
+                    QwtScaleWidget* scaleWidget = p->axisWidget( axis );
+                    scaleWidget->scaleDraw()->setMinimumExtent( maxExtent );
+                }
+            }
+        }
+    }
 }

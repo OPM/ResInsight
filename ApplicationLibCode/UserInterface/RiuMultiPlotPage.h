@@ -24,6 +24,8 @@
 #include "cafPdmPointer.h"
 #include "cafSelectionChangedReceiver.h"
 
+#include "qwt_axis_id.h"
+
 #include <QFrame>
 #include <QGridLayout>
 #include <QHBoxLayout>
@@ -31,6 +33,7 @@
 #include <QPointer>
 #include <QWidget>
 
+#include <functional>
 #include <map>
 
 class RiaPlotWindowRedrawScheduler;
@@ -105,6 +108,9 @@ protected:
 
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
 
+    void alignAxes();
+    void alignAxis( QwtAxisId axis, int row, std::function<bool( int, int, int )> positionMatcher );
+
     void onSelectionManagerSelectionChanged( const std::set<int>& changedSelectionLevels ) override;
 
     virtual bool showYAxis( int row, int column ) const;
@@ -128,15 +134,16 @@ private slots:
     void onLegendUpdated();
 
 protected:
-    QPointer<QVBoxLayout>             m_layout;
-    QPointer<QHBoxLayout>             m_plotLayout;
-    QPointer<QFrame>                  m_plotWidgetFrame;
-    QPointer<QGridLayout>             m_gridLayout;
-    QPointer<QLabel>                  m_plotTitle;
-    QList<QPointer<QLabel>>           m_subTitles;
-    QList<QPointer<RiuQwtPlotLegend>> m_legends;
-    QList<QPointer<RiuPlotWidget>>    m_plotWidgets;
-    caf::PdmPointer<RimPlotWindow>    m_plotDefinition;
+    QPointer<QVBoxLayout>              m_layout;
+    QPointer<QHBoxLayout>              m_plotLayout;
+    QPointer<QFrame>                   m_plotWidgetFrame;
+    QPointer<QGridLayout>              m_gridLayout;
+    QPointer<QLabel>                   m_plotTitle;
+    QList<QPointer<QLabel>>            m_subTitles;
+    QList<QPointer<RiuQwtPlotLegend>>  m_legends;
+    QList<QPointer<RiuPlotWidget>>     m_plotWidgets;
+    std::map<int, std::pair<int, int>> m_visibleIndexToPositionMapping;
+    caf::PdmPointer<RimPlotWindow>     m_plotDefinition;
 
     int m_titleFontPixelSize;
     int m_subTitleFontPixelSize;
