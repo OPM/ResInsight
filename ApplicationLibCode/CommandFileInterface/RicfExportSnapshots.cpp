@@ -27,6 +27,7 @@
 #include "RiaLogging.h"
 #include "RiaRegressionTestRunner.h"
 
+#include "RiuDockWidgetTools.h"
 #include "RiuMainWindow.h"
 
 #include "cafPdmFieldScriptingCapability.h"
@@ -82,6 +83,11 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
 
     RiuMainWindow* mainWnd = RiuMainWindow::instance();
     CVF_ASSERT( mainWnd );
+
+    QByteArray curState = mainWnd->dockManager()->saveState( 0 );
+    mainWnd->dockManager()->restoreState(
+        RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
+
     RiaGuiApplication::instance()->processEvents();
 
     QString absolutePathToSnapshotDir =
@@ -134,6 +140,8 @@ caf::PdmScriptResponse RicfExportSnapshots::execute()
     }
 
     RiaGuiApplication::instance()->processEvents();
+
+    mainWnd->dockManager()->restoreState( curState );
 
     return caf::PdmScriptResponse();
 }

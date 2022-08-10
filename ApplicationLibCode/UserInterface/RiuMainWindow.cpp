@@ -876,7 +876,6 @@ void RiuMainWindow::createDockPanels()
     if ( bottomArea ) bottomArea->setCurrentIndex( 0 );
 
     auto widgets = dockManager()->dockWidgetsMap().values();
-    std::reverse( widgets.begin(), widgets.end() );
     for ( ads::CDockWidget* dock : widgets )
     {
         connect( dock->toggleViewAction(), SIGNAL( triggered() ), SLOT( slotDockWidgetToggleViewActionTriggered() ) );
@@ -2080,4 +2079,15 @@ RicGridCalculatorDialog* RiuMainWindow::gridCalculatorDialog( bool createIfNotPr
     }
 
     return m_gridCalculatorDialog.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiuMainWindow::defaultDockStateNames()
+{
+    QStringList retList = { RiuDockWidgetTools::dockState3DEclipseName(),
+                            RiuDockWidgetTools::dockState3DGeoMechName(),
+                            RiuDockWidgetTools::dockStateHideAll3DWindowName() };
+    return retList;
 }
