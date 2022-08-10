@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <QByteArray>
 #include <QMap>
 #include <QString>
 #include <QVariant>
@@ -66,9 +67,24 @@ public:
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
 
+    static QString dockState3DEclipseName();
+    static QString dockState3DGeoMechName();
+    static QString dockStatePlotWindowName();
+    static QString dockStateHideAllPlotWindowName();
+    static QString dockStateHideAll3DWindowName();
+
     static QAction* toggleActionForWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 
     static ads::CDockWidget* findDockWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
 
     static void showDockWidget( const ads::CDockManager* dockManager, const QString& dockWidgetName );
+
+    static QByteArray defaultDockState( const QString& layoutName );
+    static QByteArray hideAllDocking3DState();
+    static QByteArray hideAllDockingPlotState();
+
+private:
+    static QByteArray defaultEclipseDockState();
+    static QByteArray defaultGeoMechDockState();
+    static QByteArray defaultPlotDockState();
 };

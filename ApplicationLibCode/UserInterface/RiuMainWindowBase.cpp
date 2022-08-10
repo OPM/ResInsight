@@ -39,6 +39,7 @@
 #include "DockWidget.h"
 
 #include <QAction>
+#include <QClipboard>
 #include <QInputDialog>
 #include <QMdiArea>
 #include <QMdiSubWindow>
@@ -48,6 +49,8 @@
 #include <QTreeView>
 #include <QUndoStack>
 #include <QUndoView>
+
+#define DOCKSTATE_VERSION 1
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -137,23 +140,23 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
     // Company and appname set through QCoreApplication
     QSettings settings;
 
-    QVariant winGeo    = settings.value( QString( "%1/winGeometry" ).arg( registryFolderName() ) );
-    QVariant layout    = settings.value( QString( "%1/toolBarLayout" ).arg( registryFolderName() ) );
-    QVariant dockState = settings.value( QString( "%1/dockLayout" ).arg( registryFolderName() ) );
+    QVariant winGeo        = settings.value( QString( "%1/winGeometry" ).arg( registryFolderName() ) );
+    QVariant toolbarLayout = settings.value( QString( "%1/toolBarLayout" ).arg( registryFolderName() ) );
+    QVariant dockState     = settings.value( QString( "%1/dockLayout" ).arg( registryFolderName() ) );
 
     if ( winGeo.isValid() )
     {
         if ( restoreGeometry( winGeo.toByteArray() ) )
         {
-            if ( layout.isValid() )
+            if ( toolbarLayout.isValid() )
             {
-                restoreState( layout.toByteArray(), 0 );
+                restoreState( toolbarLayout.toByteArray(), 0 );
             }
         }
     }
     if ( dockState.isValid() )
     {
-        m_dockManager->restoreState( dockState.toByteArray(), 1 );
+        m_dockManager->restoreState( dockState.toByteArray(), DOCKSTATE_VERSION );
     }
 
     settings.beginGroup( registryFolderName() );
@@ -186,7 +189,8 @@ void RiuMainWindowBase::saveWinGeoAndDockToolBarLayout()
 
     settings.setValue( QString( "%1/isMaximized" ).arg( registryFolderName() ), isMaximized() );
 
-    settings.setValue( QString( "%1/dockLayout" ).arg( registryFolderName() ), m_dockManager->saveState( 1 ) );
+    settings.setValue( QString( "%1/dockLayout" ).arg( registryFolderName() ),
+                       m_dockManager->saveState( DOCKSTATE_VERSION ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -581,6 +585,22 @@ ads::CDockAreaWidget* RiuMainWindowBase::addTabbedWidgets( std::vector<ads::CDoc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::setDefaultDockLayout()
+{
+    QAction* action = dynamic_cast<QAction*>( this->sender() );
+    if ( action )
+    {
+        QString layoutName = action->text();
+
+        QByteArray state = RiuDockWidgetTools::defaultDockState( layoutName );
+
+        dockManager()->restoreState( state, DOCKSTATE_VERSION );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::setDockLayout()
 {
     QAction* action = dynamic_cast<QAction*>( this->sender() );
@@ -620,6 +640,39 @@ void RiuMainWindowBase::deleteDockLayout()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMainWindowBase::exportDockLayout()
+{
+    QClipboard* clipboard = QApplication::clipboard();
+    if ( clipboard )
+    {
+        QByteArray state = dockManager()->saveState( DOCKSTATE_VERSION );
+
+        QString exportStr;
+        int     i = 0;
+
+        exportStr = "static const char stateData[] = {\n";
+
+        for ( unsigned char c : state )
+        {
+            if ( i > 0 )
+            {
+                if ( i % 25 == 0 )
+                    exportStr += ",\n";
+                else
+                    exportStr += ", ";
+            }
+            exportStr += QString( "'\\x%1'" ).arg( c, 2, 16, QChar( '0' ) );
+            i++;
+        }
+        exportStr += "\n};\n";
+
+        clipboard->setText( exportStr );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::saveDockLayout()
 {
     bool    ok = false;
@@ -650,11 +703,22 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     QAction* saveLayoutAction = m_windowMenu->addAction( "Save Window Layout..." );
     connect( saveLayoutAction, SIGNAL( triggered() ), this, SLOT( saveDockLayout() ) );
 
-    QStringList names = dockManager()->perspectiveNames();
-    if ( names.size() > 0 )
+    QStringList defaultNames = defaultDockStateNames();
+    QStringList names        = dockManager()->perspectiveNames();
+
+    if ( defaultNames.size() + names.size() > 0 )
     {
         QMenu* layoutsMenu      = m_windowMenu->addMenu( "Use Window Layout" );
-        QMenu* deleteLayoutMenu = m_windowMenu->addMenu( "Delete Window Layout" );
+        QMenu* deleteLayoutMenu = nullptr;
+        if ( names.size() > 0 ) deleteLayoutMenu = m_windowMenu->addMenu( "Delete Window Layout" );
+
+        for ( auto& defLayout : defaultNames )
+        {
+            QAction* defLayoutAction = layoutsMenu->addAction( defLayout );
+            connect( defLayoutAction, SIGNAL( triggered() ), this, SLOT( setDefaultDockLayout() ) );
+        }
+
+        if ( defaultNames.size() > 0 ) layoutsMenu->addSeparator();
 
         for ( auto& layout : names )
         {
@@ -664,6 +728,11 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
             connect( deleteLayoutAction, SIGNAL( triggered() ), this, SLOT( deleteDockLayout() ) );
         }
     }
+
+#ifdef _DEBUG
+    QAction* exportLayoutAction = m_windowMenu->addAction( "Export Layout to Clipboard" );
+    connect( exportLayoutAction, SIGNAL( triggered() ), this, SLOT( exportDockLayout() ) );
+#endif
 
     m_windowMenu->addSeparator();
     QAction* cascadeWindowsAction = new QAction( "Cascade Windows", this );

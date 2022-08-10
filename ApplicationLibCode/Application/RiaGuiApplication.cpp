@@ -1625,6 +1625,10 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
 {
     if ( !m_mainWindow ) return;
 
+    QByteArray curState = m_mainWindow->dockManager()->saveState( 0 );
+    m_mainWindow->dockManager()->restoreState(
+        RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
+
     const size_t numGridFiles = gridFileNames.size();
     for ( size_t i = 0; i < numGridFiles; i++ )
     {
@@ -1639,6 +1643,7 @@ void RiaGuiApplication::runMultiCaseSnapshots( const QString&       templateProj
             RicSnapshotAllViewsToFileFeature::exportSnapshotOfViewsIntoFolder( snapshotFolderName );
         }
     }
+    m_mainWindow->dockManager()->restoreState( curState );
 }
 
 //--------------------------------------------------------------------------------------------------

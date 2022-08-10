@@ -102,6 +102,8 @@ protected:
     void dragEnterEvent( QDragEnterEvent* event ) override;
     void dropEvent( QDropEvent* event ) override;
 
+    QStringList defaultDockStateNames() override;
+
 private:
     void setPdmRoot( caf::PdmObject* pdmRoot );
 
