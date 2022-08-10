@@ -394,7 +394,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 RiuQwtPlotWidget* viewer = wellLogTrack->viewer();
                 if ( viewer )
                 {
-                    viewer->setAxisTitleText( RiuPlotAxis::defaultLeft(), "PL/" + wellLogPlot->depthAxisTitle() );
+                    viewer->setAxisTitleText( wellLogPlot->depthAxis(), "PL/" + wellLogPlot->depthAxisTitle() );
                 }
             }
 
