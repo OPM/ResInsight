@@ -35,6 +35,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimProject.h"
 
+#include "RiuDockWidgetTools.h"
 #include "RiuMainWindow.h"
 #include "RiuMainWindowTools.h"
 #include "RiuPlotMainWindow.h"
@@ -658,6 +659,9 @@ void RiaRegressionTestRunner::executeRegressionTests( const QString& regressionT
     if ( mainWnd )
     {
         mainWnd->statusBar()->close();
+        QByteArray curState = mainWnd->dockManager()->saveState( 0 );
+        mainWnd->dockManager()->restoreState(
+            RiuDockWidgetTools::defaultDockState( RiuDockWidgetTools::dockStateHideAll3DWindowName() ) );
 
         mainWnd->setDefaultWindowSize();
 
@@ -666,6 +670,7 @@ void RiaRegressionTestRunner::executeRegressionTests( const QString& regressionT
         m_rootPath   = regressionTestPath;
         m_testFilter = testFilter;
         runRegressionTest();
+        mainWnd->dockManager()->restoreState( curState );
     }
 }
 

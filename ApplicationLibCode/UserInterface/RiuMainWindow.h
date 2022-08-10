@@ -138,7 +138,8 @@ public:
     RicGridCalculatorDialog* gridCalculatorDialog( bool createIfNotPresent );
 
 protected:
-    void closeEvent( QCloseEvent* event ) override;
+    void        closeEvent( QCloseEvent* event ) override;
+    QStringList defaultDockStateNames() override;
 
 private:
     void createActions();

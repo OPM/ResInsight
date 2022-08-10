@@ -87,7 +87,7 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
 
-    ads::CDockWidget* widget = new ads::CDockWidget( "Plots", this );
+    ads::CDockWidget* widget = new ads::CDockWidget( "Plot Window", this );
     widget->setWidget( m_mdiArea );
     auto dockArea = dockManager()->setCentralWidget( widget );
     dockArea->setVisible( true );
@@ -596,8 +596,6 @@ void RiuPlotMainWindow::createDockPanels()
     if ( bottomArea ) bottomArea->setCurrentIndex( 0 );
 
     auto widgets = dockManager()->dockWidgetsMap().values();
-    std::reverse( widgets.begin(), widgets.end() );
-
     for ( ads::CDockWidget* dock : widgets )
     {
         connect( dock->toggleViewAction(), SIGNAL( triggered() ), SLOT( slotDockWidgetToggleViewActionTriggered() ) );
@@ -1148,4 +1146,14 @@ void RiuPlotMainWindow::dropEvent( QDropEvent* event )
     {
         RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( objects );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RiuPlotMainWindow::defaultDockStateNames()
+{
+    QStringList retList = { RiuDockWidgetTools::dockStatePlotWindowName(),
+                            RiuDockWidgetTools::dockStateHideAllPlotWindowName() };
+    return retList;
 }

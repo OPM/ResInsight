@@ -111,6 +111,8 @@ protected:
 
     void addDefaultEntriesToWindowsMenu();
 
+    virtual QStringList defaultDockStateNames() = 0;
+
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
     void slotRefreshHelpActions();
@@ -119,9 +121,11 @@ protected slots:
     void slotUndo();
     void slotRefreshUndoRedoActions();
 
+    void setDefaultDockLayout();
     void setDockLayout();
     void deleteDockLayout();
     void saveDockLayout();
+    void exportDockLayout();
 
 protected:
     bool m_allowActiveViewChangeFromSelection; // To be used in selectedObjectsChanged() to control
