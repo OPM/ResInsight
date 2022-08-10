@@ -767,6 +767,39 @@ void RimDepthTrackPlot::onPlotsReordered( const SignalEmitter* emitter )
     recreatePlotWidgets();
     loadDataAndUpdate();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDepthTrackPlot::isFirstVisibleTrack( RimWellLogTrack* track )
+{
+    // Find first visible track
+    auto findFirstVisibleTrack = [this]() {
+        auto plots = visiblePlots();
+        if ( !plots.empty() ) return plots.front();
+        return static_cast<RimWellLogTrack*>( nullptr );
+    };
+
+    auto firstVisibleTrack = findFirstVisibleTrack();
+    return firstVisibleTrack && firstVisibleTrack == track;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDepthTrackPlot::isLastVisibleTrack( RimWellLogTrack* track )
+{
+    // Find last visible track
+    auto findLastVisibleTrack = [this]() {
+        auto plots = visiblePlots();
+        if ( !plots.empty() ) return plots.back();
+        return static_cast<RimWellLogTrack*>( nullptr );
+    };
+
+    auto lastVisibleTrack = findLastVisibleTrack();
+    return lastVisibleTrack && lastVisibleTrack == track;
+}
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
