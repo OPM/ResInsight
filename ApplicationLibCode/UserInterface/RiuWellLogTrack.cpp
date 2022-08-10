@@ -138,12 +138,11 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     RimWellLogPlot* wlp = nullptr;
     track->firstAncestorOfType( wlp );
 
-    bool isVertical =
-        (wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL);
+    bool isVertical = ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL );
     setAxisEnabled( QwtAxis::YLeft, true );
     setAxisEnabled( QwtAxis::YRight, false );
     setAxisEnabled( QwtAxis::XTop, !isVertical );
-    setAxisEnabled( QwtAxis::XBottom, isVertical);
+    setAxisEnabled( QwtAxis::XBottom, isVertical );
 
     new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
 }
