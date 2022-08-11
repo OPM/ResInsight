@@ -98,6 +98,7 @@ private:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void calculateNormalizationAirGapDefault();
+    bool useUndoRedoForFieldChanged() override;
 
     void initAfterRead() override;
     void defineEditorAttribute( const caf::PdmFieldHandle* field,
