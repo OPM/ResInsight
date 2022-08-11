@@ -491,6 +491,8 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
     {
         m_rftSegmentBranchType = *( m_uniqueRftBranchTypes.begin() );
     }
+    else
+        m_rftSegmentBranchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -624,10 +626,13 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
         }
         else if ( rftCurve )
         {
+            if ( m_summaryCase() ) rftCurve->setSummaryCase( m_summaryCase() );
             rftCurve->setTimeStep( m_rftTimeStep() );
             rftCurve->setWellName( m_rftWellName() );
             rftCurve->setSegmentBranchIndex( m_rftSegmentBranchIndex() );
-            rftCurve->setSegmentBranchType( m_rftSegmentBranchType() );
+
+            if ( m_rftSegmentBranchType() != RiaDefines::RftBranchType::RFT_UNKNOWN )
+                rftCurve->setSegmentBranchType( m_rftSegmentBranchType() );
 
             RimWellLogPlot* parentPlot = nullptr;
             rftCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
@@ -1073,8 +1078,9 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
     auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
     if ( myAttr )
     {
-        if ( field == &m_case || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep ||
-             field == &m_rftTimeStep || field == &m_rftSegmentBranchIndex || field == &m_rftWellName )
+        if ( field == &m_case || field == &m_summaryCase || field == &m_simWellName || field == &m_wellPath ||
+             field == &m_timeStep || field == &m_rftTimeStep || field == &m_rftSegmentBranchIndex ||
+             field == &m_rftWellName )
         {
             myAttr->showPreviousAndNextButtons = true;
             myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );
