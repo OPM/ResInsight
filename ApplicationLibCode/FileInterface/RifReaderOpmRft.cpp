@@ -545,7 +545,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 
             RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
 
-            bool hasFoundAnnulusBranch     = false;
+            bool hasFoundAnnulusBranch = false;
             /*
                         auto annulusDeviceSegmentLinks = annulusLinksForWell( wellName );
                         if ( !annulusDeviceSegmentLinks.empty() )
