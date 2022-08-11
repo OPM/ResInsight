@@ -63,6 +63,8 @@ RimFileSummaryCase::RimFileSummaryCase()
                                 "AdditionalSummaryFilePath",
                                 "Additional File Path (set invisible when ready)" );
     m_additionalSummaryFilePath.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_dataDeckFilePath, "DataDeckFilePath", "Data Deck" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,7 +133,8 @@ void RimFileSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createRftReaderInterface()
 {
-    m_summaryEclipseRftReader = RimFileSummaryCase::findRftDataAndCreateReader( this->summaryHeaderFilename() );
+    m_summaryEclipseRftReader =
+        RimFileSummaryCase::findRftDataAndCreateReader( this->summaryHeaderFilename(), m_dataDeckFilePath().path() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,7 +189,8 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderOpmRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& headerFileName )
+RifReaderOpmRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& headerFileName,
+                                                                 const QString& dataDeckFileName )
 {
     QFileInfo fileInfo( headerFileName );
     QString   folder = fileInfo.absolutePath();
@@ -196,10 +200,19 @@ RifReaderOpmRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& 
 
     if ( rftFileInfo.exists() )
     {
-        return new RifReaderOpmRft( rftFileInfo.filePath() );
+        return new RifReaderOpmRft( rftFileInfo.filePath(), dataDeckFileName );
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimSummaryCase::defineUiOrdering( uiConfigName, uiOrdering );
+    uiOrdering.add( &m_dataDeckFilePath );
 }
 
 //--------------------------------------------------------------------------------------------------

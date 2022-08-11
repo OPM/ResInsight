@@ -18,6 +18,7 @@
 
 #pragma once
 
+#include <map>
 #include <string>
 #include <vector>
 
@@ -32,4 +33,6 @@ class RimVfpTableExtractor
 public:
     static std::vector<Opm::VFPInjTable>  extractVfpInjectionTables( const std::string& filename );
     static std::vector<Opm::VFPProdTable> extractVfpProductionTables( const std::string& filename );
+
+    static std::map<std::string, std::vector<std::pair<int, int>>> extractWseglink( const std::string& filename );
 };
