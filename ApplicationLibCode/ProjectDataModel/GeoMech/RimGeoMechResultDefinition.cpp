@@ -476,6 +476,20 @@ void RimGeoMechResultDefinition::calculateNormalizationAirGapDefault()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimGeoMechResultDefinition::useUndoRedoForFieldChanged()
+{
+    // Do not use undo/redo, because a state variable is initialized in fieldChanged(), and the undo/redo framework
+    // trigger a call to defineUiOrdering() before fieldChanged causing invalid state in this object.
+    // Having a state variable in fieldChanged/defineUiOrdering is a fragile pattern and should be avoided
+
+    // See CmdFieldChangeExec::redo()
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<std::string, std::vector<std::string>> RimGeoMechResultDefinition::getResultMetaDataForUIFieldSetting()
 {
     RimGeoMechCase*                                 gmCase = m_geomCase;
