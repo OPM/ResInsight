@@ -267,7 +267,7 @@ TEST( OpmSummaryTests, OpmComputeSegmentTopology )
         //		QString filePath = "e:/models/from_equinor_sftp/MSW-RFTfile/NORNE_ATW2013_RFTPLT_MSW.RFT";
         QString filePath = "e:/models/from_equinor_sftp/MSWRFT_toCS/MSWLOOPED_UN_RFT.RFT";
 
-        RifReaderOpmRft reader( filePath );
+        RifReaderOpmRft reader( filePath, "" );
 
         auto adresses = reader.eclipseRftAddresses();
 

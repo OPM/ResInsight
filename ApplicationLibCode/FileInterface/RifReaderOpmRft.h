@@ -36,7 +36,7 @@ namespace EclIO
 class RifReaderOpmRft : public RifReaderRftInterface, public cvf::Object
 {
 public:
-    RifReaderOpmRft( const QString& fileName );
+    RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
     void values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values ) override;
@@ -67,6 +67,9 @@ private:
 
     std::vector<int> importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const;
 
+    void                             readWseglink( const std::string& filePath );
+    std::vector<std::pair<int, int>> annulusLinksForWell( const std::string& wellName ) const;
+
     static RifEclipseRftAddress::RftWellLogChannelType identifyChannelType( const std::string& resultName );
     static std::string resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );
 
@@ -79,4 +82,6 @@ private:
 
     std::map<RftSegmentKey, RifRftSegment> m_rftWellDateSegments;
     std::set<QDateTime>                    m_rftSegmentTimeSteps;
+
+    std::map<std::string, std::vector<std::pair<int, int>>> m_wseglink;
 };
