@@ -158,6 +158,7 @@ void RiuWellLogPlot::performUpdate( RiaDefines::MultiPlotPageUpdateType /* whatT
 
     reinsertPlotWidgets();
     reinsertScrollbar();
+    updateTitleFont();
     int axisShift = alignCanvasTops();
     alignScrollbar( axisShift );
     alignAxes();
