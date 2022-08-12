@@ -67,6 +67,8 @@ public:
     void setBranchType( int branchId, RiaDefines::RftBranchType branchType );
     void setOneBasedBranchIndex( int branchId, int oneBasedBranchIndex );
 
+    RiaDefines::RftBranchType branchType( int branchId ) const;
+
     std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
     std::vector<size_t> indicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
 
