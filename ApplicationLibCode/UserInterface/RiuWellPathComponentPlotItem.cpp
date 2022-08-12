@@ -20,7 +20,9 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
+#include "RiaPlotDefines.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimFishbones.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
@@ -33,6 +35,7 @@
 #include "RimWellPathValve.h"
 
 #include "RigWellPath.h"
+#include "RiuPlotAxis.h"
 #include "RiuQwtPlotTools.h"
 
 #include "qwt_plot.h"
@@ -637,6 +640,18 @@ void RiuWellPathComponentPlotItem::attachToQwt()
     if ( m_parentQwtPlot )
     {
         m_combinedComponentGroup.attach( m_parentQwtPlot );
+
+        auto riuAxis = RimDepthTrackPlot::annotationAxis( m_depthOrientation );
+        auto qwtAxis = RiuQwtPlotTools::toQwtPlotAxisEnum( riuAxis.axis() );
+
+        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::VERTICAL )
+        {
+            m_combinedComponentGroup.setXAxis( qwtAxis );
+        }
+        else
+        {
+            m_combinedComponentGroup.setYAxis( qwtAxis );
+        }
     }
 }
 

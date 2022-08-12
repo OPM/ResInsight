@@ -107,6 +107,7 @@ public:
     RimDepthTrackPlot::DepthOrientation depthOrientation() const;
     RiuPlotAxis                         depthAxis() const;
     RiuPlotAxis                         valueAxis() const;
+    RiuPlotAxis                         annotationAxis() const;
 
     void setAutoScalePropertyValuesEnabled( bool enabled );
     void setAutoScaleDepthValuesEnabled( bool enabled );
@@ -148,6 +149,10 @@ public:
 
     bool isFirstVisibleTrack( RimWellLogTrack* track );
     bool isLastVisibleTrack( RimWellLogTrack* track );
+
+    static RiuPlotAxis depthAxis( DepthOrientation depthOrientation );
+    static RiuPlotAxis valueAxis( DepthOrientation depthOrientation );
+    static RiuPlotAxis annotationAxis( DepthOrientation depthOrientation );
 
 protected:
     QImage snapshotWindowContent() override;

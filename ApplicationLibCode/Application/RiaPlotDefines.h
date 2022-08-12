@@ -63,8 +63,9 @@ double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();
 double maximumDefaultValuePlot();
 
-bool isHorizontal( PlotAxis axis );
-bool isVertical( PlotAxis axis );
+bool     isHorizontal( PlotAxis axis );
+bool     isVertical( PlotAxis axis );
+PlotAxis opposite( PlotAxis axis );
 
 double scalingFactor( QPaintDevice* paintDevice );
 
