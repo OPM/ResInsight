@@ -231,12 +231,15 @@ void RimWellLogCurve::updateCurveAppearance()
 
     RimDepthTrackPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfType( wellLogPlot );
-    if ( wellLogPlot ) orientation = wellLogPlot->depthOrientation();
-
-    if ( m_plotCurve )
+    if ( wellLogPlot )
     {
-        m_plotCurve->setXAxis( RiuPlotAxis::defaultTop() );
-        m_plotCurve->setYAxis( RiuPlotAxis::defaultLeft() );
+        orientation = wellLogPlot->depthOrientation();
+
+        if ( m_plotCurve )
+        {
+            m_plotCurve->setXAxis( wellLogPlot->valueAxis() );
+            m_plotCurve->setYAxis( wellLogPlot->depthAxis() );
+        }
     }
 
     if ( fillStyle() != Qt::BrushStyle::NoBrush )
@@ -252,7 +255,7 @@ void RimWellLogCurve::updateCurveAppearance()
             else
             {
                 qwtPlotCurve->setOrientation( Qt::Vertical );
-                qwtPlotCurve->setBaseline( 0.0 );
+                qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
             }
         }
     }
