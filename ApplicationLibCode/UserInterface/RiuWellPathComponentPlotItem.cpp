@@ -473,25 +473,33 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startPositio
                                                      cvf::Color4f   baseColor,
                                                      Qt::BrushStyle brushStyle /*= Qt::SolidPattern */ )
 {
+    double startX = startPosition;
+    double endX   = endPosition;
+    double startY = startDepth;
+    double endY   = endDepth;
+
+    if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+    {
+        startX = startDepth;
+        endX   = endDepth;
+        startY = startPosition;
+        endY   = endPosition;
+    }
+
     QColor baseQColor = RiaColorTools::toQColor( baseColor );
     if ( brushStyle != Qt::SolidPattern )
     {
         // If we're doing a special pattern, draw the background in white first over the existing pattern
         QColor semiTransparentWhite( Qt::white );
         semiTransparentWhite.setAlphaF( 0.9f );
-        QwtPlotItem* backgroundShape = RiuQwtPlotTools::createBoxShape( label(),
-                                                                        startPosition,
-                                                                        endPosition,
-                                                                        startDepth,
-                                                                        endDepth,
-                                                                        semiTransparentWhite,
-                                                                        Qt::SolidPattern );
+        QwtPlotItem* backgroundShape =
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, semiTransparentWhite, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
         QwtPlotItem* patternShape =
-            RiuQwtPlotTools::createBoxShape( label(), startPosition, endPosition, startDepth, endDepth, baseQColor, brushStyle );
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, baseQColor, brushStyle );
         m_combinedComponentGroup.addPlotItem( patternShape );
-        if ( endPosition >= 0.0 )
+        if ( endX >= 0.0 )
         {
             QwtPlotItem* legendBGShape =
                 RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, semiTransparentWhite, Qt::SolidPattern );
@@ -505,10 +513,10 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startPositio
     else
     {
         QwtPlotItem* backgroundShape =
-            RiuQwtPlotTools::createBoxShape( label(), startPosition, endPosition, startDepth, endDepth, baseQColor, Qt::SolidPattern );
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, baseQColor, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
-        if ( endPosition >= 0.0 )
+        if ( endX >= 0.0 )
         {
             QwtPlotItem* legendShape =
                 RiuQwtPlotTools::createBoxShape( label(), 0.0, 16.0, 0.0, 16.0, baseQColor, Qt::SolidPattern );
