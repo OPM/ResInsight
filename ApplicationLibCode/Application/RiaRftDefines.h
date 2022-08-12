@@ -35,7 +35,7 @@ enum class RftBranchType
 {
     RFT_TUBING,
     RFT_DEVICE,
-    RFT_ANNULAR,
+    RFT_ANNULUS,
     RFT_UNKNOWN
 };
 

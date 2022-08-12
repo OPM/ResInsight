@@ -484,6 +484,17 @@ void RifReaderOpmRft::importWellNames()
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 {
+    // A branch can have up to three layers of branches
+    // Tubing branch
+    // The inner most branch representing the tubing pipe
+    //
+    // Device branch
+    // Layer between tubing branch and annulus branch or reservoir
+    // The device segment is connected to a segment on the tubing branch
+    //
+    // Annulus branch
+    // Layer between device branch and reservoir. The segment connection data is imported from WSEGLINK in the data deck
+
     auto           wellName   = segmentKey.first;
     auto           date       = segmentKey.second;
     RifRftSegment& segmentRef = m_rftWellDateSegments[segmentKey];
@@ -556,7 +567,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
                 if ( std::find( segmentNumbers.begin(), segmentNumbers.end(), annulusSegmentNumber ) !=
                      segmentNumbers.end() )
                 {
-                    branchType = RiaDefines::RftBranchType::RFT_ANNULAR;
+                    branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
 
                     // NOTE: Assign branch index after device branch is detected
                     hasFoundAnnulusBranch = true;
@@ -592,7 +603,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
                     auto it = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), tubingSegmentData->segBrno() );
                     if ( it != tubingBranchIds.end() )
                     {
-                        // Find all connected segments that is not part of a tubing branch, and mark as device
+                        // Find all connected segments that is not assigned a branch type, and mark as device
                         // layer
 
                         auto tubingBranchIndex = segmentRef.oneBasedBranchIndexForBranchId( tubingSegmentData->segBrno() );
@@ -603,19 +614,18 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
         }
 
         // Assign branch index to annulus branches
-        auto branchIds = segmentRef.branchIds();
 
         for ( auto branchId : branchIds )
         {
             auto branchType = segmentRef.branchType( branchId );
-            if ( branchType == RiaDefines::RftBranchType::RFT_ANNULAR )
+            if ( branchType == RiaDefines::RftBranchType::RFT_ANNULUS )
             {
                 auto segmentIndices = segmentRef.indicesForBranchNumber( branchId );
                 if ( segmentIndices.empty() ) continue;
 
                 auto firstSegmentIndex      = segmentIndices.front();
-                auto headSegment            = segmentRef.topology()[firstSegmentIndex];
-                auto candidateSegmentNumber = headSegment.segNext();
+                auto firstSegment           = segmentRef.topology()[firstSegmentIndex];
+                auto candidateSegmentNumber = firstSegment.segNext();
 
                 auto candidateDeviceSeg = segmentRef.segmentData( candidateSegmentNumber );
                 if ( candidateDeviceSeg )
@@ -628,17 +638,6 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
                 }
             }
         }
-
-        // Other categories
-        // Device
-        // - has output segment on tubing
-        // - offset with 0.1 relative tubing segment start
-        //
-        // Annulus
-        // - has output segment on device
-        // - offset with 0.2 relative tubing segment start
-        //
-        // Other laterals can be connected directly to tubing segment or device segment
     }
 }
 
