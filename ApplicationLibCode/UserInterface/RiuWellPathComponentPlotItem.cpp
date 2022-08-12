@@ -440,8 +440,17 @@ QwtPlotItem*
     symbol->setColor( bgColor );
     marker->setSymbol( symbol );
     marker->setSpacing( 6 );
-    marker->setXValue( position );
-    marker->setYValue( depth );
+
+    if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+    {
+        marker->setXValue( depth );
+        marker->setYValue( position );
+    }
+    else
+    {
+        marker->setXValue( position );
+        marker->setYValue( depth );
+    }
 
     if ( m_showLabel )
     {
@@ -457,7 +466,15 @@ QwtPlotItem*
 
     if ( drawLine )
     {
-        marker->setLineStyle( QwtPlotMarker::HLine );
+        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+        {
+            marker->setLineStyle( QwtPlotMarker::HLine );
+        }
+        else
+        {
+            marker->setLineStyle( QwtPlotMarker::VLine );
+        }
+
         marker->setLinePen( bgColor, 2.0, Qt::SolidLine );
     }
     return marker;
@@ -536,7 +553,7 @@ cvf::Color4f RiuWellPathComponentPlotItem::componentColor( float alpha /*= 1.0*/
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuWellPathComponentPlotItem::xValueRange( double* minimumValue, double* maximumValue ) const
+bool RiuWellPathComponentPlotItem::propertyValueRange( double* minimumValue, double* maximumValue ) const
 {
     CVF_ASSERT( minimumValue && maximumValue );
     *maximumValue = 1.0;
@@ -547,7 +564,7 @@ bool RiuWellPathComponentPlotItem::xValueRange( double* minimumValue, double* ma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuWellPathComponentPlotItem::yValueRange( double* minimumValue, double* maximumValue ) const
+bool RiuWellPathComponentPlotItem::depthValueRange( double* minimumValue, double* maximumValue ) const
 {
     CVF_ASSERT( minimumValue && maximumValue );
 

@@ -60,8 +60,8 @@ public:
 
     RiaDefines::WellPathComponentType componentType() const;
 
-    bool xValueRange( double* minimumValue, double* maximumValue ) const;
-    bool yValueRange( double* minimumValue, double* maximumValue ) const;
+    bool propertyValueRange( double* minimumValue, double* maximumValue ) const;
+    bool depthValueRange( double* minimumValue, double* maximumValue ) const;
 
     void setShowLabel( bool showLabel );
     void setDepthType( RimWellLogPlot::DepthTypeEnum depthType );
