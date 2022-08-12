@@ -69,6 +69,7 @@ private:
 
     void                             readWseglink( const std::string& filePath );
     std::vector<std::pair<int, int>> annulusLinksForWell( const std::string& wellName ) const;
+    std::vector<int>                 annulusSegmentsForWell( const std::string& wellName ) const;
 
     static RifEclipseRftAddress::RftWellLogChannelType identifyChannelType( const std::string& resultName );
     static std::string resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );

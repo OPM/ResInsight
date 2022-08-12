@@ -559,13 +559,19 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 
             RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
 
-            bool hasFoundAnnulusBranch     = false;
-            auto annulusDeviceSegmentLinks = annulusLinksForWell( wellName );
-            if ( !annulusDeviceSegmentLinks.empty() )
+            bool hasFoundAnnulusBranch = false;
+
+            auto annulusSegments = annulusSegmentsForWell( wellName );
+
+            std::vector<int> matchingSegments;
+            std::set_intersection( segmentNumbers.begin(),
+                                   segmentNumbers.end(),
+                                   annulusSegments.begin(),
+                                   annulusSegments.end(),
+                                   std::inserter( matchingSegments, matchingSegments.end() ) );
+
+            if ( !matchingSegments.empty() )
             {
-                auto annulusSegmentNumber = annulusDeviceSegmentLinks.front().first;
-                if ( std::find( segmentNumbers.begin(), segmentNumbers.end(), annulusSegmentNumber ) !=
-                     segmentNumbers.end() )
                 {
                     branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
 
@@ -679,6 +685,21 @@ std::vector<std::pair<int, int>> RifReaderOpmRft::annulusLinksForWell( const std
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RifReaderOpmRft::annulusSegmentsForWell( const std::string& wellName ) const
+{
+    std::vector<int> annulusSegments;
+
+    for ( auto it : annulusLinksForWell( wellName ) )
+    {
+        annulusSegments.push_back( it.first );
+    }
+
+    return annulusSegments;
 }
 
 //--------------------------------------------------------------------------------------------------
