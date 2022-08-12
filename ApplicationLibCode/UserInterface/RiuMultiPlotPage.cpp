@@ -40,6 +40,7 @@
 #include "RiuQwtPlotLegend.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
+#include "qwt_legend_label.h"
 #ifdef USE_QTCHARTS
 #include "RiuQtChartsPlotWidget.h"
 #endif
@@ -683,15 +684,8 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             {
                 if ( m_plotDefinition->legendsVisible() )
                 {
-                    int legendColumns = 1;
-                    if ( m_plotDefinition->legendsHorizontal() )
-                    {
-                        legendColumns = 0; // unlimited
-                    }
-                    legends[visibleIndex]->setMaxColumns( legendColumns );
-                    QFont legendFont = legends[visibleIndex]->font();
-                    legendFont.setPixelSize( m_legendFontPixelSize );
-                    legends[visibleIndex]->setFont( legendFont );
+                    updateLegendColumns( legends[visibleIndex] );
+                    updateLegendFont( legends[visibleIndex] );
                     legends[visibleIndex]->show();
                 }
                 else
@@ -712,6 +706,38 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::updateLegendFont( RiuQwtPlotLegend* legend )
+{
+    QFont legendFont = legend->font();
+    legendFont.setPixelSize( m_legendFontPixelSize );
+
+    // Set font size for all existing labels
+    QList<QwtLegendLabel*> labels = legend->findChildren<QwtLegendLabel*>();
+    for ( QwtLegendLabel* label : labels )
+    {
+        label->setFont( legendFont );
+    }
+
+    legend->setFont( legendFont );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::updateLegendColumns( RiuQwtPlotLegend* legend )
+{
+    int legendColumns = 1;
+    if ( m_plotDefinition->legendsHorizontal() )
+    {
+        legendColumns = 0; // unlimited
+    }
+
+    legend->setMaxColumns( legendColumns );
 }
 
 //--------------------------------------------------------------------------------------------------
