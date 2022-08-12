@@ -106,6 +106,9 @@ protected:
     bool hasHeightForWidth() const override;
     void updateMarginsFromPageLayout();
 
+    void updateLegendColumns( RiuQwtPlotLegend* legend );
+    void updateLegendFont( RiuQwtPlotLegend* legend );
+
     std::pair<int, int> rowAndColumnCount( int plotWidgetCount ) const;
 
     void alignAxes();

@@ -130,15 +130,8 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
             {
                 if ( m_plotDefinition->legendsVisible() && !legends[visibleIndex]->isEmpty() )
                 {
-                    int legendColumns = 1;
-                    if ( m_plotDefinition->legendsHorizontal() )
-                    {
-                        legendColumns = 0; // unlimited
-                    }
-                    legends[visibleIndex]->setMaxColumns( legendColumns );
-                    QFont legendFont = legends[visibleIndex]->font();
-                    legendFont.setPixelSize( m_legendFontPixelSize );
-                    legends[visibleIndex]->setFont( legendFont );
+                    updateLegendColumns( legends[visibleIndex] );
+                    updateLegendFont( legends[visibleIndex] );
                     legends[visibleIndex]->show();
                 }
                 else
