@@ -226,7 +226,7 @@ void RiuQwtPlotCurve::setAppearance( RiuQwtPlotCurveDefines::LineStyleEnum      
                                      const QColor&                                  curveColor,
                                      const QBrush& fillBrush /* = QBrush( Qt::NoBrush )*/ )
 {
-    QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::NoCurve;
+    QwtPlotCurve::CurveStyle curveStyle = QwtPlotCurve::Lines;
     Qt::PenStyle             penStyle   = RiuQwtPlotCurveDefines::convertToPenStyle( lineStyle );
 
     // Qwt bug workaround (#4135): need to set 0 curve thickness for STYLE_NONE
