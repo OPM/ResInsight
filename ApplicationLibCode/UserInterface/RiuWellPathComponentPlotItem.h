@@ -65,32 +65,34 @@ public:
 
     void setShowLabel( bool showLabel );
     void setDepthType( RimWellLogPlot::DepthTypeEnum depthType );
+    void setDepthOrientation( RimWellLogPlot::DepthOrientation depthOrientation );
     void setContributeToLegend( bool contributeToLegend );
 
-    void setParentQwtPlotAndReplot( QwtPlot* plot );
     void setParentPlotNoReplot( QwtPlot* plot );
     void attachToQwt();
     void detachFromQwt();
     void reattachToQwt();
 
 private:
+    void setParentQwtPlotAndReplot( QwtPlot* plot );
     void calculateColumnOffsets( const RimWellPathComponentInterface* component );
 
     void onLoadDataAndUpdate( bool updateParentPlot );
 
     std::pair<double, double> depthsOfDepthType() const;
 
-    void         addMarker( double                              posX,
-                            double                              depth,
-                            int                                 size,
-                            RiuPlotCurveSymbol::PointSymbolEnum symbolType,
-                            cvf::Color4f                        baseColor,
-                            const QString&                      label             = QString( "" ),
-                            Qt::Alignment                       labelAlignment    = Qt::AlignVCenter | Qt::AlignRight,
-                            Qt::Orientation                     labelOrientation  = Qt::Horizontal,
-                            bool                                drawLine          = false,
-                            bool                                contrastTextColor = false );
-    QwtPlotItem* createMarker( double                              posX,
+    void addMarker( double                              position,
+                    double                              depth,
+                    int                                 size,
+                    RiuPlotCurveSymbol::PointSymbolEnum symbolType,
+                    cvf::Color4f                        baseColor,
+                    const QString&                      label             = QString( "" ),
+                    Qt::Alignment                       labelAlignment    = Qt::AlignVCenter | Qt::AlignRight,
+                    Qt::Orientation                     labelOrientation  = Qt::Horizontal,
+                    bool                                drawLine          = false,
+                    bool                                contrastTextColor = false );
+
+    QwtPlotItem* createMarker( double                              position,
                                double                              depth,
                                int                                 size,
                                RiuPlotCurveSymbol::PointSymbolEnum symbolType,
@@ -100,12 +102,13 @@ private:
                                Qt::Orientation                     labelOrientation = Qt::Horizontal,
                                bool                                drawLine         = false,
                                bool                                contrastTextColor = false );
-    void         addColumnFeature( double         startX,
-                                   double         endX,
-                                   double         startDepth,
-                                   double         endDepth,
-                                   cvf::Color4f   baseColor,
-                                   Qt::BrushStyle brushStyle = Qt::SolidPattern );
+
+    void addColumnFeature( double         startPosition,
+                           double         endPosition,
+                           double         startDepth,
+                           double         endDepth,
+                           cvf::Color4f   baseColor,
+                           Qt::BrushStyle brushStyle = Qt::SolidPattern );
 
     cvf::Color4f componentColor( float alpha = 1.0 ) const;
 
@@ -121,9 +124,10 @@ private:
     double                            m_columnOffset;
     double                            m_maxColumnOffset;
 
-    RimWellLogPlot::DepthTypeEnum m_depthType;
-    QPointer<QwtPlot>             m_parentQwtPlot;
-    RiuQwtPlotItemGroup           m_combinedComponentGroup;
+    RimWellLogPlot::DepthTypeEnum    m_depthType;
+    RimWellLogPlot::DepthOrientation m_depthOrientation;
+    QPointer<QwtPlot>                m_parentQwtPlot;
+    RiuQwtPlotItemGroup              m_combinedComponentGroup;
 
     bool m_showLabel;
 };

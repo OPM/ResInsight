@@ -3258,11 +3258,13 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
         RimDepthTrackPlot* wellLogPlot;
         this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
-        RimWellLogPlot::DepthTypeEnum depthType = wellLogPlot->depthType();
+        RimWellLogPlot::DepthTypeEnum depthType        = wellLogPlot->depthType();
+        auto                          depthOrientation = wellLogPlot->depthOrientation();
 
         for ( auto& attributePlotObject : m_wellPathAttributePlotObjects )
         {
             attributePlotObject->setDepthType( depthType );
+            attributePlotObject->setDepthOrientation( depthOrientation );
             attributePlotObject->setShowLabel( m_showWellPathComponentLabels() );
             attributePlotObject->loadDataAndUpdate( false );
             attributePlotObject->setParentPlotNoReplot( m_plotWidget->qwtPlot() );
