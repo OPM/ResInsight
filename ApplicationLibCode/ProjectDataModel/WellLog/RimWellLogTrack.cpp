@@ -1289,16 +1289,20 @@ void RimWellLogTrack::onLoadDataAndUpdate()
         m_plotWidget->setAxisTitleText( depthAxis(), wellLogPlot->depthAxisTitle() );
 
         if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-        {
+        { 
+            // Show depth axis only for the first track (on the left side)
+            bool isFirstTrack = wellLogPlot->isFirstVisibleTrack( this );
             m_plotWidget->setAxisEnabled( QwtAxis::XTop, true );
             m_plotWidget->setAxisEnabled( QwtAxis::XBottom, false );
-            m_plotWidget->setAxisEnabled( QwtAxis::YLeft, true );
+            m_plotWidget->setAxisEnabled( QwtAxis::YLeft, isFirstTrack );
             m_plotWidget->setAxisEnabled( QwtAxis::YRight, false );
         }
         else
         {
+            // Show depth axis only for the last track (on the bottom side)
+            bool isLastTrack  = wellLogPlot->isLastVisibleTrack( this );
             m_plotWidget->setAxisEnabled( QwtAxis::XTop, false );
-            m_plotWidget->setAxisEnabled( QwtAxis::XBottom, true );
+            m_plotWidget->setAxisEnabled( QwtAxis::XBottom, isLastTrack );
             m_plotWidget->setAxisEnabled( QwtAxis::YLeft, true );
             m_plotWidget->setAxisEnabled( QwtAxis::YRight, false );
         }

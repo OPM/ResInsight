@@ -146,6 +146,9 @@ public:
 
     RiaDefines::DepthUnitType caseDepthUnit() const;
 
+    bool isFirstVisibleTrack( RimWellLogTrack* track );
+    bool isLastVisibleTrack( RimWellLogTrack* track );
+
 protected:
     QImage snapshotWindowContent() override;
 
