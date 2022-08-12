@@ -577,6 +577,7 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
     if ( whatToUpdate == RiaDefines::MultiPlotPageUpdateType::ALL )
     {
         applyLook();
+        updateTitleFont();
         updateMarginsFromPageLayout();
 
         reinsertPlotWidgets();
@@ -594,6 +595,7 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
 
     if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::TITLE ) == RiaDefines::MultiPlotPageUpdateType::TITLE )
     {
+        updateTitleFont();
         updateSubTitles();
     }
 }
