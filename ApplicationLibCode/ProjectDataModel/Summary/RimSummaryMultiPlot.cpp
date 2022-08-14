@@ -1489,3 +1489,12 @@ void RimSummaryMultiPlot::updateStepDimensionFromDefault()
 {
     m_sourceStepping->setStepDimension( m_defaultStepDimension() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::selectWell( QString wellName )
+{
+    if ( m_sourceStepping->stepDimension() != SourceSteppingDimension::WELL ) return;
+    m_sourceStepping->setStep( wellName );
+}

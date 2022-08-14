@@ -83,6 +83,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow::RiuPlotMainWindow()
     : m_activePlotViewWindow( nullptr )
+    , m_selection3DLinkEnabled( false )
 {
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
@@ -97,9 +98,6 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     createDockPanels();
 
     setAcceptDrops( true );
-
-    // Store the layout so we can offer reset option
-    m_initialDockAndToolbarLayout = saveState( 0 );
 
     if ( m_undoView )
     {
@@ -137,6 +135,22 @@ RiuPlotMainWindow* RiuPlotMainWindow::instance()
         return RiaGuiApplication::instance()->mainPlotWindow();
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::wellSelected( QString wellName )
+{
+    RiuPlotMainWindow* plotWnd = instance();
+    if ( !plotWnd ) return;
+
+    if ( !plotWnd->selection3DLinkEnabled() ) return;
+
+    RimProject* project = RimProject::current();
+    if ( !project ) return;
+
+    project->mainPlotCollection()->updateSelectedWell( wellName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -412,6 +426,7 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
     if ( toolbarName.isEmpty() || toolbarName == "View" )
     {
         commandIds << "RicViewZoomAllFeature";
+        commandIds << "RicToggle3DSelectionLinkFeature";
     }
 
     return commandIds;
@@ -1156,4 +1171,20 @@ QStringList RiuPlotMainWindow::defaultDockStateNames()
     QStringList retList = { RiuDockWidgetTools::dockStatePlotWindowName(),
                             RiuDockWidgetTools::dockStateHideAllPlotWindowName() };
     return retList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::enable3DSelectionLink( bool enable )
+{
+    m_selection3DLinkEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPlotMainWindow::selection3DLinkEnabled()
+{
+    return m_selection3DLinkEnabled;
 }

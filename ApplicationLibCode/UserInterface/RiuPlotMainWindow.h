@@ -60,6 +60,7 @@ public:
     ~RiuPlotMainWindow() override;
 
     static RiuPlotMainWindow* instance();
+    static void               wellSelected( QString wellName );
 
     QString mainWindowName() override;
 
@@ -72,6 +73,8 @@ public:
     void setActiveViewer( QWidget* subWindow ) override;
 
     void setDefaultWindowSize();
+    void enable3DSelectionLink( bool enable );
+    bool selection3DLinkEnabled();
 
     void tileSubWindows() override;
     void storeSubWindowTiling( bool tiled ) override;
@@ -129,7 +132,7 @@ private slots:
     void customMenuRequested( const QPoint& pos );
 
 private:
-    QByteArray m_initialDockAndToolbarLayout; // Initial dock window and toolbar layout, used to reset GUI
+    // TODO: create selection sync action and add it to view toolbar, replaces RicToggle3DSelectionLinkFeature
 
     caf::PdmPointer<RimViewWindow> m_activePlotViewWindow;
     QPointer<RiuMessagePanel>      m_messagePanel;
@@ -146,4 +149,6 @@ private:
     std::unique_ptr<caf::PdmObject>                  m_summaryPlotManager;
 
     std::vector<QWidget*> m_temporaryWidgets;
+
+    bool m_selection3DLinkEnabled;
 };

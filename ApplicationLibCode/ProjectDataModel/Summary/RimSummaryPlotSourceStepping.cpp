@@ -239,11 +239,14 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( fieldNeedingOptions == &m_vectorName )
         {
+            m_cachedIdentifiers.clear();
+
             auto displayAndValueStrings = optionsForQuantity( analyzer );
 
             for ( const auto& displayAndValue : displayAndValueStrings )
             {
                 options.append( caf::PdmOptionItemInfo( displayAndValue.first, displayAndValue.second ) );
+                m_cachedIdentifiers.push_back( displayAndValue.first );
             }
 
             if ( options.isEmpty() )
@@ -294,11 +297,14 @@ QList<caf::PdmOptionItemInfo>
                 identifierTexts = analyzer->identifierTexts( category, secondaryIdentifier );
             }
 
+            m_cachedIdentifiers.clear();
+
             if ( !identifierTexts.empty() )
             {
                 for ( const auto& text : identifierTexts )
                 {
                     options.append( caf::PdmOptionItemInfo( text, text ) );
+                    m_cachedIdentifiers.push_back( text );
                 }
             }
             else
@@ -1177,6 +1183,54 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
         default:
             break;
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
+{
+    if ( std::count( m_cachedIdentifiers.begin(), m_cachedIdentifiers.end(), stepIdentifier ) == 0 ) return;
+
+    caf::PdmField<QString>* fieldChanged = nullptr;
+    QString                 oldVal;
+
+    switch ( m_stepDimension() )
+    {
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
+            oldVal       = m_wellName;
+            m_wellName   = stepIdentifier;
+            fieldChanged = &m_wellName;
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
+            oldVal       = m_groupName;
+            m_groupName  = stepIdentifier;
+            fieldChanged = &m_groupName;
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
+            oldVal       = m_vectorName;
+            m_vectorName = stepIdentifier;
+            fieldChanged = &m_vectorName;
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
+            oldVal       = m_cellBlock;
+            m_cellBlock  = stepIdentifier;
+            fieldChanged = &m_cellBlock;
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE:
+        default:
+            CAF_ASSERT( false ); // not supported for these dimensions, yet
+            return;
+    }
+
+    fieldChanged->uiCapability()->notifyFieldChanged( QVariant( oldVal ), QVariant( stepIdentifier ) );
 }
 
 //--------------------------------------------------------------------------------------------------

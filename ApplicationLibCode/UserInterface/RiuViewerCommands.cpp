@@ -73,6 +73,7 @@
 #include "Riu3dSelectionManager.h"
 #include "RiuMainWindow.h"
 #include "RiuPickItemInfo.h"
+#include "RiuPlotMainWindow.h"
 #include "RiuResultTextBuilder.h"
 #include "RiuViewer.h"
 
@@ -871,6 +872,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             {
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) == nullptr;
 
+                RiuPlotMainWindow::wellSelected( eclipseWellSourceInfo->well()->name() );
                 RiuMainWindow::instance()->selectAsCurrentItem( eclipseWellSourceInfo->well(), allowActiveViewChange );
             }
             else if ( wellConnectionSourceInfo )

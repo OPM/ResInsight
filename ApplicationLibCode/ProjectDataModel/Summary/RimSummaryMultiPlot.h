@@ -111,6 +111,8 @@ public:
     void storeStepDimensionFromToolbar();
     void updateStepDimensionFromDefault();
 
+    void selectWell( QString wellName );
+
 protected:
     bool handleGlobalKeyEvent( QKeyEvent* keyEvent ) override;
     bool handleGlobalWheelEvent( QWheelEvent* wheelEvent ) override;
