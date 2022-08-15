@@ -60,7 +60,8 @@ public:
         SYMBOL_STAR2,
         SYMBOL_HEXAGON,
         SYMBOL_LEFT_TRIANGLE,
-        SYMBOL_RIGHT_TRIANGLE
+        SYMBOL_RIGHT_TRIANGLE,
+        SYMBOL_DOWN_ALIGNED_TRIANGLE
     };
 
     RiuPlotCurveSymbol( PointSymbolEnum riuStyle,

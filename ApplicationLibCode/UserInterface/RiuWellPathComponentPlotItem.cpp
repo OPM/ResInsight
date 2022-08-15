@@ -185,8 +185,18 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         double posMax = 0.75 + m_columnOffset;
         addColumnFeature( -posMax, -posMin, startDepth, endDepth, componentColor() );
         addColumnFeature( posMin, posMax, startDepth, endDepth, componentColor() );
-        addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
-        addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor() );
+
+        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::VERTICAL )
+        {
+            addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
+            addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor() );
+        }
+        else
+        {
+            addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_DOWN_ALIGNED_TRIANGLE, componentColor() );
+            addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
+        }
+
         addMarker( casingTrackEnd,
                    endDepth,
                    12,
@@ -213,18 +223,20 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         const double markerSpacing = 30;
         const int    markerSize    = 6;
         double       markerDepth   = startDepth;
+
+        auto plotSymbol1 = RiuPlotCurveSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE;
+        auto plotSymbol2 = RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE;
+
+        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+        {
+            plotSymbol1 = RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+            plotSymbol2 = RiuPlotCurveSymbol::SYMBOL_UP_TRIANGLE;
+        }
+
         while ( markerDepth < endDepth - 5 )
         {
-            addMarker( -casingTrackEnd,
-                       markerDepth,
-                       markerSize,
-                       RiuPlotCurveSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE,
-                       componentColor() );
-            addMarker( casingTrackEnd,
-                       markerDepth,
-                       markerSize,
-                       RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
-                       componentColor() );
+            addMarker( -casingTrackEnd, markerDepth, markerSize, plotSymbol1, componentColor() );
+            addMarker( casingTrackEnd, markerDepth, markerSize, plotSymbol2, componentColor() );
 
             markerDepth += markerSpacing;
         }
@@ -448,6 +460,8 @@ QwtPlotItem*
     {
         marker->setXValue( depth );
         marker->setYValue( position );
+        labelOrientation = Qt::Vertical;
+        labelAlignment   = Qt::AlignTop;
     }
     else
     {
