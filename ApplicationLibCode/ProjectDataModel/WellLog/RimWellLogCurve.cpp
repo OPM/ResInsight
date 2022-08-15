@@ -250,12 +250,12 @@ void RimWellLogCurve::updateCurveAppearance()
             if ( orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL )
             {
                 qwtPlotCurve->setOrientation( Qt::Horizontal );
-                qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
+                qwtPlotCurve->setBaseline( 0.0 );
             }
             else
             {
                 qwtPlotCurve->setOrientation( Qt::Vertical );
-                qwtPlotCurve->setBaseline( -std::numeric_limits<double>::infinity() );
+                qwtPlotCurve->setBaseline( 0.0 );
             }
         }
     }
