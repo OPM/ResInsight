@@ -62,6 +62,7 @@ public:
     RimSummaryCaseCollection* stepEnsemble( int direction );
 
     void syncWithStepper( RimSummaryPlotSourceStepping* other );
+    void setStep( QString stepIdentifier );
 
     RimSummaryDataSourceStepping::SourceSteppingDimension stepDimension() const;
     void setStepDimension( RimSummaryDataSourceStepping::SourceSteppingDimension dimension );
@@ -130,4 +131,5 @@ private:
     caf::PdmField<bool> m_includeEnsembleCasesForCaseStepping;
 
     RimSummaryDataSourceStepping::Axis m_sourceSteppingType;
+    std::vector<QString>               m_cachedIdentifiers;
 };

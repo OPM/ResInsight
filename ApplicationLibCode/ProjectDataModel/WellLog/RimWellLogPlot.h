@@ -23,6 +23,8 @@
 
 #include "RimDepthTrackPlot.h"
 
+#include <QString>
+
 //==================================================================================================
 ///
 ///
@@ -36,4 +38,6 @@ public:
     ~RimWellLogPlot() override;
 
     RimWellLogPlot& operator=( RimWellLogPlot&& rhs );
+
+    void selectWell( QString wellName );
 };

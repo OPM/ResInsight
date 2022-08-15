@@ -42,6 +42,7 @@
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryCrossPlotCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
 #include "RimSummaryPlotCollection.h"
 #include "RimVfpPlotCollection.h"
@@ -388,6 +389,22 @@ void RimMainPlotCollection::loadDataAndUpdateAllPlots()
 {
     std::vector<RimPlotCollection*> plotCollections = allPlotCollections();
     loadDataAndUpdatePlotCollectionsWithProgressInfo( plotCollections );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimMainPlotCollection::updateSelectedWell( QString wellName )
+{
+    for ( auto plot : summaryMultiPlotCollection()->multiPlots() )
+    {
+        plot->selectWell( wellName );
+    }
+
+    for ( auto plot : wellLogPlotCollection()->wellLogPlots() )
+    {
+        plot->selectWell( wellName );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

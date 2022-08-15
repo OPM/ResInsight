@@ -43,6 +43,7 @@
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiCheckBoxTristateEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
@@ -89,6 +90,9 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
                                 "",
                                 "Compute branches based on how simulation well cells are organized",
                                 "" );
+    CAF_PDM_InitField( &m_allow3DSelectionLink, "Allow3DSelectionLink", true, "Allow Well Selection from 3D View" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_allow3DSelectionLink );
+
     m_branchDetection.v() = caf::Tristate::State::PartiallyTrue;
     m_branchDetection.uiCapability()->setUiEditorTypeName( caf::PdmUiCheckBoxTristateEditor::uiEditorTypeName() );
     CAF_PDM_InitField( &m_branchIndex, "Branch", -1, "Branch Index" );
@@ -1011,6 +1015,8 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
         else if ( trajectoryTypeToApply() == RimWellLogExtractionCurve::SIMULATION_WELL )
         {
             group->add( &m_simWellName );
+            group->add( &m_allow3DSelectionLink );
+
             if ( RiaSimWellBranchTools::simulationWellBranches( m_simWellName(), true ).size() > 1 )
             {
                 group->add( &m_branchDetection );
@@ -1123,4 +1129,22 @@ RifReaderRftInterface* RimWellLogCurveCommonDataSource::rftReader()
     if ( m_summaryCase() && m_summaryCase()->rftReader() ) return m_summaryCase->rftReader();
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogCurveCommonDataSource::selectSimWell( QString wellName )
+{
+    if ( !m_allow3DSelectionLink() ) return;
+
+    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+    if ( eclipseCase )
+    {
+        std::set<QString> sortedWellNames = eclipseCase->sortedSimWellNames();
+        if ( std::count( sortedWellNames.begin(), sortedWellNames.end(), wellName ) > 0 )
+        {
+            m_simWellName.setValueWithFieldChanged( wellName );
+        }
+    }
 }

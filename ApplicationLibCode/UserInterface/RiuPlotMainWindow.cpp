@@ -83,6 +83,8 @@
 //--------------------------------------------------------------------------------------------------
 RiuPlotMainWindow::RiuPlotMainWindow()
     : m_activePlotViewWindow( nullptr )
+    , m_selection3DLinkEnabled( false )
+    , m_toggleSelectionLinkAction( nullptr )
 {
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
@@ -92,14 +94,17 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     auto dockArea = dockManager()->setCentralWidget( widget );
     dockArea->setVisible( true );
 
+    m_toggleSelectionLinkAction = new QAction( QIcon( ":/Link3DandPlots.png" ), tr( "Link With Selection in 3D" ), this );
+    m_toggleSelectionLinkAction->setToolTip( "Update wells used in plots from well selections in 3D view." );
+    m_toggleSelectionLinkAction->setCheckable( true );
+    m_toggleSelectionLinkAction->setChecked( m_selection3DLinkEnabled );
+    connect( m_toggleSelectionLinkAction, SIGNAL( triggered() ), SLOT( slotToggleSelectionLink() ) );
+
     createMenus();
     createToolBars();
     createDockPanels();
 
     setAcceptDrops( true );
-
-    // Store the layout so we can offer reset option
-    m_initialDockAndToolbarLayout = saveState( 0 );
 
     if ( m_undoView )
     {
@@ -137,6 +142,22 @@ RiuPlotMainWindow* RiuPlotMainWindow::instance()
         return RiaGuiApplication::instance()->mainPlotWindow();
     }
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::wellSelected( QString wellName )
+{
+    RiuPlotMainWindow* plotWnd = instance();
+    if ( !plotWnd ) return;
+
+    if ( !plotWnd->selection3DLinkEnabled() ) return;
+
+    RimProject* project = RimProject::current();
+    if ( !project ) return;
+
+    project->mainPlotCollection()->updateSelectedWell( wellName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,6 +461,10 @@ void RiuPlotMainWindow::createToolBars()
         for ( QString s : toolbarCommands )
         {
             toolbar->addAction( cmdFeatureMgr->action( s ) );
+        }
+        if ( toolbarName == "View" )
+        {
+            toolbar->addAction( m_toggleSelectionLinkAction );
         }
     }
 
@@ -1156,4 +1181,28 @@ QStringList RiuPlotMainWindow::defaultDockStateNames()
     QStringList retList = { RiuDockWidgetTools::dockStatePlotWindowName(),
                             RiuDockWidgetTools::dockStateHideAllPlotWindowName() };
     return retList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::enable3DSelectionLink( bool enable )
+{
+    m_selection3DLinkEnabled = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RiuPlotMainWindow::selection3DLinkEnabled()
+{
+    return m_selection3DLinkEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::slotToggleSelectionLink()
+{
+    m_selection3DLinkEnabled = !m_selection3DLinkEnabled;
 }

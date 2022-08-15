@@ -239,11 +239,14 @@ QList<caf::PdmOptionItemInfo>
     {
         if ( fieldNeedingOptions == &m_vectorName )
         {
+            m_cachedIdentifiers.clear();
+
             auto displayAndValueStrings = optionsForQuantity( analyzer );
 
             for ( const auto& displayAndValue : displayAndValueStrings )
             {
                 options.append( caf::PdmOptionItemInfo( displayAndValue.first, displayAndValue.second ) );
+                m_cachedIdentifiers.push_back( displayAndValue.first );
             }
 
             if ( options.isEmpty() )
@@ -294,11 +297,14 @@ QList<caf::PdmOptionItemInfo>
                 identifierTexts = analyzer->identifierTexts( category, secondaryIdentifier );
             }
 
+            m_cachedIdentifiers.clear();
+
             if ( !identifierTexts.empty() )
             {
                 for ( const auto& text : identifierTexts )
                 {
                     options.append( caf::PdmOptionItemInfo( text, text ) );
+                    m_cachedIdentifiers.push_back( text );
                 }
             }
             else
@@ -1176,6 +1182,41 @@ void RimSummaryPlotSourceStepping::syncWithStepper( RimSummaryPlotSourceStepping
 
         default:
             break;
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
+{
+    if ( std::count( m_cachedIdentifiers.begin(), m_cachedIdentifiers.end(), stepIdentifier ) == 0 ) return;
+
+    switch ( m_stepDimension() )
+    {
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
+            m_wellName.setValueWithFieldChanged( stepIdentifier );
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
+            m_groupName.setValueWithFieldChanged( stepIdentifier );
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
+            m_vectorName.setValueWithFieldChanged( stepIdentifier );
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
+            m_cellBlock.setValueWithFieldChanged( stepIdentifier );
+            break;
+
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::REGION:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE:
+        case RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE:
+        default:
+            CAF_ASSERT( false ); // not supported for these dimensions, yet
+            return;
     }
 }
 
