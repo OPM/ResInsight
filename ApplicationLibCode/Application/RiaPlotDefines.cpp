@@ -80,6 +80,28 @@ bool RiaDefines::isVertical( RiaDefines::PlotAxis axis )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::PlotAxis RiaDefines::opposite( PlotAxis axis )
+{
+    switch ( axis )
+    {
+        case RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM:
+            return RiaDefines::PlotAxis::PLOT_AXIS_TOP;
+        case RiaDefines::PlotAxis::PLOT_AXIS_TOP:
+            return RiaDefines::PlotAxis::PLOT_AXIS_BOTTOM;
+        case RiaDefines::PlotAxis::PLOT_AXIS_LEFT:
+            return RiaDefines::PlotAxis::PLOT_AXIS_RIGHT;
+        case RiaDefines::PlotAxis::PLOT_AXIS_RIGHT:
+            return RiaDefines::PlotAxis::PLOT_AXIS_LEFT;
+    }
+
+    // Should never come here
+    CVF_ASSERT( false );
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 double RiaDefines::scalingFactor( QPaintDevice* paintDevice )
 {
     auto scalingFactor = RiaPreferencesSystem::current()->exportPdfScalingFactor();

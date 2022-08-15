@@ -20,7 +20,9 @@
 
 #include "RiaColorTables.h"
 #include "RiaColorTools.h"
+#include "RiaPlotDefines.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimFishbones.h"
 #include "RimFracture.h"
 #include "RimFractureTemplate.h"
@@ -33,6 +35,7 @@
 #include "RimWellPathValve.h"
 
 #include "RigWellPath.h"
+#include "RiuPlotAxis.h"
 #include "RiuQwtPlotTools.h"
 
 #include "qwt_plot.h"
@@ -51,6 +54,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     , m_componentType( RiaDefines::WellPathComponentType::WELL_PATH )
     , m_columnOffset( 0.0 )
     , m_depthType( RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
+    , m_depthOrientation( RimWellLogPlot::DepthOrientation::VERTICAL )
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
@@ -181,8 +185,18 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         double posMax = 0.75 + m_columnOffset;
         addColumnFeature( -posMax, -posMin, startDepth, endDepth, componentColor() );
         addColumnFeature( posMin, posMax, startDepth, endDepth, componentColor() );
-        addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
-        addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor() );
+
+        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::VERTICAL )
+        {
+            addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
+            addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor() );
+        }
+        else
+        {
+            addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_DOWN_ALIGNED_TRIANGLE, componentColor() );
+            addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
+        }
+
         addMarker( casingTrackEnd,
                    endDepth,
                    12,
@@ -209,18 +223,20 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         const double markerSpacing = 30;
         const int    markerSize    = 6;
         double       markerDepth   = startDepth;
+
+        auto plotSymbol1 = RiuPlotCurveSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE;
+        auto plotSymbol2 = RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE;
+
+        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+        {
+            plotSymbol1 = RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
+            plotSymbol2 = RiuPlotCurveSymbol::SYMBOL_UP_TRIANGLE;
+        }
+
         while ( markerDepth < endDepth - 5 )
         {
-            addMarker( -casingTrackEnd,
-                       markerDepth,
-                       markerSize,
-                       RiuPlotCurveSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE,
-                       componentColor() );
-            addMarker( casingTrackEnd,
-                       markerDepth,
-                       markerSize,
-                       RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE,
-                       componentColor() );
+            addMarker( -casingTrackEnd, markerDepth, markerSize, plotSymbol1, componentColor() );
+            addMarker( casingTrackEnd, markerDepth, markerSize, plotSymbol2, componentColor() );
 
             markerDepth += markerSpacing;
         }
@@ -396,35 +412,36 @@ std::pair<double, double> RiuWellPathComponentPlotItem::depthsOfDepthType() cons
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathComponentPlotItem::addMarker( double                              posX,
+void RiuWellPathComponentPlotItem::addMarker( double                              position,
                                               double                              depth,
                                               int                                 size,
                                               RiuPlotCurveSymbol::PointSymbolEnum symbolType,
                                               cvf::Color4f                        baseColor,
-                                              const QString&                      label /*= QString("")*/,
-                                              Qt::Alignment                       labelAlignment /*= Qt::AlignTop*/,
-                                              Qt::Orientation                     labelOrientation /*= Qt::Vertical*/,
-                                              bool                                drawLine /*= false*/,
-                                              bool                                contrastTextColor /*= true*/ )
+                                              const QString&                      label /*= QString( "" )*/,
+                                              Qt::Alignment   labelAlignment /*= Qt::AlignVCenter | Qt::AlignRight*/,
+                                              Qt::Orientation labelOrientation /*= Qt::Horizontal*/,
+                                              bool            drawLine /*= false*/,
+                                              bool            contrastTextColor /*= false */ )
 {
     QwtPlotItem* marker =
-        createMarker( posX, depth, size, symbolType, baseColor, label, labelAlignment, labelOrientation, drawLine, contrastTextColor );
+        createMarker( position, depth, size, symbolType, baseColor, label, labelAlignment, labelOrientation, drawLine, contrastTextColor );
     m_combinedComponentGroup.addPlotItem( marker );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QwtPlotItem* RiuWellPathComponentPlotItem::createMarker( double                              posX,
-                                                         double                              depth,
-                                                         int                                 size,
-                                                         RiuPlotCurveSymbol::PointSymbolEnum symbolType,
-                                                         cvf::Color4f                        baseColor,
-                                                         const QString&                      label /*= QString("")*/,
-                                                         Qt::Alignment   labelAlignment /*= Qt::AlignTop*/,
-                                                         Qt::Orientation labelOrientation /*= Qt::Vertical*/,
-                                                         bool            drawLine /*= false*/,
-                                                         bool            contrastTextColor /*= true*/ )
+QwtPlotItem*
+    RiuWellPathComponentPlotItem::createMarker( double                              position,
+                                                double                              depth,
+                                                int                                 size,
+                                                RiuPlotCurveSymbol::PointSymbolEnum symbolType,
+                                                cvf::Color4f                        baseColor,
+                                                const QString&                      label /*= QString( "" )*/,
+                                                Qt::Alignment   labelAlignment /*= Qt::AlignVCenter | Qt::AlignRight*/,
+                                                Qt::Orientation labelOrientation /*= Qt::Horizontal*/,
+                                                bool            drawLine /*= false*/,
+                                                bool            contrastTextColor /*= false */ )
 {
     QColor bgColor   = RiaColorTools::toQColor( baseColor );
     QColor textColor = RiaColorTools::toQColor( baseColor.toColor3f(), 1.0 );
@@ -438,8 +455,19 @@ QwtPlotItem* RiuWellPathComponentPlotItem::createMarker( double                 
     symbol->setColor( bgColor );
     marker->setSymbol( symbol );
     marker->setSpacing( 6 );
-    marker->setXValue( posX );
-    marker->setYValue( depth );
+
+    if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+    {
+        marker->setXValue( depth );
+        marker->setYValue( position );
+        labelOrientation = Qt::Vertical;
+        labelAlignment   = Qt::AlignTop;
+    }
+    else
+    {
+        marker->setXValue( position );
+        marker->setYValue( depth );
+    }
 
     if ( m_showLabel )
     {
@@ -455,7 +483,15 @@ QwtPlotItem* RiuWellPathComponentPlotItem::createMarker( double                 
 
     if ( drawLine )
     {
-        marker->setLineStyle( QwtPlotMarker::HLine );
+        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+        {
+            marker->setLineStyle( QwtPlotMarker::HLine );
+        }
+        else
+        {
+            marker->setLineStyle( QwtPlotMarker::VLine );
+        }
+
         marker->setLinePen( bgColor, 2.0, Qt::SolidLine );
     }
     return marker;
@@ -464,13 +500,26 @@ QwtPlotItem* RiuWellPathComponentPlotItem::createMarker( double                 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathComponentPlotItem::addColumnFeature( double         startX,
-                                                     double         endX,
+void RiuWellPathComponentPlotItem::addColumnFeature( double         startPosition,
+                                                     double         endPosition,
                                                      double         startDepth,
                                                      double         endDepth,
                                                      cvf::Color4f   baseColor,
-                                                     Qt::BrushStyle brushStyle /*= Qt::SolidPattern*/ )
+                                                     Qt::BrushStyle brushStyle /*= Qt::SolidPattern */ )
 {
+    double startX = startPosition;
+    double endX   = endPosition;
+    double startY = startDepth;
+    double endY   = endDepth;
+
+    if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+    {
+        startX = startDepth;
+        endX   = endDepth;
+        startY = startPosition;
+        endY   = endPosition;
+    }
+
     QColor baseQColor = RiaColorTools::toQColor( baseColor );
     if ( brushStyle != Qt::SolidPattern )
     {
@@ -478,11 +527,11 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startX,
         QColor semiTransparentWhite( Qt::white );
         semiTransparentWhite.setAlphaF( 0.9f );
         QwtPlotItem* backgroundShape =
-            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, semiTransparentWhite, Qt::SolidPattern );
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, semiTransparentWhite, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
         QwtPlotItem* patternShape =
-            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, baseQColor, brushStyle );
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, baseQColor, brushStyle );
         m_combinedComponentGroup.addPlotItem( patternShape );
         if ( endX >= 0.0 )
         {
@@ -498,7 +547,7 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startX,
     else
     {
         QwtPlotItem* backgroundShape =
-            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startDepth, endDepth, baseQColor, Qt::SolidPattern );
+            RiuQwtPlotTools::createBoxShape( label(), startX, endX, startY, endY, baseQColor, Qt::SolidPattern );
         m_combinedComponentGroup.addPlotItem( backgroundShape );
 
         if ( endX >= 0.0 )
@@ -521,7 +570,7 @@ cvf::Color4f RiuWellPathComponentPlotItem::componentColor( float alpha /*= 1.0*/
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuWellPathComponentPlotItem::xValueRange( double* minimumValue, double* maximumValue ) const
+bool RiuWellPathComponentPlotItem::propertyValueRange( double* minimumValue, double* maximumValue ) const
 {
     CVF_ASSERT( minimumValue && maximumValue );
     *maximumValue = 1.0;
@@ -532,7 +581,7 @@ bool RiuWellPathComponentPlotItem::xValueRange( double* minimumValue, double* ma
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RiuWellPathComponentPlotItem::yValueRange( double* minimumValue, double* maximumValue ) const
+bool RiuWellPathComponentPlotItem::depthValueRange( double* minimumValue, double* maximumValue ) const
 {
     CVF_ASSERT( minimumValue && maximumValue );
 
@@ -558,6 +607,14 @@ void RiuWellPathComponentPlotItem::setShowLabel( bool showLabel )
 void RiuWellPathComponentPlotItem::setDepthType( RimWellLogPlot::DepthTypeEnum depthType )
 {
     m_depthType = depthType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellPathComponentPlotItem::setDepthOrientation( RimWellLogPlot::DepthOrientation depthOrientation )
+{
+    m_depthOrientation = depthOrientation;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -597,6 +654,18 @@ void RiuWellPathComponentPlotItem::attachToQwt()
     if ( m_parentQwtPlot )
     {
         m_combinedComponentGroup.attach( m_parentQwtPlot );
+
+        auto riuAxis = RimDepthTrackPlot::annotationAxis( m_depthOrientation );
+        auto qwtAxis = RiuQwtPlotTools::toQwtPlotAxisEnum( riuAxis.axis() );
+
+        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::VERTICAL )
+        {
+            m_combinedComponentGroup.setXAxis( qwtAxis );
+        }
+        else
+        {
+            m_combinedComponentGroup.setYAxis( qwtAxis );
+        }
     }
 }
 
