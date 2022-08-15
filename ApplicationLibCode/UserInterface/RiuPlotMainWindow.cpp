@@ -84,6 +84,7 @@
 RiuPlotMainWindow::RiuPlotMainWindow()
     : m_activePlotViewWindow( nullptr )
     , m_selection3DLinkEnabled( false )
+    , m_toggleSelectionLinkAction( nullptr )
 {
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
@@ -92,6 +93,12 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     widget->setWidget( m_mdiArea );
     auto dockArea = dockManager()->setCentralWidget( widget );
     dockArea->setVisible( true );
+
+    m_toggleSelectionLinkAction = new QAction( QIcon( ":/Link3DandPlots.png" ), tr( "Link With Selection in 3D" ), this );
+    m_toggleSelectionLinkAction->setToolTip( "Update wells used in plots from well selections in 3D view." );
+    m_toggleSelectionLinkAction->setCheckable( true );
+    m_toggleSelectionLinkAction->setChecked( m_selection3DLinkEnabled );
+    connect( m_toggleSelectionLinkAction, SIGNAL( triggered() ), SLOT( slotToggleSelectionLink() ) );
 
     createMenus();
     createToolBars();
@@ -426,7 +433,6 @@ QStringList RiuPlotMainWindow::toolbarCommandIds( const QString& toolbarName )
     if ( toolbarName.isEmpty() || toolbarName == "View" )
     {
         commandIds << "RicViewZoomAllFeature";
-        commandIds << "RicToggle3DSelectionLinkFeature";
     }
 
     return commandIds;
@@ -455,6 +461,10 @@ void RiuPlotMainWindow::createToolBars()
         for ( QString s : toolbarCommands )
         {
             toolbar->addAction( cmdFeatureMgr->action( s ) );
+        }
+        if ( toolbarName == "View" )
+        {
+            toolbar->addAction( m_toggleSelectionLinkAction );
         }
     }
 
@@ -1187,4 +1197,12 @@ void RiuPlotMainWindow::enable3DSelectionLink( bool enable )
 bool RiuPlotMainWindow::selection3DLinkEnabled()
 {
     return m_selection3DLinkEnabled;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindow::slotToggleSelectionLink()
+{
+    m_selection3DLinkEnabled = !m_selection3DLinkEnabled;
 }

@@ -57,6 +57,7 @@
 #include "RiuSummaryMultiPlotBook.h"
 #include "RiuSummaryVectorSelectionUi.h"
 
+#include "cafPdmUiCheckBoxEditor.h"
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiPushButtonEditor.h"
 #include "cafPdmUiTreeOrdering.h"
@@ -143,8 +144,13 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_appendPrevCurve.uiCapability()->setUiIconFromResourceString( ":/AppendPrevCurve.png" );
 
     CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Sub Plot Axes" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkSubPlotAxes );
     CAF_PDM_InitField( &m_linkTimeAxis, "LinkTimeAxis", true, "Link Time Axis" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkTimeAxis );
     CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Adjust Appearance" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoAdjustAppearance );
+    CAF_PDM_InitField( &m_allow3DSelectionLink, "Allow3DSelectionLink", true, "Allow Well Selection from 3D View" );
+    caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_allow3DSelectionLink );
 
     CAF_PDM_InitFieldNoDefault( &m_axisRangeAggregation, "AxisRangeAggregation", "Axis Range Control" );
 
@@ -398,6 +404,9 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
     dataSourceGroup->setCollapsedByDefault( true );
     m_sourceStepping()->uiOrdering( uiConfigName, *dataSourceGroup );
+
+    if ( m_sourceStepping->stepDimension() == SourceSteppingDimension::WELL )
+        dataSourceGroup->add( &m_allow3DSelectionLink );
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
     titlesGroup->setCollapsedByDefault( true );
@@ -1495,6 +1504,7 @@ void RimSummaryMultiPlot::updateStepDimensionFromDefault()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::selectWell( QString wellName )
 {
+    if ( !m_allow3DSelectionLink ) return;
     if ( m_sourceStepping->stepDimension() != SourceSteppingDimension::WELL ) return;
     m_sourceStepping->setStep( wellName );
 }

@@ -46,7 +46,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryMultiPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubPlotCtxFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotCtxFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicToggle3DSelectionLinkFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -97,7 +96,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryMultiPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubPlotCtxFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotCtxFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicToggle3DSelectionLinkFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

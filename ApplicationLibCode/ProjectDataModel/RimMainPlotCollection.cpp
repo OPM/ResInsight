@@ -400,6 +400,11 @@ void RimMainPlotCollection::updateSelectedWell( QString wellName )
     {
         plot->selectWell( wellName );
     }
+
+    for ( auto plot : wellLogPlotCollection()->wellLogPlots() )
+    {
+        plot->selectWell( wellName );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

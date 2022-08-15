@@ -121,6 +121,7 @@ private:
     static QStringList toolbarCommandIds( const QString& toolbarName = "" );
 
 private slots:
+    void slotToggleSelectionLink();
 
     friend class RiuMdiSubWindow;
 
@@ -132,8 +133,6 @@ private slots:
     void customMenuRequested( const QPoint& pos );
 
 private:
-    // TODO: create selection sync action and add it to view toolbar, replaces RicToggle3DSelectionLinkFeature
-
     caf::PdmPointer<RimViewWindow> m_activePlotViewWindow;
     QPointer<RiuMessagePanel>      m_messagePanel;
 
@@ -150,5 +149,6 @@ private:
 
     std::vector<QWidget*> m_temporaryWidgets;
 
-    bool m_selection3DLinkEnabled;
+    QAction* m_toggleSelectionLinkAction;
+    bool     m_selection3DLinkEnabled;
 };

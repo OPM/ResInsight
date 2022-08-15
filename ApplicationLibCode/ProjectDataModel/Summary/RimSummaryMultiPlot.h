@@ -156,6 +156,7 @@ private:
     caf::PdmField<bool> m_linkSubPlotAxes;
     caf::PdmField<bool> m_linkTimeAxis;
     caf::PdmField<bool> m_autoAdjustAppearance;
+    caf::PdmField<bool> m_allow3DSelectionLink;
 
     caf::PdmField<bool>   m_hidePlotsWithValuesBelow;
     caf::PdmField<double> m_plotFilterYAxisThreshold;

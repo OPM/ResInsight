@@ -80,6 +80,8 @@ public:
     int     timeStepToApply() const;
     void    setTimeStepToApply( int val );
 
+    void selectSimWell( QString wellName );
+
     void resetDefaultOptions();
     void analyseCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
     void analyseCurvesAndTracks();
@@ -116,6 +118,7 @@ private:
     caf::PdmField<int>                m_trajectoryType;
     caf::PdmPtrField<RimWellPath*>    m_wellPath;
     caf::PdmField<QString>            m_simWellName;
+    caf::PdmField<bool>               m_allow3DSelectionLink;
     caf::PdmField<int>                m_branchIndex;
     caf::PdmField<caf::Tristate>      m_branchDetection;
     caf::PdmField<int>                m_timeStep;

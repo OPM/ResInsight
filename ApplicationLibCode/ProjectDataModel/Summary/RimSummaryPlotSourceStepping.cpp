@@ -1198,27 +1198,19 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
     switch ( m_stepDimension() )
     {
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
-            oldVal       = m_wellName;
-            m_wellName   = stepIdentifier;
-            fieldChanged = &m_wellName;
+            m_wellName.setValueWithFieldChanged( stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP:
-            oldVal       = m_groupName;
-            m_groupName  = stepIdentifier;
-            fieldChanged = &m_groupName;
+            m_groupName.setValueWithFieldChanged( stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR:
-            oldVal       = m_vectorName;
-            m_vectorName = stepIdentifier;
-            fieldChanged = &m_vectorName;
+            m_vectorName.setValueWithFieldChanged( stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK:
-            oldVal       = m_cellBlock;
-            m_cellBlock  = stepIdentifier;
-            fieldChanged = &m_cellBlock;
+            m_cellBlock.setValueWithFieldChanged( stepIdentifier );
             break;
 
         case RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER:
@@ -1229,8 +1221,6 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
             CAF_ASSERT( false ); // not supported for these dimensions, yet
             return;
     }
-
-    fieldChanged->uiCapability()->notifyFieldChanged( QVariant( oldVal ), QVariant( stepIdentifier ) );
 }
 
 //--------------------------------------------------------------------------------------------------
