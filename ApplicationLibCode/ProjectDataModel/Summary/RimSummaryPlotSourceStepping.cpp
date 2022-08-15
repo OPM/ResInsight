@@ -1192,9 +1192,6 @@ void RimSummaryPlotSourceStepping::setStep( QString stepIdentifier )
 {
     if ( std::count( m_cachedIdentifiers.begin(), m_cachedIdentifiers.end(), stepIdentifier ) == 0 ) return;
 
-    caf::PdmField<QString>* fieldChanged = nullptr;
-    QString                 oldVal;
-
     switch ( m_stepDimension() )
     {
         case RimSummaryDataSourceStepping::SourceSteppingDimension::WELL:
