@@ -79,3 +79,11 @@ RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
     RimDepthTrackPlot::operator=( std::move( rhs ) );
     return *this;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogPlot::selectWell( QString wellName )
+{
+    if ( m_commonDataSourceEnabled ) m_commonDataSource->selectSimWell( wellName );
+}

@@ -88,6 +88,7 @@ public:
     void ensureDefaultFlowPlotsAreCreated();
     void ensureCalculationIdsAreAssigned();
     void loadDataAndUpdateAllPlots();
+    void updateSelectedWell( QString wellName );
 
 protected:
     void initAfterRead() override;

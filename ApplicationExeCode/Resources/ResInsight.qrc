@@ -269,6 +269,7 @@
         <file>AppendNextCurve.png</file>
         <file>AppendPrevCurve.png</file>
         <file>CheckOverlay16x16.png</file>
+	    <file>Link3DandPlots.png</file>
     </qresource>
     <qresource prefix="/Shader">
         <file>fs_CellFace.glsl</file>
