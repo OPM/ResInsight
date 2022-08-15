@@ -61,6 +61,18 @@ RiuQwtSymbol::RiuQwtSymbol( PointSymbolEnum riuStyle, const QString& label, Labe
         case SYMBOL_DOWN_TRIANGLE:
             style = QwtSymbol::DTriangle;
             break;
+        case SYMBOL_DOWN_ALIGNED_TRIANGLE:
+            style = QwtSymbol::Path;
+            {
+                QPainterPath path;
+                path.moveTo( 0, 0 );
+                path.lineTo( 0, -10 );
+                path.lineTo( -10, -10 );
+                path.lineTo( 0, 0 );
+                setPath( path );
+                setPinPoint( QPointF( 0, -10 ) );
+            }
+            break;
         case SYMBOL_LEFT_ALIGNED_TRIANGLE:
             style = QwtSymbol::Path;
             {

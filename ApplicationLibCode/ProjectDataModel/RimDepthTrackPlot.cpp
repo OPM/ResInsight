@@ -1222,10 +1222,17 @@ RimDepthTrackPlot::DepthOrientation RimDepthTrackPlot::depthOrientation() const
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimDepthTrackPlot::depthAxis() const
 {
-    if ( m_depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-        return RiuPlotAxis::defaultLeft();
-    else
-        return RiuPlotAxis::defaultBottom();
+    return depthAxis( m_depthOrientation() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimDepthTrackPlot::depthAxis( DepthOrientation depthOrientation )
+{
+    if ( depthOrientation == RimDepthTrackPlot::DepthOrientation::VERTICAL ) return RiuPlotAxis::defaultLeft();
+
+    return RiuPlotAxis::defaultBottom();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1233,10 +1240,37 @@ RiuPlotAxis RimDepthTrackPlot::depthAxis() const
 //--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimDepthTrackPlot::valueAxis() const
 {
-    if ( m_depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-        return RiuPlotAxis::defaultTop();
-    else
-        return RiuPlotAxis::defaultLeft();
+    return valueAxis( m_depthOrientation() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimDepthTrackPlot::valueAxis( DepthOrientation depthOrientation )
+{
+    if ( depthOrientation == RimDepthTrackPlot::DepthOrientation::VERTICAL ) return RiuPlotAxis::defaultTop();
+
+    return RiuPlotAxis::defaultLeft();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimDepthTrackPlot::annotationAxis() const
+{
+    return annotationAxis( m_depthOrientation() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuPlotAxis RimDepthTrackPlot::annotationAxis( DepthOrientation depthOrientation )
+{
+    auto riuAxis = valueAxis( depthOrientation );
+
+    auto oppositeAxis = RiaDefines::opposite( riuAxis.axis() );
+
+    return RiuPlotAxis( oppositeAxis );
 }
 
 //--------------------------------------------------------------------------------------------------

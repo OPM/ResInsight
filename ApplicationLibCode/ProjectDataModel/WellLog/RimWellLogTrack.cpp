@@ -452,7 +452,7 @@ void RimWellLogTrack::calculateDepthZoomRange()
         {
             double minObjectDepth = HUGE_VAL;
             double maxObjectDepth = -HUGE_VAL;
-            if ( plotObject->yValueRange( &minObjectDepth, &maxObjectDepth ) )
+            if ( plotObject->depthValueRange( &minObjectDepth, &maxObjectDepth ) )
             {
                 if ( minObjectDepth < minDepth )
                 {
@@ -522,7 +522,7 @@ void RimWellLogTrack::updatePropertyValueZoom()
     {
         m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), componentRangeMin, componentRangeMax );
     }
-    else if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    else
     {
         m_plotWidget->setAxisRange( RiuPlotAxis::defaultRight(), componentRangeMin, componentRangeMax );
     }
@@ -3258,11 +3258,13 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
 
         RimDepthTrackPlot* wellLogPlot;
         this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
-        RimWellLogPlot::DepthTypeEnum depthType = wellLogPlot->depthType();
+        RimWellLogPlot::DepthTypeEnum depthType        = wellLogPlot->depthType();
+        auto                          depthOrientation = wellLogPlot->depthOrientation();
 
         for ( auto& attributePlotObject : m_wellPathAttributePlotObjects )
         {
             attributePlotObject->setDepthType( depthType );
+            attributePlotObject->setDepthOrientation( depthOrientation );
             attributePlotObject->setShowLabel( m_showWellPathComponentLabels() );
             attributePlotObject->loadDataAndUpdate( false );
             attributePlotObject->setParentPlotNoReplot( m_plotWidget->qwtPlot() );
