@@ -25,9 +25,9 @@ TEST(OpmParserTest, ReadFromFile)
 
     {
         Parser parser(false);
-		const ::Opm::ParserKeywords::VFPPROD kw1;
+        const ::Opm::ParserKeywords::VFPPROD kw1;
 
-		parser.addParserKeyword(kw1);
+        parser.addParserKeyword(kw1);
 
         std::stringstream ss;
         ss << TEST_DATA_DIR << "/B1BH.Ecl";
@@ -51,12 +51,12 @@ TEST(OpmParserTest, ReadFromFile)
         }
     }
     {
-		Parser parser(false);
-		const ::Opm::ParserKeywords::VFPINJ kw1;
-		const ::Opm::ParserKeywords::VFPIDIMS kw2;
+        Parser parser(false);
+        const ::Opm::ParserKeywords::VFPINJ kw1;
+        const ::Opm::ParserKeywords::VFPIDIMS kw2;
 
-		parser.addParserKeyword(kw1);
-		parser.addParserKeyword(kw2);
+        parser.addParserKeyword(kw1);
+        parser.addParserKeyword(kw2);
 
         std::stringstream ss;
         ss << TEST_DATA_DIR << "/C1H.Ecl";
@@ -106,7 +106,7 @@ TEST(OpmParserTest, ReadAndParseWSEGLINK)
         for (size_t i = 0; i < kw->size(); i++)
         {
             auto deckRecord = kw->getRecord(i);
-			
+            
             std::string wellName;
             int segment1 = -1;
             int segment2 = -1;
@@ -115,25 +115,25 @@ TEST(OpmParserTest, ReadAndParseWSEGLINK)
                 auto itemName = ::Opm::ParserKeywords::WSEGLINK::WELL::itemName;
                 if (deckRecord.hasItem(itemName) && deckRecord.getItem(itemName).hasValue(0))
                 {
-				    wellName = deckRecord.getItem(itemName).getTrimmedString(0);
+                    wellName = deckRecord.getItem(itemName).getTrimmedString(0);
                 }
             }
-			{
-				auto itemName = ::Opm::ParserKeywords::WSEGLINK::SEGMENT1::itemName;
-				if (deckRecord.hasItem(itemName) && deckRecord.getItem(itemName).hasValue(0))
-				{
-					segment1 = deckRecord.getItem(itemName).get<int>(0);
-				}
-			}
-			{
-				auto itemName = ::Opm::ParserKeywords::WSEGLINK::SEGMENT2::itemName;
-				if (deckRecord.hasItem(itemName) && deckRecord.getItem(itemName).hasValue(0))
-				{
-					segment2 = deckRecord.getItem(itemName).get<int>(0);
-				}
-			}
-				
-			std::cout << wellName << " " << segment1 << " " << segment2 << std::endl;
+            {
+                auto itemName = ::Opm::ParserKeywords::WSEGLINK::SEGMENT1::itemName;
+                if (deckRecord.hasItem(itemName) && deckRecord.getItem(itemName).hasValue(0))
+                {
+                    segment1 = deckRecord.getItem(itemName).get<int>(0);
+                }
+            }
+            {
+                auto itemName = ::Opm::ParserKeywords::WSEGLINK::SEGMENT2::itemName;
+                if (deckRecord.hasItem(itemName) && deckRecord.getItem(itemName).hasValue(0))
+                {
+                    segment2 = deckRecord.getItem(itemName).get<int>(0);
+                }
+            }
+                
+            std::cout << wellName << " " << segment1 << " " << segment2 << std::endl;
         }
     }
 }
