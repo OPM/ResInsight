@@ -872,7 +872,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
             {
                 bool allowActiveViewChange = dynamic_cast<Rim2dIntersectionView*>( m_viewer->ownerViewWindow() ) == nullptr;
 
-                RiuPlotMainWindow::wellSelected( eclipseWellSourceInfo->well()->name() );
+                RiuPlotMainWindow::onWellSelected( eclipseWellSourceInfo->well()->name() );
                 RiuMainWindow::instance()->selectAsCurrentItem( eclipseWellSourceInfo->well(), allowActiveViewChange );
             }
             else if ( wellConnectionSourceInfo )
