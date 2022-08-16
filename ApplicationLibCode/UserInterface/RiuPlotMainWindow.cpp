@@ -147,7 +147,7 @@ RiuPlotMainWindow* RiuPlotMainWindow::instance()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::wellSelected( QString wellName )
+void RiuPlotMainWindow::onWellSelected( QString wellName )
 {
     RiuPlotMainWindow* plotWnd = instance();
     if ( !plotWnd ) return;
