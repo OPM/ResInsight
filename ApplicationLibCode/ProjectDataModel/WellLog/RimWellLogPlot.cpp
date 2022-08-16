@@ -85,5 +85,5 @@ RimWellLogPlot& RimWellLogPlot::operator=( RimWellLogPlot&& rhs )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogPlot::selectWell( QString wellName )
 {
-    if ( m_commonDataSourceEnabled ) m_commonDataSource->selectSimWell( wellName );
+    if ( m_commonDataSourceEnabled ) m_commonDataSource->selectWell( wellName );
 }
