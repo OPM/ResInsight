@@ -28,7 +28,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-class RimVfpTableExtractor
+class RiaOpmParserTools
 {
 public:
     static std::vector<Opm::VFPInjTable>  extractVfpInjectionTables( const std::string& filename );

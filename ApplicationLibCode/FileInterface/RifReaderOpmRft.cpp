@@ -23,7 +23,7 @@
 #include "RiaRftDefines.h"
 #include "RiaStdStringTools.h"
 
-#include "RimVfpTableExtractor.h"
+#include "RiaOpmParserTools.h"
 
 #include "opm/input/eclipse/Parser/Parser.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
@@ -276,7 +276,7 @@ void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::readWseglink( const std::string& filePath )
 {
-    m_wseglink = RimVfpTableExtractor::extractWseglink( filePath );
+    m_wseglink = RiaOpmParserTools::extractWseglink( filePath );
 }
 
 //--------------------------------------------------------------------------------------------------

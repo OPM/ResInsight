@@ -110,7 +110,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.h
     ${CMAKE_CURRENT_LIST_DIR}/RimAbstractPlotCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimPolylinePickerInterface.h
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaOpmParserTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.h
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.h
@@ -238,7 +238,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimColorLegend.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimColorLegendItem.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RimVfpTableExtractor.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaOpmParserTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCaseDisplayNameTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunctionCollection.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RimCustomObjectiveFunction.cpp
