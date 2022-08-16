@@ -76,6 +76,7 @@ public:
                                                                bool             showPlotWindow = true );
 
     static RimWellLogCurve* addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
+    static RimWellLogCurve* addSummaryRftSegmentCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
 
 private:
     template <typename ExtractionCurveType>

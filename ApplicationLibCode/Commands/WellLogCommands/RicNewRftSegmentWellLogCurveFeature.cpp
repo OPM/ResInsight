@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewRftWellLogCurveFeature.h"
+#include "RicNewRftSegmentWellLogCurveFeature.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
@@ -42,12 +42,12 @@
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT( RicNewRftWellLogCurveFeature, "RicNewRftWellLogCurveFeature" );
+CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogCurveFeature, "RicNewRftSegmentWellLogCurveFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRftWellLogCurveFeature::isCommandEnabled()
+bool RicNewRftSegmentWellLogCurveFeature::isCommandEnabled()
 {
     return true;
 }
@@ -55,7 +55,7 @@ bool RicNewRftWellLogCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftWellLogCurveFeature::onActionTriggered( bool isChecked )
+void RicNewRftSegmentWellLogCurveFeature::onActionTriggered( bool isChecked )
 {
     auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
     if ( !rftCase ) return;
@@ -71,7 +71,7 @@ void RicNewRftWellLogCurveFeature::onActionTriggered( bool isChecked )
 
     plot->loadDataAndUpdate();
 
-    auto curve = RicWellLogTools::addSummaryRftCurve( plotTrack, summaryCase );
+    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, summaryCase );
     curve->loadDataAndUpdate( true );
 
     curve->updateAllRequiredEditors();
@@ -85,8 +85,8 @@ void RicNewRftWellLogCurveFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftWellLogCurveFeature::setupActionLook( QAction* actionToSetup )
+void RicNewRftSegmentWellLogCurveFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Append RFT Well Log Curve" );
+    actionToSetup->setText( "Append RFT Segment Curve" );
     actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }

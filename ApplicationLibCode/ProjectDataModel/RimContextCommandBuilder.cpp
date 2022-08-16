@@ -1074,6 +1074,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimRftCase*>( firstUiItem ) )
         {
             menuBuilder << "RicNewRftWellLogCurveFeature";
+            menuBuilder << "RicNewRftSegmentWellLogCurveFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
