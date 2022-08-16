@@ -29,6 +29,7 @@ class RiaThreadSafeLogger;
 class RifOpmCommonEclipseSummary;
 class RifEclipseSummaryAddress;
 class RifMultipleSummaryReaders;
+class RimRftCase;
 
 //==================================================================================================
 //
@@ -66,12 +67,14 @@ protected:
                                 QString                    uiConfigName,
                                 caf::PdmUiEditorAttribute* attribute ) override;
 
+    void defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName = "" ) override;
+
 private:
     void           openAndAttachAdditionalReader();
     QString        additionalSummaryDataFilePath() const;
     static QString createAdditionalSummaryFileName();
 
-    static RifReaderOpmRft* findRftDataAndCreateReader( const QString& headerFileName );
+    static RifReaderOpmRft* findRftDataAndCreateReader( const QString& rftFileName, const QString& dataDeckFileName );
 
 private:
     cvf::ref<RifSummaryReaderInterface> m_fileSummaryReader;
@@ -81,4 +84,6 @@ private:
 
     caf::PdmField<caf::FilePath>         m_additionalSummaryFilePath;
     cvf::ref<RifOpmCommonEclipseSummary> m_additionalSummaryFileReader;
+
+    caf::PdmChildField<RimRftCase*> m_rftCase;
 };

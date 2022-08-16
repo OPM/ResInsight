@@ -152,6 +152,62 @@ std::vector<int> RifRftSegment::branchIds() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::set<int> RifRftSegment::oneBasedBranchIndices() const
+{
+    std::set<int> indices;
+
+    for ( auto b : m_oneBasedBranchIndexMap )
+    {
+        indices.insert( b.second );
+    }
+
+    return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifRftSegment::oneBasedBranchIndexForBranchId( int branchId ) const
+{
+    if ( m_oneBasedBranchIndexMap.count( branchId ) > 0 ) return m_oneBasedBranchIndexMap.at( branchId );
+
+    return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RifRftSegmentData* RifRftSegment::segmentData( int segmentNumber ) const
+{
+    for ( const auto& segData : m_topology )
+    {
+        if ( segData.segNo() == segmentNumber ) return &segData;
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifRftSegment::createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex )
+{
+    for ( auto& segData : m_topology )
+    {
+        if ( segData.segNo() < deviceBranchFirstSegmentNumber ) continue;
+
+        auto branchNumber = segData.segBrno();
+        if ( branchType( branchNumber ) != RiaDefines::RftBranchType::RFT_UNKNOWN ) return;
+
+        setOneBasedBranchIndex( segData.segBrno(), oneBasedBranchIndex );
+
+        setBranchType( segData.segBrno(), RiaDefines::RftBranchType::RFT_DEVICE );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifRftSegment::setBranchLength( int branchId, double length )
 {
     m_branchLength[branchId] = length;
@@ -168,6 +224,24 @@ void RifRftSegment::setBranchType( int branchId, RiaDefines::RftBranchType branc
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RifRftSegment::setOneBasedBranchIndex( int branchId, int oneBasedBranchIndex )
+{
+    m_oneBasedBranchIndexMap[branchId] = oneBasedBranchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::RftBranchType RifRftSegment::branchType( int branchId ) const
+{
+    if ( m_branchType.count( branchId ) ) return m_branchType.at( branchId );
+
+    return RiaDefines::RftBranchType::RFT_UNKNOWN;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<size_t> RifRftSegment::indicesForBranchNumber( int branchNumber ) const
 {
     std::vector<size_t> v;
@@ -177,6 +251,35 @@ std::vector<size_t> RifRftSegment::indicesForBranchNumber( int branchNumber ) co
         if ( branchNumber <= 0 || segment.segBrno() == branchNumber )
         {
             v.push_back( i );
+        }
+    }
+
+    return v;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<size_t> RifRftSegment::indicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const
+{
+    std::vector<size_t> v;
+    for ( size_t i = 0; i < m_topology.size(); i++ )
+    {
+        if ( branchIndex <= 0 )
+        {
+            v.push_back( i );
+            continue;
+        }
+
+        auto segment = m_topology[i];
+
+        auto it = m_oneBasedBranchIndexMap.find( segment.segBrno() );
+        if ( it != m_oneBasedBranchIndexMap.end() )
+        {
+            if ( it->second == branchIndex && m_branchType.at( segment.segBrno() ) == branchType )
+            {
+                v.push_back( i );
+            }
         }
     }
 

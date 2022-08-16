@@ -18,12 +18,14 @@
 
 #pragma once
 
+#include "RiaRftDefines.h"
+
+#include "opm/io/eclipse/EclFile.hpp"
+
+#include <set>
 #include <string>
 #include <tuple>
 #include <vector>
-
-#include "RiaRftDefines.h"
-#include "opm/io/eclipse/EclFile.hpp"
 
 class RifRftSegmentData
 {
@@ -53,13 +55,22 @@ public:
     void addResultNameAndSize( const Opm::EclIO::EclFile::EclEntry& resultNameAndSize );
     std::vector<Opm::EclIO::EclFile::EclEntry> resultNameAndSize() const;
 
-    std::vector<int> tubingBranchIds() const;
-    std::vector<int> branchIds() const;
+    std::vector<int>         tubingBranchIds() const;
+    std::vector<int>         branchIds() const;
+    std::set<int>            oneBasedBranchIndices() const;
+    int                      oneBasedBranchIndexForBranchId( int branchId ) const;
+    const RifRftSegmentData* segmentData( int segmentNumber ) const;
+
+    void createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex );
 
     void setBranchLength( int branchId, double length );
     void setBranchType( int branchId, RiaDefines::RftBranchType branchType );
+    void setOneBasedBranchIndex( int branchId, int oneBasedBranchIndex );
+
+    RiaDefines::RftBranchType branchType( int branchId ) const;
 
     std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
+    std::vector<size_t> indicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
 
 private:
     std::vector<RifRftSegmentData>             m_topology;
@@ -67,4 +78,5 @@ private:
 
     std::map<int, double>                    m_branchLength;
     std::map<int, RiaDefines::RftBranchType> m_branchType;
+    std::map<int, int>                       m_oneBasedBranchIndexMap;
 };
