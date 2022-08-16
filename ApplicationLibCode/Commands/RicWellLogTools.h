@@ -34,6 +34,8 @@ class RimWellLogTrack;
 class RimWellLogWbsCurve;
 class RimWellPath;
 class RimWellMeasurementCurve;
+class RimSummaryCase;
+class RimWellLogCurve;
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -72,6 +74,8 @@ public:
                                                                RimWellPath*     wellPath,
                                                                const QString&   measurementName,
                                                                bool             showPlotWindow = true );
+
+    static RimWellLogCurve* addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
 
 private:
     template <typename ExtractionCurveType>

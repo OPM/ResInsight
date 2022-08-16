@@ -469,6 +469,34 @@ RimWellLogExtractionCurve* RicWellLogTools::addWellLogExtractionCurve( RimWellLo
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellLogCurve* RicWellLogTools::addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase )
+{
+    auto curve = new RimWellLogRftCurve();
+
+    curve->setSummaryCase( rimCase );
+    auto rftReader = rimCase->rftReader();
+
+    QString wellName;
+    auto    wellNames = rftReader->wellNames();
+    if ( !wellNames.empty() ) wellName = *wellNames.begin();
+
+    QDateTime dateTime;
+
+    auto timeSteps = rftReader->availableTimeSteps( wellName );
+    if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
+
+    RifEclipseRftAddress adr =
+        RifEclipseRftAddress::createAddress( wellName, dateTime, RifEclipseRftAddress::RftWellLogChannelType::PRESSURE );
+    curve->setRftAddress( adr );
+
+    plotTrack->addCurve( curve );
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellLogWbsCurve* RicWellLogTools::addWellLogWbsCurve( RimWellLogTrack* plotTrack,
                                                          RimCase*         rimCase,
                                                          Rim3dView*       view,
