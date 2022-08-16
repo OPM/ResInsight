@@ -35,6 +35,7 @@
 #include "RimWellPathValve.h"
 
 #include "RiuMainWindow.h"
+#include "RiuPlotMainWindow.h"
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 #include "RivObjectSourceInfo.h"
@@ -230,6 +231,8 @@ bool RicWellPathPickEventHandler::handle3dPickEvent( const Ric3dPickEvent& event
         wellPathText += formattedText;
 
         RiuMainWindow::instance()->setResultInfo( wellPathText );
+
+        RiuPlotMainWindow::onWellSelected( wellPathSourceInfo->wellPath()->name() );
 
         if ( objectToSelect )
         {

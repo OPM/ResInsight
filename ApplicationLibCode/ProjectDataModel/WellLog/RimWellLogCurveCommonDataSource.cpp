@@ -1151,17 +1151,39 @@ RifReaderRftInterface* RimWellLogCurveCommonDataSource::rftReader()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogCurveCommonDataSource::selectSimWell( QString wellName )
+void RimWellLogCurveCommonDataSource::selectWell( QString wellName )
 {
     if ( !m_allow3DSelectionLink() ) return;
 
-    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
-    if ( eclipseCase )
+    if ( m_trajectoryType() == RimWellLogExtractionCurve::WELL_PATH )
     {
-        std::set<QString> sortedWellNames = eclipseCase->sortedSimWellNames();
-        if ( std::count( sortedWellNames.begin(), sortedWellNames.end(), wellName ) > 0 )
+        QList<caf::PdmOptionItemInfo> options;
+        RimTools::wellPathOptionItems( &options );
+
+        for ( auto& opt : options )
         {
-            m_simWellName.setValueWithFieldChanged( wellName );
+            if ( opt.optionUiText() == wellName )
+            {
+                QVariant     oldPath = m_wellPath.toQVariant();
+                RimWellPath* wellPath =
+                    RimProject::current()->activeOilField()->wellPathCollection->wellPathByName( wellName );
+
+                m_wellPath = wellPath;
+                m_wellPath.uiCapability()->notifyFieldChanged( oldPath, opt.value() );
+                break;
+            }
+        }
+    }
+    else if ( m_trajectoryType() == RimWellLogExtractionCurve::SIMULATION_WELL )
+    {
+        auto* eclipseCase = dynamic_cast<RimEclipseCase*>( m_case() );
+        if ( eclipseCase )
+        {
+            std::set<QString> sortedWellNames = eclipseCase->sortedSimWellNames();
+            if ( std::count( sortedWellNames.begin(), sortedWellNames.end(), wellName ) > 0 )
+            {
+                m_simWellName.setValueWithFieldChanged( wellName );
+            }
         }
     }
 }
