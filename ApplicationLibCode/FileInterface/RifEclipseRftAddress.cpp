@@ -58,11 +58,11 @@ RifEclipseRftAddress RifEclipseRftAddress::createAddress( const QString&        
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString&            wellName,
-                                                                 const QDateTime&          dateTime,
-                                                                 const QString&            resultName,
-                                                                 int                       segmentBranchIndex,
-                                                                 RiaDefines::RftBranchType segmentBranchType )
+RifEclipseRftAddress RifEclipseRftAddress::createBranchSegmentAddress( const QString&            wellName,
+                                                                       const QDateTime&          dateTime,
+                                                                       const QString&            resultName,
+                                                                       int                       segmentBranchIndex,
+                                                                       RiaDefines::RftBranchType segmentBranchType )
 {
     auto adr = RifEclipseRftAddress( wellName,
                                      dateTime,
@@ -70,6 +70,23 @@ RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString& 
                                      resultName,
                                      segmentBranchIndex,
                                      segmentBranchType );
+
+    return adr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifEclipseRftAddress RifEclipseRftAddress::createSegmentAddress( const QString&   wellName,
+                                                                 const QDateTime& dateTime,
+                                                                 const QString&   resultName )
+{
+    auto adr = RifEclipseRftAddress( wellName,
+                                     dateTime,
+                                     RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES,
+                                     resultName,
+                                     -1,
+                                     RiaDefines::RftBranchType::RFT_UNKNOWN );
 
     return adr;
 }

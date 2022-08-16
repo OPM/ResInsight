@@ -154,9 +154,7 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIndexOptions( RifReaderR
 
         auto adr = RifEclipseRftAddress::createSegmentAddress( wellName,
                                                                timeStep,
-                                                               RiaDefines::segmentOneBasedBranchIndexResultName(),
-                                                               -1,
-                                                               RiaDefines::RftBranchType::RFT_UNKNOWN );
+                                                               RiaDefines::segmentOneBasedBranchIndexResultName() );
 
         readerRft->values( adr, &values );
         for ( const auto& v : values )
