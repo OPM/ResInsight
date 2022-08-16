@@ -107,7 +107,8 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
 
     CAF_PDM_InitFieldNoDefault( &m_rftTimeStep, "RftTimeStep", "RFT Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_rftWellName, "RftWellName", "RFT Well Name" );
-    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchId, "SegmentBranchId", "RFT Segment Branch" );
+    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchIndex, "SegmentBranchIndex", "RFT Branch" );
+    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchType, "SegmentBranchType", "RFT Branch Type" );
 
     m_case     = nullptr;
     m_wellPath = nullptr;
@@ -310,7 +311,8 @@ void RimWellLogCurveCommonDataSource::resetDefaultOptions()
 
     m_uniqueRftTimeSteps.clear();
     m_uniqueRftWellNames.clear();
-    m_uniqueRftBranchIds.clear();
+    m_uniqueRftBranchIndices.clear();
+    m_uniqueRftBranchTypes.clear();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -390,7 +392,8 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
             {
                 m_uniqueRftWellNames.insert( adr.wellName() );
                 m_uniqueRftTimeSteps.insert( adr.timeStep() );
-                m_uniqueRftBranchIds.insert( adr.segmentBranchNumber() );
+                m_uniqueRftBranchIndices.insert( adr.segmentBranchIndex() );
+                m_uniqueRftBranchTypes.insert( adr.segmentBranchType() );
             }
         }
     }
@@ -479,10 +482,17 @@ void RimWellLogCurveCommonDataSource::analyseCurvesAndTracks( const std::vector<
         m_rftTimeStep = *( m_uniqueRftTimeSteps.begin() );
     }
 
-    if ( m_uniqueRftBranchIds.size() == 1u )
+    if ( m_uniqueRftBranchIndices.size() == 1u )
     {
-        m_rftSegmentBranchId = *( m_uniqueRftBranchIds.begin() );
+        m_rftSegmentBranchIndex = *( m_uniqueRftBranchIndices.begin() );
     }
+
+    if ( m_uniqueRftBranchTypes.size() == 1u )
+    {
+        m_rftSegmentBranchType = *( m_uniqueRftBranchTypes.begin() );
+    }
+    else
+        m_rftSegmentBranchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -616,9 +626,13 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
         }
         else if ( rftCurve )
         {
+            if ( m_summaryCase() ) rftCurve->setSummaryCase( m_summaryCase() );
             rftCurve->setTimeStep( m_rftTimeStep() );
             rftCurve->setWellName( m_rftWellName() );
-            rftCurve->setSegmentBranchId( m_rftSegmentBranchId() );
+            rftCurve->setSegmentBranchIndex( m_rftSegmentBranchIndex() );
+
+            if ( m_rftSegmentBranchType() != RiaDefines::RftBranchType::RFT_UNKNOWN )
+                rftCurve->setSegmentBranchType( m_rftSegmentBranchType() );
 
             RimWellLogPlot* parentPlot = nullptr;
             rftCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
@@ -794,7 +808,8 @@ std::vector<caf::PdmFieldHandle*> RimWellLogCurveCommonDataSource::fieldsToShowI
     if ( m_uniqueRftWellNames.size() == 1u ) fieldsToDisplay.push_back( &m_rftWellName );
     if ( m_uniqueTimeSteps.size() == 1u ) fieldsToDisplay.push_back( &m_timeStep );
     if ( m_uniqueRftTimeSteps.size() == 1u ) fieldsToDisplay.push_back( &m_rftTimeStep );
-    if ( m_uniqueRftBranchIds.size() == 1u ) fieldsToDisplay.push_back( &m_rftSegmentBranchId );
+    if ( m_uniqueRftBranchIndices.size() == 1u ) fieldsToDisplay.push_back( &m_rftSegmentBranchIndex );
+    if ( m_uniqueRftBranchTypes.size() == 1u ) fieldsToDisplay.push_back( &m_rftSegmentBranchType );
 
     return fieldsToDisplay;
 }
@@ -985,9 +1000,9 @@ QList<caf::PdmOptionItemInfo>
     {
         options = RimRftTools::wellNameOptions( rftReader() );
     }
-    else if ( fieldNeedingOptions == &m_rftSegmentBranchId )
+    else if ( fieldNeedingOptions == &m_rftSegmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIdOptions( rftReader(), m_rftWellName(), m_rftTimeStep() );
+        options = RimRftTools::segmentBranchIndexOptions( rftReader(), m_rftWellName(), m_rftTimeStep() );
     }
 
     return options;
@@ -1047,7 +1062,8 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
 
     if ( !m_uniqueRftTimeSteps.empty() ) group->add( &m_rftTimeStep );
     if ( !m_uniqueRftWellNames.empty() ) group->add( &m_rftWellName );
-    if ( !m_uniqueRftBranchIds.empty() ) group->add( &m_rftSegmentBranchId );
+    if ( !m_uniqueRftBranchIndices.empty() ) group->add( &m_rftSegmentBranchIndex );
+    if ( !m_uniqueRftBranchTypes.empty() ) group->add( &m_rftSegmentBranchType );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -1062,8 +1078,9 @@ void RimWellLogCurveCommonDataSource::defineEditorAttribute( const caf::PdmField
     auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
     if ( myAttr )
     {
-        if ( field == &m_case || field == &m_simWellName || field == &m_wellPath || field == &m_timeStep ||
-             field == &m_rftTimeStep || field == &m_rftSegmentBranchId || field == &m_rftWellName )
+        if ( field == &m_case || field == &m_summaryCase || field == &m_simWellName || field == &m_wellPath ||
+             field == &m_timeStep || field == &m_rftTimeStep || field == &m_rftSegmentBranchIndex ||
+             field == &m_rftWellName )
         {
             myAttr->showPreviousAndNextButtons = true;
             myAttr->nextIcon                   = QIcon( ":/ComboBoxDown.svg" );

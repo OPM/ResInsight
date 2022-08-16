@@ -19,8 +19,8 @@
 #include "RimVfpPlot.h"
 
 #include "RiaDefines.h"
+#include "RiaOpmParserTools.h"
 #include "RimVfpDefines.h"
-#include "RimVfpTableExtractor.h"
 
 #include "RiaColorTables.h"
 #include "RiaEclipseUnitTools.h"
@@ -431,7 +431,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
 
         // Try to read the file as an prod table first (most common)
         const std::vector<Opm::VFPProdTable> tables =
-            RimVfpTableExtractor::extractVfpProductionTables( filePath.toStdString() );
+            RiaOpmParserTools::extractVfpProductionTables( filePath.toStdString() );
         if ( !tables.empty() )
         {
             m_prodTable            = std::make_unique<Opm::VFPProdTable>( tables[0] );
@@ -446,7 +446,7 @@ void RimVfpPlot::onLoadDataAndUpdate()
         else
         {
             const std::vector<Opm::VFPInjTable> tables =
-                RimVfpTableExtractor::extractVfpInjectionTables( filePath.toStdString() );
+                RiaOpmParserTools::extractVfpInjectionTables( filePath.toStdString() );
             if ( !tables.empty() )
             {
                 m_injectionTable = std::make_unique<Opm::VFPInjTable>( tables[0] );

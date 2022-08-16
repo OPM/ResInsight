@@ -16,74 +16,56 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RiaRftDefines.h"
-#include "cafAppEnum.h"
+#include "RimRftCase.h"
+
+//==================================================================================================
+//
+//
+//
+//==================================================================================================
+CAF_PDM_SOURCE_INIT( RimRftCase, "RimRftCase" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::segmentStartDepthResultName()
+RimRftCase::RimRftCase()
 {
-    return "SEGLENST";
-}
+    CAF_PDM_InitObject( "RFT Case ", ":/SummaryCases16x16.png", "", "" );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaDefines::segmentEndDepthResultName()
-{
-    return "SEGLENEN";
-}
+    CAF_PDM_InitFieldNoDefault( &m_rftFilePath, "RftFilePath", "Rft File" );
+    m_rftFilePath.uiCapability()->setUiReadOnly( true );
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaDefines::segmentTvdDepthResultName()
-{
-    return "SEGDEPTH";
+    CAF_PDM_InitFieldNoDefault( &m_dataDeckFilePath, "DataDeckFilePath", "Data Deck File" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::segmentNumberResultName()
+void RimRftCase::setDataDeckFileName( const QString& fileName )
 {
-    return "SEGMENTNUMBER";
+    m_dataDeckFilePath.v().setPath( fileName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::allBranches()
+void RimRftCase::setRftFileName( const QString& fileName )
 {
-    return "All";
+    m_rftFilePath.v().setPath( fileName );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::segmentBranchNumberResultName()
+QString RimRftCase::rftFilePath() const
 {
-    return "SegmentBranchNumber";
+    return m_rftFilePath().path();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::segmentOneBasedBranchIndexResultName()
+QString RimRftCase::dataDeckFilePath() const
 {
-    return "SegmentOneBasedBranchIndex";
+    return m_dataDeckFilePath().path();
 }
-
-namespace caf
-{
-template <>
-void caf::AppEnum<RiaDefines::RftBranchType>::setUp()
-{
-    addItem( RiaDefines::RftBranchType::RFT_TUBING, "RFT_TUBING", "Tubing" );
-    addItem( RiaDefines::RftBranchType::RFT_DEVICE, "RFT_DEVICE", "Device" );
-    addItem( RiaDefines::RftBranchType::RFT_ANNULUS, "RFT_ANNULUS", "Annulus" );
-    addItem( RiaDefines::RftBranchType::RFT_UNKNOWN, "RFT_UNKNOWN", "Unknown" );
-    setDefault( RiaDefines::RftBranchType::RFT_TUBING );
-}
-} // namespace caf

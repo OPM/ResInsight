@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include "RiaRftDefines.h"
+
 #include <set>
 #include <string>
 #include <vector>
@@ -55,13 +57,18 @@ public:
     static RifEclipseRftAddress
         createAddress( const QString& wellName, const QDateTime& timeStep, RftWellLogChannelType wellLogChannel );
 
-    static RifEclipseRftAddress createSegmentAddress( const QString&   wellName,
-                                                      const QDateTime& dateTime,
-                                                      const QString&   resultName,
-                                                      int              segmentBranchNumber );
+    static RifEclipseRftAddress
+        createSegmentAddress( const QString& wellName, const QDateTime& dateTime, const QString& resultName );
 
-    QString segmentResultName() const;
-    int     segmentBranchNumber() const;
+    static RifEclipseRftAddress createBranchSegmentAddress( const QString&            wellName,
+                                                            const QDateTime&          dateTime,
+                                                            const QString&            resultName,
+                                                            int                       segmentBranchIndex,
+                                                            RiaDefines::RftBranchType segmentBranchType );
+
+    QString                   segmentResultName() const;
+    int                       segmentBranchIndex() const;
+    RiaDefines::RftBranchType segmentBranchType() const;
 
     const QString&               wellName() const;
     QDateTime                    timeStep() const;
@@ -71,19 +78,21 @@ public:
     static std::set<RftWellLogChannelType> pltPlotChannelTypes();
 
 private:
-    RifEclipseRftAddress( const QString&        wellName,
-                          const QDateTime&      timeStep,
-                          RftWellLogChannelType wellLogChannel,
-                          const QString&        segmentResultName,
-                          int                   segmentBranchNumber );
+    RifEclipseRftAddress( const QString&            wellName,
+                          const QDateTime&          timeStep,
+                          RftWellLogChannelType     wellLogChannel,
+                          const QString&            segmentResultName,
+                          int                       segmentBranchIndex,
+                          RiaDefines::RftBranchType segmentBranchType );
 
 private:
     QString               m_wellName;
     QDateTime             m_timeStep;
     RftWellLogChannelType m_wellLogChannel;
 
-    QString m_segmentResultName;
-    int     m_segmentBranchNumber;
+    QString                   m_segmentResultName;
+    int                       m_segmentBranchIndex;
+    RiaDefines::RftBranchType m_segmentBranchType;
 };
 
 bool operator==( const RifEclipseRftAddress& first, const RifEclipseRftAddress& second );

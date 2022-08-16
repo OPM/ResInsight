@@ -33,11 +33,13 @@
 #include "RifSummaryReaderMultipleFiles.h"
 
 #include "RimProject.h"
+#include "RimRftCase.h"
 #include "RimTools.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObjectScriptingCapability.h"
 #include "cafPdmUiFilePathEditor.h"
+#include "cafPdmUiTreeOrdering.h"
 
 #include <QDir>
 #include <QFileInfo>
@@ -63,6 +65,9 @@ RimFileSummaryCase::RimFileSummaryCase()
                                 "AdditionalSummaryFilePath",
                                 "Additional File Path (set invisible when ready)" );
     m_additionalSummaryFilePath.uiCapability()->setUiHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_rftCase, "RftCase", "RFT Case" );
+    m_rftCase = new RimRftCase;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -131,7 +136,19 @@ void RimFileSummaryCase::createSummaryReaderInterface()
 //--------------------------------------------------------------------------------------------------
 void RimFileSummaryCase::createRftReaderInterface()
 {
-    m_summaryEclipseRftReader = RimFileSummaryCase::findRftDataAndCreateReader( this->summaryHeaderFilename() );
+    QFileInfo fileInfo( summaryHeaderFilename() );
+    QString   folder = fileInfo.absolutePath();
+
+    QString   rftFileName = folder + "/" + fileInfo.completeBaseName() + ".RFT";
+    QFileInfo rftFileInfo( rftFileName );
+
+    if ( rftFileInfo.exists() )
+    {
+        m_rftCase()->setRftFileName( rftFileName );
+    }
+
+    m_summaryEclipseRftReader =
+        RimFileSummaryCase::findRftDataAndCreateReader( rftFileName, m_rftCase->dataDeckFilePath() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -186,17 +203,13 @@ RifSummaryReaderInterface* RimFileSummaryCase::findRelatedFilesAndCreateReader( 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RifReaderOpmRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& headerFileName )
+RifReaderOpmRft* RimFileSummaryCase::findRftDataAndCreateReader( const QString& rftFileName, const QString& dataDeckFileName )
 {
-    QFileInfo fileInfo( headerFileName );
-    QString   folder = fileInfo.absolutePath();
+    QFileInfo fi( rftFileName );
 
-    QString   rftFileName = folder + "/" + fileInfo.completeBaseName() + ".RFT";
-    QFileInfo rftFileInfo( rftFileName );
-
-    if ( rftFileInfo.exists() )
+    if ( fi.exists() )
     {
-        return new RifReaderOpmRft( rftFileInfo.filePath() );
+        return new RifReaderOpmRft( rftFileName, dataDeckFileName );
     }
 
     return nullptr;
@@ -217,6 +230,15 @@ void RimFileSummaryCase::defineEditorAttribute( const caf::PdmFieldHandle* field
             myAttr->m_selectSaveFileName = true;
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFileSummaryCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName /*= "" */ )
+{
+    RimSummaryCase::defineUiTreeOrdering( uiTreeOrdering, uiConfigName );
+    uiTreeOrdering.add( m_rftCase() );
 }
 
 //--------------------------------------------------------------------------------------------------
