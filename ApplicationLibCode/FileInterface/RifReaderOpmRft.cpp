@@ -40,22 +40,15 @@
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName )
 {
-    try
-    {
-        m_opm_rft = std::make_unique<Opm::EclIO::ERft>( fileName.toStdString() );
+    openFiles( fileName, dataDeckFileName );
+}
 
-        readWseglink( dataDeckFileName.toStdString() );
-
-        buildMetaData();
-    }
-    catch ( const std::exception& e )
-    {
-        RiaLogging::error( QString( "Failed to open RFT file %1\n%2" ).arg( fileName ).arg( e.what() ) );
-    }
-    catch ( ... )
-    {
-        RiaLogging::error( QString( "Failed to open RFT file %1" ).arg( fileName ) );
-    }
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
+{
+    openFiles( fileName, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -277,6 +270,29 @@ void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::
 void RifReaderOpmRft::readWseglink( const std::string& filePath )
 {
     m_wseglink = RiaOpmParserTools::extractWseglink( filePath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::openFiles( const QString& fileName, const QString& dataDeckFileName )
+{
+    try
+    {
+        m_opm_rft = std::make_unique<Opm::EclIO::ERft>( fileName.toStdString() );
+
+        readWseglink( dataDeckFileName.toStdString() );
+
+        buildMetaData();
+    }
+    catch ( const std::exception& e )
+    {
+        RiaLogging::error( QString( "Failed to open RFT file %1\n%2" ).arg( fileName ).arg( e.what() ) );
+    }
+    catch ( ... )
+    {
+        RiaLogging::error( QString( "Failed to open RFT file %1" ).arg( fileName ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

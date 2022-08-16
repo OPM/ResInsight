@@ -36,6 +36,7 @@ namespace EclIO
 class RifReaderOpmRft : public RifReaderRftInterface, public cvf::Object
 {
 public:
+    RifReaderOpmRft( const QString& fileName );
     RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName );
 
     std::set<RifEclipseRftAddress> eclipseRftAddresses() override;
@@ -58,6 +59,7 @@ private:
     using RftDate       = std::tuple<int, int, int>;
     using RftSegmentKey = std::pair<std::string, RftDate>;
 
+    void openFiles( const QString& fileName, const QString& dataDeckFileName );
     void buildMetaData();
     void buildSegmentData();
     void segmentDataDebugLog() const;

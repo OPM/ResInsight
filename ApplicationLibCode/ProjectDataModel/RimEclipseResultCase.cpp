@@ -360,7 +360,7 @@ void RimEclipseResultCase::ensureRftDataIsImported()
 
         if ( m_useOpmRftReader )
         {
-            m_readerOpmRft = new RifReaderOpmRft( rftFileInfo.filePath(), "" );
+            m_readerOpmRft = new RifReaderOpmRft( rftFileInfo.filePath() );
         }
         else
         {
