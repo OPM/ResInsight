@@ -81,7 +81,7 @@ public:
     int     timeStepToApply() const;
     void    setTimeStepToApply( int val );
 
-    void selectSimWell( QString wellName );
+    void selectWell( QString wellName );
 
     void resetDefaultOptions();
     void analyseCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
