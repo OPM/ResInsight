@@ -29,6 +29,8 @@
 #include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
+#include "RiuPlotMainWindowTools.h"
+
 #include "RicWellLogTools.h"
 
 #include <QAction>
@@ -57,6 +59,7 @@ void RicNewWellLogPlotFeature::onActionTriggered( bool isChecked )
     RimWellLogPlot* plot = nullptr;
     plotTrack->firstAncestorOrThisOfTypeAsserted( plot );
     plot->zoomAll();
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

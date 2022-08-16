@@ -176,6 +176,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
     }
 
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+    RiuPlotMainWindowTools::refreshToolbars();
 
     // Make sure the summary plot window is visible
     RiuPlotMainWindowTools::showPlotMainWindow();

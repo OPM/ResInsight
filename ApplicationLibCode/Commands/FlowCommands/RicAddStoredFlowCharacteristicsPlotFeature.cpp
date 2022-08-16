@@ -84,6 +84,7 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isCheck
 
             RiuPlotMainWindowTools::selectAsCurrentItem( flowCharacteristicsPlot );
             RiuPlotMainWindowTools::setExpanded( flowCharacteristicsPlot );
+            RiuPlotMainWindowTools::refreshToolbars();
         }
     }
 }

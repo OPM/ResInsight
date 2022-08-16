@@ -124,6 +124,7 @@ RimWellBoreStabilityPlot*
 
     // Make sure the summary plot window is visible
     RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::refreshToolbars();
 
     return plot;
 }

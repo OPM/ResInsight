@@ -65,6 +65,7 @@ void RicCreateGridStatisticsPlotFeature::onActionTriggered( bool isChecked )
     collection->updateAllRequiredEditors();
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
