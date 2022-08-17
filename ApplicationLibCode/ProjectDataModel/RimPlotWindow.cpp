@@ -33,6 +33,19 @@
 
 CAF_PDM_XML_ABSTRACT_SOURCE_INIT( RimPlotWindow, "RimPlotWindow" ); // Do not use. Abstract class
 
+#include "cafAppEnum.h"
+
+namespace caf
+{
+template <>
+void caf::AppEnum<RimPlotWindow::LegendPosition>::setUp()
+{
+    addItem( RimPlotWindow::LegendPosition::ABOVE, "ABOVE", "Above" );
+    addItem( RimPlotWindow::LegendPosition::INSIDE, "INSIDE", "Inside" );
+    setDefault( RimPlotWindow::LegendPosition::ABOVE );
+}
+}; // namespace caf
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -59,6 +72,7 @@ RimPlotWindow::RimPlotWindow()
 
     CAF_PDM_InitFieldNoDefault( &m_titleFontSize, "TitleFontSize", "Title Font Size" );
     CAF_PDM_InitFieldNoDefault( &m_legendFontSize, "LegendDeltaFontSize", "Legend Font Size" );
+    CAF_PDM_InitFieldNoDefault( &m_legendPosition, "LegendPosition", "Legend Position" );
 
     m_titleFontSize  = caf::FontTools::RelativeSize::XXLarge;
     m_legendFontSize = caf::FontTools::RelativeSize::Large;
@@ -89,6 +103,7 @@ RimPlotWindow& RimPlotWindow::operator=( RimPlotWindow&& rhs )
     m_plotLegendsHorizontal = rhs.m_plotLegendsHorizontal();
     m_titleFontSize         = rhs.m_titleFontSize();
     m_legendFontSize        = rhs.m_legendFontSize();
+    m_legendPosition        = rhs.m_legendPosition();
     return *this;
 }
 
@@ -183,6 +198,22 @@ void RimPlotWindow::setLegendFontSize( caf::FontTools::RelativeSize fontSize )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimPlotWindow::LegendPosition RimPlotWindow::legendPosition() const
+{
+    return m_legendPosition();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setLegendPosition( RimPlotWindow::LegendPosition legendPosition )
+{
+    m_legendPosition = legendPosition;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotWindow::updateLayout()
 {
     doUpdateLayout();
@@ -250,11 +281,8 @@ void RimPlotWindow::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         updateWindowVisibility();
     }
 
-    if ( changedField == &m_showPlotLegends || changedField == &m_plotLegendsHorizontal )
-    {
-        updateLayout();
-    }
-    else if ( changedField == &m_legendFontSize || changedField == &m_titleFontSize )
+    if ( changedField == &m_showPlotLegends || changedField == &m_plotLegendsHorizontal ||
+         changedField == &m_legendFontSize || changedField == &m_titleFontSize || changedField == &m_legendPosition )
     {
         updateLayout();
     }
@@ -284,10 +312,14 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+void RimPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition )
 {
     uiOrdering.add( &m_showPlotLegends );
     uiOrdering.add( &m_plotLegendsHorizontal );
+    if ( showLegendPosition )
+    {
+        uiOrdering.add( &m_legendPosition );
+    }
     uiOrdering.add( &m_titleFontSize );
     uiOrdering.add( &m_legendFontSize );
 }
