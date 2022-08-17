@@ -268,6 +268,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimEclipseCase*>( firstUiItem ) )
         {
+            menuBuilder << "RicRenameCaseFeature";
             menuBuilder << "RicPasteEclipseCasesFeature";
             menuBuilder << "RicPasteEclipseViewsFeature";
             menuBuilder << "Separator";
