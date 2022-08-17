@@ -18,9 +18,10 @@
 
 #pragma once
 
+#include "RiaRftDefines.h"
+
 #include <QString>
 
-#include "RiaRftDefines.h"
 #include <vector>
 
 class RimCase;
