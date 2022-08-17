@@ -165,6 +165,7 @@ public:
 
     void         addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
     void         removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
+    void         clearOverlayFrames();
     virtual void updateLayout() = 0;
 
     virtual void renderTo( QPainter* painter, const QRect& targetRect, double scaling ) = 0;

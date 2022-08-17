@@ -22,6 +22,7 @@
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotWidget.h"
+#include "RiuQwtLegendOverlayContentFrame.h"
 #include "RiuQwtPlotLegend.h"
 
 #include <QLabel>
@@ -69,9 +70,10 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
     int nCells = cols * rows;
     reservePlaceholders( nCells - nPlots );
 
-    QList<QPointer<QLabel>>           subTitles   = this->subTitlesForVisiblePlots();
-    QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
-    QList<QPointer<RiuPlotWidget>>    plotWidgets = this->visiblePlotWidgets();
+    QList<QPointer<QLabel>>                   subTitles    = this->subTitlesForVisiblePlots();
+    QList<QPointer<RiuQwtPlotLegend>>         legends      = this->legendsForVisiblePlots();
+    QList<QPointer<RiuDraggableOverlayFrame>> legendFrames = this->legendFramesForVisiblePlots();
+    QList<QPointer<RiuPlotWidget>>            plotWidgets  = this->visiblePlotWidgets();
 
     m_visibleIndexToPositionMapping.clear();
 
@@ -101,7 +103,20 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, col, 1, colSpan );
             if ( legends[visibleIndex] )
             {
-                m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, col, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+                if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::ABOVE )
+                {
+                    m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, col, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+                }
+                else
+                {
+                    CAF_ASSERT( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE );
+                    auto overlayFrame = new RiuQwtLegendOverlayContentFrame;
+                    overlayFrame->setLegend( legends[visibleIndex] );
+                    legendFrames[visibleIndex]->setContentFrame( overlayFrame );
+                    legendFrames[visibleIndex]->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
+                    plotWidgets[visibleIndex]->removeOverlayFrame( legendFrames[visibleIndex] );
+                    plotWidgets[visibleIndex]->addOverlayFrame( legendFrames[visibleIndex] );
+                }
             }
             m_gridLayout->addWidget( plotWidget, 3 * row + 2, col, 1, colSpan );
             auto summaryPlot = dynamic_cast<RimSummaryPlot*>( plotWidget->plotDefinition() );
@@ -133,10 +148,20 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
                     updateLegendColumns( legends[visibleIndex] );
                     updateLegendFont( legends[visibleIndex] );
                     legends[visibleIndex]->show();
+
+                    if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE )
+                        legendFrames[visibleIndex]->show();
+                    else
+                    {
+                        plotWidget->removeOverlayFrame( legendFrames[visibleIndex] );
+                        legendFrames[visibleIndex]->hide();
+                    }
                 }
                 else
                 {
                     legends[visibleIndex]->hide();
+                    legendFrames[visibleIndex]->hide();
+                    plotWidget->removeOverlayFrame( legendFrames[visibleIndex] );
                 }
             }
             // Set basic row and column stretches
