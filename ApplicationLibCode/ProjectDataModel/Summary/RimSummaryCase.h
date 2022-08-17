@@ -60,6 +60,8 @@ public:
     void            setCaseId( int caseId );
     int             caseId() const;
 
+    void setCustomCaseName( const QString& caseName );
+
     caf::AppEnum<RiaDefines::EclipseUnitSystem> unitsSystem();
 
     void setDisplayNameOption( RimCaseDisplayNameTools::DisplayName displayNameOption );
