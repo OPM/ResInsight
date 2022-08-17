@@ -888,7 +888,7 @@ bool RiaApplication::openOdbCaseFromFile( const QString& fileName, bool applyTim
 
     auto geoMechCase = std::make_unique<RimGeoMechCase>();
     geoMechCase->setGridFileName( fileName );
-    geoMechCase->caseUserDescription = caseName;
+    geoMechCase->setCaseUserDescription( caseName );
     geoMechCase->setApplyTimeFilter( applyTimeStepFilter );
     m_project->assignCaseIdToCase( geoMechCase.get() );
 

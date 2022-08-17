@@ -69,7 +69,7 @@ caf::PdmScriptResponse RicfComputeCaseGroupStatistics::execute()
         {
             for ( RimEclipseCase* c : group->statisticsCaseCollection->reservoirs )
             {
-                if ( c->caseId == caseId )
+                if ( c->caseId() == caseId )
                 {
                     RimEclipseStatisticsCase* statsCase = dynamic_cast<RimEclipseStatisticsCase*>( c );
                     if ( statsCase )

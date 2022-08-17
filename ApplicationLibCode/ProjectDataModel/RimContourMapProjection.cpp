@@ -266,7 +266,7 @@ QString RimContourMapProjection::caseName() const
         return QString();
     }
 
-    return rimCase->caseUserDescription.value();
+    return rimCase->caseUserDescription();
 }
 
 //--------------------------------------------------------------------------------------------------

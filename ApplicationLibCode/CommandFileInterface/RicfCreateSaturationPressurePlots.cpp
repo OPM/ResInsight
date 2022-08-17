@@ -83,7 +83,7 @@ caf::PdmScriptResponse RicfCreateSaturationPressurePlots::execute()
 
         for ( auto caseId : caseIds )
         {
-            if ( c->caseId == caseId )
+            if ( c->caseId() == caseId )
             {
                 int timeStep = 0;
                 RicCreateSaturationPressurePlotsFeature::createPlots( eclipseResultCase, timeStep );

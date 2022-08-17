@@ -618,7 +618,7 @@ grpc::Status RiaSelectedCellsStateHandler::assignReply( rips::SelectedCells* rep
     for ( auto item : items )
     {
         RiuEclipseSelectionItem* eclipseItem = dynamic_cast<RiuEclipseSelectionItem*>( item );
-        if ( eclipseItem && eclipseItem->m_resultDefinition->eclipseCase()->caseId == m_request->id() )
+        if ( eclipseItem && eclipseItem->m_resultDefinition->eclipseCase()->caseId() == m_request->id() )
         {
             eclipseItems.push_back( eclipseItem );
         }

@@ -93,9 +93,9 @@ void RiuResultQwtPlot::addCurve( const RimCase*                rimCase,
 
     this->replot();
 
-    int caseId = rimCase->caseId;
+    int caseId = rimCase->caseId();
 
-    m_caseNames[caseId] = rimCase->caseUserDescription;
+    m_caseNames[caseId] = rimCase->caseUserDescription();
     m_curveNames[caseId].push_back( curveName );
     m_curveData[caseId].push_back( timeHistoryValues );
     m_timeSteps[caseId] = dateTimes;

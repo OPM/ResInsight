@@ -632,7 +632,7 @@ public:
                     ->ijkFromCellIndex( eclipseItem->m_gridLocalCellIndex, &i, &j, &k );
 
                 gridIndex = eclipseItem->m_gridIndex;
-                caseId    = eclipseItem->m_resultDefinition->eclipseCase()->caseId;
+                caseId    = eclipseItem->m_resultDefinition->eclipseCase()->caseId();
             }
             else if ( item->type() == RiuSelectionItem::GEOMECH_SELECTION_OBJECT )
             {
@@ -647,14 +647,14 @@ public:
                 CVF_ASSERT( validIndex );
 
                 gridIndex = geomechItem->m_gridIndex;
-                caseId    = geomechItem->m_resultDefinition->geoMechCase()->caseId;
+                caseId    = geomechItem->m_resultDefinition->geoMechCase()->caseId();
             }
             else
             {
                 continue;
             }
 
-            if ( caseId == reservoirCase->caseId && validIndex )
+            if ( caseId == reservoirCase->caseId() && validIndex )
             {
                 caseNumber.push_back( static_cast<int>( caseId ) );
                 gridNumber.push_back( static_cast<int>( gridIndex ) );

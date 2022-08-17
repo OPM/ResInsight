@@ -96,7 +96,7 @@ void RicExecuteScriptForCasesFeature::onActionTriggered( bool isChecked )
 
             for ( RimCase* rimCase : selection )
             {
-                caseIdsInSelection.push_back( rimCase->caseId );
+                caseIdsInSelection.push_back( rimCase->caseId() );
             }
         }
 
