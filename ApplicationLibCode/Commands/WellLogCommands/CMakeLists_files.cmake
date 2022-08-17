@@ -28,7 +28,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellMeasurementCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogCurveSetFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogCurveFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogCurveFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogPlotFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -61,7 +61,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellMeasurementCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogCurveSetFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogCurveFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogCurveFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogPlotFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
