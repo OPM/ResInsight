@@ -123,6 +123,7 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
         RiuPlotMainWindowTools::showPlotMainWindow();
         RiuPlotMainWindowTools::setExpanded( plotTrack );
         RiuPlotMainWindowTools::selectAsCurrentItem( pltPlot );
+        RiuPlotMainWindowTools::refreshToolbars();
     }
 }
 

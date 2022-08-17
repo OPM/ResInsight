@@ -90,6 +90,7 @@ void RicNewSummaryCrossPlotFeature::onActionTriggered( bool isChecked )
         RiuPlotMainWindowTools::showPlotMainWindow();
         RiuPlotMainWindowTools::selectAsCurrentItem( summaryPlot );
         RiuPlotMainWindowTools::setExpanded( summaryPlot );
+        RiuPlotMainWindowTools::refreshToolbars();
     }
 }
 

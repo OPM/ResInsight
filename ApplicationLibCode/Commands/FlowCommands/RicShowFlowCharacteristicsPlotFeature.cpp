@@ -98,6 +98,7 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered( bool isChecked )
 
                 // Make sure the summary plot window is created and visible
                 RiuPlotMainWindowTools::selectAsCurrentItem( flowPlotColl->defaultFlowCharacteristicsPlot() );
+                RiuPlotMainWindowTools::refreshToolbars();
             }
         }
     }

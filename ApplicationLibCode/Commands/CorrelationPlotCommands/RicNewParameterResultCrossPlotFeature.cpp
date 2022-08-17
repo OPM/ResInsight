@@ -107,6 +107,7 @@ void RicNewParameterResultCrossPlotFeature::onActionTriggered( bool isChecked )
 
     RiuPlotMainWindowTools::setExpanded( newPlot );
     RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

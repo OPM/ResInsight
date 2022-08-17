@@ -83,6 +83,7 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 
             RiuPlotMainWindowTools::selectAsCurrentItem( wellAllocationPlot );
             RiuPlotMainWindowTools::setExpanded( wellAllocationPlot );
+            RiuPlotMainWindowTools::refreshToolbars();
         }
     }
 }

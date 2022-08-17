@@ -107,6 +107,7 @@ void RicAddWellLogToPlotFeature::onActionTriggered( bool isChecked )
     RiuPlotMainWindowTools::showPlotMainWindow();
     RiuPlotMainWindowTools::selectAsCurrentItem( plot );
     RiuPlotMainWindowTools::setExpanded( plotTrack );
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------
