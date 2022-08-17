@@ -1003,7 +1003,9 @@ void RimPlotCurve::setParentPlotNoReplot( RiuPlotWidget* plotWidget )
         return;
     }
 
-    m_plotCurve = m_parentPlot->createPlotCurve( this, "", RiaColorTools::toQColor( m_curveAppearance->color() ) );
+    auto color  = RiaColorTools::toQColor( m_curveAppearance->color() );
+    m_plotCurve = m_parentPlot->createPlotCurve( this, "", color );
+    m_plotCurve->updateErrorBarsAppearance( m_showErrorBars, color );
 
     // PERFORMANCE NOTE
     // When the z-value of a curve is changed, several update calls are made to the plot. Make sure that the default
