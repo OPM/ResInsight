@@ -169,6 +169,16 @@ void RiuPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 }
 
 //--------------------------------------------------------------------------------------------------
+/// Remove all overlay widgets.
+//--------------------------------------------------------------------------------------------------
+void RiuPlotWidget::clearOverlayFrames()
+{
+    for ( auto p : m_overlayFrames )
+        p->deleteLater();
+    m_overlayFrames.clear();
+}
+
+//--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 void RiuPlotWidget::removeEventFilter()
