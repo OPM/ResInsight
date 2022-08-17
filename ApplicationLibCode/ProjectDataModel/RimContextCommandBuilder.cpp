@@ -106,6 +106,7 @@
 #include "RimPltPlotCollection.h"
 #include "RimPressureTable.h"
 #include "RimProject.h"
+#include "RimRftCase.h"
 #include "RimRftPlotCollection.h"
 #include "RimSaturationPressurePlotCollection.h"
 #include "RimScriptCollection.h"
@@ -1069,6 +1070,11 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimPlotAxisPropertiesInterface*>( firstUiItem ) )
         {
             menuBuilder << "RicNewPlotAxisPropertiesFeature";
+        }
+        else if ( dynamic_cast<RimRftCase*>( firstUiItem ) )
+        {
+            menuBuilder << "RicNewRftWellLogCurveFeature";
+            menuBuilder << "RicNewRftSegmentWellLogCurveFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )

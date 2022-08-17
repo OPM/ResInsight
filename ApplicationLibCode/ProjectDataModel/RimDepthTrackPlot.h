@@ -105,9 +105,11 @@ public:
     AxisGridVisibility depthAxisGridLinesEnabled() const;
 
     RimDepthTrackPlot::DepthOrientation depthOrientation() const;
-    RiuPlotAxis                         depthAxis() const;
-    RiuPlotAxis                         valueAxis() const;
-    RiuPlotAxis                         annotationAxis() const;
+    void                                setDepthOrientation( RimDepthTrackPlot::DepthOrientation depthOrientation );
+
+    RiuPlotAxis depthAxis() const;
+    RiuPlotAxis valueAxis() const;
+    RiuPlotAxis annotationAxis() const;
 
     void setAutoScalePropertyValuesEnabled( bool enabled );
     void setAutoScaleDepthValuesEnabled( bool enabled );

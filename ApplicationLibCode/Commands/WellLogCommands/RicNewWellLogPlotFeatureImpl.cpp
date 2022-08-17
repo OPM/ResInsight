@@ -83,6 +83,17 @@ RimWellBoreStabilityPlot*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot()
+{
+    auto plot = createWellLogPlot();
+    plot->setDepthOrientation( RimDepthTrackPlot::DepthOrientation::HORIZONTAL );
+
+    return plot;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createWellLogPlot( bool showAfterCreation, const QString& plotDescription )
 {
     RimWellLogPlotCollection* wellLogPlotColl = wellLogPlotCollection();

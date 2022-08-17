@@ -327,6 +327,7 @@ void RimWellLogRftCurve::setRftAddress( RifEclipseRftAddress address )
         m_rftDataType        = RftDataType::RFT_SEGMENT_DATA;
         m_segmentResultName  = address.segmentResultName();
         m_segmentBranchIndex = address.segmentBranchIndex();
+        m_segmentBranchType  = address.segmentBranchType();
     }
     else
     {
