@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #pragma once
 
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuInterfaceToViewWindow.h"
 
 #include "RiaDefines.h"
@@ -127,9 +128,10 @@ protected:
 
     void clearGridLayout();
 
-    QList<QPointer<RiuPlotWidget>>    visiblePlotWidgets() const;
-    QList<QPointer<RiuQwtPlotLegend>> legendsForVisiblePlots() const;
-    QList<QPointer<QLabel>>           subTitlesForVisiblePlots() const;
+    QList<QPointer<RiuPlotWidget>>            visiblePlotWidgets() const;
+    QList<QPointer<RiuQwtPlotLegend>>         legendsForVisiblePlots() const;
+    QList<QPointer<QLabel>>                   subTitlesForVisiblePlots() const;
+    QList<QPointer<RiuDraggableOverlayFrame>> legendFramesForVisiblePlots() const;
 
     void applyLook();
 
@@ -137,16 +139,17 @@ private slots:
     void onLegendUpdated();
 
 protected:
-    QPointer<QVBoxLayout>              m_layout;
-    QPointer<QHBoxLayout>              m_plotLayout;
-    QPointer<QFrame>                   m_plotWidgetFrame;
-    QPointer<QGridLayout>              m_gridLayout;
-    QPointer<QLabel>                   m_plotTitle;
-    QList<QPointer<QLabel>>            m_subTitles;
-    QList<QPointer<RiuQwtPlotLegend>>  m_legends;
-    QList<QPointer<RiuPlotWidget>>     m_plotWidgets;
-    std::map<int, std::pair<int, int>> m_visibleIndexToPositionMapping;
-    caf::PdmPointer<RimPlotWindow>     m_plotDefinition;
+    QPointer<QVBoxLayout>                     m_layout;
+    QPointer<QHBoxLayout>                     m_plotLayout;
+    QPointer<QFrame>                          m_plotWidgetFrame;
+    QPointer<QGridLayout>                     m_gridLayout;
+    QPointer<QLabel>                          m_plotTitle;
+    QList<QPointer<QLabel>>                   m_subTitles;
+    QList<QPointer<RiuQwtPlotLegend>>         m_legends;
+    QList<QPointer<RiuDraggableOverlayFrame>> m_legendFrames;
+    QList<QPointer<RiuPlotWidget>>            m_plotWidgets;
+    std::map<int, std::pair<int, int>>        m_visibleIndexToPositionMapping;
+    caf::PdmPointer<RimPlotWindow>            m_plotDefinition;
 
     int m_titleFontPixelSize;
     int m_subTitleFontPixelSize;
