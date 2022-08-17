@@ -945,7 +945,7 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     uiOrderingForAutoName( uiConfigName, *titleGroup );
 
     caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup, true );
     plotLayoutGroup->add( &m_subTitleFontSize );
     plotLayoutGroup->add( &m_axisTitleFontSize );
     plotLayoutGroup->add( &m_axisValueFontSize );

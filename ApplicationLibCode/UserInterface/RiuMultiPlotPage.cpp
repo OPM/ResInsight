@@ -20,27 +20,28 @@
 #include "RiuMultiPlotPage.h"
 
 #include "RiaApplication.h"
+#include "RiaGuiApplication.h"
+#include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 
 #include "WellLogCommands/RicWellLogPlotTrackFeatureImpl.h"
 
-#include "RiaGuiApplication.h"
-#include "RiaPlotDefines.h"
-
 #include "RimContextCommandBuilder.h"
 #include "RimMultiPlot.h"
 #include "RimPlotCurve.h"
+#include "RimPlotWindow.h"
 #include "RimWellLogTrack.h"
 
+#include "RiuDraggableOverlayFrame.h"
 #include "RiuMainWindow.h"
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotObjectPicker.h"
 #include "RiuPlotWidget.h"
+#include "RiuQwtLegendOverlayContentFrame.h"
 #include "RiuQwtPlotLegend.h"
 #include "RiuQwtPlotTools.h"
 #include "RiuQwtPlotWidget.h"
-#include "qwt_legend_label.h"
 #ifdef USE_QTCHARTS
 #include "RiuQtChartsPlotWidget.h"
 #endif
@@ -52,6 +53,7 @@
 
 #include "qwt_axis.h"
 #include "qwt_legend.h"
+#include "qwt_legend_label.h"
 #include "qwt_plot_layout.h"
 #include "qwt_plot_renderer.h"
 #include "qwt_scale_draw.h"
@@ -167,10 +169,17 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
-    RiuQwtPlotLegend* legend = nullptr;
+    RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
+
+    RiuQwtPlotLegend*         legend      = new RiuQwtPlotLegend( this );
+    RiuDraggableOverlayFrame* legendFrame = nullptr;
+    if ( qwtPlotWidget )
+    {
+        legendFrame = new RiuDraggableOverlayFrame( qwtPlotWidget->qwtPlot()->canvas(), plotWidget->overlayMargins() );
+    }
+
     if ( m_plotDefinition->legendsVisible() && plotWidget->plotDefinition()->legendsVisible() )
     {
-        legend            = new RiuQwtPlotLegend( this );
         int legendColumns = 1;
         if ( m_plotDefinition->legendsHorizontal() )
         {
@@ -179,7 +188,6 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
         legend->setMaxColumns( legendColumns );
         legend->horizontalScrollBar()->setVisible( false );
         legend->verticalScrollBar()->setVisible( false );
-        RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
         if ( qwtPlotWidget )
         {
             legend->connect( qwtPlotWidget->qwtPlot(),
@@ -200,9 +208,11 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 
         legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
         legend->setVisible( false );
+
         plotWidget->updateLegend();
     }
     m_legends.insert( static_cast<int>( index ), legend );
+    m_legendFrames.insert( static_cast<int>( index ), legendFrame );
 
     scheduleUpdate();
 }
@@ -628,9 +638,10 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
 {
     clearGridLayout();
 
-    QList<QPointer<QLabel>>           subTitles   = this->subTitlesForVisiblePlots();
-    QList<QPointer<RiuQwtPlotLegend>> legends     = this->legendsForVisiblePlots();
-    QList<QPointer<RiuPlotWidget>>    plotWidgets = this->visiblePlotWidgets();
+    QList<QPointer<QLabel>>                   subTitles    = this->subTitlesForVisiblePlots();
+    QList<QPointer<RiuQwtPlotLegend>>         legends      = this->legendsForVisiblePlots();
+    QList<QPointer<RiuDraggableOverlayFrame>> legendFrames = this->legendFramesForVisiblePlots();
+    QList<QPointer<RiuPlotWidget>>            plotWidgets  = this->visiblePlotWidgets();
 
     m_visibleIndexToPositionMapping.clear();
 
@@ -654,7 +665,25 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
             m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, column, 1, colSpan );
             if ( legends[visibleIndex] )
             {
-                m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
+                if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::ABOVE )
+                {
+                    m_gridLayout->addWidget( legends[visibleIndex],
+                                             3 * row + 1,
+                                             column,
+                                             1,
+                                             colSpan,
+                                             Qt::AlignHCenter | Qt::AlignBottom );
+                }
+                else
+                {
+                    CAF_ASSERT( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE );
+
+                    auto overlayFrame = new RiuQwtLegendOverlayContentFrame;
+                    overlayFrame->setLegend( legends[visibleIndex] );
+                    legendFrames[visibleIndex]->setContentFrame( overlayFrame );
+                    legendFrames[visibleIndex]->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
+                    plotWidgets[visibleIndex]->addOverlayFrame( legendFrames[visibleIndex] );
+                }
             }
             m_gridLayout->addWidget( plotWidgets[visibleIndex], 3 * row + 2, column, 1 + ( rowSpan - 1 ) * 3, colSpan );
 
@@ -830,6 +859,7 @@ void RiuMultiPlotPage::clearGridLayout()
     {
         if ( m_plotWidgets[tIdx] )
         {
+            m_plotWidgets[tIdx]->removeOverlayFrame( m_legendFrames[tIdx] );
             m_plotWidgets[tIdx]->hide();
         }
         if ( m_legends[tIdx] )
@@ -873,6 +903,22 @@ QList<QPointer<RiuQwtPlotLegend>> RiuMultiPlotPage::legendsForVisiblePlots() con
         }
     }
     return legends;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<QPointer<RiuDraggableOverlayFrame>> RiuMultiPlotPage::legendFramesForVisiblePlots() const
+{
+    QList<QPointer<RiuDraggableOverlayFrame>> legendFrames;
+    for ( int i = 0; i < m_plotWidgets.size(); ++i )
+    {
+        if ( m_plotWidgets[i]->isChecked() )
+        {
+            legendFrames.push_back( m_legendFrames[i] );
+        }
+    }
+    return legendFrames;
 }
 
 //--------------------------------------------------------------------------------------------------

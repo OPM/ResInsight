@@ -44,6 +44,12 @@ class RimPlotWindow : public RimViewWindow
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class LegendPosition
+    {
+        ABOVE,
+        INSIDE,
+    };
+
     RimPlotWindow();
     ~RimPlotWindow() override;
 
@@ -54,11 +60,13 @@ public:
     bool plotTitleVisible() const;
     void setPlotTitleVisible( bool showPlotTitle );
 
-    virtual QString description() const = 0;
-    bool            legendsVisible() const;
-    void            setLegendsVisible( bool doShow );
-    bool            legendsHorizontal() const;
-    void            setLegendsHorizontal( bool horizontal );
+    virtual QString               description() const = 0;
+    bool                          legendsVisible() const;
+    void                          setLegendsVisible( bool doShow );
+    bool                          legendsHorizontal() const;
+    void                          setLegendsHorizontal( bool horizontal );
+    void                          setLegendPosition( RimPlotWindow::LegendPosition legendPosition );
+    RimPlotWindow::LegendPosition legendPosition() const;
 
     void updateFonts() override;
 
@@ -84,7 +92,7 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
 
     void updateWindowVisibility();
 
@@ -100,10 +108,11 @@ private:
     void assignIdIfNecessary() final;
 
 protected:
-    caf::PdmField<int>  m_id;
-    caf::PdmField<bool> m_showPlotTitle;
-    caf::PdmField<bool> m_showPlotLegends;
-    caf::PdmField<bool> m_plotLegendsHorizontal;
+    caf::PdmField<int>                          m_id;
+    caf::PdmField<bool>                         m_showPlotTitle;
+    caf::PdmField<bool>                         m_showPlotLegends;
+    caf::PdmField<bool>                         m_plotLegendsHorizontal;
+    caf::PdmField<caf::AppEnum<LegendPosition>> m_legendPosition;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_legendFontSize;
