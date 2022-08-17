@@ -98,6 +98,7 @@ void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
 
     RiuPlotMainWindowTools::setExpanded( newPlot );
     RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );
+    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

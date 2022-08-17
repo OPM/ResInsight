@@ -273,6 +273,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
 
                 RiuPlotMainWindowTools::showPlotMainWindow();
                 RiuPlotMainWindowTools::selectAsCurrentItem( wellLogPlot );
+                RiuPlotMainWindowTools::refreshToolbars();
             }
         }
     }
