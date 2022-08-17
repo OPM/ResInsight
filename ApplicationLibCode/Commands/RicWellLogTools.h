@@ -20,6 +20,7 @@
 
 #include <QString>
 
+#include "RiaRftDefines.h"
 #include <vector>
 
 class RimCase;
@@ -76,7 +77,10 @@ public:
                                                                bool             showPlotWindow = true );
 
     static RimWellLogCurve* addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
-    static RimWellLogCurve* addSummaryRftSegmentCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
+    static RimWellLogCurve* addSummaryRftSegmentCurve( RimWellLogTrack*          plotTrack,
+                                                       const QString&            resultName,
+                                                       RiaDefines::RftBranchType branchType,
+                                                       RimSummaryCase*           rimCase );
 
 private:
     template <typename ExtractionCurveType>

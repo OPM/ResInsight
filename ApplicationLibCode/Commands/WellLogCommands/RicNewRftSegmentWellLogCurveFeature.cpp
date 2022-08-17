@@ -23,6 +23,7 @@
 #include "RicWellLogTools.h"
 
 #include "RiaApplication.h"
+#include "RiaRftDefines.h"
 
 #include "RigWellLogCurveData.h"
 
@@ -65,21 +66,47 @@ void RicNewRftSegmentWellLogCurveFeature::onActionTriggered( bool isChecked )
 
     auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
 
+    QString resultName = "SEGGRAT";
+
+    {
+        auto branchType = RiaDefines::RftBranchType::RFT_TUBING;
+
+        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
+    }
+    {
+        auto branchType = RiaDefines::RftBranchType::RFT_DEVICE;
+
+        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
+    }
+    {
+        auto branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
+
+        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
+    }
+
+    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
+    RiuPlotMainWindowTools::refreshToolbars();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRftSegmentWellLogCurveFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
+                                                                            const QString&            resultName,
+                                                                            RiaDefines::RftBranchType branchType,
+                                                                            RimSummaryCase*           summaryCase )
+{
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addPlot( plotTrack );
     plotTrack->setDescription( QString( "Track %1" ).arg( plot->plotCount() ) );
 
     plot->loadDataAndUpdate();
 
-    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, summaryCase );
+    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, resultName, branchType, summaryCase );
     curve->loadDataAndUpdate( true );
 
     curve->updateAllRequiredEditors();
-
     RiuPlotMainWindowTools::setExpanded( curve );
-    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
-
-    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

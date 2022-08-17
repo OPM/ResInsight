@@ -497,7 +497,10 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftCurve( RimWellLogTrack* plotTrack
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase )
+RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*          plotTrack,
+                                                             const QString&            resultName,
+                                                             RiaDefines::RftBranchType branchType,
+                                                             RimSummaryCase*           rimCase )
 {
     auto curve = new RimWellLogRftCurve();
 
@@ -513,11 +516,8 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack* pl
     auto timeSteps = rftReader->availableTimeSteps( wellName );
     if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
 
-    RifEclipseRftAddress adr = RifEclipseRftAddress::createBranchSegmentAddress( wellName,
-                                                                                 dateTime,
-                                                                                 RiaDefines::segmentTvdDepthResultName(),
-                                                                                 1,
-                                                                                 RiaDefines::RftBranchType::RFT_TUBING );
+    RifEclipseRftAddress adr =
+        RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
     curve->setRftAddress( adr );
 
     curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );

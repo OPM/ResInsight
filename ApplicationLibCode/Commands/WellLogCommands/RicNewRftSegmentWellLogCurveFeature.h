@@ -18,7 +18,12 @@
 
 #pragma once
 
+#include "RiaRftDefines.h"
+
 #include "cafCmdFeature.h"
+
+class RimWellLogPlot;
+class RimSummaryCase;
 
 //==================================================================================================
 ///
@@ -30,5 +35,11 @@ class RicNewRftSegmentWellLogCurveFeature : public caf::CmdFeature
 private:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
+
     void setupActionLook( QAction* actionToSetup ) override;
+
+    void appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
+                                           const QString&            resultName,
+                                           RiaDefines::RftBranchType branchType,
+                                           RimSummaryCase*           summaryCase );
 };
