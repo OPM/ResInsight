@@ -520,6 +520,8 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack* pl
                                                                                  RiaDefines::RftBranchType::RFT_TUBING );
     curve->setRftAddress( adr );
 
+    curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
+
     plotTrack->addCurve( curve );
 
     return curve;

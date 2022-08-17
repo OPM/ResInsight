@@ -37,12 +37,17 @@ public:
     static RimWellBoreStabilityPlot* createWellBoreStabilityPlot( bool           showAfterCreation = true,
                                                                   const QString& plotDescription   = QString( "" ),
                                                                   const RimWbsParameters* params   = nullptr );
-    static RimWellLogPlot*           createWellLogPlot( bool           showAfterCreation = true,
-                                                        const QString& plotDescription   = QString( "" ) );
-    static RimWellLogTrack*          createWellLogPlotTrack( bool               updateAfterCreation = true,
-                                                             const QString&     trackDescription    = QString( "" ),
-                                                             RimDepthTrackPlot* existingPlot        = nullptr );
-    static void                      updateAfterCreation( RimDepthTrackPlot* plot );
+
+    static RimWellLogPlot* createHorizontalWellLogPlot();
+
+    static RimWellLogPlot* createWellLogPlot( bool           showAfterCreation = true,
+                                              const QString& plotDescription   = QString( "" ) );
+
+    static RimWellLogTrack* createWellLogPlotTrack( bool               updateAfterCreation = true,
+                                                    const QString&     trackDescription    = QString( "" ),
+                                                    RimDepthTrackPlot* existingPlot        = nullptr );
+
+    static void updateAfterCreation( RimDepthTrackPlot* plot );
 
 private:
     static RimWellLogPlotCollection* wellLogPlotCollection();

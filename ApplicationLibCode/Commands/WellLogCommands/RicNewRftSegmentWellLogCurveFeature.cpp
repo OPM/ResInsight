@@ -63,7 +63,7 @@ void RicNewRftSegmentWellLogCurveFeature::onActionTriggered( bool isChecked )
     RimSummaryCase* summaryCase = nullptr;
     rftCase->firstAncestorOfType( summaryCase );
 
-    auto plot = RicNewWellLogPlotFeatureImpl::createWellLogPlot();
+    auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
 
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addPlot( plotTrack );
