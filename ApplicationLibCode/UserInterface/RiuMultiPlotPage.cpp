@@ -169,14 +169,13 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
+    plotWidget->clearOverlayFrames();
+
     RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
 
-    RiuQwtPlotLegend*         legend      = new RiuQwtPlotLegend( this );
-    RiuDraggableOverlayFrame* legendFrame = nullptr;
-    if ( qwtPlotWidget )
-    {
-        legendFrame = new RiuDraggableOverlayFrame( qwtPlotWidget->qwtPlot()->canvas(), plotWidget->overlayMargins() );
-    }
+    RiuQwtPlotLegend*         legend = new RiuQwtPlotLegend( this );
+    RiuDraggableOverlayFrame* legendFrame =
+        new RiuDraggableOverlayFrame( plotWidget->getParentForOverlay(), plotWidget->overlayMargins() );
 
     if ( m_plotDefinition->legendsVisible() && plotWidget->plotDefinition()->legendsVisible() )
     {
@@ -208,6 +207,8 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 
         legend->contentsWidget()->layout()->setAlignment( Qt::AlignBottom | Qt::AlignHCenter );
         legend->setVisible( false );
+
+        legendFrame->setVisible( false );
 
         plotWidget->updateLegend();
     }
@@ -677,7 +678,6 @@ void RiuMultiPlotPage::reinsertPlotWidgets()
                 else
                 {
                     CAF_ASSERT( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE );
-
                     auto overlayFrame = new RiuQwtLegendOverlayContentFrame;
                     overlayFrame->setLegend( legends[visibleIndex] );
                     legendFrames[visibleIndex]->setContentFrame( overlayFrame );

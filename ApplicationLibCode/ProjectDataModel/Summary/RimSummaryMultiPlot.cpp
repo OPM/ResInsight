@@ -425,6 +425,7 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     legendsGroup->setCollapsedByDefault( true );
     legendsGroup->add( &m_showPlotLegends );
     legendsGroup->add( &m_plotLegendsHorizontal );
+    legendsGroup->add( &m_legendPosition );
     legendsGroup->add( &m_legendFontSize );
 
     uiOrdering.skipRemainingFields( true );
