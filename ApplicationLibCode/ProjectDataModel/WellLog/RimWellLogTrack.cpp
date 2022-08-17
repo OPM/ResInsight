@@ -2138,8 +2138,12 @@ std::pair<double, double> RimWellLogTrack::extendMinMaxRange( double minValue, d
     auto candidateMinValue = minValue - factor * range;
     if ( std::signbit( minValue ) == std::signbit( candidateMinValue ) )
     {
-        // Leave minimum unchanged if the changes causes change of sign to make sure that zero is located properly
         modifiedMin = candidateMinValue;
+    }
+    else
+    {
+        // If the sign of the adjusted minimum changes, set minimum to zero to make sure that zero is located properly
+        modifiedMin = 0.0;
     }
 
     return { modifiedMin, modifiedMax };

@@ -1220,6 +1220,14 @@ RimDepthTrackPlot::DepthOrientation RimDepthTrackPlot::depthOrientation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::setDepthOrientation( DepthOrientation depthOrientation )
+{
+    m_depthOrientation = depthOrientation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuPlotAxis RimDepthTrackPlot::depthAxis() const
 {
     return depthAxis( m_depthOrientation() );
