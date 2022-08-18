@@ -1397,7 +1397,7 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
     loadDataAndUpdate();
     updateConnectedEditors();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPlots.back(), true );
+    RiuPlotMainWindowTools::selectAsCurrentItem( newPlots.back() );
 
     updateSourceStepper();
     RiuPlotMainWindowTools::refreshToolbars();
