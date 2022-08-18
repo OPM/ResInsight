@@ -122,8 +122,7 @@ bool RimObservedDataCollection::fileExists( const QString& fileName, QString* er
 void updateNewObservedDataCreated( caf::PdmObject* object )
 {
     RiuPlotMainWindowTools::showPlotMainWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( object );
-    RiuPlotMainWindowTools::setExpanded( object );
+    RiuPlotMainWindowTools::onObjectAppended( object );
 
     caf::PdmUiObjectEditorHandle::updateUiAllObjectEditors();
 

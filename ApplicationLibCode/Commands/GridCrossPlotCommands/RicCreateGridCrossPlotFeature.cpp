@@ -82,8 +82,8 @@ void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
 
     collection->updateAllRequiredEditors();
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( dataSet );
-    RiuPlotMainWindowTools::refreshToolbars();
+
+    RiuPlotMainWindowTools::onObjectAppended( dataSet );
 }
 
 //--------------------------------------------------------------------------------------------------

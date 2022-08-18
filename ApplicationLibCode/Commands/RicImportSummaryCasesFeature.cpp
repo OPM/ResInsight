@@ -143,9 +143,7 @@ bool RicImportSummaryCasesFeature::createAndAddSummaryCasesFromFiles( const QStr
 
             if ( plotToSelect )
             {
-                RiuPlotMainWindowTools::setExpanded( plotToSelect );
-                RiuPlotMainWindowTools::selectAsCurrentItem( plotToSelect );
-                RiuPlotMainWindowTools::refreshToolbars();
+                RiuPlotMainWindowTools::onObjectAppended( plotToSelect );
             }
         }
 

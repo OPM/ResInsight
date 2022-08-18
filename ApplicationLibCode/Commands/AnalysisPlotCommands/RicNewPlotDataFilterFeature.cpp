@@ -56,8 +56,7 @@ void RicNewPlotDataFilterFeature::onActionTriggered( bool isChecked )
 
     analysisPlot->updateConnectedEditors();
 
-    RiuPlotMainWindowTools::setExpanded( newFilter );
-    RiuPlotMainWindowTools::selectAsCurrentItem( newFilter );
+    RiuPlotMainWindowTools::onObjectAppended( newFilter );
 }
 
 //--------------------------------------------------------------------------------------------------

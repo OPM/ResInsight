@@ -85,9 +85,7 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
         rftPlotColl->updateConnectedEditors();
 
         RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::setExpanded( plotTrack );
-        RiuPlotMainWindowTools::selectAsCurrentItem( rftPlot );
-        RiuPlotMainWindowTools::refreshToolbars();
+        RiuPlotMainWindowTools::onObjectAppended( rftPlot, plotTrack );
     }
 }
 

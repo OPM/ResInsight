@@ -47,25 +47,27 @@ void RiuPlotMainWindowTools::setActiveViewer( QWidget* subWindow )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindowTools::setExpanded( const caf::PdmUiItem* uiItem, bool expanded /*= true*/ )
+void RiuPlotMainWindowTools::setExpanded( const caf::PdmUiItem* uiItem )
 {
     if ( RiaGuiApplication::isRunning() )
     {
         RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
-        if ( mpw ) mpw->setExpanded( uiItem, expanded );
+        bool expand = true;
+        if ( mpw ) mpw->setExpanded( uiItem, expand );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object, bool allowActiveViewChange /*= true*/ )
+void RiuPlotMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object )
 {
     if ( RiaGuiApplication::isRunning() )
     {
         RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
+        bool allowActiveViewChange = true;
         if ( mpw ) mpw->selectAsCurrentItem( object, allowActiveViewChange );
     }
 }
@@ -73,12 +75,13 @@ void RiuPlotMainWindowTools::selectAsCurrentItem( const caf::PdmObject* object, 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindowTools::toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange /*= true*/ )
+void RiuPlotMainWindowTools::toggleItemInSelection( const caf::PdmObject* object )
 {
     if ( RiaGuiApplication::isRunning() )
     {
         RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
+        bool allowActiveViewChange = true;
         if ( mpw ) mpw->toggleItemInSelection( object, allowActiveViewChange );
     }
 }
@@ -113,4 +116,17 @@ void RiuPlotMainWindowTools::refreshToolbars()
             mpw->updateMultiPlotToolBar();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindowTools::onObjectAppended( const caf::PdmObject* objectToSelect, const caf::PdmObject* objectToExpand )
+{
+    if ( objectToExpand == nullptr ) objectToExpand = objectToSelect;
+
+    if ( objectToExpand ) RiuPlotMainWindowTools::setExpanded( objectToExpand );
+    if ( objectToSelect ) RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+
+    RiuPlotMainWindowTools::refreshToolbars();
 }

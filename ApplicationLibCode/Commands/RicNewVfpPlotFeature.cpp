@@ -97,8 +97,7 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 
         if ( !vfpPlots.empty() )
         {
-            RiuPlotMainWindowTools::selectAsCurrentItem( vfpPlots.front() );
-            RiuPlotMainWindowTools::refreshToolbars();
+            RiuPlotMainWindowTools::onObjectAppended( vfpPlots.front() );
         }
     }
 }

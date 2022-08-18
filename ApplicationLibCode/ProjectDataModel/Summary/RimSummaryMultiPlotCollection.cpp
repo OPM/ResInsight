@@ -174,7 +174,7 @@ void RimSummaryMultiPlotCollection::duplicatePlot( RimSummaryMultiPlot* plotToDu
 
     updateConnectedEditors();
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plotCopy, true );
+    RiuPlotMainWindowTools::selectAsCurrentItem( plotCopy );
 }
 
 //--------------------------------------------------------------------------------------------------
