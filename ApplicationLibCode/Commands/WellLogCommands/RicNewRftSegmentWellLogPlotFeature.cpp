@@ -84,8 +84,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
     }
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
-    RiuPlotMainWindowTools::refreshToolbars();
+    RiuPlotMainWindowTools::onObjectAppended( plot );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -59,8 +59,7 @@ void RicCreateEnsembleFractureStatisticsPlotFeature::onActionTriggered( bool isC
     collection->addEnsembleFractureStatisticsPlot( plot );
     collection->updateAllRequiredEditors();
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
-    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
-    RiuPlotMainWindowTools::refreshToolbars();
+    RiuPlotMainWindowTools::onObjectAppended( plot );
 }
 
 //--------------------------------------------------------------------------------------------------

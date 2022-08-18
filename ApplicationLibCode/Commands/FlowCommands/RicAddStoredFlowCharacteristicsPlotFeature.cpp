@@ -81,10 +81,7 @@ void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isCheck
             flowPlotColl->updateConnectedEditors();
 
             RiuPlotMainWindowTools::showPlotMainWindow();
-
-            RiuPlotMainWindowTools::selectAsCurrentItem( flowCharacteristicsPlot );
-            RiuPlotMainWindowTools::setExpanded( flowCharacteristicsPlot );
-            RiuPlotMainWindowTools::refreshToolbars();
+            RiuPlotMainWindowTools::onObjectAppended( flowCharacteristicsPlot );
         }
     }
 }

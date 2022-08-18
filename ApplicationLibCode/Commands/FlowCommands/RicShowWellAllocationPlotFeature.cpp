@@ -111,10 +111,8 @@ void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
             flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell( simWell );
             flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
 
-            // Make sure the summary plot window is created and visible
             RiuPlotMainWindowTools::showPlotMainWindow();
-            RiuPlotMainWindowTools::selectAsCurrentItem( flowPlotColl->defaultWellAllocPlot() );
-            RiuPlotMainWindowTools::refreshToolbars();
+            RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultWellAllocPlot() );
         }
     }
 }

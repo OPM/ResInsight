@@ -121,9 +121,7 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
         pltPlotColl->updateConnectedEditors();
 
         RiuPlotMainWindowTools::showPlotMainWindow();
-        RiuPlotMainWindowTools::setExpanded( plotTrack );
-        RiuPlotMainWindowTools::selectAsCurrentItem( pltPlot );
-        RiuPlotMainWindowTools::refreshToolbars();
+        RiuPlotMainWindowTools::onObjectAppended( pltPlot, plotTrack );
     }
 }
 

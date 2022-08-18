@@ -36,4 +36,8 @@ public:
     static void toggleItemInSelection( const caf::PdmObject* object, bool allowActiveViewChange = true );
     static void selectOrToggleObject( const caf::PdmObject* object, bool toggle );
     static void refreshToolbars();
+
+    // Use this function to select (and expand) an object in the project tree and update tool bars. Use the second
+    // parameter to expand a different object than the object to be selected.
+    static void onObjectAppended( const caf::PdmObject* objectToSelect, const caf::PdmObject* objectToExpand = nullptr );
 };

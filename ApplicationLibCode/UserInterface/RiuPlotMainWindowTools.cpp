@@ -114,3 +114,16 @@ void RiuPlotMainWindowTools::refreshToolbars()
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotMainWindowTools::onObjectAppended( const caf::PdmObject* objectToSelect, const caf::PdmObject* objectToExpand )
+{
+    if ( objectToExpand == nullptr ) objectToExpand = objectToSelect;
+
+    if ( objectToExpand ) RiuPlotMainWindowTools::setExpanded( objectToExpand );
+    if ( objectToSelect ) RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
+
+    RiuPlotMainWindowTools::refreshToolbars();
+}
