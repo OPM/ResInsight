@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewRftWellLogCurveFeature : public caf::CmdFeature
+class RicNewRftWellLogPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

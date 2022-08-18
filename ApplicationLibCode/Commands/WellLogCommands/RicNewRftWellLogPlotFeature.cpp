@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewRftWellLogCurveFeature.h"
+#include "RicNewRftWellLogPlotFeature.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
@@ -42,12 +42,12 @@
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT( RicNewRftWellLogCurveFeature, "RicNewRftWellLogCurveFeature" );
+CAF_CMD_SOURCE_INIT( RicNewRftWellLogPlotFeature, "RicNewRftWellLogPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRftWellLogCurveFeature::isCommandEnabled()
+bool RicNewRftWellLogPlotFeature::isCommandEnabled()
 {
     return true;
 }
@@ -55,7 +55,7 @@ bool RicNewRftWellLogCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftWellLogCurveFeature::onActionTriggered( bool isChecked )
+void RicNewRftWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
     auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
     if ( !rftCase ) return;
@@ -85,8 +85,8 @@ void RicNewRftWellLogCurveFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftWellLogCurveFeature::setupActionLook( QAction* actionToSetup )
+void RicNewRftWellLogPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Append RFT Well Log Curve" );
+    actionToSetup->setText( "Create RFT Well Log Plot" );
     actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }
