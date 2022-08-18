@@ -549,7 +549,7 @@ void RimProject::assignCaseIdToCase( RimCase* reservoirCase )
             m_nextValidCaseId = std::max( m_nextValidCaseId, rimCase->caseId() + 1 );
         }
 
-        reservoirCase->caseId = m_nextValidCaseId++;
+        reservoirCase->setCaseId( m_nextValidCaseId++ );
     }
 }
 

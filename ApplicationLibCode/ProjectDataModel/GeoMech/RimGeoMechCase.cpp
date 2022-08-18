@@ -296,7 +296,7 @@ RimGeoMechCase* RimGeoMechCase::createCopy( const QString& newInputFileName )
     QFileInfo filenameInfo( newInputFileName );
     QString   newCaseName = filenameInfo.completeBaseName();
 
-    copycase->caseUserDescription.setValue( newCaseName + " (copy of " + caseUserDescription.value() + ")" );
+    copycase->setCaseUserDescription( newCaseName + " (copy of " + caseUserDescription() + ")" );
     copycase->setGridFileName( newInputFileName );
 
     project->assignCaseIdToCase( copycase );
@@ -1099,8 +1099,8 @@ void RimGeoMechCase::importElementPropertyFile()
 //--------------------------------------------------------------------------------------------------
 void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &caseUserDescription );
-    uiOrdering.add( &caseId );
+    uiOrdering.add( &m_caseUserDescription );
+    uiOrdering.add( &m_caseId );
     uiOrdering.add( &m_caseFileName );
 
     caf::PdmUiGroup* caseGroup = uiOrdering.addNewGroup( "Case Options" );

@@ -62,8 +62,8 @@ void getCaseInfoFromCases( std::vector<RimCase*>& cases,
         qint64  caseGroupId = -1;
         RiaSocketTools::getCaseInfoFromCase( rimCase, caseId, caseName, caseType, caseGroupId );
 
-        caseIds.push_back( rimCase->caseId );
-        caseNames.push_back( rimCase->caseUserDescription );
+        caseIds.push_back( rimCase->caseId() );
+        caseNames.push_back( rimCase->caseUserDescription() );
         caseTypes.push_back( caseType );
         caseGroupIds.push_back( caseGroupId );
     }

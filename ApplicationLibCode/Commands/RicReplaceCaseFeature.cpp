@@ -96,7 +96,7 @@ void RicReplaceCaseFeature::onActionTriggered( bool isChecked )
 
         // Use the file base name as case user description
         QFileInfo fi( fileName );
-        selectedCase->caseUserDescription = fi.baseName();
+        selectedCase->setCaseUserDescription( fi.baseName() );
 
         // Find and update attached grid summary cases.
         RimSummaryCaseMainCollection* sumCaseColl = RiaSummaryTools::summaryCaseMainCollection();

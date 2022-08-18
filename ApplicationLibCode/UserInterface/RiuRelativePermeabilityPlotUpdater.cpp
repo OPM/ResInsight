@@ -208,7 +208,7 @@ bool RiuRelativePermeabilityPlotUpdater::queryDataAndUpdatePlot( const RimEclips
 
             QString cellRefText =
                 constructCellReferenceText( eclipseCaseData, gridIndex, gridLocalCellIndex, "SATNUM", cellSATNUM );
-            QString caseName = eclipseResultCase->caseUserDescription;
+            QString caseName = eclipseResultCase->caseUserDescription();
 
             plotPanel->setPlotData( eclipseCaseData->unitsType(), relPermCurveArr, cellSWAT, cellSGAS, caseName, cellRefText );
 

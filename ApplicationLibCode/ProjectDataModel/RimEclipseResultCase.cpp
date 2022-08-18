@@ -560,7 +560,7 @@ RifReaderRftInterface* RimEclipseResultCase::rftReader()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::setCaseInfo( const QString& userDescription, const QString& fileName )
 {
-    this->caseUserDescription = userDescription;
+    this->setCaseUserDescription( userDescription );
     setGridFileName( fileName );
 
     RimProject* proj = RimProject::current();
@@ -590,9 +590,9 @@ bool RimEclipseResultCase::hasSourSimFile()
 //--------------------------------------------------------------------------------------------------
 void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &caseUserDescription );
+    uiOrdering.add( &m_caseUserDescription );
     uiOrdering.add( &m_displayNameOption );
-    uiOrdering.add( &caseId );
+    uiOrdering.add( &m_caseId );
     uiOrdering.add( &m_caseFileName );
     uiOrdering.add( &m_unitSystem );
 

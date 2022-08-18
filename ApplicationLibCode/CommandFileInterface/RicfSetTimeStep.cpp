@@ -78,7 +78,7 @@ caf::PdmScriptResponse RicfSetTimeStep::execute()
         bool foundCase = false;
         for ( RimCase* c : allCases )
         {
-            if ( c->caseId == m_caseId )
+            if ( c->caseId() == m_caseId )
             {
                 rimCase   = c;
                 foundCase = true;

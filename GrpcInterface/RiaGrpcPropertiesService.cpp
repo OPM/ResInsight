@@ -309,7 +309,7 @@ protected:
         for ( auto item : items )
         {
             RiuEclipseSelectionItem* eclipseItem = dynamic_cast<RiuEclipseSelectionItem*>( item );
-            if ( eclipseItem && eclipseItem->m_resultDefinition->eclipseCase()->caseId == caseData->ownerCase()->caseId )
+            if ( eclipseItem && eclipseItem->m_resultDefinition->eclipseCase()->caseId() == caseData->ownerCase()->caseId() )
             {
                 eclipseItems.push_back( eclipseItem );
             }

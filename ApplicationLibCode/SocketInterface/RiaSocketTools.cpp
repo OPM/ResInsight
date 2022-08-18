@@ -72,8 +72,8 @@ void RiaSocketTools::getCaseInfoFromCase( RimCase* rimCase, qint64& caseId, QStr
 {
     CVF_ASSERT( rimCase );
 
-    caseId   = rimCase->caseId;
-    caseName = rimCase->caseUserDescription;
+    caseId   = rimCase->caseId();
+    caseName = rimCase->caseUserDescription();
 
     RimEclipseCase*    eclCase        = dynamic_cast<RimEclipseCase*>( rimCase );
     RimCaseCollection* caseCollection = nullptr;

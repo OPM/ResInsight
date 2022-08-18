@@ -94,8 +94,8 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
         eclipseCaseData()->activeCellInfo( RiaDefines::PorosityModelType::FRACTURE_MODEL )->computeDerivedData();
 
         QFileInfo gridFileName( fileNames[0] );
-        QString   caseName        = gridFileName.completeBaseName();
-        this->caseUserDescription = caseName;
+        QString   caseName = gridFileName.completeBaseName();
+        this->setCaseUserDescription( caseName );
 
         computeCachedData();
 
@@ -127,7 +127,7 @@ bool RimEclipseInputCase::openDataFileSet( const QStringList& fileNames )
                 QFileInfo gridFileName( fileNames[i] );
                 QString   caseName = gridFileName.completeBaseName();
 
-                this->caseUserDescription = caseName;
+                this->setCaseUserDescription( caseName );
 
                 this->eclipseCaseData()->mainGrid()->setFlipAxis( m_flipXAxis, m_flipYAxis );
 
@@ -299,9 +299,9 @@ cvf::ref<RifReaderInterface> RimEclipseInputCase::createMockModel( QString model
 //--------------------------------------------------------------------------------------------------
 void RimEclipseInputCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    uiOrdering.add( &caseUserDescription );
+    uiOrdering.add( &m_caseUserDescription );
     uiOrdering.add( &m_displayNameOption );
-    uiOrdering.add( &caseId );
+    uiOrdering.add( &m_caseId );
     uiOrdering.add( &m_caseFileName );
     uiOrdering.add( &m_additionalFiles );
 

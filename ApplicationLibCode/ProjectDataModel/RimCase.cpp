@@ -49,14 +49,14 @@ RimCase::RimCase()
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "Case", ":/Case48x48.png", "", "", "Case", "The ResInsight base class for Cases" );
 
-    CAF_PDM_InitScriptableField( &caseUserDescription, "Name", QString(), "Case Name" );
-    caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
+    CAF_PDM_InitScriptableField( &m_caseUserDescription, "Name", QString(), "Case Name" );
+    m_caseUserDescription.registerKeywordAlias( "CaseUserDescription" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_displayNameOption, "NameSetting", "Name Setting" );
 
-    CAF_PDM_InitScriptableField( &caseId, "Id", -1, "Case ID" );
-    caseId.registerKeywordAlias( "CaseId" );
-    caseId.uiCapability()->setUiReadOnly( true );
-    caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
+    CAF_PDM_InitScriptableField( &m_caseId, "Id", -1, "Case ID" );
+    m_caseId.registerKeywordAlias( "CaseId" );
+    m_caseId.uiCapability()->setUiReadOnly( true );
+    m_caseId.capability<caf::PdmAbstractFieldScriptingCapability>()->setIOWriteable( false );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_caseFileName, "FilePath", "Case File Name" );
     m_caseFileName.registerKeywordAlias( "CaseFileName" );
@@ -90,6 +90,38 @@ RimCase::~RimCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+int RimCase::caseId() const
+{
+    return m_caseId();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::setCaseId( int id )
+{
+    m_caseId = id;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimCase::caseUserDescription() const
+{
+    return m_caseUserDescription();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::setCaseUserDescription( const QString& description )
+{
+    m_caseUserDescription = description;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimCase::setGridFileName( const QString& fileName )
 {
     m_caseFileName.v().setPath( fileName );
@@ -104,6 +136,15 @@ void RimCase::setGridFileName( const QString& fileName )
 QString RimCase::gridFileName() const
 {
     return m_caseFileName().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimCase::setCustomCaseName( const QString& caseName )
+{
+    m_displayNameOption   = RimCaseDisplayNameTools::DisplayName::CUSTOM;
+    m_caseUserDescription = caseName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -195,7 +236,7 @@ void RimCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const Q
     {
         updateAutoShortName();
     }
-    else if ( changedField == &caseUserDescription )
+    else if ( changedField == &m_caseUserDescription )
     {
         updateTreeItemName();
     }
@@ -235,7 +276,8 @@ QList<caf::PdmOptionItemInfo> RimCase::calculateValueOptions( const caf::PdmFiel
 //--------------------------------------------------------------------------------------------------
 void RimCase::updateOptionSensitivity()
 {
-    caseUserDescription.uiCapability()->setUiReadOnly( m_displayNameOption != RimCaseDisplayNameTools::DisplayName::CUSTOM );
+    m_caseUserDescription.uiCapability()->setUiReadOnly( m_displayNameOption !=
+                                                         RimCaseDisplayNameTools::DisplayName::CUSTOM );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -243,7 +285,7 @@ void RimCase::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 void RimCase::initAfterRead()
 {
-    if ( caseId() == -1 )
+    if ( m_caseId() == -1 )
     {
         RimProject::current()->assignCaseIdToCase( this );
     }
@@ -262,7 +304,7 @@ void RimCase::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 caf::PdmFieldHandle* RimCase::userDescriptionField()
 {
-    return &caseUserDescription;
+    return &m_caseUserDescription;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -272,11 +314,11 @@ void RimCase::updateAutoShortName()
 {
     if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::FULL_CASE_NAME )
     {
-        caseUserDescription = caseName();
+        m_caseUserDescription = caseName();
     }
     else if ( m_displayNameOption == RimCaseDisplayNameTools::DisplayName::SHORT_CASE_NAME )
     {
-        caseUserDescription = RimCase::uniqueShortNameCase( this, RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
+        m_caseUserDescription = RimCase::uniqueShortNameCase( this, RimCaseDisplayNameTools::CASE_SHORT_NAME_LENGTH );
     }
     updateTreeItemName();
 }
@@ -286,7 +328,7 @@ void RimCase::updateAutoShortName()
 //--------------------------------------------------------------------------------------------------
 void RimCase::updateTreeItemName()
 {
-    setUiName( caseUserDescription() );
+    setUiName( m_caseUserDescription() );
 }
 
 //--------------------------------------------------------------------------------------------------
