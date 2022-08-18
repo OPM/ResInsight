@@ -180,7 +180,7 @@ void RicNewSummaryEnsembleCurveSetFeature::onActionTriggered( bool isChecked )
             if ( !curveSets.empty() ) firstCurveSet = curveSets.front();
         }
         plot->loadDataAndUpdate();
-        plot->ensembleCurveSetCollection()->updateAllRequiredEditors();
+        plot->updateAllRequiredEditors();
 
         RiaGuiApplication* app            = RiaGuiApplication::instance();
         RiuPlotMainWindow* mainPlotWindow = app->getOrCreateAndShowMainPlotWindow();
