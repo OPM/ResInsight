@@ -358,8 +358,8 @@ RimEclipseStatisticsCase* RimIdenticalGridCaseGroup::createAndAppendStatisticsCa
 {
     RimEclipseStatisticsCase* newStatisticsCase = new RimEclipseStatisticsCase;
 
-    newStatisticsCase->caseUserDescription = QString( "Statistics " ) +
-                                             QString::number( statisticsCaseCollection()->reservoirs.size() + 1 );
+    newStatisticsCase->setCaseUserDescription( QString( "Statistics " ) +
+                                               QString::number( statisticsCaseCollection()->reservoirs.size() + 1 ) );
     statisticsCaseCollection()->reservoirs.push_back( newStatisticsCase );
 
     newStatisticsCase->populateResultSelectionAfterLoadingGrid();

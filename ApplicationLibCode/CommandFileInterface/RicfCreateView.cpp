@@ -48,7 +48,7 @@ caf::PdmScriptResponse RicfCreateView::execute()
 
     for ( RimCase* rimCase : allCases )
     {
-        if ( rimCase->caseId == m_caseId() )
+        if ( rimCase->caseId() == m_caseId() )
         {
             int             viewId      = -1;
             RimEclipseCase* eclipseCase = dynamic_cast<RimEclipseCase*>( rimCase );

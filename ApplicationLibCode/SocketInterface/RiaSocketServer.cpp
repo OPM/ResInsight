@@ -165,7 +165,7 @@ RimEclipseCase* RiaSocketServer::findReservoir( int caseId )
 
         for ( size_t i = 0; i < cases.size(); i++ )
         {
-            if ( cases[i]->caseId == currCaseId )
+            if ( cases[i]->caseId() == currCaseId )
             {
                 return dynamic_cast<RimEclipseCase*>( cases[i] );
             }

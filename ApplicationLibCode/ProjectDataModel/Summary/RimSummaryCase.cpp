@@ -252,6 +252,8 @@ void RimSummaryCase::buildChildNodes()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    updateOptionSensitivity();
+
     uiOrdering.add( &m_displayName );
     uiOrdering.add( &m_displayNameOption );
     uiOrdering.add( &m_summaryHeaderFilename );
@@ -378,6 +380,15 @@ void RimSummaryCase::setCaseId( int caseId )
 int RimSummaryCase::caseId() const
 {
     return m_caseId();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryCase::setCustomCaseName( const QString& caseName )
+{
+    m_displayNameOption = RimCaseDisplayNameTools::DisplayName::CUSTOM;
+    m_displayName       = caseName;
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicNewRftSegmentWellLogCurveFeature.h"
+#include "RicNewRftSegmentWellLogPlotFeature.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
 #include "RicWellLogPlotCurveFeatureImpl.h"
@@ -43,12 +43,12 @@
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogCurveFeature, "RicNewRftSegmentWellLogCurveFeature" );
+CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogPlotFeature, "RicNewRftSegmentWellLogCurveFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRftSegmentWellLogCurveFeature::isCommandEnabled()
+bool RicNewRftSegmentWellLogPlotFeature::isCommandEnabled()
 {
     return true;
 }
@@ -56,7 +56,7 @@ bool RicNewRftSegmentWellLogCurveFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogCurveFeature::onActionTriggered( bool isChecked )
+void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 {
     auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
     if ( !rftCase ) return;
@@ -91,10 +91,10 @@ void RicNewRftSegmentWellLogCurveFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogCurveFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
-                                                                            const QString&            resultName,
-                                                                            RiaDefines::RftBranchType branchType,
-                                                                            RimSummaryCase*           summaryCase )
+void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
+                                                                           const QString&            resultName,
+                                                                           RiaDefines::RftBranchType branchType,
+                                                                           RimSummaryCase*           summaryCase )
 {
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addPlot( plotTrack );
@@ -112,8 +112,8 @@ void RicNewRftSegmentWellLogCurveFeature::appendTrackAndCurveForBranchType( RimW
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogCurveFeature::setupActionLook( QAction* actionToSetup )
+void RicNewRftSegmentWellLogPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    actionToSetup->setText( "Append RFT Segment Curve" );
+    actionToSetup->setText( "Create RFT Segment Plot" );
     actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }

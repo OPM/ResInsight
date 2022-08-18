@@ -216,12 +216,12 @@ void RiaProjectModifier::replaceCase( RimProject* project )
                     if ( eclipseResultCase )
                     {
                         eclipseResultCase->setGridFileName( replaceFileName );
-                        eclipseResultCase->caseUserDescription = caseNameFromGridFileName( replaceFileName );
+                        eclipseResultCase->setCaseUserDescription( caseNameFromGridFileName( replaceFileName ) );
                     }
                     else if ( geomechCase )
                     {
                         geomechCase->setGridFileName( replaceFileName );
-                        geomechCase->caseUserDescription = caseNameFromGridFileName( replaceFileName );
+                        geomechCase->setCaseUserDescription( caseNameFromGridFileName( replaceFileName ) );
                     }
                 }
             }

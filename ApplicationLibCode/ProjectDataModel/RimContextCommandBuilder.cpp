@@ -268,6 +268,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimEclipseCase*>( firstUiItem ) )
         {
+            menuBuilder << "RicRenameCaseFeature";
             menuBuilder << "RicPasteEclipseCasesFeature";
             menuBuilder << "RicPasteEclipseViewsFeature";
             menuBuilder << "Separator";
@@ -1074,7 +1075,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         else if ( dynamic_cast<RimRftCase*>( firstUiItem ) )
         {
             menuBuilder << "RicNewRftWellLogCurveFeature";
-            menuBuilder << "RicNewRftSegmentWellLogCurveFeature";
+            menuBuilder << "RicNewRftSegmentWellLogPlotFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
@@ -1124,6 +1125,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
 
         menuBuilder << "RicImportObservedDataFeature";
         menuBuilder << "RicImportObservedFmuDataFeature";
+        menuBuilder << "RicRenameSummaryCaseFeature";
         menuBuilder << "RicReloadSummaryCaseFeature";
         menuBuilder << "RicReplaceSummaryCaseFeature";
         menuBuilder << "RicCreateSummaryCaseCollectionFeature";

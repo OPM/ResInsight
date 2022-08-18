@@ -54,13 +54,16 @@ public:
     RimCase();
     ~RimCase() override;
 
-    caf::PdmField<int>     caseId;
-    caf::PdmField<QString> caseUserDescription;
+    int  caseId() const;
+    void setCaseId( int id );
+
+    QString caseUserDescription() const;
+    void    setCaseUserDescription( const QString& description );
 
     void    setGridFileName( const QString& fileName );
     QString gridFileName() const;
 
-    void setDisplayNameOption( RimCaseDisplayNameTools::DisplayName displayNameOption );
+    void setCustomCaseName( const QString& caseName );
     void updateAutoShortName();
     void updateOptionSensitivity();
 
@@ -105,6 +108,8 @@ private:
     caf::PdmFieldHandle* userDescriptionField() override;
 
 protected:
+    caf::PdmField<int>                                   m_caseId;
+    caf::PdmField<QString>                               m_caseUserDescription;
     caf::PdmField<caf::FilePath>                         m_caseFileName;
     caf::PdmField<DisplayNameEnum>                       m_displayNameOption;
     caf::PdmChildField<RimTimeStepFilter*>               m_timeStepFilter;

@@ -387,8 +387,8 @@ void RimEclipseStatisticsCase::defineUiOrdering( QString uiConfigName, caf::PdmU
     updateSelectionListVisibilities();
     updatePercentileUiVisibility();
 
-    uiOrdering.add( &caseUserDescription );
-    uiOrdering.add( &caseId );
+    uiOrdering.add( &m_caseUserDescription );
+    uiOrdering.add( &m_caseId );
 
     uiOrdering.add( &m_calculateEditCommand );
 

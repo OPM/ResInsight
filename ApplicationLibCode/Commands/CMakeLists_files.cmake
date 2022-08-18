@@ -85,6 +85,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicRenameSummaryCaseFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -173,6 +174,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicUserDefinedCalculatorUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicShowDataSourcesForRealization.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteUncheckedSubItemsFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicRenameSummaryCaseFeature.cpp
 )
 
 if(RESINSIGHT_USE_QT_CHARTS)
