@@ -27,7 +27,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellBoreStabilityPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellMeasurementCurveFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogCurveSetFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogCurveFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogPlotFeature.h
 )
 
@@ -60,7 +60,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellBoreStabilityPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewWellMeasurementCurveFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewEnsembleWellLogCurveSetFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogCurveFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicNewRftWellLogPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewRftSegmentWellLogPlotFeature.cpp
 )
 

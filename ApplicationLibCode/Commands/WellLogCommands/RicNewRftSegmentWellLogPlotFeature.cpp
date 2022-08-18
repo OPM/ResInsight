@@ -43,7 +43,7 @@
 
 #include <vector>
 
-CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogPlotFeature, "RicNewRftSegmentWellLogCurveFeature" );
+CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogPlotFeature, "RicNewRftSegmentWellLogPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
