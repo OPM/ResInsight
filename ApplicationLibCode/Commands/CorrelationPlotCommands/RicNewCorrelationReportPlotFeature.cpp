@@ -101,9 +101,7 @@ void RicNewCorrelationReportPlotFeature::onActionTriggered( bool isChecked )
 
     if ( correlationPlotColl ) correlationPlotColl->updateConnectedEditors();
 
-    RiuPlotMainWindowTools::setExpanded( newPlot );
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );
-    RiuPlotMainWindowTools::refreshToolbars();
+    RiuPlotMainWindowTools::onObjectAppended( newPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -272,8 +272,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
                 wellLogPlot->updateConnectedEditors();
 
                 RiuPlotMainWindowTools::showPlotMainWindow();
-                RiuPlotMainWindowTools::selectAsCurrentItem( wellLogPlot );
-                RiuPlotMainWindowTools::refreshToolbars();
+                RiuPlotMainWindowTools::onObjectAppended( wellLogPlot );
             }
         }
     }

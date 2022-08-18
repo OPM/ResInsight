@@ -120,11 +120,8 @@ RimWellBoreStabilityPlot*
         RicNewWellLogPlotFeatureImpl::updateAfterCreation( plot );
     }
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
-
-    // Make sure the summary plot window is visible
     RiuPlotMainWindowTools::showPlotMainWindow();
-    RiuPlotMainWindowTools::refreshToolbars();
+    RiuPlotMainWindowTools::onObjectAppended( plot );
 
     return plot;
 }

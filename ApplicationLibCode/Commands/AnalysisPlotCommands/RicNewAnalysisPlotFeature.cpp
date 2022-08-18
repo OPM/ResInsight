@@ -96,9 +96,7 @@ void RicNewAnalysisPlotFeature::onActionTriggered( bool isChecked )
 
     if ( analysisPlotColl ) analysisPlotColl->updateConnectedEditors();
 
-    RiuPlotMainWindowTools::setExpanded( newPlot );
-    RiuPlotMainWindowTools::selectAsCurrentItem( newPlot );
-    RiuPlotMainWindowTools::refreshToolbars();
+    RiuPlotMainWindowTools::onObjectAppended( newPlot );
 }
 
 //--------------------------------------------------------------------------------------------------

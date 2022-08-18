@@ -76,10 +76,7 @@ void RicNewRftWellLogPlotFeature::onActionTriggered( bool isChecked )
 
     curve->updateAllRequiredEditors();
 
-    RiuPlotMainWindowTools::setExpanded( curve );
-    RiuPlotMainWindowTools::selectAsCurrentItem( curve );
-
-    RiuPlotMainWindowTools::refreshToolbars();
+    RiuPlotMainWindowTools::onObjectAppended( curve );
 }
 
 //--------------------------------------------------------------------------------------------------

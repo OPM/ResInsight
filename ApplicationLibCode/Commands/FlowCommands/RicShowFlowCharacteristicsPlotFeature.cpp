@@ -96,9 +96,7 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered( bool isChecked )
                 flowPlotColl->defaultFlowCharacteristicsPlot()->setFromFlowSolution( eclCase->defaultFlowDiagSolution() );
                 flowPlotColl->defaultFlowCharacteristicsPlot()->updateConnectedEditors();
 
-                // Make sure the summary plot window is created and visible
-                RiuPlotMainWindowTools::selectAsCurrentItem( flowPlotColl->defaultFlowCharacteristicsPlot() );
-                RiuPlotMainWindowTools::refreshToolbars();
+                RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultFlowCharacteristicsPlot() );
             }
         }
     }

@@ -342,11 +342,11 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
 
     if ( !plots.empty() )
     {
-        RiuPlotMainWindowTools::selectAsCurrentItem( plots[0], true );
+        RiuPlotMainWindowTools::selectAsCurrentItem( plots[0] );
     }
     else
     {
-        RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow, true );
+        RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
     }
 
     return plotWindow;
@@ -374,12 +374,12 @@ RimSummaryMultiPlot*
     if ( plotWindow->summaryPlots().size() == 1 )
     {
         RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow->summaryPlots()[0] );
-        RiuPlotMainWindowTools::setExpanded( plotWindow->summaryPlots()[0], true );
+        RiuPlotMainWindowTools::setExpanded( plotWindow->summaryPlots()[0] );
     }
     else
     {
         RiuPlotMainWindowTools::selectAsCurrentItem( plotWindow );
-        RiuPlotMainWindowTools::setExpanded( plotWindow, true );
+        RiuPlotMainWindowTools::setExpanded( plotWindow );
     }
 
     return plotWindow;

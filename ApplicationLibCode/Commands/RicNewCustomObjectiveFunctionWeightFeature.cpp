@@ -56,8 +56,7 @@ void RicNewCustomObjectiveFunctionWeightFeature::onActionTriggered( bool isCheck
         auto newWeight = RimObjectiveFunctionTools::addWeight( firstObjectiveFunction );
 
         firstObjectiveFunction->updateConnectedEditors();
-        RiuPlotMainWindowTools::selectAsCurrentItem( newWeight );
-        RiuPlotMainWindowTools::setExpanded( func.front() );
+        RiuPlotMainWindowTools::onObjectAppended( newWeight, func.front() );
     }
 
     selObj->updateConnectedEditors();

@@ -52,9 +52,9 @@ void RicNewEnsembleWellLogCurveSetFeature::onActionTriggered( bool isChecked )
         RimEnsembleWellLogCurveSet* curveSet = new RimEnsembleWellLogCurveSet();
         wellLogPlotTrack->setEnsembleWellLogCurveSet( curveSet );
         wellLogPlotTrack->updateEditors();
-        RiuPlotMainWindowTools::selectAsCurrentItem( curveSet );
+
+        RiuPlotMainWindowTools::onObjectAppended( curveSet );
     }
-    RiuPlotMainWindowTools::refreshToolbars();
 }
 
 //--------------------------------------------------------------------------------------------------

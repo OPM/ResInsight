@@ -199,8 +199,7 @@ void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked 
 
     if ( objectToSelect )
     {
-        RiuPlotMainWindowTools::selectAsCurrentItem( objectToSelect );
-        RiuPlotMainWindowTools::refreshToolbars();
+        RiuPlotMainWindowTools::onObjectAppended( objectToSelect );
     }
 }
 

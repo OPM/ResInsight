@@ -175,11 +175,8 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
         plot->setAutoScaleDepthValuesEnabled( true );
     }
 
-    RiuPlotMainWindowTools::selectAsCurrentItem( plot );
-    RiuPlotMainWindowTools::refreshToolbars();
-
-    // Make sure the summary plot window is visible
     RiuPlotMainWindowTools::showPlotMainWindow();
+    RiuPlotMainWindowTools::onObjectAppended( plot );
 
     plot->loadDataAndUpdate();
 

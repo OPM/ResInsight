@@ -81,9 +81,7 @@ void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 
             flowPlotColl->updateConnectedEditors();
 
-            RiuPlotMainWindowTools::selectAsCurrentItem( wellAllocationPlot );
-            RiuPlotMainWindowTools::setExpanded( wellAllocationPlot );
-            RiuPlotMainWindowTools::refreshToolbars();
+            RiuPlotMainWindowTools::onObjectAppended( wellAllocationPlot );
         }
     }
 }
