@@ -83,7 +83,7 @@ void RimPlotTemplateFolderItem::updateIconState() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotTemplateFileItem*> RimPlotTemplateFolderItem::fileNames() const
+std::vector<RimPlotTemplateFileItem*> RimPlotTemplateFolderItem::fileItems() const
 {
     return m_fileNames.children();
 }
@@ -103,6 +103,24 @@ void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplates( QList<caf::Pd
                                                                    RimPlotTemplateFolderItem*     templateFolderItem )
 {
     appendOptionItemsForPlotTemplatesRecursively( options, templateFolderItem, 0 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotTemplateFolderItem::allPlotTemplates( std::vector<RimPlotTemplateFileItem*>& fileTemplates,
+                                                  RimPlotTemplateFolderItem*             templateFolderItem )
+{
+    auto fileItems = templateFolderItem->fileItems();
+    for ( auto fileItem : fileItems )
+    {
+        fileTemplates.push_back( fileItem );
+    }
+
+    for ( auto folder : templateFolderItem->subFolders() )
+    {
+        allPlotTemplates( fileTemplates, folder );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,7 +248,7 @@ void RimPlotTemplateFolderItem::appendOptionItemsForPlotTemplatesRecursively( QL
     caf::IconProvider templateIcon( ":/SummaryTemplate16x16.png" );
     caf::IconProvider ensTemplateIcon( ":/SummaryEnsembleTemplate16x16.png" );
 
-    auto files = templateFolderItem->fileNames();
+    auto files = templateFolderItem->fileItems();
     for ( auto file : files )
     {
         caf::IconProvider icon = templateIcon;

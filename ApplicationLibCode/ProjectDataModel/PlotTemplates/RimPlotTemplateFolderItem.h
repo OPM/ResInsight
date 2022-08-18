@@ -43,11 +43,14 @@ public:
 
     void createRootFolderItemsFromFolderPaths( const QStringList& folderPaths );
 
-    std::vector<RimPlotTemplateFileItem*>   fileNames() const;
+    std::vector<RimPlotTemplateFileItem*>   fileItems() const;
     std::vector<RimPlotTemplateFolderItem*> subFolders() const;
 
     static void appendOptionItemsForPlotTemplates( QList<caf::PdmOptionItemInfo>& options,
                                                    RimPlotTemplateFolderItem*     templateFolderItem );
+
+    static void allPlotTemplates( std::vector<RimPlotTemplateFileItem*>& fileItems,
+                                  RimPlotTemplateFolderItem*             templateFolderItem );
     void        updateIconState() const;
 
 private:
