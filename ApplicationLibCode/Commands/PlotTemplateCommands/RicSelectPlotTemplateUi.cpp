@@ -56,8 +56,23 @@ void RicSelectPlotTemplateUi::setMultiSelectMode( bool multiSelect )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicSelectPlotTemplateUi::setInitialSelection( std::vector<QString> selectedTemplates )
+void RicSelectPlotTemplateUi::setInitialSelection( const std::vector<QString>& selectedTemplates )
 {
+    auto plotTemplateRoot = RimProject::current()->rootPlotTemplateItem();
+
+    std::vector<RimPlotTemplateFileItem*> fileItems;
+    RimPlotTemplateFolderItem::allPlotTemplates( fileItems, plotTemplateRoot );
+
+    for ( const auto& selectedTemplate : selectedTemplates )
+    {
+        for ( const auto& fileItem : fileItems )
+        {
+            if ( fileItem->absoluteFilePath() == selectedTemplate )
+            {
+                m_selectedPlotTemplates.push_back( fileItem );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

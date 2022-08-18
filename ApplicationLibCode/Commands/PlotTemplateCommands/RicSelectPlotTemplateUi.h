@@ -39,7 +39,7 @@ public:
     RicSelectPlotTemplateUi();
 
     void setMultiSelectMode( bool multiSelect );
-    void setInitialSelection( std::vector<QString> selectedTemplates );
+    void setInitialSelection( const std::vector<QString>& selectedTemplates );
 
     std::vector<RimPlotTemplateFileItem*> selectedPlotTemplates();
 
