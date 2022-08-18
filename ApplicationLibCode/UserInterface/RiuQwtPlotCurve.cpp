@@ -502,8 +502,9 @@ void RiuQwtPlotCurve::setYAxis( RiuPlotAxis axis )
 {
     if ( m_plotWidget )
     {
-        QwtPlotCurve::setYAxis( m_plotWidget->toQwtPlotAxis( axis ) );
-        if ( m_qwtCurveErrorBars ) m_qwtCurveErrorBars->setYAxis( m_plotWidget->toQwtPlotAxis( axis ) );
+        auto axisId = m_plotWidget->toQwtPlotAxis( axis );
+        QwtPlotCurve::setYAxis( axisId );
+        if ( m_qwtCurveErrorBars ) m_qwtCurveErrorBars->setYAxis( axisId );
     }
 }
 
