@@ -42,7 +42,11 @@ class CDockManager;
 class RiuDockWidgetTools
 {
 public:
-    static QString projectTreeName();
+    static ads::CDockWidget* createDockWidget( QString title, QString dockName, QWidget* parent );
+
+    static QString mainPlotWindowName();
+    static QString main3DWindowName();
+
     static QString propertyEditorName();
     static QString resultInfoName();
     static QString processMonitorName();
@@ -52,7 +56,6 @@ public:
     static QString messagesName();
     static QString mohrsCirclePlotName();
     static QString undoStackName();
-    static QString summaryPlotManagerName();
 
     static QString mainWindowProjectTreeName();
     static QString mainWindowDataSourceTreeName();
@@ -66,6 +69,7 @@ public:
     static QString plotMainWindowPropertyEditorName();
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
+    static QString summaryPlotManagerName();
 
     static QString dockState3DEclipseName();
     static QString dockState3DGeoMechName();
@@ -82,6 +86,8 @@ public:
     static QByteArray defaultDockState( const QString& layoutName );
     static QByteArray hideAllDocking3DState();
     static QByteArray hideAllDockingPlotState();
+
+    static QIcon dockIcon( const QString dockWidgetName );
 
 private:
     static QByteArray defaultEclipseDockState();

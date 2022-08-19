@@ -50,7 +50,7 @@
 #include <QUndoStack>
 #include <QUndoView>
 
-#define DOCKSTATE_VERSION 1
+#define DOCKSTATE_VERSION 2
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -154,9 +154,17 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
             }
         }
     }
+
+    bool dockingOk = false;
+
     if ( dockState.isValid() )
     {
-        m_dockManager->restoreState( dockState.toByteArray(), DOCKSTATE_VERSION );
+        dockingOk = m_dockManager->restoreState( dockState.toByteArray(), DOCKSTATE_VERSION );
+    }
+
+    if ( !dockingOk )
+    {
+        m_dockManager->restoreState( RiuDockWidgetTools::defaultDockState( defaultDockStateNames()[0] ), DOCKSTATE_VERSION );
     }
 
     settings.beginGroup( registryFolderName() );
@@ -692,11 +700,15 @@ void RiuMainWindowBase::saveDockLayout()
 //--------------------------------------------------------------------------------------------------
 void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
 {
-    QMenu* showHideMenu = m_windowMenu->addMenu( "Show/Hide Windows" );
+    QMenu* dockWindowsMenu = m_windowMenu->addMenu( QIcon( ":/window-management.svg" ), "Windows" );
 
-    for ( auto dock : dockManager()->dockWidgetsMap() )
+    auto dockMap = dockManager()->dockWidgetsMap();
+    auto keys    = dockMap.keys();
+    keys.sort();
+    for ( auto& key : keys )
     {
-        showHideMenu->addAction( dock->toggleViewAction() );
+        auto dock = dockMap[key];
+        dockWindowsMenu->addAction( dock->toggleViewAction() );
     }
     m_windowMenu->addSeparator();
 

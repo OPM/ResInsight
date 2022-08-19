@@ -89,9 +89,11 @@ RiuPlotMainWindow::RiuPlotMainWindow()
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
 
-    ads::CDockWidget* widget = new ads::CDockWidget( "Plot Window", this );
-    widget->setWidget( m_mdiArea );
-    auto dockArea = dockManager()->setCentralWidget( widget );
+    ads::CDockWidget* cWidget =
+        RiuDockWidgetTools::createDockWidget( "Plot Window", RiuDockWidgetTools::mainPlotWindowName(), this );
+
+    cWidget->setWidget( m_mdiArea );
+    auto dockArea = dockManager()->setCentralWidget( cWidget );
     dockArea->setVisible( true );
 
     m_toggleSelectionLinkAction = new QAction( QIcon( ":/Link3DandPlots.png" ), tr( "Link With Selection in 3D" ), this );
@@ -527,8 +529,7 @@ void RiuPlotMainWindow::createDockPanels()
     // the project trees
     for ( int i = 0; i < nTreeViews; i++ )
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( treeViewTitles[i], dockManager() );
-        dockWidget->setObjectName( treeViewDockNames[i] );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( treeViewTitles[i], treeViewDockNames[i], dockManager() );
 
         caf::PdmUiTreeView* projectTree = projectTreeView( i );
         projectTree->enableSelectionManagerUpdating( true );
@@ -567,8 +568,9 @@ void RiuPlotMainWindow::createDockPanels()
 
     // the plot manager
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Plot Manager", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::summaryPlotManagerName() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Plot Manager",
+                                                                RiuDockWidgetTools::summaryPlotManagerName(),
+                                                                dockManager() );
 
         m_summaryPlotManagerView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
 
@@ -585,8 +587,10 @@ void RiuPlotMainWindow::createDockPanels()
     // the undo stack
     if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Undo Stack", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowUndoStackName() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Undo Stack",
+                                                                RiuDockWidgetTools::plotMainWindowUndoStackName(),
+                                                                dockManager() );
+
         dockWidget->setWidget( m_undoView );
         rightWidgets.push_back( dockWidget );
     }
@@ -599,8 +603,9 @@ void RiuPlotMainWindow::createDockPanels()
 
     // the property editor
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Property Editor", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowPropertyEditorName() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Property Editor",
+                                                                RiuDockWidgetTools::plotMainWindowPropertyEditorName(),
+                                                                dockManager() );
 
         m_pdmUiPropertyView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
         dockWidget->setWidget( m_pdmUiPropertyView.get() );
@@ -609,8 +614,10 @@ void RiuPlotMainWindow::createDockPanels()
 
     // the log message view
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Messages", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::plotMainWindowMessagesName() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Messages",
+                                                                RiuDockWidgetTools::plotMainWindowMessagesName(),
+                                                                dockManager() );
+
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
         dockManager()->addDockWidget( ads::DockWidgetArea::BottomDockWidgetArea, dockWidget, rightArea );

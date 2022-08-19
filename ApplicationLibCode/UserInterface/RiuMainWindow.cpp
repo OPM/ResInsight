@@ -128,9 +128,10 @@ RiuMainWindow::RiuMainWindow()
     m_mdiArea = new RiuMdiArea( this );
     connect( m_mdiArea, SIGNAL( subWindowActivated( QMdiSubWindow* ) ), SLOT( slotSubWindowActivated( QMdiSubWindow* ) ) );
 
-    ads::CDockWidget* widget = new ads::CDockWidget( "3D Views", this );
-    widget->setWidget( m_mdiArea );
-    dockManager()->setCentralWidget( widget );
+    ads::CDockWidget* cWidget =
+        RiuDockWidgetTools::createDockWidget( "3D Views", RiuDockWidgetTools::main3DWindowName(), this );
+    cWidget->setWidget( m_mdiArea );
+    dockManager()->setCentralWidget( cWidget );
 
     createActions();
     createMenus();
@@ -748,8 +749,7 @@ void RiuMainWindow::createDockPanels()
 
     for ( int i = 0; i < nTreeViews; i++ )
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( treeViewTitles[i], dockManager() );
-        dockWidget->setObjectName( treeViewDockNames[i] );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( treeViewTitles[i], treeViewDockNames[i], dockManager() );
 
         caf::PdmUiTreeView* projectTree = projectTreeView( i );
         projectTree->enableSelectionManagerUpdating( true );
@@ -789,15 +789,16 @@ void RiuMainWindow::createDockPanels()
     // undo/redo view
     if ( m_undoView && RiaPreferences::current()->useUndoRedo() )
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Undo Stack", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::undoStackName() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Undo Stack", RiuDockWidgetTools::undoStackName(), dockManager() );
         dockWidget->setWidget( m_undoView );
         rightWidgets.push_back( dockWidget );
     }
 
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Result Plot", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::resultPlotName() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Result Plot", RiuDockWidgetTools::resultPlotName(), dockManager() );
+
         m_resultQwtPlot = new RiuResultQwtPlot( dockWidget );
         dockWidget->setWidget( m_resultQwtPlot );
         bottomWidgets.push_back( dockWidget );
@@ -810,8 +811,9 @@ void RiuMainWindow::createDockPanels()
                                                          dockManager()->centralWidget()->dockAreaWidget() );
 
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Property Editor", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::propertyEditorName() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Property Editor",
+                                                                RiuDockWidgetTools::propertyEditorName(),
+                                                                dockManager() );
 
         m_pdmUiPropertyView = new caf::PdmUiPropertyView( dockWidget );
         dockWidget->setWidget( m_pdmUiPropertyView );
@@ -820,8 +822,10 @@ void RiuMainWindow::createDockPanels()
 
 #ifdef USE_ODB_API
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Mohr's Circle Plot", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::mohrsCirclePlotName() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Mohr's Circle Plot",
+                                                                RiuDockWidgetTools::mohrsCirclePlotName(),
+                                                                dockManager() );
+
         m_mohrsCirclePlot = new RiuMohrsCirclePlot( dockWidget );
         dockWidget->setWidget( m_mohrsCirclePlot );
         dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
@@ -829,16 +833,19 @@ void RiuMainWindow::createDockPanels()
 #endif
 
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Relative Permeability Plot", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::relPermPlotName() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Relative Permeability Plot",
+                                                                RiuDockWidgetTools::relPermPlotName(),
+                                                                dockManager() );
+
         m_relPermPlotPanel = new RiuRelativePermeabilityPlotPanel( dockWidget );
         dockWidget->setWidget( m_relPermPlotPanel );
         dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
     }
 
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "PVT Plot", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::pvtPlotName() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "PVT Plot", RiuDockWidgetTools::pvtPlotName(), dockManager() );
+
         m_pvtPlotPanel = new RiuPvtPlotPanel( dockWidget );
         dockWidget->setWidget( m_pvtPlotPanel );
         dockManager()->addDockWidgetTabToArea( dockWidget, bottomArea );
@@ -846,8 +853,9 @@ void RiuMainWindow::createDockPanels()
 
     // result info
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Result Info", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::resultInfoName() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Result Info", RiuDockWidgetTools::resultInfoName(), dockManager() );
+
         m_resultInfoPanel = new RiuResultInfoPanel( dockWidget );
         dockWidget->setWidget( m_resultInfoPanel );
         dockManager()->addDockWidget( ads::DockWidgetArea::LeftDockWidgetArea, dockWidget, bottomArea );
@@ -856,16 +864,19 @@ void RiuMainWindow::createDockPanels()
     ads::CDockAreaWidget* procAndMsgTabs = nullptr;
     // process monitor
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Process Monitor", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::processMonitorName() );
+        auto dockWidget = RiuDockWidgetTools::createDockWidget( "Process Monitor",
+                                                                RiuDockWidgetTools::processMonitorName(),
+                                                                dockManager() );
+
         m_processMonitor = new RiuProcessMonitor( dockWidget );
         dockWidget->setWidget( m_processMonitor );
         procAndMsgTabs = dockManager()->addDockWidget( ads::DockWidgetArea::RightDockWidgetArea, dockWidget, bottomArea );
     }
 
     {
-        ads::CDockWidget* dockWidget = new ads::CDockWidget( "Messages", dockManager() );
-        dockWidget->setObjectName( RiuDockWidgetTools::messagesName() );
+        auto dockWidget =
+            RiuDockWidgetTools::createDockWidget( "Messages", RiuDockWidgetTools::messagesName(), dockManager() );
+
         m_messagePanel = new RiuMessagePanel( dockWidget );
         dockWidget->setWidget( m_messagePanel );
         dockManager()->addDockWidgetTabToArea( dockWidget, procAndMsgTabs );
