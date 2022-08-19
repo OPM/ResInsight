@@ -82,99 +82,36 @@ void RiuSummaryMultiPlotPage::reinsertPlotWidgets()
 
     for ( int row = 0; row < rows; row++ )
     {
-        for ( int col = 0; col < cols; col++ )
+        for ( int column = 0; column < cols; column++ )
         {
             if ( visibleIndex >= nPlots )
             {
-                m_gridLayout->addWidget( m_placeholderWidgets[phIndex], row * 3 + 2, col );
+                m_gridLayout->addWidget( m_placeholderWidgets[phIndex], row * 3 + 2, column );
                 m_gridLayout->setRowStretch( row * 3 + 2, 1 );
-                m_gridLayout->setColumnStretch( col, 6 );
+                m_gridLayout->setColumnStretch( column, 6 );
                 m_placeholderWidgets[phIndex]->show();
                 phIndex++;
                 continue;
             }
 
-            m_visibleIndexToPositionMapping[visibleIndex] = std::make_pair( row, col );
+            auto plotWidget  = plotWidgets[visibleIndex];
+            auto legend      = legends[visibleIndex];
+            auto legendFrame = legendFrames[visibleIndex];
+            auto subTitle    = subTitles[visibleIndex];
 
-            auto plotWidget      = plotWidgets[visibleIndex];
-            int  expectedColSpan = plotWidget->colSpan();
-            int  colSpan         = std::min( expectedColSpan, cols - col );
+            int expectedColSpan = plotWidget->colSpan();
+            int colSpan         = std::min( expectedColSpan, cols - column );
+            int rowSpan         = 1;
 
-            m_gridLayout->addWidget( subTitles[visibleIndex], 3 * row, col, 1, colSpan );
-            if ( legends[visibleIndex] )
-            {
-                if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::ABOVE )
-                {
-                    m_gridLayout->addWidget( legends[visibleIndex], 3 * row + 1, col, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
-                }
-                else
-                {
-                    CAF_ASSERT( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE );
-                    auto overlayFrame = new RiuQwtLegendOverlayContentFrame;
-                    overlayFrame->setLegend( legends[visibleIndex] );
-                    legendFrames[visibleIndex]->setContentFrame( overlayFrame );
-                    legendFrames[visibleIndex]->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
-                    plotWidgets[visibleIndex]->removeOverlayFrame( legendFrames[visibleIndex] );
-                    plotWidgets[visibleIndex]->addOverlayFrame( legendFrames[visibleIndex] );
-                }
-            }
-            m_gridLayout->addWidget( plotWidget, 3 * row + 2, col, 1, colSpan );
+            m_visibleIndexToPositionMapping[visibleIndex] = std::make_pair( row, column );
+
+            reinsertPlotWidget( plotWidget, legend, legendFrame, subTitle, row, column, rowSpan, colSpan );
+
             auto summaryPlot = dynamic_cast<RimSummaryPlot*>( plotWidget->plotDefinition() );
-            if ( summaryPlot ) m_summaryMultiPlot->setLayoutInfo( summaryPlot, row, col );
-
-            bool isSubTitleVisible = m_showSubTitles && !subTitles[visibleIndex]->text().isEmpty();
-            subTitles[visibleIndex]->setVisible( isSubTitleVisible );
-            QFont subTitleFont = subTitles[visibleIndex]->font();
-            subTitleFont.setPixelSize( m_subTitleFontPixelSize );
-            subTitles[visibleIndex]->setFont( subTitleFont );
-
-            plotWidget->setAxisLabelsAndTicksEnabled( RiuPlotAxis::defaultLeft(),
-                                                      showYAxis( row, col ),
-                                                      showYAxis( row, col ) );
-            plotWidget->setAxisTitleEnabled( RiuPlotAxis::defaultLeft(), showYAxis( row, col ) );
-            plotWidget->setAxesFontsAndAlignment( m_axisTitleFontSize, m_axisValueFontSize );
-
-            // Adjust the space below a graph to make sure the heading of the row below is closest to the
-            // corresponding graph
-            auto margins = plotWidget->contentsMargins();
-            margins.setBottom( 40 );
-            plotWidget->setContentsMargins( margins );
-            plotWidget->show();
-
-            if ( legends[visibleIndex] )
-            {
-                if ( m_plotDefinition->legendsVisible() && !legends[visibleIndex]->isEmpty() )
-                {
-                    updateLegendColumns( legends[visibleIndex] );
-                    updateLegendFont( legends[visibleIndex] );
-                    legends[visibleIndex]->show();
-
-                    if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE )
-                        legendFrames[visibleIndex]->show();
-                    else
-                    {
-                        plotWidget->removeOverlayFrame( legendFrames[visibleIndex] );
-                        legendFrames[visibleIndex]->hide();
-                    }
-                }
-                else
-                {
-                    legends[visibleIndex]->hide();
-                    legendFrames[visibleIndex]->hide();
-                    plotWidget->removeOverlayFrame( legendFrames[visibleIndex] );
-                }
-            }
-            // Set basic row and column stretches
-            m_gridLayout->setRowStretch( 3 * row + 2, 1 );
-            for ( int c = col; c < col + colSpan; c++ )
-            {
-                int colStretch = 6; // Empirically chosen to try to counter the width of the axis on the first track
-                if ( showYAxis( row, col ) ) colStretch += 1;
-                m_gridLayout->setColumnStretch( c, std::max( colStretch, m_gridLayout->columnStretch( c ) ) );
-            }
+            if ( summaryPlot ) m_summaryMultiPlot->setLayoutInfo( summaryPlot, row, column );
 
             visibleIndex++;
-            col += colSpan - 1;
+            column += colSpan - 1;
         }
     }
 }
