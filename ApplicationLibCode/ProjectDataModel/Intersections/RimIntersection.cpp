@@ -155,7 +155,7 @@ void RimIntersection::defineSeparateDataSourceUi( QString uiConfigName, caf::Pdm
 
     caf::PdmUiGroup* separateResultsGroup =
         uiOrdering.addNewGroupWithKeyword( "Result Reference" + inactiveText, "SeparateResultReference" );
-    separateResultsGroup->setCollapsedByDefault( true );
+    separateResultsGroup->setCollapsedByDefault();
     separateResultsGroup->add( &m_useSeparateDataSource );
     separateResultsGroup->add( &m_separateDataSource );
     m_separateDataSource.uiCapability()->setUiReadOnly( !m_useSeparateDataSource() );

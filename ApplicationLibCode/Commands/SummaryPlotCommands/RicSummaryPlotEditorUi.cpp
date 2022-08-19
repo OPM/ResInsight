@@ -293,7 +293,7 @@ void RicSummaryPlotEditorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
         uiOrdering.addNewGroupWithKeyword( "Curve Appearance Assignment", RiuSummaryCurveDefinitionKeywords::appearance() );
 
     caf::PdmUiGroup* appearanceSubGroup = appearanceGroup->addNewGroup( "Appearance Type Assignment" );
-    appearanceSubGroup->setCollapsedByDefault( true );
+    appearanceSubGroup->setCollapsedByDefault();
 
     appearanceSubGroup->add( &m_useAutoAppearanceAssignment );
     appearanceSubGroup->add( &m_caseAppearanceType );
@@ -316,7 +316,7 @@ void RicSummaryPlotEditorUi::defineUiOrdering( QString uiConfigName, caf::PdmUiO
     // Name config
     caf::PdmUiGroup* autoNameGroup = uiOrdering.addNewGroupWithKeyword( "Plot and Curve Name Configuration",
                                                                         RiuSummaryCurveDefinitionKeywords::nameConfig() );
-    autoNameGroup->setCollapsedByDefault( true );
+    autoNameGroup->setCollapsedByDefault();
 
     autoNameGroup->add( &m_useAutoPlotTitleProxy );
 

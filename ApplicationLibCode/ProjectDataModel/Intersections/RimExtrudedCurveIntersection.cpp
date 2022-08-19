@@ -528,7 +528,7 @@ void RimExtrudedCurveIntersection::defineUiOrdering( QString uiConfigName, caf::
     }
 
     caf::PdmUiGroup* optionsGroup = uiOrdering.addNewGroup( "Options" );
-    optionsGroup->setCollapsedByDefault( true );
+    optionsGroup->setCollapsedByDefault();
 
     if ( type() == CrossSectionEnum::CS_AZIMUTHLINE )
     {

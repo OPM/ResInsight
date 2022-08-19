@@ -975,7 +975,7 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
             caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-            plotLayoutGroup->setCollapsedByDefault( true );
+            plotLayoutGroup->setCollapsedByDefault();
             RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
             RimWellLogPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
             plotLayoutGroup->add( &m_depthOrientation );

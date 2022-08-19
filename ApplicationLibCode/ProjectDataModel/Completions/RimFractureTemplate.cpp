@@ -366,7 +366,7 @@ void RimFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     {
         auto group = uiOrdering.addNewGroup( "Sensitivity Scale Factors" );
-        group->setCollapsedByDefault( true );
+        group->setCollapsedByDefault();
         group->add( &m_heightScaleFactor );
         group->add( &m_halfLengthScaleFactor );
         group->add( &m_dFactorScaleFactor );
@@ -414,7 +414,7 @@ void RimFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
         {
             auto group = nonDarcyFlowGroup->addNewGroup( "D Factor Details" );
-            group->setCollapsedByDefault( true );
+            group->setCollapsedByDefault();
             group->add( &m_dFactorSummaryText );
         }
     }

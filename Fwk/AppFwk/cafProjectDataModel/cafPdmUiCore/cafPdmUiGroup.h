@@ -56,8 +56,9 @@ public:
     bool isUiGroup() const override;
 
     /// Set this group to be collapsed by default. When the user expands the group, the default no longer has any effect.
-    void setCollapsedByDefault( bool doCollapse );
-    /// Forcifully set the collapsed state of the group, overriding the previous user actions and the default
+    void setCollapsedByDefault();
+
+    /// Set the collapsed state of the group, overriding the previous user actions and the default
     void setCollapsed( bool doCollapse );
     void setEnableFrame( bool enableFrame );
 

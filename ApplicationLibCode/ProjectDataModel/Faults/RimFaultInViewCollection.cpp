@@ -296,14 +296,14 @@ void RimFaultInViewCollection::uiOrderingFaults( QString uiConfigName, caf::PdmU
     showOppositeFaultFaces.uiCapability()->setUiReadOnly( isGridVizMode );
 
     caf::PdmUiGroup* ffviz = uiOrdering.addNewGroup( "Fault Face Visibility" );
-    ffviz->setCollapsedByDefault( true );
+    ffviz->setCollapsedByDefault();
     ffviz->add( &showFaultFaces );
     ffviz->add( &showOppositeFaultFaces );
     ffviz->add( &faultResult );
     ffviz->add( &m_onlyShowWithNeighbor );
 
     caf::PdmUiGroup* nncViz = uiOrdering.addNewGroup( "NNC Visibility" );
-    nncViz->setCollapsedByDefault( true );
+    nncViz->setCollapsedByDefault();
     nncViz->add( &showNNCs );
     nncViz->add( &hideNncsWhenNoResultIsAvailable );
 }

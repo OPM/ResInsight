@@ -82,9 +82,9 @@ bool PdmUiGroup::isUiGroup() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiGroup::setCollapsedByDefault( bool doCollapse )
+void PdmUiGroup::setCollapsedByDefault()
 {
-    m_isCollapsedByDefault = doCollapse;
+    m_isCollapsedByDefault = true;
 }
 
 //--------------------------------------------------------------------------------------------------

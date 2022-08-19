@@ -446,7 +446,7 @@ void RimSummaryCurveAutoName::defineUiOrdering( QString uiConfigName, caf::PdmUi
     uiOrdering.add( &m_wellName );
 
     caf::PdmUiGroup& advanced = *( uiOrdering.addNewGroup( "Advanced" ) );
-    advanced.setCollapsedByDefault( true );
+    advanced.setCollapsedByDefault();
     advanced.add( &m_regionNumber );
     advanced.add( &m_lgrName );
     advanced.add( &m_completion );

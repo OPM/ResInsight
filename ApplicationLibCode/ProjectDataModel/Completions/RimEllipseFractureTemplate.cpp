@@ -476,7 +476,7 @@ void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Fracture Truncation" );
-        group->setCollapsedByDefault( true );
+        group->setCollapsedByDefault();
 
         m_fractureContainment()->uiOrdering( uiConfigName, *group );
     }

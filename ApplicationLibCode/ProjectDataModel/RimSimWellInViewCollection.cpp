@@ -680,7 +680,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
     sizeScalingGroup->add( &spheresScaleFactor );
 
     caf::PdmUiGroup* colorGroup = uiOrdering.addNewGroup( "Colors" );
-    colorGroup->setCollapsedByDefault( true );
+    colorGroup->setCollapsedByDefault();
     colorGroup->add( &showConnectionStatusColors );
     colorGroup->add( &wellLabelColor );
     colorGroup->add( &m_wellPipeColors );
@@ -696,7 +696,7 @@ void RimSimWellInViewCollection::defineUiOrdering( QString uiConfigName, caf::Pd
     if ( !isContourMap )
     {
         caf::PdmUiGroup* advancedGroup = uiOrdering.addNewGroup( "Advanced" );
-        advancedGroup->setCollapsedByDefault( true );
+        advancedGroup->setCollapsedByDefault();
         advancedGroup->add( &wellCellTransparencyLevel );
         advancedGroup->add( &wellHeadPosition );
     }
