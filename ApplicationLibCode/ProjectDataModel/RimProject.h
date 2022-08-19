@@ -97,11 +97,12 @@ public:
     caf::PdmChildField<RimColorLegendCollection*>        colorLegendCollection;
     caf::PdmChildField<RimScriptCollection*>             scriptCollection;
     caf::PdmChildField<RimWellPathImport*>               wellPathImport;
-    caf::PdmChildField<RimMainPlotCollection*>           mainPlotCollection;
     caf::PdmChildField<RimViewLinkerCollection*>         viewLinkerCollection;
     caf::PdmChildField<RimSummaryCalculationCollection*> calculationCollection;
     caf::PdmChildField<RimGridCalculationCollection*>    gridCalculationCollection;
     caf::PdmChildArrayField<RimCommandObject*>           commandObjects;
+
+    RimMainPlotCollection* mainPlotCollection() const;
 
     caf::PdmChildArrayField<RimAdvancedSnapshotExportDefinition*> multiSnapshotDefinitions;
 
@@ -208,6 +209,8 @@ private:
     void distributePathsFromGlobalPathList();
 
 private:
+    caf::PdmChildField<RimMainPlotCollection*> m_mainPlotCollection;
+
     caf::PdmField<QString> m_globalPathList;
     caf::PdmField<QString> m_projectFileVersionString;
 

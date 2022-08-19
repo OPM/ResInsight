@@ -97,10 +97,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
     if ( !openedFiles.empty() )
     {
-        if ( project && project->mainPlotCollection() )
-        {
-            project->mainPlotCollection()->ensureDefaultFlowPlotsAreCreated();
-        }
+        RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
     }
 
     // Import summary cases

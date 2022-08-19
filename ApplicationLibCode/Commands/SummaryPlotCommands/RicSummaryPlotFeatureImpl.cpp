@@ -144,8 +144,7 @@ std::vector<RimEclipseCase*> openEclipseCasesForCellPlotting( QStringList gridFi
     std::vector<RimEclipseCase*> openedCases;
 
     RiaApplication*           app            = RiaApplication::instance();
-    RimProject*               project        = app->project();
-    RimEclipseCaseCollection* analysisModels = project->activeOilField()->analysisModels();
+    RimEclipseCaseCollection* analysisModels = RimProject::current()->activeOilField()->analysisModels();
     for ( const QString& fileName : gridFileNames )
     {
         QFileInfo gridFileInfo( fileName );
@@ -488,7 +487,7 @@ void RicSummaryPlotFeatureImpl::createSummaryPlotsFromArgumentLine( const QStrin
 
         if ( lastPlotCreated )
         {
-            RimProject::current()->mainPlotCollection()->summaryMultiPlotCollection()->updateConnectedEditors();
+            RimMainPlotCollection::current()->summaryMultiPlotCollection()->updateConnectedEditors();
 
             RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
             // Needed to avoid unnecessary activation of sub windows (plots)

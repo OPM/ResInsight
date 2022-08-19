@@ -19,7 +19,6 @@
 #include "RicReloadWellPathFormationNamesFeature.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
 
@@ -65,14 +64,7 @@ void RicReloadWellPathFormationNamesFeature::onActionTriggered( bool isChecked )
         wellPathCollections[0]->reloadAllWellPathFormations();
     }
 
-    RimProject* project = RimProject::current();
-    if ( project )
-    {
-        if ( project->mainPlotCollection() )
-        {
-            project->mainPlotCollection->updatePlotsWithFormations();
-        }
-    }
+    RimMainPlotCollection::current()->updatePlotsWithFormations();
 }
 
 //--------------------------------------------------------------------------------------------------

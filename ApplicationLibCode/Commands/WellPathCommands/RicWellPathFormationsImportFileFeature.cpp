@@ -69,10 +69,7 @@ void RicWellPathFormationsImportFileFeature::onActionTriggered( bool isChecked )
     if ( project )
     {
         project->scheduleCreateDisplayModelAndRedrawAllViews();
-        if ( project->mainPlotCollection() )
-        {
-            project->mainPlotCollection->updatePlotsWithFormations();
-        }
+        RimMainPlotCollection::current()->updatePlotsWithFormations();
 
         RimOilField* oilField = project->activeOilField();
 

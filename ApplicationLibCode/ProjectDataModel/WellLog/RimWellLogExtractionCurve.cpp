@@ -46,8 +46,6 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimMainPlotCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
@@ -696,14 +694,7 @@ std::set<QString> RimWellLogExtractionCurve::sortedSimWellNames()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 {
-    RimWellLogPlotCollection* wellLogCollection = nullptr;
-
-    // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when
-    // deleted.
-
-    RimProject* proj = RimProject::current();
-    if ( proj && proj->mainPlotCollection() ) wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
-
+    RimWellLogPlotCollection* wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
     if ( !wellLogCollection ) return;
 
     for ( auto wellPath : m_wellPathsWithExtractors )

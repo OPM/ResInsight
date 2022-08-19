@@ -91,7 +91,7 @@ caf::PdmScriptResponse RicfCreateSaturationPressurePlots::execute()
         }
     }
 
-    RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
+    RimSaturationPressurePlotCollection* collection = RimMainPlotCollection::current()->saturationPressurePlotCollection();
     collection->updateAllRequiredEditors();
     RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
 

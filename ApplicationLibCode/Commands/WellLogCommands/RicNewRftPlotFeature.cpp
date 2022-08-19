@@ -19,7 +19,6 @@
 #include "RicNewRftPlotFeature.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimRftPlotCollection.h"
 #include "RimSimWellInView.h"
 #include "RimWellLogPlot.h"
@@ -58,9 +57,7 @@ bool RicNewRftPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RimProject::current();
-
-    RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
+    RimRftPlotCollection* rftPlotColl = RimMainPlotCollection::current()->rftPlotCollection();
     if ( rftPlotColl )
     {
         QString wellName = selectedWellName();

@@ -61,6 +61,8 @@ public:
     RimMainPlotCollection();
     ~RimMainPlotCollection() override;
 
+    static RimMainPlotCollection* current();
+
     RimWellLogPlotCollection*            wellLogPlotCollection() const;
     RimRftPlotCollection*                rftPlotCollection() const;
     RimPltPlotCollection*                pltPlotCollection() const;

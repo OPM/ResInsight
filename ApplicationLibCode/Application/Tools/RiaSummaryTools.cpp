@@ -49,9 +49,7 @@
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlotCollection* RiaSummaryTools::summaryMultiPlotCollection()
 {
-    RimProject* project = RimProject::current();
-
-    return project->mainPlotCollection()->summaryMultiPlotCollection();
+    return RimMainPlotCollection::current()->summaryMultiPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -59,9 +57,7 @@ RimSummaryMultiPlotCollection* RiaSummaryTools::summaryMultiPlotCollection()
 //--------------------------------------------------------------------------------------------------
 RimSummaryCrossPlotCollection* RiaSummaryTools::summaryCrossPlotCollection()
 {
-    RimProject* project = RimProject::current();
-
-    return project->mainPlotCollection()->summaryCrossPlotCollection();
+    return RimMainPlotCollection::current()->summaryCrossPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

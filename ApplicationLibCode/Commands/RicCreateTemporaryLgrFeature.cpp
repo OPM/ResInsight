@@ -44,7 +44,6 @@
 #include "RimEclipseCase.h"
 #include "RimEclipseView.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimWellLogPlotCollection.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -123,10 +122,10 @@ void RicCreateTemporaryLgrFeature::updateViews( RimEclipseCase* eclipseCase )
     if ( guiApp ) guiApp->clearAllSelections();
 
     deleteAllCachedData( eclipseCase );
-    RimProject::current()->mainPlotCollection()->deleteAllCachedData();
+    RimMainPlotCollection::current()->deleteAllCachedData();
     computeCachedData( eclipseCase );
 
-    RimProject::current()->mainPlotCollection()->wellLogPlotCollection()->loadDataAndUpdateAllPlots();
+    RimMainPlotCollection::current()->wellLogPlotCollection()->loadDataAndUpdateAllPlots();
 
     if ( guiApp ) eclipseCase->createDisplayModelAndUpdateAllViews();
 }

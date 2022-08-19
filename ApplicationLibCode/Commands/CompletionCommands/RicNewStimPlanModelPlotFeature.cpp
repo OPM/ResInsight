@@ -37,7 +37,6 @@
 #include "RimFaciesProperties.h"
 #include "RimMainPlotCollection.h"
 #include "RimModeledWellPath.h"
-#include "RimProject.h"
 #include "RimStimPlanModel.h"
 #include "RimStimPlanModelCurve.h"
 #include "RimStimPlanModelPlot.h"
@@ -469,16 +468,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( b
 //--------------------------------------------------------------------------------------------------
 RimStimPlanModelPlotCollection* RicNewStimPlanModelPlotFeature::stimPlanModelPlotCollection()
 {
-    RimProject* project = RiaApplication::instance()->project();
-    CVF_ASSERT( project );
-
-    RimMainPlotCollection* mainPlotColl = project->mainPlotCollection();
-    CVF_ASSERT( mainPlotColl );
-
-    RimStimPlanModelPlotCollection* stimPlanModelPlotColl = mainPlotColl->stimPlanModelPlotCollection();
-    CVF_ASSERT( stimPlanModelPlotColl );
-
-    return mainPlotColl->stimPlanModelPlotCollection();
+    return RimMainPlotCollection::current()->stimPlanModelPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------

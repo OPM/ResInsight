@@ -23,7 +23,6 @@
 #include "RimEnsembleFractureStatisticsPlot.h"
 #include "RimEnsembleFractureStatisticsPlotCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -45,10 +44,8 @@ bool RicCreateEnsembleFractureStatisticsPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateEnsembleFractureStatisticsPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RimProject::current();
-
     RimEnsembleFractureStatisticsPlotCollection* collection =
-        project->mainPlotCollection()->ensembleFractureStatisticsPlotCollection();
+        RimMainPlotCollection::current()->ensembleFractureStatisticsPlotCollection();
 
     RimEnsembleFractureStatisticsPlot* plot = new RimEnsembleFractureStatisticsPlot();
     plot->zoomAll();

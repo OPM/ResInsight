@@ -87,7 +87,7 @@ void RicSnapshotAllPlotsToFileFeature::exportSnapshotOfPlotsIntoFolder( const QS
     const QString absSnapshotPath = snapshotPath.absolutePath();
 
     std::vector<RimViewWindow*> viewWindows;
-    proj->mainPlotCollection()->descendantsIncludingThisOfType( viewWindows );
+    RimMainPlotCollection::current()->descendantsIncludingThisOfType( viewWindows );
 
     for ( auto viewWindow : viewWindows )
     {

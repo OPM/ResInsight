@@ -528,7 +528,7 @@ bool RiaApplication::loadProject( const QString&      projectFileName,
     }
 
     {
-        RimMainPlotCollection* mainPlotColl = m_project->mainPlotCollection();
+        RimMainPlotCollection* mainPlotColl = RimMainPlotCollection::current();
 
         mainPlotColl->ensureCalculationIdsAreAssigned();
         mainPlotColl->ensureDefaultFlowPlotsAreCreated();
@@ -1532,10 +1532,7 @@ int RiaApplication::launchUnitTestsWithConsole()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::loadAndUpdatePlotData()
 {
-    if ( m_project->mainPlotCollection() )
-    {
-        m_project->mainPlotCollection()->loadDataAndUpdateAllPlots();
-    }
+    RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
 }
 
 //--------------------------------------------------------------------------------------------------

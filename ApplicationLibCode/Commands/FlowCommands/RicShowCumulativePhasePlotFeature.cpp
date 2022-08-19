@@ -22,7 +22,6 @@
 #include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimWellAllocationPlot.h"
 #include "RimWellDistributionPlotCollection.h"
@@ -72,10 +71,7 @@ void RicShowCumulativePhasePlotFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    RimProject* proj = RimProject::current();
-    if ( !proj ) return;
-
-    RimFlowPlotCollection* flowPlotColl = proj->mainPlotCollection()->flowPlotCollection();
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
     if ( !flowPlotColl ) return;
 
     RimWellDistributionPlotCollection* wdp = flowPlotColl->wellDistributionPlotCollection();

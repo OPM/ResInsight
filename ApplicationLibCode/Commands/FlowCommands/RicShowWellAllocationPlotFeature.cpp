@@ -22,19 +22,18 @@
 
 #include "Rim3dView.h"
 #include "RimEclipseResultCase.h"
+#include "RimEclipseView.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimSimWellInView.h"
+#include "RimSimWellInViewCollection.h"
 #include "RimWellAllocationPlot.h"
+#include "RimWellPath.h"
 
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
-#include "RimEclipseView.h"
-#include "RimSimWellInViewCollection.h"
-#include "RimWellPath.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicShowWellAllocationPlotFeature, "RicShowWellAllocationPlotFeature" );
@@ -103,17 +102,14 @@ void RicShowWellAllocationPlotFeature::onActionTriggered( bool isChecked )
     else
         return;
 
-    if ( RimProject::current() )
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+    if ( flowPlotColl )
     {
-        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
-        if ( flowPlotColl )
-        {
-            flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell( simWell );
-            flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
+        flowPlotColl->defaultWellAllocPlot()->setFromSimulationWell( simWell );
+        flowPlotColl->defaultWellAllocPlot()->updateConnectedEditors();
 
-            RiuPlotMainWindowTools::showPlotMainWindow();
-            RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultWellAllocPlot() );
-        }
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultWellAllocPlot() );
     }
 }
 
