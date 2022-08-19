@@ -569,7 +569,7 @@ void RiuPlotMainWindow::createDockPanels()
     // the plot manager
     {
         auto dockWidget = RiuDockWidgetTools::createDockWidget( "Plot Manager",
-                                                                RiuDockWidgetTools::summaryPlotManagerName(),
+                                                                RiuDockWidgetTools::plotMainWindowPlotManagerName(),
                                                                 dockManager() );
 
         m_summaryPlotManagerView = std::make_unique<caf::PdmUiPropertyView>( dockWidget );
@@ -816,7 +816,7 @@ RiuMessagePanel* RiuPlotMainWindow::messagePanel()
 void RiuPlotMainWindow::showAndSetKeyboardFocusToSummaryPlotManager()
 {
     auto dockWidget =
-        RiuDockWidgetTools::findDockWidget( this->dockManager(), RiuDockWidgetTools::summaryPlotManagerName() );
+        RiuDockWidgetTools::findDockWidget( this->dockManager(), RiuDockWidgetTools::plotMainWindowPlotManagerName() );
     if ( dockWidget )
     {
         dockWidget->setVisible( true );

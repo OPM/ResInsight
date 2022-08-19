@@ -47,15 +47,15 @@ public:
     static QString mainPlotWindowName();
     static QString main3DWindowName();
 
-    static QString propertyEditorName();
-    static QString resultInfoName();
-    static QString processMonitorName();
-    static QString resultPlotName();
-    static QString relPermPlotName();
-    static QString pvtPlotName();
-    static QString messagesName();
-    static QString mohrsCirclePlotName();
-    static QString undoStackName();
+    static QString mainWindowPropertyEditorName();
+    static QString mainWindowResultInfoName();
+    static QString mainWindowProcessMonitorName();
+    static QString mainWindowResultPlotName();
+    static QString mainWindowRelPermPlotName();
+    static QString mainWindowPvtPlotName();
+    static QString mainWindowMessagesName();
+    static QString mainWindowMohrsCirclePlotName();
+    static QString mainWindowUndoStackName();
 
     static QString mainWindowProjectTreeName();
     static QString mainWindowDataSourceTreeName();
@@ -69,7 +69,7 @@ public:
     static QString plotMainWindowPropertyEditorName();
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
-    static QString summaryPlotManagerName();
+    static QString plotMainWindowPlotManagerName();
 
     static QString dockState3DEclipseName();
     static QString dockState3DGeoMechName();

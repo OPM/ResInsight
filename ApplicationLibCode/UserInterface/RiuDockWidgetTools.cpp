@@ -62,7 +62,7 @@ QString RiuDockWidgetTools::main3DWindowName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::propertyEditorName()
+QString RiuDockWidgetTools::mainWindowPropertyEditorName()
 {
     return "dockPropertyEditor_mainWindow";
 }
@@ -70,7 +70,7 @@ QString RiuDockWidgetTools::propertyEditorName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::resultInfoName()
+QString RiuDockWidgetTools::mainWindowResultInfoName()
 {
     return "dockResultInfo_mainWindow";
 }
@@ -78,7 +78,7 @@ QString RiuDockWidgetTools::resultInfoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::processMonitorName()
+QString RiuDockWidgetTools::mainWindowProcessMonitorName()
 {
     return "dockProcessMonitor_mainWindow";
 }
@@ -86,7 +86,7 @@ QString RiuDockWidgetTools::processMonitorName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::resultPlotName()
+QString RiuDockWidgetTools::mainWindowResultPlotName()
 {
     return "dockResultPlot_mainWindow";
 }
@@ -94,7 +94,7 @@ QString RiuDockWidgetTools::resultPlotName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::relPermPlotName()
+QString RiuDockWidgetTools::mainWindowRelPermPlotName()
 {
     return "dockRelPermPlot_mainWindow";
 }
@@ -102,7 +102,7 @@ QString RiuDockWidgetTools::relPermPlotName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::pvtPlotName()
+QString RiuDockWidgetTools::mainWindowPvtPlotName()
 {
     return "dockPvtPlot_mainWindow";
 }
@@ -110,7 +110,7 @@ QString RiuDockWidgetTools::pvtPlotName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::mohrsCirclePlotName()
+QString RiuDockWidgetTools::mainWindowMohrsCirclePlotName()
 {
     return "dockMohrsCirclePlot_mainWindow";
 }
@@ -118,7 +118,7 @@ QString RiuDockWidgetTools::mohrsCirclePlotName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::undoStackName()
+QString RiuDockWidgetTools::mainWindowUndoStackName()
 {
     return "dockUndoStack_mainWindow";
 }
@@ -126,7 +126,7 @@ QString RiuDockWidgetTools::undoStackName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::summaryPlotManagerName()
+QString RiuDockWidgetTools::plotMainWindowPlotManagerName()
 {
     return "dockSummaryPlotManager";
 }
@@ -214,7 +214,7 @@ QString RiuDockWidgetTools::plotMainWindowUndoStackName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuDockWidgetTools::messagesName()
+QString RiuDockWidgetTools::mainWindowMessagesName()
 {
     return "dockMessages_mainWindow";
 }
@@ -313,25 +313,25 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
         return QIcon( ":/messages.svg" );
     else if ( dockWidgetName == plotMainWindowUndoStackName() )
         return QIcon( ":/undo-stack.svg" );
-    else if ( dockWidgetName == summaryPlotManagerName() )
+    else if ( dockWidgetName == plotMainWindowPlotManagerName() )
         return QIcon( ":/plot-manager.svg" );
-    else if ( dockWidgetName == propertyEditorName() )
+    else if ( dockWidgetName == mainWindowPropertyEditorName() )
         return QIcon( ":/property-editor.svg" );
-    else if ( dockWidgetName == resultInfoName() )
+    else if ( dockWidgetName == mainWindowResultInfoName() )
         return QIcon( ":/info.png" );
-    else if ( dockWidgetName == processMonitorName() )
+    else if ( dockWidgetName == mainWindowProcessMonitorName() )
         return QIcon( ":/view.svg" );
-    else if ( dockWidgetName == resultPlotName() )
+    else if ( dockWidgetName == mainWindowResultPlotName() )
         return QIcon( ":/graph.svg" );
-    else if ( dockWidgetName == relPermPlotName() )
+    else if ( dockWidgetName == mainWindowRelPermPlotName() )
         return QIcon( ":/graph.svg" );
-    else if ( dockWidgetName == pvtPlotName() )
+    else if ( dockWidgetName == mainWindowPvtPlotName() )
         return QIcon( ":/graph.svg" );
-    else if ( dockWidgetName == messagesName() )
+    else if ( dockWidgetName == mainWindowMessagesName() )
         return QIcon( ":/messages.svg" );
-    else if ( dockWidgetName == mohrsCirclePlotName() )
+    else if ( dockWidgetName == mainWindowMohrsCirclePlotName() )
         return QIcon( ":/graph.svg" );
-    else if ( dockWidgetName == undoStackName() )
+    else if ( dockWidgetName == mainWindowUndoStackName() )
         return QIcon( ":/undo-stack.svg" );
     else if ( dockWidgetName == mainWindowProjectTreeName() )
         return QIcon( ":/standard.svg" );
