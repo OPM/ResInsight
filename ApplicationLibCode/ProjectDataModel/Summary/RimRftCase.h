@@ -40,6 +40,13 @@ public:
     QString dataDeckFilePath() const;
 
 private:
+    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    void defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                QString                    uiConfigName,
+                                caf::PdmUiEditorAttribute* attribute ) override;
+
+private:
     caf::PdmField<caf::FilePath> m_rftFilePath;
     caf::PdmField<caf::FilePath> m_dataDeckFilePath;
 };
