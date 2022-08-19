@@ -25,7 +25,6 @@
 #include "RimMainPlotCollection.h"
 #include "RimObservedDataCollection.h"
 #include "RimObservedSummaryData.h"
-#include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
@@ -39,6 +38,18 @@
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicReloadSummaryCaseFeature, "RicReloadSummaryCaseFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicReloadSummaryCaseFeature::reloadSummaryCase( RimSummaryCase* summaryCase )
+{
+    summaryCase->createSummaryReaderInterface();
+    summaryCase->createRftReaderInterface();
+    summaryCase->refreshMetaData();
+
+    RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );
+}
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -60,22 +71,12 @@ void RicReloadSummaryCaseFeature::onActionTriggered( bool isChecked )
     std::vector<RimSummaryCase*> caseSelection = selectedSummaryCases();
     for ( RimSummaryCase* summaryCase : caseSelection )
     {
-        summaryCase->createSummaryReaderInterface();
-        summaryCase->createRftReaderInterface();
-        summaryCase->refreshMetaData();
-
-        RicReplaceSummaryCaseFeature::updateRequredCalculatedCurves( summaryCase );
+        reloadSummaryCase( summaryCase );
 
         RiaLogging::info( QString( "Reloaded data for %1" ).arg( summaryCase->summaryHeaderFilename() ) );
     }
 
-    for ( RimSummaryMultiPlot* multiPlot : summaryPlotColl->multiPlots() )
-    {
-        for ( RimSummaryPlot* summaryPlot : multiPlot->summaryPlots() )
-        {
-            summaryPlot->loadDataAndUpdate();
-        }
-    }
+    RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
 }
 
 //--------------------------------------------------------------------------------------------------

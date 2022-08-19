@@ -83,9 +83,7 @@ bool RicNewPltPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RimProject::current();
-
-    RimPltPlotCollection* pltPlotColl = proj->mainPlotCollection()->pltPlotCollection();
+    RimPltPlotCollection* pltPlotColl = RimMainPlotCollection::current()->pltPlotCollection();
     if ( pltPlotColl )
     {
         QString           wellPathName;
@@ -98,7 +96,7 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
         }
         else if ( ( eclipseWell = caf::firstAncestorOfTypeFromSelectedObject<RimSimWellInView*>() ) != nullptr )
         {
-            wellPath = proj->wellPathFromSimWellName( eclipseWell->name() );
+            wellPath = RimProject::current()->wellPathFromSimWellName( eclipseWell->name() );
             if ( !wellPath ) return;
 
             wellPathName = wellPath->name();

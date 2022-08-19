@@ -606,9 +606,7 @@ void Rim3dView::updateDisplayModelForCurrentTimeStepAndRedraw()
 
     m_isCallingUpdateDisplayModelForCurrentTimestepAndRedraw = false;
 
-    RimProject* project;
-    firstAncestorOrThisOfTypeAsserted( project );
-    project->mainPlotCollection()->updateCurrentTimeStepInPlots();
+    RimMainPlotCollection::current()->updateCurrentTimeStepInPlots();
 }
 
 //--------------------------------------------------------------------------------------------------

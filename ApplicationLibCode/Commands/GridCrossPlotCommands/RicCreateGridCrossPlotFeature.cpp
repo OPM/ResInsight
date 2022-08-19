@@ -25,7 +25,6 @@
 #include "RimGridCrossPlotDataSet.h"
 #include "RimGridView.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 
 #include "RiuPlotMainWindowTools.h"
 #include "RiuViewer.h"
@@ -50,12 +49,11 @@ bool RicCreateGridCrossPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridCrossPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject*                 project = RimProject::current();
     RimGridCrossPlotCollection* collection =
         caf::SelectionManager::instance()->selectedItemAncestorOfType<RimGridCrossPlotCollection>();
     if ( !collection )
     {
-        collection = project->mainPlotCollection()->gridCrossPlotCollection();
+        collection = RimMainPlotCollection::current()->gridCrossPlotCollection();
     }
     RimGridCrossPlot*        plot    = collection->createGridCrossPlot();
     RimGridCrossPlotDataSet* dataSet = plot->createDataSet();

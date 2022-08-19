@@ -154,10 +154,7 @@ void RiuPlotMainWindow::onWellSelected( QString wellName )
 
     if ( !plotWnd->selection3DLinkEnabled() ) return;
 
-    RimProject* project = RimProject::current();
-    if ( !project ) return;
-
-    project->mainPlotCollection()->updateSelectedWell( wellName );
+    RimMainPlotCollection::current()->updateSelectedWell( wellName );
 }
 
 //--------------------------------------------------------------------------------------------------

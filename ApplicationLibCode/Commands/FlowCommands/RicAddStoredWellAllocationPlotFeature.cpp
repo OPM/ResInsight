@@ -38,18 +38,15 @@ CAF_CMD_SOURCE_INIT( RicAddStoredWellAllocationPlotFeature, "RicAddStoredWellAll
 //--------------------------------------------------------------------------------------------------
 bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 {
-    if ( RimProject::current() )
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+    if ( flowPlotColl )
     {
-        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
-        if ( flowPlotColl )
-        {
-            RimWellAllocationPlot* wellAllocationPlot =
-                dynamic_cast<RimWellAllocationPlot*>( caf::SelectionManager::instance()->selectedItem() );
+        RimWellAllocationPlot* wellAllocationPlot =
+            dynamic_cast<RimWellAllocationPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
-            if ( flowPlotColl->defaultWellAllocPlot() == wellAllocationPlot )
-            {
-                return true;
-            }
+        if ( flowPlotColl->defaultWellAllocPlot() == wellAllocationPlot )
+        {
+            return true;
         }
     }
 
@@ -61,28 +58,25 @@ bool RicAddStoredWellAllocationPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddStoredWellAllocationPlotFeature::onActionTriggered( bool isChecked )
 {
-    if ( RimProject::current() )
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+    if ( flowPlotColl )
     {
-        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
-        if ( flowPlotColl )
-        {
-            RimWellAllocationPlot* sourceObject =
-                dynamic_cast<RimWellAllocationPlot*>( caf::SelectionManager::instance()->selectedItem() );
+        RimWellAllocationPlot* sourceObject =
+            dynamic_cast<RimWellAllocationPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
-            RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(
-                sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        RimWellAllocationPlot* wellAllocationPlot = dynamic_cast<RimWellAllocationPlot*>(
+            sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-            CVF_ASSERT( wellAllocationPlot );
+        CVF_ASSERT( wellAllocationPlot );
 
-            flowPlotColl->addWellAllocPlotToStoredPlots( wellAllocationPlot );
-            wellAllocationPlot->resolveReferencesRecursively();
+        flowPlotColl->addWellAllocPlotToStoredPlots( wellAllocationPlot );
+        wellAllocationPlot->resolveReferencesRecursively();
 
-            wellAllocationPlot->loadDataAndUpdate();
+        wellAllocationPlot->loadDataAndUpdate();
 
-            flowPlotColl->updateConnectedEditors();
+        flowPlotColl->updateConnectedEditors();
 
-            RiuPlotMainWindowTools::onObjectAppended( wellAllocationPlot );
-        }
+        RiuPlotMainWindowTools::onObjectAppended( wellAllocationPlot );
     }
 }
 

@@ -36,7 +36,6 @@
 #include "RimMultiPlot.h"
 #include "RimMultiPlotCollection.h"
 #include "RimPlot.h"
-#include "RimProject.h"
 #include "RimSaturationPressurePlot.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
@@ -327,8 +326,7 @@ std::vector<RimSummaryPlot*> RicSummaryPlotBuilder::duplicateSummaryPlots( const
 //--------------------------------------------------------------------------------------------------
 RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector<RimPlot*>& plots )
 {
-    RimProject*             project        = RimProject::current();
-    RimMultiPlotCollection* plotCollection = project->mainPlotCollection()->multiPlotCollection();
+    RimMultiPlotCollection* plotCollection = RimMainPlotCollection::current()->multiPlotCollection();
 
     auto* plotWindow = new RimMultiPlot;
     plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
@@ -358,8 +356,7 @@ RimMultiPlot* RicSummaryPlotBuilder::createAndAppendMultiPlot( const std::vector
 RimSummaryMultiPlot*
     RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<caf::PdmObjectHandle*>& objects )
 {
-    RimProject*                    project        = RimProject::current();
-    RimSummaryMultiPlotCollection* plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+    RimSummaryMultiPlotCollection* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto* plotWindow = new RimSummaryMultiPlot;
     plotWindow->setMultiPlotTitle( QString( "Multi Plot %1" ).arg( plotCollection->multiPlots().size() + 1 ) );
@@ -439,8 +436,7 @@ RimSummaryMultiPlot*
     if ( skipCreationOfPlotBasedOnPreferences && prefs->defaultSummaryCurvesTextFilter().trimmed().isEmpty() )
         return nullptr;
 
-    RimProject* project        = RimProject::current();
-    auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+    auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto* summaryMultiPlot = new RimSummaryMultiPlot();
     summaryMultiPlot->setAsPlotMdiWindow();
@@ -483,8 +479,7 @@ RimSummaryMultiPlot*
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlotNoAutoSettings( RimSummaryPlot* plot )
 {
-    RimProject* project        = RimProject::current();
-    auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+    auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto* summaryMultiPlot = new RimSummaryMultiPlot();
     summaryMultiPlot->setColumnCount( RiaDefines::ColumnCount::COLUMNS_1 );
@@ -521,8 +516,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlo
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( const std::vector<RimSummaryPlot*>& plots )
 {
-    RimProject* project        = RimProject::current();
-    auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+    auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto* summaryMultiPlot = new RimSummaryMultiPlot();
     summaryMultiPlot->setAsPlotMdiWindow();
@@ -554,8 +548,7 @@ RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSummaryMultiPlot( con
 //--------------------------------------------------------------------------------------------------
 RimSummaryMultiPlot* RicSummaryPlotBuilder::createAndAppendSingleSummaryMultiPlot( RimSummaryPlot* plot )
 {
-    RimProject* project        = RimProject::current();
-    auto*       plotCollection = project->mainPlotCollection()->summaryMultiPlotCollection();
+    auto* plotCollection = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto* summaryMultiPlot = new RimSummaryMultiPlot();
     summaryMultiPlot->setColumnCount( RiaDefines::ColumnCount::COLUMNS_1 );

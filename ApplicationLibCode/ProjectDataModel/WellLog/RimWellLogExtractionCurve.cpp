@@ -46,8 +46,6 @@
 #include "RimGeoMechResultDefinition.h"
 #include "RimGeoMechView.h"
 #include "RimMainPlotCollection.h"
-#include "RimOilField.h"
-#include "RimProject.h"
 #include "RimTools.h"
 #include "RimWellBoreStabilityPlot.h"
 #include "RimWellLogCurve.h"
@@ -438,10 +436,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 
     clampBranchIndex();
 
-    RimMainPlotCollection* mainPlotCollection;
-    this->firstAncestorOrThisOfTypeAsserted( mainPlotCollection );
-
-    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
+    RimWellLogPlotCollection* wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
 
     cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
     cvf::ref<RigGeoMechWellLogExtractor> geomExtractor;
@@ -696,15 +691,7 @@ std::set<QString> RimWellLogExtractionCurve::sortedSimWellNames()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 {
-    RimWellLogPlotCollection* wellLogCollection = nullptr;
-
-    // Need to use this approach, and not firstAnchestor because the curve might not be inside the hierarchy when
-    // deleted.
-
-    RimProject* proj = RimProject::current();
-    if ( proj && proj->mainPlotCollection() ) wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
-
-    if ( !wellLogCollection ) return;
+    RimWellLogPlotCollection* wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
 
     for ( auto wellPath : m_wellPathsWithExtractors )
     {

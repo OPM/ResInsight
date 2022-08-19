@@ -58,9 +58,7 @@ std::vector<RimSaturationPressurePlot*>
         return plots;
     }
 
-    RimProject* project = RimProject::current();
-
-    RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
+    RimSaturationPressurePlotCollection* collection = RimMainPlotCollection::current()->saturationPressurePlotCollection();
 
     if ( eclipseResultCase && eclipseResultCase->ensureReservoirCaseIsOpen() )
     {
@@ -123,9 +121,7 @@ bool RicCreateSaturationPressurePlotsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateSaturationPressurePlotsFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RimProject::current();
-
-    RimSaturationPressurePlotCollection* collection = project->mainPlotCollection()->saturationPressurePlotCollection();
+    RimSaturationPressurePlotCollection* collection = RimMainPlotCollection::current()->saturationPressurePlotCollection();
 
     std::vector<RimEclipseResultCase*> eclipseCases;
     {

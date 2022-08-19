@@ -39,7 +39,6 @@
 #include "RimMultiPlotCollection.h"
 #include "RimMultipleSummaryPlotNameHelper.h"
 #include "RimPlotAxisProperties.h"
-#include "RimProject.h"
 #include "RimSummaryAddress.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryAddressModifier.h"
@@ -533,8 +532,7 @@ void RimSummaryMultiPlot::updatePlotWindowTitle()
 
         if ( title.isEmpty() )
         {
-            auto proj        = RimProject::current();
-            auto collections = proj->mainPlotCollection()->summaryMultiPlotCollection();
+            auto collections = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
             size_t index = 0;
             for ( auto p : collections->multiPlots() )

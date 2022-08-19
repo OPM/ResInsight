@@ -22,7 +22,6 @@
 #include "RiaGuiApplication.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimSimWellInView.h"
 #include "RimVfpPlot.h"
 #include "RimVfpPlotCollection.h"
@@ -57,8 +56,6 @@ bool RicNewVfpPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* proj = RiaApplication::instance()->project();
-
     RiaApplication*    app = RiaGuiApplication::instance();
     RiuPlotMainWindow* mpw = RiaGuiApplication::instance()->mainPlotWindow();
 
@@ -73,7 +70,7 @@ void RicNewVfpPlotFeature::onActionTriggered( bool isChecked )
 
     app->setLastUsedDialogDirectory( vfpDataKey, QFileInfo( fileNames.last() ).absolutePath() );
 
-    RimVfpPlotCollection* vfpPlotColl = proj->mainPlotCollection()->vfpPlotCollection();
+    RimVfpPlotCollection* vfpPlotColl = RimMainPlotCollection::current()->vfpPlotCollection();
     if ( vfpPlotColl )
     {
         std::vector<RimVfpPlot*> vfpPlots;

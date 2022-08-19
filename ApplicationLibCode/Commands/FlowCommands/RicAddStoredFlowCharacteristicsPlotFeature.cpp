@@ -21,7 +21,6 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -38,18 +37,15 @@ CAF_CMD_SOURCE_INIT( RicAddStoredFlowCharacteristicsPlotFeature, "RicAddStoredFl
 //--------------------------------------------------------------------------------------------------
 bool RicAddStoredFlowCharacteristicsPlotFeature::isCommandEnabled()
 {
-    if ( RimProject::current() )
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+    if ( flowPlotColl )
     {
-        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
-        if ( flowPlotColl )
-        {
-            RimFlowCharacteristicsPlot* flowCharacteristicsPlot =
-                dynamic_cast<RimFlowCharacteristicsPlot*>( caf::SelectionManager::instance()->selectedItem() );
+        RimFlowCharacteristicsPlot* flowCharacteristicsPlot =
+            dynamic_cast<RimFlowCharacteristicsPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
-            if ( flowPlotColl->defaultFlowCharacteristicsPlot() == flowCharacteristicsPlot )
-            {
-                return true;
-            }
+        if ( flowPlotColl->defaultFlowCharacteristicsPlot() == flowCharacteristicsPlot )
+        {
+            return true;
         }
     }
 
@@ -61,28 +57,25 @@ bool RicAddStoredFlowCharacteristicsPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicAddStoredFlowCharacteristicsPlotFeature::onActionTriggered( bool isChecked )
 {
-    if ( RimProject::current() )
+    RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+    if ( flowPlotColl )
     {
-        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
-        if ( flowPlotColl )
-        {
-            RimFlowCharacteristicsPlot* sourceObject =
-                dynamic_cast<RimFlowCharacteristicsPlot*>( caf::SelectionManager::instance()->selectedItem() );
+        RimFlowCharacteristicsPlot* sourceObject =
+            dynamic_cast<RimFlowCharacteristicsPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
-            RimFlowCharacteristicsPlot* flowCharacteristicsPlot = dynamic_cast<RimFlowCharacteristicsPlot*>(
-                sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
-            CVF_ASSERT( flowCharacteristicsPlot );
+        RimFlowCharacteristicsPlot* flowCharacteristicsPlot = dynamic_cast<RimFlowCharacteristicsPlot*>(
+            sourceObject->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
+        CVF_ASSERT( flowCharacteristicsPlot );
 
-            flowPlotColl->addFlowCharacteristicsPlotToStoredPlots( flowCharacteristicsPlot );
-            flowCharacteristicsPlot->resolveReferencesRecursively();
+        flowPlotColl->addFlowCharacteristicsPlotToStoredPlots( flowCharacteristicsPlot );
+        flowCharacteristicsPlot->resolveReferencesRecursively();
 
-            flowCharacteristicsPlot->loadDataAndUpdate();
+        flowCharacteristicsPlot->loadDataAndUpdate();
 
-            flowPlotColl->updateConnectedEditors();
+        flowPlotColl->updateConnectedEditors();
 
-            RiuPlotMainWindowTools::showPlotMainWindow();
-            RiuPlotMainWindowTools::onObjectAppended( flowCharacteristicsPlot );
-        }
+        RiuPlotMainWindowTools::showPlotMainWindow();
+        RiuPlotMainWindowTools::onObjectAppended( flowCharacteristicsPlot );
     }
 }
 

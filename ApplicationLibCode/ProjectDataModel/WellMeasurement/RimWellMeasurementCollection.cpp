@@ -60,9 +60,7 @@ RimWellMeasurementCollection::~RimWellMeasurementCollection()
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::updateAllCurves()
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
-    RimMainPlotCollection* plotCollection = proj->mainPlotCollection();
+    RimMainPlotCollection* plotCollection = RimMainPlotCollection::current();
 
     std::vector<RimWellMeasurementCurve*> measurementCurves;
     plotCollection->descendantsIncludingThisOfType( measurementCurves );
@@ -80,9 +78,7 @@ void RimWellMeasurementCollection::updateAllCurves()
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCollection::deleteAllEmptyCurves()
 {
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
-    RimMainPlotCollection* plotCollection = proj->mainPlotCollection();
+    RimMainPlotCollection* plotCollection = RimMainPlotCollection::current();
 
     std::vector<RimWellMeasurementCurve*> measurementCurves;
     plotCollection->descendantsIncludingThisOfType( measurementCurves );
@@ -269,8 +265,6 @@ void RimWellMeasurementCollection::removeMeasurementsForFilePath( RimWellMeasure
         delete measurementsToRemove[i];
     }
 
-    RimProject* proj;
-    this->firstAncestorOrThisOfTypeAsserted( proj );
-    proj->scheduleCreateDisplayModelAndRedrawAllViews();
+    RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     this->updateAllCurves();
 }

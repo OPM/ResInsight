@@ -185,17 +185,10 @@ RimGeoMechCase::~RimGeoMechCase( void )
 {
     geoMechViews.deleteChildren();
 
-    RimProject* project = RimProject::current();
-    if ( project )
+    RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
+    if ( plotCollection )
     {
-        if ( project->mainPlotCollection() )
-        {
-            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
-            if ( plotCollection )
-            {
-                plotCollection->removeExtractors( this->geoMechData() );
-            }
-        }
+        plotCollection->removeExtractors( this->geoMechData() );
     }
 
     if ( this->geoMechData() )

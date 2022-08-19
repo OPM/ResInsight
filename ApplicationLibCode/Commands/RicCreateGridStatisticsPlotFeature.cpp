@@ -25,7 +25,6 @@
 #include "RimGridStatisticsPlot.h"
 #include "RimGridStatisticsPlotCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 
 #include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
@@ -47,9 +46,7 @@ bool RicCreateGridStatisticsPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCreateGridStatisticsPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RimProject::current();
-
-    RimGridStatisticsPlotCollection* collection = project->mainPlotCollection()->gridStatisticsPlotCollection();
+    RimGridStatisticsPlotCollection* collection = RimMainPlotCollection::current()->gridStatisticsPlotCollection();
 
     RimGridStatisticsPlot* plot = new RimGridStatisticsPlot();
 

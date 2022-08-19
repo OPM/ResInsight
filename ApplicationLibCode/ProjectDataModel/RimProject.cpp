@@ -154,8 +154,8 @@ RimProject::RimProject( void )
     wellPathImport.uiCapability()->setUiTreeHidden( true );
     wellPathImport.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &mainPlotCollection, "MainPlotCollection", "Plots" );
-    mainPlotCollection.uiCapability()->setUiTreeHidden( true );
+    CAF_PDM_InitFieldNoDefault( &m_mainPlotCollection, "MainPlotCollection", "Plots" );
+    m_mainPlotCollection.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &viewLinkerCollection, "LinkedViews", "Linked Views", ":/LinkView.svg" );
     viewLinkerCollection.uiCapability()->setUiTreeHidden( true );
@@ -212,7 +212,7 @@ RimProject::RimProject( void )
     scriptCollection->uiCapability()->setUiName( "Scripts" );
     scriptCollection->uiCapability()->setUiIconFromResourceString( ":/octave.png" );
 
-    mainPlotCollection = new RimMainPlotCollection();
+    m_mainPlotCollection = new RimMainPlotCollection();
 
     CAF_PDM_InitFieldNoDefault( &m_plotTemplateTopFolder, "PlotTemplateCollection", "Plot Templates" );
     m_plotTemplateTopFolder = new RimPlotTemplateFolderItem();
@@ -244,9 +244,9 @@ RimProject* RimProject::current()
 //--------------------------------------------------------------------------------------------------
 void RimProject::close()
 {
-    if ( mainPlotCollection() )
+    if ( m_mainPlotCollection() )
     {
-        mainPlotCollection()->deleteAllContainedObjects();
+        m_mainPlotCollection()->deleteAllContainedObjects();
     }
 
     oilFields.deleteChildren();
@@ -359,6 +359,14 @@ void RimProject::setupBeforeSave()
     }
 
     m_projectFileVersionString = STRPRODUCTVER;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimMainPlotCollection* RimProject::mainPlotCollection() const
+{
+    return m_mainPlotCollection();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -998,7 +1006,7 @@ void RimProject::reloadCompletionTypeResultsInAllViews()
     RiaCompletionTypeCalculationScheduler::instance()->clearCompletionTypeResultsInAllCases();
     scheduleCreateDisplayModelAndRedrawAllViews();
 
-    mainPlotCollection()->scheduleUpdatePlotsWithCompletions();
+    m_mainPlotCollection()->scheduleUpdatePlotsWithCompletions();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1364,82 +1372,82 @@ void RimProject::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, Q
 {
     if ( uiConfigName == "PlotWindow.Plots" )
     {
-        if ( mainPlotCollection )
+        if ( m_mainPlotCollection )
         {
-            if ( mainPlotCollection->summaryMultiPlotCollection() )
+            if ( m_mainPlotCollection->summaryMultiPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->summaryMultiPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->summaryMultiPlotCollection() );
             }
 
-            if ( mainPlotCollection->analysisPlotCollection() )
+            if ( m_mainPlotCollection->analysisPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->analysisPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->analysisPlotCollection() );
             }
 
-            if ( mainPlotCollection->correlationPlotCollection() )
+            if ( m_mainPlotCollection->correlationPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->correlationPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->correlationPlotCollection() );
             }
 
-            if ( mainPlotCollection->summaryCrossPlotCollection() )
+            if ( m_mainPlotCollection->summaryCrossPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->summaryCrossPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->summaryCrossPlotCollection() );
             }
 
-            if ( mainPlotCollection->wellLogPlotCollection() )
+            if ( m_mainPlotCollection->wellLogPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->wellLogPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->wellLogPlotCollection() );
             }
 
-            if ( mainPlotCollection->rftPlotCollection() )
+            if ( m_mainPlotCollection->rftPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->rftPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->rftPlotCollection() );
             }
 
-            if ( mainPlotCollection->pltPlotCollection() )
+            if ( m_mainPlotCollection->pltPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->pltPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->pltPlotCollection() );
             }
 
-            if ( mainPlotCollection->flowPlotCollection() )
+            if ( m_mainPlotCollection->flowPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->flowPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->flowPlotCollection() );
             }
 
-            if ( mainPlotCollection->gridCrossPlotCollection() )
+            if ( m_mainPlotCollection->gridCrossPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->gridCrossPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->gridCrossPlotCollection() );
             }
 
-            if ( mainPlotCollection->saturationPressurePlotCollection() )
+            if ( m_mainPlotCollection->saturationPressurePlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->saturationPressurePlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->saturationPressurePlotCollection() );
             }
 
-            if ( mainPlotCollection->multiPlotCollection() )
+            if ( m_mainPlotCollection->multiPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->multiPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->multiPlotCollection() );
             }
 
-            if ( mainPlotCollection->stimPlanModelPlotCollection() )
+            if ( m_mainPlotCollection->stimPlanModelPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->stimPlanModelPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->stimPlanModelPlotCollection() );
             }
 
-            if ( mainPlotCollection->vfpPlotCollection() )
+            if ( m_mainPlotCollection->vfpPlotCollection() )
             {
-                uiTreeOrdering.add( mainPlotCollection->vfpPlotCollection() );
+                uiTreeOrdering.add( m_mainPlotCollection->vfpPlotCollection() );
             }
 #ifdef USE_QTCHARTS
-            if ( mainPlotCollection->gridStatisticsPlotCollection() ||
-                 mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
+            if ( m_mainPlotCollection->gridStatisticsPlotCollection() ||
+                 m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
             {
                 auto statisticsItemCollection = uiTreeOrdering.add( "Statistics Plots", ":/Folder.png" );
-                if ( mainPlotCollection->gridStatisticsPlotCollection() )
-                    statisticsItemCollection->add( mainPlotCollection->gridStatisticsPlotCollection() );
+                if ( m_mainPlotCollection->gridStatisticsPlotCollection() )
+                    statisticsItemCollection->add( m_mainPlotCollection->gridStatisticsPlotCollection() );
 
-                if ( mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
-                    statisticsItemCollection->add( mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
+                if ( m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() )
+                    statisticsItemCollection->add( m_mainPlotCollection->ensembleFractureStatisticsPlotCollection() );
             }
 #endif
         }

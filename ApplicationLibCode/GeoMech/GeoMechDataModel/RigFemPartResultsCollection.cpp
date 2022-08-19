@@ -66,7 +66,6 @@
 
 #include "RimMainPlotCollection.h"
 #include "RimMudWeightWindowParameters.h"
-#include "RimProject.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
 
@@ -216,20 +215,10 @@ void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* ac
 {
     m_activeFormationNamesData = activeFormationNames;
 
-    RimProject* project = RimProject::current();
-    if ( project )
+    RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
+    for ( auto wellLogPlot : plotCollection->wellLogPlots() )
     {
-        if ( project->mainPlotCollection() )
-        {
-            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
-            if ( plotCollection )
-            {
-                for ( auto wellLogPlot : plotCollection->wellLogPlots() )
-                {
-                    wellLogPlot->loadDataAndUpdate();
-                }
-            }
-        }
+        wellLogPlot->loadDataAndUpdate();
     }
 
     this->deleteResult( RigFemResultAddress( RIG_FORMATION_NAMES, "Active Formation Names", "" ) );

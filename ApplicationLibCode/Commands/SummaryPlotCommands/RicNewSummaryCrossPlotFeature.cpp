@@ -25,7 +25,6 @@
 #include "RicSummaryPlotEditorUi.h"
 
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCrossPlotCollection.h"
@@ -75,10 +74,7 @@ bool RicNewSummaryCrossPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicNewSummaryCrossPlotFeature::onActionTriggered( bool isChecked )
 {
-    RimProject* project = RimProject::current();
-    CVF_ASSERT( project );
-
-    RimSummaryCrossPlotCollection* summaryCrossPlotColl = project->mainPlotCollection()->summaryCrossPlotCollection();
+    RimSummaryCrossPlotCollection* summaryCrossPlotColl = RimMainPlotCollection::current()->summaryCrossPlotCollection();
     RimSummaryPlot*                summaryPlot          = summaryCrossPlotColl->createSummaryPlot();
 
     summaryCrossPlotColl->addPlot( summaryPlot );

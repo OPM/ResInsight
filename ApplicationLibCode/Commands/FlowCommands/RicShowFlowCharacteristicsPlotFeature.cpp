@@ -30,7 +30,6 @@
 #include "RimFlowDiagSolution.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 
 #include "RiuPlotMainWindowTools.h"
 
@@ -86,18 +85,15 @@ void RicShowFlowCharacteristicsPlotFeature::onActionTriggered( bool isChecked )
             }
         }
 
-        if ( RimProject::current() )
+        RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
+        if ( flowPlotColl )
         {
-            RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
-            if ( flowPlotColl )
-            {
-                RiuPlotMainWindowTools::showPlotMainWindow();
+            RiuPlotMainWindowTools::showPlotMainWindow();
 
-                flowPlotColl->defaultFlowCharacteristicsPlot()->setFromFlowSolution( eclCase->defaultFlowDiagSolution() );
-                flowPlotColl->defaultFlowCharacteristicsPlot()->updateConnectedEditors();
+            flowPlotColl->defaultFlowCharacteristicsPlot()->setFromFlowSolution( eclCase->defaultFlowDiagSolution() );
+            flowPlotColl->defaultFlowCharacteristicsPlot()->updateConnectedEditors();
 
-                RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultFlowCharacteristicsPlot() );
-            }
+            RiuPlotMainWindowTools::onObjectAppended( flowPlotColl->defaultFlowCharacteristicsPlot() );
         }
     }
 }

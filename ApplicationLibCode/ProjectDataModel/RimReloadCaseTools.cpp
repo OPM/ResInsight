@@ -30,18 +30,8 @@
 #include "RimEclipseContourMapView.h"
 #include "RimEclipseContourMapViewCollection.h"
 #include "RimEclipseView.h"
-#include "RimFlowPlotCollection.h"
-#include "RimGridCrossPlot.h"
-#include "RimGridCrossPlotCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimMultiPlot.h"
-#include "RimMultiPlotCollection.h"
-#include "RimProject.h"
 #include "RimSummaryCaseMainCollection.h"
-#include "RimSummaryMultiPlot.h"
-#include "RimSummaryMultiPlotCollection.h"
-#include "RimWellLogPlot.h"
-#include "RimWellLogPlotCollection.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -143,51 +133,5 @@ void RimReloadCaseTools::updateAll3dViews( RimEclipseCase* eclipseCase )
 //--------------------------------------------------------------------------------------------------
 void RimReloadCaseTools::updateAllPlots()
 {
-    RimProject* project = RimProject::current();
-    if ( project && project->mainPlotCollection() )
-    {
-        RimWellLogPlotCollection* wellPlotCollection = project->mainPlotCollection()->wellLogPlotCollection();
-
-        if ( wellPlotCollection )
-        {
-            for ( RimWellLogPlot* wellLogPlot : wellPlotCollection->wellLogPlots() )
-            {
-                wellLogPlot->loadDataAndUpdate();
-            }
-        }
-
-        RimSummaryMultiPlotCollection* summaryMultiPlotCollection =
-            project->mainPlotCollection()->summaryMultiPlotCollection();
-        if ( summaryMultiPlotCollection )
-        {
-            for ( RimSummaryMultiPlot* summaryPlot : summaryMultiPlotCollection->multiPlots() )
-            {
-                summaryPlot->loadDataAndUpdate();
-            }
-        }
-
-        RimGridCrossPlotCollection* gridCrossPlotCollection = project->mainPlotCollection()->gridCrossPlotCollection();
-        if ( gridCrossPlotCollection )
-        {
-            for ( RimGridCrossPlot* crossPlot : gridCrossPlotCollection->plots() )
-            {
-                crossPlot->loadDataAndUpdate();
-            }
-        }
-
-        RimFlowPlotCollection* flowPlotCollection = project->mainPlotCollection()->flowPlotCollection();
-        if ( flowPlotCollection )
-        {
-            flowPlotCollection->loadDataAndUpdateAllPlots();
-        }
-
-        RimMultiPlotCollection* multiPlotCollection = project->mainPlotCollection()->multiPlotCollection();
-        if ( multiPlotCollection )
-        {
-            for ( RimMultiPlot* plotWindow : multiPlotCollection->multiPlots() )
-            {
-                plotWindow->loadDataAndUpdate();
-            }
-        }
-    }
+    RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
 }

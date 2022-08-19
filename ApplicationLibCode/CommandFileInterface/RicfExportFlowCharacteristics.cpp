@@ -27,7 +27,6 @@
 #include "RimFlowCharacteristicsPlot.h"
 #include "RimFlowPlotCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 
@@ -88,7 +87,7 @@ caf::PdmScriptResponse RicfExportFlowCharacteristics::execute()
             exportFileName = exportFolder + "/" + fi.fileName();
         }
 
-        RimFlowPlotCollection* flowPlotColl = RimProject::current()->mainPlotCollection->flowPlotCollection();
+        RimFlowPlotCollection* flowPlotColl = RimMainPlotCollection::current()->flowPlotCollection();
         if ( flowPlotColl )
         {
             RimFlowCharacteristicsPlot* plot = flowPlotColl->defaultFlowCharacteristicsPlot();
