@@ -1923,6 +1923,7 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     uiOrdering.add( &m_colSpan );
 
     caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Regions/Annotations" );
+    annotationGroup->setCollapsedByDefault();
 
     annotationGroup->add( &m_regionAnnotationType );
     annotationGroup->add( &m_regionAnnotationDisplay );
