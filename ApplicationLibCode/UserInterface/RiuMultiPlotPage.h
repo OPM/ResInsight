@@ -122,6 +122,32 @@ protected:
     virtual void reinsertPlotWidgets();
     virtual void refreshLegends();
 
+    void addLegendWidget( RiuPlotWidget*            plotWidget,
+                          RiuQwtPlotLegend*         legend,
+                          RiuDraggableOverlayFrame* legendFrame,
+                          int                       row,
+                          int                       column,
+                          int                       colSpan );
+
+    void reinsertPlotWidget( RiuPlotWidget*            plotWidget,
+                             RiuQwtPlotLegend*         legend,
+                             RiuDraggableOverlayFrame* legendFrame,
+                             QLabel*                   subTitle,
+                             int                       row,
+                             int                       column,
+                             int                       rowSpan,
+                             int                       colSpan );
+
+    void updateSubTitleVisibility( QLabel* subTitle );
+
+    void setDefaultAxisProperties( RiuPlotWidget* plotWidget, int row, int column );
+
+    void adjustHeadingSpacing( RiuPlotWidget* plotWidget );
+
+    void setRowAndColumnStretches( int row, int column, int rowSpan, int colSpan );
+
+    void updateLegendVisibility( RiuPlotWidget* plotWidget, RiuQwtPlotLegend* legend, RiuDraggableOverlayFrame* legendFrame );
+
     void updateTitleFont();
 
     int alignCanvasTops();
