@@ -181,7 +181,7 @@ void RimWellPathAicdParameters::defineUiOrdering( QString uiConfigName, caf::Pdm
         additionalGroup->add( &m_aicdParameterFields[(AICDParameters)i] );
         m_aicdParameterFields[(AICDParameters)i].uiCapability()->setUiReadOnly( readOnly );
     }
-    additionalGroup->setCollapsedByDefault( true );
+    additionalGroup->setCollapsedByDefault();
 }
 
 //--------------------------------------------------------------------------------------------------

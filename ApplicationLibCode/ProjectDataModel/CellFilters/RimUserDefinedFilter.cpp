@@ -64,7 +64,6 @@ void RimUserDefinedFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     RimCellFilter::defineUiOrdering( uiConfigName, uiOrdering );
 
     auto group = uiOrdering.addNewGroup( QString( "Cell Indexes (I J K) to " ) + modeString() );
-    group->setCollapsedByDefault( false );
     group->add( &m_individualCellIndices );
 
     uiOrdering.skipRemainingFields( true );

@@ -2373,7 +2373,7 @@ std::vector<RimWellLogCurve*> RimWellLogTrack::visibleCurves() const
 void RimWellLogTrack::uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrdering )
 {
     caf::PdmUiGroup* formationGroup = uiOrdering.addNewGroup( "Zonation/Formation Names" );
-    formationGroup->setCollapsedByDefault( true );
+    formationGroup->setCollapsedByDefault();
     formationGroup->add( &m_regionAnnotationType );
     formationGroup->add( &m_regionAnnotationDisplay );
     formationGroup->add( &m_formationSource );

@@ -101,7 +101,7 @@ void RicSaveMultiPlotTemplateFeatureSettings::defineUiOrdering( QString uiConfig
 
     {
         auto group = uiOrdering.addNewGroup( "Persist Object Names" );
-        group->setCollapsedByDefault( true );
+        group->setCollapsedByDefault();
         group->add( &m_persistObjectNameForWells );
         group->add( &m_persistObjectNameGroups );
         group->add( &m_persistObjectNameRegions );

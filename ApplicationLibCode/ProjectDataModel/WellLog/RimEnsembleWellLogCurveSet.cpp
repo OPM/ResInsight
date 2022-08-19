@@ -484,7 +484,7 @@ void RimEnsembleWellLogCurveSet::defineUiOrdering( QString uiConfigName, caf::Pd
 
     {
         caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
-        nameGroup->setCollapsedByDefault( true );
+        nameGroup->setCollapsedByDefault();
         nameGroup->add( &m_isUsingAutoName );
         if ( m_isUsingAutoName )
         {

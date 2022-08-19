@@ -605,7 +605,7 @@ void RimEclipseResultCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
          eclipseCaseData()->results( RiaDefines::PorosityModelType::MATRIX_MODEL )->maxTimeStepCount() > 0 )
     {
         auto group1 = uiOrdering.addNewGroup( "Time Step Filter" );
-        group1->setCollapsedByDefault( true );
+        group1->setCollapsedByDefault();
         m_timeStepFilter->uiOrdering( uiConfigName, *group1 );
     }
 }
