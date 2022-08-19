@@ -270,6 +270,14 @@ void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::
 void RifReaderOpmRft::readWseglink( const std::string& filePath )
 {
     m_wseglink = RiaOpmParserTools::extractWseglink( filePath );
+
+    if ( !m_wseglink.empty() )
+    {
+        QString text = QString( "Imported segment data from %1\n" ).arg( QString::fromStdString( filePath ) );
+        text += QString( "Number of wells: %1\n" ).arg( m_wseglink.size() );
+
+        RiaLogging::info( text );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
