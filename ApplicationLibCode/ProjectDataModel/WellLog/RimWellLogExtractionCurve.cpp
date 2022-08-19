@@ -436,10 +436,7 @@ void RimWellLogExtractionCurve::extractData( bool*  isUsingPseudoLength,
 
     clampBranchIndex();
 
-    RimMainPlotCollection* mainPlotCollection;
-    this->firstAncestorOrThisOfTypeAsserted( mainPlotCollection );
-
-    RimWellLogPlotCollection* wellLogCollection = mainPlotCollection->wellLogPlotCollection();
+    RimWellLogPlotCollection* wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
 
     cvf::ref<RigEclipseWellLogExtractor> eclExtractor;
     cvf::ref<RigGeoMechWellLogExtractor> geomExtractor;
@@ -695,7 +692,6 @@ std::set<QString> RimWellLogExtractionCurve::sortedSimWellNames()
 void RimWellLogExtractionCurve::clearGeneratedSimWellPaths()
 {
     RimWellLogPlotCollection* wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    if ( !wellLogCollection ) return;
 
     for ( auto wellPath : m_wellPathsWithExtractors )
     {

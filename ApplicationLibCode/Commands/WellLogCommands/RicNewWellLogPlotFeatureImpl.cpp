@@ -249,8 +249,5 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimDepthTrackPlot* plot 
 //--------------------------------------------------------------------------------------------------
 RimWellLogPlotCollection* RicNewWellLogPlotFeatureImpl::wellLogPlotCollection()
 {
-    RimWellLogPlotCollection* wellLogPlotColl = RimMainPlotCollection::current()->wellLogPlotCollection();
-    CVF_ASSERT( wellLogPlotColl );
-
     return RimMainPlotCollection::current()->wellLogPlotCollection();
 }

@@ -216,12 +216,9 @@ void RigFemPartResultsCollection::setActiveFormationNames( RigFormationNames* ac
     m_activeFormationNamesData = activeFormationNames;
 
     RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    if ( plotCollection )
+    for ( auto wellLogPlot : plotCollection->wellLogPlots() )
     {
-        for ( auto wellLogPlot : plotCollection->wellLogPlots() )
-        {
-            wellLogPlot->loadDataAndUpdate();
-        }
+        wellLogPlot->loadDataAndUpdate();
     }
 
     this->deleteResult( RigFemResultAddress( RIG_FORMATION_NAMES, "Active Formation Names", "" ) );
