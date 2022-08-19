@@ -90,6 +90,8 @@ private:
     QString resultInfoText( const RigHistogramData& histData, RimEclipseView* eclipseView, bool showVolumeWeightedMean );
     QString resultInfoText( const RigHistogramData& histData, RimGeoMechView* geoMechView );
 
+    QString sampleCountText( const std::vector<size_t>& histogram );
+
     void displayPropertyFilteredStatisticsMessage( bool showSwitchToCurrentTimestep );
     bool hasInvalidStatisticsCombination();
 
