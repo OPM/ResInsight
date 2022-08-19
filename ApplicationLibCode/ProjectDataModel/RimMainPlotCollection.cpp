@@ -158,6 +158,14 @@ RimMainPlotCollection::~RimMainPlotCollection()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimMainPlotCollection* RimMainPlotCollection::current()
+{
+    return RimProject::current()->mainPlotCollection();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimMainPlotCollection::initAfterRead()
 {
     std::vector<RimSummaryPlot*> plotsToMove;

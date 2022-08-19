@@ -165,18 +165,10 @@ RimWellPath::~RimWellPath()
         delete file;
     }
 
-    RimProject* project;
-    firstAncestorOrThisOfType( project );
-    if ( project )
+    RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
+    if ( plotCollection )
     {
-        if ( project->mainPlotCollection() )
-        {
-            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
-            if ( plotCollection )
-            {
-                plotCollection->removeExtractors( m_wellPathGeometry.p() );
-            }
-        }
+        plotCollection->removeExtractors( m_wellPathGeometry.p() );
     }
 }
 

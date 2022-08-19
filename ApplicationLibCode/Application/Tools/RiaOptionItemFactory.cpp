@@ -22,7 +22,6 @@
 #include "RimCase.h"
 #include "RimEnsembleCurveSet.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -46,7 +45,7 @@ void RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( QList<caf::Pdm
 {
     options->push_back( caf::PdmOptionItemInfo( "None", nullptr ) );
 
-    RimMainPlotCollection*            mainPlotColl = RimProject::current()->mainPlotCollection();
+    RimMainPlotCollection*            mainPlotColl = RimMainPlotCollection::current();
     std::vector<RimEnsembleCurveSet*> ensembleCurveSets;
     mainPlotColl->descendantsOfType( ensembleCurveSets );
     for ( auto ensembleCurveSet : ensembleCurveSets )

@@ -34,7 +34,6 @@
 #include "RimEnsembleCurveSet.h"
 #include "RimEnsembleCurveSetCollection.h"
 #include "RimMainPlotCollection.h"
-#include "RimProject.h"
 #include "RimSummaryAddressCollection.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCurve.h"
@@ -153,8 +152,7 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString& fileNam
         sumCaseCollections.push_back( sumCaseCollection );
     }
 
-    auto proj        = RimProject::current();
-    auto collections = proj->mainPlotCollection()->summaryMultiPlotCollection();
+    auto collections = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto newSummaryPlot = RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFile( fileName );
     if ( !newSummaryPlot ) return nullptr;
@@ -213,8 +211,7 @@ RimSummaryMultiPlot* RicSummaryPlotTemplateTools::create( const QString&        
     if ( !analyzer.regionNumbers().empty() )
         regions.push_back( QString::number( *( analyzer.regionNumbers().begin() ) ) );
 
-    auto proj        = RimProject::current();
-    auto collections = proj->mainPlotCollection()->summaryMultiPlotCollection();
+    auto collections = RimMainPlotCollection::current()->summaryMultiPlotCollection();
 
     auto newSummaryPlot = RicSummaryPlotTemplateTools::createMultiPlotFromTemplateFile( fileName );
     if ( !newSummaryPlot ) return nullptr;
@@ -241,11 +238,6 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryMultiPlot*
                                                             const std::vector<QString>&                   regions )
 
 {
-    // Assumes this plot is inserted into the project. This is required when assigning the ptrFields
-    RimProject* proj = nullptr;
-    summaryMultiPlot->firstAncestorOfType( proj );
-    CAF_ASSERT( proj );
-
     auto plots = summaryMultiPlot->plots();
     for ( auto p : plots )
     {
@@ -265,11 +257,6 @@ void RicSummaryPlotTemplateTools::setValuesForPlaceholders( RimSummaryPlot*     
                                                             const std::vector<QString>&                   groupNames,
                                                             const std::vector<QString>&                   regions )
 {
-    // Assumes this plot is inserted into the project. This is required when assigning the ptrFields
-    RimProject* proj = nullptr;
-    summaryPlot->firstAncestorOfType( proj );
-    CAF_ASSERT( proj );
-
     {
         // Replace single summary curves data sources
 

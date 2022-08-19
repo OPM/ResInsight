@@ -18,6 +18,13 @@
 
 #include "RimRftCase.h"
 
+#include "RicReloadSummaryCaseFeature.h"
+
+#include "RimMainPlotCollection.h"
+#include "RimSummaryCase.h"
+
+#include "cafPdmUiFilePathEditor.h"
+
 //==================================================================================================
 //
 //
@@ -68,4 +75,34 @@ QString RimRftCase::rftFilePath() const
 QString RimRftCase::dataDeckFilePath() const
 {
     return m_dataDeckFilePath().path();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftCase::fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue )
+{
+    RimSummaryCase* parentCase = nullptr;
+    firstAncestorOfType( parentCase );
+
+    if ( parentCase ) RicReloadSummaryCaseFeature::reloadSummaryCase( parentCase );
+
+    RimMainPlotCollection::current()->loadDataAndUpdateAllPlots();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftCase::defineEditorAttribute( const caf::PdmFieldHandle* field,
+                                        QString                    uiConfigName,
+                                        caf::PdmUiEditorAttribute* attribute )
+{
+    if ( field == &m_dataDeckFilePath )
+    {
+        auto* myAttr = dynamic_cast<caf::PdmUiFilePathEditorAttribute*>( attribute );
+        if ( myAttr )
+        {
+            myAttr->m_defaultPath = rftFilePath();
+        }
+    }
 }

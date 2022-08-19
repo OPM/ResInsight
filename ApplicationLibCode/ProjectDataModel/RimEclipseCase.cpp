@@ -152,17 +152,10 @@ RimEclipseCase::~RimEclipseCase()
     delete m_fractureModelResults();
     delete m_inputPropertyCollection;
 
-    RimProject* project = RimProject::current();
-    if ( project )
+    RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
+    if ( plotCollection )
     {
-        if ( project->mainPlotCollection() )
-        {
-            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
-            if ( plotCollection )
-            {
-                plotCollection->removeExtractors( this->eclipseCaseData() );
-            }
-        }
+        plotCollection->removeExtractors( this->eclipseCaseData() );
     }
 
     if ( this->eclipseCaseData() )
@@ -511,16 +504,7 @@ void RimEclipseCase::updateFormationNamesData()
         }
 
         // Update plots based on formations
-        {
-            RimProject* project = RimProject::current();
-            if ( project )
-            {
-                if ( project->mainPlotCollection() )
-                {
-                    project->mainPlotCollection->updatePlotsWithFormations();
-                }
-            }
-        }
+        RimMainPlotCollection::current()->updatePlotsWithFormations();
 
         std::vector<Rim3dView*> views = this->views();
         for ( Rim3dView* view : views )

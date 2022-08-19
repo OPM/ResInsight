@@ -281,7 +281,7 @@ protected:
     {
         RimProject*                 proj              = RimProject::current();
         RimWellPath*                wellPath          = proj->wellPathByName( wellPathName );
-        RimWellLogPlotCollection*   wellLogCollection = proj->mainPlotCollection()->wellLogPlotCollection();
+        RimWellLogPlotCollection*   wellLogCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
         RigEclipseWellLogExtractor* eclExtractor      = wellLogCollection->findOrCreateExtractor( wellPath, eclCase );
 
         return eclExtractor;

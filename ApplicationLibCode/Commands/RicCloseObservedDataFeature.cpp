@@ -24,7 +24,6 @@
 #include "RimObservedDataCollection.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
-#include "RimProject.h"
 #include "RimRftPlotCollection.h"
 #include "RimSummaryMultiPlot.h"
 #include "RimSummaryMultiPlotCollection.h"
@@ -80,8 +79,7 @@ void RicCloseObservedDataFeature::deleteObservedSummaryData( const std::vector<R
 //--------------------------------------------------------------------------------------------------
 void RicCloseObservedDataFeature::deleteObservedRmuRftData( const std::vector<RimObservedFmuRftData*>& data )
 {
-    RimProject*           proj        = RimProject::current();
-    RimRftPlotCollection* rftPlotColl = proj->mainPlotCollection()->rftPlotCollection();
+    RimRftPlotCollection* rftPlotColl = RimMainPlotCollection::current()->rftPlotCollection();
 
     for ( RimObservedFmuRftData* observedData : data )
     {

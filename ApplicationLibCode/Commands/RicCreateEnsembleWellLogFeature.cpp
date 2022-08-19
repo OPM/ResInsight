@@ -121,7 +121,7 @@ void RicCreateEnsembleWellLogFeature::executeCommand( const RicCreateEnsembleWel
 
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> properties = ui.properties();
 
-    RimWellLogPlotCollection* plotCollection = RimProject::current()->mainPlotCollection()->wellLogPlotCollection();
+    RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
 
     RimWellPath* wellPath = nullptr;
 
