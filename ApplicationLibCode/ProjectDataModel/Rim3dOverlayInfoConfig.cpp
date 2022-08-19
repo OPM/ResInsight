@@ -214,6 +214,19 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString Rim3dOverlayInfoConfig::sampleCountText( const std::vector<size_t>& histogram )
+{
+    size_t sampleCount = std::accumulate( histogram.begin(), histogram.end(), size_t( 0 ) );
+
+    QLocale localeWithSpaceAsGroupSeparator( caf::norwegianLocale() );
+    QString text = localeWithSpaceAsGroupSeparator.toString( (qulonglong)sampleCount );
+
+    return QString( "<br><b>Sample Count:</b> %1" ).arg( text );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RicGridStatisticsDialog* Rim3dOverlayInfoConfig::getOrCreateGridStatisticsDialog()
 {
     if ( !m_gridStatisticsDialog )
@@ -418,6 +431,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
             if ( histData.isMinMaxValid() )
             {
                 infoText += QString( "<br><b>Statistics:</b> Current Time Step and Visible Cells" );
+
+                infoText += sampleCountText( histData.histogram );
+
                 infoText += QString( "<table border=0 cellspacing=5 >"
                                      "<tr> <td>Min</td> <td>Mean</td> <td>Max</td> </tr>"
                                      "<tr> <td>%1</td>  <td> %2</td> <td>  %3</td> </tr>"
@@ -473,6 +489,9 @@ QString Rim3dOverlayInfoConfig::resultInfoText( const RigHistogramData& histData
             {
                 infoText += QString( "<br><b>Statistics:</b> " ) + timeRangeText + " and " +
                             m_statisticsCellRange().uiText();
+
+                infoText += sampleCountText( histData.histogram );
+
                 infoText +=
                     QString( "<table border=0 cellspacing=5 >"
                              "<tr> <td>Min</td> <td>P90</td> <td>Mean</td> <td>P10</td> <td>Max</td> <td>Sum</td> </tr>"
