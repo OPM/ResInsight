@@ -555,7 +555,7 @@ void RimEclipseContourMapProjection::defineUiOrdering( QString uiConfigName, caf
 
     caf::PdmUiGroup* weightingGroup = uiOrdering.addNewGroup( "Mean Weighting Options" );
     weightingGroup->add( &m_weightByParameter );
-    weightingGroup->setCollapsedByDefault( true );
+    weightingGroup->setCollapsedByDefault();
 
     m_weightByParameter.uiCapability()->setUiReadOnly( !isMeanResult() );
     if ( !isMeanResult() )

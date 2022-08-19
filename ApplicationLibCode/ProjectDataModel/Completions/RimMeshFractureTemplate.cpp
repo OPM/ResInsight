@@ -489,7 +489,7 @@ void RimMeshFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUi
 
     {
         caf::PdmUiGroup* group = uiOrdering.addNewGroup( "Fracture Truncation" );
-        group->setCollapsedByDefault( true );
+        group->setCollapsedByDefault();
         m_fractureContainment()->uiOrdering( uiConfigName, *group );
     }
 

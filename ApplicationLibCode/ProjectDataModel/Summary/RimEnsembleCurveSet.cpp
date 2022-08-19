@@ -856,7 +856,7 @@ void RimEnsembleCurveSet::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
 
     {
         caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
-        nameGroup->setCollapsedByDefault( true );
+        nameGroup->setCollapsedByDefault();
         nameGroup->add( &m_isUsingAutoName );
         if ( m_isUsingAutoName )
         {

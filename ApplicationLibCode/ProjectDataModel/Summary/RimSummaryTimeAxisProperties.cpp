@@ -623,7 +623,7 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
     if ( m_timeMode() == DATE )
     {
         caf::PdmUiGroup* advancedGroup = timeGroup->addNewGroup( "Date/Time Label Format" );
-        advancedGroup->setCollapsedByDefault( true );
+        advancedGroup->setCollapsedByDefault();
         if ( m_automaticDateComponents() || m_dateComponents() != RiaDefines::DateFormatComponents::DATE_FORMAT_NONE )
         {
             advancedGroup->add( &m_dateFormat );

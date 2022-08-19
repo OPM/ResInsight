@@ -402,27 +402,27 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
 
     auto dataSourceGroup = uiOrdering.addNewGroup( "Data Source" );
-    dataSourceGroup->setCollapsedByDefault( true );
+    dataSourceGroup->setCollapsedByDefault();
     m_sourceStepping()->uiOrdering( uiConfigName, *dataSourceGroup );
 
     if ( m_sourceStepping->stepDimension() == SourceSteppingDimension::WELL )
         dataSourceGroup->add( &m_allow3DSelectionLink );
 
     auto titlesGroup = uiOrdering.addNewGroup( "Main Plot Settings" );
-    titlesGroup->setCollapsedByDefault( true );
+    titlesGroup->setCollapsedByDefault();
     titlesGroup->add( &m_autoPlotTitle );
     titlesGroup->add( &m_showPlotWindowTitle );
     titlesGroup->add( &m_plotWindowTitle );
     titlesGroup->add( &m_titleFontSize );
 
     auto subPlotSettingsGroup = uiOrdering.addNewGroup( "Sub Plot Settings" );
-    subPlotSettingsGroup->setCollapsedByDefault( true );
+    subPlotSettingsGroup->setCollapsedByDefault();
     subPlotSettingsGroup->add( &m_autoSubPlotTitle );
     subPlotSettingsGroup->add( &m_showIndividualPlotTitles );
     subPlotSettingsGroup->add( &m_subTitleFontSize );
 
     auto legendsGroup = uiOrdering.addNewGroup( "Legends" );
-    legendsGroup->setCollapsedByDefault( true );
+    legendsGroup->setCollapsedByDefault();
     legendsGroup->add( &m_showPlotLegends );
     legendsGroup->add( &m_plotLegendsHorizontal );
     legendsGroup->add( &m_legendPosition );

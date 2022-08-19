@@ -1140,7 +1140,7 @@ void RimGeoMechCase::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     shearSlipIndicatorGroup->add( &m_waterDensityShearSlipIndicator );
 
     caf::PdmUiGroup* timeStepFilterGroup = uiOrdering.addNewGroup( "Time Step Filter" );
-    timeStepFilterGroup->setCollapsedByDefault( true );
+    timeStepFilterGroup->setCollapsedByDefault();
     m_timeStepFilter->uiOrdering( uiConfigName, *timeStepFilterGroup );
 }
 

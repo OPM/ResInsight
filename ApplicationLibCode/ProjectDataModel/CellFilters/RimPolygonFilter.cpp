@@ -405,12 +405,12 @@ void RimPolygonFilter::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderin
     }
     group2->add( &m_lockPolygonToPlane );
     if ( m_lockPolygonToPlane ) group2->add( &m_polygonPlaneDepth );
-    group2->setCollapsedByDefault( true );
+    group2->setCollapsedByDefault();
 
     auto group3 = uiOrdering.addNewGroup( "Advanced Filter Settings" );
     group3->add( &m_enableKFilter );
     group3->add( &m_kFilterStr );
-    group3->setCollapsedByDefault( true );
+    group3->setCollapsedByDefault();
 
     uiOrdering.skipRemainingFields( true );
 
