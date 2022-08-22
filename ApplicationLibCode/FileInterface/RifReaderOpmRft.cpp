@@ -124,12 +124,43 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
                 auto segment = m_rftWellDateSegments[key];
 
-                auto indices =
-                    segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
-                for ( const auto& i : indices )
+                if ( resultName.find( "CON" ) == 0 )
                 {
-                    CAF_ASSERT( i < data.size() );
-                    values->push_back( data[i] );
+                    // Connection results with size equal to length of result CONSEGNO. CONSEGNO defines the segment
+                    // numbers the connection is connected to.
+
+                    const std::string consegResultName = "CONSEGNO";
+                    auto connnectionSegmentNumbers     = m_opm_rft->getRft<int>( consegResultName, wellName, y, m, d );
+                    if ( connnectionSegmentNumbers.empty() ) return;
+
+                    auto segmentNumbers = segment.segmentNumbersForBranchIndex( rftAddress.segmentBranchIndex(),
+                                                                                rftAddress.segmentBranchType() );
+
+                    size_t resultDataIndex = 0;
+                    for ( int segmentNumber : segmentNumbers )
+                    {
+                        if ( std::find( connnectionSegmentNumbers.begin(), connnectionSegmentNumbers.end(), segmentNumber ) !=
+                             connnectionSegmentNumbers.end() )
+                        {
+                            values->push_back( data[resultDataIndex++] );
+                        }
+                        else
+                        {
+                            // The number of values must be equal to the number of segments, use infinity for segments
+                            // with no data
+                            values->push_back( std::numeric_limits<double>::infinity() );
+                        }
+                    }
+                }
+                else
+                {
+                    auto indices =
+                        segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+                    for ( const auto& i : indices )
+                    {
+                        CAF_ASSERT( i < data.size() );
+                        values->push_back( data[i] );
+                    }
                 }
             }
             else
@@ -356,14 +387,8 @@ void RifReaderOpmRft::buildMetaData()
 
         m_rftSegmentTimeSteps.insert( dt );
 
-        auto segmentCount = segmentData.topology().size();
-
         for ( const auto& resultNameAndSize : resultNameAndSizes )
         {
-            auto resultValueCount = std::get<2>( resultNameAndSize );
-
-            if ( static_cast<size_t>( resultValueCount ) != segmentCount ) continue;
-
             auto resultName = std::get<0>( resultNameAndSize );
             auto adr        = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
                                                                    dt,
@@ -441,7 +466,7 @@ void RifReaderOpmRft::buildSegmentData()
             for ( const auto& rftResultMetaData : arraysAtWellDate )
             {
                 auto [name, arrayType, size] = rftResultMetaData;
-                if ( name.find( "SEG" ) == 0 )
+                if ( ( name.find( "SEG" ) == 0 ) || ( name.find( "CON" ) == 0 ) )
                 {
                     segment.addResultNameAndSize( rftResultMetaData );
                 }

@@ -72,6 +72,8 @@ public:
     std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
     std::vector<size_t> indicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
 
+    std::vector<int> segmentNumbersForBranchIndex( int oneBasedBranchIndex, RiaDefines::RftBranchType branchType ) const;
+
 private:
     std::vector<RifRftSegmentData>             m_topology;
     std::vector<Opm::EclIO::EclFile::EclEntry> m_resultNameAndSize;
