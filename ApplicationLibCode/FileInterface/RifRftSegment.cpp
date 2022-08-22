@@ -285,3 +285,20 @@ std::vector<size_t> RifRftSegment::indicesForBranchIndex( int branchIndex, RiaDe
 
     return v;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> RifRftSegment::segmentNumbersForBranchIndex( int                       oneBasedBranchIndex,
+                                                              RiaDefines::RftBranchType branchType ) const
+{
+    std::vector<int> v;
+
+    auto indices = indicesForBranchIndex( oneBasedBranchIndex, branchType );
+    for ( auto index : indices )
+    {
+        v.push_back( m_topology[index].segNo() );
+    }
+
+    return v;
+}
