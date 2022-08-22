@@ -1400,11 +1400,12 @@ void RimEclipseView::onUpdateLegends()
     {
         if ( this->cellEdgeResult()->hasResult() )
         {
-            if ( this->cellEdgeResult()->isUsingSingleVariable() )
-            {
-                this->cellEdgeResult()->singleVarEdgeResultColors()->updateRangesForEmbeddedLegends( m_currentTimeStep );
-            }
-            else
+            //             if ( this->cellEdgeResult()->isUsingSingleVariable() )
+            //             {
+            //                 this->cellEdgeResult()->singleVarEdgeResultColors()->updateRangesForEmbeddedLegends(
+            //                 m_currentTimeStep );
+            //             }
+            //             else
             {
                 double globalMin, globalMax;
                 double globalPosClosestToZero, globalNegClosestToZero;
@@ -1419,13 +1420,17 @@ void RimEclipseView::onUpdateLegends()
 
                 if ( this->cellEdgeResult()->hasCategoryResult() )
                 {
-                    if ( cellEdgeResult()->singleVarEdgeResultColors()->resultType() !=
-                         RiaDefines::ResultCatType::FORMATION_NAMES )
-                    {
-                        cellEdgeResult()->legendConfig()->setIntegerCategories( results->uniqueCellScalarValues(
-                            cellEdgeResult()->singleVarEdgeResultColors()->eclipseResultAddress() ) );
-                    }
-                    else
+                    /*
+                                        if ( cellEdgeResult()->singleVarEdgeResultColors()->resultType() !=
+                                             RiaDefines::ResultCatType::FORMATION_NAMES )
+                                        {
+                                            cellEdgeResult()->legendConfig()->setIntegerCategories(
+                       results->uniqueCellScalarValues(
+                                                cellEdgeResult()->singleVarEdgeResultColors()->eclipseResultAddress() )
+                       );
+                                        }
+                                        else
+                    */
                     {
                         const std::vector<QString> fnVector = eclipseCase->formationNames();
                         cellEdgeResult()->legendConfig()->setNamedCategories( fnVector );

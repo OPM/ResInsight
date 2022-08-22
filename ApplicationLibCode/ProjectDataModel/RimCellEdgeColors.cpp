@@ -23,6 +23,7 @@
 #include "RigCaseCellResultsData.h"
 #include "RigFlowDiagResults.h"
 
+#include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimRegularLegendConfig.h"
@@ -31,6 +32,9 @@
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
 
+#include "RicCreateEnsembleWellLogUi.h"
+#include "RigEclipseResultAddress.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 #include "cvfMath.h"
 #include <array>
 
@@ -40,7 +44,7 @@ template <>
 void AppEnum<RimCellEdgeColors::PropertyType>::setUp()
 {
     addItem( RimCellEdgeColors::MULTI_AXIS_STATIC_PROPERTY, "MULTI_AXIS_STATIC_PROPERTY", "Multi Axis Static Property" );
-    addItem( RimCellEdgeColors::ANY_SINGLE_PROPERTY, "ANY_SINGLE_PROPERTY", "Any Single Property" );
+    addItem( RimCellEdgeColors::CUSTOM_PROPERTIES, "CUSTOM_PROPERTIES", "Selected Properties" );
     setDefault( RimCellEdgeColors::MULTI_AXIS_STATIC_PROPERTY );
 }
 } // namespace caf
@@ -65,8 +69,13 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     CAF_PDM_InitFieldNoDefault( &m_legendConfig, "LegendDefinition", "Color Legend", ":/Legend.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_singleVarEdgeResultColors, "SingleVarEdgeResult", "Result Property", ":/CellResult.png" );
-    m_singleVarEdgeResultColors = new RimEclipseCellColors();
+    CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties" );
+    m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+
+    CAF_PDM_InitField( &m_showTextValuesIfItemIsUnchecked,
+                       "ShowTextValuesIfItemIsUnchecked",
+                       false,
+                       "Show Values in Result Info if Unchecked" );
 
     m_resultVariable.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
@@ -89,7 +98,6 @@ RimCellEdgeColors::~RimCellEdgeColors()
 void RimCellEdgeColors::setReservoirView( RimEclipseView* ownerReservoirView )
 {
     m_reservoirView = ownerReservoirView;
-    m_singleVarEdgeResultColors->setReservoirView( ownerReservoirView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -97,24 +105,34 @@ void RimCellEdgeColors::setReservoirView( RimEclipseView* ownerReservoirView )
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::loadResult()
 {
-    if ( !m_enableCellEdgeColors ) return;
     if ( !m_reservoirView->currentGridCellResults() ) return;
+
+    resetResultAddresses();
 
     if ( isUsingSingleVariable() )
     {
-        m_singleVarEdgeResultColors->loadResult();
-        ;
+        std::vector<RiaDefines::ResultCatType> categories = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                              RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                              RiaDefines::ResultCatType::INPUT_PROPERTY };
 
-        RigEclipseResultAddress resultAddr = m_singleVarEdgeResultColors->eclipseResultAddress();
-        for ( int cubeFaceIdx = 0; cubeFaceIdx < 6; ++cubeFaceIdx )
+        std::vector<QString> resultNames = m_selectedKeywords();
+
+        auto properties = RicCreateEnsembleWellLogUi::properties( resultNames,
+                                                                  categories,
+                                                                  m_reservoirView->eclipseCase()->eclipseCaseData() );
+
+        for ( size_t i = 0; i < properties.size(); i++ )
         {
-            m_resultNameToAddressPairs[cubeFaceIdx] =
-                std::make_pair( m_singleVarEdgeResultColors->resultVariable(), resultAddr );
+            auto [name, category]       = properties[i];
+            RigEclipseResultAddress adr = RigEclipseResultAddress( category, name );
+
+            m_reservoirView->currentGridCellResults()->ensureKnownResultLoaded( adr );
+
+            m_resultNameToAddressPairs[i] = std::make_pair( name, adr );
         }
     }
     else
     {
-        resetResultAddresses();
         QStringList vars = findResultVariableNames();
         updateIgnoredScalarValue();
 
@@ -151,7 +169,6 @@ void RimCellEdgeColors::loadResult()
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::initAfterRead()
 {
-    m_singleVarEdgeResultColors->initAfterRead();
     this->updateUiIconFromToggleField();
 }
 
@@ -192,6 +209,8 @@ void RimCellEdgeColors::EdgeFaceEnum::setUp()
 
 QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
+    QList<caf::PdmOptionItemInfo> options;
+
     if ( fieldNeedingOptions == &m_resultVariable )
     {
         if ( m_reservoirView && m_reservoirView->currentGridCellResults() )
@@ -201,8 +220,6 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
 
             // TODO: Must also handle input properties
             // varList += m_reservoirView->gridCellResults()->resultNames(RiaDefines::INPUT_PROPERTY);
-
-            QList<caf::PdmOptionItemInfo> options;
 
             std::map<QString, std::array<QString, 6>> varBaseNameToVarsMap;
 
@@ -258,6 +275,41 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
         }
     }
 
+    if ( fieldNeedingOptions == &m_selectedKeywords )
+    {
+        RigCaseCellResultsData* resultData = m_reservoirView->currentGridCellResults();
+
+        std::vector<RiaDefines::ResultCatType> resultCategories = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY };
+
+        for ( auto catType : resultCategories )
+        {
+            QList<caf::PdmOptionItemInfo> allOptions =
+                RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
+
+            bool isFirstOfCategory = true;
+            for ( const caf::PdmOptionItemInfo& option : allOptions )
+            {
+                if ( resultData->hasResultEntry( RigEclipseResultAddress( catType, option.optionUiText() ) ) )
+                {
+                    if ( isFirstOfCategory )
+                    {
+                        // Add the category title only when there is at least one valid result
+                        options.push_back(
+                            caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText( catType ),
+                                                                  true ) );
+                        isFirstOfCategory = false;
+                    }
+
+                    options.push_back( option );
+                }
+            }
+        }
+
+        return options;
+    }
+
     return QList<caf::PdmOptionItemInfo>();
 }
 
@@ -266,11 +318,12 @@ QList<caf::PdmOptionItemInfo> RimCellEdgeColors::calculateValueOptions( const ca
 //--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
+    uiOrdering.add( &m_showTextValuesIfItemIsUnchecked );
     uiOrdering.add( &m_propertyType );
 
     if ( isUsingSingleVariable() )
     {
-        m_singleVarEdgeResultColors->uiOrdering( uiConfigName, uiOrdering );
+        uiOrdering.add( &m_selectedKeywords );
     }
     else
     {
@@ -323,13 +376,15 @@ QStringList RimCellEdgeColors::findResultVariableNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::gridScalarIndices( RigEclipseResultAddress resultIndices[6] )
+std::array<RigEclipseResultAddress, 6> RimCellEdgeColors::resultAddresses() const
 {
-    int cubeFaceIndex;
-    for ( cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex )
+    std::array<RigEclipseResultAddress, 6> adr;
+    for ( int cubeFaceIndex = 0; cubeFaceIndex < 6; ++cubeFaceIndex )
     {
-        resultIndices[cubeFaceIndex] = RigEclipseResultAddress( m_resultNameToAddressPairs[cubeFaceIndex].second );
+        adr[cubeFaceIndex] = RigEclipseResultAddress( m_resultNameToAddressPairs[cubeFaceIndex].second );
     }
+
+    return adr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -351,7 +406,7 @@ void RimCellEdgeColors::gridScalarResultNames( std::vector<QString>* resultNames
 //--------------------------------------------------------------------------------------------------
 bool RimCellEdgeColors::isUsingSingleVariable() const
 {
-    return ( m_propertyType == ANY_SINGLE_PROPERTY );
+    return ( m_propertyType == CUSTOM_PROPERTIES );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -361,20 +416,20 @@ void RimCellEdgeColors::cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* meta
 {
     CVF_ASSERT( metaDataVector );
 
-    RigEclipseResultAddress resultIndices[6];
-    this->gridScalarIndices( resultIndices );
+    auto resultIndices = this->resultAddresses();
 
     std::vector<QString> resultNames;
     this->gridScalarResultNames( &resultNames );
 
     bool isStatic = true;
-    if ( isUsingSingleVariable() )
-    {
-        isStatic = m_singleVarEdgeResultColors->resultType() == RiaDefines::ResultCatType::STATIC_NATIVE;
-    }
 
     for ( size_t i = 0; i < 6; i++ )
     {
+        if ( isUsingSingleVariable() )
+        {
+            isStatic = resultIndices[i].resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE;
+        }
+
         RimCellEdgeMetaData metaData;
         metaData.m_eclipseResultAddress = resultIndices[i];
         metaData.m_resultVariable       = resultNames[i];
@@ -403,7 +458,17 @@ bool RimCellEdgeColors::hasResult() const
 {
     if ( !m_enableCellEdgeColors() ) return false;
 
-    if ( isUsingSingleVariable() && m_singleVarEdgeResultColors->isFlowDiagOrInjectionFlooding() )
+    return hasTextResult();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimCellEdgeColors::hasTextResult() const
+{
+    if ( !m_enableCellEdgeColors && !m_showTextValuesIfItemIsUnchecked ) return false;
+
+    if ( isUsingSingleVariable() )
     {
         return true;
     }
@@ -444,32 +509,19 @@ void RimCellEdgeColors::minMaxCellEdgeValues( double& min, double& max )
 
     if ( m_reservoirView->currentGridCellResults() )
     {
-        if ( isUsingSingleVariable() && singleVarEdgeResultColors()->isFlowDiagOrInjectionFlooding() )
+        auto resultAddresses = this->resultAddresses();
+
+        size_t faceIdx;
+        for ( faceIdx = 0; faceIdx < 6; faceIdx++ )
         {
-            int currentTimeStep = m_reservoirView->currentTimeStep();
+            if ( !resultAddresses[faceIdx].isValid() ) continue;
 
-            RigFlowDiagResults*      fldResults = singleVarEdgeResultColors()->flowDiagSolution()->flowDiagResults();
-            RigFlowDiagResultAddress resAddr    = singleVarEdgeResultColors()->flowDiagResAddress();
-
-            fldResults->minMaxScalarValues( resAddr, currentTimeStep, &globalMin, &globalMax );
-        }
-        else
-        {
-            RigEclipseResultAddress resultAddresses[6];
-            this->gridScalarIndices( resultAddresses );
-
-            size_t faceIdx;
-            for ( faceIdx = 0; faceIdx < 6; faceIdx++ )
             {
-                if ( !resultAddresses[faceIdx].isValid() ) continue;
+                double cMin, cMax;
+                m_reservoirView->currentGridCellResults()->minMaxCellScalarValues( resultAddresses[faceIdx], cMin, cMax );
 
-                {
-                    double cMin, cMax;
-                    m_reservoirView->currentGridCellResults()->minMaxCellScalarValues( resultAddresses[faceIdx], cMin, cMax );
-
-                    globalMin = std::min( globalMin, cMin );
-                    globalMax = std::max( globalMax, cMax );
-                }
+                globalMin = std::min( globalMin, cMin );
+                globalMax = std::max( globalMax, cMax );
             }
         }
     }
@@ -486,8 +538,7 @@ void RimCellEdgeColors::posNegClosestToZero( double& pos, double& neg )
     pos = HUGE_VAL;
     neg = -HUGE_VAL;
 
-    RigEclipseResultAddress resultAddresses[6];
-    this->gridScalarIndices( resultAddresses );
+    auto resultAddresses = this->resultAddresses();
 
     size_t faceIdx;
     for ( faceIdx = 0; faceIdx < 6; faceIdx++ )
@@ -507,55 +558,9 @@ void RimCellEdgeColors::posNegClosestToZero( double& pos, double& neg )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::updateUiFieldsFromActiveResult()
-{
-    m_singleVarEdgeResultColors->updateUiFieldsFromActiveResult();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimCellEdgeColors::setEclipseCase( RimEclipseCase* eclipseCase )
-{
-    m_singleVarEdgeResultColors->setEclipseCase( eclipseCase );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimCellEdgeColors::setResultVariable( const QString& variableName )
 {
     m_resultVariable = variableName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimCellEdgeColors::resultVariable() const
-{
-    if ( isUsingSingleVariable() )
-    {
-        return m_singleVarEdgeResultColors->resultVariable();
-    }
-    else
-    {
-        return m_resultVariable;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimCellEdgeColors::resultVariableUiName() const
-{
-    if ( isUsingSingleVariable() )
-    {
-        return m_singleVarEdgeResultColors->resultVariableUiName();
-    }
-    else
-    {
-        return m_resultVariable;
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -565,12 +570,10 @@ QString RimCellEdgeColors::resultVariableUiShortName() const
 {
     if ( isUsingSingleVariable() )
     {
-        return m_singleVarEdgeResultColors->resultVariableUiShortName();
+        if ( !m_selectedKeywords().empty() ) return m_selectedKeywords().front();
     }
-    else
-    {
-        return m_resultVariable;
-    }
+
+    return m_resultVariable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -594,15 +597,7 @@ caf::PdmFieldHandle* RimCellEdgeColors::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 bool RimCellEdgeColors::hasCategoryResult() const
 {
-    return isUsingSingleVariable() && m_singleVarEdgeResultColors->hasCategoryResult();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimEclipseCellColors* RimCellEdgeColors::singleVarEdgeResultColors()
-{
-    return m_singleVarEdgeResultColors;
+    return isUsingSingleVariable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -610,14 +605,7 @@ RimEclipseCellColors* RimCellEdgeColors::singleVarEdgeResultColors()
 //--------------------------------------------------------------------------------------------------
 RimRegularLegendConfig* RimCellEdgeColors::legendConfig()
 {
-    if ( isUsingSingleVariable() )
-    {
-        return m_singleVarEdgeResultColors->legendConfig();
-    }
-    else
-    {
-        return m_legendConfig;
-    }
+    return m_legendConfig();
 }
 
 //--------------------------------------------------------------------------------------------------

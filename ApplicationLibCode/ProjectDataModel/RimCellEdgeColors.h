@@ -68,31 +68,28 @@ public:
     enum PropertyType
     {
         MULTI_AXIS_STATIC_PROPERTY,
-        ANY_SINGLE_PROPERTY
+        CUSTOM_PROPERTIES
     };
 
     typedef caf::AppEnum<RimCellEdgeColors::EdgeFaceType> EdgeFaceEnum;
 
     void setReservoirView( RimEclipseView* ownerReservoirView );
-    void setEclipseCase( RimEclipseCase* eclipseCase );
 
     void    setResultVariable( const QString& variableName );
-    QString resultVariable() const;
-    QString resultVariableUiName() const;
     QString resultVariableUiShortName() const;
 
     void setActive( bool active );
 
-    double ignoredScalarValue() { return m_ignoredResultScalar; }
-    void   gridScalarIndices( RigEclipseResultAddress resultIndices[6] );
-    void   cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* metaData );
+    double                                 ignoredScalarValue() { return m_ignoredResultScalar; }
+    std::array<RigEclipseResultAddress, 6> resultAddresses() const;
+    void                                   cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* metaData );
 
     void loadResult();
     bool hasResult() const;
+    bool hasTextResult() const;
     bool hasCategoryResult() const;
     bool isUsingSingleVariable() const;
 
-    RimEclipseCellColors*   singleVarEdgeResultColors();
     RimRegularLegendConfig* legendConfig();
     PropertyType            propertyType() const;
 
@@ -130,5 +127,6 @@ private:
 
     caf::PdmField<caf::AppEnum<PropertyType>>   m_propertyType;
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
-    caf::PdmChildField<RimEclipseCellColors*>   m_singleVarEdgeResultColors;
+    caf::PdmField<std::vector<QString>>         m_selectedKeywords;
+    caf::PdmField<bool>                         m_showTextValuesIfItemIsUnchecked;
 };
