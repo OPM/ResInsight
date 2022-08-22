@@ -179,8 +179,11 @@ caf::PdmFieldHandle* RimStreamlineInViewCollection::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimStreamlineInViewCollection::setEclipseCase( RimEclipseCase* reservoir )
 {
-    m_shouldGenerateTracers = true;
-    m_eclipseCase           = reservoir;
+    if ( reservoir != m_eclipseCase )
+    {
+        m_shouldGenerateTracers = true;
+        m_eclipseCase           = reservoir;
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
