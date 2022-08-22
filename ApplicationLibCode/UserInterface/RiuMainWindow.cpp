@@ -1703,13 +1703,6 @@ void RiuMainWindow::updateUiFieldsFromActiveResult( caf::PdmObjectHandle* object
     {
         eclFaultColors->updateUiFieldsFromActiveResult();
     }
-
-    RimCellEdgeColors* cellEdgeColors = nullptr;
-    cellEdgeColors                    = dynamic_cast<RimCellEdgeColors*>( objectToUpdate );
-    if ( cellEdgeColors )
-    {
-        cellEdgeColors->updateUiFieldsFromActiveResult();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

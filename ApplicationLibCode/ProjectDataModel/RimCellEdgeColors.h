@@ -87,7 +87,6 @@ public:
     void loadResult();
     bool hasResult() const;
     bool hasTextResult() const;
-    bool hasCategoryResult() const;
     bool isUsingSingleVariable() const;
 
     RimRegularLegendConfig* legendConfig();
@@ -95,8 +94,6 @@ public:
 
     void minMaxCellEdgeValues( double& min, double& max );
     void posNegClosestToZero( double& pos, double& neg );
-
-    void updateUiFieldsFromActiveResult();
 
 protected:
     void                          initAfterRead() override;

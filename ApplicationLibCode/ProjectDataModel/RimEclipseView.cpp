@@ -1400,12 +1400,6 @@ void RimEclipseView::onUpdateLegends()
     {
         if ( this->cellEdgeResult()->hasResult() )
         {
-            //             if ( this->cellEdgeResult()->isUsingSingleVariable() )
-            //             {
-            //                 this->cellEdgeResult()->singleVarEdgeResultColors()->updateRangesForEmbeddedLegends(
-            //                 m_currentTimeStep );
-            //             }
-            //             else
             {
                 double globalMin, globalMax;
                 double globalPosClosestToZero, globalNegClosestToZero;
@@ -1417,25 +1411,6 @@ void RimEclipseView::onUpdateLegends()
                                                                                 globalPosClosestToZero,
                                                                                 globalNegClosestToZero );
                 this->cellEdgeResult()->legendConfig()->setAutomaticRanges( globalMin, globalMax, globalMin, globalMax );
-
-                if ( this->cellEdgeResult()->hasCategoryResult() )
-                {
-                    /*
-                                        if ( cellEdgeResult()->singleVarEdgeResultColors()->resultType() !=
-                                             RiaDefines::ResultCatType::FORMATION_NAMES )
-                                        {
-                                            cellEdgeResult()->legendConfig()->setIntegerCategories(
-                       results->uniqueCellScalarValues(
-                                                cellEdgeResult()->singleVarEdgeResultColors()->eclipseResultAddress() )
-                       );
-                                        }
-                                        else
-                    */
-                    {
-                        const std::vector<QString> fnVector = eclipseCase->formationNames();
-                        cellEdgeResult()->legendConfig()->setNamedCategories( fnVector );
-                    }
-                }
             }
 
             this->cellEdgeResult()->legendConfig()->setTitle( QString( "Edge Results: \n" ) +
@@ -1562,7 +1537,6 @@ void RimEclipseView::setEclipseCase( RimEclipseCase* reservoir )
     faultResultSettings()->customFaultResult()->setEclipseCase( reservoir );
     cellFilterCollection()->setCase( reservoir );
     m_streamlineCollection->setEclipseCase( reservoir );
-    cellEdgeResult()->setEclipseCase( reservoir );
 }
 
 //--------------------------------------------------------------------------------------------------
