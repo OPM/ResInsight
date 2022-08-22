@@ -42,17 +42,20 @@ class CDockManager;
 class RiuDockWidgetTools
 {
 public:
-    static QString projectTreeName();
-    static QString propertyEditorName();
-    static QString resultInfoName();
-    static QString processMonitorName();
-    static QString resultPlotName();
-    static QString relPermPlotName();
-    static QString pvtPlotName();
-    static QString messagesName();
-    static QString mohrsCirclePlotName();
-    static QString undoStackName();
-    static QString summaryPlotManagerName();
+    static ads::CDockWidget* createDockWidget( QString title, QString dockName, QWidget* parent );
+
+    static QString mainPlotWindowName();
+    static QString main3DWindowName();
+
+    static QString mainWindowPropertyEditorName();
+    static QString mainWindowResultInfoName();
+    static QString mainWindowProcessMonitorName();
+    static QString mainWindowResultPlotName();
+    static QString mainWindowRelPermPlotName();
+    static QString mainWindowPvtPlotName();
+    static QString mainWindowMessagesName();
+    static QString mainWindowMohrsCirclePlotName();
+    static QString mainWindowUndoStackName();
 
     static QString mainWindowProjectTreeName();
     static QString mainWindowDataSourceTreeName();
@@ -66,6 +69,7 @@ public:
     static QString plotMainWindowPropertyEditorName();
     static QString plotMainWindowMessagesName();
     static QString plotMainWindowUndoStackName();
+    static QString plotMainWindowPlotManagerName();
 
     static QString dockState3DEclipseName();
     static QString dockState3DGeoMechName();
@@ -82,6 +86,8 @@ public:
     static QByteArray defaultDockState( const QString& layoutName );
     static QByteArray hideAllDocking3DState();
     static QByteArray hideAllDockingPlotState();
+
+    static QIcon dockIcon( const QString dockWidgetName );
 
 private:
     static QByteArray defaultEclipseDockState();
