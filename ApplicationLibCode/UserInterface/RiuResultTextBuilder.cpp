@@ -732,7 +732,7 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
 {
     QString text;
 
-    if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->cellEdgeResult()->hasTextResult() )
+    if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->cellEdgeResult()->showTextResult() )
     {
         m_viewWithFaultsSettings->cellEdgeResult()->loadResult();
 

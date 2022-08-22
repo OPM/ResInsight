@@ -86,8 +86,8 @@ public:
 
     void loadResult();
     bool hasResult() const;
-    bool hasTextResult() const;
-    bool isUsingSingleVariable() const;
+    bool showTextResult() const;
+    bool isUserDefinedPropertiesActive() const;
 
     RimRegularLegendConfig* legendConfig();
     PropertyType            propertyType() const;

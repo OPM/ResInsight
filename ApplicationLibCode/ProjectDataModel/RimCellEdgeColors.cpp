@@ -20,8 +20,10 @@
 
 #include "RimCellEdgeColors.h"
 
+#include "RicCreateEnsembleWellLogUi.h"
+
 #include "RigCaseCellResultsData.h"
-#include "RigFlowDiagResults.h"
+#include "RigEclipseResultAddress.h"
 
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
@@ -31,11 +33,10 @@
 
 #include "cafPdmUiListEditor.h"
 #include "cafPdmUiTreeOrdering.h"
-
-#include "RicCreateEnsembleWellLogUi.h"
-#include "RigEclipseResultAddress.h"
 #include "cafPdmUiTreeSelectionEditor.h"
+
 #include "cvfMath.h"
+
 #include <array>
 
 namespace caf
@@ -75,7 +76,10 @@ RimCellEdgeColors::RimCellEdgeColors()
     CAF_PDM_InitField( &m_showTextValuesIfItemIsUnchecked,
                        "ShowTextValuesIfItemIsUnchecked",
                        false,
-                       "Show Values in Result Info if Unchecked" );
+                       "Always Show Values in Result Info Window",
+                       "",
+                       "Allow display of result values in Result Info window if the Cell Edge object is unchecked in "
+                       "Property Editor." );
 
     m_resultVariable.uiCapability()->setUiEditorTypeName( caf::PdmUiListEditor::uiEditorTypeName() );
 
@@ -109,7 +113,7 @@ void RimCellEdgeColors::loadResult()
 
     resetResultAddresses();
 
-    if ( isUsingSingleVariable() )
+    if ( isUserDefinedPropertiesActive() )
     {
         std::vector<RiaDefines::ResultCatType> categories = { RiaDefines::ResultCatType::STATIC_NATIVE,
                                                               RiaDefines::ResultCatType::DYNAMIC_NATIVE,
@@ -321,7 +325,7 @@ void RimCellEdgeColors::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     uiOrdering.add( &m_showTextValuesIfItemIsUnchecked );
     uiOrdering.add( &m_propertyType );
 
-    if ( isUsingSingleVariable() )
+    if ( isUserDefinedPropertiesActive() )
     {
         uiOrdering.add( &m_selectedKeywords );
     }
@@ -404,7 +408,7 @@ void RimCellEdgeColors::gridScalarResultNames( std::vector<QString>* resultNames
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCellEdgeColors::isUsingSingleVariable() const
+bool RimCellEdgeColors::isUserDefinedPropertiesActive() const
 {
     return ( m_propertyType == CUSTOM_PROPERTIES );
 }
@@ -425,7 +429,7 @@ void RimCellEdgeColors::cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* meta
 
     for ( size_t i = 0; i < 6; i++ )
     {
-        if ( isUsingSingleVariable() )
+        if ( isUserDefinedPropertiesActive() )
         {
             isStatic = resultIndices[i].resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE;
         }
@@ -458,17 +462,17 @@ bool RimCellEdgeColors::hasResult() const
 {
     if ( !m_enableCellEdgeColors() ) return false;
 
-    return hasTextResult();
+    return showTextResult();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimCellEdgeColors::hasTextResult() const
+bool RimCellEdgeColors::showTextResult() const
 {
     if ( !m_enableCellEdgeColors && !m_showTextValuesIfItemIsUnchecked ) return false;
 
-    if ( isUsingSingleVariable() )
+    if ( isUserDefinedPropertiesActive() )
     {
         return true;
     }
@@ -568,9 +572,13 @@ void RimCellEdgeColors::setResultVariable( const QString& variableName )
 //--------------------------------------------------------------------------------------------------
 QString RimCellEdgeColors::resultVariableUiShortName() const
 {
-    if ( isUsingSingleVariable() )
+    if ( isUserDefinedPropertiesActive() )
     {
-        if ( !m_selectedKeywords().empty() ) return m_selectedKeywords().front();
+        if ( m_selectedKeywords().empty() ) return "";
+
+        if ( m_selectedKeywords().size() == 1 ) return m_selectedKeywords().front();
+
+        return "Multiple Properties";
     }
 
     return m_resultVariable;
