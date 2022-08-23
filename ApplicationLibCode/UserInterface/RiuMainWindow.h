@@ -140,6 +140,7 @@ public:
 protected:
     void        closeEvent( QCloseEvent* event ) override;
     QStringList defaultDockStateNames() override;
+    QAction*    tileSubWindowsAction() override;
 
 private:
     void createActions();

@@ -753,7 +753,7 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
     connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
 
-    m_windowMenu->addAction( caf::CmdFeatureManager::instance()->action( "RicTilePlotWindowsFeature" ) );
+    m_windowMenu->addAction( tileSubWindowsAction() );
     m_windowMenu->addAction( cascadeWindowsAction );
     m_windowMenu->addAction( closeAllSubWindowsAction );
 }
