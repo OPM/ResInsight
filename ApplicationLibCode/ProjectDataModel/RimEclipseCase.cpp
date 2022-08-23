@@ -152,10 +152,17 @@ RimEclipseCase::~RimEclipseCase()
     delete m_fractureModelResults();
     delete m_inputPropertyCollection;
 
-    RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    if ( plotCollection )
+    RimProject* project = RimProject::current();
+    if ( project )
     {
-        plotCollection->removeExtractors( this->eclipseCaseData() );
+        if ( project->mainPlotCollection() )
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if ( plotCollection )
+            {
+                plotCollection->removeExtractors( this->eclipseCaseData() );
+            }
+        }
     }
 
     if ( this->eclipseCaseData() )

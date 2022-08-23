@@ -31,6 +31,7 @@
 #include "RigHexIntersectionTools.h"
 
 #include "RimCellFilterCollection.h"
+#include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
 #include "RimGeoMechContourMapView.h"
 #include "RimGeoMechPropertyFilterCollection.h"
