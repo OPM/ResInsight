@@ -67,8 +67,9 @@ public:
         INITIAL_PERMEABILITY_PER_ELEMENT
     };
 
-    RimGeoMechCase( void );
-    ~RimGeoMechCase( void ) override;
+    RimGeoMechCase();
+
+    ~RimGeoMechCase() override;
 
     CaseOpenStatus openGeoMechCase( std::string* errorMessage );
 
