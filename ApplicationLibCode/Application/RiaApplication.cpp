@@ -1340,6 +1340,9 @@ void RiaApplication::executeCommandObjects()
 //--------------------------------------------------------------------------------------------------
 void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
 {
+    auto         start            = std::chrono::system_clock::now();
+    const double timeoutThreshold = 5.0;
+
     // Wait until all command objects have completed
     bool mutexLockedSuccessfully = m_commandQueueLock.tryLock();
 
@@ -1348,7 +1351,18 @@ void RiaApplication::waitUntilCommandObjectsHasBeenProcessed()
         invokeProcessEvents();
 
         mutexLockedSuccessfully = m_commandQueueLock.tryLock();
+
+        std::chrono::duration<double> elapsed_seconds = std::chrono::system_clock::now() - start;
+        if ( timeoutThreshold < elapsed_seconds.count() )
+        {
+            // This can happen if the octave plugins fails to execute during regression testing.
+
+            RiaLogging::warning(
+                QString( "Timeout waiting for command objects to complete, timeout set to %1 seconds." ).arg( timeoutThreshold ) );
+            break;
+        }
     }
+
     m_commandQueueLock.unlock();
 }
 
