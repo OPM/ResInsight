@@ -771,33 +771,20 @@ void RimDepthTrackPlot::onPlotsReordered( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimDepthTrackPlot::isFirstVisibleTrack( RimWellLogTrack* track )
+void RimDepthTrackPlot::updateDepthAxisVisibility()
 {
-    // Find first visible track
-    auto findFirstVisibleTrack = [this]() {
-        auto plots = visiblePlots();
-        if ( !plots.empty() ) return plots.front();
-        return static_cast<RimWellLogTrack*>( nullptr );
-    };
+    auto plots = visiblePlots();
 
-    auto firstVisibleTrack = findFirstVisibleTrack();
-    return firstVisibleTrack && firstVisibleTrack == track;
-}
+    for ( auto p : plots )
+    {
+        auto plotWidget = p->plotWidget();
+        if ( !plotWidget ) continue;
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimDepthTrackPlot::isLastVisibleTrack( RimWellLogTrack* track )
-{
-    // Find last visible track
-    auto findLastVisibleTrack = [this]() {
-        auto plots = visiblePlots();
-        if ( !plots.empty() ) return plots.back();
-        return static_cast<RimWellLogTrack*>( nullptr );
-    };
+        bool isFirstTrack = ( p == plots.front() );
+        bool isLastTrack  = ( p == plots.back() );
 
-    auto lastVisibleTrack = findLastVisibleTrack();
-    return lastVisibleTrack && lastVisibleTrack == track;
+        p->updateDepthAxisVisibility( depthOrientation(), isFirstTrack, isLastTrack );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1066,6 +1053,8 @@ void RimDepthTrackPlot::updatePlots()
 {
     if ( m_showWindow )
     {
+        updateDepthAxisVisibility();
+
         for ( RimPlot* plot : plots() )
         {
             plot->loadDataAndUpdate();
