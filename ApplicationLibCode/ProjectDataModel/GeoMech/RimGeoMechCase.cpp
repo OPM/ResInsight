@@ -98,7 +98,7 @@ void caf::AppEnum<RimGeoMechCase::InitialPermeabilityType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase::RimGeoMechCase( )
+RimGeoMechCase::RimGeoMechCase()
     : m_applyTimeFilter( false )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "GeoMechanical Case",
@@ -181,7 +181,7 @@ RimGeoMechCase::RimGeoMechCase( )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase::~RimGeoMechCase( )
+RimGeoMechCase::~RimGeoMechCase()
 {
     geoMechViews.deleteChildren();
 
