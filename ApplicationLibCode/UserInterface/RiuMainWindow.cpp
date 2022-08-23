@@ -2105,3 +2105,11 @@ QStringList RiuMainWindow::defaultDockStateNames()
                             RiuDockWidgetTools::dockStateHideAll3DWindowName() };
     return retList;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QAction* RiuMainWindow::tileSubWindowsAction()
+{
+    return caf::CmdFeatureManager::instance()->action( "RicTileWindowsFeature" );
+}

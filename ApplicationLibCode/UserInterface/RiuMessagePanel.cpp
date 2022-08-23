@@ -151,7 +151,10 @@ RiuMessagePanelLogger::RiuMessagePanelLogger()
 //--------------------------------------------------------------------------------------------------
 void RiuMessagePanelLogger::addMessagePanel( RiuMessagePanel* messagePanel )
 {
-    m_messagePanel.push_back( messagePanel );
+    // get rid of any unused entries (qpointers are null)
+    m_messagePanels.erase( std::remove( m_messagePanels.begin(), m_messagePanels.end(), nullptr ), m_messagePanels.end() );
+
+    m_messagePanels.push_back( messagePanel );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -212,7 +215,7 @@ void RiuMessagePanelLogger::writeToMessagePanel( RILogLevel messageLevel, const 
         return;
     }
 
-    for ( auto& panel : m_messagePanel )
+    for ( auto& panel : m_messagePanels )
     {
         if ( panel )
         {
