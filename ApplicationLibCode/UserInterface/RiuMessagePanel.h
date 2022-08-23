@@ -72,6 +72,6 @@ private:
     void writeToMessagePanel( RILogLevel messageLevel, const char* message );
 
 private:
-    std::vector<QPointer<RiuMessagePanel>> m_messagePanel;
+    std::vector<QPointer<RiuMessagePanel>> m_messagePanels;
     int                                    m_logLevel;
 };

@@ -969,6 +969,13 @@ void RiaGuiApplication::createMainWindow()
     m_mainWindow->setDefaultToolbarVisibility();
     m_mainWindow->loadWinGeoAndDockToolBarLayout();
     m_mainWindow->showWindow();
+
+    // if there is an existing logger, reconnect to it
+    auto logger = dynamic_cast<RiuMessagePanelLogger*>( RiaLogging::loggerInstance() );
+    if ( logger )
+    {
+        logger->addMessagePanel( m_mainWindow->messagePanel() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

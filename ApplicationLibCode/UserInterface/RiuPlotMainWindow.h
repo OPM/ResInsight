@@ -106,6 +106,7 @@ protected:
     void dropEvent( QDropEvent* event ) override;
 
     QStringList defaultDockStateNames() override;
+    QAction*    tileSubWindowsAction() override;
 
 private:
     void setPdmRoot( caf::PdmObject* pdmRoot );

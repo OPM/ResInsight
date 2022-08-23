@@ -1210,3 +1210,11 @@ void RiuPlotMainWindow::slotToggleSelectionLink()
 {
     m_selection3DLinkEnabled = !m_selection3DLinkEnabled;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QAction* RiuPlotMainWindow::tileSubWindowsAction()
+{
+    return caf::CmdFeatureManager::instance()->action( "RicTilePlotWindowsFeature" );
+}

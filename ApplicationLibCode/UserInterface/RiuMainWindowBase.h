@@ -39,6 +39,7 @@ class PdmUiTreeView;
 class PdmUiItem;
 } // namespace caf
 
+class QAction;
 class QMdiArea;
 class QMdiSubWindow;
 class QUndoView;
@@ -112,6 +113,8 @@ protected:
     void addDefaultEntriesToWindowsMenu();
 
     virtual QStringList defaultDockStateNames() = 0;
+
+    virtual QAction* tileSubWindowsAction() = 0;
 
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();
