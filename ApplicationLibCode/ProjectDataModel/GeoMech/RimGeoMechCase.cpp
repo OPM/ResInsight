@@ -98,7 +98,7 @@ void caf::AppEnum<RimGeoMechCase::InitialPermeabilityType>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase::RimGeoMechCase( void )
+RimGeoMechCase::RimGeoMechCase()
     : m_applyTimeFilter( false )
 {
     CAF_PDM_InitScriptableObjectWithNameAndComment( "GeoMechanical Case",
@@ -181,14 +181,21 @@ RimGeoMechCase::RimGeoMechCase( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGeoMechCase::~RimGeoMechCase( void )
+RimGeoMechCase::~RimGeoMechCase()
 {
     geoMechViews.deleteChildren();
 
-    RimWellLogPlotCollection* plotCollection = RimMainPlotCollection::current()->wellLogPlotCollection();
-    if ( plotCollection )
+    RimProject* project = RimProject::current();
+    if ( project )
     {
-        plotCollection->removeExtractors( this->geoMechData() );
+        if ( project->mainPlotCollection() )
+        {
+            RimWellLogPlotCollection* plotCollection = project->mainPlotCollection()->wellLogPlotCollection();
+            if ( plotCollection )
+            {
+                plotCollection->removeExtractors( this->geoMechData() );
+            }
+        }
     }
 
     if ( this->geoMechData() )

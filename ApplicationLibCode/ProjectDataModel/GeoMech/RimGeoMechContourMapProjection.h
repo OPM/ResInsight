@@ -23,7 +23,6 @@
 
 #include "RimCheckableNamedObject.h"
 #include "RimContourMapProjection.h"
-#include "RimGeoMechCase.h"
 
 #include "cafDisplayCoordTransform.h"
 #include "cafPdmChildField.h"
@@ -37,6 +36,7 @@
 #include "cvfVector2.h"
 
 class RimGeoMechContourMapView;
+class RimGeoMechCase;
 
 //==================================================================================================
 ///
