@@ -1270,9 +1270,7 @@ bool RimWellLogTrack::isEmptyVisiblePropertyRange() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateDepthAxisVisibility( RimDepthTrackPlot::DepthOrientation orientation,
-                                                 bool                                isFirstTrack,
-                                                 bool                                isLastTrack )
+void RimWellLogTrack::updateAxesVisibility( RimDepthTrackPlot::DepthOrientation orientation, bool isFirstTrack, bool isLastTrack )
 {
     if ( !m_plotWidget ) return;
 

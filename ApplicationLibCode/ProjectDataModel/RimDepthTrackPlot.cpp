@@ -783,7 +783,7 @@ void RimDepthTrackPlot::updateDepthAxisVisibility()
         bool isFirstTrack = ( p == plots.front() );
         bool isLastTrack  = ( p == plots.back() );
 
-        p->updateDepthAxisVisibility( depthOrientation(), isFirstTrack, isLastTrack );
+        p->updateAxesVisibility( depthOrientation(), isFirstTrack, isLastTrack );
     }
 }
 
