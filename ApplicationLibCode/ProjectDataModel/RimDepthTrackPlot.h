@@ -149,8 +149,7 @@ public:
 
     RiaDefines::DepthUnitType caseDepthUnit() const;
 
-    bool isFirstVisibleTrack( RimWellLogTrack* track );
-    bool isLastVisibleTrack( RimWellLogTrack* track );
+    void updateDepthAxisVisibility();
 
     static RiuPlotAxis depthAxis( DepthOrientation depthOrientation );
     static RiuPlotAxis valueAxis( DepthOrientation depthOrientation );
