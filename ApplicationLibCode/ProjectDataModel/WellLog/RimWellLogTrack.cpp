@@ -574,6 +574,10 @@ void RimWellLogTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
         }
 
         updateParentLayout();
+
+        RimDepthTrackPlot* depthTrackPlot;
+        this->firstAncestorOrThisOfTypeAsserted( depthTrackPlot );
+        depthTrackPlot->updateDepthAxisVisibility();
     }
     else if ( changedField == &m_description )
     {
@@ -1266,6 +1270,46 @@ bool RimWellLogTrack::isEmptyVisiblePropertyRange() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateAxesVisibility( RimDepthTrackPlot::DepthOrientation orientation, bool isFirstTrack, bool isLastTrack )
+{
+    if ( !m_plotWidget ) return;
+
+    auto setAxisVisible = [this]( QwtAxis::Position axis, bool enable ) {
+        auto plot = m_plotWidget->qwtPlot();
+        if ( !plot ) return false;
+
+        bool isCurrentlyEnabled = plot->isAxisVisible( axis );
+        if ( enable == isCurrentlyEnabled ) return false;
+
+        m_plotWidget->setAxisEnabled( axis, enable );
+        return true;
+    };
+
+    bool needUpdate = false;
+
+    if ( orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    {
+        // Show depth axis only for the first track (on the left side)
+        needUpdate |= setAxisVisible( QwtAxis::XBottom, false );
+        needUpdate |= setAxisVisible( QwtAxis::XTop, true );
+        needUpdate |= setAxisVisible( QwtAxis::YLeft, isFirstTrack );
+        needUpdate |= setAxisVisible( QwtAxis::YRight, false );
+    }
+    else
+    {
+        // Show depth axis only for the last track (on the bottom side)
+        needUpdate |= setAxisVisible( QwtAxis::XTop, false );
+        needUpdate |= setAxisVisible( QwtAxis::XBottom, isLastTrack );
+        needUpdate |= setAxisVisible( QwtAxis::YLeft, true );
+        needUpdate |= setAxisVisible( QwtAxis::YRight, false );
+    }
+
+    if ( needUpdate ) onLoadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
                                          std::vector<caf::PdmObjectHandle*>& updatedObjects )
 {
@@ -1287,25 +1331,6 @@ void RimWellLogTrack::onLoadDataAndUpdate()
     {
         m_plotWidget->setAxisTitleText( valueAxis(), m_propertyValueAxisTitle );
         m_plotWidget->setAxisTitleText( depthAxis(), wellLogPlot->depthAxisTitle() );
-
-        if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-        {
-            // Show depth axis only for the first track (on the left side)
-            bool isFirstTrack = wellLogPlot->isFirstVisibleTrack( this );
-            m_plotWidget->setAxisEnabled( QwtAxis::XTop, true );
-            m_plotWidget->setAxisEnabled( QwtAxis::XBottom, false );
-            m_plotWidget->setAxisEnabled( QwtAxis::YLeft, isFirstTrack );
-            m_plotWidget->setAxisEnabled( QwtAxis::YRight, false );
-        }
-        else
-        {
-            // Show depth axis only for the last track (on the bottom side)
-            bool isLastTrack = wellLogPlot->isLastVisibleTrack( this );
-            m_plotWidget->setAxisEnabled( QwtAxis::XTop, false );
-            m_plotWidget->setAxisEnabled( QwtAxis::XBottom, isLastTrack );
-            m_plotWidget->setAxisEnabled( QwtAxis::YLeft, true );
-            m_plotWidget->setAxisEnabled( QwtAxis::YRight, false );
-        }
     }
 
     for ( size_t cIdx = 0; cIdx < m_curves.size(); ++cIdx )
