@@ -33,11 +33,13 @@
 #include "RimColorLegendItem.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
+#include "RimEclipseContourMapView.h"
 #include "RimEclipseView.h"
 #include "RimFormationNames.h"
 #include "RimFormationNamesCollection.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
+#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
 #include "RimOilField.h"
 #include "RimProject.h"
@@ -189,12 +191,12 @@ void RicImportFormationNamesFeature::addCustomColorLegend( QString& name, RimFor
     // return if no formation names or colors (latter e.g. in case of FMU input or LYR without colors)
     if ( formationNames.empty() || formationColors.empty() ) return;
 
-    RimColorLegend* colorLegend = new RimColorLegend;
+    auto* colorLegend = new RimColorLegend;
     colorLegend->setColorLegendName( name );
 
     for ( size_t i = 0; i < formationColors.size(); i++ )
     {
-        RimColorLegendItem* colorLegendItem = new RimColorLegendItem;
+        auto* colorLegendItem = new RimColorLegendItem;
 
         colorLegendItem->setValues( formationNames[i], (int)i, formationColors[i] );
 
@@ -214,9 +216,14 @@ void RicImportFormationNamesFeature::addCustomColorLegend( QString& name, RimFor
 //--------------------------------------------------------------------------------------------------
 void RicImportFormationNamesFeature::setFormationCellResultAndLegend( Rim3dView* activeView, QString& legendName )
 {
-    RimRegularLegendConfig* legendConfig = nullptr;
+    auto eclipseContourMapView = dynamic_cast<RimEclipseContourMapView*>( activeView );
+    if ( eclipseContourMapView ) return;
 
-    RimEclipseView* eclView = dynamic_cast<RimEclipseView*>( activeView );
+    auto geoMechContourMapView = dynamic_cast<RimGeoMechContourMapView*>( activeView );
+    if ( geoMechContourMapView ) return;
+
+    RimRegularLegendConfig* legendConfig = nullptr;
+    auto*                   eclView      = dynamic_cast<RimEclipseView*>( activeView );
     if ( eclView )
     {
         eclView->cellResult()->setResultType( RiaDefines::ResultCatType::FORMATION_NAMES );
@@ -229,7 +236,7 @@ void RicImportFormationNamesFeature::setFormationCellResultAndLegend( Rim3dView*
         eclView->updateAllRequiredEditors();
     }
 
-    RimGeoMechView* geoMechView = dynamic_cast<RimGeoMechView*>( activeView );
+    auto* geoMechView = dynamic_cast<RimGeoMechView*>( activeView );
     if ( geoMechView )
     {
         legendConfig = geoMechView->cellResult()->legendConfig();
