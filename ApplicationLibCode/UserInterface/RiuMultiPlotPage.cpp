@@ -629,6 +629,7 @@ void RiuMultiPlotPage::refreshLegends()
     for ( const auto& l : legends )
     {
         l->setVisible( !l->isEmpty() );
+        updateLegendFont( l );
     }
 }
 
