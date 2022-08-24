@@ -37,6 +37,7 @@
 
 #include "cvfMath.h"
 
+#include "RiaLogging.h"
 #include <array>
 
 namespace caf
@@ -128,6 +129,19 @@ void RimCellEdgeColors::loadResult()
                                                               RiaDefines::ResultCatType::INPUT_PROPERTY };
 
         std::vector<QString> resultNames = m_selectedKeywords();
+        if ( resultNames.size() > 6 )
+        {
+            QString title = "Cell Edge Results";
+
+            QString text =
+                QString( "Selected Cell Edge result property count is %1. Up to 6 results are supported, no "
+                         "data will be loaded.\n\nPlease select equal to or less than 6 properties to show data." )
+                    .arg( resultNames.size() );
+
+            RiaLogging::errorInMessageBox( nullptr, title, text );
+
+            return;
+        }
 
         auto properties = RicCreateEnsembleWellLogUi::properties( resultNames,
                                                                   categories,
