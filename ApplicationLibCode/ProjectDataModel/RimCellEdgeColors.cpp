@@ -45,7 +45,8 @@ template <>
 void AppEnum<RimCellEdgeColors::PropertyType>::setUp()
 {
     addItem( RimCellEdgeColors::MULTI_AXIS_STATIC_PROPERTY, "MULTI_AXIS_STATIC_PROPERTY", "Multi Axis Static Property" );
-    addItem( RimCellEdgeColors::CUSTOM_PROPERTIES, "CUSTOM_PROPERTIES", "Selected Properties" );
+    QStringList aliasList = { "ANY_SINGLE_PROPERTY" };
+    addItem( RimCellEdgeColors::CUSTOM_PROPERTIES, "CUSTOM_PROPERTIES", "Selected Properties", aliasList );
     setDefault( RimCellEdgeColors::MULTI_AXIS_STATIC_PROPERTY );
 }
 } // namespace caf
@@ -420,7 +421,7 @@ void RimCellEdgeColors::cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* meta
 {
     CVF_ASSERT( metaDataVector );
 
-    auto resultIndices = this->resultAddresses();
+    auto addresses = this->resultAddresses();
 
     std::vector<QString> resultNames;
     this->gridScalarResultNames( &resultNames );
@@ -431,11 +432,11 @@ void RimCellEdgeColors::cellEdgeMetaData( std::vector<RimCellEdgeMetaData>* meta
     {
         if ( isUserDefinedPropertiesActive() )
         {
-            isStatic = resultIndices[i].resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE;
+            isStatic = addresses[i].resultCatType() == RiaDefines::ResultCatType::STATIC_NATIVE;
         }
 
         RimCellEdgeMetaData metaData;
-        metaData.m_eclipseResultAddress = resultIndices[i];
+        metaData.m_eclipseResultAddress = addresses[i];
         metaData.m_resultVariable       = resultNames[i];
         metaData.m_isStatic             = isStatic;
 
