@@ -1027,9 +1027,16 @@ void RimContourMapProjection::generateTrianglesWithVertexValues()
                             }
                         }
                     }
-                    threadTriangles[myThread][c].insert( threadTriangles[myThread][c].end(),
-                                                         clippedTriangles.begin(),
-                                                         clippedTriangles.end() );
+
+                    {
+                        // Add critical section here due to a weird bug when running in a single thread
+                        // Running multi threaded does not require this critical section, as we use a thread local data
+                        // structure
+#pragma omp critical
+                        threadTriangles[myThread][c].insert( threadTriangles[myThread][c].end(),
+                                                             clippedTriangles.begin(),
+                                                             clippedTriangles.end() );
+                    }
                 }
             }
         }
