@@ -126,4 +126,7 @@ private:
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     caf::PdmField<std::vector<QString>>         m_selectedKeywords;
     caf::PdmField<bool>                         m_showTextValuesIfItemIsUnchecked;
+
+    // Obsolete fields
+    caf::PdmChildField<RimEclipseCellColors*> m_singleVarEdgeResultColors_OBSOLETE;
 };

@@ -86,6 +86,13 @@ RimCellEdgeColors::RimCellEdgeColors()
 
     m_legendConfig = new RimRegularLegendConfig();
 
+    CAF_PDM_InitFieldNoDefault( &m_singleVarEdgeResultColors_OBSOLETE,
+                                "SingleVarEdgeResult",
+                                "Result Property",
+                                ":/CellResult.png" );
+    m_singleVarEdgeResultColors_OBSOLETE = new RimEclipseCellColors();
+    m_singleVarEdgeResultColors_OBSOLETE.uiCapability()->setUiHidden( true );
+
     m_ignoredResultScalar = cvf::UNDEFINED_DOUBLE;
     resetResultAddresses();
 }
@@ -175,6 +182,11 @@ void RimCellEdgeColors::loadResult()
 void RimCellEdgeColors::initAfterRead()
 {
     this->updateUiIconFromToggleField();
+
+    if ( m_singleVarEdgeResultColors_OBSOLETE->resultVariableUiName() != RiaResultNames::undefinedResultName() )
+    {
+        m_selectedKeywords.v().push_back( m_singleVarEdgeResultColors_OBSOLETE->resultVariableUiName() );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

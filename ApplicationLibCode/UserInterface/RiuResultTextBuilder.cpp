@@ -741,14 +741,14 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
         std::vector<RimCellEdgeMetaData> metaData;
         m_viewWithFaultsSettings->cellEdgeResult()->cellEdgeMetaData( &metaData );
 
-        std::set<RigEclipseResultAddress> uniqueResultIndices;
+        std::set<RigEclipseResultAddress> uniqueResultAddresses;
 
         for ( int idx = 0; idx < 6; idx++ )
         {
             RigEclipseResultAddress resultAddr = metaData[idx].m_eclipseResultAddress;
             if ( !resultAddr.isValid() ) continue;
 
-            if ( uniqueResultIndices.find( resultAddr ) != uniqueResultIndices.end() ) continue;
+            if ( uniqueResultAddresses.find( resultAddr ) != uniqueResultAddresses.end() ) continue;
 
             size_t adjustedTimeStep = m_timeStepIndex;
             if ( metaData[idx].m_isStatic )
@@ -768,7 +768,7 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
                 double scalarValue = resultAccessor->cellScalar( m_cellIndex );
                 text.append( QString( "%1 : %2\n" ).arg( metaData[idx].m_resultVariable ).arg( scalarValue ) );
 
-                uniqueResultIndices.insert( resultAddr );
+                uniqueResultAddresses.insert( resultAddr );
             }
         }
     }
