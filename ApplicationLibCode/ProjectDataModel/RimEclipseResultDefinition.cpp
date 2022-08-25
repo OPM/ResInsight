@@ -609,7 +609,6 @@ void RimEclipseResultDefinition::loadDataAndUpdate()
     this->firstAncestorOrThisOfType( cellEdgeColors );
     if ( cellEdgeColors )
     {
-        cellEdgeColors->singleVarEdgeResultColors()->updateLegendCategorySettings();
         cellEdgeColors->loadResult();
 
         if ( view )

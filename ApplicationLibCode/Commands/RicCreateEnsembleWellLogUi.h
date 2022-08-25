@@ -61,6 +61,11 @@ public:
 
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> properties() const;
 
+    static std::vector<std::pair<QString, RiaDefines::ResultCatType>>
+        properties( const std::vector<QString>&                   resultNames,
+                    const std::vector<RiaDefines::ResultCatType>& resultCategories,
+                    const RigEclipseCaseData*                     caseData );
+
     void setCaseData( RigEclipseCaseData* caseData );
 
 protected:
