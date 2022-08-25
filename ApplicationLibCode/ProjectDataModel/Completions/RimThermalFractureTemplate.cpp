@@ -689,3 +689,19 @@ QString RimThermalFractureTemplate::wellPathDepthAtFractureUiName() const
 {
     return "Well/Fracture Intersection Depth";
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3d, cvf::Vec3d> RimThermalFractureTemplate::computePositionAndRotation() const
+{
+    cvf::Vec3d centerPosition = cvf::Vec3d::UNDEFINED;
+    cvf::Vec3d rotation       = cvf::Vec3d::UNDEFINED;
+
+    if ( m_fractureDefinitionData )
+    {
+        centerPosition = m_fractureDefinitionData->centerPosition();
+    }
+
+    return std::make_pair( centerPosition, rotation );
+}
