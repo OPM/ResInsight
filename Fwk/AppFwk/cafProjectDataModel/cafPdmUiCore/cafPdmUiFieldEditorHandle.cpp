@@ -179,6 +179,12 @@ void PdmUiFieldEditorHandle::updateLabelFromField( QShortenedLabel* label, const
         else
         {
             QString uiName = fieldHandle->uiName( uiConfigName );
+
+            if ( fieldHandle->isAutoValueEnabled() )
+            {
+                uiName += " [auto]";
+            }
+
             label->setText( uiName );
         }
 

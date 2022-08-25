@@ -941,6 +941,7 @@ public:
     //--------------------------------------------------------------------------------------------------
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
     {
+        uiOrdering.add(&m_applyAutoOnChildObjectFields);
         uiOrdering.add(&m_objectListOfSameType);
         uiOrdering.add(&m_ptrField);
         uiOrdering.add(&m_boolField);
