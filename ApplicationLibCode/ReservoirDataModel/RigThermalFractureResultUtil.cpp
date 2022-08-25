@@ -521,14 +521,14 @@ double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&     
     // Sort by distance
     std::sort( distances.begin(), distances.end() );
 
-    // Create distance-weighthed mean of first few points
+    // Create inverse-distance-weighthed mean of first few points
     size_t                            numPoints = 3;
     RiaWeightedMeanCalculator<double> calc;
     for ( size_t i = 0; i < numPoints; i++ )
     {
         auto [distance, nodeIndex] = distances[i];
         double value = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, static_cast<int>( timeStepIndex ) );
-        calc.addValueAndWeight( value, distance );
+        calc.addValueAndWeight( value, std::pow( 1.0 / distance, 2.0 ) );
     }
 
     return calc.weightedMean();
