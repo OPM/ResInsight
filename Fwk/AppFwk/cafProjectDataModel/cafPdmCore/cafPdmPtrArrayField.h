@@ -35,10 +35,7 @@ class PdmPtrArrayField<DataType*> : public PdmPtrArrayFieldHandle
 public:
     typedef std::vector<PdmPointer<DataType>> FieldDataType;
 
-    PdmPtrArrayField()
-        : m_isResolved( false )
-    {
-    }
+    PdmPtrArrayField() {}
     virtual ~PdmPtrArrayField();
 
     PdmPtrArrayField& operator()() { return *this; }
@@ -91,8 +88,6 @@ private:
     friend class PdmFieldXmlCap<PdmPtrArrayField<DataType*>>;
 
     std::vector<PdmPointer<DataType>> m_pointers;
-    QString                           m_referenceString;
-    bool                              m_isResolved;
 };
 
 } // End of namespace caf

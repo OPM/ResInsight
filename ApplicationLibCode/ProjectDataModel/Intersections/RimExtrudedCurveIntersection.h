@@ -25,7 +25,6 @@
 
 #include "cafPdmChildField.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrArrayField.h"
 
 class RimWellPath;
 class RivExtrudedCurveIntersectionPartMgr;
