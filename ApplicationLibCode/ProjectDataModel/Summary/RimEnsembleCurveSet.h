@@ -43,7 +43,6 @@
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
 #include <QDate>
