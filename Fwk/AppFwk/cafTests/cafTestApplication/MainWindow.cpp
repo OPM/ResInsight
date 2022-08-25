@@ -803,6 +803,24 @@ public:
         return &m_textField;
     }
 
+    void setAutoValueForTestEnum(TestEnumType value)
+    {
+        m_highlightedEnum.uiCapability()->setAutoValue(value);
+        m_highlightedEnum.uiCapability()->enableAutoValue(true);
+    }
+
+    void setAutoValueForDouble(double value)
+    {
+        m_doubleField.uiCapability()->setAutoValue(value);
+        m_doubleField.uiCapability()->enableAutoValue(true);
+    }
+
+    void setAutoValueForInt(double value)
+    {
+        m_intField.uiCapability()->setAutoValue(value);
+        m_intField.uiCapability()->enableAutoValue(true);
+    }
+
 protected:
     //--------------------------------------------------------------------------------------------------
     ///
@@ -870,6 +888,8 @@ public:
             "Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+
+        CAF_PDM_InitField(&m_applyAutoOnChildObjectFields, "ApplyAutoValue", false, "Apply Auto Values");
         CAF_PDM_InitField(&m_doubleField,
                           "BigNumber",
                           0.0,
@@ -906,7 +926,6 @@ public:
                                    "Same type list of PdmObjects");
         m_objectListOfSameType.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
         m_objectListOfSameType.uiCapability()->setCustomContextMenuEnabled(true);
-        ;
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of PdmObjects");
 
         m_filePath.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
@@ -992,6 +1011,7 @@ public:
     caf::PdmPtrField<SmallDemoPdmObjectA*>         m_ptrField;
 
     caf::PdmField<bool> m_toggleField;
+    caf::PdmField<bool> m_applyAutoOnChildObjectFields;
 
     MenuItemProducer* m_menuItemProducer;
 
@@ -1005,6 +1025,22 @@ public:
         if (changedField == &m_toggleField)
         {
             std::cout << "Toggle Field changed" << std::endl;
+        }
+        if (changedField == &m_applyAutoOnChildObjectFields)
+        {
+            std::vector<SmallDemoPdmObjectA*> objs;
+            descendantsIncludingThisOfType(objs);
+            for (auto obj : objs)
+            {
+                double doubleValue = 1.23456;
+                obj->setAutoValueForDouble(doubleValue);
+
+                int intValue = -1213141516;
+                obj->setAutoValueForInt(intValue);
+
+                auto enumValue = SmallDemoPdmObjectA::TestEnumType::T2;
+                obj->setAutoValueForTestEnum(enumValue);
+            }
         }
     }
 
