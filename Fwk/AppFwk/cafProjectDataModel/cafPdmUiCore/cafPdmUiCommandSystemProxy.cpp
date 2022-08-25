@@ -85,6 +85,8 @@ void PdmUiCommandSystemProxy::setUiValueToField( PdmUiFieldHandle* uiFieldHandle
         // Handle editing multiple objects when several objects are selected
         PdmFieldHandle* editorField = uiFieldHandle->fieldHandle();
 
+        uiFieldHandle->enableAutoValue( false );
+
         std::vector<PdmFieldHandle*> fieldsToUpdate;
         fieldsToUpdate.push_back( editorField );
 

@@ -200,6 +200,25 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
         m_optionEntryCache = PdmUiFieldSpecialization<typename FieldType::FieldDataType>::valueOptions( m_field->value() );
     }
 
+    if ( !m_optionEntryCache.empty() && isAutoValueSupported() )
+    {
+        if (isAutoValueEnabled())
+        {
+            QString valueString = autoValue().toString();
+            valueString += "(msjAuto)";
+
+            PdmOptionItemInfo autoOption( valueString, autoValue() );
+            m_optionEntryCache.push_front(autoOption);
+        }
+        else
+        {
+            QString valueString = "Auto (not active)";
+
+            PdmOptionItemInfo autoOption( valueString, autoValue() );
+            m_optionEntryCache.push_front( autoOption );
+        }
+    }
+
     if ( m_optionEntryCache.size() && isAutoAddingOptionFromValue() )
     {
         // Make sure the options contain the field values, event though they not necessarily

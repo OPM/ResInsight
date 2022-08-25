@@ -805,20 +805,17 @@ public:
 
     void setAutoValueForTestEnum(TestEnumType value)
     {
-        m_highlightedEnum.uiCapability()->setAutoValue(value);
-        m_highlightedEnum.uiCapability()->enableAutoValue(true);
+        m_testEnumField.uiCapability()->enableAndSetAutoValue(value);
     }
 
     void setAutoValueForDouble(double value)
     {
-        m_doubleField.uiCapability()->setAutoValue(value);
-        m_doubleField.uiCapability()->enableAutoValue(true);
+        m_doubleField.uiCapability()->enableAndSetAutoValue(value);
     }
 
     void setAutoValueForInt(double value)
     {
-        m_intField.uiCapability()->setAutoValue(value);
-        m_intField.uiCapability()->enableAutoValue(true);
+        m_intField.uiCapability()->enableAndSetAutoValue(value);
     }
 
 protected:

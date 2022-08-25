@@ -14,6 +14,7 @@ namespace caf
 PdmUiFieldHandle::PdmUiFieldHandle( PdmFieldHandle* owner, bool giveOwnership )
     : m_isAutoAddingOptionFromValue( true )
     , m_useAutoValue( false )
+    , m_isAutoValueSupported( false )
 {
     m_owner = owner;
     owner->addCapability( this, giveOwnership );
@@ -61,6 +62,9 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
         CAF_ASSERT( fieldHandle && fieldHandle->ownerObject() );
 
         PdmObjectHandle* ownerObjectHandle = fieldHandle->ownerObject();
+
+        // The user has edited this field, diable use of auto value
+        enableAutoValue( false );
 
         {
             bool noOwnerObject = true;
@@ -125,6 +129,16 @@ void PdmUiFieldHandle::setAutoAddingOptionFromValue( bool isAddingValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::enableAndSetAutoValue( const QVariant& autoValue )
+{
+    setAutoValue( autoValue );
+    enableAutoValue( true );
+    m_isAutoValueSupported = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmUiFieldHandle::setAutoValue( const QVariant& autoValue )
 {
     m_autoValue = autoValue;
@@ -144,6 +158,7 @@ QVariant PdmUiFieldHandle::autoValue() const
 void PdmUiFieldHandle::enableAutoValue( bool enable )
 {
     m_useAutoValue = enable;
+    if ( m_useAutoValue ) setValueFromUiEditor( m_autoValue, true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -152,6 +167,14 @@ void PdmUiFieldHandle::enableAutoValue( bool enable )
 bool PdmUiFieldHandle::isAutoValueEnabled() const
 {
     return m_useAutoValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiFieldHandle::isAutoValueSupported() const
+{
+    return m_isAutoValueSupported;
 }
 
 //--------------------------------------------------------------------------------------------------
