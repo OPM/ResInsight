@@ -190,31 +190,38 @@ bool RicCreateEnsembleWellLogUi::autoCreateEnsembleWellLogs() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<QString, RiaDefines::ResultCatType>> RicCreateEnsembleWellLogUi::properties() const
+std::vector<std::pair<QString, RiaDefines::ResultCatType>>
+    RicCreateEnsembleWellLogUi::properties( const std::vector<QString>&                   resultNames,
+                                            const std::vector<RiaDefines::ResultCatType>& resultCategories,
+                                            const RigEclipseCaseData*                     caseData )
 {
-    std::vector<QString> selectedKeyWords = m_selectedKeywords();
-
     auto findResultCategory = []( const QString&                                keyword,
                                   const std::vector<RiaDefines::ResultCatType>& categories,
-                                  RigEclipseCaseData*                           caseData ) {
+                                  const RigEclipseCaseData*                     caseData ) {
         // Find the result category for a given keyword
-        RigCaseCellResultsData* resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
+        auto resultData = caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL );
         for ( auto category : categories )
             if ( resultData->hasResultEntry( RigEclipseResultAddress( category, keyword ) ) ) return category;
 
         return RiaDefines::ResultCatType::UNDEFINED;
     };
 
-    std::vector<RiaDefines::ResultCatType> resultCategories = validResultCategories();
-
     std::vector<std::pair<QString, RiaDefines::ResultCatType>> props;
-    for ( auto keyword : selectedKeyWords )
+    for ( auto keyword : resultNames )
     {
-        auto resultCategory = findResultCategory( keyword, resultCategories, m_caseData );
+        auto resultCategory = findResultCategory( keyword, resultCategories, caseData );
         props.push_back( std::make_pair( keyword, resultCategory ) );
     }
 
     return props;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<QString, RiaDefines::ResultCatType>> RicCreateEnsembleWellLogUi::properties() const
+{
+    return properties( m_selectedKeywords.value(), validResultCategories(), m_caseData );
 }
 
 //--------------------------------------------------------------------------------------------------

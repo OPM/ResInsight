@@ -732,49 +732,43 @@ QString RiuResultTextBuilder::cellEdgeResultDetails()
 {
     QString text;
 
-    if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->cellEdgeResult()->hasResult() )
+    if ( m_viewWithFaultsSettings && m_viewWithFaultsSettings->cellEdgeResult()->showTextResult() )
     {
+        m_viewWithFaultsSettings->cellEdgeResult()->loadResult();
+
         text += "-- Cell edge result data --\n";
 
-        if ( m_viewWithFaultsSettings->cellEdgeResult()->isUsingSingleVariable() )
-        {
-            text += cellResultText( m_viewWithFaultsSettings->cellEdgeResult()->singleVarEdgeResultColors() );
-            text += "\n";
-        }
-        else
-        {
-            std::vector<RimCellEdgeMetaData> metaData;
-            m_viewWithFaultsSettings->cellEdgeResult()->cellEdgeMetaData( &metaData );
+        std::vector<RimCellEdgeMetaData> metaData;
+        m_viewWithFaultsSettings->cellEdgeResult()->cellEdgeMetaData( &metaData );
 
-            std::set<RigEclipseResultAddress> uniqueResultIndices;
+        std::set<RigEclipseResultAddress> uniqueResultAddresses;
 
-            for ( int idx = 0; idx < 6; idx++ )
+        for ( int idx = 0; idx < 6; idx++ )
+        {
+            RigEclipseResultAddress resultAddr = metaData[idx].m_eclipseResultAddress;
+            if ( !resultAddr.isValid() ) continue;
+
+            if ( uniqueResultAddresses.find( resultAddr ) != uniqueResultAddresses.end() ) continue;
+
+            size_t adjustedTimeStep = m_timeStepIndex;
+            if ( metaData[idx].m_isStatic )
             {
-                RigEclipseResultAddress resultAddr = metaData[idx].m_eclipseResultAddress;
-                if ( !resultAddr.isValid() ) continue;
+                adjustedTimeStep = 0;
+            }
 
-                if ( uniqueResultIndices.find( resultAddr ) != uniqueResultIndices.end() ) continue;
+            RiaDefines::PorosityModelType porosityModel = m_eclResDef->porosityModel();
+            cvf::ref<RigResultAccessor>   resultAccessor =
+                RigResultAccessorFactory::createFromResultAddress( m_eclResDef->eclipseCase()->eclipseCaseData(),
+                                                                   m_gridIndex,
+                                                                   porosityModel,
+                                                                   adjustedTimeStep,
+                                                                   resultAddr );
+            if ( resultAccessor.notNull() )
+            {
+                double scalarValue = resultAccessor->cellScalar( m_cellIndex );
+                text.append( QString( "%1 : %2\n" ).arg( metaData[idx].m_resultVariable ).arg( scalarValue ) );
 
-                size_t adjustedTimeStep = m_timeStepIndex;
-                if ( metaData[idx].m_isStatic )
-                {
-                    adjustedTimeStep = 0;
-                }
-
-                RiaDefines::PorosityModelType porosityModel = m_eclResDef->porosityModel();
-                cvf::ref<RigResultAccessor>   resultAccessor =
-                    RigResultAccessorFactory::createFromResultAddress( m_eclResDef->eclipseCase()->eclipseCaseData(),
-                                                                       m_gridIndex,
-                                                                       porosityModel,
-                                                                       adjustedTimeStep,
-                                                                       resultAddr );
-                if ( resultAccessor.notNull() )
-                {
-                    double scalarValue = resultAccessor->cellScalar( m_cellIndex );
-                    text.append( QString( "%1 : %2\n" ).arg( metaData[idx].m_resultVariable ).arg( scalarValue ) );
-
-                    uniqueResultIndices.insert( resultAddr );
-                }
+                uniqueResultAddresses.insert( resultAddr );
             }
         }
     }
