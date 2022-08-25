@@ -581,7 +581,8 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
     {
-        if ( m_resultAddressCollections.empty() ) buildChildNodes();
+        // if ( m_resultAddressCollections.empty() ) buildChildNodes();
+        buildChildNodes();
         uiTreeOrdering.add( &m_resultAddressCollections );
     }
 
