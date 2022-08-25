@@ -23,7 +23,6 @@
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrArrayField.h"
 
 class RimSummaryPlot;
 

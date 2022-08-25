@@ -23,7 +23,6 @@
 
 #include "cafPdmChildField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrArrayField.h"
 #include "cafPdmUiItem.h"
 #include "cafSignal.h"
 

@@ -24,7 +24,6 @@
 #include "cafPdmChildField.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
-#include "cafPdmPtrArrayField.h"
 
 class RimSummaryCase;
 class RimSummaryCurve;

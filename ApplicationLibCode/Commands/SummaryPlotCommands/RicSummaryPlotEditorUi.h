@@ -28,7 +28,6 @@
 #include "cafPdmObject.h"
 #include "cafPdmPointer.h"
 #include "cafPdmProxyValueField.h"
-#include "cafPdmPtrArrayField.h"
 #include "cafPdmPtrField.h"
 
 #include <memory>
