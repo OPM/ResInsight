@@ -13,6 +13,7 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmUiFieldHandle::PdmUiFieldHandle( PdmFieldHandle* owner, bool giveOwnership )
     : m_isAutoAddingOptionFromValue( true )
+    , m_useAutoValue( false )
 {
     m_owner = owner;
     owner->addCapability( this, giveOwnership );
@@ -119,6 +120,68 @@ bool PdmUiFieldHandle::isAutoAddingOptionFromValue() const
 void PdmUiFieldHandle::setAutoAddingOptionFromValue( bool isAddingValue )
 {
     m_isAutoAddingOptionFromValue = isAddingValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::setAutoValue( const QVariant& autoValue )
+{
+    m_autoValue = autoValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QVariant PdmUiFieldHandle::autoValue() const
+{
+    return m_autoValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::enableAutoValue( bool enable )
+{
+    m_useAutoValue = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiFieldHandle::isAutoValueEnabled() const
+{
+    return m_useAutoValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<QString, QString>> PdmUiFieldHandle::attributes() const
+{
+    if ( m_useAutoValue )
+    {
+        return { { "autoValue", "true" } };
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::setAttributes( const std::vector<std::pair<QString, QString>>& attributes )
+{
+    for ( auto [key, value] : attributes )
+    {
+        if ( key == "autoValue" )
+        {
+            if ( value.toUpper() == "TRUE" )
+            {
+                enableAutoValue( true );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
