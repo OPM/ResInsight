@@ -82,7 +82,7 @@ void SelectionManager::selectedItems( std::vector<PdmUiItem*>& items, int select
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void SelectionManager::setSelectedItems( const std::vector<PdmUiItem*>& items )
+bool SelectionManager::setSelectedItems( const std::vector<PdmUiItem*>& items )
 {
     std::map<int, std::vector<std::pair<PdmPointer<PdmObjectHandle>, PdmUiItem*>>> newCompleteSelectionMap;
 
@@ -96,7 +96,10 @@ void SelectionManager::setSelectedItems( const std::vector<PdmUiItem*>& items )
     {
         m_selectionPrLevel = newCompleteSelectionMap;
         notifySelectionChanged( changedLevels );
+        return true;
     }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
