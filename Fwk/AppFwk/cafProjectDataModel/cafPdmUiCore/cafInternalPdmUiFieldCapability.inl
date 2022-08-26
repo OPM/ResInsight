@@ -155,16 +155,10 @@ QVariant PdmFieldUiCap<FieldType>::uiValue() const
                 return QVariant( returnList );
             }
         }
-        else
-        {
-            if ( indexesToFoundOptions.size() == 1 )
-                return QVariant( indexesToFoundOptions.front() );
-            else
-                return QVariant( -1 ); // Return -1 if not found instead of assert. Should result in clearing the selection
-        }
 
-        CAF_ASSERT( false );
-        return uiBasedQVariant;
+        if ( indexesToFoundOptions.size() == 1 ) return QVariant( indexesToFoundOptions.front() );
+
+        return QVariant( -1 ); // Return -1 if not found instead of assert. Should result in clearing the selection
     }
     else
     {
