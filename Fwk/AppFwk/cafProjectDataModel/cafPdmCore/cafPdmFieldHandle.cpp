@@ -105,6 +105,21 @@ bool PdmFieldHandle::hasPtrReferencedObjects()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<caf::PdmFieldCapability*> PdmFieldHandle::capabilities() const
+{
+    std::vector<caf::PdmFieldCapability*> allCapabilities;
+
+    for ( const auto& cap : m_capabilities )
+    {
+        allCapabilities.push_back( cap.first );
+    }
+
+    return allCapabilities;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void PdmFieldHandle::registerKeywordAlias( const QString& alias )
 {
     m_keywordAliases.push_back( alias );

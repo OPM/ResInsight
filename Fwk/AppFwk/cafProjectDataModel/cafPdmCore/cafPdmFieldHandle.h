@@ -46,6 +46,8 @@ public:
         m_capabilities.push_back( std::make_pair( capability, takeOwnership ) );
     }
 
+    std::vector<caf::PdmFieldCapability*> capabilities() const;
+
     template <typename CapabilityType>
     CapabilityType* capability();
     template <typename CapabilityType>

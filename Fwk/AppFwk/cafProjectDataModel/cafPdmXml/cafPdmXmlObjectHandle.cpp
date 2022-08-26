@@ -58,7 +58,21 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                 if ( fieldHandle && fieldHandle->xmlCapability() )
                 {
                     PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
-                    bool               readable       = xmlFieldHandle->isIOReadable();
+
+                    for ( auto capability : fieldHandle->capabilities() )
+                    {
+                        std::vector<std::pair<QString, QString>> fieldAttributes;
+
+                        auto xmlAttributes = xmlStream.attributes();
+                        for ( const auto& xmlAttr : xmlAttributes )
+                        {
+                            fieldAttributes.emplace_back( xmlAttr.name().toString(), xmlAttr.value().toString() );
+                        }
+
+                        if ( fieldAttributes.empty() ) capability->setAttributes( fieldAttributes );
+                    }
+
+                    bool readable = xmlFieldHandle->isIOReadable();
                     if ( isCopyOperation && !xmlFieldHandle->isCopyable() )
                     {
                         readable = false;
@@ -66,8 +80,8 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                     if ( readable )
                     {
                         // readFieldData assumes that the xmlStream points to first token of field content.
-                        // After reading, the xmlStream is supposed to point to the first token after the field content.
-                        // (typically an "endElement")
+                        // After reading, the xmlStream is supposed to point to the first token after the field
+                        // content. (typically an "endElement")
                         QXmlStreamReader::TokenType tt;
                         tt = xmlStream.readNext();
                         xmlFieldHandle->readFieldData( xmlStream, objectFactory );
@@ -82,9 +96,10 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                     // Debug text is commented out, as this code is relatively often reached. Consider a new logging
                     // concept to receive this information
                     //
-                    // std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Could not find a field with name "
-                    // << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data() <<
-                    // std::endl;
+                    // std::cout << "Line " << xmlStream.lineNumber() << ": Warning: Could not find a field with
+                    // name "
+                    // << name.toLatin1().data() << " in the current object : " << classKeyword().toLatin1().data()
+                    // << std::endl;
 
                     xmlStream.skipCurrentElement();
                 }
@@ -120,16 +135,27 @@ void PdmXmlObjectHandle::writeFields( QXmlStreamWriter& xmlStream ) const
 {
     std::vector<PdmFieldHandle*> fields;
     m_owner->fields( fields );
-    for ( size_t it = 0; it < fields.size(); ++it )
+    for ( const auto& fieldHandle : fields )
     {
-        const PdmXmlFieldHandle* field = fields[it]->xmlCapability();
+        const PdmXmlFieldHandle* field = fieldHandle->xmlCapability();
         if ( field && field->isIOWritable() )
         {
             QString keyword = field->fieldHandle()->keyword();
             CAF_ASSERT( PdmXmlObjectHandle::isValidXmlElementName( keyword ) );
 
             xmlStream.writeStartElement( "", keyword );
+
+            for ( auto cap : fieldHandle->capabilities() )
+            {
+                auto attributes = cap->attributes();
+                for ( const auto& [key, value] : attributes )
+                {
+                    xmlStream.writeAttribute( key, value );
+                }
+            }
+
             field->writeFieldData( xmlStream );
+
             xmlStream.writeEndElement();
         }
     }
