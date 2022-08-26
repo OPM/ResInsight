@@ -803,6 +803,37 @@ public:
         return &m_textField;
     }
 
+    void enableAutoValueForTestEnum(TestEnumType value)
+    {
+        m_testEnumField.uiCapability()->enableAndSetAutoValue(value);
+    }
+
+    void enableAutoValueForDouble(double value)
+    {
+        m_doubleField.uiCapability()->enableAndSetAutoValue(value);
+    }
+
+    void enableAutoValueForInt(double value)
+    {
+        m_intField.uiCapability()->enableAndSetAutoValue(value);
+    }
+
+    void setAutoValueForTestEnum(TestEnumType value)
+    {
+        m_testEnumField.uiCapability()->setAutoValue(value);
+    }
+
+    void setAutoValueForDouble(double value)
+    {
+        m_doubleField.uiCapability()->setAutoValue(value);
+        m_doubleField.uiCapability()->updateConnectedEditors();
+    }
+
+    void setAutoValueForInt(double value)
+    {
+        m_intField.uiCapability()->setAutoValue(value);
+    }
+
 protected:
     //--------------------------------------------------------------------------------------------------
     ///
@@ -870,6 +901,13 @@ public:
             "Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+
+        CAF_PDM_InitField(&m_applyAutoOnChildObjectFields, "ApplyAutoValue", false, "Apply Auto Values");
+        m_applyAutoOnChildObjectFields.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+
+        CAF_PDM_InitField(&m_updateAutoValues, "UpdateAutoValue", false, "Update Auto Values");
+        m_updateAutoValues.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+
         CAF_PDM_InitField(&m_doubleField,
                           "BigNumber",
                           0.0,
@@ -906,7 +944,6 @@ public:
                                    "Same type list of PdmObjects");
         m_objectListOfSameType.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
         m_objectListOfSameType.uiCapability()->setCustomContextMenuEnabled(true);
-        ;
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of PdmObjects");
 
         m_filePath.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
@@ -922,6 +959,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
     {
+        uiOrdering.add(&m_applyAutoOnChildObjectFields);
+        uiOrdering.add(&m_updateAutoValues);
+
         uiOrdering.add(&m_objectListOfSameType);
         uiOrdering.add(&m_ptrField);
         uiOrdering.add(&m_boolField);
@@ -992,6 +1032,8 @@ public:
     caf::PdmPtrField<SmallDemoPdmObjectA*>         m_ptrField;
 
     caf::PdmField<bool> m_toggleField;
+    caf::PdmField<bool> m_applyAutoOnChildObjectFields;
+    caf::PdmField<bool> m_updateAutoValues;
 
     MenuItemProducer* m_menuItemProducer;
 
@@ -1005,6 +1047,40 @@ public:
         if (changedField == &m_toggleField)
         {
             std::cout << "Toggle Field changed" << std::endl;
+        }
+
+        static int counter = 0;
+        counter++;
+        double doubleValue = 1.23456 + counter;
+        int    intValue    = -1213141516 + counter;
+        auto   enumValue   = SmallDemoPdmObjectA::TestEnumType::T2;
+
+        if (changedField == &m_applyAutoOnChildObjectFields)
+        {
+            std::vector<SmallDemoPdmObjectA*> objs;
+            descendantsIncludingThisOfType(objs);
+            for (auto obj : objs)
+            {
+                obj->enableAutoValueForDouble(doubleValue);
+                obj->enableAutoValueForInt(intValue);
+                obj->enableAutoValueForTestEnum(enumValue);
+            }
+
+            m_applyAutoOnChildObjectFields = false;
+        }
+
+        if (changedField == &m_updateAutoValues)
+        {
+            std::vector<SmallDemoPdmObjectA*> objs;
+            descendantsIncludingThisOfType(objs);
+            for (auto obj : objs)
+            {
+                obj->setAutoValueForDouble(doubleValue);
+                obj->setAutoValueForInt(intValue);
+                obj->setAutoValueForTestEnum(enumValue);
+            }
+
+            m_updateAutoValues = false;
         }
     }
 
