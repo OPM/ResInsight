@@ -202,13 +202,13 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
 
     if ( !m_optionEntryCache.empty() && isAutoValueSupported() )
     {
-        if (isAutoValueEnabled())
+        if ( isAutoValueEnabled() )
         {
             QString valueString = autoValue().toString();
             valueString += "(msjAuto)";
 
             PdmOptionItemInfo autoOption( valueString, autoValue() );
-            m_optionEntryCache.push_front(autoOption);
+            m_optionEntryCache.push_front( autoOption );
         }
         else
         {
