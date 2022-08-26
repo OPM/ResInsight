@@ -74,7 +74,7 @@ public:
     void setSelectedItem( PdmUiItem* item );
     void setSelectedItemAtLevel( PdmUiItem* item, int selectionLevel );
 
-    void setSelectedItems( const std::vector<PdmUiItem*>& items );
+    bool setSelectedItems( const std::vector<PdmUiItem*>& items );
     void setSelectedItemsAtLevel( const std::vector<PdmUiItem*>& items, int selectionLevel = 0 );
 
     struct SelectionItem

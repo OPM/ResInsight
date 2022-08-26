@@ -560,8 +560,11 @@ bool PdmUiTreeViewEditor::eventFilter( QObject* obj, QEvent* event )
 {
     if ( event->type() == QEvent::FocusIn )
     {
-        this->updateSelectionManager();
-        emit selectionChanged();
+        bool anyChanges = this->updateSelectionManager();
+        if ( anyChanges )
+        {
+            emit selectionChanged();
+        }
     }
 
     // standard event processing
@@ -571,14 +574,16 @@ bool PdmUiTreeViewEditor::eventFilter( QObject* obj, QEvent* event )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiTreeViewEditor::updateSelectionManager()
+bool PdmUiTreeViewEditor::updateSelectionManager()
 {
     if ( m_updateSelectionManager )
     {
         std::vector<PdmUiItem*> items;
         this->selectedUiItems( items );
-        SelectionManager::instance()->setSelectedItems( items );
+        return SelectionManager::instance()->setSelectedItems( items );
     }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
