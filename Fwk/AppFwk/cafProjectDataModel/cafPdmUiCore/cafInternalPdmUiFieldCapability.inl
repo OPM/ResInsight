@@ -202,19 +202,18 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
 
     if ( !m_optionEntryCache.empty() && isAutoValueSupported() )
     {
-        if (isAutoValueEnabled())
+        if ( isAutoValueEnabled() )
         {
-
             QString optionString;
-            for (auto opt: m_optionEntryCache)
+            for ( auto opt : m_optionEntryCache )
             {
                 if ( autoValue() == opt.value() ) optionString = opt.optionUiText();
             }
 
-            auto valueString = "*Auto: " + optionString ;
+            auto valueString = "*Auto: " + optionString;
 
             PdmOptionItemInfo autoOption( valueString, QVariant() );
-            m_optionEntryCache.push_front(autoOption);
+            m_optionEntryCache.push_front( autoOption );
         }
         else
         {
