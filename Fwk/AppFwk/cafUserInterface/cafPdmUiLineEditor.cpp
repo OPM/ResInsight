@@ -89,7 +89,17 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 
     connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
 
-    return m_lineEdit;
+    m_placeholder = new QWidget( parent );
+    m_layout      = new QHBoxLayout( m_placeholder );
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
+    m_layout->setSpacing( 0 );
+    m_layout->addWidget( m_lineEdit );
+
+    m_autoValueCheckBox = new QCheckBox( "Auto" );
+    m_autoValueCheckBox->setCheckable( true );
+    connect( m_autoValueCheckBox, SIGNAL( clicked() ), this, SLOT( slotApplyAutoValue() ) );
+
+    return m_placeholder;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +133,27 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
+            }
+
+            if ( uiField()->isAutoValueEnabled() )
+            {
+                m_lineEdit->setStyleSheet( "QLineEdit {background-color: lightyellow;}" );
+            }
+            else
+            {
+                m_lineEdit->setStyleSheet( "" );
+            }
+
+            if ( uiField()->isAutoValueSupported() )
+            {
+                m_autoValueCheckBox->setChecked( uiField()->isAutoValueEnabled() );
+                m_layout->insertWidget( 1, m_autoValueCheckBox );
+                m_autoValueCheckBox->show();
+            }
+            else
+            {
+                m_layout->removeWidget( m_autoValueCheckBox );
+                m_autoValueCheckBox->hide();
             }
 
             if ( leab.validator )
@@ -406,6 +437,16 @@ void PdmUiLineEditor::slotCompleterActivated( const QModelIndex& index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiLineEditor::slotApplyAutoValue()
+{
+    bool enable = m_autoValueCheckBox->isChecked();
+    uiField()->enableAutoValue( enable );
+    configureAndUpdateUi( "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int PdmUiLineEditor::findIndexToOption( const QString& uiText )
 {
     QString uiTextTrimmed = uiText.trimmed();
@@ -420,9 +461,9 @@ int PdmUiLineEditor::findIndexToOption( const QString& uiText )
     return -1;
 }
 
-// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build.
-// The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same
-// line number.
+// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire
+// build. The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at
+// the same line number.
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiLineEditor );
 
 } // end namespace caf

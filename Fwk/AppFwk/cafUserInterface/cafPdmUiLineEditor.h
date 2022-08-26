@@ -38,9 +38,12 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include <QCheckBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPointer>
+#include <QPushButton>
 #include <QString>
 #include <QValidator>
 #include <QWidget>
@@ -138,6 +141,7 @@ protected:
 protected slots:
     void slotEditingFinished();
     void slotCompleterActivated( const QModelIndex& index );
+    void slotApplyAutoValue();
 
 private:
     bool isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* editorField ) const;
@@ -145,6 +149,10 @@ private:
 protected:
     QPointer<PdmUiLineEdit>   m_lineEdit;
     QPointer<QShortenedLabel> m_label;
+    QPointer<QCheckBox>       m_autoValueCheckBox;
+
+    QPointer<QHBoxLayout> m_layout;
+    QPointer<QWidget>     m_placeholder;
 
     QPointer<QCompleter>       m_completer;
     QPointer<QStringListModel> m_completerTextList;
