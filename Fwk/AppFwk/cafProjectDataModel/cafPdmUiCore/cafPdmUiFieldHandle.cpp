@@ -63,9 +63,6 @@ void PdmUiFieldHandle::notifyFieldChanged( const QVariant& oldFieldValue, const 
 
         PdmObjectHandle* ownerObjectHandle = fieldHandle->ownerObject();
 
-        // The user has edited this field, diable use of auto value
-        enableAutoValue( false );
-
         {
             bool noOwnerObject = true;
 
@@ -146,7 +143,6 @@ void PdmUiFieldHandle::setAutoValue( const QVariant& autoValue )
     if ( m_useAutoValue )
     {
         setValueFromUiEditor( m_autoValue, false );
-        m_useAutoValue = true;
         updateConnectedEditors();
     }
 }
@@ -169,7 +165,6 @@ void PdmUiFieldHandle::enableAutoValue( bool enable )
     if ( m_useAutoValue )
     {
         setValueFromUiEditor( m_autoValue, false );
-        m_useAutoValue = true;
         updateConnectedEditors();
     }
 }
