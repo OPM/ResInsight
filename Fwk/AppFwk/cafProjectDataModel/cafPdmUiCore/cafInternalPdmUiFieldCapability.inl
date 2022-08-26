@@ -204,17 +204,23 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
     {
         if (isAutoValueEnabled())
         {
-            QString valueString = autoValue().toString();
-            valueString += "(msjAuto)";
 
-            PdmOptionItemInfo autoOption( valueString, autoValue() );
+            QString optionString;
+            for (auto opt: m_optionEntryCache)
+            {
+                if ( autoValue() == opt.value() ) optionString = opt.optionUiText();
+            }
+
+            auto valueString = "*Auto: " + optionString ;
+
+            PdmOptionItemInfo autoOption( valueString, QVariant() );
             m_optionEntryCache.push_front(autoOption);
         }
         else
         {
             QString valueString = "Auto (not active)";
 
-            PdmOptionItemInfo autoOption( valueString, autoValue() );
+            PdmOptionItemInfo autoOption( valueString, QVariant() );
             m_optionEntryCache.push_front( autoOption );
         }
     }
