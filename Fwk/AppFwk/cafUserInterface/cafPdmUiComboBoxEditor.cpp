@@ -401,6 +401,36 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
             }
         }
     }
+
+    if ( uiField()->isAutoValueEnabled() )
+    {
+        QString highlightColor = "moccasin";
+        m_comboBox->setStyleSheet( QString( "QComboBox {background-color: %1;}" ).arg( highlightColor ) );
+
+        QColor  color( highlightColor );
+        QPixmap px( 20, 20 );
+        px.fill( color );
+
+        m_autoValueToolButton->setIcon( px );
+    }
+    else
+    {
+        m_comboBox->setStyleSheet( "" );
+
+        m_autoValueToolButton->setIcon( QIcon() );
+    }
+
+    if ( uiField()->isAutoValueSupported() )
+    {
+        m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
+        m_layout->insertWidget( 3, m_autoValueToolButton );
+        m_autoValueToolButton->show();
+    }
+    else
+    {
+        m_layout->removeWidget( m_autoValueToolButton );
+        m_autoValueToolButton->hide();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -497,6 +527,13 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
 
     connect( m_comboBox, SIGNAL( activated( int ) ), this, SLOT( slotIndexActivated( int ) ) );
 
+    m_autoValueToolButton = new QToolButton();
+    m_autoValueToolButton->setText( "A" );
+    m_autoValueToolButton->setCheckable( true );
+    m_autoValueToolButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+
+    connect( m_autoValueToolButton, SIGNAL( clicked() ), this, SLOT( slotApplyAutoValue() ) );
+
     // Forward focus event to combo box editor
     m_placeholder->setFocusProxy( m_comboBox );
 
@@ -517,6 +554,8 @@ QWidget* PdmUiComboBoxEditor::createLabelWidget( QWidget* parent )
 //--------------------------------------------------------------------------------------------------
 void PdmUiComboBoxEditor::slotIndexActivated( int index )
 {
+    uiField()->enableAutoValue( false );
+
     if ( m_attributes.enableEditableContent )
     {
         // Use the text directly, as the item text could be entered directly by the user
@@ -543,6 +582,8 @@ void PdmUiComboBoxEditor::slotIndexActivated( int index )
 void PdmUiComboBoxEditor::slotEditTextChanged( const QString& text )
 {
     if ( text == m_interactiveEditText ) return;
+
+    uiField()->enableAutoValue( false );
 
     m_interactiveEditText           = text;
     m_interactiveEditCursorPosition = m_comboBox->lineEdit()->cursorPosition();
@@ -574,6 +615,16 @@ void PdmUiComboBoxEditor::slotPreviousButtonPressed()
     {
         slotIndexActivated( indexCandidate );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiComboBoxEditor::slotApplyAutoValue()
+{
+    bool enable = m_autoValueToolButton->isChecked();
+    uiField()->enableAutoValue( enable );
+    configureAndUpdateUi( "" );
 }
 
 } // end namespace caf
