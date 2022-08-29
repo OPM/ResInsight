@@ -42,7 +42,7 @@ namespace caf
 class UiAppearanceSettings
 {
 public:
-    static UiAppearanceSettings* UiAppearanceSettings::instance();
+    static UiAppearanceSettings* instance();
 
     UiAppearanceSettings();
 
