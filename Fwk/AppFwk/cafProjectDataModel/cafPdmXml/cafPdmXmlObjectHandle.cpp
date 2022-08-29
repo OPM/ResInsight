@@ -69,7 +69,7 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                             fieldAttributes.emplace_back( xmlAttr.name().toString(), xmlAttr.value().toString() );
                         }
 
-                        if ( fieldAttributes.empty() ) capability->setAttributes( fieldAttributes );
+                        if ( !fieldAttributes.empty() ) capability->setAttributes( fieldAttributes );
                     }
 
                     bool readable = xmlFieldHandle->isIOReadable();
