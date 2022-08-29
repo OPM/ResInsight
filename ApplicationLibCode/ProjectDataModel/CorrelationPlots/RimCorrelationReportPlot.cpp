@@ -281,6 +281,7 @@ void RimCorrelationReportPlot::doRenderWindowContent( QPaintDevice* paintDevice 
 QWidget* RimCorrelationReportPlot::createViewWidget( QWidget* mainWindowParent /*= nullptr */ )
 {
     m_viewer = new RiuMultiPlotPage( this, mainWindowParent );
+    m_viewer->setAutoAlignAxes( false );
     m_viewer->setPlotTitle( m_plotWindowTitle() );
     recreatePlotWidgets();
 
