@@ -46,10 +46,12 @@
 #include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
 #include "cafUiAppearanceSettings.h"
+#include "cafUiIconFactory.h"
 
 #include <QAbstractItemView>
 #include <QAbstractProxyModel>
 #include <QApplication>
+#include <QBitmap>
 #include <QCompleter>
 #include <QDebug>
 #include <QIntValidator>
@@ -97,9 +99,8 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
     m_layout->addWidget( m_lineEdit );
 
     m_autoValueToolButton = new QToolButton();
-    m_autoValueToolButton->setText( "A" );
     m_autoValueToolButton->setCheckable( true );
-    m_autoValueToolButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+    m_autoValueToolButton->setToolButtonStyle( Qt::ToolButtonIconOnly );
 
     connect( m_autoValueToolButton, SIGNAL( clicked() ), this, SLOT( slotApplyAutoValue() ) );
 
@@ -144,17 +145,21 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
                 m_lineEdit->setStyleSheet( QString( "QLineEdit {background-color: %1;}" ).arg( highlightColor ) );
 
-                QColor  color( highlightColor );
-                QPixmap px( 20, 20 );
-                px.fill( color );
+                auto letterAIcon = UiIconFactory::letterAIcon();
 
-                m_autoValueToolButton->setIcon( px );
+                QString borderColor = "dark-gray";
+
+                m_autoValueToolButton->setStyleSheet(
+                    QString( "QToolButton {border: 2px; border-radius: 6px; background-color: %1;}QToolButton:checked "
+                             "{border: 1px solid %2;}" )
+                        .arg( highlightColor )
+                        .arg( borderColor ) );
+
+                m_autoValueToolButton->setIcon( letterAIcon );
             }
             else
             {
                 m_lineEdit->setStyleSheet( "" );
-
-                m_autoValueToolButton->setIcon( QIcon() );
             }
 
             if ( uiField()->isAutoValueSupported() )

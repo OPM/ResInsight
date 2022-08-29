@@ -268,17 +268,21 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
         QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
         m_comboBox->setStyleSheet( QString( "QComboBox {background-color: %1;}" ).arg( highlightColor ) );
 
-        QColor  color( highlightColor );
-        QPixmap px( 20, 20 );
-        px.fill( color );
+        auto letterAIcon = UiIconFactory::letterAIcon();
 
-        m_autoValueToolButton->setIcon( px );
+        QString borderColor = "dark-gray";
+
+        m_autoValueToolButton->setStyleSheet(
+            QString( "QToolButton {border: 2px; border-radius: 6px; background-color: %1;}QToolButton:checked "
+                     "{border: 1px solid %2;}" )
+                .arg( highlightColor )
+                .arg( borderColor ) );
+
+        m_autoValueToolButton->setIcon( letterAIcon );
     }
     else
     {
         m_comboBox->setStyleSheet( "" );
-
-        m_autoValueToolButton->setIcon( QIcon() );
     }
 
     if ( uiField()->isAutoValueSupported() )
@@ -389,9 +393,8 @@ QWidget* PdmUiComboBoxEditor::createEditorWidget( QWidget* parent )
     connect( m_comboBox, SIGNAL( activated( int ) ), this, SLOT( slotIndexActivated( int ) ) );
 
     m_autoValueToolButton = new QToolButton();
-    m_autoValueToolButton->setText( "A" );
     m_autoValueToolButton->setCheckable( true );
-    m_autoValueToolButton->setToolButtonStyle( Qt::ToolButtonTextBesideIcon );
+    m_autoValueToolButton->setToolButtonStyle( Qt::ToolButtonIconOnly );
 
     connect( m_autoValueToolButton, SIGNAL( clicked() ), this, SLOT( slotApplyAutoValue() ) );
 
