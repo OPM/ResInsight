@@ -173,12 +173,13 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 
     RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
 
-    RiuQwtPlotLegend*         legend = new RiuQwtPlotLegend( this );
+    RiuQwtPlotLegend*         legend = nullptr;
     RiuDraggableOverlayFrame* legendFrame =
         new RiuDraggableOverlayFrame( plotWidget->getParentForOverlay(), plotWidget->overlayMargins() );
 
     if ( m_plotDefinition->legendsVisible() && plotWidget->plotDefinition()->legendsVisible() )
     {
+        legend            = new RiuQwtPlotLegend( this );
         int legendColumns = 1;
         if ( m_plotDefinition->legendsHorizontal() )
         {
@@ -715,6 +716,8 @@ void RiuMultiPlotPage::addLegendWidget( RiuPlotWidget*            plotWidget,
                                         int                       column,
                                         int                       colSpan )
 {
+    if ( !legend ) return;
+
     if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::ABOVE )
     {
         m_gridLayout->addWidget( legend, row, column, 1, colSpan, Qt::AlignHCenter | Qt::AlignBottom );
@@ -738,6 +741,8 @@ void RiuMultiPlotPage::updateLegendVisibility( RiuPlotWidget*            plotWid
                                                RiuQwtPlotLegend*         legend,
                                                RiuDraggableOverlayFrame* legendFrame )
 {
+    if ( !legend ) return;
+
     if ( m_plotDefinition->legendsVisible() && !legend->isEmpty() )
     {
         updateLegendColumns( legend );
