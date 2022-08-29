@@ -97,7 +97,11 @@ public:
     cvf::Mat4d transformMatrix() const;
     void       setDip( double dip );
     double     dip() const;
-    double     tilt() const;
+
+    void   setTilt( double tilt );
+    double tilt() const;
+
+    void setAzimuth( double azimuth );
 
     void                 setFractureTemplateNoUpdate( RimFractureTemplate* fractureTemplate );
     void                 setFractureTemplate( RimFractureTemplate* fractureTemplate );
