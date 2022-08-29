@@ -172,7 +172,6 @@ set(PROJECT_FILES
     cafPdmUiTreeAttributes.h
     cafUiAppearanceSettings.cpp
     cafUiIconFactory.cpp
-
 )
 
 add_library(
