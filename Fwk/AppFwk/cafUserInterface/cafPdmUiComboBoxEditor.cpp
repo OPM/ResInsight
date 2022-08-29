@@ -267,18 +267,6 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
     {
         QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
         m_comboBox->setStyleSheet( QString( "QComboBox {background-color: %1;}" ).arg( highlightColor ) );
-
-        auto letterAIcon = UiIconFactory::letterAIcon();
-
-        QString borderColor = "dark-gray";
-
-        m_autoValueToolButton->setStyleSheet(
-            QString( "QToolButton {border: 2px; border-radius: 6px; background-color: %1;}QToolButton:checked "
-                     "{border: 1px solid %2;}" )
-                .arg( highlightColor )
-                .arg( borderColor ) );
-
-        m_autoValueToolButton->setIcon( letterAIcon );
     }
     else
     {
@@ -287,6 +275,18 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( uiField()->isAutoValueSupported() )
     {
+        auto letterAIcon = UiIconFactory::letterAIcon();
+        m_autoValueToolButton->setIcon( letterAIcon );
+
+        QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
+        QString borderColor    = "dark-gray";
+
+        m_autoValueToolButton->setStyleSheet(
+            QString( "QToolButton {border: 2px; border-radius: 6px; background-color: %1;}QToolButton:checked "
+                     "{border: 1px solid %2;}" )
+                .arg( highlightColor )
+                .arg( borderColor ) );
+
         m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
         m_layout->insertWidget( 3, m_autoValueToolButton );
         m_autoValueToolButton->show();

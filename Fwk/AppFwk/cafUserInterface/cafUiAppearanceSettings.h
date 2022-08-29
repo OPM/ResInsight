@@ -44,8 +44,6 @@ class UiAppearanceSettings
 public:
     static UiAppearanceSettings* instance();
 
-    UiAppearanceSettings();
-
     QString autoValueEditorColor() const;
     void    setAutoValueEditorColor( const QString& colorName );
 
