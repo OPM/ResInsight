@@ -54,6 +54,7 @@ set(MOC_HEADER_FILES
     cafPdmUiPickableLineEditor.h
     cafPdmUiLabelEditor.h
     cafUiAppearanceSettings.h
+    cafUiIconFactory.h
 )
 
 find_package(
@@ -170,6 +171,7 @@ set(PROJECT_FILES
     cafPdmUiTreeViewItemDelegate.cpp
     cafPdmUiTreeAttributes.h
     cafUiAppearanceSettings.cpp
+    cafUiIconFactory.cpp
 
 )
 
