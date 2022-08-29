@@ -45,6 +45,7 @@
 #include "cafPdmUniqueIdValidator.h"
 #include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
+#include "cafUiAppearanceSettings.h"
 
 #include <QAbstractItemView>
 #include <QAbstractProxyModel>
@@ -140,7 +141,7 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 
             if ( uiField()->isAutoValueEnabled() )
             {
-                QString highlightColor = "yellow";
+                QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
                 m_lineEdit->setStyleSheet( QString( "QLineEdit {background-color: %1;}" ).arg( highlightColor ) );
 
                 QColor  color( highlightColor );

@@ -180,6 +180,14 @@ bool PdmUiFieldHandle::isAutoValueEnabled() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::enableAutoValueSupport( bool enable )
+{
+    m_isAutoValueSupported = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool PdmUiFieldHandle::isAutoValueSupported() const
 {
     return m_isAutoValueSupported;
@@ -190,12 +198,19 @@ bool PdmUiFieldHandle::isAutoValueSupported() const
 //--------------------------------------------------------------------------------------------------
 std::vector<std::pair<QString, QString>> PdmUiFieldHandle::attributes() const
 {
+    std::vector<std::pair<QString, QString>> attr;
+
     if ( m_useAutoValue )
     {
-        return { { "autoValue", "true" } };
+        attr.push_back( { "autoValueEnabled", "true" } );
     }
 
-    return {};
+    if ( m_isAutoValueSupported )
+    {
+        attr.push_back( { "autoValueSupported", "true" } );
+    }
+
+    return attr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -203,13 +218,22 @@ std::vector<std::pair<QString, QString>> PdmUiFieldHandle::attributes() const
 //--------------------------------------------------------------------------------------------------
 void PdmUiFieldHandle::setAttributes( const std::vector<std::pair<QString, QString>>& attributes )
 {
-    for ( auto [key, value] : attributes )
+    for ( auto [key, valueString] : attributes )
     {
-        if ( key == "autoValue" )
+        valueString = valueString.toUpper();
+
+        if ( key == "autoValueEnabled" )
         {
-            if ( value.toUpper() == "TRUE" )
+            if ( valueString == "TRUE" )
             {
                 enableAutoValue( true );
+            }
+        }
+        else if ( key == "autoValueSupported" )
+        {
+            if ( valueString == "TRUE" )
+            {
+                enableAutoValueSupport( true );
             }
         }
     }

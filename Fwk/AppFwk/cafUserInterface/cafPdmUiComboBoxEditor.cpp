@@ -36,12 +36,12 @@
 
 #include "cafPdmUiComboBoxEditor.h"
 
+#include "cafFactory.h"
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmUiFieldEditorHandle.h"
-
-#include "cafFactory.h"
 #include "cafQShortenedLabel.h"
+#include "cafUiAppearanceSettings.h"
 
 #include <QApplication>
 #include <QComboBox>
@@ -404,7 +404,7 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( uiField()->isAutoValueEnabled() )
     {
-        QString highlightColor = "moccasin";
+        QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
         m_comboBox->setStyleSheet( QString( "QComboBox {background-color: %1;}" ).arg( highlightColor ) );
 
         QColor  color( highlightColor );

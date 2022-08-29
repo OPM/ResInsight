@@ -32,6 +32,7 @@ public:
     QVariant autoValue() const;
     void     enableAutoValue( bool enable );
     bool     isAutoValueEnabled() const;
+    void     enableAutoValueSupport( bool enable );
     bool     isAutoValueSupported() const;
 
     std::vector<std::pair<QString, QString>> attributes() const override;
