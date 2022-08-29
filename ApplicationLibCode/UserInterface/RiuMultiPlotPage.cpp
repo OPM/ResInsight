@@ -82,6 +82,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
     , m_plotDefinition( plotDefinition )
     , m_previewMode( false )
     , m_showSubTitles( false )
+    , m_autoAlignAxes( true )
     , m_titleFontPixelSize( 12 )
     , m_subTitleFontPixelSize( 11 )
     , m_legendFontPixelSize( 8 )
@@ -595,7 +596,7 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
 
         reinsertPlotWidgets();
         alignCanvasTops();
-        alignAxes();
+        if ( m_autoAlignAxes ) alignAxes();
         return;
     }
 
@@ -603,7 +604,7 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
     {
         refreshLegends();
         alignCanvasTops();
-        alignAxes();
+        if ( m_autoAlignAxes ) alignAxes();
     }
 
     if ( ( whatToUpdate & RiaDefines::MultiPlotPageUpdateType::TITLE ) == RiaDefines::MultiPlotPageUpdateType::TITLE )
@@ -1176,4 +1177,12 @@ void RiuMultiPlotPage::alignAxis( QwtAxisId axis, int targetRowOrColumn, std::fu
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::setAutoAlignAxes( bool autoAlignAxes )
+{
+    m_autoAlignAxes = autoAlignAxes;
 }

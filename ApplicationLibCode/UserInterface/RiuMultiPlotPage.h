@@ -82,6 +82,8 @@ public:
     bool previewModeEnabled() const;
     void setPagePreviewModeEnabled( bool previewMode );
 
+    void setAutoAlignAxes( bool autoAlignAxes );
+
     void scheduleUpdate( RiaDefines::MultiPlotPageUpdateType whatToUpdate = RiaDefines::MultiPlotPageUpdateType::ALL );
     void scheduleReplotOfAllPlots();
     virtual void updateVerticalScrollBar( double visibleMin, double visibleMax, double totalMin, double totalMax ) {}
@@ -185,6 +187,7 @@ protected:
 
     bool m_previewMode;
     bool m_showSubTitles;
+    bool m_autoAlignAxes;
 
     std::map<RiuQwtPlotLegend*, int> m_childCountForAdjustSizeOperation;
 
