@@ -70,6 +70,10 @@ void RicPlaceThermalFractureUsingTemplateDataFeature::onActionTriggered( bool is
 
     fracture->setMeasuredDepth( md );
 
+    fracture->setAzimuth( rotation.x() );
+    fracture->setDip( rotation.y() );
+    fracture->setTilt( rotation.z() );
+
     fracture->updateConnectedEditors();
     RimProject* project = RimProject::current();
     project->reloadCompletionTypeResultsInAllViews();
