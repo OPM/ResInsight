@@ -546,6 +546,7 @@ void RimCellEdgeColors::minMaxCellEdgeValues( double& min, double& max )
         for ( faceIdx = 0; faceIdx < 6; faceIdx++ )
         {
             if ( !resultAddresses[faceIdx].isValid() ) continue;
+            if ( !m_reservoirView->currentGridCellResults()->hasResultEntry( resultAddresses[faceIdx] ) ) continue;
 
             {
                 double cMin, cMax;
@@ -575,6 +576,7 @@ void RimCellEdgeColors::posNegClosestToZero( double& pos, double& neg )
     for ( faceIdx = 0; faceIdx < 6; faceIdx++ )
     {
         if ( !resultAddresses[faceIdx].isValid() ) continue;
+        if ( !m_reservoirView->currentGridCellResults()->hasResultEntry( resultAddresses[faceIdx] ) ) continue;
 
         {
             double localPos, localNeg;
