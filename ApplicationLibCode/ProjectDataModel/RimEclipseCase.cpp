@@ -581,8 +581,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
     }
     else if ( uiConfigName == "MainWindow.DataSources" )
     {
-        // if ( m_resultAddressCollections.empty() ) buildChildNodes();
-        buildChildNodes();
+        if ( m_resultAddressCollections.empty() ) buildResultChildNodes();
         uiTreeOrdering.add( &m_resultAddressCollections );
     }
 
@@ -592,7 +591,7 @@ void RimEclipseCase::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimEclipseCase::buildChildNodes()
+void RimEclipseCase::buildResultChildNodes()
 {
     m_resultAddressCollections.deleteChildren();
 
@@ -1163,4 +1162,13 @@ bool RimEclipseCase::importAsciiInputProperties( const QStringList& fileNames )
 void RimEclipseCase::setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings )
 {
     m_readerSettings = readerSettings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseCase::updateResultAddressCollection()
+{
+    m_resultAddressCollections.deleteChildren();
+    updateConnectedEditors();
 }

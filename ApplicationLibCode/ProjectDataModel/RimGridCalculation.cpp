@@ -143,7 +143,7 @@ bool RimGridCalculation::calculate()
         }
     }
 
-    if ( eclipseCase ) eclipseCase->updateConnectedEditors();
+    eclipseCase->updateResultAddressCollection();
 
     return true;
 }
