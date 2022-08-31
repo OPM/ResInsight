@@ -45,9 +45,12 @@ public:
     static const QIcon stepDownIcon();
     static const QIcon stepUpIcon();
     static const QIcon letterAIcon();
+    static const QIcon createChainIcon();
+    static const QIcon createBrokenChainIcon();
 
 private:
     static const QIcon createIcon( const unsigned char* data, unsigned int width, unsigned int height );
+    static const QIcon createSvgIcon( const char* data, unsigned int width, unsigned int height );
 };
 
 } // namespace caf

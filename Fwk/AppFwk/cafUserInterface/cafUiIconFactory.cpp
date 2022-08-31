@@ -38,7 +38,9 @@
 
 #include "QIcon"
 #include "QImage"
+#include "QPainter"
 #include "QPixmap"
+#include "QtSvg/QSvgRenderer"
 
 namespace caf
 {
@@ -226,6 +228,19 @@ static const struct
     "\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000\000",
 };
 
+// clang-format off
+
+static char* test_data = R"(
+
+<svg width="400" height="180">
+  <rect x="50" y="20" rx="20" ry="20" width="150" height="150" style="fill:red;stroke:black;stroke-width:5;opacity:0.5" />
+  Sorry, your browser does not support inline SVG.
+</svg>
+
+)";
+
+// clang-format on
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -259,11 +274,65 @@ const QIcon UiIconFactory::letterAIcon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QIcon UiIconFactory::createChainIcon()
+{
+    int          width  = 32;
+    int          height = 32;
+    static QIcon icon( UiIconFactory::createSvgIcon( test_data, width, height ) );
+
+    return icon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QIcon UiIconFactory::createBrokenChainIcon()
+{
+    int          width  = 32;
+    int          height = 32;
+    static QIcon icon( UiIconFactory::createSvgIcon( test_data, width, height ) );
+
+    return icon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QIcon UiIconFactory::createIcon( const unsigned char* data, unsigned int width, unsigned int height )
 {
     QImage  img( data, width, height, QImage::Format_ARGB32 );
     QPixmap pxMap;
     pxMap = QPixmap::fromImage( img );
+
+    return QIcon( pxMap );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QIcon UiIconFactory::createSvgIcon( const char* data, unsigned int width, unsigned int height )
+{
+    // QString svgFileName = "e:/gitroot/ResInsight/ApplicationExeCode/Resources/AppendNextCurve.svg";
+
+    //    auto svg = QSvgRenderer( svgFileName );
+    auto svg = QSvgRenderer( QByteArray( data ) );
+
+    auto qim = QImage( width, height, QImage::Format_ARGB32 );
+
+    qim.fill( 0 );
+
+    auto painter = QPainter();
+
+    painter.begin( &qim );
+
+    svg.render( &painter );
+    painter.end();
+
+    //     QString filename = "e:/scratch/img.png";
+    //     qim.save( filename );
+
+    QPixmap pxMap;
+    pxMap = QPixmap::fromImage( qim );
 
     return QIcon( pxMap );
 }
