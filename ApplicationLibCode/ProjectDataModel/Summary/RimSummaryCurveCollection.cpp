@@ -502,6 +502,9 @@ void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::onCurvesReordered( const SignalEmitter* emitter )
 {
+    // detach and reattach to make sure curve legends are shown in correct order
+    detachPlotCurves();
+    reattachPlotCurves();
     curvesChanged.send();
 }
 
