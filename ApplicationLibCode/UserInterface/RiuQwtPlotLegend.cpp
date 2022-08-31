@@ -17,11 +17,16 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuQwtPlotLegend.h"
 
+#include "RiuQwtPlotWidget.h"
+
 #include "qwt_dyngrid_layout.h"
 #include "qwt_legend_label.h"
+#include "qwt_plot.h"
+#include "qwt_plot_item.h"
 
 #include <QDebug>
 #include <QResizeEvent>
+#include <QVariant>
 
 #include <utility>
 

@@ -174,6 +174,11 @@ public:
 
     QwtAxisId toQwtPlotAxis( RiuPlotAxis axis ) const;
 
+    void highlightPlotItem( const QwtPlotItem* plotItem );
+
+public slots:
+    void onLegendClicked( const QVariant& itemInfo, int index );
+
 signals:
     void plotSelected( bool toggleSelection );
     void axisSelected( RiuPlotAxis axisId, bool toggleSelection );

@@ -1519,3 +1519,26 @@ QwtAxisId RiuQwtPlotWidget::toQwtPlotAxis( RiuPlotAxis plotAxis ) const
 
     return { -1, -1 };
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* plotItem )
+{
+    resetPlotItemHighlighting();
+    std::set<const QwtPlotItem*> items;
+    items.insert( plotItem );
+    highlightPlotItems( items );
+    replot();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::onLegendClicked( const QVariant& itemInfo, int index )
+{
+    if ( !itemInfo.canConvert<QwtPlotItem*>() ) return;
+
+    QwtPlotItem* plotItem = qvariant_cast<QwtPlotItem*>( itemInfo );
+    if ( plotItem ) highlightPlotItem( plotItem );
+}

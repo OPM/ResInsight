@@ -189,11 +189,15 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
         legend->setMaxColumns( legendColumns );
         legend->horizontalScrollBar()->setVisible( false );
         legend->verticalScrollBar()->setVisible( false );
+        legend->setDefaultItemMode( QwtLegendData::Clickable );
         if ( qwtPlotWidget )
         {
             legend->connect( qwtPlotWidget->qwtPlot(),
                              SIGNAL( legendDataChanged( const QVariant&, const QList<QwtLegendData>& ) ),
                              SLOT( updateLegend( const QVariant&, const QList<QwtLegendData>& ) ) );
+            qwtPlotWidget->connect( legend,
+                                    SIGNAL( clicked( const QVariant&, int ) ),
+                                    SLOT( onLegendClicked( const QVariant&, int ) ) );
         }
         else
         {
