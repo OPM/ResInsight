@@ -206,6 +206,8 @@ void RimWellAllocationPlot::deleteViewWidget()
 //--------------------------------------------------------------------------------------------------
 void RimWellAllocationPlot::updateFromWell()
 {
+    std::set<QString> uncheckedCurveNames;
+
     // Delete existing tracks
     {
         std::vector<RimWellLogTrack*> tracks;
@@ -213,6 +215,14 @@ void RimWellAllocationPlot::updateFromWell()
 
         for ( RimWellLogTrack* t : tracks )
         {
+            for ( auto c : t->curves() )
+            {
+                if ( !c->isCurveVisible() )
+                {
+                    uncheckedCurveNames.insert( c->curveName() );
+                }
+            }
+
             accumulatedWellFlowPlot()->removePlot( t );
             delete t;
         }
@@ -325,8 +335,8 @@ void RimWellAllocationPlot::updateFromWell()
                     curveDepthValues.insert( curveDepthValues.begin(), curveDepthValues[0] );
                     accFlow.insert( accFlow.begin(), 0.0 );
 
-                    if ( m_flowType == ACCUMULATED && brIdx == 0 && !accFlow.empty() ) // Add fictitious point to -1 for
-                                                                                       // first branch
+                    if ( m_flowType == ACCUMULATED && brIdx == 0 && !accFlow.empty() ) // Add fictitious point to -1
+                                                                                       // for first branch
                     {
                         accFlow.push_back( accFlow.back() );
                         curveDepthValues.push_back( -1.0 );
@@ -378,8 +388,8 @@ void RimWellAllocationPlot::updateFromWell()
 
                 if ( !accFlow.empty() )
                 {
-                    addStackedCurve( tracerName, depthType, curveDepthValues, accFlow, plotTrack );
-                    // TODO: THIs is the data to be plotted...
+                    bool showCurve = uncheckedCurveNames.count( tracerName ) == 0;
+                    addStackedCurve( tracerName, depthType, curveDepthValues, accFlow, plotTrack, showCurve );
                 }
             }
         }
@@ -534,7 +544,8 @@ void RimWellAllocationPlot::addStackedCurve( const QString&             tracerNa
                                              RiaDefines::DepthTypeEnum  depthType,
                                              const std::vector<double>& depthValues,
                                              const std::vector<double>& accFlow,
-                                             RimWellLogTrack*           plotTrack )
+                                             RimWellLogTrack*           plotTrack,
+                                             bool                       showCurve )
 {
     RimWellFlowRateCurve* curve = new RimWellFlowRateCurve;
     curve->setFlowValuesPrDepthValue( tracerName, depthType, depthValues, accFlow );
@@ -551,6 +562,7 @@ void RimWellAllocationPlot::addStackedCurve( const QString&             tracerNa
     plotTrack->addCurve( curve );
 
     curve->loadDataAndUpdate( true );
+    curve->setCurveVisibility( showCurve );
 }
 
 //--------------------------------------------------------------------------------------------------
