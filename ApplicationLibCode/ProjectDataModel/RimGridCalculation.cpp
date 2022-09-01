@@ -143,6 +143,8 @@ bool RimGridCalculation::calculate()
         }
     }
 
+    eclipseCase->updateResultAddressCollection();
+
     return true;
 }
 
