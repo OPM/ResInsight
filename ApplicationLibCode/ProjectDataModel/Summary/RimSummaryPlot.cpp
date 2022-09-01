@@ -159,7 +159,15 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
 
     CAF_PDM_InitFieldNoDefault( &m_sourceStepping, "SourceStepping", "" );
     m_sourceStepping = new RimSummaryPlotSourceStepping;
-    m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+    if ( m_isCrossPlot )
+    {
+        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::UNION_X_Y_AXIS );
+    }
+    else
+    {
+        m_sourceStepping->setSourceSteppingType( RimSummaryDataSourceStepping::Axis::Y_AXIS );
+    }
+
     m_sourceStepping->setSourceSteppingObject( this );
     m_sourceStepping.uiCapability()->setUiTreeHidden( true );
     m_sourceStepping.uiCapability()->setUiTreeChildrenHidden( true );
