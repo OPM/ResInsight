@@ -72,6 +72,8 @@ RimWellBoreStabilityPlot*
             QString( "Well Bore Stability Plot %1" ).arg( wellLogPlotCollection()->wellLogPlots().size() ) );
     }
 
+    wellLogPlotColl->updateConnectedEditors();
+
     if ( showAfterCreation )
     {
         RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
@@ -242,6 +244,7 @@ void RicNewWellLogPlotFeatureImpl::updateAfterCreation( RimDepthTrackPlot* plot 
 {
     CVF_ASSERT( plot );
     plot->loadDataAndUpdate();
+    plot->zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
