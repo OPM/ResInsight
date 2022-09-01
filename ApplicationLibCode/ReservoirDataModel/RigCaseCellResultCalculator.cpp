@@ -74,7 +74,23 @@ bool RigCaseCellResultCalculator::computeDifference( RigEclipseCaseData*        
 
     if ( !RigGridManager::isMainGridDimensionsEqual( sourceMainGrid, baseMainGrid ) )
     {
-        RiaLogging::error( "Case difference : Grid cases do not match" );
+        auto gridA_i = sourceMainGrid->cellCountI();
+        auto gridA_j = sourceMainGrid->cellCountJ();
+        auto gridA_k = sourceMainGrid->cellCountK();
+
+        auto gridB_i = baseMainGrid->cellCountI();
+        auto gridB_j = baseMainGrid->cellCountJ();
+        auto gridB_k = baseMainGrid->cellCountK();
+
+        RiaLogging::error(
+            QString( "Not able to compute cell value difference between two grids, as the Grid Cell Count is not "
+                     "matching: Grid 1 IJK [%1,%2,%3] vs Grid 2 IJK [%4,%5,%6]" )
+                .arg( gridA_i )
+                .arg( gridA_j )
+                .arg( gridA_k )
+                .arg( gridB_i )
+                .arg( gridB_j )
+                .arg( gridB_k ) );
 
         return false;
     }
