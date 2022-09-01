@@ -138,7 +138,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
 
-        if ( m_isUsingAutoName )
+        if ( m_isUsingAutoName && m_plotCurve )
         {
             m_plotCurve->setTitle( createCurveAutoName() );
         }
@@ -160,11 +160,14 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             depthType = wellLogPlot->depthType();
         }
 
-        bool useLogarithmicScale = false;
-        m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->propertyValuesByIntervals(),
-                                                      this->curveData()->depthValuesByIntervals( depthType, displayUnit ),
-                                                      useLogarithmicScale );
-        m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+        if ( m_plotCurve )
+        {
+            bool useLogarithmicScale = false;
+            m_plotCurve->setSamplesFromXValuesAndYValues( this->curveData()->propertyValuesByIntervals(),
+                                                          this->curveData()->depthValuesByIntervals( depthType, displayUnit ),
+                                                          useLogarithmicScale );
+            m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
+        }
     }
 
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
