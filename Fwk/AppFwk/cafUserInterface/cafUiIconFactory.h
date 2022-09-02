@@ -44,11 +44,16 @@ class UiIconFactory
 public:
     static const QIcon stepDownIcon();
     static const QIcon stepUpIcon();
-    static const QIcon letterAIcon();
+
     static const QIcon createChainIcon();
     static const QIcon createBrokenChainIcon();
+    static const QIcon createWhiteChainIcon();
+    static const QIcon createWhiteBrokenChainIcon();
 
 private:
+    static int iconWidth();
+    static int iconHeight();
+
     static const QIcon createIcon( const unsigned char* data, unsigned int width, unsigned int height );
     static const QIcon createSvgIcon( const char* data, unsigned int width, unsigned int height );
 };

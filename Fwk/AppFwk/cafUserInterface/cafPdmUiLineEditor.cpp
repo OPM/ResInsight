@@ -157,11 +157,14 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 QString borderColor    = "dark-gray";
                 QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
 
-                m_autoValueToolButton->setStyleSheet(
-                    QString( "QToolButton {border: 2px; border-radius: 6px; background-color: %1;}QToolButton:checked "
-                             "{border: 1px solid %2;}" )
-                        .arg( highlightColor )
-                        .arg( borderColor ) );
+                /*
+                                m_autoValueToolButton->setStyleSheet(
+                                    QString( "QToolButton {border: 2px; border-radius: 6px; background-color:
+                   %1;}QToolButton:checked "
+                                             "{border: 1px solid %2;}" )
+                                        .arg( highlightColor )
+                                        .arg( borderColor ) );
+                */
 
                 m_autoValueToolButton->setIcon( letterAIcon );
 
