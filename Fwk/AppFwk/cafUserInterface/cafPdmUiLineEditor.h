@@ -38,10 +38,12 @@
 
 #include "cafPdmUiFieldEditorHandle.h"
 
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPointer>
 #include <QString>
+#include <QToolButton>
 #include <QValidator>
 #include <QWidget>
 
@@ -133,11 +135,12 @@ protected:
     void     configureAndUpdateUi( const QString& uiConfigName ) override;
     QMargins calculateLabelContentMargins() const override;
 
-    virtual bool eventFilter( QObject* watched, QEvent* event ) override;
+    bool eventFilter( QObject* watched, QEvent* event ) override;
 
 protected slots:
     void slotEditingFinished();
     void slotCompleterActivated( const QModelIndex& index );
+    void slotApplyAutoValue();
 
 private:
     bool isMultipleFieldsWithSameKeywordSelected( PdmFieldHandle* editorField ) const;
@@ -145,6 +148,11 @@ private:
 protected:
     QPointer<PdmUiLineEdit>   m_lineEdit;
     QPointer<QShortenedLabel> m_label;
+
+    QPointer<QToolButton> m_autoValueToolButton;
+
+    QPointer<QHBoxLayout> m_layout;
+    QPointer<QWidget>     m_placeholder;
 
     QPointer<QCompleter>       m_completer;
     QPointer<QStringListModel> m_completerTextList;
