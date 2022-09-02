@@ -53,6 +53,8 @@ set(MOC_HEADER_FILES
     cafPdmDoubleStringValidator.h
     cafPdmUiPickableLineEditor.h
     cafPdmUiLabelEditor.h
+    cafUiAppearanceSettings.h
+    cafUiIconFactory.h
 )
 
 find_package(
@@ -168,6 +170,8 @@ set(PROJECT_FILES
     cafPdmUiTreeViewItemDelegate.h
     cafPdmUiTreeViewItemDelegate.cpp
     cafPdmUiTreeAttributes.h
+    cafUiAppearanceSettings.cpp
+    cafUiIconFactory.cpp
 )
 
 add_library(
