@@ -75,6 +75,7 @@ protected:
                                           double                                                    md1,
                                           cvf::Vec3d                                                p2,
                                           double                                                    md2,
+                                          double                                                    tolerance,
                                           std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections );
 
     void populateReturnArrays( std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>& uniqueIntersections );
