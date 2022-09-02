@@ -120,6 +120,7 @@ RimSummaryTimeAxisProperties::RimSummaryTimeAxisProperties()
     m_timeFormat = RiaPreferences::current()->timeFormat();
 
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
+    m_majorTickmarkCount.uiCapability()->enableAutoValueSupport( true );
 
     CAF_PDM_InitFieldNoDefault( &m_annotations, "Annotations", "" );
     m_annotations.uiCapability()->setUiTreeHidden( true );
@@ -376,6 +377,24 @@ void RimSummaryTimeAxisProperties::setMajorTickmarkCount( LegendTickmarkCount co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::setAutoValueForMajorTickmarkCount( LegendTickmarkCount count )
+{
+    auto enumValue = static_cast<std::underlying_type_t<LegendTickmarkCount>>( count );
+
+    m_majorTickmarkCount.uiCapability()->setAutoValue( enumValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryTimeAxisProperties::enableAutoValueForMajorTickmarkCount( bool enable )
+{
+    m_majorTickmarkCount.uiCapability()->enableAutoValue( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QString RimSummaryTimeAxisProperties::objectName() const
 {
     return title();
@@ -615,10 +634,6 @@ void RimSummaryTimeAxisProperties::defineUiOrdering( QString uiConfigName, caf::
 
     timeGroup->add( &m_valuesFontSize );
     timeGroup->add( &m_majorTickmarkCount );
-
-    // Auto Appearance is defined in RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
-    QString autoAppearanceToolTip = "Controlled by Auto Adjust Appearance";
-    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_majorTickmarkCount, isAppearanceOverridden(), autoAppearanceToolTip );
 
     if ( m_timeMode() == DATE )
     {

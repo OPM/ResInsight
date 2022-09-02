@@ -97,7 +97,8 @@ public:
     double           scaleFactor() const;
 
     void setVisible( bool visible );
-    void computeAndSetScaleFactor();
+    void enableAutoValueForScaleFactor( bool enable );
+    void computeAndSetAutoValueForScaleFactor();
 
     bool isDeletable() const override;
 
@@ -119,6 +120,8 @@ public:
 
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
+    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count );
+    void                enableAutoValueForMajorTickmarkCount( bool enable );
 
 protected:
     void                 initAfterRead() override;

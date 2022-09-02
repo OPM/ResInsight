@@ -1211,10 +1211,11 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
     {
         auto timeAxisProp = p->timeAxisProperties();
 
+        timeAxisProp->enableAutoValueForMajorTickmarkCount( true );
         if ( columnCount() < 3 )
-            timeAxisProp->setMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
+            timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
         else
-            timeAxisProp->setMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
+            timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
 
         for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotYAxes() )
         {
@@ -1222,12 +1223,17 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
             if ( !axisProp ) continue;
 
-            if ( rowsPerPage() == 1 )
-                axisProp->setMajorTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
-            else
-                axisProp->setMajorTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
+            axisProp->enableAutoValueForMajorTickmarkCount( true );
 
-            axisProp->computeAndSetScaleFactor();
+            if ( rowsPerPage() == 1 )
+                axisProp->setAutoValueForMajorTickmarkCount(
+                    RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
+            else
+                axisProp->setAutoValueForMajorTickmarkCount(
+                    RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
+
+            axisProp->enableAutoValueForScaleFactor( true );
+            axisProp->computeAndSetAutoValueForScaleFactor();
 
             if ( hasOnlyOneQuantity )
             {

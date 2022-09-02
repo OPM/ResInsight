@@ -76,17 +76,22 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &isAutoTitle, "AutoTitle", true, "Auto Title" );
 
     CAF_PDM_InitField( &m_displayLongName, "DisplayLongName", true, "   Names" );
+    m_displayLongName.uiCapability()->enableAutoValueSupport( true );
+
     CAF_PDM_InitField( &m_displayShortName, "DisplayShortName", false, "   Acronyms" );
     CAF_PDM_InitField( &m_displayUnitText, "DisplayUnitText", true, "   Units" );
 
     CAF_PDM_InitFieldNoDefault( &m_customTitle, "CustomTitle", "Title" );
 
     CAF_PDM_InitField( &m_visibleRangeMax, "VisibleRangeMax", RiaDefines::maximumDefaultValuePlot(), "Max" );
+    m_visibleRangeMax.uiCapability()->enableAutoValueSupport( true );
     CAF_PDM_InitField( &m_visibleRangeMin, "VisibleRangeMin", RiaDefines::minimumDefaultValuePlot(), "Min" );
+    m_visibleRangeMin.uiCapability()->enableAutoValueSupport( true );
 
     CAF_PDM_InitFieldNoDefault( &m_numberFormat, "NumberFormat", "Number Format" );
     CAF_PDM_InitField( &m_numberOfDecimals, "Decimals", 2, "Number of Decimals" );
     CAF_PDM_InitField( &m_scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
+    m_scaleFactor.uiCapability()->enableAutoValueSupport( true );
 
     CAF_PDM_InitField( &m_isAutoZoom, "AutoZoom", true, "Set Range Automatically" );
     CAF_PDM_InitField( &m_isLogarithmicScaleEnabled, "LogarithmicScale", false, "Logarithmic Scale" );
@@ -106,6 +111,7 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     m_annotations.uiCapability()->setUiTreeHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_majorTickmarkCount, "MajorTickmarkCount", "Major Tickmark Count" );
+    m_majorTickmarkCount.uiCapability()->enableAutoValueSupport( true );
 
     updateOptionSensitivity();
 }
@@ -503,41 +509,52 @@ void RimPlotAxisProperties::setVisible( bool visible )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::computeAndSetScaleFactor()
+void RimPlotAxisProperties::enableAutoValueForScaleFactor( bool enable )
+{
+    m_scaleFactor.uiCapability()->enableAutoValue( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::computeAndSetAutoValueForScaleFactor()
 {
     auto maxAbsValue = std::max( std::fabs( visibleRangeMax() ), std::fabs( visibleRangeMin() ) );
+
+    double scaleFactor = 1.0;
 
     if ( maxAbsValue < 1.0 && maxAbsValue > 1e-6 )
     {
         // Do not use scale factor for small values above 1e-6
-        m_scaleFactor = 1.0;
-        return;
+        scaleFactor = 1.0;
     }
-
-    if ( maxAbsValue > 1.0 && maxAbsValue < 1e6 )
+    else if ( maxAbsValue > 1.0 && maxAbsValue < 1e6 )
     {
         // Do not use scale factor for values above 1 and below 1e-6
-        m_scaleFactor = 1.0;
-        return;
-    }
-
-    int exponent = std::floor( std::log10( maxAbsValue ) );
-    if ( exponent > 0 )
-    {
-        while ( exponent > -20 && ( exponent % 3 ) != 0 )
-        {
-            exponent--;
-        }
+        scaleFactor = 1.0;
     }
     else
     {
-        while ( exponent < 1 && ( exponent % 3 ) != 0 )
+        int exponent = std::floor( std::log10( maxAbsValue ) );
+        if ( exponent > 0 )
         {
-            exponent++;
+            while ( exponent > -20 && ( exponent % 3 ) != 0 )
+            {
+                exponent--;
+            }
         }
+        else
+        {
+            while ( exponent < 1 && ( exponent % 3 ) != 0 )
+            {
+                exponent++;
+            }
+        }
+
+        scaleFactor = std::pow( 10, exponent );
     }
 
-    m_scaleFactor = std::pow( 10, exponent );
+    m_scaleFactor.uiCapability()->setAutoValue( scaleFactor );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -607,6 +624,24 @@ void RimPlotAxisProperties::setMajorTickmarkCount( LegendTickmarkCount count )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setAutoValueForMajorTickmarkCount( LegendTickmarkCount count )
+{
+    auto enumValue = static_cast<std::underlying_type_t<LegendTickmarkCount>>( count );
+
+    m_majorTickmarkCount.uiCapability()->setAutoValue( enumValue );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::enableAutoValueForMajorTickmarkCount( bool enable )
+{
+    m_majorTickmarkCount.uiCapability()->enableAutoValue( enable );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::showAnnotationObjectsInProjectTree()
 {
     m_annotations.uiCapability()->setUiTreeChildrenHidden( false );
@@ -664,6 +699,8 @@ void RimPlotAxisProperties::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::updateOverriddenLabelAndReadOnlyState()
 {
+    return;
+
     // Auto Appearance is defined in RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
     QString axisRangeToolTip = "Controlled by Axis Range Control";
 
