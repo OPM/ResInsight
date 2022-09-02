@@ -21,6 +21,7 @@
 
 #include "RiaLogging.h"
 
+#include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
@@ -56,6 +57,8 @@ void RigEclipseWellLogExtractor::calculateIntersection()
     bool isCellFaceNormalsOut = m_caseData->mainGrid()->isFaceNormalsOutwards();
 
     if ( m_wellPathGeometry->wellPathPoints().empty() ) return;
+
+    double tolerance = computeLengthThreshold();
 
     for ( size_t wpp = 0; wpp < m_wellPathGeometry->wellPathPoints().size() - 1; ++wpp )
     {
@@ -99,7 +102,7 @@ void RigEclipseWellLogExtractor::calculateIntersection()
         double md1 = m_wellPathGeometry->measuredDepths()[wpp];
         double md2 = m_wellPathGeometry->measuredDepths()[wpp + 1];
 
-        insertIntersectionsInMap( intersections, p1, md1, p2, md2, &uniqueIntersections );
+        insertIntersectionsInMap( intersections, p1, md1, p2, md2, tolerance, &uniqueIntersections );
     }
 
     if ( uniqueIntersections.empty() && m_wellPathGeometry->wellPathPoints().size() > 1 )
@@ -139,7 +142,8 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                                                       globalCellIndex );
                             RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPathGeometry->measuredDepths().front(),
                                                                      globalCellIndex,
-                                                                     isEntering );
+                                                                     isEntering,
+                                                                     tolerance );
 
                             uniqueIntersections.insert( std::make_pair( enterLeaveKey, info ) );
                         }
@@ -151,7 +155,8 @@ void RigEclipseWellLogExtractor::calculateIntersection()
                             HexIntersectionInfo info( lastPoint, isEntering, cvf::StructGridInterface::NO_FACE, globalCellIndex );
                             RigMDCellIdxEnterLeaveKey enterLeaveKey( m_wellPathGeometry->measuredDepths().back(),
                                                                      globalCellIndex,
-                                                                     isEntering );
+                                                                     isEntering,
+                                                                     tolerance );
 
                             uniqueIntersections.insert( std::make_pair( enterLeaveKey, info ) );
                         }
@@ -207,4 +212,32 @@ cvf::Vec3d RigEclipseWellLogExtractor::calculateLengthInCell( size_t            
     m_caseData->mainGrid()->cellCornerVertices( cellIndex, hexCorners.data() );
 
     return RigWellPathIntersectionTools::calculateLengthInCell( hexCorners, startPoint, endPoint );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+double RigEclipseWellLogExtractor::computeLengthThreshold() const
+{
+    // Default length tolerance for most common grid sizes
+    double tolerance = 0.1;
+
+    // For grids with very thin z-layers, reduce the tolerance to be able to find the intersections
+    // If not, the intersection will be considered as non-valid cell edge intersection and discarded
+    // https://github.com/OPM/ResInsight/issues/9244
+
+    auto gridCellResult =
+        const_cast<RigCaseCellResultsData*>( m_caseData->results( RiaDefines::PorosityModelType::MATRIX_MODEL ) );
+
+    auto resultAdr = RigEclipseResultAddress( RiaDefines::ResultCatType::STATIC_NATIVE, "DZ" );
+    if ( gridCellResult && gridCellResult->hasResultEntry( resultAdr ) )
+    {
+        double averageDZ = 0.1;
+        gridCellResult->meanCellScalarValues( resultAdr, averageDZ );
+
+        const double scaleFactor = 0.05;
+        tolerance                = std::min( tolerance, averageDZ * scaleFactor );
+    }
+
+    return tolerance;
 }

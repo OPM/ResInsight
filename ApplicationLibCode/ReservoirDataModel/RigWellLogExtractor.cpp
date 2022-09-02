@@ -111,6 +111,7 @@ void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexInterse
                                                     double                                  md1,
                                                     cvf::Vec3d                              p2,
                                                     double                                  md2,
+                                                    double                                  tolerance,
                                                     std::map<RigMDCellIdxEnterLeaveKey, HexIntersectionInfo>* uniqueIntersections )
 {
     for ( size_t intIdx = 0; intIdx < intersections.size(); ++intIdx )
@@ -130,11 +131,11 @@ void RigWellLogExtractor::insertIntersectionsInMap( const std::vector<HexInterse
             measuredDepthOfPoint = md1;
         }
 
-        uniqueIntersections->insert(
-            std::make_pair( RigMDCellIdxEnterLeaveKey( measuredDepthOfPoint,
-                                                       intersections[intIdx].m_hexIndex,
-                                                       intersections[intIdx].m_isIntersectionEntering ),
-                            intersections[intIdx] ) );
+        uniqueIntersections->insert( std::make_pair( RigMDCellIdxEnterLeaveKey( measuredDepthOfPoint,
+                                                                                intersections[intIdx].m_hexIndex,
+                                                                                intersections[intIdx].m_isIntersectionEntering,
+                                                                                tolerance ),
+                                                     intersections[intIdx] ) );
     }
 }
 
@@ -156,7 +157,9 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             ++it2;
             if ( it2 != uniqueIntersections.end() )
             {
-                if ( RigWellLogExtractionTools::isEqualDepth( it1->first.measuredDepth, it2->first.measuredDepth ) )
+                if ( RigWellLogExtractionTools::isEqualDepth( it1->first.measuredDepth,
+                                                              it2->first.measuredDepth,
+                                                              it1->first.tolerance ) )
                 {
                     if ( it1->first.hexIndex == it2->first.hexIndex )
                     {
@@ -187,7 +190,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
         {
             sortedUniqueIntersections.insert( std::make_pair( RigMDEnterLeaveCellIdxKey( it->first.measuredDepth,
                                                                                          it->first.isEnteringCell,
-                                                                                         it->first.hexIndex ),
+                                                                                         it->first.hexIndex,
+                                                                                         it->first.tolerance ),
                                                               it->second ) );
             ++it;
         }
@@ -210,7 +214,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             sortedUniqueIntersections.insert(
                 std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPathGeometry->measuredDepths()[0],
                                                            true,
-                                                           firstLeavingPoint.m_hexIndex ),
+                                                           firstLeavingPoint.m_hexIndex,
+                                                           it->first.tolerance ),
                                 firstLeavingPoint ) );
         }
 
@@ -230,7 +235,8 @@ void RigWellLogExtractor::populateReturnArrays( std::map<RigMDCellIdxEnterLeaveK
             sortedUniqueIntersections.insert(
                 std::make_pair( RigMDEnterLeaveCellIdxKey( m_wellPathGeometry->measuredDepths().back(),
                                                            false,
-                                                           lastEnterPoint.m_hexIndex ),
+                                                           lastEnterPoint.m_hexIndex,
+                                                           rit->first.tolerance ),
                                 lastEnterPoint ) );
         }
     }

@@ -30,7 +30,7 @@
 
 struct RigWellLogExtractionTools
 {
-    static bool isEqualDepth( double d1, double d2, const double tolerance = 0.1 )
+    static bool isEqualDepth( double d1, double d2, const double tolerance )
     {
         double depthDiff = d1 - d2;
 
@@ -46,10 +46,11 @@ struct RigWellLogExtractionTools
 
 struct RigMDCellIdxEnterLeaveKey
 {
-    RigMDCellIdxEnterLeaveKey( double md, size_t cellIdx, bool entering )
+    RigMDCellIdxEnterLeaveKey( double md, size_t cellIdx, bool entering, double tolerance )
         : measuredDepth( md )
         , hexIndex( cellIdx )
         , isEnteringCell( entering )
+        , tolerance( tolerance )
     {
     }
 
@@ -57,10 +58,11 @@ struct RigMDCellIdxEnterLeaveKey
     size_t hexIndex;
     bool   isEnteringCell; // As opposed to leaving.
     bool   isLeavingCell() const { return !isEnteringCell; }
+    double tolerance;
 
     bool operator<( const RigMDCellIdxEnterLeaveKey& other ) const
     {
-        if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, other.measuredDepth ) )
+        if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, other.measuredDepth, tolerance ) )
         {
             if ( hexIndex == other.hexIndex )
             {
@@ -90,10 +92,11 @@ struct RigMDCellIdxEnterLeaveKey
 
 struct RigMDEnterLeaveCellIdxKey
 {
-    RigMDEnterLeaveCellIdxKey( double md, bool entering, size_t cellIdx )
+    RigMDEnterLeaveCellIdxKey( double md, bool entering, size_t cellIdx, double tolerance )
         : measuredDepth( md )
         , isEnteringCell( entering )
         , hexIndex( cellIdx )
+        , tolerance( tolerance )
     {
     }
 
@@ -101,10 +104,11 @@ struct RigMDEnterLeaveCellIdxKey
     bool   isEnteringCell; // As opposed to leaving.
     bool   isLeavingCell() const { return !isEnteringCell; }
     size_t hexIndex;
+    double tolerance;
 
     bool operator<( const RigMDEnterLeaveCellIdxKey& other ) const
     {
-        if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, other.measuredDepth ) )
+        if ( RigWellLogExtractionTools::isEqualDepth( measuredDepth, other.measuredDepth, tolerance ) )
         {
             if ( isEnteringCell == other.isEnteringCell )
             {
@@ -128,6 +132,6 @@ struct RigMDEnterLeaveCellIdxKey
     static bool isProperCellEnterLeavePair( const RigMDEnterLeaveCellIdxKey& key1, const RigMDEnterLeaveCellIdxKey& key2 )
     {
         return ( key1.hexIndex == key2.hexIndex && key1.isEnteringCell && key2.isLeavingCell() &&
-                 !RigWellLogExtractionTools::isEqualDepth( key1.measuredDepth, key2.measuredDepth ) );
+                 !RigWellLogExtractionTools::isEqualDepth( key1.measuredDepth, key2.measuredDepth, key1.tolerance ) );
     }
 };

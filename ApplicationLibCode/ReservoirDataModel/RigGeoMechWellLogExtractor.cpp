@@ -1025,7 +1025,8 @@ void RigGeoMechWellLogExtractor::calculateIntersection()
         double md1 = m_wellPathGeometry->measuredDepths()[wpp];
         double md2 = m_wellPathGeometry->measuredDepths()[wpp + 1];
 
-        insertIntersectionsInMap( intersections, p1, md1, p2, md2, &uniqueIntersections );
+        const double tolerance = 0.1;
+        insertIntersectionsInMap( intersections, p1, md1, p2, md2, tolerance, &uniqueIntersections );
     }
 
     this->populateReturnArrays( uniqueIntersections );
