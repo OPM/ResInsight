@@ -158,7 +158,8 @@ QVariant PdmFieldUiCap<FieldType>::uiValue() const
 
         if ( indexesToFoundOptions.size() == 1 ) return QVariant( indexesToFoundOptions.front() );
 
-        return QVariant( -1 ); // Return -1 if not found instead of assert. Should result in clearing the selection
+        // Return -1 if not found, expected result in clearing the selection
+        return QVariant( -1 );
     }
     else
     {
@@ -211,7 +212,7 @@ QList<PdmOptionItemInfo> PdmFieldUiCap<FieldType>::valueOptions() const
                                                                                                      foundIndexes );
 
         // If not all are found, we have to add the missing to the list, to be able to show it
-        // This will only work if the field data type (or elemnt type for containers) is supported by
+        // This will only work if the field data type (or element type for containers) is supported by
         // QVariant.toString(). Custom classes don't
 
         if ( !foundAllFieldValues )

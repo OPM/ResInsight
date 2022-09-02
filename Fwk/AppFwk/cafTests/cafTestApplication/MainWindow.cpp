@@ -1117,6 +1117,31 @@ protected:
             caf::PdmUiTableView::addActionsToMenu(menu, &m_objectListOfSameType);
         }
     }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override
+    {
+        if (field == &m_applyAutoOnChildObjectFields)
+        {
+            auto* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->m_buttonText = "Apply Auto Values";
+            }
+        }
+        if (field == &m_updateAutoValues)
+        {
+            auto* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->m_buttonText = "Update Auto Values";
+            }
+        }
+    }
 };
 
 CAF_PDM_SOURCE_INIT(DemoPdmObject, "DemoPdmObject");

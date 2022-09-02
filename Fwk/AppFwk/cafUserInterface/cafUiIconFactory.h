@@ -45,17 +45,21 @@ public:
     static const QIcon stepDownIcon();
     static const QIcon stepUpIcon();
 
-    static const QIcon createChainIcon();
-    static const QIcon createBrokenChainIcon();
-    static const QIcon createWhiteChainIcon();
-    static const QIcon createWhiteBrokenChainIcon();
+    static const QIcon createTwoStateChainIcon();
+    static const QIcon createTwoStateWhiteChainIcon();
 
 private:
     static int iconWidth();
     static int iconHeight();
 
-    static const QIcon createIcon( const unsigned char* data, unsigned int width, unsigned int height );
-    static const QIcon createSvgIcon( const char* data, unsigned int width, unsigned int height );
+    static const QIcon createTwoStateIcon( const char*  onStateSvgData,
+                                           const char*  offStateSvgData,
+                                           unsigned int width,
+                                           unsigned int height );
+
+    static const QIcon   createIcon( const unsigned char* data, unsigned int width, unsigned int height );
+    static const QIcon   createSvgIcon( const char* data, unsigned int width, unsigned int height );
+    static const QPixmap createPixmap( const char* svgData, unsigned int width, unsigned int height );
 };
 
 } // namespace caf

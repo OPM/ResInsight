@@ -246,10 +246,12 @@ const QIcon UiIconFactory::stepDownIcon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QIcon UiIconFactory::createChainIcon()
+const QIcon UiIconFactory::createTwoStateChainIcon()
 {
-    static QIcon icon(
-        UiIconFactory::createSvgIcon( linked_svg_data, UiIconFactory::iconWidth(), UiIconFactory::iconHeight() ) );
+    static QIcon icon( UiIconFactory::createTwoStateIcon( linked_svg_data,
+                                                          unlinked_svg_data,
+                                                          UiIconFactory::iconWidth(),
+                                                          UiIconFactory::iconHeight() ) );
 
     return icon;
 }
@@ -257,32 +259,12 @@ const QIcon UiIconFactory::createChainIcon()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-const QIcon UiIconFactory::createBrokenChainIcon()
+const QIcon UiIconFactory::createTwoStateWhiteChainIcon()
 {
-    static QIcon icon(
-        UiIconFactory::createSvgIcon( unlinked_svg_data, UiIconFactory::iconWidth(), UiIconFactory::iconHeight() ) );
-
-    return icon;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QIcon UiIconFactory::createWhiteChainIcon()
-{
-    static QIcon icon(
-        UiIconFactory::createSvgIcon( linked_white_svg_data, UiIconFactory::iconWidth(), UiIconFactory::iconHeight() ) );
-
-    return icon;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-const QIcon UiIconFactory::createWhiteBrokenChainIcon()
-{
-    static QIcon icon(
-        UiIconFactory::createSvgIcon( unlinked_white_svg_data, UiIconFactory::iconWidth(), UiIconFactory::iconHeight() ) );
+    static QIcon icon( UiIconFactory::createTwoStateIcon( linked_white_svg_data,
+                                                          unlinked_white_svg_data,
+                                                          UiIconFactory::iconWidth(),
+                                                          UiIconFactory::iconHeight() ) );
 
     return icon;
 }
@@ -306,6 +288,24 @@ int UiIconFactory::iconHeight()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+const QIcon UiIconFactory::createTwoStateIcon( const char*  onStateSvgData,
+                                               const char*  offStateSvgData,
+                                               unsigned int width,
+                                               unsigned int height )
+{
+    auto onStatePixmap  = UiIconFactory::createPixmap( onStateSvgData, width, height );
+    auto offStatePixmap = UiIconFactory::createPixmap( offStateSvgData, width, height );
+
+    QIcon icon;
+    icon.addPixmap( onStatePixmap, QIcon::Normal, QIcon::On );
+    icon.addPixmap( offStatePixmap, QIcon::Normal, QIcon::Off );
+
+    return icon;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 const QIcon UiIconFactory::createIcon( const unsigned char* data, unsigned int width, unsigned int height )
 {
     QImage  img( data, width, height, QImage::Format_ARGB32 );
@@ -320,7 +320,17 @@ const QIcon UiIconFactory::createIcon( const unsigned char* data, unsigned int w
 //--------------------------------------------------------------------------------------------------
 const QIcon UiIconFactory::createSvgIcon( const char* data, unsigned int width, unsigned int height )
 {
-    auto svg = QSvgRenderer( QByteArray( data ) );
+    QPixmap pxMap = createPixmap( data, width, height );
+
+    return QIcon( pxMap );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const QPixmap UiIconFactory::createPixmap( const char* svgData, unsigned int width, unsigned int height )
+{
+    auto svg = QSvgRenderer( QByteArray( svgData ) );
 
     auto qim = QImage( width, height, QImage::Format_ARGB32 );
 
@@ -334,7 +344,7 @@ const QIcon UiIconFactory::createSvgIcon( const char* data, unsigned int width, 
     QPixmap pxMap;
     pxMap = QPixmap::fromImage( qim );
 
-    return QIcon( pxMap );
+    return pxMap;
 }
 
 } // namespace caf

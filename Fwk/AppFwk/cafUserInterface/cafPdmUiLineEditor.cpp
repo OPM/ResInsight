@@ -152,21 +152,8 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
 
             if ( uiField()->isAutoValueSupported() )
             {
-                auto letterAIcon = UiIconFactory::letterAIcon();
-
-                QString borderColor    = "dark-gray";
-                QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
-
-                /*
-                                m_autoValueToolButton->setStyleSheet(
-                                    QString( "QToolButton {border: 2px; border-radius: 6px; background-color:
-                   %1;}QToolButton:checked "
-                                             "{border: 1px solid %2;}" )
-                                        .arg( highlightColor )
-                                        .arg( borderColor ) );
-                */
-
-                m_autoValueToolButton->setIcon( letterAIcon );
+                auto icon = UiIconFactory::createTwoStateChainIcon();
+                m_autoValueToolButton->setIcon( icon );
 
                 m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
                 m_layout->insertWidget( 1, m_autoValueToolButton );

@@ -275,17 +275,8 @@ void PdmUiComboBoxEditor::configureAndUpdateUi( const QString& uiConfigName )
 
     if ( uiField()->isAutoValueSupported() )
     {
-        auto letterAIcon = UiIconFactory::letterAIcon();
-        m_autoValueToolButton->setIcon( letterAIcon );
-
-        QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
-        QString borderColor    = "dark-gray";
-
-        m_autoValueToolButton->setStyleSheet(
-            QString( "QToolButton {border: 2px; border-radius: 6px; background-color: %1;}QToolButton:checked "
-                     "{border: 1px solid %2;}" )
-                .arg( highlightColor )
-                .arg( borderColor ) );
+        auto icon = UiIconFactory::createTwoStateChainIcon();
+        m_autoValueToolButton->setIcon( icon );
 
         m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
         m_layout->insertWidget( 3, m_autoValueToolButton );
