@@ -38,7 +38,7 @@ class RigEclipseWellLogExtractor : public RigWellLogExtractor
 public:
     RigEclipseWellLogExtractor( gsl::not_null<const RigEclipseCaseData*> aCase,
                                 gsl::not_null<const RigWellPath*>        wellpath,
-                                const std::string&        wellCaseErrorMsgName );
+                                const std::string&                       wellCaseErrorMsgName );
 
     void                      curveData( const RigResultAccessor* resultAccessor, std::vector<double>* values );
     const RigEclipseCaseData* caseData() { return m_caseData.p(); }
@@ -49,5 +49,8 @@ private:
     cvf::Vec3d
         calculateLengthInCell( size_t cellIndex, const cvf::Vec3d& startPoint, const cvf::Vec3d& endPoint ) const override;
 
+    double computeLengthThreshold() const;
+
+private:
     cvf::cref<RigEclipseCaseData> m_caseData;
 };
