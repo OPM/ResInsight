@@ -156,7 +156,7 @@ static const struct
 
 // clang-format off
 
-static char* linked_svg_data = R"(
+static const char* linked_svg_data = R"(
 
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 48 48" style="enable-background:new 0 0 48 48;" xml:space="preserve">
@@ -168,7 +168,7 @@ static char* linked_svg_data = R"(
 
 )";
 
-static char* linked_white_svg_data = R"(
+static const char* linked_white_svg_data = R"(
 
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 48 48" style="enable-background:new 0 0 48 48;" xml:space="preserve">
@@ -183,7 +183,7 @@ static char* linked_white_svg_data = R"(
 
 )";
 
-static char* unlinked_svg_data= R"(
+static const char* unlinked_svg_data= R"(
 
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 48 48" style="enable-background:new 0 0 48 48;" xml:space="preserve">
@@ -201,7 +201,7 @@ static char* unlinked_svg_data= R"(
 )";
 
 
-static char* unlinked_white_svg_data = R"(
+static const char* unlinked_white_svg_data = R"(
 
 <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 viewBox="0 0 48 48" style="enable-background:new 0 0 48 48;" xml:space="preserve">
