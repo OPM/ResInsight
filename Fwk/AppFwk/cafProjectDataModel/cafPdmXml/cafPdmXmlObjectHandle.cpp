@@ -57,22 +57,24 @@ void PdmXmlObjectHandle::readFields( QXmlStreamReader& xmlStream, PdmObjectFacto
                 PdmFieldHandle* fieldHandle = m_owner->findField( name );
                 if ( fieldHandle && fieldHandle->xmlCapability() )
                 {
-                    PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
-
-                    for ( auto capability : fieldHandle->capabilities() )
+                    auto xmlAttributes = xmlStream.attributes();
+                    if ( !xmlAttributes.isEmpty() )
                     {
                         std::vector<std::pair<QString, QString>> fieldAttributes;
 
-                        auto xmlAttributes = xmlStream.attributes();
                         for ( const auto& xmlAttr : xmlAttributes )
                         {
                             fieldAttributes.emplace_back( xmlAttr.name().toString(), xmlAttr.value().toString() );
                         }
 
-                        if ( !fieldAttributes.empty() ) capability->setAttributes( fieldAttributes );
+                        for ( auto capability : fieldHandle->capabilities() )
+                        {
+                            capability->setAttributes( fieldAttributes );
+                        }
                     }
 
-                    bool readable = xmlFieldHandle->isIOReadable();
+                    PdmXmlFieldHandle* xmlFieldHandle = fieldHandle->xmlCapability();
+                    bool               readable       = xmlFieldHandle->isIOReadable();
                     if ( isCopyOperation && !xmlFieldHandle->isCopyable() )
                     {
                         readable = false;
