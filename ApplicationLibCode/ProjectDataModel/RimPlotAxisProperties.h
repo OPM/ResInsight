@@ -119,6 +119,7 @@ public:
     void setAutoValueVisibleRangeMax( double value );
     void setVisibleRangeMin( double value ) override;
     void setVisibleRangeMax( double value ) override;
+    void setAutoZoomIfNoCustomRangeIsSet();
 
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;

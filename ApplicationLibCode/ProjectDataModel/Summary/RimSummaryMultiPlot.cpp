@@ -823,8 +823,16 @@ void RimSummaryMultiPlot::syncAxisRanges()
         return;
     }
 
-    // Reset zoom to make sure the complete range for min/max is available
-    RimMultiPlot::zoomAllYAxes();
+    // Reset zoom for axes with no custom range set to make sure the complete range for min/max is available
+
+    for ( auto p : summaryPlots() )
+    {
+        for ( auto ax : p->plotYAxes() )
+        {
+            ax->setAutoZoomIfNoCustomRangeIsSet();
+        }
+    }
+    updateZoom();
 
     if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
     {

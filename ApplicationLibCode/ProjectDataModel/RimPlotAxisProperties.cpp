@@ -628,6 +628,17 @@ void RimPlotAxisProperties::setVisibleRangeMax( double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setAutoZoomIfNoCustomRangeIsSet()
+{
+    if ( !m_visibleRangeMax.uiCapability()->isAutoValueEnabled() ) return;
+    if ( !m_visibleRangeMin.uiCapability()->isAutoValueEnabled() ) return;
+
+    setAutoZoom( true );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimPlotAxisPropertiesInterface::LegendTickmarkCount RimPlotAxisProperties::majorTickmarkCount() const
 {
     return m_majorTickmarkCount();
