@@ -658,7 +658,7 @@ class SmallDemoPdmObjectA : public caf::PdmObject
 public:
     enum class TestEnumType
     {
-        T1,
+        T1 = 10,
         T2,
         T3
     };
