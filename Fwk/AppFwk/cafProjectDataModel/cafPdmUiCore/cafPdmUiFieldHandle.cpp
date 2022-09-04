@@ -142,7 +142,7 @@ void PdmUiFieldHandle::setAutoValue( const QVariant& autoValue )
 
     if ( m_useAutoValue )
     {
-        setValueFromUiEditor( m_autoValue, false );
+        setValueFromUiEditor( m_autoValue, true );
         updateConnectedEditors();
     }
 }
@@ -164,7 +164,7 @@ void PdmUiFieldHandle::enableAutoValue( bool enable )
 
     if ( m_useAutoValue )
     {
-        setValueFromUiEditor( m_autoValue, false );
+        setValueFromUiEditor( m_autoValue, true );
         updateConnectedEditors();
     }
 }
