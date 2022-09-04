@@ -813,6 +813,13 @@ void RimSummaryMultiPlot::syncAxisRanges()
 {
     if ( m_axisRangeAggregation() == AxisRangeAggregation::NONE )
     {
+        for ( auto plot : summaryPlots() )
+        {
+            for ( auto axis : plot->plotYAxes() )
+            {
+                axis->setMinMaxOverridden( false );
+            }
+        }
         return;
     }
 
@@ -853,8 +860,8 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
                 axis->setAutoZoom( false );
-                axis->setVisibleRangeMin( minVal );
-                axis->setVisibleRangeMax( maxVal );
+                axis->setAutoValueVisibleRangeMin( minVal );
+                axis->setAutoValueVisibleRangeMax( maxVal );
             }
 
             plot->updateAxes();
@@ -1099,8 +1106,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     scaleEngine.autoScale( maxMajorTickIntervalCount, minVal, maxVal, stepSize );
                 }
 
-                axis->setVisibleRangeMin( minVal );
-                axis->setVisibleRangeMax( maxVal );
+                axis->setAutoValueVisibleRangeMin( minVal );
+                axis->setAutoValueVisibleRangeMax( maxVal );
             }
         }
 
@@ -1375,8 +1382,8 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
 
                 // NOTE: If summary cross plots should be handled here, we also need to call
                 // curve->setSummaryCaseX( newCase );
-                // Setting summaryCaseX with a default uninitialized summary address causes issues for the summary name
-                // analyzer
+                // Setting summaryCaseX with a default uninitialized summary address causes issues for the summary
+                // name analyzer
             }
         }
         else if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )

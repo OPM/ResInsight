@@ -586,7 +586,25 @@ double RimPlotAxisProperties::visibleRangeMax() const
 //--------------------------------------------------------------------------------------------------
 void RimPlotAxisProperties::setMinMaxOverridden( bool isOverridden )
 {
+    m_visibleRangeMin.uiCapability()->enableAutoValue( isOverridden );
+    m_visibleRangeMax.uiCapability()->enableAutoValue( isOverridden );
     m_isMinMaxOverridden = isOverridden;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setAutoValueVisibleRangeMin( double value )
+{
+    m_visibleRangeMin.uiCapability()->setAutoValue( value );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisProperties::setAutoValueVisibleRangeMax( double value )
+{
+    m_visibleRangeMax.uiCapability()->setAutoValue( value );
 }
 
 //--------------------------------------------------------------------------------------------------
