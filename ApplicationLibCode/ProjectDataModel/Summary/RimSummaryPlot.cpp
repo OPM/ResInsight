@@ -1738,6 +1738,18 @@ void RimSummaryPlot::updateZoomFromParentPlot()
         auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
         if ( axisProperties->isAxisInverted() ) std::swap( axisMin, axisMax );
 
+        auto propetyAxis = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
+
+        if ( propetyAxis )
+        {
+            propetyAxis->setAutoValueVisibleRangeMax( axisMax );
+            propetyAxis->setAutoValueVisibleRangeMin( axisMin );
+        }
+        else
+        {
+            axisProperties->setVisibleRangeMax( axisMax );
+            axisProperties->setVisibleRangeMin( axisMin );
+        }
         axisProperties->setVisibleRangeMax( axisMax );
         axisProperties->setVisibleRangeMin( axisMin );
         axisProperties->updateConnectedEditors();

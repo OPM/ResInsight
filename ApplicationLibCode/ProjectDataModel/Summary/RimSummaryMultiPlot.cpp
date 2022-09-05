@@ -453,9 +453,8 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation ||
               changedField == &m_linkTimeAxis )
     {
-        syncAxisRanges();
-
         setOverriddenFlag();
+        syncAxisRanges();
     }
     else if ( changedField == &m_hidePlotsWithValuesBelow )
     {
@@ -731,6 +730,8 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::zoomAll()
 {
+    setOverriddenFlag();
+
     // Reset zoom to make sure the complete range for min/max is available
     RimMultiPlot::zoomAll();
 
@@ -811,17 +812,6 @@ void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
-    bool enableAutoValueSupport = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
-    {
-        for ( auto plot : summaryPlots() )
-        {
-            for ( auto axis : plot->plotYAxes() )
-            {
-                axis->setMinMaxOverridden( enableAutoValueSupport );
-            }
-        }
-    }
-
     if ( m_axisRangeAggregation() == AxisRangeAggregation::NONE )
     {
         return;
