@@ -37,7 +37,7 @@
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureContainmentTools.h"
-#include "RimStimPlanFractureTemplate.h"
+#include "RimMeshFractureTemplate.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -187,7 +187,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedWidth() const
         width = ellipseFractureTemplate->width();
     }
 
-    auto stimPlanFractureTemplate = dynamic_cast<const RimStimPlanFractureTemplate*>( m_fracture->fractureTemplate() );
+    auto stimPlanFractureTemplate = dynamic_cast<const RimMeshFractureTemplate*>( m_fracture->fractureTemplate() );
     if ( stimPlanFractureTemplate )
     {
         auto widthValues = stimPlanFractureTemplate->widthResultValues();
@@ -202,7 +202,10 @@ double RigEclipseToStimPlanCalculator::areaWeightedWidth() const
                 size_t globalStimPlanCellIndex = singleCellCalc.first;
                 double widthValue              = widthValues[globalStimPlanCellIndex];
 
-                calc.addValueAndWeight( widthValue, cellArea );
+                if ( !std::isinf( widthValue ) && !std::isnan( widthValue ) )
+                {
+                    calc.addValueAndWeight( widthValue, cellArea );
+                }
             }
 
             width = calc.weightedMean();
@@ -227,7 +230,11 @@ double RigEclipseToStimPlanCalculator::areaWeightedConductivity() const
     {
         double cellArea = singleCellCalc.second.areaOpenForFlow();
 
-        calc.addValueAndWeight( singleCellCalc.second.fractureCell().getConductivityValue(), cellArea );
+        double conductivity = singleCellCalc.second.fractureCell().getConductivityValue();
+        if ( !std::isinf( conductivity ) && !std::isnan( conductivity ) )
+        {
+            calc.addValueAndWeight( conductivity, cellArea );
+        }
     }
 
     return calc.validAggregatedWeight() ? calc.weightedMean() : 0.0;
