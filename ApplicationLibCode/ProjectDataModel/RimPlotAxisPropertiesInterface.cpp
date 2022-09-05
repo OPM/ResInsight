@@ -53,9 +53,6 @@ RimPlotAxisPropertiesInterface::RimPlotAxisPropertiesInterface()
     : settingsChanged( this )
 {
     CAF_PDM_InitObject( "Plot Axis Properties Interface" );
-
-    CAF_PDM_InitField( &m_isAppearanceOverridden, "IsAppearanceOverridden", false, "IsAppearanceOverridden" );
-    m_isAppearanceOverridden.uiCapability()->setUiHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -72,14 +69,6 @@ bool RimPlotAxisPropertiesInterface::isAxisInverted() const
 bool RimPlotAxisPropertiesInterface::isLogarithmicScaleEnabled() const
 {
     return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotAxisPropertiesInterface::setAppearanceOverridden( bool isOverridden )
-{
-    m_isAppearanceOverridden = isOverridden;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -108,12 +97,4 @@ int RimPlotAxisPropertiesInterface::tickmarkCountFromEnum( LegendTickmarkCount c
     }
 
     return maxTickmarkCount;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimPlotAxisPropertiesInterface::isAppearanceOverridden() const
-{
-    return m_isAppearanceOverridden();
 }

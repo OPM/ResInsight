@@ -1738,8 +1738,19 @@ void RimSummaryPlot::updateZoomFromParentPlot()
         auto [axisMin, axisMax] = plotWidget()->axisRange( axisProperties->plotAxisType() );
         if ( axisProperties->isAxisInverted() ) std::swap( axisMin, axisMax );
 
-        axisProperties->setVisibleRangeMax( axisMax );
-        axisProperties->setVisibleRangeMin( axisMin );
+        auto propertyAxis = dynamic_cast<RimPlotAxisProperties*>( axisProperties );
+
+        if ( propertyAxis )
+        {
+            propertyAxis->setAutoValueVisibleRangeMax( axisMax );
+            propertyAxis->setAutoValueVisibleRangeMin( axisMin );
+        }
+        else
+        {
+            axisProperties->setVisibleRangeMax( axisMax );
+            axisProperties->setVisibleRangeMin( axisMin );
+        }
+
         axisProperties->updateConnectedEditors();
     }
 }
@@ -2849,12 +2860,13 @@ std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotAxes() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotAxisPropertiesInterface*> RimSummaryPlot::plotYAxes() const
+std::vector<RimPlotAxisProperties*> RimSummaryPlot::plotYAxes() const
 {
-    std::vector<RimPlotAxisPropertiesInterface*> axisProps;
+    std::vector<RimPlotAxisProperties*> axisProps;
     for ( const auto& ap : m_axisProperties )
     {
-        if ( RiaDefines::isVertical( ap->plotAxisType().axis() ) ) axisProps.push_back( ap );
+        auto plotAxisProp = dynamic_cast<RimPlotAxisProperties*>( ap.p() );
+        if ( plotAxisProp ) axisProps.push_back( plotAxisProp );
     }
 
     return axisProps;

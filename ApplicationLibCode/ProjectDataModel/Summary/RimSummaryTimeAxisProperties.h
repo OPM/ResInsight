@@ -106,6 +106,8 @@ public:
 
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
+    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count );
+    void                enableAutoValueForMajorTickmarkCount( bool enable );
 
     const QString objectName() const override;
     const QString axisTitleText() const override;

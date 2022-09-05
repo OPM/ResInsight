@@ -97,7 +97,8 @@ public:
     double           scaleFactor() const;
 
     void setVisible( bool visible );
-    void computeAndSetScaleFactor();
+    void enableAutoValueForScaleFactor( bool enable );
+    void computeAndSetAutoValueForScaleFactor();
 
     bool isDeletable() const override;
 
@@ -113,12 +114,17 @@ public:
     double visibleRangeMin() const override;
     double visibleRangeMax() const override;
 
-    void setMinMaxOverridden( bool isOverridden );
+    void enableAutoValueMinMax( bool enable );
+    void setAutoValueVisibleRangeMin( double value );
+    void setAutoValueVisibleRangeMax( double value );
     void setVisibleRangeMin( double value ) override;
     void setVisibleRangeMax( double value ) override;
+    void setAutoZoomIfNoCustomRangeIsSet();
 
     LegendTickmarkCount majorTickmarkCount() const override;
     void                setMajorTickmarkCount( LegendTickmarkCount count ) override;
+    void                setAutoValueForMajorTickmarkCount( LegendTickmarkCount count );
+    void                enableAutoValueForMajorTickmarkCount( bool enable );
 
 protected:
     void                 initAfterRead() override;
@@ -131,14 +137,11 @@ protected:
 
 private:
     void                     updateOptionSensitivity();
-    void                     updateOverriddenLabelAndReadOnlyState();
     caf::FontTools::FontSize plotFontSize() const;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     caf::PdmField<bool> m_isActive;
-
-    caf::PdmField<bool> m_isMinMaxOverridden;
 
     caf::PdmField<bool> isAutoTitle;
     caf::PdmField<bool> m_displayShortName;

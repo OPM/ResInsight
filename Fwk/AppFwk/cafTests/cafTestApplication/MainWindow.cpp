@@ -656,9 +656,9 @@ class SmallDemoPdmObjectA : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum TestEnumType
+    enum class TestEnumType
     {
-        T1,
+        T1 = 10,
         T2,
         T3
     };
@@ -687,13 +687,14 @@ public:
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
         CAF_PDM_InitField(&m_textField, "TextField", QString("Small Demo Object A"), "Name Text Field", "", "", "");
-        CAF_PDM_InitField(&m_testEnumField, "TestEnumValue", caf::AppEnum<TestEnumType>(T1), "EnumField", "", "", "");
+        CAF_PDM_InitField(
+            &m_testEnumField, "TestEnumValue", caf::AppEnum<TestEnumType>(TestEnumType::T1), "EnumField", "", "", "");
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "", "");
 
         CAF_PDM_InitFieldNoDefault(&m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "");
         m_proxyEnumField.registerSetMethod(this, &SmallDemoPdmObjectA::setEnumMember);
         m_proxyEnumField.registerGetMethod(this, &SmallDemoPdmObjectA::enumMember);
-        m_proxyEnumMember = T2;
+        m_proxyEnumMember = TestEnumType::T2;
 
         CAF_PDM_InitFieldNoDefault(&m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "");
         m_multipleAppEnum.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
@@ -739,7 +740,7 @@ public:
         }
         else if (changedField == &m_highlightedEnum)
         {
-            std::cout << "Highlight value " << m_highlightedEnum() << std::endl;
+            std::cout << "Highlight value " << m_highlightedEnum().uiText().toStdString() << std::endl;
         }
         else if (changedField == &m_pushButtonField)
         {
@@ -803,7 +804,11 @@ public:
 
     void enableAutoValueForTestEnum(TestEnumType value)
     {
-        m_testEnumField.uiCapability()->enableAndSetAutoValue(value);
+        // Convert to integer value as this is used when communicating enum from UI to field enum value
+        // See PdmUiFieldSpecialization<caf::AppEnum<T>>
+        auto enumValue = static_cast<std::underlying_type_t<TestEnumType>>(value);
+
+        m_testEnumField.uiCapability()->enableAndSetAutoValue(enumValue);
     }
 
     void enableAutoValueForDouble(double value)
@@ -818,7 +823,11 @@ public:
 
     void setAutoValueForTestEnum(TestEnumType value)
     {
-        m_testEnumField.uiCapability()->setAutoValue(value);
+        // Convert to integer value as this is used when communicating enum from UI to field enum value
+        // See PdmUiFieldSpecialization<caf::AppEnum<T>>
+        auto enumValue = static_cast<std::underlying_type_t<TestEnumType>>(value);
+
+        m_testEnumField.uiCapability()->setAutoValue(enumValue);
     }
 
     void setAutoValueForDouble(double value)
@@ -879,10 +888,10 @@ namespace caf
 template<>
 void AppEnum<SmallDemoPdmObjectA::TestEnumType>::setUp()
 {
-    addItem(SmallDemoPdmObjectA::T1, "T1", "An A letter");
-    addItem(SmallDemoPdmObjectA::T2, "T2", "A B letter");
-    addItem(SmallDemoPdmObjectA::T3, "T3", "A B C letter");
-    setDefault(SmallDemoPdmObjectA::T1);
+    addItem(SmallDemoPdmObjectA::TestEnumType::T1, "T1", "An A letter");
+    addItem(SmallDemoPdmObjectA::TestEnumType::T2, "T2", "A B letter");
+    addItem(SmallDemoPdmObjectA::TestEnumType::T3, "T3", "A B C letter");
+    setDefault(SmallDemoPdmObjectA::TestEnumType::T1);
 }
 
 } // namespace caf

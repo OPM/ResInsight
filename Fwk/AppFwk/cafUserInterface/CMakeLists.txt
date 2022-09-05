@@ -53,8 +53,6 @@ set(MOC_HEADER_FILES
     cafPdmDoubleStringValidator.h
     cafPdmUiPickableLineEditor.h
     cafPdmUiLabelEditor.h
-    cafUiAppearanceSettings.h
-    cafUiIconFactory.h
 )
 
 find_package(
