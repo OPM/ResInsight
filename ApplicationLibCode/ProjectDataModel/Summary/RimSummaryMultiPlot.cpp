@@ -492,8 +492,8 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_autoAdjustAppearance )
     {
-        checkAndApplyAutoAppearance();
         setOverriddenFlag();
+        checkAndApplyAutoAppearance();
     }
     else
     {
@@ -800,22 +800,6 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 {
-    for ( auto p : summaryPlots() )
-    {
-        auto timeAxisProp = p->timeAxisProperties();
-        timeAxisProp->enableAutoValueForMajorTickmarkCount( m_autoAdjustAppearance );
-
-        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotYAxes() )
-        {
-            auto axisProp = dynamic_cast<RimPlotAxisProperties*>( axisInterface );
-
-            if ( !axisProp ) continue;
-
-            axisProp->enableAutoValueForMajorTickmarkCount( m_autoAdjustAppearance );
-            axisProp->enableAutoValueForScaleFactor( m_autoAdjustAppearance );
-        }
-    }
-
     if ( m_autoAdjustAppearance )
     {
         analyzePlotsAndAdjustAppearanceSettings();
@@ -1177,16 +1161,17 @@ void RimSummaryMultiPlot::setOverriddenFlag()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot,
-                                                     bool            isMinMaxOverridden,
-                                                     bool            isAppearanceOverridden )
+                                                     bool            enableAutoValueMinMax,
+                                                     bool            enableAutoValueAppearance )
 {
-    for ( auto plotAxis : summaryPlot->plotAxes() )
+    auto timeAxisProp = summaryPlot->timeAxisProperties();
+    if ( timeAxisProp ) timeAxisProp->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
+
+    for ( auto plotAxis : summaryPlot->plotYAxes() )
     {
-        auto plotAxProp = dynamic_cast<RimPlotAxisProperties*>( plotAxis );
-        if ( plotAxProp )
-        {
-            plotAxProp->setMinMaxOverridden( isMinMaxOverridden );
-        }
+        plotAxis->enableAutoValueMinMax( enableAutoValueMinMax );
+        plotAxis->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
+        plotAxis->enableAutoValueForScaleFactor( enableAutoValueAppearance );
     }
 }
 

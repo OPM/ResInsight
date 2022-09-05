@@ -114,7 +114,7 @@ public:
     double visibleRangeMin() const override;
     double visibleRangeMax() const override;
 
-    void setMinMaxOverridden( bool isOverridden );
+    void enableAutoValueMinMax( bool enable );
     void setAutoValueVisibleRangeMin( double value );
     void setAutoValueVisibleRangeMax( double value );
     void setVisibleRangeMin( double value ) override;
