@@ -174,6 +174,8 @@ void PdmUiFieldHandle::enableAutoValue( bool enable )
 //--------------------------------------------------------------------------------------------------
 bool PdmUiFieldHandle::isAutoValueEnabled() const
 {
+    if ( !m_isAutoValueSupported ) return false;
+
     return m_useAutoValue;
 }
 

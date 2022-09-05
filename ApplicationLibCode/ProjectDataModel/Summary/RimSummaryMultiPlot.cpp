@@ -811,15 +811,19 @@ void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
-    if ( m_axisRangeAggregation() == AxisRangeAggregation::NONE )
+    bool enableAutoValueSupport = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
     {
         for ( auto plot : summaryPlots() )
         {
             for ( auto axis : plot->plotYAxes() )
             {
-                axis->setMinMaxOverridden( false );
+                axis->setMinMaxOverridden( enableAutoValueSupport );
             }
         }
+    }
+
+    if ( m_axisRangeAggregation() == AxisRangeAggregation::NONE )
+    {
         return;
     }
 
