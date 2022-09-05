@@ -86,10 +86,4 @@ public:
     virtual AxisTitlePositionType titlePosition() const  = 0;
     virtual int                   titleFontSize() const  = 0;
     virtual int                   valuesFontSize() const = 0;
-
-protected:
-    bool isAppearanceOverridden() const;
-
-private:
-    caf::PdmField<bool> m_isAppearanceOverridden;
 };

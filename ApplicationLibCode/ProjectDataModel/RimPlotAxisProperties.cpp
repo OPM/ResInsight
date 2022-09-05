@@ -64,9 +64,6 @@ RimPlotAxisProperties::RimPlotAxisProperties()
     CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
     m_isActive.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_isMinMaxOverridden, "IsMinMaxOverridden", false, "IsMinMaxOverridden" );
-    m_isMinMaxOverridden.uiCapability()->setUiHidden( true );
-
     CAF_PDM_InitFieldNoDefault( &m_objectName, "Name", "Name" );
     m_objectName.uiCapability()->setUiHidden( true );
 
@@ -267,8 +264,6 @@ void RimPlotAxisProperties::defineUiOrdering( QString uiConfigName, caf::PdmUiOr
     m_plotAxis.uiCapability()->setUiReadOnly( m_isAlwaysRequired );
 
     uiOrdering.skipRemainingFields( true );
-
-    updateOverriddenLabelAndReadOnlyState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -594,8 +589,6 @@ void RimPlotAxisProperties::setMinMaxOverridden( bool isOverridden )
         m_visibleRangeMin.uiCapability()->enableAutoValue( isOverridden );
         m_visibleRangeMax.uiCapability()->enableAutoValue( isOverridden );
     }
-
-    m_isMinMaxOverridden = isOverridden;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -730,25 +723,6 @@ void RimPlotAxisProperties::fieldChangedByUi( const caf::PdmFieldHandle* changed
 void RimPlotAxisProperties::updateOptionSensitivity()
 {
     m_customTitle.uiCapability()->setUiReadOnly( isAutoTitle );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimPlotAxisProperties::updateOverriddenLabelAndReadOnlyState()
-{
-    return;
-
-    // Auto Appearance is defined in RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
-    QString axisRangeToolTip = "Controlled by Axis Range Control";
-
-    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_visibleRangeMin, m_isMinMaxOverridden, axisRangeToolTip );
-    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_visibleRangeMax, m_isMinMaxOverridden, axisRangeToolTip );
-
-    QString autoAppearanceToolTip = "Controlled by Auto Adjust Appearance";
-    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_majorTickmarkCount, isAppearanceOverridden(), autoAppearanceToolTip );
-    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_scaleFactor, isAppearanceOverridden(), autoAppearanceToolTip );
-    RiaFieldHandleTools::updateOverrideStateAndLabel( &m_displayLongName, isAppearanceOverridden(), autoAppearanceToolTip );
 }
 
 //--------------------------------------------------------------------------------------------------

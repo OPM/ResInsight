@@ -137,14 +137,11 @@ protected:
 
 private:
     void                     updateOptionSensitivity();
-    void                     updateOverriddenLabelAndReadOnlyState();
     caf::FontTools::FontSize plotFontSize() const;
     void defineObjectEditorAttribute( QString uiConfigName, caf::PdmUiEditorAttribute* attribute ) override;
 
 private:
     caf::PdmField<bool> m_isActive;
-
-    caf::PdmField<bool> m_isMinMaxOverridden;
 
     caf::PdmField<bool> isAutoTitle;
     caf::PdmField<bool> m_displayShortName;
