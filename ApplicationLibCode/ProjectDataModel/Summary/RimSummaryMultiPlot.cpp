@@ -1214,7 +1214,7 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
         analyzer.appendAddresses( addresses );
     }
 
-    bool hasOnlyOneQuantity = analyzer.quantities().size() == 1;
+    bool hasOnlyOneQuantity = analyzer.isSingleQuantityIgnoreHistory();
 
     for ( auto p : summaryPlots() )
     {
@@ -1247,9 +1247,15 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
                 auto [row, col] = gridLayoutInfoForSubPlot( p );
                 if ( col == 0 )
+                {
                     axisProp->setShowUnitText( true );
+                    axisProp->setShowDescription( true );
+                }
                 else
+                {
                     axisProp->setShowUnitText( false );
+                    axisProp->setShowDescription( false );
+                }
             }
         }
 

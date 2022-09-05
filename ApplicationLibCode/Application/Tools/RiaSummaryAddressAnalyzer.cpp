@@ -86,6 +86,21 @@ std::set<std::string> RiaSummaryAddressAnalyzer::quantityNamesNoHistory() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RiaSummaryAddressAnalyzer::isSingleQuantityIgnoreHistory() const
+{
+    if ( quantities().size() == 1 ) return true;
+
+    if ( quantities().size() == 2 && quantityNamesWithHistory().size() == 1 )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::string RiaSummaryAddressAnalyzer::quantityNameForTitle() const
 {
     if ( quantities().size() == 1 )
