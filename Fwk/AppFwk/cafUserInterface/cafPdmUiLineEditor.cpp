@@ -156,6 +156,9 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
                 m_autoValueToolButton->setIcon( icon );
 
                 m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
+                QString tooltipText = uiField()->isAutoValueEnabled() ? "Linked" : "Unlinked";
+                m_autoValueToolButton->setToolTip( tooltipText );
+
                 m_layout->insertWidget( 1, m_autoValueToolButton );
                 m_autoValueToolButton->show();
             }

@@ -28,7 +28,7 @@ public:
     void setAutoAddingOptionFromValue( bool isAddingValue );
 
     void     enableAndSetAutoValue( const QVariant& autoValue );
-    void     setAutoValue( const QVariant& autoValue );
+    void     setAutoValue( const QVariant& autoValue, bool notifyFieldChanged = true );
     QVariant autoValue() const;
     void     enableAutoValue( bool enable );
     bool     isAutoValueEnabled() const;

@@ -136,13 +136,13 @@ void PdmUiFieldHandle::enableAndSetAutoValue( const QVariant& autoValue )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldHandle::setAutoValue( const QVariant& autoValue )
+void PdmUiFieldHandle::setAutoValue( const QVariant& autoValue, bool notifyFieldChanged )
 {
     m_autoValue = autoValue;
 
-    if ( m_useAutoValue )
+    if ( m_useAutoValue && m_autoValue.isValid() )
     {
-        setValueFromUiEditor( m_autoValue, false );
+        setValueFromUiEditor( m_autoValue, notifyFieldChanged );
         updateConnectedEditors();
     }
 }
@@ -162,9 +162,9 @@ void PdmUiFieldHandle::enableAutoValue( bool enable )
 {
     m_useAutoValue = enable;
 
-    if ( m_useAutoValue )
+    if ( m_useAutoValue && m_autoValue.isValid() )
     {
-        setValueFromUiEditor( m_autoValue, false );
+        setValueFromUiEditor( m_autoValue, true );
         updateConnectedEditors();
     }
 }
@@ -174,6 +174,8 @@ void PdmUiFieldHandle::enableAutoValue( bool enable )
 //--------------------------------------------------------------------------------------------------
 bool PdmUiFieldHandle::isAutoValueEnabled() const
 {
+    if ( !m_isAutoValueSupported ) return false;
+
     return m_useAutoValue;
 }
 

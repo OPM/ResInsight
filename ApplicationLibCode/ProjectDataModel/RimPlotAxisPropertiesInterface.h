@@ -78,7 +78,6 @@ public:
 
     virtual LegendTickmarkCount majorTickmarkCount() const                         = 0;
     virtual void                setMajorTickmarkCount( LegendTickmarkCount count ) = 0;
-    void                        setAppearanceOverridden( bool isOverridden );
 
     static int tickmarkCountFromEnum( LegendTickmarkCount count );
 
@@ -86,10 +85,4 @@ public:
     virtual AxisTitlePositionType titlePosition() const  = 0;
     virtual int                   titleFontSize() const  = 0;
     virtual int                   valuesFontSize() const = 0;
-
-protected:
-    bool isAppearanceOverridden() const;
-
-private:
-    caf::PdmField<bool> m_isAppearanceOverridden;
 };
