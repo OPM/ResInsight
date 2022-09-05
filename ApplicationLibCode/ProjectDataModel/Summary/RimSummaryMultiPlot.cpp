@@ -146,7 +146,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkSubPlotAxes );
     CAF_PDM_InitField( &m_linkTimeAxis, "LinkTimeAxis", true, "Link Time Axis" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkTimeAxis );
-    CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Adjust Appearance" );
+    CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Plot Settings" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoAdjustAppearance );
     CAF_PDM_InitField( &m_allow3DSelectionLink, "Allow3DSelectionLink", true, "Allow Well Selection from 3D View" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_allow3DSelectionLink );
@@ -800,6 +800,22 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 {
+    for ( auto p : summaryPlots() )
+    {
+        auto timeAxisProp = p->timeAxisProperties();
+        timeAxisProp->enableAutoValueForMajorTickmarkCount( m_autoAdjustAppearance );
+
+        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotYAxes() )
+        {
+            auto axisProp = dynamic_cast<RimPlotAxisProperties*>( axisInterface );
+
+            if ( !axisProp ) continue;
+
+            axisProp->enableAutoValueForMajorTickmarkCount( m_autoAdjustAppearance );
+            axisProp->enableAutoValueForScaleFactor( m_autoAdjustAppearance );
+        }
+    }
+
     if ( m_autoAdjustAppearance )
     {
         analyzePlotsAndAdjustAppearanceSettings();
@@ -1166,7 +1182,6 @@ void RimSummaryMultiPlot::setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot
 {
     for ( auto plotAxis : summaryPlot->plotAxes() )
     {
-        plotAxis->setAppearanceOverridden( isAppearanceOverridden );
         auto plotAxProp = dynamic_cast<RimPlotAxisProperties*>( plotAxis );
         if ( plotAxProp )
         {
@@ -1220,7 +1235,6 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
     {
         auto timeAxisProp = p->timeAxisProperties();
 
-        timeAxisProp->enableAutoValueForMajorTickmarkCount( true );
         if ( columnCount() < 3 )
             timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
         else
@@ -1232,8 +1246,6 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
             if ( !axisProp ) continue;
 
-            axisProp->enableAutoValueForMajorTickmarkCount( true );
-
             if ( rowsPerPage() == 1 )
                 axisProp->setAutoValueForMajorTickmarkCount(
                     RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
@@ -1241,7 +1253,6 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
                 axisProp->setAutoValueForMajorTickmarkCount(
                     RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
 
-            axisProp->enableAutoValueForScaleFactor( true );
             axisProp->computeAndSetAutoValueForScaleFactor();
 
             if ( hasOnlyOneQuantity )

@@ -78,7 +78,6 @@ public:
 
     virtual LegendTickmarkCount majorTickmarkCount() const                         = 0;
     virtual void                setMajorTickmarkCount( LegendTickmarkCount count ) = 0;
-    void                        setAppearanceOverridden( bool isOverridden );
 
     static int tickmarkCountFromEnum( LegendTickmarkCount count );
 
