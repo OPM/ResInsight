@@ -704,3 +704,11 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RimThermalFractureTemplate::computePositionAnd
     cvf::Vec3d rotation       = cvf::Vec3d::UNDEFINED;
     return std::make_pair( centerPosition, rotation );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimThermalFractureTemplate::isValidResult( double value ) const
+{
+    return !std::isinf( value ) && !std::isnan( value );
+}
