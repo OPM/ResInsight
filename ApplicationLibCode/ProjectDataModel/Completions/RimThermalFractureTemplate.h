@@ -75,6 +75,7 @@ public:
                                        const QString&     unit,
                                        MinMaxAccumulator& minMaxAccumulator,
                                        PosNegAccumulator& posNegAccumulator ) const override;
+    bool isValidResult( double value ) const override;
 
     void setDefaultConductivityResultIfEmpty();
     bool setBorderPolygonResultNameToDefault();
