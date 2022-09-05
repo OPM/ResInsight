@@ -516,7 +516,7 @@ void RicExportFractureCompletionsImpl::getWellPressuresAndInitialProductionTimeS
 bool RicExportFractureCompletionsImpl::checkForStimPlanConductivity( const RimFractureTemplate* fracTemplate,
                                                                      const RimFracture*         fracture )
 {
-    auto fracTemplateStimPlan = dynamic_cast<const RimStimPlanFractureTemplate*>( fracTemplate );
+    auto fracTemplateStimPlan = dynamic_cast<const RimMeshFractureTemplate*>( fracTemplate );
     if ( fracTemplateStimPlan )
     {
         if ( !fracTemplateStimPlan->hasConductivity() )
