@@ -597,7 +597,6 @@ void RimPlotAxisProperties::enableAutoValueMinMax( bool enable )
 void RimPlotAxisProperties::setAutoValueVisibleRangeMin( double value )
 {
     // Do not notify editors, as this causes recursive updates
-
     bool notifyFieldChanged = false;
     m_visibleRangeMin.uiCapability()->setAutoValue( value, notifyFieldChanged );
 }
@@ -608,7 +607,6 @@ void RimPlotAxisProperties::setAutoValueVisibleRangeMin( double value )
 void RimPlotAxisProperties::setAutoValueVisibleRangeMax( double value )
 {
     // Do not notify editors, as this causes recursive updates
-
     bool notifyFieldChanged = false;
     m_visibleRangeMax.uiCapability()->setAutoValue( value, notifyFieldChanged );
 }
