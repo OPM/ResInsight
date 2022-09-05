@@ -118,6 +118,8 @@ public:
 
     static std::pair<QString, QString> widthParameterNameAndUnit( cvf::ref<RigStimPlanFractureDefinition> def );
 
+    bool isValidResult( double value ) const override;
+
 protected:
     void initAfterRead() override;
 
