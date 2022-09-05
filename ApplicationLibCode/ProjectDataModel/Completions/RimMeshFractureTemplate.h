@@ -68,6 +68,8 @@ public:
                                     size_t                 i,
                                     size_t                 j ) = 0;
 
+    virtual bool isValidResult( double value ) const = 0;
+
     virtual QString getFileSelectionFilter() const = 0;
 
     virtual std::vector<double> widthResultValues() const;

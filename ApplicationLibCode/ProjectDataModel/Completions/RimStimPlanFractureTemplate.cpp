@@ -838,3 +838,11 @@ void RimStimPlanFractureTemplate::appendTextIfValidValue( QString&              
         body += QString( "%1: %2<br>" ).arg( name ).arg( RiaNumberFormat::valueToText( value, numberFormat, precision ) );
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimStimPlanFractureTemplate::isValidResult( double value ) const
+{
+    return value > 1e-7;
+}

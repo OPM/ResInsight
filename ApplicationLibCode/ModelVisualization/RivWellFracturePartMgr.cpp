@@ -463,7 +463,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanColorInterpolatedSurfa
             bool includeThisTrianglePair = false;
             for ( size_t j = 0; j < 6; j++ )
             {
-                if ( perNodeResultValues[triangleIndices[i + j]] > 1e-7 )
+                if ( stimPlanFracTemplate->isValidResult( perNodeResultValues[triangleIndices[i + j]] ) )
                 {
                     includeThisTrianglePair = true;
                 }
@@ -578,7 +578,7 @@ cvf::ref<cvf::Part> RivWellFracturePartMgr::createStimPlanElementColorSurfacePar
 
             for ( size_t cIdx = 0; cIdx < stimPlanCells.size(); ++cIdx )
             {
-                if ( prCellResults[cIdx] > 1e-7 )
+                if ( stimPlanFracTemplate->isValidResult( prCellResults[cIdx] ) )
                 {
                     const RigFractureCell&  stimPlanCell        = stimPlanCells[cIdx];
                     std::vector<cvf::Vec3d> stimPlanCellPolygon = stimPlanCell.getPolygon();
@@ -1048,7 +1048,7 @@ void RivWellFracturePartMgr::createVisibleFracturePolygons( RimMeshFractureTempl
     m_visibleFracturePolygons.clear();
     for ( size_t cIdx = 0; cIdx < stimPlanCells.size(); ++cIdx )
     {
-        if ( prCellResults[cIdx] > 1e-7 )
+        if ( stimPlanFracTemplate->isValidResult( prCellResults[cIdx] ) )
         {
             const RigFractureCell&  stimPlanCell        = stimPlanCells[cIdx];
             std::vector<cvf::Vec3d> stimPlanCellPolygon = stimPlanCell.getPolygon();
@@ -1081,7 +1081,7 @@ cvf::ref<cvf::DrawableGeo> RivWellFracturePartMgr::createStimPlanMeshDrawable( R
 
     for ( size_t cIdx = 0; cIdx < stimPlanCells.size(); ++cIdx )
     {
-        if ( prCellResults[cIdx] > 1e-7 )
+        if ( stimPlanFracTemplate->isValidResult( prCellResults[cIdx] ) )
         {
             const RigFractureCell&  stimPlanCell        = stimPlanCells[cIdx];
             std::vector<cvf::Vec3d> stimPlanCellPolygon = stimPlanCell.getPolygon();
