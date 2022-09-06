@@ -135,7 +135,8 @@ private:
 
     void updatePlotVisibility();
     void setOverriddenFlag();
-    void setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
+    static void
+        setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
 
     void duplicate();
 

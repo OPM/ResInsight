@@ -100,6 +100,8 @@ public:
     static std::pair<QString, QString>
         widthParameterNameAndUnit( std::shared_ptr<RigThermalFractureDefinition> fractureDefinitionData );
 
+    std::pair<cvf::Vec3d, cvf::Vec3d> computePositionAndRotation() const;
+
 protected:
     QString     getFileSelectionFilter() const override;
     QStringList conductivityResultNames() const override;

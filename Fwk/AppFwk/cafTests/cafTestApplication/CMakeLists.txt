@@ -18,9 +18,9 @@ set(QRC_FILES ${QRC_FILES} textedit.qrc)
 find_package(
   Qt5
   COMPONENTS
-  REQUIRED Core Gui Widgets OpenGL
+  REQUIRED Core Gui Widgets OpenGL Svg
 )
-set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL)
+set(QT_LIBRARIES Qt5::Core Qt5::Gui Qt5::Widgets Qt5::OpenGL Qt5::Svg)
 qt5_wrap_cpp(MOC_SOURCE_FILES ${MOC_HEADER_FILES})
 qt5_add_resources(QRC_FILES_CPP ${QRC_FILES})
 

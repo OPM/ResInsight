@@ -27,6 +27,17 @@ public:
     bool isAutoAddingOptionFromValue() const;
     void setAutoAddingOptionFromValue( bool isAddingValue );
 
+    void     enableAndSetAutoValue( const QVariant& autoValue );
+    void     setAutoValue( const QVariant& autoValue, bool notifyFieldChanged = true );
+    QVariant autoValue() const;
+    void     enableAutoValue( bool enable );
+    bool     isAutoValueEnabled() const;
+    void     enableAutoValueSupport( bool enable );
+    bool     isAutoValueSupported() const;
+
+    std::vector<std::pair<QString, QString>> attributes() const override;
+    void setAttributes( const std::vector<std::pair<QString, QString>>& attributes ) override;
+
 private:
     friend class PdmUiCommandSystemProxy;
     friend class CmdFieldChangeExec;
@@ -38,6 +49,10 @@ private:
 private:
     PdmFieldHandle* m_owner;
     bool            m_isAutoAddingOptionFromValue;
+
+    QVariant m_autoValue;
+    bool     m_useAutoValue;
+    bool     m_isAutoValueSupported;
 };
 
 } // End of namespace caf

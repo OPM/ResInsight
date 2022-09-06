@@ -411,16 +411,6 @@ void RicNewWellBoreStabilityPlotFeature::createAnglesTrack( RimWellBoreStability
 
         curve->loadDataAndUpdate( false );
 
-        double actualMinValue = minValue, actualMaxValue = maxValue;
-        curve->xValueRange( &actualMinValue, &actualMaxValue );
-        while ( maxValue < actualMaxValue )
-        {
-            maxValue += angleIncrement;
-        }
-        while ( minValue > actualMinValue )
-        {
-            minValue -= angleIncrement;
-        }
         maxValue = cvf::Math::clamp( maxValue, angleIncrement, 720.0 );
         minValue = cvf::Math::clamp( minValue, 0.0, maxValue - 90.0 );
     }

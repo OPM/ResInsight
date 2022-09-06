@@ -21,6 +21,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesUi.h
     ${CMAKE_CURRENT_LIST_DIR}/RicNewOptionItemFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteOptionItemFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicPlaceThermalFractureUsingTemplateDataFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -46,6 +47,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicCreateMultipleFracturesUi.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicNewOptionItemFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteOptionItemFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicPlaceThermalFractureUsingTemplateDataFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

@@ -46,6 +46,8 @@ public:
     std::set<std::string> quantityNamesWithHistory() const;
     std::set<std::string> quantityNamesNoHistory() const;
 
+    bool isSingleQuantityIgnoreHistory() const;
+
     std::string quantityNameForTitle() const;
 
     std::set<std::string> wellNames() const;

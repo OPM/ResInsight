@@ -457,6 +457,8 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
                   dynamic_cast<RimWellPathFracture*>( firstUiItem ) )
         {
             menuBuilder << "RicNewWellPathFractureFeature";
+            if ( dynamic_cast<RimWellPathFracture*>( firstUiItem ) )
+                menuBuilder << "RicPlaceThermalFractureUsingTemplateDataFeature";
             appendExportCompletions( menuBuilder );
         }
         else if ( dynamic_cast<RimWellPathAttributeCollection*>( firstUiItem ) )

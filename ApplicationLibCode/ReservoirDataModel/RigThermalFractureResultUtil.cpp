@@ -30,10 +30,11 @@
 
 #include "cafAssert.h"
 #include "cvfBoundingBox.h"
+#include "cvfGeometryTools.h"
 
 #include <cmath>
 
-int numSamplesX = 60;
+int numSamplesX = 100;
 int numSamplesY = 60;
 
 //--------------------------------------------------------------------------------------------------
@@ -365,16 +366,10 @@ std::pair<std::vector<double>, std::vector<double>>
     double maxY = bb.max().y();
 
     std::vector<double> gridXs;
-    double              sampleDistanceX = linearSampling( minX, maxX, numSamplesX, gridXs );
+    linearSampling( minX, maxX, numSamplesX, gridXs );
 
     std::vector<double> gridYs;
-    double              sampleDistanceY = linearSampling( minY, maxY, numSamplesY, gridYs );
-
-    RiaLogging::info( QString( "Uniform Mesh. Output size: %1x%2. Sampling Distance X = %3 Sampling Distance Y = %4" )
-                          .arg( numSamplesX )
-                          .arg( numSamplesY )
-                          .arg( sampleDistanceX )
-                          .arg( sampleDistanceY ) );
+    linearSampling( minY, maxY, numSamplesY, gridYs );
 
     return std::make_pair( gridXs, gridYs );
 }
@@ -481,13 +476,20 @@ std::vector<cvf::Vec3d>
     std::vector<cvf::Vec3d> relativePos = fractureDefinition->relativeCoordinates( static_cast<int>( timeStepIndex ) );
     CAF_ASSERT( relativePos.size() == fractureDefinition->numNodes() );
 
+    for ( auto& r : relativePos )
+    {
+        r.z() *= -1.0;
+    }
+
+    cvf::Vec3d p0 = relativePos[0];
+    cvf::Vec3d p1 = relativePos[1];
+    cvf::Vec3d p2 = relativePos[2];
+
     cvf::Plane plane;
-    plane.setFromPoints( relativePos[0], relativePos[1], relativePos[2] );
+    plane.setFromPoints( p0, p1, p2 );
 
     cvf::Vec3d planeNormal = plane.normal().getNormalized();
-    RiaLogging::info(
-        QString( "Plane normal: [%1 %2 %3]" ).arg( planeNormal.x() ).arg( planeNormal.y() ).arg( planeNormal.z() ) );
-    auto rotMat = rotationMatrixBetweenVectors( planeNormal, cvf::Vec3d::Z_AXIS.getNormalized() );
+    auto       rotMat      = rotationMatrixBetweenVectors( planeNormal, ( cvf::Vec3d::Z_AXIS ).getNormalized() );
 
     for ( auto& r : relativePos )
     {
@@ -495,7 +497,78 @@ std::vector<cvf::Vec3d>
         r.z() = 0.0;
     }
 
+    auto findExtrema = []( const std::vector<cvf::Vec3d>& points ) {
+        double maxDistance = -1.0;
+
+        cvf::Vec3d e1 = cvf::Vec3d::UNDEFINED;
+        cvf::Vec3d e2 = cvf::Vec3d::UNDEFINED;
+        for ( auto p1 : points )
+        {
+            for ( auto p2 : points )
+            {
+                double distance = p1.pointDistanceSquared( p2 );
+                if ( distance > maxDistance )
+                {
+                    maxDistance = distance;
+                    e1          = p1;
+                    e2          = p2;
+                }
+            }
+        }
+
+        return std::make_pair( e1, e2 );
+    };
+
+    auto [e1, e2]        = findExtrema( relativePos );
+    cvf::Vec3d direction = e1 - e2;
+    auto       rotMat2   = rotationMatrixBetweenVectors( direction.getNormalized(), cvf::Vec3d::X_AXIS );
+    for ( auto& r : relativePos )
+    {
+        r.transformVector( rotMat2 );
+    }
+
     return relativePos;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<cvf::Vec3d, cvf::Vec3d> RigThermalFractureResultUtil::computePositionAndRotation(
+    std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+    size_t                                              timeStepIndex )
+{
+    std::vector<cvf::Vec3d> relativePos = fractureDefinition->relativeCoordinates( static_cast<int>( timeStepIndex ) );
+    CAF_ASSERT( relativePos.size() == fractureDefinition->numNodes() );
+
+    cvf::Plane plane;
+    cvf::Vec3d p0 = relativePos[0];
+    cvf::Vec3d p1 = relativePos[1];
+    cvf::Vec3d p2 = relativePos[2];
+
+    p0.z() *= -1.0;
+    p1.z() *= -1.0;
+    p2.z() *= -1.0;
+    plane.setFromPoints( p0, p1, p2 );
+
+    cvf::Vec3d planeNormal = plane.normal().getNormalized();
+    RiaLogging::info(
+        QString( "Plane normal: [%1 %2 %3]" ).arg( planeNormal.x() ).arg( planeNormal.y() ).arg( planeNormal.z() ) );
+
+    cvf::Plane xyPlane;
+    xyPlane.setFromPointAndNormal( cvf::Vec3d::ZERO, cvf::Vec3d::Z_AXIS );
+
+    cvf::Vec3d inPlane;
+    if ( !xyPlane.projectVector( planeNormal, &inPlane ) ) RiaLogging::info( "Failed to project vector" );
+
+    double azimuth = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( inPlane, cvf::Vec3d::Y_AXIS ) ) + 90.0;
+    double dip     = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( inPlane, cvf::Vec3d::Z_AXIS ) ) - 90.0;
+    double tilt    = cvf::Math::toDegrees( cvf::GeometryTools::getAngle( planeNormal, cvf::Vec3d::Z_AXIS ) ) - 90.0;
+    RiaLogging::info( QString( "Dip: %1" ).arg( dip ) );
+    RiaLogging::info( QString( "Tilt: %1" ).arg( tilt ) );
+    RiaLogging::info( QString( "Azimuth: %1" ).arg( azimuth ) );
+
+    cvf::Vec3d rotation( azimuth, dip, tilt );
+    return std::make_pair( fractureDefinition->centerPosition(), rotation );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -521,14 +594,14 @@ double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&     
     // Sort by distance
     std::sort( distances.begin(), distances.end() );
 
-    // Create distance-weighthed mean of first few points
+    // Create inverse-distance-weighthed mean of first few points
     size_t                            numPoints = 3;
     RiaWeightedMeanCalculator<double> calc;
     for ( size_t i = 0; i < numPoints; i++ )
     {
         auto [distance, nodeIndex] = distances[i];
         double value = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, static_cast<int>( timeStepIndex ) );
-        calc.addValueAndWeight( value, distance );
+        calc.addValueAndWeight( value, std::pow( 1.0 / distance, 2.0 ) );
     }
 
     return calc.weightedMean();

@@ -146,7 +146,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkSubPlotAxes );
     CAF_PDM_InitField( &m_linkTimeAxis, "LinkTimeAxis", true, "Link Time Axis" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkTimeAxis );
-    CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Adjust Appearance" );
+    CAF_PDM_InitField( &m_autoAdjustAppearance, "AutoAdjustAppearance", true, "Auto Plot Settings" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_autoAdjustAppearance );
     CAF_PDM_InitField( &m_allow3DSelectionLink, "Allow3DSelectionLink", true, "Allow Well Selection from 3D View" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_allow3DSelectionLink );
@@ -453,9 +453,8 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation ||
               changedField == &m_linkTimeAxis )
     {
-        syncAxisRanges();
-
         setOverriddenFlag();
+        syncAxisRanges();
     }
     else if ( changedField == &m_hidePlotsWithValuesBelow )
     {
@@ -493,8 +492,8 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_autoAdjustAppearance )
     {
-        checkAndApplyAutoAppearance();
         setOverriddenFlag();
+        checkAndApplyAutoAppearance();
     }
     else
     {
@@ -731,6 +730,8 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::zoomAll()
 {
+    setOverriddenFlag();
+
     // Reset zoom to make sure the complete range for min/max is available
     RimMultiPlot::zoomAll();
 
@@ -816,8 +817,16 @@ void RimSummaryMultiPlot::syncAxisRanges()
         return;
     }
 
-    // Reset zoom to make sure the complete range for min/max is available
-    RimMultiPlot::zoomAllYAxes();
+    // Reset zoom for axes with no custom range set to make sure the complete range for min/max is available
+
+    for ( auto p : summaryPlots() )
+    {
+        for ( auto ax : p->plotYAxes() )
+        {
+            ax->setAutoZoomIfNoCustomRangeIsSet();
+        }
+    }
+    updateZoom();
 
     if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
     {
@@ -853,8 +862,8 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
                 axis->setAutoZoom( false );
-                axis->setVisibleRangeMin( minVal );
-                axis->setVisibleRangeMax( maxVal );
+                axis->setAutoValueVisibleRangeMin( minVal );
+                axis->setAutoValueVisibleRangeMax( maxVal );
             }
 
             plot->updateAxes();
@@ -1099,8 +1108,8 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     scaleEngine.autoScale( maxMajorTickIntervalCount, minVal, maxVal, stepSize );
                 }
 
-                axis->setVisibleRangeMin( minVal );
-                axis->setVisibleRangeMax( maxVal );
+                axis->setAutoValueVisibleRangeMin( minVal );
+                axis->setAutoValueVisibleRangeMax( maxVal );
             }
         }
 
@@ -1152,17 +1161,17 @@ void RimSummaryMultiPlot::setOverriddenFlag()
 ///
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot,
-                                                     bool            isMinMaxOverridden,
-                                                     bool            isAppearanceOverridden )
+                                                     bool            enableAutoValueMinMax,
+                                                     bool            enableAutoValueAppearance )
 {
-    for ( auto plotAxis : summaryPlot->plotAxes() )
+    auto timeAxisProp = summaryPlot->timeAxisProperties();
+    if ( timeAxisProp ) timeAxisProp->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
+
+    for ( auto plotAxis : summaryPlot->plotYAxes() )
     {
-        plotAxis->setAppearanceOverridden( isAppearanceOverridden );
-        auto plotAxProp = dynamic_cast<RimPlotAxisProperties*>( plotAxis );
-        if ( plotAxProp )
-        {
-            plotAxProp->setMinMaxOverridden( isMinMaxOverridden );
-        }
+        plotAxis->enableAutoValueMinMax( enableAutoValueMinMax );
+        plotAxis->enableAutoValueForMajorTickmarkCount( enableAutoValueAppearance );
+        plotAxis->enableAutoValueForScaleFactor( enableAutoValueAppearance );
     }
 }
 
@@ -1205,16 +1214,16 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
         analyzer.appendAddresses( addresses );
     }
 
-    bool hasOnlyOneQuantity = analyzer.quantities().size() == 1;
+    bool hasOnlyOneQuantity = analyzer.isSingleQuantityIgnoreHistory();
 
     for ( auto p : summaryPlots() )
     {
         auto timeAxisProp = p->timeAxisProperties();
 
         if ( columnCount() < 3 )
-            timeAxisProp->setMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
+            timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
         else
-            timeAxisProp->setMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
+            timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
 
         for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotYAxes() )
         {
@@ -1223,11 +1232,13 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
             if ( !axisProp ) continue;
 
             if ( rowsPerPage() == 1 )
-                axisProp->setMajorTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
+                axisProp->setAutoValueForMajorTickmarkCount(
+                    RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
             else
-                axisProp->setMajorTickmarkCount( RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
+                axisProp->setAutoValueForMajorTickmarkCount(
+                    RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
 
-            axisProp->computeAndSetScaleFactor();
+            axisProp->computeAndSetAutoValueForScaleFactor();
 
             if ( hasOnlyOneQuantity )
             {
@@ -1236,9 +1247,15 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
                 auto [row, col] = gridLayoutInfoForSubPlot( p );
                 if ( col == 0 )
+                {
                     axisProp->setShowUnitText( true );
+                    axisProp->setShowDescription( true );
+                }
                 else
+                {
                     axisProp->setShowUnitText( false );
+                    axisProp->setShowDescription( false );
+                }
             }
         }
 
@@ -1369,8 +1386,8 @@ void RimSummaryMultiPlot::appendSubPlotByStepping( int direction )
 
                 // NOTE: If summary cross plots should be handled here, we also need to call
                 // curve->setSummaryCaseX( newCase );
-                // Setting summaryCaseX with a default uninitialized summary address causes issues for the summary name
-                // analyzer
+                // Setting summaryCaseX with a default uninitialized summary address causes issues for the summary
+                // name analyzer
             }
         }
         else if ( m_sourceStepping()->stepDimension() == RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE )

@@ -86,6 +86,10 @@ public:
     static std::pair<double, double> minMaxDepth( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                                   int activeTimeStepIndex );
 
+    static std::pair<cvf::Vec3d, cvf::Vec3d>
+        computePositionAndRotation( std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
+                                    size_t                                              timeStepIndex );
+
 private:
     static std::pair<std::vector<double>, std::vector<double>>
         generateUniformMesh( const cvf::BoundingBox& bb, int numSamplesX, int numSamplesY );

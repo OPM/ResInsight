@@ -13,6 +13,8 @@ namespace caf
 //--------------------------------------------------------------------------------------------------
 PdmUiFieldHandle::PdmUiFieldHandle( PdmFieldHandle* owner, bool giveOwnership )
     : m_isAutoAddingOptionFromValue( true )
+    , m_useAutoValue( false )
+    , m_isAutoValueSupported( false )
 {
     m_owner = owner;
     owner->addCapability( this, giveOwnership );
@@ -119,6 +121,124 @@ bool PdmUiFieldHandle::isAutoAddingOptionFromValue() const
 void PdmUiFieldHandle::setAutoAddingOptionFromValue( bool isAddingValue )
 {
     m_isAutoAddingOptionFromValue = isAddingValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::enableAndSetAutoValue( const QVariant& autoValue )
+{
+    setAutoValue( autoValue );
+    enableAutoValue( true );
+    m_isAutoValueSupported = true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::setAutoValue( const QVariant& autoValue, bool notifyFieldChanged )
+{
+    m_autoValue = autoValue;
+
+    if ( m_useAutoValue && m_autoValue.isValid() )
+    {
+        setValueFromUiEditor( m_autoValue, notifyFieldChanged );
+        updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QVariant PdmUiFieldHandle::autoValue() const
+{
+    return m_autoValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::enableAutoValue( bool enable )
+{
+    m_useAutoValue = enable;
+
+    if ( m_useAutoValue && m_autoValue.isValid() )
+    {
+        setValueFromUiEditor( m_autoValue, true );
+        updateConnectedEditors();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiFieldHandle::isAutoValueEnabled() const
+{
+    if ( !m_isAutoValueSupported ) return false;
+
+    return m_useAutoValue;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::enableAutoValueSupport( bool enable )
+{
+    m_isAutoValueSupported = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool PdmUiFieldHandle::isAutoValueSupported() const
+{
+    return m_isAutoValueSupported;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<QString, QString>> PdmUiFieldHandle::attributes() const
+{
+    std::vector<std::pair<QString, QString>> attr;
+
+    if ( m_useAutoValue )
+    {
+        attr.push_back( { "autoValueEnabled", "true" } );
+    }
+
+    if ( m_isAutoValueSupported )
+    {
+        attr.push_back( { "autoValueSupported", "true" } );
+    }
+
+    return attr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::setAttributes( const std::vector<std::pair<QString, QString>>& attributes )
+{
+    for ( auto [key, valueString] : attributes )
+    {
+        valueString = valueString.toUpper();
+
+        if ( key == "autoValueEnabled" )
+        {
+            if ( valueString == "TRUE" )
+            {
+                enableAutoValue( true );
+            }
+        }
+        else if ( key == "autoValueSupported" )
+        {
+            if ( valueString == "TRUE" )
+            {
+                enableAutoValueSupport( true );
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

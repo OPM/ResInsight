@@ -168,6 +168,8 @@ set(PROJECT_FILES
     cafPdmUiTreeViewItemDelegate.h
     cafPdmUiTreeViewItemDelegate.cpp
     cafPdmUiTreeAttributes.h
+    cafUiAppearanceSettings.cpp
+    cafUiIconFactory.cpp
 )
 
 add_library(

@@ -336,7 +336,7 @@ QIcon RiuDockWidgetTools::dockIcon( const QString dockWidgetName )
     else if ( dockWidgetName == mainWindowProjectTreeName() )
         return QIcon( ":/standard.svg" );
     else if ( dockWidgetName == mainWindowDataSourceTreeName() )
-        return QIcon( ":/data-sources.svg" );
+        return QIcon( ":/Calculator.svg" );
     else if ( dockWidgetName == mainWindowScriptsTreeName() )
         return QIcon( ":/scripts.svg" );
     else if ( dockWidgetName == mainPlotWindowName() )
