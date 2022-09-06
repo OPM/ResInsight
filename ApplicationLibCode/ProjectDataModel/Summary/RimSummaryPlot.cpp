@@ -2456,7 +2456,7 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
         m_summaryPlot = std::make_unique<RiuSummaryQwtPlot>( this, mainWindowParent );
 #endif
 
-        QObject::connect( plotWidget(), SIGNAL( curveOrderNeedsUpdate() ), this, SLOT( updateCurveOrder() ) );
+        QObject::connect( plotWidget(), SIGNAL( curveOrderNeedsUpdate() ), this, SLOT( onUpdateCurveOrder() ) );
 
         for ( const auto& axisProperties : m_axisProperties )
         {
@@ -3021,7 +3021,7 @@ RimSummaryPlotSourceStepping* RimSummaryPlot::sourceStepper()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryPlot::updateCurveOrder()
+void RimSummaryPlot::onUpdateCurveOrder()
 {
-    m_summaryCurveCollection->refreshCurveOrdering();
+    m_summaryCurveCollection->updateCurveOrder();
 }
