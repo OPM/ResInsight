@@ -215,14 +215,14 @@ private:
     void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
     void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
     void highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems );
-    void resetPlotItemHighlighting( bool refreshCurveOrder = true );
+    void resetPlotItemHighlighting( bool doUpdateCurveOrder = true );
     void resetPlotAxisHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( RiuPlotAxis axis );
 
     static int highlightItemWidthAdjustment();
 
-    void restoreCurveOrder();
+    void updateCurveOrder();
 
 private:
     struct CurveProperties

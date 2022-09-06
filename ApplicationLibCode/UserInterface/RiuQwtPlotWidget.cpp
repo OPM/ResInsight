@@ -925,8 +925,8 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     RiuPlotMainWindowTools::showPlotMainWindow();
     if ( closestItem && distanceFromClick < 20 )
     {
-        bool refreshCurveOrder = false;
-        resetPlotItemHighlighting( refreshCurveOrder );
+        bool updateCurveOrder = false;
+        resetPlotItemHighlighting( updateCurveOrder );
         std::set<const QwtPlotItem*> plotItems = { closestItem };
         highlightPlotItems( plotItems );
         auto plotItem = std::make_shared<RiuQwtPlotItem>( closestItem );
@@ -1003,7 +1003,7 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
                 m_originalCurveProperties.insert( std::make_pair( plotCurve, properties ) );
                 m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
 
-                restoreCurveOrder();
+                updateCurveOrder();
 
                 return;
             }
@@ -1070,13 +1070,13 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
         }
     }
 
-    restoreCurveOrder();
+    updateCurveOrder();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::resetPlotItemHighlighting( bool refreshCurveOrder )
+void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
 {
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
@@ -1118,7 +1118,7 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool refreshCurveOrder )
 
     resetPlotAxisHighlighting();
 
-    if ( refreshCurveOrder ) restoreCurveOrder();
+    if ( doUpdateCurveOrder ) updateCurveOrder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1539,7 +1539,7 @@ void RiuQwtPlotWidget::onLegendClicked( const QVariant& itemInfo, int index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::restoreCurveOrder()
+void RiuQwtPlotWidget::updateCurveOrder()
 {
     emit curveOrderNeedsUpdate();
 }

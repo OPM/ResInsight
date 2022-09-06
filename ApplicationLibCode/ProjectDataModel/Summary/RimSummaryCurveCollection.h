@@ -61,7 +61,7 @@ public:
 
     void loadDataAndUpdate( bool updateParentPlot );
 
-    void refreshCurveOrdering();
+    void updateCurveOrder();
 
 private:
     void setParentPlotAndReplot( RiuPlotWidget* plot );

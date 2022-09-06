@@ -502,7 +502,7 @@ void RimSummaryCurveCollection::defineEditorAttribute( const caf::PdmFieldHandle
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurveCollection::onCurvesReordered( const SignalEmitter* emitter )
 {
-    refreshCurveOrdering();
+    updateCurveOrder();
     curvesChanged.send();
 }
 
@@ -545,7 +545,7 @@ void RimSummaryCurveCollection::defineObjectEditorAttribute( QString uiConfigNam
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryCurveCollection::refreshCurveOrdering()
+void RimSummaryCurveCollection::updateCurveOrder()
 {
     detachPlotCurves();
     reattachPlotCurves();
