@@ -1076,7 +1076,7 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::resetPlotItemHighlighting( bool refreshCurveOrder /* = false */ )
+void RiuQwtPlotWidget::resetPlotItemHighlighting( bool refreshCurveOrder )
 {
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
