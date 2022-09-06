@@ -963,53 +963,6 @@ void RiuQwtPlotWidget::replot()
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems )
 {
-    if ( closestItems.size() == 1 )
-    {
-        auto* constPlotCurve = dynamic_cast<const QwtPlotCurve*>( *closestItems.begin() );
-        auto* plotCurve      = const_cast<QwtPlotCurve*>( constPlotCurve );
-
-        if ( plotCurve )
-        {
-            auto curveColor = plotCurve->pen().color();
-            if ( RiaColorTools::isBrightnessAboveThreshold( RiaColorTools::fromQColorTo3f( curveColor ) ) )
-            {
-                // The brightness of selected curve is above threshold. Modify the saturation, and leave the other
-                // curves unchanged
-
-                QColor symbolColor;
-                QColor symbolLineColor;
-                auto*  symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
-                if ( symbol )
-                {
-                    symbolColor     = symbol->brush().color();
-                    symbolLineColor = symbol->pen().color();
-                }
-
-                double zValue = plotCurve->z();
-                plotCurve->setZ( zValue + 100.0 );
-                highlightPlotAxes( plotCurve->xAxis(), plotCurve->yAxis() );
-
-                auto  hightlightColor = curveColor;
-                qreal h, s, v;
-                hightlightColor.getHsvF( &h, &s, &v );
-                hightlightColor.setHsvF( h, 0.95, v );
-
-                auto curveWidth = plotCurve->pen().width();
-                plotCurve->setPen( hightlightColor,
-                                   plotCurve->pen().width() + highlightItemWidthAdjustment(),
-                                   plotCurve->pen().style() );
-
-                CurveProperties properties = { curveColor, symbolColor, symbolLineColor, curveWidth };
-                m_originalCurveProperties.insert( std::make_pair( plotCurve, properties ) );
-                m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
-
-                updateCurveOrder();
-
-                return;
-            }
-        }
-    }
-
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
