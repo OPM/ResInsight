@@ -252,6 +252,7 @@ protected:
 
 private slots:
     void onPlotZoomed();
+    void updateCurveOrder();
 
 private:
     std::vector<RimSummaryCurve*>         visibleSummaryCurvesForAxis( RiuPlotAxis plotAxis ) const;
