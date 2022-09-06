@@ -616,17 +616,6 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
 void RiuQwtPlotWidget::hideEvent( QHideEvent* event )
 {
     resetPlotItemHighlighting();
-    // TODO: remove?
-    // m_plot->hideEvent( event );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::showEvent( QShowEvent* event )
-{
-    // TODO: remove?
-    // m_plot->showEvent( event );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -634,8 +623,6 @@ void RiuQwtPlotWidget::showEvent( QShowEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::resizeEvent( QResizeEvent* event )
 {
-    // TODO: remove???
-    // QwtPlot::resizeEvent( event );
     updateOverlayFrameLayout();
     event->accept();
 }
@@ -936,10 +923,10 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     findClosestPlotItem( pos, &closestItem, &closestCurvePoint, &distanceFromClick );
 
     RiuPlotMainWindowTools::showPlotMainWindow();
-    resetPlotItemHighlighting();
     if ( closestItem && distanceFromClick < 20 )
     {
-        // TODO: highlight all selected curves
+        bool refreshCurveOrder = false;
+        resetPlotItemHighlighting( refreshCurveOrder );
         std::set<const QwtPlotItem*> plotItems = { closestItem };
         highlightPlotItems( plotItems );
         auto plotItem = std::make_shared<RiuQwtPlotItem>( closestItem );
@@ -947,6 +934,7 @@ void RiuQwtPlotWidget::selectClosestPlotItem( const QPoint& pos, bool toggleItem
     }
     else
     {
+        resetPlotItemHighlighting();
         emit plotSelected( toggleItemInSelection );
     }
 
@@ -1015,13 +1003,13 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
                 m_originalCurveProperties.insert( std::make_pair( plotCurve, properties ) );
                 m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
 
+                restoreCurveOrder();
+
                 return;
             }
         }
     }
 
-    // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
-    // plotCurve->setZ() causes the ordering of items in the list to change
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
@@ -1081,15 +1069,15 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
             plotShapeItem->setZ( plotShapeItem->z() + 100.0 );
         }
     }
+
+    restoreCurveOrder();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuQwtPlotWidget::resetPlotItemHighlighting()
+void RiuQwtPlotWidget::resetPlotItemHighlighting( bool refreshCurveOrder /* = false */ )
 {
-    // NB! Create a copy of the item list before the loop to avoid invalidated iterators when iterating the list
-    // plotCurve->setZ() causes the ordering of items in the list to change
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
@@ -1129,6 +1117,8 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting()
     m_originalZValues.clear();
 
     resetPlotAxisHighlighting();
+
+    if ( refreshCurveOrder ) restoreCurveOrder();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1525,10 +1515,13 @@ QwtAxisId RiuQwtPlotWidget::toQwtPlotAxis( RiuPlotAxis plotAxis ) const
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::highlightPlotItem( const QwtPlotItem* plotItem )
 {
-    resetPlotItemHighlighting();
+    bool refreshCurveOrder = false;
+    resetPlotItemHighlighting( refreshCurveOrder );
+
     std::set<const QwtPlotItem*> items;
     items.insert( plotItem );
     highlightPlotItems( items );
+
     replot();
 }
 
@@ -1541,4 +1534,12 @@ void RiuQwtPlotWidget::onLegendClicked( const QVariant& itemInfo, int index )
 
     QwtPlotItem* plotItem = qvariant_cast<QwtPlotItem*>( itemInfo );
     if ( plotItem ) highlightPlotItem( plotItem );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::restoreCurveOrder()
+{
+    emit curveOrderNeedsUpdate();
 }

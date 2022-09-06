@@ -190,7 +190,6 @@ signals:
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;
     void hideEvent( QHideEvent* event ) override;
-    void showEvent( QShowEvent* event ) override;
     void resizeEvent( QResizeEvent* event ) override;
     void keyPressEvent( QKeyEvent* event ) override;
 
@@ -216,12 +215,14 @@ private:
     void highlightPlotAxes( QwtAxisId axisIdX, QwtAxisId axisIdY );
     void highlightPlotItemsForQwtAxis( QwtAxisId axisId );
     void highlightPlotItems( const std::set<const QwtPlotItem*>& closestItems );
-    void resetPlotItemHighlighting();
+    void resetPlotItemHighlighting( bool refreshCurveOrder = true );
     void resetPlotAxisHighlighting();
     void onAxisSelected( QwtScaleWidget* scale, bool toggleItemInSelection );
     void recalculateAxisExtents( RiuPlotAxis axis );
 
     static int highlightItemWidthAdjustment();
+
+    void restoreCurveOrder();
 
 private:
     struct CurveProperties

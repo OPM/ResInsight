@@ -2437,6 +2437,8 @@ RiuPlotWidget* RimSummaryPlot::doCreatePlotViewWidget( QWidget* mainWindowParent
         m_summaryPlot = std::make_unique<RiuSummaryQwtPlot>( this, mainWindowParent );
 #endif
 
+        QObject::connect( plotWidget(), SIGNAL( curveOrderNeedsUpdate() ), this, SLOT( updateCurveOrder() ) );
+
         for ( const auto& axisProperties : m_axisProperties )
         {
             plotWidget()->ensureAxisIsCreated( axisProperties->plotAxisType() );
@@ -2994,4 +2996,12 @@ void RimSummaryPlot::onChildDeleted( caf::PdmChildArrayFieldHandle*      childAr
 RimSummaryPlotSourceStepping* RimSummaryPlot::sourceStepper()
 {
     return m_sourceStepping();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlot::updateCurveOrder()
+{
+    m_summaryCurveCollection->refreshCurveOrdering();
 }

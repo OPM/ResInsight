@@ -188,6 +188,9 @@ public:
 
     virtual void updateZoomDependentCurveProperties();
 
+signals:
+    void curveOrderNeedsUpdate();
+
 protected:
     void updateOverlayFrameLayout();
 
