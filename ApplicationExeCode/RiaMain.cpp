@@ -28,6 +28,8 @@
 #include "RiaGuiApplication.h"
 #endif
 
+#include "cafUiAppearanceSettings.h"
+
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
@@ -73,6 +75,9 @@ int main( int argc, char* argv[] )
 
     // Create feature manager before the application object is created
     RiaMainTools::initializeSingletons();
+
+    // https://www.w3.org/wiki/CSS/Properties/color/keywords
+    caf::UiAppearanceSettings::instance()->setAutoValueEditorColor( "moccasin" );
 
     std::unique_ptr<RiaApplication> app( createApplication( argc, argv ) );
 

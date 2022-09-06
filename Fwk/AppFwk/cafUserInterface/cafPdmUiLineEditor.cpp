@@ -45,10 +45,13 @@
 #include "cafPdmUniqueIdValidator.h"
 #include "cafQShortenedLabel.h"
 #include "cafSelectionManager.h"
+#include "cafUiAppearanceSettings.h"
+#include "cafUiIconFactory.h"
 
 #include <QAbstractItemView>
 #include <QAbstractProxyModel>
 #include <QApplication>
+#include <QBitmap>
 #include <QCompleter>
 #include <QDebug>
 #include <QIntValidator>
@@ -89,7 +92,19 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 
     connect( m_lineEdit, SIGNAL( editingFinished() ), this, SLOT( slotEditingFinished() ) );
 
-    return m_lineEdit;
+    m_placeholder = new QWidget( parent );
+    m_layout      = new QHBoxLayout( m_placeholder );
+    m_layout->setContentsMargins( 0, 0, 0, 0 );
+    m_layout->setSpacing( 0 );
+    m_layout->addWidget( m_lineEdit );
+
+    m_autoValueToolButton = new QToolButton();
+    m_autoValueToolButton->setCheckable( true );
+    m_autoValueToolButton->setToolButtonStyle( Qt::ToolButtonIconOnly );
+
+    connect( m_autoValueToolButton, SIGNAL( clicked() ), this, SLOT( slotApplyAutoValue() ) );
+
+    return m_placeholder;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +138,34 @@ void PdmUiLineEditor::configureAndUpdateUi( const QString& uiConfigName )
             if ( uiObject )
             {
                 uiObject->editorAttribute( uiField()->fieldHandle(), uiConfigName, &leab );
+            }
+
+            if ( uiField()->isAutoValueEnabled() )
+            {
+                QString highlightColor = UiAppearanceSettings::instance()->autoValueEditorColor();
+                m_lineEdit->setStyleSheet( QString( "QLineEdit {background-color: %1;}" ).arg( highlightColor ) );
+            }
+            else
+            {
+                m_lineEdit->setStyleSheet( "" );
+            }
+
+            if ( uiField()->isAutoValueSupported() )
+            {
+                auto icon = UiIconFactory::createTwoStateChainIcon();
+                m_autoValueToolButton->setIcon( icon );
+
+                m_autoValueToolButton->setChecked( uiField()->isAutoValueEnabled() );
+                QString tooltipText = uiField()->isAutoValueEnabled() ? "Linked" : "Unlinked";
+                m_autoValueToolButton->setToolTip( tooltipText );
+
+                m_layout->insertWidget( 1, m_autoValueToolButton );
+                m_autoValueToolButton->show();
+            }
+            else
+            {
+                m_layout->removeWidget( m_autoValueToolButton );
+                m_autoValueToolButton->hide();
             }
 
             if ( leab.validator )
@@ -254,6 +297,8 @@ QMargins PdmUiLineEditor::calculateLabelContentMargins() const
 void PdmUiLineEditor::slotEditingFinished()
 {
     QVariant v;
+
+    uiField()->enableAutoValue( false );
 
     if ( m_optionCache.size() )
     {
@@ -406,6 +451,16 @@ void PdmUiLineEditor::slotCompleterActivated( const QModelIndex& index )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void PdmUiLineEditor::slotApplyAutoValue()
+{
+    bool enable = m_autoValueToolButton->isChecked();
+    uiField()->enableAutoValue( enable );
+    configureAndUpdateUi( "" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 int PdmUiLineEditor::findIndexToOption( const QString& uiText )
 {
     QString uiTextTrimmed = uiText.trimmed();
@@ -420,9 +475,9 @@ int PdmUiLineEditor::findIndexToOption( const QString& uiText )
     return -1;
 }
 
-// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire build.
-// The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at the same
-// line number.
+// Define at this location to avoid duplicate symbol definitions in 'cafPdmUiDefaultObjectEditor.cpp' in a cotire
+// build. The variables defined by the macro are prefixed by line numbers causing a crash if the macro is defined at
+// the same line number.
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiLineEditor );
 
 } // end namespace caf

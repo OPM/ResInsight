@@ -2,14 +2,18 @@
 #include "MainWindow.h"
 
 #include "cafCmdFeatureManager.h"
-#include "cafPdmDefaultObjectFactory.h"
-
 #include "cafFactory.h"
+#include "cafPdmDefaultObjectFactory.h"
 #include "cafPdmUiFieldEditorHandle.h"
+#include "cafUiAppearanceSettings.h"
+
 #include <QApplication>
 
 int main(int argc, char* argv[])
 {
+    // https://www.w3.org/wiki/CSS/Properties/color/keywords
+    caf::UiAppearanceSettings::instance()->setAutoValueEditorColor("moccasin");
+
     auto appExitCode = 0;
     {
         QApplication app(argc, argv);

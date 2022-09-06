@@ -117,7 +117,8 @@ private:
                           RiaDefines::DepthTypeEnum  depthType,
                           const std::vector<double>& depthValues,
                           const std::vector<double>& accFlow,
-                          RimWellLogTrack*           plotTrack );
+                          RimWellLogTrack*           plotTrack,
+                          bool                       showCurve );
 
     void           updateWidgetTitleWindowTitle();
     static QString wellStatusTextForTimeStep( const QString&              wellName,

@@ -124,6 +124,8 @@ public:
 
     void setReaderSettings( std::shared_ptr<RifReaderSettings> readerSettings );
 
+    void updateResultAddressCollection();
+
 protected:
     void initAfterRead() override;
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -140,7 +142,7 @@ protected:
 private:
     void                    createTimeStepFormatString();
     std::vector<Rim3dView*> allSpecialViews() const override;
-    void                    buildChildNodes();
+    void                    buildResultChildNodes();
 
 protected:
     caf::PdmField<bool>                                    m_flipXAxis;

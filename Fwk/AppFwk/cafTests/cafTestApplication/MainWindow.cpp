@@ -656,9 +656,9 @@ class SmallDemoPdmObjectA : public caf::PdmObject
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum TestEnumType
+    enum class TestEnumType
     {
-        T1,
+        T1 = 10,
         T2,
         T3
     };
@@ -687,15 +687,14 @@ public:
                           "Enter some small number here",
                           "This is a place you can enter a small integer value if you want");
         CAF_PDM_InitField(&m_textField, "TextField", QString("Small Demo Object A"), "Name Text Field", "", "", "");
-        CAF_PDM_InitField(&m_testEnumField, "TestEnumValue", caf::AppEnum<TestEnumType>(T1), "EnumField", "", "", "");
+        CAF_PDM_InitField(
+            &m_testEnumField, "TestEnumValue", caf::AppEnum<TestEnumType>(TestEnumType::T1), "EnumField", "", "", "");
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "", "");
 
         CAF_PDM_InitFieldNoDefault(&m_proxyEnumField, "ProxyEnumValue", "ProxyEnum", "", "", "");
         m_proxyEnumField.registerSetMethod(this, &SmallDemoPdmObjectA::setEnumMember);
         m_proxyEnumField.registerGetMethod(this, &SmallDemoPdmObjectA::enumMember);
-        m_proxyEnumMember = T2;
-
-        m_testEnumField.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiListEditor::uiEditorTypeName());
+        m_proxyEnumMember = TestEnumType::T2;
 
         CAF_PDM_InitFieldNoDefault(&m_multipleAppEnum, "MultipleAppEnumValue", "MultipleAppEnumValue", "", "", "");
         m_multipleAppEnum.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(
@@ -741,7 +740,7 @@ public:
         }
         else if (changedField == &m_highlightedEnum)
         {
-            std::cout << "Highlight value " << m_highlightedEnum() << std::endl;
+            std::cout << "Highlight value " << m_highlightedEnum().uiText().toStdString() << std::endl;
         }
         else if (changedField == &m_pushButtonField)
         {
@@ -803,6 +802,45 @@ public:
         return &m_textField;
     }
 
+    void enableAutoValueForTestEnum(TestEnumType value)
+    {
+        // Convert to integer value as this is used when communicating enum from UI to field enum value
+        // See PdmUiFieldSpecialization<caf::AppEnum<T>>
+        auto enumValue = static_cast<std::underlying_type_t<TestEnumType>>(value);
+
+        m_testEnumField.uiCapability()->enableAndSetAutoValue(enumValue);
+    }
+
+    void enableAutoValueForDouble(double value)
+    {
+        m_doubleField.uiCapability()->enableAndSetAutoValue(value);
+    }
+
+    void enableAutoValueForInt(double value)
+    {
+        m_intField.uiCapability()->enableAndSetAutoValue(value);
+    }
+
+    void setAutoValueForTestEnum(TestEnumType value)
+    {
+        // Convert to integer value as this is used when communicating enum from UI to field enum value
+        // See PdmUiFieldSpecialization<caf::AppEnum<T>>
+        auto enumValue = static_cast<std::underlying_type_t<TestEnumType>>(value);
+
+        m_testEnumField.uiCapability()->setAutoValue(enumValue);
+    }
+
+    void setAutoValueForDouble(double value)
+    {
+        m_doubleField.uiCapability()->setAutoValue(value);
+        m_doubleField.uiCapability()->updateConnectedEditors();
+    }
+
+    void setAutoValueForInt(double value)
+    {
+        m_intField.uiCapability()->setAutoValue(value);
+    }
+
 protected:
     //--------------------------------------------------------------------------------------------------
     ///
@@ -850,10 +888,10 @@ namespace caf
 template<>
 void AppEnum<SmallDemoPdmObjectA::TestEnumType>::setUp()
 {
-    addItem(SmallDemoPdmObjectA::T1, "T1", "An A letter");
-    addItem(SmallDemoPdmObjectA::T2, "T2", "A B letter");
-    addItem(SmallDemoPdmObjectA::T3, "T3", "A B C letter");
-    setDefault(SmallDemoPdmObjectA::T1);
+    addItem(SmallDemoPdmObjectA::TestEnumType::T1, "T1", "An A letter");
+    addItem(SmallDemoPdmObjectA::TestEnumType::T2, "T2", "A B letter");
+    addItem(SmallDemoPdmObjectA::TestEnumType::T3, "T3", "A B C letter");
+    setDefault(SmallDemoPdmObjectA::TestEnumType::T1);
 }
 
 } // namespace caf
@@ -870,6 +908,13 @@ public:
             "Demo Object", "", "This object is a demo of the CAF framework", "This object is a demo of the CAF framework");
 
         CAF_PDM_InitField(&m_toggleField, "Toggle", false, "Toggle Field", "", "Toggle Field tooltip", " Toggle Field whatsthis");
+
+        CAF_PDM_InitField(&m_applyAutoOnChildObjectFields, "ApplyAutoValue", false, "Apply Auto Values");
+        m_applyAutoOnChildObjectFields.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+
+        CAF_PDM_InitField(&m_updateAutoValues, "UpdateAutoValue", false, "Update Auto Values");
+        m_updateAutoValues.uiCapability()->setUiEditorTypeName(caf::PdmUiPushButtonEditor::uiEditorTypeName());
+
         CAF_PDM_InitField(&m_doubleField,
                           "BigNumber",
                           0.0,
@@ -906,7 +951,6 @@ public:
                                    "Same type list of PdmObjects");
         m_objectListOfSameType.uiCapability()->setUiEditorTypeName(caf::PdmUiTableViewEditor::uiEditorTypeName());
         m_objectListOfSameType.uiCapability()->setCustomContextMenuEnabled(true);
-        ;
         CAF_PDM_InitFieldNoDefault(&m_ptrField, "m_ptrField", "PtrField", "", "Same type List", "Same type list of PdmObjects");
 
         m_filePath.capability<caf::PdmUiFieldHandle>()->setUiEditorTypeName(caf::PdmUiFilePathEditor::uiEditorTypeName());
@@ -922,6 +966,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     void defineUiOrdering(QString uiConfigName, caf::PdmUiOrdering& uiOrdering) override
     {
+        uiOrdering.add(&m_applyAutoOnChildObjectFields);
+        uiOrdering.add(&m_updateAutoValues);
+
         uiOrdering.add(&m_objectListOfSameType);
         uiOrdering.add(&m_ptrField);
         uiOrdering.add(&m_boolField);
@@ -992,6 +1039,8 @@ public:
     caf::PdmPtrField<SmallDemoPdmObjectA*>         m_ptrField;
 
     caf::PdmField<bool> m_toggleField;
+    caf::PdmField<bool> m_applyAutoOnChildObjectFields;
+    caf::PdmField<bool> m_updateAutoValues;
 
     MenuItemProducer* m_menuItemProducer;
 
@@ -1005,6 +1054,40 @@ public:
         if (changedField == &m_toggleField)
         {
             std::cout << "Toggle Field changed" << std::endl;
+        }
+
+        static int counter = 0;
+        counter++;
+        double doubleValue = 1.23456 + counter;
+        int    intValue    = -1213141516 + counter;
+        auto   enumValue   = SmallDemoPdmObjectA::TestEnumType::T2;
+
+        if (changedField == &m_applyAutoOnChildObjectFields)
+        {
+            std::vector<SmallDemoPdmObjectA*> objs;
+            descendantsIncludingThisOfType(objs);
+            for (auto obj : objs)
+            {
+                obj->enableAutoValueForDouble(doubleValue);
+                obj->enableAutoValueForInt(intValue);
+                obj->enableAutoValueForTestEnum(enumValue);
+            }
+
+            m_applyAutoOnChildObjectFields = false;
+        }
+
+        if (changedField == &m_updateAutoValues)
+        {
+            std::vector<SmallDemoPdmObjectA*> objs;
+            descendantsIncludingThisOfType(objs);
+            for (auto obj : objs)
+            {
+                obj->setAutoValueForDouble(doubleValue);
+                obj->setAutoValueForInt(intValue);
+                obj->setAutoValueForTestEnum(enumValue);
+            }
+
+            m_updateAutoValues = false;
         }
     }
 
@@ -1041,6 +1124,31 @@ protected:
         if (fieldNeedingMenu == &m_objectListOfSameType)
         {
             caf::PdmUiTableView::addActionsToMenu(menu, &m_objectListOfSameType);
+        }
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    void defineEditorAttribute(const caf::PdmFieldHandle* field,
+                               QString                    uiConfigName,
+                               caf::PdmUiEditorAttribute* attribute) override
+    {
+        if (field == &m_applyAutoOnChildObjectFields)
+        {
+            auto* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->m_buttonText = "Apply Auto Values";
+            }
+        }
+        if (field == &m_updateAutoValues)
+        {
+            auto* attr = dynamic_cast<caf::PdmUiPushButtonEditorAttribute*>(attribute);
+            if (attr)
+            {
+                attr->m_buttonText = "Update Auto Values";
+            }
         }
     }
 };

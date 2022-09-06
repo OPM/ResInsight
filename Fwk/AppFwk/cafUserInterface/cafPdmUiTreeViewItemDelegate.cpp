@@ -287,8 +287,11 @@ bool PdmUiTreeViewItemDelegate::editorEvent( QEvent*                     event,
                         PdmFieldReorderCapability* reorderability =
                             PdmFieldReorderCapability::reorderCapabilityOfParentContainer( pdmObject );
 
-                        size_t indexInParent = reorderability->indexOf( pdmObject );
-                        tag->clicked.send( indexInParent );
+                        if ( reorderability )
+                        {
+                            size_t indexInParent = reorderability->indexOf( pdmObject );
+                            tag->clicked.send( indexInParent );
+                        }
                     }
                 }
 

@@ -151,7 +151,7 @@ private:
 
     QModelIndex mapIndexIfNecessary( QModelIndex index ) const;
 
-    void updateSelectionManager();
+    bool updateSelectionManager();
     void updateItemDelegateForSubTree( const QModelIndex& subRootIndex = QModelIndex() );
 
     bool eventFilter( QObject* obj, QEvent* event ) override;
