@@ -100,8 +100,15 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
         RimMainPlotCollection::current()->ensureDefaultFlowPlotsAreCreated();
     }
 
-    // Import summary cases
-    bool importSummaryCases = readerSettings && readerSettings->importSummaryData;
+    // The default value for summary case import is true, but we use the state from RifReaderSettings if defined
+    //
+    // TODO:
+    // Refactor RifReaderSettings, separate the data structure sent to reader from the data structure in
+    // preferences. See RifReaderSettings::createGridOnlyReaderSettings() for the only use of importSummaryData flag
+    //
+    bool importSummaryCases = true;
+    if ( readerSettings ) importSummaryCases = readerSettings->importSummaryData;
+
     if ( importSummaryCases && !summaryFileInfos.empty() )
     {
         RimSummaryCaseMainCollection* sumCaseColl =
@@ -207,6 +214,11 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
     project->activeOilField()->completionTemplateCollection()->setDefaultUnitSystemBasedOnLoadedCases();
 
     RiuPlotMainWindowTools::refreshToolbars();
+
+    // Call process events to clear the queue. This make sure that we are able raise the 3D window on top of the plot
+    // window. Otherwise the event processing ends up with the plot window on top.
+    QApplication::processEvents();
+    RiuMainWindow::instance()->activateWindow();
 
     if ( openedFilesOut )
     {
