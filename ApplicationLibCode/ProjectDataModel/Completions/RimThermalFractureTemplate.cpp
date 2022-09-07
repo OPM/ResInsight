@@ -712,3 +712,11 @@ bool RimThermalFractureTemplate::isValidResult( double value ) const
 {
     return !std::isinf( value ) && !std::isnan( value );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RigThermalFractureDefinition* RimThermalFractureTemplate::fractureDefinition() const
+{
+    return m_fractureDefinitionData.get();
+}
