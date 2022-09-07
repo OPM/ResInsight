@@ -103,6 +103,8 @@ public:
 
     std::pair<cvf::Vec3d, cvf::Vec3d> computePositionAndRotation() const;
 
+    const RigThermalFractureDefinition* fractureDefinition() const;
+
 protected:
     QString     getFileSelectionFilter() const override;
     QStringList conductivityResultNames() const override;
