@@ -117,41 +117,5 @@ TEST( DISABLED_RifThermalFractureReaderTest, CreateXyzPointCloud )
     QString fileName = CASE_REAL_TEST_DATA_DIRECTORY_03 + "fracture_OS_metric_units_final.csv";
 
     auto [fractureData, errorMessage] = RifThermalFractureReader::readFractureCsvFile( fileName );
-
-    auto numNodes     = fractureData->numNodes();
-    auto numTimeSteps = fractureData->numTimeSteps();
-    auto properties   = fractureData->getPropertyNamesUnits();
-
-    for ( size_t timeStepIndex = 0; timeStepIndex < numTimeSteps; timeStepIndex++ )
-    {
-        QString exportfileName = QString( CASE_REAL_TEST_DATA_DIRECTORY_03 + "msjtest-%1.xyz" ).arg( timeStepIndex );
-
-        std::vector<double> xs;
-        std::vector<double> ys;
-        std::vector<double> zs;
-
-        for ( int nodeIndex = 0; nodeIndex < static_cast<int>( numNodes ); nodeIndex++ )
-        {
-            xs.push_back(
-                fractureData->getPropertyValue( 0, static_cast<int>( nodeIndex ), static_cast<int>( timeStepIndex ) ) );
-            ys.push_back(
-                fractureData->getPropertyValue( 1, static_cast<int>( nodeIndex ), static_cast<int>( timeStepIndex ) ) );
-            zs.push_back(
-                fractureData->getPropertyValue( 2, static_cast<int>( nodeIndex ), static_cast<int>( timeStepIndex ) ) );
-        }
-
-        QFile file( exportfileName );
-        if ( file.open( QIODevice::WriteOnly | QIODevice::Text ) )
-        {
-            QTextStream out( &file );
-
-            out.setRealNumberPrecision( 16 );
-
-            for ( size_t i = 0; i < xs.size(); i++ )
-            {
-                out << xs[i] << " " << ys[i] << " " << zs[i] << "\n";
-            }
-        }
-        file.close();
-    }
+    //    EXPECT_TRUE( );
 }
