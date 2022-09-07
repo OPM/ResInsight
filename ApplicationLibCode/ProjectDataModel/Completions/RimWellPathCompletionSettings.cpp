@@ -141,9 +141,12 @@ void RimWellPathCompletionSettings::setWellNameForExport( const QString& name )
 void RimWellPathCompletionSettings::updateWellPathNameHasChanged( const QString& newWellPathName,
                                                                   const QString& previousWellPathName )
 {
-    if ( m_wellNameForExport().isEmpty() || m_wellNameForExport == previousWellPathName )
+    auto stringWithoutSpace = previousWellPathName;
+    stringWithoutSpace.remove( ' ' );
+
+    if ( m_wellNameForExport().isEmpty() || m_wellNameForExport == stringWithoutSpace )
     {
-        m_wellNameForExport = newWellPathName;
+        setWellNameForExport( newWellPathName );
     }
 }
 
