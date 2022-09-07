@@ -148,6 +148,8 @@ private:
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
 
+    void updateReadOnlyState();
+
 private:
     caf::PdmField<bool> m_autoPlotTitle;
     caf::PdmField<bool> m_autoSubPlotTitle;

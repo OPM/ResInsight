@@ -393,9 +393,6 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     axesGroup->add( &m_linkTimeAxis );
     axesGroup->add( &m_autoAdjustAppearance );
 
-    m_linkSubPlotAxes.uiCapability()->setUiReadOnly( m_autoAdjustAppearance() );
-    if ( m_autoAdjustAppearance() ) m_linkSubPlotAxes = false;
-
     auto plotVisibilityFilterGroup = uiOrdering.addNewGroup( "Plot Visibility Filter" );
     plotVisibilityFilterGroup->add( &m_plotFilterYAxisThreshold );
     plotVisibilityFilterGroup->add( &m_hidePlotsWithValuesBelow );
@@ -437,6 +434,8 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
 {
+    updateReadOnlyState();
+
     if ( changedField == &m_autoPlotTitle || changedField == &m_autoSubPlotTitle )
     {
         onLoadDataAndUpdate();
@@ -453,6 +452,13 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation ||
               changedField == &m_linkTimeAxis )
     {
+        if ( m_linkSubPlotAxes() )
+        {
+            // When axis are linked, the range aggregation does not make sense. Set to none and disable the range
+            // aggregation control
+            m_axisRangeAggregation = AxisRangeAggregation::NONE;
+        }
+
         setOverriddenFlag();
         syncAxisRanges();
     }
@@ -712,6 +718,7 @@ void RimSummaryMultiPlot::initAfterRead()
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
     }
     updateStepDimensionFromDefault();
+    updateReadOnlyState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -732,9 +739,20 @@ void RimSummaryMultiPlot::zoomAll()
 {
     setOverriddenFlag();
 
+    if ( m_linkSubPlotAxes() )
+    {
+        if ( !summaryPlots().empty() )
+        {
+            onSubPlotAxisChanged( nullptr, summaryPlots().front() );
+        }
+
+        updateZoom();
+
+        return;
+    }
+
     // Reset zoom to make sure the complete range for min/max is available
     RimMultiPlot::zoomAll();
-
     syncAxisRanges();
 }
 
@@ -812,6 +830,11 @@ void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
+    if ( m_linkSubPlotAxes() )
+    {
+        return;
+    }
+
     if ( m_axisRangeAggregation() == AxisRangeAggregation::NONE )
     {
         return;
@@ -1242,9 +1265,6 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 
             if ( hasOnlyOneQuantity )
             {
-                // Disable sub plot linking to be able to configure individually
-                setSubPlotAxesLinked( false );
-
                 auto [row, col] = gridLayoutInfoForSubPlot( p );
                 if ( col == 0 )
                 {
@@ -1338,6 +1358,14 @@ void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitte
     }
 
     syncAxisRanges();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::updateReadOnlyState()
+{
+    m_axisRangeAggregation.uiCapability()->setUiReadOnly( m_linkSubPlotAxes() );
 }
 
 //--------------------------------------------------------------------------------------------------
