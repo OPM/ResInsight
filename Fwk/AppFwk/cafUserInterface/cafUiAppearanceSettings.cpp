@@ -60,4 +60,20 @@ void UiAppearanceSettings::setAutoValueEditorColor( const QString& colorName )
     m_autoValueEditorColor = colorName;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString UiAppearanceSettings::globaleValueButtonText()
+{
+    return "Global Value";
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString UiAppearanceSettings::localValueButtonText()
+{
+    return "Local Value";
+}
+
 } // namespace caf
