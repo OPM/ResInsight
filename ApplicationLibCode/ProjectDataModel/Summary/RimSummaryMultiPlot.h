@@ -96,6 +96,7 @@ public:
 
     void setSubPlotAxesLinked( bool enable );
     bool isSubPlotAxesLinked() const;
+    void setTimeAxisLinked( bool enable );
     bool isTimeAxisLinked() const;
 
     std::pair<int, int> gridLayoutInfoForSubPlot( RimSummaryPlot* summaryPlot ) const;
