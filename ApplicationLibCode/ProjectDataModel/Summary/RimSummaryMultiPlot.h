@@ -147,6 +147,7 @@ private:
     void analyzePlotsAndAdjustAppearanceSettings();
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
+    void onSubPlotZoomed( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
 
     void updateReadOnlyState();

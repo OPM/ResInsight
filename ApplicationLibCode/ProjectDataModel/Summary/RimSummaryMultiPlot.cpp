@@ -142,7 +142,7 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_appendPrevCurve.uiCapability()->setUiEditorTypeName( caf::PdmUiPushButtonEditor::uiEditorTypeName() );
     m_appendPrevCurve.uiCapability()->setUiIconFromResourceString( ":/AppendPrevCurve.png" );
 
-    CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", true, "Link Y Axes" );
+    CAF_PDM_InitField( &m_linkSubPlotAxes, "LinkSubPlotAxes", false, "Link Y Axes" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkSubPlotAxes );
     CAF_PDM_InitField( &m_linkTimeAxis, "LinkTimeAxis", true, "Link Time Axis" );
     caf::PdmUiNativeCheckBoxEditor::configureFieldForEditor( &m_linkTimeAxis );
@@ -206,6 +206,7 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
     {
         sumPlot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         sumPlot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
+        sumPlot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
 
         bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
         setOverriddenFlagsForPlot( sumPlot, isMinMaxOverridden, m_autoAdjustAppearance() );
@@ -716,6 +717,7 @@ void RimSummaryMultiPlot::initAfterRead()
     {
         plot->axisChanged.connect( this, &RimSummaryMultiPlot::onSubPlotAxisChanged );
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
+        plot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
     }
     updateStepDimensionFromDefault();
 }
@@ -740,6 +742,9 @@ void RimSummaryMultiPlot::zoomAll()
 
     if ( m_linkSubPlotAxes() )
     {
+        // Reset zoom to make sure the complete range for min/max is available
+        RimMultiPlot::zoomAll();
+
         if ( !summaryPlots().empty() )
         {
             onSubPlotAxisChanged( nullptr, summaryPlots().front() );
@@ -752,6 +757,7 @@ void RimSummaryMultiPlot::zoomAll()
 
     // Reset zoom to make sure the complete range for min/max is available
     RimMultiPlot::zoomAll();
+
     syncAxisRanges();
 }
 
@@ -1340,6 +1346,14 @@ void RimSummaryMultiPlot::onSubPlotChanged( const caf::SignalEmitter* emitter )
 {
     updatePlotWindowTitle();
     applyPlotWindowTitleToWidgets();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryMultiPlot::onSubPlotZoomed( const caf::SignalEmitter* emitter )
+{
+    m_axisRangeAggregation = AxisRangeAggregation::NONE;
 }
 
 //--------------------------------------------------------------------------------------------------
