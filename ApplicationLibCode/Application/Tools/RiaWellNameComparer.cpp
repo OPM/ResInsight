@@ -105,6 +105,18 @@ void RiaWellNameComparer::clearCache()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaWellNameComparer::removeSpacesFromName( const QString& wellName )
+{
+    // Eclipse do not support spaces in names in text files. Use this function whenever a string is used in export to
+    // text files for Eclipse
+
+    QString tmp = wellName;
+    return tmp.remove( ' ' );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RiaWellNameComparer::tryMatchName( QString                           searchName,
                                            const std::vector<QString>&       simWellNames,
                                            std::function<QString( QString )> stringFormatter )

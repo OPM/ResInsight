@@ -18,6 +18,7 @@
 #include "RimWellPathGroup.h"
 
 #include "RiaTextStringTools.h"
+#include "RiaWellNameComparer.h"
 #include "RigWellPath.h"
 
 #include "RimModeledWellPath.h"
@@ -326,9 +327,7 @@ QString RimWellPathGroup::createGroupName() const
     }
     fullName += trimmedCommonSuffix;
 
-    QString nameWithoutSpaces = fullName;
-    nameWithoutSpaces.remove( ' ' );
-
+    QString nameWithoutSpaces = RiaWellNameComparer::removeSpacesFromName( fullName );
     if ( nameWithoutSpaces.length() > 8 ) fullName = trimmedCommonRoot + trimmedCommonSuffix;
 
     if ( fullName.isEmpty() ) fullName = "Well 1";
