@@ -23,7 +23,7 @@
 //==================================================================================================
 ///
 //==================================================================================================
-class RicToggleAxisLinkingFeature : public caf::CmdFeature
+class RicToggleYAxisLinkingFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 

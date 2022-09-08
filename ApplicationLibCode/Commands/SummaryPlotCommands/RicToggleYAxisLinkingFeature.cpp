@@ -16,7 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
-#include "RicToggleAxisLinkingFeature.h"
+#include "RicToggleYAxisLinkingFeature.h"
 
 #include "RimSummaryMultiPlot.h"
 
@@ -24,12 +24,12 @@
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicToggleAxisLinkingFeature, "RicToggleAxisLinkingFeature" );
+CAF_CMD_SOURCE_INIT( RicToggleYAxisLinkingFeature, "RicToggleYAxisLinkingFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicToggleAxisLinkingFeature::isCommandEnabled()
+bool RicToggleYAxisLinkingFeature::isCommandEnabled()
 {
     auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();
     return ( summaryMultiPlot != nullptr );
@@ -38,7 +38,7 @@ bool RicToggleAxisLinkingFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicToggleAxisLinkingFeature::onActionTriggered( bool isChecked )
+void RicToggleYAxisLinkingFeature::onActionTriggered( bool isChecked )
 {
     auto* summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();
     if ( !summaryMultiPlot ) return;
@@ -51,7 +51,7 @@ void RicToggleAxisLinkingFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicToggleAxisLinkingFeature::setupActionLook( QAction* actionToSetup )
+void RicToggleYAxisLinkingFeature::setupActionLook( QAction* actionToSetup )
 {
     QString text             = "Link";
     auto*   summaryMultiPlot = caf::firstAncestorOfTypeFromSelectedObject<RimSummaryMultiPlot*>();

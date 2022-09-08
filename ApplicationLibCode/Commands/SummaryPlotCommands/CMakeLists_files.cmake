@@ -46,7 +46,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryMultiPlotFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubPlotCtxFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotCtxFeature.h
-    ${CMAKE_CURRENT_LIST_DIR}/RicToggleAxisLinkingFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicToggleYAxisLinkingFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleXAxisLinkingFeature.h
 )
 
@@ -98,7 +98,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicPasteSummaryMultiPlotFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicDeleteSubPlotCtxFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEditSummaryPlotCtxFeature.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RicToggleAxisLinkingFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicToggleYAxisLinkingFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicToggleXAxisLinkingFeature.cpp
 )
 

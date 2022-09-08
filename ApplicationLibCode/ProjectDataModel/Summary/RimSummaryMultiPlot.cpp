@@ -425,6 +425,8 @@ void RimSummaryMultiPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     legendsGroup->add( &m_legendFontSize );
 
     uiOrdering.skipRemainingFields( true );
+
+    updateReadOnlyState();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -434,8 +436,6 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
 {
-    updateReadOnlyState();
-
     if ( changedField == &m_autoPlotTitle || changedField == &m_autoSubPlotTitle )
     {
         onLoadDataAndUpdate();
@@ -718,7 +718,6 @@ void RimSummaryMultiPlot::initAfterRead()
         plot->curvesChanged.connect( this, &RimSummaryMultiPlot::onSubPlotChanged );
     }
     updateStepDimensionFromDefault();
-    updateReadOnlyState();
 }
 
 //--------------------------------------------------------------------------------------------------

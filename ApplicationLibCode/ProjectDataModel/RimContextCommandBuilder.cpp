@@ -1076,7 +1076,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             if ( dynamic_cast<RimPlotAxisProperties*>( firstUiItem ) )
             {
-                menuBuilder << "RicToggleAxisLinkingFeature";
+                menuBuilder << "RicToggleYAxisLinkingFeature";
             }
             if ( dynamic_cast<RimSummaryTimeAxisProperties*>( firstUiItem ) )
             {
