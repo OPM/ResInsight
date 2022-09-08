@@ -18,9 +18,11 @@
 #include "RimWellPathCompletionSettings.h"
 
 #include "RiaStdStringTools.h"
-#include "RimMswCompletionParameters.h"
+#include "RiaWellNameComparer.h"
 
+#include "RimMswCompletionParameters.h"
 #include "RimWellPath.h"
+
 #include "cafPdmDoubleStringValidator.h"
 #include "cafPdmUiLineEditor.h"
 #include "cafPdmUiOrdering.h"
@@ -131,8 +133,7 @@ RimWellPathCompletionSettings& RimWellPathCompletionSettings::operator=( const R
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCompletionSettings::setWellNameForExport( const QString& name )
 {
-    auto n              = name;
-    m_wellNameForExport = n.remove( ' ' );
+    m_wellNameForExport = RiaWellNameComparer::removeSpacesFromName( name );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -141,9 +142,11 @@ void RimWellPathCompletionSettings::setWellNameForExport( const QString& name )
 void RimWellPathCompletionSettings::updateWellPathNameHasChanged( const QString& newWellPathName,
                                                                   const QString& previousWellPathName )
 {
-    if ( m_wellNameForExport().isEmpty() || m_wellNameForExport == previousWellPathName )
+    auto previousWellNameWithoutSpaces = RiaWellNameComparer::removeSpacesFromName( previousWellPathName );
+
+    if ( m_wellNameForExport().isEmpty() || m_wellNameForExport == previousWellNameWithoutSpaces )
     {
-        m_wellNameForExport = newWellPathName;
+        setWellNameForExport( newWellPathName );
     }
 }
 

@@ -152,7 +152,7 @@ RimModeledWellPath* RicPasteModeledWellPathFeature::duplicateAndInitializeWellPa
     auto* destinationWellPath = dynamic_cast<RimModeledWellPath*>(
         sourceWellPath->xmlCapability()->copyByXmlSerialization( caf::PdmDefaultObjectFactory::instance() ) );
 
-    QString name = sourceWellPath->name() + " (copy)";
+    QString name = sourceWellPath->name() + "(copy)";
     destinationWellPath->setName( name );
 
     wpc->addWellPath( destinationWellPath, false );

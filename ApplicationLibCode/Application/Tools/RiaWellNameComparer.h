@@ -38,6 +38,8 @@ public:
 
     static void clearCache();
 
+    static QString removeSpacesFromName( const QString& wellName );
+
 private:
     static QString tryMatchName( QString                           searchName,
                                  const std::vector<QString>&       nameList,
