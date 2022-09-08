@@ -149,5 +149,13 @@ RimSummaryPlot* RicEditSummaryPlotFeature::selectedSummaryPlot()
         sumPlot = RiaSummaryTools::parentSummaryPlot( selObj );
     }
 
+    if ( !sumPlot )
+    {
+        RimSummaryMultiPlot* multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
+        if ( multiPlot )
+        {
+        }
+    }
+
     return sumPlot;
 }

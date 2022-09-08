@@ -29,6 +29,7 @@
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
+#include "RimObservedDataCollection.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
@@ -50,24 +51,31 @@ CAF_CMD_SOURCE_INIT( RicOpenSummaryPlotEditorFeature, "RicOpenSummaryPlotEditorF
 //--------------------------------------------------------------------------------------------------
 bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
 {
-    RimSummaryMultiPlot*                  multiPlot               = nullptr;
+    // RimSummaryMultiPlot*                  multiPlot               = nullptr;
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
-        selObj->firstAncestorOrThisOfType( customObjFuncCollection );
-    }
+    if ( !selObj ) return false;
+
+    selObj->firstAncestorOrThisOfType( customObjFuncCollection );
 
     auto ensembleFilter     = dynamic_cast<RimEnsembleCurveFilter*>( selObj );
     auto ensembleFilterColl = dynamic_cast<RimEnsembleCurveFilterCollection*>( selObj );
     auto legendConfig       = dynamic_cast<RimRegularLegendConfig*>( selObj );
+    auto sumPlot            = dynamic_cast<RimSummaryPlot*>( selObj );
 
-    if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection ) return false;
-    if ( multiPlot ) return true;
+    if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection || sumPlot ) return false;
 
-    return true;
+    // multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
+    // if ( multiPlot ) return true;
+
+    auto summaryCase     = dynamic_cast<RimSummaryCase*>( selObj );
+    auto summaryCaseColl = dynamic_cast<RimSummaryCaseCollection*>( selObj );
+    auto obsColl         = dynamic_cast<RimObservedDataCollection*>( selObj );
+
+    if ( summaryCase || summaryCaseColl || obsColl ) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
