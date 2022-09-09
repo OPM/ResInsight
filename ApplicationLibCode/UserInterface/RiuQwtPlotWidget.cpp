@@ -1486,7 +1486,13 @@ void RiuQwtPlotWidget::onLegendClicked( const QVariant& itemInfo, int index )
     if ( !itemInfo.canConvert<QwtPlotItem*>() ) return;
 
     QwtPlotItem* plotItem = qvariant_cast<QwtPlotItem*>( itemInfo );
-    if ( plotItem ) highlightPlotItem( plotItem );
+    if ( plotItem )
+    {
+        highlightPlotItem( plotItem );
+
+        auto wrappedPlotItem = std::make_shared<RiuQwtPlotItem>( plotItem );
+        emit plotItemSelected( wrappedPlotItem, false, -1 );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
