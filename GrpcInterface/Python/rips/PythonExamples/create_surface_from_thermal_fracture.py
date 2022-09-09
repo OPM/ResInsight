@@ -12,7 +12,6 @@ import pyvista as pv
 def generate_surface_from_file(path):
     point_cloud_data = np.loadtxt(path, delimiter=" ", skiprows=1)
 
-
     # Get [x, y, z] components in separate matrix
     num_rows = point_cloud_data.shape[0]
     xyz = point_cloud_data[0:num_rows, 0:3]
@@ -107,9 +106,15 @@ for fracture in fractures:
 
     time_steps = fracture.time_steps().values
     for time_step_index, time_step in enumerate(time_steps):
-        print("Generating surface for time step #{}: {}".format(time_step_index, time_step))
+        print(
+            "Generating surface for time step #{}: {}".format(
+                time_step_index, time_step
+            )
+        )
         temp_file_path = Path(temp_folder) / "output.xyz"
-        fracture.export_to_file(file_path=temp_file_path.as_posix(), time_step=time_step_index)
+        fracture.export_to_file(
+            file_path=temp_file_path.as_posix(), time_step=time_step_index
+        )
 
         # Reconstruct a surface from the exported values file
         (surface, point_cloud, properties) = generate_surface_from_file(
@@ -117,8 +122,14 @@ for fracture in fractures:
         )
 
         # Export surface ts file from the surface data
-        output_file_path = output_directory / "time_step_{:03d}.ts".format(time_step_index)
+        output_file_path = output_directory / "time_step_{:03d}.ts".format(
+            time_step_index
+        )
         export_surface_as_ts_file(
             surface, point_cloud, properties, output_file_path.as_posix()
         )
-        print("Wrote surface for time step #{} to {}".format(time_step, output_file_path.as_posix()))
+        print(
+            "Wrote surface for time step #{} to {}".format(
+                time_step, output_file_path.as_posix()
+            )
+        )
