@@ -858,7 +858,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
 
     if ( m_axisRangeAggregation() == AxisRangeAggregation::SUB_PLOTS )
     {
-        std::map<RiuPlotAxis, std::pair<double, double>> axisRanges;
+        std::map<QString, std::pair<double, double>> axisRanges;
 
         // gather current min/max values for each category (axis label)
         for ( auto plot : summaryPlots() )
@@ -869,15 +869,15 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 double maxVal = axis->visibleRangeMax();
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
 
-                if ( axisRanges.count( axis->plotAxisType() ) == 0 )
+                auto text = axis->axisTitleText();
+                if ( axisRanges.count( text ) == 0 )
                 {
-                    axisRanges[axis->plotAxisType()] = std::make_pair( minVal, maxVal );
+                    axisRanges[text] = std::make_pair( minVal, maxVal );
                 }
                 else
                 {
-                    auto& [currentMin, currentMax] = axisRanges[axis->plotAxisType()];
-                    axisRanges[axis->plotAxisType()] =
-                        std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+                    auto& [currentMin, currentMax] = axisRanges[text];
+                    axisRanges[text] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
                 }
             }
         }
@@ -887,7 +887,7 @@ void RimSummaryMultiPlot::syncAxisRanges()
         {
             for ( auto axis : plot->plotYAxes() )
             {
-                auto [minVal, maxVal] = axisRanges[axis->plotAxisType()];
+                auto [minVal, maxVal] = axisRanges[axis->axisTitleText()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
                 axis->setAutoZoom( false );
                 axis->setAutoValueVisibleRangeMin( minVal );
