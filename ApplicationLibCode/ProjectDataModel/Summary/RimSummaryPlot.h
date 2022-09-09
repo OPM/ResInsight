@@ -81,6 +81,7 @@ class RimSummaryPlot : public RimPlot, public RimSummaryDataSourceStepping
 public:
     caf::Signal<>                curvesChanged;
     caf::Signal<RimSummaryPlot*> axisChanged;
+    caf::Signal<>                plotZoomedByUser;
 
 public:
     RimSummaryPlot( bool isCrossPlot = false );

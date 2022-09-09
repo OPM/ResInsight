@@ -104,6 +104,7 @@ RimSummaryPlot::RimSummaryPlot( bool isCrossPlot )
     , m_isCrossPlot( isCrossPlot )
     , curvesChanged( this )
     , axisChanged( this )
+    , plotZoomedByUser( this )
     , m_isValid( true )
 {
     CAF_PDM_InitScriptableObject( "Summary Plot", ":/SummaryPlotLight16x16.png", "", "A Summary Plot" );
@@ -1744,6 +1745,8 @@ void RimSummaryPlot::updateZoomFromParentPlot()
         {
             propertyAxis->setAutoValueVisibleRangeMax( axisMax );
             propertyAxis->setAutoValueVisibleRangeMin( axisMin );
+            axisProperties->setVisibleRangeMax( axisMax );
+            axisProperties->setVisibleRangeMin( axisMin );
         }
         else
         {
@@ -2372,8 +2375,18 @@ RimEnsembleCurveSet* RimSummaryPlot::addNewEnsembleCurveY( const RifEclipseSumma
 //--------------------------------------------------------------------------------------------------
 void RimSummaryPlot::onPlotZoomed()
 {
+    // Disable auto scale in plot engine
     setAutoScaleXEnabled( false );
     setAutoScaleYEnabled( false );
+
+    // Disable auto value for min/max fields
+    for ( auto p : plotYAxes() )
+    {
+        p->enableAutoValueMinMax( false );
+    }
+
+    plotZoomedByUser.send();
+
     updateZoomFromParentPlot();
 
     axisChanged.send( this );
