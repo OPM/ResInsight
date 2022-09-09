@@ -869,15 +869,16 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 double maxVal = axis->visibleRangeMax();
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
 
-                auto text = axis->axisTitleText();
-                if ( axisRanges.count( text ) == 0 )
+                auto axisTitleText = axis->axisTitleText();
+                if ( axisRanges.count( axisTitleText ) == 0 )
                 {
-                    axisRanges[text] = std::make_pair( minVal, maxVal );
+                    axisRanges[axisTitleText] = std::make_pair( minVal, maxVal );
                 }
                 else
                 {
-                    auto& [currentMin, currentMax] = axisRanges[text];
-                    axisRanges[text] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+                    auto& [currentMin, currentMax] = axisRanges[axisTitleText];
+                    axisRanges[axisTitleText] =
+                        std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
                 }
             }
         }
