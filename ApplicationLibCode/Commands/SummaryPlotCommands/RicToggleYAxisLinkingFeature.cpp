@@ -50,7 +50,6 @@ void RicToggleYAxisLinkingFeature::onActionTriggered( bool isChecked )
     for ( auto plot : summaryMultiPlot->summaryPlots() )
     {
         plot->axisChanged.send( plot );
-
         plot->updateAxes();
     }
 

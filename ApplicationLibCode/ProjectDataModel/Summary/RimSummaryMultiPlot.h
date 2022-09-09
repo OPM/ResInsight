@@ -135,9 +135,9 @@ private:
     void updateSourceStepper();
 
     void updatePlotVisibility();
-    void setOverriddenFlag();
+    void setAutoValueStates();
     static void
-        setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
+        setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
 
     void duplicate();
 

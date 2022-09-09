@@ -73,7 +73,7 @@ namespace caf
 template <>
 void AppEnum<RimSummaryMultiPlot::AxisRangeAggregation>::setUp()
 {
-    addItem( RimSummaryMultiPlot::AxisRangeAggregation::NONE, "NONE", "None" );
+    addItem( RimSummaryMultiPlot::AxisRangeAggregation::NONE, "NONE", "Per Sub Plot" );
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::SUB_PLOTS, "SUB_PLOTS", "All Sub Plots" );
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::WELLS, "WELLS", "All Wells" );
     addItem( RimSummaryMultiPlot::AxisRangeAggregation::REGIONS, "REGIONS", "All Regions" );
@@ -209,7 +209,7 @@ void RimSummaryMultiPlot::insertPlot( RimPlot* plot, size_t index )
         sumPlot->plotZoomedByUser.connect( this, &RimSummaryMultiPlot::onSubPlotZoomed );
 
         bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
-        setOverriddenFlagsForPlot( sumPlot, isMinMaxOverridden, m_autoAdjustAppearance() );
+        setAutoValueStatesForPlot( sumPlot, isMinMaxOverridden, m_autoAdjustAppearance() );
 
         RimMultiPlot::insertPlot( plot, index );
     }
@@ -453,14 +453,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_linkSubPlotAxes || changedField == &m_axisRangeAggregation ||
               changedField == &m_linkTimeAxis )
     {
-        if ( m_linkSubPlotAxes() )
-        {
-            // When axis are linked, the range aggregation does not make sense. Set to none and disable the range
-            // aggregation control
-            m_axisRangeAggregation = AxisRangeAggregation::NONE;
-        }
-
-        setOverriddenFlag();
+        setAutoValueStates();
         syncAxisRanges();
     }
     else if ( changedField == &m_hidePlotsWithValuesBelow )
@@ -499,7 +492,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     }
     else if ( changedField == &m_autoAdjustAppearance )
     {
-        setOverriddenFlag();
+        setAutoValueStates();
         checkAndApplyAutoAppearance();
     }
     else
@@ -738,7 +731,7 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::zoomAll()
 {
-    setOverriddenFlag();
+    setAutoValueStates();
 
     if ( m_linkSubPlotAxes() )
     {
@@ -815,7 +808,7 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     m_axisRangeAggregation = rangeAggregation;
     m_sourceStepping->setStepDimension( stepDimension );
 
-    setOverriddenFlag();
+    setAutoValueStates();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1177,19 +1170,19 @@ void RimSummaryMultiPlot::updatePlotVisibility()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::setOverriddenFlag()
+void RimSummaryMultiPlot::setAutoValueStates()
 {
-    bool isMinMaxOverridden = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
+    bool enableMinMaxAutoValue = m_axisRangeAggregation() != AxisRangeAggregation::NONE;
     for ( auto p : summaryPlots() )
     {
-        setOverriddenFlagsForPlot( p, isMinMaxOverridden, m_autoAdjustAppearance() );
+        setAutoValueStatesForPlot( p, enableMinMaxAutoValue, m_autoAdjustAppearance() );
     }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot,
+void RimSummaryMultiPlot::setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot,
                                                      bool            enableAutoValueMinMax,
                                                      bool            enableAutoValueAppearance )
 {
