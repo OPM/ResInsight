@@ -50,7 +50,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
 
     auto appendPropertyValues = [definition]( int nodeIndex, int valueOffset, const QStringList& values ) {
         CAF_ASSERT( valueOffset <= values.size() );
-        for ( int i = valueOffset; i < values.size() - 1; i++ )
+        for ( int i = valueOffset; i < values.size(); i++ )
         {
             double value         = values[i].toDouble();
             int    propertyIndex = i - valueOffset;
@@ -80,7 +80,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
             if ( isFirstHeader )
             {
                 // Create the result vector when encountering the first header
-                for ( int i = valueOffset; i < headerValues.size() - 1; i++ )
+                for ( int i = valueOffset; i < headerValues.size(); i++ )
                 {
                     auto [name, unit] = parseNameAndUnit( headerValues[i] );
                     if ( !name.isEmpty() && !unit.isEmpty() ) definition->addProperty( name, unit );
