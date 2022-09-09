@@ -492,7 +492,12 @@ void RiuQwtPlotCurve::setSamplesFromXYErrorValues( const std::vector<double>&   
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotCurve::setXAxis( RiuPlotAxis axis )
 {
-    if ( m_plotWidget ) QwtPlotCurve::setXAxis( m_plotWidget->toQwtPlotAxis( axis ) );
+    if ( m_plotWidget )
+    {
+        auto axisId = m_plotWidget->toQwtPlotAxis( axis );
+        QwtPlotCurve::setXAxis( axisId );
+        if ( m_qwtCurveErrorBars ) m_qwtCurveErrorBars->setXAxis( axisId );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
