@@ -29,6 +29,7 @@
 #include "RimObservedEclipseUserData.h"
 #include "RimObservedFmuRftData.h"
 #include "RimObservedSummaryData.h"
+#include "RimProject.h"
 #include "RimSummaryObservedDataFile.h"
 
 #include "RiuPlotMainWindow.h"
@@ -154,6 +155,7 @@ RimObservedSummaryData*
         errorText->append( observedData->errorMessagesFromReader() );
     }
 
+    RimProject::current()->assignCaseIdToSummaryCase( observedData );
     updateNewObservedDataCreated( observedData );
 
     this->updateConnectedEditors();
@@ -221,6 +223,7 @@ RimObservedSummaryData*
         return nullptr;
     }
 
+    RimProject::current()->assignCaseIdToSummaryCase( observedData );
     updateNewObservedDataCreated( observedData );
 
     this->updateConnectedEditors();
