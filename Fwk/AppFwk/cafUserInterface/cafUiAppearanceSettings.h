@@ -47,6 +47,9 @@ public:
     QString autoValueEditorColor() const;
     void    setAutoValueEditorColor( const QString& colorName );
 
+    static QString globaleValueButtonText();
+    static QString localValueButtonText();
+
 private:
     QString m_autoValueEditorColor;
 };

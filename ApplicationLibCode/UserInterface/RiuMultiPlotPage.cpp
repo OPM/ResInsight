@@ -755,7 +755,10 @@ void RiuMultiPlotPage::updateLegendVisibility( RiuPlotWidget*            plotWid
         legend->show();
 
         if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE )
+        {
+            plotWidget->addOverlayFrame( legendFrame );
             legendFrame->show();
+        }
         else
         {
             plotWidget->removeOverlayFrame( legendFrame );

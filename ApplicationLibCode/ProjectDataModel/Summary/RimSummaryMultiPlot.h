@@ -96,6 +96,7 @@ public:
 
     void setSubPlotAxesLinked( bool enable );
     bool isSubPlotAxesLinked() const;
+    void setTimeAxisLinked( bool enable );
     bool isTimeAxisLinked() const;
 
     std::pair<int, int> gridLayoutInfoForSubPlot( RimSummaryPlot* summaryPlot ) const;
@@ -134,9 +135,9 @@ private:
     void updateSourceStepper();
 
     void updatePlotVisibility();
-    void setOverriddenFlag();
+    void setAutoValueStates();
     static void
-        setOverriddenFlagsForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
+        setAutoValueStatesForPlot( RimSummaryPlot* summaryPlot, bool isMinMaxOverridden, bool isAppearanceOverridden );
 
     void duplicate();
 
@@ -146,7 +147,10 @@ private:
     void analyzePlotsAndAdjustAppearanceSettings();
 
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
+    void onSubPlotZoomed( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
+
+    void updateReadOnlyState();
 
 private:
     caf::PdmField<bool> m_autoPlotTitle;

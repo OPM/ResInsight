@@ -764,6 +764,8 @@ void RicSummaryPlotFeatureImpl::insertFilteredAddressesInSet( const QStringList&
                                                               std::set<RifEclipseSummaryAddress>* setToInsertFilteredAddressesIn,
                                                               std::vector<bool>*                  usedFilters )
 {
+    if ( allAddressesInCase.empty() ) return;
+
     int curveFilterCount = curveFilters.size();
 
     usedFilters->clear();

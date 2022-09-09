@@ -100,6 +100,7 @@
 #include "RimParameterResultCrossPlot.h"
 #include "RimPerforationCollection.h"
 #include "RimPerforationInterval.h"
+#include "RimPlotAxisProperties.h"
 #include "RimPlotAxisPropertiesInterface.h"
 #include "RimPlotDataFilterCollection.h"
 #include "RimPlotDataFilterItem.h"
@@ -184,6 +185,7 @@
 #include <QString>
 #include <QStringList>
 
+#include "RimSummaryTimeAxisProperties.h"
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------
@@ -1072,6 +1074,14 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         }
         else if ( dynamic_cast<RimPlotAxisPropertiesInterface*>( firstUiItem ) )
         {
+            if ( dynamic_cast<RimPlotAxisProperties*>( firstUiItem ) )
+            {
+                menuBuilder << "RicToggleYAxisLinkingFeature";
+            }
+            if ( dynamic_cast<RimSummaryTimeAxisProperties*>( firstUiItem ) )
+            {
+                menuBuilder << "RicToggleXAxisLinkingFeature";
+            }
             menuBuilder << "RicNewPlotAxisPropertiesFeature";
         }
         else if ( dynamic_cast<RimRftCase*>( firstUiItem ) )
