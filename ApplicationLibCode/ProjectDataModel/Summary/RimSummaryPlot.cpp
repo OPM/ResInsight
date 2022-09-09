@@ -2893,18 +2893,18 @@ void RimSummaryPlot::assignPlotAxis( RimSummaryCurve* destinationCurve )
     auto destinationUnit = destinationCurve->unitNameY();
     if ( destinationUnit.empty() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
 
-    {
-        bool anyCurveWithUnit = false;
-
+    auto anyCurveWithUnitText = [this, destinationCurve] {
         for ( auto c : summaryCurves() )
         {
             if ( c == destinationCurve ) continue;
 
-            if ( !c->unitNameY().empty() ) anyCurveWithUnit = true;
+            if ( !c->unitNameY().empty() ) return true;
         }
 
-        if ( !anyCurveWithUnit ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
-    }
+        return false;
+    };
+
+    if ( !anyCurveWithUnitText() ) strategy = AxisAssignmentStrategy::USE_MATCHING_VECTOR;
 
     if ( strategy == AxisAssignmentStrategy::USE_MATCHING_VECTOR )
     {
