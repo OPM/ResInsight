@@ -19,6 +19,7 @@
 #include "RicToggleYAxisLinkingFeature.h"
 
 #include "RimSummaryMultiPlot.h"
+#include "RimSummaryPlot.h"
 
 #include "cafSelectionManagerTools.h"
 
@@ -45,6 +46,14 @@ void RicToggleYAxisLinkingFeature::onActionTriggered( bool isChecked )
 
     bool linkedState = summaryMultiPlot->isSubPlotAxesLinked();
     summaryMultiPlot->setSubPlotAxesLinked( !linkedState );
+
+    for ( auto plot : summaryMultiPlot->summaryPlots() )
+    {
+        plot->axisChanged.send( plot );
+
+        plot->updateAxes();
+    }
+
     summaryMultiPlot->updateAllRequiredEditors();
 }
 
