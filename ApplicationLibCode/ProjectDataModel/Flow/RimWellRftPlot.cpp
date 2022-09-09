@@ -513,6 +513,7 @@ void RimWellRftPlot::updateCurvesInPlot( const std::set<RiaRftPltCurveDefinition
         else if ( curveDefToAdd.address().sourceType() == RifDataSourceForRftPlt::OBSERVED_FMU_RFT )
         {
             auto curve = new RimWellLogRftCurve();
+            curve->setErrorBarsVisible( m_showErrorInObservedData );
             plotTrack->addCurve( curve );
 
             auto observedFmuRftData = curveDefToAdd.address().observedFmuRftData();
