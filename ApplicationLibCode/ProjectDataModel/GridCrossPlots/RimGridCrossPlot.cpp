@@ -755,6 +755,10 @@ void RimGridCrossPlot::updateLegend()
         for ( auto dataSet : m_crossPlotDataSets )
         {
             dataSet->updateLegendIcons();
+            for ( auto c : dataSet->curves() )
+            {
+                c->updateCurveNameAndUpdatePlotLegendAndTitle();
+            }
         }
     }
 }
