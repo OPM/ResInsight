@@ -55,7 +55,7 @@ RimMeshFractureTemplate::RimMeshFractureTemplate()
 {
     CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimFileName", "File Name" );
+    CAF_PDM_InitFieldNoDefault( &m_stimPlanFileName, "StimPlanFileName", "File Name" );
     m_stimPlanFileName.uiCapability()->setUiEditorTypeName( caf::PdmUiFilePathEditor::uiEditorTypeName() );
 
     CAF_PDM_InitField( &m_userDefinedWellPathDepthAtFracture,
