@@ -19,6 +19,7 @@
 #include "RifThermalFractureReader.h"
 
 #include "RiaDefines.h"
+#include "RiaFractureDefines.h"
 #include "RiaTextStringTools.h"
 
 #include "RigThermalFractureDefinition.h"
@@ -57,6 +58,13 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
             if ( isOk )
             {
                 int propertyIndex = i - valueOffset;
+
+                // Convert conductivity from Darcy to milliDarcy
+                if ( definition->getPropertyIndex( "Conductivity" ) == propertyIndex )
+                {
+                    value *= 1.0e3;
+                }
+
                 definition->appendPropertyValue( propertyIndex, nodeIndex, value );
             }
         }
@@ -87,7 +95,16 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
                 for ( int i = valueOffset; i < headerValues.size(); i++ )
                 {
                     auto [name, unit] = parseNameAndUnit( headerValues[i] );
-                    if ( !name.isEmpty() && !unit.isEmpty() ) definition->addProperty( name, unit );
+                    if ( !name.isEmpty() && !unit.isEmpty() )
+                    {
+                        // Special handling for Conductivity: change unit from Darcy to Milli
+                        if ( name.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
+                        {
+                            unit = RiaDefines::unitStringConductivity( detectUnitSystem( definition ) );
+                        }
+
+                        definition->addProperty( name, unit );
+                    }
                 }
 
                 // Detect unit system
@@ -269,25 +286,28 @@ QString RifThermalFractureReader::getExpectedUnit( const QString& name, RiaDefin
                 unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD );
 
     // parameter name --> { metric unit, field unit }
-    std::map<QString, std::pair<QString, QString>> mapping = { { "XCoord", { "m", "feet" } },
-                                                               { "YCoord", { "m", "feet" } },
-                                                               { "ZCoord", { "m", "feet" } },
-                                                               { "Width", { "cm", "inches" } },
-                                                               { "Pressure", { "BARa", "psia" } },
-                                                               { "Temperature", { "deg C", "deg F" } },
-                                                               { "Stress", { "BARa", "psia" } },
-                                                               { "Density", { "Kg/m3", "lb/ft3" } },
-                                                               { "Viscosity", { "mPa.s", "centipoise" } },
-                                                               { "LeakoffMobility", { "m/day/bar", "ft/day/psi" } },
-                                                               { "Conductivity", { "D.m", "D.ft" } },
-                                                               { "Velocity", { "m/sec", "ft/sec" } },
-                                                               { "ResPressure", { "BARa", "psia" } },
-                                                               { "ResTemperature", { "deg C", "deg F" } },
-                                                               { "FiltrateThickness", { "cm", "inches" } },
-                                                               { "FiltratePressureDrop", { "bar", "psi" } },
-                                                               { "EffectiveResStress", { "bar", "psi" } },
-                                                               { "EffectiveFracStress", { "bar", "psi" } },
-                                                               { "LeakoffPressureDrop", { "bar", "psi" } } };
+    std::map<QString, std::pair<QString, QString>> mapping =
+        { { "XCoord", { "m", "feet" } },
+          { "YCoord", { "m", "feet" } },
+          { "ZCoord", { "m", "feet" } },
+          { "Width", { "cm", "inches" } },
+          { "Pressure", { "BARa", "psia" } },
+          { "Temperature", { "deg C", "deg F" } },
+          { "Stress", { "BARa", "psia" } },
+          { "Density", { "Kg/m3", "lb/ft3" } },
+          { "Viscosity", { "mPa.s", "centipoise" } },
+          { "LeakoffMobility", { "m/day/bar", "ft/day/psi" } },
+          { "Conductivity",
+            { RiaDefines::unitStringConductivity( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
+              RiaDefines::unitStringConductivity( RiaDefines::EclipseUnitSystem::UNITS_FIELD ) } },
+          { "Velocity", { "m/sec", "ft/sec" } },
+          { "ResPressure", { "BARa", "psia" } },
+          { "ResTemperature", { "deg C", "deg F" } },
+          { "FiltrateThickness", { "cm", "inches" } },
+          { "FiltratePressureDrop", { "bar", "psi" } },
+          { "EffectiveResStress", { "bar", "psi" } },
+          { "EffectiveFracStress", { "bar", "psi" } },
+          { "LeakoffPressureDrop", { "bar", "psi" } } };
 
     auto res = std::find_if( mapping.begin(), mapping.end(), [&]( const auto& val ) { return val.first == name; } );
 
