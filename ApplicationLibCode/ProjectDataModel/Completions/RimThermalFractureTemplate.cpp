@@ -112,7 +112,7 @@ bool RimThermalFractureTemplate::setBorderPolygonResultNameToDefault()
     // first option: Width
     for ( std::pair<QString, QString> property : uiResultNamesWithUnit() )
     {
-        if ( property.first == "WIDTH" )
+        if ( property.first.contains( "width", Qt::CaseInsensitive ) )
         {
             m_borderPolygonResultName = property.first;
             return true;
@@ -505,30 +505,7 @@ std::vector<std::pair<QString, QString>> RimThermalFractureTemplate::uiResultNam
 
     if ( m_fractureDefinitionData )
     {
-        QString conductivityUnit = "mD/s";
-
-        std::vector<std::pair<QString, QString>> tmp;
-
-        std::vector<std::pair<QString, QString>> propertyNamesUnitsOnFile =
-            m_fractureDefinitionData->getPropertyNamesUnits();
-        for ( const auto& nameUnitPair : propertyNamesUnitsOnFile )
-        {
-            if ( nameUnitPair.first.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
-            {
-                conductivityUnit = nameUnitPair.second;
-            }
-            else
-            {
-                tmp.push_back( nameUnitPair );
-            }
-        }
-
-        propertyNamesAndUnits.push_back( std::make_pair( RiaDefines::conductivityResultName(), conductivityUnit ) );
-
-        for ( const auto& nameUnitPair : tmp )
-        {
-            propertyNamesAndUnits.push_back( nameUnitPair );
-        }
+        return m_fractureDefinitionData->getPropertyNamesUnits();
     }
 
     return propertyNamesAndUnits;
