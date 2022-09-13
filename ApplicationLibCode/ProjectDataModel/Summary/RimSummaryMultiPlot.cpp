@@ -455,6 +455,8 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         setAutoValueStates();
         syncAxisRanges();
+        analyzePlotsAndAdjustAppearanceSettings();
+        zoomAll();
     }
     else if ( changedField == &m_hidePlotsWithValuesBelow )
     {
@@ -493,7 +495,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_autoAdjustAppearance )
     {
         setAutoValueStates();
-        checkAndApplyAutoAppearance();
+        analyzePlotsAndAdjustAppearanceSettings();
     }
     else
     {
@@ -723,7 +725,7 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
     RimMultiPlot::onLoadDataAndUpdate();
     updatePlotWindowTitle();
 
-    checkAndApplyAutoAppearance();
+    analyzePlotsAndAdjustAppearanceSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -814,18 +816,6 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
-{
-    if ( m_autoAdjustAppearance )
-    {
-        analyzePlotsAndAdjustAppearanceSettings();
-        syncAxisRanges();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::syncAxisRanges()
 {
     if ( m_linkSubPlotAxes() )
@@ -862,16 +852,15 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 double maxVal = axis->visibleRangeMax();
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
 
-                auto axisTitleText = axis->axisTitleText();
-                if ( axisRanges.count( axisTitleText ) == 0 )
+                auto key = axis->objectName();
+                if ( axisRanges.count( key ) == 0 )
                 {
-                    axisRanges[axisTitleText] = std::make_pair( minVal, maxVal );
+                    axisRanges[key] = std::make_pair( minVal, maxVal );
                 }
                 else
                 {
-                    auto& [currentMin, currentMax] = axisRanges[axisTitleText];
-                    axisRanges[axisTitleText] =
-                        std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+                    auto& [currentMin, currentMax] = axisRanges[key];
+                    axisRanges[key] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
                 }
             }
         }
@@ -881,9 +870,10 @@ void RimSummaryMultiPlot::syncAxisRanges()
         {
             for ( auto axis : plot->plotYAxes() )
             {
-                auto [minVal, maxVal] = axisRanges[axis->axisTitleText()];
+                auto [minVal, maxVal] = axisRanges[axis->objectName()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
                 axis->setAutoZoom( false );
+
                 axis->setAutoValueVisibleRangeMin( minVal );
                 axis->setAutoValueVisibleRangeMax( maxVal );
             }
@@ -1122,16 +1112,10 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
 
-                if ( !axis->isLogarithmicScaleEnabled() )
-                {
-                    int                  maxMajorTickIntervalCount = 8;
-                    double               stepSize                  = 0.0;
-                    QwtLinearScaleEngine scaleEngine;
-                    scaleEngine.autoScale( maxMajorTickIntervalCount, minVal, maxVal, stepSize );
-                }
+                auto [adjustedMinVal, adjustedMaxVal] = adjustedMinMax( axis, minVal, maxVal );
 
-                axis->setAutoValueVisibleRangeMin( minVal );
-                axis->setAutoValueVisibleRangeMax( maxVal );
+                axis->setAutoValueVisibleRangeMin( adjustedMinVal );
+                axis->setAutoValueVisibleRangeMax( adjustedMaxVal );
             }
         }
 
@@ -1228,57 +1212,75 @@ void RimSummaryMultiPlot::duplicate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 {
-    RiaSummaryAddressAnalyzer analyzer;
-
-    for ( auto p : summaryPlots() )
+    if ( m_autoAdjustAppearance )
     {
-        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
-        analyzer.appendAddresses( addresses );
-    }
+        // Required to sync axis ranges before computing the auto scale
+        syncAxisRanges();
 
-    bool hasOnlyOneQuantity = analyzer.isSingleQuantityIgnoreHistory();
+        RiaSummaryAddressAnalyzer analyzer;
 
-    for ( auto p : summaryPlots() )
-    {
-        auto timeAxisProp = p->timeAxisProperties();
-
-        if ( columnCount() < 3 )
-            timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
-        else
-            timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
-
-        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotYAxes() )
+        for ( auto p : summaryPlots() )
         {
-            auto axisProp = dynamic_cast<RimPlotAxisProperties*>( axisInterface );
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
+            analyzer.appendAddresses( addresses );
+        }
 
-            if ( !axisProp ) continue;
+        bool canShowOneAxisTitlePerRow = analyzer.isSingleQuantityIgnoreHistory() &&
+                                         ( m_axisRangeAggregation() != AxisRangeAggregation::NONE );
 
-            if ( rowsPerPage() == 1 )
-                axisProp->setAutoValueForMajorTickmarkCount(
-                    RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
-            else
-                axisProp->setAutoValueForMajorTickmarkCount(
-                    RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
+        for ( auto p : summaryPlots() )
+        {
+            auto timeAxisProp = p->timeAxisProperties();
 
-            axisProp->computeAndSetAutoValueForScaleFactor();
+            auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
+                                                       : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
 
-            if ( hasOnlyOneQuantity )
+            timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount );
+
+            for ( auto* axisProp : p->plotYAxes() )
             {
-                auto [row, col] = gridLayoutInfoForSubPlot( p );
-                if ( col == 0 )
+                if ( !axisProp ) continue;
+
+                auto tickMarkCount = ( rowsPerPage() == 1 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
+                                                            : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
+
+                axisProp->setAutoValueForMajorTickmarkCount( tickMarkCount );
+
+                axisProp->computeAndSetAutoValueForScaleFactor();
+
+                if ( canShowOneAxisTitlePerRow )
+                {
+                    auto [row, col] = gridLayoutInfoForSubPlot( p );
+
+                    bool isFirstColumn = ( col == 0 );
+                    axisProp->setShowUnitText( isFirstColumn );
+                    axisProp->setShowDescription( isFirstColumn );
+                }
+                else
                 {
                     axisProp->setShowUnitText( true );
                     axisProp->setShowDescription( true );
                 }
-                else
-                {
-                    axisProp->setShowUnitText( false );
-                    axisProp->setShowDescription( false );
-                }
             }
-        }
 
-        p->updateAxes();
+            p->updateAxes();
+        }
+    }
+    else
+    {
+        for ( auto p : summaryPlots() )
+        {
+            for ( auto* axisProp : p->plotYAxes() )
+            {
+                if ( !axisProp ) continue;
+
+                axisProp->computeAndSetAutoValueForScaleFactor();
+                axisProp->setShowUnitText( true );
+                axisProp->setShowDescription( true );
+            }
+
+            p->updateAxes();
+        }
     }
 }
 
@@ -1381,6 +1383,31 @@ void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitte
 void RimSummaryMultiPlot::updateReadOnlyState()
 {
     m_axisRangeAggregation.uiCapability()->setUiReadOnly( m_linkSubPlotAxes() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimSummaryMultiPlot::adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const
+{
+    if ( !axis->isLogarithmicScaleEnabled() )
+    {
+        int                  maxMajorTickIntervalCount = axis->tickmarkCountFromEnum( axis->majorTickmarkCount() );
+        double               stepSize                  = 0.0;
+        QwtLinearScaleEngine scaleEngine;
+
+        // Do not adjust minimum value, as we usually want to keep zero unchanged
+        double adjustedMin = min;
+
+        // Adjust the max value to get some space between the top of the plot and the top of the curve
+        double adjustedMax = max * 1.05;
+
+        scaleEngine.autoScale( maxMajorTickIntervalCount, adjustedMin, adjustedMax, stepSize );
+
+        return { adjustedMin, adjustedMax };
+    }
+
+    return { min, max };
 }
 
 //--------------------------------------------------------------------------------------------------

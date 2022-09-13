@@ -34,6 +34,7 @@ class RimSummaryPlot;
 class RimSummaryPlotSourceStepping;
 class RimSummaryPlotNameHelper;
 class RimSummaryNameHelper;
+class RimPlotAxisProperties;
 
 //==================================================================================================
 ///
@@ -104,7 +105,7 @@ public:
     void zoomAll() override;
 
     void setDefaultRangeAggregationSteppingDimension();
-    void checkAndApplyAutoAppearance();
+    void analyzePlotsAndAdjustAppearanceSettings();
 
     void keepVisiblePageAfterUpdate( bool keepPage );
 
@@ -144,13 +145,13 @@ private:
     void appendSubPlotByStepping( int direction );
     void appendCurveByStepping( int direction );
 
-    void analyzePlotsAndAdjustAppearanceSettings();
-
     void onSubPlotChanged( const caf::SignalEmitter* emitter );
     void onSubPlotZoomed( const caf::SignalEmitter* emitter );
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
 
     void updateReadOnlyState();
+
+    std::pair<double, double> adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const;
 
 private:
     caf::PdmField<bool> m_autoPlotTitle;

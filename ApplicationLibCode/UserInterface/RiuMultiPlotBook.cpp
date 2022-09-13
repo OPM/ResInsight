@@ -508,7 +508,7 @@ void RiuMultiPlotBook::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
     updateGeometry();
 
     RimSummaryMultiPlot* multiPlot = dynamic_cast<RimSummaryMultiPlot*>( m_plotDefinition.p() );
-    if ( multiPlot ) multiPlot->checkAndApplyAutoAppearance();
+    if ( multiPlot ) multiPlot->analyzePlotsAndAdjustAppearanceSettings();
 
     // use a timer to trigger a viewer page change, if needed
     if ( m_goToPageAfterUpdate )
