@@ -34,6 +34,7 @@ class RimSummaryPlot;
 class RimSummaryPlotSourceStepping;
 class RimSummaryPlotNameHelper;
 class RimSummaryNameHelper;
+class RimPlotAxisProperties;
 
 //==================================================================================================
 ///
@@ -149,6 +150,8 @@ private:
     void onSubPlotAxisChanged( const caf::SignalEmitter* emitter, RimSummaryPlot* summaryPlot );
 
     void updateReadOnlyState();
+
+    std::pair<double, double> adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const;
 
 private:
     caf::PdmField<bool> m_autoPlotTitle;

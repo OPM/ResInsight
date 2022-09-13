@@ -456,6 +456,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
         setAutoValueStates();
         syncAxisRanges();
         analyzePlotsAndAdjustAppearanceSettings();
+        zoomAll();
     }
     else if ( changedField == &m_hidePlotsWithValuesBelow )
     {
@@ -873,8 +874,11 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 auto [minVal, maxVal] = axisRanges[axis->axisTitleText()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
                 axis->setAutoZoom( false );
-                axis->setAutoValueVisibleRangeMin( minVal );
-                axis->setAutoValueVisibleRangeMax( maxVal );
+
+                auto [adjustedMinVal, adjustedMaxVal] = adjustedMinMax( axis, minVal, maxVal );
+
+                axis->setAutoValueVisibleRangeMin( adjustedMinVal );
+                axis->setAutoValueVisibleRangeMax( adjustedMaxVal );
             }
 
             plot->updateAxes();
@@ -1111,19 +1115,10 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
 
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
 
-                if ( !axis->isLogarithmicScaleEnabled() )
-                {
-                    int                  maxMajorTickIntervalCount = 8;
-                    double               stepSize                  = 0.0;
-                    QwtLinearScaleEngine scaleEngine;
+                auto [adjustedMinVal, adjustedMaxVal] = adjustedMinMax( axis, minVal, maxVal );
 
-                    // Adjust the max value to get some space between the top of the plot and the top of the curve
-                    maxVal *= 1.05;
-                    scaleEngine.autoScale( maxMajorTickIntervalCount, minVal, maxVal, stepSize );
-                }
-
-                axis->setAutoValueVisibleRangeMin( minVal );
-                axis->setAutoValueVisibleRangeMax( maxVal );
+                axis->setAutoValueVisibleRangeMin( adjustedMinVal );
+                axis->setAutoValueVisibleRangeMax( adjustedMaxVal );
             }
         }
 
@@ -1400,6 +1395,31 @@ void RimSummaryMultiPlot::onSubPlotAxisChanged( const caf::SignalEmitter* emitte
 void RimSummaryMultiPlot::updateReadOnlyState()
 {
     m_axisRangeAggregation.uiCapability()->setUiReadOnly( m_linkSubPlotAxes() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<double, double> RimSummaryMultiPlot::adjustedMinMax( const RimPlotAxisProperties* axis, double min, double max ) const
+{
+    if ( !axis->isLogarithmicScaleEnabled() )
+    {
+        int                  maxMajorTickIntervalCount = axis->tickmarkCountFromEnum( axis->majorTickmarkCount() );
+        double               stepSize                  = 0.0;
+        QwtLinearScaleEngine scaleEngine;
+
+        // Do not adjust minimum value, as we usually want to keep zero unchanged
+        double adjustedMin = min;
+
+        // Adjust the max value to get some space between the top of the plot and the top of the curve
+        double adjustedMax = max * 1.05;
+
+        scaleEngine.autoScale( maxMajorTickIntervalCount, adjustedMin, adjustedMax, stepSize );
+
+        return { adjustedMin, adjustedMax };
+    }
+
+    return { min, max };
 }
 
 //--------------------------------------------------------------------------------------------------
