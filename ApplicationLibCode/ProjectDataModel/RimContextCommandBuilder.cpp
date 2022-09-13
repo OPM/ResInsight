@@ -1121,6 +1121,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         menuBuilder << "RicShowTotalAllocationDataFeature";
 
         menuBuilder << "RicNewSummaryMultiPlotFeature";
+        menuBuilder << "RicOpenSummaryPlotEditorFeature";
         menuBuilder << "RicNewDerivedEnsembleFeature";
         menuBuilder << "RicNewSummaryCrossPlotFeature";
         menuBuilder << "RicSummaryCurveSwitchAxisFeature";

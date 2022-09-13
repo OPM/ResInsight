@@ -24,6 +24,7 @@
 #include <vector>
 
 class RimSummaryPlot;
+class RimSummaryMultiPlot;
 class RimSummaryCase;
 class RicSummaryPlotEditorUi;
 
@@ -54,6 +55,7 @@ public:
     ~RicSummaryPlotEditorWidgetCreator() override;
 
     void updateFromSummaryPlot( RimSummaryPlot* summaryPlot );
+    void updateFromSummaryMultiPlot( RimSummaryMultiPlot* summaryMultiPlot );
     void updateFromDefaultSources( const std::vector<caf::PdmObject*> defaultSources );
 
 private:
