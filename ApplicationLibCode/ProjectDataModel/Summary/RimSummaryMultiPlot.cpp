@@ -852,16 +852,15 @@ void RimSummaryMultiPlot::syncAxisRanges()
                 double maxVal = axis->visibleRangeMax();
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
 
-                auto axisTitleText = axis->axisTitleText();
-                if ( axisRanges.count( axisTitleText ) == 0 )
+                auto key = axis->objectName();
+                if ( axisRanges.count( key ) == 0 )
                 {
-                    axisRanges[axisTitleText] = std::make_pair( minVal, maxVal );
+                    axisRanges[key] = std::make_pair( minVal, maxVal );
                 }
                 else
                 {
-                    auto& [currentMin, currentMax] = axisRanges[axisTitleText];
-                    axisRanges[axisTitleText] =
-                        std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
+                    auto& [currentMin, currentMax] = axisRanges[key];
+                    axisRanges[key] = std::make_pair( std::min( currentMin, minVal ), std::max( currentMax, maxVal ) );
                 }
             }
         }
@@ -871,14 +870,12 @@ void RimSummaryMultiPlot::syncAxisRanges()
         {
             for ( auto axis : plot->plotYAxes() )
             {
-                auto [minVal, maxVal] = axisRanges[axis->axisTitleText()];
+                auto [minVal, maxVal] = axisRanges[axis->objectName()];
                 if ( axis->isAxisInverted() ) std::swap( minVal, maxVal );
                 axis->setAutoZoom( false );
 
-                auto [adjustedMinVal, adjustedMaxVal] = adjustedMinMax( axis, minVal, maxVal );
-
-                axis->setAutoValueVisibleRangeMin( adjustedMinVal );
-                axis->setAutoValueVisibleRangeMax( adjustedMaxVal );
+                axis->setAutoValueVisibleRangeMin( minVal );
+                axis->setAutoValueVisibleRangeMax( maxVal );
             }
 
             plot->updateAxes();
