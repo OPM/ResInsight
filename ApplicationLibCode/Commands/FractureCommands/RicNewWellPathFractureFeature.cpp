@@ -101,8 +101,11 @@ RimWellPathFracture* RicNewWellPathFractureFeature::addFracture( gsl::not_null<R
     if ( project )
     {
         project->reloadCompletionTypeResultsInAllViews();
-        fractureCollection->updateAllRequiredEditors();
     }
+
+    // Update well path, as the completion collections are hidden if empty. This update will make sure that the folder
+    // and completion is visible
+    wellPath->updateAllRequiredEditors();
 
     Riu3DMainWindowTools::selectAsCurrentItem( fracture );
     return fracture;
