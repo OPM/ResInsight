@@ -140,11 +140,7 @@ void PdmUiFieldHandle::setAutoValue( const QVariant& autoValue, bool notifyField
 {
     m_autoValue = autoValue;
 
-    if ( m_useAutoValue && m_autoValue.isValid() )
-    {
-        setValueFromUiEditor( m_autoValue, notifyFieldChanged );
-        updateConnectedEditors();
-    }
+    applyAutoValueAndUpdateEditors( notifyFieldChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -158,15 +154,11 @@ QVariant PdmUiFieldHandle::autoValue() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void PdmUiFieldHandle::enableAutoValue( bool enable )
+void PdmUiFieldHandle::enableAutoValue( bool enable, bool notifyFieldChanged )
 {
     m_useAutoValue = enable;
 
-    if ( m_useAutoValue && m_autoValue.isValid() )
-    {
-        setValueFromUiEditor( m_autoValue, true );
-        updateConnectedEditors();
-    }
+    applyAutoValueAndUpdateEditors( notifyFieldChanged );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,7 +220,11 @@ void PdmUiFieldHandle::setAttributes( const std::vector<std::pair<QString, QStri
         {
             if ( valueString == "TRUE" )
             {
-                enableAutoValue( true );
+                // If notifyFieldChanged equals true, recursion will happen. Triggered by
+                // RimSummaryPlot::copyMatchingAxisPropertiesFromOther(), where data from one object is copied and set
+                // in another object using readObjectFromXmlString()
+                bool notifyFieldChanged = false;
+                enableAutoValue( true, notifyFieldChanged );
             }
         }
         else if ( key == "autoValueSupported" )
@@ -255,6 +251,18 @@ bool PdmUiFieldHandle::isQVariantDataEqual( const QVariant& oldUiBasedQVariant, 
 {
     CAF_ASSERT( false );
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void PdmUiFieldHandle::applyAutoValueAndUpdateEditors( bool notifyFieldChanged )
+{
+    if ( m_useAutoValue && m_autoValue.isValid() )
+    {
+        setValueFromUiEditor( m_autoValue, notifyFieldChanged );
+        updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

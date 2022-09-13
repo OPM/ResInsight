@@ -30,7 +30,7 @@ public:
     void     enableAndSetAutoValue( const QVariant& autoValue );
     void     setAutoValue( const QVariant& autoValue, bool notifyFieldChanged = true );
     QVariant autoValue() const;
-    void     enableAutoValue( bool enable );
+    void     enableAutoValue( bool enable, bool notifyFieldChanged = true );
     bool     isAutoValueEnabled() const;
     void     enableAutoValueSupport( bool enable );
     bool     isAutoValueSupported() const;
@@ -45,6 +45,8 @@ private:
     // This is needed to handle custom types in QVariants since operator == between QVariant does not work when they use
     // custom types.
     virtual bool isQVariantDataEqual( const QVariant& oldUiBasedQVariant, const QVariant& newUiBasedQVariant ) const;
+
+    void applyAutoValueAndUpdateEditors( bool notifyFieldChanged );
 
 private:
     PdmFieldHandle* m_owner;
