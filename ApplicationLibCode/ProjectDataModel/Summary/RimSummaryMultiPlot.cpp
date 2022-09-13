@@ -818,8 +818,8 @@ void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
 {
     if ( m_autoAdjustAppearance )
     {
-        analyzePlotsAndAdjustAppearanceSettings();
         syncAxisRanges();
+        analyzePlotsAndAdjustAppearanceSettings();
     }
 }
 
