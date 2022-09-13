@@ -35,6 +35,7 @@
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindow.h"
@@ -51,7 +52,7 @@ CAF_CMD_SOURCE_INIT( RicOpenSummaryPlotEditorFeature, "RicOpenSummaryPlotEditorF
 //--------------------------------------------------------------------------------------------------
 bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
 {
-    // RimSummaryMultiPlot*                  multiPlot               = nullptr;
+    RimSummaryMultiPlot*                  multiPlot               = nullptr;
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
@@ -66,8 +67,8 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
 
     if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection || sumPlot ) return false;
 
-    // multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
-    // if ( multiPlot ) return true;
+    multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
+    if ( multiPlot ) return true;
 
     auto summaryCase     = dynamic_cast<RimSummaryCase*>( selObj );
     auto summaryCaseColl = dynamic_cast<RimSummaryCaseCollection*>( selObj );
@@ -85,6 +86,9 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
+
+    RimSummaryMultiPlot* multiPlot =
+        dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
     std::vector<RimSummaryCase*>           selectedCases  = caf::selectedObjectsByType<RimSummaryCase*>();
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
@@ -134,7 +138,21 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
         dialog->raise();
     }
 
-    dialog->updateFromDefaultCases( sourcesToSelect );
+    if ( multiPlot )
+    {
+        if ( multiPlot->summaryPlots().size() > 0 )
+        {
+            dialog->updateFromSummaryPlot( multiPlot->summaryPlots()[0] );
+        }
+        else
+        {
+            dialog->updateFromSummaryMultiPlot( multiPlot );
+        }
+    }
+    else
+    {
+        dialog->updateFromDefaultCases( sourcesToSelect );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -165,7 +165,7 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*             
     if ( m_targetPlot )
     {
         RimSummaryMultiPlot* parentPlot = nullptr;
-        targetPlot->firstAncestorOfType( parentPlot );
+        m_targetPlot->firstAncestorOfType( parentPlot );
         m_plotContainer = parentPlot;
 
         populateCurveCreator( *m_targetPlot );
@@ -180,6 +180,23 @@ void RicSummaryPlotEditorUi::updateFromSummaryPlot( RimSummaryPlot*             
         syncPreviewCurvesFromUiSelection();
         m_plotContainer = nullptr;
     }
+
+    caf::PdmUiItem::updateConnectedEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicSummaryPlotEditorUi::updateFromSummaryMultiPlot( RimSummaryMultiPlot*               summaryMultiPlot,
+                                                         const std::vector<SummarySource*>& defaultSources )
+{
+    resetAllFields();
+
+    m_useAutoAppearanceAssignment = true;
+
+    m_plotContainer = summaryMultiPlot;
+
+    setDefaultCurveSelection( defaultSources );
 
     caf::PdmUiItem::updateConnectedEditors();
 }
