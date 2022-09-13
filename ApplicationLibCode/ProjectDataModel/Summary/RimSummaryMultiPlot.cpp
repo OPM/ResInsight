@@ -1232,38 +1232,29 @@ void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
         {
             auto timeAxisProp = p->timeAxisProperties();
 
-            if ( columnCount() < 3 )
-                timeAxisProp->setAutoValueForMajorTickmarkCount(
-                    RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
-            else
-                timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
+            auto tickMarkCount = ( columnCount() < 3 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
+                                                       : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
+
+            timeAxisProp->setAutoValueForMajorTickmarkCount( tickMarkCount );
 
             for ( auto* axisProp : p->plotYAxes() )
             {
                 if ( !axisProp ) continue;
 
-                if ( rowsPerPage() == 1 )
-                    axisProp->setAutoValueForMajorTickmarkCount(
-                        RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
-                else
-                    axisProp->setAutoValueForMajorTickmarkCount(
-                        RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
+                auto tickMarkCount = ( rowsPerPage() == 1 ) ? RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT
+                                                            : RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW;
+
+                axisProp->setAutoValueForMajorTickmarkCount( tickMarkCount );
 
                 axisProp->computeAndSetAutoValueForScaleFactor();
 
                 if ( canShowOneAxisTitlePerRow )
                 {
                     auto [row, col] = gridLayoutInfoForSubPlot( p );
-                    if ( col == 0 )
-                    {
-                        axisProp->setShowUnitText( true );
-                        axisProp->setShowDescription( true );
-                    }
-                    else
-                    {
-                        axisProp->setShowUnitText( false );
-                        axisProp->setShowDescription( false );
-                    }
+
+                    bool isFirstColumn = ( col == 0 );
+                    axisProp->setShowUnitText( isFirstColumn );
+                    axisProp->setShowDescription( isFirstColumn );
                 }
                 else
                 {
