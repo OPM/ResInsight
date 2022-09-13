@@ -55,6 +55,12 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
     RimSummaryMultiPlot*                  multiPlot               = nullptr;
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
 
+    std::vector<RimSummaryCase*> selectedCases = caf::selectedObjectsByType<RimSummaryCase*>();
+    if ( selectedCases.size() > 0 ) return true;
+
+    std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
+    if ( selectedGroups.size() > 0 ) return true;
+
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
     if ( !selObj ) return false;
 
