@@ -1127,6 +1127,9 @@ void RimSummaryMultiPlot::computeAggregatedAxisRange()
                     int                  maxMajorTickIntervalCount = 8;
                     double               stepSize                  = 0.0;
                     QwtLinearScaleEngine scaleEngine;
+
+                    // Adjust the max value to get some space between the top of the plot and the top of the curve
+                    maxVal *= 1.05;
                     scaleEngine.autoScale( maxMajorTickIntervalCount, minVal, maxVal, stepSize );
                 }
 
