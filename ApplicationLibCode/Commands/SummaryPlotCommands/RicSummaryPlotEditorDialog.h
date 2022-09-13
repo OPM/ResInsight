@@ -27,6 +27,7 @@ class PdmObject;
 
 class RicSummaryPlotEditorWidgetCreator;
 class RimSummaryPlot;
+class RimSummaryMultiPlot;
 class RimSummaryCase;
 
 //==================================================================================================
@@ -41,6 +42,7 @@ public:
     ~RicSummaryPlotEditorDialog() override;
 
     void updateFromSummaryPlot( RimSummaryPlot* summaryPlot );
+    void updateFromSummaryMultiPlot( RimSummaryMultiPlot* summaryPlot );
     void updateFromDefaultCases( const std::vector<caf::PdmObject*> defaultSources );
 
 private slots:

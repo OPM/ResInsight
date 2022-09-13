@@ -29,11 +29,13 @@
 #include "RimCustomObjectiveFunctionCollection.h"
 #include "RimEnsembleCurveFilter.h"
 #include "RimEnsembleCurveFilterCollection.h"
+#include "RimObservedDataCollection.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSummaryCase.h"
 #include "RimSummaryCaseCollection.h"
 #include "RimSummaryCaseMainCollection.h"
+#include "RimSummaryMultiPlot.h"
 #include "RimSummaryPlot.h"
 
 #include "RiuPlotMainWindow.h"
@@ -54,20 +56,27 @@ bool RicOpenSummaryPlotEditorFeature::isCommandEnabled()
     RimCustomObjectiveFunctionCollection* customObjFuncCollection = nullptr;
 
     caf::PdmObject* selObj = dynamic_cast<caf::PdmObject*>( caf::SelectionManager::instance()->selectedItem() );
-    if ( selObj )
-    {
-        multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
-        selObj->firstAncestorOrThisOfType( customObjFuncCollection );
-    }
+    if ( !selObj ) return false;
+
+    selObj->firstAncestorOrThisOfType( customObjFuncCollection );
 
     auto ensembleFilter     = dynamic_cast<RimEnsembleCurveFilter*>( selObj );
     auto ensembleFilterColl = dynamic_cast<RimEnsembleCurveFilterCollection*>( selObj );
     auto legendConfig       = dynamic_cast<RimRegularLegendConfig*>( selObj );
+    auto sumPlot            = dynamic_cast<RimSummaryPlot*>( selObj );
 
-    if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection ) return false;
+    if ( ensembleFilter || ensembleFilterColl || legendConfig || customObjFuncCollection || sumPlot ) return false;
+
+    multiPlot = RiaSummaryTools::parentSummaryMultiPlot( selObj );
     if ( multiPlot ) return true;
 
-    return true;
+    auto summaryCase     = dynamic_cast<RimSummaryCase*>( selObj );
+    auto summaryCaseColl = dynamic_cast<RimSummaryCaseCollection*>( selObj );
+    auto obsColl         = dynamic_cast<RimObservedDataCollection*>( selObj );
+
+    if ( summaryCase || summaryCaseColl || obsColl ) return true;
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,6 +86,9 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
 {
     RimProject* project = RimProject::current();
     CVF_ASSERT( project );
+
+    RimSummaryMultiPlot* multiPlot =
+        dynamic_cast<RimSummaryMultiPlot*>( caf::SelectionManager::instance()->selectedItem() );
 
     std::vector<RimSummaryCase*>           selectedCases  = caf::selectedObjectsByType<RimSummaryCase*>();
     std::vector<RimSummaryCaseCollection*> selectedGroups = caf::selectedObjectsByType<RimSummaryCaseCollection*>();
@@ -126,7 +138,21 @@ void RicOpenSummaryPlotEditorFeature::onActionTriggered( bool isChecked )
         dialog->raise();
     }
 
-    dialog->updateFromDefaultCases( sourcesToSelect );
+    if ( multiPlot )
+    {
+        if ( multiPlot->summaryPlots().size() > 0 )
+        {
+            dialog->updateFromSummaryPlot( multiPlot->summaryPlots()[0] );
+        }
+        else
+        {
+            dialog->updateFromSummaryMultiPlot( multiPlot );
+        }
+    }
+    else
+    {
+        dialog->updateFromDefaultCases( sourcesToSelect );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

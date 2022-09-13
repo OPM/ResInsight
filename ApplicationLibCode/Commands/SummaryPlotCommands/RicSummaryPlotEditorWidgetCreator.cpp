@@ -69,6 +69,14 @@ void RicSummaryPlotEditorWidgetCreator::updateFromSummaryPlot( RimSummaryPlot* s
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicSummaryPlotEditorWidgetCreator::updateFromSummaryMultiPlot( RimSummaryMultiPlot* summaryMultiPlot )
+{
+    m_summaryCurveCreator->updateFromSummaryMultiPlot( summaryMultiPlot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorWidgetCreator::updateFromDefaultSources( const std::vector<caf::PdmObject*> defaultSources )
 {
     m_summaryCurveCreator->updateFromSummaryPlot( nullptr, defaultSources );

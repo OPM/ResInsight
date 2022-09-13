@@ -70,6 +70,15 @@ void RicSummaryPlotEditorDialog::updateFromSummaryPlot( RimSummaryPlot* summaryP
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicSummaryPlotEditorDialog::updateFromSummaryMultiPlot( RimSummaryMultiPlot* summaryPlot )
+{
+    m_curveCreatorSplitterUi->updateFromSummaryMultiPlot( summaryPlot );
+    m_curveCreatorSplitterUi->updateUi();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicSummaryPlotEditorDialog::updateFromDefaultCases( const std::vector<caf::PdmObject*> defaultSources )
 {
     m_curveCreatorSplitterUi->updateFromDefaultSources( defaultSources );

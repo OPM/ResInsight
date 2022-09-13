@@ -68,6 +68,9 @@ public:
     void            updateFromSummaryPlot( RimSummaryPlot*                     targetPlot,
                                            const std::vector<caf::PdmObject*>& defaultSources = std::vector<caf::PdmObject*>() );
 
+    void updateFromSummaryMultiPlot( RimSummaryMultiPlot*                summaryMultiPlot,
+                                     const std::vector<caf::PdmObject*>& defaultSources = std::vector<caf::PdmObject*>() );
+
     QWidget* addressSelectionWidget( QWidget* parent );
 
     bool isCloseButtonPressed() const;
