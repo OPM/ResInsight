@@ -455,6 +455,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     {
         setAutoValueStates();
         syncAxisRanges();
+        analyzePlotsAndAdjustAppearanceSettings();
     }
     else if ( changedField == &m_hidePlotsWithValuesBelow )
     {
@@ -493,7 +494,7 @@ void RimSummaryMultiPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
     else if ( changedField == &m_autoAdjustAppearance )
     {
         setAutoValueStates();
-        checkAndApplyAutoAppearance();
+        analyzePlotsAndAdjustAppearanceSettings();
     }
     else
     {
@@ -723,7 +724,7 @@ void RimSummaryMultiPlot::onLoadDataAndUpdate()
     RimMultiPlot::onLoadDataAndUpdate();
     updatePlotWindowTitle();
 
-    checkAndApplyAutoAppearance();
+    analyzePlotsAndAdjustAppearanceSettings();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -809,18 +810,6 @@ void RimSummaryMultiPlot::setDefaultRangeAggregationSteppingDimension()
     m_sourceStepping->setStepDimension( stepDimension );
 
     setAutoValueStates();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimSummaryMultiPlot::checkAndApplyAutoAppearance()
-{
-    if ( m_autoAdjustAppearance )
-    {
-        syncAxisRanges();
-        analyzePlotsAndAdjustAppearanceSettings();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1231,57 +1220,84 @@ void RimSummaryMultiPlot::duplicate()
 //--------------------------------------------------------------------------------------------------
 void RimSummaryMultiPlot::analyzePlotsAndAdjustAppearanceSettings()
 {
-    RiaSummaryAddressAnalyzer analyzer;
-
-    for ( auto p : summaryPlots() )
+    if ( m_autoAdjustAppearance )
     {
-        auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
-        analyzer.appendAddresses( addresses );
-    }
+        // Required to sync axis ranges before computing the auto scale
+        syncAxisRanges();
 
-    bool hasOnlyOneQuantity = analyzer.isSingleQuantityIgnoreHistory();
+        RiaSummaryAddressAnalyzer analyzer;
 
-    for ( auto p : summaryPlots() )
-    {
-        auto timeAxisProp = p->timeAxisProperties();
-
-        if ( columnCount() < 3 )
-            timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
-        else
-            timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
-
-        for ( RimPlotAxisPropertiesInterface* axisInterface : p->plotYAxes() )
+        for ( auto p : summaryPlots() )
         {
-            auto axisProp = dynamic_cast<RimPlotAxisProperties*>( axisInterface );
+            auto addresses = RimSummaryAddressModifier::createEclipseSummaryAddress( p );
+            analyzer.appendAddresses( addresses );
+        }
 
-            if ( !axisProp ) continue;
+        bool canShowOneAxisTitlePerRow = analyzer.isSingleQuantityIgnoreHistory() &&
+                                         ( m_axisRangeAggregation() != AxisRangeAggregation::NONE );
 
-            if ( rowsPerPage() == 1 )
-                axisProp->setAutoValueForMajorTickmarkCount(
-                    RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
+        for ( auto p : summaryPlots() )
+        {
+            auto timeAxisProp = p->timeAxisProperties();
+
+            if ( columnCount() < 3 )
+                timeAxisProp->setAutoValueForMajorTickmarkCount(
+                    RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_DEFAULT );
             else
-                axisProp->setAutoValueForMajorTickmarkCount(
-                    RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
+                timeAxisProp->setAutoValueForMajorTickmarkCount( RimPlotAxisProperties::LegendTickmarkCount::TICKMARK_FEW );
 
-            axisProp->computeAndSetAutoValueForScaleFactor();
-
-            if ( hasOnlyOneQuantity )
+            for ( auto* axisProp : p->plotYAxes() )
             {
-                auto [row, col] = gridLayoutInfoForSubPlot( p );
-                if ( col == 0 )
+                if ( !axisProp ) continue;
+
+                if ( rowsPerPage() == 1 )
+                    axisProp->setAutoValueForMajorTickmarkCount(
+                        RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_DEFAULT );
+                else
+                    axisProp->setAutoValueForMajorTickmarkCount(
+                        RimPlotAxisPropertiesInterface::LegendTickmarkCount::TICKMARK_FEW );
+
+                axisProp->computeAndSetAutoValueForScaleFactor();
+
+                if ( canShowOneAxisTitlePerRow )
+                {
+                    auto [row, col] = gridLayoutInfoForSubPlot( p );
+                    if ( col == 0 )
+                    {
+                        axisProp->setShowUnitText( true );
+                        axisProp->setShowDescription( true );
+                    }
+                    else
+                    {
+                        axisProp->setShowUnitText( false );
+                        axisProp->setShowDescription( false );
+                    }
+                }
+                else
                 {
                     axisProp->setShowUnitText( true );
                     axisProp->setShowDescription( true );
                 }
-                else
-                {
-                    axisProp->setShowUnitText( false );
-                    axisProp->setShowDescription( false );
-                }
             }
-        }
 
-        p->updateAxes();
+            p->updateAxes();
+        }
+    }
+    else
+    {
+        for ( auto p : summaryPlots() )
+        {
+            for ( auto* axisProp : p->plotYAxes() )
+            {
+                if ( !axisProp ) continue;
+
+                axisProp->computeAndSetAutoValueForScaleFactor();
+                axisProp->setShowUnitText( true );
+                axisProp->setShowDescription( true );
+            }
+
+            p->updateAxes();
+        }
     }
 }
 
