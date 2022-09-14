@@ -170,7 +170,11 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
     subTitle->setVisible( false );
     m_subTitles.insert( static_cast<int>( index ), subTitle );
 
-    plotWidget->clearOverlayFrames();
+    // Remove legend overlays already attached to the plot widget
+    auto matcher = []( RiuDraggableOverlayFrame* p ) {
+        return dynamic_cast<RiuQwtLegendOverlayContentFrame*>( p->contentFrame() ) != nullptr;
+    };
+    plotWidget->clearOverlayFrames( matcher );
 
     RiuQwtPlotWidget* qwtPlotWidget = dynamic_cast<RiuQwtPlotWidget*>( plotWidget );
 
