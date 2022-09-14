@@ -123,6 +123,7 @@ protected:
 
     virtual void reinsertPlotWidgets();
     virtual void refreshLegends();
+    void         updatePlotLayouts();
 
     void addLegendWidget( RiuPlotWidget*            plotWidget,
                           RiuQwtPlotLegend*         legend,
