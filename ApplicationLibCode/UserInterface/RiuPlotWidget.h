@@ -163,9 +163,10 @@ public:
     void         scheduleReplot();
     virtual void replot() = 0;
 
-    void         addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void         removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
-    void         clearOverlayFrames();
+    void addOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
+    void removeOverlayFrame( RiuDraggableOverlayFrame* overlayWidget );
+    void clearOverlayFrames( std::function<bool( RiuDraggableOverlayFrame* )> matcher );
+
     virtual void updateLayout() = 0;
 
     virtual void renderTo( QPainter* painter, const QRect& targetRect, double scaling ) = 0;

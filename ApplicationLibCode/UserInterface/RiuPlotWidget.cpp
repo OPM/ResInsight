@@ -169,13 +169,18 @@ void RiuPlotWidget::removeOverlayFrame( RiuDraggableOverlayFrame* overlayFrame )
 }
 
 //--------------------------------------------------------------------------------------------------
-/// Remove all overlay widgets.
+/// Remove overlay widgets matching a given criteria
 //--------------------------------------------------------------------------------------------------
-void RiuPlotWidget::clearOverlayFrames()
+void RiuPlotWidget::clearOverlayFrames( std::function<bool( RiuDraggableOverlayFrame* )> matcher )
 {
     for ( auto p : m_overlayFrames )
-        p->deleteLater();
-    m_overlayFrames.clear();
+    {
+        if ( matcher( p ) )
+        {
+            removeOverlayFrame( p );
+            p->deleteLater();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
