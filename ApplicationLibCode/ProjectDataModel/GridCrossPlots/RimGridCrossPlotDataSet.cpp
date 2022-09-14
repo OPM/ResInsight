@@ -1093,7 +1093,6 @@ void RimGridCrossPlotDataSet::updateLegendIcons()
     for ( auto curve : m_crossPlotCurves )
     {
         curve->determineLegendIcon();
-        curve->setBlackAndWhiteLegendIcons( groupingEnabled() );
     }
 }
 
