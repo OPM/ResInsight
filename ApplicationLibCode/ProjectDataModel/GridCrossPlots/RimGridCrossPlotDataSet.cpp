@@ -952,6 +952,10 @@ void RimGridCrossPlotDataSet::childFieldChangedByUi( const caf::PdmFieldHandle* 
             triggerPlotNameUpdateAndReplot();
         }
     }
+    else if ( changedChildField == &m_crossPlotCurves )
+    {
+        loadDataAndUpdate( true );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
