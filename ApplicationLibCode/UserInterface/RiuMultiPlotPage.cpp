@@ -605,6 +605,7 @@ void RiuMultiPlotPage::performUpdate( RiaDefines::MultiPlotPageUpdateType whatTo
         reinsertPlotWidgets();
         alignCanvasTops();
         if ( m_autoAlignAxes ) alignAxes();
+        updatePlotLayouts();
         return;
     }
 
@@ -641,6 +642,16 @@ void RiuMultiPlotPage::refreshLegends()
         l->setVisible( !l->isEmpty() );
         updateLegendFont( l );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMultiPlotPage::updatePlotLayouts()
+{
+    QList<QPointer<RiuPlotWidget>> plotWidgets = this->visiblePlotWidgets();
+    for ( auto p : plotWidgets )
+        p->updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
