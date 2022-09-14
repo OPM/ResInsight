@@ -299,8 +299,8 @@ void RimGridCrossPlot::updateInfoBox()
                     new RiuDraggableOverlayFrame( m_plotWidget->getParentForOverlay(), m_plotWidget->overlayMargins() );
                 m_infoBox->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
                 RiuTextOverlayContentFrame* textFrame = new RiuTextOverlayContentFrame( m_infoBox );
-                textFrame->setText( generateInfoBoxText() );
                 m_infoBox->setContentFrame( textFrame );
+                m_infoBoxTextFrame = textFrame;
             }
             m_plotWidget->addOverlayFrame( m_infoBox );
         }
@@ -313,6 +313,11 @@ void RimGridCrossPlot::updateInfoBox()
                 m_infoBox = nullptr;
             }
         }
+    }
+
+    if ( m_infoBoxTextFrame )
+    {
+        m_infoBoxTextFrame->setText( generateInfoBoxText() );
     }
 }
 
@@ -624,6 +629,7 @@ void RimGridCrossPlot::updateCurveNamesAndPlotTitle()
         m_plotWidget->setPlotTitleEnabled( m_showPlotTitle && !isSubPlot() );
     }
     updateMdiWindowTitle();
+    updateInfoBox();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -739,6 +745,7 @@ void RimGridCrossPlot::setYAxisInverted( bool inverted )
 //--------------------------------------------------------------------------------------------------
 void RimGridCrossPlot::doUpdateLayout()
 {
+    updateInfoBox();
     updateLegend();
     updatePlot();
 }
