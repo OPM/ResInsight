@@ -35,6 +35,7 @@ class RimGridCrossPlotDataSet;
 class RiuDraggableOverlayFrame;
 class RiuGridCrossQwtPlot;
 class RimPlotCurve;
+class RiuTextOverlayContentFrame;
 
 class RimGridCrossPlotNameConfig : public RimNameConfig
 {
@@ -159,6 +160,7 @@ private:
 
     caf::PdmChildArrayField<RimGridCrossPlotDataSet*> m_crossPlotDataSets;
 
-    QPointer<RiuGridCrossQwtPlot>      m_plotWidget;
-    QPointer<RiuDraggableOverlayFrame> m_infoBox;
+    QPointer<RiuGridCrossQwtPlot>        m_plotWidget;
+    QPointer<RiuDraggableOverlayFrame>   m_infoBox;
+    QPointer<RiuTextOverlayContentFrame> m_infoBoxTextFrame;
 };
