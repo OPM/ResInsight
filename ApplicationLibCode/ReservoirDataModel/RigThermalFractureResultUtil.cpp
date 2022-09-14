@@ -34,8 +34,8 @@
 
 #include <cmath>
 
-int numSamplesX = 100;
-int numSamplesY = 60;
+int numSamplesX = 50;
+int numSamplesY = 40;
 
 //--------------------------------------------------------------------------------------------------
 ///
