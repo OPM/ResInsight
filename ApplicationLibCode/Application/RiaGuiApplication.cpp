@@ -1437,7 +1437,7 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
             }
 
             QMessageBox::StandardButton reply;
-            reply                   = QMessageBox::question( m_mainWindow,
+            reply                   = QMessageBox::question( activeMainWindow(),
                                            QString( "Apply %1 to Existing Views or Plots?" ).arg( listString ),
                                            QString( "You have changed default %1 and have existing views or plots with "
                                                     "different settings.\n" )
@@ -1502,7 +1502,10 @@ void RiaGuiApplication::applyGuiPreferences( const RiaPreferences*              
 
             if ( oldPreferences->defaultPlotFontSize() != m_preferences->defaultPlotFontSize() )
             {
-                m_mainWindow->applyFontSizesToDockedPlots();
+                if ( m_mainWindow )
+                {
+                    m_mainWindow->applyFontSizesToDockedPlots();
+                }
             }
 
             if ( oldPreferences->defaultPageLayout() != m_preferences->defaultPageLayout() )
