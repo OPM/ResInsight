@@ -481,6 +481,13 @@ std::vector<cvf::Vec3d>
         r.z() *= -1.0;
     }
 
+    // Store the depths of the points
+    std::vector<double> depths;
+    for ( auto& r : relativePos )
+    {
+        depths.push_back( r.z() );
+    }
+
     cvf::Vec3d p0 = relativePos[0];
     cvf::Vec3d p1 = relativePos[1];
     cvf::Vec3d p2 = relativePos[2];
@@ -497,21 +504,24 @@ std::vector<cvf::Vec3d>
         r.z() = 0.0;
     }
 
-    auto findExtrema = []( const std::vector<cvf::Vec3d>& points ) {
-        double maxDistance = -1.0;
+    auto findPointsWithMostSimilarDepth = []( const std::vector<cvf::Vec3d>& points, const std::vector<double>& depths ) {
+        double minDiff = std::numeric_limits<double>::max();
 
         cvf::Vec3d e1 = cvf::Vec3d::UNDEFINED;
         cvf::Vec3d e2 = cvf::Vec3d::UNDEFINED;
-        for ( auto p1 : points )
+        for ( size_t i1 = 0; i1 < points.size(); i1++ )
         {
-            for ( auto p2 : points )
+            for ( size_t i2 = 0; i2 < points.size(); i2++ )
             {
-                double distance = p1.pointDistanceSquared( p2 );
-                if ( distance > maxDistance )
+                if ( i1 != i2 )
                 {
-                    maxDistance = distance;
-                    e1          = p1;
-                    e2          = p2;
+                    double diff = std::fabs( depths[i1] - depths[i2] );
+                    if ( diff < minDiff )
+                    {
+                        minDiff = diff;
+                        e1      = points[i1];
+                        e2      = points[i2];
+                    }
                 }
             }
         }
@@ -519,7 +529,8 @@ std::vector<cvf::Vec3d>
         return std::make_pair( e1, e2 );
     };
 
-    auto [e1, e2]        = findExtrema( relativePos );
+    // Find the rotation that aligns the data so that depth (z coord) is the most similar.
+    auto [e1, e2]        = findPointsWithMostSimilarDepth( relativePos, depths );
     cvf::Vec3d direction = e1 - e2;
     auto       rotMat2   = rotationMatrixBetweenVectors( direction.getNormalized(), cvf::Vec3d::X_AXIS );
     for ( auto& r : relativePos )
