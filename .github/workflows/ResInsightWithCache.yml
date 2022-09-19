@@ -127,6 +127,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
+          setup-python: false
           version: 5.12.12
           modules: qtscript qtcharts
           dir: "${{ github.workspace }}/Qt/"
