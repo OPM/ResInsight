@@ -151,6 +151,17 @@ Performance Improved performance for grid model import from GRDECL. Improved per
     </item>
     
     <item>
+      <title>What&#39;s New in 2022.06.1</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06_1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06_1/</guid>
+      <description>General Release 2022.06.1 is mainly a bug fix release in addition to a few new features.
+Window Management The Window Management was updated allowing an easy to use and powerful management system. ResInsight stores application window visibility and location between sessions. It is also possible to store the window configuration to a file for later reuse.
+Icons are added to the docking windows to make it easy to find a window.</description>
+    </item>
+    
+    <item>
       <title>What&#39;s New in 2018.11</title>
       <link>https://resinsight.org/getting-started/whats-new/releasenotes_2018_11/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>

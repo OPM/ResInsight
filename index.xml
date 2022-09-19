@@ -249,6 +249,17 @@ Performance Improved performance for grid model import from GRDECL. Improved per
     </item>
     
     <item>
+      <title>What&#39;s New in 2022.06.1</title>
+      <link>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06_1/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/getting-started/whats-new/releasenotes_2022_06_1/</guid>
+      <description>General Release 2022.06.1 is mainly a bug fix release in addition to a few new features.
+Window Management The Window Management was updated allowing an easy to use and powerful management system. ResInsight stores application window visibility and location between sessions. It is also possible to store the window configuration to a file for later reuse.
+Icons are added to the docking windows to make it easy to find a window.</description>
+    </item>
+    
+    <item>
       <title>Data Sources</title>
       <link>https://resinsight.org/plot-window/summaryplotdatasources/</link>
       <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
@@ -298,6 +309,18 @@ The *.rsp file is an XML file, and can be edited by any text editor.</descriptio
       <guid>https://resinsight.org/plot-window/summaryplotmanager/</guid>
       <description>The Summary Plot Manager is a separate ResInsight dialog window where the user can select which vectors to plot in a summary plot. This dialog is intented to be used from the keyboard with easy access to operations for management of summary plots. This dialog can be opened by using CTRL-K from anywhere in the Plot Window.
 The user writes a text string defining the summary vectors and optionally data sources for curves to be plotted.</description>
+    </item>
+    
+    <item>
+      <title>Window Management</title>
+      <link>https://resinsight.org/misc/windowmanagement/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://resinsight.org/misc/windowmanagement/</guid>
+      <description>Window Management The window management system was updated in release 2022.06.1. ResInsight stores application window visibility and location between sessions. It is also possible to store the window configuration to a file for later reuse.
+The window management is available from the Windows menu.
+See the following demonstration of some of the Window Management features:
+  </description>
     </item>
     
     <item>
@@ -432,9 +455,9 @@ Importing such a file will enable result type called SourSimRL as explained in E
 In a git enabled shell do: git clone https://github.com/OPM/ResInsight.git
 Dependencies and Prerequisites Windows Compiler Visual Studio 2019 and later is supported.
 GCC Compiler On RedHat Linux 7 or CentOS 7 you need to install devtoolset-10, and enable it with
-source /opt/rh/devtoolset-10/enable Qt 5 Qt 5.9 or later is supported, Qt 5.15 is recommended.
+source /opt/rh/devtoolset-10/enable Qt 5 Qt 5.12 or later is supported, Qt 5.15 is recommended.
 Qt download
-On some configurations you will be asked to specify the location of Qt 5.</description>
+On some configurations you will be asked to specify the location of Qt.</description>
     </item>
     
     <item>
@@ -1013,8 +1036,9 @@ Create New RFT Plot There are several ways to create new RFT Plots.</description
       
       <guid>https://resinsight.org/plot-window/rftsegmentplot/</guid>
       <description>RFT Segment Data can be plotted as horizontal Well Log Plots. RFT data can be imported based on a summary case or a grid case.
-Create RFT Segment Plot From the Project Tree in the Plot Main Window
- Select right-click command New Well Log Plot for Well Log Plots Select right-click command New Well Log RFT Curve for a Track   Change orientation of the Well Log Plot to Horizontal   If TVD depth is plotted, optionally invert the Y-axis when the track is selected   Add more tracks with to the same plot, and use copy/paste of a track for fast duplication.</description>
+Create RFT Segment Plot Open a summary case with RFT data
+Optional Step - Additional data from WSEGLINK If WSEGLINK data is required, set the path to the file containing this data, or to the top level .DATA file.
+From the right-click menu of the summary case, select Reload to make sure the data from WSEGLINK is imported.</description>
     </item>
     
     <item>

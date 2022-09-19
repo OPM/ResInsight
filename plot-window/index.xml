@@ -202,8 +202,9 @@ Create New RFT Plot There are several ways to create new RFT Plots.</description
       
       <guid>https://resinsight.org/plot-window/rftsegmentplot/</guid>
       <description>RFT Segment Data can be plotted as horizontal Well Log Plots. RFT data can be imported based on a summary case or a grid case.
-Create RFT Segment Plot From the Project Tree in the Plot Main Window
- Select right-click command New Well Log Plot for Well Log Plots Select right-click command New Well Log RFT Curve for a Track   Change orientation of the Well Log Plot to Horizontal   If TVD depth is plotted, optionally invert the Y-axis when the track is selected   Add more tracks with to the same plot, and use copy/paste of a track for fast duplication.</description>
+Create RFT Segment Plot Open a summary case with RFT data
+Optional Step - Additional data from WSEGLINK If WSEGLINK data is required, set the path to the file containing this data, or to the top level .DATA file.
+From the right-click menu of the summary case, select Reload to make sure the data from WSEGLINK is imported.</description>
     </item>
     
     <item>
