@@ -70,7 +70,7 @@ jobs:
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
 
-      - name: Python : Install specific protobuf module
+      - name: [Python] Install specific protobuf module
         # Install specific protobuf version to avoid issues when running pytest
         run: python -m pip pip install protobuf<3.21
 
