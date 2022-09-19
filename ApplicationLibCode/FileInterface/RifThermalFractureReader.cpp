@@ -49,35 +49,37 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
 
     QString separator = ",";
 
-    auto appendPropertyValues = [definition]( int nodeIndex, int valueOffset, const QStringList& values ) {
-        CAF_ASSERT( valueOffset <= values.size() );
-        for ( int i = valueOffset; i < values.size(); i++ )
-        {
-            bool   isOk  = false;
-            double value = values[i].toDouble( &isOk );
-            if ( isOk )
+    auto appendPropertyValues =
+        [definition]( int nodeIndex, int valueOffset, const QStringList& values, double conductivityFactor ) {
+            CAF_ASSERT( valueOffset <= values.size() );
+            for ( int i = valueOffset; i < values.size(); i++ )
             {
-                int propertyIndex = i - valueOffset;
-
-                // Convert conductivity from Darcy to milliDarcy
-                if ( definition->getPropertyIndex( "Conductivity" ) == propertyIndex )
+                bool   isOk  = false;
+                double value = values[i].toDouble( &isOk );
+                if ( isOk )
                 {
-                    value *= 1.0e3;
-                }
+                    int propertyIndex = i - valueOffset;
 
-                definition->appendPropertyValue( propertyIndex, nodeIndex, value );
+                    // Convert conductivity from Darcy to milliDarcy
+                    if ( definition->getPropertyIndex( "Conductivity" ) == propertyIndex )
+                    {
+                        value *= conductivityFactor;
+                    }
+
+                    definition->appendPropertyValue( propertyIndex, nodeIndex, value );
+                }
             }
-        }
-    };
+        };
 
     QTextStream in( &file );
     int         lineNumber = 1;
 
     // The two items in the csv is name and timestep
-    const int valueOffset   = 2;
-    int       nodeIndex     = 0;
-    bool      isFirstHeader = true;
-    bool      isValidNode   = false;
+    const int valueOffset        = 2;
+    int       nodeIndex          = 0;
+    bool      isFirstHeader      = true;
+    bool      isValidNode        = false;
+    double    conductivityFactor = 1.0;
     while ( !in.atEnd() )
     {
         QString line = in.readLine();
@@ -100,6 +102,13 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
                         // Special handling for Conductivity: change unit from Darcy to Milli
                         if ( name.contains( RiaDefines::conductivityResultName(), Qt::CaseInsensitive ) )
                         {
+                            // Check if the conductivity unit needs conversion to milliDarcy
+                            if ( !unit.contains( "mD" ) )
+                            {
+                                conductivityFactor = 1.0e3;
+                            }
+
+                            // Use the preferred internal unit for conductivity
                             unit = RiaDefines::unitStringConductivity( detectUnitSystem( definition ) );
                         }
 
@@ -140,13 +149,13 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
             definition->addTimeStep( dateTime.toSecsSinceEpoch() );
 
             //
-            appendPropertyValues( nodeIndex, valueOffset, values );
+            appendPropertyValues( nodeIndex, valueOffset, values, conductivityFactor );
             isValidNode = true;
         }
         else if ( isInternalNodeLine( line ) || isPerimeterNodeLine( line ) )
         {
             auto values = RifFileParseTools::splitLineAndTrim( line, separator );
-            appendPropertyValues( nodeIndex, valueOffset, values );
+            appendPropertyValues( nodeIndex, valueOffset, values, conductivityFactor );
             isValidNode = true;
         }
         else
