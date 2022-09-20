@@ -57,11 +57,24 @@ jobs:
           submodules: true
 
       - name: Set up Python
-        uses: actions/setup-python@v2
+        uses: actions/setup-python@v4
         with:
           python-version: "3.8"
       - name: Display Python version
         run: python -c "import sys; print(sys.version)"
+
+      - name: Get Python executable path
+        id: python-path
+        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
+        
+      - name: Print Python path
+        run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+        
+      - name: Install dependencies
+        # Make sure protobuf version is compatible with grpc - https://github.com/OPM/ResInsight/issues/9304
+        run: |
+          python -m pip install --upgrade pip
+          pip install protobuf==3.20.*
 
       - name: Use CMake
         uses: lukka/get-cmake@latest
@@ -120,6 +133,7 @@ jobs:
       - name: Install Qt
         uses: jurplel/install-qt-action@v2
         with:
+          setup-python: false
           version: 5.12.12
           modules: qtscript qtcharts
           dir: "${{ github.workspace }}/Qt/"
@@ -128,12 +142,6 @@ jobs:
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
-
-      - name: Get Python executable path
-        id: python-path
-        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
-      - name: Print Python path
-        run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
 
       - name: Set vcpkg's response file path used as part of cache's key.
         uses: lukka/set-shell-env@master
