@@ -98,15 +98,6 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
             }
             return;
         }
-        else if ( rftAddress.segmentResultName() == RiaDefines::segmentOneBasedBranchIndexResultName() )
-        {
-            auto branchIndices = segment.oneBasedBranchIndices();
-            for ( const auto& branchNumber : branchIndices )
-            {
-                values->push_back( branchNumber );
-            }
-            return;
-        }
     }
 
     if ( resultName.empty() )
@@ -293,6 +284,25 @@ void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::
     catch ( ... )
     {
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep )
+{
+    int y = timeStep.date().year();
+    int m = timeStep.date().month();
+    int d = timeStep.date().day();
+
+    auto key = std::make_pair( wellName.toStdString(), RftDate{ y, m, d } );
+    if ( m_rftWellDateSegments.count( key ) > 0 )
+    {
+        auto segment = m_rftWellDateSegments[key];
+        return segment.branchIdsAndOneBasedBranchIndices();
+    }
+
+    return {};
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -538,7 +548,8 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
     // The device segment is connected to a segment on the tubing branch
     //
     // Annulus branch
-    // Layer between device branch and reservoir. The segment connection data is imported from WSEGLINK in the data deck
+    // Layer between device branch and reservoir. The segment connection data is imported from WSEGLINK in the data
+    // deck
 
     auto           wellName   = segmentKey.first;
     auto           date       = segmentKey.second;

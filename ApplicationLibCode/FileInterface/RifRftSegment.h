@@ -55,10 +55,11 @@ public:
     void addResultNameAndSize( const Opm::EclIO::EclFile::EclEntry& resultNameAndSize );
     std::vector<Opm::EclIO::EclFile::EclEntry> resultNameAndSize() const;
 
-    std::vector<int>         tubingBranchIds() const;
-    std::vector<int>         branchIds() const;
-    std::set<int>            oneBasedBranchIndices() const;
-    int                      oneBasedBranchIndexForBranchId( int branchId ) const;
+    std::vector<int>   tubingBranchIds() const;
+    std::vector<int>   branchIds() const;
+    int                oneBasedBranchIndexForBranchId( int branchId ) const;
+    std::map<int, int> branchIdsAndOneBasedBranchIndices() const;
+
     const RifRftSegmentData* segmentData( int segmentNumber ) const;
 
     void createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex );
