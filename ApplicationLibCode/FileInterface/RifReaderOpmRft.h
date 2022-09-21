@@ -53,6 +53,8 @@ public:
 
     void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
+    std::map<int, int> branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep );
+
 private:
     // Segment data
     // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate

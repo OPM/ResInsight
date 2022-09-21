@@ -29,7 +29,6 @@ QString segmentNumberResultName();
 
 QString allBranches();
 QString segmentBranchNumberResultName();
-QString segmentOneBasedBranchIndexResultName();
 
 enum class RftBranchType
 {

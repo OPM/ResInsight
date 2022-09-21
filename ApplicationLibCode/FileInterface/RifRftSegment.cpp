@@ -152,26 +152,19 @@ std::vector<int> RifRftSegment::branchIds() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::set<int> RifRftSegment::oneBasedBranchIndices() const
-{
-    std::set<int> indices;
-
-    for ( auto b : m_oneBasedBranchIndexMap )
-    {
-        indices.insert( b.second );
-    }
-
-    return indices;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 int RifRftSegment::oneBasedBranchIndexForBranchId( int branchId ) const
 {
     if ( m_oneBasedBranchIndexMap.count( branchId ) > 0 ) return m_oneBasedBranchIndexMap.at( branchId );
 
     return -1;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<int, int> RifRftSegment::branchIdsAndOneBasedBranchIndices() const
+{
+    return m_oneBasedBranchIndexMap;
 }
 
 //--------------------------------------------------------------------------------------------------
