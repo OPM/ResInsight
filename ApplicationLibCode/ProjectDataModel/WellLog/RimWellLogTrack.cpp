@@ -2159,6 +2159,19 @@ std::pair<double, double> RimWellLogTrack::extendMinMaxRange( double minValue, d
     auto modifiedMax = maxValue;
 
     auto range = std::fabs( maxValue - minValue );
+    if ( range < 1e-6 )
+    {
+        // If min and max are equal, the curve is not visible. Make sure the range is larger than zero.
+        if ( maxValue != 0.0 )
+        {
+            range = maxValue * 0.01;
+        }
+        else
+        {
+            range = 1.0;
+        }
+    }
+
     modifiedMax += factor * range;
 
     auto candidateMinValue = minValue - factor * range;
