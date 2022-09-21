@@ -67,14 +67,6 @@ QString RiaDefines::segmentBranchNumberResultName()
     return "SegmentBranchNumber";
 }
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RiaDefines::segmentOneBasedBranchIndexResultName()
-{
-    return "SegmentOneBasedBranchIndex";
-}
-
 namespace caf
 {
 template <>

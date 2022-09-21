@@ -24,6 +24,7 @@
 
 #include "RifReaderRftInterface.h"
 
+#include "RifReaderOpmRft.h"
 #include "cafPdmUiItem.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -144,26 +145,36 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIndexOptions( RifReaderR
                                                                       const QString&         wellName,
                                                                       const QDateTime&       timeStep )
 {
-    QList<caf::PdmOptionItemInfo> options;
-
-    options.push_front( caf::PdmOptionItemInfo( RiaDefines::allBranches(), -1 ) );
-
-    if ( readerRft )
+    auto opmReader = dynamic_cast<RifReaderOpmRft*>( readerRft );
+    if ( opmReader )
     {
-        std::vector<double> values;
+        QList<caf::PdmOptionItemInfo> options;
+        options.push_front( caf::PdmOptionItemInfo( RiaDefines::allBranches(), -1 ) );
 
-        auto adr = RifEclipseRftAddress::createSegmentAddress( wellName,
-                                                               timeStep,
-                                                               RiaDefines::segmentOneBasedBranchIndexResultName() );
+        auto branchIdIndex = opmReader->branchIdsAndOneBasedIndices( wellName, timeStep );
 
-        readerRft->values( adr, &values );
-        for ( const auto& v : values )
+        std::set<int> indices;
+        for ( auto b : branchIdIndex )
         {
-            int  intValue = v;
-            auto txt      = QString::number( intValue );
-            options.push_back( caf::PdmOptionItemInfo( txt, intValue ) );
+            indices.insert( b.second );
         }
+
+        for ( auto i : indices )
+        {
+            std::vector<int> branchIds;
+            for ( auto b : branchIdIndex )
+            {
+                if ( b.second == i ) branchIds.push_back( b.first );
+            }
+
+            auto minMax = std::minmax_element( branchIds.begin(), branchIds.end() );
+
+            auto txt = QString( "%1  (%2-%3)" ).arg( i ).arg( *minMax.first ).arg( *minMax.second );
+            options.push_back( caf::PdmOptionItemInfo( txt, i ) );
+        }
+
+        return options;
     }
 
-    return options;
+    return {};
 }
