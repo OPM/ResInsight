@@ -141,9 +141,10 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentResultNameOptions( RifReaderRf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIndexOptions( RifReaderRftInterface* readerRft,
-                                                                      const QString&         wellName,
-                                                                      const QDateTime&       timeStep )
+QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIndexOptions( RifReaderRftInterface*    readerRft,
+                                                                      const QString&            wellName,
+                                                                      const QDateTime&          timeStep,
+                                                                      RiaDefines::RftBranchType branchType )
 {
     auto opmReader = dynamic_cast<RifReaderOpmRft*>( readerRft );
     if ( opmReader )
@@ -151,7 +152,7 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIndexOptions( RifReaderR
         QList<caf::PdmOptionItemInfo> options;
         options.push_front( caf::PdmOptionItemInfo( RiaDefines::allBranches(), -1 ) );
 
-        auto branchIdIndex = opmReader->branchIdsAndOneBasedIndices( wellName, timeStep );
+        auto branchIdIndex = opmReader->branchIdsAndOneBasedIndices( wellName, timeStep, branchType );
 
         std::set<int> indices;
         for ( auto b : branchIdIndex )
@@ -169,7 +170,7 @@ QList<caf::PdmOptionItemInfo> RimRftTools::segmentBranchIndexOptions( RifReaderR
 
             auto minMax = std::minmax_element( branchIds.begin(), branchIds.end() );
 
-            auto txt = QString( "%1  (%2-%3)" ).arg( i ).arg( *minMax.first ).arg( *minMax.second );
+            auto txt = QString( "%1 (Branch Id %2-%3)" ).arg( i ).arg( *minMax.first ).arg( *minMax.second );
             options.push_back( caf::PdmOptionItemInfo( txt, i ) );
         }
 

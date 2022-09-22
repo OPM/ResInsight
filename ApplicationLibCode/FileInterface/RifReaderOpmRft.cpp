@@ -289,7 +289,9 @@ void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep )
+std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString&            wellName,
+                                                                 const QDateTime&          timeStep,
+                                                                 RiaDefines::RftBranchType branchType )
 {
     int y = timeStep.date().year();
     int m = timeStep.date().month();
@@ -299,7 +301,7 @@ std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString& 
     if ( m_rftWellDateSegments.count( key ) > 0 )
     {
         auto segment = m_rftWellDateSegments[key];
-        return segment.branchIdsAndOneBasedBranchIndices();
+        return segment.branchIdsAndOneBasedBranchIndices( branchType );
     }
 
     return {};

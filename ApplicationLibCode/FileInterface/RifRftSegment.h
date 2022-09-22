@@ -58,7 +58,7 @@ public:
     std::vector<int>   tubingBranchIds() const;
     std::vector<int>   branchIds() const;
     int                oneBasedBranchIndexForBranchId( int branchId ) const;
-    std::map<int, int> branchIdsAndOneBasedBranchIndices() const;
+    std::map<int, int> branchIdsAndOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const;
 
     const RifRftSegmentData* segmentData( int segmentNumber ) const;
 

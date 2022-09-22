@@ -162,9 +162,21 @@ int RifRftSegment::oneBasedBranchIndexForBranchId( int branchId ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, int> RifRftSegment::branchIdsAndOneBasedBranchIndices() const
+std::map<int, int> RifRftSegment::branchIdsAndOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const
 {
-    return m_oneBasedBranchIndexMap;
+    std::map<int, int> mapForBranchType;
+
+    // find all branch ids for the given branch type
+
+    for ( const auto& [branchId, branchIndex] : m_oneBasedBranchIndexMap )
+    {
+        if ( branchType == RiaDefines::RftBranchType::RFT_UNKNOWN || this->branchType( branchId ) == branchType )
+        {
+            mapForBranchType[branchId] = branchIndex;
+        }
+    }
+
+    return mapForBranchType;
 }
 
 //--------------------------------------------------------------------------------------------------
