@@ -140,6 +140,7 @@ public:
     RimWellIASettingsCollection*          wellIASettingsCollection();
 
     bool showWellPathLabel() const;
+    void setShowWellPath( bool enable );
     bool showWellPath() const;
 
     cvf::Color3f wellPathColor() const;

@@ -1,0 +1,185 @@
+/////////////////////////////////////////////////////////////////////////////////
+//
+//  Copyright (C) 2022     Equinor ASA
+//
+//  ResInsight is free software: you can redistribute it and/or modify
+//  it under the terms of the GNU General Public License as published by
+//  the Free Software Foundation, either version 3 of the License, or
+//  (at your option) any later version.
+//
+//  ResInsight is distributed in the hope that it will be useful, but WITHOUT
+//  ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or
+//  FITNESS FOR A PARTICULAR PURPOSE.
+//
+//  See the GNU General Public License at <http://www.gnu.org/licenses/gpl.html>
+//  for more details.
+//
+/////////////////////////////////////////////////////////////////////////////////
+
+#include "RicAppendWellPathFromRftDataFeature.h"
+
+#include "RiaApplication.h"
+#include "RiaColorTables.h"
+#include "RiaRftDefines.h"
+
+#include "RicNewWellLogPlotFeatureImpl.h"
+#include "RicWellLogPlotCurveFeatureImpl.h"
+#include "RicWellLogTools.h"
+
+#include "RigWellLogCurveData.h"
+
+#include "RimMainPlotCollection.h"
+#include "RimModeledWellPath.h"
+#include "RimRftCase.h"
+#include "RimSummaryCase.h"
+#include "RimTools.h"
+#include "RimWellLogExtractionCurve.h"
+#include "RimWellLogPlot.h"
+#include "RimWellLogPlotCollection.h"
+#include "RimWellLogTrack.h"
+#include "RimWellPathAttribute.h"
+#include "RimWellPathAttributeCollection.h"
+#include "RimWellPathCollection.h"
+#include "RimWellPathGeometryDef.h"
+
+#include "Riu3dSelectionManager.h"
+#include "RiuPlotMainWindow.h"
+#include "RiuPlotMainWindowTools.h"
+
+#include "cafSelectionManager.h"
+
+#include <QAction>
+
+#include "RimWellPathTarget.h"
+#include <vector>
+
+CAF_CMD_SOURCE_INIT( RicAppendWellPathFromRftDataFeature, "RicAppendWellPathFromRftDataFeature" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicAppendWellPathFromRftDataFeature::isCommandEnabled()
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicAppendWellPathFromRftDataFeature::onActionTriggered( bool isChecked )
+{
+    auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
+    if ( !rftCase ) return;
+
+    RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
+
+    if ( !wellPathColl ) return;
+
+    auto newModeledWellPath = findOrCreateWellAttributeWellPath();
+    if ( !newModeledWellPath ) return;
+
+    // TODO: show dialog to select RFT well to create attribute plot for
+
+    newModeledWellPath->attributeCollection()->deleteAllAttributes();
+    auto attribute = new RimWellPathAttribute;
+    attribute->setDepthsFromWellPath( newModeledWellPath );
+    newModeledWellPath->attributeCollection()->insertAttribute( nullptr, attribute );
+
+    auto wellLogPlot = findOrCreateWellLogPlot();
+    if ( !wellLogPlot ) return;
+
+    CAF_ASSERT( wellLogPlot->plots().size() == 1 );
+
+    auto* track = dynamic_cast<RimWellLogTrack*>( wellLogPlot->plots().front() );
+    track->setWellPathAttributesSource( newModeledWellPath );
+
+    wellLogPlot->loadDataAndUpdate();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicAppendWellPathFromRftDataFeature::setupActionLook( QAction* actionToSetup )
+{
+    actionToSetup->setText( "Update Well Attribute Plot" );
+    // actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimModeledWellPath* RicAppendWellPathFromRftDataFeature::findOrCreateWellAttributeWellPath()
+{
+    QString wellName = "[Internal] RFT Helper";
+
+    RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
+    if ( !wellPathColl ) return nullptr;
+
+    auto wellPath = wellPathColl->tryFindMatchingWellPath( wellName );
+    if ( wellPath ) return dynamic_cast<RimModeledWellPath*>( wellPath );
+
+    // create and add modeled well path to well path collection
+    auto newModeledWellPath = new RimModeledWellPath();
+    newModeledWellPath->setShowWellPath( false );
+
+    size_t modelledWellpathCount = wellPathColl->modelledWellPathCount();
+
+    newModeledWellPath->setName( wellName );
+    newModeledWellPath->setWellPathColor(
+        RiaColorTables::editableWellPathsPaletteColors().cycledColor3f( modelledWellpathCount ) );
+
+    wellPathColl->addWellPaths( { newModeledWellPath }, false );
+    wellPathColl->uiCapability()->updateConnectedEditors();
+
+    // Add dummy start and end target points
+
+    {
+        auto newTarget = new RimWellPathTarget;
+        newTarget->setAsPointTargetXYD( cvf::Vec3d( 10.0, 10.0, 10.0 ) );
+
+        newModeledWellPath->geometryDefinition()->insertTarget( nullptr, newTarget );
+    }
+    {
+        auto newTarget = new RimWellPathTarget;
+        newTarget->setAsPointTargetXYD( cvf::Vec3d( 10.0, 10.0, 100.0 ) );
+
+        newModeledWellPath->geometryDefinition()->insertTarget( nullptr, newTarget );
+    }
+
+    newModeledWellPath->createWellPathGeometry();
+
+    return newModeledWellPath;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimWellLogPlot* RicAppendWellPathFromRftDataFeature::findOrCreateWellLogPlot()
+{
+    RimWellLogPlotCollection* wellLogPlotColl = RimMainPlotCollection::current()->wellLogPlotCollection();
+    if ( !wellLogPlotColl ) return nullptr;
+
+    QString plotName = "Well Completion Overview";
+
+    for ( auto p : wellLogPlotColl->wellLogPlots() )
+    {
+        if ( p->description() == plotName ) return p;
+    }
+
+    auto* plot = new RimWellLogPlot();
+    plot->setAsPlotMdiWindow();
+
+    wellLogPlotColl->addWellLogPlot( plot );
+
+    plot->nameConfig()->setCustomName( plotName );
+    wellLogPlotColl->updateConnectedEditors();
+
+    // Add well log track
+    RimWellLogTrack* track = RicNewWellLogPlotFeatureImpl::createWellLogPlotTrack( false, "Well Completions", plot );
+    track->setLegendsVisible( true );
+    track->setShowWellPathAttributes( true );
+
+    plot->loadDataAndUpdate();
+
+    return plot;
+}
