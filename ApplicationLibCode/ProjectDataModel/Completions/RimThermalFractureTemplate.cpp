@@ -172,7 +172,33 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
             }
         };
 
+        auto addFilterCakeMobility = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
+            int     leakoffPressureDropIndex   = def->getPropertyIndex( "LeakoffPressureDrop" );
+            int     filtratePressureDropIndex  = def->getPropertyIndex( "FiltratePressureDrop" );
+            int     leakoffMobilityIndex       = def->getPropertyIndex( "LeakoffMobility" );
+            QString filterCakeMobilityValueTag = "FilterCakeMobility";
+            def->addProperty( filterCakeMobilityValueTag, "m/day/bar" );
+
+            int filterCakeMobilityDeclineIndex = def->getPropertyIndex( filterCakeMobilityValueTag );
+
+            for ( size_t nodeIndex = 0; nodeIndex < def->numNodes(); nodeIndex++ )
+            {
+                for ( size_t timeStepIndex = 0; timeStepIndex < def->numTimeSteps(); timeStepIndex++ )
+                {
+                    double leakoffPressureDrop =
+                        def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
+                    double filtratePressureDrop =
+                        def->getPropertyValue( filtratePressureDropIndex, nodeIndex, timeStepIndex );
+                    double leakoffMobility = def->getPropertyValue( leakoffMobilityIndex, nodeIndex, timeStepIndex );
+
+                    double filterCakeMobilityValue = leakoffMobility * ( leakoffPressureDrop / filtratePressureDrop );
+                    def->appendPropertyValue( filterCakeMobilityDeclineIndex, nodeIndex, filterCakeMobilityValue );
+                }
+            }
+        };
+
         addInjectivityDecline( m_fractureDefinitionData );
+        addFilterCakeMobility( m_fractureDefinitionData );
 
         setDefaultConductivityResultIfEmpty();
 
