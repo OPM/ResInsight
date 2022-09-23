@@ -9,6 +9,7 @@ import os
 import socket
 import logging
 import time
+import tempfile
 
 import grpc
 
@@ -57,6 +58,18 @@ class Instance:
         return True
 
     @staticmethod
+    def __read_port_number_from_file(file_path):
+        while not os.path.exists(file_path):
+            time.sleep(1)
+
+        if os.path.isfile(file_path):
+            with open(file_path) as f:
+                value = f.readline()
+                return int(value)
+        else:
+            raise ValueError("%s isn't a file!" % file_path)
+
+    @staticmethod
     def launch(
         resinsight_executable="",
         console=False,
@@ -79,12 +92,12 @@ class Instance:
             Instance: an instance object if it worked. None if not.
         """
 
-        port = 50051
+        requested_port = 50051
         port_env = os.environ.get("RESINSIGHT_GRPC_PORT")
         if port_env:
-            port = int(port_env)
+            requested_port = int(port_env)
         if launch_port != -1:
-            port = launch_port
+            requested_port = launch_port
 
         if not resinsight_executable:
             resinsight_executable = os.environ.get("RESINSIGHT_EXECUTABLE")
@@ -95,12 +108,6 @@ class Instance:
                 )
                 return None
 
-        print("Trying port " + str(port))
-        while Instance.__is_port_in_use(port):
-            port += 1
-            print("Trying port " + str(port))
-
-        print("Port " + str(port))
         print("Trying to launch", resinsight_executable)
 
         if command_line_parameters is None:
@@ -108,19 +115,28 @@ class Instance:
         elif isinstance(command_line_parameters, str):
             command_line_parameters = [str]
 
-        parameters = ["ResInsight", "--server", str(port)] + command_line_parameters
-        if console:
-            print("Launching as console app")
-            parameters.append("--console")
+        with tempfile.TemporaryDirectory() as tmp_dir_path:
+            port_number_file = tmp_dir_path + "/portnumber.txt"
+            parameters = [
+                "ResInsight",
+                "--server",
+                requested_port,
+                "--portnumberfile",
+                port_number_file,
+            ] + command_line_parameters
+            if console:
+                print("Launching as console app")
+                parameters.append("--console")
 
-        # Stringify all parameters
-        for i in range(0, len(parameters)):
-            parameters[i] = str(parameters[i])
+            # Stringify all parameters
+            for i in range(0, len(parameters)):
+                parameters[i] = str(parameters[i])
 
-        pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
-        if pid:
-            instance = Instance(port=port, launched=True)
-            return instance
+            pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
+            if pid:
+                port = Instance.__read_port_number_from_file(port_number_file)
+                instance = Instance(port=port, launched=True)
+                return instance
         return None
 
     @staticmethod
