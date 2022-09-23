@@ -66,15 +66,15 @@ jobs:
       - name: Get Python executable path
         id: python-path
         run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
-        
+
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
-        
+
       - name: Install dependencies
         # Make sure protobuf version is compatible with grpc - https://github.com/OPM/ResInsight/issues/9304
         run: |
           python -m pip install --upgrade pip
-          pip install protobuf==3.20.*
+          pip install -r requirements.txt
 
       - name: Use CMake
         uses: lukka/get-cmake@latest
