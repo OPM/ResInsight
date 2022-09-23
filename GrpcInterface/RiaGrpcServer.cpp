@@ -139,10 +139,25 @@ void RiaGrpcServerImpl::initialize()
 {
     CAF_ASSERT( m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<quint16>::max() );
 
-    QString serverAddress = QString( "localhost:%1" ).arg( m_portNumber );
+    bool usePortNumberAssignedByGrpc = true;
 
     ServerBuilder builder;
-    builder.AddListeningPort( serverAddress.toStdString(), grpc::InsecureServerCredentials() );
+
+    if ( usePortNumberAssignedByGrpc )
+    {
+        // When setting port number to 0, grpc will find and use a valid port number
+        // The port number is assigned to the m_portNumber variable after calling builder.BuildAndStart()
+        m_portNumber          = 0;
+        QString serverAddress = QString( "localhost:%1" ).arg( m_portNumber );
+
+        builder.AddListeningPort( serverAddress.toStdString(), grpc::InsecureServerCredentials(), &m_portNumber );
+    }
+    else
+    {
+        QString serverAddress = QString( "localhost:%1" ).arg( m_portNumber );
+
+        builder.AddListeningPort( serverAddress.toStdString(), grpc::InsecureServerCredentials() );
+    }
 
     for ( auto key : RiaGrpcServiceFactory::instance()->allKeys() )
     {
@@ -154,7 +169,14 @@ void RiaGrpcServerImpl::initialize()
     m_completionQueue = builder.AddCompletionQueue();
     m_server          = builder.BuildAndStart();
 
-    CVF_ASSERT( m_server );
+    QString serverAddress = QString( "localhost:%1" ).arg( m_portNumber );
+
+    if ( !m_server )
+    {
+        RiaLogging::error( QString( "Failed to start server on %1" ).arg( serverAddress ) );
+        return;
+    }
+
     RiaLogging::info( QString( "Server listening on %1" ).arg( serverAddress ) );
 
     // Spawn new CallData instances to serve new clients.
