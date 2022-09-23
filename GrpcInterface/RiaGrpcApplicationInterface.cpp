@@ -37,15 +37,10 @@ bool RiaGrpcApplicationInterface::initializeGrpcServer( const cvf::ProgramOption
         if ( o.valueCount() == 1 )
         {
             defaultPortNumber = o.value( 0 ).toInt( defaultPortNumber );
-            fixedPort         = true;
         }
     }
-    int portNumber = defaultPortNumber;
-    if ( !fixedPort )
-    {
-        portNumber = RiaGrpcServer::findAvailablePortNumber( defaultPortNumber );
-    }
-    m_grpcServer = std::make_unique<RiaGrpcServer>( portNumber );
+    int portNumber = RiaGrpcServer::findAvailablePortNumber( defaultPortNumber );
+    m_grpcServer   = std::make_unique<RiaGrpcServer>( portNumber );
     return true;
 }
 
@@ -112,4 +107,14 @@ int RiaGrpcApplicationInterface::processRequests()
     }
 
     return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaGrpcApplicationInterface::portNumber() const
+{
+    if ( m_grpcServer ) return m_grpcServer->portNumber();
+
+    return -1;
 }

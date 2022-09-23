@@ -33,6 +33,8 @@
 #include "cvfProgramOptions.h"
 #include "cvfqtUtils.h"
 
+#include <QFile>
+
 #ifndef WIN32
 #include <sys/types.h>
 #include <unistd.h>
@@ -145,6 +147,31 @@ int main( int argc, char* argv[] )
             if ( grpcInterface && grpcInterface->initializeGrpcServer( progOpt ) )
             {
                 grpcInterface->launchGrpcServer();
+
+                int portNumber = grpcInterface->portNumber();
+
+                std::cout << "Grpc on port: " << portNumber << std::endl;
+                if ( cvf::Option o = progOpt.option( "portnumberfile" ) )
+                {
+                    if ( o.valueCount() == 1 )
+                    {
+                        QString fileName = QString::fromStdString( o.value( 0 ).toStdString() );
+                        std::cout << "Writing port number to file: " << fileName.toStdString() << std::endl;
+
+                        QString tempFilePath = fileName + ".tmp";
+
+                        QFile file( tempFilePath );
+                        if ( file.open( QIODevice::WriteOnly | QIODevice::Text ) )
+                        {
+                            QTextStream out( &file );
+                            out << portNumber << endl;
+                        }
+
+                        file.close();
+
+                        QFile::rename( tempFilePath, fileName );
+                    }
+                }
             }
 #endif
             exitCode = QCoreApplication::instance()->exec();
