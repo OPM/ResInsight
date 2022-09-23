@@ -59,8 +59,12 @@ class Instance:
 
     @staticmethod
     def __read_port_number_from_file(file_path):
-        while not os.path.exists(file_path):
+        retry_count = 0
+        while not os.path.exists(file_path) and retry_count < 10:
             time.sleep(1)
+            retry_count = retry_count + 1
+
+        print("Portnumber file retry count : ", retry_count)
 
         if os.path.isfile(file_path):
             with open(file_path) as f:
@@ -194,10 +198,10 @@ class Instance:
             port(int): port number
         """
         logging.basicConfig()
-        location = "localhost:" + str(port)
+        self.location = "localhost:" + str(port)
 
         self.channel = grpc.insecure_channel(
-            location, options=[("grpc.enable_http_proxy", False)]
+            self.location, options=[("grpc.enable_http_proxy", False)]
         )
         self.launched = launched
         self.commands = Commands_pb2_grpc.CommandsStub(self.channel)
@@ -205,7 +209,7 @@ class Instance:
         # Main version check package
         self.app = App_pb2_grpc.AppStub(self.channel)
 
-        self._check_connection_and_version(self.channel, launched, location)
+        self._check_connection_and_version(self.channel, launched, self.location)
 
         # Intercept UNAVAILABLE errors and retry on failures
         interceptors = (
