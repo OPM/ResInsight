@@ -149,6 +149,31 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     m_fractureDefinitionData = fractureDefinitionData;
     if ( m_fractureDefinitionData )
     {
+        auto addInjectivityDecline = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
+            int     leakoffPressureDropIndex  = def->getPropertyIndex( "LeakoffPressureDrop" );
+            int     filtratePressureDropIndex = def->getPropertyIndex( "FiltratePressureDrop" );
+            QString injectivityValueTag       = "InjectivityDecline";
+            def->addProperty( injectivityValueTag, "factor" );
+
+            int injectivityDeclineIndex = def->getPropertyIndex( injectivityValueTag );
+
+            for ( size_t nodeIndex = 0; nodeIndex < def->numNodes(); nodeIndex++ )
+            {
+                for ( size_t timeStepIndex = 0; timeStepIndex < def->numTimeSteps(); timeStepIndex++ )
+                {
+                    double leakoffPressureDrop =
+                        def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
+                    double filtratePressureDrop =
+                        def->getPropertyValue( filtratePressureDropIndex, nodeIndex, timeStepIndex );
+
+                    double injectivityValue = ( leakoffPressureDrop - filtratePressureDrop ) / leakoffPressureDrop;
+                    def->appendPropertyValue( injectivityDeclineIndex, nodeIndex, injectivityValue );
+                }
+            }
+        };
+
+        addInjectivityDecline( m_fractureDefinitionData );
+
         setDefaultConductivityResultIfEmpty();
 
         if ( fractureTemplateUnit() == RiaDefines::EclipseUnitSystem::UNITS_UNKNOWN )
