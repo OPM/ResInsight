@@ -39,6 +39,12 @@ class RimThermalFractureTemplate : public RimMeshFractureTemplate
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class FilterCakePressureDrop
+    {
+        RELATIVE,
+        ABSOLUTE
+    };
+
     RimThermalFractureTemplate();
     ~RimThermalFractureTemplate() override;
 
@@ -106,9 +112,13 @@ public:
     const RigThermalFractureDefinition* fractureDefinition() const;
 
 protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
     QString     getFileSelectionFilter() const override;
     QStringList conductivityResultNames() const override;
 
 private:
+    caf::PdmField<caf::AppEnum<FilterCakePressureDrop>> m_filterCakePressureDropType;
+
     std::shared_ptr<RigThermalFractureDefinition> m_fractureDefinitionData;
 };
