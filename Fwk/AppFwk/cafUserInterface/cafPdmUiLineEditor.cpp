@@ -104,7 +104,14 @@ QWidget* PdmUiLineEditor::createEditorWidget( QWidget* parent )
 
     connect( m_autoValueToolButton, SIGNAL( clicked() ), this, SLOT( slotApplyAutoValue() ) );
 
-    return m_placeholder;
+    if ( uiField()->isAutoValueSupported() )
+    {
+        // If we return the placeholder widget to be used in a table editor, Qt will crash when the editor is closed
+        return m_placeholder;
+    }
+
+    // Return line edit if no auto value is supported
+    return m_lineEdit;
 }
 
 //--------------------------------------------------------------------------------------------------
