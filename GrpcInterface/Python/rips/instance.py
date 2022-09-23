@@ -117,7 +117,13 @@ class Instance:
 
         with tempfile.TemporaryDirectory() as tmp_dir_path:
             port_number_file = tmp_dir_path + "/portnumber.txt"
-            parameters = ["ResInsight", "--server", requested_port, "--portnumberfile", port_number_file] + command_line_parameters
+            parameters = [
+                "ResInsight",
+                "--server",
+                requested_port,
+                "--portnumberfile",
+                port_number_file,
+            ] + command_line_parameters
             if console:
                 print("Launching as console app")
                 parameters.append("--console")
