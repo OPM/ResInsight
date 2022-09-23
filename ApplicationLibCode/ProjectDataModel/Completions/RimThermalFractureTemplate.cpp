@@ -54,6 +54,18 @@
 #include <cmath>
 #include <vector>
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimThermalFractureTemplate::FilterCakePressureDrop>::setUp()
+{
+    addItem( RimThermalFractureTemplate::FilterCakePressureDrop::RELATIVE, "Relative", "Relative" );
+    addItem( RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE, "Absolute", "Absolute" );
+
+    setDefault( RimThermalFractureTemplate::FilterCakePressureDrop::RELATIVE );
+}
+}; // namespace caf
+
 CAF_PDM_SOURCE_INIT( RimThermalFractureTemplate, "ThermalFractureTemplate", "RimThermalFractureTemplate" );
 
 //--------------------------------------------------------------------------------------------------
@@ -62,6 +74,10 @@ CAF_PDM_SOURCE_INIT( RimThermalFractureTemplate, "ThermalFractureTemplate", "Rim
 RimThermalFractureTemplate::RimThermalFractureTemplate()
 {
     CAF_PDM_InitScriptableObject( "Fracture Template", ":/FractureTemplate16x16.png" );
+
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filterCakePressureDropType,
+                                          "FilterCakePressureDrop",
+                                          "Filter Cake Pressure Drop" );
 
     m_readError = false;
 
@@ -747,4 +763,14 @@ bool RimThermalFractureTemplate::isValidResult( double value ) const
 const RigThermalFractureDefinition* RimThermalFractureTemplate::fractureDefinition() const
 {
     return m_fractureDefinitionData.get();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimThermalFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimMeshFractureTemplate::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrdering.add( &m_filterCakePressureDropType );
 }
