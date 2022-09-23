@@ -38,6 +38,7 @@ public:
 
     QProcessEnvironment grpcProcessEnvironment() const;
     int                 processRequests();
+    int                 portNumber() const;
 
 protected:
     std::unique_ptr<RiaGrpcServer> m_grpcServer;
