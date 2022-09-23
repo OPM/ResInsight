@@ -1,4 +1,4 @@
-grpcio
-grpcio-tools
-protobuf
+grpcio < 1.49
+grpcio-tools < 1.49
+protobuf < 3.21
 m2r
