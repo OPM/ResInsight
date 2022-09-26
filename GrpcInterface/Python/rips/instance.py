@@ -60,7 +60,7 @@ class Instance:
     @staticmethod
     def __read_port_number_from_file(file_path):
         retry_count = 0
-        while not os.path.exists(file_path) and retry_count < 10:
+        while not os.path.exists(file_path) and retry_count < 30:
             time.sleep(1)
             retry_count = retry_count + 1
 
@@ -71,7 +71,7 @@ class Instance:
                 value = f.readline()
                 return int(value)
         else:
-            raise ValueError("%s isn't a file!" % file_path)
+            return -1
 
     @staticmethod
     def launch(
@@ -90,7 +90,8 @@ class Instance:
                 environment variable.
             console (bool): If True, launch as console application, without GUI.
             launch_port(int): If -1 will use the default port 50051 or RESINSIGHT_GRPC_PORT
-                             if anything else, ResInsight will try to launch with this port
+                             if anything else, ResInsight will try to launch with this port.
+                             If 0 a random port will be used.
             command_line_parameters(list): Additional parameters as string entries in the list.
         Returns:
             Instance: an instance object if it worked. None if not.
@@ -139,8 +140,13 @@ class Instance:
             pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
             if pid:
                 port = Instance.__read_port_number_from_file(port_number_file)
-                instance = Instance(port=port, launched=True)
-                return instance
+                if port == -1:
+                    print("Unable to read port number. Launch failed.")
+                    # Need to kill the process using PID since there is no  GRPC connection to use.
+                    os.kill(pid)
+                else:
+                    instance = Instance(port=port, launched=True)
+                    return instance
         return None
 
     @staticmethod

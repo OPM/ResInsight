@@ -137,27 +137,14 @@ void RiaGrpcServerImpl::runInThread()
 //--------------------------------------------------------------------------------------------------
 void RiaGrpcServerImpl::initialize()
 {
-    CAF_ASSERT( m_portNumber > 0 && m_portNumber <= (int)std::numeric_limits<quint16>::max() );
-
-    bool usePortNumberAssignedByGrpc = true;
+    CAF_ASSERT( m_portNumber >= 0 && m_portNumber <= (int)std::numeric_limits<quint16>::max() );
 
     ServerBuilder builder;
 
-    if ( usePortNumberAssignedByGrpc )
-    {
-        // When setting port number to 0, grpc will find and use a valid port number
-        // The port number is assigned to the m_portNumber variable after calling builder.BuildAndStart()
-        m_portNumber          = 0;
-        QString serverAddress = QString( "localhost:%1" ).arg( m_portNumber );
-
-        builder.AddListeningPort( serverAddress.toStdString(), grpc::InsecureServerCredentials(), &m_portNumber );
-    }
-    else
-    {
-        QString serverAddress = QString( "localhost:%1" ).arg( m_portNumber );
-
-        builder.AddListeningPort( serverAddress.toStdString(), grpc::InsecureServerCredentials() );
-    }
+    // When setting port number to 0, grpc will find and use a valid port number
+    // The port number is assigned to the m_portNumber variable after calling builder.BuildAndStart()
+    QString requestedServerAddress = QString( "localhost:%1" ).arg( m_portNumber );
+    builder.AddListeningPort( requestedServerAddress.toStdString(), grpc::InsecureServerCredentials(), &m_portNumber );
 
     for ( auto key : RiaGrpcServiceFactory::instance()->allKeys() )
     {
@@ -405,7 +392,7 @@ int RiaGrpcServer::findAvailablePortNumber( int defaultPortNumber )
 {
     int startPort = 50051;
 
-    if ( defaultPortNumber > 0 && defaultPortNumber < (int)std::numeric_limits<quint16>::max() )
+    if ( defaultPortNumber >= 0 && defaultPortNumber < (int)std::numeric_limits<quint16>::max() )
     {
         startPort = defaultPortNumber;
     }
@@ -413,8 +400,7 @@ int RiaGrpcServer::findAvailablePortNumber( int defaultPortNumber )
     int endPort = std::min( startPort + 100, (int)std::numeric_limits<quint16>::max() );
 
     QTcpServer serverTest;
-    quint16    port = static_cast<quint16>( startPort );
-    for ( ; port <= static_cast<quint16>( endPort ); ++port )
+    for ( quint16 port = static_cast<quint16>( startPort ); port <= static_cast<quint16>( endPort ); ++port )
     {
         if ( serverTest.listen( QHostAddress::LocalHost, port ) )
         {
