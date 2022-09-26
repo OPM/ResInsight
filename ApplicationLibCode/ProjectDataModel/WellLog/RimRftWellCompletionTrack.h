@@ -1,6 +1,6 @@
 /////////////////////////////////////////////////////////////////////////////////
 //
-//  Copyright (C) 2022     Equinor ASA
+//  Copyright (C) 2022-     Equinor ASA
 //
 //  ResInsight is free software: you can redistribute it and/or modify
 //  it under the terms of the GNU General Public License as published by
@@ -18,31 +18,20 @@
 
 #pragma once
 
-#include "RiaRftDefines.h"
+#include "RimWellLogTrack.h"
 
-#include "cafCmdFeature.h"
-
-class RimWellLogPlot;
-class RimSummaryCase;
+class RifReaderOpmRft;
 
 //==================================================================================================
 ///
+///
 //==================================================================================================
-class RicNewRftSegmentWellLogPlotFeature : public caf::CmdFeature
+class RimRftWellCompletionTrack : public RimWellLogTrack
 {
-    CAF_CMD_HEADER_INIT;
+    CAF_PDM_HEADER_INIT;
 
-private:
-    bool isCommandEnabled() override;
-    void onActionTriggered( bool isChecked ) override;
+public:
+    RimRftWellCompletionTrack();
 
-    void setupActionLook( QAction* actionToSetup ) override;
-
-    void appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
-                                           const QString&            resultName,
-                                           const QString&            wellName,
-                                           RiaDefines::RftBranchType branchType,
-                                           RimSummaryCase*           summaryCase );
-
-    void appendWellCompletionTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
+    void configureForWellPath( const QString& wellPathName, RifReaderOpmRft* rftReader );
 };

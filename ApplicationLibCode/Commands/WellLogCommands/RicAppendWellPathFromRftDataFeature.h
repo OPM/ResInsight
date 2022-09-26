@@ -38,6 +38,7 @@ private:
 
     void setupActionLook( QAction* actionToSetup ) override;
 
-    static RimModeledWellPath* findOrCreateWellAttributeWellPath();
+public:
+    static RimModeledWellPath* findOrCreateWellAttributeWellPath( const QString& wellPathName );
     static RimWellLogPlot*     findOrCreateWellLogPlot();
 };

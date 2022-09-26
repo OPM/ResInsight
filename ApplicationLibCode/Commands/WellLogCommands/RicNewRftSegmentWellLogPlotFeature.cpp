@@ -25,6 +25,7 @@
 #include "RiaApplication.h"
 #include "RiaRftDefines.h"
 
+#include "RifReaderEclipseRft.h"
 #include "RigWellLogCurveData.h"
 
 #include "RimRftCase.h"
@@ -41,6 +42,8 @@
 
 #include <QAction>
 
+#include "RifReaderOpmRft.h"
+#include "RimRftWellCompletionTrack.h"
 #include <vector>
 
 CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogPlotFeature, "RicNewRftSegmentWellLogPlotFeature" );
@@ -63,26 +66,38 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 
     RimSummaryCase* summaryCase = nullptr;
     rftCase->firstAncestorOfType( summaryCase );
+    if ( !summaryCase ) return;
 
     auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
+
+    QString wellName = "Unknown";
+
+    auto rftReader = summaryCase->rftReader();
+    if ( rftReader )
+    {
+        auto wellNames = rftReader->wellNames();
+        if ( !wellNames.empty() ) wellName = *wellNames.begin();
+    }
 
     QString resultName = "SEGGRAT";
 
     {
         auto branchType = RiaDefines::RftBranchType::RFT_TUBING;
 
-        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
+        appendTrackAndCurveForBranchType( plot, resultName, wellName, branchType, summaryCase );
     }
     {
         auto branchType = RiaDefines::RftBranchType::RFT_DEVICE;
 
-        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
+        appendTrackAndCurveForBranchType( plot, resultName, wellName, branchType, summaryCase );
     }
     {
         auto branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
 
-        appendTrackAndCurveForBranchType( plot, resultName, branchType, summaryCase );
+        appendTrackAndCurveForBranchType( plot, resultName, wellName, branchType, summaryCase );
     }
+
+    appendWellCompletionTrack( plot, wellName, summaryCase );
 
     RiuPlotMainWindowTools::onObjectAppended( plot );
 }
@@ -92,6 +107,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
                                                                            const QString&            resultName,
+                                                                           const QString&            wellName,
                                                                            RiaDefines::RftBranchType branchType,
                                                                            RimSummaryCase*           summaryCase )
 {
@@ -101,11 +117,33 @@ void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWe
 
     plot->loadDataAndUpdate();
 
-    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, resultName, branchType, summaryCase );
+    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, resultName, wellName, branchType, summaryCase );
     curve->loadDataAndUpdate( true );
 
     curve->updateAllRequiredEditors();
     RiuPlotMainWindowTools::setExpanded( curve );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRftSegmentWellLogPlotFeature::appendWellCompletionTrack( RimWellLogPlot* plot,
+                                                                    const QString&  wellName,
+                                                                    RimSummaryCase* summaryCase )
+{
+    // Add well log track
+    auto track = new RimRftWellCompletionTrack();
+    plot->addPlot( track );
+
+    track->setDescription( "Well Completions" );
+    track->setLegendsVisible( true );
+    track->setShowWellPathAttributes( true );
+
+    plot->loadDataAndUpdate();
+    plot->zoomAll();
+
+    auto rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
+    track->configureForWellPath( wellName, rftReader );
 }
 
 //--------------------------------------------------------------------------------------------------
