@@ -25,6 +25,7 @@
 #include "cvfMatrix4.h"
 
 #include <map>
+#include <memory>
 
 class QString;
 
@@ -69,5 +70,5 @@ private:
     cvf::Mat4d             m_fractureTransform;
     const RigFractureGrid& m_fractureGrid;
 
-    std::map<size_t, RigEclipseToStimPlanCellTransmissibilityCalculator> m_singleFractureCellCalculators;
+    std::map<size_t, std::unique_ptr<RigEclipseToStimPlanCellTransmissibilityCalculator>> m_singleFractureCellCalculators;
 };

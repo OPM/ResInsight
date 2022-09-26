@@ -111,6 +111,8 @@ public:
 
     const RigThermalFractureDefinition* fractureDefinition() const;
 
+    FilterCakePressureDrop filterCakePressureDropType() const;
+
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
