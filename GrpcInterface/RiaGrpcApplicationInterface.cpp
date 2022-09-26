@@ -30,18 +30,22 @@ bool RiaGrpcApplicationInterface::initializeGrpcServer( const cvf::ProgramOption
 {
     if ( !RiaPreferences::current()->enableGrpcServer() ) return false;
 
-    int  defaultPortNumber = RiaPreferences::current()->defaultGrpcPortNumber();
-    bool fixedPort         = false;
+    int  defaultPortNumber    = RiaPreferences::current()->defaultGrpcPortNumber();
+    bool useGrpcGeneratedPort = false;
     if ( cvf::Option o = progOpt.option( "server" ) )
     {
         if ( o.valueCount() == 1 )
         {
             defaultPortNumber = o.value( 0 ).toInt( defaultPortNumber );
-            fixedPort         = true;
+
+            // If the port number is 0 it will be selected randomly by grpc.
+            if ( defaultPortNumber == 0 ) useGrpcGeneratedPort = true;
         }
     }
+
+    // Try to find an available port number starting from the default port
     int portNumber = defaultPortNumber;
-    if ( !fixedPort )
+    if ( !useGrpcGeneratedPort )
     {
         portNumber = RiaGrpcServer::findAvailablePortNumber( defaultPortNumber );
     }
@@ -112,4 +116,14 @@ int RiaGrpcApplicationInterface::processRequests()
     }
 
     return 0;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RiaGrpcApplicationInterface::portNumber() const
+{
+    if ( m_grpcServer ) return m_grpcServer->portNumber();
+
+    return -1;
 }

@@ -9,6 +9,7 @@ import os
 import socket
 import logging
 import time
+import tempfile
 
 import grpc
 
@@ -57,6 +58,22 @@ class Instance:
         return True
 
     @staticmethod
+    def __read_port_number_from_file(file_path):
+        retry_count = 0
+        while not os.path.exists(file_path) and retry_count < 30:
+            time.sleep(1)
+            retry_count = retry_count + 1
+
+        print("Portnumber file retry count : ", retry_count)
+
+        if os.path.isfile(file_path):
+            with open(file_path) as f:
+                value = f.readline()
+                return int(value)
+        else:
+            return -1
+
+    @staticmethod
     def launch(
         resinsight_executable="",
         console=False,
@@ -73,18 +90,19 @@ class Instance:
                 environment variable.
             console (bool): If True, launch as console application, without GUI.
             launch_port(int): If -1 will use the default port 50051 or RESINSIGHT_GRPC_PORT
-                             if anything else, ResInsight will try to launch with this port
+                             if anything else, ResInsight will try to launch with this port.
+                             If 0 a random port will be used.
             command_line_parameters(list): Additional parameters as string entries in the list.
         Returns:
             Instance: an instance object if it worked. None if not.
         """
 
-        port = 50051
+        requested_port = 50051
         port_env = os.environ.get("RESINSIGHT_GRPC_PORT")
         if port_env:
-            port = int(port_env)
+            requested_port = int(port_env)
         if launch_port != -1:
-            port = launch_port
+            requested_port = launch_port
 
         if not resinsight_executable:
             resinsight_executable = os.environ.get("RESINSIGHT_EXECUTABLE")
@@ -95,12 +113,6 @@ class Instance:
                 )
                 return None
 
-        print("Trying port " + str(port))
-        while Instance.__is_port_in_use(port):
-            port += 1
-            print("Trying port " + str(port))
-
-        print("Port " + str(port))
         print("Trying to launch", resinsight_executable)
 
         if command_line_parameters is None:
@@ -108,19 +120,33 @@ class Instance:
         elif isinstance(command_line_parameters, str):
             command_line_parameters = [str]
 
-        parameters = ["ResInsight", "--server", str(port)] + command_line_parameters
-        if console:
-            print("Launching as console app")
-            parameters.append("--console")
+        with tempfile.TemporaryDirectory() as tmp_dir_path:
+            port_number_file = tmp_dir_path + "/portnumber.txt"
+            parameters = [
+                "ResInsight",
+                "--server",
+                requested_port,
+                "--portnumberfile",
+                port_number_file,
+            ] + command_line_parameters
+            if console:
+                print("Launching as console app")
+                parameters.append("--console")
 
-        # Stringify all parameters
-        for i in range(0, len(parameters)):
-            parameters[i] = str(parameters[i])
+            # Stringify all parameters
+            for i in range(0, len(parameters)):
+                parameters[i] = str(parameters[i])
 
-        pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
-        if pid:
-            instance = Instance(port=port, launched=True)
-            return instance
+            pid = os.spawnv(os.P_NOWAIT, resinsight_executable, parameters)
+            if pid:
+                port = Instance.__read_port_number_from_file(port_number_file)
+                if port == -1:
+                    print("Unable to read port number. Launch failed.")
+                    # Need to kill the process using PID since there is no  GRPC connection to use.
+                    os.kill(pid)
+                else:
+                    instance = Instance(port=port, launched=True)
+                    return instance
         return None
 
     @staticmethod
@@ -178,10 +204,10 @@ class Instance:
             port(int): port number
         """
         logging.basicConfig()
-        location = "localhost:" + str(port)
+        self.location = "localhost:" + str(port)
 
         self.channel = grpc.insecure_channel(
-            location, options=[("grpc.enable_http_proxy", False)]
+            self.location, options=[("grpc.enable_http_proxy", False)]
         )
         self.launched = launched
         self.commands = Commands_pb2_grpc.CommandsStub(self.channel)
@@ -189,7 +215,7 @@ class Instance:
         # Main version check package
         self.app = App_pb2_grpc.AppStub(self.channel)
 
-        self._check_connection_and_version(self.channel, launched, location)
+        self._check_connection_and_version(self.channel, launched, self.location)
 
         # Intercept UNAVAILABLE errors and retry on failures
         interceptors = (
