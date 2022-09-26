@@ -774,3 +774,11 @@ void RimThermalFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
 
     uiOrdering.add( &m_filterCakePressureDropType );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimThermalFractureTemplate::FilterCakePressureDrop RimThermalFractureTemplate::filterCakePressureDropType() const
+{
+    return m_filterCakePressureDropType.value();
+}

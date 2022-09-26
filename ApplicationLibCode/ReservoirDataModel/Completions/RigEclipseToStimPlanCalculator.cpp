@@ -19,11 +19,14 @@
 #include "RigEclipseToStimPlanCalculator.h"
 
 #include "RiaLogging.h"
+#include "RiaWeightedMeanCalculator.h"
 
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigCellGeometryTools.h"
 #include "RigEclipseCaseData.h"
+#include "RigEclipseToStimPlanCellTransmissibilityCalculator.h"
+#include "RigEclipseToThermalCellTransmissibilityCalculator.h"
 #include "RigFractureCell.h"
 #include "RigFractureGrid.h"
 #include "RigFractureTransmissibilityEquations.h"
@@ -32,12 +35,12 @@
 #include "RigResultAccessorFactory.h"
 #include "RigTransmissibilityCondenser.h"
 
-#include "RiaWeightedMeanCalculator.h"
 #include "RimEclipseCase.h"
 #include "RimEllipseFractureTemplate.h"
 #include "RimFracture.h"
 #include "RimFractureContainmentTools.h"
 #include "RimMeshFractureTemplate.h"
+#include "RimThermalFractureTemplate.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -71,20 +74,68 @@ void RigEclipseToStimPlanCalculator::computeValues()
         const RigFractureCell& fractureCell = m_fractureGrid.fractureCells()[i];
         if ( !fractureCell.hasNonZeroConductivity() ) continue;
 
-        RigEclipseToStimPlanCellTransmissibilityCalculator eclToFractureTransCalc( m_case,
-                                                                                   m_fractureTransform,
-                                                                                   m_fractureSkinFactor,
-                                                                                   m_cDarcy,
-                                                                                   fractureCell,
-                                                                                   reservoirCellIndicesOpenForFlow,
-                                                                                   m_fracture );
+        std::unique_ptr<RigEclipseToStimPlanCellTransmissibilityCalculator> eclToFractureTransCalc;
 
+        if ( dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() ) != nullptr )
+        {
+            RimThermalFractureTemplate* thermalFractureTemplate =
+                dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() );
+
+            size_t timeStep = thermalFractureTemplate->activeTimeStepIndex();
+            int    cellI    = fractureCell.getI();
+            int    cellJ    = fractureCell.getJ();
+
+            double injectivityDecline = thermalFractureTemplate->resultValueAtIJ( &m_fractureGrid,
+                                                                                  "InjectivityDecline",
+                                                                                  "factor",
+                                                                                  timeStep,
+                                                                                  cellI,
+                                                                                  cellJ );
+            double viscosity =
+                thermalFractureTemplate->resultValueAtIJ( &m_fractureGrid, "Viscosity", "mPa.s", timeStep, cellI, cellJ );
+
+            double filterCakeMobility = thermalFractureTemplate->resultValueAtIJ( &m_fractureGrid,
+                                                                                  "FilterCakeMobility",
+                                                                                  "m/day/bar",
+                                                                                  timeStep,
+                                                                                  cellI,
+                                                                                  cellJ );
+
+            // Assumed value
+            double relativePermeability = 1.0;
+
+            auto filterPressureDropType = thermalFractureTemplate->filterCakePressureDropType();
+            eclToFractureTransCalc =
+                std::make_unique<RigEclipseToThermalCellTransmissibilityCalculator>( m_case,
+                                                                                     m_fractureTransform,
+                                                                                     m_fractureSkinFactor,
+                                                                                     m_cDarcy,
+                                                                                     fractureCell,
+                                                                                     m_fracture,
+                                                                                     filterPressureDropType,
+                                                                                     injectivityDecline,
+                                                                                     filterCakeMobility,
+                                                                                     viscosity,
+                                                                                     relativePermeability );
+        }
+        else
+        {
+            eclToFractureTransCalc =
+                std::make_unique<RigEclipseToStimPlanCellTransmissibilityCalculator>( m_case,
+                                                                                      m_fractureTransform,
+                                                                                      m_fractureSkinFactor,
+                                                                                      m_cDarcy,
+                                                                                      fractureCell,
+                                                                                      m_fracture );
+        }
+
+        eclToFractureTransCalc->computeValues( reservoirCellIndicesOpenForFlow );
         const std::vector<size_t>& fractureCellContributingEclipseCells =
-            eclToFractureTransCalc.globalIndiciesToContributingEclipseCells();
+            eclToFractureTransCalc->globalIndiciesToContributingEclipseCells();
 
         if ( !fractureCellContributingEclipseCells.empty() )
         {
-            m_singleFractureCellCalculators.emplace( i, eclToFractureTransCalc );
+            m_singleFractureCellCalculators.emplace( i, std::move( eclToFractureTransCalc ) );
         }
     }
 }
@@ -100,10 +151,10 @@ void RigEclipseToStimPlanCalculator::appendDataToTransmissibilityCondenser( bool
     for ( const auto& eclToFractureTransCalc : m_singleFractureCellCalculators )
     {
         const std::vector<size_t>& fractureCellContributingEclipseCells =
-            eclToFractureTransCalc.second.globalIndiciesToContributingEclipseCells();
+            eclToFractureTransCalc.second->globalIndiciesToContributingEclipseCells();
 
         const std::vector<double>& fractureCellContributingEclipseCellTransmissibilities =
-            eclToFractureTransCalc.second.contributingEclipseCellTransmissibilities();
+            eclToFractureTransCalc.second->contributingEclipseCellTransmissibilities();
 
         size_t stimPlanCellIndex = eclToFractureTransCalc.first;
 
@@ -138,7 +189,7 @@ double RigEclipseToStimPlanCalculator::totalEclipseAreaOpenForFlow() const
 
     for ( const auto& singleCellCalc : m_singleFractureCellCalculators )
     {
-        double cellArea = singleCellCalc.second.areaOpenForFlow();
+        double cellArea = singleCellCalc.second->areaOpenForFlow();
 
         area += cellArea;
     }
@@ -153,20 +204,16 @@ double RigEclipseToStimPlanCalculator::areaWeightedMatrixPermeability() const
 {
     RiaWeightedMeanCalculator<double> calc;
 
+    for ( const auto& singleCellCalc : m_singleFractureCellCalculators )
     {
-        for ( const auto& singleCellCalc : m_singleFractureCellCalculators )
+        const std::vector<double>& areas          = singleCellCalc.second->contributingEclipseCellIntersectionAreas();
+        const std::vector<double>& permeabilities = singleCellCalc.second->contributingEclipseCellPermeabilities();
+
+        if ( areas.size() == permeabilities.size() )
         {
-            const RigEclipseToStimPlanCellTransmissibilityCalculator& calulator = singleCellCalc.second;
-
-            const std::vector<double>& areas          = calulator.contributingEclipseCellIntersectionAreas();
-            const std::vector<double>& permeabilities = calulator.contributingEclipseCellPermeabilities();
-
-            if ( areas.size() == permeabilities.size() )
+            for ( size_t i = 0; i < areas.size(); i++ )
             {
-                for ( size_t i = 0; i < areas.size(); i++ )
-                {
-                    calc.addValueAndWeight( permeabilities[i], areas[i] );
-                }
+                calc.addValueAndWeight( permeabilities[i], areas[i] );
             }
         }
     }
@@ -197,7 +244,7 @@ double RigEclipseToStimPlanCalculator::areaWeightedWidth() const
 
             for ( const auto& singleCellCalc : m_singleFractureCellCalculators )
             {
-                double cellArea = singleCellCalc.second.areaOpenForFlow();
+                double cellArea = singleCellCalc.second->areaOpenForFlow();
 
                 size_t globalStimPlanCellIndex = singleCellCalc.first;
                 double widthValue              = widthValues[globalStimPlanCellIndex];
@@ -228,9 +275,9 @@ double RigEclipseToStimPlanCalculator::areaWeightedConductivity() const
 
     for ( const auto& singleCellCalc : m_singleFractureCellCalculators )
     {
-        double cellArea = singleCellCalc.second.areaOpenForFlow();
+        double cellArea = singleCellCalc.second->areaOpenForFlow();
 
-        double conductivity = singleCellCalc.second.fractureCell().getConductivityValue();
+        double conductivity = singleCellCalc.second->fractureCell().getConductivityValue();
         if ( !std::isinf( conductivity ) && !std::isnan( conductivity ) )
         {
             calc.addValueAndWeight( conductivity, cellArea );
@@ -260,7 +307,7 @@ double RigEclipseToStimPlanCalculator::longestYSectionOpenForFlow() const
             auto calculatorForCell = m_singleFractureCellCalculators.find( globalStimPlanCellIndex );
             if ( calculatorForCell != m_singleFractureCellCalculators.end() )
             {
-                currentAggregatedDistanceY += calculatorForCell->second.fractureCell().cellSizeZ();
+                currentAggregatedDistanceY += calculatorForCell->second->fractureCell().cellSizeZ();
             }
             else
             {
