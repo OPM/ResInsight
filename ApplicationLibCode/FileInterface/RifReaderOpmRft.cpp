@@ -310,6 +310,24 @@ std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString& 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RifRftSegment RifReaderOpmRft::segmentForWell( const QString& wellName, const QDateTime& timeStep )
+{
+    int y = timeStep.date().year();
+    int m = timeStep.date().month();
+    int d = timeStep.date().day();
+
+    auto key = std::make_pair( wellName.toStdString(), RftDate{ y, m, d } );
+    if ( m_rftWellDateSegments.count( key ) > 0 )
+    {
+        return m_rftWellDateSegments[key];
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::readWseglink( const std::string& filePath )
 {
     m_wseglink = RiaOpmParserTools::extractWseglink( filePath );

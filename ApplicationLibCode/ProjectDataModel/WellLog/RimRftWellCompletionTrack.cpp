@@ -18,11 +18,17 @@
 
 #include "RimRftWellCompletionTrack.h"
 
+#include "RiaSummaryTools.h"
+
+#include "RifReaderOpmRft.h"
+
 #include "RimModeledWellPath.h"
+#include "RimProject.h"
+#include "RimRftTools.h"
+#include "RimSummaryCase.h"
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
 
-#include "RifReaderOpmRft.h"
 #include "WellLogCommands/RicAppendWellPathFromRftDataFeature.h"
 
 CAF_PDM_SOURCE_INIT( RimRftWellCompletionTrack, "RimRftWellCompletionTrack" );
@@ -34,25 +40,48 @@ RimRftWellCompletionTrack::RimRftWellCompletionTrack()
 {
     CAF_PDM_InitObject( "Rft Track", ":/WellLogTrack16x16.png" );
 
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveSummaryCase", "Summary Case" );
+    m_summaryCase.uiCapability()->setUiTreeChildrenHidden( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
+    CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
+
     setShowWellPathAttributes( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftWellCompletionTrack::configureForWellPath( const QString& wellPathName, RifReaderOpmRft* rftReader )
+void RimRftWellCompletionTrack::setDataSource( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName )
 {
-    QString wellName = "[RFT Dummy] - " + wellPathName;
+    m_summaryCase = summaryCase;
+    m_timeStep    = timeStep;
+    m_wellName    = wellName;
 
-    auto wellPath = RicAppendWellPathFromRftDataFeature::findOrCreateWellAttributeWellPath( wellName );
+    configureForWellPath( m_summaryCase, m_timeStep, m_wellName );
+}
 
-    // Update well path attributes, packers and casing based on RFT data
-    /*
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftWellCompletionTrack::configureForWellPath( RimSummaryCase*  summaryCase,
+                                                      const QDateTime& timeStep,
+                                                      const QString&   wellName )
+{
+    QString decoratedWellName = "[RFT Dummy] - " + wellName;
+
+    auto wellPath = RicAppendWellPathFromRftDataFeature::findOrCreateWellAttributeWellPath( decoratedWellName );
+
+    if ( m_summaryCase )
+    {
+        auto rftReader = m_summaryCase->rftReader();
+
+        // Update well path attributes, packers and casing based on RFT data
         if ( rftReader )
         {
-            rftReader->set
+            // rftReader->segmentForWell(wellPathName)
         }
-    */
+    }
 
     wellPath->attributeCollection()->deleteAllAttributes();
     auto attribute = new RimWellPathAttribute;
@@ -60,4 +89,55 @@ void RimRftWellCompletionTrack::configureForWellPath( const QString& wellPathNam
     wellPath->attributeCollection()->insertAttribute( nullptr, attribute );
 
     setWellPathAttributesSource( wellPath );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftWellCompletionTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimWellLogTrack::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrdering.add( &m_summaryCase );
+    uiOrdering.add( &m_wellName );
+    uiOrdering.add( &m_timeStep );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo>
+    RimRftWellCompletionTrack::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    if ( !m_summaryCase ) return {};
+
+    QList<caf::PdmOptionItemInfo> options;
+
+    auto reader = m_summaryCase->rftReader();
+
+    if ( fieldNeedingOptions == &m_summaryCase )
+    {
+        options = RiaSummaryTools::optionsForSummaryCases( RimProject::current()->allSummaryCases() );
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
+    else if ( fieldNeedingOptions == &m_wellName )
+    {
+        options = RimRftTools::wellNameOptions( reader );
+    }
+    else if ( fieldNeedingOptions == &m_timeStep )
+    {
+        options = RimRftTools::segmentTimeStepOptions( reader, m_wellName );
+    }
+
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftWellCompletionTrack::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
+                                                  const QVariant&            oldValue,
+                                                  const QVariant&            newValue )
+{
+    configureForWellPath( m_summaryCase, m_timeStep, m_wellName );
 }

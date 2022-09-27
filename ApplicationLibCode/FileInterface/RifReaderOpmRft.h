@@ -57,6 +57,8 @@ public:
                                                     const QDateTime&          timeStep,
                                                     RiaDefines::RftBranchType branchType );
 
+    RifRftSegment segmentForWell( const QString& wellName, const QDateTime& timeStep );
+
 private:
     // Segment data
     // RftDate must be synced with definition in Opm::EclIO::ERft::RftDate

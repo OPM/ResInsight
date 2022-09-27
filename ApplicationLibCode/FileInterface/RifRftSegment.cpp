@@ -307,3 +307,18 @@ std::vector<int> RifRftSegment::segmentNumbersForBranchIndex( int               
 
     return v;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RifRftSegment::uniqueOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const
+{
+    std::set<int> indices;
+
+    for ( const auto [branchId, branchIndex] : m_oneBasedBranchIndexMap )
+    {
+        indices.insert( branchIndex );
+    }
+
+    return indices;
+}

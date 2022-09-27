@@ -20,7 +20,10 @@
 
 #include "RimWellLogTrack.h"
 
+#include <QDateTime>
+
 class RifReaderOpmRft;
+class RimSummaryCase;
 
 //==================================================================================================
 ///
@@ -33,5 +36,17 @@ class RimRftWellCompletionTrack : public RimWellLogTrack
 public:
     RimRftWellCompletionTrack();
 
-    void configureForWellPath( const QString& wellPathName, RifReaderOpmRft* rftReader );
+    void setDataSource( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName );
+
+private:
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
+    void configureForWellPath( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName );
+
+private:
+    caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
+    caf::PdmField<QDateTime>          m_timeStep;
+    caf::PdmField<QString>            m_wellName;
 };

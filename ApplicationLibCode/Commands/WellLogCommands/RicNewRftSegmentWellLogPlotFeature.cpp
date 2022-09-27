@@ -142,8 +142,12 @@ void RicNewRftSegmentWellLogPlotFeature::appendWellCompletionTrack( RimWellLogPl
     plot->loadDataAndUpdate();
     plot->zoomAll();
 
-    auto rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
-    track->configureForWellPath( wellName, rftReader );
+    auto      rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
+    auto      timeSteps = rftReader->availableTimeSteps( wellName );
+    QDateTime dateTime;
+    if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
+
+    track->setDataSource( summaryCase, dateTime, wellName );
 }
 
 //--------------------------------------------------------------------------------------------------
