@@ -72,12 +72,6 @@ void RimRftWellCompletionTrack::setDataSource( RimSummaryCase*  summaryCase,
 //--------------------------------------------------------------------------------------------------
 void RimRftWellCompletionTrack::configureForWellPath()
 {
-    QString decoratedWellName = "[RFT Dummy] - " + m_wellName;
-
-    auto wellPath = RicAppendWellPathFromRftDataFeature::findOrCreateWellAttributeWellPath( decoratedWellName );
-
-    wellPath->attributeCollection()->deleteAllAttributes();
-
     if ( m_summaryCase )
     {
         auto rftReader = dynamic_cast<RifReaderOpmRft*>( m_summaryCase->rftReader() );
@@ -106,35 +100,82 @@ void RimRftWellCompletionTrack::configureForWellPath()
                     rftReader->values( resultName, &seglenenValues );
                 }
 
-                // Tubing
-                auto oneBasedBranchIndices = segment.uniqueOneBasedBranchIndices( RiaDefines::RftBranchType::RFT_TUBING );
+                double wellStartMd = 1.0;
+                double wellEndMd   = 100.0;
 
-                for ( auto i : oneBasedBranchIndices )
+                if ( !seglenstValues.empty() ) wellStartMd = seglenstValues.front();
+                if ( !seglenenValues.empty() ) wellEndMd = seglenenValues.back();
+
+                QString decoratedWellName =
+                    QString( "[RFT Dummy] - %1 - %2)" ).arg( m_wellName() ).arg( m_segmentBranchIndex() );
+
+                auto wellPath = RicAppendWellPathFromRftDataFeature::findOrCreateWellAttributeWellPath( decoratedWellName,
+                                                                                                        wellStartMd,
+                                                                                                        wellEndMd );
+                setWellPathAttributesSource( wellPath );
+
+                wellPath->attributeCollection()->deleteAllAttributes();
+
                 {
-                    if ( i != m_segmentBranchIndex ) continue;
+                    // Tubing
 
-                    std::vector<RimWellPathAttribute*> wellPathAttributes;
-                    auto segmentIndices = segment.segmentIndicesForBranchIndex( i, RiaDefines::RftBranchType::RFT_TUBING );
+                    RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_TUBING;
+                    double                    diameter   = 1.0;
+                    QString                   name       = "Tubing";
+                    QColor                    color      = QColor( "limegreen" );
 
+                    auto wellPathAttributes = createWellPathAttributes( &segment,
+                                                                        branchType,
+                                                                        m_segmentBranchIndex,
+                                                                        diameter,
+                                                                        color,
+                                                                        name,
+                                                                        seglenstValues,
+                                                                        seglenenValues );
+                    for ( auto w : wellPathAttributes )
                     {
-                        auto w = new RimWellPathAttribute;
-                        w->setComponentType( RiaDefines::WellPathComponentType::SEGMENT );
-                        w->setCustomLabel( "Tubing" );
-
-                        w->setStartEndMD( seglenstValues[segmentIndices.front()], seglenenValues[segmentIndices.back()] );
-
-                        wellPathAttributes.push_back( w );
+                        wellPath->attributeCollection()->insertAttribute( nullptr, w );
                     }
+                }
 
-                    //                     for ( auto i : segmentIndices )
-                    //                     {
-                    //                         auto w = new RimWellPathAttribute;
-                    //                         w->setComponentType( RiaDefines::WellPathComponentType::SEGMENT );
-                    //                         w->setStartEndMD( seglenstValues[i], seglenenValues[i] );
-                    //
-                    //                         wellPathAttributes.push_back( w );
-                    //                     }
+                {
+                    // Device
 
+                    RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_DEVICE;
+                    double                    diameter   = 15.0;
+                    QString                   name       = "Device";
+                    QColor                    color      = QColor( "mediumvioletred" );
+
+                    auto wellPathAttributes = createWellPathAttributes( &segment,
+                                                                        branchType,
+                                                                        m_segmentBranchIndex,
+                                                                        diameter,
+                                                                        color,
+                                                                        name,
+                                                                        seglenstValues,
+                                                                        seglenenValues );
+                    for ( auto w : wellPathAttributes )
+                    {
+                        wellPath->attributeCollection()->insertAttribute( nullptr, w );
+                    }
+                }
+
+                {
+                    // Annulus
+
+                    RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
+                    double                    diameter   = 28.0;
+                    QString                   name       = "Annulus";
+                    QColor                    color      = QColor( "royalblue" );
+
+                    auto wellPathAttributes = createWellPathAttributes( &segment,
+                                                                        branchType,
+                                                                        m_segmentBranchIndex,
+                                                                        diameter,
+                                                                        color,
+                                                                        name,
+                                                                        seglenstValues,
+                                                                        seglenenValues );
                     for ( auto w : wellPathAttributes )
                     {
                         wellPath->attributeCollection()->insertAttribute( nullptr, w );
@@ -143,8 +184,37 @@ void RimRftWellCompletionTrack::configureForWellPath()
             }
         }
     }
+}
 
-    setWellPathAttributesSource( wellPath );
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathAttribute*>
+    RimRftWellCompletionTrack::createWellPathAttributes( RifRftSegment*            segment,
+                                                         RiaDefines::RftBranchType branchType,
+                                                         int                       branchIndex,
+                                                         double                    diameter,
+                                                         QColor                    color,
+
+                                                         const QString&             name,
+                                                         const std::vector<double>& segmentStart,
+                                                         const std::vector<double>& segmentEnd )
+{
+    std::vector<RimWellPathAttribute*> wellPathAttributes;
+    auto segmentIndices = segment->segmentIndicesForBranchIndex( branchIndex, branchType );
+    if ( segmentIndices.empty() ) return {};
+
+    auto w = new RimWellPathAttribute;
+    w->setComponentType( RiaDefines::WellPathComponentType::SEGMENT );
+    w->setCustomLabel( name );
+    w->setDiameter( diameter );
+    w->setCustomColor( color );
+
+    w->setStartEndMD( segmentStart[segmentIndices.front()], segmentEnd[segmentIndices.back()] );
+
+    wellPathAttributes.push_back( w );
+
+    return wellPathAttributes;
 }
 
 //--------------------------------------------------------------------------------------------------

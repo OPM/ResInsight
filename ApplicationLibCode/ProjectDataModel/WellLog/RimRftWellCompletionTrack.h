@@ -20,10 +20,14 @@
 
 #include "RimWellLogTrack.h"
 
+#include "RiaRftDefines.h"
+
 #include <QDateTime>
 
 class RifReaderOpmRft;
 class RimSummaryCase;
+class RimWellPathAttribute;
+class RifRftSegment;
 
 //==================================================================================================
 ///
@@ -44,6 +48,15 @@ private:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void configureForWellPath();
+
+    static std::vector<RimWellPathAttribute*> createWellPathAttributes( RifRftSegment*             segment,
+                                                                        RiaDefines::RftBranchType  branchType,
+                                                                        int                        branchIndex,
+                                                                        double                     diameter,
+                                                                        QColor                     color,
+                                                                        const QString&             name,
+                                                                        const std::vector<double>& segmentStart,
+                                                                        const std::vector<double>& segmentEnd );
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;

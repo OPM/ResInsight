@@ -77,7 +77,10 @@ void RicAppendWellPathFromRftDataFeature::onActionTriggered( bool isChecked )
 
     QString wellName = "[Internal] RFT Helper";
 
-    auto newModeledWellPath = findOrCreateWellAttributeWellPath( wellName );
+    double startMd = 1.0;
+    double endMd   = 100.0;
+
+    auto newModeledWellPath = findOrCreateWellAttributeWellPath( wellName, startMd, endMd );
     if ( !newModeledWellPath ) return;
 
     // TODO: show dialog to select RFT well to create attribute plot for
@@ -110,7 +113,9 @@ void RicAppendWellPathFromRftDataFeature::setupActionLook( QAction* actionToSetu
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimModeledWellPath* RicAppendWellPathFromRftDataFeature::findOrCreateWellAttributeWellPath( const QString& wellPathName )
+RimModeledWellPath* RicAppendWellPathFromRftDataFeature::findOrCreateWellAttributeWellPath( const QString& wellPathName,
+                                                                                            double         startMd,
+                                                                                            double         endMd )
 {
     RimWellPathCollection* wellPathColl = RimTools::wellPathCollection();
     if ( !wellPathColl ) return nullptr;
@@ -136,13 +141,13 @@ RimModeledWellPath* RicAppendWellPathFromRftDataFeature::findOrCreateWellAttribu
 
     {
         auto newTarget = new RimWellPathTarget;
-        newTarget->setAsPointTargetXYD( cvf::Vec3d( 10.0, 10.0, 10.0 ) );
+        newTarget->setAsPointTargetXYD( cvf::Vec3d( 10.0, 10.0, startMd ) );
 
         newModeledWellPath->geometryDefinition()->insertTarget( nullptr, newTarget );
     }
     {
         auto newTarget = new RimWellPathTarget;
-        newTarget->setAsPointTargetXYD( cvf::Vec3d( 10.0, 10.0, 100.0 ) );
+        newTarget->setAsPointTargetXYD( cvf::Vec3d( 10.0, 10.0, endMd ) );
 
         newModeledWellPath->geometryDefinition()->insertTarget( nullptr, newTarget );
     }
