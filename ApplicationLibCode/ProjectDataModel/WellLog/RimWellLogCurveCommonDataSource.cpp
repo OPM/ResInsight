@@ -108,7 +108,7 @@ RimWellLogCurveCommonDataSource::RimWellLogCurveCommonDataSource()
     CAF_PDM_InitFieldNoDefault( &m_rftTimeStep, "RftTimeStep", "RFT Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_rftWellName, "RftWellName", "RFT Well Name" );
     CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchIndex, "SegmentBranchIndex", "RFT Branch" );
-    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchType, "SegmentBranchType", "RFT Branch Type" );
+    CAF_PDM_InitFieldNoDefault( &m_rftSegmentBranchType, "SegmentBranchType", "RFT Completion" );
 
     m_case     = nullptr;
     m_wellPath = nullptr;
@@ -1063,8 +1063,8 @@ void RimWellLogCurveCommonDataSource::defineUiOrdering( QString uiConfigName, ca
 
     if ( !m_uniqueRftTimeSteps.empty() ) group->add( &m_rftTimeStep );
     if ( !m_uniqueRftWellNames.empty() ) group->add( &m_rftWellName );
-    if ( !m_uniqueRftBranchIndices.empty() ) group->add( &m_rftSegmentBranchIndex );
     if ( !m_uniqueRftBranchTypes.empty() ) group->add( &m_rftSegmentBranchType );
+    if ( !m_uniqueRftBranchIndices.empty() ) group->add( &m_rftSegmentBranchIndex );
 
     uiOrdering.skipRemainingFields( true );
 }

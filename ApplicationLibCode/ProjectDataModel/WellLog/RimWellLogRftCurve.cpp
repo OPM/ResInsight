@@ -175,7 +175,7 @@ RimWellLogRftCurve::RimWellLogRftCurve()
 
     CAF_PDM_InitField( &m_segmentResultName, "SegmentResultName", RiaResultNames::undefinedResultName(), "Result Name" );
     CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Branch" );
-    CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Branch Type" );
+    CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -710,8 +710,8 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     else
     {
         curveDataGroup->add( &m_segmentResultName );
-        curveDataGroup->add( &m_segmentBranchIndex );
         curveDataGroup->add( &m_segmentBranchType );
+        curveDataGroup->add( &m_segmentBranchIndex );
     }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
