@@ -46,47 +46,103 @@ RimRftWellCompletionTrack::RimRftWellCompletionTrack()
     CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
     CAF_PDM_InitFieldNoDefault( &m_wellName, "WellName", "Well Name" );
 
+    CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Branch" );
+
     setShowWellPathAttributes( true );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftWellCompletionTrack::setDataSource( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName )
+void RimRftWellCompletionTrack::setDataSource( RimSummaryCase*  summaryCase,
+                                               const QDateTime& timeStep,
+                                               const QString&   wellName,
+                                               int              segmentBranchIndex )
 {
-    m_summaryCase = summaryCase;
-    m_timeStep    = timeStep;
-    m_wellName    = wellName;
+    m_summaryCase        = summaryCase;
+    m_timeStep           = timeStep;
+    m_wellName           = wellName;
+    m_segmentBranchIndex = segmentBranchIndex;
 
-    configureForWellPath( m_summaryCase, m_timeStep, m_wellName );
+    configureForWellPath();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftWellCompletionTrack::configureForWellPath( RimSummaryCase*  summaryCase,
-                                                      const QDateTime& timeStep,
-                                                      const QString&   wellName )
+void RimRftWellCompletionTrack::configureForWellPath()
 {
-    QString decoratedWellName = "[RFT Dummy] - " + wellName;
+    QString decoratedWellName = "[RFT Dummy] - " + m_wellName;
 
     auto wellPath = RicAppendWellPathFromRftDataFeature::findOrCreateWellAttributeWellPath( decoratedWellName );
 
+    wellPath->attributeCollection()->deleteAllAttributes();
+
     if ( m_summaryCase )
     {
-        auto rftReader = m_summaryCase->rftReader();
+        auto rftReader = dynamic_cast<RifReaderOpmRft*>( m_summaryCase->rftReader() );
 
         // Update well path attributes, packers and casing based on RFT data
         if ( rftReader )
         {
-            // rftReader->segmentForWell(wellPathName)
+            auto segment = rftReader->segmentForWell( m_wellName, m_timeStep );
+
+            {
+                std::vector<double> seglenstValues;
+                std::vector<double> seglenenValues;
+                {
+                    auto resultName = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENST" );
+
+                    rftReader->values( resultName, &seglenstValues );
+
+                    if ( seglenstValues.size() > 2 )
+                    {
+                        seglenstValues[0] = seglenstValues[1];
+                    }
+                }
+                {
+                    auto resultName = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENEN" );
+
+                    rftReader->values( resultName, &seglenenValues );
+                }
+
+                // Tubing
+                auto oneBasedBranchIndices = segment.uniqueOneBasedBranchIndices( RiaDefines::RftBranchType::RFT_TUBING );
+
+                for ( auto i : oneBasedBranchIndices )
+                {
+                    if ( i != m_segmentBranchIndex ) continue;
+
+                    std::vector<RimWellPathAttribute*> wellPathAttributes;
+                    auto segmentIndices = segment.segmentIndicesForBranchIndex( i, RiaDefines::RftBranchType::RFT_TUBING );
+
+                    {
+                        auto w = new RimWellPathAttribute;
+                        w->setComponentType( RiaDefines::WellPathComponentType::SEGMENT );
+                        w->setCustomLabel( "Tubing" );
+
+                        w->setStartEndMD( seglenstValues[segmentIndices.front()], seglenenValues[segmentIndices.back()] );
+
+                        wellPathAttributes.push_back( w );
+                    }
+
+                    //                     for ( auto i : segmentIndices )
+                    //                     {
+                    //                         auto w = new RimWellPathAttribute;
+                    //                         w->setComponentType( RiaDefines::WellPathComponentType::SEGMENT );
+                    //                         w->setStartEndMD( seglenstValues[i], seglenenValues[i] );
+                    //
+                    //                         wellPathAttributes.push_back( w );
+                    //                     }
+
+                    for ( auto w : wellPathAttributes )
+                    {
+                        wellPath->attributeCollection()->insertAttribute( nullptr, w );
+                    }
+                }
+            }
         }
     }
-
-    wellPath->attributeCollection()->deleteAllAttributes();
-    auto attribute = new RimWellPathAttribute;
-    attribute->setDepthsFromWellPath( wellPath );
-    wellPath->attributeCollection()->insertAttribute( nullptr, attribute );
 
     setWellPathAttributesSource( wellPath );
 }
@@ -101,6 +157,7 @@ void RimRftWellCompletionTrack::defineUiOrdering( QString uiConfigName, caf::Pdm
     uiOrdering.add( &m_summaryCase );
     uiOrdering.add( &m_wellName );
     uiOrdering.add( &m_timeStep );
+    uiOrdering.add( &m_segmentBranchIndex );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -128,6 +185,13 @@ QList<caf::PdmOptionItemInfo>
     {
         options = RimRftTools::segmentTimeStepOptions( reader, m_wellName );
     }
+    else if ( fieldNeedingOptions == &m_segmentBranchIndex )
+    {
+        options = RimRftTools::segmentBranchIndexOptions( reader,
+                                                          m_wellName(),
+                                                          m_timeStep(),
+                                                          RiaDefines::RftBranchType::RFT_UNKNOWN );
+    }
 
     return options;
 }
@@ -139,5 +203,5 @@ void RimRftWellCompletionTrack::fieldChangedByUi( const caf::PdmFieldHandle* cha
                                                   const QVariant&            oldValue,
                                                   const QVariant&            newValue )
 {
-    configureForWellPath( m_summaryCase, m_timeStep, m_wellName );
+    configureForWellPath();
 }

@@ -36,17 +36,18 @@ class RimRftWellCompletionTrack : public RimWellLogTrack
 public:
     RimRftWellCompletionTrack();
 
-    void setDataSource( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName );
+    void setDataSource( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName, int segmentBranchIndex );
 
 private:
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
-    void configureForWellPath( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName );
+    void configureForWellPath();
 
 private:
     caf::PdmPtrField<RimSummaryCase*> m_summaryCase;
     caf::PdmField<QDateTime>          m_timeStep;
     caf::PdmField<QString>            m_wellName;
+    caf::PdmField<int>                m_segmentBranchIndex;
 };

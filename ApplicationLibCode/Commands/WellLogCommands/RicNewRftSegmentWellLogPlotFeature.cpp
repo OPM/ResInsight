@@ -147,7 +147,8 @@ void RicNewRftSegmentWellLogPlotFeature::appendWellCompletionTrack( RimWellLogPl
     QDateTime dateTime;
     if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
 
-    track->setDataSource( summaryCase, dateTime, wellName );
+    int branchIndex = 1;
+    track->setDataSource( summaryCase, dateTime, wellName, branchIndex );
 }
 
 //--------------------------------------------------------------------------------------------------

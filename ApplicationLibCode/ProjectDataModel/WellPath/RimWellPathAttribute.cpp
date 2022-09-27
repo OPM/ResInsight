@@ -64,6 +64,14 @@ double RimWellPathAttribute::diameterInInches() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathAttribute::setDiameter( double inches )
+{
+    m_diameterInInches = inches;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellPathAttribute::diameterLabel() const
 {
     return generateInchesLabel( m_diameterInInches() );
@@ -93,6 +101,31 @@ void RimWellPathAttribute::setDepthsFromWellPath( gsl::not_null<const RimWellPat
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellPathAttribute::setStartEndMD( double startMD, double endMD )
+{
+    m_startMD = startMD;
+    m_endMD   = endMD;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathAttribute::setComponentType( RiaDefines::WellPathComponentType componentType )
+{
+    m_type = componentType;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathAttribute::setCustomLabel( const QString& label )
+{
+    m_customLabel = label;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RimWellPathAttribute::isEnabled() const
 {
     RimWellPathAttributeCollection* collection = nullptr;
@@ -113,6 +146,8 @@ RiaDefines::WellPathComponentType RimWellPathAttribute::componentType() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathAttribute::componentLabel() const
 {
+    if ( !m_customLabel.isEmpty() ) return m_customLabel;
+
     QString fullLabel = componentTypeLabel();
     if ( m_type() == RiaDefines::WellPathComponentType::CASING || m_type() == RiaDefines::WellPathComponentType::LINER )
     {
@@ -126,6 +161,8 @@ QString RimWellPathAttribute::componentLabel() const
 //--------------------------------------------------------------------------------------------------
 QString RimWellPathAttribute::componentTypeLabel() const
 {
+    if ( !m_customLabel.isEmpty() ) return m_customLabel;
+
     return m_type().uiText();
 }
 

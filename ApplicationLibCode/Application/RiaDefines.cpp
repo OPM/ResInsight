@@ -94,6 +94,7 @@ void caf::AppEnum<RiaDefines::WellPathComponentType>::setUp()
     addItem( RiaDefines::WellPathComponentType::CASING, "CASING", "Casing" );
     addItem( RiaDefines::WellPathComponentType::LINER, "LINER", "Liner" );
     addItem( RiaDefines::WellPathComponentType::PACKER, "PACKER", "Packer" );
+    addItem( RiaDefines::WellPathComponentType::SEGMENT, "SEGMENT", "Segment" );
     addItem( RiaDefines::WellPathComponentType::UNDEFINED_COMPONENT, "UNDEFINED", "Undefined Component" );
     setDefault( RiaDefines::WellPathComponentType::WELL_PATH );
 }

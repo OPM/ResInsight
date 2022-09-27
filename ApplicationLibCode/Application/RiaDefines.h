@@ -67,6 +67,7 @@ enum class WellPathComponentType
     CASING,
     LINER,
     PACKER,
+    SEGMENT,
     UNDEFINED_COMPONENT
 };
 

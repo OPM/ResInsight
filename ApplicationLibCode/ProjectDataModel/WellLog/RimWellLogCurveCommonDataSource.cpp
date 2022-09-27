@@ -48,6 +48,7 @@
 #include "cafPdmUiComboBoxEditor.h"
 #include "cafPdmUiLineEditor.h"
 
+#include "RimRftWellCompletionTrack.h"
 #include <algorithm>
 
 CAF_PDM_SOURCE_INIT( RimWellLogCurveCommonDataSource, "ChangeDataSourceFeatureUi" );
@@ -653,6 +654,12 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
                 track->setWellPathAttributesSource( wellPathToApply() );
                 updatedSomething = true;
             }
+        }
+
+        auto wellCompletionTrack = dynamic_cast<RimRftWellCompletionTrack*>( track );
+        if ( wellCompletionTrack )
+        {
+            wellCompletionTrack->setDataSource( m_summaryCase, m_rftTimeStep, m_rftWellName, m_rftSegmentBranchIndex );
         }
 
         if ( track->showFormations() )

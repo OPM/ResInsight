@@ -3272,6 +3272,7 @@ void RimWellLogTrack::updateWellPathAttributesOnPlot()
             { { RiaDefines::WellPathComponentType::WELL_PATH, 0 },
               { RiaDefines::WellPathComponentType::CASING, 1 },
               { RiaDefines::WellPathComponentType::LINER, 2 },
+              { RiaDefines::WellPathComponentType::SEGMENT, 2 },
               { RiaDefines::WellPathComponentType::PERFORATION_INTERVAL, 3 },
               { RiaDefines::WellPathComponentType::FISHBONES, 4 },
               { RiaDefines::WellPathComponentType::FRACTURE, 5 },

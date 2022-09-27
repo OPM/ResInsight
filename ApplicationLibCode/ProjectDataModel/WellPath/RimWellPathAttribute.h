@@ -42,9 +42,14 @@ public:
     ~RimWellPathAttribute() override;
 
     double  diameterInInches() const;
+    void    setDiameter( double inches );
     QString diameterLabel() const;
     bool    operator<( const RimWellPathAttribute& rhs ) const;
     void    setDepthsFromWellPath( gsl::not_null<const RimWellPath*> wellPath );
+    void    setStartEndMD( double startMD, double endMD );
+    void    setComponentType( RiaDefines::WellPathComponentType componentType );
+
+    void setCustomLabel( const QString& label );
 
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;
@@ -70,4 +75,5 @@ private:
     caf::PdmField<double>             m_startMD;
     caf::PdmField<double>             m_endMD;
     caf::PdmField<double>             m_diameterInInches;
+    QString                           m_customLabel;
 };

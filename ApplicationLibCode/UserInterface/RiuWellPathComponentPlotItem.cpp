@@ -215,6 +215,19 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
                    componentColor( 0.0 ),
                    label() );
     }
+    else if ( m_componentType == RiaDefines::WellPathComponentType::SEGMENT )
+    {
+        double posMin = 0.5 + m_columnOffset;
+        double posMax = 0.75 + m_columnOffset;
+        addColumnFeature( -posMax, -posMin, startDepth, endDepth, componentColor() );
+        addColumnFeature( posMin, posMax, startDepth, endDepth, componentColor() );
+
+        addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor() );
+        addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor() );
+
+        addMarker(-posMax, startDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor());
+		addMarker(posMax, startDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor());
+    }
     else if ( m_componentType == RiaDefines::WellPathComponentType::PERFORATION_INTERVAL )
     {
         addColumnFeature( -casingTrackEnd, -0.25, startDepth, endDepth, componentColor(), Qt::Dense6Pattern );

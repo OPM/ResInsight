@@ -81,7 +81,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto data = segment.topology();
 
-            auto indices = segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+            auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
             for ( const auto& i : indices )
             {
                 CAF_ASSERT( i < data.size() );
@@ -146,7 +146,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 else
                 {
                     auto indices =
-                        segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+                        segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
                     for ( const auto& i : indices )
                     {
                         CAF_ASSERT( i < data.size() );
@@ -613,7 +613,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 
             std::vector<int> segmentNumbers;
 
-            auto indices = segmentRef.indicesForBranchNumber( id );
+            auto indices = segmentRef.segmentIndicesForBranchNumber( id );
             for ( auto i : indices )
             {
                 minimumMD = std::min( minimumMD, seglenstValues[i] );
@@ -694,7 +694,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
             auto branchType = segmentRef.branchType( branchId );
             if ( branchType == RiaDefines::RftBranchType::RFT_ANNULUS )
             {
-                auto segmentIndices = segmentRef.indicesForBranchNumber( branchId );
+                auto segmentIndices = segmentRef.segmentIndicesForBranchNumber( branchId );
                 if ( segmentIndices.empty() ) continue;
 
                 auto firstSegmentIndex      = segmentIndices.front();
