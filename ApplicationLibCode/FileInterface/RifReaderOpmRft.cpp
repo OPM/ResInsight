@@ -81,7 +81,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto data = segment.topology();
 
-            auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+            auto indices =
+                segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
             for ( const auto& i : indices )
             {
                 CAF_ASSERT( i < data.size() );
@@ -145,8 +146,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 }
                 else
                 {
-                    auto indices =
-                        segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+                    auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(),
+                                                                         rftAddress.segmentBranchType() );
                     for ( const auto& i : indices )
                     {
                         CAF_ASSERT( i < data.size() );

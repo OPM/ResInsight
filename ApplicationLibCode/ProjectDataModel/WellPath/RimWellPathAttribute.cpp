@@ -45,6 +45,8 @@ RimWellPathAttribute::RimWellPathAttribute()
     CAF_PDM_InitField( &m_diameterInInches, "DiameterInInches", MAX_DIAMETER_IN_INCHES, "Diameter" );
     m_type = RiaDefines::WellPathComponentType::CASING;
     m_diameterInInches.uiCapability()->setUiEditorTypeName( caf::PdmUiComboBoxEditor::uiEditorTypeName() );
+
+    m_customColor = QColor();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,6 +123,22 @@ void RimWellPathAttribute::setComponentType( RiaDefines::WellPathComponentType c
 void RimWellPathAttribute::setCustomLabel( const QString& label )
 {
     m_customLabel = label;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QColor RimWellPathAttribute::customColor() const
+{
+    return m_customColor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathAttribute::setCustomColor( const QColor& color )
+{
+    m_customColor = color;
 }
 
 //--------------------------------------------------------------------------------------------------

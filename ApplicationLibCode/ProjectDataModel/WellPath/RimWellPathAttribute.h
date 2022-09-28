@@ -51,6 +51,9 @@ public:
 
     void setCustomLabel( const QString& label );
 
+    QColor customColor() const;
+    void   setCustomColor( const QColor& color );
+
     // Overrides from RimWellPathCompletionInterface
     bool                              isEnabled() const override;
     RiaDefines::WellPathComponentType componentType() const override;
@@ -76,4 +79,5 @@ private:
     caf::PdmField<double>             m_endMD;
     caf::PdmField<double>             m_diameterInInches;
     QString                           m_customLabel;
+    QColor                            m_customColor;
 };

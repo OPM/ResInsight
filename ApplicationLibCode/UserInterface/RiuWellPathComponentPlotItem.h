@@ -123,6 +123,7 @@ private:
     QString                           m_legendTitle;
     double                            m_columnOffset;
     double                            m_maxColumnOffset;
+    QColor                            m_customColor;
 
     RimWellLogPlot::DepthTypeEnum    m_depthType;
     RimWellLogPlot::DepthOrientation m_depthOrientation;

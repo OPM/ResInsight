@@ -84,6 +84,11 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath*  
     m_startMD       = component->startMD();
     m_endMD         = component->endMD();
 
+    if ( auto attribute = dynamic_cast<const RimWellPathAttribute*>( component ) )
+    {
+        if ( attribute->customColor().isValid() ) m_customColor = attribute->customColor();
+    }
+
     calculateColumnOffsets( component );
     const RimWellPathValve* valve = dynamic_cast<const RimWellPathValve*>( component );
     if ( valve )
@@ -134,6 +139,18 @@ RiaDefines::WellPathComponentType RiuWellPathComponentPlotItem::componentType() 
 //--------------------------------------------------------------------------------------------------
 void RiuWellPathComponentPlotItem::calculateColumnOffsets( const RimWellPathComponentInterface* component )
 {
+    if ( component->componentType() == RiaDefines::WellPathComponentType::SEGMENT )
+    {
+        auto attribute = dynamic_cast<const RimWellPathAttribute*>( component );
+        if ( attribute )
+        {
+            double offsetBasedOnDiameter = attribute->diameterInInches() / 30.0;
+            m_columnOffset               = offsetBasedOnDiameter;
+        }
+
+        return;
+    }
+
     std::set<double> uniqueCasingDiameters;
 
     std::vector<RimWellPathAttributeCollection*> attributeCollection;
@@ -217,16 +234,16 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::SEGMENT )
     {
-        double posMin = 0.5 + m_columnOffset;
-        double posMax = 0.75 + m_columnOffset;
+        double posMin = 0.0 + m_columnOffset;
+        double posMax = 0.1 + m_columnOffset;
         addColumnFeature( -posMax, -posMin, startDepth, endDepth, componentColor() );
         addColumnFeature( posMin, posMax, startDepth, endDepth, componentColor() );
 
-        addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor() );
-        addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor() );
-
-        addMarker(-posMax, startDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor());
-		addMarker(posMax, startDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor());
+        //         addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor() );
+        //         addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor() );
+        //
+        //         addMarker( -posMax, startDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor() );
+        //         addMarker( posMax, startDepth, 12, RiuPlotCurveSymbol::SYMBOL_DIAMOND, componentColor() );
     }
     else if ( m_componentType == RiaDefines::WellPathComponentType::PERFORATION_INTERVAL )
     {
@@ -577,6 +594,8 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startPositio
 //--------------------------------------------------------------------------------------------------
 cvf::Color4f RiuWellPathComponentPlotItem::componentColor( float alpha /*= 1.0*/ ) const
 {
+    if ( m_customColor.isValid() ) return cvf::Color4f( RiaColorTools::fromQColorTo3f( m_customColor ), alpha );
+
     return cvf::Color4f( RiaColorTables::wellPathComponentColors()[m_componentType], alpha );
 }
 
