@@ -10,6 +10,7 @@ import socket
 import logging
 import time
 import tempfile
+import signal
 
 import grpc
 
@@ -72,6 +73,18 @@ class Instance:
                 return int(value)
         else:
             return -1
+
+    @staticmethod
+    def __kill_process(pid):
+        """
+        Kill the process with a given pid.
+        """
+        if hasattr(signal, "CTRL_C_EVENT"):
+            # windows does not have kill
+            os.kill(pid, signal.CTRL_C_EVENT)
+        else:
+            # linux/unix
+            os.kill(pid, signal.SIGKILL)
 
     @staticmethod
     def launch(
@@ -143,7 +156,7 @@ class Instance:
                 if port == -1:
                     print("Unable to read port number. Launch failed.")
                     # Need to kill the process using PID since there is no  GRPC connection to use.
-                    os.kill(pid)
+                    Instance.__kill_process(pid)
                 else:
                     instance = Instance(port=port, launched=True)
                     return instance
