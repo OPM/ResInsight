@@ -45,7 +45,8 @@ RimcThermalFractureTemplate_exportToFile::RimcThermalFractureTemplate_exportToFi
 caf::PdmObjectHandle* RimcThermalFractureTemplate_exportToFile::execute()
 {
     RimThermalFractureTemplate* thermalFracture = self<RimThermalFractureTemplate>();
-    RifThermalFractureTemplateSurfaceExporter::writeToFile( thermalFracture, m_timeStep(), m_filePath() );
+    if ( thermalFracture && thermalFracture->fractureDefinition() )
+        RifThermalFractureTemplateSurfaceExporter::writeToFile( thermalFracture, m_timeStep(), m_filePath() );
     return nullptr;
 }
 
