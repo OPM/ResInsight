@@ -19,6 +19,7 @@
 #include "RigEclipseToStimPlanCalculator.h"
 
 #include "RiaLogging.h"
+#include "RiaThermalFractureDefines.h"
 #include "RiaWeightedMeanCalculator.h"
 
 #include "RigActiveCellInfo.h"
@@ -33,6 +34,7 @@
 #include "RigHexIntersectionTools.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessorFactory.h"
+#include "RigThermalFractureDefinition.h"
 #include "RigTransmissibilityCondenser.h"
 
 #include "RimEclipseCase.h"
@@ -81,25 +83,41 @@ void RigEclipseToStimPlanCalculator::computeValues()
             RimThermalFractureTemplate* thermalFractureTemplate =
                 dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() );
 
-            size_t timeStep = thermalFractureTemplate->activeTimeStepIndex();
-            int    cellI    = fractureCell.getI();
-            int    cellJ    = fractureCell.getJ();
+            size_t timeStep   = thermalFractureTemplate->activeTimeStepIndex();
+            int    cellI      = fractureCell.getI();
+            int    cellJ      = fractureCell.getJ();
+            auto   unitSystem = thermalFractureTemplate->fractureDefinition()->unitSystem();
 
-            double injectivityDecline = thermalFractureTemplate->resultValueAtIJ( &m_fractureGrid,
-                                                                                  "InjectivityDecline",
-                                                                                  "factor",
-                                                                                  timeStep,
-                                                                                  cellI,
-                                                                                  cellJ );
+            double injectivityDecline =
+                thermalFractureTemplate
+                    ->resultValueAtIJ( &m_fractureGrid,
+                                       RiaDefines::injectivityDeclineResultName(),
+                                       RiaDefines::getExpectedThermalFractureUnit( RiaDefines::injectivityDeclineResultName(),
+                                                                                   unitSystem ),
+
+                                       timeStep,
+                                       cellI,
+                                       cellJ );
             double viscosity =
-                thermalFractureTemplate->resultValueAtIJ( &m_fractureGrid, "Viscosity", "mPa.s", timeStep, cellI, cellJ );
+                thermalFractureTemplate
+                    ->resultValueAtIJ( &m_fractureGrid,
+                                       RiaDefines::viscosityResultName(),
+                                       RiaDefines::getExpectedThermalFractureUnit( RiaDefines::viscosityResultName(),
+                                                                                   unitSystem ),
 
-            double filterCakeMobility = thermalFractureTemplate->resultValueAtIJ( &m_fractureGrid,
-                                                                                  "FilterCakeMobility",
-                                                                                  "m/day/bar",
-                                                                                  timeStep,
-                                                                                  cellI,
-                                                                                  cellJ );
+                                       timeStep,
+                                       cellI,
+                                       cellJ );
+
+            double filterCakeMobility =
+                thermalFractureTemplate
+                    ->resultValueAtIJ( &m_fractureGrid,
+                                       RiaDefines::filterCakeMobilityResultName(),
+                                       RiaDefines::getExpectedThermalFractureUnit( RiaDefines::filterCakeMobilityResultName(),
+                                                                                   unitSystem ),
+                                       timeStep,
+                                       cellI,
+                                       cellJ );
 
             // Assumed value
             double relativePermeability = 1.0;

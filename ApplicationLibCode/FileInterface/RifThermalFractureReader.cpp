@@ -21,6 +21,7 @@
 #include "RiaDefines.h"
 #include "RiaFractureDefines.h"
 #include "RiaTextStringTools.h"
+#include "RiaThermalFractureDefines.h"
 
 #include "RigThermalFractureDefinition.h"
 
@@ -261,9 +262,10 @@ RiaDefines::EclipseUnitSystem
     if ( res != namesAndUnits.end() )
     {
         QString unit = res->second;
-        if ( unit == getExpectedUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_METRIC ) )
+        if ( unit == RiaDefines::getExpectedThermalFractureUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_METRIC ) )
             return RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-        else if ( unit == getExpectedUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_FIELD ) )
+        else if ( unit ==
+                  RiaDefines::getExpectedThermalFractureUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_FIELD ) )
             return RiaDefines::EclipseUnitSystem::UNITS_FIELD;
     }
 
@@ -279,54 +281,9 @@ bool RifThermalFractureReader::checkUnits( std::shared_ptr<const RigThermalFract
     auto namesAndUnits = definition->getPropertyNamesUnits();
     for ( auto [name, unit] : namesAndUnits )
     {
-        auto expectedUnit = getExpectedUnit( name, unitSystem );
+        auto expectedUnit = RiaDefines::getExpectedThermalFractureUnit( name, unitSystem );
         if ( expectedUnit != unit ) return false;
     }
 
     return true;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RifThermalFractureReader::getExpectedUnit( const QString& name, RiaDefines::EclipseUnitSystem unitSystem )
-{
-    CAF_ASSERT( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC ||
-                unitSystem == RiaDefines::EclipseUnitSystem::UNITS_FIELD );
-
-    // parameter name --> { metric unit, field unit }
-    std::map<QString, std::pair<QString, QString>> mapping =
-        { { "XCoord", { "m", "feet" } },
-          { "YCoord", { "m", "feet" } },
-          { "ZCoord", { "m", "feet" } },
-          { "Width", { "cm", "inches" } },
-          { "Pressure", { "BARa", "psia" } },
-          { "Temperature", { "deg C", "deg F" } },
-          { "Stress", { "BARa", "psia" } },
-          { "Density", { "Kg/m3", "lb/ft3" } },
-          { "Viscosity", { "mPa.s", "centipoise" } },
-          { "LeakoffMobility", { "m/day/bar", "ft/day/psi" } },
-          { "Conductivity",
-            { RiaDefines::unitStringConductivity( RiaDefines::EclipseUnitSystem::UNITS_METRIC ),
-              RiaDefines::unitStringConductivity( RiaDefines::EclipseUnitSystem::UNITS_FIELD ) } },
-          { "Velocity", { "m/sec", "ft/sec" } },
-          { "ResPressure", { "BARa", "psia" } },
-          { "ResTemperature", { "deg C", "deg F" } },
-          { "FiltrateThickness", { "cm", "inches" } },
-          { "FiltratePressureDrop", { "bar", "psi" } },
-          { "EffectiveResStress", { "bar", "psi" } },
-          { "EffectiveFracStress", { "bar", "psi" } },
-          { "LeakoffPressureDrop", { "bar", "psi" } } };
-
-    auto res = std::find_if( mapping.begin(), mapping.end(), [&]( const auto& val ) { return val.first == name; } );
-
-    if ( res != mapping.end() )
-    {
-        if ( unitSystem == RiaDefines::EclipseUnitSystem::UNITS_METRIC )
-            return res->second.first;
-        else
-            return res->second.second;
-    }
-
-    return "";
 }
