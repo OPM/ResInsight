@@ -20,6 +20,13 @@
 
 #include "RimWellLogCurve.h"
 
+#include "cafPdmPtrField.h"
+
+#include "RiaRftDefines.h"
+#include <QDateTime>
+
+class RimSummaryCase;
+
 //==================================================================================================
 ///
 ///
@@ -31,6 +38,12 @@ class RimRftTopologyCurve : public RimWellLogCurve
 public:
     RimRftTopologyCurve();
 
+    void setDataSource( RimSummaryCase*           summaryCase,
+                        const QDateTime&          timeStep,
+                        const QString&            wellName,
+                        int                       segmentBranchIndex,
+                        RiaDefines::RftBranchType branchType );
+
     QString wellName() const override;
     QString wellLogChannelUiName() const override;
     QString wellLogChannelUnits() const override;
@@ -38,5 +51,16 @@ public:
 protected:
     QString createCurveAutoName() override;
 
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
     void onLoadDataAndUpdate( bool updateParentPlot ) override;
+
+private:
+    caf::PdmPtrField<RimSummaryCase*>                      m_summaryCase;
+    caf::PdmField<QDateTime>                               m_timeStep;
+    caf::PdmField<QString>                                 m_wellName;
+    caf::PdmField<int>                                     m_segmentBranchIndex;
+    caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_segmentBranchType;
 };

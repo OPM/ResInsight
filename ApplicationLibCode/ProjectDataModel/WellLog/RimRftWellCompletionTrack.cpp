@@ -29,6 +29,7 @@
 #include "RimWellPathAttribute.h"
 #include "RimWellPathAttributeCollection.h"
 
+#include "RimRftTopologyCurve.h"
 #include "WellLogCommands/RicAppendWellPathFromRftDataFeature.h"
 
 CAF_PDM_SOURCE_INIT( RimRftWellCompletionTrack, "RimRftWellCompletionTrack" );
@@ -70,8 +71,41 @@ void RimRftWellCompletionTrack::setDataSource( RimSummaryCase*  summaryCase,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimWellPathAttribute*>
+    RimRftWellCompletionTrack::createWellPathAttributes( RifRftSegment*            segment,
+                                                         RiaDefines::RftBranchType branchType,
+                                                         int                       branchIndex,
+                                                         double                    diameter,
+                                                         QColor                    color,
+
+                                                         const QString&             name,
+                                                         const std::vector<double>& segmentStart,
+                                                         const std::vector<double>& segmentEnd )
+{
+    std::vector<RimWellPathAttribute*> wellPathAttributes;
+    auto segmentIndices = segment->segmentIndicesForBranchIndex( branchIndex, branchType );
+    if ( segmentIndices.empty() ) return {};
+
+    auto w = new RimWellPathAttribute;
+    w->setComponentType( RiaDefines::WellPathComponentType::SEGMENT );
+    w->setCustomLabel( name );
+    w->setDiameter( diameter );
+    w->setCustomColor( color );
+
+    w->setStartEndMD( segmentStart[segmentIndices.front()], segmentEnd[segmentIndices.back()] );
+
+    wellPathAttributes.push_back( w );
+
+    return wellPathAttributes;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimRftWellCompletionTrack::configureForWellPath()
 {
+    createCurves();
+
     if ( m_summaryCase )
     {
         auto rftReader = dynamic_cast<RifReaderOpmRft*>( m_summaryCase->rftReader() );
@@ -219,11 +253,36 @@ void RimRftWellCompletionTrack::createCurves()
                     rftReader->values( resultName, &seglenenValues );
                 }
 
-                double wellStartMd = 1.0;
-                double wellEndMd   = 100.0;
+                deleteAllCurves();
 
-                if ( !seglenstValues.empty() ) wellStartMd = seglenstValues.front();
-                if ( !seglenenValues.empty() ) wellEndMd = seglenenValues.back();
+                {
+                    auto tubingCurve = new RimRftTopologyCurve;
+                    tubingCurve->setDataSource( m_summaryCase(),
+                                                m_timeStep(),
+                                                m_wellName(),
+                                                m_segmentBranchIndex(),
+                                                RiaDefines::RftBranchType::RFT_TUBING );
+                    addCurve( tubingCurve );
+                }
+                {
+                    auto tubingCurve = new RimRftTopologyCurve;
+                    tubingCurve->setDataSource( m_summaryCase(),
+                                                m_timeStep(),
+                                                m_wellName(),
+                                                m_segmentBranchIndex(),
+                                                RiaDefines::RftBranchType::RFT_DEVICE );
+                    addCurve( tubingCurve );
+                }
+
+                {
+                    auto tubingCurve = new RimRftTopologyCurve;
+                    tubingCurve->setDataSource( m_summaryCase(),
+                                                m_timeStep(),
+                                                m_wellName(),
+                                                m_segmentBranchIndex(),
+                                                RiaDefines::RftBranchType::RFT_ANNULUS );
+                    addCurve( tubingCurve );
+                }
             }
         }
     }
