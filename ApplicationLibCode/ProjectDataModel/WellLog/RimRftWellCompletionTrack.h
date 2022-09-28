@@ -48,6 +48,7 @@ private:
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     void configureForWellPath();
+    void createCurves();
 
     static std::vector<RimWellPathAttribute*> createWellPathAttributes( RifRftSegment*             segment,
                                                                         RiaDefines::RftBranchType  branchType,

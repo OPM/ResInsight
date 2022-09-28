@@ -189,32 +189,44 @@ void RimRftWellCompletionTrack::configureForWellPath()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimWellPathAttribute*>
-    RimRftWellCompletionTrack::createWellPathAttributes( RifRftSegment*            segment,
-                                                         RiaDefines::RftBranchType branchType,
-                                                         int                       branchIndex,
-                                                         double                    diameter,
-                                                         QColor                    color,
-
-                                                         const QString&             name,
-                                                         const std::vector<double>& segmentStart,
-                                                         const std::vector<double>& segmentEnd )
+void RimRftWellCompletionTrack::createCurves()
 {
-    std::vector<RimWellPathAttribute*> wellPathAttributes;
-    auto segmentIndices = segment->segmentIndicesForBranchIndex( branchIndex, branchType );
-    if ( segmentIndices.empty() ) return {};
+    if ( m_summaryCase )
+    {
+        auto rftReader = dynamic_cast<RifReaderOpmRft*>( m_summaryCase->rftReader() );
 
-    auto w = new RimWellPathAttribute;
-    w->setComponentType( RiaDefines::WellPathComponentType::SEGMENT );
-    w->setCustomLabel( name );
-    w->setDiameter( diameter );
-    w->setCustomColor( color );
+        // Update well path attributes, packers and casing based on RFT data
+        if ( rftReader )
+        {
+            auto segment = rftReader->segmentForWell( m_wellName, m_timeStep );
 
-    w->setStartEndMD( segmentStart[segmentIndices.front()], segmentEnd[segmentIndices.back()] );
+            {
+                std::vector<double> seglenstValues;
+                std::vector<double> seglenenValues;
+                {
+                    auto resultName = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENST" );
 
-    wellPathAttributes.push_back( w );
+                    rftReader->values( resultName, &seglenstValues );
 
-    return wellPathAttributes;
+                    if ( seglenstValues.size() > 2 )
+                    {
+                        seglenstValues[0] = seglenstValues[1];
+                    }
+                }
+                {
+                    auto resultName = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENEN" );
+
+                    rftReader->values( resultName, &seglenenValues );
+                }
+
+                double wellStartMd = 1.0;
+                double wellEndMd   = 100.0;
+
+                if ( !seglenstValues.empty() ) wellStartMd = seglenstValues.front();
+                if ( !seglenenValues.empty() ) wellEndMd = seglenenValues.back();
+            }
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
