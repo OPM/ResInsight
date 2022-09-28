@@ -27,11 +27,13 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RifThermalFractureTemplateSurfaceExporter::writeToFile( RimThermalFractureTemplate* fractureTemplate,
-                                                             int                         timeStepIndex,
-                                                             const QString&              filePath )
+bool RifThermalFractureTemplateSurfaceExporter::writeToFile( gsl::not_null<RimThermalFractureTemplate*> thermalFractureTemplate,
+                                                             int                                        timeStepIndex,
+                                                             const QString&                             filePath )
 {
-    auto fractureData = fractureTemplate->fractureDefinition();
+    auto fractureData = thermalFractureTemplate->fractureDefinition();
+    CAF_ASSERT( fractureData );
+
     auto numNodes     = fractureData->numNodes();
     auto numTimeSteps = fractureData->numTimeSteps();
     auto properties   = fractureData->getPropertyNamesUnits();

@@ -18,6 +18,8 @@
 
 #pragma once
 
+#include <gsl/gsl>
+
 class RimThermalFractureTemplate;
 class QString;
 
@@ -27,5 +29,7 @@ class QString;
 class RifThermalFractureTemplateSurfaceExporter
 {
 public:
-    static bool writeToFile( RimThermalFractureTemplate* stimPlanModel, int timeStep, const QString& filePath );
+    static bool writeToFile( gsl::not_null<RimThermalFractureTemplate*> thermalFractureTemplate,
+                             int                                        timeStep,
+                             const QString&                             filePath );
 };
