@@ -61,7 +61,7 @@ class Instance:
     @staticmethod
     def __read_port_number_from_file(file_path):
         retry_count = 0
-        while not os.path.exists(file_path) and retry_count < 30:
+        while not os.path.exists(file_path) and retry_count < 60:
             time.sleep(1)
             retry_count = retry_count + 1
 
