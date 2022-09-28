@@ -23,6 +23,7 @@
 #include "RiaEclipseUnitTools.h"
 #include "RiaFractureDefines.h"
 #include "RiaLogging.h"
+#include "RiaThermalFractureDefines.h"
 
 #include "RifThermalFractureReader.h"
 
@@ -33,8 +34,6 @@
 
 #include "RimEclipseView.h"
 #include "RimFracture.h"
-#include "RimFractureContainment.h"
-#include "RimProject.h"
 #include "RimStimPlanColors.h"
 #include "RimWellPath.h"
 
@@ -166,10 +165,11 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     if ( m_fractureDefinitionData )
     {
         auto addInjectivityDecline = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
-            int     leakoffPressureDropIndex  = def->getPropertyIndex( "LeakoffPressureDrop" );
-            int     filtratePressureDropIndex = def->getPropertyIndex( "FiltratePressureDrop" );
-            QString injectivityValueTag       = "InjectivityDecline";
-            def->addProperty( injectivityValueTag, "factor" );
+            int     leakoffPressureDropIndex  = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
+            int     filtratePressureDropIndex = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
+            QString injectivityValueTag       = RiaDefines::injectivityDeclineResultName();
+            def->addProperty( injectivityValueTag,
+                              RiaDefines::getExpectedThermalFractureUnit( injectivityValueTag, def->unitSystem() ) );
 
             int injectivityDeclineIndex = def->getPropertyIndex( injectivityValueTag );
 
@@ -189,11 +189,12 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
         };
 
         auto addFilterCakeMobility = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
-            int     leakoffPressureDropIndex   = def->getPropertyIndex( "LeakoffPressureDrop" );
-            int     filtratePressureDropIndex  = def->getPropertyIndex( "FiltratePressureDrop" );
-            int     leakoffMobilityIndex       = def->getPropertyIndex( "LeakoffMobility" );
-            QString filterCakeMobilityValueTag = "FilterCakeMobility";
-            def->addProperty( filterCakeMobilityValueTag, "m/day/bar" );
+            int     leakoffPressureDropIndex   = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
+            int     filtratePressureDropIndex  = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
+            int     leakoffMobilityIndex       = def->getPropertyIndex( RiaDefines::leakoffMobilityResultName() );
+            QString filterCakeMobilityValueTag = RiaDefines::filterCakeMobilityResultName();
+            def->addProperty( filterCakeMobilityValueTag,
+                              RiaDefines::getExpectedThermalFractureUnit( filterCakeMobilityValueTag, def->unitSystem() ) );
 
             int filterCakeMobilityDeclineIndex = def->getPropertyIndex( filterCakeMobilityValueTag );
 
