@@ -644,7 +644,7 @@ double RimThermalFractureTemplate::resultValueAtIJ( const RigFractureGrid* fract
     size_t adjustedI = i + 1;
     size_t adjustedJ = j + 1;
 
-    if ( adjustedI >= fractureGrid->iCellCount() || adjustedJ >= fractureGrid->jCellCount() )
+    if ( adjustedI >= fractureGrid->iCellCount() + 1 || adjustedJ >= fractureGrid->jCellCount() + 1 )
     {
         return HUGE_VAL;
     }
