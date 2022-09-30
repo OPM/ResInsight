@@ -58,6 +58,7 @@ namespace caf
 template <>
 void caf::AppEnum<RimThermalFractureTemplate::FilterCakePressureDrop>::setUp()
 {
+    addItem( RimThermalFractureTemplate::FilterCakePressureDrop::NONE, "None", "None" );
     addItem( RimThermalFractureTemplate::FilterCakePressureDrop::RELATIVE, "Relative", "Relative" );
     addItem( RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE, "Absolute", "Absolute" );
 

@@ -58,13 +58,17 @@ double RigEclipseToThermalCellTransmissibilityCalculator::calculateTransmissibil
     {
         return m_injectivityDecline * fractureMatrixTransimissibility;
     }
-    else
+    else if ( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE )
     {
-        CAF_ASSERT( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE );
         double filterCakeTransmissibility = ( m_viscosity / m_relativePermeability ) * fractureArea * m_filterCakeMobility;
 
         // Harmonic mean
         return ( fractureMatrixTransimissibility * filterCakeTransmissibility ) /
                ( fractureMatrixTransimissibility + filterCakeTransmissibility );
+    }
+    else
+    {
+        CAF_ASSERT( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::NONE );
+        return fractureMatrixTransimissibility;
     }
 }
