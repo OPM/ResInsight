@@ -41,6 +41,7 @@ class RimThermalFractureTemplate : public RimMeshFractureTemplate
 public:
     enum class FilterCakePressureDrop
     {
+        NONE,
         RELATIVE,
         ABSOLUTE
     };
