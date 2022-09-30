@@ -34,9 +34,6 @@
 
 #include <cmath>
 
-int numSamplesX = 50;
-int numSamplesY = 40;
-
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -75,12 +72,12 @@ std::vector<std::vector<double>>
     boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh (center points)
-    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
+    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, NUM_SAMPLES_X, NUM_SAMPLES_Y );
 
     // Fill with invalid value
-    for ( int i = 0; i < numSamplesY; i++ )
+    for ( int i = 0; i < NUM_SAMPLES_Y; i++ )
     {
-        std::vector<double> junk( numSamplesX, std::numeric_limits<double>::infinity() );
+        std::vector<double> junk( NUM_SAMPLES_X, std::numeric_limits<double>::infinity() );
         vec.push_back( junk );
     }
 
@@ -133,7 +130,7 @@ void RigThermalFractureResultUtil::createFractureTriangleGeometry(
     boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh
-    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
+    auto [xCoords, depthCoords] = generateUniformMesh( boundingBox, NUM_SAMPLES_X, NUM_SAMPLES_Y );
 
     // Code adapted from RigStimPlanFractureDefinition
     std::vector<double> adjustedYs = depthCoords;
@@ -190,9 +187,9 @@ std::vector<double>
     const std::vector<std::vector<double>>& resultValuesAtTimeStep =
         getDataAtTimeIndex( fractureDefinition, resultName, unitName, timeStepIndex );
 
-    for ( int i = 0; i < static_cast<int>( numSamplesX ) - 2; i++ )
+    for ( int i = 0; i < static_cast<int>( NUM_SAMPLES_X ) - 2; i++ )
     {
-        for ( int j = 0; j < static_cast<int>( numSamplesY ) - 2; j++ )
+        for ( int j = 0; j < static_cast<int>( NUM_SAMPLES_Y ) - 2; j++ )
         {
             if ( j + 1 < static_cast<int>( resultValuesAtTimeStep.size() ) &&
                  i + 1 < static_cast<int>( resultValuesAtTimeStep[j + 1].size() ) )
@@ -282,7 +279,7 @@ cvf::cref<RigFractureGrid>
     boundingBox.expand( 1.0 );
 
     // Generate a uniform mesh
-    auto [Xs, Ys] = generateUniformMesh( boundingBox, numSamplesX, numSamplesY );
+    auto [Xs, Ys] = generateUniformMesh( boundingBox, NUM_SAMPLES_X, NUM_SAMPLES_Y );
 
     double centerZ = fractureDefinition->centerPosition().z();
     double offset  = wellPathIntersectionAtFractureDepth - centerZ;
@@ -343,8 +340,8 @@ cvf::cref<RigFractureGrid>
     cvf::ref<RigFractureGrid> fractureGrid = new RigFractureGrid;
     fractureGrid->setFractureCells( stimPlanCells );
     fractureGrid->setWellCenterFractureCellIJ( wellCenterStimPlanCellIJ );
-    fractureGrid->setICellCount( numSamplesX - 2 );
-    fractureGrid->setJCellCount( numSamplesY - 2 );
+    fractureGrid->setICellCount( NUM_SAMPLES_X - 2 );
+    fractureGrid->setJCellCount( NUM_SAMPLES_Y - 2 );
     fractureGrid->ensureCellSearchTreeIsBuilt();
 
     return cvf::cref<RigFractureGrid>( fractureGrid.p() );
@@ -354,10 +351,10 @@ cvf::cref<RigFractureGrid>
 /// TODO: adapted from RimEnsembleFractureStatistics. Maybe extract?
 //--------------------------------------------------------------------------------------------------
 std::pair<std::vector<double>, std::vector<double>>
-    RigThermalFractureResultUtil::generateUniformMesh( const cvf::BoundingBox& bb, int numSamplesX, int numSamplesY )
+    RigThermalFractureResultUtil::generateUniformMesh( const cvf::BoundingBox& bb, int NUM_SAMPLES_X, int NUM_SAMPLES_Y )
 {
-    CAF_ASSERT( numSamplesX > 0 );
-    CAF_ASSERT( numSamplesY > 0 );
+    CAF_ASSERT( NUM_SAMPLES_X > 0 );
+    CAF_ASSERT( NUM_SAMPLES_Y > 0 );
 
     double minX = bb.min().x();
     double maxX = bb.max().x();
@@ -366,10 +363,10 @@ std::pair<std::vector<double>, std::vector<double>>
     double maxY = bb.max().y();
 
     std::vector<double> gridXs;
-    linearSampling( minX, maxX, numSamplesX, gridXs );
+    linearSampling( minX, maxX, NUM_SAMPLES_X, gridXs );
 
     std::vector<double> gridYs;
-    linearSampling( minY, maxY, numSamplesY, gridYs );
+    linearSampling( minY, maxY, NUM_SAMPLES_Y, gridYs );
 
     return std::make_pair( gridXs, gridYs );
 }

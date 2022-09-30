@@ -111,4 +111,7 @@ private:
                                        std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
                                        int                                                 propertyIndex,
                                        size_t                                              timeStepIndex );
+
+    static const int NUM_SAMPLES_X = 50;
+    static const int NUM_SAMPLES_Y = 40;
 };
