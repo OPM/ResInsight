@@ -72,7 +72,7 @@ size_t RigFractureCell::getJ() const
 //--------------------------------------------------------------------------------------------------
 bool RigFractureCell::hasNonZeroConductivity() const
 {
-    return m_conductivityValue > 1e-7;
+    return m_conductivityValue > 1e-7 && !std::isinf( m_conductivityValue );
 }
 
 //--------------------------------------------------------------------------------------------------
