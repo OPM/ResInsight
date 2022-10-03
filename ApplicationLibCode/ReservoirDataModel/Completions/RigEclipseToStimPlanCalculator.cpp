@@ -71,6 +71,53 @@ void RigEclipseToStimPlanCalculator::computeValues()
     auto reservoirCellIndicesOpenForFlow =
         RimFractureContainmentTools::reservoirCellIndicesOpenForFlow( m_case, m_fracture );
 
+    auto resultValueAtIJ =
+        []( const std::vector<std::vector<double>>& values, const RigFractureGrid& fractureGrid, size_t i, size_t j ) {
+            if ( values.empty() ) return HUGE_VAL;
+
+            size_t adjustedI = i + 1;
+            size_t adjustedJ = j + 1;
+
+            if ( adjustedI >= fractureGrid.iCellCount() + 1 || adjustedJ >= fractureGrid.jCellCount() + 1 )
+                return HUGE_VAL;
+
+            return values[adjustedJ][adjustedI];
+        };
+
+    std::vector<std::vector<double>> injectivityFactors;
+    std::vector<std::vector<double>> viscosities;
+    std::vector<std::vector<double>> filterCakeMobilities;
+
+    RimThermalFractureTemplate* thermalFractureTemplate =
+        dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() );
+
+    if ( thermalFractureTemplate != nullptr )
+    {
+        auto   unitSystem = thermalFractureTemplate->fractureDefinition()->unitSystem();
+        size_t timeStep   = thermalFractureTemplate->activeTimeStepIndex();
+
+        injectivityFactors =
+            thermalFractureTemplate
+                ->resultValues( RiaDefines::injectivityFactorResultName(),
+                                RiaDefines::getExpectedThermalFractureUnit( RiaDefines::injectivityFactorResultName(),
+                                                                            unitSystem ),
+
+                                timeStep );
+
+        viscosities = thermalFractureTemplate
+                          ->resultValues( RiaDefines::viscosityResultName(),
+                                          RiaDefines::getExpectedThermalFractureUnit( RiaDefines::viscosityResultName(),
+                                                                                      unitSystem ),
+                                          timeStep );
+
+        filterCakeMobilities =
+            thermalFractureTemplate
+                ->resultValues( RiaDefines::filterCakeMobilityResultName(),
+                                RiaDefines::getExpectedThermalFractureUnit( RiaDefines::filterCakeMobilityResultName(),
+                                                                            unitSystem ),
+                                timeStep );
+    }
+
     for ( size_t i = 0; i < m_fractureGrid.fractureCells().size(); i++ )
     {
         const RigFractureCell& fractureCell = m_fractureGrid.fractureCells()[i];
@@ -78,46 +125,14 @@ void RigEclipseToStimPlanCalculator::computeValues()
 
         std::unique_ptr<RigEclipseToStimPlanCellTransmissibilityCalculator> eclToFractureTransCalc;
 
-        if ( dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() ) != nullptr )
+        if ( thermalFractureTemplate != nullptr )
         {
-            RimThermalFractureTemplate* thermalFractureTemplate =
-                dynamic_cast<RimThermalFractureTemplate*>( m_fracture->fractureTemplate() );
+            size_t cellI = fractureCell.getI();
+            size_t cellJ = fractureCell.getJ();
 
-            size_t timeStep   = thermalFractureTemplate->activeTimeStepIndex();
-            int    cellI      = fractureCell.getI();
-            int    cellJ      = fractureCell.getJ();
-            auto   unitSystem = thermalFractureTemplate->fractureDefinition()->unitSystem();
-
-            double injectivityFactor =
-                thermalFractureTemplate
-                    ->resultValueAtIJ( &m_fractureGrid,
-                                       RiaDefines::injectivityFactorResultName(),
-                                       RiaDefines::getExpectedThermalFractureUnit( RiaDefines::injectivityFactorResultName(),
-                                                                                   unitSystem ),
-
-                                       timeStep,
-                                       cellI,
-                                       cellJ );
-            double viscosity =
-                thermalFractureTemplate
-                    ->resultValueAtIJ( &m_fractureGrid,
-                                       RiaDefines::viscosityResultName(),
-                                       RiaDefines::getExpectedThermalFractureUnit( RiaDefines::viscosityResultName(),
-                                                                                   unitSystem ),
-
-                                       timeStep,
-                                       cellI,
-                                       cellJ );
-
-            double filterCakeMobility =
-                thermalFractureTemplate
-                    ->resultValueAtIJ( &m_fractureGrid,
-                                       RiaDefines::filterCakeMobilityResultName(),
-                                       RiaDefines::getExpectedThermalFractureUnit( RiaDefines::filterCakeMobilityResultName(),
-                                                                                   unitSystem ),
-                                       timeStep,
-                                       cellI,
-                                       cellJ );
+            double injectivityFactor  = resultValueAtIJ( injectivityFactors, m_fractureGrid, cellI, cellJ );
+            double viscosity          = resultValueAtIJ( viscosities, m_fractureGrid, cellI, cellJ );
+            double filterCakeMobility = resultValueAtIJ( filterCakeMobilities, m_fractureGrid, cellI, cellJ );
 
             // Assumed value
             double relativePermeability = 1.0;
