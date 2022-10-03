@@ -227,6 +227,8 @@ void RimStimPlanFractureTemplate::loadDataAndUpdate()
 //--------------------------------------------------------------------------------------------------
 QStringList RimStimPlanFractureTemplate::conductivityResultNames() const
 {
+    if ( m_stimPlanFractureDefinitionData.isNull() ) return QStringList();
+
     return m_stimPlanFractureDefinitionData->conductivityResultNames();
 }
 
