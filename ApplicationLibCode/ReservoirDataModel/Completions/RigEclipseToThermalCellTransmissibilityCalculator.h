@@ -52,7 +52,7 @@ public:
         const RigFractureCell&                             stimPlanCell,
         const RimFracture*                                 fracture,
         RimThermalFractureTemplate::FilterCakePressureDrop filterCakePressureDrop,
-        double                                             injectvityDecline,
+        double                                             injectvityFactor,
         double                                             filterCakeMobility,
         double                                             viscosity,
         double                                             relativePermeability );
@@ -61,7 +61,7 @@ protected:
     double calculateTransmissibility( const cvf::Vec3d& transmissibilityVector, double fractureArea ) override;
 
     RimThermalFractureTemplate::FilterCakePressureDrop m_filterCakePressureDrop;
-    double                                             m_injectivityDecline;
+    double                                             m_injectivityFactor;
     double                                             m_filterCakeMobility;
     double                                             m_viscosity;
     double                                             m_relativePermeability;
