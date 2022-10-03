@@ -33,13 +33,13 @@ RigEclipseToThermalCellTransmissibilityCalculator::RigEclipseToThermalCellTransm
     const RigFractureCell&                             stimPlanCell,
     const RimFracture*                                 fracture,
     RimThermalFractureTemplate::FilterCakePressureDrop filterCakePressureDrop,
-    double                                             injectivityDecline,
+    double                                             injectivityFactor,
     double                                             filterCakeMobility,
     double                                             viscosity,
     double                                             relativePermeability )
     : RigEclipseToStimPlanCellTransmissibilityCalculator( caseToApply, fractureTransform, skinFactor, cDarcy, stimPlanCell, fracture )
     , m_filterCakePressureDrop( filterCakePressureDrop )
-    , m_injectivityDecline( injectivityDecline )
+    , m_injectivityFactor( injectivityFactor )
     , m_filterCakeMobility( filterCakeMobility )
     , m_viscosity( viscosity )
     , m_relativePermeability( relativePermeability )
@@ -56,7 +56,7 @@ double RigEclipseToThermalCellTransmissibilityCalculator::calculateTransmissibil
 
     if ( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::RELATIVE )
     {
-        return m_injectivityDecline * fractureMatrixTransimissibility;
+        return m_injectivityFactor * fractureMatrixTransimissibility;
     }
     else if ( m_filterCakePressureDrop == RimThermalFractureTemplate::FilterCakePressureDrop::ABSOLUTE )
     {

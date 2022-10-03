@@ -88,11 +88,11 @@ void RigEclipseToStimPlanCalculator::computeValues()
             int    cellJ      = fractureCell.getJ();
             auto   unitSystem = thermalFractureTemplate->fractureDefinition()->unitSystem();
 
-            double injectivityDecline =
+            double injectivityFactor =
                 thermalFractureTemplate
                     ->resultValueAtIJ( &m_fractureGrid,
-                                       RiaDefines::injectivityDeclineResultName(),
-                                       RiaDefines::getExpectedThermalFractureUnit( RiaDefines::injectivityDeclineResultName(),
+                                       RiaDefines::injectivityFactorResultName(),
+                                       RiaDefines::getExpectedThermalFractureUnit( RiaDefines::injectivityFactorResultName(),
                                                                                    unitSystem ),
 
                                        timeStep,
@@ -131,7 +131,7 @@ void RigEclipseToStimPlanCalculator::computeValues()
                                                                                      fractureCell,
                                                                                      m_fracture,
                                                                                      filterPressureDropType,
-                                                                                     injectivityDecline,
+                                                                                     injectivityFactor,
                                                                                      filterCakeMobility,
                                                                                      viscosity,
                                                                                      relativePermeability );

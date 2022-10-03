@@ -60,9 +60,9 @@ QString filterCakeMobilityResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString injectivityDeclineResultName()
+QString injectivityFactorResultName()
 {
-    return "InjectivityDecline";
+    return "InjectivityFactor";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ QString getExpectedThermalFractureUnit( const QString& name, RiaDefines::Eclipse
           { "EffectiveResStress", { "bar", "psi" } },
           { "EffectiveFracStress", { "bar", "psi" } },
           { RiaDefines::leakoffPressureDropResultName(), { "bar", "psi" } },
-          { RiaDefines::injectivityDeclineResultName(), { "factor", "factor" } },
+          { RiaDefines::injectivityFactorResultName(), { "factor", "factor" } },
           { RiaDefines::filterCakeMobilityResultName(), { "m/day/bar", "ft/day/psi" } } };
 
     auto res = std::find_if( mapping.begin(), mapping.end(), [&]( const auto& val ) { return val.first == name; } );
