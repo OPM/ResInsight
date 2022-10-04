@@ -115,8 +115,10 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
             project->activeOilField() ? project->activeOilField()->summaryCaseMainCollection() : nullptr;
         if ( sumCaseColl )
         {
-            std::vector<RimSummaryCase*> newSumCases = sumCaseColl->createSummaryCasesFromFileInfos( summaryFileInfos );
-            for ( RimSummaryCase* newSumCase : newSumCases )
+            std::vector<RimSummaryCase*> candidateCases = sumCaseColl->createSummaryCasesFromFileInfos( summaryFileInfos );
+            std::vector<RimSummaryCase*> duplicatedCases;
+
+            for ( RimSummaryCase* newSumCase : candidateCases )
             {
                 RimSummaryCaseCollection* existingCollection = nullptr;
                 QString                   gridCaseFile =
@@ -130,7 +132,7 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                     auto* existingFileSummaryCase = dynamic_cast<RimFileSummaryCase*>( existingSummaryCase );
                     if ( existingGridSummaryCase )
                     {
-                        delete newSumCase; // No need to add anything new. Already have one.
+                        duplicatedCases.push_back( newSumCase );
                         continue;
                     }
                     else if ( existingFileSummaryCase )
@@ -183,7 +185,8 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
 
                         // Remove existing case
                         sumCaseColl->removeCase( existingFileSummaryCase );
-                        delete existingFileSummaryCase;
+
+                        duplicatedCases.push_back( existingFileSummaryCase );
                     }
                 }
                 if ( existingCollection )
@@ -197,10 +200,25 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
                 sumCaseColl->updateAllRequiredEditors();
             }
 
-            if ( !newSumCases.empty() )
+            // Delete cases that already was present
+            for ( auto duplicateCase : duplicatedCases )
             {
-                RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { newSumCases.front() }, {} );
-                RiuPlotMainWindowTools::setExpanded( newSumCases.front() );
+                for ( auto& candidate : candidateCases )
+                {
+                    if ( candidate == duplicateCase )
+                    {
+                        delete candidate;
+                        candidate = nullptr;
+                    }
+                }
+            }
+            candidateCases.erase( std::remove( candidateCases.begin(), candidateCases.end(), nullptr ),
+                                  candidateCases.end() );
+
+            if ( !candidateCases.empty() )
+            {
+                RicSummaryPlotBuilder::createAndAppendDefaultSummaryMultiPlot( { candidateCases.front() }, {} );
+                RiuPlotMainWindowTools::setExpanded( candidateCases.front() );
             }
         }
     }
