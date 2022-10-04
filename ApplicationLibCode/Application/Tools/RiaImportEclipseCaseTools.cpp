@@ -203,17 +203,10 @@ bool RiaImportEclipseCaseTools::openEclipseCasesFromFile( const QStringList&    
             // Delete cases that already was present
             for ( auto duplicateCase : duplicatedCases )
             {
-                for ( auto& candidate : candidateCases )
-                {
-                    if ( candidate == duplicateCase )
-                    {
-                        delete candidate;
-                        candidate = nullptr;
-                    }
-                }
+                candidateCases.erase( std::remove( candidateCases.begin(), candidateCases.end(), duplicateCase ),
+                                      candidateCases.end() );
+                delete duplicateCase;
             }
-            candidateCases.erase( std::remove( candidateCases.begin(), candidateCases.end(), nullptr ),
-                                  candidateCases.end() );
 
             if ( !candidateCases.empty() )
             {
