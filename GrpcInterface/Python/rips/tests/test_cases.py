@@ -221,6 +221,7 @@ def test_selected_cells(rips_instance, initialize_test):
         soil_results = case.selected_cell_property("DYNAMIC_NATIVE", "SOIL", tidx)
         assert len(soil_results) == 0
 
+
 def test_multiple_load_of_same_case(rips_instance, initialize_test):
     # Test related to issue https://github.com/OPM/ResInsight/issues/9332
     path_name = dataroot.PATH + "/flow_diagnostics_test/SIMPLE_SUMMARY2.EGRID"
