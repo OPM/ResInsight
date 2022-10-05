@@ -28,6 +28,8 @@
 
 #include "RivWellFracturePartMgr.h"
 
+#include "cafAssert.h"
+
 #include <cmath>
 
 //--------------------------------------------------------------------------------------------------
@@ -123,6 +125,7 @@ double RigStimPlanFractureDefinition::bottomPerfTvd() const
 //--------------------------------------------------------------------------------------------------
 double RigStimPlanFractureDefinition::minY() const
 {
+    CAF_ASSERT( !m_Ys.empty() );
     return m_Ys[0];
 }
 
@@ -131,6 +134,7 @@ double RigStimPlanFractureDefinition::minY() const
 //--------------------------------------------------------------------------------------------------
 double RigStimPlanFractureDefinition::maxY() const
 {
+    CAF_ASSERT( !m_Ys.empty() );
     return m_Ys.back();
 }
 
