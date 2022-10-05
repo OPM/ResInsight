@@ -53,7 +53,11 @@ public:
 
     void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
-    std::map<int, int> branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep );
+    std::map<int, int> branchIdsAndOneBasedIndices( const QString&            wellName,
+                                                    const QDateTime&          timeStep,
+                                                    RiaDefines::RftBranchType branchType );
+
+    RifRftSegment segmentForWell( const QString& wellName, const QDateTime& timeStep );
 
 private:
     // Segment data

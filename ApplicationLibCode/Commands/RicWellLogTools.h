@@ -80,6 +80,7 @@ public:
     static RimWellLogCurve* addSummaryRftCurve( RimWellLogTrack* plotTrack, RimSummaryCase* rimCase );
     static RimWellLogCurve* addSummaryRftSegmentCurve( RimWellLogTrack*          plotTrack,
                                                        const QString&            resultName,
+                                                       const QString&            wellName,
                                                        RiaDefines::RftBranchType branchType,
                                                        RimSummaryCase*           rimCase );
 

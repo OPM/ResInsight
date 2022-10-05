@@ -58,9 +58,10 @@ public:
     std::vector<int>   tubingBranchIds() const;
     std::vector<int>   branchIds() const;
     int                oneBasedBranchIndexForBranchId( int branchId ) const;
-    std::map<int, int> branchIdsAndOneBasedBranchIndices() const;
+    std::map<int, int> branchIdsAndOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const;
 
     const RifRftSegmentData* segmentData( int segmentNumber ) const;
+    const RifRftSegmentData* segmentDataByIndex( int segmentIndex ) const;
 
     void createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex );
 
@@ -70,10 +71,12 @@ public:
 
     RiaDefines::RftBranchType branchType( int branchId ) const;
 
-    std::vector<size_t> indicesForBranchNumber( int branchNumber ) const;
-    std::vector<size_t> indicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
+    std::vector<size_t> segmentIndicesForBranchNumber( int branchNumber ) const;
+    std::vector<size_t> segmentIndicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
 
     std::vector<int> segmentNumbersForBranchIndex( int oneBasedBranchIndex, RiaDefines::RftBranchType branchType ) const;
+
+    std::set<int> uniqueOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const;
 
 private:
     std::vector<RifRftSegmentData>             m_topology;

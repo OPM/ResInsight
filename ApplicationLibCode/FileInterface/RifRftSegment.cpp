@@ -21,6 +21,8 @@
 #include <algorithm>
 #include <unordered_set>
 
+#include "cvfAssert.h"
+
 //--------------------------------------------------------------------------------------------------
 /// segnxt : Int ID for the next segment
 /// brno   : Branch ID number
@@ -162,9 +164,21 @@ int RifRftSegment::oneBasedBranchIndexForBranchId( int branchId ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, int> RifRftSegment::branchIdsAndOneBasedBranchIndices() const
+std::map<int, int> RifRftSegment::branchIdsAndOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const
 {
-    return m_oneBasedBranchIndexMap;
+    std::map<int, int> mapForBranchType;
+
+    // find all branch ids for the given branch type
+
+    for ( const auto& [branchId, branchIndex] : m_oneBasedBranchIndexMap )
+    {
+        if ( branchType == RiaDefines::RftBranchType::RFT_UNKNOWN || this->branchType( branchId ) == branchType )
+        {
+            mapForBranchType[branchId] = branchIndex;
+        }
+    }
+
+    return mapForBranchType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -178,6 +192,16 @@ const RifRftSegmentData* RifRftSegment::segmentData( int segmentNumber ) const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+const RifRftSegmentData* RifRftSegment::segmentDataByIndex( int segmentIndex ) const
+{
+    CVF_ASSERT( segmentIndex < m_topology.size() );
+
+    return &( m_topology[segmentIndex] );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -235,7 +259,7 @@ RiaDefines::RftBranchType RifRftSegment::branchType( int branchId ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RifRftSegment::indicesForBranchNumber( int branchNumber ) const
+std::vector<size_t> RifRftSegment::segmentIndicesForBranchNumber( int branchNumber ) const
 {
     std::vector<size_t> v;
     for ( size_t i = 0; i < m_topology.size(); i++ )
@@ -253,7 +277,7 @@ std::vector<size_t> RifRftSegment::indicesForBranchNumber( int branchNumber ) co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<size_t> RifRftSegment::indicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const
+std::vector<size_t> RifRftSegment::segmentIndicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const
 {
     std::vector<size_t> v;
     for ( size_t i = 0; i < m_topology.size(); i++ )
@@ -287,11 +311,26 @@ std::vector<int> RifRftSegment::segmentNumbersForBranchIndex( int               
 {
     std::vector<int> v;
 
-    auto indices = indicesForBranchIndex( oneBasedBranchIndex, branchType );
+    auto indices = segmentIndicesForBranchIndex( oneBasedBranchIndex, branchType );
     for ( auto index : indices )
     {
         v.push_back( m_topology[index].segNo() );
     }
 
     return v;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::set<int> RifRftSegment::uniqueOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const
+{
+    std::set<int> indices;
+
+    for ( const auto [branchId, branchIndex] : m_oneBasedBranchIndexMap )
+    {
+        indices.insert( branchIndex );
+    }
+
+    return indices;
 }

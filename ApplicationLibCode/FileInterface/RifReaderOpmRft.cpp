@@ -81,7 +81,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
         {
             auto data = segment.topology();
 
-            auto indices = segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+            auto indices =
+                segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
             for ( const auto& i : indices )
             {
                 CAF_ASSERT( i < data.size() );
@@ -145,8 +146,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 }
                 else
                 {
-                    auto indices =
-                        segment.indicesForBranchIndex( rftAddress.segmentBranchIndex(), rftAddress.segmentBranchType() );
+                    auto indices = segment.segmentIndicesForBranchIndex( rftAddress.segmentBranchIndex(),
+                                                                         rftAddress.segmentBranchType() );
                     for ( const auto& i : indices )
                     {
                         CAF_ASSERT( i < data.size() );
@@ -289,7 +290,9 @@ void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep )
+std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString&            wellName,
+                                                                 const QDateTime&          timeStep,
+                                                                 RiaDefines::RftBranchType branchType )
 {
     int y = timeStep.date().year();
     int m = timeStep.date().month();
@@ -299,7 +302,25 @@ std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString& 
     if ( m_rftWellDateSegments.count( key ) > 0 )
     {
         auto segment = m_rftWellDateSegments[key];
-        return segment.branchIdsAndOneBasedBranchIndices();
+        return segment.branchIdsAndOneBasedBranchIndices( branchType );
+    }
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RifRftSegment RifReaderOpmRft::segmentForWell( const QString& wellName, const QDateTime& timeStep )
+{
+    int y = timeStep.date().year();
+    int m = timeStep.date().month();
+    int d = timeStep.date().day();
+
+    auto key = std::make_pair( wellName.toStdString(), RftDate{ y, m, d } );
+    if ( m_rftWellDateSegments.count( key ) > 0 )
+    {
+        return m_rftWellDateSegments[key];
     }
 
     return {};
@@ -593,7 +614,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
 
             std::vector<int> segmentNumbers;
 
-            auto indices = segmentRef.indicesForBranchNumber( id );
+            auto indices = segmentRef.segmentIndicesForBranchNumber( id );
             for ( auto i : indices )
             {
                 minimumMD = std::min( minimumMD, seglenstValues[i] );
@@ -674,7 +695,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
             auto branchType = segmentRef.branchType( branchId );
             if ( branchType == RiaDefines::RftBranchType::RFT_ANNULUS )
             {
-                auto segmentIndices = segmentRef.indicesForBranchNumber( branchId );
+                auto segmentIndices = segmentRef.segmentIndicesForBranchNumber( branchId );
                 if ( segmentIndices.empty() ) continue;
 
                 auto firstSegmentIndex      = segmentIndices.front();
