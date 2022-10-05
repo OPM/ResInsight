@@ -105,6 +105,7 @@ std::vector<RimWellPathAttribute*>
 void RimRftWellCompletionTrack::configureForWellPath()
 {
     createCurves();
+    return;
 
     if ( m_summaryCase )
     {
@@ -286,6 +287,8 @@ void RimRftWellCompletionTrack::createCurves()
             }
         }
     }
+
+    // loadDataAndUpdate();
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -21,9 +21,13 @@
 #include "RiaSummaryTools.h"
 
 #include "RifReaderOpmRft.h"
+#include "RigWellLogCurveData.h"
+
 #include "RimProject.h"
 #include "RimRftTools.h"
 #include "RimSummaryCase.h"
+
+#include "RiuPlotCurve.h"
 
 CAF_PDM_SOURCE_INIT( RimRftTopologyCurve, "RimRftTopologyCurve" );
 
@@ -148,6 +152,9 @@ void RimRftTopologyCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
                                             const QVariant&            oldValue,
                                             const QVariant&            newValue )
 {
+    RimWellLogCurve::fieldChangedByUi( changedField, oldValue, newValue );
+
+    this->loadDataAndUpdate( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -155,6 +162,8 @@ void RimRftTopologyCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFi
 //--------------------------------------------------------------------------------------------------
 void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
+    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+
     if ( m_summaryCase )
     {
         auto rftReader = dynamic_cast<RifReaderOpmRft*>( m_summaryCase->rftReader() );
@@ -197,9 +206,11 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     for ( auto segmentIndex : segmentIndices )
                     {
                         depths.push_back( seglenstValues[segmentIndex] );
-                        propertyValues.push_back( myValue + segmentIndex );
-
                         depths.push_back( seglenenValues[segmentIndex] );
+
+                        // propertyValues.push_back( myValue + segmentIndex );
+
+                        propertyValues.push_back( myValue );
                         propertyValues.push_back( myValue );
                     }
 
@@ -215,6 +226,20 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                                                 depthUnit,
                                                 isExtractionCurve,
                                                 useLogarithmicScale );
+
+                    setPropertyAndDepthValuesToPlotCurve( propertyValues, depths );
+
+                    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
+
+                    if ( updateParentPlot )
+                    {
+                        updateZoomInParentPlot();
+                    }
+
+                    if ( m_parentPlot )
+                    {
+                        m_parentPlot->replot();
+                    }
                 }
             }
         }
