@@ -29,6 +29,9 @@ class RicPlaceThermalFractureUsingTemplateDataFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
 
+public:
+    static bool placeUsingTemplateData( RimWellPathFracture* fracture );
+
 protected:
     void onActionTriggered( bool isChecked ) override;
     void setupActionLook( QAction* actionToSetup ) override;
