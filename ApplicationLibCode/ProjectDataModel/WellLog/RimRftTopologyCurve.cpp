@@ -93,7 +93,9 @@ QString RimRftTopologyCurve::wellLogChannelUnits() const
 //--------------------------------------------------------------------------------------------------
 QString RimRftTopologyCurve::createCurveAutoName()
 {
-    return "Topology curve auto name";
+    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) return "Annulus";
+    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) return "Device";
+    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) return "Tubing";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,13 +103,27 @@ QString RimRftTopologyCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimRftTopologyCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimWellLogCurve::defineUiOrdering( uiConfigName, uiOrdering );
+    RimPlotCurve::updateOptionSensitivity();
 
-    uiOrdering.add( &m_summaryCase );
-    uiOrdering.add( &m_wellName );
-    uiOrdering.add( &m_timeStep );
-    uiOrdering.add( &m_segmentBranchIndex );
-    uiOrdering.add( &m_segmentBranchType );
+    caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Data Source" );
+    curveDataGroup->add( &m_summaryCase );
+    curveDataGroup->add( &m_wellName );
+    curveDataGroup->add( &m_timeStep );
+    curveDataGroup->add( &m_segmentBranchIndex );
+    curveDataGroup->add( &m_segmentBranchType );
+
+    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
+    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
+
+    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
+    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
+
+    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
+    nameGroup->setCollapsedByDefault();
+    nameGroup->add( &m_showLegend );
+    RimPlotCurve::curveNameUiOrdering( *nameGroup );
+
+    uiOrdering.skipRemainingFields( true );
 }
 
 //--------------------------------------------------------------------------------------------------

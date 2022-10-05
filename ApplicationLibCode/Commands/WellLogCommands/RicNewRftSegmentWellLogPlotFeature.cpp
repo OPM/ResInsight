@@ -43,6 +43,7 @@
 #include <QAction>
 
 #include "RifReaderOpmRft.h"
+#include "RimRftTopologyCurve.h"
 #include "RimRftWellCompletionTrack.h"
 #include <vector>
 
@@ -131,24 +132,56 @@ void RicNewRftSegmentWellLogPlotFeature::appendWellCompletionTrack( RimWellLogPl
                                                                     const QString&  wellName,
                                                                     RimSummaryCase* summaryCase )
 {
-    // Add well log track
-    auto track = new RimRftWellCompletionTrack();
-    plot->addPlot( track );
-
-    track->setDescription( "Well Completions" );
-    track->setLegendsVisible( true );
-    track->setShowWellPathAttributes( true );
-
-    plot->loadDataAndUpdate();
-    plot->zoomAll();
-
     auto      rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
     auto      timeSteps = rftReader->availableTimeSteps( wellName );
     QDateTime dateTime;
     if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
 
     int branchIndex = 1;
-    track->setDataSource( summaryCase, dateTime, wellName, branchIndex );
+
+    // Default track type with custom curves
+    {
+        auto track = new RimWellLogTrack();
+
+        plot->addPlot( track );
+
+        {
+            auto tubingCurve = new RimRftTopologyCurve;
+            tubingCurve->setDataSource( summaryCase, dateTime, wellName, 1, RiaDefines::RftBranchType::RFT_TUBING );
+            track->addCurve( tubingCurve );
+        }
+        {
+            auto tubingCurve = new RimRftTopologyCurve;
+            tubingCurve->setDataSource( summaryCase, dateTime, wellName, 1, RiaDefines::RftBranchType::RFT_DEVICE );
+            track->addCurve( tubingCurve );
+        }
+        {
+            auto tubingCurve = new RimRftTopologyCurve;
+            tubingCurve->setDataSource( summaryCase, dateTime, wellName, 1, RiaDefines::RftBranchType::RFT_ANNULUS );
+            track->addCurve( tubingCurve );
+        }
+    }
+
+    {
+        // Add well log track
+        auto track = new RimRftWellCompletionTrack();
+        plot->addPlot( track );
+
+        track->setDescription( "Well Completions" );
+        track->setLegendsVisible( true );
+        track->setShowWellPathAttributes( true );
+
+        plot->loadDataAndUpdate();
+        plot->zoomAll();
+
+        auto      rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
+        auto      timeSteps = rftReader->availableTimeSteps( wellName );
+        QDateTime dateTime;
+        if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
+
+        int branchIndex = 1;
+        track->setDataSource( summaryCase, dateTime, wellName, branchIndex );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
