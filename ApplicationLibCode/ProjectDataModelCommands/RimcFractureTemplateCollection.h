@@ -43,3 +43,21 @@ public:
 private:
     caf::PdmField<QString> m_filePath;
 };
+
+//==================================================================================================
+///
+//==================================================================================================
+class RimcFractureTemplateCollection_appendThermalFractureTemplate : public caf::PdmObjectMethod
+{
+    CAF_PDM_HEADER_INIT;
+
+public:
+    RimcFractureTemplateCollection_appendThermalFractureTemplate( caf::PdmObjectHandle* self );
+
+    caf::PdmObjectHandle*            execute() override;
+    bool                             resultIsPersistent() const override;
+    std::unique_ptr<PdmObjectHandle> defaultResult() const override;
+
+private:
+    caf::PdmField<QString> m_filePath;
+};

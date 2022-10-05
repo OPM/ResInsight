@@ -45,14 +45,22 @@ void RicPlaceThermalFractureUsingTemplateDataFeature::onActionTriggered( bool is
 
     if ( !fracture->fractureTemplate() ) return;
 
+    placeUsingTemplateData( fracture );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RicPlaceThermalFractureUsingTemplateDataFeature::placeUsingTemplateData( RimWellPathFracture* fracture )
+{
     RimThermalFractureTemplate* thermalTemplate = dynamic_cast<RimThermalFractureTemplate*>( fracture->fractureTemplate() );
-    if ( !thermalTemplate ) return;
+    if ( !thermalTemplate ) return false;
 
     RimWellPath* wellPath = nullptr;
     fracture->firstAncestorOrThisOfTypeAsserted( wellPath );
 
     auto wellPathGeometry = wellPath->wellPathGeometry();
-    if ( !wellPathGeometry ) return;
+    if ( !wellPathGeometry ) return false;
 
     auto [centerPosition, rotation] = thermalTemplate->computePositionAndRotation();
 
@@ -77,6 +85,7 @@ void RicPlaceThermalFractureUsingTemplateDataFeature::onActionTriggered( bool is
     fracture->updateConnectedEditors();
     RimProject* project = RimProject::current();
     project->reloadCompletionTypeResultsInAllViews();
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------
