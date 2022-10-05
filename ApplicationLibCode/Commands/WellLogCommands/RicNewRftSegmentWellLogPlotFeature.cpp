@@ -99,6 +99,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     }
 
     appendWellCompletionTrack( plot, wellName, summaryCase );
+    plot->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::onObjectAppended( plot );
 }
@@ -163,6 +164,8 @@ void RicNewRftSegmentWellLogPlotFeature::appendWellCompletionTrack( RimWellLogPl
             tubingCurve->applyDefaultAppearance();
             track->addCurve( tubingCurve );
         }
+
+        track->updateAllRequiredEditors();
     }
 }
 
