@@ -18,9 +18,11 @@
 
 #include "RimRftTopologyCurve.h"
 
+#include "RiaColorTables.h"
 #include "RiaSummaryTools.h"
 
 #include "RifReaderOpmRft.h"
+
 #include "RigWellLogCurveData.h"
 
 #include "RimProject.h"
@@ -67,6 +69,20 @@ void RimRftTopologyCurve::setDataSource( RimSummaryCase*           summaryCase,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimRftTopologyCurve::setDataSource( RimSummaryCase*  summaryCase,
+                                         const QDateTime& timeStep,
+                                         const QString&   wellName,
+                                         int              segmentBranchIndex )
+{
+    m_summaryCase        = summaryCase;
+    m_timeStep           = timeStep;
+    m_wellName           = wellName;
+    m_segmentBranchIndex = segmentBranchIndex;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimRftTopologyCurve::wellName() const
 {
     return "Topology curve";
@@ -93,9 +109,15 @@ QString RimRftTopologyCurve::wellLogChannelUnits() const
 //--------------------------------------------------------------------------------------------------
 QString RimRftTopologyCurve::createCurveAutoName()
 {
-    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) return "Annulus";
-    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) return "Device";
-    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) return "Tubing";
+    QString text;
+
+    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) text += "Annulus";
+    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) text += "Device";
+    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) text += "Tubing";
+
+    text += QString( " (%1)" ).arg( m_segmentBranchIndex() );
+
+    return text;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -219,12 +241,12 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) myValue = 3.0;
                     if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) myValue = 4.0;
 
+                    myValue += m_segmentBranchIndex() * 0.2;
+
                     for ( auto segmentIndex : segmentIndices )
                     {
                         depths.push_back( seglenstValues[segmentIndex] );
                         depths.push_back( seglenenValues[segmentIndex] );
-
-                        // propertyValues.push_back( myValue + segmentIndex );
 
                         propertyValues.push_back( myValue );
                         propertyValues.push_back( myValue );
@@ -260,4 +282,30 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTopologyCurve::applyDefaultAppearance()
+{
+    auto color = cvf::Color3f( 0.0f, 0.0f, 1.0f );
+    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING )
+    {
+        color = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f( 0 );
+    }
+    else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
+    {
+        color = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f( 1 );
+        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+    }
+    else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS )
+    {
+        color = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f( 2 );
+        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+    }
+
+    setColor( color );
+    setLineThickness( 5.0 );
+    setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
 }

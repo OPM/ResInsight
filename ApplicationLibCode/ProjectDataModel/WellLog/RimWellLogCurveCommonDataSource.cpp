@@ -29,6 +29,7 @@
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRftTools.h"
+#include "RimRftTopologyCurve.h"
 #include "RimSummaryCase.h"
 #include "RimTools.h"
 #include "RimWellFlowRateCurve.h"
@@ -532,6 +533,7 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
         auto* extractionCurve  = dynamic_cast<RimWellLogExtractionCurve*>( curve );
         auto* measurementCurve = dynamic_cast<RimWellMeasurementCurve*>( curve );
         auto* rftCurve         = dynamic_cast<RimWellLogRftCurve*>( curve );
+        auto* topologyCurve    = dynamic_cast<RimRftTopologyCurve*>( curve );
         if ( fileCurve )
         {
             if ( wellPathToApply() != nullptr )
@@ -638,6 +640,10 @@ void RimWellLogCurveCommonDataSource::applyDataSourceChanges( const std::vector<
             RimWellLogPlot* parentPlot = nullptr;
             rftCurve->firstAncestorOrThisOfTypeAsserted( parentPlot );
             plots.insert( parentPlot );
+        }
+        else if ( topologyCurve )
+        {
+            topologyCurve->setDataSource( m_summaryCase, m_rftTimeStep, m_rftWellName, m_rftSegmentBranchIndex );
         }
 
         curve->updateConnectedEditors();

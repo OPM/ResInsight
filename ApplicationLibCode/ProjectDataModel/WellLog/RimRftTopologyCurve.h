@@ -44,6 +44,10 @@ public:
                         int                       segmentBranchIndex,
                         RiaDefines::RftBranchType branchType );
 
+    void setDataSource( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName, int segmentBranchIndex );
+
+    void applyDefaultAppearance();
+
     QString wellName() const override;
     QString wellLogChannelUiName() const override;
     QString wellLogChannelUnits() const override;
