@@ -20,12 +20,13 @@
 #include "FractureCommands/RicFractureNameGenerator.h"
 #include "FractureCommands/RicNewStimPlanFractureTemplateFeature.h"
 #include "FractureCommands/RicNewStimPlanModelFeature.h"
+#include "FractureCommands/RicNewThermalFractureTemplateFeature.h"
 
 #include "RimEclipseCase.h"
 #include "RimFractureTemplate.h"
-
 #include "RimFractureTemplateCollection.h"
 #include "RimStimPlanFractureTemplate.h"
+#include "RimThermalFractureTemplate.h"
 
 #include "cafPdmAbstractFieldScriptingCapability.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -77,4 +78,53 @@ bool RimcFractureTemplateCollection_appendFractureTemplate::resultIsPersistent()
 std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_appendFractureTemplate::defaultResult() const
 {
     return std::unique_ptr<caf::PdmObjectHandle>( new RimStimPlanFractureTemplate );
+}
+
+CAF_PDM_OBJECT_METHOD_SOURCE_INIT( RimFractureTemplateCollection,
+                                   RimcFractureTemplateCollection_appendThermalFractureTemplate,
+                                   "AppendThermalFractureTemplate" );
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimcFractureTemplateCollection_appendThermalFractureTemplate::RimcFractureTemplateCollection_appendThermalFractureTemplate(
+    caf::PdmObjectHandle* self )
+    : caf::PdmObjectMethod( self )
+{
+    CAF_PDM_InitObject( "Create Fracture Template", "", "", "Create a new Thermal Fracture Template" );
+    CAF_PDM_InitScriptableFieldNoDefault( &m_filePath, "FilePath", "", "", "", "File Path to Thermal Fracture CSV File" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+caf::PdmObjectHandle* RimcFractureTemplateCollection_appendThermalFractureTemplate::execute()
+{
+    RimFractureTemplateCollection* fractureTemplateCollection = self<RimFractureTemplateCollection>();
+
+    bool reuseExistingTemplatesWithMatchingNames = false;
+    auto newTemplates =
+        RicNewThermalFractureTemplateFeature::createNewTemplatesFromFiles( { m_filePath },
+                                                                           reuseExistingTemplatesWithMatchingNames );
+
+    if ( newTemplates.empty() ) return nullptr;
+
+    fractureTemplateCollection->updateAllRequiredEditors();
+    return newTemplates[0];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimcFractureTemplateCollection_appendThermalFractureTemplate::resultIsPersistent() const
+{
+    return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unique_ptr<caf::PdmObjectHandle> RimcFractureTemplateCollection_appendThermalFractureTemplate::defaultResult() const
+{
+    return std::unique_ptr<caf::PdmObjectHandle>( new RimThermalFractureTemplate );
 }
