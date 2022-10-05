@@ -29,11 +29,9 @@ well_name = "F-1 H"
 well_path = project.well_path_by_name(well_name)
 print("well path:", well_path.name)
 
-#print("Placing thermal fracture at {} depth (MD)))
+# print("Placing thermal fracture at {} depth (MD)))
 # Create stim plan  at a give measured depth
 fracture = well_path.add_thermal_fracture(
     fracture_template=fracture_template,
     place_using_template_data=True,
 )
-
-
