@@ -18,6 +18,8 @@
 
 #include "RimWellLogRftCurve.h"
 
+#include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
@@ -176,6 +178,8 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitField( &m_segmentResultName, "SegmentResultName", RiaResultNames::undefinedResultName(), "Result Name" );
     CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Branch" );
     CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
+
+    CAF_PDM_InitField( &m_curveColorByPhase, "CurveColorByPhase", false, "Color by Phase" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,6 +445,58 @@ void RimWellLogRftCurve::setSimWellBranchData( bool branchDetection, int branchI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::enableColorFromResultName( bool enable )
+{
+    m_curveColorByPhase = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::assingColorFromResultName( const QString& resultName )
+{
+    bool water = false;
+    bool gas   = false;
+    bool oil   = false;
+
+    if ( resultName.startsWith( "SEGO" ) || resultName.startsWith( "CONO" ) )
+    {
+        oil = true;
+    }
+    else if ( resultName.startsWith( "SEGW" ) || resultName.startsWith( "CONW" ) )
+    {
+        water = true;
+    }
+    else if ( resultName.startsWith( "SEGG" ) || resultName.startsWith( "CONG" ) )
+    {
+        gas = true;
+    }
+
+    if ( !water && !gas && !oil ) return;
+
+    cvf::Color3f color;
+    if ( gas )
+    {
+        color = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f( 0 );
+    }
+    else if ( oil )
+    {
+        color = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f( 0 );
+    }
+    else if ( water )
+    {
+        color = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
+    }
+
+    float scalingFactor = 0.5;
+    auto  fillColor     = RiaColorTools::makeLighter( color, scalingFactor );
+    setColor( color );
+    setFillColor( fillColor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()
 {
     QStringList name;
@@ -503,6 +559,11 @@ QString RimWellLogRftCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
+    if ( m_curveColorByPhase && m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )
+    {
+        assingColorFromResultName( m_segmentResultName );
+    }
+
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     DerivedMDSource derivedMDSource = DerivedMDSource::NO_SOURCE;
@@ -712,6 +773,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         curveDataGroup->add( &m_segmentResultName );
         curveDataGroup->add( &m_segmentBranchType );
         curveDataGroup->add( &m_segmentBranchIndex );
+        curveDataGroup->add( &m_curveColorByPhase );
     }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );

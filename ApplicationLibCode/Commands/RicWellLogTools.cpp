@@ -516,6 +516,10 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*   
     RifEclipseRftAddress adr =
         RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
     curve->setRftAddress( adr );
+    curve->enableColorFromResultName( true );
+    curve->assingColorFromResultName( resultName );
+    curve->setLineThickness( 4 );
+    curve->setFillStyle( Qt::SolidPattern );
 
     curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
 

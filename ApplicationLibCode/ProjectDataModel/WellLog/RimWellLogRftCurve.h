@@ -98,6 +98,9 @@ public:
 
     void setSimWellBranchData( bool branchDetection, int branchIndex );
 
+    void enableColorFromResultName( bool enable );
+    void assingColorFromResultName( const QString& resultName );
+
 protected:
     // Overrides from RimWellLogPlotCurve
     QString               createCurveAutoName() override;
@@ -142,6 +145,7 @@ private:
     caf::PdmField<QString>                      m_wellName;
     caf::PdmField<int>                          m_branchIndex;
     caf::PdmField<bool>                         m_branchDetection;
+    caf::PdmField<bool>                         m_curveColorByPhase;
 
     caf::PdmField<caf::AppEnum<RimWellLogRftCurve::RftDataType>> m_rftDataType;
 

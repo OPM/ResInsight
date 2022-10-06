@@ -82,9 +82,9 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 
     QString resultName = "SEGGRAT";
 
-    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_TUBING,
+    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_ANNULUS,
                                                         RiaDefines::RftBranchType::RFT_DEVICE,
-                                                        RiaDefines::RftBranchType::RFT_ANNULUS };
+                                                        RiaDefines::RftBranchType::RFT_TUBING };
 
     for ( auto branchType : branchTypes )
     {
