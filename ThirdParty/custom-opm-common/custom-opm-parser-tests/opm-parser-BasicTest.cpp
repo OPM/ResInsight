@@ -11,6 +11,8 @@
 
 #include <opm/input/eclipse/Parser/ParserKeywords/V.hpp>
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
 
 #include "OpmTestDataDirectory.h"
 
@@ -87,15 +89,17 @@ TEST(OpmParserTest, ReadFromFile)
 TEST(OpmParserTest, ReadAndParseWSEGLINK)
 {
     Parser parser(false);
-    const ::Opm::ParserKeywords::WSEGLINK kw1;
 
-    parser.addParserKeyword(kw1);
+	const Opm::ParserKeywords::WSEGLINK kw1;
+	const Opm::ParserKeywords::INCLUDE  kw2;
 
-    std::stringstream ss;
-    ss << TEST_DATA_DIR << "/test_wseglink.DATA";
-    std::string testFile = ss.str();
+	parser.addParserKeyword(kw1);
+	parser.addParserKeyword(kw2);
 
-    auto deck = parser.parseFile(testFile);
+	std::string testFilePath = std::string(TEST_DATA_DIR) + "/test_wseglink.DATA";
+	
+	Opm::ParseContext parseContext(Opm::InputError::Action::WARN);
+	auto              deck = parser.parseFile(testFilePath, parseContext);
 
     std::string myKeyword = "WSEGLINK";
     auto keywordList = deck.getKeywordList(myKeyword);
