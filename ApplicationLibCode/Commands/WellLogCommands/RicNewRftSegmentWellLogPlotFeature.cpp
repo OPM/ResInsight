@@ -82,23 +82,16 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 
     QString resultName = "SEGGRAT";
 
-    {
-        auto branchType = RiaDefines::RftBranchType::RFT_TUBING;
+    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_TUBING,
+                                                        RiaDefines::RftBranchType::RFT_DEVICE,
+                                                        RiaDefines::RftBranchType::RFT_ANNULUS };
 
-        appendTrackAndCurveForBranchType( plot, resultName, wellName, branchType, summaryCase );
-    }
+    for ( auto branchType : branchTypes )
     {
-        auto branchType = RiaDefines::RftBranchType::RFT_DEVICE;
-
-        appendTrackAndCurveForBranchType( plot, resultName, wellName, branchType, summaryCase );
-    }
-    {
-        auto branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
-
         appendTrackAndCurveForBranchType( plot, resultName, wellName, branchType, summaryCase );
     }
 
-    appendWellCompletionTrack( plot, wellName, summaryCase );
+    appendTopologyTrack( plot, wellName, summaryCase );
     plot->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::onObjectAppended( plot );
@@ -129,44 +122,38 @@ void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogPlotFeature::appendWellCompletionTrack( RimWellLogPlot* plot,
-                                                                    const QString&  wellName,
-                                                                    RimSummaryCase* summaryCase )
+void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* plot,
+                                                              const QString&  wellName,
+                                                              RimSummaryCase* summaryCase )
 {
-    auto      rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
-    auto      timeSteps = rftReader->availableTimeSteps( wellName );
     QDateTime dateTime;
-    if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
+    int       branchIndex = 1;
 
-    int branchIndex = 1;
-
-    // Default track type with custom curves
+    auto rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
+    if ( rftReader )
     {
-        auto track = new RimWellLogTrack();
-
-        plot->addPlot( track );
-
-        {
-            auto tubingCurve = new RimRftTopologyCurve;
-            tubingCurve->setDataSource( summaryCase, dateTime, wellName, branchIndex, RiaDefines::RftBranchType::RFT_TUBING );
-            tubingCurve->applyDefaultAppearance();
-            track->addCurve( tubingCurve );
-        }
-        {
-            auto tubingCurve = new RimRftTopologyCurve;
-            tubingCurve->setDataSource( summaryCase, dateTime, wellName, branchIndex, RiaDefines::RftBranchType::RFT_DEVICE );
-            tubingCurve->applyDefaultAppearance();
-            track->addCurve( tubingCurve );
-        }
-        {
-            auto tubingCurve = new RimRftTopologyCurve;
-            tubingCurve->setDataSource( summaryCase, dateTime, wellName, branchIndex, RiaDefines::RftBranchType::RFT_ANNULUS );
-            tubingCurve->applyDefaultAppearance();
-            track->addCurve( tubingCurve );
-        }
-
-        track->updateAllRequiredEditors();
+        auto timeSteps = rftReader->availableTimeSteps( wellName );
+        if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
     }
+
+    auto track = new RimWellLogTrack();
+    track->setDescription( "Topology" );
+
+    plot->addPlot( track );
+
+    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_TUBING,
+                                                        RiaDefines::RftBranchType::RFT_DEVICE,
+                                                        RiaDefines::RftBranchType::RFT_ANNULUS };
+
+    for ( auto branchType : branchTypes )
+    {
+        auto curve = new RimRftTopologyCurve;
+        curve->setDataSource( summaryCase, dateTime, wellName, branchIndex, branchType );
+        curve->applyDefaultAppearance();
+        track->addCurve( curve );
+    }
+
+    track->updateAllRequiredEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

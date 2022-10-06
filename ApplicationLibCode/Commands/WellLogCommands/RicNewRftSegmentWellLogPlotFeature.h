@@ -44,5 +44,5 @@ private:
                                            RiaDefines::RftBranchType branchType,
                                            RimSummaryCase*           summaryCase );
 
-    void appendWellCompletionTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
+    void appendTopologyTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
 };

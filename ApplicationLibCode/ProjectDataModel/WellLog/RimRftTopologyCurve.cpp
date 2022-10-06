@@ -59,11 +59,9 @@ void RimRftTopologyCurve::setDataSource( RimSummaryCase*           summaryCase,
                                          int                       segmentBranchIndex,
                                          RiaDefines::RftBranchType branchType )
 {
-    m_summaryCase        = summaryCase;
-    m_timeStep           = timeStep;
-    m_wellName           = wellName;
-    m_segmentBranchIndex = segmentBranchIndex;
-    m_segmentBranchType  = branchType;
+    setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
+
+    m_segmentBranchType = branchType;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -209,75 +207,62 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
         // Update well path attributes, packers and casing based on RFT data
         if ( rftReader )
         {
-            auto segment = rftReader->segmentForWell( m_wellName, m_timeStep );
+            std::vector<double> seglenstValues;
+            std::vector<double> seglenenValues;
 
+            auto resultNameSeglenst = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENST" );
+            rftReader->values( resultNameSeglenst, &seglenstValues );
+
+            auto resultNameSeglenen = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENEN" );
+            rftReader->values( resultNameSeglenen, &seglenenValues );
+
+            auto segment        = rftReader->segmentForWell( m_wellName, m_timeStep );
+            auto segmentIndices = segment.segmentIndicesForBranchIndex( m_segmentBranchIndex(), m_segmentBranchType() );
+            if ( !segmentIndices.empty() )
             {
-                std::vector<double> seglenstValues;
-                std::vector<double> seglenenValues;
+                std::vector<double> depths;
+                std::vector<double> propertyValues;
+
+                double myValue = 1.0;
+                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) myValue = 2.0;
+                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) myValue = 3.0;
+                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) myValue = 4.0;
+
+                myValue += m_segmentBranchIndex() * 0.2;
+
+                for ( auto segmentIndex : segmentIndices )
                 {
-                    auto resultName = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENST" );
+                    depths.push_back( seglenstValues[segmentIndex] );
+                    depths.push_back( seglenenValues[segmentIndex] );
 
-                    rftReader->values( resultName, &seglenstValues );
-
-                    //                     if ( seglenstValues.size() > 2 )
-                    //                     {
-                    //                         seglenstValues[0] = seglenstValues[1];
-                    //                     }
+                    propertyValues.push_back( myValue );
+                    propertyValues.push_back( myValue );
                 }
-                {
-                    auto resultName = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENEN" );
 
-                    rftReader->values( resultName, &seglenenValues );
+                RiaDefines::DepthUnitType depthUnit           = RiaDefines::DepthUnitType::UNIT_METER;
+                QString                   xUnits              = RiaWellLogUnitTools<double>::noUnitString();
+                bool                      isExtractionCurve   = false;
+                bool                      useLogarithmicScale = false;
+
+                setPropertyValuesAndDepths( propertyValues,
+                                            depths,
+                                            RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
+                                            0.0,
+                                            depthUnit,
+                                            isExtractionCurve,
+                                            useLogarithmicScale );
+
+                // Assign curve values based on horizontal or vertical plot
+                setPropertyAndDepthValuesToPlotCurve( propertyValues, depths );
+
+                if ( updateParentPlot )
+                {
+                    updateZoomInParentPlot();
                 }
 
-                auto segmentIndices = segment.segmentIndicesForBranchIndex( m_segmentBranchIndex(), m_segmentBranchType() );
-                if ( !segmentIndices.empty() )
+                if ( m_parentPlot )
                 {
-                    std::vector<double> depths;
-                    std::vector<double> propertyValues;
-
-                    double myValue = 1.0;
-                    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) myValue = 2.0;
-                    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) myValue = 3.0;
-                    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) myValue = 4.0;
-
-                    myValue += m_segmentBranchIndex() * 0.2;
-
-                    for ( auto segmentIndex : segmentIndices )
-                    {
-                        depths.push_back( seglenstValues[segmentIndex] );
-                        depths.push_back( seglenenValues[segmentIndex] );
-
-                        propertyValues.push_back( myValue );
-                        propertyValues.push_back( myValue );
-                    }
-
-                    RiaDefines::DepthUnitType depthUnit           = RiaDefines::DepthUnitType::UNIT_METER;
-                    QString                   xUnits              = RiaWellLogUnitTools<double>::noUnitString();
-                    bool                      isExtractionCurve   = false;
-                    bool                      useLogarithmicScale = false;
-
-                    setPropertyValuesAndDepths( propertyValues,
-                                                depths,
-                                                RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                                0.0,
-                                                depthUnit,
-                                                isExtractionCurve,
-                                                useLogarithmicScale );
-
-                    setPropertyAndDepthValuesToPlotCurve( propertyValues, depths );
-
-                    this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
-
-                    if ( updateParentPlot )
-                    {
-                        updateZoomInParentPlot();
-                    }
-
-                    if ( m_parentPlot )
-                    {
-                        m_parentPlot->replot();
-                    }
+                    m_parentPlot->replot();
                 }
             }
         }
