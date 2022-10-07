@@ -144,7 +144,11 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     setAxisEnabled( QwtAxis::XTop, !isVertical );
     setAxisEnabled( QwtAxis::XBottom, isVertical );
 
-    new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
+    auto pointTracker = new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
+    if ( isVertical )
+        pointTracker->enableHorizontalLine();
+    else
+        pointTracker->enableVerticalLine();
 }
 
 //--------------------------------------------------------------------------------------------------

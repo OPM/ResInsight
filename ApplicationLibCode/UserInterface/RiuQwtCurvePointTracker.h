@@ -37,6 +37,10 @@ public:
                                       RiuPlotCurveInfoTextProvider* curveInfoTextProvider = nullptr );
     ~RiuQwtCurvePointTracker() override;
 
+    void enableHorizontalLine();
+    void enableVerticalLine();
+    void disableLines();
+
 protected:
     bool eventFilter( QObject*, QEvent* ) override;
     void removeMarkerOnFocusLeave();
