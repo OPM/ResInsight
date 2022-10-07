@@ -331,15 +331,26 @@ RifRftSegment RifReaderOpmRft::segmentForWell( const QString& wellName, const QD
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::readWseglink( const std::string& filePath )
 {
-    m_wseglink = RiaOpmParserTools::extractWseglink( filePath );
+    if ( filePath.empty() ) return;
 
+    QString text = QString( "Scanning for WSEGLINK data in %1\n" ).arg( QString::fromStdString( filePath ) );
+
+    m_wseglink = RiaOpmParserTools::extractWseglink( filePath );
     if ( !m_wseglink.empty() )
     {
-        QString text = QString( "Imported segment data from %1\n" ).arg( QString::fromStdString( filePath ) );
-        text += QString( "Number of wells: %1\n" ).arg( m_wseglink.size() );
+        text += "Imported WSEGLINK data from well(s):\n";
 
-        RiaLogging::info( text );
+        for ( auto [wellName, links] : m_wseglink )
+        {
+            text += "  " + QString::fromStdString( wellName ) + "\n";
+        }
     }
+    else
+    {
+        text += QString( "  No WSEGLINK data found." );
+    }
+
+    RiaLogging::info( text );
 }
 
 //--------------------------------------------------------------------------------------------------
