@@ -662,6 +662,32 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
             segmentRef.setBranchType( id, branchType );
         }
 
+        identifyAnnulusBranches( segmentRef, seglenstValues );
+
+        // The tubing branches are given increasing branch indices. If a tubing branch is categorized as a annulus
+        // branch, the index values must be reassigned. Each triplet of tubing/device/annulus have a unique branch index.
+        {
+            auto tubingBranchIds = segmentRef.tubingBranchIds();
+
+            size_t oneBasedBranchIndex = 1;
+
+            std::map<size_t, size_t> newOneBasedBranchIndex;
+            for ( auto branchId : tubingBranchIds )
+            {
+                auto previsousIndex                    = segmentRef.oneBasedBranchIndexForBranchId( branchId );
+                newOneBasedBranchIndex[previsousIndex] = oneBasedBranchIndex++;
+            }
+
+            for ( auto branchId : segmentRef.branchIds() )
+            {
+                auto branchIndex = segmentRef.oneBasedBranchIndexForBranchId( branchId );
+                if ( newOneBasedBranchIndex.count( branchIndex ) )
+                {
+                    segmentRef.setOneBasedBranchIndex( branchId, newOneBasedBranchIndex.at( branchIndex ) );
+                }
+            }
+        }
+
         auto tubingBranchIds = segmentRef.tubingBranchIds();
 
         for ( auto& segment : segmentRef.topology() )
@@ -710,6 +736,74 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
                     {
                         segmentRef.setOneBasedBranchIndex( branchId, branchIndex );
                     }
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::identifyAnnulusBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues )
+{
+    // If no WESEGLINK data is present, compare the location of the last N segments of two tubing branches. If the
+    // difference is correct, mark candidate branch as annulus branch instead of tubing.
+
+    if ( m_wseglink.empty() )
+    {
+        auto tubingIds = segmentRef.tubingBranchIds();
+
+        std::map<size_t, std::vector<double>> seglenstForBranch;
+
+        for ( auto branchId : tubingIds )
+        {
+            std::vector<double> values;
+
+            auto indices = segmentRef.segmentIndicesForBranchNumber( branchId );
+            for ( auto i : indices )
+            {
+                values.push_back( seglenstValues[i] );
+            }
+
+            seglenstForBranch[branchId] = values;
+        }
+
+        std::set<size_t> annulusBranchIds;
+
+        for ( auto branchAId : tubingIds )
+        {
+            if ( annulusBranchIds.count( branchAId ) ) continue;
+
+            for ( auto candidateBranchBId : tubingIds )
+            {
+                if ( candidateBranchBId == branchAId ) continue;
+                if ( annulusBranchIds.count( candidateBranchBId ) ) continue;
+
+                auto branchAValues = seglenstForBranch.at( branchAId );
+                auto branchBValues = seglenstForBranch.at( candidateBranchBId );
+
+                double lastAValue = branchAValues.back();
+                double lastBValue = branchBValues.back();
+
+                double diff = lastBValue - lastAValue;
+
+                const double epsilon               = 1e-3;
+                const double distanceTubingAnnulus = 0.1;
+                if ( std::fabs( ( std::fabs( diff ) - distanceTubingAnnulus ) ) < epsilon )
+                {
+                    size_t annulusBranchId = 0;
+                    if ( diff > 0 )
+                    {
+                        annulusBranchId = candidateBranchBId;
+                    }
+                    else
+                    {
+                        annulusBranchId = branchAId;
+                    }
+
+                    segmentRef.setBranchType( annulusBranchId, RiaDefines::RftBranchType::RFT_ANNULUS );
+                    annulusBranchIds.insert( annulusBranchId );
                 }
             }
         }
