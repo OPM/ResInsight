@@ -90,23 +90,21 @@ TEST(OpmParserTest, ReadAndParseWSEGLINK)
 {
     Parser parser(false);
 
-	const Opm::ParserKeywords::WSEGLINK kw1;
-	const Opm::ParserKeywords::INCLUDE  kw2;
+    const Opm::ParserKeywords::WSEGLINK kw1;
+    const Opm::ParserKeywords::INCLUDE  kw2;
 
-	parser.addParserKeyword(kw1);
-	parser.addParserKeyword(kw2);
+    parser.addParserKeyword(kw1);
+    parser.addParserKeyword(kw2);
 
-	std::string testFilePath = std::string(TEST_DATA_DIR) + "/test_wseglink.DATA";
-	
-	Opm::ParseContext parseContext(Opm::InputError::Action::WARN);
-	auto              deck = parser.parseFile(testFilePath, parseContext);
+    std::string testFilePath = std::string(TEST_DATA_DIR) + "/test_wseglink.DATA";
+    
+    Opm::ParseContext parseContext(Opm::InputError::Action::WARN);
+    auto              deck = parser.parseFile(testFilePath, parseContext);
 
     std::string myKeyword = "WSEGLINK";
     auto keywordList = deck.getKeywordList(myKeyword);
     for (auto kw : keywordList)
     {
-        auto name = kw->name();
-            
         for (size_t i = 0; i < kw->size(); i++)
         {
             auto deckRecord = kw->getRecord(i);

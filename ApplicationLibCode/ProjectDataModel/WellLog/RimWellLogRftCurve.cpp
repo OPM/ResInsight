@@ -453,40 +453,25 @@ void RimWellLogRftCurve::enableColorFromResultName( bool enable )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogRftCurve::assingColorFromResultName( const QString& resultName )
+void RimWellLogRftCurve::assignColorFromResultName( const QString& resultName )
 {
-    bool water = false;
-    bool gas   = false;
-    bool oil   = false;
+    cvf::Color3f color = cvf::Color3f::BLACK;
 
     if ( resultName.startsWith( "SEGO" ) || resultName.startsWith( "CONO" ) )
     {
-        oil = true;
+        color = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f( 0 );
     }
     else if ( resultName.startsWith( "SEGW" ) || resultName.startsWith( "CONW" ) )
     {
-        water = true;
+        color = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
     }
     else if ( resultName.startsWith( "SEGG" ) || resultName.startsWith( "CONG" ) )
     {
-        gas = true;
-    }
-
-    if ( !water && !gas && !oil ) return;
-
-    cvf::Color3f color;
-    if ( gas )
-    {
         color = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f( 0 );
     }
-    else if ( oil )
-    {
-        color = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f( 0 );
-    }
-    else if ( water )
-    {
-        color = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
-    }
+
+    // Do nothing if not phase is identified
+    if ( color == cvf::Color3f::BLACK ) return;
 
     float scalingFactor = 0.5;
     auto  fillColor     = RiaColorTools::makeLighter( color, scalingFactor );
@@ -561,7 +546,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     if ( m_curveColorByPhase && m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )
     {
-        assingColorFromResultName( m_segmentResultName );
+        assignColorFromResultName( m_segmentResultName );
     }
 
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );

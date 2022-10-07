@@ -611,122 +611,19 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
         values( resultName, &seglenenValues );
     }
 
-    int oneBasedBranchIndex = 1;
-
     if ( !seglenenValues.empty() && !seglenstValues.empty() )
     {
-        // Find tubing and annulus branch types
-
-        auto branchIds = segmentRef.branchIds();
-        for ( auto id : branchIds )
-        {
-            double minimumMD = std::numeric_limits<double>::max();
-            double maximumMD = std::numeric_limits<double>::min();
-
-            std::vector<int> segmentNumbers;
-
-            auto indices = segmentRef.segmentIndicesForBranchNumber( id );
-            for ( auto i : indices )
-            {
-                minimumMD = std::min( minimumMD, seglenstValues[i] );
-                maximumMD = std::max( maximumMD, seglenenValues[i] );
-                segmentNumbers.push_back( segmentRef.topology()[i].segNo() );
-            }
-
-            double length = maximumMD - minimumMD;
-
-            segmentRef.setBranchLength( id, length );
-
-            RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
-
-            bool hasFoundAnnulusBranch = false;
-
-            auto annulusSegments = annulusSegmentsForWell( wellName );
-
-            std::vector<int> matchingSegments;
-            std::set_intersection( segmentNumbers.begin(),
-                                   segmentNumbers.end(),
-                                   annulusSegments.begin(),
-                                   annulusSegments.end(),
-                                   std::inserter( matchingSegments, matchingSegments.end() ) );
-
-            if ( !matchingSegments.empty() )
-            {
-                {
-                    branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
-
-                    // NOTE: Assign branch index after device branch is detected
-                    hasFoundAnnulusBranch = true;
-                }
-            }
-
-            if ( !hasFoundAnnulusBranch )
-            {
-                const double tubingThreshold = 1.0;
-                if ( length > tubingThreshold )
-                {
-                    branchType = RiaDefines::RftBranchType::RFT_TUBING;
-                    segmentRef.setOneBasedBranchIndex( id, oneBasedBranchIndex++ );
-                }
-            }
-
-            segmentRef.setBranchType( id, branchType );
-        }
-
+        identifyTubingCandidateBranches( segmentRef, wellName, seglenstValues, seglenenValues );
         identifyAnnulusBranches( segmentRef, seglenstValues );
 
-        // The tubing branches are given increasing branch indices. If a tubing branch is categorized as a annulus
-        // branch, the index values must be reassigned. Each triplet of tubing/device/annulus have a unique branch index.
-        {
-            auto tubingBranchIds = segmentRef.tubingBranchIds();
+        // The tubing branches are given increasing branch indices. If a tubing branch is categorized as an annulus
+        // branch, the index values must be reassigned. Each triplet of tubing/device/annulus has a unique branch index.
+        reassignBranchIndices( segmentRef );
 
-            size_t oneBasedBranchIndex = 1;
-
-            std::map<size_t, size_t> newOneBasedBranchIndex;
-            for ( auto branchId : tubingBranchIds )
-            {
-                auto previsousIndex                    = segmentRef.oneBasedBranchIndexForBranchId( branchId );
-                newOneBasedBranchIndex[previsousIndex] = oneBasedBranchIndex++;
-            }
-
-            for ( auto branchId : segmentRef.branchIds() )
-            {
-                auto branchIndex = segmentRef.oneBasedBranchIndexForBranchId( branchId );
-                if ( newOneBasedBranchIndex.count( branchIndex ) )
-                {
-                    segmentRef.setOneBasedBranchIndex( branchId, newOneBasedBranchIndex.at( branchIndex ) );
-                }
-            }
-        }
-
-        auto tubingBranchIds = segmentRef.tubingBranchIds();
-
-        for ( auto& segment : segmentRef.topology() )
-        {
-            auto segmentBranchId = segment.segBrno();
-            auto it              = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), segmentBranchId );
-            if ( it == tubingBranchIds.end() )
-            {
-                auto tubingSegmentNumber = segment.segNext();
-
-                auto tubingSegmentData = segmentRef.segmentData( tubingSegmentNumber );
-                if ( tubingSegmentData != nullptr )
-                {
-                    auto it = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), tubingSegmentData->segBrno() );
-                    if ( it != tubingBranchIds.end() )
-                    {
-                        // Find all connected segments that is not assigned a branch type, and mark as device
-                        // layer
-
-                        auto tubingBranchIndex = segmentRef.oneBasedBranchIndexForBranchId( tubingSegmentData->segBrno() );
-                        segmentRef.createDeviceBranch( segment.segNo(), tubingBranchIndex, seglenstValues );
-                    }
-                }
-            }
-        }
+        identifyDeviceBranches( segmentRef, seglenstValues );
 
         // Assign branch index to annulus branches
-
+        auto branchIds = segmentRef.branchIds();
         for ( auto branchId : branchIds )
         {
             auto branchType = segmentRef.branchType( branchId );
@@ -750,6 +647,74 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
                 }
             }
         }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::identifyTubingCandidateBranches( RifRftSegment&             segmentRef,
+                                                       const std::string&         wellName,
+                                                       const std::vector<double>& seglenstValues,
+                                                       const std::vector<double>& seglenenValues )
+{
+    int oneBasedBranchIndex = 1;
+
+    auto branchIds = segmentRef.branchIds();
+    for ( auto id : branchIds )
+    {
+        double minimumMD = std::numeric_limits<double>::max();
+        double maximumMD = std::numeric_limits<double>::min();
+
+        std::vector<int> segmentNumbers;
+
+        auto indices = segmentRef.segmentIndicesForBranchNumber( id );
+        for ( auto i : indices )
+        {
+            minimumMD = std::min( minimumMD, seglenstValues[i] );
+            maximumMD = std::max( maximumMD, seglenenValues[i] );
+            segmentNumbers.push_back( segmentRef.topology()[i].segNo() );
+        }
+
+        double length = maximumMD - minimumMD;
+
+        segmentRef.setBranchLength( id, length );
+
+        RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_UNKNOWN;
+
+        bool hasFoundAnnulusBranch = false;
+
+        // If WESEGLINK is imported, get annulus segments for well
+        auto annulusSegments = annulusSegmentsForWell( wellName );
+
+        std::vector<int> matchingSegments;
+        std::set_intersection( segmentNumbers.begin(),
+                               segmentNumbers.end(),
+                               annulusSegments.begin(),
+                               annulusSegments.end(),
+                               std::inserter( matchingSegments, matchingSegments.end() ) );
+
+        if ( !matchingSegments.empty() )
+        {
+            {
+                branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
+
+                // NOTE: Assign branch index after device branch is detected
+                hasFoundAnnulusBranch = true;
+            }
+        }
+
+        if ( !hasFoundAnnulusBranch )
+        {
+            const double tubingThreshold = 1.0;
+            if ( length > tubingThreshold )
+            {
+                branchType = RiaDefines::RftBranchType::RFT_TUBING;
+                segmentRef.setOneBasedBranchIndex( id, oneBasedBranchIndex++ );
+            }
+        }
+
+        segmentRef.setBranchType( id, branchType );
     }
 }
 
@@ -782,39 +747,88 @@ void RifReaderOpmRft::identifyAnnulusBranches( RifRftSegment& segmentRef, const 
 
         std::set<size_t> annulusBranchIds;
 
-        for ( auto branchAId : tubingIds )
+        for ( auto branchId : tubingIds )
         {
-            if ( annulusBranchIds.count( branchAId ) ) continue;
+            if ( annulusBranchIds.count( branchId ) ) continue;
 
-            for ( auto candidateBranchBId : tubingIds )
+            for ( auto candidateBranchId : tubingIds )
             {
-                if ( candidateBranchBId == branchAId ) continue;
-                if ( annulusBranchIds.count( candidateBranchBId ) ) continue;
+                if ( candidateBranchId == branchId ) continue;
+                if ( annulusBranchIds.count( candidateBranchId ) ) continue;
 
-                auto branchAValues = seglenstForBranch.at( branchAId );
-                auto branchBValues = seglenstForBranch.at( candidateBranchBId );
+                auto branchValues    = seglenstForBranch.at( branchId );
+                auto candidateValues = seglenstForBranch.at( candidateBranchId );
 
-                double lastAValue = branchAValues.back();
-                double lastBValue = branchBValues.back();
+                double lastBranchValue    = branchValues.back();
+                double lastCandidateValue = candidateValues.back();
 
-                double diff = lastBValue - lastAValue;
+                double diff = lastCandidateValue - lastBranchValue;
 
                 const double epsilon               = 1e-3;
                 const double distanceTubingAnnulus = 0.1;
                 if ( std::fabs( ( std::fabs( diff ) - distanceTubingAnnulus ) ) < epsilon )
                 {
-                    size_t annulusBranchId = 0;
-                    if ( diff > 0 )
-                    {
-                        annulusBranchId = candidateBranchBId;
-                    }
-                    else
-                    {
-                        annulusBranchId = branchAId;
-                    }
+                    size_t annulusBranchId = ( diff > 0 ) ? candidateBranchId : branchId;
 
                     segmentRef.setBranchType( annulusBranchId, RiaDefines::RftBranchType::RFT_ANNULUS );
                     annulusBranchIds.insert( annulusBranchId );
+                }
+            }
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::reassignBranchIndices( RifRftSegment& segmentRef )
+{
+    auto tubingBranchIds = segmentRef.tubingBranchIds();
+
+    size_t oneBasedBranchIndex = 1;
+
+    std::map<size_t, size_t> newOneBasedBranchIndex;
+    for ( auto branchId : tubingBranchIds )
+    {
+        auto previsousIndex                    = segmentRef.oneBasedBranchIndexForBranchId( branchId );
+        newOneBasedBranchIndex[previsousIndex] = oneBasedBranchIndex++;
+    }
+
+    for ( auto branchId : segmentRef.branchIds() )
+    {
+        auto branchIndex = segmentRef.oneBasedBranchIndexForBranchId( branchId );
+        if ( newOneBasedBranchIndex.count( branchIndex ) )
+        {
+            segmentRef.setOneBasedBranchIndex( branchId, newOneBasedBranchIndex.at( branchIndex ) );
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::identifyDeviceBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues )
+{
+    auto tubingBranchIds = segmentRef.tubingBranchIds();
+
+    for ( auto& segment : segmentRef.topology() )
+    {
+        auto segmentBranchId = segment.segBrno();
+        auto it              = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), segmentBranchId );
+        if ( it == tubingBranchIds.end() )
+        {
+            auto tubingSegmentNumber = segment.segNext();
+
+            auto tubingSegmentData = segmentRef.segmentData( tubingSegmentNumber );
+            if ( tubingSegmentData != nullptr )
+            {
+                auto it = std::find( tubingBranchIds.begin(), tubingBranchIds.end(), tubingSegmentData->segBrno() );
+                if ( it != tubingBranchIds.end() )
+                {
+                    // Find all connected segments that is not assigned a branch type, and mark as device layer
+
+                    auto tubingBranchIndex = segmentRef.oneBasedBranchIndexForBranchId( tubingSegmentData->segBrno() );
+                    segmentRef.createDeviceBranch( segment.segNo(), tubingBranchIndex, seglenstValues );
                 }
             }
         }

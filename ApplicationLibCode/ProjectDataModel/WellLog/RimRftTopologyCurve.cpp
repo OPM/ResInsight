@@ -25,9 +25,11 @@
 
 #include "RigWellLogCurveData.h"
 
+#include "RimDepthTrackPlot.h"
 #include "RimProject.h"
 #include "RimRftTools.h"
 #include "RimSummaryCase.h"
+#include "RimWellLogPlot.h"
 
 #include "RiuPlotCurve.h"
 
@@ -40,7 +42,7 @@ RimRftTopologyCurve::RimRftTopologyCurve()
 {
     CAF_PDM_InitObject( "RFT Topology Curve" );
 
-    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "CurveSummaryCase", "Summary Case" );
+    CAF_PDM_InitFieldNoDefault( &m_summaryCase, "SummaryCase", "Summary Case" );
     m_summaryCase.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_timeStep, "TimeStep", "Time Step" );
@@ -223,34 +225,33 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 std::vector<double> depths;
                 std::vector<double> propertyValues;
 
-                double myValue = 1.0;
-                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) myValue = 2.0;
-                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) myValue = 3.0;
-                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) myValue = 4.0;
+                // Assign a static property value to each type of curve to make sure they all are separated and easily
+                // visible
+                double curveValue = 1.0;
+                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) curveValue = 2.0;
+                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) curveValue = 3.0;
+                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) curveValue = 4.0;
 
-                myValue += m_segmentBranchIndex() * 0.2;
+                // Adjust the location of each branch if multiple branches are visible at the same time
+                curveValue += m_segmentBranchIndex() * 0.2;
 
                 for ( auto segmentIndex : segmentIndices )
                 {
                     depths.push_back( seglenstValues[segmentIndex] );
                     depths.push_back( seglenenValues[segmentIndex] );
 
-                    propertyValues.push_back( myValue );
-                    propertyValues.push_back( myValue );
+                    propertyValues.push_back( curveValue );
+                    propertyValues.push_back( curveValue );
                 }
 
-                RiaDefines::DepthUnitType depthUnit           = RiaDefines::DepthUnitType::UNIT_METER;
-                QString                   xUnits              = RiaWellLogUnitTools<double>::noUnitString();
-                bool                      isExtractionCurve   = false;
-                bool                      useLogarithmicScale = false;
+                RimDepthTrackPlot* wellLogPlot;
+                firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
-                setPropertyValuesAndDepths( propertyValues,
-                                            depths,
-                                            RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
-                                            0.0,
-                                            depthUnit,
-                                            isExtractionCurve,
-                                            useLogarithmicScale );
+                RimWellLogPlot::DepthTypeEnum depthType           = wellLogPlot->depthType();
+                RiaDefines::DepthUnitType     displayUnit         = wellLogPlot->depthUnit();
+                bool                          isExtractionCurve   = false;
+                bool                          useLogarithmicScale = false;
+                setPropertyValuesAndDepths( propertyValues, depths, depthType, 0.0, displayUnit, isExtractionCurve, useLogarithmicScale );
 
                 // Assign curve values based on horizontal or vertical plot
                 setPropertyAndDepthValuesToPlotCurve( propertyValues, depths );
@@ -274,7 +275,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimRftTopologyCurve::applyDefaultAppearance()
 {
-    auto color = cvf::Color3f( 0.0f, 0.0f, 1.0f );
+    cvf::Color3f color = cvf::Color3f::BLUE;
     if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING )
     {
         color = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f( 0 );

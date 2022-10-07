@@ -99,7 +99,7 @@ public:
     void setSimWellBranchData( bool branchDetection, int branchIndex );
 
     void enableColorFromResultName( bool enable );
-    void assingColorFromResultName( const QString& resultName );
+    void assignColorFromResultName( const QString& resultName );
 
 protected:
     // Overrides from RimWellLogPlotCurve
