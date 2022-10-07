@@ -207,8 +207,11 @@ const RifRftSegmentData* RifRftSegment::segmentDataByIndex( int segmentIndex ) c
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RifRftSegment::createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex )
+void RifRftSegment::createDeviceBranch( int                        deviceBranchFirstSegmentNumber,
+                                        int                        oneBasedBranchIndex,
+                                        const std::vector<double>& seglenstValues )
 {
+    double lastAssignedDeviceBranchDepth = -1.0;
     for ( auto& segData : m_topology )
     {
         if ( segData.segNo() < deviceBranchFirstSegmentNumber ) continue;
@@ -216,6 +219,13 @@ void RifRftSegment::createDeviceBranch( int deviceBranchFirstSegmentNumber, int 
         auto branchNumber = segData.segBrno();
         if ( branchType( branchNumber ) != RiaDefines::RftBranchType::RFT_UNKNOWN ) return;
 
+        auto segmentIndex = segmentIndexFromSegmentNumber( segData.segNo() );
+        if ( segmentIndex < 0 ) continue;
+
+        double candidateSegmentDepth = seglenstValues[segmentIndex];
+        if ( lastAssignedDeviceBranchDepth > -1.0 && lastAssignedDeviceBranchDepth > candidateSegmentDepth ) return;
+
+        lastAssignedDeviceBranchDepth = candidateSegmentDepth;
         setOneBasedBranchIndex( segData.segBrno(), oneBasedBranchIndex );
 
         setBranchType( segData.segBrno(), RiaDefines::RftBranchType::RFT_DEVICE );
@@ -333,4 +343,19 @@ std::set<int> RifRftSegment::uniqueOneBasedBranchIndices( RiaDefines::RftBranchT
     }
 
     return indices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RifRftSegment::segmentIndexFromSegmentNumber( int segmentNumber ) const
+{
+    for ( size_t i = 0; i < m_topology.size(); i++ )
+    {
+        auto segment = m_topology[i];
+
+        if ( segment.segNo() == segmentNumber ) return i;
+    }
+
+    return -1;
 }

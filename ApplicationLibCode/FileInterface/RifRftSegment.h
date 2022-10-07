@@ -63,7 +63,9 @@ public:
     const RifRftSegmentData* segmentData( int segmentNumber ) const;
     const RifRftSegmentData* segmentDataByIndex( int segmentIndex ) const;
 
-    void createDeviceBranch( int deviceBranchFirstSegmentNumber, int oneBasedBranchIndex );
+    void createDeviceBranch( int                        deviceBranchFirstSegmentNumber,
+                             int                        oneBasedBranchIndex,
+                             const std::vector<double>& seglenstValues );
 
     void setBranchLength( int branchId, double length );
     void setBranchType( int branchId, RiaDefines::RftBranchType branchType );
@@ -77,6 +79,9 @@ public:
     std::vector<int> segmentNumbersForBranchIndex( int oneBasedBranchIndex, RiaDefines::RftBranchType branchType ) const;
 
     std::set<int> uniqueOneBasedBranchIndices( RiaDefines::RftBranchType branchType ) const;
+
+private:
+    int segmentIndexFromSegmentNumber( int segmentNumber ) const;
 
 private:
     std::vector<RifRftSegmentData>             m_topology;

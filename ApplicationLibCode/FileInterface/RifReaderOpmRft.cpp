@@ -719,7 +719,7 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
                         // layer
 
                         auto tubingBranchIndex = segmentRef.oneBasedBranchIndexForBranchId( tubingSegmentData->segBrno() );
-                        segmentRef.createDeviceBranch( segment.segNo(), tubingBranchIndex );
+                        segmentRef.createDeviceBranch( segment.segNo(), tubingBranchIndex, seglenstValues );
                     }
                 }
             }
