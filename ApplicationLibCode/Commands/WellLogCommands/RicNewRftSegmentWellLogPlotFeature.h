@@ -40,6 +40,9 @@ private:
 
     void appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
                                            const QString&            resultName,
+                                           const QString&            wellName,
                                            RiaDefines::RftBranchType branchType,
                                            RimSummaryCase*           summaryCase );
+
+    void appendTopologyTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
 };

@@ -53,7 +53,11 @@ public:
 
     void cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices ) override;
 
-    std::map<int, int> branchIdsAndOneBasedIndices( const QString& wellName, const QDateTime& timeStep );
+    std::map<int, int> branchIdsAndOneBasedIndices( const QString&            wellName,
+                                                    const QDateTime&          timeStep,
+                                                    RiaDefines::RftBranchType branchType );
+
+    RifRftSegment segmentForWell( const QString& wellName, const QDateTime& timeStep );
 
 private:
     // Segment data
@@ -68,6 +72,13 @@ private:
     bool isOpen() const;
     void importWellNames();
     void buildSegmentBranchTypes( const RftSegmentKey& segmentKey );
+    void identifyTubingCandidateBranches( RifRftSegment&             segmentRef,
+                                          const std::string&         wellName,
+                                          const std::vector<double>& seglenstValues,
+                                          const std::vector<double>& seglenenValues );
+    void identifyAnnulusBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues );
+    void reassignBranchIndices( RifRftSegment& segmentRef );
+    void identifyDeviceBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues );
 
     std::vector<int> importWellData( const std::string& wellName, const std::string& propertyName, const RftDate& date ) const;
 

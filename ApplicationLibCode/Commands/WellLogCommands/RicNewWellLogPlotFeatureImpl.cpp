@@ -89,6 +89,7 @@ RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot()
 {
     auto plot = createWellLogPlot();
     plot->setDepthOrientation( RimDepthTrackPlot::DepthOrientation::HORIZONTAL );
+    plot->setLegendsHorizontal( true );
 
     return plot;
 }

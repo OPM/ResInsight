@@ -18,6 +18,8 @@
 
 #include "RimWellLogRftCurve.h"
 
+#include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaDefines.h"
 #include "RiaEclipseUnitTools.h"
 #include "RiaQDateTimeTools.h"
@@ -175,7 +177,9 @@ RimWellLogRftCurve::RimWellLogRftCurve()
 
     CAF_PDM_InitField( &m_segmentResultName, "SegmentResultName", RiaResultNames::undefinedResultName(), "Result Name" );
     CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Branch" );
-    CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Branch Type" );
+    CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
+
+    CAF_PDM_InitField( &m_curveColorByPhase, "CurveColorByPhase", false, "Color by Phase" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -441,6 +445,43 @@ void RimWellLogRftCurve::setSimWellBranchData( bool branchDetection, int branchI
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::enableColorFromResultName( bool enable )
+{
+    m_curveColorByPhase = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::assignColorFromResultName( const QString& resultName )
+{
+    cvf::Color3f color = cvf::Color3f::BLACK;
+
+    if ( resultName.startsWith( "SEGO" ) || resultName.startsWith( "CONO" ) )
+    {
+        color = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f( 0 );
+    }
+    else if ( resultName.startsWith( "SEGW" ) || resultName.startsWith( "CONW" ) )
+    {
+        color = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
+    }
+    else if ( resultName.startsWith( "SEGG" ) || resultName.startsWith( "CONG" ) )
+    {
+        color = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f( 0 );
+    }
+
+    // Do nothing if not phase is identified
+    if ( color == cvf::Color3f::BLACK ) return;
+
+    float scalingFactor = 0.5;
+    auto  fillColor     = RiaColorTools::makeLighter( color, scalingFactor );
+    setColor( color );
+    setFillColor( fillColor );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveAutoName()
 {
     QStringList name;
@@ -503,6 +544,11 @@ QString RimWellLogRftCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
+    if ( m_curveColorByPhase && m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )
+    {
+        assignColorFromResultName( m_segmentResultName );
+    }
+
     this->RimPlotCurve::updateCurvePresentation( updateParentPlot );
 
     DerivedMDSource derivedMDSource = DerivedMDSource::NO_SOURCE;
@@ -710,8 +756,9 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     else
     {
         curveDataGroup->add( &m_segmentResultName );
-        curveDataGroup->add( &m_segmentBranchIndex );
         curveDataGroup->add( &m_segmentBranchType );
+        curveDataGroup->add( &m_segmentBranchIndex );
+        curveDataGroup->add( &m_curveColorByPhase );
     }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
@@ -778,7 +825,7 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     }
     else if ( fieldNeedingOptions == &m_segmentBranchIndex )
     {
-        options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep() );
+        options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep(), m_segmentBranchType() );
     }
 
     return options;

@@ -499,6 +499,7 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftCurve( RimWellLogTrack* plotTrack
 //--------------------------------------------------------------------------------------------------
 RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*          plotTrack,
                                                              const QString&            resultName,
+                                                             const QString&            wellName,
                                                              RiaDefines::RftBranchType branchType,
                                                              RimSummaryCase*           rimCase )
 {
@@ -506,10 +507,6 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*   
 
     curve->setSummaryCase( rimCase );
     auto rftReader = rimCase->rftReader();
-
-    QString wellName;
-    auto    wellNames = rftReader->wellNames();
-    if ( !wellNames.empty() ) wellName = *wellNames.begin();
 
     QDateTime dateTime;
 
@@ -519,6 +516,10 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*   
     RifEclipseRftAddress adr =
         RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
     curve->setRftAddress( adr );
+    curve->enableColorFromResultName( true );
+    curve->assignColorFromResultName( resultName );
+    curve->setLineThickness( 4 );
+    curve->setFillStyle( Qt::SolidPattern );
 
     curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
 
