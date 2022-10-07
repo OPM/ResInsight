@@ -28,12 +28,9 @@ class RimSummaryCase;
 //==================================================================================================
 ///
 //==================================================================================================
-class RicNewRftSegmentWellLogPlotFeature : public caf::CmdFeature
+class RicNewMultiPhaseRftSegmentPlotFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
-
-public:
-    static void appendTopologyTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
 
 private:
     bool isCommandEnabled() override;
@@ -41,9 +38,9 @@ private:
 
     void setupActionLook( QAction* actionToSetup ) override;
 
-    void appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
-                                           const QString&            resultName,
-                                           const QString&            wellName,
-                                           RiaDefines::RftBranchType branchType,
-                                           RimSummaryCase*           summaryCase );
+    void appendTrackAndCurveForBranchType( RimWellLogPlot*             plot,
+                                           const std::vector<QString>& resultNames,
+                                           const QString&              wellName,
+                                           RiaDefines::RftBranchType   branchType,
+                                           RimSummaryCase*             summaryCase );
 };

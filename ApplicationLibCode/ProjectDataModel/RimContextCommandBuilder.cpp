@@ -1088,6 +1088,7 @@ caf::CmdFeatureMenuBuilder RimContextCommandBuilder::commandsFromSelection()
         {
             menuBuilder << "RicNewRftWellLogPlotFeature";
             menuBuilder << "RicNewRftSegmentWellLogPlotFeature";
+            menuBuilder << "RicNewMultiPhaseRftSegmentPlotFeature";
         }
 
         if ( dynamic_cast<Rim3dView*>( firstUiItem ) )
