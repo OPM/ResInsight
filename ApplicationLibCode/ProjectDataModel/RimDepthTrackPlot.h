@@ -20,6 +20,8 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaPlotDefines.h"
+
 #include "RimAbstractPlotCollection.h"
 #include "RimEnsembleWellLogStatistics.h"
 #include "RimPlot.h"
@@ -107,6 +109,9 @@ public:
     RimDepthTrackPlot::DepthOrientation depthOrientation() const;
     void                                setDepthOrientation( RimDepthTrackPlot::DepthOrientation depthOrientation );
 
+    RiaDefines::MultiPlotAxisVisibility depthAxisVisibility() const;
+    void                                setDepthAxisVisibility( RiaDefines::MultiPlotAxisVisibility axisVisibility );
+
     RiuPlotAxis depthAxis() const;
     RiuPlotAxis valueAxis() const;
     RiuPlotAxis annotationAxis() const;
@@ -188,16 +193,20 @@ protected:
     caf::PdmChildField<RimWellLogCurveCommonDataSource*> m_commonDataSource;
     bool                                                 m_commonDataSourceEnabled;
 
-    caf::PdmField<QString>                                 m_plotWindowTitle;
-    caf::PdmField<caf::AppEnum<DepthTypeEnum>>             m_depthType;
-    caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>> m_depthUnit;
-    caf::PdmField<double>                                  m_minVisibleDepth;
-    caf::PdmField<double>                                  m_maxVisibleDepth;
-    caf::PdmField<AxisGridEnum>                            m_depthAxisGridVisibility;
-    caf::PdmField<bool>                                    m_isAutoScaleDepthEnabled;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_subTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisTitleFontSize;
-    caf::PdmField<caf::FontTools::RelativeSizeEnum>        m_axisValueFontSize;
+    caf::PdmField<QString> m_plotWindowTitle;
+
+    // Depth axis
+    caf::PdmField<caf::AppEnum<DepthTypeEnum>>                       m_depthType;
+    caf::PdmField<caf::AppEnum<RiaDefines::DepthUnitType>>           m_depthUnit;
+    caf::PdmField<double>                                            m_minVisibleDepth;
+    caf::PdmField<double>                                            m_maxVisibleDepth;
+    caf::PdmField<AxisGridEnum>                                      m_depthAxisGridVisibility;
+    caf::PdmField<bool>                                              m_isAutoScaleDepthEnabled;
+    caf::PdmField<caf::AppEnum<RiaDefines::MultiPlotAxisVisibility>> m_depthAxisVisibility;
+
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
+    caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisValueFontSize;
 
     caf::PdmChildField<RimWellLogPlotNameConfig*> m_nameConfig;
     caf::PdmChildArrayField<RimWellLogTrack*>     m_plots;

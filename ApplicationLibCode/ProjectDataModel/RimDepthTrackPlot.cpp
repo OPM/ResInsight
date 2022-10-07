@@ -123,6 +123,9 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitScriptableField( &m_isAutoScaleDepthEnabled, "AutoScaleDepthEnabled", true, "Auto Scale" );
     m_isAutoScaleDepthEnabled.uiCapability()->setUiHidden( true );
 
+    caf::AppEnum<RiaDefines::MultiPlotAxisVisibility> depthAxisVisibility = RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE;
+    CAF_PDM_InitField( &m_depthAxisVisibility, "DepthAxisVisibility", depthAxisVisibility, "Axis Visibility" );
+
     CAF_PDM_InitScriptableFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_axisValueFontSize, "AxisValueFontSize", "Axis Value Font Size" );
@@ -200,6 +203,7 @@ RimDepthTrackPlot& RimDepthTrackPlot::operator=( RimDepthTrackPlot&& rhs )
     m_maxVisibleDepth         = rhs.m_maxVisibleDepth();
     m_depthAxisGridVisibility = rhs.m_depthAxisGridVisibility();
     m_isAutoScaleDepthEnabled = rhs.m_isAutoScaleDepthEnabled();
+    m_depthAxisVisibility     = rhs.m_depthAxisVisibility();
 
     m_subTitleFontSize  = rhs.m_subTitleFontSize();
     m_axisTitleFontSize = rhs.m_axisTitleFontSize();
@@ -473,6 +477,7 @@ void RimDepthTrackPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUi
     uiOrdering.add( &m_minVisibleDepth );
     uiOrdering.add( &m_maxVisibleDepth );
     uiOrdering.add( &m_depthAxisGridVisibility );
+    uiOrdering.add( &m_depthAxisVisibility );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -878,7 +883,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         m_isAutoScaleDepthEnabled = true;
         onLoadDataAndUpdate();
     }
-    else if ( changedField == &m_depthOrientation )
+    else if ( changedField == &m_depthOrientation || changedField == &m_depthAxisVisibility )
     {
         onLoadDataAndUpdate();
     }
@@ -1212,6 +1217,22 @@ RimDepthTrackPlot::DepthOrientation RimDepthTrackPlot::depthOrientation() const
 void RimDepthTrackPlot::setDepthOrientation( DepthOrientation depthOrientation )
 {
     m_depthOrientation = depthOrientation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiaDefines::MultiPlotAxisVisibility RimDepthTrackPlot::depthAxisVisibility() const
+{
+    return m_depthAxisVisibility();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::setDepthAxisVisibility( RiaDefines::MultiPlotAxisVisibility axisVisibility )
+{
+    m_depthAxisVisibility = axisVisibility;
 }
 
 //--------------------------------------------------------------------------------------------------

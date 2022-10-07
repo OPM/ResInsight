@@ -1287,19 +1287,30 @@ void RimWellLogTrack::updateAxesVisibility( RimDepthTrackPlot::DepthOrientation 
 
     bool needUpdate = false;
 
+    RimDepthTrackPlot* wellLogPlot;
+    this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+
+    bool showFirstTrack =
+        wellLogPlot->depthAxisVisibility() == RiaDefines::MultiPlotAxisVisibility::ALL_VISIBLE ||
+        ( isFirstTrack && wellLogPlot->depthAxisVisibility() == RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE );
+
+    bool showLastTrack =
+        wellLogPlot->depthAxisVisibility() == RiaDefines::MultiPlotAxisVisibility::ALL_VISIBLE ||
+        ( isLastTrack && wellLogPlot->depthAxisVisibility() == RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE );
+
     if ( orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL )
     {
         // Show depth axis only for the first track (on the left side)
         needUpdate |= setAxisVisible( QwtAxis::XBottom, false );
         needUpdate |= setAxisVisible( QwtAxis::XTop, true );
-        needUpdate |= setAxisVisible( QwtAxis::YLeft, isFirstTrack );
+        needUpdate |= setAxisVisible( QwtAxis::YLeft, showFirstTrack );
         needUpdate |= setAxisVisible( QwtAxis::YRight, false );
     }
     else
     {
         // Show depth axis only for the last track (on the bottom side)
         needUpdate |= setAxisVisible( QwtAxis::XTop, false );
-        needUpdate |= setAxisVisible( QwtAxis::XBottom, isLastTrack );
+        needUpdate |= setAxisVisible( QwtAxis::XBottom, showLastTrack );
         needUpdate |= setAxisVisible( QwtAxis::YLeft, true );
         needUpdate |= setAxisVisible( QwtAxis::YRight, false );
     }
