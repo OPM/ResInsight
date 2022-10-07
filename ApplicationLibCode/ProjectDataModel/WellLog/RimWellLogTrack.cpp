@@ -1945,7 +1945,14 @@ caf::PdmObject* RimWellLogTrack::findPdmObjectFromPlotCurve( const RiuPlotCurve*
 void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_description );
-    uiOrdering.add( &m_colSpan );
+
+    RimDepthTrackPlot* plot = nullptr;
+    firstAncestorOrThisOfType( plot );
+    bool isHorizontal = plot && plot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL;
+    if ( isHorizontal )
+        uiOrdering.add( &m_rowSpan );
+    else
+        uiOrdering.add( &m_colSpan );
 
     caf::PdmUiGroup* annotationGroup = uiOrdering.addNewGroup( "Regions/Annotations" );
     annotationGroup->setCollapsedByDefault();
