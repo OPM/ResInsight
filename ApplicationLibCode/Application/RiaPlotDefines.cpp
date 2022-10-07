@@ -35,6 +35,15 @@ void caf::AppEnum<RiaDefines::PlotAxis>::setUp()
 
     setDefault( RiaDefines::PlotAxis::PLOT_AXIS_LEFT );
 }
+
+template <>
+void caf::AppEnum<RiaDefines::MultiPlotAxisVisibility>::setUp()
+{
+    addItem( RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE, "ONE_VISIBLE", "One Axis Per Plot" );
+    addItem( RiaDefines::MultiPlotAxisVisibility::ALL_VISIBLE, "ALL_VISIBLE", "All Axis Visible" );
+
+    setDefault( RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE );
+}
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------

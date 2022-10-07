@@ -59,6 +59,12 @@ enum class Orientation
     VERTICAL
 };
 
+enum class MultiPlotAxisVisibility
+{
+    ONE_VISIBLE,
+    ALL_VISIBLE
+};
+
 double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();
 double maximumDefaultValuePlot();
