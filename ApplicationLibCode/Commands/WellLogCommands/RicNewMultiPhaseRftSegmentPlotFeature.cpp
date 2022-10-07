@@ -16,6 +16,7 @@
 //
 /////////////////////////////////////////////////////////////////////////////////
 
+#include "RicNewMultiPhaseRftSegmentPlotFeature.h"
 #include "RicNewRftSegmentWellLogPlotFeature.h"
 
 #include "RicNewWellLogPlotFeatureImpl.h"
@@ -30,21 +31,21 @@
 #include "RimRftCase.h"
 #include "RimRftTopologyCurve.h"
 #include "RimSummaryCase.h"
+#include "RimWellLogPlot.h"
 #include "RimWellLogTrack.h"
 
-#include "RiuPlotMainWindow.h"
 #include "RiuPlotMainWindowTools.h"
 
 #include "cafSelectionManager.h"
 
 #include <QAction>
 
-CAF_CMD_SOURCE_INIT( RicNewRftSegmentWellLogPlotFeature, "RicNewRftSegmentWellLogPlotFeature" );
+CAF_CMD_SOURCE_INIT( RicNewMultiPhaseRftSegmentPlotFeature, "RicNewMultiPhaseRftSegmentPlotFeature" );
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RicNewRftSegmentWellLogPlotFeature::isCommandEnabled()
+bool RicNewMultiPhaseRftSegmentPlotFeature::isCommandEnabled()
 {
     return true;
 }
@@ -52,7 +53,7 @@ bool RicNewRftSegmentWellLogPlotFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
+void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
 {
     auto rftCase = caf::SelectionManager::instance()->selectedItemOfType<RimRftCase>();
     if ( !rftCase ) return;
@@ -72,7 +73,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         if ( !wellNames.empty() ) wellName = *wellNames.begin();
     }
 
-    QString resultName = "SEGGRAT";
+    std::vector<QString> resultNames = { "SEGGRAT", "SEGORAT", "SEGWRAT" };
 
     std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_ANNULUS,
                                                         RiaDefines::RftBranchType::RFT_DEVICE,
@@ -80,10 +81,11 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 
     for ( auto branchType : branchTypes )
     {
-        appendTrackAndCurveForBranchType( plot, resultName, wellName, branchType, summaryCase );
+        appendTrackAndCurveForBranchType( plot, resultNames, wellName, branchType, summaryCase );
     }
 
-    appendTopologyTrack( plot, wellName, summaryCase );
+    RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( plot, wellName, summaryCase );
+
     plot->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::onObjectAppended( plot );
@@ -92,11 +94,11 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
-                                                                           const QString&            resultName,
-                                                                           const QString&            wellName,
-                                                                           RiaDefines::RftBranchType branchType,
-                                                                           RimSummaryCase*           summaryCase )
+void RicNewMultiPhaseRftSegmentPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*             plot,
+                                                                              const std::vector<QString>& resultNames,
+                                                                              const QString&              wellName,
+                                                                              RiaDefines::RftBranchType   branchType,
+                                                                              RimSummaryCase*             summaryCase )
 {
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addPlot( plotTrack );
@@ -104,55 +106,22 @@ void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWe
 
     plot->loadDataAndUpdate();
 
-    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, resultName, wellName, branchType, summaryCase );
-    curve->loadDataAndUpdate( true );
+    for ( const auto& resultName : resultNames )
+    {
+        auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, resultName, wellName, branchType, summaryCase );
+        curve->setIsStacked( true );
+        curve->loadDataAndUpdate( true );
 
-    curve->updateAllRequiredEditors();
-    RiuPlotMainWindowTools::setExpanded( curve );
+        curve->updateAllRequiredEditors();
+        RiuPlotMainWindowTools::setExpanded( curve );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* plot,
-                                                              const QString&  wellName,
-                                                              RimSummaryCase* summaryCase )
+void RicNewMultiPhaseRftSegmentPlotFeature::setupActionLook( QAction* actionToSetup )
 {
-    QDateTime dateTime;
-    int       branchIndex = 1;
-
-    auto rftReader = dynamic_cast<RifReaderOpmRft*>( summaryCase->rftReader() );
-    if ( rftReader )
-    {
-        auto timeSteps = rftReader->availableTimeSteps( wellName );
-        if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
-    }
-
-    auto track = new RimWellLogTrack();
-    track->setDescription( "Topology" );
-
-    plot->addPlot( track );
-
-    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_TUBING,
-                                                        RiaDefines::RftBranchType::RFT_DEVICE,
-                                                        RiaDefines::RftBranchType::RFT_ANNULUS };
-
-    for ( auto branchType : branchTypes )
-    {
-        auto curve = new RimRftTopologyCurve;
-        curve->setDataSource( summaryCase, dateTime, wellName, branchIndex, branchType );
-        curve->applyDefaultAppearance();
-        track->addCurve( curve );
-    }
-
-    track->updateAllRequiredEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogPlotFeature::setupActionLook( QAction* actionToSetup )
-{
-    actionToSetup->setText( "Create RFT Segment Plot" );
+    actionToSetup->setText( "Create RFT Multi Phase Segment Plot" );
     actionToSetup->setIcon( QIcon( ":/WellLogCurve16x16.png" ) );
 }
