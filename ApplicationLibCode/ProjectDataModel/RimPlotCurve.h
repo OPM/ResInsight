@@ -181,7 +181,6 @@ protected:
 
     caf::PdmField<QString> m_curveName;
     caf::PdmField<QString> m_curveNameTemplateText;
-    caf::PdmField<bool>    m_isUsingAutoName;
 
     caf::PdmField<caf::AppEnum<RiaDefines::CurveNamingMethod>> m_namingMethod;
 
@@ -195,6 +194,7 @@ protected:
     QPointer<RiuPlotWidget> m_parentPlot;
     RiuPlotCurve*           m_plotCurve;
 
+    caf::PdmField<bool>                                       m_isUsingAutoName_OBSOLETE;
     caf::PdmField<QString>                                    m_symbolLabel_OBSOLETE;
     caf::PdmField<int>                                        m_symbolSize_OBSOLETE;
     caf::PdmField<cvf::Color3f>                               m_curveColor_OBSOLETE;

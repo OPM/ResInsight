@@ -66,7 +66,10 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault( &m_legendEntryText, "LegendDescription", "Legend Name" );
     m_legendEntryText.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_isUsingAutoName, "AutoName", true, "Auto Name" );
+    CAF_PDM_InitField( &m_isUsingAutoName_OBSOLETE, "AutoName", true, "Auto Name" );
+    m_isUsingAutoName_OBSOLETE.xmlCapability()->setIOWritable( false );
+    m_isUsingAutoName_OBSOLETE.uiCapability()->setUiHidden( true );
+
     CAF_PDM_InitField( &m_showLegend, "ShowLegend", true, "Contribute To Legend" );
     CAF_PDM_InitField( &m_showErrorBars, "ShowErrorBars", true, "Show Error Bars" );
 
@@ -156,8 +159,7 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     {
         updateCurveNameAndUpdatePlotLegendAndTitle();
     }
-    else if ( changedField == &m_isUsingAutoName || changedField == &m_namingMethod ||
-              changedField == &m_curveNameTemplateText )
+    else if ( changedField == &m_namingMethod || changedField == &m_curveNameTemplateText )
     {
         updateCurveNameAndUpdatePlotLegendAndTitle();
         nameChanged.send( curveName() );
@@ -188,8 +190,8 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setCustomName( const QString& customName )
 {
-    m_isUsingAutoName = false;
-    m_curveName       = customName;
+    m_namingMethod = RiaDefines::CurveNamingMethod::CUSTOM;
+    m_curveName    = customName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -225,6 +227,15 @@ void RimPlotCurve::initAfterRead()
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.06.0" ) )
     {
         updateCurveAppearanceForFilesOlderThan_2021_06();
+    }
+
+    if ( m_isUsingAutoName_OBSOLETE() )
+    {
+        m_namingMethod = RiaDefines::CurveNamingMethod::AUTO;
+    }
+    else
+    {
+        m_namingMethod = RiaDefines::CurveNamingMethod::CUSTOM;
     }
 }
 
@@ -294,12 +305,6 @@ void RimPlotCurve::setCurveVisibility( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveName()
 {
-    if ( m_isUsingAutoName )
-    {
-        // TODO: remove
-        m_curveName = this->createCurveAutoName();
-    }
-
     if ( m_namingMethod == RiaDefines::CurveNamingMethod::AUTO )
     {
         m_curveName = this->createCurveAutoName();
@@ -376,7 +381,6 @@ void RimPlotCurve::curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     updateOptionSensitivity();
 
-    uiOrdering.add( &m_isUsingAutoName );
     uiOrdering.add( &m_namingMethod );
     uiOrdering.add( &m_curveNameTemplateText );
     uiOrdering.add( &m_curveName );

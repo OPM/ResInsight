@@ -883,7 +883,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
-    if ( m_isUsingAutoName )
+    if ( m_namingMethod == RiaDefines::CurveNamingMethod::AUTO )
     {
         m_curveNameConfig->uiOrdering( uiConfigName, *nameGroup );
     }
