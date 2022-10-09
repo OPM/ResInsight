@@ -134,7 +134,7 @@ void RimGridCrossPlotCurve::updateZoomInParentPlot()
 //--------------------------------------------------------------------------------------------------
 QString RimGridCrossPlotCurve::createCurveAutoName()
 {
-    return m_customCurveName;
+    return m_curveName;
 }
 
 //--------------------------------------------------------------------------------------------------

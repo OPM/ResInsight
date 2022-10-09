@@ -88,9 +88,8 @@ public:
     QString         curveName() const;
     virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
 
-    void    setCustomName( const QString& customName );
-    QString legendEntryText() const;
-    void    setLegendEntryText( const QString& legendEntryText );
+    void setCustomName( const QString& customName );
+    void setLegendEntryText( const QString& legendEntryText );
 
     virtual void updateCurveVisibility();
     void         updateLegendEntryVisibilityAndPlotLegend();
@@ -179,7 +178,6 @@ protected:
 protected:
     caf::PdmField<bool>    m_showCurve;
     caf::PdmField<QString> m_curveName;
-    caf::PdmField<QString> m_customCurveName;
     caf::PdmField<bool>    m_showLegend;
     caf::PdmField<QString> m_legendEntryText;
     caf::PdmField<bool>    m_showErrorBars;

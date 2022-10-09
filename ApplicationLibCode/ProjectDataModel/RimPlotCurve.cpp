@@ -60,8 +60,6 @@ RimPlotCurve::RimPlotCurve()
     m_showCurve.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "Curve Name" );
-    CAF_PDM_InitFieldNoDefault( &m_customCurveName, "CurveDescription", "Custom Name" );
-    m_customCurveName.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_legendEntryText, "LegendDescription", "Legend Name" );
     m_legendEntryText.uiCapability()->setUiHidden( true );
@@ -150,16 +148,10 @@ void RimPlotCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField, co
     }
     else if ( changedField == &m_curveName )
     {
-        m_customCurveName = m_curveName;
         updateCurveNameAndUpdatePlotLegendAndTitle();
     }
     else if ( changedField == &m_isUsingAutoName )
     {
-        if ( !m_isUsingAutoName )
-        {
-            m_customCurveName = createCurveAutoName();
-        }
-
         updateCurveNameAndUpdatePlotLegendAndTitle();
         nameChanged.send( curveName() );
     }
@@ -190,19 +182,7 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 void RimPlotCurve::setCustomName( const QString& customName )
 {
     m_isUsingAutoName = false;
-    m_customCurveName = customName;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPlotCurve::legendEntryText() const
-{
-    if ( !m_legendEntryText().isEmpty() )
-    {
-        return m_legendEntryText;
-    }
-    return m_customCurveName;
+    m_curveName       = customName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -302,10 +282,6 @@ void RimPlotCurve::updateCurveName()
     if ( m_isUsingAutoName )
     {
         m_curveName = this->createCurveAutoName();
-    }
-    else
-    {
-        m_curveName = m_customCurveName;
     }
 
     if ( !m_legendEntryText().isEmpty() )
