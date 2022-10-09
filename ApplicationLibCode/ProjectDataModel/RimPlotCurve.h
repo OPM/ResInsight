@@ -128,7 +128,8 @@ public:
     void deletePlotCurve();
 
 protected:
-    virtual QString createCurveAutoName()                        = 0;
+    virtual QString createCurveAutoName() = 0;
+    virtual QString createCurveNameFromTemplate( const QString& templateText );
     virtual void    updateZoomInParentPlot()                     = 0;
     virtual void    onLoadDataAndUpdate( bool updateParentPlot ) = 0;
     void            initAfterRead() override;
@@ -176,12 +177,18 @@ protected:
     virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
 
 protected:
-    caf::PdmField<bool>    m_showCurve;
+    caf::PdmField<bool> m_showCurve;
+
     caf::PdmField<QString> m_curveName;
-    caf::PdmField<bool>    m_showLegend;
-    caf::PdmField<QString> m_legendEntryText;
-    caf::PdmField<bool>    m_showErrorBars;
+    caf::PdmField<QString> m_curveNameTemplateText;
     caf::PdmField<bool>    m_isUsingAutoName;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::CurveNamingMethod>> m_namingMethod;
+
+    caf::PdmField<QString> m_legendEntryText;
+
+    caf::PdmField<bool> m_showLegend;
+    caf::PdmField<bool> m_showErrorBars;
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
 

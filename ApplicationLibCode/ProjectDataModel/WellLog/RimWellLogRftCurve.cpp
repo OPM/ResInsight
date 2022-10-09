@@ -542,6 +542,53 @@ QString RimWellLogRftCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RimWellLogRftCurve::createCurveNameFromTemplate( const QString& templateText )
+{
+    QString curveName = templateText;
+
+    QString caseText;
+    if ( m_eclipseResultCase )
+    {
+        caseText = m_eclipseResultCase->caseUserDescription();
+    }
+    else if ( m_ensemble ) // Summary RFT curves have both ensemble and summary set. Prioritize ensemble for name.
+    {
+        caseText = m_ensemble->name();
+    }
+    else if ( m_summaryCase )
+    {
+        caseText = m_summaryCase->displayCaseName();
+    }
+    else if ( m_observedFmuRftData )
+    {
+        caseText = m_observedFmuRftData->name();
+    }
+
+    curveName.replace( RiaDefines::curveNameVariableCase(), caseText );
+    curveName.replace( RiaDefines::curveNameVariableWell(), m_wellName );
+
+    if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
+    {
+        curveName.replace( RiaDefines::curveNameVariableResultName(), m_segmentResultName );
+
+        QString branchText = QString( "Branch %1" ).arg( m_segmentBranchIndex() );
+        curveName.replace( RiaDefines::curveNameVariableWellBranch(), branchText );
+
+        curveName.replace( RiaDefines::curveNameVariableResultType(), m_segmentBranchType().uiText() );
+    }
+
+    if ( !m_timeStep().isNull() )
+    {
+        QString timeString = m_timeStep().toString( RiaQDateTimeTools::dateFormatString() );
+        curveName.replace( "$TIME$", timeString );
+    }
+
+    return curveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     if ( m_curveColorByPhase && m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )

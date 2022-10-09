@@ -102,8 +102,8 @@ public:
     void assignColorFromResultName( const QString& resultName );
 
 protected:
-    // Overrides from RimWellLogPlotCurve
     QString               createCurveAutoName() override;
+    QString               createCurveNameFromTemplate( const QString& templateText ) override;
     void                  onLoadDataAndUpdate( bool updateParentPlot ) override;
     RiaDefines::PhaseType phaseType() const override;
 

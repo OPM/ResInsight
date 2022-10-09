@@ -19,6 +19,7 @@
 #pragma once
 
 class QPaintDevice;
+class QString;
 
 // Defines relate to plotting
 namespace RiaDefines
@@ -64,6 +65,21 @@ enum class MultiPlotAxisVisibility
     ONE_VISIBLE,
     ALL_VISIBLE
 };
+
+enum class CurveNamingMethod
+{
+    CUSTOM,
+    AUTO,
+    TEMPLATE
+};
+
+QString curveNameVariableCase();
+QString curveNameVariableWell();
+QString curveNameVariableWellBranch();
+QString curveNameVariableResultName();
+QString curveNameVariableResultType();
+QString curveNameVariableTime();
+QString curveNameVariableTimestep();
 
 double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();
