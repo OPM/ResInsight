@@ -581,6 +581,19 @@ QString RimWellLogRftCurve::createCurveNameFromTemplate( const QString& template
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RimWellLogRftCurve::supportedCurveNameVariables() const
+{
+    return { RiaDefines::curveNameVariableWell(),
+             RiaDefines::curveNameVariableResultName(),
+             RiaDefines::curveNameVariableResultType(),
+             RiaDefines::curveNameVariableCase(),
+             RiaDefines::curveNameVariableWellBranch(),
+             RiaDefines::curveNameVariableTime() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 {
     if ( m_curveColorByPhase && m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_SEGMENT_DATA )
@@ -774,7 +787,7 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_eclipseResultCase );

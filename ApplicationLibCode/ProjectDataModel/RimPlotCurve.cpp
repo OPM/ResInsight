@@ -222,6 +222,22 @@ QString RimPlotCurve::createCurveNameFromTemplate( const QString& templateText )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimPlotCurve::isCurveNameTemplateSupported() const
+{
+    return !supportedCurveNameVariables().isEmpty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimPlotCurve::supportedCurveNameVariables() const
+{
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::initAfterRead()
 {
     if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2021.06.0" ) )
@@ -265,6 +281,33 @@ void RimPlotCurve::updateCurvePresentation( bool updatePlotLegendAndTitle )
 caf::PdmFieldHandle* RimPlotCurve::userDescriptionField()
 {
     return &m_curveName;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+    if ( fieldNeedingOptions == &m_namingMethod )
+    {
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveNamingMethod>::uiText(
+                                                       RiaDefines::CurveNamingMethod::AUTO ),
+                                                   RiaDefines::CurveNamingMethod::AUTO ) );
+
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveNamingMethod>::uiText(
+                                                       RiaDefines::CurveNamingMethod::CUSTOM ),
+                                                   RiaDefines::CurveNamingMethod::CUSTOM ) );
+
+        if ( isCurveNameTemplateSupported() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveNamingMethod>::uiText(
+                                                           RiaDefines::CurveNamingMethod::TEMPLATE ),
+                                                       RiaDefines::CurveNamingMethod::TEMPLATE ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -345,11 +388,18 @@ void RimPlotCurve::updateCurveNameNoLegendUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotCurve::updateOptionSensitivity()
+void RimPlotCurve::updateFieldUiState()
 {
     m_curveName.uiCapability()->setUiReadOnly( m_namingMethod != RiaDefines::CurveNamingMethod::CUSTOM );
 
     m_curveNameTemplateText.uiCapability()->setUiHidden( m_namingMethod != RiaDefines::CurveNamingMethod::TEMPLATE );
+
+    auto templateVariables = supportedCurveNameVariables();
+    if ( !templateVariables.isEmpty() )
+    {
+        auto toolTipText = templateVariables.join( "," );
+        m_curveNameTemplateText.uiCapability()->setUiToolTip( toolTipText );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -379,7 +429,7 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
-    updateOptionSensitivity();
+    updateFieldUiState();
 
     uiOrdering.add( &m_namingMethod );
     uiOrdering.add( &m_curveNameTemplateText );

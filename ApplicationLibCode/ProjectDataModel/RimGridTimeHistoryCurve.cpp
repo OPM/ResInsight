@@ -565,7 +565,7 @@ std::vector<double> RimGridTimeHistoryCurve::daysSinceSimulationStart() const
 //--------------------------------------------------------------------------------------------------
 void RimGridTimeHistoryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     uiOrdering.add( &m_geometrySelectionText );
 

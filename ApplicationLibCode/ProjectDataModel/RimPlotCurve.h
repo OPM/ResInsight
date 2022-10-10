@@ -129,13 +129,17 @@ public:
 
 protected:
     virtual QString createCurveAutoName() = 0;
-    virtual QString createCurveNameFromTemplate( const QString& templateText );
-    virtual void    updateZoomInParentPlot()                     = 0;
-    virtual void    onLoadDataAndUpdate( bool updateParentPlot ) = 0;
-    void            initAfterRead() override;
-    void            updateCurvePresentation( bool updatePlotLegendAndTitle );
 
-    void         updateOptionSensitivity();
+    // Override these two methods to show and use curve name template when assigning a name to the curve
+    virtual QString     createCurveNameFromTemplate( const QString& templateText );
+    virtual QStringList supportedCurveNameVariables() const;
+
+    virtual void updateZoomInParentPlot()                     = 0;
+    virtual void onLoadDataAndUpdate( bool updateParentPlot ) = 0;
+    void         initAfterRead() override;
+    void         updateCurvePresentation( bool updatePlotLegendAndTitle );
+
+    void         updateFieldUiState();
     void         updatePlotTitle();
     virtual void updateLegendsInPlot();
 
@@ -159,13 +163,13 @@ protected:
 
     virtual double computeCurveZValue();
 
-protected:
-    // Overridden PDM methods
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle* objectToggleField() override;
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
-    void                 curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle*          objectToggleField() override;
+    caf::PdmFieldHandle*          userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    void appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
     void         onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
@@ -175,6 +179,9 @@ protected:
     void         checkAndApplyDefaultFillColor();
 
     virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
+
+private:
+    bool isCurveNameTemplateSupported() const;
 
 protected:
     caf::PdmField<bool> m_showCurve;

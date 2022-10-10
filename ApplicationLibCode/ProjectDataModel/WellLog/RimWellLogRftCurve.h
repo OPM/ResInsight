@@ -102,8 +102,10 @@ public:
     void assignColorFromResultName( const QString& resultName );
 
 protected:
-    QString               createCurveAutoName() override;
-    QString               createCurveNameFromTemplate( const QString& templateText ) override;
+    QString     createCurveAutoName() override;
+    QString     createCurveNameFromTemplate( const QString& templateText ) override;
+    QStringList supportedCurveNameVariables() const override;
+
     void                  onLoadDataAndUpdate( bool updateParentPlot ) override;
     RiaDefines::PhaseType phaseType() const override;
 
