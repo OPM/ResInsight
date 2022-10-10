@@ -124,6 +124,8 @@ private:
     std::vector<size_t> sortedIndicesInRftFile();
     void                updateWellChannelNameAndTimeStep();
 
+    std::map<QString, QString> createCurveNameKeyValueMap() const;
+
     std::vector<double> xValues();
     std::vector<double> errorValues();
     std::vector<double> tvDepthValues();
