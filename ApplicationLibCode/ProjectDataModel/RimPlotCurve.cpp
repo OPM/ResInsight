@@ -59,9 +59,9 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitField( &m_showCurve, "Show", true, "Show curve" );
     m_showCurve.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "Curve Name" );
-    CAF_PDM_InitField( &m_curveNameTemplateText, "TemplateText", QString( "$CASE$, $RESULT_NAME$" ), "Template Text" );
-    CAF_PDM_InitFieldNoDefault( &m_namingMethod, "CurveNamingMethod", "Naming Mode" );
+    CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "" );
+    CAF_PDM_InitField( &m_curveNameTemplateText, "TemplateText", QString( "$CASE, $RESULT_NAME" ), "Template Text" );
+    CAF_PDM_InitFieldNoDefault( &m_namingMethod, "CurveNamingMethod", "Curve Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendEntryText, "LegendDescription", "Legend Name" );
     m_legendEntryText.uiCapability()->setUiHidden( true );

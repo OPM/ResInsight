@@ -61,7 +61,7 @@ void caf::AppEnum<RiaDefines::CurveNamingMethod>::setUp()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::curveNameVariableCase()
 {
-    return "$CASE$";
+    return "$CASE";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -69,7 +69,7 @@ QString RiaDefines::curveNameVariableCase()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::curveNameVariableWell()
 {
-    return "$WELL$";
+    return "$WELL";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ QString RiaDefines::curveNameVariableWell()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::curveNameVariableWellBranch()
 {
-    return "$WELL_BRANCH$";
+    return "$WELL_BRANCH";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ QString RiaDefines::curveNameVariableWellBranch()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::curveNameVariableResultName()
 {
-    return "$RESULT_NAME$";
+    return "$RESULT_NAME";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ QString RiaDefines::curveNameVariableResultName()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::curveNameVariableResultType()
 {
-    return "$RESULT_TYPE$";
+    return "$RESULT_TYPE";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -101,7 +101,7 @@ QString RiaDefines::curveNameVariableResultType()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::curveNameVariableTime()
 {
-    return "$TIME$";
+    return "$TIME";
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -109,7 +109,7 @@ QString RiaDefines::curveNameVariableTime()
 //--------------------------------------------------------------------------------------------------
 QString RiaDefines::curveNameVariableTimestep()
 {
-    return "$TIME_STEP$";
+    return "$TIME_STEP";
 }
 
 //--------------------------------------------------------------------------------------------------
