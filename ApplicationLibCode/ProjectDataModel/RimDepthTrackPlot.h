@@ -134,6 +134,8 @@ public:
 
     QString                   createAutoName() const override;
     RimWellLogPlotNameConfig* nameConfig() const;
+    void                      setPlotNameTemplateText( const QString& templateText );
+    void                      setPlotNameType( RiaDefines::CurveNamingMethod plotNameType );
 
     RimWellLogCurveCommonDataSource* commonDataSource() const;
     void                             updateCommonDataSource();
@@ -165,8 +167,13 @@ protected:
 
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
     void     deleteViewWidget() override;
-    void     performAutoNameUpdate() override;
-    void     recreatePlotWidgets();
+
+    void                               performAutoNameUpdate() override;
+    QString                            createPlotNameFromTemplate( const QString& templateText ) const override;
+    QStringList                        supportedPlotNameVariables() const override;
+    virtual std::map<QString, QString> createNameKeyValueMap() const;
+
+    void recreatePlotWidgets();
 
     // Overridden PDM methods
     void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
@@ -194,6 +201,9 @@ protected:
     bool                                                 m_commonDataSourceEnabled;
 
     caf::PdmField<QString> m_plotWindowTitle;
+    caf::PdmField<QString> m_plotNameTemplateText;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::CurveNamingMethod>> m_namingMethod;
 
     // Depth axis
     caf::PdmField<caf::AppEnum<DepthTypeEnum>>                       m_depthType;

@@ -80,6 +80,8 @@ QString namingVariableResultName();
 QString namingVariableResultType();
 QString namingVariableTime();
 QString namingVariableTimestep();
+QString namingVariableAirGap();
+QString namingVariableWaterDepth();
 
 double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();

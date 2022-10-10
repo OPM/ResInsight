@@ -34,6 +34,10 @@ public:
 
 protected:
     virtual void performAutoNameUpdate() {}
+
+    // Override these two methods to show and use curve name template when assigning a name to the curve
+    virtual QString     createPlotNameFromTemplate( const QString& templateText ) const { return templateText; }
+    virtual QStringList supportedPlotNameVariables() const { return {}; }
 };
 
 //==================================================================================================

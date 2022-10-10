@@ -235,9 +235,10 @@ void RimWellAllocationPlot::updateFromWell()
     if ( m_flowType() == INFLOW ) description = "Inflow Rates";
 
     RimWellLogPlotNameConfig* nameConfig = accumulatedWellFlowPlot()->nameConfig();
-    nameConfig->setCustomName( description );
-    nameConfig->setAutoNameTags( false, true, false, false, false );
-    nameConfig->setFieldVisibility( true, true, true, false, false );
+
+    accumulatedWellFlowPlot()->setPlotNameTemplateText( description + " " + RiaDefines::namingVariableWell() );
+    accumulatedWellFlowPlot()->setPlotNameType( RiaDefines::CurveNamingMethod::TEMPLATE );
+
     accumulatedWellFlowPlot()->updateAutoName();
 
     if ( !m_case ) return;

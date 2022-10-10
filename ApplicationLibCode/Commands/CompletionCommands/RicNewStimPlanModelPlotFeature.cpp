@@ -166,7 +166,6 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
     {
         auto task = progInfo.task( "Updating all tracks", 5 );
 
-        plot->nameConfig()->setAutoNameTags( false, false, false, false, false );
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( false );
@@ -445,6 +444,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( b
 
     stimPlanModelPlotColl->addStimPlanModelPlot( plot );
 
+    plot->setPlotNameType( RiaDefines::CurveNamingMethod::CUSTOM );
     if ( !plotDescription.isEmpty() )
     {
         plot->nameConfig()->setCustomName( plotDescription );

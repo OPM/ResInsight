@@ -83,6 +83,8 @@ public:
 
     void selectWell( QString wellName );
 
+    QString rftWellName() const;
+
     void resetDefaultOptions();
     void analyseCurvesAndTracks( const std::vector<RimWellLogCurve*>& curves, const std::vector<RimWellLogTrack*>& tracks );
     void analyseCurvesAndTracks();

@@ -1194,3 +1194,11 @@ void RimWellLogCurveCommonDataSource::selectWell( QString wellName )
         }
     }
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimWellLogCurveCommonDataSource::rftWellName() const
+{
+    return m_rftWellName();
+}

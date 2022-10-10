@@ -31,6 +31,11 @@ class RimWellLogPlotNameConfig : public RimNameConfig
 public:
     RimWellLogPlotNameConfig();
 
+
+protected:
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
     bool addCaseName() const;
     bool addWellName() const;
     bool addTimeStep() const;
@@ -43,11 +48,6 @@ public:
                              bool timeStepVisible,
                              bool airGapVisible,
                              bool waterDepthVisible );
-
-protected:
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-
-private:
     void doEnableAllAutoNameTags( bool enable ) override;
 
 private:
