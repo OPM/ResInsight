@@ -488,10 +488,10 @@ std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() cons
 
     if ( !wellName().isEmpty() )
     {
-        variableValueMap[RiaDefines::curveNameVariableWell()] = wellName();
+        variableValueMap[RiaDefines::namingVariableWell()] = wellName();
     }
 
-    variableValueMap[RiaDefines::curveNameVariableResultType()] = "RFT";
+    variableValueMap[RiaDefines::namingVariableResultType()] = "RFT";
 
     QString caseText;
     if ( m_eclipseResultCase )
@@ -513,7 +513,7 @@ std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() cons
 
     if ( !caseText.isEmpty() )
     {
-        variableValueMap[RiaDefines::curveNameVariableCase()] = caseText;
+        variableValueMap[RiaDefines::namingVariableCase()] = caseText;
     }
 
     if ( m_rftDataType() == RftDataType::RFT_DATA )
@@ -525,24 +525,23 @@ std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() cons
                 caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::fromText( wellLogChannelUiName() );
             QString channelName = caf::AppEnum<RifEclipseRftAddress::RftWellLogChannelType>::uiText( channelNameEnum );
 
-            variableValueMap[RiaDefines::curveNameVariableResultName()] = channelName;
+            variableValueMap[RiaDefines::namingVariableResultName()] = channelName;
         }
     }
     else if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        variableValueMap[RiaDefines::curveNameVariableResultName()] = m_segmentResultName;
+        variableValueMap[RiaDefines::namingVariableResultName()] = m_segmentResultName;
 
         QString branchText = QString( "Branch %1" ).arg( m_segmentBranchIndex() );
 
-        variableValueMap[RiaDefines::curveNameVariableWellBranch()] = branchText;
+        variableValueMap[RiaDefines::namingVariableWellBranch()] = branchText;
 
-        variableValueMap[RiaDefines::curveNameVariableResultType()] = m_segmentBranchType().uiText();
+        variableValueMap[RiaDefines::namingVariableResultType()] = m_segmentBranchType().uiText();
     }
 
     if ( !m_timeStep().isNull() )
     {
-        variableValueMap[RiaDefines::curveNameVariableTime()] =
-            m_timeStep().toString( RiaQDateTimeTools::dateFormatString() );
+        variableValueMap[RiaDefines::namingVariableTime()] = m_timeStep().toString( RiaQDateTimeTools::dateFormatString() );
     }
 
     return variableValueMap;
@@ -583,12 +582,12 @@ QString RimWellLogRftCurve::createCurveNameFromTemplate( const QString& template
 //--------------------------------------------------------------------------------------------------
 QStringList RimWellLogRftCurve::supportedCurveNameVariables() const
 {
-    return { RiaDefines::curveNameVariableWell(),
-             RiaDefines::curveNameVariableResultName(),
-             RiaDefines::curveNameVariableResultType(),
-             RiaDefines::curveNameVariableCase(),
-             RiaDefines::curveNameVariableWellBranch(),
-             RiaDefines::curveNameVariableTime() };
+    return { RiaDefines::namingVariableWell(),
+             RiaDefines::namingVariableResultName(),
+             RiaDefines::namingVariableResultType(),
+             RiaDefines::namingVariableCase(),
+             RiaDefines::namingVariableWellBranch(),
+             RiaDefines::namingVariableTime() };
 }
 
 //--------------------------------------------------------------------------------------------------

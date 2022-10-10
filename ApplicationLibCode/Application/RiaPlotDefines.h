@@ -73,13 +73,13 @@ enum class CurveNamingMethod
     TEMPLATE
 };
 
-QString curveNameVariableCase();
-QString curveNameVariableWell();
-QString curveNameVariableWellBranch();
-QString curveNameVariableResultName();
-QString curveNameVariableResultType();
-QString curveNameVariableTime();
-QString curveNameVariableTimestep();
+QString namingVariableCase();
+QString namingVariableWell();
+QString namingVariableWellBranch();
+QString namingVariableResultName();
+QString namingVariableResultType();
+QString namingVariableTime();
+QString namingVariableTimestep();
 
 double minimumDefaultValuePlot();
 double minimumDefaultLogValuePlot();

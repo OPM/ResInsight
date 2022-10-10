@@ -60,7 +60,10 @@ RimPlotCurve::RimPlotCurve()
     m_showCurve.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_curveName, "CurveName", "" );
-    CAF_PDM_InitField( &m_curveNameTemplateText, "TemplateText", QString( "$CASE, $RESULT_NAME" ), "Template Text" );
+
+    auto templateText =
+        QString( "%1, %2" ).arg( RiaDefines::namingVariableCase() ).arg( RiaDefines::namingVariableResultName() );
+    CAF_PDM_InitField( &m_curveNameTemplateText, "TemplateText", templateText, "Template Text" );
     CAF_PDM_InitFieldNoDefault( &m_namingMethod, "CurveNamingMethod", "Curve Name" );
 
     CAF_PDM_InitFieldNoDefault( &m_legendEntryText, "LegendDescription", "Legend Name" );

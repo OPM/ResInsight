@@ -59,7 +59,7 @@ void caf::AppEnum<RiaDefines::CurveNamingMethod>::setUp()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::curveNameVariableCase()
+QString RiaDefines::namingVariableCase()
 {
     return "$CASE";
 }
@@ -67,7 +67,7 @@ QString RiaDefines::curveNameVariableCase()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::curveNameVariableWell()
+QString RiaDefines::namingVariableWell()
 {
     return "$WELL";
 }
@@ -75,7 +75,7 @@ QString RiaDefines::curveNameVariableWell()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::curveNameVariableWellBranch()
+QString RiaDefines::namingVariableWellBranch()
 {
     return "$WELL_BRANCH";
 }
@@ -83,7 +83,7 @@ QString RiaDefines::curveNameVariableWellBranch()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::curveNameVariableResultName()
+QString RiaDefines::namingVariableResultName()
 {
     return "$RESULT_NAME";
 }
@@ -91,7 +91,7 @@ QString RiaDefines::curveNameVariableResultName()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::curveNameVariableResultType()
+QString RiaDefines::namingVariableResultType()
 {
     return "$RESULT_TYPE";
 }
@@ -99,7 +99,7 @@ QString RiaDefines::curveNameVariableResultType()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::curveNameVariableTime()
+QString RiaDefines::namingVariableTime()
 {
     return "$TIME";
 }
@@ -107,7 +107,7 @@ QString RiaDefines::curveNameVariableTime()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiaDefines::curveNameVariableTimestep()
+QString RiaDefines::namingVariableTimestep()
 {
     return "$TIME_STEP";
 }
