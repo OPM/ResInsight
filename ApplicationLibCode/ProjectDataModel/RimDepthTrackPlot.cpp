@@ -491,13 +491,13 @@ void RimDepthTrackPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUi
 void RimDepthTrackPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showPlotTitle );
-    m_nameConfig->uiOrdering( uiConfigName, uiOrdering );
     uiOrdering.add( &m_namingMethod );
     uiOrdering.add( &m_plotNameTemplateText );
 
+    m_nameConfig->uiOrdering( uiConfigName, uiOrdering );
+
     auto tooltipText = supportedPlotNameVariables().join( ", " );
     m_plotNameTemplateText.uiCapability()->setUiToolTip( tooltipText );
-
     m_plotNameTemplateText.uiCapability()->setUiHidden( m_namingMethod() != RiaDefines::CurveNamingMethod::TEMPLATE );
 }
 

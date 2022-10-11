@@ -78,6 +78,7 @@ void RicNewRftPlotFeature::onActionTriggered( bool isChecked )
         QString plotName = QString( RimWellRftPlot::plotNameFormatString() ).arg( wellName );
 
         rftPlot->nameConfig()->setCustomName( plotName );
+        rftPlot->setPlotNameType( RiaDefines::CurveNamingMethod::CUSTOM );
 
         rftPlot->loadDataAndUpdate();
         rftPlotColl->updateConnectedEditors();

@@ -114,6 +114,7 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
 
         pltPlotColl->addPlot( pltPlot );
         pltPlot->nameConfig()->setCustomName( plotName );
+        pltPlot->setPlotNameType( RiaDefines::CurveNamingMethod::CUSTOM );
 
         // pltPlot->applyInitialSelections();
         pltPlot->loadDataAndUpdate();

@@ -131,6 +131,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_nameConfig->setCustomName( "PLT Plot" );
+    setPlotNameType( RiaDefines::CurveNamingMethod::CUSTOM );
 
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad       = false;
