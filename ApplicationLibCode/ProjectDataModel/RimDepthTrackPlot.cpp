@@ -110,7 +110,7 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
 
     auto templateText = QString( "%1, %2" ).arg( RiaDefines::namingVariableCase() ).arg( RiaDefines::namingVariableWell() );
-    CAF_PDM_InitField( &m_plotNameTemplateText, "TemplateText", templateText, "Template Text" );
+    CAF_PDM_InitField( &m_nameTemplateText, "TemplateText", templateText, "Template Text" );
     CAF_PDM_InitFieldNoDefault( &m_namingMethod, "PlotNamingMethod", "Plot Name" );
 
     caf::AppEnum<RimDepthTrackPlot::DepthTypeEnum> depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
@@ -492,13 +492,13 @@ void RimDepthTrackPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiO
 {
     uiOrdering.add( &m_showPlotTitle );
     uiOrdering.add( &m_namingMethod );
-    uiOrdering.add( &m_plotNameTemplateText );
+    uiOrdering.add( &m_nameTemplateText );
 
     m_nameConfig->uiOrdering( uiConfigName, uiOrdering );
 
     auto tooltipText = supportedPlotNameVariables().join( ", " );
-    m_plotNameTemplateText.uiCapability()->setUiToolTip( tooltipText );
-    m_plotNameTemplateText.uiCapability()->setUiHidden( m_namingMethod() != RiaDefines::ObjectNamingMethod::TEMPLATE );
+    m_nameTemplateText.uiCapability()->setUiToolTip( tooltipText );
+    m_nameTemplateText.uiCapability()->setUiHidden( m_namingMethod() != RiaDefines::ObjectNamingMethod::TEMPLATE );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -609,7 +609,7 @@ QString RimDepthTrackPlot::createAutoName() const
 
     if ( m_namingMethod() == RiaDefines::ObjectNamingMethod::TEMPLATE )
     {
-        return createPlotNameFromTemplate( m_plotNameTemplateText );
+        return createPlotNameFromTemplate( m_nameTemplateText );
     }
 
     return m_nameConfig->customName();
@@ -626,17 +626,17 @@ RimWellLogPlotNameConfig* RimDepthTrackPlot::nameConfig() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setPlotNameTemplateText( const QString& templateText )
+void RimDepthTrackPlot::setNameTemplateText( const QString& templateText )
 {
-    m_plotNameTemplateText = templateText;
+    m_nameTemplateText = templateText;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setPlotNameType( RiaDefines::ObjectNamingMethod plotNameType )
+void RimDepthTrackPlot::setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod )
 {
-    m_namingMethod = plotNameType;
+    m_namingMethod = namingMethod;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -966,7 +966,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         updateFonts();
     }
-    else if ( changedField == &m_showPlotTitle || changedField == &m_namingMethod || changedField == &m_plotNameTemplateText )
+    else if ( changedField == &m_showPlotTitle || changedField == &m_namingMethod || changedField == &m_nameTemplateText )
     {
         performAutoNameUpdate();
     }

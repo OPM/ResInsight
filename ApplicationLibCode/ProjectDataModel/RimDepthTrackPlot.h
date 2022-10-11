@@ -134,8 +134,8 @@ public:
 
     QString                   createAutoName() const override;
     RimWellLogPlotNameConfig* nameConfig() const;
-    void                      setPlotNameTemplateText( const QString& templateText );
-    void                      setPlotNameType( RiaDefines::ObjectNamingMethod plotNameType );
+    void                      setNameTemplateText( const QString& templateText );
+    void                      setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod );
 
     RimWellLogCurveCommonDataSource* commonDataSource() const;
     void                             updateCommonDataSource();
@@ -201,7 +201,7 @@ protected:
     bool                                                 m_commonDataSourceEnabled;
 
     caf::PdmField<QString> m_plotWindowTitle;
-    caf::PdmField<QString> m_plotNameTemplateText;
+    caf::PdmField<QString> m_nameTemplateText;
 
     caf::PdmField<caf::AppEnum<RiaDefines::ObjectNamingMethod>> m_namingMethod;
 

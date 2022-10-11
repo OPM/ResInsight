@@ -114,7 +114,7 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
 
         pltPlotColl->addPlot( pltPlot );
         pltPlot->nameConfig()->setCustomName( plotName );
-        pltPlot->setPlotNameType( RiaDefines::ObjectNamingMethod::CUSTOM );
+        pltPlot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
 
         // pltPlot->applyInitialSelections();
         pltPlot->loadDataAndUpdate();

@@ -234,8 +234,8 @@ void RimWellAllocationPlot::updateFromWell()
     if ( m_flowType() == ACCUMULATED ) description = "Accumulated Flow";
     if ( m_flowType() == INFLOW ) description = "Inflow Rates";
 
-    accumulatedWellFlowPlot()->setPlotNameTemplateText( description + " " + RiaDefines::namingVariableWell() );
-    accumulatedWellFlowPlot()->setPlotNameType( RiaDefines::ObjectNamingMethod::TEMPLATE );
+    accumulatedWellFlowPlot()->setNameTemplateText( description + " " + RiaDefines::namingVariableWell() );
+    accumulatedWellFlowPlot()->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
 
     accumulatedWellFlowPlot()->updateAutoName();
 

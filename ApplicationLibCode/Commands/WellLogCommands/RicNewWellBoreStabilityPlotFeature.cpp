@@ -116,8 +116,8 @@ RimWellBoreStabilityPlot*
                                    .arg( RiaDefines::namingVariableTime() )
                                    .arg( RiaDefines::namingVariableAirGap() )
                                    .arg( RiaDefines::namingVariableWaterDepth() );
-        plot->setPlotNameTemplateText( templateText );
-        plot->setPlotNameType( RiaDefines::ObjectNamingMethod::TEMPLATE );
+        plot->setNameTemplateText( templateText );
+        plot->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
 
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );

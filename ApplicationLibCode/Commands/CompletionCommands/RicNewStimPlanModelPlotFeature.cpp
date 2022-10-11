@@ -445,7 +445,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( b
 
     stimPlanModelPlotColl->addStimPlanModelPlot( plot );
 
-    plot->setPlotNameType( RiaDefines::ObjectNamingMethod::CUSTOM );
+    plot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
     if ( !plotDescription.isEmpty() )
     {
         plot->nameConfig()->setCustomName( plotDescription );

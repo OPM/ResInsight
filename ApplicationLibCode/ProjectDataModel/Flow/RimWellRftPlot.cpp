@@ -130,7 +130,7 @@ RimWellRftPlot::RimWellRftPlot()
     setAvailableDepthTypes( { RiaDefines::DepthTypeEnum::MEASURED_DEPTH, RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH } );
 
     m_nameConfig->setCustomName( "RFT Plot" );
-    setPlotNameType( RiaDefines::ObjectNamingMethod::CUSTOM );
+    setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
 
     m_plotLegendsHorizontal = false;
 

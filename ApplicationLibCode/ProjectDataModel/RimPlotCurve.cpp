@@ -391,6 +391,14 @@ void RimPlotCurve::updateCurveNameNoLegendUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod )
+{
+    m_namingMethod = namingMethod;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateFieldUiState()
 {
     m_curveName.uiCapability()->setUiReadOnly( m_namingMethod != RiaDefines::ObjectNamingMethod::CUSTOM );
