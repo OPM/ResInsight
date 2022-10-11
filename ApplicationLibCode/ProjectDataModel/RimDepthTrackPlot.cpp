@@ -1110,6 +1110,13 @@ void RimDepthTrackPlot::initAfterRead()
     {
         m_nameConfig->setCustomName( m_plotWindowTitle );
     }
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) &&
+         !m_nameConfig->customName().isEmpty() )
+    {
+        m_namingMethod = RiaDefines::CurveNamingMethod::CUSTOM;
+    }
+
     performAutoNameUpdate();
 }
 
