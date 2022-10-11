@@ -32,6 +32,7 @@
 #include "RimSimWellInView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPltPlot.h"
@@ -113,6 +114,7 @@ void RicNewPltPlotFeature::onActionTriggered( bool isChecked )
 
         pltPlotColl->addPlot( pltPlot );
         pltPlot->nameConfig()->setCustomName( plotName );
+        pltPlot->setPlotNameType( RiaDefines::ObjectNamingMethod::CUSTOM );
 
         // pltPlot->applyInitialSelections();
         pltPlot->loadDataAndUpdate();

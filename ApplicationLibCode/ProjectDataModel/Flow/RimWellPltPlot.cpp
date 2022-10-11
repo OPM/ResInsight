@@ -52,6 +52,7 @@
 #include "RimWellLogFileCurve.h"
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
@@ -130,6 +131,7 @@ RimWellPltPlot::RimWellPltPlot()
     m_phases.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_nameConfig->setCustomName( "PLT Plot" );
+    setPlotNameType( RiaDefines::ObjectNamingMethod::CUSTOM );
 
     this->setAsPlotMdiWindow();
     m_doInitAfterLoad       = false;

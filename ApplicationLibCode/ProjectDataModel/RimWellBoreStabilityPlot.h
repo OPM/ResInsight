@@ -41,14 +41,15 @@ public:
     void   copyWbsParameters( const RimWbsParameters* wbsParameters );
     void   setCaseWellPathAndTimeStep( RimGeoMechCase* geoMechCase, RimWellPath* wellPath, int timeStep );
 
-    QString createAutoName() const override;
-
 protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void onLoadDataAndUpdate() override;
     void childFieldChangedByUi( const caf::PdmFieldHandle* changedChildField ) override;
     void initAfterRead() override;
+
+    QStringList                supportedPlotNameVariables() const override;
+    std::map<QString, QString> createNameKeyValueMap() const override;
 
 private:
     void applyDataSource();

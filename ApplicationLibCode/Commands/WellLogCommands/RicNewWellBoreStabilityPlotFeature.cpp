@@ -110,7 +110,15 @@ RimWellBoreStabilityPlot*
     {
         auto task = progInfo.task( "Updating all tracks", 5 );
 
-        plot->nameConfig()->setAutoNameTags( true, true, true, true, true );
+        QString templateText = QString( "%1, %2, %3, %4, %5" )
+                                   .arg( RiaDefines::namingVariableCase() )
+                                   .arg( RiaDefines::namingVariableWell() )
+                                   .arg( RiaDefines::namingVariableTime() )
+                                   .arg( RiaDefines::namingVariableAirGap() )
+                                   .arg( RiaDefines::namingVariableWaterDepth() );
+        plot->setPlotNameTemplateText( templateText );
+        plot->setPlotNameType( RiaDefines::ObjectNamingMethod::TEMPLATE );
+
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( true );
