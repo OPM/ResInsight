@@ -749,7 +749,7 @@ QList<caf::PdmOptionItemInfo>
 //--------------------------------------------------------------------------------------------------
 void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroupWithKeyword( "Data Source", dataSourceGroupKeyword() );
 
@@ -798,7 +798,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
-    if ( m_isUsingAutoName )
+    if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
         nameGroup->add( &m_addWellNameToCurveName );
         nameGroup->add( &m_addCaseNameToCurveName );

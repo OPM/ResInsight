@@ -88,9 +88,8 @@ public:
     QString         curveName() const;
     virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
 
-    void    setCustomName( const QString& customName );
-    QString legendEntryText() const;
-    void    setLegendEntryText( const QString& legendEntryText );
+    void setCustomName( const QString& customName );
+    void setLegendEntryText( const QString& legendEntryText );
 
     virtual void updateCurveVisibility();
     void         updateLegendEntryVisibilityAndPlotLegend();
@@ -129,13 +128,18 @@ public:
     void deletePlotCurve();
 
 protected:
-    virtual QString createCurveAutoName()                        = 0;
-    virtual void    updateZoomInParentPlot()                     = 0;
-    virtual void    onLoadDataAndUpdate( bool updateParentPlot ) = 0;
-    void            initAfterRead() override;
-    void            updateCurvePresentation( bool updatePlotLegendAndTitle );
+    virtual QString createCurveAutoName() = 0;
 
-    void         updateOptionSensitivity();
+    // Override these two methods to show and use curve name template when assigning a name to the curve
+    virtual QString     createCurveNameFromTemplate( const QString& templateText );
+    virtual QStringList supportedCurveNameVariables() const;
+
+    virtual void updateZoomInParentPlot()                     = 0;
+    virtual void onLoadDataAndUpdate( bool updateParentPlot ) = 0;
+    void         initAfterRead() override;
+    void         updateCurvePresentation( bool updatePlotLegendAndTitle );
+
+    void         updateFieldUiState();
     void         updatePlotTitle();
     virtual void updateLegendsInPlot();
 
@@ -159,13 +163,13 @@ protected:
 
     virtual double computeCurveZValue();
 
-protected:
-    // Overridden PDM methods
-    void                 fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
-    caf::PdmFieldHandle* objectToggleField() override;
-    caf::PdmFieldHandle* userDescriptionField() override;
-    void                 appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
-    void                 curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void                          fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    caf::PdmFieldHandle*          objectToggleField() override;
+    caf::PdmFieldHandle*          userDescriptionField() override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+
+    void appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
     void         onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
@@ -176,20 +180,28 @@ protected:
 
     virtual void updateAxisInPlot( RiuPlotAxis plotAxis );
 
+private:
+    bool isCurveNameTemplateSupported() const;
+
 protected:
-    caf::PdmField<bool>    m_showCurve;
+    caf::PdmField<bool> m_showCurve;
+
     caf::PdmField<QString> m_curveName;
-    caf::PdmField<QString> m_customCurveName;
-    caf::PdmField<bool>    m_showLegend;
+    caf::PdmField<QString> m_curveNameTemplateText;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::ObjectNamingMethod>> m_namingMethod;
+
     caf::PdmField<QString> m_legendEntryText;
-    caf::PdmField<bool>    m_showErrorBars;
-    caf::PdmField<bool>    m_isUsingAutoName;
+
+    caf::PdmField<bool> m_showLegend;
+    caf::PdmField<bool> m_showErrorBars;
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
 
     QPointer<RiuPlotWidget> m_parentPlot;
     RiuPlotCurve*           m_plotCurve;
 
+    caf::PdmField<bool>                                       m_isUsingAutoName_OBSOLETE;
     caf::PdmField<QString>                                    m_symbolLabel_OBSOLETE;
     caf::PdmField<int>                                        m_symbolSize_OBSOLETE;
     caf::PdmField<cvf::Color3f>                               m_curveColor_OBSOLETE;

@@ -138,7 +138,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
 
-        if ( m_isUsingAutoName && m_plotCurve )
+        if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO && m_plotCurve )
         {
             m_plotCurve->setTitle( createCurveAutoName() );
         }
@@ -221,7 +221,7 @@ void RimWellMeasurementCurve::fieldChangedByUi( const caf::PdmFieldHandle* chang
 //--------------------------------------------------------------------------------------------------
 void RimWellMeasurementCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Curve Data" );
     curveDataGroup->add( &m_wellPath );

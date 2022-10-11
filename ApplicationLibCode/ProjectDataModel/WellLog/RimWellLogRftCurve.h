@@ -102,8 +102,10 @@ public:
     void assignColorFromResultName( const QString& resultName );
 
 protected:
-    // Overrides from RimWellLogPlotCurve
-    QString               createCurveAutoName() override;
+    QString     createCurveAutoName() override;
+    QString     createCurveNameFromTemplate( const QString& templateText ) override;
+    QStringList supportedCurveNameVariables() const override;
+
     void                  onLoadDataAndUpdate( bool updateParentPlot ) override;
     RiaDefines::PhaseType phaseType() const override;
 
@@ -123,6 +125,8 @@ private:
     size_t              rftFileIndex( size_t wellPathIndex );
     std::vector<size_t> sortedIndicesInRftFile();
     void                updateWellChannelNameAndTimeStep();
+
+    std::map<QString, QString> createCurveNameKeyValueMap() const;
 
     std::vector<double> xValues();
     std::vector<double> errorValues();

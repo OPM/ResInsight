@@ -104,7 +104,6 @@ protected:
 protected:
     caf::PdmField<QString> m_symbolLabel;
     caf::PdmField<int>     m_symbolSize;
-    caf::PdmField<QString> m_legendEntryText;
 
     caf::PdmField<cvf::Color3f> m_curveColor;
     caf::PdmField<int>          m_curveThickness;

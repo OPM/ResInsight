@@ -846,7 +846,7 @@ void RimSummaryCurve::defineEditorAttribute( const caf::PdmFieldHandle* field,
 //--------------------------------------------------------------------------------------------------
 void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     {
         QString curveDataGroupName = "Summary Vector";
@@ -883,7 +883,7 @@ void RimSummaryCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
-    if ( m_isUsingAutoName )
+    if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
         m_curveNameConfig->uiOrdering( uiConfigName, *nameGroup );
     }

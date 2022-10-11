@@ -125,7 +125,7 @@ QString RimRftTopologyCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 void RimRftTopologyCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
-    RimPlotCurve::updateOptionSensitivity();
+    RimPlotCurve::updateFieldUiState();
 
     caf::PdmUiGroup* curveDataGroup = uiOrdering.addNewGroup( "Data Source" );
     curveDataGroup->add( &m_summaryCase );
