@@ -590,8 +590,20 @@ QString RimDepthTrackPlot::createAutoName() const
     if ( m_namingMethod() == RiaDefines::CurveNamingMethod::AUTO )
     {
         // Use the ordering of the supported variables to create a name
-        auto templateText = supportedPlotNameVariables().join( ", " );
+        auto candidateNames = supportedPlotNameVariables();
 
+        auto variableValues = createNameKeyValueMap();
+
+        QStringList variablesWithValue;
+        for ( const auto& name : candidateNames )
+        {
+            if ( variableValues.count( name ) )
+            {
+                variablesWithValue.push_back( name );
+            }
+        }
+
+        QString templateText = variablesWithValue.join( ", " );
         return createPlotNameFromTemplate( templateText );
     }
 
