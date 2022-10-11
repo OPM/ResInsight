@@ -138,7 +138,7 @@ void RimWellMeasurementCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
 
-        if ( m_namingMethod == RiaDefines::CurveNamingMethod::AUTO && m_plotCurve )
+        if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO && m_plotCurve )
         {
             m_plotCurve->setTitle( createCurveAutoName() );
         }

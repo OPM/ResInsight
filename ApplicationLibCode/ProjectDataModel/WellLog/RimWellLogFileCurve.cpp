@@ -178,7 +178,7 @@ void RimWellLogFileCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 }
             }
 
-            if ( m_namingMethod == RiaDefines::CurveNamingMethod::AUTO )
+            if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
             {
                 m_plotCurve->setTitle( createCurveAutoName() );
             }

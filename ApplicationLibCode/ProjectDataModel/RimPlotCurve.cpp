@@ -193,7 +193,7 @@ caf::PdmFieldHandle* RimPlotCurve::objectToggleField()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setCustomName( const QString& customName )
 {
-    m_namingMethod = RiaDefines::CurveNamingMethod::CUSTOM;
+    m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
     m_curveName    = customName;
 }
 
@@ -250,11 +250,11 @@ void RimPlotCurve::initAfterRead()
 
     if ( m_isUsingAutoName_OBSOLETE() )
     {
-        m_namingMethod = RiaDefines::CurveNamingMethod::AUTO;
+        m_namingMethod = RiaDefines::ObjectNamingMethod::AUTO;
     }
     else
     {
-        m_namingMethod = RiaDefines::CurveNamingMethod::CUSTOM;
+        m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
     }
 }
 
@@ -294,19 +294,19 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
     QList<caf::PdmOptionItemInfo> options;
     if ( fieldNeedingOptions == &m_namingMethod )
     {
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveNamingMethod>::uiText(
-                                                       RiaDefines::CurveNamingMethod::AUTO ),
-                                                   RiaDefines::CurveNamingMethod::AUTO ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                       RiaDefines::ObjectNamingMethod::AUTO ),
+                                                   RiaDefines::ObjectNamingMethod::AUTO ) );
 
-        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveNamingMethod>::uiText(
-                                                       RiaDefines::CurveNamingMethod::CUSTOM ),
-                                                   RiaDefines::CurveNamingMethod::CUSTOM ) );
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                       RiaDefines::ObjectNamingMethod::CUSTOM ),
+                                                   RiaDefines::ObjectNamingMethod::CUSTOM ) );
 
         if ( isCurveNameTemplateSupported() )
         {
-            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::CurveNamingMethod>::uiText(
-                                                           RiaDefines::CurveNamingMethod::TEMPLATE ),
-                                                       RiaDefines::CurveNamingMethod::TEMPLATE ) );
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                           RiaDefines::ObjectNamingMethod::TEMPLATE ),
+                                                       RiaDefines::ObjectNamingMethod::TEMPLATE ) );
         }
     }
 
@@ -351,11 +351,11 @@ void RimPlotCurve::setCurveVisibility( bool visible )
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateCurveName()
 {
-    if ( m_namingMethod == RiaDefines::CurveNamingMethod::AUTO )
+    if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
         m_curveName = this->createCurveAutoName();
     }
-    else if ( m_namingMethod == RiaDefines::CurveNamingMethod::TEMPLATE )
+    else if ( m_namingMethod == RiaDefines::ObjectNamingMethod::TEMPLATE )
     {
         m_curveName = this->createCurveNameFromTemplate( m_curveNameTemplateText );
     }
@@ -393,9 +393,9 @@ void RimPlotCurve::updateCurveNameNoLegendUpdate()
 //--------------------------------------------------------------------------------------------------
 void RimPlotCurve::updateFieldUiState()
 {
-    m_curveName.uiCapability()->setUiReadOnly( m_namingMethod != RiaDefines::CurveNamingMethod::CUSTOM );
+    m_curveName.uiCapability()->setUiReadOnly( m_namingMethod != RiaDefines::ObjectNamingMethod::CUSTOM );
 
-    m_curveNameTemplateText.uiCapability()->setUiHidden( m_namingMethod != RiaDefines::CurveNamingMethod::TEMPLATE );
+    m_curveNameTemplateText.uiCapability()->setUiHidden( m_namingMethod != RiaDefines::ObjectNamingMethod::TEMPLATE );
 
     auto templateVariables = supportedCurveNameVariables();
     if ( !templateVariables.isEmpty() )

@@ -798,7 +798,7 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
     nameGroup->add( &m_showLegend );
     RimPlotCurve::curveNameUiOrdering( *nameGroup );
 
-    if ( m_namingMethod == RiaDefines::CurveNamingMethod::AUTO )
+    if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
         nameGroup->add( &m_addWellNameToCurveName );
         nameGroup->add( &m_addCaseNameToCurveName );

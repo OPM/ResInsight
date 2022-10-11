@@ -66,7 +66,7 @@ enum class MultiPlotAxisVisibility
     ALL_VISIBLE
 };
 
-enum class CurveNamingMethod
+enum class ObjectNamingMethod
 {
     CUSTOM,
     AUTO,

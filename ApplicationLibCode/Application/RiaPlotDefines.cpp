@@ -46,13 +46,13 @@ void caf::AppEnum<RiaDefines::MultiPlotAxisVisibility>::setUp()
 }
 
 template <>
-void caf::AppEnum<RiaDefines::CurveNamingMethod>::setUp()
+void caf::AppEnum<RiaDefines::ObjectNamingMethod>::setUp()
 {
-    addItem( RiaDefines::CurveNamingMethod::CUSTOM, "CUSTOM", "Custom" );
-    addItem( RiaDefines::CurveNamingMethod::AUTO, "AUTO", "Auto" );
-    addItem( RiaDefines::CurveNamingMethod::TEMPLATE, "TEMPLATE", "Template" );
+    addItem( RiaDefines::ObjectNamingMethod::CUSTOM, "CUSTOM", "Custom" );
+    addItem( RiaDefines::ObjectNamingMethod::AUTO, "AUTO", "Auto" );
+    addItem( RiaDefines::ObjectNamingMethod::TEMPLATE, "TEMPLATE", "Template" );
 
-    setDefault( RiaDefines::CurveNamingMethod::AUTO );
+    setDefault( RiaDefines::ObjectNamingMethod::AUTO );
 }
 }; // namespace caf
 

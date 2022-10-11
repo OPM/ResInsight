@@ -189,7 +189,7 @@ protected:
     caf::PdmField<QString> m_curveName;
     caf::PdmField<QString> m_curveNameTemplateText;
 
-    caf::PdmField<caf::AppEnum<RiaDefines::CurveNamingMethod>> m_namingMethod;
+    caf::PdmField<caf::AppEnum<RiaDefines::ObjectNamingMethod>> m_namingMethod;
 
     caf::PdmField<QString> m_legendEntryText;
 
