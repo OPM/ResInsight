@@ -32,6 +32,7 @@
 #include "RimSimWellInView.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPltPlot.h"

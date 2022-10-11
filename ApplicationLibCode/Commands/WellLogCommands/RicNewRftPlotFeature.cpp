@@ -22,6 +22,7 @@
 #include "RimRftPlotCollection.h"
 #include "RimSimWellInView.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellRftPlot.h"

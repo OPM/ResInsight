@@ -26,7 +26,6 @@
 #include "RimEnsembleWellLogStatistics.h"
 #include "RimPlot.h"
 #include "RimPlotWindow.h"
-#include "RimWellLogPlotNameConfig.h"
 
 #include "cafAppEnum.h"
 #include "cafPdmChildArrayField.h"
@@ -46,6 +45,7 @@ class RimPlot;
 class RimEnsembleCurveSet;
 class RiuPlotAxis;
 class RimWellLogTrack;
+class RimWellLogPlotNameConfig;
 
 class QKeyEvent;
 

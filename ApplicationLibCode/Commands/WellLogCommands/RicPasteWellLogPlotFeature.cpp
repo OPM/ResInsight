@@ -22,6 +22,7 @@
 
 #include "RimWellLogPlot.h"
 #include "RimWellLogPlotCollection.h"
+#include "RimWellLogPlotNameConfig.h"
 
 #include "cafPdmObjectGroup.h"
 #include "cafPdmObjectHandle.h"

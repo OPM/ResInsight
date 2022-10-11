@@ -42,6 +42,7 @@
 #include "RimStimPlanModelPlot.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimStimPlanModelTemplate.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
