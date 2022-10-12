@@ -84,7 +84,9 @@ public:
     void updateCurveName();
     void updateCurveNameAndUpdatePlotLegendAndTitle();
     void updateCurveNameNoLegendUpdate();
+    void setCurveNameTemplateText( const QString& templateText );
 
+    void            setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod );
     QString         curveName() const;
     virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
 

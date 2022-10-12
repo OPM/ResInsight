@@ -29,6 +29,7 @@
 #include "RimWbsParameters.h"
 #include "RimWellLogCurveCommonDataSource.h"
 #include "RimWellLogFile.h"
+#include "RimWellLogPlotNameConfig.h"
 
 #include "cafPdmBase.h"
 #include "cafPdmFieldScriptingCapability.h"
@@ -176,27 +177,35 @@ void RimWellBoreStabilityPlot::initAfterRead()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RimWellBoreStabilityPlot::supportedPlotNameVariables() const
+{
+    auto variables = RimWellLogPlot::supportedPlotNameVariables();
+
+    variables.append( RiaDefines::namingVariableWaterDepth() );
+
+    return variables;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RimWellBoreStabilityPlot::createNameKeyValueMap() const
+{
+    auto nameKeyValueMap = RimWellLogPlot::createNameKeyValueMap();
+
+    QString waterDepthString                                = QString( "Water Depth = %1 m" ).arg( m_waterDepth );
+    nameKeyValueMap[RiaDefines::namingVariableWaterDepth()] = waterDepthString;
+
+    return nameKeyValueMap;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellBoreStabilityPlot::applyDataSource()
 {
     m_wbsParameters->setGeoMechCase( dynamic_cast<RimGeoMechCase*>( m_commonDataSource->caseToApply() ) );
     m_wbsParameters->setWellPath( m_commonDataSource->wellPathToApply() );
     m_wbsParameters->setTimeStep( m_commonDataSource->timeStepToApply() );
     this->updateConnectedEditors();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimWellBoreStabilityPlot::createAutoName() const
-{
-    QString name = RimWellLogPlot::createAutoName();
-
-    if ( m_nameConfig->addWaterDepth() && m_waterDepth != std::numeric_limits<double>::infinity() )
-    {
-        double  tvdmsl           = m_waterDepth;
-        QString waterDepthString = QString( ", Water Depth = %1 m" ).arg( tvdmsl );
-        name += waterDepthString;
-    }
-
-    return name;
 }

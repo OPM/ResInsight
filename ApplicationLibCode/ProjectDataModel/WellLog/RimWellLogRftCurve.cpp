@@ -27,6 +27,7 @@
 #include "RiaRftDefines.h"
 #include "RiaSimWellBranchTools.h"
 #include "RiaSummaryTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RifEclipseRftAddress.h"
 #include "RifReaderEclipseRft.h"
@@ -567,14 +568,7 @@ QString RimWellLogRftCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveNameFromTemplate( const QString& templateText )
 {
-    QString curveName = templateText;
-
-    for ( const auto& [key, value] : createCurveNameKeyValueMap() )
-    {
-        curveName.replace( key, value );
-    }
-
-    return curveName;
+    return RiaTextStringTools::replaceTemplateTextWithValues( templateText, createCurveNameKeyValueMap() );
 }
 
 //--------------------------------------------------------------------------------------------------

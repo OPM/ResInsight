@@ -27,6 +27,7 @@
 #include "RimStimPlanModelCurve.h"
 #include "RimStimPlanModelPropertyCurve.h"
 #include "RimTools.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 
 #include "cafPdmBase.h"

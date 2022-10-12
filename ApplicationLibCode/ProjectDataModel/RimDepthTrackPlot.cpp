@@ -22,6 +22,8 @@
 #include "RiaGuiApplication.h"
 #include "RiaOptionItemFactory.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RiaResultNames.h"
 #include "RigWellLogCurveData.h"
@@ -41,6 +43,7 @@
 #include "RimWellAllocationPlot.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogCurveCommonDataSource.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 
@@ -107,6 +110,10 @@ RimDepthTrackPlot::RimDepthTrackPlot()
 
     CAF_PDM_InitField( &m_plotWindowTitle, "PlotDescription", QString( "" ), "Name" );
     m_plotWindowTitle.xmlCapability()->setIOWritable( false );
+
+    auto templateText = QString( "%1, %2" ).arg( RiaDefines::namingVariableCase() ).arg( RiaDefines::namingVariableWell() );
+    CAF_PDM_InitField( &m_nameTemplateText, "TemplateText", templateText, "Template Text" );
+    CAF_PDM_InitFieldNoDefault( &m_namingMethod, "PlotNamingMethod", "Plot Name" );
 
     caf::AppEnum<RimDepthTrackPlot::DepthTypeEnum> depthType = RiaDefines::DepthTypeEnum::MEASURED_DEPTH;
     CAF_PDM_InitScriptableField( &m_depthType, "DepthType", depthType, "Type" );
@@ -486,7 +493,102 @@ void RimDepthTrackPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUi
 void RimDepthTrackPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     uiOrdering.add( &m_showPlotTitle );
+    uiOrdering.add( &m_namingMethod );
+    uiOrdering.add( &m_nameTemplateText );
+
     m_nameConfig->uiOrdering( uiConfigName, uiOrdering );
+
+    auto tooltipText = supportedPlotNameVariables().join( ", " );
+    m_nameTemplateText.uiCapability()->setUiToolTip( tooltipText );
+    m_nameTemplateText.uiCapability()->setUiHidden( m_namingMethod() != RiaDefines::ObjectNamingMethod::TEMPLATE );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimDepthTrackPlot::createPlotNameFromTemplate( const QString& templateText ) const
+{
+    return RiaTextStringTools::replaceTemplateTextWithValues( templateText, createNameKeyValueMap() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QStringList RimDepthTrackPlot::supportedPlotNameVariables() const
+{
+    return { RiaDefines::namingVariableCase(),
+             RiaDefines::namingVariableWell(),
+             RiaDefines::namingVariableWellBranch(),
+             RiaDefines::namingVariableTime(),
+             RiaDefines::namingVariableAirGap() };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
+{
+    std::map<QString, QString> variableValueMap;
+
+    RimCase*     commonCase     = m_commonDataSource->caseToApply();
+    RimWellPath* commonWellPath = m_commonDataSource->wellPathToApply();
+
+    if ( commonCase )
+    {
+        variableValueMap[RiaDefines::namingVariableCase()] = commonCase->caseUserDescription();
+
+        if ( m_commonDataSource->timeStepToApply() != -1 )
+        {
+            variableValueMap[RiaDefines::namingVariableTime()] =
+                commonCase->timeStepName( m_commonDataSource->timeStepToApply() );
+        }
+    }
+    else
+    {
+        auto summaryCase = m_commonDataSource->summaryCaseToApply();
+        if ( summaryCase )
+        {
+            variableValueMap[RiaDefines::namingVariableCase()] = summaryCase->displayCaseName();
+
+            auto wellName = m_commonDataSource->rftWellName();
+            if ( !wellName.isEmpty() ) variableValueMap[RiaDefines::namingVariableWell()] = wellName;
+
+            auto dateTime = m_commonDataSource->rftTime();
+            if ( dateTime.isValid() )
+            {
+                variableValueMap[RiaDefines::namingVariableTime()] =
+                    dateTime.toString( RiaQDateTimeTools::dateFormatString() );
+            }
+
+            auto branchIndex = m_commonDataSource->rftBranchIndex();
+            if ( branchIndex >= 0 )
+            {
+                variableValueMap[RiaDefines::namingVariableWellBranch()] = QString::number( branchIndex );
+            }
+        }
+    }
+
+    if ( commonWellPath && !commonWellPath->name().isEmpty() )
+    {
+        variableValueMap[RiaDefines::namingVariableWell()] = commonWellPath->name();
+    }
+    else if ( !m_commonDataSource->simWellNameToApply().isEmpty() )
+    {
+        variableValueMap[RiaDefines::namingVariableWell()] = m_commonDataSource->simWellNameToApply();
+    }
+
+    if ( commonWellPath )
+    {
+        RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
+        if ( wellPathGeometry )
+        {
+            double rkb = wellPathGeometry->rkbDiff();
+
+            variableValueMap[RiaDefines::namingVariableAirGap()] = QString( "Air Gap = %1 m" ).arg( rkb );
+        }
+    }
+
+    return variableValueMap;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -494,60 +596,32 @@ void RimDepthTrackPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 QString RimDepthTrackPlot::createAutoName() const
 {
-    QStringList generatedCurveName;
-
-    if ( !m_nameConfig->customName().isEmpty() )
+    if ( m_namingMethod() == RiaDefines::ObjectNamingMethod::AUTO )
     {
-        generatedCurveName.push_back( m_nameConfig->customName() );
-    }
+        // Use the ordering of the supported variables to create a name
+        auto candidateNames = supportedPlotNameVariables();
 
-    RimCase*     commonCase     = m_commonDataSource->caseToApply();
-    RimWellPath* commonWellPath = m_commonDataSource->wellPathToApply();
+        auto variableValues = createNameKeyValueMap();
 
-    QStringList generatedAutoTags;
-    if ( m_nameConfig->addCaseName() && commonCase )
-    {
-        generatedAutoTags.push_back( commonCase->caseUserDescription() );
-    }
-
-    if ( m_nameConfig->addWellName() )
-    {
-        if ( commonWellPath && !commonWellPath->name().isEmpty() )
+        QStringList variablesWithValue;
+        for ( const auto& name : candidateNames )
         {
-            generatedAutoTags.push_back( commonWellPath->name() );
-        }
-        else if ( !m_commonDataSource->simWellNameToApply().isEmpty() )
-        {
-            generatedAutoTags.push_back( m_commonDataSource->simWellNameToApply() );
-        }
-    }
-
-    if ( m_nameConfig->addTimeStep() )
-    {
-        if ( commonCase && m_commonDataSource->timeStepToApply() != -1 )
-        {
-            generatedAutoTags.push_back( commonCase->timeStepName( m_commonDataSource->timeStepToApply() ) );
-        }
-    }
-
-    if ( m_nameConfig->addAirGap() )
-    {
-        if ( commonWellPath )
-        {
-            RigWellPath* wellPathGeometry = commonWellPath->wellPathGeometry();
-            if ( wellPathGeometry )
+            if ( variableValues.count( name ) )
             {
-                double rkb = wellPathGeometry->rkbDiff();
-                generatedAutoTags.push_back( QString( "Air Gap = %1 m" ).arg( rkb ) );
+                variablesWithValue.push_back( name );
             }
         }
+
+        QString templateText = variablesWithValue.join( ", " );
+        return createPlotNameFromTemplate( templateText );
     }
 
-    if ( !generatedAutoTags.empty() )
+    if ( m_namingMethod() == RiaDefines::ObjectNamingMethod::TEMPLATE )
     {
-        generatedCurveName.push_back( generatedAutoTags.join( ", " ) );
+        return createPlotNameFromTemplate( m_nameTemplateText );
     }
-    return generatedCurveName.join( ": " );
+
+    return m_nameConfig->customName();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -556,6 +630,22 @@ QString RimDepthTrackPlot::createAutoName() const
 RimWellLogPlotNameConfig* RimDepthTrackPlot::nameConfig() const
 {
     return m_nameConfig;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::setNameTemplateText( const QString& templateText )
+{
+    m_nameTemplateText = templateText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod )
+{
+    m_namingMethod = namingMethod;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -860,13 +950,6 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         m_isAutoScaleDepthEnabled = true;
 
-        bool isTVDRKB = m_depthType == RiaDefines::DepthTypeEnum::TRUE_VERTICAL_DEPTH_RKB;
-        m_nameConfig->setAutoNameTags( m_nameConfig->addCaseName(),
-                                       m_nameConfig->addWellName(),
-                                       m_nameConfig->addTimeStep(),
-                                       isTVDRKB,
-                                       m_nameConfig->addWaterDepth() );
-
         RimWellAllocationPlot* parentWellAllocation = nullptr;
         this->firstAncestorOrThisOfType( parentWellAllocation );
         if ( parentWellAllocation )
@@ -892,7 +975,7 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
     {
         updateFonts();
     }
-    else if ( changedField == &m_showPlotTitle )
+    else if ( changedField == &m_showPlotTitle || changedField == &m_namingMethod || changedField == &m_nameTemplateText )
     {
         performAutoNameUpdate();
     }
@@ -999,6 +1082,23 @@ QList<caf::PdmOptionItemInfo> RimDepthTrackPlot::calculateValueOptions( const ca
     {
         RiaOptionItemFactory::appendOptionItemsForEnsembleCurveSets( &options );
     }
+    else if ( fieldNeedingOptions == &m_namingMethod )
+    {
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                       RiaDefines::ObjectNamingMethod::AUTO ),
+                                                   RiaDefines::ObjectNamingMethod::AUTO ) );
+
+        options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                       RiaDefines::ObjectNamingMethod::CUSTOM ),
+                                                   RiaDefines::ObjectNamingMethod::CUSTOM ) );
+
+        if ( !supportedPlotNameVariables().isEmpty() )
+        {
+            options.push_back( caf::PdmOptionItemInfo( caf::AppEnum<RiaDefines::ObjectNamingMethod>::uiText(
+                                                           RiaDefines::ObjectNamingMethod::TEMPLATE ),
+                                                       RiaDefines::ObjectNamingMethod::TEMPLATE ) );
+        }
+    }
 
     return options;
 }
@@ -1019,6 +1119,13 @@ void RimDepthTrackPlot::initAfterRead()
     {
         m_nameConfig->setCustomName( m_plotWindowTitle );
     }
+
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) &&
+         !m_nameConfig->customName().isEmpty() )
+    {
+        m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
+    }
+
     performAutoNameUpdate();
 }
 

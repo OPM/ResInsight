@@ -42,6 +42,7 @@
 #include "RimStimPlanModelPlot.h"
 #include "RimStimPlanModelPlotCollection.h"
 #include "RimStimPlanModelTemplate.h"
+#include "RimWellLogPlotNameConfig.h"
 #include "RimWellLogTrack.h"
 #include "RimWellPath.h"
 #include "RimWellPathCollection.h"
@@ -166,7 +167,6 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createPlot( RimStimPlanMod
     {
         auto task = progInfo.task( "Updating all tracks", 5 );
 
-        plot->nameConfig()->setAutoNameTags( false, false, false, false, false );
         plot->setPlotTitleVisible( true );
         plot->setLegendsVisible( true );
         plot->setLegendsHorizontal( false );
@@ -445,6 +445,7 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( b
 
     stimPlanModelPlotColl->addStimPlanModelPlot( plot );
 
+    plot->setNamingMethod( RiaDefines::ObjectNamingMethod::CUSTOM );
     if ( !plotDescription.isEmpty() )
     {
         plot->nameConfig()->setCustomName( plotDescription );
