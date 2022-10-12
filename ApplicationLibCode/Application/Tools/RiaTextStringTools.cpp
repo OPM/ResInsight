@@ -143,6 +143,30 @@ QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QString RiaTextStringTools::replaceTemplateTextWithValues( const QString&                    templateText,
+                                                           const std::map<QString, QString>& valueMap )
+{
+    QString resolvedText = templateText;
+
+    // Use a regular expression to find all occurrences of ${key} in the text and replace with the value
+
+    for ( const auto& [key, value] : valueMap )
+    {
+        QString regexString = key;
+        regexString.replace( "$", "\\$" );
+        regexString += "\\b";
+
+        QRegularExpression rx( regexString );
+
+        resolvedText.replace( rx, value );
+    }
+
+    return resolvedText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QStringList RiaTextStringTools::splitSkipEmptyParts( const QString& text, const QRegExp& regExp )
 {
 #if QT_VERSION >= QT_VERSION_CHECK( 5, 14, 0 )

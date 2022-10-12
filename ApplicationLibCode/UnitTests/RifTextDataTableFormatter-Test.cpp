@@ -342,3 +342,29 @@ WELSPECS
         EXPECT_STREQ( textForCompare.toStdString().data(), tableText.toStdString().data() );
     }
 }
+
+TEST( RifTextDataTableFormatter, ReplaceTokensInString )
+{
+    {
+        std::map<QString, QString> keyValues = {
+            { "$KEY1", "VALUE1" },
+            { "$KEY1_WITH_MORE_TEXT", "VALUE2" },
+        };
+
+        auto templateText = QString( "$KEY1, $KEY1_WITH_MORE_TEXT" );
+        auto resolvedText = RiaTextStringTools::replaceTemplateTextWithValues( templateText, keyValues );
+
+        EXPECT_STREQ( resolvedText.toStdString().data(), "VALUE1, VALUE2" );
+    }
+
+    {
+        std::map<QString, QString> keyValues = {
+            { "$KEY1", "VALUE1" },
+        };
+
+        auto templateText = QString( "$KEY1, $KEY1_WITH_MORE_2" );
+        auto resolvedText = RiaTextStringTools::replaceTemplateTextWithValues( templateText, keyValues );
+
+        EXPECT_STREQ( resolvedText.toStdString().data(), "VALUE1, $KEY1_WITH_MORE_2" );
+    }
+}
