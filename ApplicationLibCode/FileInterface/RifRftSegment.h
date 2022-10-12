@@ -75,6 +75,7 @@ public:
 
     std::vector<size_t> segmentIndicesForBranchNumber( int branchNumber ) const;
     std::vector<size_t> segmentIndicesForBranchIndex( int branchIndex, RiaDefines::RftBranchType branchType ) const;
+    std::vector<size_t> packerSegmentIndicesOnAnnulus( int branchIndex ) const;
 
     std::vector<int> segmentNumbersForBranchIndex( int oneBasedBranchIndex, RiaDefines::RftBranchType branchType ) const;
 

@@ -316,6 +316,32 @@ std::vector<size_t> RifRftSegment::segmentIndicesForBranchIndex( int branchIndex
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<size_t> RifRftSegment::packerSegmentIndicesOnAnnulus( int branchIndex ) const
+{
+    auto segmentIndices = segmentIndicesForBranchIndex( branchIndex, RiaDefines::RftBranchType::RFT_ANNULUS );
+
+    std::vector<size_t> packerSegmentIndices;
+
+    for ( auto segmentIndex : segmentIndices )
+    {
+        auto segment              = m_topology[segmentIndex];
+        auto outflowSegmentNumber = segment.segNext();
+
+        auto candidateSegment    = segmentData( outflowSegmentNumber );
+        auto candidateBranchType = branchType( candidateSegment->segBrno() );
+
+        if ( candidateBranchType == RiaDefines::RftBranchType::RFT_DEVICE )
+        {
+            packerSegmentIndices.push_back( segmentIndex );
+        }
+    }
+
+    return packerSegmentIndices;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<int> RifRftSegment::segmentNumbersForBranchIndex( int                       oneBasedBranchIndex,
                                                               RiaDefines::RftBranchType branchType ) const
 {

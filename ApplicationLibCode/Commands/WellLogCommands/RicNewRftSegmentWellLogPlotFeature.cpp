@@ -149,8 +149,13 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
 
     for ( auto branchType : branchTypes )
     {
-        auto curve = new RimRftTopologyCurve;
-        curve->setDataSource( summaryCase, dateTime, wellName, branchIndex, branchType );
+        auto curve = RimRftTopologyCurve::createTopologyCurve( summaryCase, dateTime, wellName, branchIndex, branchType );
+        curve->applyDefaultAppearance();
+        track->addCurve( curve );
+    }
+
+    {
+        auto curve = RimRftTopologyCurve::createPackerCurve( summaryCase, dateTime, wellName, branchIndex );
         curve->applyDefaultAppearance();
         track->addCurve( curve );
     }
