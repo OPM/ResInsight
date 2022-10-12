@@ -63,6 +63,11 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     if ( !summaryCase ) return;
 
     auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
+    plot->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
+    QString templateText = RiaDefines::namingVariableCase() + ", " + RiaDefines::namingVariableWell() + " - Branch " +
+                           RiaDefines::namingVariableWellBranch() + ", " + RiaDefines::namingVariableTime();
+    plot->setNameTemplateText( templateText );
+    plot->setPlotTitleVisible( true );
 
     QString wellName = "Unknown";
 
@@ -109,6 +114,11 @@ void RicNewMultiPhaseRftSegmentPlotFeature::appendTrackAndCurveForBranchType( Ri
     for ( const auto& resultName : resultNames )
     {
         auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, resultName, wellName, branchType, summaryCase );
+        curve->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
+
+        QString templateText = RiaDefines::namingVariableResultName() + ", " + RiaDefines::namingVariableResultType();
+        curve->setCurveNameTemplateText( templateText );
+
         curve->setIsStacked( true );
         curve->loadDataAndUpdate( true );
 
