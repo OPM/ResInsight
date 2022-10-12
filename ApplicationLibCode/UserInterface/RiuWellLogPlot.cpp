@@ -2,6 +2,7 @@
 
 #include "RimDepthTrackPlot.h"
 #include "RimPlotWindow.h"
+#include "RimWellLogTrack.h"
 
 #include "RiuQwtPlotWidget.h"
 #include "RiuWellLogTrack.h"
@@ -39,7 +40,7 @@ RiuWellLogPlot::RiuWellLogPlot( RimDepthTrackPlot* plotDefinition, QWidget* pare
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDepthTrackPlot* RiuWellLogPlot::depthTrackPlot()
+RimDepthTrackPlot* RiuWellLogPlot::depthTrackPlot() const
 {
     auto* wellLogPlot = dynamic_cast<RimDepthTrackPlot*>( m_plotDefinition.p() );
     CAF_ASSERT( wellLogPlot );
@@ -101,7 +102,25 @@ void RiuWellLogPlot::renderTo( QPaintDevice* paintDevice )
 //--------------------------------------------------------------------------------------------------
 bool RiuWellLogPlot::showYAxis( int row, int column ) const
 {
-    return column == 0;
+    if ( depthTrackPlot() )
+    {
+        if ( depthTrackPlot()->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        {
+            return column == 0;
+        }
+
+        auto index = std::max( row, column );
+        if ( index < depthTrackPlot()->plots().size() )
+        {
+            auto track = dynamic_cast<RimWellLogTrack*>( depthTrackPlot()->plotByIndex( index ) );
+            if ( track )
+            {
+                return track->isPropertyAxisEnabled();
+            }
+        }
+    }
+
+    return true;
 }
 
 //--------------------------------------------------------------------------------------------------

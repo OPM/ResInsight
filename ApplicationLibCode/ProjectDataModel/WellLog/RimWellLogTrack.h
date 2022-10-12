@@ -202,7 +202,9 @@ public:
     std::vector<RimWellLogCurve*> visibleCurves() const;
 
     void uiOrderingForRftPltFormations( caf::PdmUiOrdering& uiOrdering );
-    void uiOrderingForXAxisSettings( caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForPropertyAxisSettings( caf::PdmUiOrdering& uiOrdering );
+    void enablePropertyAxis( bool enable );
+    bool isPropertyAxisEnabled() const;
 
     void setFormationsForCaseWithSimWellOnly( bool caseWithSimWellOnly );
     void updatePropertyValueAxisAndGridTickIntervals();
@@ -316,25 +318,25 @@ private:
     bool isEmptyVisiblePropertyRange() const;
 
 private:
-    QString m_propertyValueAxisTitle;
-
-    caf::PdmField<QString> m_description;
-
+    caf::PdmField<QString>                    m_description;
     caf::PdmChildArrayField<RimWellLogCurve*> m_curves;
-    caf::PdmField<double>                     m_visiblePropertyValueRangeMin;
-    caf::PdmField<double>                     m_visiblePropertyValueRangeMax;
-    caf::PdmField<double>                     m_visibleDepthRangeMin;
-    caf::PdmField<double>                     m_visibleDepthRangeMax;
 
+    // Property value axis
+    caf::PdmField<bool>                         m_isPropertyAxisEnabled;
+    caf::PdmField<double>                       m_visiblePropertyValueRangeMin;
+    caf::PdmField<double>                       m_visiblePropertyValueRangeMax;
     caf::PdmField<bool>                         m_isAutoScalePropertyValuesEnabled;
-    caf::PdmField<bool>                         m_isLogarithmicScaleEnabled;
+    caf::PdmField<bool>                         m_isPropertyLogarithmicScaleEnabled;
     caf::PdmField<bool>                         m_invertPropertyValueAxis;
     caf::PdmField<RimWellLogPlot::AxisGridEnum> m_propertyValueAxisGridVisibility;
+    caf::PdmField<bool>                         m_propertyAxisMinAndMaxTicksOnly;
+    caf::PdmField<bool>                         m_explicitTickIntervalsPropertyValueAxis;
+    caf::PdmField<double>                       m_majorTickIntervalPropertyAxis;
+    caf::PdmField<double>                       m_minorTickIntervalPropertyAxis;
 
-    caf::PdmField<bool>   m_explicitTickIntervals;
-    caf::PdmField<bool>   m_minAndMaxTicksOnly;
-    caf::PdmField<double> m_majorTickInterval;
-    caf::PdmField<double> m_minorTickInterval;
+    // Depth axis
+    caf::PdmField<double> m_visibleDepthRangeMin;
+    caf::PdmField<double> m_visibleDepthRangeMax;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisFontSize;
 
@@ -374,8 +376,9 @@ private:
     QPointer<RiuWellLogTrack>              m_plotWidget;
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;
 
-    double m_availablePropertyValueRangeMin;
-    double m_availablePropertyValueRangeMax;
-    double m_availableDepthRangeMin;
-    double m_availableDepthRangeMax;
+    QString m_propertyValueAxisTitle;
+    double  m_availablePropertyValueRangeMin;
+    double  m_availablePropertyValueRangeMax;
+    double  m_availableDepthRangeMin;
+    double  m_availableDepthRangeMax;
 };
