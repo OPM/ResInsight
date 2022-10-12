@@ -391,6 +391,14 @@ void RimPlotCurve::updateCurveNameNoLegendUpdate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimPlotCurve::setCurveNameTemplateText( const QString& templateText )
+{
+    m_curveNameTemplateText = templateText;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimPlotCurve::setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod )
 {
     m_namingMethod = namingMethod;

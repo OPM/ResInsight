@@ -22,6 +22,8 @@
 #include "RiaGuiApplication.h"
 #include "RiaOptionItemFactory.h"
 #include "RiaPreferences.h"
+#include "RiaQDateTimeTools.h"
+#include "RiaTextStringTools.h"
 
 #include "RiaResultNames.h"
 #include "RigWellLogCurveData.h"
@@ -506,14 +508,7 @@ void RimDepthTrackPlot::uiOrderingForAutoName( QString uiConfigName, caf::PdmUiO
 //--------------------------------------------------------------------------------------------------
 QString RimDepthTrackPlot::createPlotNameFromTemplate( const QString& templateText ) const
 {
-    QString curveName = templateText;
-
-    for ( const auto& [key, value] : createNameKeyValueMap() )
-    {
-        curveName.replace( key, value );
-    }
-
-    return curveName;
+    return RiaTextStringTools::replaceTemplateTextWithValues( templateText, createNameKeyValueMap() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -523,6 +518,7 @@ QStringList RimDepthTrackPlot::supportedPlotNameVariables() const
 {
     return { RiaDefines::namingVariableCase(),
              RiaDefines::namingVariableWell(),
+             RiaDefines::namingVariableWellBranch(),
              RiaDefines::namingVariableTime(),
              RiaDefines::namingVariableAirGap() };
 }
@@ -556,6 +552,19 @@ std::map<QString, QString> RimDepthTrackPlot::createNameKeyValueMap() const
 
             auto wellName = m_commonDataSource->rftWellName();
             if ( !wellName.isEmpty() ) variableValueMap[RiaDefines::namingVariableWell()] = wellName;
+
+            auto dateTime = m_commonDataSource->rftTime();
+            if ( dateTime.isValid() )
+            {
+                variableValueMap[RiaDefines::namingVariableTime()] =
+                    dateTime.toString( RiaQDateTimeTools::dateFormatString() );
+            }
+
+            auto branchIndex = m_commonDataSource->rftBranchIndex();
+            if ( branchIndex >= 0 )
+            {
+                variableValueMap[RiaDefines::namingVariableWellBranch()] = QString::number( branchIndex );
+            }
         }
     }
 

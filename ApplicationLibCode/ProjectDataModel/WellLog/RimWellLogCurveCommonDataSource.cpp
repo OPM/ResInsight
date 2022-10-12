@@ -1202,3 +1202,21 @@ QString RimWellLogCurveCommonDataSource::rftWellName() const
 {
     return m_rftWellName();
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QDateTime RimWellLogCurveCommonDataSource::rftTime() const
+{
+    return m_rftTimeStep();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimWellLogCurveCommonDataSource::rftBranchIndex() const
+{
+    if ( m_uniqueRftBranchIndices.size() == 1 ) return m_rftSegmentBranchIndex();
+
+    return -1;
+}
