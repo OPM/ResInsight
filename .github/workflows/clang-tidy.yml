@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
   schedule:
     # Once every night
-    - cron: '0 1 * * * '
+    - cron: "0 1 * * * "
 
 jobs:
   ResInsight-x64-buildcache:
@@ -13,32 +13,29 @@ jobs:
       fail-fast: false
       matrix:
         config:
-        - {
-            name: "Ubuntu 20.04",
-            os: ubuntu-20.04,
-            cc: "gcc", cxx: "g++",
-            vcpkg-response-file: vcpkg_x64-linux.txt,
-            vcpkg-triplet: x64-linux,
-            cmake-toolchain: 'ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake'
-          }
+          - {
+              name: "Ubuntu 20.04",
+              os: ubuntu-20.04,
+              cc: "gcc",
+              cxx: "g++",
+              vcpkg-response-file: vcpkg_x64-linux.txt,
+              vcpkg-triplet: x64-linux,
+              cmake-toolchain: "ThirdParty/vcpkg/scripts/buildsystems/vcpkg.cmake",
+            }
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
-      - name: Cache Qt        
-        id: cache-qt
-        uses: actions/cache@v2
-        with:
-          path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-5-12-12
+
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
           version: 5.12.12
-          modules: qtscript qtcharts
-          dir: '${{ github.workspace }}/Qt/'
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          modules: qtscript
+          dir: "${{ github.workspace }}/Qt/"
+          cache: true
+
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
         run: sudo apt-get install libxkbcommon-x11-0 libgl1-mesa-dev mesa-common-dev libglfw3-dev libglu1-mesa-dev libhdf5-dev
@@ -47,12 +44,13 @@ jobs:
         with:
           VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@v7
+        uses: lukka/run-vcpkg@v10
         id: runvcpkg
         with:
-          vcpkgArguments: '@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}'
-          vcpkgDirectory: '${{ github.workspace }}/ThirdParty/vcpkg'
-           # Ensure the cache key changes any time the content of the response file changes.
+          vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
+          vcpkgDirectory:
+            "${{ github.workspace }}/ThirdParty/vcpkg"
+            # Ensure the cache key changes any time the content of the response file changes.
           appendedCacheKey: ${{ hashFiles(env.VCPKGRESPONSEFILE) }}-clang-tidy-v01
       - name: Create compile commands and run clang-tidy
         # https://clang.llvm.org/extra/doxygen/run-clang-tidy_8py_source.html
@@ -89,10 +87,10 @@ jobs:
           cd ThirdParty/vcpkg
           git reset --hard HEAD
           git clean -fxd
-      - uses: peter-evans/create-pull-request@v3
+      - uses: peter-evans/create-pull-request@v4
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
-          commit-message: 'Fixes by clang-tidy'
-          title: 'Fixes by clang-tidy'
+          commit-message: "Fixes by clang-tidy"
+          title: "Fixes by clang-tidy"
           branch: clang-tidy-patches
           branch-suffix: random

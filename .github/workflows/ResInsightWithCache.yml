@@ -52,7 +52,7 @@ jobs:
             }
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           submodules: true
 
@@ -124,20 +124,13 @@ jobs:
         run: echo "${{github.workspace}}/buildcache/bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
         shell: pwsh
 
-      - name: Cache Qt
-        id: cache-qt
-        uses: actions/cache@v3
-        with:
-          path: ${{ github.workspace }}/Qt/
-          key: ${{ matrix.config.os }}-QtCache-5-12-12
       - name: Install Qt
-        uses: jurplel/install-qt-action@v2
+        uses: jurplel/install-qt-action@v3
         with:
-          setup-python: false
           version: 5.12.12
-          modules: qtscript qtcharts
+          modules: qtscript
           dir: "${{ github.workspace }}/Qt/"
-          cached: ${{ steps.cache-qt.outputs.cache-hit }}
+          cache: true
 
       - name: Install Linux dependencies
         if: "contains( matrix.config.os, 'ubuntu')"
