@@ -51,7 +51,12 @@ RiuQwtPlotLegend::RiuQwtPlotLegend( QWidget* parent /*= nullptr */ )
 void RiuQwtPlotLegend::resizeEvent( QResizeEvent* event )
 {
     QWidget::resizeEvent( event );
-    QSize                   size         = event->size();
+
+    QSize size = event->size();
+
+    // Avoid updating geometry if height is very small
+    if ( size.height() < 10 ) return;
+
     const QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
     if ( legendLayout )
     {

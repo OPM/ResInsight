@@ -193,7 +193,12 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
         legend->setMaxColumns( legendColumns );
         legend->horizontalScrollBar()->setVisible( false );
         legend->verticalScrollBar()->setVisible( false );
-        legend->setDefaultItemMode( QwtLegendData::Clickable );
+
+        // The legend item mode must be set before the widget is created
+        // See https://qwt.sourceforge.io/class_qwt_legend.html#af977ff3e749f8281ee8ad4b926542b50
+        auto legendItemMode = m_plotDefinition->legendsClickable() ? QwtLegendData::Clickable : QwtLegendData::ReadOnly;
+        legend->setDefaultItemMode( legendItemMode );
+
         if ( qwtPlotWidget )
         {
             legend->connect( qwtPlotWidget->qwtPlot(),
@@ -744,11 +749,17 @@ void RiuMultiPlotPage::addLegendWidget( RiuPlotWidget*            plotWidget,
     }
     else
     {
-        CAF_ASSERT( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE );
+        auto anchor = RiuDraggableOverlayFrame::AnchorCorner::TopRight;
+
+        if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE_UPPER_RIGHT )
+            anchor = RiuDraggableOverlayFrame::AnchorCorner::TopRight;
+        else if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT )
+            anchor = RiuDraggableOverlayFrame::AnchorCorner::TopLeft;
+
         auto overlayFrame = new RiuQwtLegendOverlayContentFrame;
         overlayFrame->setLegend( legend );
         legendFrame->setContentFrame( overlayFrame );
-        legendFrame->setAnchorCorner( RiuDraggableOverlayFrame::AnchorCorner::TopRight );
+        legendFrame->setAnchorCorner( anchor );
         plotWidget->removeOverlayFrame( legendFrame );
         plotWidget->addOverlayFrame( legendFrame );
     }
@@ -769,7 +780,8 @@ void RiuMultiPlotPage::updateLegendVisibility( RiuPlotWidget*            plotWid
         updateLegendFont( legend );
         legend->show();
 
-        if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE )
+        if ( m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT ||
+             m_plotDefinition->legendPosition() == RimPlotWindow::LegendPosition::INSIDE_UPPER_RIGHT )
         {
             plotWidget->addOverlayFrame( legendFrame );
             legendFrame->show();
