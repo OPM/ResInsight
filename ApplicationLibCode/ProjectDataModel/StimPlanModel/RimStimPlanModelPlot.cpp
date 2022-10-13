@@ -133,6 +133,8 @@ void RimStimPlanModelPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedF
                                              const QVariant&            oldValue,
                                              const QVariant&            newValue )
 {
+    RimDepthTrackPlot::fieldChangedByUi( changedField, oldValue, newValue );
+
     if ( m_stimPlanModel )
     {
         if ( changedField == &m_eclipseCase || changedField == &m_timeStep )

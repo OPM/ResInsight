@@ -73,13 +73,13 @@ protected:
                 RimWellLogPlot* wlp = nullptr;
                 m_wellLogTrack->firstAncestorOfType( wlp );
 
-                if ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+                if ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
                 {
-                    str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
+                    str = QString( "%1\nDepth: %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
                 }
                 else
                 {
-                    str = QString( "%1\nDepth: %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
+                    str = QString( "%1\nDepth: %2" ).arg( xAxisValueString ).arg( depthAxisValueString );
                 }
 
                 if ( !curveInfoText.isEmpty() )
