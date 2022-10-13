@@ -974,7 +974,7 @@ void RimWellRftPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
         if ( track )
         {
             track->uiOrderingForRftPltFormations( uiOrdering );
-            track->uiOrderingForXAxisSettings( uiOrdering );
+            track->uiOrderingForPropertyAxisSettings( uiOrdering );
             caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis Settings" );
             uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 

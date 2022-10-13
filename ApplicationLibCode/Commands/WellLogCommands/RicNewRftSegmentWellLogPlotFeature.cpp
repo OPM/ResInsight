@@ -67,6 +67,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
                            RiaDefines::namingVariableWellBranch() + ", " + RiaDefines::namingVariableTime();
     plot->setNameTemplateText( templateText );
     plot->setPlotTitleVisible( true );
+    plot->setLegendItemsClickable( false );
 
     QString wellName = "Unknown";
 
@@ -140,6 +141,7 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
 
     auto track = new RimWellLogTrack();
     track->setDescription( "Topology" );
+    track->enablePropertyAxis( false );
 
     plot->addPlot( track );
 
@@ -149,8 +151,13 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
 
     for ( auto branchType : branchTypes )
     {
-        auto curve = new RimRftTopologyCurve;
-        curve->setDataSource( summaryCase, dateTime, wellName, branchIndex, branchType );
+        auto curve = RimRftTopologyCurve::createTopologyCurve( summaryCase, dateTime, wellName, branchIndex, branchType );
+        curve->applyDefaultAppearance();
+        track->addCurve( curve );
+    }
+
+    {
+        auto curve = RimRftTopologyCurve::createPackerCurve( summaryCase, dateTime, wellName, branchIndex );
         curve->applyDefaultAppearance();
         track->addCurve( curve );
     }

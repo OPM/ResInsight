@@ -47,7 +47,8 @@ public:
     enum class LegendPosition
     {
         ABOVE,
-        INSIDE,
+        INSIDE_UPPER_RIGHT,
+        INSIDE_UPPER_LEFT,
     };
 
     RimPlotWindow();
@@ -65,6 +66,8 @@ public:
     void                          setLegendsVisible( bool doShow );
     bool                          legendsHorizontal() const;
     void                          setLegendsHorizontal( bool horizontal );
+    bool                          legendItemsClickable() const;
+    void                          setLegendItemsClickable( bool clickable );
     void                          setLegendPosition( RimPlotWindow::LegendPosition legendPosition );
     RimPlotWindow::LegendPosition legendPosition() const;
 
@@ -112,6 +115,7 @@ protected:
     caf::PdmField<bool>                         m_showPlotTitle;
     caf::PdmField<bool>                         m_showPlotLegends;
     caf::PdmField<bool>                         m_plotLegendsHorizontal;
+    caf::PdmField<bool>                         m_legendItemsClickable;
     caf::PdmField<caf::AppEnum<LegendPosition>> m_legendPosition;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;

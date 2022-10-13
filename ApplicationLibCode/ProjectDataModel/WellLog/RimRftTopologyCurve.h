@@ -38,11 +38,16 @@ class RimRftTopologyCurve : public RimWellLogCurve
 public:
     RimRftTopologyCurve();
 
-    void setDataSource( RimSummaryCase*           summaryCase,
-                        const QDateTime&          timeStep,
-                        const QString&            wellName,
-                        int                       segmentBranchIndex,
-                        RiaDefines::RftBranchType branchType );
+    static RimRftTopologyCurve* createPackerCurve( RimSummaryCase*  summaryCase,
+                                                   const QDateTime& timeStep,
+                                                   const QString&   wellName,
+                                                   int              segmentBranchIndex );
+
+    static RimRftTopologyCurve* createTopologyCurve( RimSummaryCase*           summaryCase,
+                                                     const QDateTime&          timeStep,
+                                                     const QString&            wellName,
+                                                     int                       segmentBranchIndex,
+                                                     RiaDefines::RftBranchType branchType );
 
     void setDataSource( RimSummaryCase* summaryCase, const QDateTime& timeStep, const QString& wellName, int segmentBranchIndex );
 
@@ -67,4 +72,6 @@ private:
     caf::PdmField<QString>                                 m_wellName;
     caf::PdmField<int>                                     m_segmentBranchIndex;
     caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_segmentBranchType;
+
+    caf::PdmField<bool> m_isPackerCurve;
 };

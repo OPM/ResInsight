@@ -19,6 +19,7 @@
 #include "RimRftTopologyCurve.h"
 
 #include "RiaColorTables.h"
+#include "RiaColorTools.h"
 #include "RiaSummaryTools.h"
 
 #include "RifReaderOpmRft.h"
@@ -50,20 +51,39 @@ RimRftTopologyCurve::RimRftTopologyCurve()
 
     CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Branch" );
     CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
+
+    CAF_PDM_InitField( &m_isPackerCurve, "IsPackerCurve", false, "Packer Curve" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimRftTopologyCurve::setDataSource( RimSummaryCase*           summaryCase,
-                                         const QDateTime&          timeStep,
-                                         const QString&            wellName,
-                                         int                       segmentBranchIndex,
-                                         RiaDefines::RftBranchType branchType )
+RimRftTopologyCurve* RimRftTopologyCurve::createPackerCurve( RimSummaryCase*  summaryCase,
+                                                             const QDateTime& timeStep,
+                                                             const QString&   wellName,
+                                                             int              segmentBranchIndex )
 {
-    setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
+    RimRftTopologyCurve* curve = new RimRftTopologyCurve();
+    curve->setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
+    curve->m_isPackerCurve = true;
 
-    m_segmentBranchType = branchType;
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRftTopologyCurve* RimRftTopologyCurve::createTopologyCurve( RimSummaryCase*           summaryCase,
+                                                               const QDateTime&          timeStep,
+                                                               const QString&            wellName,
+                                                               int                       segmentBranchIndex,
+                                                               RiaDefines::RftBranchType branchType )
+{
+    RimRftTopologyCurve* curve = new RimRftTopologyCurve();
+    curve->setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
+    curve->m_segmentBranchType = branchType;
+
+    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,7 +105,7 @@ void RimRftTopologyCurve::setDataSource( RimSummaryCase*  summaryCase,
 //--------------------------------------------------------------------------------------------------
 QString RimRftTopologyCurve::wellName() const
 {
-    return "Topology curve";
+    return m_wellName;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -111,9 +131,16 @@ QString RimRftTopologyCurve::createCurveAutoName()
 {
     QString text;
 
-    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) text += "Annulus";
-    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) text += "Device";
-    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) text += "Tubing";
+    if ( m_isPackerCurve() )
+    {
+        text += "Packer";
+    }
+    else
+    {
+        if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) text += "Annulus";
+        if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) text += "Device";
+        if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) text += "Tubing";
+    }
 
     text += QString( " (%1)" ).arg( m_segmentBranchIndex() );
 
@@ -131,8 +158,13 @@ void RimRftTopologyCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     curveDataGroup->add( &m_summaryCase );
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
+    curveDataGroup->add( &m_isPackerCurve );
+
     curveDataGroup->add( &m_segmentBranchIndex );
-    curveDataGroup->add( &m_segmentBranchType );
+    if ( !m_isPackerCurve() )
+    {
+        curveDataGroup->add( &m_segmentBranchType );
+    }
 
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
     RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
@@ -225,23 +257,44 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 std::vector<double> depths;
                 std::vector<double> propertyValues;
 
-                // Assign a static property value to each type of curve to make sure they all are separated and easily
-                // visible
+                // Assign a static property value to each type of curve to make sure they all are separated and
+                // easily visible
                 double curveValue = 1.0;
                 if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) curveValue = 2.0;
                 if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) curveValue = 3.0;
                 if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) curveValue = 4.0;
 
+                if ( m_isPackerCurve )
+                {
+                    curveValue = 3.5;
+                }
+
                 // Adjust the location of each branch if multiple branches are visible at the same time
                 curveValue += m_segmentBranchIndex() * 0.2;
 
-                for ( auto segmentIndex : segmentIndices )
+                if ( m_isPackerCurve )
                 {
-                    depths.push_back( seglenstValues[segmentIndex] );
-                    depths.push_back( seglenenValues[segmentIndex] );
+                    auto packerSegmentIndices = segment.packerSegmentIndicesOnAnnulus( m_segmentBranchIndex() );
 
-                    propertyValues.push_back( curveValue );
-                    propertyValues.push_back( curveValue );
+                    for ( auto segmentIndex : packerSegmentIndices )
+                    {
+                        depths.push_back( seglenstValues[segmentIndex] );
+                        depths.push_back( seglenenValues[segmentIndex] );
+
+                        propertyValues.push_back( curveValue );
+                        propertyValues.push_back( curveValue );
+                    }
+                }
+                else
+                {
+                    for ( auto segmentIndex : segmentIndices )
+                    {
+                        depths.push_back( seglenstValues[segmentIndex] );
+                        depths.push_back( seglenenValues[segmentIndex] );
+
+                        propertyValues.push_back( curveValue );
+                        propertyValues.push_back( curveValue );
+                    }
                 }
 
                 RimDepthTrackPlot* wellLogPlot;
@@ -255,16 +308,16 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 // Assign curve values based on horizontal or vertical plot
                 setPropertyAndDepthValuesToPlotCurve( propertyValues, depths );
+            }
 
-                if ( updateParentPlot )
-                {
-                    updateZoomInParentPlot();
-                }
+            if ( updateParentPlot )
+            {
+                updateZoomInParentPlot();
+            }
 
-                if ( m_parentPlot )
-                {
-                    m_parentPlot->replot();
-                }
+            if ( m_parentPlot )
+            {
+                m_parentPlot->replot();
             }
         }
     }
@@ -275,23 +328,41 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
 //--------------------------------------------------------------------------------------------------
 void RimRftTopologyCurve::applyDefaultAppearance()
 {
-    cvf::Color3f color = cvf::Color3f::BLUE;
-    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING )
+    if ( m_isPackerCurve() )
     {
-        color = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f( 0 );
-    }
-    else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
-    {
-        color = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f( 1 );
-        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-    }
-    else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS )
-    {
-        color = RiaColorTables::wellLogPlotPaletteColors().cycledColor3f( 2 );
-        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
-    }
+        auto color              = RiaColorTools::fromQColorTo3f( QColor( "DarkGoldenRod" ) );
+        int  adjustedSymbolSize = symbolSize() * 2;
 
-    setColor( color );
-    setLineThickness( 5.0 );
-    setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
+        setColor( color );
+        setSymbolSize( adjustedSymbolSize );
+        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+        setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
+    }
+    else
+    {
+        if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING )
+        {
+            auto color = RiaColorTools::fromQColorTo3f( QColor( "ForestGreen" ) );
+            setColor( color );
+            setLineThickness( 5.0 );
+        }
+        else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
+        {
+            auto color = RiaColorTools::fromQColorTo3f( QColor( "IndianRed" ) );
+            setColor( color );
+            setSymbolEdgeColor( color );
+            setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+        }
+        else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS )
+        {
+            auto color = RiaColorTools::fromQColorTo3f( QColor( "DeepSkyBlue" ) );
+            setColor( color );
+            setSymbolEdgeColor( color );
+            setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+        }
+
+        int adjustedSymbolSize = symbolSize() * 1.5;
+        setSymbolSize( adjustedSymbolSize );
+        setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
+    }
 }
