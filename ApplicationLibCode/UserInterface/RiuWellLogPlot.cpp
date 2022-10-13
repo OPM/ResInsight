@@ -109,7 +109,7 @@ bool RiuWellLogPlot::showYAxis( int row, int column ) const
             return column == 0;
         }
 
-        auto index = std::max( row, column );
+        auto index = static_cast<size_t>( std::max( row, column ) );
         if ( index < depthTrackPlot()->plots().size() )
         {
             auto track = dynamic_cast<RimWellLogTrack*>( depthTrackPlot()->plotByIndex( index ) );
