@@ -330,50 +330,39 @@ void RimRftTopologyCurve::applyDefaultAppearance()
 {
     if ( m_isPackerCurve() )
     {
-        auto col   = QColor( "DarkGoldenRod" );
-        auto color = RiaColorTools::fromQColorTo3f( col );
-
-        auto symbol     = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT;
-        int  packerSize = symbolSize() * 2;
-        setSymbolSize( packerSize );
-        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+        auto color              = RiaColorTools::fromQColorTo3f( QColor( "DarkGoldenRod" ) );
+        int  adjustedSymbolSize = symbolSize() * 2;
 
         setColor( color );
-        setLineThickness( 5.0 );
-        setSymbol( symbol );
+        setSymbolSize( adjustedSymbolSize );
+        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+        setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
     }
     else
     {
         if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING )
         {
-            auto col   = QColor( "ForestGreen" );
-            auto color = RiaColorTools::fromQColorTo3f( col );
+            auto color = RiaColorTools::fromQColorTo3f( QColor( "ForestGreen" ) );
             setColor( color );
+            setLineThickness( 5.0 );
         }
         else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
         {
-            auto col    = QColor( "IndianRed" );
-            auto color  = RiaColorTools::fromQColorTo3f( col );
-            auto symbol = RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE;
+            auto color = RiaColorTools::fromQColorTo3f( QColor( "IndianRed" ) );
             setColor( color );
             setSymbolEdgeColor( color );
-
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
         else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS )
         {
-            auto col   = QColor( "DeepSkyBlue" );
-            auto color = RiaColorTools::fromQColorTo3f( col );
+            auto color = RiaColorTools::fromQColorTo3f( QColor( "DeepSkyBlue" ) );
             setColor( color );
             setSymbolEdgeColor( color );
-
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
 
-        int packerSize = symbolSize() * 1.5;
-        setSymbolSize( packerSize );
-
-        setLineThickness( 5.0 );
+        int adjustedSymbolSize = symbolSize() * 1.5;
+        setSymbolSize( adjustedSymbolSize );
         setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_ELLIPSE );
     }
 }
