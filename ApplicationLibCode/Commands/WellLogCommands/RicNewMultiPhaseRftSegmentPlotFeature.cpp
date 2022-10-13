@@ -68,7 +68,7 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
                            RiaDefines::namingVariableWellBranch() + ", " + RiaDefines::namingVariableTime();
     plot->setNameTemplateText( templateText );
     plot->setPlotTitleVisible( true );
-    plot->setLegendsClickable( false );
+    plot->setLegendItemsClickable( false );
 
     QString wellName = "Unknown";
 

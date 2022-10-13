@@ -161,7 +161,7 @@ void RimPlotWindow::setLegendsHorizontal( bool horizontal )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimPlotWindow::legendsClickable() const
+bool RimPlotWindow::legendItemsClickable() const
 {
     return m_legendItemsClickable();
 }
@@ -169,7 +169,7 @@ bool RimPlotWindow::legendsClickable() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::setLegendsClickable( bool clickable )
+void RimPlotWindow::setLegendItemsClickable( bool clickable )
 {
     m_legendItemsClickable = clickable;
 }

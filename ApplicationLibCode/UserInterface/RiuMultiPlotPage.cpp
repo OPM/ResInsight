@@ -196,7 +196,7 @@ void RiuMultiPlotPage::insertPlot( RiuPlotWidget* plotWidget, size_t index )
 
         // The legend item mode must be set before the widget is created
         // See https://qwt.sourceforge.io/class_qwt_legend.html#af977ff3e749f8281ee8ad4b926542b50
-        auto legendItemMode = m_plotDefinition->legendsClickable() ? QwtLegendData::Clickable : QwtLegendData::ReadOnly;
+        auto legendItemMode = m_plotDefinition->legendItemsClickable() ? QwtLegendData::Clickable : QwtLegendData::ReadOnly;
         legend->setDefaultItemMode( legendItemMode );
 
         if ( qwtPlotWidget )

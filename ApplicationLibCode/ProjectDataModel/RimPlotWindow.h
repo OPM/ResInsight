@@ -66,8 +66,8 @@ public:
     void                          setLegendsVisible( bool doShow );
     bool                          legendsHorizontal() const;
     void                          setLegendsHorizontal( bool horizontal );
-    bool                          legendsClickable() const;
-    void                          setLegendsClickable( bool clickable );
+    bool                          legendItemsClickable() const;
+    void                          setLegendItemsClickable( bool clickable );
     void                          setLegendPosition( RimPlotWindow::LegendPosition legendPosition );
     RimPlotWindow::LegendPosition legendPosition() const;
 
