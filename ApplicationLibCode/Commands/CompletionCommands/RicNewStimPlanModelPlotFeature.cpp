@@ -456,6 +456,8 @@ RimStimPlanModelPlot* RicNewStimPlanModelPlotFeature::createStimPlanModelPlot( b
             QString( "StimPlan Model Plot %1" ).arg( stimPlanModelPlotCollection()->stimPlanModelPlots().size() ) );
     }
 
+    stimPlanModelPlotColl->updateAllRequiredEditors();
+
     if ( showAfterCreation )
     {
         RiaGuiApplication::instance()->getOrCreateAndShowMainPlotWindow();
