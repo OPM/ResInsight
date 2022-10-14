@@ -458,15 +458,15 @@ void RimWellLogRftCurve::assignColorFromResultName( const QString& resultName )
 {
     cvf::Color3f color = cvf::Color3f::BLACK;
 
-    if ( resultName.startsWith( "SEGO" ) || resultName.startsWith( "CONO" ) )
+    if ( resultName.startsWith( "SEGO" ) || resultName.startsWith( "CONO" ) || resultName.startsWith( "SOIL" ) )
     {
         color = RiaColorTables::summaryCurveGreenPaletteColors().cycledColor3f( 0 );
     }
-    else if ( resultName.startsWith( "SEGW" ) || resultName.startsWith( "CONW" ) )
+    else if ( resultName.startsWith( "SEGW" ) || resultName.startsWith( "CONW" ) || resultName.startsWith( "SWAT" ) )
     {
         color = RiaColorTables::summaryCurveBluePaletteColors().cycledColor3f( 0 );
     }
-    else if ( resultName.startsWith( "SEGG" ) || resultName.startsWith( "CONG" ) )
+    else if ( resultName.startsWith( "SEGG" ) || resultName.startsWith( "CONG" ) || resultName.startsWith( "SGAS" ) )
     {
         color = RiaColorTables::summaryCurveRedPaletteColors().cycledColor3f( 0 );
     }

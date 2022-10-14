@@ -39,6 +39,8 @@
 ///
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName )
+    : m_segmentResultItemCount( 0 )
+    , m_connectionResultItemCount( 0 )
 {
     openFiles( fileName, dataDeckFileName );
 }
@@ -47,6 +49,8 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDe
 ///
 //--------------------------------------------------------------------------------------------------
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
+    : m_segmentResultItemCount( 0 )
+    , m_connectionResultItemCount( 0 )
 {
     openFiles( fileName, "" );
 }
@@ -116,7 +120,7 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                 auto key     = std::make_pair( wellName, RftDate{ y, m, d } );
                 auto segment = m_rftWellDateSegments[key];
 
-                if ( resultName.find( "CON" ) == 0 )
+                if ( data.size() == m_connectionResultItemCount )
                 {
                     // Connection results with size equal to length of result CONSEGNO. CONSEGNO defines the segment
                     // numbers the connection is connected to.
@@ -505,10 +509,24 @@ void RifReaderOpmRft::buildSegmentData()
             segment.setSegmentData( segmentsForWellDate );
 
             auto arraysAtWellDate = m_opm_rft->listOfRftArrays( wellName, date );
+
             for ( const auto& rftResultMetaData : arraysAtWellDate )
             {
                 auto [name, arrayType, size] = rftResultMetaData;
-                if ( ( name.find( "SEG" ) == 0 ) || ( name.find( "CON" ) == 0 ) )
+                if ( ( name.find( "SEG" ) == 0 ) && m_segmentResultItemCount == 0 )
+                {
+                    m_segmentResultItemCount = size;
+                }
+                if ( name.find( "CON" ) == 0 && m_connectionResultItemCount == 0 )
+                {
+                    m_connectionResultItemCount = size;
+                }
+            }
+
+            for ( const auto& rftResultMetaData : arraysAtWellDate )
+            {
+                auto [name, arrayType, size] = rftResultMetaData;
+                if ( size == m_segmentResultItemCount || size == m_connectionResultItemCount )
                 {
                     segment.addResultNameAndSize( rftResultMetaData );
                 }
@@ -580,8 +598,8 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
     // The device segment is connected to a segment on the tubing branch
     //
     // Annulus branch
-    // Layer between device branch and reservoir. The segment connection data is imported from WSEGLINK in the data
-    // deck
+    // Layer between device branch and reservoir. The segment connection data is imported from WSEGLINK in the
+    // data deck
 
     auto           wellName   = segmentKey.first;
     auto           date       = segmentKey.second;
@@ -616,8 +634,9 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
         identifyTubingCandidateBranches( segmentRef, wellName, seglenstValues, seglenenValues );
         identifyAnnulusBranches( segmentRef, seglenstValues );
 
-        // The tubing branches are given increasing branch indices. If a tubing branch is categorized as an annulus
-        // branch, the index values must be reassigned. Each triplet of tubing/device/annulus has a unique branch index.
+        // The tubing branches are given increasing branch indices. If a tubing branch is categorized as an
+        // annulus branch, the index values must be reassigned. Each triplet of tubing/device/annulus has a
+        // unique branch index.
         reassignBranchIndices( segmentRef );
 
         identifyDeviceBranches( segmentRef, seglenstValues );
@@ -723,8 +742,8 @@ void RifReaderOpmRft::identifyTubingCandidateBranches( RifRftSegment&           
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::identifyAnnulusBranches( RifRftSegment& segmentRef, const std::vector<double>& seglenstValues )
 {
-    // If no WESEGLINK data is present, compare the location of the last N segments of two tubing branches. If the
-    // difference is correct, mark candidate branch as annulus branch instead of tubing.
+    // If no WESEGLINK data is present, compare the location of the last N segments of two tubing branches. If
+    // the difference is correct, mark candidate branch as annulus branch instead of tubing.
 
     if ( m_wseglink.empty() )
     {
