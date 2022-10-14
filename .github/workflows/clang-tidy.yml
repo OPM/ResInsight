@@ -44,7 +44,7 @@ jobs:
         with:
           VCPKGRESPONSEFILE: ${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}
       - name: Run vcpkg
-        uses: lukka/run-vcpkg@v10
+        uses: lukka/run-vcpkg@v7
         id: runvcpkg
         with:
           vcpkgArguments: "@${{ github.workspace }}/${{ matrix.config.vcpkg-response-file }}"
