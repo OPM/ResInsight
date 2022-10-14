@@ -32,6 +32,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrArrayField.h"
 
 #include <QPointer>
 #include <Qt>
@@ -117,8 +118,9 @@ public:
 
     virtual void setTitle( const QString& title );
 
-    int                       dataSize() const;
-    std::pair<double, double> sample( int index ) const;
+    int                        dataSize() const;
+    std::pair<double, double>  sample( int index ) const;
+    std::vector<RimPlotCurve*> annotationCurves() const;
 
     void setParentPlotNoReplot( RiuPlotWidget* );
     void setParentPlotAndReplot( RiuPlotWidget* );
@@ -199,6 +201,8 @@ protected:
     caf::PdmField<bool> m_showErrorBars;
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
+
+    caf::PdmPtrArrayField<RimPlotCurve*> m_mouseTrackerDataSources;
 
     QPointer<RiuPlotWidget> m_parentPlot;
     RiuPlotCurve*           m_plotCurve;

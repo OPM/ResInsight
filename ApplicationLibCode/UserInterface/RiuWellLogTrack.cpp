@@ -25,6 +25,8 @@
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
 
+#include "RigWellLogCurveData.h"
+
 #include "RiuGuiTheme.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotCurveInfoTextProvider.h"
@@ -114,10 +116,9 @@ public:
     //--------------------------------------------------------------------------------------------------
     QString curveInfoText( RiuPlotCurve* riuCurve ) const override
     {
-        RimWellLogCurve* wlCurve = nullptr;
         if ( riuCurve )
         {
-            wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
+            RimWellLogCurve* wlCurve = dynamic_cast<RimWellLogCurve*>( riuCurve->ownerRimCurve() );
             if ( wlCurve )
             {
                 return QString( "%1" ).arg( wlCurve->curveName() );
@@ -125,6 +126,56 @@ public:
         }
 
         return "";
+    }
+
+    //--------------------------------------------------------------------------------------------------
+    ///
+    //--------------------------------------------------------------------------------------------------
+    QString additionalText( RiuPlotCurve* curve, int sampleIndex ) const override
+    {
+        if ( curve )
+        {
+            std::vector<std::pair<QString, double>> propertyNameValues;
+
+            auto* sourceCurve = curve->ownerRimCurve();
+
+            if ( sourceCurve )
+            {
+                auto annotationCurves = sourceCurve->annotationCurves();
+
+                for ( auto annotationCurve : annotationCurves )
+                {
+                    RimDepthTrackPlot* depthTrackPlot = nullptr;
+                    annotationCurve->firstAncestorOfType( depthTrackPlot );
+                    if ( depthTrackPlot )
+                    {
+                        auto [xValue, yValue] = annotationCurve->sample( sampleIndex );
+
+                        if ( depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+                        {
+                            propertyNameValues.push_back( std::make_pair( annotationCurve->curveName(), xValue ) );
+                        }
+                        else
+                        {
+                            propertyNameValues.push_back( std::make_pair( annotationCurve->curveName(), yValue ) );
+                        }
+                    }
+                }
+            }
+
+            if ( !propertyNameValues.empty() )
+            {
+                QString txt = QString( "MSJ:" );
+                for ( const auto [name, value] : propertyNameValues )
+                {
+                    txt += QString( "%1 : %2" ).arg( name ).arg( value );
+                }
+
+                return txt;
+            }
+        }
+
+        return {};
     }
 };
 static WellLogCurveInfoTextProvider wellLogCurveInfoTextProvider;

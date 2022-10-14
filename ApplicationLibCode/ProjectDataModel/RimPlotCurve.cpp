@@ -39,6 +39,7 @@
 
 #include "cafAssert.h"
 #include "cafPdmUiComboBoxEditor.h"
+#include "cafPdmUiTreeSelectionEditor.h"
 
 #include <QPen>
 
@@ -125,6 +126,10 @@ RimPlotCurve::RimPlotCurve()
     m_curveAppearance.uiCapability()->setUiTreeChildrenHidden( true );
     m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onCurveAppearanceChanged );
     m_curveAppearance->fillColorChanged.connect( this, &RimPlotCurve::onFillColorChanged );
+
+    CAF_PDM_InitFieldNoDefault( &m_mouseTrackerDataSources, "MouseTrackerDataSources", "Annotation Data Sources" );
+    m_mouseTrackerDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_mouseTrackerDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_plotCurve  = nullptr;
     m_parentPlot = nullptr;
@@ -309,6 +314,26 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
                                                        RiaDefines::ObjectNamingMethod::TEMPLATE ) );
         }
     }
+    else if ( fieldNeedingOptions == &m_mouseTrackerDataSources )
+    {
+        std::vector<RimPlotWindow*> parentPlots;
+        this->allAncestorsOfType( parentPlots );
+
+        if ( !parentPlots.empty() )
+        {
+            std::vector<RimPlotCurve*> plotCurves;
+            parentPlots.back()->descendantsOfType( plotCurves );
+
+            for ( auto p : plotCurves )
+            {
+                caf::PdmOptionItemInfo optionInfo( p->curveName(), p );
+
+                options.push_back( optionInfo );
+            }
+        }
+    }
+
+    return options;
 
     return options;
 }
@@ -441,6 +466,7 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     QString configName = "AppearanceOrdering";
     m_curveAppearance->uiOrdering( configName, uiOrdering );
+    uiOrdering.add( &m_mouseTrackerDataSources );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1067,6 +1093,14 @@ std::pair<double, double> RimPlotCurve::sample( int index ) const
     CAF_ASSERT( m_plotCurve );
     CAF_ASSERT( index >= 0 && index <= dataSize() );
     return m_plotCurve->sample( index );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCurve*> RimPlotCurve::annotationCurves() const
+{
+    return m_mouseTrackerDataSources.ptrReferencedObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
