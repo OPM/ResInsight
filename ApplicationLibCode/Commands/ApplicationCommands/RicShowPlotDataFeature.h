@@ -20,11 +20,10 @@
 
 #include "cafCmdFeature.h"
 
-#include <functional>
 #include <vector>
 
 class RiuTabbedTextProvider;
-class RimPlot;
+class RimPlotWindow;
 
 //==================================================================================================
 ///
@@ -39,7 +38,7 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    void getSelection( std::vector<RimPlot*>& selection );
+    void getSelection( std::vector<RimPlotWindow*>& selection );
 
 public:
     static void showTabbedTextWindow( RiuTabbedTextProvider* textProvider );

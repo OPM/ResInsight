@@ -1061,7 +1061,7 @@ QString RimWellLogTrack::asciiDataForPlotExport() const
         out += QString::number( curveDepth, 'f', 3 );
         for ( std::vector<double> plotVector : curvesPlotXValues )
         {
-            out += " \t" + QString::number( plotVector[i], 'g' );
+            out += QString( " %1" ).arg( QString::number( plotVector[i], 'f', 3 ), 12 );
         }
         out += "\n";
     }
