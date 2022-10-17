@@ -787,19 +787,11 @@ void RimWellLogExtractionCurve::defineUiOrdering( QString uiConfigName, caf::Pdm
         curveDataGroup->add( &m_timeStep );
     }
 
-    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
-    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
-
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
-    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
-
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
-    nameGroup->setCollapsedByDefault();
-    nameGroup->add( &m_showLegend );
-    RimPlotCurve::curveNameUiOrdering( *nameGroup );
+    RimStackablePlotCurve::defaultUiOrdering( uiOrdering );
 
     if ( m_namingMethod == RiaDefines::ObjectNamingMethod::AUTO )
     {
+        auto nameGroup = uiOrdering.findGroup( RiaDefines::curveNameGroupName() );
         nameGroup->add( &m_addWellNameToCurveName );
         nameGroup->add( &m_addCaseNameToCurveName );
         nameGroup->add( &m_addPropertyToCurveName );
