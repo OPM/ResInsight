@@ -187,8 +187,7 @@ QList<caf::PdmOptionItemInfo> RimRftTopologyCurve::calculateValueOptions( const 
 {
     if ( !m_summaryCase ) return {};
 
-    QList<caf::PdmOptionItemInfo> options;
-    options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
+    QList<caf::PdmOptionItemInfo> options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
 
     auto reader = m_summaryCase->rftReader();
 

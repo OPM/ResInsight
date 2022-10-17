@@ -133,52 +133,43 @@ public:
     //--------------------------------------------------------------------------------------------------
     QString additionalText( RiuPlotCurve* curve, int sampleIndex ) const override
     {
-        if ( curve )
+        if ( !curve ) return {};
+
+        std::vector<std::pair<QString, double>> propertyNameValues;
+
+        auto* sourceCurve = curve->ownerRimCurve();
+        if ( !sourceCurve ) return {};
+
+        auto annotationCurves = sourceCurve->annotationCurves();
+        for ( auto annotationCurve : annotationCurves )
         {
-            std::vector<std::pair<QString, double>> propertyNameValues;
-
-            auto* sourceCurve = curve->ownerRimCurve();
-
-            if ( sourceCurve )
+            RimDepthTrackPlot* depthTrackPlot = nullptr;
+            annotationCurve->firstAncestorOfType( depthTrackPlot );
+            if ( depthTrackPlot )
             {
-                auto annotationCurves = sourceCurve->annotationCurves();
-                for ( auto annotationCurve : annotationCurves )
-                {
-                    RimDepthTrackPlot* depthTrackPlot = nullptr;
-                    annotationCurve->firstAncestorOfType( depthTrackPlot );
-                    if ( depthTrackPlot )
-                    {
-                        auto [xValue, yValue] = curve->sample( sampleIndex );
+                auto [xValue, yValue] = curve->sample( sampleIndex );
 
-                        auto depth = depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL
-                                         ? yValue
-                                         : xValue;
+                auto depth = depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL ? yValue
+                                                                                                                 : xValue;
 
-                        auto propertyValue = annotationCurve->closestYValueForX( depth );
+                auto propertyValue = annotationCurve->closestYValueForX( depth );
 
-                        // Use template to get as short label as possible. The default curve name will often
-                        // contain too much and redundant information.
-                        QString templateText = RiaDefines::namingVariableResultName();
-                        auto    resultName   = annotationCurve->annotationCurveName( templateText );
+                // Use template to get as short label as possible. The default curve name will often
+                // contain too much and redundant information.
+                QString templateText = RiaDefines::namingVariableResultName();
+                auto    resultName   = annotationCurve->annotationCurveName( templateText );
 
-                        propertyNameValues.push_back( std::make_pair( resultName, propertyValue ) );
-                    }
-                }
-            }
-
-            if ( !propertyNameValues.empty() )
-            {
-                QString txt;
-                for ( const auto& [name, value] : propertyNameValues )
-                {
-                    txt += QString( "%1 : %2\n" ).arg( name ).arg( value );
-                }
-
-                return txt;
+                propertyNameValues.push_back( std::make_pair( resultName, propertyValue ) );
             }
         }
 
-        return {};
+        QString txt;
+        for ( const auto& [name, value] : propertyNameValues )
+        {
+            txt += QString( "%1 : %2\n" ).arg( name ).arg( value );
+        }
+
+        return txt;
     }
 };
 static WellLogCurveInfoTextProvider wellLogCurveInfoTextProvider;
