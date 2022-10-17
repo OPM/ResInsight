@@ -61,6 +61,8 @@ public:
                                const std::vector<double>&               depthValues,
                                const RiaCurveDataTools::CurveIntervals& curveIntervals );
 
+    double closestYValueForX( double xValue ) const override;
+
 protected:
     void updateZoomInParentPlot() override;
     void updateLegendsInPlot() override;

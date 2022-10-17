@@ -30,4 +30,5 @@ class RiuPlotCurveInfoTextProvider
 {
 public:
     virtual QString curveInfoText( RiuPlotCurve* curve ) const = 0;
+    virtual QString additionalText( RiuPlotCurve* curve, int sampleIndex ) const { return {}; };
 };

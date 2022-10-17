@@ -806,15 +806,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
         curveDataGroup->add( &m_curveColorByPhase );
     }
 
-    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
-    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
-
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
-    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
-
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
-    nameGroup->add( &m_showLegend );
-    RimPlotCurve::curveNameUiOrdering( *nameGroup );
+    RimStackablePlotCurve::defaultUiOrdering( uiOrdering );
 
     uiOrdering.skipRemainingFields();
 }

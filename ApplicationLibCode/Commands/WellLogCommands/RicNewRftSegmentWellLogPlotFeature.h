@@ -24,6 +24,7 @@
 
 class RimWellLogPlot;
 class RimSummaryCase;
+class RimPlotCurve;
 
 //==================================================================================================
 ///
@@ -46,4 +47,7 @@ private:
                                            const QString&            wellName,
                                            RiaDefines::RftBranchType branchType,
                                            RimSummaryCase*           summaryCase );
+
+    static std::vector<RimPlotCurve*>
+        appendAdditionalDataSourceTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
 };

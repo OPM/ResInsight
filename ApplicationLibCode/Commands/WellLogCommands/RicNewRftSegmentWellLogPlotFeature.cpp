@@ -125,6 +125,45 @@ void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWe
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RimPlotCurve*> RicNewRftSegmentWellLogPlotFeature::appendAdditionalDataSourceTrack( RimWellLogPlot* plot,
+                                                                                                const QString& wellName,
+                                                                                                RimSummaryCase* summaryCase )
+{
+    auto additionalDataSourceTrack = new RimWellLogTrack();
+    additionalDataSourceTrack->setDescription( "Additional Data Source Curves" );
+
+    plot->addPlot( additionalDataSourceTrack );
+    additionalDataSourceTrack->setShowWindow( false );
+
+    QString resultName   = RiaDefines::segmentNumberResultName();
+    QString templateText = RiaDefines::namingVariableResultName() + ", " + RiaDefines::namingVariableResultType();
+
+    std::vector<RimPlotCurve*> curves;
+
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_TUBING,
+                              RiaDefines::RftBranchType::RFT_DEVICE,
+                              RiaDefines::RftBranchType::RFT_ANNULUS } )
+    {
+        auto curve = RicWellLogTools::addSummaryRftSegmentCurve( additionalDataSourceTrack,
+                                                                 resultName,
+                                                                 wellName,
+                                                                 branchType,
+                                                                 summaryCase );
+        curve->setFillStyle( Qt::NoBrush );
+        curve->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
+        curve->setCurveNameTemplateText( templateText );
+
+        curves.push_back( curve );
+    }
+
+    additionalDataSourceTrack->updateAllRequiredEditors();
+
+    return curves;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* plot,
                                                               const QString&  wellName,
                                                               RimSummaryCase* summaryCase )
@@ -145,22 +184,22 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
 
     plot->addPlot( track );
 
-    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_TUBING,
-                                                        RiaDefines::RftBranchType::RFT_DEVICE,
-                                                        RiaDefines::RftBranchType::RFT_ANNULUS };
+    std::vector<RimPlotCurve*> additionalDataSourceCurves = appendAdditionalDataSourceTrack( plot, wellName, summaryCase );
 
-    for ( auto branchType : branchTypes )
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_TUBING,
+                              RiaDefines::RftBranchType::RFT_DEVICE,
+                              RiaDefines::RftBranchType::RFT_ANNULUS } )
     {
         auto curve = RimRftTopologyCurve::createTopologyCurve( summaryCase, dateTime, wellName, branchIndex, branchType );
+        curve->setAdditionalDataSources( additionalDataSourceCurves );
         curve->applyDefaultAppearance();
         track->addCurve( curve );
     }
 
-    {
-        auto curve = RimRftTopologyCurve::createPackerCurve( summaryCase, dateTime, wellName, branchIndex );
-        curve->applyDefaultAppearance();
-        track->addCurve( curve );
-    }
+    auto packerCurve = RimRftTopologyCurve::createPackerCurve( summaryCase, dateTime, wellName, branchIndex );
+    packerCurve->setAdditionalDataSources( additionalDataSourceCurves );
+    packerCurve->applyDefaultAppearance();
+    track->addCurve( packerCurve );
 
     track->updateAllRequiredEditors();
 }

@@ -37,7 +37,9 @@ public:
 
 protected:
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+
     void stackingUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void defaultUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
     void onFillColorChanged( const caf::SignalEmitter* emitter ) override;
 
