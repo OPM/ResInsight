@@ -169,7 +169,7 @@ public:
             if ( !propertyNameValues.empty() )
             {
                 QString txt;
-                for ( const auto [name, value] : propertyNameValues )
+                for ( const auto& [name, value] : propertyNameValues )
                 {
                     txt += QString( "%1 : %2\n" ).arg( name ).arg( value );
                 }
