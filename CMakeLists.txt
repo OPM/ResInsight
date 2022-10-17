@@ -406,8 +406,6 @@ find_package(
              Gui
              OpenGL
              Network
-             Script
-             ScriptTools
              Widgets
 )
 
