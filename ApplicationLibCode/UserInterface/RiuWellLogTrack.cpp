@@ -140,7 +140,7 @@ public:
         auto* sourceCurve = curve->ownerRimCurve();
         if ( !sourceCurve ) return {};
 
-        auto annotationCurves = sourceCurve->annotationCurves();
+        auto annotationCurves = sourceCurve->additionalDataSources();
         for ( auto annotationCurve : annotationCurves )
         {
             RimDepthTrackPlot* depthTrackPlot = nullptr;
@@ -157,7 +157,7 @@ public:
                 // Use template to get as short label as possible. The default curve name will often
                 // contain too much and redundant information.
                 QString templateText = RiaDefines::namingVariableResultName();
-                auto    resultName   = annotationCurve->annotationCurveName( templateText );
+                auto    resultName   = annotationCurve->createCurveNameFromTemplate( templateText );
 
                 propertyNameValues.push_back( std::make_pair( resultName, propertyValue ) );
             }

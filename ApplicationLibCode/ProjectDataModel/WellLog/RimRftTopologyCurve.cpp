@@ -166,6 +166,8 @@ void RimRftTopologyCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_segmentBranchType );
     }
 
+    RimPlotCurve::additionalDataSourcesUiOrdering( uiOrdering );
+
     caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
     RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
 

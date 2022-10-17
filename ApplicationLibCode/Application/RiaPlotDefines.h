@@ -73,6 +73,7 @@ enum class ObjectNamingMethod
     TEMPLATE
 };
 
+// Defines relate to curve and plot template names
 QString namingVariableCase();
 QString namingVariableWell();
 QString namingVariableWellBranch();
@@ -92,5 +93,10 @@ bool     isVertical( PlotAxis axis );
 PlotAxis opposite( PlotAxis axis );
 
 double scalingFactor( QPaintDevice* paintDevice );
+
+// Project editor group names
+QString curveNameGroupName();
+QString appearanceGroupName();
+QString additionalDataSourcesGroupName();
 
 }; // namespace RiaDefines

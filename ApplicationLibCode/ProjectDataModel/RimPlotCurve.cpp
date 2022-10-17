@@ -127,9 +127,9 @@ RimPlotCurve::RimPlotCurve()
     m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onCurveAppearanceChanged );
     m_curveAppearance->fillColorChanged.connect( this, &RimPlotCurve::onFillColorChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_annotationCurves, "AnnotationCurves", "Annotation Data Sources" );
-    m_annotationCurves.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_annotationCurves.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitFieldNoDefault( &m_additionalDataSources, "AdditionalDataSources", "Additional Data Sources" );
+    m_additionalDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_additionalDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_plotCurve  = nullptr;
     m_parentPlot = nullptr;
@@ -314,7 +314,7 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
                                                        RiaDefines::ObjectNamingMethod::TEMPLATE ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_annotationCurves )
+    else if ( fieldNeedingOptions == &m_additionalDataSources )
     {
         std::vector<RimPlotWindow*> parentPlots;
 
@@ -467,7 +467,6 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     QString configName = "AppearanceOrdering";
     m_curveAppearance->uiOrdering( configName, uiOrdering );
-    uiOrdering.add( &m_annotationCurves );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -480,6 +479,16 @@ void RimPlotCurve::curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering )
     uiOrdering.add( &m_namingMethod );
     uiOrdering.add( &m_curveNameTemplateText );
     uiOrdering.add( &m_curveName );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotCurve::additionalDataSourcesUiOrdering( caf::PdmUiOrdering& uiOrdering )
+{
+    auto group = uiOrdering.addNewGroup( RiaDefines::additionalDataSourcesGroupName() );
+    group->add( &m_additionalDataSources );
+    group->setCollapsedByDefault();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1107,17 +1116,9 @@ double RimPlotCurve::closestYValueForX( double xValue ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimPlotCurve*> RimPlotCurve::annotationCurves() const
+std::vector<RimPlotCurve*> RimPlotCurve::additionalDataSources() const
 {
-    return m_annotationCurves.ptrReferencedObjects();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QString RimPlotCurve::annotationCurveName( const QString& templateText )
-{
-    return createCurveNameFromTemplate( templateText );
+    return m_additionalDataSources.ptrReferencedObjects();
 }
 
 //--------------------------------------------------------------------------------------------------
