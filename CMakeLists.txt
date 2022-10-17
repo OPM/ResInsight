@@ -401,14 +401,7 @@ list(APPEND THIRD_PARTY_LIBRARIES NRLib)
 set(RI_QT_MINIMUM_VERSION 5.12)
 
 find_package(
-  Qt5 ${RI_QT_MINIMUM_VERSION}
-  COMPONENTS Core
-             Gui
-             OpenGL
-             Network
-             Script
-             ScriptTools
-             Widgets
+  Qt5 ${RI_QT_MINIMUM_VERSION} COMPONENTS Core Gui OpenGL Network Widgets
 )
 
 # Open GL
