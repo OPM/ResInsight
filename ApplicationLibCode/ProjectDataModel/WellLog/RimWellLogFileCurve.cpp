@@ -337,15 +337,7 @@ void RimWellLogFileCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     curveDataGroup->add( &m_wellLogFile );
     curveDataGroup->add( &m_wellLogChannelName );
 
-    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
-    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
-
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
-    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
-
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
-    nameGroup->add( &m_showLegend );
-    RimPlotCurve::curveNameUiOrdering( *nameGroup );
+    RimStackablePlotCurve::defaultUiOrdering( uiOrdering );
 }
 
 //--------------------------------------------------------------------------------------------------

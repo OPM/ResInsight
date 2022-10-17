@@ -526,7 +526,8 @@ void RifReaderOpmRft::buildSegmentData()
             for ( const auto& rftResultMetaData : arraysAtWellDate )
             {
                 auto [name, arrayType, size] = rftResultMetaData;
-                if ( size == m_segmentResultItemCount || size == m_connectionResultItemCount )
+                if ( size == static_cast<int64_t>( m_segmentResultItemCount ) ||
+                     size == static_cast<int64_t>( m_connectionResultItemCount ) )
                 {
                     segment.addResultNameAndSize( rftResultMetaData );
                 }

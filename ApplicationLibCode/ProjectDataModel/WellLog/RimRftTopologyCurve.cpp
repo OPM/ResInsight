@@ -142,8 +142,6 @@ QString RimRftTopologyCurve::createCurveAutoName()
         if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) text += "Tubing";
     }
 
-    text += QString( " (%1)" ).arg( m_segmentBranchIndex() );
-
     return text;
 }
 
@@ -166,16 +164,7 @@ void RimRftTopologyCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
         curveDataGroup->add( &m_segmentBranchType );
     }
 
-    caf::PdmUiGroup* stackingGroup = uiOrdering.addNewGroup( "Stacking" );
-    RimStackablePlotCurve::stackingUiOrdering( *stackingGroup );
-
-    caf::PdmUiGroup* appearanceGroup = uiOrdering.addNewGroup( "Appearance" );
-    RimPlotCurve::appearanceUiOrdering( *appearanceGroup );
-
-    caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Curve Name" );
-    nameGroup->setCollapsedByDefault();
-    nameGroup->add( &m_showLegend );
-    RimPlotCurve::curveNameUiOrdering( *nameGroup );
+    RimStackablePlotCurve::defaultUiOrdering( uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
@@ -187,7 +176,7 @@ QList<caf::PdmOptionItemInfo> RimRftTopologyCurve::calculateValueOptions( const 
 {
     if ( !m_summaryCase ) return {};
 
-    QList<caf::PdmOptionItemInfo> options;
+    QList<caf::PdmOptionItemInfo> options = RimWellLogCurve::calculateValueOptions( fieldNeedingOptions );
 
     auto reader = m_summaryCase->rftReader();
 
@@ -321,6 +310,14 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
             }
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimRftTopologyCurve::setAdditionalDataSources( const std::vector<RimPlotCurve*>& additionalDataSources )
+{
+    m_additionalDataSources.setValue( additionalDataSources );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -32,6 +32,7 @@
 #include "cafPdmField.h"
 #include "cafPdmFieldCvfColor.h"
 #include "cafPdmObject.h"
+#include "cafPdmPtrArrayField.h"
 
 #include <QPointer>
 #include <Qt>
@@ -89,6 +90,7 @@ public:
     void            setNamingMethod( RiaDefines::ObjectNamingMethod namingMethod );
     QString         curveName() const;
     virtual QString curveExportDescription( const RifEclipseSummaryAddress& address = RifEclipseSummaryAddress() ) const;
+    virtual QString createCurveNameFromTemplate( const QString& templateText );
 
     void setCustomName( const QString& customName );
     void setLegendEntryText( const QString& legendEntryText );
@@ -117,8 +119,10 @@ public:
 
     virtual void setTitle( const QString& title );
 
-    int                       dataSize() const;
-    std::pair<double, double> sample( int index ) const;
+    int                        dataSize() const;
+    std::pair<double, double>  sample( int index ) const;
+    virtual double             closestYValueForX( double xValue ) const;
+    std::vector<RimPlotCurve*> additionalDataSources() const;
 
     void setParentPlotNoReplot( RiuPlotWidget* );
     void setParentPlotAndReplot( RiuPlotWidget* );
@@ -132,8 +136,6 @@ public:
 protected:
     virtual QString createCurveAutoName() = 0;
 
-    // Override these two methods to show and use curve name template when assigning a name to the curve
-    virtual QString     createCurveNameFromTemplate( const QString& templateText );
     virtual QStringList supportedCurveNameVariables() const;
 
     virtual void updateZoomInParentPlot()                     = 0;
@@ -172,6 +174,7 @@ protected:
 
     void appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering );
     void curveNameUiOrdering( caf::PdmUiOrdering& uiOrdering );
+    void additionalDataSourcesUiOrdering( caf::PdmUiOrdering& uiOrdering );
 
     void         onCurveAppearanceChanged( const caf::SignalEmitter* emitter );
     virtual void onFillColorChanged( const caf::SignalEmitter* emitter );
@@ -199,6 +202,8 @@ protected:
     caf::PdmField<bool> m_showErrorBars;
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
+
+    caf::PdmPtrArrayField<RimPlotCurve*> m_additionalDataSources;
 
     QPointer<RiuPlotWidget> m_parentPlot;
     RiuPlotCurve*           m_plotCurve;

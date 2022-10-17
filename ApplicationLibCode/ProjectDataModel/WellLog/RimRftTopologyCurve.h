@@ -74,4 +74,7 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_segmentBranchType;
 
     caf::PdmField<bool> m_isPackerCurve;
+
+public:
+    void setAdditionalDataSources( const std::vector<RimPlotCurve*>& additionalDataSources );
 };
