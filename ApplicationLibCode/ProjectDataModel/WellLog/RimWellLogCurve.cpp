@@ -298,6 +298,31 @@ void RimWellLogCurve::setOverrideCurveData( const std::vector<double>&          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimWellLogCurve::closestYValueForX( double xValue ) const
+{
+    if ( m_curveData.isNull() ) return std::numeric_limits<double>::infinity();
+
+    auto depths = m_curveData->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH );
+    auto values = m_curveData->propertyValues();
+
+    if ( depths.empty() || values.empty() ) return std::numeric_limits<double>::infinity();
+
+    auto it = std::upper_bound( depths.begin(), depths.end(), xValue );
+    if ( it == depths.begin() ) return values.front();
+    if ( it == depths.end() ) return values.back();
+
+    auto index = std::distance( depths.begin(), it - 1 );
+
+    double firstDistance  = std::abs( xValue - depths[index] );
+    double secondDistance = std::abs( xValue - depths[index + 1] );
+
+    if ( firstDistance < secondDistance ) return values[index];
+    return values[index + 1];
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogCurve::updateZoomInParentPlot()
 {
     const double eps = 1.0e-8;

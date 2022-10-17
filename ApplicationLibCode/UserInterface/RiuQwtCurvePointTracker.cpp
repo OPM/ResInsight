@@ -206,28 +206,27 @@ QPointF RiuQwtCurvePointTracker::closestCurvePoint( const QPoint& cursorPosition
 
     if ( valueAxisValueString && closestCurve )
     {
+        const QwtScaleDraw* valueAxisScaleDraw = m_isMainAxisHorizontal ? m_plot->axisScaleDraw( *relatedYAxis )
+                                                                        : m_plot->axisScaleDraw( *relatedXAxis );
+
+        qreal valueAxisSampleVal = 0.0;
+        if ( m_isMainAxisHorizontal )
+            valueAxisSampleVal = samplePoint.y();
+        else
+            valueAxisSampleVal = samplePoint.x();
+
+        if ( valueAxisScaleDraw )
+        {
+            *valueAxisValueString = valueAxisScaleDraw->label( valueAxisSampleVal ).text();
+        }
+
         auto additionalText = m_curveInfoTextProvider->additionalText( dynamic_cast<RiuPlotCurve*>( closestCurve ),
                                                                        closestPointSampleIndex );
 
         if ( !additionalText.isEmpty() )
         {
-            *valueAxisValueString = additionalText;
-        }
-        else
-        {
-            const QwtScaleDraw* valueAxisScaleDraw = m_isMainAxisHorizontal ? m_plot->axisScaleDraw( *relatedYAxis )
-                                                                            : m_plot->axisScaleDraw( *relatedXAxis );
-
-            qreal valueAxisSampleVal = 0.0;
-            if ( m_isMainAxisHorizontal )
-                valueAxisSampleVal = samplePoint.y();
-            else
-                valueAxisSampleVal = samplePoint.x();
-
-            if ( valueAxisScaleDraw )
-            {
-                *valueAxisValueString = valueAxisScaleDraw->label( valueAxisSampleVal ).text();
-            }
+            *valueAxisValueString += "\n";
+            *valueAxisValueString += additionalText;
         }
     }
 

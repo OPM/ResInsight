@@ -142,33 +142,36 @@ public:
             if ( sourceCurve )
             {
                 auto annotationCurves = sourceCurve->annotationCurves();
-
                 for ( auto annotationCurve : annotationCurves )
                 {
                     RimDepthTrackPlot* depthTrackPlot = nullptr;
                     annotationCurve->firstAncestorOfType( depthTrackPlot );
                     if ( depthTrackPlot )
                     {
-                        auto [xValue, yValue] = annotationCurve->sample( sampleIndex );
+                        auto [xValue, yValue] = curve->sample( sampleIndex );
 
-                        if ( depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-                        {
-                            propertyNameValues.push_back( std::make_pair( annotationCurve->curveName(), xValue ) );
-                        }
-                        else
-                        {
-                            propertyNameValues.push_back( std::make_pair( annotationCurve->curveName(), yValue ) );
-                        }
+                        auto depth = depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL
+                                         ? yValue
+                                         : xValue;
+
+                        auto propertyValue = annotationCurve->closestYValueForX( depth );
+
+                        // Use template to get as short label as possible. The default curve name will often
+                        // contain too much and redundant information.
+                        QString templateText = RiaDefines::namingVariableResultName();
+                        auto    resultName   = annotationCurve->annotationCurveName( templateText );
+
+                        propertyNameValues.push_back( std::make_pair( resultName, propertyValue ) );
                     }
                 }
             }
 
             if ( !propertyNameValues.empty() )
             {
-                QString txt = QString( "MSJ:" );
+                QString txt;
                 for ( const auto [name, value] : propertyNameValues )
                 {
-                    txt += QString( "%1 : %2" ).arg( name ).arg( value );
+                    txt += QString( "%1 : %2\n" ).arg( name ).arg( value );
                 }
 
                 return txt;

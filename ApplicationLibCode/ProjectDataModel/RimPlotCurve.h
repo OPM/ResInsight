@@ -120,7 +120,9 @@ public:
 
     int                        dataSize() const;
     std::pair<double, double>  sample( int index ) const;
+    virtual double             closestYValueForX( double xValue ) const;
     std::vector<RimPlotCurve*> annotationCurves() const;
+    QString                    annotationCurveName( const QString& templateText );
 
     void setParentPlotNoReplot( RiuPlotWidget* );
     void setParentPlotAndReplot( RiuPlotWidget* );
@@ -202,7 +204,7 @@ protected:
 
     caf::PdmChildField<RimPlotCurveAppearance*> m_curveAppearance;
 
-    caf::PdmPtrArrayField<RimPlotCurve*> m_mouseTrackerDataSources;
+    caf::PdmPtrArrayField<RimPlotCurve*> m_annotationCurves;
 
     QPointer<RiuPlotWidget> m_parentPlot;
     RiuPlotCurve*           m_plotCurve;

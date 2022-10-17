@@ -127,9 +127,9 @@ RimPlotCurve::RimPlotCurve()
     m_curveAppearance->appearanceChanged.connect( this, &RimPlotCurve::onCurveAppearanceChanged );
     m_curveAppearance->fillColorChanged.connect( this, &RimPlotCurve::onFillColorChanged );
 
-    CAF_PDM_InitFieldNoDefault( &m_mouseTrackerDataSources, "MouseTrackerDataSources", "Annotation Data Sources" );
-    m_mouseTrackerDataSources.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
-    m_mouseTrackerDataSources.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
+    CAF_PDM_InitFieldNoDefault( &m_annotationCurves, "AnnotationCurves", "Annotation Data Sources" );
+    m_annotationCurves.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
+    m_annotationCurves.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::HIDDEN );
 
     m_plotCurve  = nullptr;
     m_parentPlot = nullptr;
@@ -314,9 +314,12 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
                                                        RiaDefines::ObjectNamingMethod::TEMPLATE ) );
         }
     }
-    else if ( fieldNeedingOptions == &m_mouseTrackerDataSources )
+    else if ( fieldNeedingOptions == &m_annotationCurves )
     {
         std::vector<RimPlotWindow*> parentPlots;
+
+        // Find all plot windows above this object upwards in the object hierarchy. Use the top most plot window as the
+        // root to find all plot curves.
         this->allAncestorsOfType( parentPlots );
 
         if ( !parentPlots.empty() )
@@ -332,8 +335,6 @@ QList<caf::PdmOptionItemInfo> RimPlotCurve::calculateValueOptions( const caf::Pd
             }
         }
     }
-
-    return options;
 
     return options;
 }
@@ -466,7 +467,7 @@ void RimPlotCurve::appearanceUiOrdering( caf::PdmUiOrdering& uiOrdering )
 {
     QString configName = "AppearanceOrdering";
     m_curveAppearance->uiOrdering( configName, uiOrdering );
-    uiOrdering.add( &m_mouseTrackerDataSources );
+    uiOrdering.add( &m_annotationCurves );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1098,9 +1099,25 @@ std::pair<double, double> RimPlotCurve::sample( int index ) const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+double RimPlotCurve::closestYValueForX( double xValue ) const
+{
+    return std::numeric_limits<double>::infinity();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<RimPlotCurve*> RimPlotCurve::annotationCurves() const
 {
-    return m_mouseTrackerDataSources.ptrReferencedObjects();
+    return m_annotationCurves.ptrReferencedObjects();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QString RimPlotCurve::annotationCurveName( const QString& templateText )
+{
+    return createCurveNameFromTemplate( templateText );
 }
 
 //--------------------------------------------------------------------------------------------------
