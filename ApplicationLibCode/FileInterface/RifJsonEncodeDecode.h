@@ -18,16 +18,9 @@
 
 #pragma once
 
-//#define IMPL_DUMP_TO_FILE
-
 #include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtCore/QVariant>
-
-#if IMPL_DUMP_TO_FILE
-#include <cvfVector3.h>
-#include <vector>
-#endif
 
 // Encapsulate the JSON code in a namespace to avoid issues with JSON classes used in opm-parser
 namespace ResInsightInternalJson
@@ -36,10 +29,6 @@ class JsonReader
 {
 public:
     QMap<QString, QVariant> decodeFile( QString filePath );
-
-#if IMPL_DUMP_TO_FILE
-    void dumpToFile( std::vector<cvf::Vec3d>& points, QString filePath );
-#endif
 };
 
 class Json
