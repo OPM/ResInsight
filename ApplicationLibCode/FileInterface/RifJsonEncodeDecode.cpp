@@ -35,24 +35,6 @@ QMap<QString, QVariant> JsonReader::decodeFile( QString filePath )
     return Json::decode( byteArray );
 }
 
-#if IMPL_DUMP_TO_FILE
-void JsonReader::dumpToFile( std::vector<cvf::Vec3d>& points, QString filePath )
-{
-    QFile file;
-    file.setFileName( filePath );
-    file.open( QIODevice::WriteOnly );
-    for ( size_t idx = 0; idx < points.size(); idx++ )
-    {
-        cvf::Vec3d point = points[idx];
-        QString    string;
-        string.sprintf( "(%0.10e, %0.10e, %0.10e)\n", point.x(), point.y(), point.z() );
-        QByteArray byteArray( string.toLatin1() );
-        file.write( byteArray );
-    }
-    file.close();
-}
-#endif
-
 QString Json::encode( const QMap<QString, QVariant>& map, bool prettify )
 {
     QJsonDocument doc( QJsonObject::fromVariantMap( map ) );
