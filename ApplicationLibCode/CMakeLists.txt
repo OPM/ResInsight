@@ -34,7 +34,6 @@ if(Qt5Core_FOUND)
                Gui
                OpenGL
                Network
-               Script
                Widgets
                Xml
                Concurrent
@@ -47,7 +46,6 @@ if(Qt5Core_FOUND)
       Qt5::Gui
       Qt5::Network
       Qt5::OpenGL
-      Qt5::Script
       Qt5::Widgets
       Qt5::Xml
       Qt5::Concurrent
