@@ -260,17 +260,6 @@ void RicShowPlotDataFeature::onActionTriggered( bool isChecked )
         }
     }
 
-    if ( selectedSummaryPlots.empty() && wellLogPlots.empty() && crossPlots.empty() && vfpPlots.empty() &&
-         depthTracks.empty() )
-    {
-        CVF_ASSERT( false );
-
-        return;
-    }
-
-    RiuPlotMainWindow* plotwindow = RiaGuiApplication::instance()->mainPlotWindow();
-    CVF_ASSERT( plotwindow );
-
     for ( RimSummaryPlot* summaryPlot : selectedSummaryPlots )
     {
         auto textProvider = new RiuTabbedSummaryPlotTextProvider( summaryPlot );
@@ -358,7 +347,7 @@ void RicShowPlotDataFeature::getSelection( std::vector<RimPlotWindow*>& selectio
         QVariant userData = this->userData();
         if ( !userData.isNull() && userData.canConvert<void*>() )
         {
-            auto* plot = static_cast<RimPlotWindow*>( userData.value<void*>() );
+            RimPlot* plot = static_cast<RimPlot*>( userData.value<void*>() );
             if ( plot ) selection.push_back( plot );
         }
     }
