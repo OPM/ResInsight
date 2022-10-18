@@ -18,23 +18,9 @@
 
 #pragma once
 
-// Json parser based on code example found on:
-// http://stackoverflow.com/questions/4169988/easiest-way-to-parse-json-in-qt-4-7
-
-//#define IMPL_DUMP_TO_FILE
-
-#include <QtCore/QList>
 #include <QtCore/QMap>
 #include <QtCore/QString>
 #include <QtCore/QVariant>
-#include <QtScript/QScriptValue>
-
-#if IMPL_DUMP_TO_FILE
-#include <cvfVector3.h>
-#include <vector>
-#endif
-
-class QScriptEngine;
 
 // Encapsulate the JSON code in a namespace to avoid issues with JSON classes used in opm-parser
 namespace ResInsightInternalJson
@@ -43,23 +29,14 @@ class JsonReader
 {
 public:
     QMap<QString, QVariant> decodeFile( QString filePath );
-
-#if IMPL_DUMP_TO_FILE
-    void dumpToFile( std::vector<cvf::Vec3d>& points, QString filePath );
-#endif
 };
 
 class Json
 {
 public:
-    Json(){};
-    QString                 encode( const QMap<QString, QVariant>& map, bool prettify );
-    QMap<QString, QVariant> decode( const QString& jsonStr );
-
-private:
-    QScriptValue            encodeInner( const QMap<QString, QVariant>& map, QScriptEngine* engine );
-    QMap<QString, QVariant> decodeInner( QScriptValue object );
-    QList<QVariant>         decodeInnerToList( QScriptValue arrayValue );
+    static QString                 encode( const QMap<QString, QVariant>& map, bool prettify );
+    static QMap<QString, QVariant> decode( const QString& jsonStr );
+    static QMap<QString, QVariant> decode( const QByteArray& byteArray );
 };
 
 } // namespace ResInsightInternalJson
