@@ -979,10 +979,11 @@ void RimWellPltPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
             caf::PdmUiGroup* depthGroup = uiOrdering.addNewGroup( "Depth Axis Settings" );
             uiOrderingForDepthAxis( uiConfigName, *depthGroup );
 
-            caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-            plotLayoutGroup->setCollapsedByDefault();
-            RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *plotLayoutGroup );
-            RimWellLogPlot::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+            caf::PdmUiGroup* nameGroup = uiOrdering.addNewGroup( "Plot Name" );
+            nameGroup->setCollapsedByDefault();
+            RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *nameGroup );
+
+            RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
         }
     }
 

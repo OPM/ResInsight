@@ -744,7 +744,7 @@ void RimMultiPlot::uiOrderingForMultiPlotLayout( QString uiConfigName, caf::PdmU
     uiOrdering.add( &m_showIndividualPlotTitles );
     uiOrdering.add( &m_subTitleFontSize );
 
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, uiOrdering );
+    RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
     uiOrdering.add( &m_columnCount );
     uiOrdering.add( &m_rowsPerPage );
     uiOrdering.add( &m_majorTickmarkCount );
