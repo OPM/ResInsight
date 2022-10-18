@@ -444,7 +444,7 @@ list(APPEND THIRD_PARTY_LIBRARIES qwt)
 # ##############################################################################
 set(ADS_VERSION "3.8.2")
 
-add_subdirectory(ThirdParty/qtadvanceddocking)
+add_subdirectory(ThirdParty/qtadvanceddocking EXCLUDE_FROM_ALL)
 
 if(CMAKE_CXX_COMPILER_ID STREQUAL "Clang")
   target_compile_options(qtadvanceddocking PRIVATE -Wno-deprecated-copy)
