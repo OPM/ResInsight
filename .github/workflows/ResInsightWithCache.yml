@@ -109,9 +109,9 @@ jobs:
         id: cache_timestamp_string
         shell: pwsh
         run: |
-        "timestep<<EOF" >> $env:GITHUB_ENV
-        Get-Date -Format "yyyy-MM-dd" >> $GITHUB_OUTPUT
-        "EOF" >> $env:GITHUB_ENV
+          "timestamp<<EOF" >> $env:GITHUB_ENV
+          Get-Date -Format "yyyy-MM-dd" >> $GITHUB_OUTPUT
+          "EOF" >> $env:GITHUB_ENV
       - name: Cache Buildcache
         id: cache-buildcache
         uses: actions/cache@v3
