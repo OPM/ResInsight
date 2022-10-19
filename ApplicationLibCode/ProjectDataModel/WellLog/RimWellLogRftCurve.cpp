@@ -180,6 +180,8 @@ RimWellLogRftCurve::RimWellLogRftCurve()
     CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Branch" );
     CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
 
+    CAF_PDM_InitField( &m_scaleFactor, "ScaleFactor", 1.0, "Scale Factor" );
+
     CAF_PDM_InitField( &m_curveColorByPhase, "CurveColorByPhase", false, "Color by Phase" );
 }
 
@@ -568,7 +570,17 @@ QString RimWellLogRftCurve::createCurveAutoName()
 //--------------------------------------------------------------------------------------------------
 QString RimWellLogRftCurve::createCurveNameFromTemplate( const QString& templateText )
 {
-    return RiaTextStringTools::replaceTemplateTextWithValues( templateText, createCurveNameKeyValueMap() );
+    auto name = RiaTextStringTools::replaceTemplateTextWithValues( templateText, createCurveNameKeyValueMap() );
+
+    if ( m_scaleFactor() != 1.0 )
+    {
+        int  exponent = std::log10( m_scaleFactor() );
+        auto text     = QString( "x1e%1" ).arg( QString::number( exponent ) );
+
+        name += QString( " [%1]" ).arg( text );
+    }
+
+    return name;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -788,6 +800,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
     curveDataGroup->add( &m_rftDataType );
+    curveDataGroup->add( &m_scaleFactor );
 
     if ( m_rftDataType() == RimWellLogRftCurve::RftDataType::RFT_DATA )
     {
@@ -863,6 +876,16 @@ QList<caf::PdmOptionItemInfo> RimWellLogRftCurve::calculateValueOptions( const c
     else if ( fieldNeedingOptions == &m_segmentBranchIndex )
     {
         options = RimRftTools::segmentBranchIndexOptions( reader, m_wellName(), m_timeStep(), m_segmentBranchType() );
+    }
+    else if ( fieldNeedingOptions == &m_scaleFactor )
+    {
+        for ( int exp = -12; exp <= 12; exp += 3 )
+        {
+            QString uiText = exp == 0 ? "1" : QString( "10 ^ %1" ).arg( exp );
+            double  value  = std::pow( 10, exp );
+
+            options.push_back( caf::PdmOptionItemInfo( uiText, value ) );
+        }
     }
 
     return options;
@@ -1094,9 +1117,9 @@ std::vector<size_t> RimWellLogRftCurve::sortedIndicesInRftFile()
 std::vector<double> RimWellLogRftCurve::xValues()
 {
     RifReaderRftInterface* reader = rftReader();
-    std::vector<double>    values;
+    if ( !reader ) return {};
 
-    if ( !reader ) return values;
+    std::vector<double> values;
 
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
@@ -1107,29 +1130,37 @@ std::vector<double> RimWellLogRftCurve::xValues()
                                                                               m_segmentBranchType() );
 
         reader->values( depthAddress, &values );
+    }
+    else
+    {
+        auto address = RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, m_wellLogChannelName() );
 
-        return values;
+        reader->values( address, &values );
+
+        bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
+
+        if ( wellPathExists )
+        {
+            std::vector<double> valuesSorted;
+
+            for ( size_t idx : sortedIndicesInRftFile() )
+            {
+                if ( idx < values.size() )
+                {
+                    valuesSorted.push_back( ( values.at( idx ) ) );
+                }
+            }
+
+            std::swap( valuesSorted, values );
+        }
     }
 
-    auto address = RifEclipseRftAddress::createAddress( m_wellName(), m_timeStep, m_wellLogChannelName() );
-
-    reader->values( address, &values );
-
-    bool wellPathExists = createWellPathIdxToRftFileIdxMapping();
-
-    if ( wellPathExists )
+    if ( m_scaleFactor() != 1.0 )
     {
-        std::vector<double> valuesSorted;
-
-        for ( size_t idx : sortedIndicesInRftFile() )
+        for ( auto& val : values )
         {
-            if ( idx < values.size() )
-            {
-                valuesSorted.push_back( ( values.at( idx ) ) );
-            }
+            val *= m_scaleFactor();
         }
-
-        return valuesSorted;
     }
 
     return values;

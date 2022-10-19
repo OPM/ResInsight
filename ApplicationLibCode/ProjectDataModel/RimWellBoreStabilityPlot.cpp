@@ -132,11 +132,17 @@ void RimWellBoreStabilityPlot::defineUiOrdering( QString uiConfigName, caf::PdmU
     caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
     RimWellLogPlot::uiOrderingForAutoName( uiConfigName, *titleGroup );
 
-    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
-    plotLayoutGroup->add( &m_subTitleFontSize );
-    plotLayoutGroup->add( &m_axisTitleFontSize );
-    plotLayoutGroup->add( &m_axisValueFontSize );
+    caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legends" );
+    legendGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, true );
+
+    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
+    fontGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
+
+    fontGroup->add( &m_subTitleFontSize );
+    fontGroup->add( &m_axisTitleFontSize );
+    fontGroup->add( &m_axisValueFontSize );
 
     uiOrdering.skipRemainingFields( true );
 }

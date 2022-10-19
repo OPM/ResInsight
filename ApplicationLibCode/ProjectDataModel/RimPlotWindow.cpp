@@ -332,7 +332,7 @@ QList<caf::PdmOptionItemInfo> RimPlotWindow::calculateValueOptions( const caf::P
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition )
+void RimPlotWindow::uiOrderingForLegends( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition )
 {
     uiOrdering.add( &m_showPlotLegends );
     uiOrdering.add( &m_plotLegendsHorizontal );
@@ -341,8 +341,29 @@ void RimPlotWindow::uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrd
     {
         uiOrdering.add( &m_legendPosition );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::uiOrderingForFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
     uiOrdering.add( &m_titleFontSize );
     uiOrdering.add( &m_legendFontSize );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::uiOrderingForLegendsAndFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition )
+{
+    caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legends" );
+    legendGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, showLegendPosition );
+
+    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
+    fontGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
 }
 
 //--------------------------------------------------------------------------------------------------

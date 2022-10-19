@@ -70,7 +70,7 @@ RimPlotCurve::RimPlotCurve()
     CAF_PDM_InitFieldNoDefault( &m_legendEntryText, "LegendDescription", "Legend Name" );
     m_legendEntryText.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_isUsingAutoName_OBSOLETE, "AutoName", true, "Auto Name" );
+    CAF_PDM_InitField( &m_isUsingAutoName_OBSOLETE, "AutoName", false, "Auto Name" );
     m_isUsingAutoName_OBSOLETE.xmlCapability()->setIOWritable( false );
     m_isUsingAutoName_OBSOLETE.uiCapability()->setUiHidden( true );
 
@@ -253,13 +253,16 @@ void RimPlotCurve::initAfterRead()
         updateCurveAppearanceForFilesOlderThan_2021_06();
     }
 
-    if ( m_isUsingAutoName_OBSOLETE() )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.1" ) )
     {
-        m_namingMethod = RiaDefines::ObjectNamingMethod::AUTO;
-    }
-    else
-    {
-        m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
+        if ( m_isUsingAutoName_OBSOLETE() )
+        {
+            m_namingMethod = RiaDefines::ObjectNamingMethod::AUTO;
+        }
+        else
+        {
+            m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
+        }
     }
 }
 

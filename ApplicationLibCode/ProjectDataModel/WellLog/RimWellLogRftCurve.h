@@ -151,6 +151,8 @@ private:
     caf::PdmField<bool>                         m_branchDetection;
     caf::PdmField<bool>                         m_curveColorByPhase;
 
+    caf::PdmField<double> m_scaleFactor;
+
     caf::PdmField<caf::AppEnum<RimWellLogRftCurve::RftDataType>> m_rftDataType;
 
     caf::PdmField<QString>                                 m_segmentResultName;
