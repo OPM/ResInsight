@@ -64,11 +64,12 @@ jobs:
         run: python -c "import sys; print(sys.version)"
 
       - name: Get Python executable path
+        shell: bash
         id: python-path
-        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
+        run: echo "PYTHON_EXECUTABLE=$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')" >> $GITHUB_OUTPUT
 
       - name: Print Python path
-        run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+        run: echo "${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}"
 
       - name: Install dependencies
         # Make sure protobuf version is compatible with grpc - https://github.com/OPM/ResInsight/issues/9304
@@ -107,10 +108,11 @@ jobs:
 
       - name: Prepare cache timestamp
         id: cache_timestamp_string
-        shell: cmake -P {0}
+        shell: pwsh
         run: |
-          string(TIMESTAMP current_date "%Y-%m-%d" UTC)
-          message("::set-output name=timestamp::${current_date}")
+          "timestamp<<EOF" >> $env:GITHUB_ENV
+          Get-Date -Format "yyyy-MM-dd" >> $GITHUB_OUTPUT
+          "EOF" >> $env:GITHUB_ENV
       - name: Cache Buildcache
         id: cache-buildcache
         uses: actions/cache@v3
