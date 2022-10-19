@@ -64,6 +64,7 @@ jobs:
         run: python -c "import sys; print(sys.version)"
 
       - name: Get Python executable path
+        shell: bash
         id: python-path
         run: echo "PYTHON_EXECUTABLE=$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')" >> $GITHUB_OUTPUT
 
