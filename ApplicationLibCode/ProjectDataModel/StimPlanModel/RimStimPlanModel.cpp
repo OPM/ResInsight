@@ -824,7 +824,7 @@ RimAnnotationCollectionBase* RimStimPlanModel::annotationCollection()
 //--------------------------------------------------------------------------------------------------
 void RimStimPlanModel::updatePerforationInterval()
 {
-    if ( m_thicknessDirectionWellPath )
+    if ( m_thicknessDirectionWellPath && wellPath() && wellPath()->wellPathGeometry() )
     {
         if ( !m_perforationInterval )
         {
@@ -836,9 +836,6 @@ void RimStimPlanModel::updatePerforationInterval()
         if ( m_fractureOrientation == FractureOrientation::ALONG_WELL_PATH )
         {
             // Adjust perforation interval for longitudinal fractures to correct TVD depth
-            CAF_ASSERT( wellPath() );
-            CAF_ASSERT( wellPath()->wellPathGeometry() );
-
             cvf::Vec3d wellPathTangent = wellPath()->wellPathGeometry()->tangentAlongWellPath( m_MD() );
             halfPerforationLength =
                 RigStimPlanModelTools::calculatePerforationLength( wellPathTangent, m_perforationLength() ) * 0.5;

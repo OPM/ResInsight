@@ -114,7 +114,7 @@ bool RimStimPlanModelStressCalculator::calculate( RiaDefines::CurveProperty curv
         addDatapointsForBottomOfLayers( tvDepthValues, values );
     }
 
-    if ( eclipseCase )
+    if ( eclipseCase && eclipseCase->eclipseCaseData() )
     {
         RigEclipseWellLogExtractor eclExtractor( eclipseCase->eclipseCaseData(), wellPathGeometry, "fracture model" );
 
