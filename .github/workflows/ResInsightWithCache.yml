@@ -65,7 +65,7 @@ jobs:
 
       - name: Get Python executable path
         id: python-path
-        run: echo "::set-output name=PYTHON_EXECUTABLE::$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')"
+        run: echo "PYTHON_EXECUTABLE=$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')" >> $GITHUB_OUTPUT
 
       - name: Print Python path
         run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
