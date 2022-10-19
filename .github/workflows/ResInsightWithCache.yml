@@ -107,10 +107,11 @@ jobs:
 
       - name: Prepare cache timestamp
         id: cache_timestamp_string
-        shell: cmake -P {0}
+        shell: pwsh
         run: |
-          string(TIMESTAMP current_date "%Y-%m-%d" UTC)
-          message("::set-output name=timestamp::${current_date}")
+        "timestep<<EOF" >> $env:GITHUB_ENV
+        Get-Date -Format "yyyy-MM-dd" >> $GITHUB_OUTPUT
+        "EOF" >> $env:GITHUB_ENV
       - name: Cache Buildcache
         id: cache-buildcache
         uses: actions/cache@v3
