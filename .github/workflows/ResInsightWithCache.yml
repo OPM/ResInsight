@@ -68,7 +68,7 @@ jobs:
         run: echo "PYTHON_EXECUTABLE=$(python -c 'import sys; import pathlib; print (pathlib.PurePath(sys.executable).as_posix())')" >> $GITHUB_OUTPUT
 
       - name: Print Python path
-        run: echo ${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}
+        run: echo "${{ steps.python-path.outputs.PYTHON_EXECUTABLE }}"
 
       - name: Install dependencies
         # Make sure protobuf version is compatible with grpc - https://github.com/OPM/ResInsight/issues/9304
