@@ -95,7 +95,9 @@ protected:
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
-    void uiOrderingForPlotLayout( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
+    void uiOrderingForLegends( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
+    void uiOrderingForFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
+    void uiOrderingForLegendsAndFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
 
     void updateWindowVisibility();
 

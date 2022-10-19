@@ -2423,12 +2423,12 @@ void RimSummaryPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering&
     }
     m_description.uiCapability()->setUiReadOnly( m_useAutoPlotTitle );
 
+    mainOptions->add( &m_normalizeCurveYValues );
+
     if ( isMdiWindow() )
     {
-        uiOrderingForPlotLayout( uiConfigName, *mainOptions );
+        RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
     }
-
-    mainOptions->add( &m_normalizeCurveYValues );
 
     uiOrdering.skipRemainingFields( true );
 }

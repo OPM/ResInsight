@@ -1019,12 +1019,17 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
     uiOrderingForAutoName( uiConfigName, *titleGroup );
 
-    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup, true );
-    plotLayoutGroup->add( &m_subTitleFontSize );
-    plotLayoutGroup->add( &m_axisTitleFontSize );
-    plotLayoutGroup->add( &m_axisValueFontSize );
-    plotLayoutGroup->add( &m_depthOrientation );
+    caf::PdmUiGroup* legendGroup = uiOrdering.addNewGroup( "Legends" );
+    legendGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForLegends( uiConfigName, *legendGroup, true );
+
+    caf::PdmUiGroup* fontGroup = uiOrdering.addNewGroup( "Fonts" );
+    fontGroup->setCollapsedByDefault();
+    RimPlotWindow::uiOrderingForFonts( uiConfigName, *fontGroup );
+    fontGroup->add( &m_subTitleFontSize );
+    fontGroup->add( &m_axisTitleFontSize );
+    fontGroup->add( &m_axisValueFontSize );
+    fontGroup->add( &m_depthOrientation );
 
     std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
     descendantsOfType( ensembleWellLogCurveSets );
@@ -1034,7 +1039,7 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
         ensembleWellLogGroup->add( &m_depthEqualization );
         ensembleWellLogGroup->add( &m_ensembleCurveSet );
 
-        // Disable depth equalization if any of the ensmble is missing k-layer info
+        // Disable depth equalization if any of the ensemble is missing k-layer info
         bool hasKLayerIndex = true;
         for ( auto wellLogCurveSet : ensembleWellLogCurveSets )
             if ( !wellLogCurveSet->hasPropertyInFile( RiaResultNames::indexKResultName() ) ) hasKLayerIndex = false;

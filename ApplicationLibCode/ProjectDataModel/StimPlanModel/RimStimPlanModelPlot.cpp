@@ -96,8 +96,7 @@ void RimStimPlanModelPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrd
     caf::PdmUiGroup* titleGroup = uiOrdering.addNewGroup( "Plot Title" );
     RimDepthTrackPlot::uiOrderingForAutoName( uiConfigName, *titleGroup );
 
-    caf::PdmUiGroup* plotLayoutGroup = uiOrdering.addNewGroup( "Plot Layout" );
-    RimPlotWindow::uiOrderingForPlotLayout( uiConfigName, *plotLayoutGroup );
+    RimPlotWindow::uiOrderingForLegendsAndFonts( uiConfigName, uiOrdering );
 
     uiOrdering.skipRemainingFields( true );
 }
