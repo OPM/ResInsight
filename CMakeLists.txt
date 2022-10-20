@@ -385,7 +385,9 @@ list(APPEND OPM_LIBRARIES custom-opm-flowdiagnostics custom-opm-flowdiag-app
      custom-opm-common
 )
 
-set_property(TARGET ${OPM_LIBRARIES} PROPERTY FOLDER "Thirdparty/OPM")
+set_property(
+  TARGET ${OPM_LIBRARIES} opm-parser-tests PROPERTY FOLDER "Thirdparty/OPM"
+)
 
 # ##############################################################################
 # NRLib
