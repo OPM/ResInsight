@@ -32,6 +32,7 @@
 
 class QString;
 class QwtPlot;
+class RimPlotAxisAnnotation;
 
 class RiuPlotAnnotationTool
 {
@@ -55,8 +56,11 @@ public:
     void attachAnnotationLine( QwtPlot*                plot,
                                const QColor&           color,
                                const QString&          annotationText,
+                               Qt::PenStyle            penStyle,
                                const double            position,
                                RiaDefines::Orientation orientation );
+
+    void attachAnnotation( QwtPlot* plot, RimPlotAxisAnnotation* annotation, RiaDefines::Orientation orientation );
 
     void attachAnnotationRange( QwtPlot*                plot,
                                 const QColor&           color,

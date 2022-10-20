@@ -606,6 +606,8 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                 return true;
             }
         }
+
+        emit mouseMoveEvent( mouseEvent );
     }
     return false;
 }

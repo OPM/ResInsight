@@ -186,6 +186,7 @@ signals:
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
     void plotZoomed();
+    void mouseMoveEvent( QMouseEvent* event );
 
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;

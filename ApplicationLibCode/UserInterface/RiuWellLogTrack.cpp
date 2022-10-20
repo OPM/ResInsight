@@ -21,6 +21,8 @@
 
 #include "RiaDefines.h"
 #include "RiaPlotDefines.h"
+
+#include "RimPlotAxisAnnotation.h"
 #include "RimWellLogCurve.h"
 #include "RimWellLogExtractionCurve.h"
 #include "RimWellLogTrack.h"
@@ -28,6 +30,7 @@
 #include "RigWellLogCurveData.h"
 
 #include "RiuGuiTheme.h"
+#include "RiuPlotAnnotationTool.h"
 #include "RiuPlotCurve.h"
 #include "RiuPlotCurveInfoTextProvider.h"
 #include "RiuQwtCurvePointTracker.h"
@@ -37,6 +40,7 @@
 #include "qwt_plot_curve.h"
 #include "qwt_scale_draw.h"
 #include "qwt_scale_engine.h"
+#include "qwt_scale_map.h"
 #include "qwt_scale_widget.h"
 
 #include <QWheelEvent>
@@ -190,6 +194,10 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     setAxisEnabled( QwtAxis::XTop, !isVertical );
     setAxisEnabled( QwtAxis::XBottom, isVertical );
 
+    m_annotationTool = std::make_unique<RiuPlotAnnotationTool>();
+
+    connect( this, SIGNAL( mouseMoveEvent( QMouseEvent* ) ), SLOT( onMouseMoveEvent( QMouseEvent* ) ) );
+
     new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
 }
 
@@ -219,4 +227,64 @@ void RiuWellLogTrack::setAxisEnabled( QwtAxis::Position axis, bool enabled )
     }
 
     setAxisTitleEnabled( plotAxis, enabled );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnnotation*>& annotations )
+{
+    m_annotationTool->detachAllAnnotations();
+
+    RimDepthTrackPlot* depthTrackPlot = nullptr;
+    m_plotDefinition->firstAncestorOfType( depthTrackPlot );
+    if ( !depthTrackPlot ) return;
+
+    auto orientation = depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL
+                           ? RiaDefines::Orientation::VERTICAL
+                           : RiaDefines::Orientation::HORIZONTAL;
+
+    for ( auto annotation : annotations )
+    {
+        m_annotationTool->attachAnnotation( qwtPlot(), annotation, orientation );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
+{
+    if ( !m_plotDefinition ) return;
+
+    RimDepthTrackPlot* depthTrackPlot = nullptr;
+    m_plotDefinition->firstAncestorOfType( depthTrackPlot );
+    if ( !depthTrackPlot || !depthTrackPlot->isDepthMarkerLineEnabled() ) return;
+
+    auto plotwidget = dynamic_cast<RiuQwtPlotWidget*>( m_plotDefinition->plotWidget() );
+    if ( !plotwidget ) return;
+
+    auto plot = plotwidget->qwtPlot();
+
+    double depth = 0.0;
+
+    auto riuPlotAxis = depthTrackPlot->depthAxis();
+    auto qwtAxis     = plotwidget->toQwtPlotAxis( riuPlotAxis );
+
+    const QwtScaleMap axisMap = plot->canvasMap( qwtAxis );
+    if ( depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+    {
+        depth = axisMap.invTransform( mouseEvent->pos().x() );
+    }
+    else
+    {
+        depth = axisMap.invTransform( mouseEvent->pos().y() );
+    }
+
+    depthTrackPlot->setDepthMarkerPosition( depth );
+
+    for ( auto p : depthTrackPlot->plots() )
+    {
+        p->updateAxes();
+    }
 }

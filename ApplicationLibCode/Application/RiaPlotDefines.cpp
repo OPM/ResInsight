@@ -54,6 +54,20 @@ void caf::AppEnum<RiaDefines::ObjectNamingMethod>::setUp()
 
     setDefault( RiaDefines::ObjectNamingMethod::AUTO );
 }
+
+template <>
+void caf::AppEnum<Qt::PenStyle>::setUp()
+{
+    addItem( Qt::PenStyle::NoPen, "NO_PEN", "No Pen" );
+    addItem( Qt::PenStyle::SolidLine, "SOLID_LINE", "Solid Line" );
+    addItem( Qt::PenStyle::DashLine, "DASH_LINE", "Dash Line" );
+    addItem( Qt::PenStyle::DotLine, "DOT_LINE", "Dot Line" );
+    addItem( Qt::PenStyle::DashDotLine, "DASH_DOT_LINE", "Dash Dot Line" );
+    addItem( Qt::PenStyle::DashDotDotLine, "DASH_DOT_DOT_LINE", "Dash Dot Dot Line" );
+
+    setDefault( Qt::PenStyle::SolidLine );
+}
+
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------

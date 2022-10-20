@@ -18,6 +18,7 @@
 
 #include "RiuPlotAnnotationTool.h"
 
+#include "RimPlotAxisAnnotation.h"
 #include "RiuGuiTheme.h"
 
 #include "cafCategoryMapper.h"
@@ -191,6 +192,7 @@ void RiuPlotAnnotationTool::attachWellPicks( QwtPlot*                    plot,
 void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
                                                   const QColor&           color,
                                                   const QString&          annotationText,
+                                                  Qt::PenStyle            penStyle,
                                                   const double            position,
                                                   RiaDefines::Orientation orientation )
 {
@@ -204,9 +206,27 @@ void RiuPlotAnnotationTool::attachAnnotationLine( QwtPlot*                plot,
         textColor = RiuGuiTheme::getColorByVariableName( "textColor" );
     }
 
-    RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, Qt::SolidLine, color, textColor );
+    RiuPlotAnnotationTool::setLineProperties( line, annotationText, orientation, position, penStyle, color, textColor );
     m_plotItems.push_back( line );
     line->attach( m_plot );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuPlotAnnotationTool::attachAnnotation( QwtPlot*                plot,
+                                              RimPlotAxisAnnotation*  annotation,
+                                              RiaDefines::Orientation orientation )
+{
+    if ( annotation->annotationType() == RimPlotAxisAnnotation::AnnotationType::LINE )
+    {
+        attachAnnotationLine( plot,
+                              annotation->color(),
+                              annotation->name(),
+                              annotation->penStyle(),
+                              annotation->value(),
+                              orientation );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
