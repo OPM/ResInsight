@@ -45,8 +45,8 @@ public:
 
     void createAnnotationsInPlot( const std::vector<RimPlotAxisAnnotation*>& annotations );
 
-private slots:
-    void onMouseMoveEvent( QMouseEvent* mouseEvent );
+private:
+    void onMouseMoveEvent( QMouseEvent* event ) override;
 
 private:
     std::unique_ptr<RiuPlotAnnotationTool> m_annotationTool;

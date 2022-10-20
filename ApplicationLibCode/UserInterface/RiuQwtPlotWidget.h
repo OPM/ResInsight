@@ -186,7 +186,6 @@ signals:
     void onKeyPressEvent( QKeyEvent* event );
     void onWheelEvent( QWheelEvent* event );
     void plotZoomed();
-    void mouseMoveEvent( QMouseEvent* event );
 
 protected:
     bool eventFilter( QObject* watched, QEvent* event ) override;
@@ -207,6 +206,9 @@ protected:
     void setAxisScale( QwtAxisId axis, double min, double max );
 
     RiuPlotAxis findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId ) const;
+
+    virtual void onMouseMoveEvent( QMouseEvent* event );
+    ;
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );

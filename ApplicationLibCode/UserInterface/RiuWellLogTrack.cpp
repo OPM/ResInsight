@@ -196,8 +196,6 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
 
     m_annotationTool = std::make_unique<RiuPlotAnnotationTool>();
 
-    connect( this, SIGNAL( mouseMoveEvent( QMouseEvent* ) ), SLOT( onMouseMoveEvent( QMouseEvent* ) ) );
-
     new RiuWellLogCurvePointTracker( this->qwtPlot(), &wellLogCurveInfoTextProvider, track );
 }
 
