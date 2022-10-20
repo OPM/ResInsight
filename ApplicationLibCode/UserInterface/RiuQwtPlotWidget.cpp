@@ -1386,7 +1386,6 @@ RiuPlotAxis RiuQwtPlotWidget::findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId
 
     CAF_ASSERT( false );
     return RiuPlotAxis::defaultLeft();
-    
 }
 
 //--------------------------------------------------------------------------------------------------
