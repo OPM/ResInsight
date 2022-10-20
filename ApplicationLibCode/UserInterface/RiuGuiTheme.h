@@ -61,17 +61,16 @@ public:
     static void styleQwtItem( QwtPicker* item );
 
 private:
-    static void         preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styleSheet );
-    static QString      getStyleSheetPath( RiaDefines::ThemeEnum theme );
-    static void         storeQwtStyleSheetProperty( const QString& plotName,
-                                                    const QString& itemType,
-                                                    const QString& itemName,
-                                                    const QString& propertyName,
-                                                    const QString& value );
-    static Qt::PenStyle getPenStyleFromString( const QString& style );
-    static QwtSymbol*   cloneMarkerSymbol( QwtPlotMarker* marker );
-    static QwtSymbol*   cloneCurveSymbol( QwtPlotCurve* curve );
-    static void         formatStyleSheetForWriting( QString& styleSheet );
+    static void       preparseStyleSheet( RiaDefines::ThemeEnum theme, QString& styleSheet );
+    static QString    getStyleSheetPath( RiaDefines::ThemeEnum theme );
+    static void       storeQwtStyleSheetProperty( const QString& plotName,
+                                                  const QString& itemType,
+                                                  const QString& itemName,
+                                                  const QString& propertyName,
+                                                  const QString& value );
+    static QwtSymbol* cloneMarkerSymbol( QwtPlotMarker* marker );
+    static QwtSymbol* cloneCurveSymbol( QwtPlotCurve* curve );
+    static void       formatStyleSheetForWriting( QString& styleSheet );
 
 private:
     static RiaDefines::ThemeEnum s_currentTheme;

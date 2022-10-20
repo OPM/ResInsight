@@ -46,6 +46,7 @@ class RimEnsembleCurveSet;
 class RiuPlotAxis;
 class RimWellLogTrack;
 class RimWellLogPlotNameConfig;
+class RimPlotAxisAnnotation;
 
 class QKeyEvent;
 
@@ -128,6 +129,12 @@ public:
     void calculateAvailableDepthRange();
     void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
     void visibleDepthRange( double* minimumDepth, double* maximumDepth ) const;
+
+    void                                enableDepthMarkerLine( bool enable );
+    bool                                isDepthMarkerLineEnabled() const;
+    void                                setDepthMarkerPosition( double depth );
+    void                                clearDepthAnnotations();
+    std::vector<RimPlotAxisAnnotation*> depthAxisAnnotations() const;
 
     void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
@@ -213,6 +220,8 @@ protected:
     caf::PdmField<AxisGridEnum>                                      m_depthAxisGridVisibility;
     caf::PdmField<bool>                                              m_isAutoScaleDepthEnabled;
     caf::PdmField<caf::AppEnum<RiaDefines::MultiPlotAxisVisibility>> m_depthAxisVisibility;
+    caf::PdmField<bool>                                              m_showDepthMarkerLine;
+    caf::PdmChildArrayField<RimPlotAxisAnnotation*>                  m_depthAnnotations;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;

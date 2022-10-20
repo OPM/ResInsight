@@ -606,6 +606,8 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                 return true;
             }
         }
+
+        onMouseMoveEvent( mouseEvent );
     }
     return false;
 }
@@ -1384,6 +1386,13 @@ RiuPlotAxis RiuQwtPlotWidget::findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId
 
     CAF_ASSERT( false );
     return RiuPlotAxis::defaultLeft();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuQwtPlotWidget::onMouseMoveEvent( QMouseEvent* event )
+{
 }
 
 //--------------------------------------------------------------------------------------------------
