@@ -208,7 +208,6 @@ protected:
     RiuPlotAxis findPlotAxisForQwtAxis( const QwtAxisId& qwtAxisId ) const;
 
     virtual void onMouseMoveEvent( QMouseEvent* event );
-    ;
 
 private:
     void       selectClosestPlotItem( const QPoint& pos, bool toggleItemInSelection = false );
