@@ -197,6 +197,10 @@ double RimFracture::perforationEfficiency() const
 void RimFracture::setStimPlanTimeIndexToPlot( int timeIndex )
 {
     m_stimPlanTimeIndexToPlot = timeIndex;
+    if ( m_autoUpdateWellPathDepthAtFractureFromTemplate )
+    {
+        placeUsingTemplateData();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -263,6 +267,7 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
         if ( m_autoUpdateWellPathDepthAtFractureFromTemplate && m_fractureTemplate() )
         {
             m_wellPathDepthAtFracture = m_fractureTemplate->wellPathDepthAtFracture();
+            placeUsingTemplateData();
         }
         updateFractureGrid();
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
@@ -272,6 +277,11 @@ void RimFracture::fieldChangedByUi( const caf::PdmFieldHandle* changedField, con
     {
         updateFractureGrid();
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
+    }
+
+    if ( changedField == &m_stimPlanTimeIndexToPlot )
+    {
+        if ( m_autoUpdateWellPathDepthAtFractureFromTemplate() ) placeUsingTemplateData();
     }
 
     if ( changedField == &m_azimuth || changedField == &m_fractureTemplate ||
@@ -1003,4 +1013,11 @@ void RimFracture::onWellPathDepthAtFractureInTemplateChanged( const caf::SignalE
         updateFractureGrid();
         RimProject::current()->scheduleCreateDisplayModelAndRedrawAllViews();
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimFracture::placeUsingTemplateData()
+{
 }

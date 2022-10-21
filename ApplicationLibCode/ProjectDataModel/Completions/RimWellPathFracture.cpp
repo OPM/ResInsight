@@ -355,3 +355,14 @@ void RimWellPathFracture::applyOffset( double offsetMD )
 {
     m_measuredDepth = m_measuredDepth + offsetMD;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellPathFracture::placeUsingTemplateData()
+{
+    if ( m_fractureTemplate )
+    {
+        m_fractureTemplate->placeFractureUsingTemplateData( this );
+    }
+}

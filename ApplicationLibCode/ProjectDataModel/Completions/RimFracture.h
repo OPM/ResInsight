@@ -121,6 +121,8 @@ public:
     virtual void                    loadDataAndUpdate()                       = 0;
     virtual std::vector<cvf::Vec3d> perforationLengthCenterLineCoords() const = 0;
 
+    virtual void placeUsingTemplateData();
+
     // Fracture properties
     const NonDarcyData& nonDarcyProperties() const;
     void                ensureValidNonDarcyProperties();

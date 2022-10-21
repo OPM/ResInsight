@@ -34,3 +34,11 @@ fracture = well_path.add_thermal_fracture(
     fracture_template=fracture_template,
     place_using_template_data=True,
 )
+
+
+time_steps = fracture_template.time_steps().values
+for time_step_index, time_stamp in enumerate(time_steps):
+    print("Time step #{}: {}".format(time_step_index, time_stamp))
+    fracture_template.active_time_step_index = time_step_index
+    fracture_template.conductivity_result_name = "Conductivity"
+    fracture_template.update()

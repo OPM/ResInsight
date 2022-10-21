@@ -147,6 +147,8 @@ public:
                                            std::vector<cvf::uint>*  triangleIndices,
                                            double                   wellPathDepthAtFracture ) const = 0;
 
+    virtual bool placeFractureUsingTemplateData( RimFracture* fracture );
+
     virtual cvf::cref<RigFractureGrid> createFractureGrid( double wellPathDepthAtFracture ) const = 0;
     const RimFractureContainment*      fractureContainment() const;
 

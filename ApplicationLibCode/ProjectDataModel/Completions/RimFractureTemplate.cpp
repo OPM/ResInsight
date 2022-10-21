@@ -1001,3 +1001,11 @@ double RimFractureTemplate::wellPathDepthAtFracture() const
 {
     return m_wellPathDepthAtFracture;
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimFractureTemplate::placeFractureUsingTemplateData( RimFracture* fracture )
+{
+    return true;
+}
