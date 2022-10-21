@@ -251,7 +251,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
 
                 if ( m_isPackerCurve )
                 {
-                    curveValue = 3.5;
+                    curveValue = 4.0;
                 }
 
                 // Adjust the location of each branch if multiple branches are visible at the same time
