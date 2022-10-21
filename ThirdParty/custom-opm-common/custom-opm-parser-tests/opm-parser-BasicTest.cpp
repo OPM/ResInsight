@@ -13,6 +13,7 @@
 #include "opm/input/eclipse/Parser/ParserKeywords/W.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/I.hpp"
 #include "opm/input/eclipse/Parser/ParserKeywords/S.hpp"
+#include "opm/input/eclipse/Parser/ParserKeywords/P.hpp"
 
 #include "OpmTestDataDirectory.h"
 
@@ -92,9 +93,11 @@ TEST(OpmParserTest, ReadAndParseWSEGLINK)
 
     const Opm::ParserKeywords::WSEGLINK kw1;
     const Opm::ParserKeywords::INCLUDE  kw2;
+    const Opm::ParserKeywords::PATHS    kw3;
 
     parser.addParserKeyword(kw1);
     parser.addParserKeyword(kw2);
+    parser.addParserKeyword(kw3);
 
     std::string testFilePath = std::string(TEST_DATA_DIR) + "/test_wseglink.DATA";
     
