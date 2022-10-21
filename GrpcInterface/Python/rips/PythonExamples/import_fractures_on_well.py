@@ -47,3 +47,8 @@ for measured_depth in measured_depths:
 fracture_template.orientation = "Azimuth"
 fracture_template.azimuth_angle = 60.0
 fracture_template.update()
+
+# Scale the template
+fracture_template.set_scale_factors(
+    half_length=2.0, height=2.0, d_factor=1.1, conductivity=1.2
+)
