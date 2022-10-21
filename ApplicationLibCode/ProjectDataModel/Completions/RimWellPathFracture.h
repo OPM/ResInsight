@@ -48,6 +48,8 @@ public:
 
     double wellAzimuthAtFracturePosition() const override;
 
+    void placeUsingTemplateData() override;
+
     void loadDataAndUpdate() override;
 
     std::vector<cvf::Vec3d> perforationLengthCenterLineCoords() const override;

@@ -66,11 +66,11 @@ RimMeshFractureTemplate::RimMeshFractureTemplate()
     CAF_PDM_InitField( &m_borderPolygonResultName, "BorderPolygonResultName", QString( "" ), "Parameter" );
     m_borderPolygonResultName.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_activeTimeStepIndex, "ActiveTimeStepIndex", 0, "Active TimeStep Index" );
-    CAF_PDM_InitField( &m_conductivityResultNameOnFile,
-                       "ConductivityResultName",
-                       QString( "" ),
-                       "Active Conductivity Result Name" );
+    CAF_PDM_InitScriptableField( &m_activeTimeStepIndex, "ActiveTimeStepIndex", 0, "Active TimeStep Index" );
+    CAF_PDM_InitScriptableField( &m_conductivityResultNameOnFile,
+                                 "ConductivityResultName",
+                                 QString( "" ),
+                                 "Active Conductivity Result Name" );
 
     m_readError = false;
 

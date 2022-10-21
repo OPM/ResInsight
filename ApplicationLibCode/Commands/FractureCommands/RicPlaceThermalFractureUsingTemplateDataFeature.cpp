@@ -18,9 +18,6 @@
 
 #include "RicPlaceThermalFractureUsingTemplateDataFeature.h"
 
-#include "RiaLogging.h"
-
-#include "RigWellPath.h"
 #include "RimProject.h"
 #include "RimThermalFractureTemplate.h"
 #include "RimWellPath.h"
@@ -56,31 +53,7 @@ bool RicPlaceThermalFractureUsingTemplateDataFeature::placeUsingTemplateData( Ri
     RimThermalFractureTemplate* thermalTemplate = dynamic_cast<RimThermalFractureTemplate*>( fracture->fractureTemplate() );
     if ( !thermalTemplate ) return false;
 
-    RimWellPath* wellPath = nullptr;
-    fracture->firstAncestorOrThisOfTypeAsserted( wellPath );
-
-    auto wellPathGeometry = wellPath->wellPathGeometry();
-    if ( !wellPathGeometry ) return false;
-
-    auto [centerPosition, rotation] = thermalTemplate->computePositionAndRotation();
-
-    // TODO: y conversion is workaround for strange test data
-    centerPosition.y() = std::fabs( centerPosition.y() );
-    centerPosition.z() *= -1.0;
-
-    double md = wellPathGeometry->closestMeasuredDepth( centerPosition );
-
-    RiaLogging::info( QString( "Placing thermal fracture. Posotion: [%1 %2 %3]" )
-                          .arg( centerPosition.x() )
-                          .arg( centerPosition.y() )
-                          .arg( centerPosition.z() ) );
-    RiaLogging::info( QString( "Computed MD: %1" ).arg( md ) );
-
-    fracture->setMeasuredDepth( md );
-
-    fracture->setAzimuth( rotation.x() );
-    fracture->setDip( rotation.y() );
-    fracture->setTilt( rotation.z() );
+    if ( !thermalTemplate->placeFractureUsingTemplateData( fracture ) ) return false;
 
     fracture->updateConnectedEditors();
     RimProject* project = RimProject::current();

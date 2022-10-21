@@ -31,11 +31,13 @@
 #include "RigFractureGrid.h"
 #include "RigThermalFractureDefinition.h"
 #include "RigThermalFractureResultUtil.h"
+#include "RigWellPath.h"
 
 #include "RimEclipseView.h"
 #include "RimFracture.h"
 #include "RimStimPlanColors.h"
 #include "RimWellPath.h"
+#include "RimWellPathFracture.h"
 
 #include "cafPdmFieldScriptingCapability.h"
 #include "cafPdmObject.h"
@@ -783,4 +785,39 @@ void RimThermalFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
 RimThermalFractureTemplate::FilterCakePressureDrop RimThermalFractureTemplate::filterCakePressureDropType() const
 {
     return m_filterCakePressureDropType.value();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimThermalFractureTemplate::placeFractureUsingTemplateData( RimFracture* fracture )
+{
+    RimWellPath* wellPath = nullptr;
+    fracture->firstAncestorOrThisOfTypeAsserted( wellPath );
+
+    auto wellPathGeometry = wellPath->wellPathGeometry();
+    if ( !wellPathGeometry ) return false;
+
+    auto [centerPosition, rotation] = computePositionAndRotation();
+
+    // TODO: y conversion is workaround for strange test data
+    centerPosition.y() = std::fabs( centerPosition.y() );
+    centerPosition.z() *= -1.0;
+
+    double md = wellPathGeometry->closestMeasuredDepth( centerPosition );
+
+    RiaLogging::info( QString( "Placing thermal fracture. Posotion: [%1 %2 %3]" )
+                          .arg( centerPosition.x() )
+                          .arg( centerPosition.y() )
+                          .arg( centerPosition.z() ) );
+    RiaLogging::info( QString( "Computed MD: %1" ).arg( md ) );
+
+    RimWellPathFracture* wellPathFracture = dynamic_cast<RimWellPathFracture*>( fracture );
+    if ( wellPathFracture ) wellPathFracture->setMeasuredDepth( md );
+
+    m_orientationType = RimFractureTemplate::AZIMUTH;
+    fracture->setAzimuth( rotation.x() );
+    fracture->setDip( rotation.y() );
+    fracture->setTilt( rotation.z() );
+    return true;
 }

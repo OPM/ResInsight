@@ -62,6 +62,8 @@ public:
                                    std::vector<cvf::uint>*  triangleIndices,
                                    double                   wellPathDepthAtFracture ) const override;
 
+    bool placeFractureUsingTemplateData( RimFracture* fracture ) override;
+
     // Result Access
     std::vector<QString>                     timeStepsStrings() override;
     std::vector<double>                      timeSteps() override;
