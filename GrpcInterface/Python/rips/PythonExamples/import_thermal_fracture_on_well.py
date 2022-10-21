@@ -42,4 +42,3 @@ for time_step_index, time_stamp in enumerate(time_steps):
     fracture_template.active_time_step_index = time_step_index
     fracture_template.conductivity_result_name = "Conductivity"
     fracture_template.update()
-
