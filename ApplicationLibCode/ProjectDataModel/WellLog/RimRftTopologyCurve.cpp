@@ -231,13 +231,9 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
         if ( rftReader )
         {
             std::vector<double> seglenstValues;
-            std::vector<double> seglenenValues;
 
             auto resultNameSeglenst = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENST" );
             rftReader->values( resultNameSeglenst, &seglenstValues );
-
-            auto resultNameSeglenen = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENEN" );
-            rftReader->values( resultNameSeglenen, &seglenenValues );
 
             auto segment        = rftReader->segmentForWell( m_wellName, m_timeStep );
             auto segmentIndices = segment.segmentIndicesForBranchIndex( m_segmentBranchIndex(), m_segmentBranchType() );
@@ -268,9 +264,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     for ( auto segmentIndex : packerSegmentIndices )
                     {
                         depths.push_back( seglenstValues[segmentIndex] );
-                        depths.push_back( seglenenValues[segmentIndex] );
 
-                        propertyValues.push_back( curveValue );
                         propertyValues.push_back( curveValue );
                     }
                 }
@@ -279,9 +273,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     for ( auto segmentIndex : segmentIndices )
                     {
                         depths.push_back( seglenstValues[segmentIndex] );
-                        depths.push_back( seglenenValues[segmentIndex] );
 
-                        propertyValues.push_back( curveValue );
                         propertyValues.push_back( curveValue );
                     }
                 }
