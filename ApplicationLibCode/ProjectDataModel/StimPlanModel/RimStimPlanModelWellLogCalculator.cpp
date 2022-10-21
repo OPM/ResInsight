@@ -567,7 +567,7 @@ bool RimStimPlanModelWellLogCalculator::extractValuesForProperty( RiaDefines::Cu
     auto eclipseCaseData = eclipseCase->eclipseCaseData();
     if ( !eclipseCaseData )
     {
-        RiaLogging::error( "Missing eclipse case data." );
+        RiaLogging::error( "Missing Eclipse case data." );
         return false;
     }
 
@@ -643,7 +643,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithDefault( RiaDefi
     auto eclipseCaseData = eclipseCase->eclipseCaseData();
     if ( !eclipseCaseData )
     {
-        RiaLogging::error( "Missing eclipse case data." );
+        RiaLogging::error( "Missing Eclipse case data." );
         return false;
     }
 
@@ -794,7 +794,7 @@ bool RimStimPlanModelWellLogCalculator::replaceMissingValuesWithOtherKLayer( Ria
     RigEclipseCaseData* caseData = eclipseCase->eclipseCaseData();
     if ( !caseData )
     {
-        RiaLogging::error( "Missing eclipse case data." );
+        RiaLogging::error( "Missing Eclipse case data." );
         return false;
     }
 

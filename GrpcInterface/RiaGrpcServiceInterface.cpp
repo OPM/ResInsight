@@ -222,7 +222,7 @@ bool RiaGrpcServiceInterface::assignFieldValue( const QString&            string
     CAF_ASSERT( oldValue && newValue );
 
     auto scriptability = field->template capability<caf::PdmAbstractFieldScriptingCapability>();
-    if ( field && scriptability != nullptr )
+    if ( field && scriptability != nullptr && scriptability->isIOWriteable() )
     {
         auto*       valueField = dynamic_cast<caf::PdmValueField*>( field );
         QTextStream stream( stringValue.toLatin1() );
