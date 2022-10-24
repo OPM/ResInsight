@@ -106,7 +106,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     m_gridLayout->setContentsMargins( 0, 0, 0, 0 );
-    m_gridLayout->setSpacing( 0 );
+    m_gridLayout->setSpacing( 5 );
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
