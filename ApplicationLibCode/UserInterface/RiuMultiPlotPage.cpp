@@ -25,13 +25,10 @@
 #include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 
-#include "WellLogCommands/RicWellLogPlotTrackFeatureImpl.h"
-
 #include "RimContextCommandBuilder.h"
 #include "RimMultiPlot.h"
 #include "RimPlotCurve.h"
 #include "RimPlotWindow.h"
-#include "RimWellLogTrack.h"
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuMainWindow.h"
@@ -109,7 +106,7 @@ RiuMultiPlotPage::RiuMultiPlotPage( RimPlotWindow* plotDefinition, QWidget* pare
 
     m_gridLayout = new QGridLayout( m_plotWidgetFrame );
     m_gridLayout->setContentsMargins( 0, 0, 0, 0 );
-    m_gridLayout->setSpacing( 5 );
+    m_gridLayout->setSpacing( 0 );
 
     new RiuPlotObjectPicker( m_plotTitle, m_plotDefinition );
 
@@ -829,8 +826,15 @@ void RiuMultiPlotPage::adjustHeadingSpacing( RiuPlotWidget* plotWidget )
 {
     // Adjust the space below a graph to make sure the heading of the row below is closest to the
     // corresponding graph
+
+    if ( !m_plotDefinition ) return;
+
+    int bottomMargin = m_plotDefinition->bottomMargin();
+    if ( bottomMargin < 0 ) return;
+
     auto margins = plotWidget->contentsMargins();
-    margins.setBottom( 40 );
+
+    margins.setBottom( bottomMargin );
     plotWidget->setContentsMargins( margins );
 }
 

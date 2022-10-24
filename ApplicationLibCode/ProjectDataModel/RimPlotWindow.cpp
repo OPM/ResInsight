@@ -78,6 +78,8 @@ RimPlotWindow::RimPlotWindow()
 
     m_titleFontSize  = caf::FontTools::RelativeSize::XXLarge;
     m_legendFontSize = caf::FontTools::RelativeSize::Large;
+
+    m_bottomMargin = -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -284,6 +286,22 @@ QPageLayout RimPlotWindow::pageLayout() const
         return customPageLayout;
     }
     return defaultPageLayout;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotWindow::setBottomMargin( int bottomMargin )
+{
+    m_bottomMargin = bottomMargin;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+int RimPlotWindow::bottomMargin() const
+{
+    return m_bottomMargin;
 }
 
 //--------------------------------------------------------------------------------------------------
