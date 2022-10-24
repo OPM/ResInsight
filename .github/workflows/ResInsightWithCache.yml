@@ -106,19 +106,21 @@ jobs:
             )
           endif()
 
-      - name: Prepare cache timestamp
-        id: cache_timestamp_string
-        shell: pwsh
-        run: |
-          "timestamp<<EOF" >> $env:GITHUB_ENV
-          Get-Date -Format "yyyy-MM-dd" >> $GITHUB_OUTPUT
-          "EOF" >> $env:GITHUB_ENV
+      - name: Get current time
+        uses: josStorer/get-current-time@v2.0.2
+        id: current-time
+        with:
+          format: YYYY-MM-DD
+
+      - name: Print time stamp
+        run: echo "timestamp ${{ steps.current-time.outputs.formattedTime }}"
+
       - name: Cache Buildcache
         id: cache-buildcache
         uses: actions/cache@v3
         with:
           path: ${{ env.BUILDCACHE_DIR }}
-          key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-cache-v02-${{ steps.cache_timestamp_string.outputs.timestamp }}
+          key: ${{ matrix.config.os }}-${{ matrix.config.cc }}-cache-v02-${{ steps.current-time.outputs.formattedTime }}
       - name: Create Folder for buildcache
         run: New-Item ${{ env.BUILDCACHE_DIR }} -ItemType "directory" -Force
         shell: pwsh
