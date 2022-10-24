@@ -107,19 +107,9 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     }
 
     appendPressureTrack( plot, wellName, summaryCase );
-
-    QString trackName  = "Connection Factors";
-    QString resultName = "CONFAC";
-    auto    curve      = appendTrackAndCurveForBranchType( plot,
-                                                   trackName,
-                                                   resultName,
-                                                   wellName,
-                                                   RiaDefines::RftBranchType::RFT_ANNULUS,
-                                                   summaryCase );
-    curve->setColor( cvf::Color3f( cvf::Color3f::ColorIdent::OLIVE ) );
-    curve->setFillStyle( Qt::SolidPattern );
-
+    appendConnectionFactorTrack( plot, wellName, summaryCase );
     appendTopologyTrack( plot, wellName, summaryCase );
+
     plot->loadDataAndUpdate();
 
     RiuPlotMainWindowTools::onObjectAppended( plot );
@@ -276,6 +266,25 @@ void RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( RimWellLogPlot* pl
     curve->setLineThickness( 3 );
 
     track->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( RimWellLogPlot* plot,
+                                                                      const QString&  wellName,
+                                                                      RimSummaryCase* summaryCase )
+{
+    QString trackName  = "Connection Factors";
+    QString resultName = "CONFAC";
+    auto    curve      = appendTrackAndCurveForBranchType( plot,
+                                                   trackName,
+                                                   resultName,
+                                                   wellName,
+                                                   RiaDefines::RftBranchType::RFT_ANNULUS,
+                                                   summaryCase );
+    curve->setColor( cvf::Color3f( cvf::Color3f::ColorIdent::OLIVE ) );
+    curve->setFillStyle( Qt::SolidPattern );
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -37,6 +37,7 @@ class RicNewRftSegmentWellLogPlotFeature : public caf::CmdFeature
 public:
     static void appendTopologyTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
     static void appendPressureTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
+    static void appendConnectionFactorTrack( RimWellLogPlot* plot, const QString& wellName, RimSummaryCase* summaryCase );
 
 private:
     bool isCommandEnabled() override;

@@ -70,6 +70,8 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     plot->setPlotTitleVisible( true );
     plot->setLegendItemsClickable( false );
     plot->enableDepthMarkerLine( true );
+    plot->setLegendPosition( RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT );
+    plot->setLegendFontSize( caf::FontTools::RelativeSize::XSmall );
 
     QString wellName = "Unknown";
 
@@ -80,17 +82,23 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
         if ( !wellNames.empty() ) wellName = *wellNames.begin();
     }
 
-    std::vector<QString> resultNames = { "SEGGRAT", "SEGORAT", "SEGWRAT" };
-
-    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_ANNULUS,
-                                                        RiaDefines::RftBranchType::RFT_DEVICE,
-                                                        RiaDefines::RftBranchType::RFT_TUBING };
-
-    for ( auto branchType : branchTypes )
     {
-        appendTrackAndCurveForBranchType( plot, resultNames, wellName, branchType, summaryCase );
+        for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS,
+                                  RiaDefines::RftBranchType::RFT_DEVICE,
+                                  RiaDefines::RftBranchType::RFT_TUBING } )
+        {
+            appendTrackAndCurveForBranchType( plot, { "SEGGRAT", "SEGORAT", "SEGWRAT" }, wellName, branchType, summaryCase );
+        }
     }
 
+    appendTrackAndCurveForBranchType( plot,
+                                      { "CONGRAT", "CONORAT", "CONWRAT" },
+                                      wellName,
+                                      RiaDefines::RftBranchType::RFT_ANNULUS,
+                                      summaryCase );
+
+    RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( plot, wellName, summaryCase );
+    RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( plot, wellName, summaryCase );
     RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( plot, wellName, summaryCase );
 
     plot->loadDataAndUpdate();
@@ -120,12 +128,12 @@ void RicNewMultiPhaseRftSegmentPlotFeature::appendTrackAndCurveForBranchType( Ri
 
         QString templateText = RiaDefines::namingVariableResultName() + ", " + RiaDefines::namingVariableResultType();
         curve->setCurveNameTemplateText( templateText );
+        curve->setFillStyle( Qt::SolidPattern );
 
         curve->setIsStacked( true );
         curve->loadDataAndUpdate( true );
 
         curve->updateAllRequiredEditors();
-        RiuPlotMainWindowTools::setExpanded( curve );
     }
 }
 
