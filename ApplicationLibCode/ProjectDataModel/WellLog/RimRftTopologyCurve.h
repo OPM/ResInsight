@@ -43,6 +43,11 @@ public:
                                                    const QString&   wellName,
                                                    int              segmentBranchIndex );
 
+    static RimRftTopologyCurve* createPressureCurve( RimSummaryCase*  summaryCase,
+                                                     const QDateTime& timeStep,
+                                                     const QString&   wellName,
+                                                     int              segmentBranchIndex );
+
     static RimRftTopologyCurve* createTopologyCurve( RimSummaryCase*           summaryCase,
                                                      const QDateTime&          timeStep,
                                                      const QString&            wellName,
@@ -76,6 +81,7 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_segmentBranchType;
 
     caf::PdmField<bool> m_isPackerCurve;
+    caf::PdmField<bool> m_isPressureCurve;
 
 public:
     void setAdditionalDataSources( const std::vector<RimPlotCurve*>& additionalDataSources );

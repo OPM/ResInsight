@@ -231,6 +231,11 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
     packerCurve->applyDefaultAppearance();
     track->addCurve( packerCurve );
 
+    auto pressureCurve = RimRftTopologyCurve::createPressureCurve( summaryCase, dateTime, wellName, branchIndex );
+    pressureCurve->setAdditionalDataSources( additionalDataSourceCurves );
+    pressureCurve->applyDefaultAppearance();
+    track->addCurve( pressureCurve );
+
     track->updateAllRequiredEditors();
 }
 

@@ -53,6 +53,7 @@ RimRftTopologyCurve::RimRftTopologyCurve()
     CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
 
     CAF_PDM_InitField( &m_isPackerCurve, "IsPackerCurve", false, "Packer Curve" );
+    CAF_PDM_InitField( &m_isPressureCurve, "IsPressureCurve", false, "Pressure Curve" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,6 +67,21 @@ RimRftTopologyCurve* RimRftTopologyCurve::createPackerCurve( RimSummaryCase*  su
     RimRftTopologyCurve* curve = new RimRftTopologyCurve();
     curve->setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
     curve->m_isPackerCurve = true;
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimRftTopologyCurve* RimRftTopologyCurve::createPressureCurve( RimSummaryCase*  summaryCase,
+                                                               const QDateTime& timeStep,
+                                                               const QString&   wellName,
+                                                               int              segmentBranchIndex )
+{
+    RimRftTopologyCurve* curve = new RimRftTopologyCurve();
+    curve->setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
+    curve->m_isPressureCurve = true;
 
     return curve;
 }
@@ -157,6 +173,10 @@ QString RimRftTopologyCurve::createCurveAutoName()
     {
         text += "Packer";
     }
+    else if ( m_isPressureCurve() )
+    {
+        text += "Pressure (Reservoir)";
+    }
     else
     {
         if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) text += "Annulus";
@@ -179,6 +199,7 @@ void RimRftTopologyCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
     curveDataGroup->add( &m_isPackerCurve );
+    curveDataGroup->add( &m_isPressureCurve );
 
     curveDataGroup->add( &m_segmentBranchIndex );
     if ( !m_isPackerCurve() )
@@ -252,51 +273,70 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
         // Update well path attributes, packers and casing based on RFT data
         if ( rftReader )
         {
-            std::vector<double> seglenstValues;
+            std::vector<double> depths;
+            std::vector<double> propertyValues;
 
-            auto resultNameSeglenst = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENST" );
-            rftReader->values( resultNameSeglenst, &seglenstValues );
-
-            auto segment        = rftReader->segmentForWell( m_wellName, m_timeStep );
-            auto segmentIndices = segment.segmentIndicesForBranchIndex( m_segmentBranchIndex(), m_segmentBranchType() );
-            if ( !segmentIndices.empty() )
+            if ( m_isPressureCurve )
             {
-                std::vector<double> depths;
-                std::vector<double> propertyValues;
+                std::vector<double> conlenstValues;
 
-                // Assign a static property value to each type of curve to make sure they all are separated and
-                // easily visible
-                double curveValue = 1.0;
-                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) curveValue = 2.0;
-                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) curveValue = 3.0;
-                if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) curveValue = 4.0;
+                auto resultNameConlenst = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "CONLENST" );
+                rftReader->values( resultNameConlenst, &conlenstValues );
 
-                if ( m_isPackerCurve )
+                double curveValue = 5.0;
+                for ( size_t i = 0; i < conlenstValues.size(); i++ )
                 {
-                    curveValue = 4.0;
+                    if ( std::isinf( conlenstValues[i] ) ) continue;
+
+                    depths.push_back( conlenstValues[i] );
+                    propertyValues.push_back( curveValue );
                 }
+            }
+            else
+            {
+                std::vector<double> seglenstValues;
 
-                // Adjust the location of each branch if multiple branches are visible at the same time
-                curveValue += m_segmentBranchIndex() * 0.2;
+                auto resultNameSeglenst = RifEclipseRftAddress::createSegmentAddress( m_wellName, m_timeStep, "SEGLENST" );
+                rftReader->values( resultNameSeglenst, &seglenstValues );
 
-                if ( m_isPackerCurve )
+                auto segment        = rftReader->segmentForWell( m_wellName, m_timeStep );
+                auto segmentIndices = segment.segmentIndicesForBranchIndex( m_segmentBranchIndex(), m_segmentBranchType() );
+                if ( !segmentIndices.empty() )
                 {
-                    auto packerSegmentIndices = segment.packerSegmentIndicesOnAnnulus( m_segmentBranchIndex() );
+                    // Assign a static property value to each type of curve to make sure they all are separated and
+                    // easily visible
+                    double curveValue = 1.0;
+                    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) curveValue = 2.0;
+                    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) curveValue = 3.0;
+                    if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) curveValue = 4.0;
 
-                    for ( auto segmentIndex : packerSegmentIndices )
+                    if ( m_isPackerCurve )
                     {
-                        depths.push_back( seglenstValues[segmentIndex] );
-
-                        propertyValues.push_back( curveValue );
+                        curveValue = 4.0;
                     }
-                }
-                else
-                {
-                    for ( auto segmentIndex : segmentIndices )
-                    {
-                        depths.push_back( seglenstValues[segmentIndex] );
 
-                        propertyValues.push_back( curveValue );
+                    // Adjust the location of each branch if multiple branches are visible at the same time
+                    curveValue += m_segmentBranchIndex() * 0.2;
+
+                    if ( m_isPackerCurve )
+                    {
+                        auto packerSegmentIndices = segment.packerSegmentIndicesOnAnnulus( m_segmentBranchIndex() );
+
+                        for ( auto segmentIndex : packerSegmentIndices )
+                        {
+                            depths.push_back( seglenstValues[segmentIndex] );
+
+                            propertyValues.push_back( curveValue );
+                        }
+                    }
+                    else
+                    {
+                        for ( auto segmentIndex : segmentIndices )
+                        {
+                            depths.push_back( seglenstValues[segmentIndex] );
+
+                            propertyValues.push_back( curveValue );
+                        }
                     }
                 }
 
@@ -342,6 +382,16 @@ void RimRftTopologyCurve::applyDefaultAppearance()
     if ( m_isPackerCurve() )
     {
         auto color              = RiaColorTools::fromQColorTo3f( QColor( "DarkGoldenRod" ) );
+        int  adjustedSymbolSize = symbolSize() * 2;
+
+        setColor( color );
+        setSymbolSize( adjustedSymbolSize );
+        setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
+        setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
+    }
+    else if ( m_isPressureCurve() )
+    {
+        auto color              = RiaColorTools::fromQColorTo3f( QColor( "SlateGrey" ) );
         int  adjustedSymbolSize = symbolSize() * 2;
 
         setColor( color );
