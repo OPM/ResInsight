@@ -527,9 +527,13 @@ std::vector<cvf::Vec3d>
     };
 
     // Find the rotation that aligns the data so that depth (z coord) is the most similar.
-    auto [e1, e2]        = findPointsWithMostSimilarDepth( relativePos, depths );
-    cvf::Vec3d direction = e1 - e2;
-    auto       rotMat2   = rotationMatrixBetweenVectors( direction.getNormalized(), cvf::Vec3d::X_AXIS );
+    auto [e1, e2]              = findPointsWithMostSimilarDepth( relativePos, depths );
+    cvf::Vec3d direction       = e1 - e2;
+    cvf::Vec3d directionNormal = direction.getNormalized();
+    // Make sure normal is pointing down
+    if ( directionNormal.y() > 0.0 ) directionNormal *= -1.0;
+
+    auto rotMat2 = rotationMatrixBetweenVectors( directionNormal, cvf::Vec3d::X_AXIS );
     for ( auto& r : relativePos )
     {
         r.transformVector( rotMat2 );
