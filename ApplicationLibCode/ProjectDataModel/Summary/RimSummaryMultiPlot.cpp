@@ -173,6 +173,8 @@ RimSummaryMultiPlot::RimSummaryMultiPlot()
     m_defaultStepDimension.uiCapability()->setUiHidden( true );
 
     m_nameHelper = std::make_unique<RimSummaryPlotNameHelper>();
+
+    setBottomMargin( 40 );
 }
 
 //--------------------------------------------------------------------------------------------------

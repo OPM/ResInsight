@@ -86,6 +86,7 @@ public:
 
     void        renderWindowContent( QPaintDevice* painter );
     QPageLayout pageLayout() const;
+    int         bottomMargin() const;
 
     virtual bool handleGlobalKeyEvent( QKeyEvent* keyEvent );
     virtual bool handleGlobalWheelEvent( QWheelEvent* wheelEvent );
@@ -100,6 +101,7 @@ protected:
     void uiOrderingForLegendsAndFonts( QString uiConfigName, caf::PdmUiOrdering& uiOrdering, bool showLegendPosition = false );
 
     void updateWindowVisibility();
+    void setBottomMargin( int bottomMargin );
 
 private:
     virtual void doUpdateLayout() {}
@@ -122,4 +124,7 @@ protected:
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_titleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_legendFontSize;
+
+private:
+    int m_bottomMargin;
 };
