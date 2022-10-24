@@ -156,10 +156,7 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     auto reorderability = caf::PdmFieldReorderCapability::addToField( &m_plots );
     reorderability->orderChanged.connect( this, &RimDepthTrackPlot::onPlotsReordered );
 
-    CAF_PDM_InitFieldNoDefault( &m_depthOrientation, "DepthOrientation_v1", "Orientation" );
-
-    CAF_PDM_InitFieldNoDefault( &m_depthOrientation_OBSOLETE, "DepthOrientation", "Orientation" );
-    m_depthOrientation_OBSOLETE.xmlCapability()->setIOWritable( false );
+    CAF_PDM_InitFieldNoDefault( &m_depthOrientation, "DepthOrientation", "Orientation" );
 
     m_availableDepthUnits = { RiaDefines::DepthUnitType::UNIT_METER, RiaDefines::DepthUnitType::UNIT_FEET };
     m_availableDepthTypes = { RiaDefines::DepthTypeEnum::MEASURED_DEPTH,
@@ -1202,17 +1199,10 @@ void RimDepthTrackPlot::initAfterRead()
         m_nameConfig->setCustomName( m_plotWindowTitle );
     }
 
-    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) )
+    if ( RimProject::current()->isProjectFileVersionEqualOrOlderThan( "2022.06.2" ) &&
+         !m_nameConfig->customName().isEmpty() )
     {
-        if ( !m_nameConfig->customName().isEmpty() )
-        {
-            m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
-        }
-
-        if ( m_depthOrientation_OBSOLETE == DepthOrientation_OBSOLETE::HORIZONTAL )
-            m_depthOrientation = RiaDefines::Orientation::HORIZONTAL;
-        else
-            m_depthOrientation = RiaDefines::Orientation::VERTICAL;
+        m_namingMethod = RiaDefines::ObjectNamingMethod::CUSTOM;
     }
 
     performAutoNameUpdate();

@@ -233,8 +233,7 @@ protected:
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
 
-    caf::PdmField<caf::AppEnum<RiaDefines::Orientation>>   m_depthOrientation;
-    caf::PdmField<caf::AppEnum<DepthOrientation_OBSOLETE>> m_depthOrientation_OBSOLETE;
+    caf::PdmField<caf::AppEnum<RiaDefines::Orientation>> m_depthOrientation;
 
     QPointer<RiuWellLogPlot>            m_viewer;
     std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;
