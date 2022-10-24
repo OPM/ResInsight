@@ -519,7 +519,6 @@ RimWellLogCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*   
     curve->enableColorFromResultName( true );
     curve->assignColorFromResultName( resultName );
     curve->setLineThickness( 4 );
-    curve->setFillStyle( Qt::SolidPattern );
 
     curve->setInterpolation( RiuQwtPlotCurveDefines::CurveInterpolationEnum::INTERPOLATION_STEP_LEFT );
 

@@ -57,6 +57,8 @@ public:
     QString wellLogChannelUiName() const override;
     QString wellLogChannelUnits() const override;
 
+    static cvf::Color3f colorForBranchType( RiaDefines::RftBranchType branchType );
+
 protected:
     QString createCurveAutoName() override;
 

@@ -79,16 +79,43 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         if ( !wellNames.empty() ) wellName = *wellNames.begin();
     }
 
-    QString resultName = "SEGGRAT";
-
-    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_ANNULUS,
-                                                        RiaDefines::RftBranchType::RFT_DEVICE,
-                                                        RiaDefines::RftBranchType::RFT_TUBING };
-
-    for ( auto branchType : branchTypes )
     {
-        appendTrackAndCurveForBranchType( plot, resultName, wellName, branchType, summaryCase );
+        QString resultName = "SEGGRAT";
+
+        std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_ANNULUS,
+                                                            RiaDefines::RftBranchType::RFT_DEVICE,
+                                                            RiaDefines::RftBranchType::RFT_TUBING };
+
+        for ( auto branchType : branchTypes )
+        {
+            QString trackName = "Segment Rates";
+            auto curve = appendTrackAndCurveForBranchType( plot, trackName, resultName, wellName, branchType, summaryCase );
+            curve->setFillStyle( Qt::SolidPattern );
+        }
     }
+
+    {
+        RimWellLogTrack* plotTrack = new RimWellLogTrack();
+        plot->addPlot( plotTrack );
+        plotTrack->setDescription( "Connection Rates" );
+
+        auto curve =
+            createAndAddCurve( plotTrack, "CONGRAT", wellName, RiaDefines::RftBranchType::RFT_ANNULUS, summaryCase );
+        curve->setFillStyle( Qt::SolidPattern );
+    }
+
+    appendPressureTrack( plot, wellName, summaryCase );
+
+    QString trackName  = "Connection Factors";
+    QString resultName = "CONFAC";
+    auto    curve      = appendTrackAndCurveForBranchType( plot,
+                                                   trackName,
+                                                   resultName,
+                                                   wellName,
+                                                   RiaDefines::RftBranchType::RFT_ANNULUS,
+                                                   summaryCase );
+    curve->setColor( cvf::Color3f( cvf::Color3f::ColorIdent::OLIVE ) );
+    curve->setFillStyle( Qt::SolidPattern );
 
     appendTopologyTrack( plot, wellName, summaryCase );
     plot->loadDataAndUpdate();
@@ -99,28 +126,43 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*           plot,
-                                                                           const QString&            resultName,
-                                                                           const QString&            wellName,
-                                                                           RiaDefines::RftBranchType branchType,
-                                                                           RimSummaryCase*           summaryCase )
+RimPlotCurve* RicNewRftSegmentWellLogPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot* plot,
+                                                                                    const QString&  trackName,
+                                                                                    const QString&  resultName,
+                                                                                    const QString&  wellName,
+                                                                                    RiaDefines::RftBranchType branchType,
+                                                                                    RimSummaryCase* summaryCase )
 {
     RimWellLogTrack* plotTrack = new RimWellLogTrack();
     plot->addPlot( plotTrack );
-    plotTrack->setDescription( QString( "Track %1" ).arg( plot->plotCount() ) );
+    plotTrack->setDescription( trackName );
 
     plot->loadDataAndUpdate();
 
-    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( plotTrack, resultName, wellName, branchType, summaryCase );
+    auto curve = createAndAddCurve( plotTrack, resultName, wellName, branchType, summaryCase );
+
+    curve->loadDataAndUpdate( true );
+    curve->updateAllRequiredEditors();
+
+    return curve;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotCurve* RicNewRftSegmentWellLogPlotFeature::createAndAddCurve( RimWellLogTrack*          track,
+                                                                     const QString&            resultName,
+                                                                     const QString&            wellName,
+                                                                     RiaDefines::RftBranchType branchType,
+                                                                     RimSummaryCase*           summaryCase )
+{
+    auto curve = RicWellLogTools::addSummaryRftSegmentCurve( track, resultName, wellName, branchType, summaryCase );
     curve->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
 
     QString templateText = RiaDefines::namingVariableResultName() + ", " + RiaDefines::namingVariableResultType();
     curve->setCurveNameTemplateText( templateText );
 
-    curve->loadDataAndUpdate( true );
-
-    curve->updateAllRequiredEditors();
-    RiuPlotMainWindowTools::setExpanded( curve );
+    return curve;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -201,6 +243,35 @@ void RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( RimWellLogPlot* pl
     packerCurve->setAdditionalDataSources( additionalDataSourceCurves );
     packerCurve->applyDefaultAppearance();
     track->addCurve( packerCurve );
+
+    track->updateAllRequiredEditors();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( RimWellLogPlot* plot,
+                                                              const QString&  wellName,
+                                                              RimSummaryCase* summaryCase )
+{
+    auto track = new RimWellLogTrack();
+    track->setDescription( "Pressure" );
+
+    plot->addPlot( track );
+
+    QString resultName = "SEGPRES";
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_TUBING,
+                              RiaDefines::RftBranchType::RFT_DEVICE,
+                              RiaDefines::RftBranchType::RFT_ANNULUS } )
+    {
+        auto curve = createAndAddCurve( track, resultName, wellName, branchType, summaryCase );
+        auto color = RimRftTopologyCurve::colorForBranchType( branchType );
+        curve->setColor( color );
+        curve->setLineThickness( 3 );
+    }
+
+    auto curve = createAndAddCurve( track, "PRESSURE", wellName, RiaDefines::RftBranchType::RFT_ANNULUS, summaryCase );
+    curve->setLineThickness( 3 );
 
     track->updateAllRequiredEditors();
 }

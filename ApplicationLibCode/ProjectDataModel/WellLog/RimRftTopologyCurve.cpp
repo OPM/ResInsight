@@ -127,6 +127,28 @@ QString RimRftTopologyCurve::wellLogChannelUnits() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+cvf::Color3f RimRftTopologyCurve::colorForBranchType( RiaDefines::RftBranchType branchType )
+{
+    switch ( branchType )
+    {
+        case RiaDefines::RftBranchType::RFT_TUBING:
+            return RiaColorTools::fromQColorTo3f( QColor( "ForestGreen" ) );
+        case RiaDefines::RftBranchType::RFT_DEVICE:
+            return RiaColorTools::fromQColorTo3f( QColor( "IndianRed" ) );
+        case RiaDefines::RftBranchType::RFT_ANNULUS:
+            return RiaColorTools::fromQColorTo3f( QColor( "DeepSkyBlue" ) );
+        case RiaDefines::RftBranchType::RFT_UNKNOWN:
+            break;
+        default:
+            break;
+    }
+
+    return RiaColorTools::fromQColorTo3f( QColor( "LightBrown" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 QString RimRftTopologyCurve::createCurveAutoName()
 {
     QString text;
@@ -329,23 +351,20 @@ void RimRftTopologyCurve::applyDefaultAppearance()
     }
     else
     {
+        auto color = colorForBranchType( m_segmentBranchType() );
+        setColor( color );
+
         if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING )
         {
-            auto color = RiaColorTools::fromQColorTo3f( QColor( "ForestGreen" ) );
-            setColor( color );
             setLineThickness( 5.0 );
         }
         else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
         {
-            auto color = RiaColorTools::fromQColorTo3f( QColor( "IndianRed" ) );
-            setColor( color );
             setSymbolEdgeColor( color );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
         else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS )
         {
-            auto color = RiaColorTools::fromQColorTo3f( QColor( "DeepSkyBlue" ) );
-            setColor( color );
             setSymbolEdgeColor( color );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
