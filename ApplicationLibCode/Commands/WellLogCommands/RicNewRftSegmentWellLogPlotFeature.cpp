@@ -69,6 +69,8 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     plot->setPlotTitleVisible( true );
     plot->setLegendItemsClickable( false );
     plot->enableDepthMarkerLine( true );
+    plot->setLegendPosition( RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT );
+    plot->setLegendFontSize( caf::FontTools::RelativeSize::XSmall );
 
     QString wellName = "Unknown";
 
