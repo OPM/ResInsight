@@ -239,7 +239,7 @@ public:
     void setCurvesTreeVisibility( bool isVisible );
 
     void setEnsembleWellLogCurveSet( RimEnsembleWellLogCurveSet* curveSet );
-    void updateAxesVisibility( RimDepthTrackPlot::DepthOrientation orientation, bool isFirstTrack, bool isLastTrack );
+    void updateAxesVisibility( RiaDefines::Orientation orientation, bool isFirstTrack, bool isLastTrack );
 
 protected:
     // RimViewWindow overrides

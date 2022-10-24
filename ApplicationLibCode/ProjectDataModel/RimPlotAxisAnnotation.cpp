@@ -46,6 +46,19 @@ RimPlotAxisAnnotation::RimPlotAxisAnnotation()
 
     CAF_PDM_InitFieldNoDefault( &m_rangeStart, "RangeStart", "Range Start" );
     CAF_PDM_InitFieldNoDefault( &m_rangeEnd, "RangeEnd", "Range End" );
+
+    caf::AppEnum<Qt::PenStyle> defaultStyle = Qt::PenStyle::SolidLine;
+    CAF_PDM_InitField( &m_penStyle, "PenStyle", defaultStyle, "Pen Style" );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimPlotAxisAnnotation* RimPlotAxisAnnotation::createLineAnnotation()
+{
+    auto annotation = new RimPlotAxisAnnotation();
+    annotation->setAnnotationType( RimPlotAxisAnnotation::AnnotationType::LINE );
+    return annotation;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -110,6 +123,22 @@ double RimPlotAxisAnnotation::rangeEnd() const
 QColor RimPlotAxisAnnotation::color() const
 {
     return QColor( 0, 0, 100 );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimPlotAxisAnnotation::setPenStyle( Qt::PenStyle penStyle )
+{
+    m_penStyle = penStyle;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Qt::PenStyle RimPlotAxisAnnotation::penStyle() const
+{
+    return m_penStyle();
 }
 
 //--------------------------------------------------------------------------------------------------

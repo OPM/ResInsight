@@ -40,6 +40,8 @@ public:
     };
     RimPlotAxisAnnotation();
 
+    static RimPlotAxisAnnotation* createLineAnnotation();
+
     void setName( const QString& name );
     void setValue( double value );
 
@@ -50,6 +52,9 @@ public:
     virtual double  rangeEnd() const;
     virtual QColor  color() const;
 
+    void         setPenStyle( Qt::PenStyle penStyle );
+    Qt::PenStyle penStyle() const;
+
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* objectToggleField() override;
 
@@ -59,11 +64,12 @@ protected:
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
 protected:
-    caf::PdmField<bool>    m_isActive;
-    caf::PdmField<QString> m_name;
-    caf::PdmField<double>  m_value;
-    caf::PdmField<double>  m_rangeStart;
-    caf::PdmField<double>  m_rangeEnd;
+    caf::PdmField<bool>                       m_isActive;
+    caf::PdmField<QString>                    m_name;
+    caf::PdmField<double>                     m_value;
+    caf::PdmField<double>                     m_rangeStart;
+    caf::PdmField<double>                     m_rangeEnd;
+    caf::PdmField<caf::AppEnum<Qt::PenStyle>> m_penStyle;
 
 protected:
     void setAnnotationType( AnnotationType annotationType );

@@ -227,7 +227,7 @@ void RimWellLogCurve::updateCurveAppearance()
 {
     RimPlotCurve::updateCurveAppearance();
 
-    RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
+    auto orientation = RiaDefines::Orientation::VERTICAL;
 
     RimDepthTrackPlot* wellLogPlot = nullptr;
     firstAncestorOrThisOfType( wellLogPlot );
@@ -247,7 +247,7 @@ void RimWellLogCurve::updateCurveAppearance()
         RiuQwtPlotCurve* qwtPlotCurve = dynamic_cast<RiuQwtPlotCurve*>( m_plotCurve );
         if ( qwtPlotCurve )
         {
-            if ( orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            if ( orientation == RiaDefines::Orientation::VERTICAL )
             {
                 qwtPlotCurve->setOrientation( Qt::Horizontal );
                 qwtPlotCurve->setBaseline( 0.0 );
@@ -435,13 +435,13 @@ void RimWellLogCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 bool RimWellLogCurve::isVerticalCurve() const
 {
-    RimDepthTrackPlot::DepthOrientation orientation = RimDepthTrackPlot::DepthOrientation::VERTICAL;
+    auto orientation = RiaDefines::Orientation::VERTICAL;
 
     RimDepthTrackPlot* depthTrackPlot = nullptr;
     firstAncestorOrThisOfType( depthTrackPlot );
     if ( depthTrackPlot ) orientation = depthTrackPlot->depthOrientation();
 
-    return orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL;
+    return orientation == RiaDefines::Orientation::VERTICAL;
 }
 
 //--------------------------------------------------------------------------------------------------

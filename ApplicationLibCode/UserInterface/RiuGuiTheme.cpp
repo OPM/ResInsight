@@ -909,37 +909,6 @@ void RiuGuiTheme::storeQwtStyleSheetProperty( const QString& plotName,
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-Qt::PenStyle RiuGuiTheme::getPenStyleFromString( const QString& style )
-{
-    if ( style == "solid" )
-    {
-        return Qt::PenStyle::SolidLine;
-    }
-    else if ( style == "dash" )
-    {
-        return Qt::PenStyle::DashLine;
-    }
-    else if ( style == "dot" )
-    {
-        return Qt::PenStyle::DotLine;
-    }
-    else if ( style == "dash-dot" )
-    {
-        return Qt::PenStyle::DashDotLine;
-    }
-    else if ( style == "dash-dot-dot" )
-    {
-        return Qt::PenStyle::DashDotDotLine;
-    }
-    else
-    {
-        return Qt::PenStyle::NoPen;
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 QwtSymbol* RiuGuiTheme::cloneMarkerSymbol( QwtPlotMarker* marker )
 {
     QwtSymbol* symbol = new QwtSymbol();

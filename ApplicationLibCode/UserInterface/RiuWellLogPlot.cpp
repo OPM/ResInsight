@@ -91,7 +91,7 @@ void RiuWellLogPlot::renderTo( QPaintDevice* paintDevice )
 
     RiuMultiPlotPage::renderTo( paintDevice );
 
-    if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+    if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
         m_horizontalTrackScrollBar->setVisible( true );
     else
         m_verticalTrackScrollBar->setVisible( true );
@@ -104,7 +104,7 @@ bool RiuWellLogPlot::showYAxis( int row, int column ) const
 {
     if ( depthTrackPlot() )
     {
-        if ( depthTrackPlot()->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        if ( depthTrackPlot()->depthOrientation() == RiaDefines::Orientation::VERTICAL )
         {
             return column == 0;
         }
@@ -132,7 +132,7 @@ void RiuWellLogPlot::reinsertScrollbar()
     int                            colCount    = this->m_gridLayout->columnCount();
     int                            rowCount    = this->m_gridLayout->rowCount();
 
-    if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+    if ( depthTrackPlot() && depthTrackPlot()->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
     {
         m_gridLayout->addLayout( m_horizontalTrackScrollBarLayout, rowCount, 0, 1, colCount );
         m_horizontalTrackScrollBar->setVisible( !plotWidgets.empty() );

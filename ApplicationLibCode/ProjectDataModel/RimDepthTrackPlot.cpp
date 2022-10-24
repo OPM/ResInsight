@@ -38,6 +38,7 @@
 #include "RimMainPlotCollection.h"
 #include "RimOilField.h"
 #include "RimPlot.h"
+#include "RimPlotAxisAnnotation.h"
 #include "RimPlotWindow.h"
 #include "RimProject.h"
 #include "RimWellAllocationPlot.h"
@@ -79,11 +80,11 @@ void RimDepthTrackPlot::AxisGridEnum::setUp()
 }
 
 template <>
-void caf::AppEnum<RimDepthTrackPlot::DepthOrientation>::setUp()
+void caf::AppEnum<RimDepthTrackPlot::DepthOrientation_OBSOLETE>::setUp()
 {
-    addItem( RimDepthTrackPlot::DepthOrientation::HORIZONTAL, "HORIZONTAL", "Horizontal" );
-    addItem( RimDepthTrackPlot::DepthOrientation::VERTICAL, "VERTICAL", "Vertical" );
-    setDefault( RimDepthTrackPlot::DepthOrientation::VERTICAL );
+    addItem( RimDepthTrackPlot::DepthOrientation_OBSOLETE::HORIZONTAL, "HORIZONTAL", "Horizontal" );
+    addItem( RimDepthTrackPlot::DepthOrientation_OBSOLETE::VERTICAL, "VERTICAL", "Vertical" );
+    setDefault( RimDepthTrackPlot::DepthOrientation_OBSOLETE::VERTICAL );
 }
 
 } // End namespace caf
@@ -132,6 +133,11 @@ RimDepthTrackPlot::RimDepthTrackPlot()
 
     caf::AppEnum<RiaDefines::MultiPlotAxisVisibility> depthAxisVisibility = RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE;
     CAF_PDM_InitField( &m_depthAxisVisibility, "DepthAxisVisibility", depthAxisVisibility, "Axis Visibility" );
+
+    CAF_PDM_InitScriptableField( &m_showDepthMarkerLine, "ShowDepthMarkerLine", false, "Show Depth Marker Line" );
+    CAF_PDM_InitFieldNoDefault( &m_depthAnnotations, "DepthAnnotations", "Depth Annotations" );
+    m_depthAnnotations.uiCapability()->setUiTreeHidden( true );
+    m_depthAnnotations.uiCapability()->setUiTreeChildrenHidden( true );
 
     CAF_PDM_InitScriptableFieldNoDefault( &m_subTitleFontSize, "SubTitleFontSize", "Track Title Font Size" );
     CAF_PDM_InitScriptableFieldNoDefault( &m_axisTitleFontSize, "AxisTitleFontSize", "Axis Title Font Size" );
@@ -310,7 +316,7 @@ std::vector<RimWellLogTrack*> RimDepthTrackPlot::visiblePlots() const
 //--------------------------------------------------------------------------------------------------
 int RimDepthTrackPlot::columnCount() const
 {
-    if ( depthOrientation() == DepthOrientation::VERTICAL )
+    if ( depthOrientation() == RiaDefines::Orientation::VERTICAL )
         return RimPlotWindow::columnCount();
     else
         return 1;
@@ -434,6 +440,62 @@ void RimDepthTrackPlot::visibleDepthRange( double* minimumDepth, double* maximum
     *maximumDepth = m_maxVisibleDepth;
 }
 
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::enableDepthMarkerLine( bool enable )
+{
+    m_showDepthMarkerLine = enable;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimDepthTrackPlot::isDepthMarkerLineEnabled() const
+{
+    return m_showDepthMarkerLine();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::setDepthMarkerPosition( double depth )
+{
+    RimPlotAxisAnnotation* firstAnnotation = nullptr;
+    if ( !m_depthAnnotations.empty() )
+    {
+        firstAnnotation = m_depthAnnotations[0];
+    }
+
+    if ( firstAnnotation == nullptr )
+    {
+        firstAnnotation = RimPlotAxisAnnotation::createLineAnnotation();
+        firstAnnotation->setPenStyle( Qt::DashLine );
+        m_depthAnnotations.push_back( firstAnnotation );
+    }
+
+    firstAnnotation->setValue( depth );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::clearDepthAnnotations()
+{
+    m_depthAnnotations.deleteChildren();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimPlotAxisAnnotation*> RimDepthTrackPlot::depthAxisAnnotations() const
+{
+    return m_depthAnnotations.children();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::DepthUnitType RimDepthTrackPlot::caseDepthUnit() const
 {
     RimEclipseResultCase* thecase = dynamic_cast<RimEclipseResultCase*>( commonDataSource()->caseToApply() );
@@ -485,6 +547,7 @@ void RimDepthTrackPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUi
     uiOrdering.add( &m_maxVisibleDepth );
     uiOrdering.add( &m_depthAxisGridVisibility );
     uiOrdering.add( &m_depthAxisVisibility );
+    uiOrdering.add( &m_showDepthMarkerLine );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -999,6 +1062,17 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
             ensembleWellLogCurveSet->loadDataAndUpdate( true );
         }
     }
+    else if ( changedField == &m_showDepthMarkerLine )
+    {
+        if ( !m_showDepthMarkerLine )
+        {
+            clearDepthAnnotations();
+            for ( auto p : plots() )
+            {
+                p->updateAxes();
+            }
+        }
+    }
 
     updateConnectedEditors();
 }
@@ -1318,7 +1392,7 @@ RimDepthTrackPlot::AxisGridVisibility RimDepthTrackPlot::depthAxisGridLinesEnabl
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimDepthTrackPlot::DepthOrientation RimDepthTrackPlot::depthOrientation() const
+RiaDefines::Orientation RimDepthTrackPlot::depthOrientation() const
 {
     return m_depthOrientation();
 }
@@ -1326,7 +1400,7 @@ RimDepthTrackPlot::DepthOrientation RimDepthTrackPlot::depthOrientation() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimDepthTrackPlot::setDepthOrientation( DepthOrientation depthOrientation )
+void RimDepthTrackPlot::setDepthOrientation( RiaDefines::Orientation depthOrientation )
 {
     m_depthOrientation = depthOrientation;
 }
@@ -1358,9 +1432,9 @@ RiuPlotAxis RimDepthTrackPlot::depthAxis() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotAxis RimDepthTrackPlot::depthAxis( DepthOrientation depthOrientation )
+RiuPlotAxis RimDepthTrackPlot::depthAxis( RiaDefines::Orientation depthOrientation )
 {
-    if ( depthOrientation == RimDepthTrackPlot::DepthOrientation::VERTICAL ) return RiuPlotAxis::defaultLeft();
+    if ( depthOrientation == RiaDefines::Orientation::VERTICAL ) return RiuPlotAxis::defaultLeft();
 
     return RiuPlotAxis::defaultBottom();
 }
@@ -1376,9 +1450,9 @@ RiuPlotAxis RimDepthTrackPlot::valueAxis() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotAxis RimDepthTrackPlot::valueAxis( DepthOrientation depthOrientation )
+RiuPlotAxis RimDepthTrackPlot::valueAxis( RiaDefines::Orientation depthOrientation )
 {
-    if ( depthOrientation == RimDepthTrackPlot::DepthOrientation::VERTICAL ) return RiuPlotAxis::defaultTop();
+    if ( depthOrientation == RiaDefines::Orientation::VERTICAL ) return RiuPlotAxis::defaultTop();
 
     return RiuPlotAxis::defaultLeft();
 }
@@ -1394,7 +1468,7 @@ RiuPlotAxis RimDepthTrackPlot::annotationAxis() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RiuPlotAxis RimDepthTrackPlot::annotationAxis( DepthOrientation depthOrientation )
+RiuPlotAxis RimDepthTrackPlot::annotationAxis( RiaDefines::Orientation depthOrientation )
 {
     auto riuAxis = valueAxis( depthOrientation );
 

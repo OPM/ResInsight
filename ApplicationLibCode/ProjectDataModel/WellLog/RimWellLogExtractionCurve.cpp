@@ -373,7 +373,7 @@ void RimWellLogExtractionCurve::onLoadDataAndUpdate( bool updateParentPlot )
             std::vector<double> depthPlotValues = curveData()->depthValuesByIntervals( depthType, displayUnit );
             CAF_ASSERT( xPlotValues.size() == depthPlotValues.size() );
 
-            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+            if ( wellLogPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
                 m_plotCurve->setSamplesFromXValuesAndYValues( depthPlotValues, xPlotValues, useLogarithmicScale );
 
             else

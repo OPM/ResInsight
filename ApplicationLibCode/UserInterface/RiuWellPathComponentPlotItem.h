@@ -65,7 +65,7 @@ public:
 
     void setShowLabel( bool showLabel );
     void setDepthType( RimWellLogPlot::DepthTypeEnum depthType );
-    void setDepthOrientation( RimWellLogPlot::DepthOrientation depthOrientation );
+    void setDepthOrientation( RiaDefines::Orientation depthOrientation );
     void setContributeToLegend( bool contributeToLegend );
 
     void setParentPlotNoReplot( QwtPlot* plot );
@@ -124,10 +124,10 @@ private:
     double                            m_columnOffset;
     double                            m_maxColumnOffset;
 
-    RimWellLogPlot::DepthTypeEnum    m_depthType;
-    RimWellLogPlot::DepthOrientation m_depthOrientation;
-    QPointer<QwtPlot>                m_parentQwtPlot;
-    RiuQwtPlotItemGroup              m_combinedComponentGroup;
+    RimWellLogPlot::DepthTypeEnum m_depthType;
+    RiaDefines::Orientation       m_depthOrientation;
+    QPointer<QwtPlot>             m_parentQwtPlot;
+    RiuQwtPlotItemGroup           m_combinedComponentGroup;
 
     bool m_showLabel;
 };

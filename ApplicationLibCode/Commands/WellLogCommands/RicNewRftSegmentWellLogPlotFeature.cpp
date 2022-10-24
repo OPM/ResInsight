@@ -68,6 +68,7 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     plot->setNameTemplateText( templateText );
     plot->setPlotTitleVisible( true );
     plot->setLegendItemsClickable( false );
+    plot->enableDepthMarkerLine( true );
 
     QString wellName = "Unknown";
 

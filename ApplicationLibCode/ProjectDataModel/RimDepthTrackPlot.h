@@ -46,6 +46,7 @@ class RimEnsembleCurveSet;
 class RiuPlotAxis;
 class RimWellLogTrack;
 class RimWellLogPlotNameConfig;
+class RimPlotAxisAnnotation;
 
 class QKeyEvent;
 
@@ -69,7 +70,7 @@ public:
     typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
     using DepthTypeEnum = RiaDefines::DepthTypeEnum;
 
-    enum class DepthOrientation
+    enum class DepthOrientation_OBSOLETE
     {
         HORIZONTAL,
         VERTICAL
@@ -106,8 +107,8 @@ public:
     void               enableDepthAxisGridLines( AxisGridVisibility gridVisibility );
     AxisGridVisibility depthAxisGridLinesEnabled() const;
 
-    RimDepthTrackPlot::DepthOrientation depthOrientation() const;
-    void                                setDepthOrientation( RimDepthTrackPlot::DepthOrientation depthOrientation );
+    RiaDefines::Orientation depthOrientation() const;
+    void                    setDepthOrientation( RiaDefines::Orientation depthOrientation );
 
     RiaDefines::MultiPlotAxisVisibility depthAxisVisibility() const;
     void                                setDepthAxisVisibility( RiaDefines::MultiPlotAxisVisibility axisVisibility );
@@ -128,6 +129,12 @@ public:
     void calculateAvailableDepthRange();
     void availableDepthRange( double* minimumDepth, double* maximumDepth ) const;
     void visibleDepthRange( double* minimumDepth, double* maximumDepth ) const;
+
+    void                                enableDepthMarkerLine( bool enable );
+    bool                                isDepthMarkerLineEnabled() const;
+    void                                setDepthMarkerPosition( double depth );
+    void                                clearDepthAnnotations();
+    std::vector<RimPlotAxisAnnotation*> depthAxisAnnotations() const;
 
     void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
@@ -158,9 +165,9 @@ public:
 
     void updateDepthAxisVisibility();
 
-    static RiuPlotAxis depthAxis( DepthOrientation depthOrientation );
-    static RiuPlotAxis valueAxis( DepthOrientation depthOrientation );
-    static RiuPlotAxis annotationAxis( DepthOrientation depthOrientation );
+    static RiuPlotAxis depthAxis( RiaDefines::Orientation depthOrientation );
+    static RiuPlotAxis valueAxis( RiaDefines::Orientation depthOrientation );
+    static RiuPlotAxis annotationAxis( RiaDefines::Orientation depthOrientation );
 
 protected:
     QImage snapshotWindowContent() override;
@@ -213,6 +220,8 @@ protected:
     caf::PdmField<AxisGridEnum>                                      m_depthAxisGridVisibility;
     caf::PdmField<bool>                                              m_isAutoScaleDepthEnabled;
     caf::PdmField<caf::AppEnum<RiaDefines::MultiPlotAxisVisibility>> m_depthAxisVisibility;
+    caf::PdmField<bool>                                              m_showDepthMarkerLine;
+    caf::PdmChildArrayField<RimPlotAxisAnnotation*>                  m_depthAnnotations;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_axisTitleFontSize;
@@ -224,7 +233,7 @@ protected:
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
 
-    caf::PdmField<caf::AppEnum<DepthOrientation>> m_depthOrientation;
+    caf::PdmField<caf::AppEnum<RiaDefines::Orientation>> m_depthOrientation;
 
     QPointer<RiuWellLogPlot>            m_viewer;
     std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;
