@@ -54,7 +54,7 @@ RiuWellPathComponentPlotItem::RiuWellPathComponentPlotItem( const RimWellPath* w
     , m_componentType( RiaDefines::WellPathComponentType::WELL_PATH )
     , m_columnOffset( 0.0 )
     , m_depthType( RiaDefines::DepthTypeEnum::MEASURED_DEPTH )
-    , m_depthOrientation( RimWellLogPlot::DepthOrientation::VERTICAL )
+    , m_depthOrientation( RiaDefines::Orientation::VERTICAL )
     , m_maxColumnOffset( 0.0 )
     , m_showLabel( false )
 {
@@ -186,7 +186,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         addColumnFeature( -posMax, -posMin, startDepth, endDepth, componentColor() );
         addColumnFeature( posMin, posMax, startDepth, endDepth, componentColor() );
 
-        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::VERTICAL )
+        if ( m_depthOrientation == RiaDefines::Orientation::VERTICAL )
         {
             addMarker( -posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_LEFT_ANGLED_TRIANGLE, componentColor() );
             addMarker( posMax, endDepth, 12, RiuPlotCurveSymbol::SYMBOL_RIGHT_ANGLED_TRIANGLE, componentColor() );
@@ -227,7 +227,7 @@ void RiuWellPathComponentPlotItem::onLoadDataAndUpdate( bool updateParentPlot )
         auto plotSymbol1 = RiuPlotCurveSymbol::SYMBOL_LEFT_ALIGNED_TRIANGLE;
         auto plotSymbol2 = RiuPlotCurveSymbol::SYMBOL_RIGHT_ALIGNED_TRIANGLE;
 
-        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+        if ( m_depthOrientation == RiaDefines::Orientation::HORIZONTAL )
         {
             plotSymbol1 = RiuPlotCurveSymbol::SYMBOL_DOWN_TRIANGLE;
             plotSymbol2 = RiuPlotCurveSymbol::SYMBOL_UP_TRIANGLE;
@@ -456,7 +456,7 @@ QwtPlotItem*
     marker->setSymbol( symbol );
     marker->setSpacing( 6 );
 
-    if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+    if ( m_depthOrientation == RiaDefines::Orientation::HORIZONTAL )
     {
         marker->setXValue( depth );
         marker->setYValue( position );
@@ -483,7 +483,7 @@ QwtPlotItem*
 
     if ( drawLine )
     {
-        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+        if ( m_depthOrientation == RiaDefines::Orientation::HORIZONTAL )
         {
             marker->setLineStyle( QwtPlotMarker::HLine );
         }
@@ -512,7 +512,7 @@ void RiuWellPathComponentPlotItem::addColumnFeature( double         startPositio
     double startY = startDepth;
     double endY   = endDepth;
 
-    if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::HORIZONTAL )
+    if ( m_depthOrientation == RiaDefines::Orientation::HORIZONTAL )
     {
         startX = startDepth;
         endX   = endDepth;
@@ -612,7 +612,7 @@ void RiuWellPathComponentPlotItem::setDepthType( RimWellLogPlot::DepthTypeEnum d
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuWellPathComponentPlotItem::setDepthOrientation( RimWellLogPlot::DepthOrientation depthOrientation )
+void RiuWellPathComponentPlotItem::setDepthOrientation( RiaDefines::Orientation depthOrientation )
 {
     m_depthOrientation = depthOrientation;
 }
@@ -658,7 +658,7 @@ void RiuWellPathComponentPlotItem::attachToQwt()
         auto riuAxis = RimDepthTrackPlot::annotationAxis( m_depthOrientation );
         auto qwtAxis = RiuQwtPlotTools::toQwtPlotAxisEnum( riuAxis.axis() );
 
-        if ( m_depthOrientation == RimWellLogPlot::DepthOrientation::VERTICAL )
+        if ( m_depthOrientation == RiaDefines::Orientation::VERTICAL )
         {
             m_combinedComponentGroup.setXAxis( qwtAxis );
         }

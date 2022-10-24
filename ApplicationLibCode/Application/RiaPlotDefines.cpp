@@ -68,6 +68,14 @@ void caf::AppEnum<Qt::PenStyle>::setUp()
     setDefault( Qt::PenStyle::SolidLine );
 }
 
+template <>
+void caf::AppEnum<RiaDefines::Orientation>::setUp()
+{
+    addItem( RiaDefines::Orientation::HORIZONTAL, "HORIZONTAL", "Horizontal" );
+    addItem( RiaDefines::Orientation::VERTICAL, "VERTICAL", "Vertical" );
+    setDefault( RiaDefines::Orientation::VERTICAL );
+}
+
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------

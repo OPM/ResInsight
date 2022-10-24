@@ -519,7 +519,7 @@ void RimWellLogTrack::updatePropertyValueZoom()
     this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
     // Attribute components use the opposite axis to the property values
-    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    if ( wellLogPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL )
     {
         m_plotWidget->setAxisRange( RiuPlotAxis::defaultBottom(), componentRangeMin, componentRangeMax );
     }
@@ -539,7 +539,7 @@ void RimWellLogTrack::updateDepthZoom()
     RimDepthTrackPlot* wellLogPlot;
     this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
 
-    if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    if ( wellLogPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL )
     {
         m_plotWidget->setAxisRange( depthAxis(), m_visibleDepthRangeMin(), m_visibleDepthRangeMax() );
     }
@@ -864,7 +864,7 @@ void RimWellLogTrack::updatePropertyValueAxisAndGridTickIntervals()
 
             RimDepthTrackPlot* wellLogPlot;
             this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
-            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            if ( wellLogPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL )
             {
                 m_plotWidget->qwtPlot()->setAxisScaleDiv( QwtAxis::XTop, div );
             }
@@ -1293,7 +1293,7 @@ bool RimWellLogTrack::isEmptyVisiblePropertyRange() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellLogTrack::updateAxesVisibility( RimDepthTrackPlot::DepthOrientation orientation, bool isFirstTrack, bool isLastTrack )
+void RimWellLogTrack::updateAxesVisibility( RiaDefines::Orientation orientation, bool isFirstTrack, bool isLastTrack )
 {
     if ( !m_plotWidget ) return;
 
@@ -1321,7 +1321,7 @@ void RimWellLogTrack::updateAxesVisibility( RimDepthTrackPlot::DepthOrientation 
         wellLogPlot->depthAxisVisibility() == RiaDefines::MultiPlotAxisVisibility::ALL_VISIBLE ||
         ( isLastTrack && wellLogPlot->depthAxisVisibility() == RiaDefines::MultiPlotAxisVisibility::ONE_VISIBLE );
 
-    if ( orientation == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+    if ( orientation == RiaDefines::Orientation::VERTICAL )
     {
         // Show depth axis only for the first track (on the left side)
         needUpdate |= setAxisVisible( QwtAxis::XBottom, false );
@@ -1982,7 +1982,7 @@ void RimWellLogTrack::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering
 
     RimDepthTrackPlot* plot = nullptr;
     firstAncestorOrThisOfType( plot );
-    bool isHorizontal = plot && plot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL;
+    bool isHorizontal = plot && plot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL;
     if ( isHorizontal )
         uiOrdering.add( &m_rowSpan );
     else
@@ -2138,7 +2138,7 @@ void RimWellLogTrack::updateAxisScaleEngine()
     this->firstAncestorOrThisOfType( wellLogPlot );
     if ( wellLogPlot )
     {
-        if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+        if ( wellLogPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL )
         {
             m_plotWidget->setAxisInverted( RiuPlotAxis::defaultLeft(), true );
 
@@ -2271,7 +2271,7 @@ void RimWellLogTrack::handleWheelEvent( QWheelEvent* wheelEvent )
             double zoomCenter = 0.0;
             auto   position   = caf::position( wheelEvent );
 
-            if ( wellLogPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
+            if ( wellLogPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL )
             {
                 QwtScaleMap scaleMap = m_plotWidget->qwtPlot()->canvasMap( QwtAxis::YLeft );
                 zoomCenter           = scaleMap.invTransform( position.y() );
@@ -2848,9 +2848,7 @@ void RimWellLogTrack::updateFormationNamesOnPlot()
     RiaDefines::DepthUnitType fromDepthUnit = plot->caseDepthUnit();
     RiaDefines::DepthUnitType toDepthUnit   = plot->depthUnit();
 
-    RiaDefines::Orientation orientation = RiaDefines::Orientation::HORIZONTAL;
-    if ( plot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-        orientation = RiaDefines::Orientation::VERTICAL;
+    auto orientation = plot->depthOrientation();
 
     if ( m_formationSource() == FormationSource::WELL_PICK_FILTER )
     {
@@ -3019,9 +3017,7 @@ void RimWellLogTrack::updateResultPropertyNamesOnPlot()
     RiaDefines::DepthUnitType fromDepthUnit = plot->caseDepthUnit();
     RiaDefines::DepthUnitType toDepthUnit   = plot->depthUnit();
 
-    RiaDefines::Orientation orientation = RiaDefines::Orientation::HORIZONTAL;
-    if ( plot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-        orientation = RiaDefines::Orientation::VERTICAL;
+    auto orientation = plot->depthOrientation();
 
     RigEclipseWellLogExtractor* eclWellLogExtractor =
         RiaExtractionTools::findOrCreateWellLogExtractor( m_formationWellPathForSourceCase,
@@ -3153,9 +3149,7 @@ void RimWellLogTrack::updateCurveDataRegionsOnPlot()
         RiaDefines::DepthUnitType fromDepthUnit = wellBoreStabilityPlot->caseDepthUnit();
         RiaDefines::DepthUnitType toDepthUnit   = wellBoreStabilityPlot->depthUnit();
 
-        RiaDefines::Orientation orientation = RiaDefines::Orientation::HORIZONTAL;
-        if ( wellBoreStabilityPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL )
-            orientation = RiaDefines::Orientation::VERTICAL;
+        auto orientation = wellBoreStabilityPlot->depthOrientation();
 
         wellBoreStabilityPlot->updateCommonDataSource();
         RimGeoMechCase* geoMechCase =

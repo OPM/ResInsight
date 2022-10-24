@@ -70,7 +70,7 @@ public:
     typedef caf::AppEnum<AxisGridVisibility> AxisGridEnum;
     using DepthTypeEnum = RiaDefines::DepthTypeEnum;
 
-    enum class DepthOrientation
+    enum class DepthOrientation_OBSOLETE
     {
         HORIZONTAL,
         VERTICAL
@@ -107,8 +107,8 @@ public:
     void               enableDepthAxisGridLines( AxisGridVisibility gridVisibility );
     AxisGridVisibility depthAxisGridLinesEnabled() const;
 
-    RimDepthTrackPlot::DepthOrientation depthOrientation() const;
-    void                                setDepthOrientation( RimDepthTrackPlot::DepthOrientation depthOrientation );
+    RiaDefines::Orientation depthOrientation() const;
+    void                    setDepthOrientation( RiaDefines::Orientation depthOrientation );
 
     RiaDefines::MultiPlotAxisVisibility depthAxisVisibility() const;
     void                                setDepthAxisVisibility( RiaDefines::MultiPlotAxisVisibility axisVisibility );
@@ -165,9 +165,9 @@ public:
 
     void updateDepthAxisVisibility();
 
-    static RiuPlotAxis depthAxis( DepthOrientation depthOrientation );
-    static RiuPlotAxis valueAxis( DepthOrientation depthOrientation );
-    static RiuPlotAxis annotationAxis( DepthOrientation depthOrientation );
+    static RiuPlotAxis depthAxis( RiaDefines::Orientation depthOrientation );
+    static RiuPlotAxis valueAxis( RiaDefines::Orientation depthOrientation );
+    static RiuPlotAxis annotationAxis( RiaDefines::Orientation depthOrientation );
 
 protected:
     QImage snapshotWindowContent() override;
@@ -233,7 +233,8 @@ protected:
     caf::PdmField<caf::AppEnum<RimEnsembleWellLogStatistics::DepthEqualization>> m_depthEqualization;
     caf::PdmPtrField<RimEnsembleCurveSet*>                                       m_ensembleCurveSet;
 
-    caf::PdmField<caf::AppEnum<DepthOrientation>> m_depthOrientation;
+    caf::PdmField<caf::AppEnum<RiaDefines::Orientation>>   m_depthOrientation;
+    caf::PdmField<caf::AppEnum<DepthOrientation_OBSOLETE>> m_depthOrientation_OBSOLETE;
 
     QPointer<RiuWellLogPlot>            m_viewer;
     std::set<RiaDefines::DepthUnitType> m_availableDepthUnits;

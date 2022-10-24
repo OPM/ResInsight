@@ -79,7 +79,7 @@ protected:
                 RimWellLogPlot* wlp = nullptr;
                 m_wellLogTrack->firstAncestorOfType( wlp );
 
-                if ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+                if ( wlp && wlp->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
                 {
                     str = QString( "%1\nDepth: %2" ).arg( depthAxisValueString ).arg( xAxisValueString );
                 }
@@ -153,8 +153,7 @@ public:
             {
                 auto [xValue, yValue] = curve->sample( sampleIndex );
 
-                auto depth = depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL ? yValue
-                                                                                                                 : xValue;
+                auto depth = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::VERTICAL ? yValue : xValue;
 
                 auto propertyValue = annotationCurve->closestYValueForX( depth );
 
@@ -188,7 +187,7 @@ RiuWellLogTrack::RiuWellLogTrack( RimWellLogTrack* track, QWidget* parent /*= nu
     RimWellLogPlot* wlp = nullptr;
     track->firstAncestorOfType( wlp );
 
-    bool isVertical = ( wlp && wlp->depthOrientation() == RimDepthTrackPlot::DepthOrientation::VERTICAL );
+    bool isVertical = ( wlp && wlp->depthOrientation() == RiaDefines::Orientation::VERTICAL );
     setAxisEnabled( QwtAxis::YLeft, true );
     setAxisEnabled( QwtAxis::YRight, false );
     setAxisEnabled( QwtAxis::XTop, !isVertical );
@@ -238,10 +237,9 @@ void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnno
     m_plotDefinition->firstAncestorOfType( depthTrackPlot );
     if ( !depthTrackPlot ) return;
 
-    auto orientation = depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL
+    auto orientation = depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL
                            ? RiaDefines::Orientation::VERTICAL
                            : RiaDefines::Orientation::HORIZONTAL;
-
     for ( auto annotation : annotations )
     {
         m_annotationTool->attachAnnotation( qwtPlot(), annotation, orientation );
@@ -270,7 +268,7 @@ void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
     auto qwtAxis     = plotwidget->toQwtPlotAxis( riuPlotAxis );
 
     const QwtScaleMap axisMap = plot->canvasMap( qwtAxis );
-    if ( depthTrackPlot->depthOrientation() == RimDepthTrackPlot::DepthOrientation::HORIZONTAL )
+    if ( depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
     {
         depth = axisMap.invTransform( mouseEvent->pos().x() );
     }
