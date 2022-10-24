@@ -81,19 +81,14 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
         if ( !wellNames.empty() ) wellName = *wellNames.begin();
     }
 
+    for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS,
+                              RiaDefines::RftBranchType::RFT_DEVICE,
+                              RiaDefines::RftBranchType::RFT_TUBING } )
     {
         QString resultName = "SEGGRAT";
-
-        std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_ANNULUS,
-                                                            RiaDefines::RftBranchType::RFT_DEVICE,
-                                                            RiaDefines::RftBranchType::RFT_TUBING };
-
-        for ( auto branchType : branchTypes )
-        {
-            QString trackName = "Segment Rates";
-            auto curve = appendTrackAndCurveForBranchType( plot, trackName, resultName, wellName, branchType, summaryCase );
-            curve->setFillStyle( Qt::SolidPattern );
-        }
+        QString trackName  = "Segment Rates";
+        auto curve = appendTrackAndCurveForBranchType( plot, trackName, resultName, wellName, branchType, summaryCase );
+        curve->setFillStyle( Qt::SolidPattern );
     }
 
     {
