@@ -36,6 +36,22 @@
 
 CAF_PDM_SOURCE_INIT( RimRftTopologyCurve, "RimRftTopologyCurve" );
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimRftTopologyCurve::CurveType>::setUp()
+{
+    addItem( RimRftTopologyCurve::CurveType::PRESSURE, "PRESSURE", "Pressure" );
+    addItem( RimRftTopologyCurve::CurveType::PACKER, "PACKER", "Packer" );
+    addItem( RimRftTopologyCurve::CurveType::TUBING, "TUBING", "Tubing" );
+    addItem( RimRftTopologyCurve::CurveType::ANNULUS, "ANNULUS", "Annulus" );
+    addItem( RimRftTopologyCurve::CurveType::DEVICE, "DEVICE", "Device" );
+
+    setDefault( RimRftTopologyCurve::CurveType::TUBING );
+}
+
+} // End namespace caf
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
@@ -52,8 +68,7 @@ RimRftTopologyCurve::RimRftTopologyCurve()
     CAF_PDM_InitField( &m_segmentBranchIndex, "SegmentBranchIndex", -1, "Branch" );
     CAF_PDM_InitFieldNoDefault( &m_segmentBranchType, "SegmentBranchType", "Completion" );
 
-    CAF_PDM_InitField( &m_isPackerCurve, "IsPackerCurve", false, "Packer Curve" );
-    CAF_PDM_InitField( &m_isPressureCurve, "IsPressureCurve", false, "Pressure Curve" );
+    CAF_PDM_InitFieldNoDefault( &m_curveType, "CurveType", "Curve Type" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -64,9 +79,9 @@ RimRftTopologyCurve* RimRftTopologyCurve::createPackerCurve( RimSummaryCase*  su
                                                              const QString&   wellName,
                                                              int              segmentBranchIndex )
 {
-    RimRftTopologyCurve* curve = new RimRftTopologyCurve();
+    auto* curve = new RimRftTopologyCurve();
     curve->setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
-    curve->m_isPackerCurve = true;
+    curve->m_curveType = CurveType::PACKER;
 
     return curve;
 }
@@ -79,9 +94,9 @@ RimRftTopologyCurve* RimRftTopologyCurve::createPressureCurve( RimSummaryCase*  
                                                                const QString&   wellName,
                                                                int              segmentBranchIndex )
 {
-    RimRftTopologyCurve* curve = new RimRftTopologyCurve();
+    auto* curve = new RimRftTopologyCurve();
     curve->setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
-    curve->m_isPressureCurve = true;
+    curve->m_curveType = CurveType::PRESSURE;
 
     return curve;
 }
@@ -95,8 +110,25 @@ RimRftTopologyCurve* RimRftTopologyCurve::createTopologyCurve( RimSummaryCase*  
                                                                int                       segmentBranchIndex,
                                                                RiaDefines::RftBranchType branchType )
 {
-    RimRftTopologyCurve* curve = new RimRftTopologyCurve();
+    auto* curve = new RimRftTopologyCurve();
     curve->setDataSource( summaryCase, timeStep, wellName, segmentBranchIndex );
+
+    switch ( branchType )
+    {
+        case RiaDefines::RftBranchType::RFT_TUBING:
+            curve->m_curveType = CurveType::TUBING;
+            break;
+        case RiaDefines::RftBranchType::RFT_DEVICE:
+            curve->m_curveType = CurveType::DEVICE;
+            break;
+        case RiaDefines::RftBranchType::RFT_ANNULUS:
+            curve->m_curveType = CurveType::ANNULUS;
+            break;
+        case RiaDefines::RftBranchType::RFT_UNKNOWN:
+            break;
+        default:
+            break;
+    }
     curve->m_segmentBranchType = branchType;
 
     return curve;
@@ -143,7 +175,36 @@ QString RimRftTopologyCurve::wellLogChannelUnits() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-cvf::Color3f RimRftTopologyCurve::colorForBranchType( RiaDefines::RftBranchType branchType )
+cvf::Color3f RimRftTopologyCurve::colorForBranchType( CurveType curveType )
+{
+    switch ( curveType )
+    {
+        case RimRftTopologyCurve::CurveType::PACKER:
+            return RiaColorTools::fromQColorTo3f( QColor( "DarkGoldenRod" ) );
+            break;
+        case RimRftTopologyCurve::CurveType::PRESSURE:
+            return RiaColorTools::fromQColorTo3f( QColor( "SlateGrey" ) );
+            break;
+        case RimRftTopologyCurve::CurveType::TUBING:
+            return colorForRftBranchType( RiaDefines::RftBranchType::RFT_TUBING );
+            break;
+        case RimRftTopologyCurve::CurveType::DEVICE:
+            return colorForRftBranchType( RiaDefines::RftBranchType::RFT_DEVICE );
+            break;
+        case RimRftTopologyCurve::CurveType::ANNULUS:
+            return colorForRftBranchType( RiaDefines::RftBranchType::RFT_ANNULUS );
+            break;
+        default:
+            break;
+    }
+
+    return RiaColorTools::fromQColorTo3f( QColor( "LightBrown" ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+cvf::Color3f RimRftTopologyCurve::colorForRftBranchType( RiaDefines::RftBranchType branchType )
 {
     switch ( branchType )
     {
@@ -169,22 +230,26 @@ QString RimRftTopologyCurve::createCurveAutoName()
 {
     QString text;
 
-    if ( m_isPackerCurve() )
-    {
-        text += "Packer";
-    }
-    else if ( m_isPressureCurve() )
-    {
-        text += "Pressure (Reservoir)";
-    }
-    else
-    {
-        if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) text += "Annulus";
-        if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) text += "Device";
-        if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) text += "Tubing";
-    }
+    return m_curveType().uiText();
 
-    return text;
+    /*
+        if ( m_isPackerCurve() )
+        {
+            text += "Packer";
+        }
+        else if ( m_isPressureCurve() )
+        {
+            text += "Pressure (Reservoir)";
+        }
+        else
+        {
+            if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) text += "Annulus";
+            if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) text += "Device";
+            if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING ) text += "Tubing";
+        }
+
+        return text;
+    */
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -198,14 +263,10 @@ void RimRftTopologyCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrde
     curveDataGroup->add( &m_summaryCase );
     curveDataGroup->add( &m_wellName );
     curveDataGroup->add( &m_timeStep );
-    curveDataGroup->add( &m_isPackerCurve );
-    curveDataGroup->add( &m_isPressureCurve );
+    curveDataGroup->add( &m_curveType );
 
     curveDataGroup->add( &m_segmentBranchIndex );
-    if ( !m_isPackerCurve() )
-    {
-        curveDataGroup->add( &m_segmentBranchType );
-    }
+    curveDataGroup->add( &m_segmentBranchType );
 
     RimStackablePlotCurve::defaultUiOrdering( uiOrdering );
 
@@ -276,7 +337,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
             std::vector<double> depths;
             std::vector<double> propertyValues;
 
-            if ( m_isPressureCurve )
+            if ( m_curveType() == RimRftTopologyCurve::CurveType::PRESSURE )
             {
                 std::vector<double> conlenstValues;
 
@@ -284,11 +345,11 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                 rftReader->values( resultNameConlenst, &conlenstValues );
 
                 double curveValue = 5.0;
-                for ( size_t i = 0; i < conlenstValues.size(); i++ )
+                for ( double conlenstValue : conlenstValues )
                 {
-                    if ( std::isinf( conlenstValues[i] ) ) continue;
+                    if ( std::isinf( conlenstValue ) ) continue;
 
-                    depths.push_back( conlenstValues[i] );
+                    depths.push_back( conlenstValue );
                     propertyValues.push_back( curveValue );
                 }
             }
@@ -310,7 +371,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE ) curveValue = 3.0;
                     if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS ) curveValue = 4.0;
 
-                    if ( m_isPackerCurve )
+                    if ( m_curveType() == CurveType::PACKER )
                     {
                         curveValue = 4.0;
                     }
@@ -318,7 +379,7 @@ void RimRftTopologyCurve::onLoadDataAndUpdate( bool updateParentPlot )
                     // Adjust the location of each branch if multiple branches are visible at the same time
                     curveValue += m_segmentBranchIndex() * 0.2;
 
-                    if ( m_isPackerCurve )
+                    if ( m_curveType() == RimRftTopologyCurve::CurveType::PACKER )
                     {
                         auto packerSegmentIndices = segment.packerSegmentIndicesOnAnnulus( m_segmentBranchIndex() );
 
@@ -379,41 +440,37 @@ void RimRftTopologyCurve::setAdditionalDataSources( const std::vector<RimPlotCur
 //--------------------------------------------------------------------------------------------------
 void RimRftTopologyCurve::applyDefaultAppearance()
 {
-    if ( m_isPackerCurve() )
-    {
-        auto color              = RiaColorTools::fromQColorTo3f( QColor( "DarkGoldenRod" ) );
-        int  adjustedSymbolSize = symbolSize() * 2;
+    auto color = colorForBranchType( m_curveType() );
+    setColor( color );
 
-        setColor( color );
+    if ( m_curveType() == RimRftTopologyCurve::CurveType::PACKER )
+    {
+        int adjustedSymbolSize = symbolSize() * 2;
+
         setSymbolSize( adjustedSymbolSize );
         setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
     }
-    else if ( m_isPressureCurve() )
+    else if ( m_curveType() == RimRftTopologyCurve::CurveType::PRESSURE )
     {
-        auto color              = RiaColorTools::fromQColorTo3f( QColor( "SlateGrey" ) );
-        int  adjustedSymbolSize = symbolSize() * 2;
+        int adjustedSymbolSize = symbolSize() * 2;
 
-        setColor( color );
         setSymbolSize( adjustedSymbolSize );
         setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         setSymbol( RiuPlotCurveSymbol::PointSymbolEnum::SYMBOL_RECT );
     }
     else
     {
-        auto color = colorForBranchType( m_segmentBranchType() );
-        setColor( color );
-
-        if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_TUBING )
+        if ( m_curveType() == RimRftTopologyCurve::CurveType::TUBING )
         {
             setLineThickness( 5.0 );
         }
-        else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_DEVICE )
+        else if ( m_curveType() == RimRftTopologyCurve::CurveType::DEVICE )
         {
             setSymbolEdgeColor( color );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );
         }
-        else if ( m_segmentBranchType() == RiaDefines::RftBranchType::RFT_ANNULUS )
+        else if ( m_curveType() == RimRftTopologyCurve::CurveType::ANNULUS )
         {
             setSymbolEdgeColor( color );
             setLineStyle( RiuQwtPlotCurveDefines::LineStyleEnum::STYLE_NONE );

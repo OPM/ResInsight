@@ -257,7 +257,7 @@ void RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( RimWellLogPlot* pl
                               RiaDefines::RftBranchType::RFT_ANNULUS } )
     {
         auto curve = createAndAddCurve( track, resultName, wellName, branchType, summaryCase );
-        auto color = RimRftTopologyCurve::colorForBranchType( branchType );
+        auto color = RimRftTopologyCurve::colorForRftBranchType( branchType );
         curve->setColor( color );
         curve->setLineThickness( 3 );
     }
