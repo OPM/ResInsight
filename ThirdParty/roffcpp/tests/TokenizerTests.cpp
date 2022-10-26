@@ -91,3 +91,42 @@ TEST( TokenizerTests, testTokenizeAsciiString )
     ASSERT_EQ( 7, token.end() );
     ASSERT_EQ( 8, stream.tellg() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeAsciiNumericValuesInt )
+{
+    std::stringstream stream( "123 " );
+    Token             token = Tokenizer::tokenizeAsciiNumber( stream );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, token.kind() );
+    ASSERT_EQ( 0, token.start() );
+    ASSERT_EQ( 3, token.end() );
+    ASSERT_EQ( 3, stream.tellg() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeAsciiNumericValuesDouble )
+{
+    std::stringstream stream( "1.0 " );
+    Token             token = Tokenizer::tokenizeAsciiNumber( stream );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, token.kind() );
+    ASSERT_EQ( 0, token.start() );
+    ASSERT_EQ( 3, token.end() );
+    ASSERT_EQ( 3, stream.tellg() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeName )
+{
+    std::stringstream stream( "roffeloff" );
+    Token             token = Tokenizer::tokenizeName( stream );
+    ASSERT_EQ( Token::Kind::NAME, token.kind() );
+    ASSERT_EQ( 0, token.start() );
+    ASSERT_EQ( 9, token.end() );
+    ASSERT_EQ( -1, stream.tellg() );
+}
