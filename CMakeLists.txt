@@ -496,6 +496,13 @@ endif()
 list(APPEND THIRD_PARTY_LIBRARIES clipper)
 
 # ##############################################################################
+# roffcpp
+# ##############################################################################
+
+add_subdirectory(ThirdParty/roffcpp)
+list(APPEND THIRD_PARTY_LIBRARIES roffcpp)
+
+# ##############################################################################
 # Thirdparty libraries are put in ThirdParty solution folder
 # ##############################################################################
 set_property(TARGET ${THIRD_PARTY_LIBRARIES} PROPERTY FOLDER "Thirdparty")
