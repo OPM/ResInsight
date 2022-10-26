@@ -19,6 +19,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseHideFaultFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseShowOnlyFaultFeature.h
     ${CMAKE_CURRENT_LIST_DIR}/RicRenameCaseFeature.h
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportRoffCaseFeature.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -42,6 +43,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseHideFaultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicEclipseShowOnlyFaultFeature.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RicRenameCaseFeature.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RicImportRoffCaseFeature.cpp
 )
 
 list(APPEND COMMAND_CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})
