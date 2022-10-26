@@ -4,6 +4,9 @@ add_executable(roffcpp-tests TokenTests.cpp TokenizerTests.cpp roffcpptestmain.c
 
 target_compile_features(roffcpp-tests PRIVATE cxx_std_17)
 
-target_link_libraries(roffcpp-tests PRIVATE roffcpp gtest)
+set(THREADS_PREFER_PTHREAD_FLAG ON)
+find_package(Threads REQUIRED)
+
+target_link_libraries(roffcpp-tests PRIVATE roffcpp gtest Threads::Threads)
 
 add_test(NAME roffcpp-tests COMMAND roffcpp-tests)
