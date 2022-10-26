@@ -42,12 +42,14 @@ public:
         QStringList eclipseCaseFiles;
         QStringList eclipseInputFiles;
         QStringList eclipseSummaryFiles;
+        QStringList roffFiles;
 
         std::vector<int> createdCaseIds;
 
         operator bool() const
         {
-            return !( eclipseCaseFiles.empty() && eclipseInputFiles.empty() && eclipseSummaryFiles.empty() );
+            return !( eclipseCaseFiles.empty() && eclipseInputFiles.empty() && eclipseSummaryFiles.empty() &&
+                      roffFiles.empty() );
         }
     };
 
@@ -73,4 +75,7 @@ protected:
                                                    bool               createDefaultView,
                                                    std::vector<int>&  createdCaseIds );
     static bool openSummaryCaseFromFileNames( const QStringList& fileNames, bool doCreateDefaultPlot = true );
+    static bool openRoffCaseFromFileNames( const QStringList& fileNames,
+                                           bool               createDefaultView,
+                                           std::vector<int>&  createdCaseIds );
 };

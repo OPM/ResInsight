@@ -52,6 +52,8 @@ public:
                                         bool                               createView,
                                         std::shared_ptr<RifReaderSettings> readerSettings = nullptr );
 
+    static int openRoffCaseFromFileNames( const QStringList& fileNames, bool createDefaultView );
+
 private:
     static int openEclipseCaseShowTimeStepFilterImpl( const QString&                     fileName,
                                                       bool                               showTimeStepFilter,

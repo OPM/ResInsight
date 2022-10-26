@@ -449,6 +449,7 @@ void RiuMainWindow::createMenus()
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCasesFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportEclipseCaseTimeStepFilterFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportInputEclipseCaseFeature" ) );
+    importEclipseMenu->addAction( cmdFeatureMgr->action( "RicImportRoffCaseFeature" ) );
     importEclipseMenu->addAction( cmdFeatureMgr->action( "RicCreateGridCaseGroupFromFilesFeature" ) );
 
     importMenu->addSeparator();
