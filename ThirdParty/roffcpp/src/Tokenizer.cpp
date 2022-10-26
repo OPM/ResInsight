@@ -74,7 +74,7 @@ Token Tokenizer::tokenizeString( std::istream& stream )
 
     // Read until closing double-quote.
     start    = stream.tellg();
-    auto end = stream.tellg();
+    auto end = start;
     readChar = stream.get();
     while ( stream.good() && readChar != '"' )
     {
@@ -90,6 +90,64 @@ Token Tokenizer::tokenizeString( std::istream& stream )
     }
 
     return Token( Token::Kind::STRING_LITERAL, start, end );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Token Tokenizer::tokenizeName( std::istream& stream )
+{
+    tokenizeDelimiter( stream );
+
+    auto start  = stream.tellg();
+    int  length = 0;
+
+    auto readChar = stream.get();
+    while ( stream.good() && !std::isspace( readChar ) )
+    {
+        length++;
+        readChar = stream.get();
+    }
+
+    if ( length < 1 )
+    {
+        stream.seekg( start );
+        throw std::runtime_error( "Could not tokenize name." );
+    }
+
+    return Token( Token::Kind::NAME, start, static_cast<size_t>( start ) + length );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Token Tokenizer::tokenizeAsciiNumber( std::istream& stream )
+{
+    tokenizeDelimiter( stream );
+
+    auto isCharValidInDigit = []( char c ) { return std::isdigit( c ) || c == '.' || c == 'e' || c == 'E' || c == '-'; };
+
+    auto start = stream.tellg();
+    auto end   = start;
+
+    char readChar = stream.get();
+    if ( stream.good() && ( std::isdigit( readChar ) || readChar == '-' ) )
+    {
+        while ( stream.good() && isCharValidInDigit( readChar ) )
+        {
+            end      = stream.tellg();
+            readChar = stream.get();
+        }
+    }
+
+    if ( end - start < 1 )
+    {
+        stream.seekg( start );
+        throw std::runtime_error( "Expected numeric value" );
+    }
+
+    stream.seekg( end );
+    return Token( Token::Kind::NUMERIC_VALUE, start, end );
 }
 
 //--------------------------------------------------------------------------------------------------
