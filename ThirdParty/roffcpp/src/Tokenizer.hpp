@@ -11,4 +11,6 @@ public:
     static void  tokenizeSpace( std::istream& stream );
     static void  tokenizeDelimiter( std::istream& stream );
     static Token tokenizeString( std::istream& stream );
+    static Token tokenizeAsciiNumber( std::istream& stream );
+    static Token tokenizeName( std::istream& stream );
 };
