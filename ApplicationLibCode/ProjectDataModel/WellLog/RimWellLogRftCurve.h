@@ -140,6 +140,8 @@ private:
 
     int segmentBranchIndex() const;
 
+    static bool isSegmentResult( const QString& resultName );
+
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;
     caf::PdmPtrField<RimSummaryCase*>           m_summaryCase;

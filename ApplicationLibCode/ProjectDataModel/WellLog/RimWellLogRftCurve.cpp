@@ -539,7 +539,14 @@ std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() cons
 
         variableValueMap[RiaDefines::namingVariableWellBranch()] = branchText;
 
-        variableValueMap[RiaDefines::namingVariableResultType()] = m_segmentBranchType().uiText();
+        if ( isSegmentResult( m_segmentResultName() ) )
+        {
+            variableValueMap[RiaDefines::namingVariableResultType()] = m_segmentBranchType().uiText();
+        }
+        else
+        {
+            variableValueMap[RiaDefines::namingVariableResultType()] = "Reservoir";
+        }
     }
 
     if ( !m_timeStep().isNull() )
@@ -814,7 +821,10 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     else
     {
         curveDataGroup->add( &m_segmentResultName );
-        curveDataGroup->add( &m_segmentBranchType );
+        if ( isSegmentResult( m_segmentResultName() ) )
+        {
+            curveDataGroup->add( &m_segmentBranchType );
+        }
         curveDataGroup->add( &m_segmentBranchIndex );
         curveDataGroup->add( &m_curveColorByPhase );
     }
@@ -1377,4 +1387,12 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
 int RimWellLogRftCurve::segmentBranchIndex() const
 {
     return m_segmentBranchIndex();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogRftCurve::isSegmentResult( const QString& resultName )
+{
+    return resultName.startsWith( "SEG" ) || resultName.startsWith( "CON" );
 }

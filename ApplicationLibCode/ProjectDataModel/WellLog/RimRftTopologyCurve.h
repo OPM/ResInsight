@@ -39,7 +39,6 @@ public:
     enum class CurveType
     {
         PACKER,
-        PRESSURE,
         TUBING,
         DEVICE,
         ANNULUS
@@ -52,11 +51,6 @@ public:
                                                    const QDateTime& timeStep,
                                                    const QString&   wellName,
                                                    int              segmentBranchIndex );
-
-    static RimRftTopologyCurve* createPressureCurve( RimSummaryCase*  summaryCase,
-                                                     const QDateTime& timeStep,
-                                                     const QString&   wellName,
-                                                     int              segmentBranchIndex );
 
     static RimRftTopologyCurve* createTopologyCurve( RimSummaryCase*           summaryCase,
                                                      const QDateTime&          timeStep,

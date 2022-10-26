@@ -112,7 +112,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
     try
     {
-        auto data = m_opm_rft->getRft<float>( resultName, wellName, y, m, d );
+        std::vector<float> data = resultAsFloat( resultName, wellName, y, m, d );
+
         if ( !data.empty() )
         {
             if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
@@ -940,6 +941,44 @@ std::string RifReaderOpmRft::resultNameFromChannelType( RifEclipseRftAddress::Rf
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::WRAT ) return "WRAT";
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::ORAT ) return "ORAT";
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::GRAT ) return "GRAT";
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<float>
+    RifReaderOpmRft::resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const
+{
+    Opm::EclIO::eclArrType resultDataType = Opm::EclIO::eclArrType::REAL;
+
+    auto results = m_opm_rft->listOfRftArrays( wellName, year, month, day );
+    for ( const auto& result : results )
+    {
+        if ( resultName == std::get<0>( result ) )
+        {
+            resultDataType = std::get<1>( result );
+            break;
+        }
+    }
+
+    if ( resultDataType == Opm::EclIO::eclArrType::INTE )
+    {
+        std::vector<float> data;
+
+        auto integerData = m_opm_rft->getRft<int>( resultName, wellName, year, month, day );
+        for ( auto val : integerData )
+        {
+            data.push_back( val );
+        }
+
+        return data;
+    }
+    else
+    {
+        return m_opm_rft->getRft<float>( resultName, wellName, year, month, day );
+    }
 
     return {};
 }
