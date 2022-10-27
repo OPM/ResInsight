@@ -58,7 +58,7 @@ public:
 //--------------------------------------------------------------------------------------------------
 bool RicDeleteAllLinkedViewsFeature::isCommandEnabled()
 {
-    return caf::SelectionManager::instance()->selectedItemAncestorOfType<RimViewLinkerCollection>() != nullptr;
+    return caf::SelectionManager::instance()->selectedItemOfType<RimViewLinker>() != nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -66,7 +66,21 @@ bool RicDeleteAllLinkedViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicDeleteAllLinkedViewsFeature::onActionTriggered( bool isChecked )
 {
-    DeleteAllLinkedViewsImpl::execute();
+    RimProject* proj = RimProject::current();
+
+    RimViewLinker* viewLinker = proj->viewLinkerCollection()->viewLinker();
+    if ( viewLinker )
+    {
+        // Remove the view linker object from the view linker collection
+        // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
+        proj->viewLinkerCollection->viewLinker.removeChild( viewLinker );
+
+        viewLinker->applyCellFilterCollectionByUserChoice();
+
+        delete viewLinker;
+
+        proj->uiCapability()->updateConnectedEditors();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -76,4 +90,5 @@ void RicDeleteAllLinkedViewsFeature::setupActionLook( QAction* actionToSetup )
 {
     actionToSetup->setText( "Unlink All Views" );
     actionToSetup->setIcon( QIcon( ":/UnLinkView.svg" ) );
+    actionToSetup->setShortcut( Qt::Key_Delete );
 }
