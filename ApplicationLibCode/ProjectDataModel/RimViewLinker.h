@@ -67,6 +67,7 @@ public:
     RimGridView* firstControlledView();
 
     void updateOverrides();
+    void updateWindowTitles();
 
     void updateCamera( RimGridView* sourceView );
     void updateTimeStep( RimGridView* sourceView, int timeStep );

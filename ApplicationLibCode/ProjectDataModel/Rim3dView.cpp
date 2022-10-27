@@ -379,8 +379,18 @@ void Rim3dView::updateMdiWindowTitle()
 {
     if ( m_viewer )
     {
-        m_viewer->layoutWidget()->setWindowTitle(
-            autoName() + ( isMasterView() ? " (Primary)" : viewController() ? " (Controlled)" : "" ) );
+        auto title = autoName();
+
+        if ( isMasterView() && assosiatedViewLinker() && assosiatedViewLinker()->isActive() )
+        {
+            title += " (Primary)";
+        }
+        else if ( viewController() && viewController()->isActive() )
+        {
+            title += " (Controlled)";
+        }
+
+        m_viewer->layoutWidget()->setWindowTitle( title );
     }
 }
 

@@ -236,6 +236,22 @@ void RimViewLinker::updateOverrides()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateWindowTitles()
+{
+    if ( m_masterView ) m_masterView->updateMdiWindowTitle();
+
+    for ( RimViewController* viewLink : m_viewControllers )
+    {
+        if ( auto view = viewLink->managedView() )
+        {
+            view->updateMdiWindowTitle();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewLinker::removeOverrides()
 {
     for ( const auto& viewController : m_viewControllers )

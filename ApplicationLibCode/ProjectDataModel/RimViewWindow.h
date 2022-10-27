@@ -84,6 +84,8 @@ public:
 
     void viewNavigationChanged();
 
+    virtual void updateMdiWindowTitle();
+
 protected:
     void removeMdiWindowFromMdiArea();
 
@@ -93,7 +95,6 @@ protected:
     QString          windowTitle();
     virtual QWidget* createViewWidget( QWidget* mainWindowParent = nullptr ) = 0;
     virtual void     updateViewWidgetAfterCreation(){};
-    virtual void     updateMdiWindowTitle(); // Has real default implementation
     virtual void     deleteViewWidget()    = 0;
     virtual void     onLoadDataAndUpdate() = 0;
     virtual void     onViewNavigationChanged();

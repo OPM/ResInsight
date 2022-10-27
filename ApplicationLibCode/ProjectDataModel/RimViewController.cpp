@@ -172,6 +172,8 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         updateCameraLink();
         updateDisplayNameAndIcon();
         updateTimeStepLink();
+
+        if ( m_managedView ) m_managedView->updateMdiWindowTitle();
     }
     else if ( changedField == &m_syncCamera )
     {

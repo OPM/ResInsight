@@ -178,6 +178,7 @@ public:
     Rim3dView*           activeComparisonView() const;
     void                 setComparisonView( Rim3dView* compView );
     std::set<Rim3dView*> viewsUsingThisAsComparisonView();
+    void                 updateMdiWindowTitle() override;
 
 protected:
     static void removeModelByName( cvf::Scene* scene, const cvf::String& modelName );
@@ -263,7 +264,6 @@ private:
     void setId( int id );
     void assignIdIfNecessary() final;
 
-    void     updateMdiWindowTitle() override;
     void     deleteViewWidget() override;
     QWidget* viewWidget() override;
 
