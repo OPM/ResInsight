@@ -101,6 +101,8 @@ public:
     void enableColorFromResultName( bool enable );
     void assignColorFromResultName( const QString& resultName );
 
+    void setScaleFactor( double factor );
+
 protected:
     QString     createCurveAutoName() override;
     QString     createCurveNameFromTemplate( const QString& templateText ) override;
@@ -139,6 +141,8 @@ private:
                                               std::vector<double>&       derivedMDValues );
 
     int segmentBranchIndex() const;
+
+    static bool isSegmentResult( const QString& resultName );
 
 private:
     caf::PdmPtrField<RimEclipseResultCase*>     m_eclipseResultCase;

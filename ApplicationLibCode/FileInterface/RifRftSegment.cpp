@@ -327,9 +327,10 @@ std::vector<size_t> RifRftSegment::packerSegmentIndicesOnAnnulus( int branchInde
         auto segment              = m_topology[segmentIndex];
         auto outflowSegmentNumber = segment.segNext();
 
-        auto candidateSegment    = segmentData( outflowSegmentNumber );
-        auto candidateBranchType = branchType( candidateSegment->segBrno() );
+        auto candidateSegment = segmentData( outflowSegmentNumber );
+        if ( !candidateSegment ) continue;
 
+        auto candidateBranchType = branchType( candidateSegment->segBrno() );
         if ( candidateBranchType == RiaDefines::RftBranchType::RFT_DEVICE )
         {
             packerSegmentIndices.push_back( segmentIndex );

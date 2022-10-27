@@ -485,6 +485,14 @@ void RimWellLogRftCurve::assignColorFromResultName( const QString& resultName )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimWellLogRftCurve::setScaleFactor( double factor )
+{
+    m_scaleFactor = factor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() const
 {
     std::map<QString, QString> variableValueMap;
@@ -539,7 +547,14 @@ std::map<QString, QString> RimWellLogRftCurve::createCurveNameKeyValueMap() cons
 
         variableValueMap[RiaDefines::namingVariableWellBranch()] = branchText;
 
-        variableValueMap[RiaDefines::namingVariableResultType()] = m_segmentBranchType().uiText();
+        if ( isSegmentResult( m_segmentResultName() ) )
+        {
+            variableValueMap[RiaDefines::namingVariableResultType()] = m_segmentBranchType().uiText();
+        }
+        else
+        {
+            variableValueMap[RiaDefines::namingVariableResultType()] = "Reservoir";
+        }
     }
 
     if ( !m_timeStep().isNull() )
@@ -707,8 +722,9 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
         {
             m_plotCurve->setPerPointLabels( perPointLabels );
 
-            auto propertyValues = this->curveData()->propertyValues();
-            auto depthValues    = this->curveData()->depths( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
+            auto propertyValues = this->curveData()->propertyValuesByIntervals();
+            auto depthValues =
+                this->curveData()->depthValuesByIntervals( RiaDefines::DepthTypeEnum::MEASURED_DEPTH, displayUnit );
 
             if ( !errors.empty() )
             {
@@ -718,6 +734,8 @@ void RimWellLogRftCurve::onLoadDataAndUpdate( bool updateParentPlot )
             {
                 setPropertyAndDepthValuesToPlotCurve( propertyValues, depthValues );
             }
+
+            m_plotCurve->setLineSegmentStartStopIndices( this->curveData()->polylineStartStopIndices() );
 
             RimWellLogTrack* wellLogTrack;
             firstAncestorOrThisOfType( wellLogTrack );
@@ -814,7 +832,10 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     else
     {
         curveDataGroup->add( &m_segmentResultName );
-        curveDataGroup->add( &m_segmentBranchType );
+        if ( isSegmentResult( m_segmentResultName() ) )
+        {
+            curveDataGroup->add( &m_segmentBranchType );
+        }
         curveDataGroup->add( &m_segmentBranchIndex );
         curveDataGroup->add( &m_curveColorByPhase );
     }
@@ -936,7 +957,7 @@ void RimWellLogRftCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedFie
         loadData = true;
     }
     else if ( changedField == &m_timeStep || changedField == &m_segmentResultName || changedField == &m_segmentBranchIndex ||
-              changedField == &m_rftDataType || changedField == &m_segmentBranchType )
+              changedField == &m_rftDataType || changedField == &m_segmentBranchType || m_scaleFactor )
     {
         loadData = true;
     }
@@ -1239,27 +1260,12 @@ std::vector<double> RimWellLogRftCurve::measuredDepthValues()
 {
     if ( m_rftDataType() == RftDataType::RFT_SEGMENT_DATA )
     {
-        std::vector<double> values;
-
         RifReaderRftInterface* reader = rftReader();
         if ( reader )
         {
-            auto depthAddress =
-                RifEclipseRftAddress::createBranchSegmentAddress( m_wellName(),
-                                                                  m_timeStep,
-                                                                  RiaDefines::segmentStartDepthResultName(),
-                                                                  segmentBranchIndex(),
-                                                                  m_segmentBranchType() );
-
-            reader->values( depthAddress, &values );
-
-            // Special handling of first segment
-            if ( values.size() > 2 && values.front() < 0.001 )
-            {
-                values[0] = values[1];
-            }
+            return RimRftTools::seglenstValues( reader, m_wellName(), m_timeStep, segmentBranchIndex(), m_segmentBranchType() );
         }
-        return values;
+        return {};
     }
 
     if ( m_observedFmuRftData && !m_ensemble && !m_summaryCase )
@@ -1377,4 +1383,12 @@ bool RimWellLogRftCurve::deriveMeasuredDepthFromObservedData( const std::vector<
 int RimWellLogRftCurve::segmentBranchIndex() const
 {
     return m_segmentBranchIndex();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimWellLogRftCurve::isSegmentResult( const QString& resultName )
+{
+    return resultName.startsWith( "SEG" );
 }

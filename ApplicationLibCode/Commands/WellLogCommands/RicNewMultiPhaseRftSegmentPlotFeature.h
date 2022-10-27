@@ -39,6 +39,7 @@ private:
     void setupActionLook( QAction* actionToSetup ) override;
 
     void appendTrackAndCurveForBranchType( RimWellLogPlot*             plot,
+                                           const QString&              trackName,
                                            const std::vector<QString>& resultNames,
                                            const QString&              wellName,
                                            RiaDefines::RftBranchType   branchType,

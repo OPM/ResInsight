@@ -36,6 +36,15 @@ class RimRftTopologyCurve : public RimWellLogCurve
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class CurveType
+    {
+        PACKER,
+        TUBING,
+        DEVICE,
+        ANNULUS
+    };
+
+public:
     RimRftTopologyCurve();
 
     static RimRftTopologyCurve* createPackerCurve( RimSummaryCase*  summaryCase,
@@ -57,6 +66,9 @@ public:
     QString wellLogChannelUiName() const override;
     QString wellLogChannelUnits() const override;
 
+    static cvf::Color3f colorForBranchType( CurveType curveType );
+    static cvf::Color3f colorForRftBranchType( RiaDefines::RftBranchType branchType );
+
 protected:
     QString createCurveAutoName() override;
 
@@ -67,13 +79,12 @@ protected:
     void onLoadDataAndUpdate( bool updateParentPlot ) override;
 
 private:
-    caf::PdmPtrField<RimSummaryCase*>                      m_summaryCase;
-    caf::PdmField<QDateTime>                               m_timeStep;
-    caf::PdmField<QString>                                 m_wellName;
-    caf::PdmField<int>                                     m_segmentBranchIndex;
-    caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>> m_segmentBranchType;
-
-    caf::PdmField<bool> m_isPackerCurve;
+    caf::PdmPtrField<RimSummaryCase*>                           m_summaryCase;
+    caf::PdmField<QDateTime>                                    m_timeStep;
+    caf::PdmField<QString>                                      m_wellName;
+    caf::PdmField<int>                                          m_segmentBranchIndex;
+    caf::PdmField<caf::AppEnum<RiaDefines::RftBranchType>>      m_segmentBranchType;
+    caf::PdmField<caf::AppEnum<RimRftTopologyCurve::CurveType>> m_curveType;
 
 public:
     void setAdditionalDataSources( const std::vector<RimPlotCurve*>& additionalDataSources );
