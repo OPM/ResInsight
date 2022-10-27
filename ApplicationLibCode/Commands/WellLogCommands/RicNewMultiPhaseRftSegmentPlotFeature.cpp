@@ -24,6 +24,7 @@
 #include "RicWellLogTools.h"
 
 #include "RiaApplication.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaRftDefines.h"
 
 #include "RifReaderOpmRft.h"
@@ -32,6 +33,7 @@
 #include "RimRftTopologyCurve.h"
 #include "RimSummaryCase.h"
 #include "RimWellLogPlot.h"
+#include "RimWellLogRftCurve.h"
 #include "RimWellLogTrack.h"
 
 #include "RiuPlotMainWindowTools.h"
@@ -70,6 +72,8 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
     plot->setPlotTitleVisible( true );
     plot->setLegendItemsClickable( false );
     plot->enableDepthMarkerLine( true );
+    plot->setLegendPosition( RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT );
+    plot->setLegendFontSize( caf::FontTools::RelativeSize::XSmall );
 
     QString wellName = "Unknown";
 
@@ -80,20 +84,35 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
         if ( !wellNames.empty() ) wellName = *wellNames.begin();
     }
 
-    std::vector<QString> resultNames = { "SEGGRAT", "SEGORAT", "SEGWRAT" };
+    appendTrackAndCurveForBranchType( plot,
+                                      "Connection Rates",
+                                      { "CONGRAT", "CONORAT", "CONWRAT" },
+                                      wellName,
+                                      RiaDefines::RftBranchType::RFT_ANNULUS,
+                                      summaryCase );
 
-    std::vector<RiaDefines::RftBranchType> branchTypes{ RiaDefines::RftBranchType::RFT_ANNULUS,
-                                                        RiaDefines::RftBranchType::RFT_DEVICE,
-                                                        RiaDefines::RftBranchType::RFT_TUBING };
-
-    for ( auto branchType : branchTypes )
     {
-        appendTrackAndCurveForBranchType( plot, resultNames, wellName, branchType, summaryCase );
+        for ( auto branchType : { RiaDefines::RftBranchType::RFT_ANNULUS,
+                                  RiaDefines::RftBranchType::RFT_DEVICE,
+                                  RiaDefines::RftBranchType::RFT_TUBING } )
+        {
+            appendTrackAndCurveForBranchType( plot,
+                                              "Segment Rates",
+                                              { "SEGGRAT", "SEGORAT", "SEGWRAT" },
+                                              wellName,
+                                              branchType,
+                                              summaryCase );
+        }
     }
 
+    RicNewRftSegmentWellLogPlotFeature::appendPressureTrack( plot, wellName, summaryCase );
+    RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( plot, wellName, summaryCase );
     RicNewRftSegmentWellLogPlotFeature::appendTopologyTrack( plot, wellName, summaryCase );
 
     plot->loadDataAndUpdate();
+
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
+    plot->updateLayout();
 
     RiuPlotMainWindowTools::onObjectAppended( plot );
 }
@@ -102,14 +121,15 @@ void RicNewMultiPhaseRftSegmentPlotFeature::onActionTriggered( bool isChecked )
 ///
 //--------------------------------------------------------------------------------------------------
 void RicNewMultiPhaseRftSegmentPlotFeature::appendTrackAndCurveForBranchType( RimWellLogPlot*             plot,
+                                                                              const QString&              trackName,
                                                                               const std::vector<QString>& resultNames,
                                                                               const QString&              wellName,
                                                                               RiaDefines::RftBranchType   branchType,
                                                                               RimSummaryCase*             summaryCase )
 {
-    RimWellLogTrack* plotTrack = new RimWellLogTrack();
+    auto plotTrack = new RimWellLogTrack();
     plot->addPlot( plotTrack );
-    plotTrack->setDescription( QString( "Track %1" ).arg( plot->plotCount() ) );
+    plotTrack->setDescription( trackName );
 
     plot->loadDataAndUpdate();
 
@@ -121,11 +141,16 @@ void RicNewMultiPhaseRftSegmentPlotFeature::appendTrackAndCurveForBranchType( Ri
         QString templateText = RiaDefines::namingVariableResultName() + ", " + RiaDefines::namingVariableResultType();
         curve->setCurveNameTemplateText( templateText );
 
+        if ( resultName == "SEGGRAT" || resultName == "CONGRAT" )
+        {
+            curve->setScaleFactor( 1e-3 );
+        }
+        curve->setFillStyle( Qt::SolidPattern );
+
         curve->setIsStacked( true );
         curve->loadDataAndUpdate( true );
 
         curve->updateAllRequiredEditors();
-        RiuPlotMainWindowTools::setExpanded( curve );
     }
 }
 

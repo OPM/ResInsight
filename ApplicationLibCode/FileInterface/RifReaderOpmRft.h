@@ -89,6 +89,9 @@ private:
     static RifEclipseRftAddress::RftWellLogChannelType identifyChannelType( const std::string& resultName );
     static std::string resultNameFromChannelType( RifEclipseRftAddress::RftWellLogChannelType channelType );
 
+    std::vector<float>
+        resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const;
+
 private:
     std::unique_ptr<Opm::EclIO::ERft> m_opm_rft;
 

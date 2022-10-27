@@ -21,6 +21,7 @@
 
 #include "RiaGuiApplication.h"
 #include "RiaOptionItemFactory.h"
+#include "RiaPlotWindowRedrawScheduler.h"
 #include "RiaPreferences.h"
 #include "RiaQDateTimeTools.h"
 #include "RiaTextStringTools.h"
@@ -924,6 +925,9 @@ void RimDepthTrackPlot::onPlotsReordered( const SignalEmitter* emitter )
     updateSubPlotNames();
     recreatePlotWidgets();
     loadDataAndUpdate();
+
+    RiaPlotWindowRedrawScheduler::instance()->performScheduledUpdatesAndReplots();
+    updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------

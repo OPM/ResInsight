@@ -99,13 +99,10 @@ TEST( OpmSummaryTests, DISABLED_OpmImportRftData )
         {
             std::cout << "\n";
 
-            auto rftVectors = eRft.listOfRftArrays( i );
-
-            for ( const auto& rftVec : rftVectors )
+            auto results = eRft.listOfRftArrays( i );
+            for ( const auto& [name, arrayType, size] : results )
             {
-                auto [name, arrType, itemCount] = rftVec;
-
-                std::cout << name << ", " << itemCount << "\n";
+                std::cout << name << ", " << size << "\n";
             }
         }
     }

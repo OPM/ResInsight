@@ -112,7 +112,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 
     try
     {
-        auto data = m_opm_rft->getRft<float>( resultName, wellName, y, m, d );
+        std::vector<float> data = resultAsFloat( resultName, wellName, y, m, d );
+
         if ( !data.empty() )
         {
             if ( rftAddress.wellLogChannel() == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
@@ -391,22 +392,17 @@ void RifReaderOpmRft::buildMetaData()
     importWellNames();
 
     auto reports = m_opm_rft->listOfRftReports();
-    for ( const auto& report : reports )
+    for ( const auto& [wellName, reportDate, reportTime] : reports )
     {
-        auto [wellName, reportDate, reportTime] = report;
-        auto rftVectors                         = m_opm_rft->listOfRftArrays( wellName, reportDate );
+        auto results = m_opm_rft->listOfRftArrays( wellName, reportDate );
 
-        for ( const auto& rftVec : rftVectors )
+        for ( const auto& [name, arrayType, size] : results )
         {
-            auto [resultDataName, arrType, itemCount] = rftVec;
-
-            int y = std::get<0>( reportDate );
-            int m = std::get<1>( reportDate );
-            int d = std::get<2>( reportDate );
+            const auto& [y, m, d] = reportDate;
 
             auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
-            auto channelType = identifyChannelType( resultDataName );
+            auto channelType = identifyChannelType( name );
             if ( channelType != RifEclipseRftAddress::RftWellLogChannelType::NONE )
             {
                 auto adr = RifEclipseRftAddress::createAddress( QString::fromStdString( wellName ), dt, channelType );
@@ -423,22 +419,17 @@ void RifReaderOpmRft::buildMetaData()
         auto [wellName, reportDate] = segmentWellData.first;
         auto segmentData            = segmentWellData.second;
 
-        auto resultNameAndSizes = segmentData.resultNameAndSize();
-
-        int y = std::get<0>( reportDate );
-        int m = std::get<1>( reportDate );
-        int d = std::get<2>( reportDate );
-
-        auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
+        const auto& [y, m, d] = reportDate;
+        auto dt               = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
         m_rftSegmentTimeSteps.insert( dt );
 
-        for ( const auto& resultNameAndSize : resultNameAndSizes )
+        auto resultNameAndSizes = segmentData.resultNameAndSize();
+        for ( const auto& [name, arrayType, size] : resultNameAndSizes )
         {
-            auto resultName = std::get<0>( resultNameAndSize );
-            auto adr        = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
+            auto adr = RifEclipseRftAddress::createSegmentAddress( QString::fromStdString( wellName ),
                                                                    dt,
-                                                                   QString::fromStdString( resultName ) );
+                                                                   QString::fromStdString( name ) );
 
             m_addresses.insert( adr );
         }
@@ -508,11 +499,10 @@ void RifReaderOpmRft::buildSegmentData()
             RifRftSegment segment;
             segment.setSegmentData( segmentsForWellDate );
 
-            auto arraysAtWellDate = m_opm_rft->listOfRftArrays( wellName, date );
+            auto results = m_opm_rft->listOfRftArrays( wellName, date );
 
-            for ( const auto& rftResultMetaData : arraysAtWellDate )
+            for ( const auto& [name, arrayType, size] : results )
             {
-                auto [name, arrayType, size] = rftResultMetaData;
                 if ( ( name.find( "SEG" ) == 0 ) && m_segmentResultItemCount == 0 )
                 {
                     m_segmentResultItemCount = size;
@@ -523,9 +513,9 @@ void RifReaderOpmRft::buildSegmentData()
                 }
             }
 
-            for ( const auto& rftResultMetaData : arraysAtWellDate )
+            for ( const auto& rftResultMetaData : results )
             {
-                auto [name, arrayType, size] = rftResultMetaData;
+                const auto& [name, arrayType, size] = rftResultMetaData;
                 if ( size == static_cast<int64_t>( m_segmentResultItemCount ) ||
                      size == static_cast<int64_t>( m_connectionResultItemCount ) )
                 {
@@ -551,8 +541,9 @@ void RifReaderOpmRft::segmentDataDebugLog() const
         auto [wellName, date] = a.first;
         auto segmentData      = a.second;
 
-        std::cout << "\nWell: " << wellName << "Date : " << std::get<0>( date ) << " " << std::get<1>( date ) << " "
-                  << std::get<2>( date ) << " \n";
+        const auto& [y, m, d] = date;
+
+        std::cout << "\nWell: " << wellName << "Date : " << y << " " << m << " " << d << " \n";
 
         for ( const auto& r : segmentData.topology() )
         {
@@ -606,11 +597,8 @@ void RifReaderOpmRft::buildSegmentBranchTypes( const RftSegmentKey& segmentKey )
     auto           date       = segmentKey.second;
     RifRftSegment& segmentRef = m_rftWellDateSegments[segmentKey];
 
-    int y = std::get<0>( date );
-    int m = std::get<1>( date );
-    int d = std::get<2>( date );
-
-    auto dt = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
+    const auto& [y, m, d] = date;
+    auto dt               = RiaQDateTimeTools::createUtcDateTime( QDate( y, m, d ) );
 
     std::vector<double> seglenstValues;
     std::vector<double> seglenenValues;
@@ -940,6 +928,44 @@ std::string RifReaderOpmRft::resultNameFromChannelType( RifEclipseRftAddress::Rf
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::WRAT ) return "WRAT";
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::ORAT ) return "ORAT";
     if ( channelType == RifEclipseRftAddress::RftWellLogChannelType::GRAT ) return "GRAT";
+
+    return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<float>
+    RifReaderOpmRft::resultAsFloat( const std::string& resultName, const std::string& wellName, int year, int month, int day ) const
+{
+    Opm::EclIO::eclArrType resultDataType = Opm::EclIO::eclArrType::REAL;
+
+    auto results = m_opm_rft->listOfRftArrays( wellName, year, month, day );
+    for ( const auto& [name, arrayType, size] : results )
+    {
+        if ( resultName == name )
+        {
+            resultDataType = arrayType;
+            break;
+        }
+    }
+
+    if ( resultDataType == Opm::EclIO::eclArrType::INTE )
+    {
+        std::vector<float> data;
+
+        auto integerData = m_opm_rft->getRft<int>( resultName, wellName, year, month, day );
+        for ( auto val : integerData )
+        {
+            data.push_back( val );
+        }
+
+        return data;
+    }
+    else
+    {
+        return m_opm_rft->getRft<float>( resultName, wellName, year, month, day );
+    }
 
     return {};
 }
