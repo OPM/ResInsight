@@ -168,9 +168,16 @@ Token Tokenizer::tokenizeKeyword( std::istream& stream )
         std::make_pair( Token::Kind::FLOAT, "float" ),
         std::make_pair( Token::Kind::DOUBLE, "double" ),
         std::make_pair( Token::Kind::ARRAY, "array" ),
-
     };
 
+    return tokenizeKeyword( stream, keywords );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Token Tokenizer::tokenizeKeyword( std::istream& stream, const std::vector<std::pair<Token::Kind, std::string>>& keywords )
+{
     for ( auto [kind, keyword] : keywords )
     {
         try
@@ -183,6 +190,35 @@ Token Tokenizer::tokenizeKeyword( std::istream& stream )
     }
 
     throw std::runtime_error( "No matching keyword." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Token Tokenizer::tokenizeValue( std::istream& stream )
+{
+    try
+    {
+        return tokenizeAsciiNumber( stream );
+    }
+    catch ( const std::runtime_error& e )
+    {
+        return tokenizeString( stream );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Token Tokenizer::tokenizeSimpleType( std::istream& stream )
+{
+    std::vector<std::pair<Token::Kind, std::string>> simpleTypes = { std::make_pair( Token::Kind::CHAR, "char" ),
+                                                                     std::make_pair( Token::Kind::BOOL, "double" ),
+                                                                     std::make_pair( Token::Kind::BYTE, "byte" ),
+                                                                     std::make_pair( Token::Kind::INT, "int" ),
+                                                                     std::make_pair( Token::Kind::FLOAT, "float" ),
+                                                                     std::make_pair( Token::Kind::DOUBLE, "double" ) };
+    return tokenizeKeyword( stream, simpleTypes );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -202,6 +238,18 @@ Token Tokenizer::tokenizeWord( std::istream& stream, const std::string& keyword,
         stream.seekg( start );
         throw std::runtime_error( "Token did not match word" );
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<Token> Tokenizer::tokenizeAsciiTagKey( std::istream& stream )
+{
+    std::vector<Token> tokens;
+    tokens.push_back( tokenizeSimpleType( stream ) );
+    tokens.push_back( tokenizeName( stream ) );
+    tokens.push_back( tokenizeValue( stream ) );
+    return tokens;
 }
 
 //--------------------------------------------------------------------------------------------------

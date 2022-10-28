@@ -156,3 +156,31 @@ TEST( TokenizerTests, testTokenizeKeywordRoffBin )
     ASSERT_EQ( 8, token.end() );
     ASSERT_EQ( -1, stream.tellg() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeAsciiTagKeyInt )
+{
+    std::stringstream  stream( "int x 3" );
+    std::vector<Token> tokens = Tokenizer::tokenizeAsciiTagKey( stream );
+
+    ASSERT_EQ( 3, tokens.size() );
+    ASSERT_EQ( Token::Kind::INT, tokens[0].kind() );
+    ASSERT_EQ( Token::Kind::NAME, tokens[1].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[2].kind() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeAsciiTagKeyFloat )
+{
+    std::stringstream  stream( "float z 44.5" );
+    std::vector<Token> tokens = Tokenizer::tokenizeAsciiTagKey( stream );
+
+    ASSERT_EQ( 3, tokens.size() );
+    ASSERT_EQ( Token::Kind::FLOAT, tokens[0].kind() );
+    ASSERT_EQ( Token::Kind::NAME, tokens[1].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[2].kind() );
+}
