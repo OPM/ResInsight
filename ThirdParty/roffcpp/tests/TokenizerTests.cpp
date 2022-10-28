@@ -207,3 +207,42 @@ TEST( TokenizerTests, testTokenizeTagGroup )
 
     ASSERT_EQ( Token::Kind::ENDTAG, tokens[8].kind() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeArrayAsciiTagKeyInt )
+{
+    std::stringstream  stream( "array int my_array 6 1 2 3 4 5 6" );
+    std::vector<Token> tokens = Tokenizer::tokenizeArrayAsciiTagKey( stream );
+
+    ASSERT_EQ( 10, tokens.size() );
+    ASSERT_EQ( Token::Kind::ARRAY, tokens[0].kind() );
+    ASSERT_EQ( Token::Kind::INT, tokens[1].kind() );
+    ASSERT_EQ( Token::Kind::NAME, tokens[2].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[3].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[4].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[5].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[6].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[7].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[8].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[9].kind() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeArrayAsciiTagKeyStrings )
+{
+    std::stringstream  stream( "array char my_array 3 \"a\" \"bb\" \"ccc\"" );
+    std::vector<Token> tokens = Tokenizer::tokenizeArrayAsciiTagKey( stream );
+
+    ASSERT_EQ( 7, tokens.size() );
+    ASSERT_EQ( Token::Kind::ARRAY, tokens[0].kind() );
+    ASSERT_EQ( Token::Kind::CHAR, tokens[1].kind() );
+    ASSERT_EQ( Token::Kind::NAME, tokens[2].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[3].kind() );
+    ASSERT_EQ( Token::Kind::STRING_LITERAL, tokens[4].kind() );
+    ASSERT_EQ( Token::Kind::STRING_LITERAL, tokens[5].kind() );
+    ASSERT_EQ( Token::Kind::STRING_LITERAL, tokens[6].kind() );
+}
