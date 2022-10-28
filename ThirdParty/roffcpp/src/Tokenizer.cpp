@@ -256,6 +256,46 @@ std::vector<Token> Tokenizer::tokenizeAsciiTagKey( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<Token> Tokenizer::tokenizeArrayAsciiTagKey( std::istream& stream )
+{
+    std::vector<Token> tokens;
+    tokens.push_back( tokenizeKeyword( stream, { std::make_pair( Token::Kind::ARRAY, "array" ) } ) );
+    tokens.push_back( tokenizeSimpleType( stream ) );
+    tokens.push_back( tokenizeName( stream ) );
+    tokens.push_back( tokenizeAsciiNumber( stream ) );
+
+    std::vector<Token> arrayTokens = tokenizeArrayData( stream );
+    tokens.insert( tokens.end(), arrayTokens.begin(), arrayTokens.end() );
+
+    return tokens;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<Token> Tokenizer::tokenizeArrayData( std::istream& stream )
+{
+    std::vector<Token> tokens;
+
+    bool gotNewToken = true;
+    while ( gotNewToken )
+    {
+        try
+        {
+            tokens.push_back( tokenizeValue( stream ) );
+        }
+        catch ( std::runtime_error& e )
+        {
+            gotNewToken = false;
+        }
+    }
+
+    return tokens;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<Token> Tokenizer::tokenizeTagGroup( std::istream& stream )
 {
     std::vector<Token> tokens;
