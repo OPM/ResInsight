@@ -1,6 +1,7 @@
 #include "Tokenizer.hpp"
 
 #include <cctype>
+#include <vector>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -148,6 +149,59 @@ Token Tokenizer::tokenizeAsciiNumber( std::istream& stream )
 
     stream.seekg( end );
     return Token( Token::Kind::NUMERIC_VALUE, start, end );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Token Tokenizer::tokenizeKeyword( std::istream& stream )
+{
+    std::vector<std::pair<Token::Kind, std::string>> keywords = {
+        std::make_pair( Token::Kind::ROFF_BIN, "roff-bin" ),
+        std::make_pair( Token::Kind::ROFF_ASC, "roff-asc" ),
+        std::make_pair( Token::Kind::TAG, "tag" ),
+        std::make_pair( Token::Kind::ENDTAG, "endtag" ),
+        std::make_pair( Token::Kind::CHAR, "char" ),
+        std::make_pair( Token::Kind::BOOL, "bool" ),
+        std::make_pair( Token::Kind::BYTE, "byte" ),
+        std::make_pair( Token::Kind::INT, "int" ),
+        std::make_pair( Token::Kind::FLOAT, "float" ),
+        std::make_pair( Token::Kind::DOUBLE, "double" ),
+        std::make_pair( Token::Kind::ARRAY, "array" ),
+
+    };
+
+    for ( auto [kind, keyword] : keywords )
+    {
+        try
+        {
+            return tokenizeWord( stream, keyword, kind );
+        }
+        catch ( std::runtime_error& e )
+        {
+        }
+    }
+
+    throw std::runtime_error( "No matching keyword." );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+Token Tokenizer::tokenizeWord( std::istream& stream, const std::string& keyword, Token::Kind kind )
+{
+    auto        start = stream.tellg();
+    std::string word;
+    if ( stream >> word && word == keyword )
+    {
+        auto end = static_cast<size_t>( start ) + keyword.length();
+        return Token( kind, start, end );
+    }
+    else
+    {
+        stream.seekg( start );
+        throw std::runtime_error( "Token did not match word" );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
