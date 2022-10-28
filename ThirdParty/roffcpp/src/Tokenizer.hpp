@@ -13,4 +13,6 @@ public:
     static Token tokenizeString( std::istream& stream );
     static Token tokenizeAsciiNumber( std::istream& stream );
     static Token tokenizeName( std::istream& stream );
+    static Token tokenizeKeyword( std::istream& stream );
+    static Token tokenizeWord( std::istream& stream, const std::string& keywork, Token::Kind kind );
 };
