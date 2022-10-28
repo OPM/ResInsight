@@ -202,16 +202,16 @@ RimFractureTemplate::RimFractureTemplate()
     m_dFactorSummaryText.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::LabelPosType::TOP );
     m_dFactorSummaryText.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height" );
-    CAF_PDM_InitField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length" );
-    CAF_PDM_InitField( &m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor" );
-    CAF_PDM_InitField( &m_conductivityScaleFactor,
-                       "ConductivityFactor",
-                       1.0,
-                       "Conductivity",
-                       "",
-                       "The conductivity values read from file will be scaled with this parameters",
-                       "" );
+    CAF_PDM_InitScriptableField( &m_heightScaleFactor, "HeightScaleFactor", 1.0, "Height" );
+    CAF_PDM_InitScriptableField( &m_halfLengthScaleFactor, "WidthScaleFactor", 1.0, "Half Length" );
+    CAF_PDM_InitScriptableField( &m_dFactorScaleFactor, "DFactorScaleFactor", 1.0, "D-factor" );
+    CAF_PDM_InitScriptableField( &m_conductivityScaleFactor,
+                                 "ConductivityFactor",
+                                 1.0,
+                                 "Conductivity",
+                                 "",
+                                 "The conductivity values read from file will be scaled with this parameters",
+                                 "" );
     CAF_PDM_InitField( &m_scaleApplyButton, "ScaleApplyButton", false, "Apply" );
 
     m_scaleApplyButton.xmlCapability()->disableIO();

@@ -52,3 +52,16 @@ fracture_template.update()
 fracture_template.set_scale_factors(
     half_length=2.0, height=2.0, d_factor=1.1, conductivity=1.2
 )
+
+# Output scale factors for all fracture templates
+fmt_collection = project.descendants(rips.FractureTemplate)
+for fracture_template in fmt_collection:
+    print(
+        "Fracture: '{}' Scale factors: Height={} Half Length={} D Factor={} Conductivity={}".format(
+            fracture_template.user_description,
+            fracture_template.height_scale_factor,
+            fracture_template.width_scale_factor,
+            fracture_template.d_factor_scale_factor,
+            fracture_template.conductivity_factor,
+        )
+    )
