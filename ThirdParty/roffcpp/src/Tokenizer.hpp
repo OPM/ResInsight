@@ -18,6 +18,7 @@ public:
     static Token              tokenizeSimpleType( std::istream& stream );
     static Token              tokenizeValue( std::istream& stream );
     static std::vector<Token> tokenizeAsciiTagKey( std::istream& stream );
+    static std::vector<Token> tokenizeTagGroup( std::istream& stream );
 
     static Token tokenizeKeyword( std::istream& stream, const std::vector<std::pair<Token::Kind, std::string>>& keywords );
     static Token tokenizeWord( std::istream& stream, const std::string& keywork, Token::Kind kind );
