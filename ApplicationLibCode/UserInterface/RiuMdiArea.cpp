@@ -17,6 +17,7 @@
 /////////////////////////////////////////////////////////////////////////////////
 #include "RiuMdiArea.h"
 
+#include "RimProject.h"
 #include "RiuMainWindow.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuPlotMainWindow.h"
@@ -26,7 +27,6 @@
 //--------------------------------------------------------------------------------------------------
 RiuMdiArea::RiuMdiArea( QWidget* parent /*= nullptr*/ )
     : QMdiArea( parent )
-    , m_tileMode( TileMode::NO_TILING )
 {
 }
 
@@ -40,17 +40,15 @@ RiuMdiArea::~RiuMdiArea()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMdiArea::setTileMode( TileMode tileMode )
+RiaDefines::WindowTileMode RiuMdiArea::tileMode() const
 {
-    m_tileMode = tileMode;
-}
+    auto* mainWindow = dynamic_cast<RiuMainWindow*>( window() );
+    if ( mainWindow ) return RimProject::current()->subWindowsTileMode3DWindow();
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RiuMdiArea::TileMode RiuMdiArea::tileMode() const
-{
-    return m_tileMode;
+    auto* plotMainWindow = dynamic_cast<RiuPlotMainWindow*>( window() );
+    if ( plotMainWindow ) return RimProject::current()->subWindowsTileModePlotWindow();
+
+    return RiaDefines::WindowTileMode::UNDEFINED;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -148,7 +146,7 @@ void RiuMdiArea::tileWindowsDefault()
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::resizeEvent( QResizeEvent* resizeEvent )
 {
-    if ( m_tileMode != TileMode::NO_TILING )
+    if ( tileMode() != RiaDefines::WindowTileMode::UNDEFINED )
     {
         updateTiling();
     }
@@ -183,17 +181,17 @@ void RiuMdiArea::moveEvent( QMoveEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::updateTiling()
 {
-    switch ( m_tileMode )
+    switch ( tileMode() )
     {
-        case RiuMdiArea::TileMode::NO_TILING:
+        case RiaDefines::WindowTileMode::UNDEFINED:
             break;
-        case RiuMdiArea::TileMode::DEFAULT_TILING:
+        case RiaDefines::WindowTileMode::DEFAULT:
             tileWindowsDefault();
             break;
-        case RiuMdiArea::TileMode::TILE_VERTICALLY:
+        case RiaDefines::WindowTileMode::VERTICAL:
             tileWindowsVertically();
             break;
-        case RiuMdiArea::TileMode::TILE_HORIZONTALLY:
+        case RiaDefines::WindowTileMode::HORIZONTAL:
             tileWindowsHorizontally();
             break;
         default:

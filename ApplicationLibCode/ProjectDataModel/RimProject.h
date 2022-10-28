@@ -21,6 +21,7 @@
 #pragma once
 
 #include "RiaDefines.h"
+#include "RiaPlotDefines.h"
 
 #include "cafPdmChildArrayField.h"
 #include "cafPdmChildField.h"
@@ -161,6 +162,11 @@ public:
     void setSubWindowsTiledIn3DWindow( bool tiled );
     void setSubWindowsTiledInPlotWindow( bool tiled );
 
+    RiaDefines::WindowTileMode subWindowsTileMode3DWindow() const;
+    RiaDefines::WindowTileMode subWindowsTileModePlotWindow() const;
+    void                       setSubWindowsTileMode3DWindow( RiaDefines::WindowTileMode tileMode );
+    void                       setSubWindowsTileModePlotWindow( RiaDefines::WindowTileMode tileMode );
+
     void reloadCompletionTypeResultsInAllViews();
     void reloadCompletionTypeResultsForEclipseCase( RimEclipseCase* eclipseCase );
 
@@ -222,6 +228,9 @@ private:
 
     caf::PdmField<bool> m_subWindowsTiled3DWindow;
     caf::PdmField<bool> m_subWindowsTiledPlotWindow;
+
+    caf::PdmField<caf::AppEnum<RiaDefines::WindowTileMode>> m_subWindowsTileMode3DWindow;
+    caf::PdmField<caf::AppEnum<RiaDefines::WindowTileMode>> m_subWindowsTileModePlotWindow;
 
     int m_nextValidCaseId;
     int m_nextValidCaseGroupId;

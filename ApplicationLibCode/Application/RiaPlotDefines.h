@@ -73,6 +73,14 @@ enum class ObjectNamingMethod
     TEMPLATE
 };
 
+enum class WindowTileMode
+{
+    DEFAULT,
+    VERTICAL,
+    HORIZONTAL,
+    UNDEFINED,
+};
+
 // Defines relate to curve and plot template names
 QString namingVariableCase();
 QString namingVariableWell();

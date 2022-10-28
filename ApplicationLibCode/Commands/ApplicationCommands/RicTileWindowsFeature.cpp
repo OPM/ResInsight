@@ -24,6 +24,7 @@
 #include "RiuMdiArea.h"
 #include "RiuPlotMainWindow.h"
 
+#include "RimProject.h"
 #include <QAction>
 #include <QApplication>
 
@@ -50,20 +51,16 @@ void RicTileWindowsFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
+    auto mode = RiaDefines::WindowTileMode::DEFAULT;
+    if ( RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT )
+        mode = RiaDefines::WindowTileMode::UNDEFINED;
+
+    RimProject::current()->setSubWindowsTileMode3DWindow( mode );
+
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
     {
-        if ( !mainWindow->subWindowsAreTiled() )
-        {
-            mainWindow->mdiArea()->setTileMode( RiuMdiArea::TileMode::DEFAULT_TILING );
-            mainWindow->mdiArea()->updateTiling();
-
-            // mainWindow->tileSubWindows();
-        }
-        else
-        {
-            mainWindow->clearWindowTiling();
-        }
+        mainWindow->mdiArea()->updateTiling();
     }
 }
 
@@ -82,11 +79,7 @@ void RicTileWindowsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandChecked()
 {
-    if ( RiaGuiApplication::instance()->mainWindow() )
-    {
-        return RiaGuiApplication::instance()->mainWindow()->subWindowsAreTiled();
-    }
-    return false;
+    return RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT;
 }
 
 CAF_CMD_SOURCE_INIT( RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature" );
@@ -110,18 +103,16 @@ bool RicTilePlotWindowsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicTilePlotWindowsFeature::onActionTriggered( bool isChecked )
 {
-    RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
-    if ( mainPlotWindow )
-    {
-        if ( !mainPlotWindow->subWindowsAreTiled() )
-        {
-            mainPlotWindow->tileSubWindows();
-        }
-        else
-        {
-            mainPlotWindow->clearWindowTiling();
-        }
-    }
+    //     auto mode = RimProject::current()->subWindowsTileModePlotWindow();
+    //     if ( mode == RiaDefines::WindowTileMode::DEFAULT ) mode = RiaDefines::WindowTileMode::UNDEFINED;
+    //
+    //     RimProject::current()->setSubWindowsTileModePlotWindow( mode );
+    //
+    //     auto* mainWindow = RiuPlotMainWindow::instance();
+    //     if ( mainWindow )
+    //     {
+    //         mainWindow->mdiArea()->updateTiling();
+    //     }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -139,11 +130,7 @@ void RicTilePlotWindowsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandChecked()
 {
-    if ( RiaGuiApplication::instance()->mainPlotWindow() )
-    {
-        return RiaGuiApplication::instance()->mainPlotWindow()->subWindowsAreTiled();
-    }
-    return false;
+    return RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT;
 }
 
 CAF_CMD_SOURCE_INIT( RicTileWindowsVerticallyFeature, "RicTileWindowsVerticallyFeature" );
@@ -169,10 +156,15 @@ void RicTileWindowsVerticallyFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
+    auto mode = RiaDefines::WindowTileMode::VERTICAL;
+    if ( RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::VERTICAL )
+        mode = RiaDefines::WindowTileMode::UNDEFINED;
+
+    RimProject::current()->setSubWindowsTileMode3DWindow( mode );
+
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
     {
-        mainWindow->mdiArea()->setTileMode( RiuMdiArea::TileMode::TILE_VERTICALLY );
         mainWindow->mdiArea()->updateTiling();
     }
 }
@@ -191,12 +183,7 @@ void RicTileWindowsVerticallyFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsVerticallyFeature::isCommandChecked()
 {
-    return false;
-    //     if (RiaGuiApplication::instance()->mainWindow())
-    //     {
-    //         return RiaGuiApplication::instance()->mainWindow()->subWindowsAreTiled();
-    //     }
-    //     return false;
+    return RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::VERTICAL;
 }
 
 CAF_CMD_SOURCE_INIT( RicTileWindowsHorizontallyFeature, "RicTileWindowsHorizontallyFeature" );
@@ -222,10 +209,15 @@ void RicTileWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
+    auto mode = RiaDefines::WindowTileMode::HORIZONTAL;
+    if ( RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::HORIZONTAL )
+        mode = RiaDefines::WindowTileMode::UNDEFINED;
+
+    RimProject::current()->setSubWindowsTileMode3DWindow( mode );
+
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
     {
-        mainWindow->mdiArea()->setTileMode( RiuMdiArea::TileMode::TILE_HORIZONTALLY );
         mainWindow->mdiArea()->updateTiling();
     }
 }
@@ -244,10 +236,5 @@ void RicTileWindowsHorizontallyFeature::setupActionLook( QAction* actionToSetup 
 //--------------------------------------------------------------------------------------------------
 bool RicTileWindowsHorizontallyFeature::isCommandChecked()
 {
-    return false;
-    //     if (RiaGuiApplication::instance()->mainWindow())
-    //     {
-    //         return RiaGuiApplication::instance()->mainWindow()->subWindowsAreTiled();
-    //     }
-    //     return false;
+    return RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT;
 }
