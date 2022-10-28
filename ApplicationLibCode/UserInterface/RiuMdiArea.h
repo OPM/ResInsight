@@ -29,8 +29,21 @@ class RiuMdiArea : public QMdiArea
     Q_OBJECT
 
 public:
+    enum class TileMode
+    {
+        NO_TILING,
+        DEFAULT_TILING,
+        TILE_VERTICALLY,
+        TILE_HORIZONTALLY
+    };
+
+public:
     RiuMdiArea( QWidget* parent = nullptr );
     ~RiuMdiArea() override;
+
+    void     setTileMode( TileMode tileMode );
+    TileMode tileMode() const;
+    void     updateTiling();
 
     std::list<QMdiSubWindow*> subWindowListSortedByPosition();
 
@@ -39,4 +52,10 @@ protected:
     void moveEvent( QMoveEvent* event ) override;
 
     bool subWindowsAreTiled() const;
+    void tileWindowsHorizontally();
+    void tileWindowsVertically();
+    void tileWindowsDefault();
+
+private:
+    TileMode m_tileMode;
 };

@@ -50,6 +50,7 @@
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
+#include "RiuMdiArea.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuMessagePanel.h"
 #include "RiuMultiPlotPage.h"

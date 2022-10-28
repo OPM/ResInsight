@@ -38,6 +38,34 @@ protected:
 //==================================================================================================
 ///
 //==================================================================================================
+class RicTileWindowsVerticallyFeature : public caf::CmdFeature
+{
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandChecked() override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
+class RicTileWindowsHorizontallyFeature : public caf::CmdFeature
+{
+    CAF_CMD_HEADER_INIT;
+
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandChecked() override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RicTilePlotWindowsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;

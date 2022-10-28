@@ -21,12 +21,12 @@
 #pragma once
 
 #include "RiuMainWindowBase.h"
-#include "RiuMdiArea.h"
 
 #include "cafPdmObjectHandle.h"
 
 #include <QEvent>
 #include <QLabel>
+#include <QMdiArea>
 #include <QPointer>
 #include <QString>
 
@@ -51,6 +51,7 @@ class RiuResultQwtPlot;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
+class RiuMdiArea;
 
 class RicGridCalculatorDialog;
 
@@ -124,6 +125,7 @@ public:
     QMdiSubWindow*        findMdiSubWindow( QWidget* viewer ) override;
     RimViewWindow*        findViewWindowFromSubWindow( QMdiSubWindow* lhs );
     QList<QMdiSubWindow*> subWindowList( QMdiArea::WindowOrder order );
+    RiuMdiArea*           mdiArea();
 
     RiuResultQwtPlot*                 resultPlot();
     RiuRelativePermeabilityPlotPanel* relativePermeabilityPlotPanel();

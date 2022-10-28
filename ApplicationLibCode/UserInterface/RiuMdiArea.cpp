@@ -26,6 +26,7 @@
 //--------------------------------------------------------------------------------------------------
 RiuMdiArea::RiuMdiArea( QWidget* parent /*= nullptr*/ )
     : QMdiArea( parent )
+    , m_tileMode( TileMode::NO_TILING )
 {
 }
 
@@ -34,6 +35,22 @@ RiuMdiArea::RiuMdiArea( QWidget* parent /*= nullptr*/ )
 //--------------------------------------------------------------------------------------------------
 RiuMdiArea::~RiuMdiArea()
 {
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiArea::setTileMode( TileMode tileMode )
+{
+    m_tileMode = tileMode;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuMdiArea::TileMode RiuMdiArea::tileMode() const
+{
+    return m_tileMode;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -63,36 +80,77 @@ std::list<QMdiSubWindow*> RiuMdiArea::subWindowListSortedByPosition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RiuMdiArea::tileWindowsHorizontally()
+{
+    QPoint position( 0, 0 );
+
+    for ( auto* window : subWindowList() )
+    {
+        QRect rect( 0, 0, width() / subWindowList().count(), height() );
+
+        window->setGeometry( rect );
+        window->move( position );
+        position.setX( position.x() + window->width() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiArea::tileWindowsVertically()
+{
+    QPoint position( 0, 0 );
+    for ( auto* window : subWindowList() )
+    {
+        QRect rect( 0, 0, width(), height() / subWindowList().count() );
+
+        window->setGeometry( rect );
+        window->move( position );
+        position.setY( position.y() + window->height() );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiArea::tileWindowsDefault()
+{
+    for ( auto subWindow : subWindowList() )
+    {
+        auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
+        riuWindow->blockTilingChanges( true );
+    }
+
+    RiuMainWindowBase* mainWindow = dynamic_cast<RiuMainWindowBase*>( window() );
+    mainWindow->setBlockSubWindowActivatedSignal( true );
+
+    // Workaround for Qt bug #51761: https://bugreports.qt.io/browse/QTBUG-51761
+    // Set the first window to be the active window then perform resize event and set back.
+    auto a = activeSubWindow();
+    setActiveSubWindow( subWindowListSortedByPosition().front() );
+
+    // QMdiArea::resizeEvent( resizeEvent );
+    tileSubWindows();
+
+    setActiveSubWindow( a );
+
+    mainWindow->setBlockSubWindowActivatedSignal( false );
+
+    for ( auto subWindow : subWindowList() )
+    {
+        auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
+        riuWindow->blockTilingChanges( false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMdiArea::resizeEvent( QResizeEvent* resizeEvent )
 {
-    if ( subWindowsAreTiled() )
+    if ( m_tileMode != TileMode::NO_TILING )
     {
-        for ( auto subWindow : subWindowList() )
-        {
-            auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
-            riuWindow->blockTilingChanges( true );
-        }
-
-        RiuMainWindowBase* mainWindow = dynamic_cast<RiuMainWindowBase*>( window() );
-        mainWindow->setBlockSubWindowActivatedSignal( true );
-
-        // Workaround for Qt bug #51761: https://bugreports.qt.io/browse/QTBUG-51761
-        // Set the first window to be the active window then perform resize event and set back.
-        auto a = activeSubWindow();
-        setActiveSubWindow( subWindowListSortedByPosition().front() );
-
-        QMdiArea::resizeEvent( resizeEvent );
-        tileSubWindows();
-
-        setActiveSubWindow( a );
-
-        mainWindow->setBlockSubWindowActivatedSignal( false );
-
-        for ( auto subWindow : subWindowList() )
-        {
-            auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
-            riuWindow->blockTilingChanges( false );
-        }
+        updateTiling();
     }
     else
     {
@@ -117,6 +175,29 @@ void RiuMdiArea::moveEvent( QMoveEvent* event )
     {
         auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
         riuWindow->blockTilingChanges( false );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiArea::updateTiling()
+{
+    switch ( m_tileMode )
+    {
+        case RiuMdiArea::TileMode::NO_TILING:
+            break;
+        case RiuMdiArea::TileMode::DEFAULT_TILING:
+            tileWindowsDefault();
+            break;
+        case RiuMdiArea::TileMode::TILE_VERTICALLY:
+            tileWindowsVertically();
+            break;
+        case RiuMdiArea::TileMode::TILE_HORIZONTALLY:
+            tileWindowsHorizontally();
+            break;
+        default:
+            break;
     }
 }
 

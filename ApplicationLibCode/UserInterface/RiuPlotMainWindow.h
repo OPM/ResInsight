@@ -19,10 +19,10 @@
 #pragma once
 
 #include "RiuMainWindowBase.h"
-#include "RiuMdiArea.h"
 
 #include "cafPdmPointer.h"
 
+#include <QMdiArea>
 #include <QPointer>
 #include <QString>
 

@@ -50,6 +50,7 @@
 #include "RimViewWindow.h"
 
 #include "RiuDockWidgetTools.h"
+#include "RiuMdiArea.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuMessagePanel.h"
 #include "RiuMohrsCirclePlot.h"
@@ -1122,6 +1123,14 @@ QList<QMdiSubWindow*> RiuMainWindow::subWindowList( QMdiArea::WindowOrder order 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiuMdiArea* RiuMainWindow::mdiArea()
+{
+    return m_mdiArea;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiuResultQwtPlot* RiuMainWindow::resultPlot()
 {
     return m_resultQwtPlot;
@@ -1415,6 +1424,12 @@ void RiuMainWindow::slotBuildWindowActions()
     }
 
     addDefaultEntriesToWindowsMenu();
+
+    {
+        caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTileWindowsVerticallyFeature" ) );
+        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTileWindowsHorizontallyFeature" ) );
+    }
 
     m_windowMenu->addSeparator();
     m_windowMenu->addAction( m_newPropertyView );
