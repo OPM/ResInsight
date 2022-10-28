@@ -601,7 +601,11 @@ bool RiuQwtPlotWidget::eventFilter( QObject* watched, QEvent* event )
                  !m_clickPosition.isNull() )
             {
                 endZoomOperations();
-                selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+
+                if ( m_plotDefinition->isCurveHighlightSupported() )
+                {
+                    selectClosestPlotItem( mouseEvent->pos(), toggleItemInSelection );
+                }
                 m_clickPosition = QPoint();
                 return true;
             }

@@ -1354,6 +1354,14 @@ void RimWellLogTrack::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      chi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RimWellLogTrack::isCurveHighlightSupported() const
+{
+    return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::onLoadDataAndUpdate()
 {
     RimDepthTrackPlot* wellLogPlot = nullptr;

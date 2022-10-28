@@ -348,6 +348,9 @@ void RimDepthTrackPlot::updateZoom()
     {
         m_viewer->updateVerticalScrollBar( m_minVisibleDepth(), m_maxVisibleDepth(), m_minAvailableDepth, m_maxAvailableDepth );
     }
+
+    // Required to make sure the tracks are aligned correctly for vertical plots
+    updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
