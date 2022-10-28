@@ -65,15 +65,6 @@ void RicNewRftSegmentWellLogPlotFeature::onActionTriggered( bool isChecked )
     if ( !summaryCase ) return;
 
     auto plot = RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot();
-    plot->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
-    QString templateText = RiaDefines::namingVariableCase() + ", " + RiaDefines::namingVariableWell() + " - Branch " +
-                           RiaDefines::namingVariableWellBranch() + ", " + RiaDefines::namingVariableTime();
-    plot->setNameTemplateText( templateText );
-    plot->setPlotTitleVisible( true );
-    plot->setLegendItemsClickable( false );
-    plot->enableDepthMarkerLine( true );
-    plot->setLegendPosition( RimPlotWindow::LegendPosition::INSIDE_UPPER_LEFT );
-    plot->setLegendFontSize( caf::FontTools::RelativeSize::XSmall );
 
     QString wellName = "Unknown";
 
