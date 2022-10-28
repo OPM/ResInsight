@@ -130,3 +130,29 @@ TEST( TokenizerTests, testTokenizeName )
     ASSERT_EQ( 9, token.end() );
     ASSERT_EQ( -1, stream.tellg() );
 }
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeKeywordChar )
+{
+    std::stringstream stream( "char" );
+    Token             token = Tokenizer::tokenizeKeyword( stream );
+    ASSERT_EQ( Token::Kind::CHAR, token.kind() );
+    ASSERT_EQ( 0, token.start() );
+    ASSERT_EQ( 4, token.end() );
+    ASSERT_EQ( -1, stream.tellg() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeKeywordRoffBin )
+{
+    std::stringstream stream( "roff-bin" );
+    Token             token = Tokenizer::tokenizeKeyword( stream );
+    ASSERT_EQ( Token::Kind::ROFF_BIN, token.kind() );
+    ASSERT_EQ( 0, token.start() );
+    ASSERT_EQ( 8, token.end() );
+    ASSERT_EQ( -1, stream.tellg() );
+}
