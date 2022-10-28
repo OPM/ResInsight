@@ -135,6 +135,8 @@ public:
     void                                setDepthMarkerPosition( double depth );
     void                                clearDepthAnnotations();
     std::vector<RimPlotAxisAnnotation*> depthAxisAnnotations() const;
+    void                                setAutoZoomMinimumDepthFactor( double factor );
+    void                                setAutoZoomMaximumDepthFactor( double factor );
 
     void uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
     void uiOrderingForAutoName( QString uiConfigName, caf::PdmUiOrdering& uiOrdering );
@@ -221,6 +223,8 @@ protected:
     caf::PdmField<bool>                                              m_isAutoScaleDepthEnabled;
     caf::PdmField<caf::AppEnum<RiaDefines::MultiPlotAxisVisibility>> m_depthAxisVisibility;
     caf::PdmField<bool>                                              m_showDepthMarkerLine;
+    caf::PdmField<double>                                            m_autoZoomMinDepthFactor;
+    caf::PdmField<double>                                            m_autoZoomMaxDepthFactor;
     caf::PdmChildArrayField<RimPlotAxisAnnotation*>                  m_depthAnnotations;
 
     caf::PdmField<caf::FontTools::RelativeSizeEnum> m_subTitleFontSize;

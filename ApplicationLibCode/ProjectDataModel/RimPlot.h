@@ -105,6 +105,7 @@ public:
     virtual void            handleDroppedObjects( const std::vector<caf::PdmObjectHandle*>& objects );
 
     virtual std::vector<RimPlotCurve*> visibleCurvesForLegend();
+    virtual bool                       isCurveHighlightSupported() const;
 
 protected:
     virtual RiuPlotWidget* doCreatePlotViewWidget( QWidget* parent ) = 0;

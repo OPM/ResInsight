@@ -89,8 +89,19 @@ RimWellBoreStabilityPlot*
 RimWellLogPlot* RicNewWellLogPlotFeatureImpl::createHorizontalWellLogPlot()
 {
     auto plot = createWellLogPlot();
+
     plot->setDepthOrientation( RiaDefines::Orientation::HORIZONTAL );
-    plot->setLegendsHorizontal( true );
+    plot->setNamingMethod( RiaDefines::ObjectNamingMethod::TEMPLATE );
+    QString templateText = RiaDefines::namingVariableCase() + ", " + RiaDefines::namingVariableWell() + " - Branch " +
+                           RiaDefines::namingVariableWellBranch() + ", " + RiaDefines::namingVariableTime();
+    plot->setNameTemplateText( templateText );
+    plot->setPlotTitleVisible( true );
+    plot->setLegendItemsClickable( false );
+    plot->enableDepthMarkerLine( true );
+    plot->setLegendPosition( RimPlotWindow::LegendPosition::INSIDE_UPPER_RIGHT );
+    plot->setLegendFontSize( caf::FontTools::RelativeSize::XSmall );
+    plot->setLegendsHorizontal( false );
+    plot->setAutoZoomMaximumDepthFactor( 0.1 );
 
     return plot;
 }

@@ -159,6 +159,12 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
                         values->push_back( data[i] );
                     }
                 }
+
+                if ( resultName == "CONFAC" || resultName == "CONKH" )
+                {
+                    // Replace undefined values with zero to improve readability of plots
+                    std::replace( values->begin(), values->end(), std::numeric_limits<double>::infinity(), 0.0 );
+                }
             }
             else
             {

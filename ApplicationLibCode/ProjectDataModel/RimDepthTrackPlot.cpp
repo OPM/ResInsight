@@ -136,6 +136,10 @@ RimDepthTrackPlot::RimDepthTrackPlot()
     CAF_PDM_InitField( &m_depthAxisVisibility, "DepthAxisVisibility", depthAxisVisibility, "Axis Visibility" );
 
     CAF_PDM_InitScriptableField( &m_showDepthMarkerLine, "ShowDepthMarkerLine", false, "Show Depth Marker Line" );
+
+    CAF_PDM_InitScriptableField( &m_autoZoomMinDepthFactor, "AutoZoomMinDepthFactor", 0.0, "Auto Zoom Minimum Factor" );
+    CAF_PDM_InitScriptableField( &m_autoZoomMaxDepthFactor, "AutoZoomMaxDepthFactor", 0.0, "Auto Zoom Maximum Factor" );
+
     CAF_PDM_InitFieldNoDefault( &m_depthAnnotations, "DepthAnnotations", "Depth Annotations" );
     m_depthAnnotations.uiCapability()->setUiTreeHidden( true );
     m_depthAnnotations.uiCapability()->setUiTreeChildrenHidden( true );
@@ -333,8 +337,10 @@ void RimDepthTrackPlot::updateZoom()
         calculateAvailableDepthRange();
         if ( m_minAvailableDepth < HUGE_VAL && m_maxAvailableDepth > -HUGE_VAL )
         {
-            m_minVisibleDepth = m_minAvailableDepth;
-            m_maxVisibleDepth = m_maxAvailableDepth + 0.01 * ( m_maxAvailableDepth - m_minAvailableDepth );
+            auto depthRange = m_maxAvailableDepth - m_minAvailableDepth;
+
+            m_minVisibleDepth = m_minAvailableDepth - m_autoZoomMinDepthFactor * depthRange;
+            m_maxVisibleDepth = m_maxAvailableDepth + ( 0.01 + m_autoZoomMaxDepthFactor ) * depthRange;
         }
     }
 
@@ -348,6 +354,9 @@ void RimDepthTrackPlot::updateZoom()
     {
         m_viewer->updateVerticalScrollBar( m_minVisibleDepth(), m_maxVisibleDepth(), m_minAvailableDepth, m_maxAvailableDepth );
     }
+
+    // Required to make sure the tracks are aligned correctly for vertical plots
+    updateLayout();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -497,6 +506,22 @@ std::vector<RimPlotAxisAnnotation*> RimDepthTrackPlot::depthAxisAnnotations() co
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::setAutoZoomMinimumDepthFactor( double factor )
+{
+    m_autoZoomMinDepthFactor = factor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimDepthTrackPlot::setAutoZoomMaximumDepthFactor( double factor )
+{
+    m_autoZoomMaxDepthFactor = factor;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RiaDefines::DepthUnitType RimDepthTrackPlot::caseDepthUnit() const
 {
     RimEclipseResultCase* thecase = dynamic_cast<RimEclipseResultCase*>( commonDataSource()->caseToApply() );
@@ -546,9 +571,15 @@ void RimDepthTrackPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUi
 
     uiOrdering.add( &m_minVisibleDepth );
     uiOrdering.add( &m_maxVisibleDepth );
-    uiOrdering.add( &m_depthAxisGridVisibility );
-    uiOrdering.add( &m_depthAxisVisibility );
-    uiOrdering.add( &m_showDepthMarkerLine );
+
+    auto group = uiOrdering.addNewGroup( "Advanced" );
+    group->setCollapsedByDefault();
+    group->add( &m_depthAxisGridVisibility );
+    group->add( &m_depthAxisVisibility );
+    group->add( &m_showDepthMarkerLine );
+
+    group->add( &m_autoZoomMinDepthFactor );
+    group->add( &m_autoZoomMaxDepthFactor );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1002,7 +1033,8 @@ void RimDepthTrackPlot::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         m_isAutoScaleDepthEnabled = false;
         updateZoom();
     }
-    else if ( changedField == &m_depthAxisGridVisibility )
+    else if ( changedField == &m_depthAxisGridVisibility || changedField == &m_autoZoomMaxDepthFactor ||
+              changedField == &m_autoZoomMinDepthFactor )
     {
         updateZoom();
     }
