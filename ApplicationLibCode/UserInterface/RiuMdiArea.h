@@ -34,13 +34,12 @@ public:
     ~RiuMdiArea() override;
 
     RiaDefines::WindowTileMode tileMode() const;
-    void                       updateTiling();
+    void                       applyTiling();
 
     std::list<QMdiSubWindow*> subWindowListSortedByPosition();
 
-protected:
+private:
     void resizeEvent( QResizeEvent* resizeEvent ) override;
-    void moveEvent( QMoveEvent* event ) override;
 
     void tileWindowsHorizontally();
     void tileWindowsVertically();

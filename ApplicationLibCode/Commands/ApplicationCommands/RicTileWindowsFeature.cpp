@@ -60,7 +60,7 @@ void RicTileWindowsFeature::onActionTriggered( bool isChecked )
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
     {
-        mainWindow->mdiArea()->updateTiling();
+        mainWindow->mdiArea()->applyTiling();
     }
 }
 
@@ -165,7 +165,7 @@ void RicTileWindowsVerticallyFeature::onActionTriggered( bool isChecked )
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
     {
-        mainWindow->mdiArea()->updateTiling();
+        mainWindow->mdiArea()->applyTiling();
     }
 }
 
@@ -218,7 +218,7 @@ void RicTileWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
     RiuMainWindow* mainWindow = RiuMainWindow::instance();
     if ( mainWindow )
     {
-        mainWindow->mdiArea()->updateTiling();
+        mainWindow->mdiArea()->applyTiling();
     }
 }
 

@@ -216,7 +216,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
-    m_mdiArea->updateTiling();
+    m_mdiArea->applyTiling();
 
     slotRefreshFileActions();
     slotRefreshUndoRedoActions();

@@ -376,7 +376,7 @@ void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* v
             mdiArea->currentSubWindow()->showMaximized();
         }
 
-        mdiArea->updateTiling();
+        mdiArea->applyTiling();
     }
 }
 
@@ -453,7 +453,7 @@ void RiuMainWindowBase::initializeSubWindow( RiuMdiArea*    mdiArea,
             RimProject::current()->setSubWindowsTileModePlotWindow( initialStatePlotWindow );
         }
 
-        mdiArea->updateTiling();
+        mdiArea->applyTiling();
     }
 }
 

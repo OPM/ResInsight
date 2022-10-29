@@ -199,7 +199,7 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         }
     }
 
-    m_mdiArea->updateTiling();
+    m_mdiArea->applyTiling();
 
     if ( m_activePlotViewWindow && m_activePlotViewWindow->viewWidget() &&
          !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
