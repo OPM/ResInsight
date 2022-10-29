@@ -42,7 +42,6 @@ protected:
     void resizeEvent( QResizeEvent* resizeEvent ) override;
     void moveEvent( QMoveEvent* event ) override;
 
-    bool subWindowsAreTiled() const;
     void tileWindowsHorizontally();
     void tileWindowsVertically();
     void tileWindowsDefault();

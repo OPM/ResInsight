@@ -30,6 +30,8 @@
 
 #include <QWindowStateChangeEvent>
 
+#include "RiaPlotDefines.h"
+#include "RimProject.h"
 #include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
@@ -132,11 +134,11 @@ void RiuMdiSubWindow::resizeEvent( QResizeEvent* resizeEvent )
     {
         if ( window() == RiaGuiApplication::instance()->mainWindow() )
         {
-            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling( false );
+            RimProject::current()->setSubWindowsTileMode3DWindow( RiaDefines::WindowTileMode::UNDEFINED );
         }
         else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
         {
-            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling( false );
+            RimProject::current()->setSubWindowsTileModePlotWindow( RiaDefines::WindowTileMode::UNDEFINED );
         }
     }
 
@@ -157,11 +159,11 @@ void RiuMdiSubWindow::moveEvent( QMoveEvent* moveEvent )
     {
         if ( window() == RiaGuiApplication::instance()->mainWindow() )
         {
-            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling( false );
+            RimProject::current()->setSubWindowsTileMode3DWindow( RiaDefines::WindowTileMode::UNDEFINED );
         }
         else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
         {
-            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling( false );
+            RimProject::current()->setSubWindowsTileModePlotWindow( RiaDefines::WindowTileMode::UNDEFINED );
         }
     }
 

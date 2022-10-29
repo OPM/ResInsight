@@ -156,12 +156,6 @@ public:
     bool show3DWindow() const;
     bool showPlotWindow() const;
 
-    bool subWindowsTiled3DWindow() const;
-    bool subWindowsTiledPlotWindow() const;
-
-    void setSubWindowsTiledIn3DWindow( bool tiled );
-    void setSubWindowsTiledInPlotWindow( bool tiled );
-
     RiaDefines::WindowTileMode subWindowsTileMode3DWindow() const;
     RiaDefines::WindowTileMode subWindowsTileModePlotWindow() const;
     void                       setSubWindowsTileMode3DWindow( RiaDefines::WindowTileMode tileMode );
@@ -226,8 +220,8 @@ private:
     caf::PdmField<bool> m_show3DWindow;
     caf::PdmField<bool> m_showPlotWindow;
 
-    caf::PdmField<bool> m_subWindowsTiled3DWindow;
-    caf::PdmField<bool> m_subWindowsTiledPlotWindow;
+    caf::PdmField<bool> m_subWindowsTiled3DWindow_OBSOLETE;
+    caf::PdmField<bool> m_subWindowsTiledPlotWindow_OBSOLETE;
 
     caf::PdmField<caf::AppEnum<RiaDefines::WindowTileMode>> m_subWindowsTileMode3DWindow;
     caf::PdmField<caf::AppEnum<RiaDefines::WindowTileMode>> m_subWindowsTileModePlotWindow;

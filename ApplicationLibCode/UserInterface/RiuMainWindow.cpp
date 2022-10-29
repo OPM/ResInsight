@@ -216,10 +216,7 @@ void RiuMainWindow::initializeGuiNewProjectLoaded()
     setPdmRoot( RimProject::current() );
     restoreTreeViewState();
 
-    if ( subWindowsAreTiled() )
-    {
-        tileSubWindows();
-    }
+    m_mdiArea->updateTiling();
 
     slotRefreshFileActions();
     slotRefreshUndoRedoActions();
@@ -1966,95 +1963,6 @@ void RiuMainWindow::customMenuRequested( const QPoint& pos )
         QPoint globalPos = treeView->viewport()->mapToGlobal( pos );
         menu.exec( globalPos );
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::tileSubWindows()
-{
-    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
-
-    // Tile Windows so the one with the leftmost left edge gets sorted first.
-    std::list<QMdiSubWindow*> windowList;
-    for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
-    {
-        windowList.push_back( subWindow );
-    }
-
-    // Perform stable sort of list so we first sort by window position but retain activation order
-    // for windows with the same position.
-    windowList.sort( [this]( QMdiSubWindow* lhs, QMdiSubWindow* rhs ) {
-        if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
-        {
-            return lhs->frameGeometry().topLeft().rx() < rhs->frameGeometry().topLeft().rx();
-        }
-        return lhs->frameGeometry().topLeft().ry() < rhs->frameGeometry().topLeft().ry();
-    } );
-
-    // Based on workaround described here
-    // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
-
-    bool prevActivationBlock = isBlockingSubWindowActivatedSignal();
-
-    QMdiSubWindow* activeWindow = m_mdiArea->activeSubWindow();
-
-    // Force activation order so they end up in the order of the loop.
-    m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
-
-    setBlockSubWindowActivatedSignal( true );
-
-    // Activate in reverse order
-    for ( auto it = windowList.rbegin(); it != windowList.rend(); ++it )
-    {
-        m_mdiArea->setActiveSubWindow( *it );
-    }
-
-    m_mdiArea->tileSubWindows();
-    // Set back the original activation order to avoid messing with the standard ordering
-    m_mdiArea->setActivationOrder( currentActivationOrder );
-    m_mdiArea->setActiveSubWindow( activeWindow );
-    setBlockSubWindowActivatedSignal( prevActivationBlock );
-
-    storeSubWindowTiling( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::storeSubWindowTiling( bool tiled )
-{
-    RimProject::current()->setSubWindowsTiledIn3DWindow( tiled );
-    refreshViewActions();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuMainWindow::clearWindowTiling()
-{
-    setBlockSubWindowActivatedSignal( true );
-    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
-
-    for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
-    {
-        subWindow->hide();
-        subWindow->showNormal();
-    }
-    storeSubWindowTiling( false );
-    setBlockSubWindowActivatedSignal( false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuMainWindow::subWindowsAreTiled() const
-{
-    if ( RimProject::current() )
-    {
-        return RimProject::current()->subWindowsTiled3DWindow();
-    }
-    return false;
 }
 
 //--------------------------------------------------------------------------------------------------

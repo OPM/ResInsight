@@ -925,6 +925,8 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
         m_mainWindow->show();
     }
 
+    m_mainWindow->setBlockSubWindowActivatedSignal( false );
+
     return m_mainWindow;
 }
 
@@ -1209,6 +1211,8 @@ void RiaGuiApplication::onProjectBeingOpened()
 {
     // When importing a project, do not maximize the first MDI window to be created
     m_maximizeWindowGuard = std::make_unique<RiuMdiMaximizeWindowGuard>();
+
+    m_mainWindow->setBlockSubWindowActivatedSignal( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1225,6 +1229,8 @@ void RiaGuiApplication::onProjectOpeningError( const QString& errMsg )
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProjectOpened()
 {
+    m_mainWindow->setBlockSubWindowActivatedSignal( false );
+
     if ( m_project->show3DWindow() )
     {
         getOrCreateAndShowMainWindow();

@@ -187,11 +187,11 @@ RimProject::RimProject( void )
     CAF_PDM_InitField( &m_showPlotWindow, "showPlotWindow", false, "Show Plot Window" );
     m_showPlotWindow.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_subWindowsTiled3DWindow, "tiled3DWindow", false, "Tile 3D Window" );
-    m_subWindowsTiled3DWindow.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_subWindowsTiled3DWindow_OBSOLETE, "tiled3DWindow", false, "Tile 3D Window" );
+    m_subWindowsTiled3DWindow_OBSOLETE.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitField( &m_subWindowsTiledPlotWindow, "tiledPlotWindow", false, "Tile Plot Window" );
-    m_subWindowsTiledPlotWindow.uiCapability()->setUiHidden( true );
+    CAF_PDM_InitField( &m_subWindowsTiledPlotWindow_OBSOLETE, "tiledPlotWindow", false, "Tile Plot Window" );
+    m_subWindowsTiledPlotWindow_OBSOLETE.uiCapability()->setUiHidden( true );
 
     CAF_PDM_InitFieldNoDefault( &m_dialogData, "DialogData", "DialogData" );
     m_dialogData = new RimDialogData();
@@ -345,6 +345,9 @@ void RimProject::initAfterRead()
         RimOilField* oilField = oilFields[oilFieldIdx];
         if ( oilField == nullptr || oilField->wellPathCollection == nullptr ) continue;
     }
+
+    if ( m_subWindowsTiled3DWindow_OBSOLETE ) m_subWindowsTileMode3DWindow = RiaDefines::WindowTileMode::DEFAULT;
+    if ( m_subWindowsTiledPlotWindow_OBSOLETE ) m_subWindowsTileModePlotWindow = RiaDefines::WindowTileMode::DEFAULT;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -969,38 +972,6 @@ bool RimProject::show3DWindow() const
 bool RimProject::showPlotWindow() const
 {
     return m_showPlotWindow;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimProject::subWindowsTiled3DWindow() const
-{
-    return m_subWindowsTiled3DWindow;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimProject::subWindowsTiledPlotWindow() const
-{
-    return m_subWindowsTiledPlotWindow;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::setSubWindowsTiledIn3DWindow( bool tiled )
-{
-    m_subWindowsTiled3DWindow = tiled;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimProject::setSubWindowsTiledInPlotWindow( bool tiled )
-{
-    m_subWindowsTiledPlotWindow = tiled;
 }
 
 //--------------------------------------------------------------------------------------------------

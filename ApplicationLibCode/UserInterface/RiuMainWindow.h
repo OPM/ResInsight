@@ -116,11 +116,6 @@ public:
 
     void refreshDrawStyleActions();
 
-    void tileSubWindows() override;
-    void storeSubWindowTiling( bool tiled ) override;
-    void clearWindowTiling() override;
-
-    bool                  subWindowsAreTiled() const override;
     bool                  isAnyMdiSubWindowVisible();
     QMdiSubWindow*        findMdiSubWindow( QWidget* viewer ) override;
     RimViewWindow*        findViewWindowFromSubWindow( QMdiSubWindow* lhs );

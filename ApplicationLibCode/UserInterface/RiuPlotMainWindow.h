@@ -76,11 +76,6 @@ public:
     void enable3DSelectionLink( bool enable );
     bool selection3DLinkEnabled();
 
-    void tileSubWindows() override;
-    void storeSubWindowTiling( bool tiled ) override;
-    void clearWindowTiling() override;
-    bool subWindowsAreTiled() const override;
-
     bool                  isAnyMdiSubWindowVisible();
     QMdiSubWindow*        findMdiSubWindow( QWidget* viewer ) override;
     RimViewWindow*        findViewWindowFromSubWindow( QMdiSubWindow* subWindow );

@@ -24,6 +24,18 @@
 //==================================================================================================
 ///
 //==================================================================================================
+class RicTileWindows3DViews : public caf::CmdFeature
+{
+protected:
+    bool isCommandEnabled() override;
+    void onActionTriggered( bool isChecked ) override;
+    void setupActionLook( QAction* actionToSetup ) override;
+    bool isCommandChecked() override;
+};
+
+//==================================================================================================
+///
+//==================================================================================================
 class RicTileWindowsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;

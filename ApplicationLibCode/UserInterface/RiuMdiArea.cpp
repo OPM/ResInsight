@@ -113,15 +113,6 @@ void RiuMdiArea::tileWindowsVertically()
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::tileWindowsDefault()
 {
-    for ( auto subWindow : subWindowList() )
-    {
-        auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
-        riuWindow->blockTilingChanges( true );
-    }
-
-    RiuMainWindowBase* mainWindow = dynamic_cast<RiuMainWindowBase*>( window() );
-    mainWindow->setBlockSubWindowActivatedSignal( true );
-
     // Workaround for Qt bug #51761: https://bugreports.qt.io/browse/QTBUG-51761
     // Set the first window to be the active window then perform resize event and set back.
     auto a = activeSubWindow();
@@ -131,14 +122,6 @@ void RiuMdiArea::tileWindowsDefault()
     tileSubWindows();
 
     setActiveSubWindow( a );
-
-    mainWindow->setBlockSubWindowActivatedSignal( false );
-
-    for ( auto subWindow : subWindowList() )
-    {
-        auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
-        riuWindow->blockTilingChanges( false );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -181,6 +164,15 @@ void RiuMdiArea::moveEvent( QMoveEvent* event )
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::updateTiling()
 {
+    RiuMainWindowBase* mainWindow = dynamic_cast<RiuMainWindowBase*>( window() );
+    mainWindow->setBlockSubWindowActivatedSignal( true );
+
+    for ( auto subWindow : subWindowList() )
+    {
+        auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
+        riuWindow->blockTilingChanges( true );
+    }
+
     switch ( tileMode() )
     {
         case RiaDefines::WindowTileMode::UNDEFINED:
@@ -197,27 +189,12 @@ void RiuMdiArea::updateTiling()
         default:
             break;
     }
-}
 
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuMdiArea::subWindowsAreTiled() const
-{
-    RiuMainWindow* mainWindow = dynamic_cast<RiuMainWindow*>( window() );
-
-    if ( mainWindow )
+    for ( auto subWindow : subWindowList() )
     {
-        return mainWindow->subWindowsAreTiled() && subWindowList().size() > 0;
-    }
-    else
-    {
-        RiuPlotMainWindow* plotWindow = dynamic_cast<RiuPlotMainWindow*>( window() );
-        if ( plotWindow )
-        {
-            return plotWindow->subWindowsAreTiled() && subWindowList().size() > 0;
-        }
+        auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
+        riuWindow->blockTilingChanges( false );
     }
 
-    return false;
+    mainWindow->setBlockSubWindowActivatedSignal( false );
 }

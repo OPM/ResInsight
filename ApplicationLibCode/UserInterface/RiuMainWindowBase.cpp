@@ -58,7 +58,7 @@
 RiuMainWindowBase::RiuMainWindowBase()
     : m_allowActiveViewChangeFromSelection( true )
     , m_showFirstVisibleWindowMaximized( true )
-    , m_blockSubWindowActivation( false )
+    , m_blockSubWindowActivation( true )
     , m_blockSubWindowProjectTreeSelection( false )
     , m_windowMenu( nullptr )
     , m_mdiArea( nullptr )
@@ -159,7 +159,20 @@ void RiuMainWindowBase::loadWinGeoAndDockToolBarLayout()
 
     if ( dockState.isValid() )
     {
+        for ( auto subWindow : m_mdiArea->subWindowList() )
+        {
+            auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
+            riuWindow->blockTilingChanges( true );
+        }
+
+        setBlockSubWindowActivatedSignal( true );
         dockingOk = m_dockManager->restoreState( dockState.toByteArray(), DOCKSTATE_VERSION );
+        setBlockSubWindowActivatedSignal( false );
+        for ( auto subWindow : m_mdiArea->subWindowList() )
+        {
+            auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
+            riuWindow->blockTilingChanges( false );
+        }
     }
 
     if ( !dockingOk )
@@ -325,7 +338,7 @@ bool RiuMainWindowBase::isBlockingViewSelectionOnSubWindowActivated() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer )
+void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer )
 {
     bool removedSubWindowWasActive = false;
 
@@ -362,10 +375,8 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
         {
             mdiArea->currentSubWindow()->showMaximized();
         }
-        else if ( subWindowsAreTiled() )
-        {
-            tileSubWindows();
-        }
+
+        mdiArea->updateTiling();
     }
 }
 
@@ -400,13 +411,14 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
+void RiuMainWindowBase::initializeSubWindow( RiuMdiArea*    mdiArea,
                                              QMdiSubWindow* mdiSubWindow,
                                              const QPoint&  subWindowPos,
                                              const QSize&   subWindowSize )
 {
-    bool initialStateTiled     = subWindowsAreTiled();
-    bool initialStateMaximized = false;
+    bool initialStateMaximized  = false;
+    auto initialState3dWindow   = RimProject::current()->subWindowsTileMode3DWindow();
+    auto initialStatePlotWindow = RimProject::current()->subWindowsTileModePlotWindow();
 
     if ( m_showFirstVisibleWindowMaximized && mdiArea->subWindowList().empty() )
     {
@@ -434,10 +446,14 @@ void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
     else
     {
         mdiSubWindow->showNormal();
-        if ( initialStateTiled )
+
+        if ( !isBlockingSubWindowActivatedSignal() )
         {
-            tileSubWindows();
+            RimProject::current()->setSubWindowsTileMode3DWindow( initialState3dWindow );
+            RimProject::current()->setSubWindowsTileModePlotWindow( initialStatePlotWindow );
         }
+
+        mdiArea->updateTiling();
     }
 }
 
