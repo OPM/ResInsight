@@ -84,9 +84,9 @@ void RiuMdiArea::tileWindowsHorizontally()
 {
     QPoint position( 0, 0 );
 
-    for ( auto* window : subWindowList() )
+    for ( auto* window : subWindowListSortedByPosition() )
     {
-        QRect rect( 0, 0, width() / subWindowList().count(), height() );
+        QRect rect( 0, 0, width() / static_cast<int>( subWindowListSortedByPosition().size() ), height() );
 
         window->setGeometry( rect );
         window->move( position );
@@ -99,10 +99,22 @@ void RiuMdiArea::tileWindowsHorizontally()
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::tileWindowsVertically()
 {
+    auto windowList = subWindowListSortedByPosition();
+
+    // Sort of list so we first sort by window position but retain activation order
+    // for windows with the same position
+    windowList.sort( [this]( QMdiSubWindow* lhs, QMdiSubWindow* rhs ) {
+        if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
+        {
+            return lhs->frameGeometry().topLeft().rx() < rhs->frameGeometry().topLeft().rx();
+        }
+        return lhs->frameGeometry().topLeft().ry() < rhs->frameGeometry().topLeft().ry();
+    } );
+
     QPoint position( 0, 0 );
-    for ( auto* window : subWindowList() )
+    for ( auto* window : windowList )
     {
-        QRect rect( 0, 0, width(), height() / subWindowList().count() );
+        QRect rect( 0, 0, width(), height() / static_cast<int>( windowList.size() ) );
 
         window->setGeometry( rect );
         window->move( position );
@@ -141,10 +153,27 @@ void RiuMdiArea::resizeEvent( QResizeEvent* resizeEvent )
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::applyTiling()
 {
+    QMdiArea::WindowOrder currentActivationOrder = activationOrder();
+
     for ( auto subWindow : subWindowList() )
     {
         auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
         riuWindow->blockTilingChanges( true );
+    }
+
+    auto windowList = subWindowListSortedByPosition();
+
+    QMdiSubWindow* activeWindow = activeSubWindow();
+
+    // Force activation order so they end up in the order of the loop.
+    setActivationOrder( QMdiArea::ActivationHistoryOrder );
+
+    // setBlockSubWindowActivatedSignal( true );
+
+    // Activate in reverse order
+    for ( auto it = windowList.rbegin(); it != windowList.rend(); ++it )
+    {
+        setActiveSubWindow( *it );
     }
 
     switch ( tileMode() )
@@ -163,6 +192,10 @@ void RiuMdiArea::applyTiling()
         default:
             break;
     }
+
+    // Set back the original activation order to avoid messing with the standard ordering
+    setActivationOrder( currentActivationOrder );
+    setActiveSubWindow( activeWindow );
 
     for ( auto subWindow : subWindowList() )
     {
