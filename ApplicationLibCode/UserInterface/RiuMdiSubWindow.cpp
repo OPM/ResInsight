@@ -132,11 +132,13 @@ void RiuMdiSubWindow::resizeEvent( QResizeEvent* resizeEvent )
 
     if ( !m_blockTilingChanges )
     {
-        if ( window() == RiaGuiApplication::instance()->mainWindow() )
+        if ( window() == RiaGuiApplication::instance()->mainWindow() &&
+             !RiaGuiApplication::instance()->mainWindow()->isBlockingSubWindowActivatedSignal() )
         {
             RimProject::current()->setSubWindowsTileMode3DWindow( RiaDefines::WindowTileMode::UNDEFINED );
         }
-        else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
+        else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() &&
+                  !RiaGuiApplication::instance()->mainPlotWindow()->isBlockingSubWindowActivatedSignal() )
         {
             RimProject::current()->setSubWindowsTileModePlotWindow( RiaDefines::WindowTileMode::UNDEFINED );
         }
@@ -157,11 +159,13 @@ void RiuMdiSubWindow::moveEvent( QMoveEvent* moveEvent )
 
     if ( !m_blockTilingChanges )
     {
-        if ( window() == RiaGuiApplication::instance()->mainWindow() )
+        if ( window() == RiaGuiApplication::instance()->mainWindow() &&
+             !RiaGuiApplication::instance()->mainWindow()->isBlockingSubWindowActivatedSignal() )
         {
             RimProject::current()->setSubWindowsTileMode3DWindow( RiaDefines::WindowTileMode::UNDEFINED );
         }
-        else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
+        else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() &&
+                  !RiaGuiApplication::instance()->mainPlotWindow()->isBlockingSubWindowActivatedSignal() )
         {
             RimProject::current()->setSubWindowsTileModePlotWindow( RiaDefines::WindowTileMode::UNDEFINED );
         }
