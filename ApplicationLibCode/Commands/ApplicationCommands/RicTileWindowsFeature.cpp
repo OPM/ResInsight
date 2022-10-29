@@ -20,11 +20,13 @@
 #include "RicTileWindowsFeature.h"
 
 #include "RiaGuiApplication.h"
+
+#include "RimProject.h"
+
 #include "RiuMainWindow.h"
 #include "RiuMdiArea.h"
 #include "RiuPlotMainWindow.h"
 
-#include "RimProject.h"
 #include <QAction>
 #include <QApplication>
 

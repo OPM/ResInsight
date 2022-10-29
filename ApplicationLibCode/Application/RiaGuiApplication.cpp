@@ -925,8 +925,6 @@ RiuMainWindow* RiaGuiApplication::getOrCreateAndShowMainWindow()
         m_mainWindow->show();
     }
 
-    m_mainWindow->setBlockSubWindowActivatedSignal( false );
-
     return m_mainWindow;
 }
 
@@ -1229,8 +1227,6 @@ void RiaGuiApplication::onProjectOpeningError( const QString& errMsg )
 //--------------------------------------------------------------------------------------------------
 void RiaGuiApplication::onProjectOpened()
 {
-    m_mainWindow->setBlockSubWindowActivatedSignal( false );
-
     if ( m_project->show3DWindow() )
     {
         getOrCreateAndShowMainWindow();
@@ -1274,6 +1270,8 @@ void RiaGuiApplication::onProjectOpened()
     m_maximizeWindowGuard.reset();
 
     processEvents();
+
+    m_mainWindow->setBlockSubWindowActivatedSignal( true );
 
     // Make sure to process events before this function to avoid strange Qt crash
     RiuPlotMainWindowTools::refreshToolbars();

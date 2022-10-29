@@ -15,9 +15,11 @@
 //  for more details.
 //
 /////////////////////////////////////////////////////////////////////////////////
+
 #include "RiuMdiArea.h"
 
 #include "RimProject.h"
+
 #include "RiuMainWindow.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuPlotMainWindow.h"
