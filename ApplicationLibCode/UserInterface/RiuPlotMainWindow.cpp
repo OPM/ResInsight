@@ -936,6 +936,13 @@ void RiuPlotMainWindow::slotBuildWindowActions()
     m_windowMenu->addSeparator();
 
     addDefaultEntriesToWindowsMenu();
+
+    {
+        caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTilePlotWindowsFeature" ) );
+        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTilePlotWindowsVerticallyFeature" ) );
+        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTilePlotWindowsHorizontallyFeature" ) );
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

@@ -120,7 +120,6 @@ public:
     QMdiSubWindow*        findMdiSubWindow( QWidget* viewer ) override;
     RimViewWindow*        findViewWindowFromSubWindow( QMdiSubWindow* lhs );
     QList<QMdiSubWindow*> subWindowList( QMdiArea::WindowOrder order );
-    RiuMdiArea*           mdiArea();
 
     RiuResultQwtPlot*                 resultPlot();
     RiuRelativePermeabilityPlotPanel* relativePermeabilityPlotPanel();

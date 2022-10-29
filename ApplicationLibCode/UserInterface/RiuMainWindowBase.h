@@ -91,6 +91,8 @@ public:
 
     ads::CDockManager* dockManager() const;
 
+    RiuMdiArea* mdiArea();
+
 protected:
     void createTreeViews( int numberOfTrees );
     void removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer );

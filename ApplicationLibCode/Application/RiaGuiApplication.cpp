@@ -1271,7 +1271,7 @@ void RiaGuiApplication::onProjectOpened()
 
     processEvents();
 
-    m_mainWindow->setBlockSubWindowActivatedSignal( true );
+    m_mainWindow->setBlockSubWindowActivatedSignal( false );
 
     // Make sure to process events before this function to avoid strange Qt crash
     RiuPlotMainWindowTools::refreshToolbars();
