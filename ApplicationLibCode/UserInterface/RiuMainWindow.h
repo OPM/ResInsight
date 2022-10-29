@@ -136,7 +136,7 @@ public:
 protected:
     void        closeEvent( QCloseEvent* event ) override;
     QStringList defaultDockStateNames() override;
-    QAction*    tileSubWindowsAction() override;
+    QStringList windowsMenuFeatureNames() override;
 
 private:
     void createActions();

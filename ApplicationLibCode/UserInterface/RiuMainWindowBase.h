@@ -111,7 +111,7 @@ protected:
 
     virtual QStringList defaultDockStateNames() = 0;
 
-    virtual QAction* tileSubWindowsAction() = 0;
+    virtual QStringList windowsMenuFeatureNames() = 0;
 
 protected slots:
     void slotDockWidgetToggleViewActionTriggered();

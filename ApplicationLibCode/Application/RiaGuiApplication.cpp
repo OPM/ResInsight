@@ -1211,6 +1211,7 @@ void RiaGuiApplication::onProjectBeingOpened()
     m_maximizeWindowGuard = std::make_unique<RiuMdiMaximizeWindowGuard>();
 
     m_mainWindow->setBlockSubWindowActivatedSignal( true );
+    if ( mainPlotWindow() ) mainPlotWindow()->setBlockSubWindowActivatedSignal( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1272,6 +1273,7 @@ void RiaGuiApplication::onProjectOpened()
     processEvents();
 
     m_mainWindow->setBlockSubWindowActivatedSignal( false );
+    if ( mainPlotWindow() ) mainPlotWindow()->setBlockSubWindowActivatedSignal( false );
 
     // Make sure to process events before this function to avoid strange Qt crash
     RiuPlotMainWindowTools::refreshToolbars();

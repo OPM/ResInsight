@@ -936,13 +936,6 @@ void RiuPlotMainWindow::slotBuildWindowActions()
     m_windowMenu->addSeparator();
 
     addDefaultEntriesToWindowsMenu();
-
-    {
-        caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTilePlotWindowsFeature" ) );
-        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTilePlotWindowsVerticallyFeature" ) );
-        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTilePlotWindowsHorizontallyFeature" ) );
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1110,6 +1103,14 @@ QStringList RiuPlotMainWindow::defaultDockStateNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RiuPlotMainWindow::windowsMenuFeatureNames()
+{
+    return { "RicTilePlotWindowsFeature", "RicTilePlotWindowsVerticallyFeature", "RicTilePlotWindowsHorizontallyFeature" };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::enable3DSelectionLink( bool enable )
 {
     m_selection3DLinkEnabled = enable;
@@ -1129,12 +1130,4 @@ bool RiuPlotMainWindow::selection3DLinkEnabled()
 void RiuPlotMainWindow::slotToggleSelectionLink()
 {
     m_selection3DLinkEnabled = !m_selection3DLinkEnabled;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QAction* RiuPlotMainWindow::tileSubWindowsAction()
-{
-    return caf::CmdFeatureManager::instance()->action( "RicTilePlotWindowsFeature" );
 }

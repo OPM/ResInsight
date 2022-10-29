@@ -1408,17 +1408,9 @@ void RiuMainWindow::slotBuildWindowActions()
         caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
         m_windowMenu->addAction( cmdFeatureMgr->action( "RicShowPlotWindowFeature" ) );
         m_windowMenu->addSeparator();
-
-        m_windowMenu->addSeparator();
     }
 
     addDefaultEntriesToWindowsMenu();
-
-    {
-        caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
-        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTileWindowsVerticallyFeature" ) );
-        m_windowMenu->addAction( cmdFeatureMgr->action( "RicTileWindowsHorizontallyFeature" ) );
-    }
 
     m_windowMenu->addSeparator();
     m_windowMenu->addAction( m_newPropertyView );
@@ -1992,7 +1984,7 @@ QStringList RiuMainWindow::defaultDockStateNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QAction* RiuMainWindow::tileSubWindowsAction()
+QStringList RiuMainWindow::windowsMenuFeatureNames()
 {
-    return caf::CmdFeatureManager::instance()->action( "RicTileWindowsFeature" );
+    return { "RicTileWindowsFeature", "RicTileWindowsVerticallyFeature", "RicTileWindowsHorizontallyFeature" };
 }

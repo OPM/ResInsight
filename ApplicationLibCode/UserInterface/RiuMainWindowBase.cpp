@@ -764,7 +764,14 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
     connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
 
-    m_windowMenu->addAction( tileSubWindowsAction() );
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+
+    auto featureNames = windowsMenuFeatureNames();
+    for ( const auto& name : featureNames )
+    {
+        m_windowMenu->addAction( cmdFeatureMgr->action( name ) );
+    }
+
     m_windowMenu->addAction( cascadeWindowsAction );
     m_windowMenu->addAction( closeAllSubWindowsAction );
 }
