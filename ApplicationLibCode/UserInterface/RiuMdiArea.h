@@ -36,10 +36,11 @@ public:
     RiaDefines::WindowTileMode tileMode() const;
     void                       applyTiling();
 
-    std::list<QMdiSubWindow*> subWindowListSortedByPosition();
-
 private:
     void resizeEvent( QResizeEvent* resizeEvent ) override;
+
+    std::list<QMdiSubWindow*> subWindowListSortedByPosition();
+    std::list<QMdiSubWindow*> subWindowListSortedByVerticalPosition();
 
     void tileWindowsHorizontally();
     void tileWindowsVertically();

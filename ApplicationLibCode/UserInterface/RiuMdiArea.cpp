@@ -80,6 +80,28 @@ std::list<QMdiSubWindow*> RiuMdiArea::subWindowListSortedByPosition()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::list<QMdiSubWindow*> RiuMdiArea::subWindowListSortedByVerticalPosition()
+{
+    std::list<QMdiSubWindow*> windowList;
+    for ( QMdiSubWindow* subWindow : subWindowList( QMdiArea::CreationOrder ) )
+    {
+        windowList.push_back( subWindow );
+    }
+
+    windowList.sort( [this]( QMdiSubWindow* lhs, QMdiSubWindow* rhs ) {
+        if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
+        {
+            return lhs->frameGeometry().topLeft().rx() < rhs->frameGeometry().topLeft().rx();
+        }
+        return lhs->frameGeometry().topLeft().ry() < rhs->frameGeometry().topLeft().ry();
+    } );
+
+    return windowList;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuMdiArea::tileWindowsHorizontally()
 {
     QPoint position( 0, 0 );
@@ -99,17 +121,7 @@ void RiuMdiArea::tileWindowsHorizontally()
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::tileWindowsVertically()
 {
-    auto windowList = subWindowListSortedByPosition();
-
-    // Sort of list so we first sort by window position but retain activation order
-    // for windows with the same position
-    windowList.sort( [this]( QMdiSubWindow* lhs, QMdiSubWindow* rhs ) {
-        if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
-        {
-            return lhs->frameGeometry().topLeft().rx() < rhs->frameGeometry().topLeft().rx();
-        }
-        return lhs->frameGeometry().topLeft().ry() < rhs->frameGeometry().topLeft().ry();
-    } );
+    auto windowList = subWindowListSortedByVerticalPosition();
 
     QPoint position( 0, 0 );
     for ( auto* window : windowList )
