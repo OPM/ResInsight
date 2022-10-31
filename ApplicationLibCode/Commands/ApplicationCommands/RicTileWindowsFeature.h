@@ -19,7 +19,11 @@
 
 #pragma once
 
+#include "RiaPlotDefines.h"
+
 #include "cafCmdFeature.h"
+
+class RiuMainWindowBase;
 
 //==================================================================================================
 ///
@@ -27,6 +31,9 @@
 class RicTileWindowsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void applyTiling( RiuMainWindowBase* mainWindow, RiaDefines::WindowTileMode requestedTileMode );
 
 protected:
     bool isCommandEnabled() override;

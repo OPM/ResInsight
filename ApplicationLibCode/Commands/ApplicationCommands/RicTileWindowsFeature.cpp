@@ -35,6 +35,25 @@ CAF_CMD_SOURCE_INIT( RicTileWindowsFeature, "RicTileWindowsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicTileWindowsFeature::applyTiling( RiuMainWindowBase* mainWindow, RiaDefines::WindowTileMode requestedTileMode )
+{
+    auto mode = requestedTileMode;
+
+    // If requested mode is set, reset tiling mode to undefined
+    if ( RimProject::current()->subWindowsTileMode3DWindow() == requestedTileMode )
+        mode = RiaDefines::WindowTileMode::UNDEFINED;
+
+    RimProject::current()->setSubWindowsTileMode3DWindow( mode );
+
+    if ( mainWindow )
+    {
+        mainWindow->mdiArea()->applyTiling();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicTileWindowsFeature::isCommandEnabled()
 {
     auto* mainWindow = RiuMainWindow::instance();
@@ -53,17 +72,8 @@ void RicTileWindowsFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    auto mode = RiaDefines::WindowTileMode::DEFAULT;
-    if ( RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::DEFAULT )
-        mode = RiaDefines::WindowTileMode::UNDEFINED;
-
-    RimProject::current()->setSubWindowsTileMode3DWindow( mode );
-
     auto* mainWindow = RiuMainWindow::instance();
-    if ( mainWindow )
-    {
-        mainWindow->mdiArea()->applyTiling();
-    }
+    applyTiling( mainWindow, RiaDefines::WindowTileMode::DEFAULT );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -107,17 +117,8 @@ void RicTilePlotWindowsFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    auto mode = RiaDefines::WindowTileMode::DEFAULT;
-    if ( RimProject::current()->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::DEFAULT )
-        mode = RiaDefines::WindowTileMode::UNDEFINED;
-
-    RimProject::current()->setSubWindowsTileModePlotWindow( mode );
-
     auto* mainWindow = RiuPlotMainWindow::instance();
-    if ( mainWindow )
-    {
-        mainWindow->mdiArea()->applyTiling();
-    }
+    RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::DEFAULT );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -161,17 +162,8 @@ void RicTileWindowsVerticallyFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    auto mode = RiaDefines::WindowTileMode::VERTICAL;
-    if ( RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::VERTICAL )
-        mode = RiaDefines::WindowTileMode::UNDEFINED;
-
-    RimProject::current()->setSubWindowsTileMode3DWindow( mode );
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    if ( mainWindow )
-    {
-        mainWindow->mdiArea()->applyTiling();
-    }
+    auto* mainWindow = RiuMainWindow::instance();
+    RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::VERTICAL );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -214,17 +206,8 @@ void RicTileWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    auto mode = RiaDefines::WindowTileMode::HORIZONTAL;
-    if ( RimProject::current()->subWindowsTileMode3DWindow() == RiaDefines::WindowTileMode::HORIZONTAL )
-        mode = RiaDefines::WindowTileMode::UNDEFINED;
-
-    RimProject::current()->setSubWindowsTileMode3DWindow( mode );
-
-    RiuMainWindow* mainWindow = RiuMainWindow::instance();
-    if ( mainWindow )
-    {
-        mainWindow->mdiArea()->applyTiling();
-    }
+    auto* mainWindow = RiuMainWindow::instance();
+    RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::HORIZONTAL );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -273,17 +256,8 @@ void RicTilePlotWindowsVerticallyFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    auto mode = RiaDefines::WindowTileMode::VERTICAL;
-    if ( RimProject::current()->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::VERTICAL )
-        mode = RiaDefines::WindowTileMode::UNDEFINED;
-
-    RimProject::current()->setSubWindowsTileModePlotWindow( mode );
-
     auto* mainWindow = RiuPlotMainWindow::instance();
-    if ( mainWindow )
-    {
-        mainWindow->mdiArea()->applyTiling();
-    }
+    RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::VERTICAL );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -326,17 +300,8 @@ void RicTilePlotWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
 {
     this->disableModelChangeContribution();
 
-    auto mode = RiaDefines::WindowTileMode::HORIZONTAL;
-    if ( RimProject::current()->subWindowsTileModePlotWindow() == RiaDefines::WindowTileMode::HORIZONTAL )
-        mode = RiaDefines::WindowTileMode::UNDEFINED;
-
-    RimProject::current()->setSubWindowsTileModePlotWindow( mode );
-
     auto* mainWindow = RiuPlotMainWindow::instance();
-    if ( mainWindow )
-    {
-        mainWindow->mdiArea()->applyTiling();
-    }
+    RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::HORIZONTAL );
 }
 
 //--------------------------------------------------------------------------------------------------
