@@ -171,6 +171,7 @@ Token Tokenizer::tokenizeKeyword( std::istream& stream )
         std::make_pair( Token::Kind::ARRAY, "array" ),
     };
 
+    tokenizeDelimiter( stream );
     return tokenizeKeyword( stream, keywords );
 }
 
@@ -227,6 +228,7 @@ Token Tokenizer::tokenizeSimpleType( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 Token Tokenizer::tokenizeWord( std::istream& stream, const std::string& keyword, Token::Kind kind )
 {
+    tokenizeDelimiter( stream );
     auto        start = stream.tellg();
     std::string word;
     if ( stream >> word && word == keyword )
@@ -298,6 +300,7 @@ std::vector<Token> Tokenizer::tokenizeArrayData( std::istream& stream )
 //--------------------------------------------------------------------------------------------------
 std::vector<Token> Tokenizer::tokenizeTagGroup( std::istream& stream )
 {
+    tokenizeDelimiter( stream );
     std::vector<Token> tokens;
     tokens.push_back( tokenizeKeyword( stream, { std::make_pair( Token::Kind::TAG, "tag" ) } ) );
 
@@ -308,7 +311,8 @@ std::vector<Token> Tokenizer::tokenizeTagGroup( std::istream& stream )
     {
         try
         {
-            std::vector<Token> tagGroupTokens = tokenizeAsciiTagKey( stream );
+            std::vector<Token> tagGroupTokens = tokenizeTagKey( stream );
+
             for ( auto tok : tagGroupTokens )
                 tokens.push_back( tok );
 
@@ -321,6 +325,49 @@ std::vector<Token> Tokenizer::tokenizeTagGroup( std::istream& stream )
     }
 
     tokens.push_back( tokenizeKeyword( stream, { std::make_pair( Token::Kind::ENDTAG, "endtag" ) } ) );
+
+    return tokens;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<Token> Tokenizer::tokenizeTagKey( std::istream& stream )
+{
+    try
+    {
+        return tokenizeAsciiTagKey( stream );
+    }
+    catch ( const std::runtime_error& )
+    {
+        return tokenizeArrayAsciiTagKey( stream );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<Token> Tokenizer::tokenizeStream( std::istream& stream )
+{
+    std::vector<Token> tokens;
+    tokens.push_back( tokenizeKeyword( stream, { std::make_pair( Token::Kind::ROFF_ASC, "roff-asc" ) } ) );
+
+    bool hasMoreTokens = true;
+    while ( hasMoreTokens )
+    {
+        try
+        {
+            std::vector<Token> tagGroupTokens = tokenizeTagGroup( stream );
+            for ( auto tok : tagGroupTokens )
+                tokens.push_back( tok );
+
+            hasMoreTokens = true;
+        }
+        catch ( std::runtime_error& )
+        {
+            hasMoreTokens = false;
+        }
+    }
 
     return tokens;
 }
