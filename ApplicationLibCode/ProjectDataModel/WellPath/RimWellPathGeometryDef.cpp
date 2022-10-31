@@ -729,6 +729,7 @@ void RimWellPathGeometryDef::defineEditorAttribute( const caf::PdmFieldHandle* f
         if ( tvAttribute )
         {
             tvAttribute->resizePolicy = caf::PdmUiTableViewEditorAttribute::RESIZE_TO_FIT_CONTENT;
+            tvAttribute->heightHint   = 1000;
 
             if ( m_pickPointsEnabled )
             {
