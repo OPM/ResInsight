@@ -608,10 +608,26 @@ std::vector<RimWellPathTarget*> RimWellPathGeometryDef::activeWellTargets() cons
 //--------------------------------------------------------------------------------------------------
 RiaLineArcWellPathCalculator RimWellPathGeometryDef::lineArcWellPathCalculator() const
 {
+    std::vector<RimWellPathTarget*> activeTargets;
+
+    auto candidates = activeWellTargets();
+    if ( !candidates.empty() )
+    {
+        activeTargets.push_back( candidates.front() );
+        RimWellPathTarget* previousTarget = candidates.front();
+
+        for ( size_t i = 1; i < candidates.size(); i++ )
+        {
+            auto candidate = candidates[i];
+            if ( previousTarget && ( previousTarget->targetPointXYZ() - candidate->targetPointXYZ() ).length() > 1e-3 )
+            {
+                activeTargets.push_back( candidate );
+                previousTarget = candidate;
+            }
+        }
+    }
+
     std::vector<RiaLineArcWellPathCalculator::WellTarget> targetDatas;
-
-    std::vector<RimWellPathTarget*> activeTargets = activeWellTargets();
-
     for ( auto wellTarget : activeTargets )
     {
         targetDatas.push_back( wellTarget->wellTargetData() );
