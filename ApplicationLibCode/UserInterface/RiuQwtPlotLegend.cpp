@@ -60,8 +60,6 @@ void RiuQwtPlotLegend::resizeEvent( QResizeEvent* event )
     const QwtDynGridLayout* legendLayout = qobject_cast<QwtDynGridLayout*>( contentsWidget()->layout() );
     if ( legendLayout )
     {
-        QMargins margins = this->contentsMargins();
-
         updateGeometry();
     }
 }
