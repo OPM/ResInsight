@@ -33,10 +33,12 @@ public:
 
     void blockTilingChanges( bool block );
 
-protected:
+private:
     void closeEvent( QCloseEvent* event ) override;
     void resizeEvent( QResizeEvent* resizeEvent ) override;
     void moveEvent( QMoveEvent* moveEvent ) override;
+
+    void checkAndResetTilingState();
 
 private:
     QRect m_normalWindowGeometry;

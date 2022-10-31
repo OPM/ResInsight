@@ -21,12 +21,12 @@
 #pragma once
 
 #include "RiuMainWindowBase.h"
-#include "RiuMdiArea.h"
 
 #include "cafPdmObjectHandle.h"
 
 #include <QEvent>
 #include <QLabel>
+#include <QMdiArea>
 #include <QPointer>
 #include <QString>
 
@@ -51,6 +51,7 @@ class RiuResultQwtPlot;
 class RiuRelativePermeabilityPlotPanel;
 class RiuPvtPlotPanel;
 class RiuMohrsCirclePlot;
+class RiuMdiArea;
 
 class RicGridCalculatorDialog;
 
@@ -115,11 +116,6 @@ public:
 
     void refreshDrawStyleActions();
 
-    void tileSubWindows() override;
-    void storeSubWindowTiling( bool tiled ) override;
-    void clearWindowTiling() override;
-
-    bool                  subWindowsAreTiled() const override;
     bool                  isAnyMdiSubWindowVisible();
     QMdiSubWindow*        findMdiSubWindow( QWidget* viewer ) override;
     RimViewWindow*        findViewWindowFromSubWindow( QMdiSubWindow* lhs );
@@ -140,7 +136,7 @@ public:
 protected:
     void        closeEvent( QCloseEvent* event ) override;
     QStringList defaultDockStateNames() override;
-    QAction*    tileSubWindowsAction() override;
+    QStringList windowsMenuFeatureNames() override;
 
 private:
     void createActions();

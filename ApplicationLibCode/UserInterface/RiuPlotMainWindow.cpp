@@ -50,6 +50,7 @@
 
 #include "RiuDockWidgetTools.h"
 #include "RiuDragDrop.h"
+#include "RiuMdiArea.h"
 #include "RiuMdiSubWindow.h"
 #include "RiuMessagePanel.h"
 #include "RiuMultiPlotPage.h"
@@ -198,10 +199,7 @@ void RiuPlotMainWindow::initializeGuiNewProjectLoaded()
         }
     }
 
-    if ( subWindowsAreTiled() )
-    {
-        tileSubWindows();
-    }
+    m_mdiArea->applyTiling();
 
     if ( m_activePlotViewWindow && m_activePlotViewWindow->viewWidget() &&
          !RiaRegressionTestRunner::instance()->isRunningRegressionTests() )
@@ -1064,91 +1062,6 @@ void RiuPlotMainWindow::customMenuRequested( const QPoint& pos )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::tileSubWindows()
-{
-    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
-
-    std::list<QMdiSubWindow*> windowList;
-    for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
-    {
-        windowList.push_back( subWindow );
-    }
-
-    // Perform stable sort of list so we first sort by window position but retain activation order
-    // for windows with the same position.
-    windowList.sort( []( const QMdiSubWindow* lhs, const QMdiSubWindow* rhs ) {
-        if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
-        {
-            return lhs->frameGeometry().topLeft().rx() < rhs->frameGeometry().topLeft().rx();
-        }
-        return lhs->frameGeometry().topLeft().ry() < rhs->frameGeometry().topLeft().ry();
-    } );
-
-    // Based on workaround described here
-    // https://forum.qt.io/topic/50053/qmdiarea-tilesubwindows-always-places-widgets-in-activationhistoryorder-in-subwindowview-mode
-
-    bool prevActivationBlock = isBlockingSubWindowActivatedSignal();
-    // Force activation order so they end up in the order of the loop.
-    m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
-    QMdiSubWindow* a = m_mdiArea->activeSubWindow();
-
-    setBlockSubWindowActivatedSignal( true );
-    // Activate in reverse order
-    for ( auto it = windowList.rbegin(); it != windowList.rend(); ++it )
-    {
-        m_mdiArea->setActiveSubWindow( *it );
-    }
-
-    m_mdiArea->tileSubWindows();
-    // Set back the original activation order to avoid messing with the standard ordering
-    m_mdiArea->setActivationOrder( currentActivationOrder );
-    m_mdiArea->setActiveSubWindow( a );
-    setBlockSubWindowActivatedSignal( prevActivationBlock );
-
-    storeSubWindowTiling( true );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::storeSubWindowTiling( bool tiled )
-{
-    RimProject::current()->setSubWindowsTiledInPlotWindow( tiled );
-    refreshToolbars();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RiuPlotMainWindow::clearWindowTiling()
-{
-    setBlockSubWindowActivatedSignal( true );
-    QMdiArea::WindowOrder currentActivationOrder = m_mdiArea->activationOrder();
-
-    for ( QMdiSubWindow* subWindow : m_mdiArea->subWindowList( currentActivationOrder ) )
-    {
-        subWindow->hide();
-        subWindow->showNormal();
-    }
-    storeSubWindowTiling( false );
-    setBlockSubWindowActivatedSignal( false );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RiuPlotMainWindow::subWindowsAreTiled() const
-{
-    if ( RimProject::current() )
-    {
-        return RimProject::current()->subWindowsTiledPlotWindow();
-    }
-    return false;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RiuPlotMainWindow::isAnyMdiSubWindowVisible()
 {
     return m_mdiArea->subWindowList().size() > 0;
@@ -1190,6 +1103,14 @@ QStringList RiuPlotMainWindow::defaultDockStateNames()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+QStringList RiuPlotMainWindow::windowsMenuFeatureNames()
+{
+    return { "RicTilePlotWindowsFeature", "RicTilePlotWindowsVerticallyFeature", "RicTilePlotWindowsHorizontallyFeature" };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RiuPlotMainWindow::enable3DSelectionLink( bool enable )
 {
     m_selection3DLinkEnabled = enable;
@@ -1209,12 +1130,4 @@ bool RiuPlotMainWindow::selection3DLinkEnabled()
 void RiuPlotMainWindow::slotToggleSelectionLink()
 {
     m_selection3DLinkEnabled = !m_selection3DLinkEnabled;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-QAction* RiuPlotMainWindow::tileSubWindowsAction()
-{
-    return caf::CmdFeatureManager::instance()->action( "RicTilePlotWindowsFeature" );
 }

@@ -58,7 +58,7 @@
 RiuMainWindowBase::RiuMainWindowBase()
     : m_allowActiveViewChangeFromSelection( true )
     , m_showFirstVisibleWindowMaximized( true )
-    , m_blockSubWindowActivation( false )
+    , m_blockSubWindowActivation( true )
     , m_blockSubWindowProjectTreeSelection( false )
     , m_windowMenu( nullptr )
     , m_mdiArea( nullptr )
@@ -102,6 +102,14 @@ RiuMainWindowBase::~RiuMainWindowBase()
 ads::CDockManager* RiuMainWindowBase::dockManager() const
 {
     return m_dockManager;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RiuMdiArea* RiuMainWindowBase::mdiArea()
+{
+    return m_mdiArea;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -325,7 +333,7 @@ bool RiuMainWindowBase::isBlockingViewSelectionOnSubWindowActivated() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* viewer )
+void RiuMainWindowBase::removeViewerFromMdiArea( RiuMdiArea* mdiArea, QWidget* viewer )
 {
     bool removedSubWindowWasActive = false;
 
@@ -362,10 +370,8 @@ void RiuMainWindowBase::removeViewerFromMdiArea( QMdiArea* mdiArea, QWidget* vie
         {
             mdiArea->currentSubWindow()->showMaximized();
         }
-        else if ( subWindowsAreTiled() )
-        {
-            tileSubWindows();
-        }
+
+        mdiArea->applyTiling();
     }
 }
 
@@ -400,13 +406,14 @@ void RiuMainWindowBase::slotDockWidgetToggleViewActionTriggered()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
+void RiuMainWindowBase::initializeSubWindow( RiuMdiArea*    mdiArea,
                                              QMdiSubWindow* mdiSubWindow,
                                              const QPoint&  subWindowPos,
                                              const QSize&   subWindowSize )
 {
-    bool initialStateTiled     = subWindowsAreTiled();
-    bool initialStateMaximized = false;
+    bool initialStateMaximized  = false;
+    auto initialState3dWindow   = RimProject::current()->subWindowsTileMode3DWindow();
+    auto initialStatePlotWindow = RimProject::current()->subWindowsTileModePlotWindow();
 
     if ( m_showFirstVisibleWindowMaximized && mdiArea->subWindowList().empty() )
     {
@@ -434,10 +441,14 @@ void RiuMainWindowBase::initializeSubWindow( QMdiArea*      mdiArea,
     else
     {
         mdiSubWindow->showNormal();
-        if ( initialStateTiled )
+
+        if ( !isBlockingSubWindowActivatedSignal() )
         {
-            tileSubWindows();
+            RimProject::current()->setSubWindowsTileMode3DWindow( initialState3dWindow );
+            RimProject::current()->setSubWindowsTileModePlotWindow( initialStatePlotWindow );
         }
+
+        mdiArea->applyTiling();
     }
 }
 
@@ -753,7 +764,14 @@ void RiuMainWindowBase::addDefaultEntriesToWindowsMenu()
     QAction* closeAllSubWindowsAction = new QAction( "Close All Windows", this );
     connect( closeAllSubWindowsAction, SIGNAL( triggered() ), m_mdiArea, SLOT( closeAllSubWindows() ) );
 
-    m_windowMenu->addAction( tileSubWindowsAction() );
+    caf::CmdFeatureManager* cmdFeatureMgr = caf::CmdFeatureManager::instance();
+
+    auto featureNames = windowsMenuFeatureNames();
+    for ( const auto& name : featureNames )
+    {
+        m_windowMenu->addAction( cmdFeatureMgr->action( name ) );
+    }
+
     m_windowMenu->addAction( cascadeWindowsAction );
     m_windowMenu->addAction( closeAllSubWindowsAction );
 }

@@ -76,6 +76,17 @@ void caf::AppEnum<RiaDefines::Orientation>::setUp()
     setDefault( RiaDefines::Orientation::VERTICAL );
 }
 
+template <>
+void caf::AppEnum<RiaDefines::WindowTileMode>::setUp()
+{
+    addItem( RiaDefines::WindowTileMode::DEFAULT, "DEFAULT", "Default" );
+    addItem( RiaDefines::WindowTileMode::VERTICAL, "VERTICAL", "Vertical" );
+    addItem( RiaDefines::WindowTileMode::HORIZONTAL, "HORIZONTAL", "Horizontal" );
+    addItem( RiaDefines::WindowTileMode::UNDEFINED, "UNDEFINED", "Undefined" );
+
+    setDefault( RiaDefines::WindowTileMode::UNDEFINED );
+}
+
 }; // namespace caf
 
 //--------------------------------------------------------------------------------------------------

@@ -19,8 +19,10 @@
 #include "RiuMdiSubWindow.h"
 
 #include "RiaGuiApplication.h"
+#include "RiaPlotDefines.h"
 
 #include "Rim3dView.h"
+#include "RimProject.h"
 #include "RimSummaryPlot.h"
 #include "RimWellLogPlot.h"
 
@@ -29,8 +31,6 @@
 #include "RiuViewer.h"
 
 #include <QWindowStateChangeEvent>
-
-#include <QDebug>
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -128,17 +128,7 @@ void RiuMdiSubWindow::resizeEvent( QResizeEvent* resizeEvent )
         m_normalWindowGeometry = frameGeometry();
     }
 
-    if ( !m_blockTilingChanges )
-    {
-        if ( window() == RiaGuiApplication::instance()->mainWindow() )
-        {
-            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling( false );
-        }
-        else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
-        {
-            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling( false );
-        }
-    }
+    checkAndResetTilingState();
 
     QMdiSubWindow::resizeEvent( resizeEvent );
 }
@@ -153,17 +143,26 @@ void RiuMdiSubWindow::moveEvent( QMoveEvent* moveEvent )
         m_normalWindowGeometry = frameGeometry();
     }
 
-    if ( !m_blockTilingChanges )
-    {
-        if ( window() == RiaGuiApplication::instance()->mainWindow() )
-        {
-            RiaGuiApplication::instance()->mainWindow()->storeSubWindowTiling( false );
-        }
-        else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() )
-        {
-            RiaGuiApplication::instance()->mainPlotWindow()->storeSubWindowTiling( false );
-        }
-    }
+    checkAndResetTilingState();
 
     QMdiSubWindow::moveEvent( moveEvent );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMdiSubWindow::checkAndResetTilingState()
+{
+    if ( m_blockTilingChanges ) return;
+
+    if ( window() == RiaGuiApplication::instance()->mainWindow() &&
+         !RiaGuiApplication::instance()->mainWindow()->isBlockingSubWindowActivatedSignal() )
+    {
+        RimProject::current()->setSubWindowsTileMode3DWindow( RiaDefines::WindowTileMode::UNDEFINED );
+    }
+    else if ( window() == RiaGuiApplication::instance()->mainPlotWindow() &&
+              !RiaGuiApplication::instance()->mainPlotWindow()->isBlockingSubWindowActivatedSignal() )
+    {
+        RimProject::current()->setSubWindowsTileModePlotWindow( RiaDefines::WindowTileMode::UNDEFINED );
+    }
 }
