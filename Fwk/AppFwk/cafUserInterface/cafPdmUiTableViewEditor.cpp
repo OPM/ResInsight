@@ -58,6 +58,38 @@
 
 namespace caf
 {
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TableView::TableView( QWidget* parent /*= nullptr */ )
+    : QTableView( parent )
+    , m_heightHint( -1 )
+{
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QSize TableView::sizeHint() const
+{
+    QSize mySize = QTableView::sizeHint();
+
+    if ( m_heightHint > 0 )
+    {
+        mySize.setHeight( m_heightHint );
+    }
+
+    return mySize;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void TableView::setHeightHint( int heightHint )
+{
+    m_heightHint = heightHint;
+}
+
 CAF_PDM_UI_FIELD_EDITOR_SOURCE_INIT( PdmUiTableViewEditor );
 
 //--------------------------------------------------------------------------------------------------
@@ -100,7 +132,7 @@ QWidget* PdmUiTableViewEditor::createEditorWidget( QWidget* parent )
 
     m_delegate = new PdmUiTableViewDelegate( nullptr, m_tableModelPdm );
 
-    m_tableView = new QTableView( parent );
+    m_tableView = new TableView( parent );
     m_tableView->setShowGrid( true );
     m_tableView->setModel( m_tableModelPdm );
     m_tableView->installEventFilter( this );
@@ -244,6 +276,11 @@ void PdmUiTableViewEditor::configureAndUpdateUi( const QString& uiConfigName )
         {
             m_tableView->horizontalHeader()->setSectionResizeMode( QHeaderView::Stretch );
         }
+    }
+
+    if ( editorAttrib.heightHint > -1 )
+    {
+        m_tableView->setHeightHint( editorAttrib.heightHint );
     }
 
     m_previousFieldHandle = childArrayFH;

@@ -42,11 +42,11 @@
 
 #include <QAbstractItemModel>
 #include <QPointer>
+#include <QTableView>
 #include <QWidget>
 
 class QItemSelection;
 class QLabel;
-class QTableView;
 
 namespace caf
 {
@@ -56,6 +56,18 @@ class PdmUiItem;
 class PdmUiTableViewDelegate;
 class PdmUiTableViewQModel;
 class PdmChildArrayFieldHandle;
+
+class TableView : public QTableView
+{
+public:
+    explicit TableView( QWidget* parent = nullptr );
+
+    QSize sizeHint() const override;
+    void  setHeightHint( int heightHint );
+
+private:
+    int m_heightHint;
+};
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -90,6 +102,7 @@ public:
         , rowSelectionLevel( 1 )
         , enableHeaderText( true )
         , minimumHeight( -1 )
+        , heightHint( -1 )
         , alwaysEnforceResizePolicy( false )
         , resizePolicy( NO_AUTOMATIC_RESIZE )
         , enableDropTarget( false )
@@ -104,6 +117,7 @@ public:
     bool             enableHeaderText;
     std::vector<int> columnWidths;
     int              minimumHeight; ///< Not used if If < 0
+    int              heightHint; ///< Not used if If < 0
     QColor           baseColor;
     bool             alwaysEnforceResizePolicy;
     ResizePolicy     resizePolicy;
@@ -155,7 +169,7 @@ private:
     QPointer<QShortenedLabel> m_tableHeading;
     QPointer<QLabel>          m_tableHeadingIcon;
 
-    QTableView*           m_tableView;
+    TableView*            m_tableView;
     PdmUiTableViewQModel* m_tableModelPdm;
 
     PdmUiTableViewDelegate* m_delegate;
