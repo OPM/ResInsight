@@ -1,8 +1,10 @@
 
 #include "gtest/gtest.h"
 
+#include <fstream>
 #include <string>
 
+#include "RoffTestDataDirectory.hpp"
 #include "Tokenizer.hpp"
 
 //--------------------------------------------------------------------------------------------------
@@ -245,4 +247,32 @@ TEST( TokenizerTests, testTokenizeArrayAsciiTagKeyStrings )
     ASSERT_EQ( Token::Kind::STRING_LITERAL, tokens[4].kind() );
     ASSERT_EQ( Token::Kind::STRING_LITERAL, tokens[5].kind() );
     ASSERT_EQ( Token::Kind::STRING_LITERAL, tokens[6].kind() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeExampleFile )
+{
+    std::ifstream stream( std::string( TEST_DATA_DIR ) + "/facies_info.roff" );
+    ASSERT_TRUE( stream.good() );
+
+    std::vector<Token> tokens = Tokenizer::tokenizeStream( stream );
+    ASSERT_EQ( 71, tokens.size() );
+
+    auto readValueForToken = []( std::istream& stream, const Token& token ) {
+        stream.seekg( token.start() );
+        int         length = token.end() - token.start();
+        std::string res;
+        res.resize( length );
+        stream.read( const_cast<char*>( res.data() ), length );
+        return res;
+    };
+
+    stream.clear();
+    stream.seekg( 0 );
+    ASSERT_TRUE( stream.good() );
+
+    ASSERT_EQ( "byteswaptest", readValueForToken( stream, tokens[4] ) );
+    ASSERT_EQ( "codeNames", readValueForToken( stream, tokens[41] ) );
 }

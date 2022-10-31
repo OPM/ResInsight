@@ -8,6 +8,7 @@
 class Tokenizer
 {
 public:
+    static std::vector<Token> tokenizeStream( std::istream& stream );
     static Token              tokenizeComment( std::istream& stream );
     static void               tokenizeSpace( std::istream& stream );
     static void               tokenizeDelimiter( std::istream& stream );
@@ -21,6 +22,7 @@ public:
     static std::vector<Token> tokenizeAsciiTagKey( std::istream& stream );
     static std::vector<Token> tokenizeArrayAsciiTagKey( std::istream& stream );
     static std::vector<Token> tokenizeTagGroup( std::istream& stream );
+    static std::vector<Token> tokenizeTagKey( std::istream& stream );
 
     static Token tokenizeKeyword( std::istream& stream, const std::vector<std::pair<Token::Kind, std::string>>& keywords );
     static Token tokenizeWord( std::istream& stream, const std::string& keywork, Token::Kind kind );

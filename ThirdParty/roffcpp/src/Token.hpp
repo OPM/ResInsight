@@ -32,6 +32,8 @@ public:
     size_t start() const;
     size_t end() const;
 
+    static std::string kindToString( Kind );
+
 private:
     Kind   m_kind;
     size_t m_start;
