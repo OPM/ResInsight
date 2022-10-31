@@ -31,8 +31,12 @@ class RimSummaryCurveAutoName : public caf::PdmObject
 public:
     RimSummaryCurveAutoName();
 
-    QString curveNameY( const RifEclipseSummaryAddress& summaryAddress, const RimSummaryNameHelper* nameHelper ) const;
-    QString curveNameX( const RifEclipseSummaryAddress& summaryAddress, const RimSummaryNameHelper* nameHelper ) const;
+    QString curveNameY( const RifEclipseSummaryAddress& summaryAddress,
+                        const RimSummaryNameHelper*     currentNameHelper,
+                        const RimSummaryNameHelper*     plotNameHelper ) const;
+    QString curveNameX( const RifEclipseSummaryAddress& summaryAddress,
+                        const RimSummaryNameHelper*     currentNameHelper,
+                        const RimSummaryNameHelper*     plotNameHelper ) const;
 
     void applySettings( const RimSummaryCurveAutoName& other );
 
@@ -51,7 +55,8 @@ private:
     void appendLgrName( std::string& text, const RifEclipseSummaryAddress& summaryAddress ) const;
 
     QString buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
-                            const RimSummaryNameHelper*     nameHelper,
+                            const RimSummaryNameHelper*     currentNameHelper,
+                            const RimSummaryNameHelper*     plotNameHelper,
                             const std::string&              unitText,
                             const std::string&              caseName ) const;
 
