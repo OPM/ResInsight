@@ -80,6 +80,7 @@ void RimViewLinkerCollection::fieldChangedByUi( const caf::PdmFieldHandle* chang
             }
 
             viewLinker()->updateDependentViews();
+            viewLinker()->updateWindowTitles();
         }
     }
 

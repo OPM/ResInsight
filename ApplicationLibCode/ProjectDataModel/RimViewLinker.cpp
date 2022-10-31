@@ -56,25 +56,24 @@ CAF_PDM_SOURCE_INIT( RimViewLinker, "ViewLinker" );
 //--------------------------------------------------------------------------------------------------
 RimViewLinker::RimViewLinker()
 {
-    // clang-format off
-    CAF_PDM_InitObject("Linked Views");
+    CAF_PDM_InitObject( "Linked Views" );
 
-    CAF_PDM_InitField(&m_name, "Name", QString("View Group Name"), "View Group Name");
-    m_name.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_name, "Name", QString( "View Group Name" ), "View Group Name" );
+    m_name.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_masterView, "MainView", "Main View");
-    m_masterView.uiCapability()->setUiTreeChildrenHidden(true);
-    m_masterView.uiCapability()->setUiTreeHidden(true);
-    m_masterView.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_masterView, "MainView", "Main View" );
+    m_masterView.uiCapability()->setUiTreeChildrenHidden( true );
+    m_masterView.uiCapability()->setUiTreeHidden( true );
+    m_masterView.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_viewControllers, "ManagedViews", "Managed Views");
-    m_viewControllers.uiCapability()->setUiTreeHidden(true);
-    m_viewControllers.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_viewControllers, "ManagedViews", "Managed Views" );
+    m_viewControllers.uiCapability()->setUiTreeHidden( true );
+    m_viewControllers.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_comparisonView, "LinkedComparisonView", "Comparison View");
+    CAF_PDM_InitFieldNoDefault( &m_comparisonView, "LinkedComparisonView", "Comparison View" );
     m_comparisonView.xmlCapability()->disableIO();
 
-    // clang-format on
+    setDeletable( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -230,6 +229,22 @@ void RimViewLinker::updateOverrides()
         else
         {
             viewLink->removeOverrides();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateWindowTitles()
+{
+    if ( m_masterView ) m_masterView->updateMdiWindowTitle();
+
+    for ( RimViewController* viewLink : m_viewControllers )
+    {
+        if ( auto view = viewLink->managedView() )
+        {
+            view->updateMdiWindowTitle();
         }
     }
 }
@@ -509,6 +524,17 @@ void RimViewLinker::notifyManagedViewChange( RimGridView* oldManagedView, RimGri
             masterView()->scheduleCreateDisplayModelAndRedraw();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimViewLinker::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                    std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimViewLinkerCollection* viewLinkerCollection = nullptr;
+    this->firstAncestorOrThisOfType( viewLinkerCollection );
+    if ( viewLinkerCollection ) viewLinkerCollection->updateConnectedEditors();
 }
 
 //--------------------------------------------------------------------------------------------------

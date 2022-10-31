@@ -1967,34 +1967,9 @@ void RiuMainWindow::tileSubWindows()
         windowList.push_back( subWindow );
     }
 
-    // Get the active view linker if there is one
-    RimProject*              proj                 = RimProject::current();
-    RimViewLinkerCollection* viewLinkerCollection = proj->viewLinkerCollection();
-    RimViewLinker*           viewLinker           = nullptr;
-    if ( viewLinkerCollection && viewLinkerCollection->isActive() )
-    {
-        viewLinker = viewLinkerCollection->viewLinker();
-    }
-
     // Perform stable sort of list so we first sort by window position but retain activation order
     // for windows with the same position.
-    windowList.sort( [this, viewLinker]( QMdiSubWindow* lhs, QMdiSubWindow* rhs ) {
-        RimViewWindow* lhsViewWindow = findViewWindowFromSubWindow( lhs );
-        RimViewWindow* rhsViewWindow = findViewWindowFromSubWindow( rhs );
-        RimGridView*   lhsGridView   = dynamic_cast<RimGridView*>( lhsViewWindow );
-        RimGridView*   rhsGridView   = dynamic_cast<RimGridView*>( rhsViewWindow );
-
-        if ( viewLinker )
-        {
-            if ( viewLinker->isFirstViewDependentOnSecondView( lhsGridView, rhsGridView ) )
-            {
-                return true;
-            }
-            else if ( viewLinker->isFirstViewDependentOnSecondView( rhsGridView, lhsGridView ) )
-            {
-                return false;
-            }
-        }
+    windowList.sort( [this]( QMdiSubWindow* lhs, QMdiSubWindow* rhs ) {
         if ( lhs->frameGeometry().topLeft().ry() == rhs->frameGeometry().topLeft().ry() )
         {
             return lhs->frameGeometry().topLeft().rx() < rhs->frameGeometry().topLeft().rx();
@@ -2007,7 +1982,7 @@ void RiuMainWindow::tileSubWindows()
 
     bool prevActivationBlock = isBlockingSubWindowActivatedSignal();
 
-    QMdiSubWindow* a = m_mdiArea->activeSubWindow();
+    QMdiSubWindow* activeWindow = m_mdiArea->activeSubWindow();
 
     // Force activation order so they end up in the order of the loop.
     m_mdiArea->setActivationOrder( QMdiArea::ActivationHistoryOrder );
@@ -2023,7 +1998,7 @@ void RiuMainWindow::tileSubWindows()
     m_mdiArea->tileSubWindows();
     // Set back the original activation order to avoid messing with the standard ordering
     m_mdiArea->setActivationOrder( currentActivationOrder );
-    m_mdiArea->setActiveSubWindow( a );
+    m_mdiArea->setActiveSubWindow( activeWindow );
     setBlockSubWindowActivatedSignal( prevActivationBlock );
 
     storeSubWindowTiling( true );

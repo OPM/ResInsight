@@ -1,6 +1,6 @@
 #include "RimEclipseContourMapViewCollection.h"
 
-#include "RimCase.h"
+#include "RimEclipseCase.h"
 #include "RimEclipseContourMapView.h"
 
 CAF_PDM_SOURCE_INIT( RimEclipseContourMapViewCollection, "Eclipse2dViewCollection" );
@@ -37,4 +37,15 @@ std::vector<RimEclipseContourMapView*> RimEclipseContourMapViewCollection::views
 void RimEclipseContourMapViewCollection::push_back( RimEclipseContourMapView* contourMap )
 {
     m_contourMapViews.push_back( contourMap );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapViewCollection::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                         std::vector<caf::PdmObjectHandle*>& referringObjects )
+{
+    RimEclipseCase* eclipseCase = nullptr;
+    this->firstAncestorOrThisOfType( eclipseCase );
+    if ( eclipseCase ) eclipseCase->updateConnectedEditors();
 }
