@@ -10,7 +10,7 @@
 Token Tokenizer::tokenizeComment( std::istream& stream )
 {
     auto start    = stream.tellg();
-    char readChar = stream.get();
+    char readChar = static_cast<char>( stream.get() );
     if ( readChar != '#' )
     {
         stream.seekg( start );
@@ -18,10 +18,10 @@ Token Tokenizer::tokenizeComment( std::istream& stream )
     }
 
     auto end = stream.tellg();
-    readChar = stream.get();
+    readChar = static_cast<char>( stream.get() );
     while ( stream.good() && readChar != '#' )
     {
-        readChar = stream.get();
+        readChar = static_cast<char>( stream.get() );
     }
 
     if ( !stream.good() )
@@ -40,7 +40,7 @@ Token Tokenizer::tokenizeComment( std::istream& stream )
 void Tokenizer::tokenizeSpace( std::istream& stream )
 {
     auto start    = stream.tellg();
-    char readChar = stream.get();
+    char readChar = static_cast<char>( stream.get() );
     if ( !std::isspace( readChar ) )
     {
         stream.seekg( start );
@@ -48,11 +48,11 @@ void Tokenizer::tokenizeSpace( std::istream& stream )
     }
 
     auto end = stream.tellg();
-    readChar = stream.get();
+    readChar = static_cast<char>( stream.get() );
     while ( stream.good() && std::isspace( readChar ) )
     {
         end      = stream.tellg();
-        readChar = stream.get();
+        readChar = static_cast<char>( stream.get() );
     }
 
     stream.seekg( end );
@@ -67,7 +67,7 @@ Token Tokenizer::tokenizeString( std::istream& stream )
 
     // First part of string should be double-quote
     auto start    = stream.tellg();
-    char readChar = stream.get();
+    char readChar = static_cast<char>( stream.get() );
     if ( readChar != '"' )
     {
         stream.seekg( start );
@@ -77,11 +77,11 @@ Token Tokenizer::tokenizeString( std::istream& stream )
     // Read until closing double-quote.
     start    = stream.tellg();
     auto end = start;
-    readChar = stream.get();
+    readChar = static_cast<char>( stream.get() );
     while ( stream.good() && readChar != '"' )
     {
         end      = stream.tellg();
-        readChar = stream.get();
+        readChar = static_cast<char>( stream.get() );
     }
 
     if ( !stream.good() )
@@ -104,11 +104,11 @@ Token Tokenizer::tokenizeName( std::istream& stream )
     auto start  = stream.tellg();
     int  length = 0;
 
-    auto readChar = stream.get();
+    auto readChar = static_cast<char>( stream.get() );
     while ( stream.good() && !std::isspace( readChar ) )
     {
         length++;
-        readChar = stream.get();
+        readChar = static_cast<char>( stream.get() );
     }
 
     if ( length < 1 )
@@ -132,13 +132,13 @@ Token Tokenizer::tokenizeAsciiNumber( std::istream& stream )
     auto start = stream.tellg();
     auto end   = start;
 
-    char readChar = stream.get();
+    char readChar = static_cast<char>( stream.get() );
     if ( stream.good() && ( std::isdigit( readChar ) || readChar == '-' ) )
     {
         while ( stream.good() && isCharValidInDigit( readChar ) )
         {
             end      = stream.tellg();
-            readChar = stream.get();
+            readChar = static_cast<char>( stream.get() );
         }
     }
 
@@ -185,7 +185,7 @@ Token Tokenizer::tokenizeKeyword( std::istream& stream, const std::vector<std::p
         {
             return tokenizeWord( stream, keyword, kind );
         }
-        catch ( std::runtime_error& e )
+        catch ( std::runtime_error& )
         {
         }
     }
@@ -202,7 +202,7 @@ Token Tokenizer::tokenizeValue( std::istream& stream )
     {
         return tokenizeAsciiNumber( stream );
     }
-    catch ( const std::runtime_error& e )
+    catch ( const std::runtime_error& )
     {
         return tokenizeString( stream );
     }
@@ -314,7 +314,7 @@ std::vector<Token> Tokenizer::tokenizeTagGroup( std::istream& stream )
 
             hasMoreTokens = true;
         }
-        catch ( std::runtime_error& e )
+        catch ( std::runtime_error& )
         {
             hasMoreTokens = false;
         }
@@ -337,7 +337,7 @@ void Tokenizer::tokenizeDelimiter( std::istream& stream )
             tokenizeSpace( s );
             return true;
         }
-        catch ( const std::runtime_error& e )
+        catch ( const std::runtime_error& )
         {
             return false;
         }
@@ -349,7 +349,7 @@ void Tokenizer::tokenizeDelimiter( std::istream& stream )
             tokenizeComment( s );
             return true;
         }
-        catch ( const std::runtime_error& e )
+        catch ( const std::runtime_error& )
         {
             return false;
         }
