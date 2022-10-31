@@ -1098,10 +1098,6 @@ void RimSummaryCurve::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 
         RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
         mainPlotWindow->updateMultiPlotToolBar();
-
-        // If no plot collection is found, we assume that we are inside a curve creator
-        // Update the summary curve collection to make sure the curve names are updated in curve creator UI
-        visibilityChanged.send( m_showCurve() );
     }
     else if ( changedField == &m_plotAxisProperties )
     {
