@@ -37,8 +37,8 @@ public:
     QString name() const;
     QString unit() const;
 
-    void   appendValue( int nodeIndex, double value );
-    double getValue( int nodeIndex, int timeStepIndex ) const;
+    void   appendValue( size_t nodeIndex, double value );
+    double getValue( size_t nodeIndex, size_t timeStepIndex ) const;
 
     size_t numNodes() const;
 

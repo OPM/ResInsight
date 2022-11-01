@@ -59,8 +59,8 @@ std::vector<std::vector<double>>
 {
     std::vector<std::vector<double>> vec;
 
-    int propertyIndex = fractureDefinition->getPropertyIndex( resultName );
-    if ( propertyIndex < 0 ) return vec;
+    size_t propertyIndex = fractureDefinition->getPropertyIndex( resultName );
+    if ( propertyIndex == std::numeric_limits<size_t>::max() ) return vec;
 
     std::vector<cvf::Vec3d> relativePos = getRelativeCoordinates( fractureDefinition, timeStepIndex );
 
@@ -430,13 +430,13 @@ void RigThermalFractureResultUtil::appendDataToResultStatistics( std::shared_ptr
                                                                  MinMaxAccumulator& minMaxAccumulator,
                                                                  PosNegAccumulator& posNegAccumulator )
 {
-    int propertyIndex = fractureDefinition->getPropertyIndex( resultName );
-    if ( propertyIndex < 0 ) return;
+    size_t propertyIndex = fractureDefinition->getPropertyIndex( resultName );
+    if ( propertyIndex == std::numeric_limits<size_t>::max() ) return;
 
-    int maxTs = static_cast<int>( fractureDefinition->timeSteps().size() );
-    for ( int ts = 0; ts < maxTs; ts++ )
+    size_t maxTs = fractureDefinition->timeSteps().size();
+    for ( size_t ts = 0; ts < maxTs; ts++ )
     {
-        for ( int nodeIndex = 0; nodeIndex < static_cast<int>( fractureDefinition->numNodes() ); nodeIndex++ )
+        for ( size_t nodeIndex = 0; nodeIndex < fractureDefinition->numNodes(); nodeIndex++ )
         {
             double value = fractureDefinition->getPropertyValue( propertyIndex, nodeIndex, ts );
             minMaxAccumulator.addValue( value );
@@ -589,7 +589,7 @@ std::pair<cvf::Vec3d, cvf::Vec3d> RigThermalFractureResultUtil::computePositionA
 double RigThermalFractureResultUtil::interpolateProperty( const cvf::Vec3d&                                   position,
                                                           const std::vector<cvf::Vec3d>&                      points,
                                                           std::shared_ptr<const RigThermalFractureDefinition> fractureDefinition,
-                                                          int    propertyIndex,
+                                                          size_t propertyIndex,
                                                           size_t timeStepIndex )
 {
     // Compute the distance to the other points

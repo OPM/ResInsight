@@ -46,9 +46,9 @@ QString RigThermalFractureResult::unit() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RigThermalFractureResult::appendValue( int nodeIndex, double value )
+void RigThermalFractureResult::appendValue( size_t nodeIndex, double value )
 {
-    if ( nodeIndex >= static_cast<int>( m_parameterValues.size() ) )
+    if ( nodeIndex >= m_parameterValues.size() )
         m_parameterValues.push_back( { value } );
     else
         m_parameterValues[nodeIndex].push_back( value );
@@ -57,7 +57,7 @@ void RigThermalFractureResult::appendValue( int nodeIndex, double value )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-double RigThermalFractureResult::getValue( int nodeIndex, int timeStepIndex ) const
+double RigThermalFractureResult::getValue( size_t nodeIndex, size_t timeStepIndex ) const
 {
     return m_parameterValues[nodeIndex][timeStepIndex];
 }

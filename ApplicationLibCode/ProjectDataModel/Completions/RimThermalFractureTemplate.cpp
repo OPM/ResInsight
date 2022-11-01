@@ -168,13 +168,13 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
     if ( m_fractureDefinitionData )
     {
         auto addInjectivityFactor = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
-            int     leakoffPressureDropIndex  = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
-            int     filtratePressureDropIndex = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
+            size_t  leakoffPressureDropIndex  = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
+            size_t  filtratePressureDropIndex = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
             QString injectivityValueTag       = RiaDefines::injectivityFactorResultName();
             def->addProperty( injectivityValueTag,
                               RiaDefines::getExpectedThermalFractureUnit( injectivityValueTag, def->unitSystem() ) );
 
-            int injectivityFactorIndex = def->getPropertyIndex( injectivityValueTag );
+            size_t injectivityFactorIndex = def->getPropertyIndex( injectivityValueTag );
 
             for ( size_t nodeIndex = 0; nodeIndex < def->numNodes(); nodeIndex++ )
             {
@@ -192,14 +192,14 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
         };
 
         auto addFilterCakeMobility = []( std::shared_ptr<RigThermalFractureDefinition> def ) {
-            int     leakoffPressureDropIndex   = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
-            int     filtratePressureDropIndex  = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
-            int     leakoffMobilityIndex       = def->getPropertyIndex( RiaDefines::leakoffMobilityResultName() );
+            size_t  leakoffPressureDropIndex   = def->getPropertyIndex( RiaDefines::leakoffPressureDropResultName() );
+            size_t  filtratePressureDropIndex  = def->getPropertyIndex( RiaDefines::filtratePressureDropResultName() );
+            size_t  leakoffMobilityIndex       = def->getPropertyIndex( RiaDefines::leakoffMobilityResultName() );
             QString filterCakeMobilityValueTag = RiaDefines::filterCakeMobilityResultName();
             def->addProperty( filterCakeMobilityValueTag,
                               RiaDefines::getExpectedThermalFractureUnit( filterCakeMobilityValueTag, def->unitSystem() ) );
 
-            int filterCakeMobilityIndex = def->getPropertyIndex( filterCakeMobilityValueTag );
+            size_t filterCakeMobilityIndex = def->getPropertyIndex( filterCakeMobilityValueTag );
 
             for ( size_t nodeIndex = 0; nodeIndex < def->numNodes(); nodeIndex++ )
             {

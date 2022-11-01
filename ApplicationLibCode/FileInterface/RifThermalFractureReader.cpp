@@ -51,7 +51,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
     QString separator = ",";
 
     auto appendPropertyValues =
-        [definition]( int nodeIndex, int valueOffset, const QStringList& values, double conductivityFactor ) {
+        [definition]( size_t nodeIndex, int valueOffset, const QStringList& values, double conductivityFactor ) {
             CAF_ASSERT( valueOffset <= values.size() );
             for ( int i = valueOffset; i < values.size(); i++ )
             {
@@ -59,7 +59,7 @@ std::pair<std::shared_ptr<RigThermalFractureDefinition>, QString>
                 double value = values[i].toDouble( &isOk );
                 if ( isOk )
                 {
-                    int propertyIndex = i - valueOffset;
+                    size_t propertyIndex = static_cast<size_t>( i - valueOffset );
 
                     // Convert conductivity from Darcy to milliDarcy
                     if ( definition->getPropertyIndex( "Conductivity" ) == propertyIndex )

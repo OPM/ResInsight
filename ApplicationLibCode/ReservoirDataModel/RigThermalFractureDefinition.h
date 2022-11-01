@@ -51,25 +51,25 @@ public:
 
     std::vector<std::pair<QString, QString>> getPropertyNamesUnits() const;
 
-    void appendPropertyValue( int propertyIndex, int nodeIndex, double value );
+    void appendPropertyValue( size_t propertyIndex, size_t nodeIndex, double value );
 
-    double getPropertyValue( int propertyIndex, int nodeIndex, int timeStepIndex ) const;
+    double getPropertyValue( size_t propertyIndex, size_t nodeIndex, size_t timeStepIndex ) const;
 
-    int getPropertyIndex( const QString& name ) const;
+    size_t getPropertyIndex( const QString& name ) const;
 
-    std::vector<cvf::Vec3d> relativeCoordinates( int timeStepIndex ) const;
+    std::vector<cvf::Vec3d> relativeCoordinates( size_t timeStepIndex ) const;
 
     cvf::Vec3d centerPosition() const;
 
-    double minDepth( int timeStepIndex ) const;
-    double maxDepth( int timeStepIndex ) const;
+    double minDepth( size_t timeStepIndex ) const;
+    double maxDepth( size_t timeStepIndex ) const;
 
     void setUnitSystem( RiaDefines::EclipseUnitSystem unitSystem );
 
     RiaDefines::EclipseUnitSystem unitSystem() const;
 
 private:
-    cvf::BoundingBox getBoundingBox( int timeStepIndex ) const;
+    cvf::BoundingBox getBoundingBox( size_t timeStepIndex ) const;
 
     QString m_name;
 
