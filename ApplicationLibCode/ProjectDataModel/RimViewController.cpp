@@ -422,16 +422,6 @@ void RimViewController::updateOptionSensitivity()
         }
     }
 
-    if ( isCameraControlPossible() )
-    {
-        this->m_syncCamera.uiCapability()->setUiReadOnly( false );
-    }
-    else
-    {
-        this->m_syncCamera.uiCapability()->setUiReadOnly( true );
-        this->m_syncCamera = false;
-    }
-
     if ( isPropertyFilterControlPossible() )
     {
         this->m_syncPropertyFilters.uiCapability()->setUiReadOnly( false );
@@ -677,16 +667,6 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 RimGridView* RimViewController::masterView() const
 {
     return ownerViewLinker()->masterView();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimViewController::isCameraControlPossible() const
-{
-    RimEclipseContourMapView* contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>( masterView() );
-    RimEclipseContourMapView* contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>( managedEclipseView() );
-    return !( contourMapMasterView || contourMapManagedView );
 }
 
 //--------------------------------------------------------------------------------------------------
