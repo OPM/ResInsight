@@ -72,7 +72,7 @@ RimEclipseContourMapView::RimEclipseContourMapView()
 
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr( contourMapProjection(), this );
 
-    ( (RiuViewerToViewInterface*)this )->setCameraPosition( sm_defaultViewMatrix );
+    setCameraPosition( sm_defaultViewMatrix );
 
     cellResult()->setTernaryEnabled( false );
     cellResult()->legendConfigChanged.connect( this, &RimEclipseContourMapView::onLegendConfigChanged );
@@ -568,4 +568,19 @@ RimSurfaceInViewCollection* RimEclipseContourMapView::surfaceInViewCollection() 
 {
     // Surfaces should not be shown in contour map.
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapView::zoomAll()
+{
+    setCameraPosition( sm_defaultViewMatrix );
+    isPerspectiveView = false;
+
+    // If a 3D view has been used as the primary linked view, a contour map can be rotated in 3D. Use the following
+    // function to make sure view is reset to original state, with correct rotation and grid box configuration.
+    updateViewWidgetAfterCreation();
+
+    RimEclipseView::zoomAll();
 }

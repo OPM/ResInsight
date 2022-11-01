@@ -95,8 +95,6 @@ private:
     void updateResultColorsControl();
     void updateLegendDefinitions();
 
-    void updateDefaultOptions();
-
     bool isMasterAndDepViewDifferentType() const;
     bool isPropertyFilterControlPossible() const;
     bool isCellFilterMappingApplicable() const;

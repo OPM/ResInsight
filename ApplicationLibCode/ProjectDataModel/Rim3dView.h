@@ -230,8 +230,6 @@ protected:
     virtual cvf::Transform* scaleTransform()         = 0;
 
 protected:
-    // Overridden PdmObject methods:
-
     caf::PdmFieldHandle* userDescriptionField() override;
     caf::PdmFieldHandle* backgroundColorField();
 
@@ -242,9 +240,10 @@ protected:
 
     void setupBeforeSave() override;
 
-    // Overridden ViewWindow methods:
     void     updateViewWidgetAfterCreation() override;
     QWidget* createViewWidget( QWidget* mainWindowParent ) override;
+
+    void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;
 
 protected:
     // Timestep Field. Children clamps this differently
@@ -271,8 +270,6 @@ private:
     void performAutoNameUpdate() final;
 
     // Implementation of RiuViewerToViewInterface
-
-    void setCameraPosition( const cvf::Mat4d& cameraPosition ) override;
     void setCameraPointOfInterest( const cvf::Vec3d& cameraPointOfInterest ) override;
 
     void endAnimation() override;

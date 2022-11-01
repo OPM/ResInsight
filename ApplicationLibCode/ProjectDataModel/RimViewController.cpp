@@ -60,34 +60,31 @@ CAF_PDM_SOURCE_INIT( RimViewController, "ViewController" );
 //--------------------------------------------------------------------------------------------------
 RimViewController::RimViewController()
 {
-    // clang-format off
+    CAF_PDM_InitObject( "View Link" );
 
-    CAF_PDM_InitObject("View Link");
-
-    CAF_PDM_InitField(&m_isActive, "Active", true, "Active");
-    m_isActive.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_isActive, "Active", true, "Active" );
+    m_isActive.uiCapability()->setUiHidden( true );
 
     QString defaultName = "View Config: Empty view";
-    CAF_PDM_InitField(&m_name, "Name", defaultName, "Managed View Name");
-    m_name.uiCapability()->setUiHidden(true);
+    CAF_PDM_InitField( &m_name, "Name", defaultName, "Managed View Name" );
+    m_name.uiCapability()->setUiHidden( true );
 
-    CAF_PDM_InitFieldNoDefault(&m_managedView, "ManagedView", "Linked View");
-    m_managedView.uiCapability()->setUiTreeChildrenHidden(true);
+    CAF_PDM_InitFieldNoDefault( &m_managedView, "ManagedView", "Linked View" );
+    m_managedView.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitField(&m_syncCamera,            "SyncCamera", true,             "Camera");
-    CAF_PDM_InitField(&m_showCursor,            "ShowCursor", true,             "   Show Cursor");
-    CAF_PDM_InitField(&m_syncTimeStep,          "SyncTimeStep", true,           "Time Step");
-    CAF_PDM_InitField(&m_syncCellResult,        "SyncCellResult", false,        "Cell Result");
-    CAF_PDM_InitField(&m_syncLegendDefinitions, "SyncLegendDefinitions", true,  "   Color Legend");
-    
-    CAF_PDM_InitField(&m_syncVisibleCells,    "SyncVisibleCells", false,  "Visible Cells");
+    CAF_PDM_InitField( &m_syncCamera, "SyncCamera", true, "Camera" );
+    CAF_PDM_InitField( &m_showCursor, "ShowCursor", true, "   Show Cursor" );
+    CAF_PDM_InitField( &m_syncTimeStep, "SyncTimeStep", true, "Time Step" );
+    CAF_PDM_InitField( &m_syncCellResult, "SyncCellResult", false, "Cell Result" );
+    CAF_PDM_InitField( &m_syncLegendDefinitions, "SyncLegendDefinitions", true, "   Color Legend" );
+
+    CAF_PDM_InitField( &m_syncVisibleCells, "SyncVisibleCells", false, "Visible Cells" );
     /// We do not support this. Consider to remove sometime
-    m_syncVisibleCells.uiCapability()->setUiHidden(true);
+    m_syncVisibleCells.uiCapability()->setUiHidden( true );
     m_syncVisibleCells.xmlCapability()->disableIO();
 
-    CAF_PDM_InitField(&m_syncCellFilters,    "SyncRangeFilters", false,   "Cell Filters");
-    CAF_PDM_InitField(&m_syncPropertyFilters, "SyncPropertyFilters", false,"Property Filters");
-    // clang-format on
+    CAF_PDM_InitField( &m_syncCellFilters, "SyncRangeFilters", false, "Cell Filters" );
+    CAF_PDM_InitField( &m_syncPropertyFilters, "SyncPropertyFilters", false, "Property Filters" );
 
     setDeletable( true );
 }
@@ -466,7 +463,6 @@ void RimViewController::setManagedView( RimGridView* view )
     m_managedView = view;
 
     updateOptionSensitivity();
-    updateDefaultOptions();
     updateOverrides();
     updateResultColorsControl();
     updateCameraLink();
@@ -562,16 +558,6 @@ void RimViewController::updateLegendDefinitions()
 
     RimViewLinker* viewLinker = ownerViewLinker();
     viewLinker->updateCellResult();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewController::updateDefaultOptions()
-{
-    m_syncCellResult      = isCellResultControlAdvisable();
-    m_syncCellFilters     = isCellFilterControlAdvisable();
-    m_syncPropertyFilters = isPropertyFilterControlAdvisable();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -872,7 +858,7 @@ bool RimViewController::isCellResultControlAdvisable() const
 {
     bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>( masterView() ) != nullptr;
     bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>( managedEclipseView() ) != nullptr;
-    return !isMasterAndDepViewDifferentType() && contourMapMasterView != contourMapManagedView;
+    return !isMasterAndDepViewDifferentType() && ( contourMapMasterView != contourMapManagedView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -892,7 +878,7 @@ bool RimViewController::isPropertyFilterControlAdvisable() const
 {
     bool contourMapMasterView  = dynamic_cast<RimEclipseContourMapView*>( masterView() ) != nullptr;
     bool contourMapManagedView = dynamic_cast<RimEclipseContourMapView*>( managedEclipseView() ) != nullptr;
-    return isPropertyFilterControlPossible() && contourMapMasterView != contourMapManagedView;
+    return isPropertyFilterControlPossible() && ( contourMapMasterView != contourMapManagedView );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1096,7 +1082,19 @@ void RimViewController::applyCellFilterCollectionByUserChoice()
         return;
     }
 
-    bool restoreOriginal = askUserToRestoreOriginalCellFilterCollection( m_managedView->name() );
+    RimViewLinker* viewLinker = ownerViewLinker();
+    RimGridView*   masterView = viewLinker->masterView();
+
+    bool restoreOriginal = true;
+
+    bool anyActiveFilter = !masterView->cellFilterCollection()->filters().empty() ||
+                           masterView->propertyFilterCollection()->hasActiveFilters();
+
+    if ( anyActiveFilter )
+    {
+        restoreOriginal = askUserToRestoreOriginalCellFilterCollection( m_managedView->name() );
+    }
+
     if ( restoreOriginal )
     {
         m_managedView->setOverrideCellFilterCollection( nullptr );
