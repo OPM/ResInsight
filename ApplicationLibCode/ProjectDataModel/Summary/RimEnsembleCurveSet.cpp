@@ -2031,11 +2031,12 @@ QString RimEnsembleCurveSet::createAutoName() const
     RimSummaryPlot* plot = nullptr;
     firstAncestorOrThisOfTypeAsserted( plot );
 
-    QString curveSetName =
-        m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), plot->plotTitleHelper() );
+    QString curveSetName = m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(),
+                                                                  plot->plotTitleHelper(),
+                                                                  plot->plotTitleHelper() );
     if ( curveSetName.isEmpty() )
     {
-        curveSetName = m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), nullptr );
+        curveSetName = m_summaryAddressNameTools->curveNameY( m_yValuesSummaryAddress->address(), nullptr, nullptr );
     }
 
     if ( curveSetName.isEmpty() )

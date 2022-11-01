@@ -65,7 +65,8 @@ RimSummaryCurveAutoName::RimSummaryCurveAutoName()
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& summaryAddress,
-                                             const RimSummaryNameHelper*     nameHelper ) const
+                                             const RimSummaryNameHelper*     currentNameHelper,
+                                             const RimSummaryNameHelper*     plotNameHelper ) const
 {
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
@@ -91,7 +92,7 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
         }
     }
 
-    QString curveName = buildCurveName( summaryAddress, nameHelper, unitNameY, caseNameY );
+    QString curveName = buildCurveName( summaryAddress, currentNameHelper, plotNameHelper, unitNameY, caseNameY );
 
     return curveName;
 }
@@ -100,7 +101,8 @@ QString RimSummaryCurveAutoName::curveNameY( const RifEclipseSummaryAddress& sum
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& summaryAddress,
-                                             const RimSummaryNameHelper*     nameHelper ) const
+                                             const RimSummaryNameHelper*     currentNameHelper,
+                                             const RimSummaryNameHelper*     plotNameHelper ) const
 {
     RimSummaryCurve* summaryCurve = nullptr;
     this->firstAncestorOrThisOfType( summaryCurve );
@@ -126,7 +128,7 @@ QString RimSummaryCurveAutoName::curveNameX( const RifEclipseSummaryAddress& sum
         }
     }
 
-    QString curveName = buildCurveName( summaryAddress, nameHelper, unitNameX, caseNameX );
+    QString curveName = buildCurveName( summaryAddress, currentNameHelper, plotNameHelper, unitNameX, caseNameX );
 
     return curveName;
 }
@@ -182,7 +184,8 @@ void RimSummaryCurveAutoName::appendLgrName( std::string& text, const RifEclipse
 ///
 //--------------------------------------------------------------------------------------------------
 QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress& summaryAddress,
-                                                 const RimSummaryNameHelper*     nameHelper,
+                                                 const RimSummaryNameHelper*     currentNameHelper,
+                                                 const RimSummaryNameHelper*     plotNameHelper,
                                                  const std::string&              unitText,
                                                  const std::string&              caseName ) const
 {
@@ -190,7 +193,7 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
 
     if ( m_vectorName )
     {
-        bool skipSubString = nameHelper && nameHelper->isPlotDisplayingSingleVectorName();
+        bool skipSubString = currentNameHelper && currentNameHelper->vectorNames().size() == 1;
         if ( !skipSubString )
         {
             if ( m_longVectorName() )
@@ -230,11 +233,11 @@ QString RimSummaryCurveAutoName::buildCurveName( const RifEclipseSummaryAddress&
         }
     }
 
-    appendAddressDetails( text, summaryAddress, nameHelper );
+    appendAddressDetails( text, summaryAddress, plotNameHelper );
 
     if ( !caseName.empty() )
     {
-        bool skipSubString = nameHelper && nameHelper->isCaseInTitle();
+        bool skipSubString = plotNameHelper && plotNameHelper->isCaseInTitle();
 
         if ( m_caseName && !skipSubString )
         {
