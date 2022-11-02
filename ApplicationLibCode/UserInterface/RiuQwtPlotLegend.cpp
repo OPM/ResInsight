@@ -76,8 +76,10 @@ QSize RiuQwtPlotLegend::sizeHint() const
     {
         QMargins margins = this->contentsMargins();
 
+        auto widgetSize = size();
+
         int numColumns =
-            std::max( 1, (int)legendLayout->columnsForWidth( fullSizeHint.width() - margins.left() - margins.right() ) );
+            std::max( 1, (int)legendLayout->columnsForWidth( widgetSize.width() - margins.left() - margins.right() ) );
         int numRows = legendLayout->itemCount() / numColumns;
         if ( numRows == 0 )
         {
