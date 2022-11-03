@@ -18,6 +18,8 @@
 
 #include "RicDeleteSubPlotCtxFeature.h"
 
+#include <QAction>
+
 CAF_CMD_SOURCE_INIT( RicDeleteSubPlotCtxFeature, "RicDeleteSubPlotCtxFeature" );
 
 //--------------------------------------------------------------------------------------------------
@@ -26,4 +28,13 @@ CAF_CMD_SOURCE_INIT( RicDeleteSubPlotCtxFeature, "RicDeleteSubPlotCtxFeature" );
 bool RicDeleteSubPlotCtxFeature::isCommandEnabled()
 {
     return true;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RicDeleteSubPlotCtxFeature::setupActionLook( QAction* actionToSetup )
+{
+    RicDeleteSubPlotFeature::setupActionLook( actionToSetup );
+    actionToSetup->setShortcut( QKeySequence() );
 }
