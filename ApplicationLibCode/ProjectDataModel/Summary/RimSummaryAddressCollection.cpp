@@ -18,6 +18,8 @@
 
 #include "RimSummaryAddressCollection.h"
 
+#include "RiaSummaryDefines.h"
+
 #include "RifEclipseSummaryAddress.h"
 
 #include "RimSummaryAddress.h"
@@ -27,26 +29,29 @@
 template <>
 void caf::AppEnum<RimSummaryAddressCollection::CollectionContentType>::setUp()
 {
-    addItem( RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED, "NOT_DEFINED", "Not Defined" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::FIELD, "FIELD", "Field" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::AQUIFER, "AQUIFER", "Aquifer" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::NETWORK, "NETWORK", "Network" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::MISC, "MISC", "Miscellaneous" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::REGION, "REGION", "Region" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::REGION_2_REGION, "REGION_2_REGION", "Region-Region" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::GROUP, "GROUP", "Group" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::WELL, "WELL", "Well" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION, "WELL_COMPLETION", "Completion" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_SEGMENT, "WELL_SEGMENT", "Segment" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::BLOCK, "BLOCK", "Block" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_LGR, "WELL_LGR", "Lgr-Well" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::WELL_COMPLETION_LGR,
-             "WELL_COMPLETION_LGR",
-             "Lgr Completion" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::BLOCK_LGR, "BLOCK_LGR", "Lgr-Block" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::CALCULATED, "CALCULATED", "Calculated" );
-    addItem( RimSummaryAddressCollection::CollectionContentType::IMPORTED, "IMPORTED", "Imported" );
-    setDefault( RimSummaryAddressCollection::CollectionContentType::NOT_DEFINED );
+    using CollectionContentType = RimSummaryAddressCollection::CollectionContentType;
+    addItem( CollectionContentType::NOT_DEFINED, "NOT_DEFINED", "Not Defined" );
+    addItem( CollectionContentType::WELL, "WELL", RiaDefines::summaryWell() );
+    addItem( CollectionContentType::GROUP, "GROUP", RiaDefines::summaryWellGroup() );
+    addItem( CollectionContentType::REGION, "REGION", RiaDefines::summaryRegion() );
+    addItem( CollectionContentType::FIELD, "FIELD", RiaDefines::summaryField() );
+    addItem( CollectionContentType::MISC, "MISC", RiaDefines::summaryMisc() );
+    addItem( CollectionContentType::WELL_FOLDER, "WELL_FOLDER", RiaDefines::summaryWell() );
+    addItem( CollectionContentType::GROUP_FOLDER, "GROUP_FOLDER", RiaDefines::summaryWellGroup() );
+    addItem( CollectionContentType::REGION_FOLDER, "REGION_FOLDER", RiaDefines::summaryRegion() );
+    addItem( CollectionContentType::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
+    addItem( CollectionContentType::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
+    addItem( CollectionContentType::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
+    addItem( CollectionContentType::NETWORK, "NETWORK", RiaDefines::summaryNetwork() );
+    addItem( CollectionContentType::REGION_2_REGION, "REGION_2_REGION", RiaDefines::summaryRegion2Region() );
+    addItem( CollectionContentType::WELL_COMPLETION, "WELL_COMPLETION", RiaDefines::summaryCompletion() );
+    addItem( CollectionContentType::WELL_LGR, "WELL_LGR", RiaDefines::summaryLgrWell() );
+    addItem( CollectionContentType::WELL_COMPLETION_LGR, "WELL_COMPLETION_LGR", RiaDefines::summaryLgrCompletion() );
+    addItem( CollectionContentType::WELL_SEGMENT, "WELL_SEGMENT", RiaDefines::summaryWellSegment() );
+    addItem( CollectionContentType::BLOCK_LGR, "BLOCK_LGR", RiaDefines::summaryLgrBlock() );
+    addItem( CollectionContentType::CALCULATED, "CALCULATED", RiaDefines::summaryCalculated() );
+    addItem( CollectionContentType::IMPORTED, "IMPORTED", "Imported" );
+    setDefault( CollectionContentType::NOT_DEFINED );
 }
 
 CAF_PDM_SOURCE_INIT( RimSummaryAddressCollection, "RimSummaryAddressCollection" );
@@ -161,22 +166,22 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
 {
     if ( addresses.size() == 0 ) return;
 
-    auto* fields        = getOrCreateSubfolder( "Field", CollectionContentType::FIELD );
-    auto* aquifer       = getOrCreateSubfolder( "Aquifer", CollectionContentType::AQUIFER );
-    auto* network       = getOrCreateSubfolder( "Network", CollectionContentType::NETWORK );
-    auto* misc          = getOrCreateSubfolder( "Miscellaneous", CollectionContentType::MISC );
-    auto* regions       = getOrCreateSubfolder( "Region", CollectionContentType::REGION_FOLDER );
-    auto* region2region = getOrCreateSubfolder( "Region-Region", CollectionContentType::REGION_2_REGION );
-    auto* groups        = getOrCreateSubfolder( "Group", CollectionContentType::GROUP_FOLDER );
-    auto* wells         = getOrCreateSubfolder( "Well", CollectionContentType::WELL_FOLDER );
-    auto* completion    = getOrCreateSubfolder( "Completion", CollectionContentType::WELL_COMPLETION );
-    auto* segment       = getOrCreateSubfolder( "Segment", CollectionContentType::WELL_SEGMENT );
-    auto* blocks        = getOrCreateSubfolder( "Block", CollectionContentType::BLOCK );
-    auto* lgrwell       = getOrCreateSubfolder( "Lgr-Well", CollectionContentType::WELL_LGR );
-    auto* lgrcompletion = getOrCreateSubfolder( "Lgr-Completion", CollectionContentType::WELL_COMPLETION_LGR );
-    auto* lgrblock      = getOrCreateSubfolder( "Lgr-Block", CollectionContentType::BLOCK_LGR );
-    auto* calculated    = getOrCreateSubfolder( "Calculated", CollectionContentType::CALCULATED );
-    auto* imported      = getOrCreateSubfolder( "Imported", CollectionContentType::IMPORTED );
+    auto* fields        = getOrCreateSubfolder( CollectionContentType::FIELD );
+    auto* aquifer       = getOrCreateSubfolder( CollectionContentType::AQUIFER );
+    auto* network       = getOrCreateSubfolder( CollectionContentType::NETWORK );
+    auto* misc          = getOrCreateSubfolder( CollectionContentType::MISC );
+    auto* regions       = getOrCreateSubfolder( CollectionContentType::REGION_FOLDER );
+    auto* region2region = getOrCreateSubfolder( CollectionContentType::REGION_2_REGION );
+    auto* groups        = getOrCreateSubfolder( CollectionContentType::GROUP_FOLDER );
+    auto* wells         = getOrCreateSubfolder( CollectionContentType::WELL_FOLDER );
+    auto* completion    = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION );
+    auto* segment       = getOrCreateSubfolder( CollectionContentType::WELL_SEGMENT );
+    auto* blocks        = getOrCreateSubfolder( CollectionContentType::BLOCK );
+    auto* lgrwell       = getOrCreateSubfolder( CollectionContentType::WELL_LGR );
+    auto* lgrcompletion = getOrCreateSubfolder( CollectionContentType::WELL_COMPLETION_LGR );
+    auto* lgrblock      = getOrCreateSubfolder( CollectionContentType::BLOCK_LGR );
+    auto* calculated    = getOrCreateSubfolder( CollectionContentType::CALCULATED );
+    auto* imported      = getOrCreateSubfolder( CollectionContentType::IMPORTED );
 
     for ( const auto& address : addresses )
     {
@@ -329,6 +334,16 @@ RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( 
     newFolder->setContentType( createFolderType );
     m_subfolders.push_back( newFolder );
     return newFolder;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( CollectionContentType createFolderType )
+{
+    auto name = caf::AppEnum<CollectionContentType>::uiText( createFolderType );
+
+    return getOrCreateSubfolder( name, createFolderType );
 }
 
 //--------------------------------------------------------------------------------------------------
