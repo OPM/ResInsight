@@ -305,16 +305,17 @@ void RimWellPathCollection::readAndAddWellPaths( std::vector<RimFileWellPath*>& 
     caf::ProgressInfo progress( wellPathArray.size(), "Reading well paths from file" );
 
     std::vector<RimWellPath*> wellPathsToGroup;
-    for ( size_t wpIdx = 0; wpIdx < wellPathArray.size(); wpIdx++ )
+    for ( RimFileWellPath* wellPath : wellPathArray )
     {
-        RimFileWellPath* wellPath = wellPathArray[wpIdx];
         wellPath->readWellPathFile( nullptr, m_wellPathImporter.get(), true );
 
         progress.setProgressDescription( QString( "Reading file %1" ).arg( wellPath->name() ) );
 
-        // If a well path with this name exists already, make it read the well path file
-        RimFileWellPath* existingWellPath = dynamic_cast<RimFileWellPath*>( tryFindMatchingWellPath( wellPath->name() ) );
-
+        // If a well path with this name exists already, make it read the well path file. This is useful if a well log
+        // file has been imported before a well path file containing the full geometry for the well path.
+        // NB! Do not use tryFindMatchingWellPath(), as this function will remove the prefix and will return an false
+        // match in many cases.
+        auto* existingWellPath = dynamic_cast<RimFileWellPath*>( wellPathByName( wellPath->name() ) );
         if ( existingWellPath )
         {
             existingWellPath->setFilepath( wellPath->filePath() );
