@@ -584,6 +584,8 @@ void RimWellPathCollection::deleteAllWellPaths()
 //--------------------------------------------------------------------------------------------------
 void RimWellPathCollection::deleteWell( RimWellPath* wellPath )
 {
+    removeWellPath( wellPath );
+
     m_wellPaths.removeChild( wellPath );
     delete wellPath;
 }
@@ -703,16 +705,18 @@ void RimWellPathCollection::reloadAllWellPathFormations()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimWellPathCollection::removeWellPath( gsl::not_null<RimWellPath*> wellPath )
+void RimWellPathCollection::removeWellPath( gsl::not_null<RimWellPath*> wellToRemove )
 {
-    RimFileWellPath* fileWellPath = dynamic_cast<RimFileWellPath*>( wellPath.get() );
-    if ( fileWellPath )
+    auto* fileWellToRemove = dynamic_cast<RimFileWellPath*>( wellToRemove.get() );
+    if ( fileWellToRemove )
     {
         bool isFilePathUsed = false;
-        for ( auto wellPath : m_wellPaths )
+        for ( const auto& well : m_wellPaths )
         {
-            RimFileWellPath* fWPath = dynamic_cast<RimFileWellPath*>( wellPath.p() );
-            if ( fWPath && fWPath->filePath() == fileWellPath->filePath() )
+            auto fileWell = dynamic_cast<RimFileWellPath*>( well.p() );
+            if ( fileWell == fileWellToRemove ) continue;
+
+            if ( fileWell && fileWell->filePath() == fileWellToRemove->filePath() )
             {
                 isFilePathUsed = true;
                 break;
@@ -723,7 +727,7 @@ void RimWellPathCollection::removeWellPath( gsl::not_null<RimWellPath*> wellPath
         {
             // One file can have multiple well paths
             // If no other well paths are referencing the filepath, remove cached data from the file reader
-            m_wellPathImporter->removeFilePath( fileWellPath->filePath() );
+            m_wellPathImporter->removeFilePath( fileWellToRemove->filePath() );
         }
     }
     updateAllRequiredEditors();
