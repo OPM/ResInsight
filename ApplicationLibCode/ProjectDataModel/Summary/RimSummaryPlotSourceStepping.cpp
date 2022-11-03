@@ -93,6 +93,8 @@ RimSummaryPlotSourceStepping::RimSummaryPlotSourceStepping()
     CAF_PDM_InitField( &m_indexLabel, "IndexLabel", QString( "Step By" ), "Step By" );
     m_indexLabel.uiCapability()->setUiEditorTypeName( caf::PdmUiLabelEditor::uiEditorTypeName() );
     m_indexLabel.xmlCapability()->disableIO();
+
+    CAF_PDM_InitField( &m_autoUpdateAppearance, "AutoUpdateAppearance", false, "Update Appearance" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -157,6 +159,8 @@ void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::
         uiOrdering.add( f );
     }
 
+    uiOrdering.add( &m_autoUpdateAppearance );
+
     uiOrdering.skipRemainingFields();
 }
 
@@ -166,18 +170,14 @@ void RimSummaryPlotSourceStepping::defineUiOrdering( QString uiConfigName, caf::
 QList<caf::PdmOptionItemInfo>
     RimSummaryPlotSourceStepping::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
 {
+    if ( ( fieldNeedingOptions == &m_placeholderForLabel ) || ( fieldNeedingOptions == &m_indexLabel ) ||
+         ( fieldNeedingOptions == &m_autoUpdateAppearance ) ||
+         ( fieldNeedingOptions == &m_includeEnsembleCasesForCaseStepping ) || ( fieldNeedingOptions == &m_stepDimension ) )
+    {
+        return {};
+    }
+
     QList<caf::PdmOptionItemInfo> options;
-
-    if ( ( fieldNeedingOptions == &m_includeEnsembleCasesForCaseStepping ) || ( fieldNeedingOptions == &m_stepDimension ) )
-    {
-        return caf::PdmObject::calculateValueOptions( fieldNeedingOptions );
-    }
-
-    if ( ( fieldNeedingOptions == &m_placeholderForLabel ) || ( fieldNeedingOptions == &m_indexLabel ) )
-    {
-        return options;
-    }
-
     if ( fieldNeedingOptions == &m_summaryCase )
     {
         auto summaryCases = RimSummaryPlotSourceStepping::summaryCasesForSourceStepping();
@@ -376,7 +376,11 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
                     if ( previousCase == curve->summaryCaseY() )
                     {
                         curve->setSummaryCaseY( m_summaryCase );
-                        curve->setCurveAppearanceFromCaseType();
+
+                        if ( m_autoUpdateAppearance )
+                        {
+                            curve->setCurveAppearanceFromCaseType();
+                        }
                     }
                 }
 
@@ -422,24 +426,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
     }
     else if ( changedField == &m_vectorName )
     {
-        for ( auto curve : curves )
-        {
-            if ( isYAxisStepping() )
-            {
-                auto adr = curve->summaryAddressY();
-                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
-                    curve->setSummaryAddressY( adr );
-            }
-
-            if ( isXAxisStepping() )
-            {
-                auto adr = curve->summaryAddressX();
-                if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
-                    curve->setSummaryAddressX( adr );
-            }
-
-            curve->setDefaultCurveAppearance();
-        }
+        updateVectorNameInCurves( curves, oldValue, newValue );
 
         if ( dataSourceSteppingObject() )
         {
@@ -450,6 +437,7 @@ void RimSummaryPlotSourceStepping::fieldChangedByUi( const caf::PdmFieldHandle* 
                     curveSet->setSummaryAddress( adr );
             }
         }
+
         m_vectorName.uiCapability()->updateConnectedEditors();
         triggerLoadDataAndUpdate = true;
         isAutoZoomAllowed        = true;
@@ -952,7 +940,7 @@ void RimSummaryPlotSourceStepping::defineEditorAttribute( const caf::PdmFieldHan
                                                           QString                    uiConfigName,
                                                           caf::PdmUiEditorAttribute* attribute )
 {
-    caf::PdmUiComboBoxEditorAttribute* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
+    auto* myAttr = dynamic_cast<caf::PdmUiComboBoxEditorAttribute*>( attribute );
     if ( myAttr )
     {
         if ( field == &m_stepDimension )
@@ -1281,6 +1269,61 @@ std::map<QString, QString> RimSummaryPlotSourceStepping::optionsForQuantity( Ria
     }
 
     return displayAndValueStrings;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimSummaryPlotSourceStepping::updateVectorNameInCurves( std::vector<RimSummaryCurve*>& curves,
+                                                             const QVariant&                oldValue,
+                                                             const QVariant&                newValue )
+{
+    std::map<RimSummaryPlot*, std::vector<RimSummaryCurve*>> curvesInPlot;
+    for ( auto curve : curves )
+    {
+        if ( isYAxisStepping() )
+        {
+            auto adr = curve->summaryAddressY();
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
+                curve->setSummaryAddressY( adr );
+        }
+
+        if ( isXAxisStepping() )
+        {
+            auto adr = curve->summaryAddressX();
+            if ( RimDataSourceSteppingTools::updateQuantityIfMatching( oldValue, newValue, &adr ) )
+                curve->setSummaryAddressX( adr );
+        }
+
+        if ( m_autoUpdateAppearance )
+        {
+            RimSummaryPlot* summaryPlot = nullptr;
+            curve->firstAncestorOfType( summaryPlot );
+            if ( summaryPlot )
+            {
+                if ( curvesInPlot.count( summaryPlot ) )
+                {
+                    curvesInPlot[summaryPlot].push_back( curve );
+                }
+                else
+                {
+                    curvesInPlot[summaryPlot] = { curve };
+                }
+            }
+        }
+    }
+
+    if ( m_autoUpdateAppearance )
+    {
+        // Apply the curve appearance for all curves in one go. If appearance of each curve was updated as part of the
+        // loop, the appearance of curves was based on a mix of old and new curves causing a mix of different curve
+        // styles
+
+        for ( const auto& [plot, curves] : curvesInPlot )
+        {
+            plot->applyDefaultCurveAppearances( curves );
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
