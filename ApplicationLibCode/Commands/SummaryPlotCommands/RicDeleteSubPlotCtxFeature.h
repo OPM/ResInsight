@@ -29,4 +29,5 @@ class RicDeleteSubPlotCtxFeature : public RicDeleteSubPlotFeature
 
 protected:
     bool isCommandEnabled() override;
+    void setupActionLook( QAction* actionToSetup ) override;
 };
