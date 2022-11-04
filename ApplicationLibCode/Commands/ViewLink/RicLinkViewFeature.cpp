@@ -65,7 +65,6 @@ public:
         std::vector<RimGridView*> selectedGridViews;
 
         caf::SelectionManager::instance()->objectsByTypeStrict( &selectedGridViews );
-        bool hasAnyUnlinkableViews = false;
         for ( auto gridView : selectedGridViews )
         {
             if ( !gridView ) continue;
@@ -76,7 +75,7 @@ public:
             }
         }
 
-        if ( !m_viewsToLink.empty() && !hasAnyUnlinkableViews )
+        if ( !m_viewsToLink.empty() )
         {
             return true;
         }
