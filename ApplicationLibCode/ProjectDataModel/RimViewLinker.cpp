@@ -266,6 +266,25 @@ void RimViewLinker::removeOverrides()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimViewLinker::updateScaleWidgetVisibility()
+{
+    // Create new display model that will call RimEclipseContourMapView::onUpdateLegends() where the visibility of scale
+    // widgets is controlled
+
+    if ( masterView() ) masterView()->scheduleCreateDisplayModelAndRedraw();
+
+    for ( RimViewController* viewLink : m_viewControllers )
+    {
+        if ( viewLink->managedView() )
+        {
+            viewLink->managedView()->scheduleCreateDisplayModelAndRedraw();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void RimViewLinker::allViewsForCameraSync( const RimGridView* source, std::vector<RimGridView*>& views ) const
 {
     if ( !isActive() ) return;
@@ -349,8 +368,10 @@ RimGridView* RimViewLinker::masterView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::allViews( std::vector<RimGridView*>& views ) const
+std::vector<RimGridView*> RimViewLinker::allViews() const
 {
+    std::vector<RimGridView*> views;
+
     views.push_back( m_masterView() );
 
     for ( const auto& viewController : m_viewControllers )
@@ -360,6 +381,8 @@ void RimViewLinker::allViews( std::vector<RimGridView*>& views ) const
             views.push_back( viewController->managedView() );
         }
     }
+
+    return views;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -535,6 +558,8 @@ void RimViewLinker::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArr
     RimViewLinkerCollection* viewLinkerCollection = nullptr;
     this->firstAncestorOrThisOfType( viewLinkerCollection );
     if ( viewLinkerCollection ) viewLinkerCollection->updateConnectedEditors();
+
+    updateScaleWidgetVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -644,6 +669,8 @@ void RimViewLinker::addDependentView( RimGridView* view )
 
         viewContr->setManagedView( view );
     }
+
+    updateScaleWidgetVisibility();
 }
 
 //--------------------------------------------------------------------------------------------------

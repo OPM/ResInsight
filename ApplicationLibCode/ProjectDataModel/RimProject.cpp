@@ -755,7 +755,7 @@ void RimProject::allNotLinkedViews( std::vector<RimGridView*>& views )
     std::vector<RimGridView*> alreadyLinkedViews;
     if ( viewLinkerCollection->viewLinker() )
     {
-        viewLinkerCollection->viewLinker()->allViews( alreadyLinkedViews );
+        alreadyLinkedViews = viewLinkerCollection->viewLinker()->allViews();
     }
 
     for ( size_t caseIdx = 0; caseIdx < cases.size(); caseIdx++ )

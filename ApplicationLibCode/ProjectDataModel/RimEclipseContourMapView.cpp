@@ -35,6 +35,7 @@
 #include "RimGridCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
 
 #include "cafPdmUiTreeOrdering.h"
@@ -410,7 +411,22 @@ void RimEclipseContourMapView::onUpdateLegends()
             }
         }
 
-        nativeOrOverrideViewer()->showScaleLegend( m_showScaleLegend() );
+        // Hide the scale widget if any 3D views are present, as the display of the scale widget is only working for
+        // default rotation. The update is triggered in RimViewLinker::updateScaleWidgetVisibility()
+
+        bool any3DViewsLinked = false;
+
+        if ( auto viewLinker = assosiatedViewLinker() )
+        {
+            auto views = viewLinker->allViews();
+            for ( auto v : views )
+            {
+                if ( dynamic_cast<RimEclipseContourMapView*>( v ) ) continue;
+                any3DViewsLinked = true;
+            }
+        }
+
+        nativeOrOverrideViewer()->showScaleLegend( any3DViewsLinked ? false : m_showScaleLegend() );
     }
 }
 

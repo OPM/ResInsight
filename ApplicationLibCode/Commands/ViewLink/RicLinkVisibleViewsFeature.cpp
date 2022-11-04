@@ -57,7 +57,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 
     if ( proj->viewLinkerCollection() && proj->viewLinkerCollection()->viewLinker() )
     {
-        proj->viewLinkerCollection()->viewLinker()->allViews( linkedviews );
+        linkedviews = proj->viewLinkerCollection()->viewLinker()->allViews();
     }
 
     if ( visibleGridViews.size() >= 2 && ( linkedviews.size() < visibleGridViews.size() ) )
