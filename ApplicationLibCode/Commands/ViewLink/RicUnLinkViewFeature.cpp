@@ -76,7 +76,7 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
     {
         viewLinker->applyCellFilterCollectionByUserChoice();
 
-        RimGridView* firstControlledView = viewLinker->firstControlledView();
+        auto firstControlledView = viewLinker->firstControlledView();
 
         if ( firstControlledView )
         {

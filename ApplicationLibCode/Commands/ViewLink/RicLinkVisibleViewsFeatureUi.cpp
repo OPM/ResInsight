@@ -22,8 +22,8 @@
 #include "RiaApplication.h"
 #include "RiaOptionItemFactory.h"
 
+#include "Rim3dView.h"
 #include "RimCase.h"
-#include "RimGridView.h"
 #include "RimViewLinker.h"
 
 CAF_PDM_SOURCE_INIT( RicLinkVisibleViewsFeatureUi, "RicLinkVisibleViewsFeatureUi" );
@@ -41,13 +41,13 @@ RicLinkVisibleViewsFeatureUi::RicLinkVisibleViewsFeatureUi( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeatureUi::setViews( const std::vector<RimGridView*>& allViews )
+void RicLinkVisibleViewsFeatureUi::setViews( const std::vector<Rim3dView*>& allViews )
 {
     m_allViews = allViews;
 
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    auto activeView = RiaApplication::instance()->activeReservoirView();
 
-    std::vector<RimGridView*> masterCandidates = masterViewCandidates();
+    std::vector<Rim3dView*> masterCandidates = masterViewCandidates();
 
     // Set Active view as master view if the active view isn't a contour map.
     for ( size_t i = 0; i < masterCandidates.size(); i++ )
@@ -68,7 +68,7 @@ void RicLinkVisibleViewsFeatureUi::setViews( const std::vector<RimGridView*>& al
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridView* RicLinkVisibleViewsFeatureUi::masterView()
+Rim3dView* RicLinkVisibleViewsFeatureUi::masterView()
 {
     return m_masterView;
 }
@@ -76,7 +76,7 @@ RimGridView* RicLinkVisibleViewsFeatureUi::masterView()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<RimGridView*> RicLinkVisibleViewsFeatureUi::masterViewCandidates() const
+std::vector<Rim3dView*> RicLinkVisibleViewsFeatureUi::masterViewCandidates() const
 {
     return m_allViews;
 }
@@ -91,7 +91,7 @@ QList<caf::PdmOptionItemInfo>
 
     if ( fieldNeedingOptions == &m_masterView )
     {
-        for ( RimGridView* v : masterViewCandidates() )
+        for ( auto v : masterViewCandidates() )
         {
             RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( v, &options );
         }

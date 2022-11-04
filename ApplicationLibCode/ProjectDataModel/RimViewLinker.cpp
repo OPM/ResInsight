@@ -338,7 +338,7 @@ QString RimViewLinker::displayNameForView( Rim3dView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::setMasterView( RimGridView* view )
+void RimViewLinker::setMasterView( Rim3dView* view )
 {
     RimViewController* previousViewController = nullptr;
     if ( view ) previousViewController = view->viewController();
@@ -500,7 +500,7 @@ void RimViewLinker::findNameAndIconFromView( QString* name, caf::IconProvider* i
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::updateCursorPosition( const RimGridView* sourceView, const cvf::Vec3d& domainCoord )
+void RimViewLinker::updateCursorPosition( const Rim3dView* sourceView, const cvf::Vec3d& domainCoord )
 {
     RimViewController* sourceViewLink = sourceView->viewController();
     if ( sourceViewLink && !sourceViewLink->showCursor() )
@@ -636,7 +636,7 @@ void RimViewLinker::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
 //--------------------------------------------------------------------------------------------------
 void RimViewLinker::updateCamera( Rim3dView* sourceView )
 {
-    if ( !sourceView->viewer() ) return;
+    if ( !sourceView || !sourceView->viewer() ) return;
 
     if ( !isActive() ) return;
 
@@ -658,7 +658,7 @@ void RimViewLinker::updateCamera( Rim3dView* sourceView )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::addDependentView( RimGridView* view )
+void RimViewLinker::addDependentView( Rim3dView* view )
 {
     CVF_ASSERT( view && view != m_masterView );
 

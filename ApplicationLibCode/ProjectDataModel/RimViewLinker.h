@@ -59,9 +59,9 @@ public:
 
     bool isActive() const;
 
-    void       setMasterView( RimGridView* view );
+    void       setMasterView( Rim3dView* view );
     Rim3dView* masterView() const;
-    void       addDependentView( RimGridView* view );
+    void       addDependentView( Rim3dView* view );
     bool       isFirstViewDependentOnSecondView( const RimGridView* firstView, const RimGridView* secondView ) const;
     void       updateDependentViews();
     void       removeViewController( RimViewController* viewController );
@@ -92,7 +92,7 @@ public:
 
     static void findNameAndIconFromView( QString* name, caf::IconProvider* icon, Rim3dView* view );
 
-    void updateCursorPosition( const RimGridView* sourceView, const cvf::Vec3d& domainCoord );
+    void updateCursorPosition(const Rim3dView* sourceView, const cvf::Vec3d& domainCoord);
 
     void notifyManagedViewChange( Rim3dView* oldManagedView, Rim3dView* newManagedView );
 

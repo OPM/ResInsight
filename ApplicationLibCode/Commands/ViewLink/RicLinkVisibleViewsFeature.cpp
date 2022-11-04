@@ -45,7 +45,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
     if ( !proj ) return false;
 
     std::vector<Rim3dView*>   visibleViews;
-    std::vector<RimGridView*> linkedviews;
+    std::vector<Rim3dView*>   linkedviews;
     std::vector<RimGridView*> visibleGridViews;
 
     proj->allVisibleViews( visibleViews );
@@ -62,7 +62,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 
     if ( visibleGridViews.size() >= 2 && ( linkedviews.size() < visibleGridViews.size() ) )
     {
-        std::vector<RimGridView*> views;
+        std::vector<Rim3dView*> views;
         findLinkableVisibleViews( views );
         RicLinkVisibleViewsFeatureUi testUi;
         testUi.setViews( views );
@@ -77,7 +77,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<RimGridView*> linkableViews;
+    std::vector<Rim3dView*> linkableViews;
     findLinkableVisibleViews( linkableViews );
 
     linkViews( linkableViews );
@@ -133,7 +133,7 @@ void RicLinkVisibleViewsFeature::linkViews( std::vector<Rim3dView*>& linkableVie
         viewLinker->setMasterView( masterView );
     }
 
-    for ( RimGridView* rimView : linkableViews )
+    for ( auto rimView : linkableViews )
     {
         if ( rimView == viewLinker->masterView() ) continue;
 
