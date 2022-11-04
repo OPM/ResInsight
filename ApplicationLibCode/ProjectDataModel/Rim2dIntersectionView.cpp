@@ -51,6 +51,8 @@
 #include "cvfScene.h"
 #include "cvfTransform.h"
 
+#include "RimViewController.h"
+#include "RimViewLinker.h"
 #include <QDateTime>
 
 CAF_PDM_SOURCE_INIT( Rim2dIntersectionView, "Intersection2dView" );
@@ -175,6 +177,43 @@ RimCase* Rim2dIntersectionView::ownerCase() const
     }
 
     return rimCase;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* Rim2dIntersectionView::assosiatedViewLinker() const
+{
+    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
+    if ( !viewLinker )
+    {
+        RimViewController* viewController = this->viewController();
+        if ( viewController )
+        {
+            viewLinker = viewController->ownerViewLinker();
+        }
+    }
+
+    return viewLinker;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewController* Rim2dIntersectionView::viewController() const
+{
+    std::vector<RimViewController*> objects;
+    this->objectsWithReferringPtrFieldsOfType( objects );
+
+    for ( auto v : objects )
+    {
+        if ( v )
+        {
+            return v;
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -510,6 +549,25 @@ QString Rim2dIntersectionView::getName() const
 void Rim2dIntersectionView::setName( const QString& name )
 {
     nameConfig()->setCustomName( name );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* Rim2dIntersectionView::viewLinkerIfMasterView() const
+{
+    std::vector<RimViewLinker*> objects;
+    this->objectsWithReferringPtrFieldsOfType( objects );
+
+    for ( auto viewLinker : objects )
+    {
+        if ( viewLinker )
+        {
+            return viewLinker;
+        }
+    }
+
+    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

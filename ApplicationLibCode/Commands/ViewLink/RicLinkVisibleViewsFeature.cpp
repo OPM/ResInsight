@@ -95,7 +95,7 @@ void RicLinkVisibleViewsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridView*>& views )
+void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<Rim3dView*>& views )
 {
     RimProject* proj = RimProject::current();
 
@@ -114,18 +114,18 @@ void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridVi
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::linkViews( std::vector<RimGridView*>& linkableViews )
+void RicLinkVisibleViewsFeature::linkViews( std::vector<Rim3dView*>& linkableViews )
 {
     RimProject*    proj       = RimProject::current();
     RimViewLinker* viewLinker = proj->viewLinkerCollection->viewLinker();
 
-    std::vector<RimGridView*> masterCandidates = linkableViews;
+    std::vector<Rim3dView*> masterCandidates = linkableViews;
 
     if ( !viewLinker )
     {
         // Create a new view linker
 
-        RimGridView* masterView = masterCandidates.front();
+        Rim3dView* masterView = masterCandidates.front();
 
         viewLinker = new RimViewLinker;
 

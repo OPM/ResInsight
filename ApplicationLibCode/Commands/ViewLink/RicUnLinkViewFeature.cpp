@@ -42,7 +42,6 @@ CAF_CMD_SOURCE_INIT( RicUnLinkViewFeature, "RicUnLinkViewFeature" );
 bool RicUnLinkViewFeature::isCommandEnabled()
 {
     Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    ;
     if ( !activeView ) return false;
 
     if ( activeView->assosiatedViewLinker() )

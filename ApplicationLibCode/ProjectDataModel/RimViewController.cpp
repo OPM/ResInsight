@@ -95,8 +95,8 @@ RimViewController::RimViewController()
 RimViewController::~RimViewController()
 {
     this->removeOverrides();
-    RimGridView* managedView = m_managedView;
-    m_managedView            = nullptr;
+    auto managedView = m_managedView();
+    m_managedView    = nullptr;
 
     if ( managedView ) managedView->updateAutoName();
 }
@@ -110,8 +110,8 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
 
     if ( fieldNeedingOptions == &m_managedView )
     {
-        RimProject*               proj = RimProject::current();
-        std::vector<RimGridView*> views;
+        RimProject*             proj = RimProject::current();
+        std::vector<Rim3dView*> views;
         proj->allNotLinkedViews( views );
 
         // Add currently linked view to list
@@ -124,7 +124,7 @@ QList<caf::PdmOptionItemInfo> RimViewController::calculateValueOptions( const ca
         this->firstAncestorOrThisOfType( viewLinker );
         CVF_ASSERT( viewLinker );
 
-        for ( RimGridView* view : views )
+        for ( auto view : views )
         {
             if ( view != viewLinker->masterView() )
             {
@@ -239,9 +239,7 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
 //--------------------------------------------------------------------------------------------------
 RimEclipseView* RimViewController::managedEclipseView() const
 {
-    RimGridView* rimView = m_managedView;
-
-    return dynamic_cast<RimEclipseView*>( rimView );
+    return dynamic_cast<RimEclipseView*>( m_managedView() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -249,9 +247,7 @@ RimEclipseView* RimViewController::managedEclipseView() const
 //--------------------------------------------------------------------------------------------------
 RimGeoMechView* RimViewController::managedGeoView() const
 {
-    RimGridView* rimView = m_managedView;
-
-    return dynamic_cast<RimGeoMechView*>( rimView );
+    return dynamic_cast<RimGeoMechView*>( m_managedView() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -261,7 +257,7 @@ void RimViewController::updateOverrides()
 {
     RimViewLinker* viewLinker = ownerViewLinker();
 
-    RimGridView* masterView = viewLinker->masterView();
+    auto masterView = viewLinker->masterView();
 
     CVF_ASSERT( masterView );
 
@@ -332,7 +328,7 @@ void RimViewController::updateOverrides()
 //--------------------------------------------------------------------------------------------------
 void RimViewController::removeOverrides()
 {
-    removeOverrides( m_managedView );
+    removeOverrides( dynamic_cast<RimGridView*>( m_managedView() ) );
 
     RimEclipseView* manEclView = managedEclipseView();
     RimGeoMechView* manGeoView = managedGeoView();
@@ -369,7 +365,7 @@ void RimViewController::removeOverrides( RimGridView* view )
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateOptionSensitivity()
 {
-    RimGridView* mainView = nullptr;
+    Rim3dView* mainView = nullptr;
 
     {
         RimViewLinker* linkedViews = nullptr;
@@ -445,7 +441,7 @@ void RimViewController::updateOptionSensitivity()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridView* RimViewController::managedView() const
+Rim3dView* RimViewController::managedView() const
 {
     return m_managedView;
 }
@@ -453,7 +449,7 @@ RimGridView* RimViewController::managedView() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewController::setManagedView( RimGridView* view )
+void RimViewController::setManagedView( Rim3dView* view )
 {
     if ( m_managedView != view )
     {
@@ -648,7 +644,7 @@ const RigCaseToCaseCellMapper* RimViewController::cellMapper()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridView* RimViewController::masterView() const
+Rim3dView* RimViewController::masterView() const
 {
     return ownerViewLinker()->masterView();
 }
@@ -692,7 +688,8 @@ void RimViewController::scheduleCreateDisplayModelAndRedrawForDependentView() co
 
     if ( this->isResultColorControlled() && this->managedView() )
     {
-        this->managedView()->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
+        auto gridView = dynamic_cast<RimGridView*>( this->managedView() );
+        if ( gridView ) gridView->intersectionCollection()->scheduleCreateDisplayModelAndRedraw2dIntersectionViews();
     }
 }
 
@@ -929,16 +926,19 @@ bool RimViewController::isPropertyFilterOveridden() const
 //--------------------------------------------------------------------------------------------------
 void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedFilter )
 {
-    if ( !m_managedView ) return;
+    auto controlledGridView = dynamic_cast<RimGridView*>( m_managedView() );
+    if ( !controlledGridView ) return;
 
     if ( !isCellFiltersControlled() )
     {
-        m_managedView->setOverrideCellFilterCollection( nullptr );
+        controlledGridView->setOverrideCellFilterCollection( nullptr );
         return;
     }
     // Copy the rangeFilterCollection
+    auto masterGridView = dynamic_cast<RimGridView*>( masterView() );
+    if ( !masterGridView ) return;
 
-    RimCellFilterCollection* sourceFilterCollection = masterView()->cellFilterCollection();
+    RimCellFilterCollection* sourceFilterCollection = masterGridView->cellFilterCollection();
     QString                  xmlFilterCollCopy      = sourceFilterCollection->writeObjectToXmlString();
     PdmObjectHandle*         objectCopy =
         PdmXmlObjectHandle::readUnknownObjectFromXmlString( xmlFilterCollCopy,
@@ -1040,7 +1040,7 @@ void RimViewController::updateCellFilterOverrides( const RimCellFilter* changedF
         }
     }
 
-    m_managedView->setOverrideCellFilterCollection( overrideFilterColl );
+    controlledGridView->setOverrideCellFilterCollection( overrideFilterColl );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1056,21 +1056,27 @@ void RimViewController::updatePropertyFilterOverrides( RimPropertyFilter* change
 //--------------------------------------------------------------------------------------------------
 void RimViewController::applyCellFilterCollectionByUserChoice()
 {
-    if ( !m_managedView ) return;
+    auto managedGridView = dynamic_cast<RimGridView*>( m_managedView() );
 
-    if ( !m_managedView->hasOverriddenCellFilterCollection() )
+    if ( !managedGridView ) return;
+
+    if ( !managedGridView->hasOverriddenCellFilterCollection() )
     {
         return;
     }
 
     RimViewLinker* viewLinker = ownerViewLinker();
-    RimGridView*   masterView = viewLinker->masterView();
+    auto*          masterView = dynamic_cast<RimGridView*>( viewLinker->masterView() );
+
+    bool anyActiveFilter = false;
+
+    if ( masterView )
+    {
+        anyActiveFilter = !masterView->cellFilterCollection()->filters().empty() ||
+                          masterView->propertyFilterCollection()->hasActiveFilters();
+    }
 
     bool restoreOriginal = true;
-
-    bool anyActiveFilter = !masterView->cellFilterCollection()->filters().empty() ||
-                           masterView->propertyFilterCollection()->hasActiveFilters();
-
     if ( anyActiveFilter )
     {
         restoreOriginal = askUserToRestoreOriginalCellFilterCollection( m_managedView->name() );
@@ -1078,11 +1084,11 @@ void RimViewController::applyCellFilterCollectionByUserChoice()
 
     if ( restoreOriginal )
     {
-        m_managedView->setOverrideCellFilterCollection( nullptr );
+        managedGridView->setOverrideCellFilterCollection( nullptr );
     }
     else
     {
-        m_managedView->replaceCellFilterCollectionWithOverride();
+        managedGridView->replaceCellFilterCollectionWithOverride();
     }
 }
 

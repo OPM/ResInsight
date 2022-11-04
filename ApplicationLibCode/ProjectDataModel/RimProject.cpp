@@ -747,12 +747,12 @@ RimSummaryCaseMainCollection* RimProject::firstSummaryCaseMainCollection() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimProject::allNotLinkedViews( std::vector<RimGridView*>& views )
+void RimProject::allNotLinkedViews( std::vector<Rim3dView*>& views )
 {
     std::vector<RimCase*> cases;
     allCases( cases );
 
-    std::vector<RimGridView*> alreadyLinkedViews;
+    std::vector<Rim3dView*> alreadyLinkedViews;
     if ( viewLinkerCollection->viewLinker() )
     {
         alreadyLinkedViews = viewLinkerCollection->viewLinker()->allViews();
