@@ -58,7 +58,7 @@
 RiuMainWindowBase::RiuMainWindowBase()
     : m_allowActiveViewChangeFromSelection( true )
     , m_showFirstVisibleWindowMaximized( true )
-    , m_blockSubWindowActivation( true )
+    , m_blockSubWindowActivation( false )
     , m_blockSubWindowProjectTreeSelection( false )
     , m_windowMenu( nullptr )
     , m_mdiArea( nullptr )
