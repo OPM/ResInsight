@@ -331,6 +331,8 @@ QWidget* Rim3dView::createViewWidget( QWidget* mainWindowParent )
 //--------------------------------------------------------------------------------------------------
 void Rim3dView::updateViewWidgetAfterCreation()
 {
+    if ( !m_viewer ) return;
+
     m_viewer->setDefaultPerspectiveNearPlaneDistance( 10 );
 
     this->onResetLegendsInViewer();
