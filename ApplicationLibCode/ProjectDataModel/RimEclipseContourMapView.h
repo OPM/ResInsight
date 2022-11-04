@@ -41,6 +41,7 @@ public:
     void    updatePickPointAndRedraw();
 
     RimSurfaceInViewCollection* surfaceInViewCollection() const override;
+    void                        zoomAll() override;
 
 protected:
     void initAfterRead() override;

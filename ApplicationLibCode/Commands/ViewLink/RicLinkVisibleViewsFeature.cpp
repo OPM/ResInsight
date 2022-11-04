@@ -21,8 +21,6 @@
 
 #include "RicLinkVisibleViewsFeatureUi.h"
 
-#include "RimEclipseContourMapView.h"
-#include "RimGeoMechContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewController.h"
@@ -59,7 +57,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 
     if ( proj->viewLinkerCollection() && proj->viewLinkerCollection()->viewLinker() )
     {
-        proj->viewLinkerCollection()->viewLinker()->allViews( linkedviews );
+        linkedviews = proj->viewLinkerCollection()->viewLinker()->allViews();
     }
 
     if ( visibleGridViews.size() >= 2 && ( linkedviews.size() < visibleGridViews.size() ) )
@@ -97,24 +95,9 @@ void RicLinkVisibleViewsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::allLinkedViews( std::vector<RimGridView*>& views )
-{
-    RimProject* proj = RimProject::current();
-    if ( proj->viewLinkerCollection()->viewLinker() )
-    {
-        proj->viewLinkerCollection()->viewLinker()->allViews( views );
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridView*>& views )
 {
     RimProject* proj = RimProject::current();
-
-    std::vector<RimGridView*> alreadyLinkedViews;
-    allLinkedViews( alreadyLinkedViews );
 
     std::vector<RimGridView*> visibleGridViews;
     proj->allVisibleGridViews( visibleGridViews );
@@ -122,8 +105,6 @@ void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<RimGridVi
     for ( auto gridView : visibleGridViews )
     {
         if ( !gridView ) continue;
-        if ( dynamic_cast<RimEclipseContourMapView*>( gridView ) ) continue;
-        if ( dynamic_cast<RimGeoMechContourMapView*>( gridView ) ) continue;
         if ( gridView->assosiatedViewLinker() ) continue;
 
         views.push_back( gridView );

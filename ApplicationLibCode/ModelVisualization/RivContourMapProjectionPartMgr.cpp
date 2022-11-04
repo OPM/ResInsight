@@ -479,6 +479,9 @@ std::vector<cvf::ref<cvf::Drawable>>
                     {
                         for ( const cvf::BoundingBox& existingBBox : boxVector )
                         {
+                            // Assert on invalid bounding box seen on Linux
+                            if ( !displayBBox.isValid() || !existingBBox.isValid() ) continue;
+
                             double dist = ( displayBBox.center() - existingBBox.center() ).length();
                             if ( dist < segment.length() || existingBBox.intersects( displayBBox ) )
                             {

@@ -46,7 +46,6 @@
 #include "RimContextCommandBuilder.h"
 #include "RimEclipseCase.h"
 #include "RimEclipseCellColors.h"
-#include "RimEclipseContourMapView.h"
 #include "RimEclipseFaultColors.h"
 #include "RimEclipseView.h"
 #include "RimEllipseFractureTemplate.h"
@@ -56,7 +55,6 @@
 #include "RimFracture.h"
 #include "RimGeoMechCase.h"
 #include "RimGeoMechCellColors.h"
-#include "RimGeoMechContourMapView.h"
 #include "RimGeoMechView.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimLegendConfig.h"
@@ -108,7 +106,6 @@
 #include "cvfPart.h"
 #include "cvfRay.h"
 #include "cvfScene.h"
-#include "cvfTransform.h"
 
 #include <QMenu>
 #include <QMouseEvent>
@@ -133,6 +130,7 @@ RiuViewerCommands::RiuViewerCommands( RiuViewer* ownerViewer )
     , m_currentCellIndex( -1 )
     , m_currentFaceIndex( cvf::StructGridInterface::NO_FACE )
     , m_currentPickPositionInDomainCoords( cvf::Vec3d::UNDEFINED )
+    , m_isCurrentPickInComparisonView( false )
     , m_viewer( ownerViewer )
 {
     if ( sm_defaultPickEventHandlers.empty() )
@@ -172,8 +170,6 @@ void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBu
         for ( auto view : views )
         {
             if ( !dynamic_cast<RimGridView*>( view ) ) continue;
-            if ( dynamic_cast<RimEclipseContourMapView*>( view ) ) continue;
-            if ( dynamic_cast<RimGeoMechContourMapView*>( view ) ) continue;
 
             if ( view != mainGridView )
             {
@@ -181,7 +177,7 @@ void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBu
             }
         }
 
-        if ( validComparisonViews.size() )
+        if ( !validComparisonViews.empty() )
         {
             menuBuilder->subMenuStart( "Compare To ...", QIcon( ":/ComparisonView16x16.png" ) );
             for ( auto view : validComparisonViews )
@@ -223,7 +219,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     uint             firstPartTriangleIndex = cvf::UNDEFINED_UINT;
     m_currentPickPositionInDomainCoords     = cvf::Vec3d::UNDEFINED;
 
-    if ( pickItemInfos.size() )
+    if ( !pickItemInfos.empty() )
     {
         cvf::Vec3d globalIntersectionPoint = pickItemInfos[0].globalPickedPoint();
 
@@ -711,7 +707,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
 
     // Make pickEventHandlers do their stuff
 
-    if ( pickItemInfos.size() )
+    if ( !pickItemInfos.empty() )
     {
         Ric3dPickEvent viewerEventObject( pickItemInfos, mainOrComparisonView, keyboardModifiers );
 
@@ -739,7 +735,7 @@ void RiuViewerCommands::handlePickAction( int winPosX, int winPosY, Qt::Keyboard
         uint             firstPartTriangleIndex = cvf::UNDEFINED_UINT;
         cvf::Vec3d       globalIntersectionPoint( cvf::Vec3d::ZERO );
 
-        if ( pickItemInfos.size() )
+        if ( !pickItemInfos.empty() )
         {
             size_t indexToFirstNoneNncItem     = cvf::UNDEFINED_SIZE_T;
             size_t indexToNncItemNearFirstItem = cvf::UNDEFINED_SIZE_T;
@@ -1129,7 +1125,7 @@ void RiuViewerCommands::findFirstItems( Rim3dView*                          main
                                         size_t*                             indexToFirstNoneNncItem,
                                         size_t*                             indexToNncItemNearFirsItem )
 {
-    CVF_ASSERT( pickItemInfos.size() > 0 );
+    CVF_ASSERT( !pickItemInfos.empty() );
     CVF_ASSERT( indexToFirstNoneNncItem );
     CVF_ASSERT( indexToNncItemNearFirsItem );
 

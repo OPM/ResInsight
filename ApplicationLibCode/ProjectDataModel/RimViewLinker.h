@@ -83,7 +83,7 @@ public:
     void scheduleGeometryRegenForDepViews( RivCellSetEnum geometryType );
     void scheduleCreateDisplayModelAndRedrawForDependentViews();
 
-    void allViews( std::vector<RimGridView*>& views ) const;
+    std::vector<RimGridView*> allViews() const;
 
     void updateUiNameAndIcon();
 
@@ -113,6 +113,7 @@ private:
     void allViewsForCameraSync( const RimGridView* source, std::vector<RimGridView*>& views ) const;
 
     void removeOverrides();
+    void updateScaleWidgetVisibility();
 
 private:
     caf::PdmChildArrayField<RimViewController*> m_viewControllers;

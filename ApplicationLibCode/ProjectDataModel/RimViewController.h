@@ -95,9 +95,6 @@ private:
     void updateResultColorsControl();
     void updateLegendDefinitions();
 
-    void updateDefaultOptions();
-
-    bool isCameraControlPossible() const;
     bool isMasterAndDepViewDifferentType() const;
     bool isPropertyFilterControlPossible() const;
     bool isCellFilterMappingApplicable() const;

@@ -43,5 +43,4 @@ protected:
 
 private:
     void findLinkableVisibleViews( std::vector<RimGridView*>& views );
-    void allLinkedViews( std::vector<RimGridView*>& views );
 };

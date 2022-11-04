@@ -22,15 +22,16 @@
 #include "RiaApplication.h"
 
 #include "Rim3dView.h"
+#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewController.h"
 #include "RimViewLinker.h"
+#include "RimViewLinkerCollection.h"
 
 #include "cafCmdFeatureManager.h"
 #include "cafSelectionManager.h"
 
-#include "RimViewLinkerCollection.h"
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicUnLinkViewFeature, "RicUnLinkViewFeature" );
@@ -68,8 +69,9 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
     {
         viewController->applyCellFilterCollectionByUserChoice();
         delete viewController;
-        viewLinker->removeViewController( nullptr ); // Remove the slots in the vector that was set to nullptr by the
-                                                     // destructor
+
+        // Remove the slots in the vector that was set to nullptr by the destructor
+        viewLinker->removeViewController( nullptr );
     }
     else if ( viewLinker )
     {
@@ -93,6 +95,8 @@ void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
         }
         activeView->updateAutoName();
     }
+
+    if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) ) activeView->zoomAll();
 
     RimProject::current()->viewLinkerCollection.uiCapability()->updateConnectedEditors();
     RimProject::current()->uiCapability()->updateConnectedEditors();

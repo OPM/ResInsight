@@ -24,8 +24,6 @@
 #include "RicLinkVisibleViewsFeature.h"
 
 #include "Rim3dView.h"
-#include "RimEclipseContourMapView.h"
-#include "RimGeoMechContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"
@@ -57,8 +55,6 @@ public:
             // Link only the active view to an existing view link collection.
             RimGridView* activeView = RiaApplication::instance()->activeGridView();
             if ( !activeView ) return false;
-            if ( dynamic_cast<RimEclipseContourMapView*>( activeView ) ) return false;
-            if ( dynamic_cast<RimGeoMechContourMapView*>( activeView ) ) return false;
 
             if ( activeView->assosiatedViewLinker() ) return false;
 
@@ -69,22 +65,9 @@ public:
         std::vector<RimGridView*> selectedGridViews;
 
         caf::SelectionManager::instance()->objectsByTypeStrict( &selectedGridViews );
-        bool hasAnyUnlinkableViews = false;
         for ( auto gridView : selectedGridViews )
         {
             if ( !gridView ) continue;
-
-            if ( dynamic_cast<RimEclipseContourMapView*>( gridView ) )
-            {
-                hasAnyUnlinkableViews = true;
-                break;
-            }
-
-            if ( dynamic_cast<RimGeoMechContourMapView*>( gridView ) )
-            {
-                hasAnyUnlinkableViews = true;
-                break;
-            }
 
             if ( !gridView->assosiatedViewLinker() )
             {
@@ -92,7 +75,7 @@ public:
             }
         }
 
-        if ( !m_viewsToLink.empty() && !hasAnyUnlinkableViews )
+        if ( !m_viewsToLink.empty() )
         {
             return true;
         }

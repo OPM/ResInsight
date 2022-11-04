@@ -414,12 +414,5 @@ void RicNewContourMapViewFeature::assignDefaultResultAndLegend( RimEclipseContou
         {
             contourMap->cellResult()->setResultVariable( "SOIL" );
         }
-
-        RimRegularLegendConfig* legendConfig = contourMap->cellResult()->legendConfig();
-        if ( legendConfig )
-        {
-            RimColorLegend* legend = legendConfig->mapToColorLegend( RimRegularLegendConfig::ColorRangesType::RAINBOW );
-            legendConfig->setColorLegend( legend );
-        }
     }
 }

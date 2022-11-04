@@ -23,7 +23,6 @@
 #include "RiaOptionItemFactory.h"
 
 #include "RimCase.h"
-#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimViewLinker.h"
 
@@ -79,17 +78,7 @@ RimGridView* RicLinkVisibleViewsFeatureUi::masterView()
 //--------------------------------------------------------------------------------------------------
 std::vector<RimGridView*> RicLinkVisibleViewsFeatureUi::masterViewCandidates() const
 {
-    std::vector<RimGridView*> masterCandidates;
-    // Set Active view as master view if the active view isn't a contour map.
-    for ( size_t i = 0; i < m_allViews.size(); i++ )
-    {
-        RimEclipseContourMapView* contourMap = dynamic_cast<RimEclipseContourMapView*>( m_allViews[i] );
-        if ( contourMap == nullptr )
-        {
-            masterCandidates.push_back( m_allViews[i] );
-        }
-    }
-    return masterCandidates;
+    return m_allViews;
 }
 
 //--------------------------------------------------------------------------------------------------

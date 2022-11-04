@@ -19,6 +19,7 @@
 
 #include "RicDeleteAllLinkedViewsFeature.h"
 
+#include "RimEclipseContourMapView.h"
 #include "RimGridView.h"
 #include "RimProject.h"
 #include "RimViewLinker.h"
@@ -75,9 +76,15 @@ void RicDeleteAllLinkedViewsFeature::onActionTriggered( bool isChecked )
         // viewLinkerCollection->viewLinker is a PdmChildField containing one RimViewLinker child object
         proj->viewLinkerCollection->viewLinker.removeChild( viewLinker );
 
-        viewLinker->applyCellFilterCollectionByUserChoice();
+        auto views = viewLinker->allViews();
 
+        viewLinker->applyCellFilterCollectionByUserChoice();
         delete viewLinker;
+
+        for ( auto v : views )
+        {
+            if ( dynamic_cast<RimEclipseContourMapView*>( v ) ) v->zoomAll();
+        }
 
         proj->uiCapability()->updateConnectedEditors();
     }

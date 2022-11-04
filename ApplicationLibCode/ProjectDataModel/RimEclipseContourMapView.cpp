@@ -35,6 +35,7 @@
 #include "RimGridCollection.h"
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInViewCollection.h"
+#include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
 
 #include "cafPdmUiTreeOrdering.h"
@@ -72,7 +73,7 @@ RimEclipseContourMapView::RimEclipseContourMapView()
 
     m_contourMapProjectionPartMgr = new RivContourMapProjectionPartMgr( contourMapProjection(), this );
 
-    ( (RiuViewerToViewInterface*)this )->setCameraPosition( sm_defaultViewMatrix );
+    setCameraPosition( sm_defaultViewMatrix );
 
     cellResult()->setTernaryEnabled( false );
     cellResult()->legendConfigChanged.connect( this, &RimEclipseContourMapView::onLegendConfigChanged );
@@ -410,7 +411,22 @@ void RimEclipseContourMapView::onUpdateLegends()
             }
         }
 
-        nativeOrOverrideViewer()->showScaleLegend( m_showScaleLegend() );
+        // Hide the scale widget if any 3D views are present, as the display of the scale widget is only working for
+        // default rotation. The update is triggered in RimViewLinker::updateScaleWidgetVisibility()
+
+        bool any3DViewsLinked = false;
+
+        if ( auto viewLinker = assosiatedViewLinker() )
+        {
+            auto views = viewLinker->allViews();
+            for ( auto v : views )
+            {
+                if ( dynamic_cast<RimEclipseContourMapView*>( v ) ) continue;
+                any3DViewsLinked = true;
+            }
+        }
+
+        nativeOrOverrideViewer()->showScaleLegend( any3DViewsLinked ? false : m_showScaleLegend() );
     }
 }
 
@@ -568,4 +584,19 @@ RimSurfaceInViewCollection* RimEclipseContourMapView::surfaceInViewCollection() 
 {
     // Surfaces should not be shown in contour map.
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimEclipseContourMapView::zoomAll()
+{
+    setCameraPosition( sm_defaultViewMatrix );
+    isPerspectiveView = false;
+
+    // If a 3D view has been used as the primary linked view, a contour map can be rotated in 3D. Use the following
+    // function to make sure view is reset to original state, with correct rotation and grid box configuration.
+    updateViewWidgetAfterCreation();
+
+    RimEclipseView::zoomAll();
 }

@@ -47,23 +47,21 @@ void RicShowAllLinkedViewsFeature::onActionTriggered( bool isChecked )
 
     std::vector<RimViewController*> managedViews;
     caf::SelectionManager::instance()->objectsByType( &managedViews );
-    for ( size_t i = 0; i < managedViews.size(); i++ )
+    for ( auto& managedView : managedViews )
     {
         RimViewLinker* rimLinked = nullptr;
-        managedViews[i]->firstAncestorOrThisOfType( rimLinked );
+        managedView->firstAncestorOrThisOfType( rimLinked );
         CVF_ASSERT( rimLinked );
 
         linkedViews.push_back( rimLinked );
     }
 
-    for ( size_t i = 0; i < linkedViews.size(); i++ )
+    for ( auto& linkedView : linkedViews )
     {
-        std::vector<RimGridView*> views;
-        linkedViews[i]->allViews( views );
-
-        for ( size_t j = 0; j < views.size(); j++ )
+        auto views = linkedView->allViews();
+        for ( auto& view : views )
         {
-            views[j]->forceShowWindowOn();
+            view->forceShowWindowOn();
         }
     }
 }
