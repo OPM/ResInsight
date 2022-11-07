@@ -66,7 +66,8 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
 {
-    linkViews( findLinkableVisibleViews() );
+    auto linkableViews = findLinkableVisibleViews();
+    RicLinkVisibleViewsFeature::linkViews( linkableViews );
 }
 
 //--------------------------------------------------------------------------------------------------
