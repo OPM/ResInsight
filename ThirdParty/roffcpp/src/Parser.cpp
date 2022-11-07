@@ -13,15 +13,14 @@ Parser::Parser( std::istream& stream, const std::vector<Token>& tokens )
     : m_tokens( &tokens )
     , m_stream( &stream )
 {
+    parse();
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::vector<std::pair<std::string, RoffScalar>> Parser::scalarNamedValues()
+void Parser::parse()
 {
-    std::vector<std::pair<std::string, RoffScalar>> values;
-
     auto        it           = m_tokens->begin();
     std::string tagGroupName = "";
     while ( it != m_tokens->end() )
@@ -34,13 +33,33 @@ std::vector<std::pair<std::string, RoffScalar>> Parser::scalarNamedValues()
         }
         else if ( isSimpleType( it->kind() ) )
         {
-            values.push_back( parseSimpleType( it, tagGroupName ) );
+            m_scalarValues.push_back( parseSimpleType( it, tagGroupName ) );
         }
         else if ( it->kind() == Token::Kind::ARRAY )
         {
+            // Extract the type
             std::advance( it, 1 );
-            // assert simple type?
+            Token typeToken = *it;
+            assert( isSimpleType( typeToken.kind() ) );
+
+            // Extract the name
             std::advance( it, 1 );
+            std::string name = tagGroupName + "." + parseString( *it, *m_stream );
+
+            // Extract number of array items
+            std::advance( it, 1 );
+            long arrayLength = parseInt( *it, *m_stream );
+
+            // Move to the first item to get the index
+            std::advance( it, 1 );
+            long startIndex = std::distance( m_tokens->begin(), it );
+
+            // Skip rest of the array
+            std::advance( it, arrayLength - 1 );
+
+            m_arrayInfo[name] = std::make_pair( startIndex, arrayLength );
+
+            m_arrayTypes.push_back( std::make_pair( name, typeToken.kind() ) );
         }
         else if ( it->kind() == Token::Kind::ENDTAG )
         {
@@ -48,8 +67,22 @@ std::vector<std::pair<std::string, RoffScalar>> Parser::scalarNamedValues()
         }
         it++;
     }
+}
 
-    return values;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<std::string, RoffScalar>> Parser::scalarNamedValues() const
+{
+    return m_scalarValues;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::pair<std::string, Token::Kind>> Parser::getNamedArrayTypes() const
+{
+    return m_arrayTypes;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -121,4 +154,68 @@ double Parser::parseDouble( const Token& token, std::istream& stream )
 {
     std::string res = parseString( token, stream );
     return std::stod( res );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<std::string> Parser::getStringArray( const std::string& keyword )
+{
+    auto [startIndex, arrayLength] = m_arrayInfo[keyword];
+
+    std::vector<std::string> values;
+    for ( long i = startIndex; i < startIndex + arrayLength; i++ )
+    {
+        values.push_back( parseString( ( *m_tokens )[i], *m_stream ) );
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<int> Parser::getIntArray( const std::string& keyword )
+{
+    auto [startIndex, arrayLength] = m_arrayInfo[keyword];
+
+    std::vector<int> values;
+    for ( long i = startIndex; i < startIndex + arrayLength; i++ )
+    {
+        values.push_back( parseInt( ( *m_tokens )[i], *m_stream ) );
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<float> Parser::getFloatArray( const std::string& keyword )
+{
+    auto [startIndex, arrayLength] = m_arrayInfo[keyword];
+
+    std::vector<float> values;
+    for ( long i = startIndex; i < startIndex + arrayLength; i++ )
+    {
+        values.push_back( parseDouble( ( *m_tokens )[i], *m_stream ) );
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<double> Parser::getDoubleArray( const std::string& keyword )
+{
+    auto [startIndex, arrayLength] = m_arrayInfo[keyword];
+
+    std::vector<double> values;
+    for ( long i = startIndex; i < startIndex + arrayLength; i++ )
+    {
+        values.push_back( parseDouble( ( *m_tokens )[i], *m_stream ) );
+    }
+
+    return values;
 }
