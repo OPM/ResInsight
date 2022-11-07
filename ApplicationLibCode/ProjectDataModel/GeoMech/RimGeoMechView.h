@@ -66,7 +66,7 @@ public:
     RimGeoMechView( void );
     ~RimGeoMechView( void ) override;
 
-    RiaDefines::View3dContent viewContent() const;
+    RiaDefines::View3dContent viewContent() const override;
 
     void            setGeoMechCase( RimGeoMechCase* gmCase );
     RimGeoMechCase* geoMechCase() const;

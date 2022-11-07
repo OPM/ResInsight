@@ -48,7 +48,7 @@ public:
     Rim2dIntersectionView( void );
     ~Rim2dIntersectionView( void ) override;
 
-    RiaDefines::View3dContent viewContent() const;
+    RiaDefines::View3dContent viewContent() const override;
 
     void                          setVisible( bool isVisible );
     void                          setIntersection( RimExtrudedCurveIntersection* intersection );
