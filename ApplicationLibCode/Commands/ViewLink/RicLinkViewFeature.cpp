@@ -53,7 +53,7 @@ public:
         if ( contextViewer )
         {
             // Link only the active view to an existing view link collection.
-            RimGridView* activeView = RiaApplication::instance()->activeGridView();
+            auto* activeView = RiaApplication::instance()->activeReservoirView();
             if ( !activeView ) return false;
 
             if ( activeView->assosiatedViewLinker() ) return false;

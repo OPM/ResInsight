@@ -602,11 +602,13 @@ void Rim2dIntersectionView::onCreateDisplayModel()
 
     m_intersectionVizModel->updateBoundingBoxesRecursive();
 
-    if ( viewer() ) viewer()->setCurrentFrame( m_currentTimeStep );
-
-    if ( this->viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
+    if ( viewer() )
     {
-        this->zoomAll();
+        viewer()->setCurrentFrame( m_currentTimeStep );
+        if ( viewer()->mainCamera() && viewer()->mainCamera()->viewMatrix() == sm_defaultViewMatrix )
+        {
+            this->zoomAll();
+        }
     }
 }
 

@@ -42,7 +42,7 @@ bool RicCompareTo3dViewFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicCompareTo3dViewFeature::onActionTriggered( bool isChecked )
 {
-    RimGridView* activeView = RiaApplication::instance()->activeGridView();
+    auto* activeView = RiaApplication::instance()->activeReservoirView();
 
     QVariant userData = this->userData();
     auto     view     = static_cast<Rim3dView*>( userData.value<void*>() );
@@ -51,7 +51,9 @@ void RicCompareTo3dViewFeature::onActionTriggered( bool isChecked )
     {
         activeView->setComparisonView( view );
         activeView->scheduleCreateDisplayModelAndRedraw();
-        activeView->overlayInfoConfig()->updateConnectedEditors();
+
+        auto gridView = dynamic_cast<RimGridView*>( activeView );
+        if ( gridView ) gridView->overlayInfoConfig()->updateConnectedEditors();
     }
 }
 

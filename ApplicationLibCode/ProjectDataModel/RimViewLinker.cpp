@@ -19,6 +19,8 @@
 
 #include "RimViewLinker.h"
 
+#include "RiaOptionItemFactory.h"
+
 #include "RigFemResultAddress.h"
 #include "RigMainGrid.h"
 
@@ -43,7 +45,6 @@
 
 #include "RiuViewer.h"
 
-#include "RiaOptionItemFactory.h"
 #include "cafIconProvider.h"
 #include "cafPdmUiTreeOrdering.h"
 #include "cvfCamera.h"
@@ -393,7 +394,7 @@ void RimViewLinker::initAfterRead()
     updateUiNameAndIcon();
     if ( m_masterView() )
     {
-        m_comparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+        m_comparisonView = m_masterView->activeComparisonView();
     }
 }
 
@@ -450,7 +451,11 @@ bool RimViewLinker::isActive() const
 void RimViewLinker::updateUiNameAndIcon()
 {
     caf::IconProvider iconProvider;
-    RimViewLinker::findNameAndIconFromView( &m_name.v(), &iconProvider, m_masterView );
+
+    QString name;
+    RimViewLinker::findNameAndIconFromView( &name, &iconProvider, m_masterView );
+    name += " (Primary)";
+    m_name.v() = name;
 
     if ( m_masterView ) m_masterView->updateAutoName();
 
@@ -569,10 +574,10 @@ QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::P
 {
     QList<caf::PdmOptionItemInfo> options;
 
-    RimGridView* actualComparisonView = nullptr;
+    Rim3dView* actualComparisonView = nullptr;
     if ( m_masterView() )
     {
-        actualComparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+        actualComparisonView = m_masterView->activeComparisonView();
     }
 
     bool isActiveCompViewInList = false;
@@ -610,7 +615,7 @@ void RimViewLinker::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& 
     // Update the comparison view from the master view
     if ( m_masterView() )
     {
-        m_comparisonView = dynamic_cast<RimGridView*>( m_masterView->activeComparisonView() );
+        m_comparisonView = m_masterView->activeComparisonView();
     }
 }
 
@@ -676,7 +681,7 @@ void RimViewLinker::addDependentView( Rim3dView* view )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RimViewLinker::isFirstViewDependentOnSecondView( const RimGridView* firstView, const RimGridView* secondView ) const
+bool RimViewLinker::isFirstViewDependentOnSecondView( const Rim3dView* firstView, const Rim3dView* secondView ) const
 {
     for ( const RimViewController* controller : m_viewControllers() )
     {

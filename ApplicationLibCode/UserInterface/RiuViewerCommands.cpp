@@ -160,7 +160,7 @@ void RiuViewerCommands::setOwnerView( Rim3dView* owner )
 
 void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBuilder )
 {
-    RimGridView* mainGridView = dynamic_cast<RimGridView*>( m_reservoirView.p() );
+    auto* mainGridView = m_reservoirView.p();
     if ( mainGridView && !mainGridView->activeComparisonView() )
     {
         std::vector<Rim3dView*> validComparisonViews;
@@ -169,8 +169,6 @@ void RiuViewerCommands::addCompareToViewMenu( caf::CmdFeatureMenuBuilder* menuBu
         RimProject::current()->allViews( views );
         for ( auto view : views )
         {
-            if ( !dynamic_cast<RimGridView*>( view ) ) continue;
-
             if ( view != mainGridView )
             {
                 validComparisonViews.push_back( view );
@@ -596,7 +594,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
     // View Link commands
     if ( !firstHitPart )
     {
-        if ( gridView )
+        if ( gridView || int2dView )
         {
             menuBuilder << "RicLinkViewFeature";
             menuBuilder << "RicShowLinkOptionsFeature";
@@ -605,9 +603,7 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
             menuBuilder.addSeparator();
             menuBuilder << "RicUnLinkViewFeature";
             menuBuilder << "RicRemoveComparison3dViewFeature";
-        }
-        else if ( int2dView )
-        {
+            menuBuilder.addSeparator();
             menuBuilder << "RicSelectColorResult";
         }
     }
@@ -636,9 +632,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
 #endif
         menuBuilder << "RicShowGridStatisticsFeature";
         menuBuilder << "RicSelectColorResult";
-    }
-    else if ( int2dView )
-    {
     }
 
     menuBuilder << "RicExportContourMapToTextFeature";
