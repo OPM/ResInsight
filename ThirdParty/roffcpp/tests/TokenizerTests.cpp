@@ -258,7 +258,7 @@ TEST( TokenizerTests, testTokenizeExampleFile )
     ASSERT_TRUE( stream.good() );
 
     std::vector<Token> tokens = Tokenizer::tokenizeStream( stream );
-    ASSERT_EQ( 71, tokens.size() );
+    ASSERT_EQ( 83, tokens.size() );
 
     auto readValueForToken = []( std::istream& stream, const Token& token ) {
         stream.seekg( token.start() );
@@ -274,5 +274,5 @@ TEST( TokenizerTests, testTokenizeExampleFile )
     ASSERT_TRUE( stream.good() );
 
     ASSERT_EQ( "byteswaptest", readValueForToken( stream, tokens[4] ) );
-    ASSERT_EQ( "codeNames", readValueForToken( stream, tokens[41] ) );
+    ASSERT_EQ( "codeNames", readValueForToken( stream, tokens[53] ) );
 }
