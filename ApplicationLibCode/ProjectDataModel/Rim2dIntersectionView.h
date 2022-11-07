@@ -57,9 +57,6 @@ public:
     RimCase* ownerCase() const override;
     void     selectOverlayInfoConfig() override {}
 
-    RimViewLinker*     assosiatedViewLinker() const override;
-    RimViewController* viewController() const override;
-
     bool isTimeStepDependentDataVisible() const override;
 
     void update3dInfo();
@@ -104,8 +101,6 @@ private:
     QString createAutoName() const override;
     QString getName() const;
     void    setName( const QString& name );
-
-    RimViewLinker* viewLinkerIfMasterView() const;
 
     caf::PdmChildField<RimRegularLegendConfig*> m_legendConfig;
     caf::PdmChildField<RimTernaryLegendConfig*> m_ternaryLegendConfig;

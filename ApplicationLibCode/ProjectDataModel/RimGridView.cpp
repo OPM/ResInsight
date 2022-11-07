@@ -309,43 +309,6 @@ void RimGridView::replaceCellFilterCollectionWithOverride()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewController* RimGridView::viewController() const
-{
-    std::vector<RimViewController*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
-
-    for ( auto v : objects )
-    {
-        if ( v )
-        {
-            return v;
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimViewLinker* RimGridView::assosiatedViewLinker() const
-{
-    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
-    if ( !viewLinker )
-    {
-        RimViewController* viewController = this->viewController();
-        if ( viewController )
-        {
-            viewLinker = viewController->ownerViewLinker();
-        }
-    }
-
-    return viewLinker;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool RimGridView::isGridVisualizationMode() const
 {
     return this->m_gridCollection->isActive();
@@ -522,25 +485,6 @@ void RimGridView::addRequiredUiTreeObjects( caf::PdmUiTreeOrdering& uiTreeOrderi
 void RimGridView::selectOverlayInfoConfig()
 {
     Riu3DMainWindowTools::selectAsCurrentItem( m_overlayInfoConfig );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimViewLinker* RimGridView::viewLinkerIfMasterView() const
-{
-    std::vector<RimViewLinker*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
-
-    for ( auto viewLinker : objects )
-    {
-        if ( viewLinker )
-        {
-            return viewLinker;
-        }
-    }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

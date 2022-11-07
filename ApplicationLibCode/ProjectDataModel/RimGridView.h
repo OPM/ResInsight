@@ -64,9 +64,6 @@ public:
     void setOverrideCellFilterCollection( RimCellFilterCollection* rfc );
     void replaceCellFilterCollectionWithOverride();
 
-    RimViewController* viewController() const override;
-    RimViewLinker*     assosiatedViewLinker() const override;
-
     bool isGridVisualizationMode() const override;
 
     void updateWellMeasurements();
@@ -105,6 +102,5 @@ private:
     void onCreatePartCollectionFromSelection( cvf::Collection<cvf::Part>* parts ) override;
 
     cvf::ref<cvf::UByteArray> m_currentReservoirCellVisibility;
-    RimViewLinker*            viewLinkerIfMasterView() const;
     bool                      m_previousGridModeMeshLinesWasFaults;
 };

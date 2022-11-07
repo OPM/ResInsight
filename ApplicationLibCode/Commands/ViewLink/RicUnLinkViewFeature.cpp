@@ -58,7 +58,6 @@ bool RicUnLinkViewFeature::isCommandEnabled()
 void RicUnLinkViewFeature::onActionTriggered( bool isChecked )
 {
     Rim3dView* activeView = RiaApplication::instance()->activeMainOrComparisonGridView();
-    ;
     if ( !activeView ) return;
 
     RimViewController* viewController = activeView->viewController();

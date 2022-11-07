@@ -182,43 +182,6 @@ RimCase* Rim2dIntersectionView::ownerCase() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimViewLinker* Rim2dIntersectionView::assosiatedViewLinker() const
-{
-    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
-    if ( !viewLinker )
-    {
-        RimViewController* viewController = this->viewController();
-        if ( viewController )
-        {
-            viewLinker = viewController->ownerViewLinker();
-        }
-    }
-
-    return viewLinker;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimViewController* Rim2dIntersectionView::viewController() const
-{
-    std::vector<RimViewController*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
-
-    for ( auto v : objects )
-    {
-        if ( v )
-        {
-            return v;
-        }
-    }
-
-    return nullptr;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool Rim2dIntersectionView::isTimeStepDependentDataVisible() const
 {
     if ( m_intersection() )
@@ -549,25 +512,6 @@ QString Rim2dIntersectionView::getName() const
 void Rim2dIntersectionView::setName( const QString& name )
 {
     nameConfig()->setCustomName( name );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimViewLinker* Rim2dIntersectionView::viewLinkerIfMasterView() const
-{
-    std::vector<RimViewLinker*> objects;
-    this->objectsWithReferringPtrFieldsOfType( objects );
-
-    for ( auto viewLinker : objects )
-    {
-        if ( viewLinker )
-        {
-            return viewLinker;
-        }
-    }
-
-    return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------

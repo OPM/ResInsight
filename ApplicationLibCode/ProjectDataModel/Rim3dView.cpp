@@ -399,6 +399,43 @@ void Rim3dView::updateMdiWindowTitle()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RimViewLinker* Rim3dView::assosiatedViewLinker() const
+{
+    RimViewLinker* viewLinker = this->viewLinkerIfMasterView();
+    if ( !viewLinker )
+    {
+        RimViewController* viewController = this->viewController();
+        if ( viewController )
+        {
+            viewLinker = viewController->ownerViewLinker();
+        }
+    }
+
+    return viewLinker;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewController* Rim3dView::viewController() const
+{
+    std::vector<RimViewController*> objects;
+    this->objectsWithReferringPtrFieldsOfType( objects );
+
+    for ( auto v : objects )
+    {
+        if ( v )
+        {
+            return v;
+        }
+    }
+
+    return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim3dView::deleteViewWidget()
 {
     // Earlier implementations has used m_viewer->deleteLater(). This caused issues triggered by 3D editors and
@@ -1663,4 +1700,23 @@ void Rim3dView::restoreComparisonView()
 
     depView->setOverrideViewer( nullptr );
     viewer()->setCurrentComparisonFrame( depView->currentTimeStep() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimViewLinker* Rim3dView::viewLinkerIfMasterView() const
+{
+    std::vector<RimViewLinker*> objects;
+    this->objectsWithReferringPtrFieldsOfType( objects );
+
+    for ( auto viewLinker : objects )
+    {
+        if ( viewLinker )
+        {
+            return viewLinker;
+        }
+    }
+
+    return nullptr;
 }
