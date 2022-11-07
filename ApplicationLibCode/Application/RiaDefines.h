@@ -214,7 +214,6 @@ enum class MultiPlotPageUpdateType : uint32_t
     TITLE  = 0b00000100,
     ALL    = 0b00000111
 };
-ENABLE_BITMASK_OPERATORS( MultiPlotPageUpdateType )
 
 std::vector<double> viewScaleOptions();
 
@@ -227,6 +226,9 @@ enum class View3dContent
     CONTOUR           = 0b00001000,
     ALL               = 0b00001111
 };
-ENABLE_BITMASK_OPERATORS( View3dContent )
 
 }; // namespace RiaDefines
+
+// Activate bit mask operators at global scope
+ENABLE_BITMASK_OPERATORS( RiaDefines::MultiPlotPageUpdateType )
+ENABLE_BITMASK_OPERATORS( RiaDefines::View3dContent )
