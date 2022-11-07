@@ -103,8 +103,6 @@ Rim2dIntersectionView::Rim2dIntersectionView( void )
     nameConfig()->hideAggregationTypeField( true );
     nameConfig()->hidePropertyField( true );
     nameConfig()->hideSampleSpacingField( true );
-
-    hideComparisonViewField();
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -440,16 +438,6 @@ bool Rim2dIntersectionView::handleOverlayItemPicked( const cvf::OverlayItem* pic
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QList<caf::PdmOptionItemInfo> Rim2dIntersectionView::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
-{
-    QList<caf::PdmOptionItemInfo> options;
-
-    return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 bool Rim2dIntersectionView::hasResults()
 {
     if ( !m_intersection() ) return false;
@@ -674,17 +662,17 @@ void Rim2dIntersectionView::onUpdateDisplayModelForCurrentTimeStep()
                 frameScene->addModel( dynWellPathModel.p() );
             }
         }
-    }
 
-    if ( this->hasResults() )
-    {
-        m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
-                                                          m_legendConfig->scalarMapper(),
-                                                          m_ternaryLegendConfig()->scalarMapper() );
-    }
-    else
-    {
-        m_flatIntersectionPartMgr->applySingleColorEffect();
+        if ( this->hasResults() )
+        {
+            m_flatIntersectionPartMgr->updateCellResultColor( m_currentTimeStep,
+                                                              m_legendConfig->scalarMapper(),
+                                                              m_ternaryLegendConfig()->scalarMapper() );
+        }
+        else
+        {
+            m_flatIntersectionPartMgr->applySingleColorEffect();
+        }
     }
 }
 //--------------------------------------------------------------------------------------------------

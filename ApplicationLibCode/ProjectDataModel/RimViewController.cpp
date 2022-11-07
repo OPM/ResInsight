@@ -221,8 +221,6 @@ void RimViewController::fieldChangedByUi( const caf::PdmFieldHandle* changedFiel
         auto*            previousManagedView = dynamic_cast<RimGridView*>( prevValue );
         RimViewController::removeOverrides( previousManagedView );
 
-        ownerViewLinker()->notifyManagedViewChange( previousManagedView, m_managedView() );
-
         setManagedView( m_managedView() );
 
         m_name.uiCapability()->updateConnectedEditors();
@@ -451,11 +449,6 @@ Rim3dView* RimViewController::managedView() const
 //--------------------------------------------------------------------------------------------------
 void RimViewController::setManagedView( Rim3dView* view )
 {
-    if ( m_managedView != view )
-    {
-        ownerViewLinker()->notifyManagedViewChange( m_managedView(), view );
-    }
-
     m_managedView = view;
 
     updateOptionSensitivity();

@@ -55,9 +55,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 
     if ( visibleViews.size() >= 2 && ( linkedviews.size() < visibleViews.size() ) )
     {
-        RicLinkVisibleViewsFeatureUi testUi;
-        testUi.setViews( findLinkableVisibleViews() );
-        return !testUi.masterViewCandidates().empty();
+        return !findLinkableVisibleViews().empty();
     }
 
     return false;

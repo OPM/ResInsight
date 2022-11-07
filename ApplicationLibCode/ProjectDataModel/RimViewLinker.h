@@ -93,19 +93,14 @@ public:
 
     void updateCursorPosition( const Rim3dView* sourceView, const cvf::Vec3d& domainCoord );
 
-    void notifyManagedViewChange( Rim3dView* oldManagedView, Rim3dView* newManagedView );
-
 protected:
     caf::PdmFieldHandle* userDescriptionField() override { return &m_name; }
 
     void initAfterRead() override;
-    void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
 
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
-
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
-    void onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
-                         std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
+    void                          onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
+                                                  std::vector<caf::PdmObjectHandle*>& referringObjects ) override;
 
 private:
     static QString displayNameForView( Rim3dView* view );
@@ -119,5 +114,4 @@ private:
     caf::PdmChildArrayField<RimViewController*> m_viewControllers;
     caf::PdmPtrField<Rim3dView*>                m_masterView;
     caf::PdmField<QString>                      m_name;
-    caf::PdmPtrField<Rim3dView*>                m_comparisonView;
 };

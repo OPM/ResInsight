@@ -71,9 +71,6 @@ RimViewLinker::RimViewLinker()
     m_viewControllers.uiCapability()->setUiTreeHidden( true );
     m_viewControllers.uiCapability()->setUiTreeChildrenHidden( true );
 
-    CAF_PDM_InitFieldNoDefault( &m_comparisonView, "LinkedComparisonView", "Comparison View" );
-    m_comparisonView.xmlCapability()->disableIO();
-
     setDeletable( true );
 }
 
@@ -392,10 +389,6 @@ std::vector<Rim3dView*> RimViewLinker::allViews() const
 void RimViewLinker::initAfterRead()
 {
     updateUiNameAndIcon();
-    if ( m_masterView() )
-    {
-        m_comparisonView = m_masterView->activeComparisonView();
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -539,24 +532,6 @@ void RimViewLinker::updateCursorPosition( const Rim3dView* sourceView, const cvf
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimViewLinker::notifyManagedViewChange( Rim3dView* oldManagedView, Rim3dView* newManagedView )
-{
-    if ( oldManagedView && ( oldManagedView == m_comparisonView ) )
-    {
-        m_comparisonView = newManagedView;
-        m_comparisonView.uiCapability()->updateConnectedEditors();
-
-        if ( masterView() )
-        {
-            masterView()->setComparisonView( m_comparisonView() );
-            masterView()->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 void RimViewLinker::onChildDeleted( caf::PdmChildArrayFieldHandle*      childArray,
                                     std::vector<caf::PdmObjectHandle*>& referringObjects )
 {
@@ -605,35 +580,6 @@ QList<caf::PdmOptionItemInfo> RimViewLinker::calculateValueOptions( const caf::P
     options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewLinker::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
-{
-    // Update the comparison view from the master view
-    if ( m_masterView() )
-    {
-        m_comparisonView = m_masterView->activeComparisonView();
-    }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimViewLinker::fieldChangedByUi( const caf::PdmFieldHandle* changedField,
-                                      const QVariant&            oldValue,
-                                      const QVariant&            newValue )
-{
-    if ( changedField == &m_comparisonView )
-    {
-        if ( masterView() )
-        {
-            masterView()->setComparisonView( m_comparisonView() );
-            masterView()->scheduleCreateDisplayModelAndRedraw();
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------

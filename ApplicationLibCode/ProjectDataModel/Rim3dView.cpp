@@ -1458,16 +1458,13 @@ QList<caf::PdmOptionItemInfo> Rim3dView::calculateValueOptions( const caf::PdmFi
             proj->allViews( views );
             for ( auto view : views )
             {
-                if ( view != this && dynamic_cast<RimGridView*>( view ) )
+                if ( view != this )
                 {
                     RiaOptionItemFactory::appendOptionItemFromViewNameAndCaseName( view, &options );
                 }
             }
 
-            if ( !options.empty() )
-            {
-                options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
-            }
+            options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
     }
     else if ( fieldNeedingOptions == &m_fontSize )
