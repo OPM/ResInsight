@@ -13,7 +13,7 @@
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-TEST( ParserTests, testTokenizeExampleFile )
+TEST( ParserTests, testParseScalarNamedValuesFromExampleFile )
 {
     std::ifstream stream( std::string( TEST_DATA_DIR ) + "/facies_info.roff" );
     ASSERT_TRUE( stream.good() );
@@ -62,4 +62,49 @@ TEST( ParserTests, testTokenizeExampleFile )
 
     ASSERT_TRUE( hasValue( values, "parameter.bo" ) );
     ASSERT_EQ( true, std::get<bool>( getValue( values, "parameter.bo" ) ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+TEST( ParserTests, testParseArrayValuesFromExampleFile )
+{
+    std::ifstream stream( std::string( TEST_DATA_DIR ) + "/facies_info.roff" );
+    ASSERT_TRUE( stream.good() );
+
+    std::vector<Token> tokens = Tokenizer::tokenizeStream( stream );
+    Parser             parser( stream, tokens );
+
+    std::vector<std::pair<std::string, Token::Kind>> arrayTypes = parser.getNamedArrayTypes();
+    ASSERT_FALSE( arrayTypes.empty() );
+
+    auto hasValue = []( auto values, const std::string& keyword, Token::Kind kind ) {
+        auto x =
+            std::find_if( values.begin(), values.end(), [&keyword]( const auto& arg ) { return arg.first == keyword; } );
+        return x != values.end() && x->second == kind;
+    };
+
+    ASSERT_TRUE( hasValue( arrayTypes, "parameter.codeNames", Token::Kind::CHAR ) );
+    ASSERT_TRUE( hasValue( arrayTypes, "parameter.codeValues", Token::Kind::INT ) );
+    ASSERT_TRUE( hasValue( arrayTypes, "parameter.floatData", Token::Kind::FLOAT ) );
+    ASSERT_TRUE( hasValue( arrayTypes, "parameter.doubleData", Token::Kind::DOUBLE ) );
+    ASSERT_TRUE( hasValue( arrayTypes, "parameter.intData", Token::Kind::INT ) );
+
+    std::vector<std::string> codeNames = parser.getStringArray( "parameter.codeNames" );
+    ASSERT_EQ( 6, codeNames.size() );
+    ASSERT_EQ( "code name 1", codeNames[0] );
+    ASSERT_EQ( "code name 6", codeNames[5] );
+
+    std::vector<int> codeValues = parser.getIntArray( "parameter.codeValues" );
+    ASSERT_EQ( 6, codeValues.size() );
+    for ( int i = 0; i < 6; i++ )
+    {
+        ASSERT_EQ( i, codeValues[i] );
+    }
+
+    std::vector<float> floatData = parser.getFloatArray( "parameter.floatData" );
+    ASSERT_EQ( 5, floatData.size() );
+
+    std::vector<double> doubleData = parser.getDoubleArray( "parameter.doubleData" );
+    ASSERT_EQ( 6, doubleData.size() );
 }

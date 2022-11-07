@@ -258,7 +258,7 @@ TEST( TokenizerTests, testTokenizeExampleFile )
     ASSERT_TRUE( stream.good() );
 
     std::vector<Token> tokens = Tokenizer::tokenizeStream( stream );
-    ASSERT_EQ( 83, tokens.size() );
+    ASSERT_EQ( 109, tokens.size() );
 
     auto readValueForToken = []( std::istream& stream, const Token& token ) {
         stream.seekg( token.start() );
