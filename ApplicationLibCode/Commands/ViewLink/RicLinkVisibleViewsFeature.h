@@ -35,6 +35,8 @@ class RicLinkVisibleViewsFeature : public caf::CmdFeature
 public:
     static void linkViews( std::vector<Rim3dView*>& views );
 
+    static std::vector<Rim3dView*> matchingViews( Rim3dView* primaryView, std::vector<Rim3dView*>& candidates );
+
 protected:
     bool isCommandEnabled() override;
     void onActionTriggered( bool isChecked ) override;
