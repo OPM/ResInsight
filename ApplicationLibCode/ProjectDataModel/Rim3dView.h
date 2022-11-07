@@ -115,6 +115,8 @@ public:
     QString name() const;
     QString autoName() const;
 
+    virtual RiaDefines::View3dContent viewContent() const = 0;
+
     void         setMeshOnlyDrawstyle();
     void         setMeshSurfDrawstyle();
     void         setSurfOnlyDrawstyle();

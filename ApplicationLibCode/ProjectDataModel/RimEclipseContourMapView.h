@@ -36,6 +36,8 @@ public:
     RimEclipseContourMapView();
     RimEclipseContourMapProjection* contourMapProjection() const;
 
+    RiaDefines::View3dContent viewContent() const;
+
     QString createAutoName() const override;
     void    setDefaultCustomName();
     void    updatePickPointAndRedraw();

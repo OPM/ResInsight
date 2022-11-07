@@ -117,6 +117,14 @@ Rim2dIntersectionView::~Rim2dIntersectionView( void )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RiaDefines::View3dContent Rim2dIntersectionView::viewContent() const
+{
+    return RiaDefines::View3dContent::FLAT_INTERSECTION;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 void Rim2dIntersectionView::setVisible( bool isVisible )
 {
     m_showWindow = isVisible;

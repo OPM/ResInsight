@@ -20,6 +20,8 @@
 
 #pragma once
 
+#include "enum_bitmask.hpp"
+
 #include <QString>
 #include <set>
 #include <vector>
@@ -212,19 +214,19 @@ enum class MultiPlotPageUpdateType : uint32_t
     TITLE  = 0b00000100,
     ALL    = 0b00000111
 };
-
-constexpr enum MultiPlotPageUpdateType operator|( const enum MultiPlotPageUpdateType selfValue,
-                                                  const enum MultiPlotPageUpdateType inValue )
-{
-    return ( enum MultiPlotPageUpdateType )( uint32_t( selfValue ) | uint32_t( inValue ) );
-}
-
-constexpr enum MultiPlotPageUpdateType operator&( const enum MultiPlotPageUpdateType selfValue,
-                                                  const enum MultiPlotPageUpdateType inValue )
-{
-    return ( enum MultiPlotPageUpdateType )( uint32_t( selfValue ) & uint32_t( inValue ) );
-}
+ENABLE_BITMASK_OPERATORS( MultiPlotPageUpdateType )
 
 std::vector<double> viewScaleOptions();
+
+enum class View3dContent
+{
+    NONE              = 0b00000000,
+    ECLIPSE_DATA      = 0b00000001,
+    GEOMECH_DATA      = 0b00000010,
+    FLAT_INTERSECTION = 0b00000100,
+    CONTOUR           = 0b00001000,
+    ALL               = 0b00001111
+};
+ENABLE_BITMASK_OPERATORS( View3dContent )
 
 }; // namespace RiaDefines
