@@ -31,6 +31,8 @@
 #include "RimRegularLegendConfig.h"
 #include "RimSimWellInView.h"
 #include "RimTernaryLegendConfig.h"
+#include "RimViewController.h"
+#include "RimViewLinker.h"
 #include "RimViewNameConfig.h"
 #include "RimWellPath.h"
 
@@ -51,8 +53,6 @@
 #include "cvfScene.h"
 #include "cvfTransform.h"
 
-#include "RimViewController.h"
-#include "RimViewLinker.h"
 #include <QDateTime>
 
 CAF_PDM_SOURCE_INIT( Rim2dIntersectionView, "Intersection2dView" );

@@ -42,5 +42,5 @@ protected:
     void setupActionLook( QAction* actionToSetup ) override;
 
 private:
-    void findLinkableVisibleViews( std::vector<Rim3dView*>& views );
+    std::vector<Rim3dView*> findLinkableVisibleViews();
 };

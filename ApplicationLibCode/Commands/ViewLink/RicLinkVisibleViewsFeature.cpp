@@ -62,10 +62,8 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 
     if ( visibleGridViews.size() >= 2 && ( linkedviews.size() < visibleGridViews.size() ) )
     {
-        std::vector<Rim3dView*> views;
-        findLinkableVisibleViews( views );
         RicLinkVisibleViewsFeatureUi testUi;
-        testUi.setViews( views );
+        testUi.setViews( findLinkableVisibleViews() );
         return !testUi.masterViewCandidates().empty();
     }
 
@@ -77,10 +75,7 @@ bool RicLinkVisibleViewsFeature::isCommandEnabled()
 //--------------------------------------------------------------------------------------------------
 void RicLinkVisibleViewsFeature::onActionTriggered( bool isChecked )
 {
-    std::vector<Rim3dView*> linkableViews;
-    findLinkableVisibleViews( linkableViews );
-
-    linkViews( linkableViews );
+    linkViews( findLinkableVisibleViews() );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -95,20 +90,24 @@ void RicLinkVisibleViewsFeature::setupActionLook( QAction* actionToSetup )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicLinkVisibleViewsFeature::findLinkableVisibleViews( std::vector<Rim3dView*>& views )
+std::vector<Rim3dView*> RicLinkVisibleViewsFeature::findLinkableVisibleViews()
 {
     RimProject* proj = RimProject::current();
 
-    std::vector<RimGridView*> visibleGridViews;
-    proj->allVisibleGridViews( visibleGridViews );
+    std::vector<Rim3dView*> views;
 
-    for ( auto gridView : visibleGridViews )
+    std::vector<Rim3dView*> candidates;
+    proj->allVisibleViews( candidates );
+
+    for ( auto gridView : candidates )
     {
         if ( !gridView ) continue;
         if ( gridView->assosiatedViewLinker() ) continue;
 
         views.push_back( gridView );
     }
+
+    return views;
 }
 
 //--------------------------------------------------------------------------------------------------
