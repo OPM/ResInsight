@@ -76,10 +76,6 @@ protected:
                                                        cvf::ref<cvf::UByteArray> visibility,
                                                        std::vector<double>&      resultValues );
 
-    int findFilterVariableIndex() const;
-
-    std::pair<RimGridView*, RimGridCalculationVariable::DefaultValueConfig> findFilterValuesFromVariables() const;
-
     using DefaultValueConfig = std::pair<RimGridCalculation::DefaultValueType, double>;
     DefaultValueConfig defaultValueConfiguration() const;
 

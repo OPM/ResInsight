@@ -180,23 +180,6 @@ RimEclipseCase* RimGridCalculation::findEclipseCaseFromVariables() const
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<RimGridView*, RimGridCalculationVariable::DefaultValueConfig>
-    RimGridCalculation::findFilterValuesFromVariables() const
-{
-    for ( auto variable : m_variables )
-    {
-        RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
-        CAF_ASSERT( v != nullptr );
-
-        if ( v->cellFilterView() ) return std::make_pair( v->cellFilterView(), v->defaultValueConfiguration() );
-    }
-
-    return std::pair( nullptr, std::make_pair( RimGridCalculationVariable::DefaultValueType::POSITIVE_INFINITY, HUGE_VAL ) );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
 RimGridCalculation::DefaultValueConfig RimGridCalculation::defaultValueConfiguration() const
 {
     if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::USER_DEFINED )
@@ -255,23 +238,6 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
     }
 
     return options;
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-int RimGridCalculation::findFilterVariableIndex() const
-{
-    for ( size_t i = 0; i < m_variables.size(); i++ )
-    {
-        auto                        variable = m_variables[i];
-        RimGridCalculationVariable* v        = dynamic_cast<RimGridCalculationVariable*>( variable );
-        CAF_ASSERT( v != nullptr );
-
-        if ( v->cellFilterView() ) return static_cast<int>( i );
-    }
-
-    return -1;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -375,7 +341,9 @@ void RimGridCalculation::filterResults( RimGridView*                            
 
     if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
     {
-        int filterVariableIndex = findFilterVariableIndex();
+        // TODO: Find a way to produce property values
+        int filterVariableIndex = 0;
+
         replaceFilteredValuesWithVector( values[filterVariableIndex], visibility, resultValues );
     }
     else
