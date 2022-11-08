@@ -62,11 +62,11 @@ protected:
                                                    size_t                        tsId,
                                                    RiaDefines::PorosityModelType porosityModel ) const;
 
-    void filterResults( RimGridView*                                 cellFilterView,
-                        const std::vector<std::vector<double>>&      values,
-                        RimGridCalculationVariable::DefaultValueType defaultValueType,
-                        double                                       defaultValue,
-                        std::vector<double>&                         resultValues ) const;
+    void filterResults( RimGridView*                            cellFilterView,
+                        const std::vector<std::vector<double>>& values,
+                        RimGridCalculation::DefaultValueType    defaultValueType,
+                        double                                  defaultValue,
+                        std::vector<double>&                    resultValues ) const;
 
     static void replaceFilteredValuesWithVector( const std::vector<double>& inputValues,
                                                  cvf::ref<cvf::UByteArray>  visibility,
@@ -83,7 +83,8 @@ protected:
     using DefaultValueConfig = std::pair<RimGridCalculation::DefaultValueType, double>;
     DefaultValueConfig defaultValueConfiguration() const;
 
-    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+    QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
 
 private:
     caf::PdmPtrField<RimGridView*>                m_cellFilterView;

@@ -26,6 +26,7 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGridCalculationVariable.h"
+#include "RimProject.h"
 #include "RimReloadCaseTools.h"
 
 #include "RigCaseCellResultsData.h"
@@ -136,12 +137,9 @@ bool RimGridCalculation::calculate()
 
         if ( evaluatedOk )
         {
-            auto [cellFilterView, defaultValueConfig] = findFilterValuesFromVariables();
-
-            if ( cellFilterView )
+            if ( m_cellFilterView() )
             {
-                auto [defaultValueType, defaultValue] = defaultValueConfig;
-                filterResults( cellFilterView, values, defaultValueType, defaultValue, resultValues );
+                filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues );
             }
 
             scalarResultFrames->at( tsId ) = resultValues;
@@ -214,10 +212,49 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
 {
     RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
 
-    caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup( "Cell Filter" );
-    cellGroup->add( &m_cellFilterView );
-    cellGroup->add( &m_defaultValueType );
-    cellGroup->add( &m_defaultValue );
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
+    filterGroup->setCollapsedByDefault();
+    filterGroup->add( &m_cellFilterView );
+    filterGroup->add( &m_defaultValueType );
+    filterGroup->add( &m_defaultValue );
+
+    // Update state
+    if ( m_cellFilterView() )
+    {
+        m_defaultValueType.uiCapability()->setUiReadOnly( false );
+        m_defaultValue.uiCapability()->setUiReadOnly( m_defaultValueType() !=
+                                                      RimGridCalculation::DefaultValueType::USER_DEFINED );
+    }
+    else
+    {
+        m_defaultValueType.uiCapability()->setUiReadOnly( true );
+        m_defaultValue.uiCapability()->setUiReadOnly( true );
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_cellFilterView )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
+
+        std::vector<Rim3dView*> views;
+        RimProject::current()->allViews( views );
+
+        for ( auto* view : views )
+        {
+            auto eclipseView = dynamic_cast<RimEclipseView*>( view );
+            if ( eclipseView )
+                options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
+        }
+    }
+
+    return options;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,22 +365,25 @@ void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::filterResults( RimGridView*                                 cellFilterView,
-                                        const std::vector<std::vector<double>>&      values,
-                                        RimGridCalculationVariable::DefaultValueType defaultValueType,
-                                        double                                       defaultValue,
-                                        std::vector<double>&                         resultValues ) const
+void RimGridCalculation::filterResults( RimGridView*                            cellFilterView,
+                                        const std::vector<std::vector<double>>& values,
+                                        RimGridCalculation::DefaultValueType    defaultValueType,
+                                        double                                  defaultValue,
+                                        std::vector<double>&                    resultValues ) const
 {
     auto visibility = cellFilterView->currentTotalCellVisibility();
 
-    if ( defaultValueType == RimGridCalculationVariable::DefaultValueType::FROM_PROPERTY )
+    if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
     {
         int filterVariableIndex = findFilterVariableIndex();
         replaceFilteredValuesWithVector( values[filterVariableIndex], visibility, resultValues );
     }
     else
     {
-        replaceFilteredValuesWithDefaultValue( defaultValue, visibility, resultValues );
+        double valueToUse = defaultValue;
+        if ( defaultValueType == RimGridCalculation::DefaultValueType::POSITIVE_INFINITY ) valueToUse = HUGE_VAL;
+
+        replaceFilteredValuesWithDefaultValue( valueToUse, visibility, resultValues );
     }
 }
 
