@@ -43,6 +43,11 @@ RiuResultInfoPanel::RiuResultInfoPanel( QWidget* parent )
     QVBoxLayout* layout = new QVBoxLayout();
     layout->addWidget( m_textEdit );
 
+    // Use a nonexisting font family to trigger the use of QFont::Monospace
+    QFont font( "does not exist" );
+    font.setStyleHint( QFont::Monospace );
+    m_textEdit->setFont( font );
+
     layout->setContentsMargins( 0, 0, 0, 0 );
 
     setLayout( layout );
