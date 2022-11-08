@@ -904,13 +904,13 @@ QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResult
 {
     std::map<QString, QString> keyValues;
 
-    int maxKeyLenght = 0;
+    int maxKeyLength = 0;
     for ( const auto& resDef : resultDefinitions )
     {
         auto resultTextAndValues = cellResultTextAndValueText( resDef );
         for ( const auto& [key, value] : resultTextAndValues )
         {
-            maxKeyLenght   = std::max( maxKeyLenght, key.length() );
+            maxKeyLength   = std::max( maxKeyLength, key.length() );
             keyValues[key] = value;
         }
     }
@@ -919,7 +919,7 @@ QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResult
     for ( const auto& [key, value] : keyValues )
     {
         if ( !text.isEmpty() ) text += "\n";
-        text += QString( "%1 : %2" ).arg( key, -maxKeyLenght ).arg( value );
+        text += QString( "%1 : %2" ).arg( key, -maxKeyLength ).arg( value );
     }
 
     return text;
