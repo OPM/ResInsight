@@ -76,7 +76,8 @@ private:
     QString nncResultText();
     QString wellResultText();
 
-    QString cellResultText( RimEclipseResultDefinition* resultColors );
+    QString cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions );
+    std::unordered_map<QString, QString> cellResultTextAndValueText( RimEclipseResultDefinition* resultDefinition );
 
     void appendTextFromResultColors( RigEclipseCaseData*         eclipseCase,
                                      size_t                      gridIndex,

@@ -30,9 +30,11 @@ CAF_PDM_SOURCE_INIT( RimMultipleEclipseResults, "RimMultipleEclipseResults" );
 //--------------------------------------------------------------------------------------------------
 RimMultipleEclipseResults::RimMultipleEclipseResults()
 {
-    CAF_PDM_InitObject( "Additional Results", ":/TextAnnotation16x16.png" );
+    CAF_PDM_InitObject( "Result Info Data", ":/TextAnnotation16x16.png" );
 
-    CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Selected Properties" );
+    CAF_PDM_InitFieldNoDefault( &m_selectedKeywords, "SelectedProperties", "Properties" );
+    m_selectedKeywords.uiCapability()->setUiLabelPosition( caf::PdmUiItemInfo::TOP );
+
     m_selectedKeywords.uiCapability()->setUiEditorTypeName( caf::PdmUiTreeSelectionEditor::uiEditorTypeName() );
 }
 

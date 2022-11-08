@@ -283,36 +283,38 @@ QString RiuResultTextBuilder::geometrySelectionText( QString itemSeparator )
 //--------------------------------------------------------------------------------------------------
 QString RiuResultTextBuilder::gridResultDetails()
 {
-    QString text;
+    std::vector<RimEclipseResultDefinition*> resultDefinitions;
 
-    if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
+    std::vector<RimEclipseResultDefinition*> temp;
+
+    resultDefinitions.push_back( m_eclResDef );
+    if ( m_eclipseView )
     {
-        RigEclipseCaseData* eclipseCaseData = m_eclResDef->eclipseCase()->eclipseCaseData();
+        auto additionalResults = m_eclipseView->additionalResultsForResultInfo();
 
-        this->appendTextFromResultColors( eclipseCaseData, m_gridIndex, m_cellIndex, m_timeStepIndex, m_eclResDef, &text );
-
-        if ( m_eclipseView )
+        for ( const auto& resultName : additionalResults )
         {
-            auto additionalResults = m_eclipseView->additionalResultsForResultInfo();
+            auto* myResDef = new RimEclipseResultDefinition;
+            myResDef->setEclipseCase( m_eclResDef->eclipseCase() );
+            myResDef->simpleCopy( m_eclResDef );
+            myResDef->setFromEclipseResultAddress( resultName );
+            myResDef->loadResult();
 
-            RimEclipseResultDefinition myResDef;
-            myResDef.setEclipseCase( m_eclResDef->eclipseCase() );
-            myResDef.simpleCopy( m_eclResDef );
-
-            for ( const auto& resultName : additionalResults )
-            {
-                myResDef.setFromEclipseResultAddress( resultName );
-                myResDef.loadResult();
-
-                auto moreText = cellResultText( &myResDef );
-                text += "\n" + moreText;
-            }
+            resultDefinitions.push_back( myResDef );
+            temp.push_back( myResDef );
         }
+    }
 
-        if ( !text.isEmpty() )
-        {
-            text.prepend( "-- Grid cell result details --\n" );
-        }
+    QString text = cellResultText( resultDefinitions );
+    if ( !text.isEmpty() )
+    {
+        text.prepend( "-- Grid cell result details --\n" );
+    }
+    text += "\n";
+
+    for ( auto t : temp )
+    {
+        delete t;
     }
 
     return text;
@@ -410,7 +412,8 @@ QString RiuResultTextBuilder::formationDetails()
 //--------------------------------------------------------------------------------------------------
 QString RiuResultTextBuilder::gridResultText()
 {
-    QString text = cellResultText( m_eclResDef );
+    QString text = cellResultText( { m_eclResDef } );
+    text.replace( "\n", " " );
 
     return text;
 }
@@ -436,7 +439,7 @@ QString RiuResultTextBuilder::faultResultText()
             cvf::StructGridInterface::FaceEnum faceHelper( m_face );
             if ( m_eclipseView && m_eclipseView->faultResultSettings()->hasValidCustomResult() )
             {
-                text = cellResultText( m_eclipseView->currentFaultResultColors() );
+                text = cellResultText( { m_eclipseView->currentFaultResultColors() } );
             }
         }
     }
@@ -739,7 +742,7 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
         }
     }
 
-    resultInfoText->append( cellResultText( resultColors ) );
+    resultInfoText->append( cellResultText( { resultColors } ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -897,9 +900,39 @@ void RiuResultTextBuilder::appendDetails( QString& text, const QString& details 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclResDef )
+QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions )
 {
+    std::map<QString, QString> keyValues;
+
+    int maxKeyLenght = 0;
+    for ( const auto& resDef : resultDefinitions )
+    {
+        auto resultTextAndValues = cellResultTextAndValueText( resDef );
+        for ( const auto& [key, value] : resultTextAndValues )
+        {
+            maxKeyLenght   = std::max( maxKeyLenght, key.length() );
+            keyValues[key] = value;
+        }
+    }
+
     QString text;
+    for ( const auto& [key, value] : keyValues )
+    {
+        if ( !text.isEmpty() ) text += "\n";
+        text += QString( "%1 : %2" ).arg( key, -maxKeyLenght ).arg( value );
+    }
+
+    return text;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::unordered_map<QString, QString> RiuResultTextBuilder::cellResultTextAndValueText( RimEclipseResultDefinition* eclResDef )
+{
+    if ( !eclResDef ) return {};
+
+    std::unordered_map<QString, QString> keyValues;
 
     if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
@@ -947,19 +980,21 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclRes
                     scalarValue = dataAccessObjectX->cellScalar( m_cellIndex );
                 else
                     scalarValue = 0.0;
-                text += QString( "SOIL : %1 " ).arg( scalarValue );
+
+                keyValues["SOIL"] = QString( "%1" ).arg( scalarValue );
 
                 if ( dataAccessObjectY.notNull() )
                     scalarValue = dataAccessObjectY->cellScalar( m_cellIndex );
                 else
                     scalarValue = 0.0;
-                text += QString( "SGAS : %1 " ).arg( scalarValue );
+
+                keyValues["SGAS"] = QString( "%1" ).arg( scalarValue );
 
                 if ( dataAccessObjectZ.notNull() )
                     scalarValue = dataAccessObjectZ->cellScalar( m_cellIndex );
                 else
                     scalarValue = 0.0;
-                text += QString( "SWAT : %1 " ).arg( scalarValue );
+                keyValues["SWAT"] = QString( "%1" ).arg( scalarValue );
             }
         }
         else
@@ -1008,12 +1043,12 @@ QString RiuResultTextBuilder::cellResultText( RimEclipseResultDefinition* eclRes
                     resultValueText = QString( "%1" ).arg( scalarValue );
                 }
 
-                text = QString( "%1 : %2" ).arg( resultDescriptionText ).arg( resultValueText );
+                keyValues[resultDescriptionText] = resultValueText;
             }
         }
     }
 
-    return text;
+    return keyValues;
 }
 
 //--------------------------------------------------------------------------------------------------
