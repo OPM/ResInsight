@@ -22,10 +22,12 @@
 #include "RiaColorTools.h"
 #include "RiaDefines.h"
 #include "RiaGuiApplication.h"
+#include "RiaLogging.h"
 #include "RiaPlotDefines.h"
 #include "RiaPlotWindowRedrawScheduler.h"
 
 #include "RimPlot.h"
+#include "RimPlotCurve.h"
 
 #include "RiuDraggableOverlayFrame.h"
 #include "RiuGuiTheme.h"
@@ -70,8 +72,6 @@
 
 #include <algorithm>
 #include <limits>
-
-#include "RiaLogging.h"
 
 //--------------------------------------------------------------------------------------------------
 ///
@@ -1011,8 +1011,6 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
                     symbol->setPen( blendedSymbolLineColor, symbol->pen().width(), symbol->pen().style() );
                 }
             }
-            CurveProperties properties = { curveColor, symbolColor, symbolLineColor, penWidth };
-            m_originalCurveProperties.insert( std::make_pair( plotCurve, properties ) );
             m_originalZValues.insert( std::make_pair( plotCurve, zValue ) );
 
             continue;
@@ -1040,23 +1038,18 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
     auto plotItemList = m_plot->itemList();
     for ( QwtPlotItem* plotItem : plotItemList )
     {
-        auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem );
-        if ( plotCurve && m_originalCurveProperties.count( plotCurve ) )
+        if ( auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem ) )
         {
-            const QPen& existingPen = plotCurve->pen();
-            auto        properties  = m_originalCurveProperties[plotCurve];
-            double      zValue      = m_originalZValues[plotCurve];
+            auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
 
-            plotCurve->setPen( properties.lineColor, properties.lineWidth, existingPen.style() );
-            plotCurve->setZ( zValue );
-            auto* symbol = const_cast<QwtSymbol*>( plotCurve->symbol() );
-            if ( symbol )
+            if ( auto rimPlotCurve =
+                     dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
             {
-                symbol->setColor( properties.symbolColor );
-                symbol->setPen( properties.symbolLineColor, symbol->pen().width(), symbol->pen().style() );
+                rimPlotCurve->updateCurveAppearance();
+                double zValue = m_originalZValues[plotCurve];
+                riuPlotCurve->setZ( zValue );
+                continue;
             }
-
-            continue;
         }
 
         auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
@@ -1072,7 +1065,6 @@ void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
             plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
         }
     }
-    m_originalCurveProperties.clear();
     m_originalZValues.clear();
 
     resetPlotAxisHighlighting();

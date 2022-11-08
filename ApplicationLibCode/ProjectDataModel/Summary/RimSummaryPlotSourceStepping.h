@@ -106,6 +106,8 @@ private:
     std::map<QString, QString> optionsForQuantity( std::set<RifEclipseSummaryAddress> addresses );
     std::map<QString, QString> optionsForQuantity( RiaSummaryAddressAnalyzer* analyzser );
 
+    void updateVectorNameInCurves( std::vector<RimSummaryCurve*>& curves, const QVariant& oldValue, const QVariant& newValue );
+
 private:
     caf::PdmPointer<caf::PdmObject> m_objectForSourceStepping;
 
@@ -129,6 +131,7 @@ private:
     caf::PdmField<int> m_aquifer;
 
     caf::PdmField<bool> m_includeEnsembleCasesForCaseStepping;
+    caf::PdmField<bool> m_autoUpdateAppearance;
 
     RimSummaryDataSourceStepping::Axis m_sourceSteppingType;
     std::vector<QString>               m_cachedIdentifiers;

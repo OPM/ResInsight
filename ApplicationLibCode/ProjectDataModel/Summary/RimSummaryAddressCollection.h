@@ -89,6 +89,8 @@ private:
         getOrCreateSubfolder( const QString         folderName,
                               CollectionContentType createFolderType = CollectionContentType::NOT_DEFINED );
 
+    RimSummaryAddressCollection* getOrCreateSubfolder( CollectionContentType createFolderType );
+
     bool hasDataVector( const QString quantityName ) const;
     bool hasDataVector( const std::string quantityName ) const;
 

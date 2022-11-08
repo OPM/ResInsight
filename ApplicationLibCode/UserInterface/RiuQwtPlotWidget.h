@@ -235,9 +235,8 @@ private:
         int    lineWidth;
     };
 
-    std::map<QwtPlotCurve*, CurveProperties> m_originalCurveProperties;
-    std::map<QwtPlotCurve*, double>          m_originalZValues;
-    std::map<RiuPlotAxis, QwtAxisId>         m_axisMapping;
+    std::map<QwtPlotCurve*, double>  m_originalZValues;
+    std::map<RiuPlotAxis, QwtAxisId> m_axisMapping;
 
     QPointer<QwtPlot> m_plot;
 };

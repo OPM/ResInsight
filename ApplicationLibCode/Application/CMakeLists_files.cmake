@@ -30,6 +30,7 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.h
     ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.h
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryDefines.h
 )
 
 set(SOURCE_GROUP_SOURCE_FILES
@@ -64,6 +65,7 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RiaDateTimeDefines.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaPlotCollectionScheduler.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RiaScheduler.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RiaSummaryDefines.cpp
 )
 
 list(APPEND CODE_HEADER_FILES ${SOURCE_GROUP_HEADER_FILES})

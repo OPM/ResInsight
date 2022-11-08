@@ -18,6 +18,8 @@
 
 #include "RimSummaryDataSourceStepping.h"
 
+#include "RiaSummaryDefines.h"
+
 #include "cafAppEnum.h"
 
 namespace caf
@@ -26,13 +28,13 @@ template <>
 void AppEnum<RimSummaryDataSourceStepping::SourceSteppingDimension>::setUp()
 {
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR, "VECTOR", "Vector" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL, "WELL", "Well" );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::WELL, "WELL", RiaDefines::summaryWell() );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::SUMMARY_CASE, "SUMMARY_CASE", "Summary Case" );
     addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::ENSEMBLE, "ENSEMBLE", "Ensemble" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP, "GROUP", "Group" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::REGION, "REGION", "Region" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", "Block" );
-    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", "Aquifer" );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::GROUP, "GROUP", RiaDefines::summaryWellGroup() );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::REGION, "REGION", RiaDefines::summaryRegion() );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::BLOCK, "BLOCK", RiaDefines::summaryBlock() );
+    addItem( RimSummaryDataSourceStepping::SourceSteppingDimension::AQUIFER, "AQUIFER", RiaDefines::summaryAquifer() );
     setDefault( RimSummaryDataSourceStepping::SourceSteppingDimension::VECTOR );
 }
 } // namespace caf

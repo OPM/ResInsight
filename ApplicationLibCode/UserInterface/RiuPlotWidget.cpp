@@ -264,6 +264,10 @@ bool RiuPlotWidget::handleDragDropEvent( QEvent* event )
     if ( RiuDragDrop::handleGenericDropEvent( event, objects ) )
     {
         if ( m_plotDefinition ) m_plotDefinition->handleDroppedObjects( objects );
+
+        RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
+        if ( mainPlotWindow ) mainPlotWindow->updateMultiPlotToolBar();
+
         return true;
     }
 
