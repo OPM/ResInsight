@@ -44,6 +44,7 @@ RiuResultInfoPanel::RiuResultInfoPanel( QWidget* parent )
     layout->addWidget( m_textEdit );
 
     // Use a nonexisting font family to trigger the use of QFont::Monospace
+    // https://forum.qt.io/topic/35999/solved-qplaintextedit-how-to-change-the-font-to-be-monospaced/7
     QFont font( "does not exist" );
     font.setStyleHint( QFont::Monospace );
     m_textEdit->setFont( font );

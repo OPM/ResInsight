@@ -66,6 +66,8 @@ class RimTernaryLegendConfig;
 class RimEclipseResultDefinition;
 class RimElementVectorResult;
 class RimStreamlineInViewCollection;
+class RimMultipleEclipseResults;
+class RigEclipseResultAddress;
 
 namespace cvf
 {
@@ -156,6 +158,8 @@ public:
 
     void syncronizeLocalAnnotationsFromGlobal();
 
+    std::vector<RigEclipseResultAddress> additionalResultsForResultInfo() const;
+
 protected:
     void initAfterRead() override;
     void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
@@ -237,4 +241,6 @@ private:
     cvf::ref<RivStreamlinesPartMgr>       m_streamlinesPartManager;
 
     std::vector<RivCellSetEnum> m_visibleGridParts;
+
+    caf::PdmChildField<RimMultipleEclipseResults*> m_additionalResultsForResultInfo;
 };

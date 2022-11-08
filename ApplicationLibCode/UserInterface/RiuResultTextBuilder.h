@@ -87,7 +87,7 @@ private:
 
 private:
     caf::PdmPointer<RimGridView>    m_displayCoordView;
-    caf::PdmPointer<RimEclipseView> m_viewWithFaultsSettings;
+    caf::PdmPointer<RimEclipseView> m_eclipseView;
 
     caf::PdmPointer<RimEclipseResultDefinition> m_eclResDef;
     caf::PdmPointer<Rim2dIntersectionView>      m_2dIntersectionView;
