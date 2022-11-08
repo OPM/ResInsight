@@ -164,7 +164,7 @@ void RimSummaryAddressCollection::updateFolderStructure( const std::set<RifEclip
                                                          int                                       caseId,
                                                          int                                       ensembleId )
 {
-    if ( addresses.size() == 0 ) return;
+    if ( addresses.empty() ) return;
 
     auto* fields        = getOrCreateSubfolder( CollectionContentType::FIELD );
     auto* aquifer       = getOrCreateSubfolder( CollectionContentType::AQUIFER );
@@ -329,7 +329,7 @@ RimSummaryAddressCollection* RimSummaryAddressCollection::getOrCreateSubfolder( 
         }
     }
 
-    RimSummaryAddressCollection* newFolder = new RimSummaryAddressCollection();
+    auto* newFolder = new RimSummaryAddressCollection();
     newFolder->setName( folderName );
     newFolder->setContentType( createFolderType );
     m_subfolders.push_back( newFolder );
@@ -360,7 +360,7 @@ void RimSummaryAddressCollection::deleteChildren()
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryAddressCollection::isEmpty() const
 {
-    return ( ( m_adresses.size() == 0 ) && ( m_subfolders.size() == 0 ) );
+    return ( ( m_adresses.empty() ) && ( m_subfolders.empty() ) );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -368,7 +368,7 @@ bool RimSummaryAddressCollection::isEmpty() const
 //--------------------------------------------------------------------------------------------------
 bool RimSummaryAddressCollection::canBeDragged() const
 {
-    bool ok = m_subfolders.size() == 0;
+    bool ok = m_subfolders.empty();
 
     ok = ok && ( m_contentType == CollectionContentType::WELL || m_contentType == CollectionContentType::GROUP ||
                  m_contentType == CollectionContentType::REGION );
