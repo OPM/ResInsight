@@ -36,6 +36,13 @@ class RimGridCalculation : public RimUserDefinedCalculation
     CAF_PDM_HEADER_INIT;
 
 public:
+    enum class DefaultValueType
+    {
+        POSITIVE_INFINITY,
+        FROM_PROPERTY,
+        USER_DEFINED
+    };
+
     RimGridCalculation();
 
     bool calculate() override;
@@ -72,4 +79,14 @@ protected:
     int findFilterVariableIndex() const;
 
     std::pair<RimGridView*, RimGridCalculationVariable::DefaultValueConfig> findFilterValuesFromVariables() const;
+
+    using DefaultValueConfig = std::pair<RimGridCalculation::DefaultValueType, double>;
+    DefaultValueConfig defaultValueConfiguration() const;
+
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
+
+private:
+    caf::PdmPtrField<RimGridView*>                m_cellFilterView;
+    caf::PdmField<caf::AppEnum<DefaultValueType>> m_defaultValueType;
+    caf::PdmField<double>                         m_defaultValue;
 };

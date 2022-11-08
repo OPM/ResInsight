@@ -38,12 +38,27 @@
 
 CAF_PDM_SOURCE_INIT( RimGridCalculation, "RimGridCalculation" );
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimGridCalculation::DefaultValueType>::setUp()
+{
+    addItem( RimGridCalculation::DefaultValueType::POSITIVE_INFINITY, "POSITIVE_INFINITY", "Inf" );
+    addItem( RimGridCalculation::DefaultValueType::FROM_PROPERTY, "FROM_PROPERTY", "Property Value" );
+    addItem( RimGridCalculation::DefaultValueType::USER_DEFINED, "USER_DEFINED", "User Defined" );
+    setDefault( RimGridCalculation::DefaultValueType::POSITIVE_INFINITY );
+}
+}; // namespace caf
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridCalculation::RimGridCalculation()
 {
     CAF_PDM_InitObject( "RimGridCalculation", ":/octave.png", "Calculation", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Default Value Type" );
+    CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Default Value" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -179,6 +194,30 @@ std::pair<RimGridView*, RimGridCalculationVariable::DefaultValueConfig>
     }
 
     return std::pair( nullptr, std::make_pair( RimGridCalculationVariable::DefaultValueType::POSITIVE_INFINITY, HUGE_VAL ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+RimGridCalculation::DefaultValueConfig RimGridCalculation::defaultValueConfiguration() const
+{
+    if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::USER_DEFINED )
+        return std::make_pair( m_defaultValueType(), m_defaultValue() );
+
+    return std::make_pair( m_defaultValueType(), HUGE_VAL );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
+
+    caf::PdmUiGroup* cellGroup = uiOrdering.addNewGroup( "Cell Filter" );
+    cellGroup->add( &m_cellFilterView );
+    cellGroup->add( &m_defaultValueType );
+    cellGroup->add( &m_defaultValue );
 }
 
 //--------------------------------------------------------------------------------------------------

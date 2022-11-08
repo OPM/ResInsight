@@ -301,6 +301,16 @@ void RimUserDefinedCalculation::fieldChangedByUi( const caf::PdmFieldHandle* cha
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RimUserDefinedCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    uiOrdering.add( &m_description );
+    uiOrdering.add( &m_expression );
+    uiOrdering.add( &m_unit );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimUserDefinedCalculationVariable* RimUserDefinedCalculation::findByName( const QString& name ) const
 {
     for ( RimUserDefinedCalculationVariable* v : m_variables )
