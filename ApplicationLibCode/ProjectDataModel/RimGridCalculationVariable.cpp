@@ -166,7 +166,7 @@ QList<caf::PdmOptionItemInfo>
             for ( RimEclipseView* view : m_eclipseCase->reservoirViews.children() )
             {
                 CVF_ASSERT( view && "Really always should have a valid view pointer in ReservoirViews" );
-                options.push_back( caf::PdmOptionItemInfo( view->name(), view, false, view->uiIconProvider() ) );
+                options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
             }
         }
     }
