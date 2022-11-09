@@ -868,7 +868,12 @@ bool ecl_smspec_equal(const ecl_smspec_type * self,
 static void ecl_smspec_load_restart( ecl_smspec_type * ecl_smspec , const ecl_file_type * header ) {
   if (ecl_file_has_kw( header , RESTART_KW )) {
     const ecl_kw_type * restart_kw = ecl_file_iget_named_kw(header, RESTART_KW , 0);
-    char   tmp_base[73];   /* To accomodate a maximum of 9 items which consist of 8 characters each. */
+    
+    /* Allocate 17 words of 8 characters each, add 1 for zero terminated string.
+    * https://github.com/equinor/ecl/issues/872
+    */
+    char tmp_base[137];
+
     char * restart_base;
     int i;
     tmp_base[0] = '\0';
