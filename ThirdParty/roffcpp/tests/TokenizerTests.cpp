@@ -190,6 +190,29 @@ TEST( TokenizerTests, testTokenizeAsciiTagKeyFloat )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+TEST( TokenizerTests, testTokenizeTagGroupFloatWithMoreSpecialChars )
+{
+    std::stringstream  stream( "tag some_name float x -1.00000000E+00 float z 1.3e-1 endtag" );
+    std::vector<Token> tokens = Tokenizer::tokenizeTagGroup( stream );
+
+    ASSERT_EQ( 9, tokens.size() );
+    ASSERT_EQ( Token::Kind::TAG, tokens[0].kind() );
+    ASSERT_EQ( Token::Kind::NAME, tokens[1].kind() );
+
+    ASSERT_EQ( Token::Kind::FLOAT, tokens[2].kind() );
+    ASSERT_EQ( Token::Kind::NAME, tokens[3].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[4].kind() );
+
+    ASSERT_EQ( Token::Kind::FLOAT, tokens[5].kind() );
+    ASSERT_EQ( Token::Kind::NAME, tokens[6].kind() );
+    ASSERT_EQ( Token::Kind::NUMERIC_VALUE, tokens[7].kind() );
+
+    ASSERT_EQ( Token::Kind::ENDTAG, tokens[8].kind() );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 TEST( TokenizerTests, testTokenizeTagGroup )
 {
     std::stringstream  stream( "tag tagname bool a 1 int b 3 endtag" );
