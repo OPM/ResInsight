@@ -22,6 +22,8 @@
 #include "cafPdmPointer.h"
 #include "cvfStructGrid.h"
 
+#include <map>
+
 class RimEclipseView;
 class RimEclipseCellColors;
 class Rim2dIntersectionView;
@@ -76,8 +78,8 @@ private:
     QString nncResultText();
     QString wellResultText();
 
-    QString cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions );
-    std::unordered_map<QString, QString> cellResultTextAndValueText( RimEclipseResultDefinition* resultDefinition );
+    QString                    cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions );
+    std::map<QString, QString> cellResultTextAndValueText( RimEclipseResultDefinition* resultDefinition );
 
     void appendTextFromResultColors( RigEclipseCaseData*         eclipseCase,
                                      size_t                      gridIndex,

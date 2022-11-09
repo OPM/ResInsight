@@ -928,11 +928,11 @@ QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResult
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::unordered_map<QString, QString> RiuResultTextBuilder::cellResultTextAndValueText( RimEclipseResultDefinition* eclResDef )
+std::map<QString, QString> RiuResultTextBuilder::cellResultTextAndValueText( RimEclipseResultDefinition* eclResDef )
 {
     if ( !eclResDef ) return {};
 
-    std::unordered_map<QString, QString> keyValues;
+    std::map<QString, QString> keyValues;
 
     if ( m_eclResDef->eclipseCase() && m_eclResDef->eclipseCase()->eclipseCaseData() )
     {
