@@ -19,20 +19,6 @@
 
 #include "RicImportInputEclipseCaseFeature.h"
 
-#include "RiaLogging.h"
-#include "RiaPorosityModel.h"
-
-#include "RimEclipseCaseCollection.h"
-#include "RimEclipseCellColors.h"
-#include "RimEclipseInputCase.h"
-#include "RimEclipseView.h"
-#include "RimOilField.h"
-#include "RimProject.h"
-
-#include "Riu3DMainWindowTools.h"
-
-#include "cafSelectionManager.h"
-
 #include <QAction>
 
 CAF_CMD_SOURCE_INIT( RicImportInputEclipseCaseFeature, "RicImportInputEclipseCaseFeature" );
