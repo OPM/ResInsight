@@ -88,6 +88,8 @@ private:
                                      RimEclipseResultDefinition* resultColors,
                                      QString*                    resultInfoText );
 
+    std::pair<bool, QStringList> resultTextFromLinkedViews() const;
+
 private:
     caf::PdmPointer<RimGridView>    m_displayCoordView;
     caf::PdmPointer<RimEclipseView> m_eclipseView;

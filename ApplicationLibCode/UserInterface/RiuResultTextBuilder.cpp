@@ -288,41 +288,11 @@ QString RiuResultTextBuilder::gridResultDetails()
 
     std::vector<std::unique_ptr<RimEclipseResultDefinition>> tmp;
 
-    bool hasMultipleCases = false;
-
     QStringList additionalCellResultText;
     resultDefinitions.push_back( m_eclResDef );
     if ( m_eclipseView )
     {
         std::vector<RigEclipseResultAddress> resultAddresses = m_eclipseView->additionalResultsForResultInfo();
-
-        if ( auto linker = m_eclipseView->assosiatedViewLinker() )
-        {
-            auto currentEclipseCase = m_eclipseView->eclipseCase();
-
-            auto views = linker->allViews();
-            for ( auto view : views )
-            {
-                auto eclView = dynamic_cast<RimEclipseView*>( view );
-                if ( eclView && eclView != m_eclipseView )
-                {
-                    RiuResultTextBuilder textBuilder( eclView, eclView->cellResult(), m_cellIndex, m_timeStepIndex );
-
-                    auto text = textBuilder.gridResultText();
-
-                    auto otherEclipseCase = eclView->eclipseCase();
-                    if ( currentEclipseCase != otherEclipseCase )
-                    {
-                        hasMultipleCases = true;
-
-                        auto caseName = otherEclipseCase->caseUserDescription();
-                        text += "( " + caseName + " )";
-                    }
-
-                    additionalCellResultText.push_back( text );
-                }
-            }
-        }
 
         for ( const auto& result : resultAddresses )
         {
@@ -337,9 +307,15 @@ QString RiuResultTextBuilder::gridResultDetails()
         }
     }
 
-    QString text = cellResultText( resultDefinitions, hasMultipleCases );
+    const auto [hasMultipleCases, linkedViewText] = resultTextFromLinkedViews();
+    QString text                                  = cellResultText( resultDefinitions, hasMultipleCases );
 
     for ( const auto& txt : additionalCellResultText )
+    {
+        text += "\n" + txt;
+    }
+
+    for ( const auto& txt : linkedViewText )
     {
         text += "\n" + txt;
     }
@@ -776,6 +752,43 @@ void RiuResultTextBuilder::appendTextFromResultColors( RigEclipseCaseData*      
     }
 
     resultInfoText->append( cellResultText( { resultColors } ) );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::pair<bool, QStringList> RiuResultTextBuilder::resultTextFromLinkedViews() const
+{
+    if ( !m_eclipseView || !m_eclipseView->assosiatedViewLinker() ) return {};
+
+    QStringList additionalCellResultText;
+    bool        hasMultipleCases = false;
+
+    auto linker             = m_eclipseView->assosiatedViewLinker();
+    auto currentEclipseCase = m_eclipseView->eclipseCase();
+    auto views              = linker->allViews();
+    for ( auto view : views )
+    {
+        auto eclView = dynamic_cast<RimEclipseView*>( view );
+        if ( !eclView || eclView == m_eclipseView ) continue;
+
+        RiuResultTextBuilder textBuilder( eclView, eclView->cellResult(), m_cellIndex, m_timeStepIndex );
+
+        auto text = textBuilder.gridResultText();
+
+        auto otherEclipseCase = eclView->eclipseCase();
+        if ( currentEclipseCase != otherEclipseCase )
+        {
+            hasMultipleCases = true;
+
+            auto caseName = otherEclipseCase->caseUserDescription();
+            text += "( " + caseName + " )";
+        }
+
+        additionalCellResultText.push_back( text );
+    }
+
+    return { hasMultipleCases, additionalCellResultText };
 }
 
 //--------------------------------------------------------------------------------------------------
