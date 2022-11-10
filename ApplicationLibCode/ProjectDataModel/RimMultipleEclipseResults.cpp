@@ -51,30 +51,27 @@ void RimMultipleEclipseResults::setEclipseView( RimEclipseView* eclipseView )
 //--------------------------------------------------------------------------------------------------
 std::vector<RigEclipseResultAddress> RimMultipleEclipseResults::additionalResultAddresses() const
 {
-    if ( m_eclipseView && m_eclipseView->currentGridCellResults() )
+    if ( !m_eclipseView || !m_eclipseView->currentGridCellResults() ) return {};
+
+    std::set<QString> selectedResults;
+    for ( const auto& result : m_selectedKeywords() )
     {
-        std::set<QString> selectedResults;
-        for ( const auto& result : m_selectedKeywords() )
-        {
-            selectedResults.insert( result );
-        }
-
-        std::vector<RigEclipseResultAddress> resultAddresses;
-
-        auto gridCellResult = m_eclipseView->currentGridCellResults();
-        for ( const auto& res : gridCellResult->existingResults() )
-        {
-            auto candidate = res.resultName();
-            if ( selectedResults.count( candidate ) > 0 )
-            {
-                resultAddresses.emplace_back( res );
-            }
-        }
-
-        return resultAddresses;
+        selectedResults.insert( result );
     }
 
-    return {};
+    std::vector<RigEclipseResultAddress> resultAddresses;
+
+    auto gridCellResult = m_eclipseView->currentGridCellResults();
+    for ( const auto& res : gridCellResult->existingResults() )
+    {
+        auto candidate = res.resultName();
+        if ( selectedResults.count( candidate ) > 0 )
+        {
+            resultAddresses.emplace_back( res );
+        }
+    }
+
+    return resultAddresses;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -85,43 +82,39 @@ QList<caf::PdmOptionItemInfo>
 {
     if ( fieldNeedingOptions == &m_selectedKeywords )
     {
-        if ( m_eclipseView && m_eclipseView->currentGridCellResults() )
+        if ( !m_eclipseView || !m_eclipseView->currentGridCellResults() ) return {};
+
+        QList<caf::PdmOptionItemInfo> options;
+
+        RigCaseCellResultsData*                resultData       = m_eclipseView->currentGridCellResults();
+        std::vector<RiaDefines::ResultCatType> resultCategories = { RiaDefines::ResultCatType::STATIC_NATIVE,
+                                                                    RiaDefines::ResultCatType::DYNAMIC_NATIVE,
+                                                                    RiaDefines::ResultCatType::INPUT_PROPERTY };
+        for ( auto catType : resultCategories )
         {
-            QList<caf::PdmOptionItemInfo> options;
+            QList<caf::PdmOptionItemInfo> allOptions =
+                RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
 
-            RigCaseCellResultsData* resultData = m_eclipseView->currentGridCellResults();
-
-            std::vector<RiaDefines::ResultCatType> resultCategories = { RiaDefines::ResultCatType::STATIC_NATIVE,
-                                                                        RiaDefines::ResultCatType::DYNAMIC_NATIVE,
-                                                                        RiaDefines::ResultCatType::INPUT_PROPERTY };
-
-            for ( auto catType : resultCategories )
+            bool isFirstOfCategory = true;
+            for ( const caf::PdmOptionItemInfo& option : allOptions )
             {
-                QList<caf::PdmOptionItemInfo> allOptions =
-                    RimEclipseResultDefinition::calcOptionsForVariableUiFieldStandard( catType, resultData );
-
-                bool isFirstOfCategory = true;
-                for ( const caf::PdmOptionItemInfo& option : allOptions )
+                if ( resultData->hasResultEntry( RigEclipseResultAddress( catType, option.optionUiText() ) ) )
                 {
-                    if ( resultData->hasResultEntry( RigEclipseResultAddress( catType, option.optionUiText() ) ) )
+                    if ( isFirstOfCategory )
                     {
-                        if ( isFirstOfCategory )
-                        {
-                            // Add the category title only when there is at least one valid result
-                            options.push_back(
-                                caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText(
-                                                                          catType ),
-                                                                      true ) );
-                            isFirstOfCategory = false;
-                        }
-
-                        options.push_back( option );
+                        // Add the category title only when there is at least one valid result
+                        options.push_back(
+                            caf::PdmOptionItemInfo::createHeader( caf::AppEnum<RiaDefines::ResultCatType>::uiText( catType ),
+                                                                  true ) );
+                        isFirstOfCategory = false;
                     }
+
+                    options.push_back( option );
                 }
             }
-
-            return options;
         }
+
+        return options;
     }
 
     return {};

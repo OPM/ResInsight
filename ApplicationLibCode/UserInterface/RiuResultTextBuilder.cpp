@@ -285,7 +285,7 @@ QString RiuResultTextBuilder::gridResultDetails()
 {
     std::vector<RimEclipseResultDefinition*> resultDefinitions;
 
-    std::vector<RimEclipseResultDefinition*> temp;
+    std::vector<std::unique_ptr<RimEclipseResultDefinition>> tmp;
 
     resultDefinitions.push_back( m_eclResDef );
     if ( m_eclipseView )
@@ -294,14 +294,14 @@ QString RiuResultTextBuilder::gridResultDetails()
 
         for ( const auto& resultName : additionalResults )
         {
-            auto* myResDef = new RimEclipseResultDefinition;
+            auto myResDef = std::make_unique<RimEclipseResultDefinition>();
             myResDef->setEclipseCase( m_eclResDef->eclipseCase() );
             myResDef->simpleCopy( m_eclResDef );
             myResDef->setFromEclipseResultAddress( resultName );
             myResDef->loadResult();
 
-            resultDefinitions.push_back( myResDef );
-            temp.push_back( myResDef );
+            resultDefinitions.push_back( myResDef.get() );
+            tmp.push_back( std::move( myResDef ) );
         }
     }
 
@@ -312,10 +312,6 @@ QString RiuResultTextBuilder::gridResultDetails()
     }
     text += "\n";
 
-    for ( auto t : temp )
-    {
-        delete t;
-    }
 
     return text;
 }
