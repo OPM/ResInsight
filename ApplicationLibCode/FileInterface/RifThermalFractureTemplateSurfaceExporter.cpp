@@ -48,7 +48,7 @@ bool RifThermalFractureTemplateSurfaceExporter::writeToFile( gsl::not_null<RimTh
         out.setRealNumberPrecision( 16 );
 
         auto nameAndUnits  = fractureData->getPropertyNamesUnits();
-        int  numProperties = nameAndUnits.size();
+        int  numProperties = static_cast<int>( nameAndUnits.size() );
 
         for ( auto [name, unit] : nameAndUnits )
         {
