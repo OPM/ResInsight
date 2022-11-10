@@ -176,9 +176,9 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
 
             int injectivityFactorIndex = def->getPropertyIndex( injectivityValueTag );
 
-            for ( size_t nodeIndex = 0; nodeIndex < def->numNodes(); nodeIndex++ )
+            for ( int nodeIndex = 0; nodeIndex < static_cast<int>( def->numNodes() ); nodeIndex++ )
             {
-                for ( size_t timeStepIndex = 0; timeStepIndex < def->numTimeSteps(); timeStepIndex++ )
+                for ( int timeStepIndex = 0; timeStepIndex < static_cast<int>( def->numTimeSteps() ); timeStepIndex++ )
                 {
                     double leakoffPressureDrop =
                         def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );
@@ -201,9 +201,9 @@ void RimThermalFractureTemplate::loadDataAndUpdate()
 
             int filterCakeMobilityIndex = def->getPropertyIndex( filterCakeMobilityValueTag );
 
-            for ( size_t nodeIndex = 0; nodeIndex < def->numNodes(); nodeIndex++ )
+            for ( int nodeIndex = 0; nodeIndex < static_cast<int>( def->numNodes() ); nodeIndex++ )
             {
-                for ( size_t timeStepIndex = 0; timeStepIndex < def->numTimeSteps(); timeStepIndex++ )
+                for ( int timeStepIndex = 0; timeStepIndex < static_cast<int>( def->numTimeSteps() ); timeStepIndex++ )
                 {
                     double leakoffPressureDrop =
                         def->getPropertyValue( leakoffPressureDropIndex, nodeIndex, timeStepIndex );

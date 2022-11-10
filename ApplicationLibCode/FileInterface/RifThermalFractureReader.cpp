@@ -177,6 +177,7 @@ QDateTime RifThermalFractureReader::parseDateTime( const QString& dateString )
 {
     QString   dateFormat = "dd.MM.yyyy hh:mm:ss";
     QDateTime dateTime   = QDateTime::fromString( dateString, dateFormat );
+
     // Sometimes the datetime field is missing time
     if ( !dateTime.isValid() )
     {
@@ -240,10 +241,8 @@ std::pair<QString, QString> RifThermalFractureReader::parseNameAndUnit( const QS
         QString unit = match.captured( 2 );
         return std::make_pair( name, unit );
     }
-    else
-    {
-        return std::make_pair( "", "" );
-    }
+
+    return std::make_pair( "", "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -264,8 +263,8 @@ RiaDefines::EclipseUnitSystem
         QString unit = res->second;
         if ( unit == RiaDefines::getExpectedThermalFractureUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_METRIC ) )
             return RiaDefines::EclipseUnitSystem::UNITS_METRIC;
-        else if ( unit ==
-                  RiaDefines::getExpectedThermalFractureUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_FIELD ) )
+
+        if ( unit == RiaDefines::getExpectedThermalFractureUnit( targetName, RiaDefines::EclipseUnitSystem::UNITS_FIELD ) )
             return RiaDefines::EclipseUnitSystem::UNITS_FIELD;
     }
 
