@@ -78,7 +78,7 @@ private:
     QString nncResultText();
     QString wellResultText();
 
-    QString                    cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions );
+    QString cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions, bool appendCaseName = false );
     std::map<QString, QString> cellResultTextAndValueText( RimEclipseResultDefinition* resultDefinition );
 
     void appendTextFromResultColors( RigEclipseCaseData*         eclipseCase,

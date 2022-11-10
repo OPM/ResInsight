@@ -41,6 +41,7 @@
 #include "RimIntersectionResultDefinition.h"
 #include "RimRegularLegendConfig.h"
 #include "RimReservoirCellResultsStorage.h"
+#include "RimViewLinker.h"
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
@@ -287,17 +288,48 @@ QString RiuResultTextBuilder::gridResultDetails()
 
     std::vector<std::unique_ptr<RimEclipseResultDefinition>> tmp;
 
+    bool hasMultipleCases = false;
+
+    QStringList additionalCellResultText;
     resultDefinitions.push_back( m_eclResDef );
     if ( m_eclipseView )
     {
-        auto additionalResults = m_eclipseView->additionalResultsForResultInfo();
+        std::vector<RigEclipseResultAddress> resultAddresses = m_eclipseView->additionalResultsForResultInfo();
 
-        for ( const auto& resultName : additionalResults )
+        if ( auto linker = m_eclipseView->assosiatedViewLinker() )
+        {
+            auto currentEclipseCase = m_eclipseView->eclipseCase();
+
+            auto views = linker->allViews();
+            for ( auto view : views )
+            {
+                auto eclView = dynamic_cast<RimEclipseView*>( view );
+                if ( eclView && eclView != m_eclipseView )
+                {
+                    RiuResultTextBuilder textBuilder( eclView, eclView->cellResult(), m_cellIndex, m_timeStepIndex );
+
+                    auto text = textBuilder.gridResultText();
+
+                    auto otherEclipseCase = eclView->eclipseCase();
+                    if ( currentEclipseCase != otherEclipseCase )
+                    {
+                        hasMultipleCases = true;
+
+                        auto caseName = otherEclipseCase->caseUserDescription();
+                        text += "( " + caseName + " )";
+                    }
+
+                    additionalCellResultText.push_back( text );
+                }
+            }
+        }
+
+        for ( const auto& result : resultAddresses )
         {
             auto myResDef = std::make_unique<RimEclipseResultDefinition>();
             myResDef->setEclipseCase( m_eclResDef->eclipseCase() );
             myResDef->simpleCopy( m_eclResDef );
-            myResDef->setFromEclipseResultAddress( resultName );
+            myResDef->setFromEclipseResultAddress( result );
             myResDef->loadResult();
 
             resultDefinitions.push_back( myResDef.get() );
@@ -305,7 +337,13 @@ QString RiuResultTextBuilder::gridResultDetails()
         }
     }
 
-    QString text = cellResultText( resultDefinitions );
+    QString text = cellResultText( resultDefinitions, hasMultipleCases );
+
+    for ( const auto& txt : additionalCellResultText )
+    {
+        text += "\n" + txt;
+    }
+
     if ( !text.isEmpty() )
     {
         text.prepend( "-- Grid cell result details --\n" );
@@ -895,7 +933,8 @@ void RiuResultTextBuilder::appendDetails( QString& text, const QString& details 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions )
+QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions,
+                                              bool                                            appendCaseName )
 {
     std::map<QString, QString> keyValues;
 
@@ -915,6 +954,12 @@ QString RiuResultTextBuilder::cellResultText( const std::vector<RimEclipseResult
     {
         if ( !text.isEmpty() ) text += "\n";
         text += QString( "%1 : %2" ).arg( key, -maxKeyLength ).arg( value );
+
+        if ( appendCaseName && m_eclipseView && m_eclipseView->eclipseCase() )
+        {
+            auto caseName = m_eclipseView->eclipseCase()->caseUserDescription();
+            text += "( " + caseName + " )";
+        }
     }
 
     return text;
@@ -1070,7 +1115,8 @@ QString RiuResultTextBuilder::wellResultText()
                 wellResultFrame->findResultCellWellHeadIncluded( m_gridIndex, m_cellIndex );
             if ( wellResultCell )
             {
-                text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment Id: %3\n" )
+                text += QString( "-- Well-cell connection info --\n Well Name: %1\n Branch Id: %2\n Segment "
+                                 "Id: %3\n" )
                             .arg( singleWellResultData->m_wellName )
                             .arg( wellResultCell->m_ertBranchId )
                             .arg( wellResultCell->m_ertSegmentId );
