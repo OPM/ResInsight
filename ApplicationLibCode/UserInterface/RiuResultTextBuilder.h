@@ -22,6 +22,8 @@
 #include "cafPdmPointer.h"
 #include "cvfStructGrid.h"
 
+#include <map>
+
 class RimEclipseView;
 class RimEclipseCellColors;
 class Rim2dIntersectionView;
@@ -76,7 +78,8 @@ private:
     QString nncResultText();
     QString wellResultText();
 
-    QString cellResultText( RimEclipseResultDefinition* resultColors );
+    QString                    cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions );
+    std::map<QString, QString> cellResultTextAndValueText( RimEclipseResultDefinition* resultDefinition );
 
     void appendTextFromResultColors( RigEclipseCaseData*         eclipseCase,
                                      size_t                      gridIndex,
@@ -87,7 +90,7 @@ private:
 
 private:
     caf::PdmPointer<RimGridView>    m_displayCoordView;
-    caf::PdmPointer<RimEclipseView> m_viewWithFaultsSettings;
+    caf::PdmPointer<RimEclipseView> m_eclipseView;
 
     caf::PdmPointer<RimEclipseResultDefinition> m_eclResDef;
     caf::PdmPointer<Rim2dIntersectionView>      m_2dIntersectionView;

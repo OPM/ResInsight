@@ -66,6 +66,7 @@
 #include "RimIntersectionCollection.h"
 #include "RimIntersectionResultDefinition.h"
 #include "RimIntersectionResultsDefinitionCollection.h"
+#include "RimMultipleEclipseResults.h"
 #include "RimOilField.h"
 #include "RimProject.h"
 #include "RimRegularLegendConfig.h"
@@ -210,6 +211,14 @@ RimEclipseView::RimEclipseView()
     nameConfig()->hideAggregationTypeField( true );
     nameConfig()->hidePropertyField( false );
     nameConfig()->hideSampleSpacingField( true );
+
+    CAF_PDM_InitFieldNoDefault( &m_additionalResultsForResultInfo,
+                                "AdditionalResultsForResultInfo",
+                                "Additional Result Info" );
+    m_additionalResultsForResultInfo = new RimMultipleEclipseResults;
+    m_additionalResultsForResultInfo->setEclipseView( this );
+
+    m_cellResult()->setAdditionalUiTreeObjects( { m_additionalResultsForResultInfo() } );
 
     setDeletable( true );
 
@@ -1642,6 +1651,14 @@ void RimEclipseView::syncronizeLocalAnnotationsFromGlobal()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<RigEclipseResultAddress> RimEclipseView::additionalResultsForResultInfo() const
+{
+    return m_additionalResultsForResultInfo()->additionalResultAddresses();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimStreamlineInViewCollection* RimEclipseView::streamlineCollection() const
 {
     return m_streamlineCollection;
@@ -1904,7 +1921,6 @@ void RimEclipseView::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrderin
 {
     uiTreeOrdering.add( m_overlayInfoConfig() );
     uiTreeOrdering.add( m_gridCollection() );
-
     uiTreeOrdering.add( cellResult() );
     uiTreeOrdering.add( cellEdgeResult() );
     uiTreeOrdering.add( cellFilterCollection() );
