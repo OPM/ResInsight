@@ -312,7 +312,6 @@ QString RiuResultTextBuilder::gridResultDetails()
     }
     text += "\n";
 
-
     return text;
 }
 
