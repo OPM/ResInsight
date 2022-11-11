@@ -32,6 +32,7 @@
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigGridManager.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
@@ -83,7 +84,7 @@ bool RimGridCalculation::calculate()
 {
     QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
 
-    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    RimEclipseCase* eclipseCase = destinationEclipseCase();
     if ( !eclipseCase )
     {
         RiaLogging::errorInMessageBox( nullptr,
@@ -97,6 +98,17 @@ bool RimGridCalculation::calculate()
     {
         RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
         return false;
+    }
+
+    for ( auto variableCase : inputCases() )
+    {
+        if ( !RigGridManager::isMainGridDimensionsEqual( eclipseCase->mainGrid(), variableCase->mainGrid() ) )
+        {
+            QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
+                          "cases must have identical IJK sizes.";
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+            return false;
+        }
     }
 
     auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
@@ -170,19 +182,26 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimGridCalculation::findEclipseCaseFromVariables() const
+RimEclipseCase* RimGridCalculation::destinationEclipseCase() const
 {
     return m_destinationCase;
+}
 
-    //     for ( auto variable : m_variables )
-    //     {
-    //         RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
-    //         CAF_ASSERT( v != nullptr );
-    //
-    //         if ( v->eclipseCase() ) return v->eclipseCase();
-    //     }
-    //
-    //     return nullptr;
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimEclipseCase*> RimGridCalculation::inputCases() const
+{
+    std::vector<RimEclipseCase*> cases;
+
+    for ( const auto& variable : m_variables )
+    {
+        auto* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
+
+        if ( v->eclipseCase() ) cases.push_back( v->eclipseCase() );
+    }
+
+    return cases;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -410,7 +429,7 @@ void RimGridCalculation::filterResults( RimGridView*                            
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::updateDependentObjects()
 {
-    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    RimEclipseCase* eclipseCase = destinationEclipseCase();
     if ( eclipseCase )
     {
         RimReloadCaseTools::updateAll3dViews( eclipseCase );
@@ -428,7 +447,7 @@ void RimGridCalculation::removeDependentObjects()
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
 
-    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    RimEclipseCase* eclipseCase = destinationEclipseCase();
     if ( eclipseCase )
     {
         // Select "None" result if the result that is being removed were displayed in a view.

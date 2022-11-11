@@ -57,7 +57,8 @@ protected:
     RimGridCalculationVariable* createVariable() override;
     std::pair<bool, QString>    validateVariables();
 
-    RimEclipseCase* findEclipseCaseFromVariables() const;
+    RimEclipseCase*              destinationEclipseCase() const;
+    std::vector<RimEclipseCase*> inputCases() const;
 
     std::vector<double> getInputVectorForVariable( RimGridCalculationVariable*   v,
                                                    size_t                        tsId,

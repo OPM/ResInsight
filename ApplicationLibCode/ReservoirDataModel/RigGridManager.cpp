@@ -120,7 +120,7 @@ bool RigGridManager::isGridDimensionsEqual( const std::vector<std::vector<int>>&
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-bool RigGridManager::isMainGridDimensionsEqual( RigMainGrid* gridA, RigMainGrid* gridB )
+bool RigGridManager::isMainGridDimensionsEqual( const RigMainGrid* gridA, const RigMainGrid* gridB )
 {
     if ( gridA == nullptr || gridB == nullptr ) return false;
 
