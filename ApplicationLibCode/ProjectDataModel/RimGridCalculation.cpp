@@ -102,7 +102,7 @@ bool RimGridCalculation::calculate()
 
     for ( auto variableCase : inputCases() )
     {
-        if ( !areGridsEqual( eclipseCase, variableCase ) )
+        if ( !eclipseCase->isGridSizeEqualTo( variableCase ) )
         {
             QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
                           "cases must have identical IJK sizes.";
@@ -265,7 +265,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         {
             auto eclipseView = dynamic_cast<RimEclipseView*>( view );
             if ( !eclipseView ) continue;
-            if ( !areGridsEqual( firstEclipseCase, eclipseView->eclipseCase() ) ) continue;
+            if ( !firstEclipseCase->isGridSizeEqualTo( eclipseView->eclipseCase() ) ) continue;
 
             options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
         }
@@ -290,7 +290,7 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
                 {
                     auto* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
                     if ( !eclipseCase ) continue;
-                    if ( !areGridsEqual( firstInputCase, eclipseCase ) ) continue;
+                    if ( !firstInputCase->isGridSizeEqualTo( eclipseCase ) ) continue;
 
                     options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
                 }
@@ -318,16 +318,6 @@ void RimGridCalculation::initAfterRead()
             if ( m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
         }
     }
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimGridCalculation::areGridsEqual( const RimEclipseCase* case1, const RimEclipseCase* case2 )
-{
-    if ( !case1 || !case2 ) return false;
-
-    return RigGridManager::isMainGridDimensionsEqual( case1->mainGrid(), case2->mainGrid() );
 }
 
 //--------------------------------------------------------------------------------------------------

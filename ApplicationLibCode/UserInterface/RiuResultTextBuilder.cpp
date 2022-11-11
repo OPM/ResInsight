@@ -45,7 +45,6 @@
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
-#include "RigGridManager.h"
 #include "cafDisplayCoordTransform.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -774,8 +773,7 @@ std::pair<bool, QStringList> RiuResultTextBuilder::resultTextFromLinkedViews() c
 
         // Match on IJK size, as the cell index is used to identify the grid cell to extract the result from
         auto otherEclipseCase = eclView->eclipseCase();
-        if ( !RigGridManager::isMainGridDimensionsEqual( primaryEclipseCase->mainGrid(), otherEclipseCase->mainGrid() ) )
-            continue;
+        if ( !primaryEclipseCase->isGridSizeEqualTo( otherEclipseCase ) ) continue;
 
         RiuResultTextBuilder textBuilder( eclView, eclView->cellResult(), m_cellIndex, m_timeStepIndex );
         auto                 text = textBuilder.gridResultText();

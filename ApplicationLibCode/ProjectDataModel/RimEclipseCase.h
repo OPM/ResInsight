@@ -83,6 +83,7 @@ public:
     cvf::Color3f              defaultWellColor( const QString& wellName );
 
     const RigMainGrid* mainGrid() const;
+    bool               isGridSizeEqualTo( const RimEclipseCase* otherCase ) const;
 
     RigCaseCellResultsData*       results( RiaDefines::PorosityModelType porosityModel );
     const RigCaseCellResultsData* results( RiaDefines::PorosityModelType porosityModel ) const;
