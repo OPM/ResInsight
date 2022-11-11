@@ -191,6 +191,22 @@ std::vector<int> Parser::getIntArray( const std::string& keyword )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+std::vector<char> Parser::getByteArray( const std::string& keyword )
+{
+    auto [startIndex, arrayLength] = m_arrayInfo[keyword];
+
+    std::vector<char> values;
+    for ( long i = startIndex; i < startIndex + arrayLength; i++ )
+    {
+        values.push_back( parseInt( ( *m_tokens )[i], *m_stream ) );
+    }
+
+    return values;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<float> Parser::getFloatArray( const std::string& keyword )
 {
     auto [startIndex, arrayLength] = m_arrayInfo[keyword];
