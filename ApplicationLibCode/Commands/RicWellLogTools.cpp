@@ -516,7 +516,6 @@ RimWellLogRftCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*
     RifEclipseRftAddress adr =
         RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
     curve->setRftAddress( adr );
-    curve->enableColorFromResultName( true );
     curve->assignColorFromResultName( resultName );
     curve->setLineThickness( 4 );
 
