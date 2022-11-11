@@ -1210,7 +1210,7 @@ void RiaGuiApplication::onProjectBeingOpened()
     // When importing a project, do not maximize the first MDI window to be created
     m_maximizeWindowGuard = std::make_unique<RiuMdiMaximizeWindowGuard>();
 
-    m_mainWindow->setBlockSubWindowActivatedSignal( true );
+    if ( m_mainWindow ) m_mainWindow->setBlockSubWindowActivatedSignal( true );
     if ( mainPlotWindow() ) mainPlotWindow()->setBlockSubWindowActivatedSignal( true );
 }
 
@@ -1272,7 +1272,7 @@ void RiaGuiApplication::onProjectOpened()
 
     processEvents();
 
-    m_mainWindow->setBlockSubWindowActivatedSignal( false );
+    if ( m_mainWindow ) m_mainWindow->setBlockSubWindowActivatedSignal( false );
     if ( mainPlotWindow() ) mainPlotWindow()->setBlockSubWindowActivatedSignal( false );
 
     // Make sure to process events before this function to avoid strange Qt crash
