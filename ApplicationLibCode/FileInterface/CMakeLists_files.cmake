@@ -1,6 +1,7 @@
 set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifTextDataTableFormatter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools.h
+    ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartDataAccess.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartFilesetAccess.h
@@ -80,6 +81,7 @@ set(SOURCE_GROUP_HEADER_FILES
 set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifTextDataTableFormatter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseInputFileTools.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/RifRoffFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseOutputFileTools.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartDataAccess.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEclipseRestartFilesetAccess.cpp
