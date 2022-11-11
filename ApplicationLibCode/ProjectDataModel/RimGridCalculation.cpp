@@ -102,7 +102,7 @@ bool RimGridCalculation::calculate()
 
     for ( auto variableCase : inputCases() )
     {
-        if ( !RigGridManager::isMainGridDimensionsEqual( eclipseCase->mainGrid(), variableCase->mainGrid() ) )
+        if ( !areGridsEqual( eclipseCase, variableCase ) )
         {
             QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
                           "cases must have identical IJK sizes.";
@@ -258,20 +258,46 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         std::vector<Rim3dView*> views;
         RimProject::current()->allViews( views );
 
+        RimEclipseCase* firstEclipseCase = nullptr;
+        if ( !inputCases().empty() ) firstEclipseCase = inputCases().front();
+
         for ( auto* view : views )
         {
             auto eclipseView = dynamic_cast<RimEclipseView*>( view );
-            if ( eclipseView )
-                options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
+            if ( !eclipseView ) continue;
+            if ( !areGridsEqual( firstEclipseCase, eclipseView->eclipseCase() ) ) continue;
+
+            options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
         }
     }
     else if ( fieldNeedingOptions == &m_destinationCase )
     {
-        RimTools::eclipseCaseOptionItems( &options );
-        if ( options.empty() )
+        if ( inputCases().empty() )
         {
-            options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+            RimTools::eclipseCaseOptionItems( &options );
         }
+        else
+        {
+            RimEclipseCase* firstInputCase = inputCases()[0];
+
+            RimProject* proj = RimProject::current();
+            if ( proj )
+            {
+                std::vector<RimCase*> cases;
+                proj->allCases( cases );
+
+                for ( RimCase* c : cases )
+                {
+                    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
+                    if ( !eclipseCase ) continue;
+                    if ( !areGridsEqual( firstInputCase, eclipseCase ) ) continue;
+
+                    options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
+                }
+            }
+        }
+
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
 
     return options;
@@ -292,6 +318,16 @@ void RimGridCalculation::initAfterRead()
             if ( m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
         }
     }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimGridCalculation::areGridsEqual( const RimEclipseCase* case1, const RimEclipseCase* case2 )
+{
+    if ( !case1 || !case2 ) return false;
+
+    return RigGridManager::isMainGridDimensionsEqual( case1->mainGrid(), case2->mainGrid() );
 }
 
 //--------------------------------------------------------------------------------------------------

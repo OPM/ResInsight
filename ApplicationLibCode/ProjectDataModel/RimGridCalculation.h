@@ -85,6 +85,8 @@ protected:
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
     void                          initAfterRead() override;
 
+    static bool areGridsEqual( const RimEclipseCase* case1, const RimEclipseCase* case2 );
+
 private:
     void onVariableUpdated( const SignalEmitter* emitter );
 
