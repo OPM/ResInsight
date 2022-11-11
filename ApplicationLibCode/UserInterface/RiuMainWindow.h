@@ -138,6 +138,9 @@ protected:
     QStringList defaultDockStateNames() override;
     QStringList windowsMenuFeatureNames() override;
 
+    void dragEnterEvent( QDragEnterEvent* event ) override;
+    void dropEvent( QDropEvent* event ) override;
+
 private:
     void createActions();
     void createMenus();
