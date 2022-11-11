@@ -27,6 +27,7 @@ public:
     std::vector<int>         getIntArray( const std::string& keyword );
     std::vector<double>      getDoubleArray( const std::string& keyword );
     std::vector<float>       getFloatArray( const std::string& keyword );
+    std::vector<char>        getByteArray( const std::string& keyword );
 
     static bool isSimpleType( Token::Kind kind );
 
