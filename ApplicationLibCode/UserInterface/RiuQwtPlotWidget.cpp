@@ -1035,37 +1035,40 @@ void RiuQwtPlotWidget::highlightPlotItems( const std::set<const QwtPlotItem*>& c
 //--------------------------------------------------------------------------------------------------
 void RiuQwtPlotWidget::resetPlotItemHighlighting( bool doUpdateCurveOrder )
 {
-    auto plotItemList = m_plot->itemList();
-    for ( QwtPlotItem* plotItem : plotItemList )
+    if ( !m_originalZValues.empty() )
     {
-        if ( auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem ) )
+        auto plotItemList = m_plot->itemList();
+        for ( QwtPlotItem* plotItem : plotItemList )
         {
-            auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
-
-            if ( auto rimPlotCurve =
-                     dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
+            if ( auto* plotCurve = dynamic_cast<QwtPlotCurve*>( plotItem ) )
             {
-                rimPlotCurve->updateCurveAppearance();
-                double zValue = m_originalZValues[plotCurve];
-                riuPlotCurve->setZ( zValue );
-                continue;
+                auto* riuPlotCurve = dynamic_cast<RiuPlotCurve*>( plotItem );
+
+                if ( auto rimPlotCurve =
+                         dynamic_cast<RimPlotCurve*>( m_plotDefinition->findPdmObjectFromPlotCurve( riuPlotCurve ) ) )
+                {
+                    rimPlotCurve->updateCurveAppearance();
+                    double zValue = m_originalZValues[plotCurve];
+                    riuPlotCurve->setZ( zValue );
+                    continue;
+                }
+            }
+
+            auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
+            if ( plotShapeItem )
+            {
+                QPen pen = plotShapeItem->pen();
+
+                auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
+
+                pen.setColor( color );
+                pen.setWidth( 1 );
+                plotShapeItem->setPen( pen );
+                plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
             }
         }
-
-        auto* plotShapeItem = dynamic_cast<QwtPlotShapeItem*>( plotItem );
-        if ( plotShapeItem )
-        {
-            QPen pen = plotShapeItem->pen();
-
-            auto color = RiuGuiTheme::getColorByVariableName( "markerColor" );
-
-            pen.setColor( color );
-            pen.setWidth( 1 );
-            plotShapeItem->setPen( pen );
-            plotShapeItem->setZ( plotShapeItem->z() - 100.0 );
-        }
+        m_originalZValues.clear();
     }
-    m_originalZValues.clear();
 
     resetPlotAxisHighlighting();
 

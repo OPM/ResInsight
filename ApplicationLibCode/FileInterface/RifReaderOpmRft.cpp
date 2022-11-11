@@ -41,8 +41,9 @@
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDeckFileName )
     : m_segmentResultItemCount( 0 )
     , m_connectionResultItemCount( 0 )
+    , m_fileName( fileName )
+    , m_dataDeckFileName( dataDeckFileName )
 {
-    openFiles( fileName, dataDeckFileName );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -51,8 +52,8 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName, const QString& dataDe
 RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
     : m_segmentResultItemCount( 0 )
     , m_connectionResultItemCount( 0 )
+    , m_fileName( fileName )
 {
-    openFiles( fileName, "" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -60,6 +61,8 @@ RifReaderOpmRft::RifReaderOpmRft( const QString& fileName )
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress> RifReaderOpmRft::eclipseRftAddresses()
 {
+    openFiles();
+
     return m_addresses;
 }
 
@@ -68,6 +71,8 @@ std::set<RifEclipseRftAddress> RifReaderOpmRft::eclipseRftAddresses()
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vector<double>* values )
 {
+    openFiles();
+
     auto wellName   = rftAddress.wellName().toStdString();
     auto resultName = rftAddress.segmentResultName().toStdString();
 
@@ -182,6 +187,8 @@ void RifReaderOpmRft::values( const RifEclipseRftAddress& rftAddress, std::vecto
 //--------------------------------------------------------------------------------------------------
 std::set<QDateTime> RifReaderOpmRft::availableTimeSteps( const QString& wellName )
 {
+    openFiles();
+
     std::set<QDateTime> timeSteps;
 
     for ( const auto& address : m_addresses )
@@ -201,6 +208,8 @@ std::set<QDateTime>
     RifReaderOpmRft::availableTimeSteps( const QString&                                     wellName,
                                          const RifEclipseRftAddress::RftWellLogChannelType& wellLogChannelName )
 {
+    openFiles();
+
     if ( wellLogChannelName == RifEclipseRftAddress::RftWellLogChannelType::SEGMENT_VALUES )
         return m_rftSegmentTimeSteps;
 
@@ -223,6 +232,8 @@ std::set<QDateTime>
     RifReaderOpmRft::availableTimeSteps( const QString&                                               wellName,
                                          const std::set<RifEclipseRftAddress::RftWellLogChannelType>& relevantChannels )
 {
+    openFiles();
+
     std::set<QDateTime> timeSteps;
 
     for ( const auto& address : m_addresses )
@@ -240,6 +251,8 @@ std::set<QDateTime>
 //--------------------------------------------------------------------------------------------------
 std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderOpmRft::availableWellLogChannels( const QString& wellName )
 {
+    openFiles();
+
     std::set<RifEclipseRftAddress::RftWellLogChannelType> types;
 
     for ( const auto& a : m_addresses )
@@ -258,6 +271,8 @@ std::set<RifEclipseRftAddress::RftWellLogChannelType> RifReaderOpmRft::available
 //--------------------------------------------------------------------------------------------------
 std::set<QString> RifReaderOpmRft::wellNames()
 {
+    openFiles();
+
     return m_wellNames;
 }
 
@@ -266,6 +281,8 @@ std::set<QString> RifReaderOpmRft::wellNames()
 //--------------------------------------------------------------------------------------------------
 void RifReaderOpmRft::cellIndices( const RifEclipseRftAddress& rftAddress, std::vector<caf::VecIjk>* indices )
 {
+    openFiles();
+
     auto wellName = rftAddress.wellName().toStdString();
 
     auto date = rftAddress.timeStep().date();
@@ -324,6 +341,8 @@ std::map<int, int> RifReaderOpmRft::branchIdsAndOneBasedIndices( const QString& 
 //--------------------------------------------------------------------------------------------------
 RifRftSegment RifReaderOpmRft::segmentForWell( const QString& wellName, const QDateTime& timeStep )
 {
+    openFiles();
+
     int y = timeStep.date().year();
     int m = timeStep.date().month();
     int d = timeStep.date().day();
@@ -974,4 +993,17 @@ std::vector<float>
     }
 
     return {};
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RifReaderOpmRft::openFiles()
+{
+    // The file open operations can be costly, so do lazy loading of the files
+    // NB! Make sure that this function is called from all public functions that needs to access the files
+
+    if ( isOpen() ) return;
+
+    openFiles( m_fileName, m_dataDeckFileName );
 }

@@ -253,6 +253,8 @@ void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
 {
     if ( !m_plotDefinition ) return;
 
+    if ( mouseEvent->type() != QMouseEvent::MouseMove ) return;
+
     RimDepthTrackPlot* depthTrackPlot = nullptr;
     m_plotDefinition->firstAncestorOfType( depthTrackPlot );
     if ( !depthTrackPlot || !depthTrackPlot->isDepthMarkerLineEnabled() ) return;
