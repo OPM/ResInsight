@@ -67,9 +67,13 @@ RimGridCalculation::RimGridCalculation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCalculationVariable* RimGridCalculation::createVariable() const
+RimGridCalculationVariable* RimGridCalculation::createVariable()
 {
-    return new RimGridCalculationVariable;
+    auto variable = new RimGridCalculationVariable;
+
+    variable->eclipseResultChanged.connect( this, &RimGridCalculation::onVariableUpdated );
+
+    return variable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -252,6 +256,38 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
     }
 
     return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::initAfterRead()
+{
+    for ( auto& variable : m_variables )
+    {
+        auto gridVar = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
+        if ( gridVar )
+        {
+            gridVar->eclipseResultChanged.connect( this, &RimGridCalculation::onVariableUpdated );
+
+            if ( m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
+{
+    if ( m_destinationCase == nullptr )
+    {
+        auto variable = dynamic_cast<const RimGridCalculationVariable*>( emitter );
+        if ( variable && variable->eclipseCase() )
+        {
+            m_destinationCase = variable->eclipseCase();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

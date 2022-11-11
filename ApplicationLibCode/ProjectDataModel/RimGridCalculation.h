@@ -22,6 +22,7 @@
 #include "RimGridCalculationVariable.h"
 #include "RimUserDefinedCalculation.h"
 
+#include "cafSignal.h"
 #include "cvfArray.h"
 
 class RimEclipseCase;
@@ -53,7 +54,7 @@ protected:
     void onChildrenUpdated( caf::PdmChildArrayFieldHandle*      childArray,
                             std::vector<caf::PdmObjectHandle*>& updatedObjects ) override;
 
-    RimGridCalculationVariable* createVariable() const override;
+    RimGridCalculationVariable* createVariable() override;
     std::pair<bool, QString>    validateVariables();
 
     RimEclipseCase* findEclipseCaseFromVariables() const;
@@ -81,6 +82,10 @@ protected:
 
     void                          defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
     QList<caf::PdmOptionItemInfo> calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions ) override;
+    void                          initAfterRead() override;
+
+private:
+    void onVariableUpdated( const SignalEmitter* emitter );
 
 private:
     caf::PdmPtrField<RimGridView*>                m_cellFilterView;

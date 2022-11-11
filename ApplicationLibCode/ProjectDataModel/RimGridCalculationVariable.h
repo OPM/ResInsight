@@ -25,6 +25,7 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 class RimEclipseCase;
 class RimEclipseResultAddress;
@@ -40,6 +41,8 @@ class RimGridCalculationVariable : public RimUserDefinedCalculationVariable
 
 public:
     RimGridCalculationVariable();
+
+    caf::Signal<> eclipseResultChanged;
 
     QString displayString() const override;
 

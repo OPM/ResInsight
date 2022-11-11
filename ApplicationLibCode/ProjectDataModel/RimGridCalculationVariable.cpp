@@ -38,6 +38,8 @@ CAF_PDM_SOURCE_INIT( RimGridCalculationVariable, "RimGridCalculationVariable" );
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridCalculationVariable::RimGridCalculationVariable()
+    : eclipseResultChanged( this )
+
 {
     CAF_PDM_InitObject( "RimGridCalculationVariable", ":/octave.png" );
 
@@ -205,5 +207,8 @@ void RimGridCalculationVariable::setEclipseResultAddress( const RimEclipseResult
     m_resultVariable = address.resultName();
     m_resultType     = address.resultType();
     m_eclipseCase    = address.eclipseCase();
+
+    eclipseResultChanged.send();
+
     updateConnectedEditors();
 }
