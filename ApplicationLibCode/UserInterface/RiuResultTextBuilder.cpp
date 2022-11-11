@@ -45,6 +45,7 @@
 
 #include "RivExtrudedCurveIntersectionPartMgr.h"
 
+#include "RigGridManager.h"
 #include "cafDisplayCoordTransform.h"
 
 //--------------------------------------------------------------------------------------------------
@@ -761,23 +762,25 @@ std::pair<bool, QStringList> RiuResultTextBuilder::resultTextFromLinkedViews() c
 {
     if ( !m_eclipseView || !m_eclipseView->assosiatedViewLinker() ) return {};
 
-    QStringList additionalCellResultText;
-    bool        hasMultipleCases = false;
+    QStringList     additionalCellResultText;
+    bool            hasMultipleCases   = false;
+    RimEclipseCase* primaryEclipseCase = m_eclipseView->eclipseCase();
 
-    auto linker             = m_eclipseView->assosiatedViewLinker();
-    auto currentEclipseCase = m_eclipseView->eclipseCase();
-    auto views              = linker->allViews();
+    auto views = m_eclipseView->assosiatedViewLinker()->allViews();
     for ( auto view : views )
     {
         auto eclView = dynamic_cast<RimEclipseView*>( view );
         if ( !eclView || eclView == m_eclipseView ) continue;
 
-        RiuResultTextBuilder textBuilder( eclView, eclView->cellResult(), m_cellIndex, m_timeStepIndex );
-
-        auto text = textBuilder.gridResultText();
-
+        // Match on IJK size, as the cell index is used to identify the grid cell to extract the result from
         auto otherEclipseCase = eclView->eclipseCase();
-        if ( currentEclipseCase != otherEclipseCase )
+        if ( !RigGridManager::isMainGridDimensionsEqual( primaryEclipseCase->mainGrid(), otherEclipseCase->mainGrid() ) )
+            continue;
+
+        RiuResultTextBuilder textBuilder( eclView, eclView->cellResult(), m_cellIndex, m_timeStepIndex );
+        auto                 text = textBuilder.gridResultText();
+
+        if ( primaryEclipseCase != otherEclipseCase )
         {
             hasMultipleCases = true;
 
