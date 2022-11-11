@@ -233,6 +233,9 @@ void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnno
 {
     m_annotationTool->detachAllAnnotations();
 
+    // Not required to update annotations in an invisible plot
+    if ( !plotDefinition()->showWindow() ) return;
+
     RimDepthTrackPlot* depthTrackPlot = nullptr;
     m_plotDefinition->firstAncestorOfType( depthTrackPlot );
     if ( !depthTrackPlot ) return;
@@ -251,8 +254,11 @@ void RiuWellLogTrack::createAnnotationsInPlot( const std::vector<RimPlotAxisAnno
 //--------------------------------------------------------------------------------------------------
 void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
 {
-    if ( !m_plotDefinition ) return;
+    // The mouse move event here is a mouse move event local to one track. The depth information here must be
+    // communicated to all tracks in the same depth track plot. And then, after the depth information has been updated,
+    // all well log tracks must be updated with the new depth marker line location.
 
+    if ( !m_plotDefinition ) return;
     if ( mouseEvent->type() != QMouseEvent::MouseMove ) return;
 
     RimDepthTrackPlot* depthTrackPlot = nullptr;
@@ -262,14 +268,14 @@ void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
     auto plotwidget = dynamic_cast<RiuQwtPlotWidget*>( m_plotDefinition->plotWidget() );
     if ( !plotwidget ) return;
 
-    auto plot = plotwidget->qwtPlot();
+    auto qwtPlot = plotwidget->qwtPlot();
+    if ( !qwtPlot ) return;
+
+    auto              riuPlotAxis = depthTrackPlot->depthAxis();
+    auto              qwtAxis     = plotwidget->toQwtPlotAxis( riuPlotAxis );
+    const QwtScaleMap axisMap     = qwtPlot->canvasMap( qwtAxis );
 
     double depth = 0.0;
-
-    auto riuPlotAxis = depthTrackPlot->depthAxis();
-    auto qwtAxis     = plotwidget->toQwtPlotAxis( riuPlotAxis );
-
-    const QwtScaleMap axisMap = plot->canvasMap( qwtAxis );
     if ( depthTrackPlot->depthOrientation() == RiaDefines::Orientation::HORIZONTAL )
     {
         depth = axisMap.invTransform( mouseEvent->pos().x() );
@@ -283,6 +289,7 @@ void RiuWellLogTrack::onMouseMoveEvent( QMouseEvent* mouseEvent )
 
     for ( auto p : depthTrackPlot->plots() )
     {
-        p->updateAxes();
+        auto wellLogTrack = dynamic_cast<RimWellLogTrack*>( p );
+        if ( wellLogTrack ) wellLogTrack->updateDepthMarkerLine();
     }
 }
