@@ -28,6 +28,7 @@
 #include "RimGridCalculationVariable.h"
 #include "RimProject.h"
 #include "RimReloadCaseTools.h"
+#include "RimTools.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
@@ -60,6 +61,7 @@ RimGridCalculation::RimGridCalculation()
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
     CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Default Value Type" );
     CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Default Value" );
+    CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -166,15 +168,17 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 RimEclipseCase* RimGridCalculation::findEclipseCaseFromVariables() const
 {
-    for ( auto variable : m_variables )
-    {
-        RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
-        CAF_ASSERT( v != nullptr );
+    return m_destinationCase;
 
-        if ( v->eclipseCase() ) return v->eclipseCase();
-    }
-
-    return nullptr;
+    //     for ( auto variable : m_variables )
+    //     {
+    //         RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
+    //         CAF_ASSERT( v != nullptr );
+    //
+    //         if ( v->eclipseCase() ) return v->eclipseCase();
+    //     }
+    //
+    //     return nullptr;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -194,6 +198,8 @@ RimGridCalculation::DefaultValueConfig RimGridCalculation::defaultValueConfigura
 void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
 {
     RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrdering.add( &m_destinationCase );
 
     caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
     filterGroup->setCollapsedByDefault();
@@ -234,6 +240,14 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
             auto eclipseView = dynamic_cast<RimEclipseView*>( view );
             if ( eclipseView )
                 options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
+        }
+    }
+    else if ( fieldNeedingOptions == &m_destinationCase )
+    {
+        RimTools::eclipseCaseOptionItems( &options );
+        if ( options.empty() )
+        {
+            options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
         }
     }
 
