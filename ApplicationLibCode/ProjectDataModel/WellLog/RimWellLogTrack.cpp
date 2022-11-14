@@ -1095,20 +1095,6 @@ void RimWellLogTrack::onAxisSelected( RiuPlotAxis axis, bool toggle )
 void RimWellLogTrack::updateAxes()
 {
     updatePropertyValueZoom();
-
-    if ( m_plotWidget )
-    {
-        RimDepthTrackPlot* wellLogPlot;
-        this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
-        if ( wellLogPlot->isDepthMarkerLineEnabled() )
-        {
-            m_plotWidget->createAnnotationsInPlot( wellLogPlot->depthAxisAnnotations() );
-        }
-        else
-        {
-            m_plotWidget->createAnnotationsInPlot( {} );
-        }
-    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -1357,6 +1343,28 @@ void RimWellLogTrack::onChildrenUpdated( caf::PdmChildArrayFieldHandle*      chi
 bool RimWellLogTrack::isCurveHighlightSupported() const
 {
     return false;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimWellLogTrack::updateDepthMarkerLine()
+{
+    if ( m_plotWidget )
+    {
+        RimDepthTrackPlot* wellLogPlot;
+        this->firstAncestorOrThisOfTypeAsserted( wellLogPlot );
+        if ( wellLogPlot->isDepthMarkerLineEnabled() )
+        {
+            m_plotWidget->createAnnotationsInPlot( wellLogPlot->depthAxisAnnotations() );
+        }
+        else
+        {
+            m_plotWidget->createAnnotationsInPlot( {} );
+        }
+
+        m_plotWidget->scheduleReplot();
+    }
 }
 
 //--------------------------------------------------------------------------------------------------

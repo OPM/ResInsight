@@ -83,6 +83,10 @@ public:
                                                           const QString&            wellName,
                                                           RiaDefines::RftBranchType branchType,
                                                           RimSummaryCase*           rimCase );
+    static bool                hasData( const QString&            resultName,
+                                        const QString&            wellName,
+                                        RiaDefines::RftBranchType branchType,
+                                        RimSummaryCase*           rimCase );
 
 private:
     template <typename ExtractionCurveType>
