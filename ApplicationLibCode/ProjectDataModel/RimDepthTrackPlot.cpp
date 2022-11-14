@@ -574,6 +574,7 @@ void RimDepthTrackPlot::uiOrderingForDepthAxis( QString uiConfigName, caf::PdmUi
 
     auto group = uiOrdering.addNewGroup( "Advanced" );
     group->setCollapsedByDefault();
+    group->add( &m_depthOrientation );
     group->add( &m_depthAxisGridVisibility );
     group->add( &m_depthAxisVisibility );
     group->add( &m_showDepthMarkerLine );
@@ -1139,7 +1140,6 @@ void RimDepthTrackPlot::defineUiOrdering( QString uiConfigName, caf::PdmUiOrderi
     fontGroup->add( &m_subTitleFontSize );
     fontGroup->add( &m_axisTitleFontSize );
     fontGroup->add( &m_axisValueFontSize );
-    fontGroup->add( &m_depthOrientation );
 
     std::vector<RimEnsembleWellLogCurveSet*> ensembleWellLogCurveSets;
     descendantsOfType( ensembleWellLogCurveSets );
