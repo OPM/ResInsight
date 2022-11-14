@@ -23,7 +23,8 @@
 
 #include "cafCmdFeature.h"
 
-class RiuMainWindowBase;
+class RiuMainWindow;
+class RiuPlotMainWindow;
 
 //==================================================================================================
 ///
@@ -33,7 +34,7 @@ class RicTileWindowsFeature : public caf::CmdFeature
     CAF_CMD_HEADER_INIT;
 
 public:
-    static void applyTiling( RiuMainWindowBase* mainWindow, RiaDefines::WindowTileMode requestedTileMode );
+    static void applyTiling( RiuMainWindow* mainWindow, RiaDefines::WindowTileMode requestedTileMode );
 
 protected:
     bool isCommandEnabled() override;
@@ -76,6 +77,9 @@ protected:
 class RicTilePlotWindowsFeature : public caf::CmdFeature
 {
     CAF_CMD_HEADER_INIT;
+
+public:
+    static void applyTiling( RiuPlotMainWindow* mainWindow, RiaDefines::WindowTileMode requestedTileMode );
 
 protected:
     bool isCommandEnabled() override;
