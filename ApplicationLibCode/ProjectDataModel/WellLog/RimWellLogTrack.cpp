@@ -2210,6 +2210,11 @@ std::pair<double, double> RimWellLogTrack::adjustXRange( double minValue, double
 //--------------------------------------------------------------------------------------------------
 std::pair<double, double> RimWellLogTrack::extendMinMaxRange( double minValue, double maxValue, double factor )
 {
+    if ( minValue == std::numeric_limits<double>::infinity() || maxValue == std::numeric_limits<double>::infinity() )
+    {
+        return { minValue, maxValue };
+    }
+
     auto modifiedMin = minValue;
     auto modifiedMax = maxValue;
 
