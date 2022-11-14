@@ -69,9 +69,10 @@ public:
     void           attachToWidget();
 
 protected:
-    virtual RimUserDefinedCalculationVariable* createVariable() const = 0;
+    virtual RimUserDefinedCalculationVariable* createVariable() = 0;
 
     void fieldChangedByUi( const caf::PdmFieldHandle* changedField, const QVariant& oldValue, const QVariant& newValue ) override;
+    void defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering ) override;
 
     void                               defineEditorAttribute( const caf::PdmFieldHandle* field,
                                                               QString                    uiConfigName,

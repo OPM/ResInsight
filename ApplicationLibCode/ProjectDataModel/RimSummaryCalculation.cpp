@@ -54,7 +54,7 @@ RimSummaryCalculation::RimSummaryCalculation()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimSummaryCalculationVariable* RimSummaryCalculation::createVariable() const
+RimSummaryCalculationVariable* RimSummaryCalculation::createVariable()
 {
     return new RimSummaryCalculationVariable;
 }
