@@ -46,9 +46,9 @@ namespace caf
 template <>
 void caf::AppEnum<RimGridCalculation::DefaultValueType>::setUp()
 {
-    addItem( RimGridCalculation::DefaultValueType::POSITIVE_INFINITY, "POSITIVE_INFINITY", "Inf" );
+    addItem( RimGridCalculation::DefaultValueType::POSITIVE_INFINITY, "POSITIVE_INFINITY", "Infinity" );
     addItem( RimGridCalculation::DefaultValueType::FROM_PROPERTY, "FROM_PROPERTY", "Property Value" );
-    addItem( RimGridCalculation::DefaultValueType::USER_DEFINED, "USER_DEFINED", "User Defined" );
+    addItem( RimGridCalculation::DefaultValueType::USER_DEFINED, "USER_DEFINED", "User Defined Custom Value" );
     setDefault( RimGridCalculation::DefaultValueType::POSITIVE_INFINITY );
 }
 }; // namespace caf
@@ -60,9 +60,10 @@ RimGridCalculation::RimGridCalculation()
 {
     CAF_PDM_InitObject( "RimGridCalculation", ":/octave.png", "Calculation", "" );
     CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
-    CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Default Value Type" );
-    CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Default Value" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Non-visible Cell Value" );
+    CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Custom Value" );
     CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
+    CAF_PDM_InitField( &m_defaultPropertyVariableIndex, "DefaultPropertyVariableName", 0, "Property Variable Name" );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -228,7 +229,12 @@ void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     filterGroup->setCollapsedByDefault();
     filterGroup->add( &m_cellFilterView );
     filterGroup->add( &m_defaultValueType );
-    filterGroup->add( &m_defaultValue );
+    if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
+        filterGroup->add( &m_defaultPropertyVariableIndex );
+    else if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::USER_DEFINED )
+        filterGroup->add( &m_defaultValue );
+
+    uiOrdering.skipRemainingFields();
 
     // Update state
     if ( m_cellFilterView() )
@@ -261,13 +267,16 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
         RimEclipseCase* firstEclipseCase = nullptr;
         if ( !inputCases().empty() ) firstEclipseCase = inputCases().front();
 
-        for ( auto* view : views )
+        if ( firstEclipseCase )
         {
-            auto eclipseView = dynamic_cast<RimEclipseView*>( view );
-            if ( !eclipseView ) continue;
-            if ( !firstEclipseCase->isGridSizeEqualTo( eclipseView->eclipseCase() ) ) continue;
+            for ( auto* view : views )
+            {
+                auto eclipseView = dynamic_cast<RimEclipseView*>( view );
+                if ( !eclipseView ) continue;
+                if ( !firstEclipseCase->isGridSizeEqualTo( eclipseView->eclipseCase() ) ) continue;
 
-            options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
+                options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
+            }
         }
     }
     else if ( fieldNeedingOptions == &m_destinationCase )
@@ -299,7 +308,16 @@ QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const c
 
         options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
     }
+    else if ( fieldNeedingOptions == &m_defaultPropertyVariableIndex )
+    {
+        for ( int i = 0; i < m_variables.size(); i++ )
+        {
+            auto v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
 
+            QString optionText = v->name();
+            options.push_back( caf::PdmOptionItemInfo( optionText, i ) );
+        }
+    }
     return options;
 }
 
@@ -436,10 +454,14 @@ void RimGridCalculation::filterResults( RimGridView*                            
 
     if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
     {
-        // TODO: Find a way to produce property values
-        int filterVariableIndex = 0;
-
-        replaceFilteredValuesWithVector( values[filterVariableIndex], visibility, resultValues );
+        if ( m_defaultPropertyVariableIndex < values.size() )
+            replaceFilteredValuesWithVector( values[m_defaultPropertyVariableIndex], visibility, resultValues );
+        else
+        {
+            QString errorMessage =
+                "Invalid input data for default result property, no data assigned to non-visible cells.";
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
+        }
     }
     else
     {
