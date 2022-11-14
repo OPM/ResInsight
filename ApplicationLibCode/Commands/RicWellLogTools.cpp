@@ -529,6 +529,30 @@ RimWellLogRftCurve* RicWellLogTools::addSummaryRftSegmentCurve( RimWellLogTrack*
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+bool RicWellLogTools::hasData( const QString&            resultName,
+                               const QString&            wellName,
+                               RiaDefines::RftBranchType branchType,
+                               RimSummaryCase*           rimCase )
+{
+    auto rftReader = rimCase->rftReader();
+
+    QDateTime dateTime;
+
+    auto timeSteps = rftReader->availableTimeSteps( wellName );
+    if ( !timeSteps.empty() ) dateTime = *timeSteps.rbegin();
+
+    RifEclipseRftAddress adr =
+        RifEclipseRftAddress::createBranchSegmentAddress( wellName, dateTime, resultName, 1, branchType );
+
+    std::vector<double> values;
+    rftReader->values( adr, &values );
+
+    return !values.empty();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 RimWellLogWbsCurve* RicWellLogTools::addWellLogWbsCurve( RimWellLogTrack* plotTrack,
                                                          RimCase*         rimCase,
                                                          Rim3dView*       view,

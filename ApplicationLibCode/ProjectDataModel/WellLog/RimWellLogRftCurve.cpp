@@ -832,10 +832,7 @@ void RimWellLogRftCurve::defineUiOrdering( QString uiConfigName, caf::PdmUiOrder
     else
     {
         curveDataGroup->add( &m_segmentResultName );
-        if ( isSegmentResult( m_segmentResultName() ) )
-        {
-            curveDataGroup->add( &m_segmentBranchType );
-        }
+        curveDataGroup->add( &m_segmentBranchType );
         curveDataGroup->add( &m_segmentBranchIndex );
         curveDataGroup->add( &m_curveColorByPhase );
     }

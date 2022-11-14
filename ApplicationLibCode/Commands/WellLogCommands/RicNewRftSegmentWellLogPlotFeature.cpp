@@ -269,14 +269,31 @@ void RicNewRftSegmentWellLogPlotFeature::appendConnectionFactorTrack( RimWellLog
                                                                       const QString&  wellName,
                                                                       RimSummaryCase* summaryCase )
 {
-    QString trackName  = "Connection Factors";
     QString resultName = "CONFAC";
-    auto    curve      = appendTrackAndCurveForBranchType( plot,
-                                                   trackName,
-                                                   resultName,
-                                                   wellName,
-                                                   RiaDefines::RftBranchType::RFT_ANNULUS,
-                                                   summaryCase );
+
+    // Connection factor data can be found in the tubing, device and annulus branches.
+    // Search for data ordered by annulus, device and tubing.
+    RiaDefines::RftBranchType branchType = RiaDefines::RftBranchType::RFT_ANNULUS;
+    bool                      foundData  = false;
+    if ( RicWellLogTools::hasData( resultName, wellName, branchType, summaryCase ) )
+    {
+        foundData = true;
+    }
+
+    if ( !foundData && RicWellLogTools::hasData( resultName, wellName, RiaDefines::RftBranchType::RFT_DEVICE, summaryCase ) )
+    {
+        branchType = RiaDefines::RftBranchType::RFT_DEVICE;
+        foundData  = true;
+    }
+
+    if ( !foundData && RicWellLogTools::hasData( resultName, wellName, RiaDefines::RftBranchType::RFT_TUBING, summaryCase ) )
+    {
+        branchType = RiaDefines::RftBranchType::RFT_TUBING;
+        foundData  = true;
+    }
+
+    QString trackName = "Connection Factors";
+    auto    curve = appendTrackAndCurveForBranchType( plot, trackName, resultName, wellName, branchType, summaryCase );
 
     auto curveColor = cvf::Color3f( cvf::Color3f::ColorIdent::ORANGE );
     curve->setColor( curveColor );
