@@ -139,15 +139,7 @@ void RiuMdiArea::tileWindowsVertically()
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::tileWindowsDefault()
 {
-    // Workaround for Qt bug #51761: https://bugreports.qt.io/browse/QTBUG-51761
-    // Set the first window to be the active window then perform resize event and set back.
-    auto a = activeSubWindow();
-    setActiveSubWindow( subWindowListSortedByPosition().front() );
-
-    // QMdiArea::resizeEvent( resizeEvent );
     tileSubWindows();
-
-    setActiveSubWindow( a );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -165,27 +157,10 @@ void RiuMdiArea::resizeEvent( QResizeEvent* resizeEvent )
 //--------------------------------------------------------------------------------------------------
 void RiuMdiArea::applyTiling()
 {
-    QMdiArea::WindowOrder currentActivationOrder = activationOrder();
-
     for ( auto subWindow : subWindowList() )
     {
         auto riuWindow = dynamic_cast<RiuMdiSubWindow*>( subWindow );
         riuWindow->blockTilingChanges( true );
-    }
-
-    auto windowList = subWindowListSortedByPosition();
-
-    QMdiSubWindow* activeWindow = activeSubWindow();
-
-    // Force activation order so they end up in the order of the loop.
-    setActivationOrder( QMdiArea::ActivationHistoryOrder );
-
-    // setBlockSubWindowActivatedSignal( true );
-
-    // Activate in reverse order
-    for ( auto it = windowList.rbegin(); it != windowList.rend(); ++it )
-    {
-        setActiveSubWindow( *it );
     }
 
     switch ( tileMode() )
@@ -204,10 +179,6 @@ void RiuMdiArea::applyTiling()
         default:
             break;
     }
-
-    // Set back the original activation order to avoid messing with the standard ordering
-    setActivationOrder( currentActivationOrder );
-    setActiveSubWindow( activeWindow );
 
     for ( auto subWindow : subWindowList() )
     {
