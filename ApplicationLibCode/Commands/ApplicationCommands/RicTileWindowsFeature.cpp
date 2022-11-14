@@ -35,7 +35,7 @@ CAF_CMD_SOURCE_INIT( RicTileWindowsFeature, "RicTileWindowsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RicTileWindowsFeature::applyTiling( RiuMainWindowBase* mainWindow, RiaDefines::WindowTileMode requestedTileMode )
+void RicTileWindowsFeature::applyTiling( RiuMainWindow* mainWindow, RiaDefines::WindowTileMode requestedTileMode )
 {
     auto mode = requestedTileMode;
 
@@ -99,6 +99,25 @@ CAF_CMD_SOURCE_INIT( RicTilePlotWindowsFeature, "RicTilePlotWindowsFeature" );
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+void RicTilePlotWindowsFeature::applyTiling( RiuPlotMainWindow* mainWindow, RiaDefines::WindowTileMode requestedTileMode )
+{
+    auto mode = requestedTileMode;
+
+    // If requested mode is set, reset tiling mode to undefined
+    if ( RimProject::current()->subWindowsTileModePlotWindow() == requestedTileMode )
+        mode = RiaDefines::WindowTileMode::UNDEFINED;
+
+    RimProject::current()->setSubWindowsTileModePlotWindow( mode );
+
+    if ( mainWindow )
+    {
+        mainWindow->mdiArea()->applyTiling();
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 bool RicTilePlotWindowsFeature::isCommandEnabled()
 {
     RiuPlotMainWindow* mainPlotWindow = RiaGuiApplication::instance()->mainPlotWindow();
@@ -118,7 +137,7 @@ void RicTilePlotWindowsFeature::onActionTriggered( bool isChecked )
     this->disableModelChangeContribution();
 
     auto* mainWindow = RiuPlotMainWindow::instance();
-    RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::DEFAULT );
+    RicTilePlotWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::DEFAULT );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -257,7 +276,7 @@ void RicTilePlotWindowsVerticallyFeature::onActionTriggered( bool isChecked )
     this->disableModelChangeContribution();
 
     auto* mainWindow = RiuPlotMainWindow::instance();
-    RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::VERTICAL );
+    RicTilePlotWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::VERTICAL );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -301,7 +320,7 @@ void RicTilePlotWindowsHorizontallyFeature::onActionTriggered( bool isChecked )
     this->disableModelChangeContribution();
 
     auto* mainWindow = RiuPlotMainWindow::instance();
-    RicTileWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::HORIZONTAL );
+    RicTilePlotWindowsFeature::applyTiling( mainWindow, RiaDefines::WindowTileMode::HORIZONTAL );
 }
 
 //--------------------------------------------------------------------------------------------------
