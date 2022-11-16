@@ -36,16 +36,9 @@ public:
 
     void appendItems( caf::PdmUiOrdering& uiOrdering ) const;
 
-    bool validateFRASettings() const;
     bool validateWIASettings() const;
 
     // geomech settings
-    QString geomechFRAPreprocCommand() const;
-    QString geomechFRAPostprocCommand() const;
-    QString geomechFRAMacrisCommand() const;
-    QString geomechFRADefaultBasicXML() const;
-    QString geomechFRADefaultAdvXML() const;
-
     QString geomechWIADefaultXML() const;
     QString geomechWIACommand() const;
     bool    waitBeforeRunWIA() const;
@@ -57,12 +50,6 @@ protected:
 
 private:
     bool filesExists( QStringList& filelist ) const;
-
-    caf::PdmField<QString> m_geomechFRAPreprocCommand;
-    caf::PdmField<QString> m_geomechFRAPostprocCommand;
-    caf::PdmField<QString> m_geomechFRAMacrisCommand;
-    caf::PdmField<QString> m_geomechFRADefaultBasicXML;
-    caf::PdmField<QString> m_geomechFRADefaultAdvXML;
 
     caf::PdmField<QString> m_geomechWIADefaultXML;
     caf::PdmField<QString> m_geomechWIACommand;

@@ -31,7 +31,6 @@
 #include "RimEclipseInputCase.h"
 #include "RimEclipseView.h"
 #include "RimFaultInView.h"
-#include "RimFaultRASettings.h"
 #include "RimIntersectionCollection.h"
 
 #include "RiuMainWindow.h"
@@ -101,15 +100,6 @@ RimFaultInViewCollection::RimFaultInViewCollection()
 
     CAF_PDM_InitFieldNoDefault( &faults, "Faults", "Faults" );
     faults.uiCapability()->setUiTreeHidden( true );
-
-    CAF_PDM_InitField( &m_enableFaultRA, "EnableFaultRA", false, "Enable Fault RA" );
-    m_enableFaultRA.uiCapability()->setUiReadOnly( true );
-    m_enableFaultRA.uiCapability()->setUiHidden( true );
-
-    CAF_PDM_InitFieldNoDefault( &m_faultRASettings, "FaultRASettings", "Reactivation Assessment Settings" );
-    m_faultRASettings = new RimFaultRASettings();
-    m_faultRASettings.uiCapability()->setUiHidden( true );
-    m_faultRASettings.uiCapability()->setUiTreeHidden( true );
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -328,13 +318,6 @@ void RimFaultInViewCollection::defineUiOrdering( QString uiConfigName, caf::PdmU
 //--------------------------------------------------------------------------------------------------
 void RimFaultInViewCollection::defineUiTreeOrdering( caf::PdmUiTreeOrdering& uiTreeOrdering, QString uiConfigName )
 {
-    RimEclipseInputCase* inputCase = nullptr;
-    this->firstAncestorOrThisOfType( inputCase );
-    if ( ( inputCase != nullptr ) && m_enableFaultRA() )
-    {
-        uiTreeOrdering.add( &m_faultRASettings );
-    }
-
     RimEclipseView* eclipseView = nullptr;
     this->firstAncestorOfType( eclipseView );
     if ( eclipseView )
@@ -386,36 +369,4 @@ void RimFaultInViewCollection::setShowFaultsOutsideFilter( bool show )
 bool RimFaultInViewCollection::onlyShowFacesWithDefinedNeighbor() const
 {
     return m_onlyShowWithNeighbor;
-}
-
-//-------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-RimFaultRASettings* RimFaultInViewCollection::faultRASettings() const
-{
-    return m_faultRASettings();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultInViewCollection::faultRAEnabled() const
-{
-    return m_enableFaultRA();
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-bool RimFaultInViewCollection::faultRAAdvancedEnabled() const
-{
-    return m_enableFaultRA() && ( m_faultRASettings->geomechCase() != nullptr );
-}
-
-//--------------------------------------------------------------------------------------------------
-///
-//--------------------------------------------------------------------------------------------------
-void RimFaultInViewCollection::enableFaultRA( bool enable )
-{
-    m_enableFaultRA = enable;
 }

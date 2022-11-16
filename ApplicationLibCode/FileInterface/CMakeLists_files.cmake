@@ -61,8 +61,6 @@ set(SOURCE_GROUP_HEADER_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifThermalFractureTemplateSurfaceExporter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifFaultRAXmlWriter.h
-    ${CMAKE_CURRENT_LIST_DIR}/RifFaultRAJsonWriter.h
     ${CMAKE_CURRENT_LIST_DIR}/RifParameterXmlReader.h
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.h
     ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.h
@@ -138,8 +136,6 @@ set(SOURCE_GROUP_SOURCE_FILES
     ${CMAKE_CURRENT_LIST_DIR}/RifStimPlanModelAsymmetricFrkExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifThermalFractureTemplateSurfaceExporter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifSurfaceExporter.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifFaultRAXmlWriter.cpp
-    ${CMAKE_CURRENT_LIST_DIR}/RifFaultRAJsonWriter.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifParameterXmlReader.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifOpmCommonSummary.cpp
     ${CMAKE_CURRENT_LIST_DIR}/RifEnsembleFractureStatisticsExporter.cpp

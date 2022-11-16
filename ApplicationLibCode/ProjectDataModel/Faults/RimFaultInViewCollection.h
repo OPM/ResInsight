@@ -33,7 +33,6 @@
 
 class RimEclipseView;
 class RimFaultInView;
-class RimFaultRASettings;
 
 //==================================================================================================
 ///
@@ -64,11 +63,6 @@ public:
 
     bool onlyShowFacesWithDefinedNeighbor() const;
 
-    RimFaultRASettings* faultRASettings() const;
-    bool                faultRAEnabled() const;
-    bool                faultRAAdvancedEnabled() const;
-    void                enableFaultRA( bool enable );
-
     caf::PdmField<bool> showFaultFaces;
     caf::PdmField<bool> showOppositeFaultFaces;
 
@@ -98,7 +92,4 @@ private:
 private:
     caf::PdmField<bool> m_showFaultsOutsideFilters;
     caf::PdmField<bool> m_onlyShowWithNeighbor;
-
-    caf::PdmChildField<RimFaultRASettings*> m_faultRASettings;
-    caf::PdmField<bool>                     m_enableFaultRA;
 };
