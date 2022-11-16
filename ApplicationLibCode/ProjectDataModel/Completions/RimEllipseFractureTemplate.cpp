@@ -173,8 +173,8 @@ cvf::cref<RigFractureGrid> RimEllipseFractureTemplate::createFractureGrid( doubl
     double height     = m_height * m_heightScaleFactor;
     double halfLength = m_halfLength * m_halfLengthScaleFactor;
 
-    double cellSizeX = ( halfLength * 2 ) / numberOfCellsI * m_halfLengthScaleFactor;
-    double cellSizeZ = height / numberOfCellsJ * m_heightScaleFactor;
+    double cellSizeX = ( halfLength * 2 ) / numberOfCellsI;
+    double cellSizeZ = height / numberOfCellsJ;
 
     double cellArea                     = cellSizeX * cellSizeZ;
     double areaTresholdForIncludingCell = 0.5 * cellArea;
