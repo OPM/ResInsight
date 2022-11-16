@@ -449,22 +449,6 @@ void RiuViewerCommands::displayContextMenu( QMouseEvent* event )
                                                            QVariant( fault->name() ) );
 
                     menuBuilder.addSeparator();
-
-                    if ( eclipseView->faultCollection() && eclipseView->faultCollection()->faultRAEnabled() )
-                    {
-                        menuBuilder.subMenuStart( "Reactivation Assessment" );
-                        menuBuilder.addCmdFeatureWithUserData( "RicRunBasicFaultReactAssessment3dFeature",
-                                                               "Run Basic Processing",
-                                                               QVariant( fault->name() ) );
-                        if ( eclipseView->faultCollection()->faultRAAdvancedEnabled() )
-                        {
-                            menuBuilder.addCmdFeatureWithUserData( "RicRunAdvFaultReactAssessment3dFeature",
-                                                                   "Run Advanced Processing",
-                                                                   QVariant( fault->name() ) );
-                        }
-                        menuBuilder.subMenuEnd();
-                        menuBuilder.addSeparator();
-                    }
                 }
             }
 
