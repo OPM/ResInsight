@@ -107,7 +107,7 @@ std::map<std::string, RigElementType> initFemTypeMap()
     typeMap["CAX4"]    = CAX4;
     typeMap["C3D20RT"] = HEX8;
     typeMap["C3D8RT"]  = HEX8;
-    typeMap["C3D8R"]   = HEX8;
+    typeMap["C3D8T"]   = HEX8;
 
     return typeMap;
 }
