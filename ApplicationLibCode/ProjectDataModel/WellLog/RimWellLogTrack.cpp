@@ -1966,9 +1966,10 @@ QImage RimWellLogTrack::snapshotWindowContent()
 //--------------------------------------------------------------------------------------------------
 void RimWellLogTrack::zoomAll()
 {
-    setAutoScalePropertyValuesEnabled( true );
-    setAutoScaleDepthValuesEnabled( true );
-    updateZoomInParentPlot();
+    RimDepthTrackPlot* plot = nullptr;
+    firstAncestorOrThisOfType( plot );
+
+    if ( plot ) plot->zoomAll();
 }
 
 //--------------------------------------------------------------------------------------------------
