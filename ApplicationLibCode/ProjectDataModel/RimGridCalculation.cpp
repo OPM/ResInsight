@@ -26,10 +26,13 @@
 #include "RimEclipseCellColors.h"
 #include "RimEclipseView.h"
 #include "RimGridCalculationVariable.h"
+#include "RimProject.h"
 #include "RimReloadCaseTools.h"
+#include "RimTools.h"
 
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseResultAddress.h"
+#include "RigGridManager.h"
 #include "RigMainGrid.h"
 #include "RigResultAccessor.h"
 #include "RigResultAccessorFactory.h"
@@ -38,20 +41,41 @@
 
 CAF_PDM_SOURCE_INIT( RimGridCalculation, "RimGridCalculation" );
 
+namespace caf
+{
+template <>
+void caf::AppEnum<RimGridCalculation::DefaultValueType>::setUp()
+{
+    addItem( RimGridCalculation::DefaultValueType::POSITIVE_INFINITY, "POSITIVE_INFINITY", "Infinity" );
+    addItem( RimGridCalculation::DefaultValueType::FROM_PROPERTY, "FROM_PROPERTY", "Property Value" );
+    addItem( RimGridCalculation::DefaultValueType::USER_DEFINED, "USER_DEFINED", "User Defined Custom Value" );
+    setDefault( RimGridCalculation::DefaultValueType::POSITIVE_INFINITY );
+}
+}; // namespace caf
+
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
 RimGridCalculation::RimGridCalculation()
 {
     CAF_PDM_InitObject( "RimGridCalculation", ":/octave.png", "Calculation", "" );
+    CAF_PDM_InitFieldNoDefault( &m_cellFilterView, "VisibleCellView", "Filter by 3d View Visibility" );
+    CAF_PDM_InitFieldNoDefault( &m_defaultValueType, "DefaultValueType", "Non-visible Cell Value" );
+    CAF_PDM_InitField( &m_defaultValue, "DefaultValue", 0.0, "Custom Value" );
+    CAF_PDM_InitFieldNoDefault( &m_destinationCase, "DestinationCase", "Destination Case" );
+    CAF_PDM_InitField( &m_defaultPropertyVariableIndex, "DefaultPropertyVariableName", 0, "Property Variable Name" );
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimGridCalculationVariable* RimGridCalculation::createVariable() const
+RimGridCalculationVariable* RimGridCalculation::createVariable()
 {
-    return new RimGridCalculationVariable;
+    auto variable = new RimGridCalculationVariable;
+
+    variable->eclipseResultChanged.connect( this, &RimGridCalculation::onVariableUpdated );
+
+    return variable;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -61,7 +85,7 @@ bool RimGridCalculation::calculate()
 {
     QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
 
-    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    RimEclipseCase* eclipseCase = destinationEclipseCase();
     if ( !eclipseCase )
     {
         RiaLogging::errorInMessageBox( nullptr,
@@ -75,6 +99,17 @@ bool RimGridCalculation::calculate()
     {
         RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
         return false;
+    }
+
+    for ( auto variableCase : inputCases() )
+    {
+        if ( !eclipseCase->isGridSizeEqualTo( variableCase ) )
+        {
+            QString msg = "Detected IJK mismatch between input cases and destination case. All grid "
+                          "cases must have identical IJK sizes.";
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", msg );
+            return false;
+        }
     }
 
     auto porosityModel = RiaDefines::PorosityModelType::MATRIX_MODEL;
@@ -121,12 +156,9 @@ bool RimGridCalculation::calculate()
 
         if ( evaluatedOk )
         {
-            auto [cellFilterView, defaultValueConfig] = findFilterValuesFromVariables();
-
-            if ( cellFilterView )
+            if ( m_cellFilterView() )
             {
-                auto [defaultValueType, defaultValue] = defaultValueConfig;
-                filterResults( cellFilterView, values, defaultValueType, defaultValue, resultValues );
+                filterResults( m_cellFilterView(), values, m_defaultValueType(), m_defaultValue(), resultValues );
             }
 
             scalarResultFrames->at( tsId ) = resultValues;
@@ -151,51 +183,166 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimGridCalculation::findEclipseCaseFromVariables() const
+RimEclipseCase* RimGridCalculation::destinationEclipseCase() const
 {
-    for ( auto variable : m_variables )
-    {
-        RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
-        CAF_ASSERT( v != nullptr );
-
-        if ( v->eclipseCase() ) return v->eclipseCase();
-    }
-
-    return nullptr;
+    return m_destinationCase;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-std::pair<RimGridView*, RimGridCalculationVariable::DefaultValueConfig>
-    RimGridCalculation::findFilterValuesFromVariables() const
+std::vector<RimEclipseCase*> RimGridCalculation::inputCases() const
 {
-    for ( auto variable : m_variables )
-    {
-        RimGridCalculationVariable* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
-        CAF_ASSERT( v != nullptr );
+    std::vector<RimEclipseCase*> cases;
 
-        if ( v->cellFilterView() ) return std::make_pair( v->cellFilterView(), v->defaultValueConfiguration() );
+    for ( const auto& variable : m_variables )
+    {
+        auto* v = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
+
+        if ( v->eclipseCase() ) cases.push_back( v->eclipseCase() );
     }
 
-    return std::pair( nullptr, std::make_pair( RimGridCalculationVariable::DefaultValueType::POSITIVE_INFINITY, HUGE_VAL ) );
+    return cases;
 }
 
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-int RimGridCalculation::findFilterVariableIndex() const
+RimGridCalculation::DefaultValueConfig RimGridCalculation::defaultValueConfiguration() const
 {
-    for ( size_t i = 0; i < m_variables.size(); i++ )
-    {
-        auto                        variable = m_variables[i];
-        RimGridCalculationVariable* v        = dynamic_cast<RimGridCalculationVariable*>( variable );
-        CAF_ASSERT( v != nullptr );
+    if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::USER_DEFINED )
+        return std::make_pair( m_defaultValueType(), m_defaultValue() );
 
-        if ( v->cellFilterView() ) return static_cast<int>( i );
+    return std::make_pair( m_defaultValueType(), HUGE_VAL );
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::defineUiOrdering( QString uiConfigName, caf::PdmUiOrdering& uiOrdering )
+{
+    RimUserDefinedCalculation::defineUiOrdering( uiConfigName, uiOrdering );
+
+    uiOrdering.add( &m_destinationCase );
+
+    caf::PdmUiGroup* filterGroup = uiOrdering.addNewGroup( "Cell Filter" );
+    filterGroup->setCollapsedByDefault();
+    filterGroup->add( &m_cellFilterView );
+
+    if ( m_cellFilterView() != nullptr )
+    {
+        filterGroup->add( &m_defaultValueType );
+
+        if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
+            filterGroup->add( &m_defaultPropertyVariableIndex );
+        else if ( m_defaultValueType() == RimGridCalculation::DefaultValueType::USER_DEFINED )
+            filterGroup->add( &m_defaultValue );
     }
 
-    return -1;
+    uiOrdering.skipRemainingFields();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+QList<caf::PdmOptionItemInfo> RimGridCalculation::calculateValueOptions( const caf::PdmFieldHandle* fieldNeedingOptions )
+{
+    QList<caf::PdmOptionItemInfo> options;
+
+    if ( fieldNeedingOptions == &m_cellFilterView )
+    {
+        options.push_back( caf::PdmOptionItemInfo( "Disabled", nullptr ) );
+
+        std::vector<Rim3dView*> views;
+        RimProject::current()->allViews( views );
+
+        RimEclipseCase* firstEclipseCase = nullptr;
+        if ( !inputCases().empty() ) firstEclipseCase = inputCases().front();
+
+        if ( firstEclipseCase )
+        {
+            for ( auto* view : views )
+            {
+                auto eclipseView = dynamic_cast<RimEclipseView*>( view );
+                if ( !eclipseView ) continue;
+                if ( !firstEclipseCase->isGridSizeEqualTo( eclipseView->eclipseCase() ) ) continue;
+
+                options.push_back( caf::PdmOptionItemInfo( view->autoName(), view, false, view->uiIconProvider() ) );
+            }
+        }
+    }
+    else if ( fieldNeedingOptions == &m_destinationCase )
+    {
+        if ( inputCases().empty() )
+        {
+            RimTools::eclipseCaseOptionItems( &options );
+        }
+        else
+        {
+            RimEclipseCase* firstInputCase = inputCases()[0];
+
+            RimProject* proj = RimProject::current();
+            if ( proj )
+            {
+                std::vector<RimCase*> cases;
+                proj->allCases( cases );
+
+                for ( RimCase* c : cases )
+                {
+                    auto* eclipseCase = dynamic_cast<RimEclipseCase*>( c );
+                    if ( !eclipseCase ) continue;
+                    if ( !firstInputCase->isGridSizeEqualTo( eclipseCase ) ) continue;
+
+                    options.push_back( caf::PdmOptionItemInfo( c->caseUserDescription(), c, false, c->uiIconProvider() ) );
+                }
+            }
+        }
+
+        options.push_front( caf::PdmOptionItemInfo( "None", nullptr ) );
+    }
+    else if ( fieldNeedingOptions == &m_defaultPropertyVariableIndex )
+    {
+        for ( int i = 0; i < static_cast<int>( m_variables.size() ); i++ )
+        {
+            auto v = dynamic_cast<RimGridCalculationVariable*>( m_variables[i] );
+
+            QString optionText = v->name();
+            options.push_back( caf::PdmOptionItemInfo( optionText, i ) );
+        }
+    }
+    return options;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::initAfterRead()
+{
+    for ( auto& variable : m_variables )
+    {
+        auto gridVar = dynamic_cast<RimGridCalculationVariable*>( variable.p() );
+        if ( gridVar )
+        {
+            gridVar->eclipseResultChanged.connect( this, &RimGridCalculation::onVariableUpdated );
+
+            if ( m_destinationCase == nullptr ) m_destinationCase = gridVar->eclipseCase();
+        }
+    }
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
+{
+    if ( m_destinationCase == nullptr )
+    {
+        auto variable = dynamic_cast<const RimGridCalculationVariable*>( emitter );
+        if ( variable && variable->eclipseCase() )
+        {
+            m_destinationCase = variable->eclipseCase();
+        }
+    }
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -289,22 +436,31 @@ void RimGridCalculation::replaceFilteredValuesWithDefaultValue( double          
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-void RimGridCalculation::filterResults( RimGridView*                                 cellFilterView,
-                                        const std::vector<std::vector<double>>&      values,
-                                        RimGridCalculationVariable::DefaultValueType defaultValueType,
-                                        double                                       defaultValue,
-                                        std::vector<double>&                         resultValues ) const
+void RimGridCalculation::filterResults( RimGridView*                            cellFilterView,
+                                        const std::vector<std::vector<double>>& values,
+                                        RimGridCalculation::DefaultValueType    defaultValueType,
+                                        double                                  defaultValue,
+                                        std::vector<double>&                    resultValues ) const
 {
     auto visibility = cellFilterView->currentTotalCellVisibility();
 
-    if ( defaultValueType == RimGridCalculationVariable::DefaultValueType::FROM_PROPERTY )
+    if ( defaultValueType == RimGridCalculation::DefaultValueType::FROM_PROPERTY )
     {
-        int filterVariableIndex = findFilterVariableIndex();
-        replaceFilteredValuesWithVector( values[filterVariableIndex], visibility, resultValues );
+        if ( m_defaultPropertyVariableIndex < static_cast<int>( values.size() ) )
+            replaceFilteredValuesWithVector( values[m_defaultPropertyVariableIndex], visibility, resultValues );
+        else
+        {
+            QString errorMessage =
+                "Invalid input data for default result property, no data assigned to non-visible cells.";
+            RiaLogging::errorInMessageBox( nullptr, "Grid Property Calculator", errorMessage );
+        }
     }
     else
     {
-        replaceFilteredValuesWithDefaultValue( defaultValue, visibility, resultValues );
+        double valueToUse = defaultValue;
+        if ( defaultValueType == RimGridCalculation::DefaultValueType::POSITIVE_INFINITY ) valueToUse = HUGE_VAL;
+
+        replaceFilteredValuesWithDefaultValue( valueToUse, visibility, resultValues );
     }
 }
 
@@ -313,7 +469,7 @@ void RimGridCalculation::filterResults( RimGridView*                            
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::updateDependentObjects()
 {
-    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    RimEclipseCase* eclipseCase = destinationEclipseCase();
     if ( eclipseCase )
     {
         RimReloadCaseTools::updateAll3dViews( eclipseCase );
@@ -331,7 +487,7 @@ void RimGridCalculation::removeDependentObjects()
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
 
-    RimEclipseCase* eclipseCase = findEclipseCaseFromVariables();
+    RimEclipseCase* eclipseCase = destinationEclipseCase();
     if ( eclipseCase )
     {
         // Select "None" result if the result that is being removed were displayed in a view.

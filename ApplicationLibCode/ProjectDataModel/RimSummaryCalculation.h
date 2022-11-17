@@ -37,5 +37,5 @@ public:
     void removeDependentObjects() override;
 
 protected:
-    RimSummaryCalculationVariable* createVariable() const override;
+    RimSummaryCalculationVariable* createVariable() override;
 };

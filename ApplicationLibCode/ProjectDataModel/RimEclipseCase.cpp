@@ -36,6 +36,7 @@
 #include "RigActiveCellInfo.h"
 #include "RigCaseCellResultsData.h"
 #include "RigEclipseCaseData.h"
+#include "RigGridManager.h"
 #include "RigMainGrid.h"
 #include "RigNNCData.h"
 #include "RigSimWellData.h"
@@ -268,6 +269,19 @@ const RigMainGrid* RimEclipseCase::mainGrid() const
     }
 
     return nullptr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool RimEclipseCase::isGridSizeEqualTo( const RimEclipseCase* otherCase ) const
+{
+    if ( !mainGrid() || !otherCase || !otherCase->mainGrid() )
+    {
+        return false;
+    }
+
+    return RigGridManager::isMainGridDimensionsEqual( mainGrid(), otherCase->mainGrid() );
 }
 
 //--------------------------------------------------------------------------------------------------

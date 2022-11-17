@@ -93,6 +93,7 @@
 #include <QLayout>
 #include <QMdiSubWindow>
 #include <QMenuBar>
+#include <QMimeData>
 #include <QSpinBox>
 #include <QStatusBar>
 #include <QTimer>
@@ -138,6 +139,8 @@ RiuMainWindow::RiuMainWindow()
     createMenus();
     createToolBars();
     createDockPanels();
+
+    setAcceptDrops( true );
 
     if ( m_undoView )
     {
@@ -1987,4 +1990,37 @@ QStringList RiuMainWindow::defaultDockStateNames()
 QStringList RiuMainWindow::windowsMenuFeatureNames()
 {
     return { "RicTileWindowsFeature", "RicTileWindowsVerticallyFeature", "RicTileWindowsHorizontallyFeature" };
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::dragEnterEvent( QDragEnterEvent* event )
+{
+    if ( event->mimeData()->hasUrls() ) event->acceptProposedAction();
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+void RiuMainWindow::dropEvent( QDropEvent* event )
+{
+    if ( !event ) return;
+    if ( !event->mimeData()->hasUrls() ) return;
+
+    for ( const auto& url : event->mimeData()->urls() )
+    {
+        QString fileName = url.toLocalFile();
+
+        QFileInfo fi( fileName );
+        if ( fi.exists() )
+        {
+            if ( RiaGuiApplication::instance()->openFile( fileName ) )
+            {
+                RiaGuiApplication::instance()->addToRecentFiles( fileName );
+            }
+        }
+    }
+
+    event->acceptProposedAction();
 }

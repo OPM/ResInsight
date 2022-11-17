@@ -78,7 +78,7 @@ private:
     QString nncResultText();
     QString wellResultText();
 
-    QString                    cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions );
+    QString cellResultText( const std::vector<RimEclipseResultDefinition*>& resultDefinitions, bool appendCaseName = false );
     std::map<QString, QString> cellResultTextAndValueText( RimEclipseResultDefinition* resultDefinition );
 
     void appendTextFromResultColors( RigEclipseCaseData*         eclipseCase,
@@ -87,6 +87,8 @@ private:
                                      size_t                      timeStepIndex,
                                      RimEclipseResultDefinition* resultColors,
                                      QString*                    resultInfoText );
+
+    std::pair<bool, QStringList> resultTextFromLinkedViews() const;
 
 private:
     caf::PdmPointer<RimGridView>    m_displayCoordView;

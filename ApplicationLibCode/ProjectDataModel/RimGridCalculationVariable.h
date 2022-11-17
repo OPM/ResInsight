@@ -25,10 +25,10 @@
 #include "cafPdmField.h"
 #include "cafPdmObject.h"
 #include "cafPdmPtrField.h"
+#include "cafSignal.h"
 
 class RimEclipseCase;
 class RimEclipseResultAddress;
-class RimGridView;
 class RigCaseCellResultsData;
 
 //==================================================================================================
@@ -40,14 +40,9 @@ class RimGridCalculationVariable : public RimUserDefinedCalculationVariable
     CAF_PDM_HEADER_INIT;
 
 public:
-    enum class DefaultValueType
-    {
-        POSITIVE_INFINITY,
-        FROM_PROPERTY,
-        USER_DEFINED
-    };
-
     RimGridCalculationVariable();
+
+    caf::Signal<> eclipseResultChanged;
 
     QString displayString() const override;
 
@@ -55,12 +50,6 @@ public:
     RiaDefines::ResultCatType resultCategoryType() const;
     QString                   resultVariable() const;
     int                       timeStep() const;
-    RimGridView*              cellFilterView() const;
-    double                    defaultValue() const;
-    DefaultValueType          defaultValueType() const;
-
-    using DefaultValueConfig = std::pair<RimGridCalculationVariable::DefaultValueType, double>;
-    DefaultValueConfig defaultValueConfiguration() const;
 
     static int allTimeStepsValue();
 
@@ -81,7 +70,4 @@ private:
     caf::PdmField<caf::AppEnum<RiaDefines::ResultCatType>> m_resultType;
     caf::PdmField<QString>                                 m_resultVariable;
     caf::PdmField<int>                                     m_timeStep;
-    caf::PdmPtrField<RimGridView*>                         m_cellFilterView;
-    caf::PdmField<caf::AppEnum<DefaultValueType>>          m_defaultValueType;
-    caf::PdmField<double>                                  m_defaultValue;
 };
