@@ -53,6 +53,9 @@ public:
     caf::PdmField<bool>    appendTestsAfterTestFilter;
     caf::PdmField<bool>    invalidateExternalFilePaths;
 
+    caf::PdmField<bool> exportSnapshots3dViews;
+    caf::PdmField<bool> exportSnapshotsPlots;
+
     caf::PdmField<caf::AppEnum<PlotEngine>> overridePlotEngine;
 
 protected:
