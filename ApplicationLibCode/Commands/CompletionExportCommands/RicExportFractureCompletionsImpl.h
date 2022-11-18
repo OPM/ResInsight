@@ -20,6 +20,8 @@
 
 #include "RigCompletionData.h"
 
+#include "cvfVector3.h"
+
 #include <gsl/gsl>
 
 #include <map>
@@ -150,6 +152,9 @@ private:
                                                RigTransmissibilityCondenser& transCondenser,
                                                const RigMainGrid*            mainGrid,
                                                const RigFractureGrid*        fractureGrid );
+
+    static std::vector<cvf::Vec3d> computeWellPointsInFracturePlane( gsl::not_null<const RimFracture*> fracture,
+                                                                     gsl::not_null<const RigWellPath*> wellPathGeometry );
 
     static bool loadResultsByName( RigCaseCellResultsData* cellResultsData, const std::vector<QString>& resultNames );
 };
