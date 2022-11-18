@@ -498,6 +498,7 @@ void RimMeshFractureTemplate::defineUiOrdering( QString uiConfigName, caf::PdmUi
         group->add( &m_conductivityResultNameOnFile );
         group->add( &m_conductivityType );
         group->add( &m_skinFactor );
+        group->add( &m_userDefinedPerforationLength );
         group->add( &m_perforationLength );
         group->add( &m_perforationEfficiency );
         group->add( &m_wellDiameter );

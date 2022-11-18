@@ -489,6 +489,7 @@ void RimEllipseFractureTemplate::defineUiOrdering( QString uiConfigName, caf::Pd
         group->add( &m_permeability );
         group->add( &m_width );
         group->add( &m_skinFactor );
+        group->add( &m_userDefinedPerforationLength );
         group->add( &m_perforationLength );
         group->add( &m_perforationEfficiency );
         group->add( &m_wellDiameter );
