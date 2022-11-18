@@ -897,11 +897,10 @@ bool RimViewController::isPropertyFilterControlPossible() const
     }
 
     auto* eclipseView = dynamic_cast<RimEclipseView*>( masterView() );
-
     if ( eclipseView )
     {
         RimEclipseView* depEclipseView = managedEclipseView();
-        if ( depEclipseView && eclipseView->eclipseCase() == depEclipseView->eclipseCase() )
+        if ( depEclipseView && eclipseView->eclipseCase()->isGridSizeEqualTo( depEclipseView->eclipseCase() ) )
         {
             return true;
         }
