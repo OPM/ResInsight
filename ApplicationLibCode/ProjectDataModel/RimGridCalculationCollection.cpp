@@ -18,6 +18,8 @@
 
 #include "RimGridCalculationCollection.h"
 
+#include "RiaLogging.h"
+#include "RigEclipseResultAddress.h"
 #include "RimGridCalculation.h"
 
 #include "cafPdmUiGroup.h"
@@ -38,6 +40,59 @@ RimGridCalculationCollection::RimGridCalculationCollection()
 RimGridCalculation* RimGridCalculationCollection::createCalculation() const
 {
     return new RimGridCalculation;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+std::vector<RimGridCalculation*> RimGridCalculationCollection::sortedGridCalculations() const
+{
+    std::vector<RimGridCalculation*> sortedCalculations;
+    for ( auto userCalculation : calculations() )
+    {
+        auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation );
+        if ( gridCalculation ) sortedCalculations.emplace_back( gridCalculation );
+    }
+
+    // Check if source calculation is depending on other. Will check one level dependency.
+    auto isSourceDependingOnOther = []( const RimGridCalculation* source, const RimGridCalculation* other ) -> bool {
+        auto outputCase = source->outputEclipseCase();
+        auto outputAdr  = source->outputAddress();
+
+        for ( auto v : other->allVariables() )
+        {
+            auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( v );
+            if ( gridVariable->eclipseCase() == outputCase &&
+                 outputAdr.resultCatType() == gridVariable->resultCategoryType() &&
+                 outputAdr.resultName() == gridVariable->resultVariable() )
+            {
+                return true;
+            }
+        }
+
+        return false;
+    };
+
+    for ( auto source : sortedCalculations )
+    {
+        for ( auto other : sortedCalculations )
+        {
+            if ( source == other ) continue;
+
+            if ( isSourceDependingOnOther( source, other ) && isSourceDependingOnOther( other, source ) )
+            {
+                QString txt = "Detected circular dependency between " + source->description() + " and " +
+                              other->description();
+                RiaLogging::error( txt );
+
+                return sortedCalculations;
+            }
+        }
+    }
+
+    std::sort( sortedCalculations.begin(), sortedCalculations.end(), isSourceDependingOnOther );
+
+    return sortedCalculations;
 }
 
 //--------------------------------------------------------------------------------------------------

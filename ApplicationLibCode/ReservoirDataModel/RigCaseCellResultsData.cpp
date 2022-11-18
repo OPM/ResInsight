@@ -2906,7 +2906,7 @@ void RigCaseCellResultsData::computeCompletionTypeForTimeStep( size_t timeStep )
         for ( auto userCalculation : RimProject::current()->gridCalculationCollection()->calculations() )
         {
             auto gridCalculation = dynamic_cast<RimGridCalculation*>( userCalculation );
-            if ( gridCalculation && gridCalculation->destinationEclipseCase() != eclipseCase ) continue;
+            if ( gridCalculation && gridCalculation->outputEclipseCase() != eclipseCase ) continue;
 
             QString generatedPropertyName = userCalculation->findLeftHandSide( userCalculation->expression() );
             if ( generatedPropertyName == propertyName )

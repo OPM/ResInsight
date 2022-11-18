@@ -85,7 +85,7 @@ bool RimGridCalculation::calculate()
 {
     QString leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
 
-    RimEclipseCase* eclipseCase = destinationEclipseCase();
+    RimEclipseCase* eclipseCase = outputEclipseCase();
     if ( !eclipseCase )
     {
         RiaLogging::errorInMessageBox( nullptr,
@@ -183,7 +183,7 @@ bool RimGridCalculation::calculate()
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
-RimEclipseCase* RimGridCalculation::destinationEclipseCase() const
+RimEclipseCase* RimGridCalculation::outputEclipseCase() const
 {
     return m_destinationCase;
 }
@@ -203,6 +203,28 @@ std::vector<RimEclipseCase*> RimGridCalculation::inputCases() const
     }
 
     return cases;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
+bool operator<( const RimGridCalculation& a, const RimGridCalculation& b )
+{
+    auto destinationCase = a.outputEclipseCase();
+    auto destinationAdr  = a.outputAddress();
+
+    for ( auto v : b.allVariables() )
+    {
+        auto gridVariable = dynamic_cast<RimGridCalculationVariable*>( v );
+        if ( gridVariable->eclipseCase() == destinationCase &&
+             destinationAdr.resultCatType() == gridVariable->resultCategoryType() &&
+             destinationAdr.resultName() == gridVariable->resultVariable() )
+        {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 //--------------------------------------------------------------------------------------------------
@@ -348,6 +370,16 @@ void RimGridCalculation::onVariableUpdated( const SignalEmitter* emitter )
 //--------------------------------------------------------------------------------------------------
 ///
 //--------------------------------------------------------------------------------------------------
+RigEclipseResultAddress RimGridCalculation::outputAddress() const
+{
+    QString                 leftHandSideVariableName = RimGridCalculation::findLeftHandSide( m_expression );
+    RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
+    return resAddr;
+}
+
+//--------------------------------------------------------------------------------------------------
+///
+//--------------------------------------------------------------------------------------------------
 std::vector<double> RimGridCalculation::getInputVectorForVariable( RimGridCalculationVariable*   v,
                                                                    size_t                        tsId,
                                                                    RiaDefines::PorosityModelType porosityModel ) const
@@ -469,7 +501,7 @@ void RimGridCalculation::filterResults( RimGridView*                            
 //--------------------------------------------------------------------------------------------------
 void RimGridCalculation::updateDependentObjects()
 {
-    RimEclipseCase* eclipseCase = destinationEclipseCase();
+    RimEclipseCase* eclipseCase = outputEclipseCase();
     if ( eclipseCase )
     {
         RimReloadCaseTools::updateAll3dViews( eclipseCase );
@@ -487,7 +519,7 @@ void RimGridCalculation::removeDependentObjects()
 
     RigEclipseResultAddress resAddr( RiaDefines::ResultCatType::GENERATED, leftHandSideVariableName );
 
-    RimEclipseCase* eclipseCase = destinationEclipseCase();
+    RimEclipseCase* eclipseCase = outputEclipseCase();
     if ( eclipseCase )
     {
         // Select "None" result if the result that is being removed were displayed in a view.
